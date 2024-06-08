@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "The Source Taster",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html"
+  }
+}
