@@ -8,6 +8,13 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.20.0",
-    "eslint": "^9.4.0"
+    "eslint": "^9.4.0",
+    "simple-git-hooks": "^2.11.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }
