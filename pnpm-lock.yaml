@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      chrome-types:
+        specifier: ^0.1.287
+        version: 0.1.287
+
+packages:
+
+  chrome-types@0.1.287:
+    resolution: {integrity: sha512-4M/l4tVZxCP1asQMH+9q6jRA9OTBnY1/eV+CdM3yXwnV4mvA5zXAczqFuQLK9UWJKx825NjJ0hDpvz9dWbZJfA==}
+
+snapshots:
+
+  chrome-types@0.1.287: {}
