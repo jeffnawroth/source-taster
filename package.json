@@ -7,9 +7,9 @@
     "chrome-types": "^0.1.287"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.20.0",
-    "eslint": "^9.4.0",
-    "lint-staged": "^15.2.5",
+    "@antfu/eslint-config": "^2.21.1",
+    "eslint": "^9.5.0",
+    "lint-staged": "^15.2.7",
     "simple-git-hooks": "^2.11.1"
   },
   "simple-git-hooks": {
