@@ -4,6 +4,7 @@
     "antfu.iconify",
     "antfu.unocss",
     "dbaeumer.vscode-eslint",
-    "csstools.postcss"
+    "csstools.postcss",
+    "editorconfig.editorconfig"
   ]
 }
