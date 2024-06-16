@@ -1,6 +1,9 @@
 {
   "recommendations": [
+    "vue.volar",
+    "antfu.iconify",
+    "antfu.unocss",
     "dbaeumer.vscode-eslint",
-    "editorconfig.editorconfig"
+    "csstools.postcss"
   ]
 }

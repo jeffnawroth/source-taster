@@ -1,32 +1,17 @@
-# Node modules directory
-node_modules/
-
-# Build directories
-dist/
-build/
-
-# Local environment settings
-.env.local
-.env.*.local
-
-# Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# OS-specific files
 .DS_Store
-Thumbs.db
-
-# Chrome extension specific files
+.idea/
+.vite-ssg-dist
+.vite-ssg-temp
+*.crx
+*.local
+*.log
 *.pem
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.xpi
+*.zip
+dist
+dist-ssr
+extension/manifest.json
+node_modules
+src/auto-imports.d.ts
+src/components.d.ts
+.eslintcache
