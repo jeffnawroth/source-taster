@@ -9,6 +9,7 @@ import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import UnoCSS from 'unocss/vite'
+import Vuetify from 'vite-plugin-vuetify'
 import { isDev, port, r } from './scripts/utils'
 import packageJson from './package.json'
 
@@ -25,6 +26,7 @@ export const sharedConfig: UserConfig = {
   },
   plugins: [
     Vue(),
+    Vuetify(),
 
     AutoImport({
       imports: [

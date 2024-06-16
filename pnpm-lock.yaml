@@ -101,6 +101,9 @@ importers:
       vite:
         specifier: ^5.3.1
         version: 5.3.1(@types/node@20.14.2)
+      vite-plugin-vuetify:
+        specifier: ^2.0.3
+        version: 2.0.3(vite@5.3.1(@types/node@20.14.2))(vue@3.4.29(typescript@5.4.5))(vuetify@3.6.9)
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.2)(jsdom@24.1.0)
@@ -110,6 +113,9 @@ importers:
       vue-demi:
         specifier: ^0.14.8
         version: 0.14.8(vue@3.4.29(typescript@5.4.5))
+      vuetify:
+        specifier: ^3.6.9
+        version: 3.6.9(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.29(typescript@5.4.5))
       web-ext:
         specifier: ^8.1.0
         version: 8.1.0
@@ -1012,6 +1018,12 @@ packages:
 
   '@vue/test-utils@2.4.6':
     resolution: {integrity: sha512-FMxEjOpYNYiFe0GkaHsnJPXFHxQ6m4t8vI/ElPGpMWxZKpmRvQ33OIrvRXemy6yha03RxhOlQuy+gZMC3CQSow==}
+
+  '@vuetify/loader-shared@2.0.3':
+    resolution: {integrity: sha512-Ss3GC7eJYkp2SF6xVzsT7FAruEmdihmn4OCk2+UocREerlXKWgOKKzTN5PN3ZVN5q05jHHrsNhTuWbhN61Bpdg==}
+    peerDependencies:
+      vue: ^3.0.0
+      vuetify: ^3.0.0
 
   '@vueuse/core@10.11.0':
     resolution: {integrity: sha512-x3sD4Mkm7PJ+pcq3HX8PLPBadXCAlSDR/waK87dz0gQE+qJnaaFhc/dZVfJz+IUYzTMVGum2QlR7ImiJQN4s6g==}
@@ -4022,6 +4034,14 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
+  vite-plugin-vuetify@2.0.3:
+    resolution: {integrity: sha512-HbYajgGgb/noaVKNRhnnXIiQZrNXfNIeanUGAwXgOxL6h/KULS40Uf51Kyz8hNmdegF+DwjgXXI/8J1PNS83xw==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      vite: '>=5'
+      vue: ^3.0.0
+      vuetify: ^3.0.0
+
   vite@5.3.1:
     resolution: {integrity: sha512-XBmSKRLXLxiaPYamLv3/hnP/KXDai1NDexN0FpkTaZXTfycHvkRHoenpgl/fvuK/kPbB6xAgoyiryAhQNxYmAQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -4101,6 +4121,25 @@ packages:
       typescript: '*'
     peerDependenciesMeta:
       typescript:
+        optional: true
+
+  vuetify@3.6.9:
+    resolution: {integrity: sha512-LVIZL0OCwzg3Aw2F8nT1rK/renpTPOcDEPe5E002Vj+VjXwsCNqwwxNteGfrcNlp0vgIJ8WusMvaxp69UJ3NJg==}
+    engines: {node: ^12.20 || >=14.13}
+    peerDependencies:
+      typescript: '>=4.7'
+      vite-plugin-vuetify: '>=1.0.0'
+      vue: ^3.3.0
+      vue-i18n: ^9.0.0
+      webpack-plugin-vuetify: '>=2.0.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      vite-plugin-vuetify:
+        optional: true
+      vue-i18n:
+        optional: true
+      webpack-plugin-vuetify:
         optional: true
 
   w3c-xmlserializer@5.0.0:
@@ -5340,6 +5379,12 @@ snapshots:
     dependencies:
       js-beautify: 1.15.1
       vue-component-type-helpers: 2.0.21
+
+  '@vuetify/loader-shared@2.0.3(vue@3.4.29(typescript@5.4.5))(vuetify@3.6.9(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.29(typescript@5.4.5)))':
+    dependencies:
+      upath: 2.0.1
+      vue: 3.4.29(typescript@5.4.5)
+      vuetify: 3.6.9(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.29(typescript@5.4.5))
 
   '@vueuse/core@10.11.0(vue@3.4.29(typescript@5.4.5))':
     dependencies:
@@ -8664,6 +8709,17 @@ snapshots:
       - supports-color
       - terser
 
+  vite-plugin-vuetify@2.0.3(vite@5.3.1(@types/node@20.14.2))(vue@3.4.29(typescript@5.4.5))(vuetify@3.6.9):
+    dependencies:
+      '@vuetify/loader-shared': 2.0.3(vue@3.4.29(typescript@5.4.5))(vuetify@3.6.9(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.29(typescript@5.4.5)))
+      debug: 4.3.5
+      upath: 2.0.1
+      vite: 5.3.1(@types/node@20.14.2)
+      vue: 3.4.29(typescript@5.4.5)
+      vuetify: 3.6.9(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.29(typescript@5.4.5))
+    transitivePeerDependencies:
+      - supports-color
+
   vite@5.3.1(@types/node@20.14.2):
     dependencies:
       esbuild: 0.21.5
@@ -8735,6 +8791,13 @@ snapshots:
       '@vue/shared': 3.4.29
     optionalDependencies:
       typescript: 5.4.5
+
+  vuetify@3.6.9(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.29(typescript@5.4.5)):
+    dependencies:
+      vue: 3.4.29(typescript@5.4.5)
+    optionalDependencies:
+      typescript: 5.4.5
+      vite-plugin-vuetify: 2.0.3(vite@5.3.1(@types/node@20.14.2))(vue@3.4.29(typescript@5.4.5))(vuetify@3.6.9)
 
   w3c-xmlserializer@5.0.0:
     dependencies:
