@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 // Watcher
-watch(() => props.dois, getDOIsMetadata, { immediate: true })
+watch(() => props.dois, getDOIsMetadata)
 
 // Client
 const client = new CrossrefClient()
@@ -99,10 +99,8 @@ async function getDOIsMetadata() {
             <v-btn
               v-if="work.ok"
               density="compact"
-
               icon="i-mdi-open-in-new"
               variant="plain"
-
               size="large"
             />
 
