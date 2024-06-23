@@ -126,11 +126,19 @@ async function getAllDOIsMetadata() {
 </script>
 
 <template>
-  <v-card flat min-width="400px" title="The Source Taster">
+  <v-card
+    flat
+    min-width="400px"
+    title="The Source Taster"
+  >
     <template #append>
       <v-tooltip>
         <template #activator="{ props }">
-          <v-icon size="large" icon="i-mdi-help-circle-outline" v-bind="props" />
+          <v-icon
+            size="large"
+            icon="i-mdi-help-circle-outline"
+            v-bind="props"
+          />
         </template>
         <p class="text-h6">
           How does it work?
@@ -139,7 +147,16 @@ async function getAllDOIsMetadata() {
       </v-tooltip>
     </template>
     <v-card-text>
-      <v-textarea v-model="bibliography" auto-grow :placeholder hide-details max-rows="8" :rows="3" autofocus @update:model-value="getAllDOIsMetadata" />
+      <v-textarea
+        v-model="bibliography"
+        auto-grow
+        :placeholder
+        hide-details
+        max-rows="8"
+        :rows="3"
+        autofocus
+        @update:model-value="getAllDOIsMetadata"
+      />
     </v-card-text>
   </v-card>
 
@@ -157,9 +174,18 @@ async function getAllDOIsMetadata() {
     </v-card-subtitle>
     <v-card-text>
       <v-list>
-        <v-list-item v-for="work in metadata" :key="work" color="error" :active="work.status !== 'ok'">
+        <v-list-item
+          v-for="work in metadata"
+          :key="work"
+          color="error"
+          :active="work.status !== 'ok'"
+        >
           <template #prepend>
-            <v-icon size="x-large" :color="work.status === 'ok' ? 'success' : 'error'" :icon="work.status === 'ok' ? 'i-mdi-check-circle-outline' : 'i-mdi-close-circle-outline'" />
+            <v-icon
+              size="x-large"
+              :color="work.status === 'ok' ? 'success' : 'error'"
+              :icon="work.status === 'ok' ? 'i-mdi-check-circle-outline' : 'i-mdi-close-circle-outline'"
+            />
           </template>
 
           <v-list-item-title>
