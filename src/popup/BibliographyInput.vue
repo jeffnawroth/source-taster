@@ -1,10 +1,21 @@
 <script setup lang="ts">
+import { onMessage } from 'webext-bridge/popup'
+
 // Props
 const dois = defineModel<string[]>({ required: true, default: [] })
 
 // Data
 const bibliography = ref('')
+
+// Listen for messages
+onMessage('bibliography', ({ data }) => {
+  bibliography.value = data.selectedText
+})
+
 const placeholder = 'Insert your bibliography here. For example: https://doi.org/10.1111/dome.12082'
+
+// Watchers
+watch(() => bibliography.value, () => extractDOIs())
 
 // Functions
 
@@ -35,6 +46,5 @@ function extractDOIs() {
     max-rows="8"
     :rows="3"
     autofocus
-    @update:model-value="extractDOIs"
   />
 </template>
