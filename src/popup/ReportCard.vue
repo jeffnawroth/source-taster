@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { CrossrefClient } from '@jamesgopsill/crossref-client'
+import { useClipboard } from '@vueuse/core'
 
+// Props
 const props = defineProps<{
   dois: string[]
 }>()
 
+// Watcher
 watch(() => props.dois, getDOIsMetadata, { immediate: true })
 
 // Client
@@ -14,6 +17,7 @@ const client = new CrossrefClient()
 // Data
 const loading = ref(false)
 const works = ref<HttpResponse<Item<Work>>[]>([])
+const { copy, copied } = useClipboard()
 
 // Number of DOIs that passed the check
 const passed = computed(() => works.value.filter(work => work.ok && work.status === 200).length)
@@ -79,12 +83,19 @@ async function getDOIsMetadata() {
           </v-list-item-subtitle>
 
           <template #append>
-            <v-btn
-              density="compact"
-              icon="i-mdi-content-copy"
-              variant="plain"
-              size="large"
-            />
+            <v-tooltip>
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  density="compact"
+                  icon="i-mdi-content-copy"
+                  variant="plain"
+                  size="large"
+                  @click="copy(work.ok ? work.content.message.DOI : getNotFoundDOI(work))"
+                />
+              </template>
+              {{ copied ? "DOI Copied!" : "Copy DOI" }}
+            </v-tooltip>
             <v-btn
               v-if="work.ok"
               density="compact"
