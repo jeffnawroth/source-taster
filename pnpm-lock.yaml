@@ -17,6 +17,9 @@ importers:
       '@iconify/json':
         specifier: ^2.2.221
         version: 2.2.221
+      '@jamesgopsill/crossref-client':
+        specifier: ^1.1.0
+        version: 1.1.0
       '@playwright/test':
         specifier: ^1.44.1
         version: 1.44.1
@@ -575,6 +578,10 @@ packages:
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
+
+  '@jamesgopsill/crossref-client@1.1.0':
+    resolution: {integrity: sha512-H6if9z/oPdxDHgxxK32t1Yx+Xk8LPS/Jj2zJSJ8huwMNbnGKcU23pY5veVzdgWEAZ1hpjXRNnJvefyD326gBaQ==}
+    engines: {node: '>=19.0.0'}
 
   '@jest/schemas@29.6.3':
     resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
@@ -4844,6 +4851,8 @@ snapshots:
       strip-ansi-cjs: strip-ansi@6.0.1
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
+
+  '@jamesgopsill/crossref-client@1.1.0': {}
 
   '@jest/schemas@29.6.3':
     dependencies:

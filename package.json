@@ -34,6 +34,7 @@
     "@antfu/eslint-config": "^2.21.1",
     "@ffflorian/jszip-cli": "^3.6.4",
     "@iconify/json": "^2.2.221",
+    "@jamesgopsill/crossref-client": "^1.1.0",
     "@playwright/test": "^1.44.1",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.14.8",
