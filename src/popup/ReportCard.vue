@@ -95,7 +95,7 @@ function openDOI(work: HttpResponse<Item<Work>>) {
 
           <template #append>
             <v-tooltip>
-              <template #activator="{ tooltipProps }">
+              <template #activator="{ props: tooltipProps }">
                 <v-btn
                   v-bind="tooltipProps"
                   density="compact"
@@ -108,7 +108,7 @@ function openDOI(work: HttpResponse<Item<Work>>) {
               {{ copied ? "DOI Copied!" : "Copy DOI" }}
             </v-tooltip>
             <v-tooltip v-if="work.ok">
-              <template #activator="{ tooltipProps }">
+              <template #activator="{ props: tooltipProps }">
                 <v-btn
                   v-bind="tooltipProps"
                   density="compact"
@@ -124,7 +124,7 @@ function openDOI(work: HttpResponse<Item<Work>>) {
             <v-tooltip
               v-else
             >
-              <template #activator="{ tooltipProps }">
+              <template #activator="{ props: tooltipProps }">
                 <v-btn
                   density="compact"
                   v-bind="tooltipProps"
