@@ -45,6 +45,17 @@ async function getDOIsMetadata() {
     }
   }
 }
+
+// Opens the resolved DOI URL in a new tab if it exists
+function openDOI(work: HttpResponse<Item<Work>>) {
+  if (work && work.ok && work.content?.message.URL) {
+    const url = work.content.message.URL
+    window.open(url, '_blank')
+  }
+  else {
+    console.error('Invalid URL or DOI not found:', work)
+  }
+}
 </script>
 
 <template>
@@ -84,9 +95,9 @@ async function getDOIsMetadata() {
 
           <template #append>
             <v-tooltip>
-              <template #activator="{ props }">
+              <template #activator="{ tooltipProps }">
                 <v-btn
-                  v-bind="props"
+                  v-bind="tooltipProps"
                   density="compact"
                   icon="mdi-content-copy"
                   variant="plain"
@@ -96,22 +107,27 @@ async function getDOIsMetadata() {
               </template>
               {{ copied ? "DOI Copied!" : "Copy DOI" }}
             </v-tooltip>
-            <v-btn
-              v-if="work.ok"
-              density="compact"
-              icon="mdi-open-in-new"
-              variant="plain"
-              size="large"
-              :href="work.content.message.URL"
-            />
+            <v-tooltip v-if="work.ok">
+              <template #activator="{ tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  density="compact"
+                  icon="mdi-open-in-new"
+                  variant="plain"
+                  size="large"
+                  @click="() => openDOI(work)"
+                />
+              </template>
+              Open Source
+            </v-tooltip>
 
             <v-tooltip
               v-else
             >
-              <template #activator="{ props }">
+              <template #activator="{ tooltipProps }">
                 <v-btn
                   density="compact"
-                  v-bind="props"
+                  v-bind="tooltipProps"
                   icon="mdi-information-outline "
                   variant="plain"
 
