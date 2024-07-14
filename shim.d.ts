@@ -5,5 +5,6 @@ declare module 'webext-bridge' {
     // define message protocol types
     // see https://github.com/antfu/webext-bridge#type-safe-protocols
     bibliography: { selectedText: string }
+    autoImportBibliography: { selectedText: string }
   }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMessage } from 'webext-bridge/popup'
+import { autoImportOption } from '~/logic'
 
 // Props
 const dois = defineModel<string[]>({ required: true, default: [] })
@@ -12,10 +13,18 @@ onMessage('bibliography', ({ data }) => {
   bibliography.value = data.selectedText
 })
 
-const placeholder = 'Insert your bibliography here. For example: https://doi.org/10.1111/dome.12082'
+onMessage('autoImportBibliography', ({ data }) => {
+  if (autoImportOption.value) {
+    bibliography.value = data.selectedText
+  }
+})
+
+const placeholder = computed(() => autoImportOption.value ? 'Refresh the page for auto import' : 'Insert your bibliography here. For example: https://doi.org/10.1111/dome.12082')
 
 // Watchers
 watch(() => bibliography.value, () => extractDOIs())
+
+watch(autoImportOption, () => bibliography.value = '')
 
 // Functions
 
