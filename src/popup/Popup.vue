@@ -4,6 +4,10 @@ import ReportCard from './ReportCard.vue'
 
 const dois = ref<string[]>([])
 
+function openOptionsPage() {
+  browser.runtime.openOptionsPage()
+}
+
 // Computed Props
 </script>
 
@@ -14,7 +18,7 @@ const dois = ref<string[]>([])
     title="The Source Taster"
   >
     <template #append>
-      <v-tooltip>
+      <!-- <v-tooltip>
         <template #activator="{ props }">
           <v-icon
             size="large"
@@ -26,8 +30,14 @@ const dois = ref<string[]>([])
           How does it work?
         </p>
         <p><span class="font-italic font-weight-bold">The Source Taster</span> extracts the DOIs from your bibliography and checks them using the CrossRef database.</p>
-      </v-tooltip>
+      </v-tooltip> -->
+      <v-icon
+        icon="i-mdi-cog"
+        size="large"
+        @click="openOptionsPage"
+      />
     </template>
+
     <v-card-text>
       <BibliographyInput v-model="dois" />
     </v-card-text>
