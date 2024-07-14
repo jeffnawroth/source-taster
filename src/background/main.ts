@@ -9,6 +9,16 @@ if (import.meta.hot) {
   import('./contentScriptHMR')
 }
 
+const USE_SIDE_PANEL = true
+
+// to toggle the sidepanel with the action button in chromium:
+if (USE_SIDE_PANEL) {
+  // @ts-expect-error missing types
+  browser.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error: unknown) => console.error(error))
+}
+
 browser.runtime.onInstalled.addListener((): void => {
   // eslint-disable-next-line no-console
   console.log('Extension installed')
