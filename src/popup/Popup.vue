@@ -4,26 +4,12 @@ import ReportCard from './ReportCard.vue'
 
 const dois = ref<string[]>([])
 
-function openOptionsPage() {
-  browser.runtime.openOptionsPage()
-}
-
 // Computed Props
 </script>
 
 <template>
   <v-app>
-    <v-app-bar
-      flat
-      title="The Source Taster"
-    >
-      <template #append>
-        <v-btn
-          icon="mdi-cog"
-          @click="openOptionsPage"
-        />
-      </template>
-    </v-app-bar>
+    <AppBar />
     <v-main>
       <v-container>
         <v-card

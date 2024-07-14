@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { autoImportOption } from '~/logic/storage'
+import { autoImportOption, toggleThemeOption } from '~/logic/storage'
 </script>
 
 <template>
   <v-app>
-    <v-app-bar
-      flat
-      title="The Source Taster - Settings"
-    />
+    <AppBar />
     <v-main>
       <v-container>
         <v-card
@@ -28,6 +25,23 @@ import { autoImportOption } from '~/logic/storage'
                 <v-list-item-action start>
                   <v-checkbox-btn
                     v-model="autoImportOption"
+                    color="primary"
+                  />
+                </v-list-item-action>
+              </template>
+            </v-list-item>
+
+            <v-list-item
+              title="Use Dark Mode"
+              subtitle="Toggle between light and dark mode"
+              @click="toggleThemeOption = toggleThemeOption === 'dark' ? 'light' : 'dark'"
+            >
+              <template #prepend>
+                <v-list-item-action start>
+                  <v-checkbox-btn
+                    v-model="toggleThemeOption"
+                    false-value="light"
+                    true-value="dark"
                     color="primary"
                   />
                 </v-list-item-action>
