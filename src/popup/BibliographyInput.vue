@@ -30,19 +30,21 @@ watch(autoImportOption, () => bibliography.value = '')
 
 // Extracts DOIs from the bibliography
 function extractDOIs() {
-  dois.value = []
+  let extractedDOIs = []
   const doiPattern = /(https:\/\/doi\.org\/)?(10\.\d{4,9}\/[-.\w;()/:]+)/gi
 
   const matches = bibliography.value.match(doiPattern)
-  if (!matches)
-    return []
 
-  dois.value = matches.map((match) => {
+  extractedDOIs = matches?.map((match) => {
     // Remove the prefix if it exists
     const doi = match.replace('https://doi.org/', '')
     // Remove any trailing dot
     return doi.replace(/\.$/, '')
-  })
+  }) || []
+
+  extractedDOIs = [...new Set(extractedDOIs)]
+
+  dois.value = extractedDOIs
 }
 </script>
 
