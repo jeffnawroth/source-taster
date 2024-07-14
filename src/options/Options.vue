@@ -11,14 +11,10 @@ import { autoImportOption } from '~/logic/storage'
           flat
         >
           <v-card-text>
-            <input
-              id="checkbox"
+            <v-checkbox
               v-model="autoImportOption"
-              type="checkbox"
-            >
-            <label for="checkbox">
-              Auto-import for literature
-            </label>
+              label="Auto-import bibliography"
+            />
           </v-card-text>
         </v-card>
       </v-container>

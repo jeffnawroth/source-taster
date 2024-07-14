@@ -4,12 +4,11 @@ import { dirname, relative } from 'node:path'
 import type { UserConfig } from 'vite'
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
-import Icons from 'unplugin-icons/vite'
-import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import UnoCSS from 'unocss/vite'
-import Vuetify from 'vite-plugin-vuetify'
+import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+
+import ViteFonts from 'unplugin-fonts/vite'
 import { isDev, port, r } from './scripts/utils'
 import packageJson from './package.json'
 
@@ -25,8 +24,18 @@ export const sharedConfig: UserConfig = {
     __NAME__: JSON.stringify(packageJson.name),
   },
   plugins: [
-    Vue(),
+    Vue({
+      template: { transformAssetUrls },
+    }),
     Vuetify(),
+    ViteFonts({
+      google: {
+        families: [{
+          name: 'Roboto',
+          styles: 'wght@100;300;400;500;700;900',
+        }],
+      },
+    }),
 
     AutoImport({
       imports: [
@@ -45,19 +54,8 @@ export const sharedConfig: UserConfig = {
       dirs: [r('src/components')],
       // generate `components.d.ts` for ts support with Volar
       dts: r('src/components.d.ts'),
-      resolvers: [
-        // auto import icons
-        IconsResolver({
-          prefix: '',
-        }),
-      ],
+
     }),
-
-    // https://github.com/antfu/unplugin-icons
-    Icons(),
-
-    // https://github.com/unocss/unocss
-    UnoCSS(),
 
     // rewrite assets to use relative path
     {

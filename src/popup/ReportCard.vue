@@ -70,7 +70,7 @@ async function getDOIsMetadata() {
             <v-icon
               size="x-large"
               :color="work.ok ? 'success' : 'error'"
-              :icon="work.ok ? 'i-mdi-check-circle-outline' : 'i-mdi-close-circle-outline'"
+              :icon="work.ok ? 'mdi-check-circle-outline' : 'mdi-close-circle-outline'"
             />
           </template>
 
@@ -88,7 +88,7 @@ async function getDOIsMetadata() {
                 <v-btn
                   v-bind="props"
                   density="compact"
-                  icon="i-mdi-content-copy"
+                  icon="mdi-content-copy"
                   variant="plain"
                   size="large"
                   @click="copy(work.ok ? work.content.message.DOI : getNotFoundDOI(work))"
@@ -99,9 +99,10 @@ async function getDOIsMetadata() {
             <v-btn
               v-if="work.ok"
               density="compact"
-              icon="i-mdi-open-in-new"
+              icon="mdi-open-in-new"
               variant="plain"
               size="large"
+              :href="work.content.message.URL"
             />
 
             <v-tooltip
@@ -111,7 +112,7 @@ async function getDOIsMetadata() {
                 <v-btn
                   density="compact"
                   v-bind="props"
-                  icon="i-mdi-information-outline "
+                  icon="mdi-information-outline "
                   variant="plain"
 
                   size="large"

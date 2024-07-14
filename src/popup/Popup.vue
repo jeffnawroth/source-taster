@@ -22,7 +22,7 @@ function openOptionsPage() {
         <template #activator="{ props }">
           <v-icon
             size="large"
-            icon="i-mdi-help-circle-outline"
+            icon="-mdi-help-circle-outline"
             v-bind="props"
           />
         </template>
@@ -32,7 +32,7 @@ function openOptionsPage() {
         <p><span class="font-italic font-weight-bold">The Source Taster</span> extracts the DOIs from your bibliography and checks them using the CrossRef database.</p>
       </v-tooltip> -->
       <v-icon
-        icon="i-mdi-cog"
+        icon="mdi-cog"
         size="large"
         @click="openOptionsPage"
       />
@@ -43,7 +43,7 @@ function openOptionsPage() {
     </v-card-text>
   </v-card>
 
-  <v-divider class="border-opacity-100" />
+  <v-divider />
 
   <ReportCard :dois />
 </template>
