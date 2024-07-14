@@ -39,6 +39,7 @@ export async function getManifest() {
       'storage',
       'activeTab',
       'contextMenus',
+      'sidePanel',
     ],
     host_permissions: ['*://*/*'],
     content_scripts: [
@@ -63,6 +64,19 @@ export async function getManifest() {
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
         : 'script-src \'self\'; object-src \'self\'',
     },
+  }
+
+  // add sidepanel
+  if (isFirefox) {
+    manifest.sidebar_action = {
+      default_panel: 'dist/sidepanel/index.html',
+    }
+  }
+  else {
+    // the sidebar_action does not work for chromium based
+    manifest.side_panel = {
+      default_path: 'dist/sidepanel/index.html',
+    }
   }
 
   // FIXME: not work in MV3
