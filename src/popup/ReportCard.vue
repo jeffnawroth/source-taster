@@ -137,34 +137,45 @@ function openDOI(work: HttpResponse<Item<Work>>) {
               Open Source
             </v-tooltip>
 
-            <v-tooltip
+            <v-menu
               v-else
+              open-on-hover
             >
-              <template #activator="{ props: tooltipProps }">
+              <template #activator="{ props }">
                 <v-btn
+                  class="cursor-pointer"
+                  v-bind="props"
                   density="compact"
-                  v-bind="tooltipProps"
                   icon="mdi-information-outline "
                   variant="plain"
 
                   size="large"
                 />
               </template>
-              <p class="font-weight-bold text-h6">
-                Why couldn't the work be found?
-              </p>
-              <p class="text-subtitle-1">
-                There could be several reasons for this:
-              </p>
-
-              <ol class="text-body-2">
-                <li>
-                  The DOI was not extracted properly. Please verify the DOI.
-                </li>
-                <li>The DOI is not registered in the CrossRef database. You may want to check other databases.</li>
-                <li>The DOI does not exist.</li>
-              </ol>
-            </v-tooltip>
+              <v-card
+                title="Not Found"
+              >
+                <v-card-subtitle class="no-truncate">
+                  Why couldn't the work be found? There could be several reasons for this:
+                </v-card-subtitle>
+                <v-card-text>
+                  <v-list>
+                    <v-list-item
+                      class="no-truncate"
+                      title="The DOI was not extracted properly"
+                      subtitle="Verify the DOI was extracted correctly from the given bibliography"
+                    />
+                    <v-list-item
+                      title="The DOI is not registered in the CrossRef database"
+                      subtitle="You may want to check other databases"
+                    />
+                    <v-list-item
+                      title="The DOI does not exist."
+                    />
+                  </v-list>
+                </v-card-text>
+              </v-card>
+            </v-menu>
           </template>
         </v-list-item>
       </v-list>
@@ -173,7 +184,7 @@ function openDOI(work: HttpResponse<Item<Work>>) {
           v-show="loading"
           :loading
           indeterminate
-          class="text-center"
+          class="text-center my-4"
         />
       </div>
       <v-empty-state
@@ -185,3 +196,11 @@ function openDOI(work: HttpResponse<Item<Work>>) {
     </v-card-text>
   </v-card>
 </template>
+
+<style scoped>
+.no-truncate {
+  white-space: wrap !important;
+  overflow: visible;
+  text-overflow: initial;
+}
+</style>
