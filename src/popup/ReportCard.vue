@@ -85,7 +85,9 @@ function openDOI(work: HttpResponse<Item<Work>>) {
     <v-card-text
       class="pa-0"
     >
-      <v-list>
+      <v-list
+        v-if="works.length > 0"
+      >
         <v-list-item
           v-for="work in works"
           :key="work.content?.message.DOI"
