@@ -52,9 +52,11 @@ function extractDOIs() {
   <v-textarea
     v-model="bibliography"
     auto-grow
+
     :placeholder
     hide-details
     max-rows="8"
+    variant="outlined"
     :rows="3"
     autofocus
   />

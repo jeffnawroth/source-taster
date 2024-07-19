@@ -24,6 +24,7 @@ watchEffect(() => {
     app
     flat
     title="The Source Taster"
+    density="compact"
   >
     <template #append>
       <v-btn
