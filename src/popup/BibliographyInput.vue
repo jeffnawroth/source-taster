@@ -61,5 +61,6 @@ function extractDOIs() {
     variant="outlined"
     :rows="3"
     autofocus
+    clearable
   />
 </template>
