@@ -53,8 +53,8 @@ function extractDOIs() {
 <template>
   <v-textarea
     v-model="bibliography"
+    label="Bibliography"
     auto-grow
-
     :placeholder
     hide-details
     max-rows="8"
