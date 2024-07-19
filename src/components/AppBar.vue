@@ -28,6 +28,11 @@ watchEffect(() => {
   >
     <template #append>
       <v-btn
+        icon="mdi-github"
+        href="https://github.com/jeffnawroth/source-taster"
+        target="_blank"
+      />
+      <v-btn
         icon="mdi-theme-light-dark"
         @click="toggleTheme"
       />
