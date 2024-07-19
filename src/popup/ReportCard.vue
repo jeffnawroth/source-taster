@@ -60,27 +60,43 @@ function openDOI(work: HttpResponse<Item<Work>>) {
 
 <template>
   <v-card
-    title="Report"
-    :loading
     flat
   >
-    <v-card-subtitle>
-      <p>{{ `Found: ${dois.length}` }}</p>
-      <p>{{ `Passed: ${passed}` }}</p>
-      <p>{{ `Failed: ${failed}` }}</p>
+    <v-card-title class="pa-0">
+      Report
+    </v-card-title>
+    <v-card-subtitle class="pa-0">
+      <span class="mx-1">
+        {{ `Found: ${dois.length}` }}
+      </span>
+      <span
+        class=" mx-1"
+        :class="passed > 0 ? 'text-success' : ''"
+      >
+        {{ `Passed: ${passed}` }}
+      </span>
+      <span
+        class="mx-1"
+        :class="failed > 0 ? 'text-error' : ''"
+      >
+        {{ `Failed: ${failed}` }}
+      </span>
     </v-card-subtitle>
-    <v-card-text>
+    <v-card-text
+      class="pa-0"
+    >
       <v-list>
         <v-list-item
           v-for="work in works"
           :key="work.content?.message.DOI"
-          color="error"
-          :active="!work.ok"
+          rounded="lg"
+          :color="work.ok ? 'success' : 'error'"
+          active
+          class="my-1"
         >
           <template #prepend>
             <v-icon
               size="x-large"
-              :color="work.ok ? 'success' : 'error'"
               :icon="work.ok ? 'mdi-check-circle-outline' : 'mdi-close-circle-outline'"
             />
           </template>
@@ -152,6 +168,20 @@ function openDOI(work: HttpResponse<Item<Work>>) {
           </template>
         </v-list-item>
       </v-list>
+      <div class="text-center">
+        <v-progress-circular
+          v-show="loading"
+          :loading
+          indeterminate
+          class="text-center"
+        />
+      </div>
+      <v-empty-state
+        v-if="works.length === 0 && !loading "
+        icon="mdi-magnify"
+        text="Unable to find matching literature using the provided DOI(s). Please double-check the DOI entries for accuracy. Ensuring correct formatting and completeness can help improve search results."
+        title="We couldn't find a match."
+      />
     </v-card-text>
   </v-card>
 </template>
