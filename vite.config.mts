@@ -1,17 +1,16 @@
 /// <reference types="vitest" />
 
 import { dirname, relative } from 'node:path'
-import type { UserConfig } from 'vite'
-import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
-import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-import fs from 'fs-extra'
-
 import ViteFonts from 'unplugin-fonts/vite'
-import { isDev, port, r } from './scripts/utils'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig } from 'vite'
+import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+
+import type { UserConfig } from 'vite'
 import packageJson from './package.json'
+import { isDev, port, r } from './scripts/utils'
 
 export const sharedConfig: UserConfig = {
   root: r('src'),
@@ -65,18 +64,6 @@ export const sharedConfig: UserConfig = {
       apply: 'build',
       transformIndexHtml(html, { path }) {
         return html.replace(/"\/assets\//g, `"${relative(dirname(path), '/assets')}/`)
-      },
-    },
-    // copy assets during build
-    {
-      name: 'copy-assets',
-      apply: 'build',
-      enforce: 'post',
-      buildStart() {
-        fs.copy(r('src/assets'), r('extension/dist/assets'))
-          // eslint-disable-next-line no-console
-          .then(() => console.log('Assets copied successfully.'))
-          .catch(err => console.error('Error copying assets:', err))
       },
     },
   ],

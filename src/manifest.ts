@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import type { Manifest } from 'webextension-polyfill'
-import type PkgType from '../package.json'
 import { isDev, isFirefox, port, r } from '../scripts/utils'
+import type PkgType from '../package.json'
 
 export async function getManifest() {
   const pkg = await fs.readJSON(r('package.json')) as typeof PkgType
@@ -15,10 +15,10 @@ export async function getManifest() {
     description: pkg.description,
     action: {
       default_icon: {
-        16: 'dist/assets/icon16.png',
-        32: 'dist/assets/icon32.png',
-        48: 'dist/assets/icon48.png',
-        128: 'dist/assets/icon128.png',
+        16: './assets/icon16.png',
+        32: './assets/icon32.png',
+        48: './assets/icon48.png',
+        128: './assets/icon128.png',
       },
       default_popup: './dist/popup/index.html',
     },
@@ -35,10 +35,10 @@ export async function getManifest() {
           service_worker: './dist/background/index.mjs',
         },
     icons: {
-      16: 'dist/assets/icon16.png',
-      32: 'dist/assets/icon32.png',
-      48: 'dist/assets/icon48.png',
-      128: 'dist/assets/icon128.png',
+      16: './assets/icon16.png',
+      32: './assets/icon32.png',
+      48: './assets/icon48.png',
+      128: './assets/icon128.png',
     },
     permissions: [
       'tabs',
