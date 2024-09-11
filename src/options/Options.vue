@@ -17,8 +17,8 @@ import { autoImportOption, toggleThemeOption } from '~/logic/storage'
             <v-list-subheader>General</v-list-subheader>
 
             <v-list-item
-              subtitle="Automatically import bibliography from the current page"
-              title="Auto-import bibliography"
+              subtitle="Automatically detect and import DOIs from the current page"
+              title="Auto-import DOIs"
               @click="autoImportOption = !autoImportOption"
             >
               <template #prepend>
