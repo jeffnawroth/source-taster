@@ -5,6 +5,7 @@ import { useClipboard, useDebounceFn } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import NetworkErrorState from './NetworkErrorState.vue'
 import NoWorksFoundState from './NoWorksFoundState.vue'
+import { generatePDFReport } from './pdfUtils'
 
 // Props
 const props = defineProps<{
@@ -107,15 +108,39 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
 <template>
   <v-card
     flat
+    title="Report"
   >
-    <v-card-title class="pa-0">
+    <template #prepend>
       <v-icon
         icon="mdi-file-document-outline"
-        size="small"
+        size="large"
       />
-      Report
-    </v-card-title>
-    <v-card-subtitle class="pa-0">
+    </template>
+    <template #append>
+      <tooltip>
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            v-bind="tooltipProps"
+            size="large"
+          />
+        </template>
+      </tooltip>
+      <v-tooltip>
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            v-bind="tooltipProps"
+            icon="mdi-export-variant"
+            variant="plain"
+
+            @click="generatePDFReport(dois, failed, passed, works, getNotFoundDOI)"
+          />
+        </template>
+        Export Report as PDF
+      </v-tooltip>
+    </template>
+    <template
+      #subtitle
+    >
       <span class="mx-1">
         {{ `Found: ${dois.length}` }}
       </span>
@@ -131,7 +156,7 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
       >
         {{ `Failed: ${failed}` }}
       </span>
-    </v-card-subtitle>
+    </template>
     <v-card-text
       class="pa-0"
     >
@@ -150,20 +175,17 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
             rounded
           />
         </v-col>
-        <v-col
-          cols="1"
-          class=" d-flex justify-center"
-        >
-          <v-icon
+        <v-col cols="1">
+          <v-btn
             v-if="loading"
             icon="mdi-close"
-            size="large"
+            variant="plain"
             @click="abortFetching"
           />
-          <v-icon
+          <v-btn
             v-else-if="loadAborted"
             icon="mdi-reload"
-            size="large"
+            variant="plain"
             @click="reload"
           />
         </v-col>
@@ -293,4 +315,8 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
   overflow: visible;
   text-overflow: initial;
 }
+
+/* .v-card-title  {
+  padding: 0 !important;
+} */
 </style>
