@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { createApp } from 'vue'
 import { sendMessage } from 'webext-bridge/content-script'
-import App from './views/App.vue'
 import { setupApp } from '~/logic/common-setup'
+import App from './views/App.vue'
 
 // Firefox `browser.tabs.executeScript()` requires scripts return a primitive value
 (() => {

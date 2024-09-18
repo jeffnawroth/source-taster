@@ -1,14 +1,14 @@
 /// <reference types="vitest" />
 
+import type { UserConfig } from 'vite'
 import { dirname, relative } from 'node:path'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import ViteFonts from 'unplugin-fonts/vite'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
-import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
-import type { UserConfig } from 'vite'
+import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import packageJson from './package.json'
 import { isDev, port, r } from './scripts/utils'
 

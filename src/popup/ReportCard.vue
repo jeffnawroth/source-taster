@@ -245,10 +245,10 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
               v-else
               open-on-hover
             >
-              <template #activator="{ props }">
+              <template #activator="{ props: menuProps }">
                 <v-btn
                   class="cursor-pointer"
-                  v-bind="props"
+                  v-bind="menuProps"
                   density="compact"
                   icon="mdi-information-outline "
                   variant="plain"
