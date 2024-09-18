@@ -125,7 +125,7 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
           />
         </template>
       </tooltip>
-      <v-tooltip>
+      <v-tooltip v-if="works.length > 0">
         <template #activator="{ props: tooltipProps }">
           <v-btn
             v-bind="tooltipProps"
