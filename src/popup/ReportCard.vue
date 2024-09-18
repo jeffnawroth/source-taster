@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { CrossrefClient } from '@jamesgopsill/crossref-client'
 import { useClipboard } from '@vueuse/core'
-import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
+import { useTemplateRef } from 'vue'
+import NetworkErrorState from './NetworkErrorState.vue'
+import NoWorksFoundState from './NoWorksFoundState.vue'
 
 // Props
 const props = defineProps<{
@@ -21,11 +24,28 @@ const loadAborted = ref(false)
 const works = ref<HttpResponse<Item<Work>>[]>([])
 const { copy, copied } = useClipboard()
 
+// Template Refs
+
+type NetworkErrorStateType = InstanceType<typeof NetworkErrorState>
+const networkErrorStateRef = useTemplateRef<NetworkErrorStateType>('networkErrorStateRef')
+
 // Number of DOIs that passed the check
 const passed = computed(() => works.value.filter(work => work.ok && work.status === 200).length)
 
 // Number of DOIs that failed the check
 const failed = computed(() => works.value.filter(work => !work.ok).length)
+
+// Watcher
+
+// Watches the network error state
+watch(() => networkErrorStateRef.value?.isOnline, (isOnline) => {
+  if (isOnline) {
+    getDOIsMetadata()
+  }
+  else {
+    abortFetching()
+  }
+})
 
 // Functions
 // Extracts the DOI from the URL
@@ -148,6 +168,12 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
           />
         </v-col>
       </v-row>
+      <NoWorksFoundState
+        v-show="works.length === 0 && !loading && networkErrorStateRef?.isOnline"
+      />
+      <NetworkErrorState
+        ref="networkErrorStateRef"
+      />
       <v-list
         v-if="works.length > 0"
       >
@@ -257,12 +283,6 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
           </template>
         </v-list-item>
       </v-list>
-      <v-empty-state
-        v-if="works.length === 0 && !loading "
-        icon="mdi-magnify"
-        text="Unable to find matching literature using the provided DOI(s). Please double-check the DOI entries for accuracy. Ensuring correct formatting and completeness can help improve search results."
-        title="We couldn't find a match."
-      />
     </v-card-text>
   </v-card>
 </template>
