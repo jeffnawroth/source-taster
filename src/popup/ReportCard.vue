@@ -77,6 +77,11 @@ function openDOI(work: HttpResponse<Item<Work>>) {
     console.error('Invalid URL or DOI not found:', work)
   }
 }
+
+// Removes a report entry
+function removeReportEntry(work: HttpResponse<Item<Work>>) {
+  works.value.splice(works.value.indexOf(work), 1)
+}
 </script>
 
 <template>
@@ -170,6 +175,19 @@ function openDOI(work: HttpResponse<Item<Work>>) {
           </v-list-item-subtitle>
 
           <template #append>
+            <v-tooltip>
+              <template #activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  density="compact"
+                  icon="mdi-delete-outline"
+                  variant="plain"
+                  size="large"
+                  @click="removeReportEntry(work)"
+                />
+              </template>
+              Delete
+            </v-tooltip>
             <v-tooltip>
               <template #activator="{ props: tooltipProps }">
                 <v-btn
