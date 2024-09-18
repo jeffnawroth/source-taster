@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { CrossrefClient } from '@jamesgopsill/crossref-client'
 import { useClipboard } from '@vueuse/core'
+import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 
 // Props
 const props = defineProps<{
@@ -16,6 +16,8 @@ const client = new CrossrefClient()
 
 // Data
 const loading = ref(false)
+const loadAborted = ref(false)
+
 const works = ref<HttpResponse<Item<Work>>[]>([])
 const { copy, copied } = useClipboard()
 
@@ -32,9 +34,16 @@ function getNotFoundDOI(work: HttpResponse<Item<Work>>) {
   return url.replace('https://api.crossref.org/works/', '')
 }
 
+// Fetches the DOIs metadata
 async function getDOIsMetadata() {
+  loadAborted.value = false
   works.value = []
+
   for (const doi of props.dois) {
+    if (loadAborted.value) {
+      break
+    }
+
     try {
       loading.value = true
       const response = await client.work(doi)
@@ -44,6 +53,18 @@ async function getDOIsMetadata() {
       loading.value = false
     }
   }
+}
+
+// Aborts fetching the DOIs metadata
+function abortFetching() {
+  loadAborted.value = true
+  loading.value = false
+}
+
+// Reloads the DOIs metadata
+function reload() {
+  loadAborted.value = false
+  getDOIsMetadata()
 }
 
 // Opens the resolved DOI URL in a new tab if it exists
@@ -63,6 +84,10 @@ function openDOI(work: HttpResponse<Item<Work>>) {
     flat
   >
     <v-card-title class="pa-0">
+      <v-icon
+        icon="mdi-file-document-outline"
+        size="small"
+      />
       Report
     </v-card-title>
     <v-card-subtitle class="pa-0">
@@ -85,6 +110,39 @@ function openDOI(work: HttpResponse<Item<Work>>) {
     <v-card-text
       class="pa-0"
     >
+      <v-row
+        dense
+        no-gutters
+      >
+        <v-col
+          cols="11"
+          class="d-flex align-center"
+        >
+          <v-progress-linear
+            v-show="loading || loadAborted"
+            :loading
+            :indeterminate="loading"
+            rounded
+          />
+        </v-col>
+        <v-col
+          cols="1"
+          class=" d-flex justify-center"
+        >
+          <v-icon
+            v-if="loading"
+            icon="mdi-close"
+            size="large"
+            @click="abortFetching"
+          />
+          <v-icon
+            v-else-if="loadAborted"
+            icon="mdi-reload"
+            size="large"
+            @click="reload"
+          />
+        </v-col>
+      </v-row>
       <v-list
         v-if="works.length > 0"
       >
@@ -181,14 +239,6 @@ function openDOI(work: HttpResponse<Item<Work>>) {
           </template>
         </v-list-item>
       </v-list>
-      <div class="text-center">
-        <v-progress-circular
-          v-show="loading"
-          :loading
-          indeterminate
-          class="text-center my-4"
-        />
-      </div>
       <v-empty-state
         v-if="works.length === 0 && !loading "
         icon="mdi-magnify"
