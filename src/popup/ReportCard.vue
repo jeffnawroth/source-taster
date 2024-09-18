@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { CrossrefClient } from '@jamesgopsill/crossref-client'
-import { useClipboard } from '@vueuse/core'
+import { useClipboard, useDebounceFn } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import NetworkErrorState from './NetworkErrorState.vue'
 import NoWorksFoundState from './NoWorksFoundState.vue'
@@ -10,9 +10,6 @@ import NoWorksFoundState from './NoWorksFoundState.vue'
 const props = defineProps<{
   dois: string[]
 }>()
-
-// Watcher
-watch(() => props.dois, getDOIsMetadata)
 
 // Client
 const client = new CrossrefClient()
@@ -37,16 +34,6 @@ const failed = computed(() => works.value.filter(work => !work.ok).length)
 
 // Watcher
 
-// Watches the network error state
-watch(() => networkErrorStateRef.value?.isOnline, (isOnline) => {
-  if (isOnline) {
-    getDOIsMetadata()
-  }
-  else {
-    abortFetching()
-  }
-})
-
 // Functions
 // Extracts the DOI from the URL
 function getNotFoundDOI(work: HttpResponse<Item<Work>>) {
@@ -54,8 +41,9 @@ function getNotFoundDOI(work: HttpResponse<Item<Work>>) {
   return url.replace('https://api.crossref.org/works/', '')
 }
 
-// Fetches the DOIs metadata
-async function getDOIsMetadata() {
+//  Fetches the DOIs metadata
+
+const getDOIsMetadata = useDebounceFn(async () => {
   loadAborted.value = false
   works.value = []
 
@@ -73,7 +61,19 @@ async function getDOIsMetadata() {
       loading.value = false
     }
   }
-}
+}, 500)
+
+// Watches the network error state
+watch(() => networkErrorStateRef.value?.isOnline, (isOnline) => {
+  if (isOnline) {
+    getDOIsMetadata()
+  }
+  else {
+    abortFetching()
+  }
+})
+
+watch(() => props.dois, () => getDOIsMetadata())
 
 // Aborts fetching the DOIs metadata
 function abortFetching() {

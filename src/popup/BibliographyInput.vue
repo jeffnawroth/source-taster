@@ -23,8 +23,10 @@ onMessage('autoImportBibliography', ({ data }) => {
   bibliography.value = extractedDois.length > 0 ? extractedDois.join('\n') : ''
 })
 
+// Computed
 const placeholder = computed(() => autoImportOption.value ? 'Refresh the page for auto import' : 'Insert your DOIs here. For example: https://doi.org/10.1111/dome.12082')
 
+// Watchers
 watch(autoImportOption, () => bibliography.value = '')
 
 // Functions
