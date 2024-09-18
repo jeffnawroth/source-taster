@@ -32,6 +32,7 @@ watch(autoImportOption, () => bibliography.value = '')
 // Extracts DOIs from the bibliography
 function extractDOIs(textInput: string) {
   let extractedDOIs = []
+  dois.value = []
 
   const doiPattern = /(https:\/\/doi\.org\/)?(10\.\d{4,9}\/[-.\w;()/:]+)/gi
 
