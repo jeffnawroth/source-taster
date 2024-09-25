@@ -3,7 +3,7 @@
   "displayName": "The Source Taster",
   "version": "1.0.0",
   "private": true,
-  "description": "The Source Taster is a browser extension that helps users, especially students and researchers, quickly and efficiently verify the validity and existence of sources cited in academic papers.",
+  "description": "Source Taster is a browser extension that helps users quickly verify the validity and existence of sources cited in academic papers.",
   "scripts": {
     "dev": "npm run clear && cross-env NODE_ENV=development run-p dev:*",
     "dev-firefox": "npm run clear && cross-env NODE_ENV=development EXTENSION=firefox run-p dev:*",
