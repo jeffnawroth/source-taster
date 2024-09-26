@@ -1,3 +1,7 @@
+![](/extension/assets/icon128.png)
+
+![GitHub Release](https://img.shields.io/github/v/release/jeffnawroth/source-taster) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jeffnawroth/source-taster/ci.yml)
+
 # The Source Taster
 
 The Source Taster is a browser extension that helps users, especially students and researchers, quickly and efficiently verify the validity and existence of sources cited in academic papers.

@@ -1,7 +1,7 @@
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client/dist/cjs/definitions/interfaces'
 import jsPDF from 'jspdf'
 
-export function generatePDFReport(dois: string[], passed: number, failed: number, works: HttpResponse<Item<Work>>[], getNotFoundDOI: (work: HttpResponse<Item<Work>>) => string): void {
+export function generatePDFReport(dois: string[], passed: number, warning: number, failed: number, works: HttpResponse<Item<Work>>[]): void {
   // eslint-disable-next-line new-cap
   const doc = new jsPDF()
 
@@ -12,7 +12,7 @@ export function generatePDFReport(dois: string[], passed: number, failed: number
   doc.setFontSize(18)
   doc.text('Report', 10, 20)
 
-  // Found, Passed, Failed in one line
+  // Found, Passed, Warning, Failed in one line
   doc.setFontSize(12)
   doc.text(`Found: ${dois.length}`, 10, 30)
 
@@ -20,9 +20,12 @@ export function generatePDFReport(dois: string[], passed: number, failed: number
   doc.setTextColor('#4CAF50')
   doc.text(`Passed: ${passed}`, 50, 30)
 
+  doc.setTextColor('#FB8C00')
+  doc.text(`Warning: ${warning}`, 90, 30)
+
   // Set color for Failed (Red)
   doc.setTextColor('#B00020')
-  doc.text(`Failed: ${failed}`, 100, 30)
+  doc.text(`Failed: ${failed}`, 130, 30)
 
   // Reset text color to black for the rest of the document
   doc.setTextColor(0, 0, 0)
@@ -31,7 +34,7 @@ export function generatePDFReport(dois: string[], passed: number, failed: number
   let yOffset = 40 // Start position for the list of works
   works.forEach((work, index) => {
     // Display work title or status message
-    if (work.ok) {
+    if (work.ok && work.content) {
       // Green for found work title
       doc.setTextColor('#4CAF50')
       doc.setFontSize(14)
@@ -48,22 +51,36 @@ export function generatePDFReport(dois: string[], passed: number, failed: number
       const url = `${work.content.message.URL}`
       doc.textWithLink(`URL: ${url}`, 10, yOffset, { url })
     }
+    else if (work.ok) {
+      // Orange for warning status
+      doc.setTextColor('#FB8C00')
+      doc.setFontSize(14)
+      const title = doc.splitTextToSize(`${index + 1}. ${dois[index]}`, 180) // 180 is the max width
+      doc.text(title, 10, yOffset)
+      yOffset += 10 * title.length / 1.5
+
+      doc.setFontSize(12)
+      doc.setTextColor(0, 0, 0)
+      const url = `${(work as HttpResponse<Item<Work>>).url}`
+      doc.textWithLink(`URL: ${url}`, 10, yOffset, { url })
+
+      yOffset += 10
+
+      // Additional suggestion text
+      doc.text('Info: The DOI was found but the metadata could not be retrieved from the Crossref-Database.', 10, yOffset)
+    }
     else {
       // Red for not found work title
       doc.setTextColor('#B00020')
       doc.setFontSize(14)
-      const title = doc.splitTextToSize(`${index + 1}. ${work.statusText}`, 180) // 180 is the max width
+      const title = doc.splitTextToSize(`${index + 1}. ${dois[index]}`, 180) // 180 is the max width
       doc.text(title, 10, yOffset)
       yOffset += 10 * title.length / 1.5
 
       // Reason why work was not found
       doc.setFontSize(12)
       doc.setTextColor(0, 0, 0)
-      doc.text(`DOI: ${getNotFoundDOI(work)}`, 10, yOffset)
-      yOffset += 10
-
-      // Additional suggestion text
-      doc.text('Info: Further investigation is required to check the validity of this DOI.', 10, yOffset)
+      doc.text('Info: The DOI was not found.', 10, yOffset)
     }
 
     // Add some space between the entries

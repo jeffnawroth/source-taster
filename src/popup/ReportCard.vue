@@ -28,20 +28,17 @@ type NetworkErrorStateType = InstanceType<typeof NetworkErrorState>
 const networkErrorStateRef = useTemplateRef<NetworkErrorStateType>('networkErrorStateRef')
 
 // Number of DOIs that passed the check
-const passed = computed(() => works.value.filter(work => work.ok && work.status === 200).length)
+const passed = computed(() => works.value.filter(work => work.ok && work.status === 200 && work.content).length)
+
+// Number of DOIs that have a warning
+const warning = computed(() => works.value.filter(work => work.ok && work.status === 200 && !work.content).length)
 
 // Number of DOIs that failed the check
-const failed = computed(() => works.value.filter(work => !work.ok).length)
+const failed = computed(() => works.value.filter(work => !work.ok && work.status === 404).length)
 
 // Watcher
 
 // Functions
-// Extracts the DOI from the URL
-function getNotFoundDOI(work: HttpResponse<Item<Work>>) {
-  const url = work.url
-  return url.replace('https://api.crossref.org/works/', '')
-}
-
 //  Fetches the DOIs metadata
 
 const getDOIsMetadata = useDebounceFn(async () => {
@@ -56,7 +53,16 @@ const getDOIsMetadata = useDebounceFn(async () => {
     try {
       loading.value = true
       const response = await client.work(doi)
+
+      if (!response.ok) {
+        const response2 = await resolveDOI(doi) as HttpResponse<Item<Work>>
+        works.value.push(response2)
+        continue
+      }
       works.value.push(response)
+    }
+    catch (error) {
+      console.error(error)
     }
     finally {
       loading.value = false
@@ -88,10 +94,14 @@ function reload() {
   getDOIsMetadata()
 }
 
-// Opens the resolved DOI URL in a new tab if it exists
-function openDOI(work: HttpResponse<Item<Work>>) {
-  if (work && work.ok && work.content?.message.URL) {
+// Opens the work in a new tab
+function openWork(work: HttpResponse<Item<Work>>) {
+  if (work.ok && work.content?.message.URL) {
     const url = work.content.message.URL
+    window.open(url, '_blank')
+  }
+  else if (work.ok) {
+    const url = work.url
     window.open(url, '_blank')
   }
   else {
@@ -99,9 +109,15 @@ function openDOI(work: HttpResponse<Item<Work>>) {
   }
 }
 
-// Removes a report entry
-function removeReportEntry(work: HttpResponse<Item<Work>>) {
-  works.value.splice(works.value.indexOf(work), 1)
+// Resolves the DOI
+async function resolveDOI(doi: string) {
+  try {
+    const response = await fetch(`https://doi.org/${doi}`)
+    return response
+  }
+  catch (error) {
+    console.error(error)
+  }
 }
 </script>
 
@@ -117,25 +133,17 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
       />
     </template>
     <template #append>
-      <tooltip>
-        <template #activator="{ props: tooltipProps }">
-          <v-btn
-            v-bind="tooltipProps"
-            size="large"
-          />
-        </template>
-      </tooltip>
       <v-tooltip v-if="works.length > 0">
         <template #activator="{ props: tooltipProps }">
           <v-btn
             v-bind="tooltipProps"
-            icon="mdi-export-variant"
+            icon="mdi-download"
             variant="plain"
 
-            @click="generatePDFReport(dois, failed, passed, works, getNotFoundDOI)"
+            @click="generatePDFReport(dois, passed, warning, failed, works)"
           />
         </template>
-        Export Report as PDF
+        Download the report as a PDF
       </v-tooltip>
     </template>
     <template
@@ -149,6 +157,12 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
         :class="passed > 0 ? 'text-success' : ''"
       >
         {{ `Passed: ${passed}` }}
+      </span>
+      <span
+        class="mx-1"
+        :class="warning > 0 ? 'text-warning' : ''"
+      >
+        {{ `Warning: ${warning}` }}
       </span>
       <span
         class="mx-1"
@@ -200,26 +214,41 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
         v-if="works.length > 0"
       >
         <v-list-item
-          v-for="work in works"
+          v-for="(work, index) in works"
           :key="work.content?.message.DOI"
           rounded="lg"
-          :color="work.ok ? 'success' : 'error'"
+          :color="work.ok && work.content ? 'success' : work.ok ? 'warning' : 'error'"
           active
           class="my-1"
         >
           <template #prepend>
-            <v-icon
-              size="x-large"
-              :icon="work.ok ? 'mdi-check-circle-outline' : 'mdi-close-circle-outline'"
-            />
+            <v-tooltip width="20%">
+              <template #activator="{ props }">
+                <v-icon
+                  v-bind="props"
+                  size="x-large"
+                  :icon="work.ok && work.content ? 'mdi-check-circle-outline' : work.ok ? 'mdi-alert-circle-outline' : 'mdi-close-circle-outline'"
+                />
+              </template>
+              <template v-if="work.ok && work.content">
+                <p>The DOI was found and the metadata was successfully retrieved from the Crossref-Database.</p>
+              </template>
+              <template v-else-if="work.ok">
+                <p>The DOI was found but the metadata <span class="font-weight-bold">could not</span> be retrieved from the Crossref-Database.</p>
+              </template>
+              <template v-else>
+                <p>The DOI was <span class="font-weight-bold">not</span> found. </p>
+                <p>Please ensure that the DOI was correctly extracted from the provided bibliography.</p>
+              </template>
+            </v-tooltip>
           </template>
 
           <v-list-item-title>
-            {{ work.ok ? work.content.message.title[0] : work.statusText }}
+            {{ work.ok && work.content ? work.content.message.title[0] : dois[index] }}
           </v-list-item-title>
 
           <v-list-item-subtitle>
-            {{ work.ok ? work.content?.message.DOI : getNotFoundDOI(work) }}
+            {{ work.ok && work.content ? work.content?.message.DOI : '' }}
           </v-list-item-subtitle>
 
           <template #append>
@@ -228,23 +257,10 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
                 <v-btn
                   v-bind="tooltipProps"
                   density="compact"
-                  icon="mdi-delete-outline"
-                  variant="plain"
-                  size="large"
-                  @click="removeReportEntry(work)"
-                />
-              </template>
-              Delete
-            </v-tooltip>
-            <v-tooltip>
-              <template #activator="{ props: tooltipProps }">
-                <v-btn
-                  v-bind="tooltipProps"
-                  density="compact"
                   icon="mdi-content-copy"
                   variant="plain"
                   size="large"
-                  @click="copy(work.ok ? work.content.message.DOI : getNotFoundDOI(work))"
+                  @click="copy(dois[index])"
                 />
               </template>
               {{ copied ? "DOI Copied!" : "Copy DOI" }}
@@ -257,66 +273,14 @@ function removeReportEntry(work: HttpResponse<Item<Work>>) {
                   icon="mdi-open-in-new"
                   variant="plain"
                   size="large"
-                  @click="() => openDOI(work)"
+                  @click="() => openWork(work)"
                 />
               </template>
-              Open Source
+              Open the Work in a new tab
             </v-tooltip>
-
-            <v-menu
-              v-else
-              open-on-hover
-            >
-              <template #activator="{ props: menuProps }">
-                <v-btn
-                  class="cursor-pointer"
-                  v-bind="menuProps"
-                  density="compact"
-                  icon="mdi-information-outline "
-                  variant="plain"
-
-                  size="large"
-                />
-              </template>
-              <v-card
-                title="Not Found"
-              >
-                <v-card-subtitle class="no-truncate">
-                  Why couldn't the work be found? There could be several reasons for this:
-                </v-card-subtitle>
-                <v-card-text>
-                  <v-list>
-                    <v-list-item
-                      class="no-truncate"
-                      title="The DOI was not extracted properly"
-                      subtitle="Verify the DOI was extracted correctly from the given bibliography"
-                    />
-                    <v-list-item
-                      title="The DOI is not registered in the CrossRef database"
-                      subtitle="You may want to check other databases"
-                    />
-                    <v-list-item
-                      title="The DOI does not exist."
-                    />
-                  </v-list>
-                </v-card-text>
-              </v-card>
-            </v-menu>
           </template>
         </v-list-item>
       </v-list>
     </v-card-text>
   </v-card>
 </template>
-
-<style scoped>
-.no-truncate {
-  white-space: wrap !important;
-  overflow: visible;
-  text-overflow: initial;
-}
-
-/* .v-card-title  {
-  padding: 0 !important;
-} */
-</style>

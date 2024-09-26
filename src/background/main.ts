@@ -46,3 +46,9 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
   }
 })
+
+browser.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === 'openSidePanel') {
+    browser.sidePanel.open({ windowId: tab.windowId })
+  }
+})
