@@ -55,7 +55,7 @@ const getDOIsMetadata = useDebounceFn(async () => {
       const response = await client.work(doi)
 
       if (!response.ok) {
-        const response2 = await resolveDOI(doi)
+        const response2 = await resolveDOI(doi) as HttpResponse<Item<Work>>
         works.value.push(response2)
         continue
       }
