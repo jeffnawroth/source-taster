@@ -123,8 +123,9 @@ async function resolveDOI(doi: string) {
 
 <template>
   <v-card
-    flat
     title="Report"
+    :loading
+    flat
   >
     <template #prepend>
       <v-icon
