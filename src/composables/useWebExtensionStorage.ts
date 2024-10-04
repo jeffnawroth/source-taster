@@ -43,6 +43,7 @@ const storageInterface: StorageLikeAsync = {
     return storage.local.set({ [key]: value })
   },
 
+  // @ts-expect-error: missing types
   async getItem(key: string) {
     const storedData = await storage.local.get(key)
 

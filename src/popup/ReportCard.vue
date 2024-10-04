@@ -223,9 +223,9 @@ async function resolveDOI(doi: string) {
         >
           <template #prepend>
             <v-tooltip width="20%">
-              <template #activator="{ props }">
+              <template #activator="{ props: tooltipProps }">
                 <v-icon
-                  v-bind="props"
+                  v-bind="tooltipProps"
                   size="x-large"
                   :icon="work.ok && work.content ? 'mdi-check-circle-outline' : work.ok ? 'mdi-alert-circle-outline' : 'mdi-close-circle-outline'"
                 />

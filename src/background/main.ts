@@ -42,6 +42,7 @@ browser.runtime.onInstalled.addListener((): void => {
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'check-bibliography' && info.selectionText) {
     if (USE_SIDE_PANEL)
+      // @ts-expect-error missing types
       browser.sidePanel.open({ windowId: tab.windowId })
     sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
   }
@@ -49,6 +50,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'openSidePanel') {
+    // @ts-expect-error missing types
     browser.sidePanel.open({ windowId: tab.windowId })
   }
 })
