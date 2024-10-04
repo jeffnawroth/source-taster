@@ -80,6 +80,7 @@ export async function getManifest() {
   }
   else {
     // the sidebar_action does not work for chromium based
+    // @ts-expect-error: missing types
     manifest.side_panel = {
       default_path: 'dist/sidepanel/index.html',
     }
