@@ -56,7 +56,7 @@ function saveDisplayOption() {
 
             <v-list-item
               title="Use Dark Mode"
-              subtitle="Toggle between light and dark mode"
+              subtitle="Use a dark theme for the extension"
               @click="toggleThemeOption = toggleThemeOption === 'dark' ? 'light' : 'dark'"
             >
               <template #prepend>
