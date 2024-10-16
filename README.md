@@ -1,6 +1,6 @@
 ![](/extension/assets/icon128.png)
 
-![GitHub Release](https://img.shields.io/github/v/release/jeffnawroth/source-taster) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jeffnawroth/source-taster/ci.yml)
+![MIT License](https://img.shields.io/badge/License-MIT-green.svg) ![GitHub Release](https://img.shields.io/github/v/release/jeffnawroth/source-taster) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jeffnawroth/source-taster/ci.yml)
 
 # The Source Taster
 
