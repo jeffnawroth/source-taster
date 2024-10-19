@@ -15,7 +15,7 @@ export function getDisplayOption(): Promise<string> {
         reject(chrome.runtime.lastError)
       }
       else {
-        resolve(result.displayOption || 'popup') // Default to 'popup' if no value is stored
+        resolve(result.displayOption || 'sidepanel') // Default to 'sidepanel' if no value is stored
       }
     })
   })
