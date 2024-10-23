@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useLocale } from 'vuetify/lib/framework.mjs'
 import { autoImportOption, getDisplayOption, localeOption, setDisplayOption, toggleThemeOption } from '~/logic/storage'
 
 // i18n
 const { t, locale } = useI18n()
+const { current } = useLocale()
 
 // Data
 
@@ -12,8 +14,8 @@ const { t, locale } = useI18n()
 const isPopup = ref(false)
 
 const languages = ref([
-  { locale: 'de', name: t('german') },
-  { locale: 'en', name: t('english') },
+  { locale: 'de', name: 'German' },
+  { locale: 'en', name: 'English' },
 ])
 
 // Lifecycle hooks
@@ -42,7 +44,10 @@ function saveDisplayOption() {
 }
 
 // Watchers
-watchEffect(() => locale.value = localeOption.value)
+watchEffect(() => {
+  locale.value = localeOption.value
+  current.value = localeOption.value
+})
 </script>
 
 <template>
@@ -112,7 +117,7 @@ watchEffect(() => locale.value = localeOption.value)
                   <v-select
                     v-model="localeOption"
                     :items="languages"
-                    item-title="name"
+                    :item-title="(option) => t(option.name.toLocaleLowerCase())"
                     item-value="locale"
                     hide-details
                     density="compact"
