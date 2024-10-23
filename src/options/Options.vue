@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocale } from 'vuetify/lib/framework.mjs'
-import { autoImportOption, getDisplayOption, localeOption, setDisplayOption, toggleThemeOption } from '~/logic/storage'
+import { autoImportOption, getDisplayOption, localeOption, setDisplayOption, themeOption } from '~/logic/storage'
 
 // i18n
 const { t, locale } = useI18n()
@@ -17,6 +17,8 @@ const languages = ref([
   { locale: 'de', name: 'German' },
   { locale: 'en', name: 'English' },
 ])
+
+const themes = ref(['light', 'dark', 'system'])
 
 // Lifecycle hooks
 
@@ -78,22 +80,6 @@ watchEffect(() => {
             </v-list-item>
 
             <v-list-item
-              :title="t('use-dark-mode')"
-              :subtitle="t('use-dark-mode-description')"
-              @click="toggleThemeOption = toggleThemeOption === 'dark' ? 'light' : 'dark'"
-            >
-              <template #prepend>
-                <v-list-item-action start>
-                  <v-checkbox-btn
-                    v-model="toggleThemeOption"
-                    false-value="light"
-                    true-value="dark"
-                    color="primary"
-                  />
-                </v-list-item-action>
-              </template>
-            </v-list-item>
-            <v-list-item
               :title="t('use-popup')"
               :subtitle="t('use-popup-description')"
             >
@@ -121,6 +107,24 @@ watchEffect(() => {
                     item-value="locale"
                     hide-details
                     density="compact"
+                  />
+                </v-list-item-action>
+              </template>
+            </v-list-item>
+
+            <v-list-item
+              :title="t('theme')"
+              :subtitle="t('theme-option-description')"
+            >
+              <template #prepend>
+                <v-list-item-action start>
+                  <v-select
+                    v-model="themeOption"
+                    :items="themes"
+                    :item-title="(option) => t(option)"
+                    :item-value="(option) => option"
+                    density="compact"
+                    hide-details
                   />
                 </v-list-item-action>
               </template>
