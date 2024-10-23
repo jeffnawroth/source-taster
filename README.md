@@ -20,6 +20,8 @@ The Source Taster is a browser extension that helps users, especially students a
 - **📄 PDF Download**: Download the generated report as a PDF
 - **🌐 Open Literature in New Tab**: Access found literature directly in a new tab
 - **🌙 Dark/Light Mode**: Toggle between dark and light mode
+- **🗣️ Multiple Language Support**: The extension supports both German and English languages
+
 
 ## How it Works
 The Source Taster functions by extracting DOIs from the text of academic papers. It then queries the [Crossref](https://www.crossref.org/) database to check the existence of these DOIs. If a DOI is not found in the database, the extension further investigates whether it can still be [resolved](https://dx.doi.org/).
