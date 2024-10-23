@@ -12,7 +12,7 @@ const languages = ref([
 </script>
 
 <template>
-  <v-card>
+  <v-card flat>
     <v-list>
       <!-- Spracheinstellungen -->
       <v-list-subheader>{{ t('language') }}</v-list-subheader>

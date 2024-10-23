@@ -35,7 +35,7 @@ function saveDisplayOption() {
 </script>
 
 <template>
-  <v-card>
+  <v-card flat>
     <v-list>
       <!-- Darstellungseinstellungen -->
       <v-list-subheader>{{ t('display') }}</v-list-subheader>
