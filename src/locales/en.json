@@ -28,6 +28,8 @@
   "passed": "Passed",
   "warning": "Warning",
   "failed": "Failed",
-  "report": "Report"
+  "report": "Report",
+  "copy-doi": "Copy DOI",
+  "doi-copied": "DOI copied"
 
 }

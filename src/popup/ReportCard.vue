@@ -153,27 +153,29 @@ async function resolveDOI(doi: string) {
     <template
       #subtitle
     >
-      <span class="mx-1">
-        {{ `${t('found')}: ${dois.length}` }}
-      </span>
-      <span
-        class=" mx-1"
-        :class="passed > 0 ? 'text-success' : ''"
-      >
-        {{ `${t('passed')}: ${passed}` }}
-      </span>
-      <span
-        class="mx-1"
-        :class="warning > 0 ? 'text-warning' : ''"
-      >
-        {{ `${t('warning')}: ${warning}` }}
-      </span>
-      <span
-        class="mx-1"
-        :class="failed > 0 ? 'text-error' : ''"
-      >
-        {{ `${t('failed')}: ${failed}` }}
-      </span>
+      <div class="text-wrap">
+        <span class="mx-1">
+          {{ `${t('found')}: ${dois.length}` }}
+        </span>
+        <span
+          class=" mx-1"
+          :class="passed > 0 ? 'text-success' : ''"
+        >
+          {{ `${t('passed')}: ${passed}` }}
+        </span>
+        <span
+          class="mx-1"
+          :class="warning > 0 ? 'text-warning' : ''"
+        >
+          {{ `${t('warning')}: ${warning}` }}
+        </span>
+        <span
+          class="mx-1"
+          :class="failed > 0 ? 'text-error' : ''"
+        >
+          {{ `${t('failed')}: ${failed}` }}
+        </span>
+      </div>
     </template>
     <v-card-text
       class="pa-0"
@@ -275,7 +277,7 @@ async function resolveDOI(doi: string) {
                   @click="copy(dois[index])"
                 />
               </template>
-              {{ copied ? "DOI Copied!" : "Copy DOI" }}
+              {{ copied ? `${t('doi-copied')}!` : t('copy-doi') }}
             </v-tooltip>
             <v-tooltip v-if="work.ok">
               <template #activator="{ props: tooltipProps }">

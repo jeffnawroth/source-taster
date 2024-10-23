@@ -27,5 +27,7 @@
   "passed": "Bestanden",
   "warning": "Warnung",
   "failed": "Fehlgeschlagen",
-  "report": "Bericht"
+  "report": "Bericht",
+  "copy-doi": "DOI kopieren",
+  "doi-copied": "DOI kopiert"
 }
