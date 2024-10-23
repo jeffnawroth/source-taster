@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import { getDisplayOption, setDisplayOption, themeOption } from '~/logic'
 
 // I18n

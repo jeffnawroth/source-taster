@@ -45,6 +45,7 @@ export const sharedConfig: UserConfig = {
             ['*', 'browser'],
           ],
         },
+        'vue-i18n',
       ],
       dts: r('src/auto-imports.d.ts'),
     }),

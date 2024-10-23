@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import { useLocale } from 'vuetify/lib/framework.mjs'
 import { localeOption } from '~/logic/storage'
 import BibliographyInput from './BibliographyInput.vue'
