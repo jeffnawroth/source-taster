@@ -24,21 +24,35 @@ watchEffect(() => {
     app
     flat
     title="The Source Taster"
+    color="transparent"
     density="compact"
   >
+    <!-- <template #prepend>
+      <v-app-bar-nav-icon
+        size="small"
+        icon="mdi-book-check-outline"
+      />
+    </template> -->
     <template #append>
       <v-btn
         icon="mdi-github"
         href="https://github.com/jeffnawroth/source-taster"
         target="_blank"
+        size="small"
+        variant="plain"
       />
       <v-btn
+        size="small"
         icon="mdi-theme-light-dark"
+        variant="plain"
         @click="toggleTheme"
       />
 
       <v-btn
+        size="small"
         icon="mdi-cog"
+        variant="plain"
+
         @click="openOptionsPage"
       />
     </template>
