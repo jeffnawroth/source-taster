@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { useLocale } from 'vuetify/lib/framework.mjs'
 import { localeOption } from '~/logic/storage'
-import Index from './OptionCagegories/Index.vue'
+import Index from './Index.vue'
 
 // i18n
 const { locale } = useI18n()

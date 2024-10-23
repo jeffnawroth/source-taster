@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Display from './OptionCagegories/Display.vue'
-import General from './OptionCagegories/General.vue'
-import Language from './OptionCagegories/Language.vue'
+import Display from './OptionCategories/Display.vue'
+import General from './OptionCategories/General.vue'
+import Language from './OptionCategories/Language.vue'
 </script>
 
 <template>
