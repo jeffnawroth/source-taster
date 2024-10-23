@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { autoImportOption, getDisplayOption, setDisplayOption, toggleThemeOption } from '~/logic/storage'
+import { autoImportOption, getDisplayOption, localeOption, setDisplayOption, toggleThemeOption } from '~/logic/storage'
 
-const { t } = useI18n()
+// i18n
+const { t, locale } = useI18n()
+
+// Data
 
 // Reactive variable to store whether Popup is selected
 const isPopup = ref(false)
+
+const languages = ref([
+  { locale: 'de', name: t('german') },
+  { locale: 'en', name: t('english') },
+])
+
+// Lifecycle hooks
 
 // Load the saved option when the component is mounted
 onMounted(() => {
@@ -18,6 +28,8 @@ onMounted(() => {
   })
 })
 
+// Methods
+
 // Save the user's choice when the checkbox is toggled
 function saveDisplayOption() {
   const newValue = isPopup.value ? 'popup' : 'sidepanel'
@@ -28,6 +40,9 @@ function saveDisplayOption() {
     console.error('Failed to save display option:', error)
   })
 }
+
+// Watchers
+watchEffect(() => locale.value = localeOption.value)
 </script>
 
 <template>
@@ -83,6 +98,24 @@ function saveDisplayOption() {
                     v-model="isPopup"
                     color="primary"
                     @change="saveDisplayOption"
+                  />
+                </v-list-item-action>
+              </template>
+            </v-list-item>
+
+            <v-list-item
+              :title="t('language')"
+              :subtitle="t('language-option-description')"
+            >
+              <template #prepend>
+                <v-list-item-action start>
+                  <v-select
+                    v-model="localeOption"
+                    :items="languages"
+                    item-title="name"
+                    item-value="locale"
+                    hide-details
+                    density="compact"
                   />
                 </v-list-item-action>
               </template>

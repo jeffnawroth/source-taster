@@ -3,8 +3,8 @@
   "use-popup-description": "Wenn diese Option aktiviert ist, wird die Erweiterung in einem Popup angezeigt.",
   "use-dark-mode": "Dunklen Modus benutzen",
   "use-dark-mode-description": "Wenn diese Option aktiviert ist, wird die Erweiterung im dunklen Modus angezeigt.",
-  "auto-import-dois": "DOIs automatisch importieren",
-  "auto-import-dois-description": "Wenn diese Option aktiviert ist, werden DOIs automatisch auf der geöffneten Seite erkannt und importiert.",
+  "auto-import-dois": "DOI(s) automatisch importieren",
+  "auto-import-dois-description": "Wenn diese Option aktiviert ist, werden DOI(s) automatisch auf der geöffneten Seite erkannt und importiert.",
   "general": "Allgemein",
   "download-report-pdf": "Bericht als PDF herunterladen",
   "doi-found-metadata": "Der DOI wurde gefunden und die Metadaten wurden erfolgreich aus der Crossref-Datenbank abgerufen.",
@@ -18,5 +18,14 @@
   "no-match": "Wir konnten keine Übereinstimmung finden.",
   "connection-problem": "Es könnte ein Problem mit Ihrer Verbindung geben. Bitte überprüfen Sie Ihre Internetverbindung.",
   "refresh-page-auto-import": "Seite aktualisieren, um DOI(s) automatisch zu importieren",
-  "insert-dois": "DOI(s) einfügen"
+  "insert-dois": "DOI(s) einfügen",
+  "english": "Englisch",
+  "german": "Deutsch",
+  "language": "Sprache",
+  "language-option-description": "Wählen Sie die Sprache der Erweiterung.",
+  "found": "Gefunden",
+  "passed": "Bestanden",
+  "warning": "Warnung",
+  "failed": "Fehlgeschlagen",
+  "report": "Bericht"
 }

@@ -128,7 +128,7 @@ async function resolveDOI(doi: string) {
 <template>
   <v-card
     flat
-    title="Report"
+    :title="t('report')"
   >
     <template #prepend>
       <v-icon
@@ -154,25 +154,25 @@ async function resolveDOI(doi: string) {
       #subtitle
     >
       <span class="mx-1">
-        {{ `Found: ${dois.length}` }}
+        {{ `${t('found')}: ${dois.length}` }}
       </span>
       <span
         class=" mx-1"
         :class="passed > 0 ? 'text-success' : ''"
       >
-        {{ `Passed: ${passed}` }}
+        {{ `${t('passed')}: ${passed}` }}
       </span>
       <span
         class="mx-1"
         :class="warning > 0 ? 'text-warning' : ''"
       >
-        {{ `Warning: ${warning}` }}
+        {{ `${t('warning')}: ${warning}` }}
       </span>
       <span
         class="mx-1"
         :class="failed > 0 ? 'text-error' : ''"
       >
-        {{ `Failed: ${failed}` }}
+        {{ `${t('failed')}: ${failed}` }}
       </span>
     </template>
     <v-card-text

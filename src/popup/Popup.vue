@@ -1,8 +1,17 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+import { localeOption } from '~/logic/storage'
 import BibliographyInput from './BibliographyInput.vue'
 import ReportCard from './ReportCard.vue'
 
+// i18n
+const { locale } = useI18n()
+
+// Data
 const dois = ref<string[]>([])
+
+// Watchers
+watchEffect(() => locale.value = localeOption.value)
 
 // Computed Props
 </script>

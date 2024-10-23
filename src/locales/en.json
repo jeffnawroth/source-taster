@@ -3,8 +3,8 @@
   "use-popup-description": "When this option is enabled, the extension is displayed in a popup.",
   "use-dark-mode": "Use Dark Mode",
   "use-dark-mode-description": "When this option is enabled, the extension is displayed in dark mode.",
-  "auto-import-dois": "Auto-import DOIs",
-  "auto-import-dois-description": "When this option is enabled, DOIs are automatically detected and imported on the open page.",
+  "auto-import-dois": "Auto-import DOI(s)",
+  "auto-import-dois-description": "When this option is enabled, DOI(s) are automatically detected and imported on the open page.",
   "general": "General",
   "download-report-pdf": "Bericht als PDF herunterladen",
   "doi-found-metadata": "The DOI was found and the metadata was successfully retrieved from the Crossref-Database.",
@@ -19,6 +19,15 @@
   "connection-problem": "There might be a problem with your connection. Please check your internet connection.",
   "sth-went-wrong": "Something went wrong.",
   "refresh-page-auto-import": "Refresh page to auto-import DOI(s)",
-  "insert-dois": "Insert DOI(s)"
+  "insert-dois": "Insert DOI(s)",
+  "english": "English",
+  "german": "German",
+  "language": "Language",
+  "language-option-description": "Select the language of the extension.",
+  "found": "Found",
+  "passed": "Passed",
+  "warning": "Warning",
+  "failed": "Failed",
+  "report": "Report"
 
 }
