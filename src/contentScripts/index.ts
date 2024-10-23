@@ -8,7 +8,8 @@ import App from './views/App.vue'
 (() => {
   console.info('[source-taster] Hello world from content script')
 
-  const pageText = document.body.textContent
+  const pageText = document.body.innerHTML
+  console.log('pageText:', pageText)
   sendMessage('autoImportBibliography', { selectedText: pageText! }, { context: 'popup', tabId: 0 })
 
   const root = document.createElement('div')

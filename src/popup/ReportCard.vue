@@ -222,7 +222,7 @@ async function resolveDOI(doi: string) {
           class="my-1"
         >
           <template #prepend>
-            <v-tooltip width="20%">
+            <v-tooltip>
               <template #activator="{ props: tooltipProps }">
                 <v-icon
                   v-bind="tooltipProps"
@@ -237,8 +237,14 @@ async function resolveDOI(doi: string) {
                 <p>The DOI was found but the metadata <span class="font-weight-bold">could not</span> be retrieved from the Crossref-Database.</p>
               </template>
               <template v-else>
-                <p>The DOI was <span class="font-weight-bold">not</span> found. </p>
-                <p>Please ensure that the DOI was correctly extracted from the provided bibliography.</p>
+                <div class="ma-1">
+                  <p>The DOI was <span class="font-weight-bold">not</span> found. Possible reasons are:</p>
+                  <ul>
+                    <li>The DOI is incorrect in your source.</li>
+                    <li>The DOI was extracted incorrectly.</li>
+                    <li>he DOI has not been activated yet.</li>
+                  </ul>
+                </div>
               </template>
             </v-tooltip>
           </template>
