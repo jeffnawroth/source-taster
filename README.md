@@ -20,7 +20,7 @@ The Source Taster is a browser extension that helps users, especially students a
 - **📄 PDF Download**: Download the generated report as a PDF
 - **🌐 Open Literature in New Tab**: Access found literature directly in a new tab
 - **🌙 Dark/Light Mode**: Toggle between dark and light mode
-- **🗣️ German and English Language Support**: The extension supports both German and English languages for a better user experience.
+- **🗣️ Multiple Language Support**: The extension supports both German and English languages
 
 
 ## How it Works
