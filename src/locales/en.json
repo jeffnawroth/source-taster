@@ -35,6 +35,7 @@
   "theme-option-description": "Select the theme of the extension",
   "light": "Light",
   "dark": "Dark",
-  "system": "System"
+  "system": "System",
+  "display": "Display"
 
 }

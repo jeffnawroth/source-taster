@@ -34,5 +34,6 @@
   "theme-option-description": "Wählen Sie das Design der Erweiterung",
   "light": "Hell",
   "dark": "Dunkel",
-  "system": "System"
+  "system": "System",
+  "display": "Darstellung"
 }
