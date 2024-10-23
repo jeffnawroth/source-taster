@@ -3,6 +3,7 @@ import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { CrossrefClient } from '@jamesgopsill/crossref-client'
 import { useClipboard, useDebounceFn } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import NetworkErrorState from './NetworkErrorState.vue'
 import NoWorksFoundState from './NoWorksFoundState.vue'
 import { generatePDFReport } from './pdfUtils'
@@ -11,6 +12,9 @@ import { generatePDFReport } from './pdfUtils'
 const props = defineProps<{
   dois: string[]
 }>()
+
+// i18n
+const { t } = useI18n()
 
 // Client
 const client = new CrossrefClient()
@@ -143,7 +147,7 @@ async function resolveDOI(doi: string) {
             @click="generatePDFReport(dois, passed, warning, failed, works)"
           />
         </template>
-        Download the report as a PDF
+        {{ t('download-report-pdf') }}
       </v-tooltip>
     </template>
     <template
@@ -231,18 +235,20 @@ async function resolveDOI(doi: string) {
                 />
               </template>
               <template v-if="work.ok && work.content">
-                <p>The DOI was found and the metadata was successfully retrieved from the Crossref-Database.</p>
+                <p>{{ t('doi-found-metadata') }}</p>
               </template>
               <template v-else-if="work.ok">
-                <p>The DOI was found but the metadata <span class="font-weight-bold">could not</span> be retrieved from the Crossref-Database.</p>
+                <!-- <p>The DOI was found but the metadata <span class="font-weight-bold">could not</span> be retrieved from the Crossref-Database.</p> -->
+                <p>{{ t('doi-found-no-metadata') }}</p>
               </template>
               <template v-else>
                 <div class="ma-1">
-                  <p>The DOI was <span class="font-weight-bold">not</span> found. Possible reasons are:</p>
+                  <p>{{ t('doi-not-found') }}</p>
+                  <!-- <p>The DOI was <span class="font-weight-bold">not</span> found. Possible reasons are:</p> -->
                   <ul>
-                    <li>The DOI is incorrect in your source.</li>
-                    <li>The DOI was extracted incorrectly.</li>
-                    <li>he DOI has not been activated yet.</li>
+                    <li>{{ t('doi-incorrect') }}</li>
+                    <li>{{ t('doi-incorrect-extraced') }}</li>
+                    <li>{{ t('doi-not-activated') }}</li>
                   </ul>
                 </div>
               </template>
@@ -282,7 +288,7 @@ async function resolveDOI(doi: string) {
                   @click="() => openWork(work)"
                 />
               </template>
-              Open the Work in a new tab
+              {{ t('open-work') }}
             </v-tooltip>
           </template>
         </v-list-item>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { autoImportOption, getDisplayOption, setDisplayOption, toggleThemeOption } from '~/logic/storage'
+
+const { t } = useI18n()
 
 // Reactive variable to store whether Popup is selected
 const isPopup = ref(false)
@@ -37,11 +40,11 @@ function saveDisplayOption() {
             lines="two"
             subheader
           >
-            <v-list-subheader>General</v-list-subheader>
+            <v-list-subheader>{{ t('general') }}</v-list-subheader>
 
             <v-list-item
-              subtitle="Automatically detect and import DOIs from the current page"
-              title="Auto-import DOIs"
+              :subtitle="t('auto-import-dois-description')"
+              :title="t('auto-import-dois')"
               @click="autoImportOption = !autoImportOption"
             >
               <template #prepend>
@@ -55,8 +58,8 @@ function saveDisplayOption() {
             </v-list-item>
 
             <v-list-item
-              title="Use Dark Mode"
-              subtitle="Use a dark theme for the extension"
+              :title="t('use-dark-mode')"
+              :subtitle="t('use-dark-mode-description')"
               @click="toggleThemeOption = toggleThemeOption === 'dark' ? 'light' : 'dark'"
             >
               <template #prepend>
@@ -71,8 +74,8 @@ function saveDisplayOption() {
               </template>
             </v-list-item>
             <v-list-item
-              title="Use Popup"
-              subtitle="Choose whether to display the extension as a Popup"
+              :title="t('use-popup')"
+              :subtitle="t('use-popup-description')"
             >
               <template #prepend>
                 <v-list-item-action start>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
+
+const { t } = useI18n()
 
 // Props
 const dois = defineModel<string[]>({ required: true, default: [] })
@@ -24,7 +27,7 @@ onMessage('autoImportBibliography', ({ data }) => {
 })
 
 // Computed
-const placeholder = computed(() => autoImportOption.value ? 'Refresh the page for auto import' : 'Insert your DOIs here. For example: https://doi.org/10.1111/dome.12082')
+const placeholder = computed(() => autoImportOption.value ? t('refresh-page-auto-import') : t('insert-dois'))
 
 // Watchers
 watch(autoImportOption, () => bibliography.value = '')
@@ -76,17 +79,26 @@ function extractDOIs(textInput: string) {
 </script>
 
 <template>
-  <v-textarea
-    v-model="bibliography"
-    label="Bibliography"
-    auto-grow
-    :placeholder
-    hide-details
-    max-rows="8"
-    variant="outlined"
-    :rows="3"
-    autofocus
-    clearable
-    @update:model-value="extractDOIs(bibliography)"
-  />
+  <v-card
+    title="DOI(s)"
+    prepend-icon="mdi-text"
+    flat
+  >
+    <v-card-text
+      class="pa-0"
+    >
+      <v-textarea
+        v-model="bibliography"
+        auto-grow
+        :placeholder
+        hide-details
+        max-rows="8"
+        rows="2"
+        variant="outlined"
+        autofocus
+        clearable
+        @update:model-value="extractDOIs(bibliography)"
+      />
+    </v-card-text>
+  </v-card>
 </template>

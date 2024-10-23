@@ -1,0 +1,24 @@
+{
+  "use-popup": "Use Popup",
+  "use-popup-description": "When this option is enabled, the extension is displayed in a popup.",
+  "use-dark-mode": "Use Dark Mode",
+  "use-dark-mode-description": "When this option is enabled, the extension is displayed in dark mode.",
+  "auto-import-dois": "Auto-import DOIs",
+  "auto-import-dois-description": "When this option is enabled, DOIs are automatically detected and imported on the open page.",
+  "general": "General",
+  "download-report-pdf": "Bericht als PDF herunterladen",
+  "doi-found-metadata": "The DOI was found and the metadata was successfully retrieved from the Crossref-Database.",
+  "doi-found-no-metadata": "The DOI was found but the metadata could not be retrieved from the Crossref-Database.",
+  "doi-not-found": "The DOI was not found. Possible reasons are:",
+  "doi-incorrect": "The DOI is incorrect in your source.",
+  "doi-incorrect-extraced": "The DOI was extracted incorrectly.",
+  "doi-not-activated": "The DOI has not been activated yet.",
+  "open-work": "Open the Work in a new tab",
+  "no-works-found": "Unable to find matching literature using the provided DOI(s). Please double-check the DOI entries for accuracy. Ensuring correct formatting and completeness can help improve search results.",
+  "no-match": "We couldn't find a match. ",
+  "connection-problem": "There might be a problem with your connection. Please check your internet connection.",
+  "sth-went-wrong": "Something went wrong.",
+  "refresh-page-auto-import": "Refresh page to auto-import DOI(s)",
+  "insert-dois": "Insert DOI(s)"
+
+}
