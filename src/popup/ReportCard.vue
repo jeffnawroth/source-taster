@@ -12,6 +12,9 @@ const props = defineProps<{
   dois: string[]
 }>()
 
+// i18n
+const { t } = useI18n()
+
 // Client
 const client = new CrossrefClient()
 
@@ -124,7 +127,7 @@ async function resolveDOI(doi: string) {
 <template>
   <v-card
     flat
-    title="Report"
+    :title="t('report')"
   >
     <template #prepend>
       <v-icon
@@ -143,33 +146,35 @@ async function resolveDOI(doi: string) {
             @click="generatePDFReport(dois, passed, warning, failed, works)"
           />
         </template>
-        Download the report as a PDF
+        {{ t('download-report-pdf') }}
       </v-tooltip>
     </template>
     <template
       #subtitle
     >
-      <span class="mx-1">
-        {{ `Found: ${dois.length}` }}
-      </span>
-      <span
-        class=" mx-1"
-        :class="passed > 0 ? 'text-success' : ''"
-      >
-        {{ `Passed: ${passed}` }}
-      </span>
-      <span
-        class="mx-1"
-        :class="warning > 0 ? 'text-warning' : ''"
-      >
-        {{ `Warning: ${warning}` }}
-      </span>
-      <span
-        class="mx-1"
-        :class="failed > 0 ? 'text-error' : ''"
-      >
-        {{ `Failed: ${failed}` }}
-      </span>
+      <div class="text-wrap">
+        <span class="mx-1">
+          {{ `${t('found')}: ${dois.length}` }}
+        </span>
+        <span
+          class=" mx-1"
+          :class="passed > 0 ? 'text-success' : ''"
+        >
+          {{ `${t('passed')}: ${passed}` }}
+        </span>
+        <span
+          class="mx-1"
+          :class="warning > 0 ? 'text-warning' : ''"
+        >
+          {{ `${t('warning')}: ${warning}` }}
+        </span>
+        <span
+          class="mx-1"
+          :class="failed > 0 ? 'text-error' : ''"
+        >
+          {{ `${t('failed')}: ${failed}` }}
+        </span>
+      </div>
     </template>
     <v-card-text
       class="pa-0"
@@ -222,7 +227,7 @@ async function resolveDOI(doi: string) {
           class="my-1"
         >
           <template #prepend>
-            <v-tooltip width="20%">
+            <v-tooltip>
               <template #activator="{ props: tooltipProps }">
                 <v-icon
                   v-bind="tooltipProps"
@@ -231,14 +236,22 @@ async function resolveDOI(doi: string) {
                 />
               </template>
               <template v-if="work.ok && work.content">
-                <p>The DOI was found and the metadata was successfully retrieved from the Crossref-Database.</p>
+                <p>{{ t('doi-found-metadata') }}</p>
               </template>
               <template v-else-if="work.ok">
-                <p>The DOI was found but the metadata <span class="font-weight-bold">could not</span> be retrieved from the Crossref-Database.</p>
+                <!-- <p>The DOI was found but the metadata <span class="font-weight-bold">could not</span> be retrieved from the Crossref-Database.</p> -->
+                <p>{{ t('doi-found-no-metadata') }}</p>
               </template>
               <template v-else>
-                <p>The DOI was <span class="font-weight-bold">not</span> found. </p>
-                <p>Please ensure that the DOI was correctly extracted from the provided bibliography.</p>
+                <div class="ma-1">
+                  <p>{{ t('doi-not-found') }}</p>
+                  <!-- <p>The DOI was <span class="font-weight-bold">not</span> found. Possible reasons are:</p> -->
+                  <ul>
+                    <li>{{ t('doi-incorrect') }}</li>
+                    <li>{{ t('doi-incorrect-extraced') }}</li>
+                    <li>{{ t('doi-not-activated') }}</li>
+                  </ul>
+                </div>
               </template>
             </v-tooltip>
           </template>
@@ -263,7 +276,7 @@ async function resolveDOI(doi: string) {
                   @click="copy(dois[index])"
                 />
               </template>
-              {{ copied ? "DOI Copied!" : "Copy DOI" }}
+              {{ copied ? `${t('doi-copied')}!` : t('copy-doi') }}
             </v-tooltip>
             <v-tooltip v-if="work.ok">
               <template #activator="{ props: tooltipProps }">
@@ -276,7 +289,7 @@ async function resolveDOI(doi: string) {
                   @click="() => openWork(work)"
                 />
               </template>
-              Open the Work in a new tab
+              {{ t('open-work') }}
             </v-tooltip>
           </template>
         </v-list-item>

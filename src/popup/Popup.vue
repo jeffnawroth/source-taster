@@ -1,8 +1,21 @@
 <script setup lang="ts">
+import { useLocale } from 'vuetify/lib/framework.mjs'
+import { localeOption } from '~/logic/storage'
 import BibliographyInput from './BibliographyInput.vue'
 import ReportCard from './ReportCard.vue'
 
+// i18n
+const { locale } = useI18n()
+const { current } = useLocale()
+
+// Data
 const dois = ref<string[]>([])
+
+// Watchers
+watchEffect(() => {
+  locale.value = localeOption.value
+  current.value = localeOption.value
+})
 
 // Computed Props
 </script>

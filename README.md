@@ -1,6 +1,6 @@
 ![](/extension/assets/icon128.png)
 
-![GitHub Release](https://img.shields.io/github/v/release/jeffnawroth/source-taster) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jeffnawroth/source-taster/ci.yml)
+![MIT License](https://img.shields.io/badge/License-MIT-green.svg) ![GitHub Release](https://img.shields.io/github/v/release/jeffnawroth/source-taster) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jeffnawroth/source-taster/ci.yml)
 
 # The Source Taster
 
@@ -20,9 +20,14 @@ The Source Taster is a browser extension that helps users, especially students a
 - **📄 PDF Download**: Download the generated report as a PDF
 - **🌐 Open Literature in New Tab**: Access found literature directly in a new tab
 - **🌙 Dark/Light Mode**: Toggle between dark and light mode
+- **🗣️ Multiple Language Support**: The extension supports both German and English languages
 
 ## How it Works
 The Source Taster functions by extracting DOIs from the text of academic papers. It then queries the [Crossref](https://www.crossref.org/) database to check the existence of these DOIs. If a DOI is not found in the database, the extension further investigates whether it can still be [resolved](https://dx.doi.org/).
+
+> [!WARNING]
+> **For the most reliable verification of sources, it is recommended to manually copy and paste DOIs into the extension.** While the automatic import feature can quickly detect many DOIs, it does not guarantee that all DOIs will be correctly identified. Manually entering DOIs ensures that you have the most accurate results.
+
 <!-- ## API Reference
 
 https://api.crossref.org/swagger-ui/index.html -->
