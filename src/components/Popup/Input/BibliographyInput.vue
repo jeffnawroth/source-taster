@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
+import { useAppStore } from '~/stores/app'
+
+// App Store
+const { dois } = storeToRefs(useAppStore())
 
 // I18n
 const { t } = useI18n()
-
-// Props
-const dois = defineModel<string[]>({ required: true, default: [] })
 
 // Data
 const bibliography = ref('')

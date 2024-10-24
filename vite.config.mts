@@ -49,6 +49,8 @@ export const sharedConfig: UserConfig = {
         'pinia',
       ],
       dts: r('src/auto-imports.d.ts'),
+      dirs: ['src/stores'],
+
     }),
 
     // https://github.com/antfu/unplugin-vue-components

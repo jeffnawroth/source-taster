@@ -2,12 +2,8 @@
 import { useLocale } from 'vuetify/lib/framework.mjs'
 import { localeOption } from '~/logic/storage'
 
-// i18n
 const { locale } = useI18n()
 const { current } = useLocale()
-
-// Data
-const dois = ref<string[]>([])
 
 // Watchers
 watchEffect(() => {
@@ -27,12 +23,12 @@ watchEffect(() => {
           flat
         >
           <v-card-text>
-            <BibliographyInput v-model="dois" />
+            <BibliographyInput />
             <v-divider
               class="mt-4 mb-2"
             />
 
-            <ReportCard :dois />
+            <ReportCard />
           </v-card-text>
         </v-card>
       </v-container>
