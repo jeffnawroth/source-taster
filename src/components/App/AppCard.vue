@@ -2,8 +2,8 @@
 import { VDivider } from 'vuetify/lib/components/index.mjs'
 import { useLocale } from 'vuetify/lib/framework.mjs'
 
-import BibliographyInput from '~/components/Content/Input/BibliographyInput.vue'
-import ReportCard from '~/components/Content/Report/ReportCard.vue'
+import BibliographyInput from '~/components/Input/BibliographyInput.vue'
+import ReportCard from '~/components/Report/ReportCard.vue'
 import { localeOption } from '~/logic/storage'
 
 const { locale } = useI18n()

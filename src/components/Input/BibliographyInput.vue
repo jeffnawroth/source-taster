@@ -1,29 +1,29 @@
 <script setup lang="ts">
+import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
 // App Store
-const { bibliography } = storeToRefs(useDoiStore())
+const { bibliography, dois } = storeToRefs(useDoiStore())
+
+// Listen for messages
+onMessage('bibliography', ({ data }) => {
+  bibliography.value = data.selectedText
+})
+
+onMessage('autoImportBibliography', ({ data }) => {
+  if (!autoImportOption.value)
+    return
+
+  bibliography.value = data.selectedText
+
+  bibliography.value = dois.value.length > 0 ? dois.value.join('\n') : ''
+})
 
 // I18n
 const { t } = useI18n()
 
 // Data
-
-// Listen for messages
-// onMessage('bibliography', ({ data }) => {
-//   bibliography.value = data.selectedText
-//   extractDOIs(data.selectedText)
-// })
-
-// onMessage('autoImportBibliography', ({ data }) => {
-//   if (!autoImportOption.value)
-//     return
-
-//   const extractedDois = extractDOIs(data.selectedText)
-
-//   bibliography.value = extractedDois.length > 0 ? extractedDois.join('\n') : ''
-// })
 
 // Computed
 const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
@@ -52,7 +52,6 @@ watch(autoImportOption, () => bibliography.value = '')
         autofocus
         clearable
       />
-      <!-- @update:model-value="extractDOIs(bibliography)" -->
     </v-card-text>
   </v-card>
 </template>
