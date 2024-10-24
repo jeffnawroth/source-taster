@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { autoImportOption } from '~/logic'
-import OptionCategory from './OptionCategory.vue'
-import OptionListItem from './OptionListItem.vue'
 
 // i18n
 const { t } = useI18n()

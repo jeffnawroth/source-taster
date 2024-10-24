@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { localeOption } from '~/logic'
-import OptionCategory from './OptionCategory.vue'
-import OptionListItem from './OptionListItem.vue'
 
 // I18n
 const { t } = useI18n()
