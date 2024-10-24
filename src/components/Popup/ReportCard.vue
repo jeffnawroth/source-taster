@@ -3,9 +3,9 @@ import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { CrossrefClient } from '@jamesgopsill/crossref-client'
 import { useClipboard, useDebounceFn } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
+import { generatePDFReport } from '../../popup/pdfUtils'
 import NetworkErrorState from './NetworkErrorState.vue'
 import NoWorksFoundState from './NoWorksFoundState.vue'
-import { generatePDFReport } from './pdfUtils'
 
 // Props
 const props = defineProps<{
