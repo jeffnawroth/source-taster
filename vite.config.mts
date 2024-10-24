@@ -46,6 +46,7 @@ export const sharedConfig: UserConfig = {
           ],
         },
         'vue-i18n',
+        'pinia',
       ],
       dts: r('src/auto-imports.d.ts'),
     }),
