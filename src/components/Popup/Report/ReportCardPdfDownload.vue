@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { useAppStore } from '~/stores/app'
+import { useDoiStore } from '~/stores/doi'
+
 import { generatePDFReport } from '../../../popup/pdfUtils'
 
-// App Store
-const { dois, works, passed, failed, warning } = storeToRefs(useAppStore())
+// Work Store
+
+// DOI Store
+const { dois, works, passed, failed, warning } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()

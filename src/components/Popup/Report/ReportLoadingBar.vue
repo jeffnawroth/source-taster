@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useAppStore } from '~/stores/app'
+import { useDoiStore } from '~/stores/doi'
 
 // App Store
-const appStore = useAppStore()
-const { loading, loadAborted } = storeToRefs(appStore)
-const { getDOIsMetadata, abortFetching } = useAppStore()
+const doiStore = useDoiStore()
+const { loading, loadAborted } = storeToRefs(doiStore)
+const { getDOIsMetadata, abortFetching } = doiStore
 // Data
 
 // Reloads the DOIs metadata

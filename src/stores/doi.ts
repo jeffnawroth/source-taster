@@ -1,18 +1,24 @@
 import { CrossrefClient, type HttpResponse, type Item, type Work } from '@jamesgopsill/crossref-client'
 import { useDebounceFn } from '@vueuse/core'
+
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { extractDOIs } from '~/doiExtractor'
 
-export const useAppStore = defineStore('app', () => {
-// Client
-  const client = new CrossrefClient()
-
+export const useDoiStore = defineStore('doi', () => {
   // Data
-  const dois = ref<string[]>([])
-  const works = ref<HttpResponse<Item<Work>>[]>([])
+  const bibliography = ref<string>('')
+  const client = new CrossrefClient()
   const loading = ref(false)
   const loadAborted = ref(false)
 
+  const works = ref<HttpResponse<Item<Work>>[]>([])
+
   // Computed
+
+  // Extracts DOIs from the bibliography
+  const dois = computed(() => extractDOIs(bibliography.value))
+
+  // Number of DOIs found in the bibliography
   const found = computed(() => works.value.length)
 
   // Number of DOIs that passed the check
@@ -24,8 +30,17 @@ export const useAppStore = defineStore('app', () => {
   // Number of DOIs that failed the check
   const failed = computed(() => works.value.filter(work => !work.ok && work.status === 404).length)
 
-  // Functions
-  //  Fetches the DOIs metadata
+  // Resolves the DOI
+  async function resolveDOI(doi: string) {
+    try {
+      const response = await fetch(`https://doi.org/${doi}`)
+      return response
+    }
+    catch (error) {
+      console.error(error)
+    }
+  }
+
   const getDOIsMetadata = useDebounceFn(async () => {
     loadAborted.value = false
     works.value = []
@@ -63,20 +78,9 @@ export const useAppStore = defineStore('app', () => {
     loading.value = false
   }
 
-  // Resolves the DOI
-  async function resolveDOI(doi: string) {
-    try {
-      const response = await fetch(`https://doi.org/${doi}`)
-      return response
-    }
-    catch (error) {
-      console.error(error)
-    }
-  }
-
-  return { dois, works, loading, passed, warning, failed, getDOIsMetadata, loadAborted, abortFetching, resolveDOI, found }
+  return { dois, resolveDOI, bibliography, loading, loadAborted, works, found, passed, warning, failed, getDOIsMetadata, abortFetching }
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useAppStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useDoiStore, import.meta.hot))
 }

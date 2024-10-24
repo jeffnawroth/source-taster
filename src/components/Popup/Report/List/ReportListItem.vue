@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { useClipboard } from '@vueuse/core'
-import { useAppStore } from '~/stores/app'
+import { useDoiStore } from '~/stores/doi'
 
 // Props
 const { work } = defineProps<{
@@ -9,7 +9,7 @@ const { work } = defineProps<{
   index: number
 }>()
 
-const { dois } = storeToRefs(useAppStore())
+const { dois } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()

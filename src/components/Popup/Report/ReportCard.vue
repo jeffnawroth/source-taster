@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import { useAppStore } from '~/stores/app'
+import { useDoiStore } from '~/stores/doi'
 import NetworkErrorState from './States/NetworkErrorState.vue'
 import NoWorksFoundState from './States/NoWorksFoundState.vue'
 
 // App Store
-const appStore = useAppStore()
-const { getDOIsMetadata, abortFetching } = appStore
-const { works, loading } = storeToRefs(useAppStore())
+const doiStore = useDoiStore()
+const { getDOIsMetadata, abortFetching } = doiStore
+const { works, loading } = storeToRefs(doiStore)
 
 // i18n
 const { t } = useI18n()
