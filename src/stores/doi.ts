@@ -2,7 +2,7 @@ import { CrossrefClient, type HttpResponse, type Item, type Work } from '@jamesg
 import { useDebounceFn } from '@vueuse/core'
 
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { extractDOIs } from '~/doiExtractor'
+import { extractDOIs } from '~/utils/doiExtractor'
 
 export const useDoiStore = defineStore('doi', () => {
   // Data

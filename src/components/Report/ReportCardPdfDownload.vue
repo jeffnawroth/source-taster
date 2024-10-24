@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDoiStore } from '~/stores/doi'
 
-import { generatePDFReport } from '../../../popup/pdfUtils'
+import { generatePDFReport } from '~/utils/pdfUtils'
 
 // Work Store
 

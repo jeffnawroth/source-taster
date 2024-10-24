@@ -1,7 +1,10 @@
-<script setup lang="ts">
-import Popup from '~/popup/Popup.vue'
-</script>
-
 <template>
-  <Popup />
+  <v-app>
+    <AppBar />
+    <v-main>
+      <v-container>
+        <AppCard />
+      </v-container>
+    </v-main>
+  </v-app>
 </template>

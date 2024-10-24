@@ -18,7 +18,7 @@ watchEffect(() => {
     <AppBar />
     <v-main>
       <v-container>
-        <Index />
+        <AppOptions />
       </v-container>
     </v-main>
   </v-app>
