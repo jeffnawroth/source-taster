@@ -2,6 +2,7 @@
 import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
 
+// I18n
 const { t } = useI18n()
 
 // Props
@@ -26,7 +27,7 @@ onMessage('autoImportBibliography', ({ data }) => {
 })
 
 // Computed
-const placeholder = computed(() => autoImportOption.value ? t('refresh-page-auto-import') : t('insert-dois'))
+const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
 
 // Watchers
 watch(autoImportOption, () => bibliography.value = '')

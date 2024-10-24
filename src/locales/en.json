@@ -18,7 +18,7 @@
   "no-match": "We couldn't find a match ",
   "connection-problem": "There might be a problem with your connection. Please check your internet connection.",
   "sth-went-wrong": "Something went wrong.",
-  "refresh-page-auto-import": "Refresh page to auto-import DOI(s)",
+  "reload-page-auto-import": "Reload page to auto-import DOI(s)",
   "insert-dois": "Insert DOI(s)",
   "english": "English",
   "german": "German",
@@ -36,6 +36,7 @@
   "light": "Light",
   "dark": "Dark",
   "system": "System",
-  "display": "Display"
+  "display": "Display",
+  "reload-page": "Reload page"
 
 }

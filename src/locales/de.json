@@ -17,7 +17,7 @@
   "no-works-found": "Es konnten keine passenden Literaturangaben anhand der bereitgestellten DOI(s) gefunden werden. Bitte überprüfen Sie die DOI-Einträge auf Richtigkeit. Eine korrekte Formatierung und Vollständigkeit kann die Suchergebnisse verbessern.",
   "no-match": "Wir konnten keine Übereinstimmung finden",
   "connection-problem": "Es könnte ein Problem mit Ihrer Verbindung geben. Bitte überprüfen Sie Ihre Internetverbindung.",
-  "refresh-page-auto-import": "Seite aktualisieren, um DOI(s) automatisch zu importieren",
+  "reload-page-auto-import": "Seite neu laden, um DOI(s) automatisch zu importieren",
   "insert-dois": "DOI(s) einfügen",
   "english": "Englisch",
   "german": "Deutsch",
@@ -35,5 +35,6 @@
   "light": "Hell",
   "dark": "Dunkel",
   "system": "System",
-  "display": "Darstellung"
+  "display": "Darstellung",
+  "reload-page": "Seite neu laden"
 }
