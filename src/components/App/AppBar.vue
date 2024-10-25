@@ -39,6 +39,8 @@ function toggleTheme() {
     title="The Source Taster"
     color="transparent"
     density="compact"
+    scroll-threshold="25"
+    scroll-behavior="hide"
   >
     <!-- <template #prepend>
       <v-app-bar-nav-icon
