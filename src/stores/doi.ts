@@ -1,0 +1,86 @@
+import { CrossrefClient, type HttpResponse, type Item, type Work } from '@jamesgopsill/crossref-client'
+import { useDebounceFn } from '@vueuse/core'
+
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { extractDOIs } from '~/utils/doiExtractor'
+
+export const useDoiStore = defineStore('doi', () => {
+  // Data
+  const bibliography = ref<string>('')
+  const client = new CrossrefClient()
+  const loading = ref(false)
+  const loadAborted = ref(false)
+
+  const works = ref<HttpResponse<Item<Work>>[]>([])
+
+  // Computed
+
+  // Extracts DOIs from the bibliography
+  const dois = computed(() => extractDOIs(bibliography.value))
+
+  // Number of DOIs found in the bibliography
+  const found = computed(() => works.value.length)
+
+  // Number of DOIs that passed the check
+  const passed = computed(() => works.value.filter(work => work.ok && work.status === 200 && work.content).length)
+
+  // Number of DOIs that have a warning
+  const warning = computed(() => works.value.filter(work => work.ok && work.status === 200 && !work.content).length)
+
+  // Number of DOIs that failed the check
+  const failed = computed(() => works.value.filter(work => !work.ok && work.status === 404).length)
+
+  // Resolves the DOI
+  async function resolveDOI(doi: string) {
+    try {
+      const response = await fetch(`https://doi.org/${doi}`)
+      return response
+    }
+    catch (error) {
+      console.error(error)
+    }
+  }
+
+  const getDOIsMetadata = useDebounceFn(async () => {
+    loadAborted.value = false
+    works.value = []
+
+    for (const doi of dois.value) {
+      if (loadAborted.value) {
+        break
+      }
+
+      try {
+        loading.value = true
+        const response = await client.work(doi)
+
+        if (!response.ok) {
+          const response2 = await resolveDOI(doi) as HttpResponse<Item<Work>>
+          works.value.push(response2)
+          continue
+        }
+        works.value.push(response)
+      }
+      catch (error) {
+        console.error(error)
+      }
+      finally {
+        loading.value = false
+      }
+    }
+  }, 500)
+
+  watch(dois, () => getDOIsMetadata())
+
+  // Aborts fetching the DOIs metadata
+  function abortFetching() {
+    loadAborted.value = true
+    loading.value = false
+  }
+
+  return { dois, resolveDOI, bibliography, loading, loadAborted, works, found, passed, warning, failed, getDOIsMetadata, abortFetching }
+})
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useDoiStore, import.meta.hot))
+}

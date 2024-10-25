@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useDoiStore } from '~/stores/doi'
+
+const { getDOIsMetadata, abortFetching } = useDoiStore()
+
 // Refs
 const isOnline = ref(navigator.onLine)
 
@@ -18,6 +22,16 @@ window.addEventListener('online', () => {
 
 defineExpose({
   isOnline,
+})
+
+// Watchers
+watch(isOnline, (newValue) => {
+  if (newValue) {
+    getDOIsMetadata()
+  }
+  else {
+    abortFetching()
+  }
 })
 </script>
 
