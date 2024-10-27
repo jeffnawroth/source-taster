@@ -41,13 +41,13 @@ export async function getManifest() {
       128: './assets/icon128.png',
     },
     permissions: [
-      'tabs',
+      // 'tabs',
       'storage',
       'activeTab',
       'contextMenus',
       'sidePanel',
     ],
-    host_permissions: ['*://*/*'],
+    // host_permissions: ['*://*/*'],
     content_scripts: [
       {
         matches: [
