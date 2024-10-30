@@ -2,6 +2,7 @@ import { CrossrefClient, type HttpResponse, type Item, type Work } from '@jamesg
 import { useDebounceFn } from '@vueuse/core'
 
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { autoImportOption } from '~/logic'
 import { extractDOIs } from '~/utils/doiExtractor'
 
 export const useDoiStore = defineStore('doi', () => {
@@ -12,6 +13,9 @@ export const useDoiStore = defineStore('doi', () => {
   const loadAborted = ref(false)
 
   const works = ref<HttpResponse<Item<Work>>[]>([])
+
+  const url = ref('')
+  const file = ref<File | null>(null)
 
   // Computed
 
@@ -70,7 +74,24 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }, 500)
 
+  // Watchers
   watch(dois, () => getDOIsMetadata())
+
+  watch(autoImportOption, (newValue) => {
+    if (!newValue)
+      reset()
+  })
+
+  watch(bibliography, (newValue) => {
+    if (!newValue)
+      reset()
+  })
+
+  function reset() {
+    bibliography.value = ''
+    url.value = ''
+    file.value = null
+  }
 
   // Aborts fetching the DOIs metadata
   function abortFetching() {
@@ -78,7 +99,7 @@ export const useDoiStore = defineStore('doi', () => {
     loading.value = false
   }
 
-  return { dois, resolveDOI, bibliography, loading, loadAborted, works, found, passed, warning, failed, getDOIsMetadata, abortFetching }
+  return { dois, resolveDOI, bibliography, loading, loadAborted, works, found, passed, warning, failed, getDOIsMetadata, abortFetching, url, file }
 })
 
 if (import.meta.hot) {

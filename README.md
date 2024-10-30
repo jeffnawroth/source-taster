@@ -14,14 +14,15 @@ The Source Taster is a browser extension that helps users, especially students a
 
 ## Features
 
-- **📥 Context Menu Import**: Load bibliographies directly via the context menu.
-- **🔍 Automatic Detection**: Automatically detect and load bibliographies from websites
+- **📥 Context Menu Import**: Load bibliographies directly via the context menu into the extension
+- **🔍 Automatic Detection**: Automatically detect and load DOIs from websites
+- **📎 PDF Import**: Import PDF files or links to PDFs directly into the extension and validate their DOIs
 - **📊 Report Generation**: Generate a report indicating which DOIs exist, which are not in the Crossref database, and which do not exist
-- **📄 PDF Download**: Download the generated report as a PDF
-- **🌐 Open Literature in New Tab**: Access found literature directly in a new tab
-- **🌙 Dark/Light Mode**: Toggle between dark and light mode
-- **🗣️ Multiple Language Support**: The extension supports both German and English languages
-- **🖥️ Choose Display Mode**: Choose between displaying the extension in a side panel or as a popup window.
+- **📄 Report Download**: Download the generated report as a PDF
+- **🌐 Open Literature**: Open found literature directly in a new tab
+- **🌙 Multiple Themes**: Toggle between dark, light and system mode
+- **🗣️ Multiple Languages**: Supports both German and English languages
+- **🖥️ Choose Display Mode**: Choose between side panel and popup as a window
 
 ## How it Works
 The Source Taster functions by extracting DOIs from the text of academic papers. It then queries the [Crossref](https://www.crossref.org/) database to check the existence of these DOIs. If a DOI is not found in the database, the extension further investigates whether it can still be [resolved](https://dx.doi.org/).
