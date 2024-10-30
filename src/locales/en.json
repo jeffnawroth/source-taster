@@ -41,5 +41,9 @@
   "no-valid-dois-were-found": "No valid DOIs were found",
   "no-input-provided": "No Input Provided",
   "enter-dois": "Please enter one or more DOIs to search for matching literature.",
-  "check-dois": "Please check the format and ensure accuracy to improve search results."
+  "check-dois": "Please check the format and ensure accuracy to improve search results.",
+  "upload-pdf": "Upload PDF",
+  "enter-url": "Enter URL",
+  "invalid-url": "Invalid URL"
+
 }
