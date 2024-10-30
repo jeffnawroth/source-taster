@@ -4,10 +4,9 @@ import { useDoiStore } from '~/stores/doi'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { bibliography } = storeToRefs(doiStore)
+const { bibliography, url, file } = storeToRefs(doiStore)
 
 // Data
-const file = ref<File | null>(null)
 
 // Functions
 async function extractPDFText() {
@@ -30,17 +29,27 @@ async function extractPDFText() {
     console.warn('Please upload a valid PDF file.')
   }
 }
+
+watch(file, (newValue) => {
+  if (newValue) {
+    extractPDFText()
+  }
+  else {
+    bibliography.value = ''
+  }
+})
 </script>
 
 <template>
   <v-file-input
     v-model="file"
     accept=".pdf"
-    :label="$t('uploadPDF')"
+    :label="$t('upload-pdf')"
     variant="solo-filled"
     flat
     prepend-inner-icon="mdi-file-pdf-box"
     prepend-icon=""
-    @update:model-value="extractPDFText"
+    clearable
+    :disabled="!!url"
   />
 </template>

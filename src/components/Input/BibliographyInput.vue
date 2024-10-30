@@ -4,7 +4,7 @@ import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
 // App Store
-const { bibliography, dois } = storeToRefs(useDoiStore())
+const { bibliography, dois, url } = storeToRefs(useDoiStore())
 
 // Listen for messages
 onMessage('bibliography', ({ data }) => {
@@ -14,6 +14,8 @@ onMessage('bibliography', ({ data }) => {
 onMessage('autoImportBibliography', ({ data }) => {
   if (!autoImportOption.value)
     return
+
+  url.value = data.url
 
   bibliography.value = data.selectedText
 
@@ -27,19 +29,25 @@ const { t } = useI18n()
 
 // Computed
 const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
-
-// Watchers
-watch(autoImportOption, () => bibliography.value = '')
 </script>
 
 <template>
   <v-card
     flat
+    title="Input"
+    prepend-icon="mdi-text"
   >
     <v-card-text
       class="pa-0"
     >
-      <file-upload />
+      <v-row>
+        <v-col>
+          <file-input />
+        </v-col>
+        <v-col>
+          <url-input />
+        </v-col>
+      </v-row>
 
       <v-textarea
         v-model="bibliography"
