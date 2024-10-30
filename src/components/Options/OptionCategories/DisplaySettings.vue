@@ -6,44 +6,59 @@ const { t } = useI18n()
 
 // Data
 const themes = ref(['light', 'dark', 'system'])
-const isPopup = ref(false)
-
+const displayOptions = ref([
+  { label: 'Sidepanel', value: 'sidepanel' },
+  { label: 'Popup', value: 'popup' },
+])
+const selectedDisplayOption = ref('sidepanel')
 // Lifecycle hooks
 
 // Load the saved option when the component is mounted
 onMounted(() => {
-  getDisplayOption().then((option) => {
-    // Set the checkbox based on the saved display option
-    isPopup.value = option === 'popup'
-  }).catch((error) => {
-    console.error('Failed to load display option:', error)
-  })
+  getDisplayOption()
+    .then((option) => {
+      selectedDisplayOption.value = option
+      // eslint-disable-next-line no-console
+      console.log('Loaded display option on mount:', option)
+    })
+    .catch((error) => {
+      console.error('Failed to load display option:', error)
+    })
 })
 
 // Methods
 
-// Save the user's choice when the checkbox is toggled
-function saveDisplayOption() {
-  const newValue = isPopup.value ? 'popup' : 'sidepanel'
-  setDisplayOption(newValue).then(() => {
-    // eslint-disable-next-line no-console
-    console.log('Display option saved successfully:', newValue)
-  }).catch((error) => {
-    console.error('Failed to save display option:', error)
-  })
-}
+// Watch for changes for the display option
+watch(selectedDisplayOption, (newValue) => {
+  // eslint-disable-next-line no-console
+  console.log('Display option changed to:', newValue)
+  setDisplayOption(newValue)
+    .then(() => {
+      // eslint-disable-next-line no-console
+      console.log('Display option saved successfully:', newValue)
+    })
+    .catch((error) => {
+      console.error('Failed to save display option:', error)
+    })
+})
 </script>
 
 <template>
   <OptionCategory :subheader="t('display')">
     <OptionListItem
-      :title="t('use-popup')"
-      :subtitle="t('use-popup-description')"
+      :title="t('Display-Mode')"
+      :subtitle="t('Select the display-mode for the extension')"
     >
-      <v-checkbox-btn
-        v-model="isPopup"
+      <v-select
+        v-model="selectedDisplayOption"
+        :items="displayOptions"
+        item-title="label"
+        item-value="value"
         color="primary"
-        @change="saveDisplayOption"
+        density="compact"
+        hide-details
+        variant="solo"
+        flat
       />
     </OptionListItem>
 
