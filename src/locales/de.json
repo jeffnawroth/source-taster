@@ -40,5 +40,6 @@
   "no-valid-dois-were-found": "Es wurden keine gültigen DOIs gefunden",
   "no-input-provided": "Keine Eingabe bereitgestellt",
   "enter-dois": "Bitte geben Sie einen oder mehrere DOIs ein, um passende Literatur zu suchen.",
-  "check-dois": "Bitte überprüfen Sie das Format und stellen Sie die Richtigkeit sicher, um die Suchergebnisse zu verbessern."
+  "check-dois": "Bitte überprüfen Sie das Format und stellen Sie die Richtigkeit sicher, um die Suchergebnisse zu verbessern.",
+  "uploadPDF": "PDF-Datei hochladen"
 }

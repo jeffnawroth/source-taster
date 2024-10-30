@@ -34,21 +34,22 @@ watch(autoImportOption, () => bibliography.value = '')
 
 <template>
   <v-card
-    title="DOI(s)"
-    prepend-icon="mdi-text"
     flat
   >
     <v-card-text
       class="pa-0"
     >
+      <file-upload />
+
       <v-textarea
         v-model="bibliography"
         auto-grow
+        prepend-inner-icon="mdi-text"
         :placeholder
         hide-details
         max-rows="8"
         rows="2"
-        variant="outlined"
+        variant="solo-filled"
         autofocus
         clearable
       />
