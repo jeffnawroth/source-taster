@@ -125,24 +125,40 @@ getDisplayOption()
   .catch(error => console.error('Failed to load display option:', error))
 
 // Listen for changes in chrome.storage.sync and update the view based on the new selection
-chrome.storage.onChanged.addListener((changes: { displayOption: { newValue: string } }, area: string) => {
-  if (area === 'sync' && changes.displayOption) {
-    // eslint-disable-next-line no-console
-    console.log('Display option changed:', changes.displayOption.newValue)
-    initializeView(changes.displayOption.newValue)
-  }
+chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: string } }, area: string) => {
+  // eslint-disable-next-line no-console
+  console.log('chrome.storage.onChanged triggered:', changes)
 
-  // Remove or create the "Open Sidepanel" context menu item based on the new display option
-  if (changes.displayOption.newValue === 'popup') {
-    // Remove the sidepanel menu item if Popup is active
-    browser.contextMenus.remove('openSidePanel')
-  }
-  else if (changes.displayOption.newValue === 'sidepanel') {
-    // Re-add the sidepanel menu item if Sidepanel is active
-    browser.contextMenus.create({
-      id: 'openSidePanel',
-      title: 'Open side panel',
-      contexts: ['all'],
-    })
+  if (area === 'sync' && changes.displayOption) {
+    const newDisplayOption = changes.displayOption.newValue
+
+    if (newDisplayOption) {
+      // eslint-disable-next-line no-console
+      console.log('Display option changed:', newDisplayOption)
+      initializeView(newDisplayOption)
+    }
+    else {
+      console.warn('No relevant displayOption change detected, or newValue is undefined.')
+    }
+
+    // Remove or create the "Open Sidepanel" context menu item based on the new display option
+    if (newDisplayOption === 'popup') {
+      // Remove the sidepanel menu item if Popup is active
+      browser.contextMenus.remove('openSidePanel').catch((error) => {
+        console.warn('Failed to remove openSidePanel menu item:', error)
+      })
+    }
+    else if (newDisplayOption === 'sidepanel') {
+      // Re-add the sidepanel menu item if Sidepanel is active
+      browser.contextMenus.create({
+        id: 'openSidePanel',
+        title: 'Open side panel',
+        contexts: ['all'],
+      }, () => {
+        if (chrome.runtime.lastError) {
+          console.warn('Failed to create openSidePanel menu item:', chrome.runtime.lastError.message)
+        }
+      })
+    }
   }
 })
