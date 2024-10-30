@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useDoiStore } from '~/stores/doi'
-
-import { generatePDFReport } from '~/utils/pdfUtils'
+import { generatePDFReport } from '../../../utils/pdfUtils'
 
 // Work Store
 
@@ -10,6 +9,25 @@ const { dois, works, passed, failed, warning } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()
+
+async function downloadPDF() {
+  const pdfBytes = await generatePDFReport(
+    dois.value,
+    passed.value,
+    warning.value,
+    failed.value,
+    works.value,
+  )
+
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = 'report.pdf'
+  link.click()
+
+  URL.revokeObjectURL(link.href)
+}
 </script>
 
 <template>
@@ -19,8 +37,7 @@ const { t } = useI18n()
         v-bind="tooltipProps"
         icon="mdi-download"
         variant="plain"
-
-        @click="generatePDFReport(dois, passed, warning, failed, works)"
+        @click="downloadPDF(dois, passed, warning, failed, works)"
       />
     </template>
     {{ t('download-report-pdf') }}
