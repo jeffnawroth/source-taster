@@ -10,6 +10,7 @@ const { t } = useI18n()
     <OptionListItem
       :title="t('auto-import-dois')"
       :subtitle="t('auto-import-dois-description')"
+      prepend-icon="mdi-auto-upload"
       @click="autoImportOption = !autoImportOption"
     >
       <v-checkbox-btn

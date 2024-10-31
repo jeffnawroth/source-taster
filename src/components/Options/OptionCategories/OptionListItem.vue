@@ -10,14 +10,10 @@ defineProps<{
   <v-list-item
     :title
     :subtitle
+    :prepend-icon
   >
-    <template #prepend>
-      <v-list-item-action start>
-        <v-icon v-if="prependIcon">
-          {{ prependIcon }}
-        </v-icon>
-        <slot />
-      </v-list-item-action>
+    <template #append>
+      <slot />
     </template>
   </v-list-item>
 </template>

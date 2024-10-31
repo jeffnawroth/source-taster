@@ -46,6 +46,8 @@
   "enter-url": "Enter URL",
   "invalid-url": "Invalid URL",
   "about": "About",
-  "version": "Version"
+  "version": "Version",
+  "display-mode": "Display Mode",
+  "display-mode-description": "Select the display mode of the extension"
 
 }

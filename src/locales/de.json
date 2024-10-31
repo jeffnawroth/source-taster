@@ -45,5 +45,7 @@
   "enter-url": "URL eingeben",
   "invalid-url": "Ungültige URL",
   "about": "Über",
-  "version": "Version"
+  "version": "Version",
+  "display-mode": "Anzeigemodus",
+  "display-mode-description": "Wählen Sie den Anzeigemodus der Erweiterung"
 }
