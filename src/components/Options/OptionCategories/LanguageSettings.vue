@@ -16,6 +16,7 @@ const languages = ref([
     <OptionListItem
       :title="t('language')"
       :subtitle="t('language-option-description')"
+      prepend-icon="mdi-translate"
     >
       <v-select
         v-model="localeOption"
@@ -24,7 +25,7 @@ const languages = ref([
         item-value="locale"
         hide-details
         density="compact"
-        variant="solo"
+        variant="solo-filled"
         flat
       />
     </OptionListItem>

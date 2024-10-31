@@ -1,7 +1,7 @@
 import { useWebExtensionStorage } from '~/composables/useWebExtensionStorage'
 
 export const autoImportOption = useWebExtensionStorage('auto-import-option', false)
-export const themeOption = useWebExtensionStorage('theme-option', 'dark')
+export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
 
 declare let chrome: any

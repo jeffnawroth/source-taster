@@ -13,6 +13,30 @@ const displayOptions = ref([
 const selectedDisplayOption = ref('sidepanel')
 // Lifecycle hooks
 
+const themePrependIcon = computed(() => {
+  switch (themeOption.value) {
+    case 'light':
+      return 'mdi-white-balance-sunny'
+    case 'dark':
+      return 'mdi-weather-night'
+    case 'system':
+      return 'mdi-desktop-tower-monitor'
+    default:
+      return 'mdi-desktop-tower-monitor'
+  }
+})
+
+const displayModePrependIcon = computed(() => {
+  switch (selectedDisplayOption.value) {
+    case 'sidepanel':
+      return 'mdi-page-layout-sidebar-right'
+    case 'popup':
+      return 'mdi-window-maximize'
+    default:
+      return 'mdi-page-layout-sidebar-right'
+  }
+})
+
 // Load the saved option when the component is mounted
 onMounted(() => {
   getDisplayOption()
@@ -46,8 +70,9 @@ watch(selectedDisplayOption, (newValue) => {
 <template>
   <OptionCategory :subheader="t('display')">
     <OptionListItem
-      :title="t('Display-Mode')"
-      :subtitle="t('Select the display-mode for the extension')"
+      :title="t('display-mode')"
+      :subtitle="t('display-mode-description')"
+      :prepend-icon="displayModePrependIcon"
     >
       <v-select
         v-model="selectedDisplayOption"
@@ -57,7 +82,7 @@ watch(selectedDisplayOption, (newValue) => {
         color="primary"
         density="compact"
         hide-details
-        variant="solo"
+        variant="solo-filled"
         flat
       />
     </OptionListItem>
@@ -65,6 +90,7 @@ watch(selectedDisplayOption, (newValue) => {
     <OptionListItem
       :title="t('theme')"
       :subtitle="t('theme-option-description')"
+      :prepend-icon="themePrependIcon"
     >
       <v-select
         v-model="themeOption"
@@ -73,7 +99,7 @@ watch(selectedDisplayOption, (newValue) => {
         :item-value="(option) => option"
         density="compact"
         hide-details
-        variant="solo"
+        variant="solo-filled"
         flat
       />
     </OptionListItem>

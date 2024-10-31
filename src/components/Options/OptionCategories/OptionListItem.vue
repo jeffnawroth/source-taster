@@ -2,6 +2,7 @@
 defineProps<{
   title: string
   subtitle: string
+  prependIcon?: string
 }>()
 </script>
 
@@ -9,11 +10,10 @@ defineProps<{
   <v-list-item
     :title
     :subtitle
+    :prepend-icon
   >
-    <template #prepend>
-      <v-list-item-action start>
-        <slot />
-      </v-list-item-action>
+    <template #append>
+      <slot />
     </template>
   </v-list-item>
 </template>

@@ -25,11 +25,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (ev
 function openOptionsPage() {
   browser.runtime.openOptionsPage()
 }
-
-function toggleTheme() {
-  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
-  themeOption.value = theme.global.name.value
-}
 </script>
 
 <template>
@@ -42,30 +37,10 @@ function toggleTheme() {
     scroll-threshold="25"
     scroll-behavior="hide"
   >
-    <!-- <template #prepend>
-      <v-app-bar-nav-icon
-        size="small"
-        icon="mdi-book-check-outline"
-      />
-    </template> -->
     <template #append>
       <v-btn
-        icon="mdi-github"
-        href="https://github.com/jeffnawroth/source-taster"
-        target="_blank"
         size="small"
-        variant="plain"
-      />
-      <v-btn
-        size="small"
-        icon="mdi-theme-light-dark"
-        variant="plain"
-        @click="toggleTheme"
-      />
-
-      <v-btn
-        size="small"
-        icon="mdi-cog"
+        icon="mdi-cog-outline"
         variant="plain"
 
         @click="openOptionsPage"
