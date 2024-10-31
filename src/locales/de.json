@@ -43,5 +43,7 @@
   "check-dois": "Bitte überprüfen Sie das Format und stellen Sie die Richtigkeit sicher, um die Suchergebnisse zu verbessern.",
   "upload-pdf": "PDF-Datei hochladen",
   "enter-url": "URL eingeben",
-  "invalid-url": "Ungültige URL"
+  "invalid-url": "Ungültige URL",
+  "about": "Über",
+  "version": "Version"
 }

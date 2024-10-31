@@ -42,20 +42,7 @@ function toggleTheme() {
     scroll-threshold="25"
     scroll-behavior="hide"
   >
-    <!-- <template #prepend>
-      <v-app-bar-nav-icon
-        size="small"
-        icon="mdi-book-check-outline"
-      />
-    </template> -->
     <template #append>
-      <v-btn
-        icon="mdi-github"
-        href="https://github.com/jeffnawroth/source-taster"
-        target="_blank"
-        size="small"
-        variant="plain"
-      />
       <v-btn
         size="small"
         icon="mdi-theme-light-dark"
