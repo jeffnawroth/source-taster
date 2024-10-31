@@ -25,11 +25,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (ev
 function openOptionsPage() {
   browser.runtime.openOptionsPage()
 }
-
-function toggleTheme() {
-  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
-  themeOption.value = theme.global.name.value
-}
 </script>
 
 <template>
@@ -43,13 +38,6 @@ function toggleTheme() {
     scroll-behavior="hide"
   >
     <template #append>
-      <v-btn
-        size="small"
-        icon="mdi-theme-light-dark"
-        variant="plain"
-        @click="toggleTheme"
-      />
-
       <v-btn
         size="small"
         icon="mdi-cog"
