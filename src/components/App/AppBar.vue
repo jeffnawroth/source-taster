@@ -40,7 +40,7 @@ function openOptionsPage() {
     <template #append>
       <v-btn
         size="small"
-        icon="mdi-cog"
+        icon="mdi-cog-outline"
         variant="plain"
 
         @click="openOptionsPage"
