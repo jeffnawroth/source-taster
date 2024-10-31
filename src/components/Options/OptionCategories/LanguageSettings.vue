@@ -24,7 +24,7 @@ const languages = ref([
         item-value="locale"
         hide-details
         density="compact"
-        variant="solo"
+        variant="solo-filled"
         flat
       />
     </OptionListItem>

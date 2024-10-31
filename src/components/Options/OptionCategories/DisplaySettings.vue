@@ -57,7 +57,7 @@ watch(selectedDisplayOption, (newValue) => {
         color="primary"
         density="compact"
         hide-details
-        variant="solo"
+        variant="solo-filled"
         flat
       />
     </OptionListItem>
@@ -73,7 +73,7 @@ watch(selectedDisplayOption, (newValue) => {
         :item-value="(option) => option"
         density="compact"
         hide-details
-        variant="solo"
+        variant="solo-filled"
         flat
       />
     </OptionListItem>
