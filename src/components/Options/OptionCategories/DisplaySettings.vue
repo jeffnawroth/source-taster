@@ -22,7 +22,7 @@ const themePrependIcon = computed(() => {
     case 'system':
       return 'mdi-desktop-tower-monitor'
     default:
-      return 'mdi-weather-night'
+      return 'mdi-desktop-tower-monitor'
   }
 })
 
