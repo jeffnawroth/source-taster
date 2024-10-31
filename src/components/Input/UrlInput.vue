@@ -58,5 +58,6 @@ watch(url, (newValue) => {
     variant="solo-filled"
     flat
     :disabled="!!file"
+    hide-details="auto"
   />
 </template>

@@ -51,5 +51,6 @@ watch(file, (newValue) => {
     prepend-icon=""
     clearable
     :disabled="!!url"
+    hide-details="auto"
   />
 </template>
