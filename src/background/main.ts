@@ -112,7 +112,7 @@ function initializeView(displayOption: string) {
     chrome.action.setPopup({ popup: './dist/popup/index.html' })
     if (chrome.sidePanel) {
       chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error: any) => {
-        console.error('Error disabling Sidepanel:', error)
+        console.error('Error disabling side panel:', error)
       })
     }
   }
@@ -125,11 +125,11 @@ function initializeView(displayOption: string) {
       }
     })
     // eslint-disable-next-line no-console
-    console.log('Sidepanel option selected')
+    console.log('Side panel option selected')
     chrome.action.setPopup({ popup: '' })
     if (chrome.sidePanel) {
       chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: any) => {
-        console.error('Error setting Sidepanel behavior:', error)
+        console.error('Error setting side panel behavior:', error)
       })
     }
   }
@@ -172,7 +172,7 @@ chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: str
       // Re-add the sidepanel menu item if Sidepanel is active
       browser.contextMenus.create({
         id: 'openSidePanel',
-        title: 'Open side panel',
+        title: 'Open Side Panel',
         contexts: ['all'],
       }, () => {
         if (chrome.runtime.lastError) {
