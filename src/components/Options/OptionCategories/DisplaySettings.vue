@@ -7,7 +7,7 @@ const { t } = useI18n()
 // Data
 const themes = ref(['light', 'dark', 'system'])
 const displayOptions = ref([
-  { label: 'Sidepanel', value: 'sidepanel' },
+  { label: 'Side Panel', value: 'sidepanel' },
   { label: 'Popup', value: 'popup' },
 ])
 const selectedDisplayOption = ref('sidepanel')

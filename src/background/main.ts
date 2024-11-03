@@ -13,6 +13,7 @@ if (import.meta.hot) {
 
 declare let chrome: any
 const USE_SIDE_PANEL = true
+let cachedDisplayOption: string = 'sidepanel'
 
 // to toggle the sidepanel with the action button in chromium:
 if (USE_SIDE_PANEL) {
@@ -29,14 +30,14 @@ browser.runtime.onInstalled.addListener((): void => {
   // Create the "Check Bibliography" context menu item
   browser.contextMenus.create({
     id: 'check-bibliography',
-    title: 'Check Bibliography',
+    title: 'Check Selected Text',
     contexts: ['selection'],
   })
 
   // Create the "Open side panel" context menu item
   browser.contextMenus.create({
     id: 'openSidePanel',
-    title: 'Open side panel',
+    title: 'Open Side Panel',
     contexts: ['all'],
   })
 })
@@ -44,47 +45,62 @@ browser.runtime.onInstalled.addListener((): void => {
 // Handle context menu click
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'check-bibliography' && info.selectionText) {
-    // Use chrome.storage.sync.get to retrieve the display option synchronously
-    chrome.storage.sync.get('displayOption', (result: { displayOption: string }) => {
-      const displayOption = result.displayOption || 'sidepanel' // Default to sidepanel if not set
+    if (cachedDisplayOption === 'popup') {
+      // eslint-disable-next-line no-console
+      console.log('Opening popup...')
+      chrome.action.openPopup().then(() => {
+        // @ts-expect-error missing types
+        sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
+      }).catch((error: any) => {
+        console.error('Failed to open the popup:', error)
+      })
+    }
+    else if (cachedDisplayOption === 'sidepanel') {
+      // Check if windowId is valid
+      let windowId = tab?.windowId && tab.windowId !== -1 ? tab.windowId : null
 
-      if (displayOption === 'popup') {
-        // If the Popup view is selected, open the popup and send the message
-        // eslint-disable-next-line no-console
-        console.log('Opening popup...')
-        chrome.action.openPopup().then(() => {
+      if (windowId === null) {
+        // Use the last focused window as fallback if windowId is invalid
+        chrome.windows.getLastFocused((lastFocusedWindow: { id: number | null }) => {
+          if (lastFocusedWindow && lastFocusedWindow.id) {
+            windowId = lastFocusedWindow.id
+            try {
+              // @ts-expect-error missing types
+              browser.sidePanel.open({ windowId }).then(() => {
+                // eslint-disable-next-line no-console
+                console.log('Performing bibliography check in sidepanel...')
+                // @ts-expect-error missing types
+                sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
+              }).catch((error: any) => {
+                console.error('Failed to open sidepanel with fallback windowId:', error)
+              })
+            }
+            catch (error) {
+              console.error('Error opening sidepanel with fallback windowId:', error)
+            }
+          }
+          else {
+            console.warn('Unable to open sidepanel: No valid windowId detected.')
+          }
+        })
+      }
+      else {
+        // Open sidepanel if a valid windowId is found
+        // @ts-expect-error missing types
+        browser.sidePanel.open({ windowId }).then(() => {
+          // eslint-disable-next-line no-console
+          console.log('Performing bibliography check in sidepanel...')
           // @ts-expect-error missing types
           sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
         }).catch((error: any) => {
-          console.error('Failed to open the popup:', error)
+          console.error('Failed to open sidepanel:', error)
         })
       }
-      else if (displayOption === 'sidepanel') {
-        // If the Sidepanel view is selected, open the sidepanel
-        // eslint-disable-next-line no-console
-        console.log('Opening sidepanel...')
-        try {
-          // Open the sidepanel directly in response to the user click
-          // @ts-expect-error missing types
-          browser.sidePanel.open({ windowId: tab.windowId }).then(() => {
-            // Perform the bibliography check after the sidepanel is opened
-            // eslint-disable-next-line no-console
-            console.log('Performing bibliography check in sidepanel...')
-            // @ts-expect-error missing types
-            sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
-          }).catch((error: any) => {
-            console.error('Failed to open sidepanel:', error)
-          })
-        }
-        catch (error) {
-          console.error('Error opening sidepanel:', error)
-        }
-      }
-    })
+    }
   }
 })
 
-// New logic to handle Popup vs Sidepanel based on the saved user option
+// Logic to handle Popup vs Sidepanel based on the saved user option
 function initializeView(displayOption: string) {
   // eslint-disable-next-line no-console
   console.log('Initializing view with option:', displayOption)
@@ -96,7 +112,7 @@ function initializeView(displayOption: string) {
     chrome.action.setPopup({ popup: './dist/popup/index.html' })
     if (chrome.sidePanel) {
       chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error: any) => {
-        console.error('Error disabling Sidepanel:', error)
+        console.error('Error disabling side panel:', error)
       })
     }
   }
@@ -109,20 +125,23 @@ function initializeView(displayOption: string) {
       }
     })
     // eslint-disable-next-line no-console
-    console.log('Sidepanel option selected')
+    console.log('Side panel option selected')
     chrome.action.setPopup({ popup: '' })
     if (chrome.sidePanel) {
       chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: any) => {
-        console.error('Error setting Sidepanel behavior:', error)
+        console.error('Error setting side panel behavior:', error)
       })
     }
   }
 }
 
 // Load initial user option from storage using the storage utility
-getDisplayOption()
-  .then(displayOption => initializeView(displayOption))
-  .catch(error => console.error('Failed to load display option:', error))
+getDisplayOption().then((option) => {
+  cachedDisplayOption = option
+  initializeView(cachedDisplayOption)
+}).catch((error) => {
+  console.error('Failed to load display option:', error)
+})
 
 // Listen for changes in chrome.storage.sync and update the view based on the new selection
 chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: string } }, area: string) => {
@@ -135,6 +154,7 @@ chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: str
     if (newDisplayOption) {
       // eslint-disable-next-line no-console
       console.log('Display option changed:', newDisplayOption)
+      cachedDisplayOption = newDisplayOption
       initializeView(newDisplayOption)
     }
     else {
@@ -152,7 +172,7 @@ chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: str
       // Re-add the sidepanel menu item if Sidepanel is active
       browser.contextMenus.create({
         id: 'openSidePanel',
-        title: 'Open side panel',
+        title: 'Open Side Panel',
         contexts: ['all'],
       }, () => {
         if (chrome.runtime.lastError) {
