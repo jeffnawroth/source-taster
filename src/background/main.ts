@@ -30,14 +30,14 @@ browser.runtime.onInstalled.addListener((): void => {
   // Create the "Check Bibliography" context menu item
   browser.contextMenus.create({
     id: 'check-bibliography',
-    title: 'Check Bibliography',
+    title: 'Check Selected Text',
     contexts: ['selection'],
   })
 
   // Create the "Open side panel" context menu item
   browser.contextMenus.create({
     id: 'openSidePanel',
-    title: 'Open side panel',
+    title: 'Open Side Panel',
     contexts: ['all'],
   })
 })
