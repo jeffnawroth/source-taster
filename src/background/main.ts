@@ -42,7 +42,54 @@ browser.runtime.onInstalled.addListener((): void => {
   })
 })
 
-// Handle context menu click
+// Global error-catcher for unhandled Promise rejections
+// eslint-disable-next-line no-restricted-globals
+self.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && event.reason.message && event.reason.message.includes('No window with id: -1')) {
+    console.warn('Encountered `No window with id: -1` but proceeding without disruption.')
+    event.preventDefault() // Suppresses the error display in the console
+  }
+})
+
+// Helper function to open the sidepanel with specific validation and fallback
+// @ts-expect-error missing types
+function attemptSidePanelOpen(windowId: number | null, selectedText?: string, tab?: chrome.tabs.Tab) {
+  if (windowId !== null && windowId !== -1) {
+    // eslint-disable-next-line no-console
+    console.log(`Performing sidepanel open with validated windowId: ${windowId}`)
+
+    try {
+      // @ts-expect-error missing types
+      browser.sidePanel.open({ windowId }).then(() => {
+        // eslint-disable-next-line no-console
+        console.log('Sidepanel opened with validated `windowId`...')
+        if (selectedText) {
+          sendMessage('bibliography', { selectedText }, { context: 'popup', tabId: tab!.id! })
+        }
+      }).catch((error: any) => {
+        console.error('Failed to open sidepanel due to unexpected error:', error)
+      })
+    }
+    catch (error) {
+      console.error('Error during sidepanel open attempt:', error)
+    }
+  }
+  else {
+    console.warn('Invalid `windowId`, fetching last focused window...')
+    chrome.windows.getLastFocused((lastFocusedWindow: { id: number | null }) => {
+      if (lastFocusedWindow && lastFocusedWindow.id && lastFocusedWindow.id !== -1) {
+        // eslint-disable-next-line no-console
+        console.log(`Fallback windowId obtained from last focused window: ${lastFocusedWindow.id}`)
+        attemptSidePanelOpen(lastFocusedWindow.id, selectedText, tab) // Retry with valid `windowId`
+      }
+      else {
+        console.error('No valid windowId available for sidepanel open.')
+      }
+    })
+  }
+}
+
+// Context menu listener for `check-bibliography` and `openSidePanel` items separately
 browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'check-bibliography' && info.selectionText) {
     if (cachedDisplayOption === 'popup') {
@@ -56,47 +103,13 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       })
     }
     else if (cachedDisplayOption === 'sidepanel') {
-      // Check if windowId is valid
-      let windowId = tab?.windowId && tab.windowId !== -1 ? tab.windowId : null
-
-      if (windowId === null) {
-        // Use the last focused window as fallback if windowId is invalid
-        chrome.windows.getLastFocused((lastFocusedWindow: { id: number | null }) => {
-          if (lastFocusedWindow && lastFocusedWindow.id) {
-            windowId = lastFocusedWindow.id
-            try {
-              // @ts-expect-error missing types
-              browser.sidePanel.open({ windowId }).then(() => {
-                // eslint-disable-next-line no-console
-                console.log('Performing bibliography check in sidepanel...')
-                // @ts-expect-error missing types
-                sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
-              }).catch((error: any) => {
-                console.error('Failed to open sidepanel with fallback windowId:', error)
-              })
-            }
-            catch (error) {
-              console.error('Error opening sidepanel with fallback windowId:', error)
-            }
-          }
-          else {
-            console.warn('Unable to open sidepanel: No valid windowId detected.')
-          }
-        })
-      }
-      else {
-        // Open sidepanel if a valid windowId is found
-        // @ts-expect-error missing types
-        browser.sidePanel.open({ windowId }).then(() => {
-          // eslint-disable-next-line no-console
-          console.log('Performing bibliography check in sidepanel...')
-          // @ts-expect-error missing types
-          sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
-        }).catch((error: any) => {
-          console.error('Failed to open sidepanel:', error)
-        })
-      }
+      // @ts-expect-error missing types
+      attemptSidePanelOpen(tab?.windowId, info.selectionText, tab) // Uses fallback logic for sidepanel opening
     }
+  }
+  else if (info.menuItemId === 'openSidePanel') {
+    // @ts-expect-error missing types
+    attemptSidePanelOpen(tab?.windowId) // Applies fallback logic specifically for openSidePanel
   }
 })
 
