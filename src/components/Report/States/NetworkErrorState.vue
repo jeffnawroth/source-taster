@@ -38,8 +38,11 @@ watch(isOnline, (newValue) => {
 <template>
   <v-empty-state
     v-show="!isOnline"
-    image="https://cdn.vuetifyjs.com/docs/images/components/v-empty-state/connection.svg"
     :text="$t('connection-problem')"
     :title="$t('sth-went-wrong')"
-  />
+  >
+    <template #media>
+      <v-img src="./connection.svg" />
+    </template>
+  </v-empty-state>
 </template>
