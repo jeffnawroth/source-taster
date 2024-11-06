@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type NetworkErrorState from './NetworkErrorState.vue'
 import { useDoiStore } from '~/stores/doi'
-import NetworkErrorState from './NetworkErrorState.vue'
 
 const { works, loading } = storeToRefs(useDoiStore())
 
