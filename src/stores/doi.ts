@@ -91,6 +91,7 @@ export const useDoiStore = defineStore('doi', () => {
     bibliography.value = ''
     url.value = ''
     file.value = null
+    works.value = []
   }
 
   // Aborts fetching the DOIs metadata

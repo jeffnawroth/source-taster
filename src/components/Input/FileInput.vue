@@ -4,7 +4,7 @@ import { useDoiStore } from '~/stores/doi'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { bibliography, url, file } = storeToRefs(doiStore)
+const { bibliography, url, file, dois } = storeToRefs(doiStore)
 
 // Data
 
@@ -19,6 +19,8 @@ async function extractPDFText() {
       const { text } = await extractText(pdf, { mergePages: true })
 
       bibliography.value = text
+
+      bibliography.value = dois.value.length > 0 ? dois.value.join('\n') : ''
     }
     catch (error) {
       console.error('Error extracting text:', error)

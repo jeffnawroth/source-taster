@@ -37,7 +37,7 @@ async function downloadPDF() {
         v-bind="tooltipProps"
         icon="mdi-download"
         variant="plain"
-        @click="downloadPDF(dois, passed, warning, failed, works)"
+        @click="downloadPDF"
       />
     </template>
     {{ t('download-report-pdf') }}

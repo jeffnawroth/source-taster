@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { sendMessage } from 'webext-bridge/popup'
 import { localeOption } from '~/logic'
 
 // I18n
@@ -9,6 +10,8 @@ const languages = ref([
   { locale: 'de', name: 'German' },
   { locale: 'en', name: 'English' },
 ])
+
+watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeOption.value }, { context: 'background', tabId: 0 }))
 </script>
 
 <template>

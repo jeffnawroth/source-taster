@@ -21,7 +21,7 @@ const components = [
         <v-col
           v-for="(component, index) in components"
           :key="index"
-          :cols="index === 2 ? 12 : 6"
+          cols="12"
         >
           <span>{{ component.name }}</span>
           <component :is="component" />

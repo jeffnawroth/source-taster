@@ -8,5 +8,6 @@ declare module 'webext-bridge' {
     bibliography: { selectedText: string }
     autoImportBibliography: { selectedText: string, url: string, type: string }
     autoImportPDFText: { url: string, type: string }
+    updateContextMenuWithLanguage: { locale: string }
   }
 }
