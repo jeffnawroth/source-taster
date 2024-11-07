@@ -16,7 +16,7 @@ The Source Taster is a browser extension that helps users, especially students a
 
 - **📥 Context Menu Import**: Load bibliographies directly via the context menu into the extension
 - **🔍 Automatic Detection**: Automatically detect and load DOIs from websites
-- **📎 PDF Import**: Import PDF files or links to PDFs directly into the extension and validate their DOIs
+- **📎 PDF Import**: Import PDF files directly into the extension and validate their DOIs
 - **📊 Report Generation**: Generate a report indicating which DOIs exist, which are not in the Crossref database, and which do not exist
 - **📄 Report Download**: Download the generated report as a PDF
 - **🌐 Open Literature**: Open found literature directly in a new tab
