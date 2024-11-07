@@ -9,7 +9,7 @@ The Source Taster is a browser extension that helps users, especially students a
 ## Demo
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/12341114-2c38-4762-97e0-46f745e2c52e">
+  <img src="https://github.com/user-attachments/assets/900dd96c-7b5e-4bae-946f-59d15f8a80eb" >
 </p>
 
 ## Features
