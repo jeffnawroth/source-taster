@@ -6,7 +6,7 @@ import { useDoiStore } from '~/stores/doi'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { bibliography, file, url } = storeToRefs(doiStore)
+const { bibliography, file, url, dois } = storeToRefs(doiStore)
 
 // Data
 
@@ -27,6 +27,7 @@ async function extractPdfText() {
     const pdf = await getDocumentProxy(new Uint8Array(buffer))
     const { text } = await extractText(pdf, { mergePages: true })
     bibliography.value = text
+    bibliography.value = dois.value.length > 0 ? dois.value.join('\n') : ''
   }
   catch (error) {
     console.error('Fehler beim Laden oder Extrahieren der PDF:', error)
@@ -51,6 +52,7 @@ watch(url, (newValue) => {
 
 <template>
   <v-text-field
+    v-if="false"
     v-model="url"
     :placeholder="$t('enter-url')"
     prepend-inner-icon="mdi-link"
