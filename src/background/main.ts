@@ -1,4 +1,4 @@
-import { sendMessage } from 'webext-bridge/background'
+import { onMessage, sendMessage } from 'webext-bridge/background'
 import { getDisplayOption } from '~/logic/storage'
 
 // import type { Tabs } from 'webextension-polyfill'
@@ -30,14 +30,14 @@ browser.runtime.onInstalled.addListener((): void => {
   // Create the "Check Bibliography" context menu item
   browser.contextMenus.create({
     id: 'check-bibliography',
-    title: 'Check Selected Text',
+    title: chrome.i18n.getMessage('checkSelectedText'),
     contexts: ['selection'],
   })
 
   // Create the "Open side panel" context menu item
   browser.contextMenus.create({
     id: 'openSidePanel',
-    title: 'Open Side Panel',
+    title: chrome.i18n.getMessage('openSidePanel'),
     contexts: ['all'],
   })
 })
@@ -156,6 +156,8 @@ getDisplayOption().then((option) => {
   console.error('Failed to load display option:', error)
 })
 
+let currentLocale: string
+
 // Listen for changes in chrome.storage.sync and update the view based on the new selection
 chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: string } }, area: string) => {
   // eslint-disable-next-line no-console
@@ -185,9 +187,11 @@ chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: str
       // Re-add the sidepanel menu item if Sidepanel is active
       browser.contextMenus.create({
         id: 'openSidePanel',
-        title: 'Open Side Panel',
+        title: chrome.i18n.getMessage('openSidePanel'),
         contexts: ['all'],
-      }, () => {
+      }, async () => {
+        const translations = await getTranslations(currentLocale)
+        updateContexMenu('openSidePanel', translations.openSidePanel.message)
         if (chrome.runtime.lastError) {
           console.warn('Failed to create openSidePanel menu item:', chrome.runtime.lastError.message)
         }
@@ -195,3 +199,32 @@ chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: str
     }
   }
 })
+
+// Listen for messages from the popup to update the context menu with the current language
+onMessage('updateContextMenuWithLanguage', async ({ data }) => {
+  try {
+    currentLocale = data.locale
+    const translations = await getTranslations(currentLocale)
+    updateContexMenu('openSidePanel', translations.openSidePanel.message)
+    updateContexMenu('check-bibliography', translations.checkSelectedText.message)
+  }
+  catch (error) {
+    console.error('Failed to update context menu with language:', error)
+  }
+})
+
+// Helper function to update the context menu with the current language
+function updateContexMenu(id: string, title: string) {
+  browser.contextMenus.update(id, { title })
+}
+
+// Helper function to fetch translations for the current locale
+async function getTranslations(locale: string) {
+  try {
+    const response = await fetch(`/_locales/${locale}/messages.json`)
+    return await response.json()
+  }
+  catch (error) {
+    console.error('Failed to fetch translations:', error)
+  }
+}

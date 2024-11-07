@@ -70,6 +70,7 @@ export async function getManifest() {
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
         : 'script-src \'self\'; object-src \'self\'',
     },
+    default_locale: 'en',
   }
 
   // add sidepanel
