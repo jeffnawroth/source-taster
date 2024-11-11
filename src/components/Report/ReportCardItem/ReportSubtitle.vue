@@ -2,7 +2,7 @@
 import { useDoiStore } from '~/stores/doi'
 
 // App Store
-const { valid, warning, failed, found } = storeToRefs(useDoiStore())
+const { valid, incomplete, failed, found } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()
@@ -22,9 +22,9 @@ const { t } = useI18n()
       </span>
       <span
         class="mx-1"
-        :class="warning > 0 ? 'text-warning' : ''"
+        :class="incomplete > 0 ? 'text-warning' : ''"
       >
-        {{ `${t('warning')}: ${warning}` }}
+        {{ `${t('incomplete')}: ${incomplete}` }}
       </span>
       <span
         class="mx-1"

@@ -4,7 +4,7 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 export async function generatePDFReport(
   dois: string[],
   valid: number,
-  warning: number,
+  incomplete: number,
   failed: number,
   works: HttpResponse<Item<Work>>[],
 ): Promise<Uint8Array> {
@@ -33,8 +33,8 @@ export async function generatePDFReport(
   page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün für Valid
   page.drawText(`Valid: ${valid}`, { x: 80, y: yOffset })
 
-  page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Warning
-  page.drawText(`Warning: ${warning}`, { x: 140, y: yOffset })
+  page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Incomplete
+  page.drawText(`Incomplete: ${incomplete}`, { x: 140, y: yOffset })
 
   page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Failed
   page.drawText(`Failed: ${failed}`, { x: 200, y: yOffset })

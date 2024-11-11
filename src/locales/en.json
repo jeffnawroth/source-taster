@@ -26,7 +26,7 @@
   "language-option-description": "Select the language of the extension",
   "found": "Found",
   "valid": "Valid",
-  "warning": "Warning",
+  "incomplete": "Incomplete",
   "failed": "Failed",
   "report": "Report",
   "copy-doi": "Copy DOI",

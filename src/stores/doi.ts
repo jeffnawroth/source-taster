@@ -28,8 +28,8 @@ export const useDoiStore = defineStore('doi', () => {
   // Number of DOIs that passed the check
   const valid = computed(() => works.value.filter(work => work.ok && work.status === 200 && work.content).length)
 
-  // Number of DOIs that have a warning
-  const warning = computed(() => works.value.filter(work => work.ok && work.status === 200 && !work.content).length)
+  // Number of DOIs that passed the check but have no content
+  const incomplete = computed(() => works.value.filter(work => work.ok && work.status === 200 && !work.content).length)
 
   // Number of DOIs that failed the check
   const failed = computed(() => works.value.filter(work => !work.ok && work.status === 404).length)
@@ -100,7 +100,7 @@ export const useDoiStore = defineStore('doi', () => {
     loading.value = false
   }
 
-  return { dois, resolveDOI, bibliography, loading, loadAborted, works, found, valid, warning, failed, getDOIsMetadata, abortFetching, url, file }
+  return { dois, resolveDOI, bibliography, loading, loadAborted, works, found, valid, incomplete, failed, getDOIsMetadata, abortFetching, url, file }
 })
 
 if (import.meta.hot) {

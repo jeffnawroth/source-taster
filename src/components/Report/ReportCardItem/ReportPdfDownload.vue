@@ -5,7 +5,7 @@ import { generatePDFReport } from '../../../utils/pdfUtils'
 // Work Store
 
 // DOI Store
-const { dois, works, valid, failed, warning } = storeToRefs(useDoiStore())
+const { dois, works, valid, failed, incomplete } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()
@@ -14,7 +14,7 @@ async function downloadPDF() {
   const pdfBytes = await generatePDFReport(
     dois.value,
     valid.value,
-    warning.value,
+    incomplete.value,
     failed.value,
     works.value,
   )
