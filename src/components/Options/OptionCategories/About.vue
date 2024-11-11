@@ -2,14 +2,14 @@
 // I18n
 const { t } = useI18n()
 
-const appVersion = import.meta.env.VITE_APP_VERSION
+const version = `v${__APP_VERSION__}`
 
 // Data
 const items = [
   {
     title: t('version'),
-    subtitle: appVersion,
-    href: `https://github.com/jeffnawroth/source-taster/releases/tag/${appVersion}`,
+    subtitle: version,
+    href: `https://github.com/jeffnawroth/source-taster/releases/tag/${version}`,
     appendIcon: 'mdi-open-in-new',
     prependIcon: 'mdi-tag-outline',
   },
