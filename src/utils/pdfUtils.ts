@@ -5,7 +5,7 @@ export async function generatePDFReport(
   dois: string[],
   valid: number,
   incomplete: number,
-  failed: number,
+  invalid: number,
   works: HttpResponse<Item<Work>>[],
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create()
@@ -36,8 +36,8 @@ export async function generatePDFReport(
   page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Incomplete
   page.drawText(`Incomplete: ${incomplete}`, { x: 140, y: yOffset })
 
-  page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Failed
-  page.drawText(`Failed: ${failed}`, { x: 200, y: yOffset })
+  page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Invalid
+  page.drawText(`Invalid: ${invalid}`, { x: 200, y: yOffset })
 
   page.setFontColor(rgb(0, 0, 0)) // Zurück zu Schwarz für den restlichen Text
   yOffset -= 30

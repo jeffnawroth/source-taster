@@ -26,7 +26,7 @@
   "found": "Gefunden",
   "valid": "Gültig",
   "incomplete": "Unvollständig",
-  "failed": "Fehlgeschlagen",
+  "invalid": "Ungültig",
   "report": "Bericht",
   "copy-doi": "DOI kopieren",
   "doi-copied": "DOI kopiert",

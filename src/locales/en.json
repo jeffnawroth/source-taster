@@ -27,7 +27,7 @@
   "found": "Found",
   "valid": "Valid",
   "incomplete": "Incomplete",
-  "failed": "Failed",
+  "invalid": "Invalid",
   "report": "Report",
   "copy-doi": "Copy DOI",
   "doi-copied": "DOI copied",
