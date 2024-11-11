@@ -32,13 +32,13 @@ export async function generatePDFReport(
   page.drawText(`${i18n.global.t('found')}: ${dois.length}`, { x: 10, y: yOffset })
 
   page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün für Valid
-  page.drawText(`${i18n.global.t('valid')}: ${valid}`, { x: 80, y: yOffset })
+  page.drawText(`${i18n.global.t('valid')}: ${valid}`, { x: 90, y: yOffset })
 
   page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Incomplete
   page.drawText(`${i18n.global.t('incomplete')}: ${incomplete}`, { x: 140, y: yOffset })
 
   page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Invalid
-  page.drawText(`${i18n.global.t('invalid')}: ${invalid}`, { x: 200, y: yOffset })
+  page.drawText(`${i18n.global.t('invalid')}: ${invalid}`, { x: 230, y: yOffset })
 
   page.setFontColor(rgb(0, 0, 0)) // Zurück zu Schwarz für den restlichen Text
   yOffset -= 30
