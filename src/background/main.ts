@@ -14,6 +14,7 @@ declare let chrome: any
 const USE_SIDE_PANEL = true
 let cachedDisplayOption: string = 'sidepanel'
 let isSidePanelOpen = false // Track Sidepanel open status
+let currentLocale: string
 
 // to toggle the sidepanel with the action button in chromium:
 if (USE_SIDE_PANEL) {
@@ -46,8 +47,9 @@ browser.runtime.onInstalled.addListener((): void => {
 })
 
 // Call this function initially after setting the locale to set the language correctly
-function updateContextMenuState() {
-  const title = chrome.i18n.getMessage('openSidePanel')
+async function updateContextMenuState() {
+  const translations = await getTranslations(currentLocale || 'en')
+  const title = translations.openSidePanel.message
   // eslint-disable-next-line no-console
   console.log('Setting menu title for openSidePanel:', title)
   browser.contextMenus.update('openSidePanel', {
@@ -160,8 +162,6 @@ getDisplayOption().then((option) => {
 }).catch((error) => {
   console.error('Failed to load display option:', error)
 })
-
-let currentLocale: string
 
 // Listen for changes in chrome.storage.sync and update the view based on the new selection
 chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: string } }, area: string) => {
