@@ -3,17 +3,14 @@
 ![MIT License](https://img.shields.io/badge/License-MIT-green.svg) ![GitHub Release](https://img.shields.io/github/v/release/jeffnawroth/source-taster) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jeffnawroth/source-taster/ci.yml)
 
 # The Source Taster
-
 The Source Taster is a browser extension that helps users, especially students and researchers, quickly and efficiently verify the validity and existence of sources cited in academic papers.
 
 ## Demo
-
 <p align="center">
   <img src="https://github.com/user-attachments/assets/900dd96c-7b5e-4bae-946f-59d15f8a80eb" >
 </p>
 
 ## Features
-
 - **📥 Context Menu Import**: Load bibliographies directly via the context menu into the extension
 - **🔍 Automatic Detection**: Automatically detect and load DOIs from websites
 - **📎 PDF Import**: Import PDF files directly into the extension and validate their DOIs
@@ -35,13 +32,11 @@ The Source Taster functions by extracting DOIs from the text of academic papers.
 https://api.crossref.org/swagger-ui/index.html -->
 
 ## Acknowledgements
-
 [WebExtension Vite Starter](https://github.com/antfu-collective/vitesse-webext) - A Vite powered WebExtension starter template
 
-## Authors
-
-- [@jeffnawroth](https://www.github.com/jeffnawroth)
-- [@ErenC61](https://www.github.com/erenc61)
+## Disclaimer
+> [!WARNING]
+**Disclaimer:** The Source Taster extension is a helpful tool for verifying the existence and validity of DOIs. While we strive to provide accurate results, the automated checks cannot guarantee complete accuracy. We recommend manually verifying all sources, especially for critical research. Do not solely rely on the results from this extension—conduct additional checks to ensure reliability.
 
 ## License
 [MIT](/LICENSE)

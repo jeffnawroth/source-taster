@@ -1,11 +1,12 @@
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client/dist/cjs/definitions/interfaces'
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import i18n from '~/plugins/i18n'
 
 export async function generatePDFReport(
   dois: string[],
-  passed: number,
-  warning: number,
-  failed: number,
+  valid: number,
+  incomplete: number,
+  invalid: number,
   works: HttpResponse<Item<Work>>[],
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create()
@@ -22,22 +23,22 @@ export async function generatePDFReport(
   yOffset -= 30
 
   page.setFontSize(18)
-  page.drawText('Report', { x: 10, y: yOffset })
+  page.drawText(i18n.global.t('report'), { x: 10, y: yOffset })
   yOffset -= 30
 
   // Übersichtsinformationen
   page.setFontSize(12)
   page.setFontColor(rgb(0, 0, 0)) // Schwarz
-  page.drawText(`Found: ${dois.length}`, { x: 10, y: yOffset })
+  page.drawText(`${i18n.global.t('found')}: ${dois.length}`, { x: 10, y: yOffset })
 
-  page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün für Passed
-  page.drawText(`Passed: ${passed}`, { x: 80, y: yOffset })
+  page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün für Valid
+  page.drawText(`${i18n.global.t('valid')}: ${valid}`, { x: 90, y: yOffset })
 
-  page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Warning
-  page.drawText(`Warning: ${warning}`, { x: 140, y: yOffset })
+  page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Incomplete
+  page.drawText(`${i18n.global.t('incomplete')}: ${incomplete}`, { x: 140, y: yOffset })
 
-  page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Failed
-  page.drawText(`Failed: ${failed}`, { x: 200, y: yOffset })
+  page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Invalid
+  page.drawText(`${i18n.global.t('invalid')}: ${invalid}`, { x: 230, y: yOffset })
 
   page.setFontColor(rgb(0, 0, 0)) // Zurück zu Schwarz für den restlichen Text
   yOffset -= 30
@@ -106,7 +107,7 @@ export async function generatePDFReport(
       yOffset -= 20
 
       page.setFontColor(rgb(0, 0, 0)) // Schwarz
-      page.drawText('Info: The DOI was found but the metadata could not be retrieved from the Crossref-Database.', { x: 10, y: yOffset })
+      page.drawText(`Info: ${i18n.global.t('doi-found-no-metadata')}.`, { x: 10, y: yOffset })
     }
     else {
       page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot
@@ -119,7 +120,7 @@ export async function generatePDFReport(
 
       page.setFontSize(12)
       page.setFontColor(rgb(0, 0, 0)) // Schwarz
-      page.drawText('Info: The DOI was not found.', { x: 10, y: yOffset })
+      page.drawText(`Info: ${i18n.global.t('doi-not-found')} `, { x: 10, y: yOffset })
     }
 
     yOffset -= 30 // Abstand zwischen den Einträgen
