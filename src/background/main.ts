@@ -1,6 +1,5 @@
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import { getDisplayOption } from '~/logic/storage'
-
 // import type { Tabs } from 'webextension-polyfill'
 
 // only on dev mode
@@ -241,6 +240,11 @@ browser.runtime.onMessage.addListener((message) => {
   // @ts-expect-error missing types
   if (message.type === 'SIDE_PANEL_CLOSED') {
     isSidePanelOpen = false
-    updateContextMenuState() // Update context menu to allow reopening the sidepanel
+    updateContextMenuState()
+  }
+  // @ts-expect-error missing types
+  else if (message.type === 'SIDE_PANEL_OPENED') {
+    isSidePanelOpen = true
+    updateContextMenuState()
   }
 })
