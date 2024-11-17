@@ -63,6 +63,21 @@ async function updateContextMenuState() {
       console.warn('Failed to update context menu item:', error)
     }
   })
+
+  // Update "check-bibliography" context menu item
+  const bibliographyTitle = translations.checkSelectedText.message
+  // eslint-disable-next-line no-console
+  console.log('Setting menu title for check-bibliography:', bibliographyTitle)
+  browser.contextMenus.update('check-bibliography', {
+    title: bibliographyTitle,
+  }).catch((error) => {
+    if (error.message.includes('Cannot find menu item with id check-bibliography')) {
+      console.warn('Context menu item "check-bibliography" not found. It might not be created yet.')
+    }
+    else {
+      console.warn('Failed to update context menu item:', error)
+    }
+  })
 }
 
 // Global error-catcher for unhandled Promise rejections
@@ -77,10 +92,11 @@ self.addEventListener('unhandledrejection', (event) => {
 // Function to open Sidepanel and update state
 // @ts-expect-error missing types
 function attemptSidePanelOpen(windowId: number | null, selectedText?: string, tab?: chrome.tabs.Tab) {
-  if (windowId !== null && windowId !== -1) {
+  if (windowId && windowId !== -1) {
     // eslint-disable-next-line no-console
     console.log(`Performing sidepanel open with validated windowId: ${windowId}`)
     // @ts-expect-error missing types
+
     browser.sidePanel.open({ windowId }).then(() => {
       isSidePanelOpen = true
       updateContextMenuState()
@@ -91,6 +107,19 @@ function attemptSidePanelOpen(windowId: number | null, selectedText?: string, ta
       }
     }).catch((error: any) => {
       console.error('Failed to open sidepanel:', error)
+    })
+  }
+  else {
+    console.warn('Invalid `windowId`, attempting fallback to last focused window...')
+    chrome.windows.getLastFocused({ populate: true }, (lastFocusedWindow: { id: number | null }) => {
+      if (lastFocusedWindow?.id && lastFocusedWindow.id !== -1) {
+        // eslint-disable-next-line no-console
+        console.log(`Fallback windowId obtained: ${lastFocusedWindow.id}`)
+        attemptSidePanelOpen(lastFocusedWindow.id, selectedText, tab)
+      }
+      else {
+        console.error('No valid windowId available. Sidepanel cannot be opened.')
+      }
     })
   }
 }
