@@ -1,7 +1,7 @@
 {
   "name": "source-taster",
   "displayName": "The Source Taster",
-  "version": "1.4.5",
+  "version": "1.5.0",
   "private": true,
   "description": "Source Taster is a browser extension that helps users quickly verify the validity and existence of sources cited in academic papers.",
   "scripts": {
@@ -28,7 +28,10 @@
     "test:e2e": "playwright test",
     "postinstall": "simple-git-hooks",
     "typecheck": "tsc --noEmit",
-    "release": "bumpp"
+    "release": "bumpp",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@antfu/eslint-config": "3.7.3",
@@ -68,6 +71,7 @@
     "unplugin-vue-components": "^0.27.4",
     "vite": "^5.4.8",
     "vite-plugin-vuetify": "^2.0.4",
+    "vitepress": "^1.5.0",
     "vitest": "^2.1.1",
     "vue": "^3.5.10",
     "vue-demi": "^0.14.10",
