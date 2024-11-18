@@ -4,7 +4,7 @@ import { useDoiStore } from '~/stores/doi'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { bibliography, url, file, dois } = storeToRefs(doiStore)
+const { bibliography, file, dois } = storeToRefs(doiStore)
 
 // Data
 
@@ -52,7 +52,6 @@ watch(file, (newValue) => {
     prepend-inner-icon="mdi-file-pdf-box"
     prepend-icon=""
     clearable
-    :disabled="!!url"
     hide-details="auto"
   />
 </template>
