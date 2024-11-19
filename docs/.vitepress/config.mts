@@ -22,4 +22,23 @@ export default defineConfig({
       message: 'Released under the MIT License.',
     },
   },
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+    },
+    de: {
+      label: 'German',
+      lang: 'de',
+      description: 'Überprüfe schnell die Gültigkeit akademischer Quellen über DOIs',
+      themeConfig: {
+        footer: {
+          message: 'Veröffentlicht unter der MIT-Lizenz.',
+          copyright: 'Urheberrecht © 2024-heute Jeff Nawroth',
+        },
+        darkModeSwitchTitle: 'Wechseln zum dunklen Thema',
+        lightModeSwitchTitle: 'Wechsel zum hellen Thema',
+      },
+    },
+  },
 })
