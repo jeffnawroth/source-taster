@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { sendMessage } from 'webext-bridge/popup'
+import { sendMessage } from 'webext-bridge/options'
 import { localeOption } from '~/logic'
 
 // I18n
