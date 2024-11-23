@@ -20,6 +20,13 @@ const items = [
     appendIcon: 'mdi-open-in-new',
     prependIcon: 'mdi-github',
   },
+  {
+    title: 'Homepage',
+    subtitle: 'https://source-taster.jeffnawroth.me',
+    href: 'https://source-taster.jeffnawroth.me',
+    appendIcon: 'mdi-open-in-new',
+    prependIcon: 'mdi-home-outline',
+  },
 ]
 </script>
 

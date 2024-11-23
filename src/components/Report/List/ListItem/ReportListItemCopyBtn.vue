@@ -23,7 +23,7 @@ const { copy, copied } = useClipboard()
       <v-btn
         v-bind="tooltipProps"
         density="compact"
-        icon="mdi-content-copy"
+        :icon="copied ? 'mdi-check ' : 'mdi-content-copy'"
         variant="plain"
         size="large"
         @click="copy(dois[index])"
