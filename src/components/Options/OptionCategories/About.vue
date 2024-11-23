@@ -25,7 +25,7 @@ const items = [
     subtitle: 'https://source-taster.jeffnawroth.me',
     href: 'https://source-taster.jeffnawroth.me',
     appendIcon: 'mdi-open-in-new',
-    prependIcon: 'mdi-home',
+    prependIcon: 'mdi-home-outline',
   },
 ]
 </script>
