@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   title: string
-  subtitle: string
+  subtitle?: string
   prependIcon?: string
   appendIcon?: string
 }>()
@@ -14,6 +14,11 @@ defineProps<{
     :prepend-icon
     :append-icon
   >
+    <template #subtitle>
+      <slot name="subtitle">
+        {{ subtitle }}
+      </slot>
+    </template>
     <template #append>
       <v-icon v-if="appendIcon">
         {{ appendIcon }}
