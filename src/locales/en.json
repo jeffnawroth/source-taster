@@ -48,6 +48,7 @@
   "about": "About",
   "version": "Version",
   "display-mode": "Display Mode",
-  "display-mode-description": "Select the display mode of the extension"
+  "display-mode-description": "Select the display mode of the extension",
+  "auto-import-dois-info": "This does not apply to downloaded PDFs opened in the browser; those must be imported manually"
 
 }

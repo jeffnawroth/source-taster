@@ -47,5 +47,6 @@
   "about": "Über",
   "version": "Version",
   "display-mode": "Anzeigemodus",
-  "display-mode-description": "Wählen Sie den Anzeigemodus der Erweiterung"
+  "display-mode-description": "Wählen Sie den Anzeigemodus der Erweiterung",
+  "auto-import-dois-info": "Dies gilt nicht für im Browser geöffnete heruntergeladene PDFs; diese müssen manuell importiert werden"
 }
