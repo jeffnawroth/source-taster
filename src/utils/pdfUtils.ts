@@ -29,16 +29,27 @@ export async function generatePDFReport(
   // Übersichtsinformationen
   page.setFontSize(12)
   page.setFontColor(rgb(0, 0, 0)) // Schwarz
-  page.drawText(`${i18n.global.t('found')}: ${dois.length}`, { x: 10, y: yOffset })
+  const foundText = `${i18n.global.t('found')}: ${dois.length}`
+  page.drawText(foundText, { x: 10, y: yOffset })
+
+  // Dynamische Position basierend auf der Breite des vorherigen Textes
+  const foundWidth = font.widthOfTextAtSize(foundText, 12) + 20
 
   page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün für Valid
-  page.drawText(`${i18n.global.t('valid')}: ${valid}`, { x: 90, y: yOffset })
+  const validText = `${i18n.global.t('valid')}: ${valid}`
+  page.drawText(validText, { x: 10 + foundWidth, y: yOffset })
+
+  const validWidth = foundWidth + font.widthOfTextAtSize(validText, 12) + 20
 
   page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Incomplete
-  page.drawText(`${i18n.global.t('incomplete')}: ${incomplete}`, { x: 140, y: yOffset })
+  const incompleteText = `${i18n.global.t('incomplete')}: ${incomplete}`
+  page.drawText(incompleteText, { x: 10 + validWidth, y: yOffset })
+
+  const incompleteWidth = validWidth + font.widthOfTextAtSize(incompleteText, 12) + 20
 
   page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Invalid
-  page.drawText(`${i18n.global.t('invalid')}: ${invalid}`, { x: 230, y: yOffset })
+  const invalidText = `${i18n.global.t('invalid')}: ${invalid}`
+  page.drawText(invalidText, { x: 10 + incompleteWidth, y: yOffset })
 
   page.setFontColor(rgb(0, 0, 0)) // Zurück zu Schwarz für den restlichen Text
   yOffset -= 30
