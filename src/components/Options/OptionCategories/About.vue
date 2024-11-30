@@ -23,7 +23,7 @@ const items = [
   {
     title: 'Homepage',
     subtitle: 'https://source-taster.jeffnawroth.me',
-    href: 'https://source-taster.jeffnawroth.me',
+    href: 'https://sourcetaster.com',
     appendIcon: 'mdi-open-in-new',
     prependIcon: 'mdi-home-outline',
   },
