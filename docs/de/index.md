@@ -1,18 +1,23 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+title: The Source Taster
+titleTemplate: Browser-Erweiterung für schnelle, zuverlässige und mühelose Quellenvalidierung
 
 hero:
   name: "The Source Taster"
   text: "Der intuitive Quellen-Validator für akademische Arbeiten"
-  tagline: "Schnell, zuverlässig und mühelos konzipiert."
+  tagline: "Browser-Erweiterung für schnelle, zuverlässige und mühelose Quellenvalidierung"
   image:
     src: /web-app-manifest-192x192.png
     alt: The Source Taster
   actions:
     - theme: brand
-      text: Herunterladen
+      text: Installieren
       link: https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp?hl=de
+    - theme: alt
+      text: Demo
+      link: /de/demo
 
 features:
   - icon: 🔍
