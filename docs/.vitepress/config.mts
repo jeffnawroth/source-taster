@@ -1,4 +1,6 @@
+import type { DefaultTheme } from 'vitepress'
 import { defineConfig } from 'vitepress'
+import pkg from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -12,6 +14,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
+    nav: nav(),
     logo: '/favicon.svg',
 
     socialLinks: [
@@ -42,3 +45,17 @@ export default defineConfig({
     },
   },
 })
+
+function nav(): DefaultTheme.NavItem[] {
+  return [
+    {
+      text: `v${pkg.version}`,
+      items: [
+        {
+          text: 'Releases',
+          link: 'https://github.com/jeffnawroth/source-taster/releases',
+        },
+      ],
+    },
+  ]
+}
