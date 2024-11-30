@@ -2,6 +2,7 @@
 import About from './OptionCategories/About.vue'
 import DisplaySettings from './OptionCategories/DisplaySettings.vue'
 import GeneralSettings from './OptionCategories/GeneralSettings.vue'
+import Help from './OptionCategories/Help.vue'
 import LanguageSettings from './OptionCategories/LanguageSettings.vue'
 
 const components = {
@@ -9,6 +10,7 @@ const components = {
   DisplaySettings,
   LanguageSettings,
   About,
+  Help,
 }
 </script>
 

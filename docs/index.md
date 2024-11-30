@@ -1,18 +1,23 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+title: The Source Taster
+titleTemplate: Browser extension for quick, reliable, and effortless source validation
 
 hero:
   name: "The Source Taster"
   text: "The intuitive source validator for academic papers"
-  tagline: "Fast, Reliable, and Effortless by design."
+  tagline: "Browser extension for quick, reliable, and effortless source validation"
   image:
     src: /web-app-manifest-192x192.png
     alt: The Source Taster
   actions:
     - theme: brand
-      text: Download
+      text: Install
       link: https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp?hl=de
+    - theme: alt
+      text: Demo
+      link: /demo
 
 features:
   - icon: 🔍

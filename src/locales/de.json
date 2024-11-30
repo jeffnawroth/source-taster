@@ -45,8 +45,14 @@
   "enter-url": "URL eingeben",
   "invalid-url": "Ungültige URL",
   "about": "Über",
-  "version": "Version",
   "display-mode": "Anzeigemodus",
   "display-mode-description": "Wählen Sie den Anzeigemodus der Erweiterung",
-  "auto-import-dois-info": "Dies gilt nicht für im Browser geöffnete heruntergeladene PDFs; diese müssen manuell importiert werden"
+  "auto-import-dois-info": "Dies gilt nicht für im Browser geöffnete heruntergeladene PDFs; diese müssen manuell importiert werden",
+  "website": "Webseite",
+  "visit-website": "Offizielle Webseite besuchen",
+  "view-github": "Projekt auf GitHub ansehen",
+  "contact": "Kontakt",
+  "contact-email": "Bei Fragen oder Problemen erreichst du uns per E-Mail",
+  "view-demo": "Eine Demonstration zur Verwendung der Erweiterung ansehen",
+  "help": "Hilfe"
 }
