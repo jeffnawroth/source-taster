@@ -46,9 +46,15 @@
   "enter-url": "Enter URL",
   "invalid-url": "Invalid URL",
   "about": "About",
-  "version": "Version",
   "display-mode": "Display Mode",
   "display-mode-description": "Select the display mode of the extension",
-  "auto-import-dois-info": "This does not apply to downloaded PDFs opened in the browser; those must be imported manually"
+  "auto-import-dois-info": "This does not apply to downloaded PDFs opened in the browser; those must be imported manually",
+  "website": "Website",
+  "visit-website": "Visit Official Website",
+  "view-github": "View Project on GitHub",
+  "contact": "Contact",
+  "contact-email": "For questions or issues, you can reach us via email",
+  "view-demo": "View a demonstration of how to use the extension",
+  "help": "Help"
 
 }

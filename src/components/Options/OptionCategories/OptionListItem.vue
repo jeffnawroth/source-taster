@@ -9,17 +9,22 @@ defineProps<{
 
 <template>
   <v-list-item
-    :title
-    :subtitle
+    :title="$t(title)"
+    :subtitle="subtitle ? $t(subtitle) : undefined "
     :prepend-icon
     :append-icon
   >
-    <template #subtitle>
+    <template
+      v-if="$slots.subtitle"
+      #subtitle
+    >
       <slot name="subtitle">
-        {{ subtitle }}
+        {{ subtitle ? $t(subtitle) : undefined }}
       </slot>
     </template>
-    <template #append>
+    <template
+      #append
+    >
       <v-icon v-if="appendIcon">
         {{ appendIcon }}
       </v-icon>
