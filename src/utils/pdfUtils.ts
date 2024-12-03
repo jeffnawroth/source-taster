@@ -1,6 +1,8 @@
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client/dist/cjs/definitions/interfaces'
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
+import { PDFDocument, rgb } from 'pdf-lib'
 import i18n from '~/plugins/i18n'
+import NotoSans from '../../extension/assets/NotoSans-Regular.ttf'
 
 export async function generatePDFReport(
   dois: string[],
@@ -10,11 +12,13 @@ export async function generatePDFReport(
   works: HttpResponse<Item<Work>>[],
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create()
+  pdfDoc.registerFontkit(fontkit)
+  const fontBytes = await fetch(NotoSans).then(res => res.arrayBuffer())
   let page = pdfDoc.addPage()
   const { height, width } = page.getSize()
   let yOffset = height - 50 // Startposition oben auf der ersten Seite
 
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+  const font = await pdfDoc.embedFont(fontBytes)
   page.setFont(font)
 
   // Titel

@@ -1,7 +1,7 @@
 {
   "name": "source-taster",
   "displayName": "The Source Taster",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "private": true,
   "description": "Source Taster is a browser extension that helps users quickly verify the validity and existence of sources cited in academic papers.",
   "scripts": {
@@ -38,6 +38,7 @@
     "@ffflorian/jszip-cli": "^3.8.0",
     "@jamesgopsill/crossref-client": "^1.1.0",
     "@mdi/font": "^7.4.47",
+    "@pdf-lib/fontkit": "^1.1.1",
     "@playwright/test": "^1.49.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.9.3",
