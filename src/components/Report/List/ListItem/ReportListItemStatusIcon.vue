@@ -16,26 +16,19 @@ const { t } = useI18n()
       <v-icon
         v-bind="tooltipProps"
         size="x-large"
-        :icon="work.ok && work.content ? 'mdi-check-circle-outline' : work.ok ? 'mdi-alert-circle-outline' : 'mdi-close-circle-outline'"
+        :icon="work.ok ? 'mdi-check-circle-outline' : 'mdi-close-circle-outline'"
       />
     </template>
-    <template v-if="work.ok && work.content">
-      <p>{{ t('doi-found-metadata') }}</p>
-    </template>
-    <template v-else-if="work.ok">
-      <!-- <p>The DOI was found but the metadata <span class="font-weight-bold">could not</span> be retrieved from the Crossref-Database.</p> -->
-      <p>{{ t('doi-found-no-metadata') }}</p>
-    </template>
-    <template v-else>
+    <p>{{ work.ok ? t('valid-description') : t('invalid-description') }}</p>
+    <!-- <template v-else>
       <div class="ma-1">
         <p>{{ t('doi-not-found') }}</p>
-        <!-- <p>The DOI was <span class="font-weight-bold">not</span> found. Possible reasons are:</p> -->
         <ul>
           <li>{{ t('doi-incorrect') }}</li>
-          <li>{{ t('doi-incorrect-extraced') }}</li>
+          <li>{{ t('doi-incorrect-extracted') }}</li>
           <li>{{ t('doi-not-activated') }}</li>
         </ul>
       </div>
-    </template>
+    </template> -->
   </v-tooltip>
 </template>

@@ -9,7 +9,7 @@ const { work } = defineProps<{
 }>()
 
 const color = computed(() => {
-  return work.ok && work.content ? 'success' : work.ok ? 'warning' : 'error'
+  return work.ok ? 'success' : 'error'
 })
 
 // Functions

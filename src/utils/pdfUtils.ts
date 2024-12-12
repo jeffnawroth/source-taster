@@ -7,7 +7,6 @@ import NotoSans from '../../extension/assets/NotoSans-Regular.ttf'
 export async function generatePDFReport(
   dois: string[],
   valid: number,
-  incomplete: number,
   invalid: number,
   works: HttpResponse<Item<Work>>[],
 ): Promise<Uint8Array> {
@@ -45,15 +44,9 @@ export async function generatePDFReport(
 
   const validWidth = foundWidth + font.widthOfTextAtSize(validText, 12) + 20
 
-  page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Incomplete
-  const incompleteText = `${i18n.global.t('incomplete')}: ${incomplete}`
-  page.drawText(incompleteText, { x: 10 + validWidth, y: yOffset })
-
-  const incompleteWidth = validWidth + font.widthOfTextAtSize(incompleteText, 12) + 20
-
   page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Invalid
   const invalidText = `${i18n.global.t('invalid')}: ${invalid}`
-  page.drawText(invalidText, { x: 10 + incompleteWidth, y: yOffset })
+  page.drawText(invalidText, { x: 10 + validWidth, y: yOffset })
 
   page.setFontColor(rgb(0, 0, 0)) // Zurück zu Schwarz für den restlichen Text
   yOffset -= 30
@@ -90,55 +83,82 @@ export async function generatePDFReport(
 
     const maxLineWidth = width - 20 // Maximal erlaubte Breite für Text
     if (work.ok && work.content) {
-      page.setFontColor(rgb(0, 0, 0)) // Schwarz
       page.setFontSize(14)
-      const titleLines = splitTextIntoLines(`${index + 1}. ${work.content.message.title[0]}`, maxLineWidth, 14)
+
+      page.setFontColor(rgb(0, 0, 0)) // Schwarz
+      const indexText = `${index + 1}.`
+      const indexWidth = font.widthOfTextAtSize(indexText, 14)
+      page.drawText(indexText, { x: 10, y: yOffset })
+
+      page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün
+      const doiText = `${dois[index]}`
+      const titleLines = splitTextIntoLines(doiText, maxLineWidth - indexWidth, 14) // Adjust width based on index text length
       titleLines.forEach((line) => {
-        page.drawText(line, { x: 10, y: yOffset })
+        page.drawText(line, { x: 10 + indexWidth + 5, y: yOffset }) // 5 is a small padding to separate index and DOI
         yOffset -= 20
       })
 
-      page.setFontSize(12)
-      page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün
-      page.drawText(`DOI: ${work.content.message.DOI}`, { x: 10, y: yOffset })
-      yOffset -= 20
-
+      // Set URL text
       page.setFontColor(rgb(0, 0, 0)) // Schwarz
+      page.setFontSize(12)
       const url = work.content.message.URL
-      page.drawText(`URL: ${url}`, { x: 10, y: yOffset })
+      const urlText = `URL: ${url}`
+      const urlX = 10 // x-position for the URL
+      page.drawText(urlText, { x: urlX, y: yOffset })
+      yOffset -= 20
     }
     else if (work.ok) {
-      page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange
       page.setFontSize(14)
-      const titleLines = splitTextIntoLines(`${index + 1}. ${dois[index]}`, maxLineWidth, 14)
+      // Set the index to be in black
+      page.setFontColor(rgb(0, 0, 0)) // Schwarz
+      const indexText = `${index + 1}.`
+      const indexWidth = font.widthOfTextAtSize(indexText, 14)
+      page.drawText(indexText, { x: 10, y: yOffset })
+
+      page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün
+      const doiText = `${dois[index]}`
+      const titleLines = splitTextIntoLines(doiText, maxLineWidth - indexWidth, 14) // Adjust width based on index text length
       titleLines.forEach((line) => {
-        page.drawText(line, { x: 10, y: yOffset })
+        page.drawText(line, { x: 10 + indexWidth + 5, y: yOffset }) // 5 is a small padding to separate index and DOI
         yOffset -= 20
       })
 
-      page.setFontSize(12)
-      page.setFontColor(rgb(0, 0, 0))
-      page.drawText(`URL: ${(work as HttpResponse<Item<Work>>).url}`, { x: 10, y: yOffset })
-      yOffset -= 20
-
+      // Set URL text
       page.setFontColor(rgb(0, 0, 0)) // Schwarz
-      page.drawText(`Info: ${i18n.global.t('doi-found-no-metadata')}.`, { x: 10, y: yOffset })
+      page.setFontSize(12)
+      const urlText = `URL: ${(work as HttpResponse<Item<Work>>).url}`
+      const urlX = 10 // x-position for the URL
+      page.drawText(urlText, { x: urlX, y: yOffset })
+      yOffset -= 20
     }
     else {
-      page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot
       page.setFontSize(14)
-      const titleLines = splitTextIntoLines(`${index + 1}. ${dois[index]}`, maxLineWidth, 14)
+
+      // Set the index to be in black
+      page.setFontColor(rgb(0, 0, 0)) // Schwarz
+      const indexText = `${index + 1}.`
+      const indexWidth = font.widthOfTextAtSize(indexText, 14)
+      page.drawText(indexText, { x: 10, y: yOffset })
+
+      // Set the DOI to be in red and align next to the index
+      page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot
+      const doiText = `${dois[index]}`
+      const titleLines = splitTextIntoLines(doiText, maxLineWidth - indexWidth, 14) // Adjust width based on index text length
       titleLines.forEach((line) => {
-        page.drawText(line, { x: 10, y: yOffset })
+        page.drawText(line, { x: 10 + indexWidth + 5, y: yOffset }) // 5 is a small padding to separate index and DOI
         yOffset -= 20
       })
 
-      page.setFontSize(12)
+      // Note
       page.setFontColor(rgb(0, 0, 0)) // Schwarz
-      page.drawText(`Info: ${i18n.global.t('doi-not-found')} `, { x: 10, y: yOffset })
+      page.setFontSize(12)
+      const urlText = `Note: ${i18n.global.t('invalid-description')}`
+      const urlX = 10 // x-position for the URL
+      page.drawText(urlText, { x: urlX, y: yOffset })
+      yOffset -= 20
     }
 
-    yOffset -= 30 // Abstand zwischen den Einträgen
+    yOffset -= 15 // Abstand zwischen den Einträgen
   }
 
   // PDF in Bytes speichern und zurückgeben
