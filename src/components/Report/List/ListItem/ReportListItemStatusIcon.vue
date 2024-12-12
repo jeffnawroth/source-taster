@@ -32,7 +32,7 @@ const { t } = useI18n()
         <!-- <p>The DOI was <span class="font-weight-bold">not</span> found. Possible reasons are:</p> -->
         <ul>
           <li>{{ t('doi-incorrect') }}</li>
-          <li>{{ t('doi-incorrect-extraced') }}</li>
+          <li>{{ t('doi-incorrect-extracted') }}</li>
           <li>{{ t('doi-not-activated') }}</li>
         </ul>
       </div>

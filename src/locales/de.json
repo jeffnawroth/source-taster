@@ -11,7 +11,7 @@
   "doi-found-no-metadata": "Der DOI wurde gefunden, aber die Metadaten konnten nicht aus der Crossref-Datenbank abgerufen werden",
   "doi-not-found": "Der DOI wurde nicht gefunden. Mögliche Gründe sind:",
   "doi-incorrect": "Der DOI ist in Ihrer Quelle falsch",
-  "doi-incorrect-extraced": "Der DOI wurde falsch extrahiert",
+  "doi-incorrect-extracted": "Der DOI wurde falsch extrahiert",
   "doi-not-activated": "Der DOI wurde noch nicht aktiviert",
   "open-work": "Das Werk in einem neuen Tab öffnen",
   "no-works-found": "Es konnten keine passenden Literaturangaben anhand der bereitgestellten DOI(s) gefunden werden. Bitte überprüfen Sie die DOI-Einträge auf Richtigkeit. Eine korrekte Formatierung und Vollständigkeit kann die Suchergebnisse verbessern.",

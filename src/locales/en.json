@@ -11,7 +11,7 @@
   "doi-found-no-metadata": "The DOI was found but the metadata could not be retrieved from the Crossref-Database",
   "doi-not-found": "The DOI was not found. Possible reasons are:",
   "doi-incorrect": "The DOI is incorrect in your source",
-  "doi-incorrect-extraced": "The DOI was extracted incorrectly",
+  "doi-incorrect-extracted": "The DOI was extracted incorrectly",
   "doi-not-activated": "The DOI has not been activated yet",
   "open-work": "Open the Work in a new tab",
   "no-works-found": "Unable to find matching literature using the provided DOI(s). Please double-check the DOI entries for accuracy. Ensuring correct formatting and completeness can help improve search results.",
