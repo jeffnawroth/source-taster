@@ -2,7 +2,7 @@
 import { useDoiStore } from '~/stores/doi'
 
 // App Store
-const { valid, incomplete, invalid, found } = storeToRefs(useDoiStore())
+const { valid, invalid, found } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()
@@ -19,12 +19,6 @@ const { t } = useI18n()
         :class="valid > 0 ? 'text-success' : ''"
       >
         {{ `${t('valid')}: ${valid}` }}
-      </span>
-      <span
-        class="mx-1"
-        :class="incomplete > 0 ? 'text-warning' : ''"
-      >
-        {{ `${t('incomplete')}: ${incomplete}` }}
       </span>
       <span
         class="mx-1"

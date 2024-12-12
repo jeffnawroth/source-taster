@@ -3,7 +3,7 @@ import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { useDoiStore } from '~/stores/doi'
 
 // Props
-const { work } = defineProps<{
+defineProps<{
   work: HttpResponse<Item<Work>>
   index: number
 }>()
@@ -14,10 +14,6 @@ const { dois } = storeToRefs(useDoiStore())
 
 <template>
   <v-list-item-title>
-    {{ work.ok && work.content ? work.content.message.title[0] : dois[index] }}
+    {{ dois[index] }}
   </v-list-item-title>
-
-  <v-list-item-subtitle>
-    {{ work.ok && work.content ? work.content?.message.DOI : '' }}
-  </v-list-item-subtitle>
 </template>

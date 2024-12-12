@@ -7,7 +7,6 @@ import NotoSans from '../../extension/assets/NotoSans-Regular.ttf'
 export async function generatePDFReport(
   dois: string[],
   valid: number,
-  incomplete: number,
   invalid: number,
   works: HttpResponse<Item<Work>>[],
 ): Promise<Uint8Array> {
@@ -45,46 +44,12 @@ export async function generatePDFReport(
 
   const validWidth = foundWidth + font.widthOfTextAtSize(validText, 12) + 20
 
-  page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange für Incomplete
-  const incompleteText = `${i18n.global.t('incomplete')}: ${incomplete}`
-  page.drawText(incompleteText, { x: 10 + validWidth, y: yOffset })
-
-  const incompleteWidth = validWidth + font.widthOfTextAtSize(incompleteText, 12) + 20
-
   page.setFontColor(rgb(0.69, 0.0, 0.12)) // Rot für Invalid
   const invalidText = `${i18n.global.t('invalid')}: ${invalid}`
-  page.drawText(invalidText, { x: 10 + incompleteWidth, y: yOffset })
+  page.drawText(invalidText, { x: 10 + validWidth, y: yOffset })
 
   page.setFontColor(rgb(0, 0, 0)) // Zurück zu Schwarz für den restlichen Text
   yOffset -= 30
-
-  // Add legend for Valid, Incomplete, and Invalid
-
-  // Valid
-  page.setFontSize(10)
-  page.drawText(`Valid: ${i18n.global.t('doi-found-metadata')}`, { x: 10, y: yOffset })
-  yOffset -= 15
-
-  // Incomplete
-  page.drawText(`Incomplete: ${i18n.global.t('doi-found-no-metadata')}`, { x: 10, y: yOffset })
-  yOffset -= 15
-
-  // Invalid with bullet points for "doi-not-found"
-  page.drawText(`Invalid: ${i18n.global.t('doi-not-found')} `, { x: 10, y: yOffset })
-  yOffset -= 15
-
-  const bulletPoints = [
-    i18n.global.t('doi-incorrect'),
-    i18n.global.t('doi-incorrect-extracted'),
-    i18n.global.t('doi-not-activated'),
-
-  ]
-
-  bulletPoints.forEach((point, idx) => {
-    page.drawText(`• ${point}`, { x: 20, y: yOffset - (idx * 15) })
-  })
-
-  yOffset -= 60
 
   const splitTextIntoLines = (text: string, maxWidth: number, fontSize: number): string[] => {
     const words = text.split(' ')
@@ -133,17 +98,6 @@ export async function generatePDFReport(
         yOffset -= 20
       })
 
-      // const titleLines = splitTextIntoLines(`${index + 1}. ${work.content.message.title[0]}`, maxLineWidth, 14)
-      // titleLines.forEach((line) => {
-      //   page.drawText(line, { x: 10, y: yOffset })
-      //   yOffset -= 20
-      // })
-
-      // page.setFontSize(12)
-      // page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün
-      // page.drawText(`DOI: ${work.content.message.DOI}`, { x: 10, y: yOffset })
-      // yOffset -= 20
-
       // Set URL text
       page.setFontColor(rgb(0, 0, 0)) // Schwarz
       page.setFontSize(12)
@@ -161,7 +115,7 @@ export async function generatePDFReport(
       const indexWidth = font.widthOfTextAtSize(indexText, 14)
       page.drawText(indexText, { x: 10, y: yOffset })
 
-      page.setFontColor(rgb(0.98, 0.55, 0.0)) // Orange
+      page.setFontColor(rgb(0.29, 0.73, 0.31)) // Grün
       const doiText = `${dois[index]}`
       const titleLines = splitTextIntoLines(doiText, maxLineWidth - indexWidth, 14) // Adjust width based on index text length
       titleLines.forEach((line) => {
@@ -194,6 +148,14 @@ export async function generatePDFReport(
         page.drawText(line, { x: 10 + indexWidth + 5, y: yOffset }) // 5 is a small padding to separate index and DOI
         yOffset -= 20
       })
+
+      // Note
+      page.setFontColor(rgb(0, 0, 0)) // Schwarz
+      page.setFontSize(12)
+      const urlText = `Note: ${i18n.global.t('invalid-description')}`
+      const urlX = 10 // x-position for the URL
+      page.drawText(urlText, { x: urlX, y: yOffset })
+      yOffset -= 20
     }
 
     yOffset -= 15 // Abstand zwischen den Einträgen
