@@ -26,10 +26,10 @@ export const useDoiStore = defineStore('doi', () => {
   const found = computed(() => works.value.length)
 
   // Number of DOIs that passed the check
-  const valid = computed(() => works.value.filter(work => work.ok && work.status === 200 && work.content).length)
+  const valid = computed(() => works.value.filter(work => work.ok).length)
 
   // Number of DOIs that failed the check
-  const invalid = computed(() => works.value.filter(work => !work.ok && work.status === 404).length)
+  const invalid = computed(() => works.value.filter(work => !work.ok).length)
 
   // Resolves the DOI
   async function resolveDOI(doi: string) {
