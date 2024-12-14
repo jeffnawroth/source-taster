@@ -33,6 +33,9 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "3.9.2",
     "@ffflorian/jszip-cli": "^3.8.2",
