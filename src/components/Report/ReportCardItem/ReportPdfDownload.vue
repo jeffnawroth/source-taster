@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiDownload } from '@mdi/js'
 import { useDoiStore } from '~/stores/doi'
 import { generatePDFReport } from '../../../utils/pdfUtils'
 
@@ -34,7 +35,7 @@ async function downloadPDF() {
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
-        icon="mdi-download"
+        :icon="mdiDownload"
         variant="plain"
         @click="downloadPDF"
       />

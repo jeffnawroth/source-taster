@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiEmailOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
 // Data
 const items = ref([
 
@@ -6,15 +7,15 @@ const items = ref([
     title: 'Demo',
     subtitle: 'view-demo',
     href: 'https://sourcetaster.com/demo.html',
-    appendIcon: 'mdi-open-in-new',
-    prependIcon: 'mdi-video-outline',
+    appendIcon: mdiOpenInNew,
+    prependIcon: mdiVideoOutline,
   },
   {
     title: 'contact',
     href: 'mailto:contact@sourcetaster.com',
     subtitle: 'contact-email',
-    appendIcon: 'mdi-open-in-new',
-    prependIcon: 'mdi-email-outline',
+    appendIcon: mdiOpenInNew,
+    prependIcon: mdiEmailOutline,
   },
 ])
 </script>

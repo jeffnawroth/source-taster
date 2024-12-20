@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiCheck, mdiContentCopy } from '@mdi/js'
 import { useClipboard } from '@vueuse/core'
 import { useDoiStore } from '~/stores/doi'
 
@@ -23,7 +24,7 @@ const { copy, copied } = useClipboard()
       <v-btn
         v-bind="tooltipProps"
         density="compact"
-        :icon="copied ? 'mdi-check ' : 'mdi-content-copy'"
+        :icon="copied ? mdiCheck : mdiContentCopy"
         variant="plain"
         size="large"
         @click="copy(dois[index])"

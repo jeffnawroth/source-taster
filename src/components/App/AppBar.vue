@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
 import { themeOption } from '~/logic/storage'
 
@@ -40,7 +41,7 @@ function openOptionsPage() {
     <template #append>
       <v-btn
         size="small"
-        icon="mdi-cog-outline"
+        :icon="mdiCogOutline"
         variant="plain"
 
         @click="openOptionsPage"
