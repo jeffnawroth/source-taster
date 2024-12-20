@@ -36,8 +36,8 @@
   "devDependencies": {
     "@antfu/eslint-config": "3.9.2",
     "@ffflorian/jszip-cli": "^3.8.2",
+    "@fontsource/roboto": "^5.1.0",
     "@jamesgopsill/crossref-client": "^1.1.0",
-    "@mdi/font": "^7.4.47",
     "@mdi/js": "^7.4.47",
     "@pdf-lib/fontkit": "^1.1.1",
     "@playwright/test": "^1.49.1",
@@ -64,7 +64,6 @@
     "pdf-lib": "^1.17.1",
     "pinia": "^2.3.0",
     "rimraf": "^6.0.1",
-    "roboto-fontface": "^0.10.0",
     "simple-git-hooks": "^2.11.1",
     "typescript": "^5.7.2",
     "unpdf": "^0.12.1",

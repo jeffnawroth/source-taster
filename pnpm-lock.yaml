@@ -14,12 +14,12 @@ importers:
       '@ffflorian/jszip-cli':
         specifier: ^3.8.2
         version: 3.8.2(typescript@5.7.2)
+      '@fontsource/roboto':
+        specifier: ^5.1.0
+        version: 5.1.0
       '@jamesgopsill/crossref-client':
         specifier: ^1.1.0
         version: 1.1.0
-      '@mdi/font':
-        specifier: ^7.4.47
-        version: 7.4.47
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
@@ -98,9 +98,6 @@ importers:
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
-      roboto-fontface:
-        specifier: ^0.10.0
-        version: 0.10.0
       simple-git-hooks:
         specifier: ^2.11.1
         version: 2.11.1
@@ -702,6 +699,9 @@ packages:
     resolution: {integrity: sha512-5D2qVpZrgpjtqU4eNOcWGp1gnUCgjfM+vKGE2y03kKN6z5EBhtx0qdRFbg8QuNNj8wXNoX93KJoYb+NqoxswmQ==}
     engines: {node: '>=14.0.0', npm: '>=7.0.0'}
 
+  '@fontsource/roboto@5.1.0':
+    resolution: {integrity: sha512-cFRRC1s6RqPygeZ8Uw/acwVHqih8Czjt6Q0MwoUoDe9U3m4dH1HmNDRBZyqlMSFwgNAUKgFImncKdmDHyKpwdg==}
+
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -763,9 +763,6 @@ packages:
   '@mapbox/node-pre-gyp@1.0.11':
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
-
-  '@mdi/font@7.4.47':
-    resolution: {integrity: sha512-43MtGpd585SNzHZPcYowu/84Vz2a2g31TvPMTm9uTiCSWzaheQySUcSyUH/46fPnuPQWof2yd0pGBtzee/IQWw==}
 
   '@mdi/js@7.4.47':
     resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
@@ -3841,9 +3838,6 @@ packages:
     engines: {node: 20 || >=22}
     hasBin: true
 
-  roboto-fontface@0.10.0:
-    resolution: {integrity: sha512-OlwfYEgA2RdboZohpldlvJ1xngOins5d7ejqnIBWr9KaMxsnBqotpptRXTyfNRLnFpqzX6sTDt+X+a+6udnU8g==}
-
   rollup@4.28.1:
     resolution: {integrity: sha512-61fXYl/qNVinKmGSTHAZ6Yy8I3YIJC/r2m9feHo6SwVAVcLT5MPwOUFe7EuURA/4m0NR8lXG4BBXuo/IZEsjMg==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
@@ -5262,6 +5256,8 @@ snapshots:
 
   '@fluent/syntax@0.19.0': {}
 
+  '@fontsource/roboto@5.1.0': {}
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -5331,8 +5327,6 @@ snapshots:
       - encoding
       - supports-color
     optional: true
-
-  '@mdi/font@7.4.47': {}
 
   '@mdi/js@7.4.47': {}
 
@@ -8931,8 +8925,6 @@ snapshots:
     dependencies:
       glob: 11.0.0
       package-json-from-dist: 1.0.1
-
-  roboto-fontface@0.10.0: {}
 
   rollup@4.28.1:
     dependencies:
