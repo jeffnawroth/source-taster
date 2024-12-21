@@ -32,3 +32,10 @@ defineProps<{
     </template>
   </v-list-item>
 </template>
+
+<style scoped>
+.v-list-item-subtitle {
+  line-clamp: unset !important;
+  -webkit-line-clamp: unset !important;
+}
+</style>
