@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiTranslate } from '@mdi/js'
 import { sendMessage } from 'webext-bridge/options'
 import { localeOption } from '~/logic'
 
@@ -19,7 +20,7 @@ watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeO
     <OptionListItem
       :title="t('language')"
       :subtitle="t('language-option-description')"
-      prepend-icon="mdi-translate"
+      :prepend-icon="mdiTranslate"
     >
       <v-select
         v-model="localeOption"

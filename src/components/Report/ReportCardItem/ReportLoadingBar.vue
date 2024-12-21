@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiClose, mdiReload } from '@mdi/js'
 import { useDoiStore } from '~/stores/doi'
 
 // App Store
@@ -33,13 +34,13 @@ function reload() {
     <v-col cols="1">
       <v-btn
         v-if="loading"
-        icon="mdi-close"
+        :icon="mdiClose"
         variant="plain"
         @click="abortFetching"
       />
       <v-btn
         v-else-if="loadAborted"
-        icon="mdi-reload"
+        :icon="mdiReload"
         variant="plain"
         @click="reload"
       />

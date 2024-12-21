@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.2.0
+
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            eval "$(ssh-agent -s)"
+            echo "${{ secrets.PASSPHRASE }}" | ssh-add ${{ secrets.KEY_PATH }}
+            git pull origin main
+
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+
+            pnpm install
+            pnpm docs:build

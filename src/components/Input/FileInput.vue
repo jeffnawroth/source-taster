@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiFilePdfBox } from '@mdi/js'
 import { extractText, getDocumentProxy } from 'unpdf'
 import { useDoiStore } from '~/stores/doi'
 
@@ -49,7 +50,7 @@ watch(file, (newValue) => {
     :label="$t('upload-pdf')"
     variant="solo-filled"
     flat
-    prepend-inner-icon="mdi-file-pdf-box"
+    :prepend-inner-icon="mdiFilePdfBox"
     prepend-icon=""
     clearable
     hide-details="auto"
