@@ -24,7 +24,12 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (ev
 
 // Functions
 function openOptionsPage() {
-  browser.runtime.openOptionsPage()
+  if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.openOptionsPage) {
+    browser.runtime.openOptionsPage()
+  }
+  else {
+    console.warn('Browser API not available. Cannot open options page.')
+  }
 }
 </script>
 
