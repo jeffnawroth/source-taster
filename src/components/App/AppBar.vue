@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
 import { themeOption } from '~/logic/storage'
 
@@ -23,7 +24,12 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (ev
 
 // Functions
 function openOptionsPage() {
-  browser.runtime.openOptionsPage()
+  if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.openOptionsPage) {
+    browser.runtime.openOptionsPage()
+  }
+  else {
+    console.warn('Browser API not available. Cannot open options page.')
+  }
 }
 </script>
 
@@ -40,7 +46,7 @@ function openOptionsPage() {
     <template #append>
       <v-btn
         size="small"
-        icon="mdi-cog-outline"
+        :icon="mdiCogOutline"
         variant="plain"
 
         @click="openOptionsPage"

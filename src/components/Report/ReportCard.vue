@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiFileDocumentOutline } from '@mdi/js'
 // i18n
 const { t } = useI18n()
 
@@ -14,7 +15,7 @@ const { t } = useI18n()
   >
     <template #prepend>
       <v-icon
-        icon="mdi-file-document-outline"
+        :icon="mdiFileDocumentOutline"
         size="large"
       />
     </template>

@@ -1,6 +1,5 @@
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import { getDisplayOption } from '~/logic/storage'
-// import type { Tabs } from 'webextension-polyfill'
 
 // only on dev mode
 if (import.meta.hot) {

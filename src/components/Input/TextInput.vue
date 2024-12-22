@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
@@ -35,7 +36,7 @@ const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-
   <v-textarea
     v-model="bibliography"
     auto-grow
-    prepend-inner-icon="mdi-text"
+    :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"
     max-rows="8"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiGithub, mdiHomeOutline, mdiOpenInNew, mdiTagOutline } from '@mdi/js'
 // I18n
 const { t } = useI18n({ useScope: 'global' })
 
@@ -10,22 +11,22 @@ const items = [
     title: t('website'),
     subtitle: 'visit-website',
     href: 'https://sourcetaster.com',
-    appendIcon: 'mdi-open-in-new',
-    prependIcon: 'mdi-home-outline',
+    appendIcon: mdiOpenInNew,
+    prependIcon: mdiHomeOutline,
   },
   {
     title: 'GitHub',
     subtitle: 'view-github',
     href: 'https://github.com/jeffnawroth/source-taster',
-    appendIcon: 'mdi-open-in-new',
-    prependIcon: 'mdi-github',
+    appendIcon: mdiOpenInNew,
+    prependIcon: mdiGithub,
   },
   {
     title: 'Version',
     subtitle: version,
     href: `https://github.com/jeffnawroth/source-taster/releases/tag/${version}`,
-    appendIcon: 'mdi-open-in-new',
-    prependIcon: 'mdi-tag-outline',
+    appendIcon: mdiOpenInNew,
+    prependIcon: mdiTagOutline,
   },
 ]
 </script>

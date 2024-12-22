@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
+import { mdiOpenInNew } from '@mdi/js'
 
 // Props
 const { work } = defineProps<{
@@ -33,7 +34,7 @@ function openWork(work: HttpResponse<Item<Work>>) {
       <v-btn
         v-bind="tooltipProps"
         density="compact"
-        icon="mdi-open-in-new"
+        :icon="mdiOpenInNew"
         variant="plain"
         size="large"
         @click="() => openWork(work)"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiDesktopTowerMonitor, mdiPageLayoutSidebarRight, mdiWeatherNight, mdiWhiteBalanceSunny, mdiWindowMaximize } from '@mdi/js'
 import { getDisplayOption, setDisplayOption, themeOption } from '~/logic'
 
 // I18n
@@ -16,24 +17,24 @@ const selectedDisplayOption = ref('sidepanel')
 const themePrependIcon = computed(() => {
   switch (themeOption.value) {
     case 'light':
-      return 'mdi-white-balance-sunny'
+      return mdiWhiteBalanceSunny
     case 'dark':
-      return 'mdi-weather-night'
+      return mdiWeatherNight
     case 'system':
-      return 'mdi-desktop-tower-monitor'
+      return mdiDesktopTowerMonitor
     default:
-      return 'mdi-desktop-tower-monitor'
+      return mdiDesktopTowerMonitor
   }
 })
 
 const displayModePrependIcon = computed(() => {
   switch (selectedDisplayOption.value) {
     case 'sidepanel':
-      return 'mdi-page-layout-sidebar-right'
+      return mdiPageLayoutSidebarRight
     case 'popup':
-      return 'mdi-window-maximize'
+      return mdiWindowMaximize
     default:
-      return 'mdi-page-layout-sidebar-right'
+      return mdiPageLayoutSidebarRight
   }
 })
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiLink } from '@mdi/js'
 import { extractText, getDocumentProxy } from 'unpdf'
 import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic/storage'
@@ -55,7 +56,7 @@ watch(url, (newValue) => {
     v-if="false"
     v-model="url"
     :placeholder="$t('enter-url')"
-    prepend-inner-icon="mdi-link"
+    :prepend-inner-icon="mdiLink"
     clearable
     variant="solo-filled"
     flat

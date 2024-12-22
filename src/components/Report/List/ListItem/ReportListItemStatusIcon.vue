@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
+import { mdiCheckCircleOutline, mdiCloseCircleOutline } from '@mdi/js'
 
 // Props
 const { work } = defineProps<{
@@ -16,7 +17,7 @@ const { t } = useI18n()
       <v-icon
         v-bind="tooltipProps"
         size="x-large"
-        :icon="work.ok ? 'mdi-check-circle-outline' : 'mdi-close-circle-outline'"
+        :icon="work.ok ? mdiCheckCircleOutline : mdiCloseCircleOutline"
       />
     </template>
     <p>{{ work.ok ? t('valid-description') : t('invalid-description') }}</p>
