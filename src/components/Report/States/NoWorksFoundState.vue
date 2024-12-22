@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiAlertCircleOutline, mdiTextBoxOutline } from '@mdi/js'
+import { mdiAlertCircleOutline, mdiInformationOutline } from '@mdi/js'
 import { useDoiStore } from '~/stores/doi'
 
 // I18n
@@ -12,7 +12,7 @@ const { dois, bibliography } = storeToRefs(useDoiStore())
 <template>
   <v-empty-state
     v-if="dois.length === 0 && bibliography.length === 0"
-    :icon="mdiTextBoxOutline"
+    :icon="mdiInformationOutline"
     :text="t('enter-dois')"
     :title="t('no-input-provided')"
   />
