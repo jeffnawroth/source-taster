@@ -29,10 +29,10 @@
   "dark": "Dunkel",
   "system": "System",
   "display": "Darstellung",
-  "no-valid-dois-were-found": "Es wurden keine DOIs gefunden",
+  "no-valid-dois-were-found": "Keine DOIs gefunden",
   "no-input-provided": "Keine Eingabe bereitgestellt",
-  "enter-dois": "Bitte geben Sie einen oder mehrere DOIs ein, um deren Gültigkeit zu prüfen",
-  "check-dois": "Bitte überprüfen Sie das Format und stellen Sie die Richtigkeit sicher, um die Suchergebnisse zu verbessern",
+  "enter-dois": "Bitte geben Sie DOIs ein, einen Text mit DOIs oder importieren Sie eine PDF-Datei mit DOIs, um diese zu validieren",
+  "check-dois": "Bitte überprüfen Sie Ihre Eingabe und stellen Sie sicher, dass diese DOIs enthält und korrekt formatiert ist, um die Suchergebnisse zu verbessern",
   "upload-pdf": "PDF-Datei importieren",
   "enter-url": "URL eingeben",
   "invalid-url": "Ungültige URL",
@@ -46,5 +46,6 @@
   "contact": "Kontakt",
   "contact-email": "Bei Fragen oder Problemen erreichst du uns per E-Mail",
   "view-demo": "Eine Demonstration zur Verwendung der Erweiterung ansehen",
-  "help": "Hilfe"
+  "help": "Hilfe",
+  "sth-went-wrong": "Etwas ist schief gelaufen"
 }
