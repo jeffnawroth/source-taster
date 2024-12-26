@@ -15,7 +15,7 @@ watchEffect(() => {
 
 <template>
   <v-app>
-    <AppBar />
+    <AppBar hide-settings />
     <v-main>
       <v-container>
         <AppOptions />

@@ -3,6 +3,11 @@ import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
 import { themeOption } from '~/logic/storage'
 
+// Props
+defineProps<{
+  hideSettings?: boolean
+}>()
+
 // Theme
 const theme = useTheme()
 
@@ -43,8 +48,12 @@ function openOptionsPage() {
     scroll-threshold="25"
     scroll-behavior="hide"
   >
-    <template #append>
+    <template
+      v-if="!hideSettings"
+      #append
+    >
       <v-btn
+
         size="small"
         :icon="mdiCogOutline"
         variant="plain"
