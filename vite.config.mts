@@ -46,7 +46,7 @@ export const sharedConfig: UserConfig = {
         'vue',
         {
           'webextension-polyfill': [
-            ['*', 'browser'],
+            ['=', 'browser'],
           ],
         },
         'vue-i18n',

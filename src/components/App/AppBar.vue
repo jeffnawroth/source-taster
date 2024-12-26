@@ -3,6 +3,11 @@ import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
 import { themeOption } from '~/logic/storage'
 
+// Props
+defineProps<{
+  hideSettings?: boolean
+}>()
+
 // Theme
 const theme = useTheme()
 
@@ -24,7 +29,12 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (ev
 
 // Functions
 function openOptionsPage() {
-  browser.runtime.openOptionsPage()
+  if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.openOptionsPage) {
+    browser.runtime.openOptionsPage()
+  }
+  else {
+    console.warn('Browser API not available. Cannot open options page.')
+  }
 }
 </script>
 
@@ -38,8 +48,12 @@ function openOptionsPage() {
     scroll-threshold="25"
     scroll-behavior="hide"
   >
-    <template #append>
+    <template
+      v-if="!hideSettings"
+      #append
+    >
       <v-btn
+
         size="small"
         :icon="mdiCogOutline"
         variant="plain"
