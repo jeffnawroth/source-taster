@@ -4,9 +4,9 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
 
-import de from '~/locales/de.json'
+// Translations provided by Vuetify
+import { de, en } from 'vuetify/locale'
 
-import en from '~/locales/en.json'
 import 'vuetify/styles'
 
 const vuetify = createVuetify({
