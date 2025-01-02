@@ -6,12 +6,12 @@ import { useDoiStore } from '~/stores/doi'
 const { t } = useI18n()
 
 // Doi Store
-const { bibliography, file } = storeToRefs(useDoiStore())
+const { textInput, file } = storeToRefs(useDoiStore())
 </script>
 
 <template>
   <v-empty-state
-    v-if="bibliography.length === 0 && !file"
+    v-if="textInput.length === 0 && !file"
     :icon="mdiInformationOutline"
     :text="t('enter-dois')"
     :title="t('no-input-provided')"
