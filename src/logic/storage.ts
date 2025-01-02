@@ -4,6 +4,7 @@ export const autoImportOption = useWebExtensionStorage('auto-import-option', fal
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
 export const aiExtractionOption = useWebExtensionStorage('ai-extraction-option', false)
+export const geminiApiKey = useWebExtensionStorage('gemini-api-key', '')
 
 declare let chrome: any
 
