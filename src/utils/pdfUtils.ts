@@ -1,6 +1,7 @@
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client/dist/cjs/definitions/interfaces'
 import fontkit from '@pdf-lib/fontkit'
 import { PDFDocument, rgb } from 'pdf-lib'
+import { extractText, getDocumentProxy } from 'unpdf'
 import i18n from '~/plugins/i18n'
 import NotoSans from '../../extension/assets/NotoSans-Regular.ttf'
 
@@ -164,4 +165,19 @@ export async function generatePDFReport(
   // PDF in Bytes speichern und zurückgeben
   const pdfBytes = await pdfDoc.save()
   return pdfBytes
+}
+
+export async function extractPdfText(url: string) {
+  try {
+    // PDF aus der URL laden
+    const response = await fetch(url)
+    const buffer = await response.arrayBuffer()
+    const pdf = await getDocumentProxy(new Uint8Array(buffer))
+    const { text } = await extractText(pdf, { mergePages: true })
+    return text
+  }
+  catch (error) {
+    console.error('Fehler beim Laden oder Extrahieren der PDF:', error)
+    return ''
+  }
 }

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import FileInput from './FileInput.vue'
 import TextInput from './TextInput.vue'
-import UrlInput from './UrlInput.vue'
 
 const components = [
   FileInput,
-  UrlInput,
   TextInput,
 ]
 </script>
