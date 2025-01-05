@@ -5,11 +5,11 @@ import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
 // App Store
-const { bibliography, dois, url } = storeToRefs(useDoiStore())
+const { text, dois, url } = storeToRefs(useDoiStore())
 
 // Listen for messages
 onMessage('bibliography', ({ data }) => {
-  bibliography.value = data.selectedText
+  text.value = data.selectedText
 })
 
 onMessage('autoImportBibliography', ({ data }) => {
@@ -18,9 +18,9 @@ onMessage('autoImportBibliography', ({ data }) => {
 
   url.value = data.url
 
-  bibliography.value = data.selectedText
+  text.value = data.selectedText
 
-  bibliography.value = dois.value.length > 0 ? dois.value.join('\n') : ''
+  text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
 
 // I18n
@@ -34,7 +34,7 @@ const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-
 
 <template>
   <v-textarea
-    v-model="bibliography"
+    v-model="text"
     auto-grow
     :prepend-inner-icon="mdiText"
     :placeholder

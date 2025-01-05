@@ -6,12 +6,12 @@ import { useDoiStore } from '~/stores/doi'
 const { t } = useI18n()
 
 // Doi Store
-const { dois, bibliography, file } = storeToRefs(useDoiStore())
+const { dois, text, file } = storeToRefs(useDoiStore())
 </script>
 
 <template>
   <v-empty-state
-    v-if="dois.length === 0 && (!!bibliography.length || file)"
+    v-if="dois.length === 0 && (!!text.length || file)"
     :icon=" mdiAlertCircleOutline"
     :title="t('no-valid-dois-were-found')"
     :text="t('check-dois')"

@@ -5,7 +5,7 @@ import { useDoiStore } from '~/stores/doi'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { bibliography, file, dois } = storeToRefs(doiStore)
+const { text, file, dois } = storeToRefs(doiStore)
 
 // Data
 
@@ -17,18 +17,18 @@ async function extractPDFText() {
 
       const pdf = await getDocumentProxy(new Uint8Array(buffer))
 
-      const { text } = await extractText(pdf, { mergePages: true })
+      const { text: pdfText } = await extractText(pdf, { mergePages: true })
 
-      bibliography.value = text
+      text.value = pdfText
 
-      bibliography.value = dois.value.length > 0 ? dois.value.join('\n') : ''
+      text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
     }
     catch (error) {
       console.error('Error extracting text:', error)
     }
   }
   else {
-    bibliography.value = ''
+    text.value = ''
     console.warn('Please upload a valid PDF file.')
   }
 }
@@ -38,7 +38,7 @@ watch(file, (newValue) => {
     extractPDFText()
   }
   else {
-    bibliography.value = ''
+    text.value = ''
   }
 })
 </script>

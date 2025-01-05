@@ -1,5 +1,5 @@
 // src/utils/doiExtractor.ts
-export function extractDOIs(bibliography: string): string[] {
+export function extractDOIs(text: string): string[] {
   const extractedDOIs: string[] = []
 
   const doiPatterns = [
@@ -17,13 +17,13 @@ export function extractDOIs(bibliography: string): string[] {
   // Check for embedded DOIs in URLs (using global flag 'g')
   let urlMatches
   // eslint-disable-next-line no-cond-assign
-  while ((urlMatches = urlPattern.exec(bibliography)) !== null) {
+  while ((urlMatches = urlPattern.exec(text)) !== null) {
     extractedDOIs.push(urlMatches[1].replace(/\.$/, '')) // Remove any trailing period
   }
 
   // Check for normal DOIs based on the defined patterns
   doiPatterns.forEach((pattern) => {
-    const matches = bibliography.match(pattern)
+    const matches = text.match(pattern)
     if (matches) {
       extractedDOIs.push(
         ...matches.map(match => match.replace(/\.$/, '')), // Remove any trailing period if present

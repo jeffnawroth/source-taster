@@ -7,7 +7,7 @@ import { extractDOIs } from '~/utils/doiExtractor'
 
 export const useDoiStore = defineStore('doi', () => {
   // Data
-  const bibliography = ref<string>('')
+  const text = ref<string>('')
   const client = new CrossrefClient()
   const loading = ref(false)
   const loadAborted = ref(false)
@@ -19,10 +19,10 @@ export const useDoiStore = defineStore('doi', () => {
 
   // Computed
 
-  // Extracts DOIs from the bibliography
-  const dois = computed(() => extractDOIs(bibliography.value))
+  // Extracts DOIs from the text
+  const dois = computed(() => extractDOIs(text.value))
 
-  // Number of DOIs found in the bibliography
+  // Number of DOIs found in the text
   const found = computed(() => works.value.length)
 
   // Number of DOIs that passed the check
@@ -79,13 +79,13 @@ export const useDoiStore = defineStore('doi', () => {
       reset()
   })
 
-  watch(bibliography, (newValue) => {
+  watch(text, (newValue) => {
     if (!newValue)
       reset()
   })
 
   function reset() {
-    bibliography.value = ''
+    text.value = ''
     url.value = ''
     file.value = null
     works.value = []
@@ -97,7 +97,7 @@ export const useDoiStore = defineStore('doi', () => {
     loading.value = false
   }
 
-  return { dois, resolveDOI, bibliography, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, url, file }
+  return { dois, resolveDOI, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, url, file }
 })
 
 if (import.meta.hot) {
