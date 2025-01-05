@@ -1,46 +1,21 @@
 <script setup lang="ts">
 import { mdiFilePdfBox } from '@mdi/js'
-import { extractText, getDocumentProxy } from 'unpdf'
 import { useDoiStore } from '~/stores/doi'
+import { extractPDFTextFromFile } from '~/utils/pdfUtils'
 
 // Doi Store
 const doiStore = useDoiStore()
 const { text, file, dois } = storeToRefs(doiStore)
 
-// Data
-
-// Functions
-async function extractPDFText() {
-  if (file.value && file.value.type === 'application/pdf') {
-    try {
-      const buffer = await file.value.arrayBuffer()
-
-      const pdf = await getDocumentProxy(new Uint8Array(buffer))
-
-      const { text: pdfText } = await extractText(pdf, { mergePages: true })
-
-      text.value = pdfText
-
-      text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
-    }
-    catch (error) {
-      console.error('Error extracting text:', error)
-    }
-  }
-  else {
-    text.value = ''
-    console.warn('Please upload a valid PDF file.')
-  }
+// Handle File Change
+async function handleFileChange(files: File | File[]) {
+  if (!files)
+    return
+  const file = Array.isArray(files) ? files[0] : files
+  const pdfText = await extractPDFTextFromFile(file)
+  text.value = pdfText
+  text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 }
-
-watch(file, (newValue) => {
-  if (newValue) {
-    extractPDFText()
-  }
-  else {
-    text.value = ''
-  }
-})
 </script>
 
 <template>
@@ -54,5 +29,6 @@ watch(file, (newValue) => {
     prepend-icon=""
     clearable
     hide-details="auto"
+    @update:model-value="handleFileChange"
   />
 </template>

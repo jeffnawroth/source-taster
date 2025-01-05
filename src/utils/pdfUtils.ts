@@ -167,17 +167,42 @@ export async function generatePDFReport(
   return pdfBytes
 }
 
-export async function extractPdfText(url: string) {
+// Extract text from a PDF URL
+export async function extractPdfTextFromUrl(url: string): Promise<string> {
   try {
-    // PDF aus der URL laden
     const response = await fetch(url)
     const buffer = await response.arrayBuffer()
+    return await extractPDFText(buffer)
+  }
+  catch (error) {
+    console.error('Error loading or extracting PDF:', error)
+    return ''
+  }
+}
+
+// Extract text from a PDF buffer
+async function extractPDFText(buffer: ArrayBuffer): Promise<string> {
+  try {
     const pdf = await getDocumentProxy(new Uint8Array(buffer))
     const { text } = await extractText(pdf, { mergePages: true })
     return text
   }
   catch (error) {
-    console.error('Fehler beim Laden oder Extrahieren der PDF:', error)
+    console.error('Error extracting text from PDF:', error)
+    return ''
+  }
+}
+
+// Extract text from a PDF file
+export async function extractPDFTextFromFile(file: File): Promise<string> {
+  if (!file || file.type !== 'application/pdf')
+    return ''
+  try {
+    const buffer = await file.arrayBuffer()
+    return await extractPDFText(buffer)
+  }
+  catch (error) {
+    console.error('Error extracting text:', error)
     return ''
   }
 }

@@ -2,7 +2,7 @@
 import { createApp } from 'vue'
 import { sendMessage } from 'webext-bridge/content-script'
 import { setupApp } from '~/logic/common-setup'
-import { extractPdfText } from '~/utils/pdfUtils'
+import { extractPdfTextFromUrl } from '~/utils/pdfUtils'
 import App from './views/App.vue'
 
 // Firefox `browser.tabs.executeScript()` requires scripts return a primitive value
@@ -30,7 +30,7 @@ import App from './views/App.vue'
   oReq.addEventListener('load', async function () {
     if (isPdfFile(this, url)) {
       console.log('pdf')
-      const pdfText = await extractPdfText(url)
+      const pdfText = await extractPdfTextFromUrl(url)
       sendMessage('autoImportText', { selectedText: pdfText }, { context: 'popup', tabId: 0 })
     }
     else {
