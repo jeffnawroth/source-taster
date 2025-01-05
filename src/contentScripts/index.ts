@@ -31,12 +31,12 @@ import App from './views/App.vue'
     if (isPdfFile(this, url)) {
       console.log('pdf')
       const pdfText = await extractPdfText(url)
-      sendMessage('autoImportBibliography', { selectedText: pdfText, url, type: 'pdf' }, { context: 'popup', tabId: 0 })
+      sendMessage('autoImportText', { selectedText: pdfText, url, type: 'pdf' }, { context: 'popup', tabId: 0 })
     }
     else {
       console.log('html')
       const pageText = document.body.innerHTML
-      sendMessage('autoImportBibliography', { selectedText: pageText!, url, type: 'html' }, { context: 'popup', tabId: 0 })
+      sendMessage('autoImportText', { selectedText: pageText!, url, type: 'html' }, { context: 'popup', tabId: 0 })
     }
   })
   oReq.open('GET', url)

@@ -12,7 +12,7 @@ onMessage('bibliography', ({ data }) => {
   text.value = data.selectedText
 })
 
-onMessage('autoImportBibliography', ({ data }) => {
+onMessage('autoImportText', ({ data }) => {
   if (!autoImportOption.value)
     return
 
