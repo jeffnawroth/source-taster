@@ -2,7 +2,6 @@ import { CrossrefClient, type HttpResponse, type Item, type Work } from '@jamesg
 import { useDebounceFn } from '@vueuse/core'
 
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { autoImportOption } from '~/logic'
 import { extractDOIs } from '~/utils/doiExtractor'
 
 export const useDoiStore = defineStore('doi', () => {
@@ -73,11 +72,6 @@ export const useDoiStore = defineStore('doi', () => {
 
   // Watchers
   watch(dois, () => getDOIsMetadata())
-
-  watch(autoImportOption, (newValue) => {
-    if (!newValue)
-      reset()
-  })
 
   watch(text, (newValue) => {
     if (!newValue)
