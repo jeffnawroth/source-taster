@@ -34,8 +34,6 @@
   "enter-dois": "Bitte geben Sie DOIs ein, einen Text mit DOIs oder importieren Sie eine PDF-Datei mit DOIs, um diese zu validieren",
   "check-dois": "Bitte überprüfen Sie Ihre Eingabe und stellen Sie sicher, dass diese DOIs enthält und korrekt formatiert ist, um die Suchergebnisse zu verbessern",
   "upload-pdf": "PDF-Datei importieren",
-  "enter-url": "URL eingeben",
-  "invalid-url": "Ungültige URL",
   "about": "Über",
   "display-mode": "Anzeigemodus",
   "display-mode-description": "Wählen Sie den Anzeigemodus der Erweiterung",

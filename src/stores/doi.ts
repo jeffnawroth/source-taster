@@ -13,7 +13,6 @@ export const useDoiStore = defineStore('doi', () => {
 
   const works = ref<HttpResponse<Item<Work>>[]>([])
 
-  const url = ref('')
   const file = ref<File | null>(null)
 
   // Computed
@@ -80,7 +79,6 @@ export const useDoiStore = defineStore('doi', () => {
 
   function reset() {
     text.value = ''
-    url.value = ''
     file.value = null
     works.value = []
   }
@@ -91,7 +89,7 @@ export const useDoiStore = defineStore('doi', () => {
     loading.value = false
   }
 
-  return { dois, resolveDOI, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, url, file }
+  return { dois, resolveDOI, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file }
 })
 
 if (import.meta.hot) {

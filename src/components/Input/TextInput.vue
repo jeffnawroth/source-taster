@@ -5,7 +5,7 @@ import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
 // App Store
-const { text, dois, url } = storeToRefs(useDoiStore())
+const { text, dois } = storeToRefs(useDoiStore())
 
 // Listen for messages
 onMessage('bibliography', ({ data }) => {
@@ -15,8 +15,6 @@ onMessage('bibliography', ({ data }) => {
 onMessage('autoImportText', ({ data }) => {
   if (!autoImportOption.value)
     return
-
-  url.value = data.url
 
   text.value = data.selectedText
 
