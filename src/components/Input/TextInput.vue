@@ -8,8 +8,8 @@ import { useDoiStore } from '~/stores/doi'
 const { text, dois } = storeToRefs(useDoiStore())
 
 // Listen for messages
-onMessage('bibliography', ({ data }) => {
-  text.value = data.selectedText
+onMessage('selectedText', ({ data }) => {
+  text.value = data.text
 })
 
 onMessage('autoImportText', ({ data }) => {

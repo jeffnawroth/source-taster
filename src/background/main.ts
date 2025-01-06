@@ -102,7 +102,7 @@ function attemptSidePanelOpen(windowId: number | null, selectedText?: string, ta
       // eslint-disable-next-line no-console
       console.log('Sidepanel opened with validated `windowId`...')
       if (selectedText && tab) {
-        sendMessage('bibliography', { selectedText }, { context: 'popup', tabId: tab.id! })
+        sendMessage('selectedText', { text: selectedText }, { context: 'popup', tabId: tab.id! })
       }
     }).catch((error: any) => {
       console.error('Failed to open sidepanel:', error)
@@ -132,7 +132,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       console.log('Opening popup...')
       chrome.action.openPopup().then(() => {
         // @ts-expect-error missing types
-        sendMessage('bibliography', { selectedText: info.selectionText }, { context: 'popup', tabId: tab!.id! })
+        sendMessage('selectedText', { text: info.selectionText }, { context: 'popup', tabId: tab!.id! })
       }).catch((error: any) => {
         console.error('Failed to open the popup:', error)
       })
