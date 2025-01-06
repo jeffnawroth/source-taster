@@ -16,7 +16,7 @@ onMessage('autoImportText', ({ data }) => {
   if (!autoImportOption.value)
     return
 
-  text.value = data.selectedText
+  text.value = data.text
 
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
