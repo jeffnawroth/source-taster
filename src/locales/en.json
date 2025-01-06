@@ -45,5 +45,14 @@
   "contact-email": "For questions or issues, you can reach us via email",
   "view-demo": "View a demonstration of how to use the extension",
   "help": "Help",
-  "sth-went-wrong": "Something went wrong"
+  "sth-went-wrong": "Something went wrong",
+  "ai-extraction": "AI Extraction",
+  "ai-extraction-description": "When this option is enabled, Google Gemini is used to extract DOIs from your input text",
+  "ai-extraction-description-info": "Please note that Google Gemini is a third-party service. Therefore, avoid entering sensitive or confidential data, as it may be sent to the service. For more information, click here:",
+  "advanced": "Advanced",
+  "test-api-key": "Test API Key",
+  "api-key-valid": "Valid",
+  "api-key-invalid": "Invalid",
+  "api-key-texfield-message": "Enter your API key here to use the AI extraction. If you don’t have an API key yet, you can",
+  "create-one-here": "create one here"
 }

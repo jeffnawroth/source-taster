@@ -37,6 +37,7 @@
     "@antfu/eslint-config": "3.12.0",
     "@ffflorian/jszip-cli": "^3.8.2",
     "@fontsource/roboto": "^5.1.1",
+    "@google/generative-ai": "^0.21.0",
     "@jamesgopsill/crossref-client": "^1.1.0",
     "@mdi/js": "^7.4.47",
     "@pdf-lib/fontkit": "^1.1.1",
@@ -81,6 +82,7 @@
     "web-ext": "^8.3.0",
     "webext-bridge": "^6.0.1",
     "webextension-polyfill": "^0.12.0"
+
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

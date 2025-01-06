@@ -45,5 +45,15 @@
   "contact-email": "Bei Fragen oder Problemen erreichst du uns per E-Mail",
   "view-demo": "Eine Demonstration zur Verwendung der Erweiterung ansehen",
   "help": "Hilfe",
-  "sth-went-wrong": "Etwas ist schief gelaufen"
+  "sth-went-wrong": "Etwas ist schief gelaufen",
+  "ai-extraction": "KI-Extraktion",
+  "ai-extraction-description": "Wenn diese Option aktiviert ist, wird Google Gemini verwendet,um DOIs aus dem Eingabetext zu extrahieren. Dadurch können DOIs auch dann zuverlässig erkannt werden, wenn sie nicht korrekt formatiert sind",
+  "ai-extraction-description-info": "Bitte beachten Sie, dass Google Gemini ein Drittanbieter-Dienst ist. Vermeiden Sie es daher, sensible oder vertrauliche Daten einzugeben, da diese an den Dienst gesendet werden könnten. Für weitere Informationen klicken Sie hier: ",
+  "learn-more": "Mehr erfahren",
+  "advanced": "Erweitert",
+  "test-api-key": "API-Schlüssel testen",
+  "api-key-valid": "Gültig",
+  "api-key-invalid": "Ungültig",
+  "api-key-texfield-message": "Geben Sie hier Ihren API-Schlüssel ein, um die KI-Extraktion zu verwenden. Falls Sie noch keinen API-Schlüssel haben, können Sie diesen",
+  "create-one-here": "hier erstellen"
 }
