@@ -26,9 +26,11 @@ const { t } = useI18n()
           {{ t('auto-import-dois-info') }}
         </p>
       </template>
-      <v-checkbox-btn
+      <v-switch
         v-model="autoImportOption"
+        hide-details
         color="primary"
+        inset
       />
     </OptionListItem>
   </OptionCategory>
