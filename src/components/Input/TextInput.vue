@@ -4,8 +4,10 @@ import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
-// App Store
-const { text, dois } = storeToRefs(useDoiStore())
+// Doi Store
+const doiStore = useDoiStore()
+const { text, dois } = storeToRefs(doiStore)
+const { reset } = doiStore
 
 // Listen for messages
 onMessage('selectedText', ({ data }) => {
@@ -42,5 +44,6 @@ const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-
     variant="solo-filled"
     autofocus
     clearable
+    @click:clear="reset"
   />
 </template>

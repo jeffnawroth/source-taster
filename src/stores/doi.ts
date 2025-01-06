@@ -72,11 +72,6 @@ export const useDoiStore = defineStore('doi', () => {
   // Watchers
   watch(dois, () => getDOIsMetadata())
 
-  watch(text, (newValue) => {
-    if (!newValue)
-      reset()
-  })
-
   function reset() {
     text.value = ''
     file.value = null
@@ -89,7 +84,7 @@ export const useDoiStore = defineStore('doi', () => {
     loading.value = false
   }
 
-  return { dois, resolveDOI, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file }
+  return { dois, resolveDOI, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset }
 })
 
 if (import.meta.hot) {

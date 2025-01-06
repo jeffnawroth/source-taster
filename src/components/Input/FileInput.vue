@@ -6,6 +6,7 @@ import { extractPDFTextFromFile } from '~/utils/pdfUtils'
 // Doi Store
 const doiStore = useDoiStore()
 const { text, file, dois } = storeToRefs(doiStore)
+const { reset } = doiStore
 
 // Handle File Change
 async function handleFileChange(files: File | File[]) {
@@ -30,5 +31,6 @@ async function handleFileChange(files: File | File[]) {
     clearable
     hide-details="auto"
     @update:model-value="handleFileChange"
+    @click:clear="reset"
   />
 </template>
