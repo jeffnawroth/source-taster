@@ -4,10 +4,16 @@ import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
+// I18n
+const { t } = useI18n()
+
 // Doi Store
 const doiStore = useDoiStore()
 const { text, dois } = storeToRefs(doiStore)
 const { reset } = doiStore
+
+// Computed
+const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
 
 // Listen for messages
 onMessage('selectedText', ({ data }) => {
@@ -22,14 +28,6 @@ onMessage('autoImportText', ({ data }) => {
 
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
-
-// I18n
-const { t } = useI18n()
-
-// Data
-
-// Computed
-const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
 </script>
 
 <template>
