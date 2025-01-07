@@ -79,6 +79,7 @@ watch(selectedDisplayOption, (newValue) => {
         v-model="selectedDisplayOption"
         :items="displayOptions"
         item-title="label"
+        width="150"
         item-value="value"
         color="primary"
         density="compact"
@@ -98,6 +99,7 @@ watch(selectedDisplayOption, (newValue) => {
         :items="themes"
         :item-title="(option) => t(option)"
         :item-value="(option) => option"
+        width="150"
         density="compact"
         hide-details
         variant="solo-filled"
