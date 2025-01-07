@@ -72,10 +72,12 @@ function showApiKeyStatusIcon() {
         </p>
       </template>
 
-      <v-checkbox-btn
+      <v-switch
         v-model="aiExtractionOption"
-        :disabled="!geminiApiKey"
+        hide-details
         color="primary"
+        inset
+        :disabled="!geminiApiKey"
       />
     </OptionListItem>
     <v-list-item>
