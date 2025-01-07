@@ -72,11 +72,8 @@ function showApiKeyStatusIcon() {
         </p>
       </template>
 
-      <v-switch
+      <OptionSwitch
         v-model="aiExtractionOption"
-        hide-details
-        color="primary"
-        inset
         :disabled="!geminiApiKey"
       />
     </OptionListItem>

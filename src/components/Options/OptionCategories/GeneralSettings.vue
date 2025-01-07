@@ -26,11 +26,8 @@ const { t } = useI18n()
           {{ t('auto-import-dois-info') }}
         </p>
       </template>
-      <v-switch
+      <OptionSwitch
         v-model="autoImportOption"
-        hide-details
-        color="primary"
-        inset
       />
     </OptionListItem>
   </OptionCategory>
