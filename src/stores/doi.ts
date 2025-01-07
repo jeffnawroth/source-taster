@@ -31,8 +31,14 @@ export const useDoiStore = defineStore('doi', () => {
 
   // Resolves the DOI
   async function resolveDOI(doi: string) {
+    const url = `https://doi.org/${doi}`
     try {
-      const response = await fetch(`https://doi.org/${doi}`)
+      const response = await fetch(url, {
+        method: 'HEAD',
+        headers: {
+          Accept: 'application/json',
+        },
+      })
       return response
     }
     catch (error) {
