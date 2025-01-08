@@ -5,6 +5,9 @@ export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
 export const aiExtractionOption = useWebExtensionStorage('ai-extraction-option', false)
 export const geminiApiKey = useWebExtensionStorage('gemini-api-key', '')
+export const requestsMadeToday = useWebExtensionStorage('requests-made-today', 0)
+export const requestsMadeThisMinute = useWebExtensionStorage('requests-made-this-minute', 0)
+export const tokensUsedThisMintue = useWebExtensionStorage('tokens-used-this-minute', 0)
 
 declare let chrome: any
 
