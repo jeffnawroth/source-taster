@@ -30,7 +30,7 @@ export const useDoiStore = defineStore('doi', () => {
   const invalid = computed(() => works.value.filter(work => !work.ok).length)
 
   // Resolves the DOI
-  async function resolveDOI(doi: string) {
+  async function checkDoiExists(doi: string) {
     const url = `https://doi.org/${doi}`
     try {
       const response = await fetch(url, {
@@ -60,7 +60,7 @@ export const useDoiStore = defineStore('doi', () => {
         const response = await client.work(doi)
 
         if (!response.ok) {
-          const response2 = await resolveDOI(doi) as HttpResponse<Item<Work>>
+          const response2 = await checkDoiExists(doi) as HttpResponse<Item<Work>>
           works.value.push(response2)
           continue
         }
@@ -90,7 +90,7 @@ export const useDoiStore = defineStore('doi', () => {
     loading.value = false
   }
 
-  return { dois, resolveDOI, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset }
+  return { dois, checkDoiExists, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset }
 })
 
 if (import.meta.hot) {
