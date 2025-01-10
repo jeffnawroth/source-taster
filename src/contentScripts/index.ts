@@ -1,9 +1,6 @@
 /* eslint-disable no-console */
-import { createApp } from 'vue'
 import { sendMessage } from 'webext-bridge/content-script'
-import { setupApp } from '~/logic/common-setup'
 import { extractPdfTextFromUrl } from '~/utils/pdfUtils'
-import App from './views/App.vue'
 
 // Firefox `browser.tabs.executeScript()` requires scripts return a primitive value
 (() => {
@@ -41,9 +38,4 @@ import App from './views/App.vue'
   })
   oReq.open('GET', url)
   oReq.send()
-
-  const root = document.createElement('div')
-  const app = createApp(App)
-  setupApp(app)
-  app.mount(root)
 })()
