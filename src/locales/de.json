@@ -55,5 +55,13 @@
   "api-key-invalid": "Ungültig",
   "api-key-texfield-message": "Geben Sie hier Ihren API-Schlüssel ein, um die KI-Extraktion zu verwenden. Falls Sie noch keinen API-Schlüssel haben, können Sie diesen",
   "create-one-here": "hier erstellen",
-  "ai": "KI"
+  "ai": "KI",
+  "usage": "Nutzung",
+  "requests-per-day": "Anfragen pro Tag",
+  "requests-per-day-description": "Dies ist das Limit der KI-Anfragen pro Tag",
+  "resets-in": "Wird zurückgesetzt in",
+  "requests-per-minute": "Anfragen pro Minute",
+  "requests-per-minute-description": "Dies ist das Limit der KI-Anfragen pro Minute",
+  "tokens-per-minute": "Token pro Minute",
+  "tokens-per-minute-description": "Dies ist das Limit der KI-Token pro Minute"
 }
