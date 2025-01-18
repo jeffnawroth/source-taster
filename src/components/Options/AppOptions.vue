@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import AISettings from './OptionCategories//AISettings/AiSettings.vue'
 import About from './OptionCategories/About.vue'
-import AiSettings from './OptionCategories/AiSettings.vue'
 import DisplaySettings from './OptionCategories/DisplaySettings.vue'
 import GeneralSettings from './OptionCategories/GeneralSettings.vue'
 import Help from './OptionCategories/Help.vue'
@@ -10,7 +10,7 @@ const components = {
   GeneralSettings,
   DisplaySettings,
   LanguageSettings,
-  AiSettings,
+  AISettings,
   About,
   Help,
 }
