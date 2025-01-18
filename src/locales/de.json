@@ -63,5 +63,9 @@
   "requests-per-minute": "Anfragen pro Minute",
   "requests-per-minute-description": "Dies ist das Limit der KI-Anfragen pro Minute",
   "tokens-per-minute": "Token pro Minute",
-  "tokens-per-minute-description": "Dies ist das Limit der KI-Token pro Minute"
+  "tokens-per-minute-description": "Dies ist das Limit der KI-Token pro Minute",
+  "hr": "h",
+  "min": "min",
+  "sec": "s"
+
 }

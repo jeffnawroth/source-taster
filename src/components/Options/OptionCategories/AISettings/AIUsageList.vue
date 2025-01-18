@@ -2,15 +2,47 @@
 import { useIntervalFn } from '@vueuse/core'
 import { requestsMadeThisMinute, requestsMadeToday, tokensUsedThisMintue } from '~/logic'
 import { useAiStore } from '~/stores/ai'
+import AIUsageListItem from './AIUsageListItem.vue'
 
+// I18n
 const { t } = useI18n()
 
+// AI Store
 const aiStore = useAiStore()
 const { MAX_REQUESTS_PER_MINUTE, MAX_REQUEST_PER_DAY, MAX_TOKENS_PER_MINUTE } = storeToRefs(aiStore)
 
+// Data
 const secondsUntilReset = ref(0)
 const hoursUntilReset = ref(0)
 
+const aiUsageListItems = ref([
+  {
+    title: t('requests-per-day'),
+    subtitle: t('requests-per-day-description'),
+    resetInterval: hoursUntilReset,
+    intervalUnit: 'hr' as 'hr' | 'sec' | 'min',
+    maxCount: MAX_REQUEST_PER_DAY,
+    count: requestsMadeToday,
+  },
+  {
+    title: t('requests-per-minute'),
+    subtitle: t('requests-per-minute-description'),
+    resetInterval: secondsUntilReset,
+    intervalUnit: 'sec' as 'hr' | 'sec' | 'min',
+    maxCount: MAX_REQUESTS_PER_MINUTE,
+    count: requestsMadeThisMinute,
+  },
+  {
+    title: t('tokens-per-minute'),
+    subtitle: t('tokens-per-minute-description'),
+    resetInterval: secondsUntilReset,
+    intervalUnit: 'sec' as 'hr' | 'sec' | 'min',
+    maxCount: MAX_TOKENS_PER_MINUTE,
+    count: tokensUsedThisMintue,
+  },
+])
+
+// Methods
 useIntervalFn(() => {
   const now = new Date()
   secondsUntilReset.value = 60 - now.getSeconds()
@@ -32,56 +64,9 @@ useIntervalFn(() => {
 <template>
   <v-list-item :title="t('usage')" />
 
-  <v-list-item
-    :title="t('requests-per-day')"
-  >
-    <template #subtitle>
-      <p>{{ t('requests-per-day-description') }}</p>
-    </template>
-    <p> {{ `${t('resets-in')} ${hoursUntilReset}` }}h </p>
-
-    <template #append>
-      <v-chip
-        color="primary"
-        label
-      >
-        {{ `${requestsMadeToday}/${MAX_REQUEST_PER_DAY}` }}
-      </v-chip>
-    </template>
-  </v-list-item>
-  <v-list-item
-    :title="t('requests-per-minute')"
-  >
-    <template #subtitle>
-      <p>{{ t('requests-per-minute-description') }}</p>
-    </template>
-    <p> {{ `${t('resets-in')} ${secondsUntilReset}` }}s </p>
-
-    <template #append>
-      <v-chip
-        color="primary"
-        label
-      >
-        {{ `${requestsMadeThisMinute}/${MAX_REQUESTS_PER_MINUTE}` }}
-      </v-chip>
-    </template>
-  </v-list-item>
-  <v-list-item
-    :title="t('tokens-per-minute')"
-  >
-    <template #subtitle>
-      <p>{{ t('tokens-per-minute-description') }}</p>
-    </template>
-    <p>
-      {{ `${t('resets-in')} ${secondsUntilReset}` }}s
-    </p>
-    <template #append>
-      <v-chip
-        color="primary"
-        label
-      >
-        {{ `${tokensUsedThisMintue}/${MAX_TOKENS_PER_MINUTE}` }}
-      </v-chip>
-    </template>
-  </v-list-item>
+  <AIUsageListItem
+    v-for="item in aiUsageListItems"
+    :key="item.title"
+    v-bind="item"
+  />
 </template>
