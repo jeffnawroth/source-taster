@@ -12,15 +12,12 @@ defineProps<{
 <template>
   <v-list-item
     :title
+    :subtitle
   >
-    <template #subtitle>
-      <p>{{ subtitle }}</p>
-    </template>
     <p> {{ `${$t('resets-in')} ${resetInterval} ${$t(intervalUnit)}` }} </p>
 
     <template #append>
       <v-chip
-        color="primary"
         label
       >
         {{ `${count}/${maxCount}` }}
