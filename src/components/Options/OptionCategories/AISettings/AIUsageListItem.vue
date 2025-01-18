@@ -21,9 +21,8 @@ defineProps<{
     <template #append>
       <v-chip
         label
-      >
-        {{ `${count}/${maxCount}` }}
-      </v-chip>
+        :text="`${count}/${maxCount}`"
+      />
     </template>
   </v-list-item>
 </template>
