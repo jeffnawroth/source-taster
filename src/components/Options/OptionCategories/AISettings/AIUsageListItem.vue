@@ -18,11 +18,16 @@ defineProps<{
       {{ `${$t('resets-in')} ${resetInterval} ${$t(intervalUnit)}` }}
     </p>
 
-    <template #append>
+    <template
+      #append
+    >
       <v-chip
-        label
+        variant="text"
         :text="`${count}/${maxCount}`"
       />
     </template>
   </v-list-item>
 </template>
+
+<style>
+</style>
