@@ -62,11 +62,13 @@ useIntervalFn(() => {
 </script>
 
 <template>
-  <v-list-item :title="t('usage')" />
+  <v-list>
+    <v-list-item :title="t('usage')" />
 
-  <AIUsageListItem
-    v-for="item in aiUsageListItems"
-    :key="item.title"
-    v-bind="item"
-  />
+    <AIUsageListItem
+      v-for="item in aiUsageListItems"
+      :key="item.title"
+      v-bind="item"
+    />
+  </v-list>
 </template>
