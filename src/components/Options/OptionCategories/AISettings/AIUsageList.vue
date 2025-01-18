@@ -33,7 +33,7 @@ useIntervalFn(() => {
   <v-list-item :title="t('usage')" />
 
   <v-list-item
-    title="Request Per Day"
+    :title="t('requests-per-day')"
   >
     <template #subtitle>
       <p>{{ t('requests-per-day-description') }}</p>
