@@ -67,7 +67,7 @@ function showApiKeyStatusIcon() {
 
 <template>
   <OptionCategory
-    :subheader="t('advanced')"
+    :subheader="t('ai')"
   >
     <OptionListItem
       :disabled="!geminiApiKey"
