@@ -14,7 +14,9 @@ defineProps<{
     :title
     :subtitle
   >
-    <p> {{ `${$t('resets-in')} ${resetInterval} ${$t(intervalUnit)}` }} </p>
+    <p class="font-weight-light text-medium-emphasis">
+      {{ `${$t('resets-in')} ${resetInterval} ${$t(intervalUnit)}` }}
+    </p>
 
     <template #append>
       <v-chip
