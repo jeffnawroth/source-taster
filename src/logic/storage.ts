@@ -8,6 +8,7 @@ export const geminiApiKey = useWebExtensionStorage('gemini-api-key', '')
 export const requestsMadeToday = useWebExtensionStorage('requests-made-today', 0)
 export const requestsMadeThisMinute = useWebExtensionStorage('requests-made-this-minute', 0)
 export const tokensUsedThisMintue = useWebExtensionStorage('tokens-used-this-minute', 0)
+export const isGeminiApiKeyValid = useWebExtensionStorage<null | boolean>('is-gemini-api-key-valid', null)
 
 declare let chrome: any
 

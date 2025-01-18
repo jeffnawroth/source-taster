@@ -4,6 +4,10 @@ import { requestsMadeThisMinute, requestsMadeToday, tokensUsedThisMintue } from 
 import { useAiStore } from '~/stores/ai'
 import AIUsageListItem from './AIUsageListItem.vue'
 
+defineProps<{
+  disabled?: boolean
+}>()
+
 // I18n
 const { t } = useI18n()
 
@@ -62,13 +66,15 @@ useIntervalFn(() => {
 </script>
 
 <template>
-  <v-list>
-    <v-list-item :title="t('usage')" />
+  <v-list-item
+    :disabled
+    :title="t('usage')"
+  />
 
-    <AIUsageListItem
-      v-for="item in aiUsageListItems"
-      :key="item.title"
-      v-bind="item"
-    />
-  </v-list>
+  <AIUsageListItem
+    v-for="item in aiUsageListItems"
+    :key="item.title"
+    :disabled
+    v-bind="item"
+  />
 </template>

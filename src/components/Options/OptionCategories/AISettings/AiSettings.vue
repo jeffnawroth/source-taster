@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { mdiInformationOutline, mdiStarFourPointsOutline } from '@mdi/js'
-import { aiExtractionOption, geminiApiKey } from '~/logic'
+import { aiExtractionOption, geminiApiKey, isGeminiApiKeyValid } from '~/logic'
 import AIUsageList from './AIUsageList.vue'
 
 // i18n
 const { t } = useI18n()
+
+const disabled = computed(() => !geminiApiKey.value || !isGeminiApiKeyValid.value)
 </script>
 
 <template>
@@ -12,10 +14,9 @@ const { t } = useI18n()
     :subheader="t('ai')"
   >
     <OptionListItem
-      :disabled="!geminiApiKey"
       :title="t('ai-extraction')"
       :prepend-icon="mdiStarFourPointsOutline"
-      @click="aiExtractionOption = !aiExtractionOption"
+      @click="disabled || (aiExtractionOption = !aiExtractionOption)"
     >
       <template #subtitle>
         <p>{{ t('ai-extraction-description') }}</p>
@@ -44,6 +45,6 @@ const { t } = useI18n()
     </v-list-item>
     <v-divider />
 
-    <AIUsageList />
+    <AIUsageList :disabled />
   </OptionCategory>
 </template>

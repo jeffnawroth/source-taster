@@ -1,9 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { geminiApiKey, requestsMadeThisMinute, requestsMadeToday, tokensUsedThisMintue } from '~/logic'
+import { geminiApiKey, isGeminiApiKeyValid, requestsMadeThisMinute, requestsMadeToday, tokensUsedThisMintue } from '~/logic'
 
 export const useAiStore = defineStore('ai', () => {
-  const apiKeyValid = ref<null | boolean>(null)
   const loading = ref(false)
 
   const MAX_REQUEST_PER_DAY = ref(1500)
@@ -59,19 +58,19 @@ export const useAiStore = defineStore('ai', () => {
       loading.value = true
       const response = await generateContent('This is just a test to see if the API key is valid.')
       if (response) {
-        apiKeyValid.value = true
+        isGeminiApiKeyValid.value = true
       }
     }
     catch (error) {
       console.error('Error testing API key:', error)
-      apiKeyValid.value = false
+      isGeminiApiKeyValid.value = false
     }
     finally {
       loading.value = false
     }
   }
 
-  return { generateContent, extractDOIsFromText, testApiKey, apiKeyValid, loading, MAX_REQUESTS_PER_MINUTE, MAX_REQUEST_PER_DAY, MAX_TOKENS_PER_MINUTE }
+  return { generateContent, extractDOIsFromText, testApiKey, loading, MAX_REQUESTS_PER_MINUTE, MAX_REQUEST_PER_DAY, MAX_TOKENS_PER_MINUTE }
 })
 
 if (import.meta.hot) {

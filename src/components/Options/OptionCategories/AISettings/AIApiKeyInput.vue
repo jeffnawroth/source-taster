@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mdiKey } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
-import { geminiApiKey } from '~/logic'
+import { geminiApiKey, isGeminiApiKeyValid } from '~/logic'
 import { useAiStore } from '~/stores/ai'
 
 // I18n
@@ -9,7 +9,7 @@ const { t } = useI18n()
 
 // AI Store
 const aiStore = useAiStore()
-const { apiKeyValid, loading } = storeToRefs(aiStore)
+const { loading } = storeToRefs(aiStore)
 const { testApiKey } = aiStore
 
 // Data
@@ -18,7 +18,7 @@ const show = ref(false)
 const apiKeyStatusIcon = ref(false)
 
 // Watchers
-watch(apiKeyValid, (newVal) => {
+watch(isGeminiApiKeyValid, (newVal) => {
   if (newVal === null)
     return
 
@@ -30,8 +30,8 @@ const handleTextInput = useDebounceFn(async () => {
 }, 500)
 
 watch(geminiApiKey, (newVal) => {
-  if (newVal.trim().length === 0) {
-    apiKeyValid.value = null
+  if (!newVal || newVal.trim().length === 0) {
+    isGeminiApiKeyValid.value = null
   }
   else {
     handleTextInput()
@@ -44,7 +44,6 @@ function showApiKeyStatusIcon() {
 
   setTimeout(() => {
     apiKeyStatusIcon.value = false
-    apiKeyValid.value = null
   }, 2000)
 }
 
@@ -83,11 +82,11 @@ const type = computed(() => show.value ? 'text' : 'password')
           <v-icon
             v-show="apiKeyStatusIcon"
             v-bind="props"
-            :icon="apiKeyValid ? '$success' : ' $error'"
-            :color=" apiKeyValid ? 'success' : 'error'"
+            :icon="isGeminiApiKeyValid ? '$success' : ' $error'"
+            :color=" isGeminiApiKeyValid ? 'success' : 'error'"
           />
         </template>
-        {{ apiKeyValid ? t('api-key-valid') : t('api-key-invalid') }}
+        {{ isGeminiApiKeyValid ? t('api-key-valid') : t('api-key-invalid') }}
       </v-tooltip>
     </template>
   </v-text-field>
