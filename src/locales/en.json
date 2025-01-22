@@ -66,5 +66,7 @@
   "tokens-per-minute-description": "This is the limit of AI tokens per minute",
   "hr": "hr",
   "min": "min",
-  "sec": "sec"
+  "sec": "sec",
+  "side-panel": "Side Panel",
+  "popup": "Popup"
 }

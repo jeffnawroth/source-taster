@@ -9,8 +9,8 @@ defineProps<{
 
 <template>
   <v-list-item
-    :title="$t(title)"
-    :subtitle="subtitle ? $t(subtitle) : undefined "
+    :title
+    :subtitle="subtitle || undefined"
     :prepend-icon
     :append-icon
   >
@@ -19,7 +19,7 @@ defineProps<{
       #subtitle
     >
       <slot name="subtitle">
-        {{ subtitle ? $t(subtitle) : undefined }}
+        {{ subtitle || undefined }}
       </slot>
     </template>
     <template

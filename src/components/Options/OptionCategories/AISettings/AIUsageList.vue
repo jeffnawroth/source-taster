@@ -9,7 +9,7 @@ defineProps<{
 }>()
 
 // I18n
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'global' })
 
 // AI Store
 const aiStore = useAiStore()
@@ -21,24 +21,24 @@ const hoursUntilReset = ref(0)
 
 const aiUsageListItems = ref([
   {
-    title: t('requests-per-day'),
-    subtitle: t('requests-per-day-description'),
+    title: computed(() => t('requests-per-day')),
+    subtitle: computed(() => t('requests-per-day-description')),
     resetInterval: hoursUntilReset,
     intervalUnit: 'hr' as 'hr' | 'sec' | 'min',
     maxCount: MAX_REQUEST_PER_DAY,
     count: requestsMadeToday,
   },
   {
-    title: t('requests-per-minute'),
-    subtitle: t('requests-per-minute-description'),
+    title: computed(() => t('requests-per-minute')),
+    subtitle: computed(() => t('requests-per-minute-description')),
     resetInterval: secondsUntilReset,
     intervalUnit: 'sec' as 'hr' | 'sec' | 'min',
     maxCount: MAX_REQUESTS_PER_MINUTE,
     count: requestsMadeThisMinute,
   },
   {
-    title: t('tokens-per-minute'),
-    subtitle: t('tokens-per-minute-description'),
+    title: computed(() => t('tokens-per-minute')),
+    subtitle: computed(() => t('tokens-per-minute-description')),
     resetInterval: secondsUntilReset,
     intervalUnit: 'sec' as 'hr' | 'sec' | 'min',
     maxCount: MAX_TOKENS_PER_MINUTE,

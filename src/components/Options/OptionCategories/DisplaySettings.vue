@@ -8,8 +8,8 @@ const { t } = useI18n()
 // Data
 const themes = ref(['light', 'dark', 'system'])
 const displayOptions = ref([
-  { label: 'Side Panel', value: 'sidepanel' },
-  { label: 'Popup', value: 'popup' },
+  { title: 'side-panel', value: 'sidepanel' },
+  { title: 'popup', value: 'popup' },
 ])
 const selectedDisplayOption = ref('sidepanel')
 // Lifecycle hooks
@@ -78,7 +78,7 @@ watch(selectedDisplayOption, (newValue) => {
       <v-select
         v-model="selectedDisplayOption"
         :items="displayOptions"
-        item-title="label"
+        :item-title="(item) => t(item.title)"
         width="150"
         item-value="value"
         color="primary"

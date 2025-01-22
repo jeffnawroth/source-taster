@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { mdiGithub, mdiHomeOutline, mdiOpenInNew, mdiTagOutline } from '@mdi/js'
 // I18n
-const { t } = useI18n({ useScope: 'global' })
+const { t } = useI18n()
 
 const version = `v${__APP_VERSION__}`
 
 // Data
-const items = [
+const items = ref([
   {
-    title: t('website'),
-    subtitle: 'visit-website',
+    title: computed(() => t('website')),
+    subtitle: computed(() => t('visit-website')),
     href: 'https://sourcetaster.com',
     appendIcon: mdiOpenInNew,
     prependIcon: mdiHomeOutline,
   },
   {
     title: 'GitHub',
-    subtitle: 'view-github',
+    subtitle: computed(() => t('view-github')),
     href: 'https://github.com/jeffnawroth/source-taster',
     appendIcon: mdiOpenInNew,
     prependIcon: mdiGithub,
@@ -28,19 +28,15 @@ const items = [
     appendIcon: mdiOpenInNew,
     prependIcon: mdiTagOutline,
   },
-]
+])
 </script>
 
 <template>
   <OptionCategory :subheader="$t('about')">
     <OptionListItem
-      v-for="{ title, subtitle, href, appendIcon, prependIcon } in items"
-      :key="title"
-      :title
-      :subtitle
-      :href
-      :append-icon
-      :prepend-icon
+      v-for="item in items"
+      :key="item.title"
+      v-bind="item"
     />
   </OptionCategory>
 </template>
