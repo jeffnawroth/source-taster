@@ -38,6 +38,7 @@
     "@ffflorian/jszip-cli": "^3.8.2",
     "@fontsource/roboto": "^5.1.1",
     "@google/generative-ai": "^0.21.0",
+    "@intlify/unplugin-vue-i18n": "^6.0.3",
     "@jamesgopsill/crossref-client": "^1.1.0",
     "@mdi/js": "^7.4.47",
     "@pdf-lib/fontkit": "^1.1.1",
