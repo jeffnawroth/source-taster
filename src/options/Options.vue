@@ -6,6 +6,9 @@ import { localeOption } from '~/logic/storage'
 const { locale } = useI18n()
 const { current } = useLocale()
 
+// Model
+const drawer = ref(true)
+
 // Watchers
 watchEffect(() => {
   locale.value = localeOption.value
@@ -15,10 +18,15 @@ watchEffect(() => {
 
 <template>
   <v-app>
-    <AppBar hide-settings />
+    <AppBar
+      v-model="drawer"
+      hide-settings
+      show-nav-bar-icon
+    />
+    <NavigationBar v-model="drawer" />
     <v-main>
       <v-container>
-        <AppOptions />
+        <RouterView />
       </v-container>
     </v-main>
     <Footer />

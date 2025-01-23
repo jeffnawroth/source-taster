@@ -6,10 +6,14 @@ import { themeOption } from '~/logic/storage'
 // Props
 defineProps<{
   hideSettings?: boolean
+  showNavBarIcon?: boolean
 }>()
 
 // Theme
 const theme = useTheme()
+
+// Model
+const drawer = defineModel()
 
 // Watchers
 watchEffect(() => {
@@ -42,12 +46,20 @@ function openOptionsPage() {
   <v-app-bar
     app
     flat
-    title="The Source Taster"
-    color="transparent"
     density="compact"
     scroll-threshold="25"
     scroll-behavior="hide"
   >
+    <v-app-bar-nav-icon
+      v-if="$vuetify.display.mdAndDown && showNavBarIcon"
+      variant="plain"
+      @click.stop="drawer = !drawer"
+    />
+
+    <v-app-bar-title>
+      The Source Taster
+    </v-app-bar-title>
+
     <template
       v-if="!hideSettings"
       #append

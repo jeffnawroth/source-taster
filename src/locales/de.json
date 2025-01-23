@@ -68,6 +68,7 @@
   "min": "min",
   "sec": "s",
   "side-panel": "Seitenleiste",
-  "popup": "Popup"
+  "popup": "Popup",
+  "appearance": "Darstellung"
 
 }

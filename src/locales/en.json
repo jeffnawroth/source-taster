@@ -68,5 +68,6 @@
   "min": "min",
   "sec": "sec",
   "side-panel": "Side Panel",
-  "popup": "Popup"
+  "popup": "Popup",
+  "appearance": "Appearance"
 }
