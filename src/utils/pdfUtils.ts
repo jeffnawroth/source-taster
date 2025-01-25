@@ -100,12 +100,27 @@ export async function generatePDFReport(
       })
 
       // Set URL text
-      page.setFontColor(rgb(0, 0, 0)) // Schwarz
+      page.setFontColor(rgb(0, 0, 0.8)) // Schwarz
       page.setFontSize(12)
       const url = work.content.message.URL
-      const urlText = `URL: ${url}`
+      const urlText = `${url}`
       const urlX = 10 // x-position for the URL
-      page.drawText(urlText, { x: urlX, y: yOffset })
+      const urlY = yOffset
+
+      // Draw URL text
+      page.drawText(urlText, { x: urlX, y: urlY })
+
+      // Calculate the width of the text for the underline
+      const urlTextWidth = font.widthOfTextAtSize(urlText, 12)
+
+      // Draw the underline
+      page.drawLine({
+        start: { x: urlX, y: urlY - 2 }, // Slightly below the text
+        end: { x: urlX + urlTextWidth, y: urlY - 2 }, // End of the line based on text width
+        thickness: 0.5, // Thickness of the line
+        color: rgb(0, 0, 0.8), // Black
+      })
+
       yOffset -= 20
     }
     else if (work.ok) {
@@ -125,11 +140,23 @@ export async function generatePDFReport(
       })
 
       // Set URL text
-      page.setFontColor(rgb(0, 0, 0)) // Schwarz
+      page.setFontColor(rgb(0, 0, 0.8)) // Schwarz
       page.setFontSize(12)
-      const urlText = `URL: ${(work as HttpResponse<Item<Work>>).url}`
-      const urlX = 10 // x-position for the URL
-      page.drawText(urlText, { x: urlX, y: yOffset })
+      const urlText = `${(work as HttpResponse<Item<Work>>).url}`
+      const urlX = 10 // X-position for the URL
+      const urlY = yOffset // Y-position for the URL
+      page.drawText(urlText, { x: urlX, y: urlY })
+
+      // Calculate the width of the text for the underline
+      const urlTextWidth = font.widthOfTextAtSize(urlText, 12)
+
+      // Draw the underline
+      page.drawLine({
+        start: { x: urlX, y: urlY - 2 }, // Slightly below the text
+        end: { x: urlX + urlTextWidth, y: urlY - 2 }, // End of the line based on text width
+        thickness: 0.5, // Thickness of the line
+        color: rgb(0, 0, 0.8), // Black
+      })
       yOffset -= 20
     }
     else {
