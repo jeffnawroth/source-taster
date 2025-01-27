@@ -39,7 +39,7 @@
   "display-mode-description": "Select the display mode of the extension",
   "auto-import-dois-info": "This does not apply to downloaded PDFs opened in the browser; those must be imported manually",
   "website": "Website",
-  "visit-website": "Visit Official Website",
+  "visit-website": "Visit Website",
   "view-github": "View Project on GitHub",
   "contact": "Contact",
   "contact-email": "For questions or issues, you can reach us via email",
@@ -69,5 +69,6 @@
   "sec": "sec",
   "side-panel": "Side Panel",
   "popup": "Popup",
-  "appearance": "Appearance"
+  "appearance": "Appearance",
+  "source-code": "Source Code"
 }

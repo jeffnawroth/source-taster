@@ -1,42 +1,47 @@
 <script setup lang="ts">
-import { mdiGithub, mdiHomeOutline, mdiOpenInNew, mdiTagOutline } from '@mdi/js'
+import { mdiGithub, mdiHomeOutline } from '@mdi/js'
+import icon128 from '/assets/icon128.png'
 // I18n
 const { t } = useI18n()
 
 const version = `v${__APP_VERSION__}`
-
-// Data
-const items = ref([
-  {
-    title: computed(() => t('website')),
-    subtitle: computed(() => t('visit-website')),
-    href: 'https://sourcetaster.com',
-    appendIcon: mdiOpenInNew,
-    prependIcon: mdiHomeOutline,
-  },
-  {
-    title: 'GitHub',
-    subtitle: computed(() => t('view-github')),
-    href: 'https://github.com/jeffnawroth/source-taster',
-    appendIcon: mdiOpenInNew,
-    prependIcon: mdiGithub,
-  },
-  {
-    title: 'Version',
-    subtitle: version,
-    href: `https://github.com/jeffnawroth/source-taster/releases/tag/${version}`,
-    appendIcon: mdiOpenInNew,
-    prependIcon: mdiTagOutline,
-  },
-])
 </script>
 
 <template>
-  <OptionCategory :subheader="$t('about')">
-    <OptionListItem
-      v-for="item in items"
-      :key="item.title"
-      v-bind="item"
-    />
-  </OptionCategory>
+  <v-container class="fill-height">
+    <v-responsive
+      class="mx-auto"
+      max-width="600"
+    >
+      <v-img
+        class="mb-4"
+        height="150"
+        :src="icon128"
+      />
+
+      <div class="text-center">
+        <h1 class="text-h2 font-weight-bold mb-2">
+          The Source Taster
+        </h1>
+
+        <div class="text-body-2 font-weight-light mb-2">
+          {{ version }}
+        </div>
+
+        <v-btn
+          :text="t('visit-website')"
+          variant="text"
+          :prepend-icon="mdiHomeOutline"
+          href="https://sourcetaster.com"
+        />
+
+        <v-btn
+          :prepend-icon="mdiGithub"
+          :text="t('source-code')"
+          variant="text"
+          href="https://github.com/jeffnawroth/source-taster"
+        />
+      </div>
+    </v-responsive>
+  </v-container>
 </template>

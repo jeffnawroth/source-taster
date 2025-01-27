@@ -25,9 +25,7 @@ watchEffect(() => {
     />
     <NavigationBar v-model="drawer" />
     <v-main>
-      <v-container>
-        <RouterView />
-      </v-container>
+      <RouterView />
     </v-main>
     <Footer />
   </v-app>
