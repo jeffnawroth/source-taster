@@ -34,7 +34,7 @@
   "enter-dois": "Bitte geben Sie DOIs ein, einen Text mit DOIs oder importieren Sie eine PDF-Datei mit DOIs, um diese zu validieren",
   "check-dois": "Bitte überprüfen Sie Ihre Eingabe und stellen Sie sicher, dass diese DOIs enthält und korrekt formatiert ist, um die Suchergebnisse zu verbessern",
   "upload-pdf": "PDF-Datei importieren",
-  "about": "Über",
+  "about": "Über uns",
   "display-mode": "Anzeigemodus",
   "display-mode-description": "Wählen Sie den Anzeigemodus der Erweiterung",
   "auto-import-dois-info": "Dies gilt nicht für im Browser geöffnete heruntergeladene PDFs; diese müssen manuell importiert werden",
@@ -69,7 +69,11 @@
   "sec": "s",
   "side-panel": "Seitenleiste",
   "popup": "Popup",
-  "appearance": "Darstellung",
-  "source-code": "Quellcode"
-
+  "appearance": "Aussehen",
+  "source-code": "Quellcode",
+  "appearance-description": "Passe das Erscheinungsbild der Extension an.",
+  "help-description": "Erhalte Unterstützung und hilfreiche Ressourcen.",
+  "general-description": "Verwalte grundlegende Einstellungen für die Funktionalität der Extension.",
+  "language-description": "Stelle die Sprache ein.",
+  "about-description": "Erfahre mehr über die Extension."
 }

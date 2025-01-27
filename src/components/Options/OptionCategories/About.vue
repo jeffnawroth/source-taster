@@ -8,9 +8,20 @@ const version = `v${__APP_VERSION__}`
 </script>
 
 <template>
-  <v-container class="fill-height">
+  <v-container class="fill-height flex-column">
+    <div class="align-self-stretch">
+      <p class="text-h5 font-weight-bold mb-3">
+        {{ t('about') }}
+      </p>
+
+      <p class="text-body-2 text-medium-emphasis">
+        {{ t('about-description') }}
+      </p>
+      <v-divider class="my-4" />
+    </div>
+
     <v-responsive
-      class="mx-auto"
+      class="mx-auto align-center"
       max-width="600"
     >
       <v-img

@@ -16,7 +16,17 @@ watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeO
 </script>
 
 <template>
-  <OptionCategory :subheader="t('language')">
+  <v-container>
+    <p class="text-h5 font-weight-bold mb-3">
+      {{ t('language') }}
+    </p>
+
+    <p class="text-body-2 text-medium-emphasis">
+      {{ t('language-description') }}
+    </p>
+
+    <v-divider class="my-4" />
+
     <OptionListItem
       :title="t('language')"
       :subtitle="t('language-option-description')"
@@ -34,5 +44,5 @@ watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeO
         flat
       />
     </OptionListItem>
-  </OptionCategory>
+  </v-container>
 </template>

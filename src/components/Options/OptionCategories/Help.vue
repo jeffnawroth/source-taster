@@ -13,6 +13,7 @@ const items = ref([
     href: 'https://sourcetaster.com/demo.html',
     appendIcon: mdiOpenInNew,
     prependIcon: mdiVideoOutline,
+
   },
   {
     title: computed(() => t('contact')),
@@ -25,11 +26,21 @@ const items = ref([
 </script>
 
 <template>
-  <OptionCategory :subheader="$t('help')">
-    <OptionListItem
-      v-for="item in items"
-      :key="item.title"
-      v-bind="item"
-    />
-  </OptionCategory>
+  <v-container>
+    <p class="text-h5 font-weight-bold mb-3">
+      {{ t('help') }}
+    </p>
+
+    <p class="text-body-2 text-medium-emphasis">
+      {{ t('help-description') }}
+    </p>
+
+    <v-divider class="my-4" />
+
+    <OptionListItem v-bind="items[0]" />
+
+    <v-divider class="my-4" />
+
+    <OptionListItem v-bind="items[1]" />
+  </v-container>
 </template>

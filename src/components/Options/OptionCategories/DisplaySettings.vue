@@ -69,7 +69,16 @@ watch(selectedDisplayOption, (newValue) => {
 </script>
 
 <template>
-  <OptionCategory :subheader="t('display')">
+  <v-container>
+    <p class="text-h5 font-weight-bold mb-3">
+      {{ t('appearance') }}
+    </p>
+
+    <p class="text-body-2 text-medium-emphasis">
+      {{ t('appearance-description') }}
+    </p>
+
+    <v-divider class="my-4" />
     <OptionListItem
       :title="t('display-mode')"
       :subtitle="t('display-mode-description')"
@@ -89,6 +98,8 @@ watch(selectedDisplayOption, (newValue) => {
       />
     </OptionListItem>
 
+    <v-divider class="my-4" />
+
     <OptionListItem
       :title="t('theme')"
       :subtitle="t('theme-option-description')"
@@ -106,5 +117,5 @@ watch(selectedDisplayOption, (newValue) => {
         flat
       />
     </OptionListItem>
-  </OptionCategory>
+  </v-container>
 </template>

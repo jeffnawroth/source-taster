@@ -70,5 +70,10 @@
   "side-panel": "Side Panel",
   "popup": "Popup",
   "appearance": "Appearance",
-  "source-code": "Source Code"
+  "source-code": "Source Code",
+  "appearance-description": "Adjust the appearance of the extension.",
+  "help-description": "Get support and helpful resources.",
+  "general-description": "Manage basic settings for the extension's functionality.",
+  "language-description": "Set your language.",
+  "about-description": "Learn more about the extension."
 }
