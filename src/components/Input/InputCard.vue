@@ -2,6 +2,7 @@
 import FileInput from './FileInput.vue'
 import TextInput from './TextInput.vue'
 
+// COMPONENTS
 const components = [
   FileInput,
   TextInput,
@@ -21,7 +22,6 @@ const components = [
           :key="index"
           cols="12"
         >
-          <span>{{ component.name }}</span>
           <component :is="component" />
         </v-col>
       </v-row>

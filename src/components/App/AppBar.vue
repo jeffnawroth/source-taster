@@ -3,19 +3,18 @@ import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
 import { themeOption } from '~/logic/storage'
 
-// Props
+// PROPS
 defineProps<{
   hideSettings?: boolean
   showNavBarIcon?: boolean
 }>()
 
-// Theme
-const theme = useTheme()
-
-// Model
+// NAVIGATION DRAWER
 const drawer = defineModel()
 
-// Watchers
+// THEME
+const theme = useTheme()
+
 watchEffect(() => {
   if (themeOption.value === 'system') {
     theme.global.name.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -31,7 +30,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (ev
   theme.global.name.value = newColorScheme
 })
 
-// Functions
+// OPTIONS PAGE
 function openOptionsPage() {
   if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.openOptionsPage) {
     browser.runtime.openOptionsPage()

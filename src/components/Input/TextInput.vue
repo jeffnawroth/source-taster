@@ -4,7 +4,7 @@ import { onMessage } from 'webext-bridge/popup'
 import { autoImportOption } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
-// I18n
+// TRANSLATION
 const { t } = useI18n()
 
 // Doi Store

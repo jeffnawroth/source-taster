@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDoiStore } from '~/stores/doi'
+import connection from '/assets/connection.svg'
 
 const { getDOIsMetadata, abortFetching } = useDoiStore()
 
@@ -42,7 +43,7 @@ watch(isOnline, (newValue) => {
     :title="$t('sth-went-wrong')"
   >
     <template #media>
-      <v-img src="./connection.svg" />
+      <v-img :src="connection" />
     </template>
   </v-empty-state>
 </template>

@@ -2,10 +2,6 @@
 import { mdiFileDocumentOutline } from '@mdi/js'
 // i18n
 const { t } = useI18n()
-
-// Watcher
-
-// Watches the network error state
 </script>
 
 <template>

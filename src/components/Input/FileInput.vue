@@ -5,14 +5,19 @@ import { extractPDFTextFromFile } from '~/utils/pdfUtils'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { text, file, dois } = storeToRefs(doiStore)
+const { file, dois } = storeToRefs(doiStore)
 const { reset } = doiStore
 
-// Handle File Change
-async function handleFileChange(files: File | File[]) {
-  if (!files)
+// PDF TEXT
+const { text } = storeToRefs(doiStore)
+
+watch(file, async (newValue) => {
+  if (!newValue)
     return
-  const file = Array.isArray(files) ? files[0] : files
+  await extractTextFromPDF(newValue)
+})
+
+async function extractTextFromPDF(file: File) {
   const pdfText = await extractPDFTextFromFile(file)
   text.value = pdfText
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
@@ -30,7 +35,6 @@ async function handleFileChange(files: File | File[]) {
     prepend-icon=""
     clearable
     hide-details="auto"
-    @update:model-value="handleFileChange"
     @click:clear="reset"
   />
 </template>

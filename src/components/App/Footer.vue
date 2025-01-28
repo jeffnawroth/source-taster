@@ -1,5 +1,6 @@
 <script setup lang="ts">
-
+// DATE
+const fullYear = computed(() => new Date().getFullYear())
 </script>
 
 <template>
@@ -15,7 +16,7 @@
         class="text-center"
         cols="12"
       >
-        {{ new Date().getFullYear() }} — <strong>The Source Taster</strong>
+        {{ fullYear }} — <strong>The Source Taster</strong>
       </v-col>
     </v-row>
   </v-footer>
