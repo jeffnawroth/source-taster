@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { mdiEmailOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
 
-// I18n
+// TRANSLATION
 const { t } = useI18n()
 
-// Data
+// LIST ITEMS
 const items = ref([
 
   {

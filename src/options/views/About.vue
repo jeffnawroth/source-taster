@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { mdiGithub, mdiHomeOutline } from '@mdi/js'
 import icon128 from '/assets/icon128.png'
-// I18n
+
+// TRANSLATION
 const { t } = useI18n()
 
+// VERSION
 const version = `v${__APP_VERSION__}`
 </script>
 

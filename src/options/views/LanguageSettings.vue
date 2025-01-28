@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import { mdiTranslate } from '@mdi/js'
+import { useLocale } from 'vuetify/lib/framework.mjs'
 import { sendMessage } from 'webext-bridge/options'
-import { localeOption } from '~/logic'
+import { localeOption } from '~/logic/storage'
 
-// I18n
+// LOCALE
 const { t } = useI18n()
+const { locale } = useI18n()
+const { current } = useLocale()
 
-// Data
 const languages = ref([
   { locale: 'de', name: 'German' },
   { locale: 'en', name: 'English' },
 ])
+
+watchEffect(() => {
+  locale.value = localeOption.value
+  current.value = localeOption.value
+})
 
 watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeOption.value }, { context: 'background', tabId: 0 }))
 </script>

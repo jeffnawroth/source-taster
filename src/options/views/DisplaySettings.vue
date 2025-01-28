@@ -2,17 +2,11 @@
 import { mdiDesktopTowerMonitor, mdiPageLayoutSidebarRight, mdiWeatherNight, mdiWhiteBalanceSunny, mdiWindowMaximize } from '@mdi/js'
 import { getDisplayOption, setDisplayOption, themeOption } from '~/logic'
 
-// I18n
+// TRANSLATION
 const { t } = useI18n()
 
-// Data
+// THEME
 const themes = ref(['light', 'dark', 'system'])
-const displayOptions = ref([
-  { title: 'side-panel', value: 'sidepanel' },
-  { title: 'popup', value: 'popup' },
-])
-const selectedDisplayOption = ref('sidepanel')
-// Lifecycle hooks
 
 const themePrependIcon = computed(() => {
   switch (themeOption.value) {
@@ -27,6 +21,13 @@ const themePrependIcon = computed(() => {
   }
 })
 
+// DISPLAY
+const displayOptions = ref([
+  { title: 'side-panel', value: 'sidepanel' },
+  { title: 'popup', value: 'popup' },
+])
+const selectedDisplayOption = ref('sidepanel')
+
 const displayModePrependIcon = computed(() => {
   switch (selectedDisplayOption.value) {
     case 'sidepanel':
@@ -37,21 +38,6 @@ const displayModePrependIcon = computed(() => {
       return mdiPageLayoutSidebarRight
   }
 })
-
-// Load the saved option when the component is mounted
-onMounted(() => {
-  getDisplayOption()
-    .then((option) => {
-      selectedDisplayOption.value = option
-      // eslint-disable-next-line no-console
-      console.log('Loaded display option on mount:', option)
-    })
-    .catch((error) => {
-      console.error('Failed to load display option:', error)
-    })
-})
-
-// Methods
 
 // Watch for changes for the display option
 watch(selectedDisplayOption, (newValue) => {
@@ -64,6 +50,19 @@ watch(selectedDisplayOption, (newValue) => {
     })
     .catch((error) => {
       console.error('Failed to save display option:', error)
+    })
+})
+
+// Load the saved option when the component is mounted
+onMounted(() => {
+  getDisplayOption()
+    .then((option) => {
+      selectedDisplayOption.value = option
+      // eslint-disable-next-line no-console
+      console.log('Loaded display option on mount:', option)
+    })
+    .catch((error) => {
+      console.error('Failed to load display option:', error)
     })
 })
 </script>
