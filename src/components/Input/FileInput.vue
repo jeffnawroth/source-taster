@@ -23,7 +23,7 @@ watch(file, async (newValue) => {
   <v-file-input
     v-model="file"
     accept=".pdf"
-    :label="$t('upload-pdf')"
+    :label="$t('pdf-file')"
     variant="solo-filled"
     flat
     :prepend-inner-icon="mdiFilePdfBox"

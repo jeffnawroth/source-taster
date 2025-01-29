@@ -75,5 +75,7 @@
   "help-description": "Get support and helpful resources.",
   "general-description": "Manage basic settings for the extension's functionality.",
   "language-description": "Set your language.",
-  "about-description": "Learn more about the extension."
+  "about-description": "Learn more about the extension.",
+  "ai-description": "Enable and configure AI-powered functionality.",
+  "pdf-file": "PDF File"
 }

@@ -75,5 +75,7 @@
   "help-description": "Erhalte Unterstützung und hilfreiche Ressourcen.",
   "general-description": "Verwalte grundlegende Einstellungen für die Funktionalität der Extension.",
   "language-description": "Stelle die Sprache ein.",
-  "about-description": "Erfahre mehr über die Extension."
+  "about-description": "Erfahre mehr über die Extension.",
+  "ai-description": "Aktiviere und konfiguriere KI-gestützte Funktionen.",
+  "pdf-file": "PDF-Datei"
 }
