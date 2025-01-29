@@ -100,7 +100,7 @@ export async function generatePDFReport(
       })
 
       // Set URL text
-      page.setFontColor(rgb(0, 0, 0.8)) // Schwarz
+      page.setFontColor(rgb(0.4, 0.6, 1)) // Blue
       page.setFontSize(12)
       const url = work.content.message.URL
       const urlText = `${url}`
@@ -118,7 +118,7 @@ export async function generatePDFReport(
         start: { x: urlX, y: urlY - 2 }, // Slightly below the text
         end: { x: urlX + urlTextWidth, y: urlY - 2 }, // End of the line based on text width
         thickness: 0.5, // Thickness of the line
-        color: rgb(0, 0, 0.8), // Black
+        color: rgb(0.4, 0.6, 1), // Blue
       })
 
       yOffset -= 20
@@ -140,7 +140,7 @@ export async function generatePDFReport(
       })
 
       // Set URL text
-      page.setFontColor(rgb(0, 0, 0.8)) // Schwarz
+      page.setFontColor(rgb(0.4, 0.6, 1)) // Blue
       page.setFontSize(12)
       const urlText = `${(work as HttpResponse<Item<Work>>).url}`
       const urlX = 10 // X-position for the URL
@@ -155,7 +155,7 @@ export async function generatePDFReport(
         start: { x: urlX, y: urlY - 2 }, // Slightly below the text
         end: { x: urlX + urlTextWidth, y: urlY - 2 }, // End of the line based on text width
         thickness: 0.5, // Thickness of the line
-        color: rgb(0, 0, 0.8), // Black
+        color: rgb(0.4, 0.6, 1), // Blue
       })
       yOffset -= 20
     }
