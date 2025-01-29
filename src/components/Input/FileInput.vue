@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mdiFilePdfBox } from '@mdi/js'
 import { useDoiStore } from '~/stores/doi'
-import { extractPDFTextFromFile } from '~/utils/pdfUtils'
+import { extractTextFromPdfFile } from '~/utils/pdfUtils'
 
 // Doi Store
 const doiStore = useDoiStore()
@@ -14,14 +14,9 @@ const { text } = storeToRefs(doiStore)
 watch(file, async (newValue) => {
   if (!newValue)
     return
-  await extractTextFromPDF(newValue)
-})
-
-async function extractTextFromPDF(file: File) {
-  const pdfText = await extractPDFTextFromFile(file)
-  text.value = pdfText
+  text.value = await extractTextFromPdfFile(newValue)
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
-}
+})
 </script>
 
 <template>

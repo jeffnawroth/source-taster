@@ -221,7 +221,7 @@ async function extractPDFText(buffer: ArrayBuffer): Promise<string> {
 }
 
 // Extract text from a PDF file
-export async function extractPDFTextFromFile(file: File): Promise<string> {
+export async function extractTextFromPdfFile(file: File): Promise<string> {
   if (!file || file.type !== 'application/pdf')
     return ''
   try {
