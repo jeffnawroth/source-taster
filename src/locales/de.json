@@ -59,7 +59,7 @@
   "usage": "Nutzung",
   "requests-per-day": "Anfragen pro Tag",
   "requests-per-day-description": "Dies ist das Limit der KI-Anfragen pro Tag",
-  "resets-in": "Wird zurückgesetzt in",
+  "resets-in": "Wird zurückgesetzt in ca.",
   "requests-per-minute": "Anfragen pro Minute",
   "requests-per-minute-description": "Dies ist das Limit der KI-Anfragen pro Minute",
   "tokens-per-minute": "Token pro Minute",
