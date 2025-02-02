@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiCogOutline, mdiEarth, mdiHelpCircleOutline, mdiInformationOutline, mdiPalette } from '@mdi/js'
+import { mdiCogOutline, mdiEarth, mdiHelpCircleOutline, mdiInformationOutline, mdiPalette, mdiRobotOutline } from '@mdi/js'
 
 // I18n
 const { t } = useI18n()
@@ -12,6 +12,7 @@ const items = ref([
   { prependIcon: mdiCogOutline, title: computed(() => t('general')), to: '/' },
   { prependIcon: mdiPalette, title: computed(() => t('appearance')), to: '/appearance' },
   { prependIcon: mdiEarth, title: computed(() => t('language')), to: '/language' },
+  { prependIcon: mdiRobotOutline, title: computed(() => t('ai')), to: '/ai' },
   { prependIcon: mdiInformationOutline, title: computed(() => t('about')), to: '/about' },
   { prependIcon: mdiHelpCircleOutline, title: computed(() => t('help')), to: '/help' },
 ])
