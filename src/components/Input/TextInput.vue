@@ -12,20 +12,20 @@ const doiStore = useDoiStore()
 const { text, dois } = storeToRefs(doiStore)
 const { reset } = doiStore
 
-// Computed
+// TEXTAREA PLACEHOLDER
 const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
 
-// Listen for messages
+// SET SELECTED TEXT
 onMessage('selectedText', ({ data }) => {
   text.value = data.text
 })
 
+// SET AUTO IMPORTED TEXT
 onMessage('autoImportText', ({ data }) => {
   if (!autoImportOption.value)
     return
 
   text.value = data.text
-
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
 </script>
@@ -40,7 +40,6 @@ onMessage('autoImportText', ({ data }) => {
     max-rows="8"
     rows="2"
     variant="solo-filled"
-    autofocus
     clearable
     @click:clear="reset"
   />
