@@ -17,9 +17,6 @@ export const useDoiStore = defineStore('doi', () => {
 
   // Computed
 
-  // Extracts DOIs from the text
-  const dois = computed(() => extractDOIs(text.value))
-
   // Number of DOIs found in the text
   const found = computed(() => works.value.length)
 
@@ -29,23 +26,22 @@ export const useDoiStore = defineStore('doi', () => {
   // Number of DOIs that failed the check
   const invalid = computed(() => works.value.filter(work => !work.ok).length)
 
-  // Resolves the DOI
-  async function checkDoiExists(doi: string) {
-    const url = `https://doi.org/${doi}`
-    try {
-      const response = await fetch(url, {
-        method: 'HEAD',
-        headers: {
-          Accept: 'application/json',
-        },
-      })
-      return response
-    }
-    catch (error) {
-      console.error(error)
-    }
+  function reset() {
+    text.value = ''
+    file.value = null
+    works.value = []
   }
 
+  // DOIS EXTRACTION
+  const dois = ref<string[]>([])
+
+  function handleDoisExtraction(text: string) {
+    if (text.trim().length === 0)
+      return
+    dois.value = extractDOIs(text)
+  }
+
+  // DOIS META DATA
   const getDOIsMetadata = useDebounceFn(async () => {
     loadAborted.value = false
     works.value = []
@@ -75,14 +71,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }, 500)
 
-  // Watchers
   watch(dois, () => getDOIsMetadata())
-
-  function reset() {
-    text.value = ''
-    file.value = null
-    works.value = []
-  }
 
   // Aborts fetching the DOIs metadata
   function abortFetching() {
@@ -90,7 +79,24 @@ export const useDoiStore = defineStore('doi', () => {
     loading.value = false
   }
 
-  return { dois, checkDoiExists, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset }
+  // Resolves the DOI
+  async function checkDoiExists(doi: string) {
+    const url = `https://doi.org/${doi}`
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+      return response
+    }
+    catch (error) {
+      console.error(error)
+    }
+  }
+
+  return { dois, checkDoiExists, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset, handleDoisExtraction }
 })
 
 if (import.meta.hot) {

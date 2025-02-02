@@ -10,7 +10,7 @@ const { t } = useI18n()
 // Doi Store
 const doiStore = useDoiStore()
 const { text, dois } = storeToRefs(doiStore)
-const { reset } = doiStore
+const { reset, handleDoisExtraction } = doiStore
 
 // TEXTAREA PLACEHOLDER
 const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
@@ -18,6 +18,7 @@ const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-
 // SET SELECTED TEXT
 onMessage('selectedText', ({ data }) => {
   text.value = data.text
+  handleTextChange(data.text)
 })
 
 // SET AUTO IMPORTED TEXT
@@ -25,9 +26,16 @@ onMessage('autoImportText', ({ data }) => {
   if (!autoImportOption.value)
     return
 
-  text.value = data.text
+  handleTextChange(data.text)
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
+
+// HANDLE TEXT CHANGE
+function handleTextChange(newVal: string) {
+  if (newVal.trim() === '')
+    return
+  handleDoisExtraction(newVal)
+}
 </script>
 
 <template>
@@ -41,6 +49,7 @@ onMessage('autoImportText', ({ data }) => {
     rows="2"
     variant="solo-filled"
     clearable
+    @update:model-value="handleTextChange($event)"
     @click:clear="reset"
   />
 </template>
