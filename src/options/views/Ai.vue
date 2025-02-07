@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiInformationOutline, mdiStarFourPointsOutline } from '@mdi/js'
-import { aiExtractionOption, geminiApiKey } from '~/logic'
+import { geminiApiKey, useAiExtraction } from '~/logic'
 
 // i18n
 const { t } = useI18n()
@@ -21,7 +21,7 @@ const { t } = useI18n()
     <OptionListItem
       :title="t('ai-extraction')"
       :prepend-icon="mdiStarFourPointsOutline"
-      @click="aiExtractionOption = !aiExtractionOption"
+      @click="useAiExtraction = !useAiExtraction"
     >
       <template #subtitle>
         <p>{{ t('ai-extraction-description') }}</p>
@@ -41,7 +41,7 @@ const { t } = useI18n()
       </template>
 
       <OptionSwitch
-        v-model="aiExtractionOption"
+        v-model="useAiExtraction"
         :disabled="!geminiApiKey"
       />
     </OptionListItem>
