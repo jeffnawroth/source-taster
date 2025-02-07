@@ -1,5 +1,5 @@
 // src/utils/doiExtractor.ts
-export function extractDOIs(text: string): string[] {
+export function extractDoisUsingRegex(text: string): string[] {
   const extractedDOIs: string[] = []
 
   const doiPatterns = [
