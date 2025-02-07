@@ -16,25 +16,25 @@ const { reset, handleDoisExtraction } = doiStore
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
 
 // SET SELECTED TEXT
-onMessage('selectedText', ({ data }) => {
+onMessage('selectedText', async ({ data }) => {
   text.value = data.text
-  handleTextChange(data.text)
+  await handleTextChange(data.text)
 })
 
 // SET AUTO IMPORTED TEXT
-onMessage('autoImportText', ({ data }) => {
+onMessage('autoImportText', async ({ data }) => {
   if (!useAutoImport.value)
     return
 
-  handleTextChange(data.text)
+  await handleTextChange(data.text)
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
 
 // HANDLE TEXT CHANGE
-function handleTextChange(newVal: string) {
+async function handleTextChange(newVal: string) {
   if (newVal.trim() === '')
     return
-  handleDoisExtraction(newVal)
+  await handleDoisExtraction(newVal)
 }
 </script>
 

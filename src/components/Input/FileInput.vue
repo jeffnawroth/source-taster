@@ -14,8 +14,14 @@ const { text } = storeToRefs(doiStore)
 watch(file, async (newValue) => {
   if (!newValue)
     return
+
+  // Extract text from PDF file
   const pdfText = await extractTextFromPdfFile(newValue)
-  handleDoisExtraction(pdfText)
+
+  // Handle DOIs extraction
+  await handleDoisExtraction(pdfText)
+
+  // Set text value to DOIs
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
 </script>

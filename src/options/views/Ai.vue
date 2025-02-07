@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiInformationOutline, mdiStarFourPointsOutline } from '@mdi/js'
-import { geminiApiKey, useAiExtraction } from '~/logic'
+import { useAiExtraction } from '~/logic'
 
 // i18n
 const { t } = useI18n()
@@ -42,7 +42,6 @@ const { t } = useI18n()
 
       <OptionSwitch
         v-model="useAiExtraction"
-        :disabled="!geminiApiKey"
       />
     </OptionListItem>
   </v-container>

@@ -2,7 +2,9 @@ import { CrossrefClient, type HttpResponse, type Item, type Work } from '@jamesg
 import { useDebounceFn } from '@vueuse/core'
 
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { extractDOIs } from '~/utils/doiExtractor'
+import { useAiExtraction } from '~/logic'
+import { extractDoisUsingRegex } from '~/utils/doiExtractor'
+import { useAiStore } from './ai'
 
 export const useDoiStore = defineStore('doi', () => {
   // Data
@@ -35,14 +37,34 @@ export const useDoiStore = defineStore('doi', () => {
   // DOIS EXTRACTION
   const dois = ref<string[]>([])
 
-  function handleDoisExtraction(text: string) {
-    if (text.trim().length === 0)
+  const handleDoisExtraction = useDebounceFn(async (text: string) => {
+    const trimmedText = text.trim()
+    if (!trimmedText) {
+      dois.value = []
       return
-    dois.value = extractDOIs(text)
-  }
+    }
+
+    dois.value = []
+
+    try {
+      if (useAiExtraction.value) {
+        dois.value = await useAiStore().extractDoisUsingAi(trimmedText)
+      }
+      else {
+        dois.value = extractDoisUsingRegex(trimmedText)
+      }
+    }
+    catch (error) {
+      console.error('Error extracting Dois using AI :', error)
+      dois.value = extractDoisUsingRegex(trimmedText)
+    }
+  }, 500)
 
   // DOIS META DATA
-  const getDOIsMetadata = useDebounceFn(async () => {
+
+  watch(dois, () => getDOIsMetadata())
+
+  async function getDOIsMetadata() {
     loadAborted.value = false
     works.value = []
 
@@ -69,9 +91,7 @@ export const useDoiStore = defineStore('doi', () => {
         loading.value = false
       }
     }
-  }, 500)
-
-  watch(dois, () => getDOIsMetadata())
+  }
 
   // Aborts fetching the DOIs metadata
   function abortFetching() {

@@ -1,16 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { geminiApiKey, isGeminiApiKeyValid, requestsMadeThisMinute, requestsMadeToday, tokensUsedThisMintue } from '~/logic'
 
 export const useAiStore = defineStore('ai', () => {
   const loading = ref(false)
 
-  const MAX_REQUEST_PER_DAY = ref(1500)
-  const MAX_REQUESTS_PER_MINUTE = ref(15)
-  const MAX_TOKENS_PER_MINUTE = ref(1000000)
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY
 
   const genAI = computed(() => {
-    return new GoogleGenerativeAI(geminiApiKey.value)
+    return new GoogleGenerativeAI(apiKey)
   })
 
   const model = computed(() => {
@@ -20,24 +17,20 @@ export const useAiStore = defineStore('ai', () => {
   // Generate content using the AI model
   async function generateContent(prompt: string) {
     try {
-      if (requestsMadeThisMinute.value >= MAX_REQUESTS_PER_MINUTE.value || requestsMadeToday.value >= MAX_REQUEST_PER_DAY.value || tokensUsedThisMintue.value >= MAX_TOKENS_PER_MINUTE.value) {
-        throw new Error('API request limit reached')
-      }
-
       const result = await model.value.generateContent(prompt)
-      requestsMadeThisMinute.value += 1
-      requestsMadeToday.value += 1
-      tokensUsedThisMintue.value += result.response.usageMetadata?.totalTokenCount || 0
-
       return result.response.text()
     }
-    catch (error) {
+    catch (error: any) {
+      if (error.status === 429) {
+        console.error('Too many requests. Please try again later.')
+      }
       console.error('Error generating content:', error)
+      throw error
     }
   }
 
   // Extract DOIs from text using the AI model
-  async function extractDOIsFromText(text: string) {
+  async function extractDoisUsingAi(text: string) {
     try {
       const prompt = `Extract all valid DOIs from the text below. Return the DOIs as a JSON array of strings without duplicates. If no DOIs are found, return an empty array: ${text}`
       const result = await generateContent(prompt)
@@ -49,28 +42,10 @@ export const useAiStore = defineStore('ai', () => {
     }
     catch (error) {
       console.error('Error extracting DOIs from text using ai:', error)
+      throw error
     }
   }
-
-  // Test the API key to see if it is valid
-  async function testApiKey() {
-    try {
-      loading.value = true
-      const response = await generateContent('This is just a test to see if the API key is valid.')
-      if (response) {
-        isGeminiApiKeyValid.value = true
-      }
-    }
-    catch (error) {
-      console.error('Error testing API key:', error)
-      isGeminiApiKeyValid.value = false
-    }
-    finally {
-      loading.value = false
-    }
-  }
-
-  return { generateContent, extractDOIsFromText, testApiKey, loading, MAX_REQUESTS_PER_MINUTE, MAX_REQUEST_PER_DAY, MAX_TOKENS_PER_MINUTE }
+  return { generateContent, extractDoisUsingAi, loading }
 })
 
 if (import.meta.hot) {

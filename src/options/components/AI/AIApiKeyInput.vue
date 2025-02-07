@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { mdiKey } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
 import { geminiApiKey, isGeminiApiKeyValid } from '~/logic'
@@ -90,4 +90,4 @@ const type = computed(() => show.value ? 'text' : 'password')
       </v-tooltip>
     </template>
   </v-text-field>
-</template>
+</template> -->
