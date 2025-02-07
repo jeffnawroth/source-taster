@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
-import { autoImportOption } from '~/logic'
+import { useAutoImport } from '~/logic'
 import { useDoiStore } from '~/stores/doi'
 
 // TRANSLATION
@@ -13,7 +13,7 @@ const { text, dois } = storeToRefs(doiStore)
 const { reset, handleDoisExtraction } = doiStore
 
 // TEXTAREA PLACEHOLDER
-const placeholder = computed(() => autoImportOption.value ? t('reload-page-auto-import') : t('insert-dois'))
+const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
 
 // SET SELECTED TEXT
 onMessage('selectedText', ({ data }) => {
@@ -23,7 +23,7 @@ onMessage('selectedText', ({ data }) => {
 
 // SET AUTO IMPORTED TEXT
 onMessage('autoImportText', ({ data }) => {
-  if (!autoImportOption.value)
+  if (!useAutoImport.value)
     return
 
   handleTextChange(data.text)

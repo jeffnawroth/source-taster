@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiAutoUpload, mdiInformationOutline } from '@mdi/js'
-import { autoImportOption } from '~/logic'
+import { useAutoImport } from '~/logic'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -22,7 +22,7 @@ const { t } = useI18n()
       :title="t('auto-import-dois')"
       :prepend-icon="mdiAutoUpload"
 
-      @click="autoImportOption = !autoImportOption"
+      @click="useAutoImport = !useAutoImport"
     >
       <template #subtitle>
         <p>{{ t('auto-import-dois-description') }}</p>
@@ -35,7 +35,7 @@ const { t } = useI18n()
         </p>
       </template>
       <OptionSwitch
-        v-model="autoImportOption"
+        v-model="useAutoImport"
       />
     </OptionListItem>
   </v-container>
