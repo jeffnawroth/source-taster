@@ -12,7 +12,7 @@ const { index } = defineProps<{
 const { t } = useI18n()
 
 // Doi Store
-const { dois } = storeToRefs(useDoiStore())
+const { extractedDois } = storeToRefs(useDoiStore())
 
 // Clipboard
 const { copy, copied } = useClipboard()
@@ -27,7 +27,7 @@ const { copy, copied } = useClipboard()
         :icon="copied ? mdiCheck : mdiContentCopy"
         variant="plain"
         size="large"
-        @click="copy(dois[index])"
+        @click="copy(extractedDois[index])"
       />
     </template>
     {{ copied ? `${t('doi-copied')}!` : t('copy-doi') }}

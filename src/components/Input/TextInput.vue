@@ -9,7 +9,7 @@ const { t } = useI18n()
 
 // Doi Store
 const doiStore = useDoiStore()
-const { text, dois } = storeToRefs(doiStore)
+const { text, extractedDois } = storeToRefs(doiStore)
 const { reset, handleDoisExtraction } = doiStore
 
 // TEXTAREA PLACEHOLDER
@@ -27,7 +27,7 @@ onMessage('autoImportText', async ({ data }) => {
     return
 
   await handleTextChange(data.text)
-  text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
+  text.value = extractedDois.value.length > 0 ? extractedDois.value.join('\n') : ''
 })
 
 // HANDLE TEXT CHANGE

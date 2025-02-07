@@ -5,7 +5,7 @@ import { extractTextFromPdfFile } from '~/utils/pdfUtils'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { file, dois } = storeToRefs(doiStore)
+const { file, extractedDois } = storeToRefs(doiStore)
 const { reset, handleDoisExtraction } = doiStore
 
 // PDF TEXT
@@ -22,7 +22,7 @@ watch(file, async (newValue) => {
   await handleDoisExtraction(pdfText)
 
   // Set text value to DOIs
-  text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
+  text.value = extractedDois.value.length > 0 ? extractedDois.value.join('\n') : ''
 })
 </script>
 

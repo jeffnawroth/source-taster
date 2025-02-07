@@ -9,11 +9,11 @@ defineProps<{
 }>()
 
 // Doi Store
-const { dois } = storeToRefs(useDoiStore())
+const { extractedDois } = storeToRefs(useDoiStore())
 </script>
 
 <template>
   <v-list-item-title>
-    {{ dois[index] }}
+    {{ extractedDois[index] }}
   </v-list-item-title>
 </template>

@@ -35,40 +35,40 @@ export const useDoiStore = defineStore('doi', () => {
   }
 
   // DOIS EXTRACTION
-  const dois = ref<string[]>([])
+  const extractedDois = ref<string[]>([])
 
   const handleDoisExtraction = useDebounceFn(async (text: string) => {
     const trimmedText = text.trim()
     if (!trimmedText) {
-      dois.value = []
+      extractedDois.value = []
       return
     }
 
-    dois.value = []
+    extractedDois.value = []
 
     try {
       if (useAiExtraction.value) {
-        dois.value = await useAiStore().extractDoisUsingAi(trimmedText)
+        extractedDois.value = await useAiStore().extractDoisUsingAi(trimmedText)
       }
       else {
-        dois.value = extractDoisUsingRegex(trimmedText)
+        extractedDois.value = extractDoisUsingRegex(trimmedText)
       }
     }
     catch (error) {
       console.error('Error extracting Dois using AI :', error)
-      dois.value = extractDoisUsingRegex(trimmedText)
+      extractedDois.value = extractDoisUsingRegex(trimmedText)
     }
   }, 500)
 
   // DOIS META DATA
 
-  watch(dois, () => getDOIsMetadata())
+  watch(extractedDois, () => getDOIsMetadata())
 
   async function getDOIsMetadata() {
     loadAborted.value = false
     works.value = []
 
-    for (const doi of dois.value) {
+    for (const doi of extractedDois.value) {
       if (loadAborted.value) {
         break
       }
@@ -116,7 +116,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  return { dois, checkDoiExists, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset, handleDoisExtraction }
+  return { extractedDois, checkDoiExists, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset, handleDoisExtraction }
 })
 
 if (import.meta.hot) {
