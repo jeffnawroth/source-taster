@@ -13,7 +13,6 @@ export const useDoiStore = defineStore('doi', () => {
   const text = ref<string>('')
   const client = new CrossrefClient()
   const loading = ref(false)
-  const loadAborted = ref(false)
 
   const works = ref<HttpResponse<Item<Work>>[]>([])
 
@@ -74,14 +73,9 @@ export const useDoiStore = defineStore('doi', () => {
   watch(extractedDois, () => getDOIsMetadata())
 
   async function getDOIsMetadata() {
-    loadAborted.value = false
     works.value = []
 
     for (const doi of extractedDois.value) {
-      if (loadAborted.value) {
-        break
-      }
-
       try {
         loading.value = true
         const response = await client.work(doi)
@@ -102,12 +96,6 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  // Aborts fetching the DOIs metadata
-  function abortFetching() {
-    loadAborted.value = true
-    loading.value = false
-  }
-
   // Resolves the DOI
   async function checkDoiExists(doi: string) {
     const url = `https://doi.org/${doi}`
@@ -125,7 +113,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  return { extractedDois, checkDoiExists, text, loading, loadAborted, works, found, valid, invalid, getDOIsMetadata, abortFetching, file, reset, handleDoisExtraction }
+  return { extractedDois, checkDoiExists, text, loading, works, found, valid, invalid, getDOIsMetadata, file, reset, handleDoisExtraction }
 })
 
 if (import.meta.hot) {
