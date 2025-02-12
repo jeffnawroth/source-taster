@@ -1,5 +1,3 @@
-/// <reference types="vitest" />
-
 import type { UserConfig } from 'vite'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -8,6 +6,8 @@ import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import ViteFonts from 'unplugin-fonts/vite'
 import Components from 'unplugin-vue-components/vite'
+import { VueRouterAutoImports } from 'unplugin-vue-router'
+import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
 
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
@@ -27,6 +27,12 @@ export const sharedConfig: UserConfig = {
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },
   plugins: [
+    VueRouter({
+      routesFolder: {
+        src: 'src/options/pages',
+      },
+      dts: 'src/typed-router.d.ts',
+    }),
     Vue({
       template: { transformAssetUrls },
     }),
@@ -53,6 +59,7 @@ export const sharedConfig: UserConfig = {
         },
         'vue-i18n',
         'pinia',
+        VueRouterAutoImports,
       ],
       dts: r('src/auto-imports.d.ts'),
       dirs: ['src/stores'],
