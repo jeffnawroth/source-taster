@@ -5,14 +5,15 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '~/logic'
 import { extractDoisUsingRegex } from '~/utils/doiExtractor'
 import { useAiStore } from './ai'
+import { useAppStore } from './app'
 
 export const useDoiStore = defineStore('doi', () => {
   const aiStore = useAiStore()
+  const { isLoading } = storeToRefs(useAppStore())
 
   // Data
   const text = ref<string>('')
   const client = new CrossrefClient()
-  const loading = ref(false)
 
   const works = ref<HttpResponse<Item<Work>>[]>([])
 
@@ -77,7 +78,7 @@ export const useDoiStore = defineStore('doi', () => {
 
     for (const doi of extractedDois.value) {
       try {
-        loading.value = true
+        isLoading.value = true
         const response = await client.work(doi)
 
         if (!response.ok) {
@@ -91,7 +92,7 @@ export const useDoiStore = defineStore('doi', () => {
         console.error(error)
       }
       finally {
-        loading.value = false
+        isLoading.value = false
       }
     }
   }
@@ -113,7 +114,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  return { extractedDois, checkDoiExists, text, loading, works, found, valid, invalid, getDOIsMetadata, file, reset, handleDoisExtraction }
+  return { extractedDois, checkDoiExists, text, works, found, valid, invalid, getDOIsMetadata, file, reset, handleDoisExtraction }
 })
 
 if (import.meta.hot) {

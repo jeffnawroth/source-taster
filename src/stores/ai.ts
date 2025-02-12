@@ -2,8 +2,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export const useAiStore = defineStore('ai', () => {
-  const loading = ref(false)
-
   const isAiUsed = ref(false)
 
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
@@ -47,7 +45,7 @@ export const useAiStore = defineStore('ai', () => {
       throw error
     }
   }
-  return { generateContent, extractDoisUsingAi, loading, isAiUsed }
+  return { generateContent, extractDoisUsingAi, isAiUsed }
 })
 
 if (import.meta.hot) {

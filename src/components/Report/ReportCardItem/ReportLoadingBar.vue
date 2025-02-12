@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { useDoiStore } from '~/stores/doi'
+import { useAppStore } from '~/stores/app'
 
 // App Store
-const doiStore = useDoiStore()
-const { loading } = storeToRefs(doiStore)
+const { isLoading } = storeToRefs(useAppStore())
 </script>
 
 <template>
@@ -13,9 +12,9 @@ const { loading } = storeToRefs(doiStore)
   >
     <v-col>
       <v-progress-linear
-        v-show="loading"
-        :loading
-        :indeterminate="loading"
+        v-show="isLoading"
+        :is-loading
+        :indeterminate="isLoading"
         rounded
       />
     </v-col>
