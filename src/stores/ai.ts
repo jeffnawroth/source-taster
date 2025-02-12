@@ -1,7 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useAppStore } from './app'
 
 export const useAiStore = defineStore('ai', () => {
+  // GENERATE CONTENT
+  const { isLoading } = storeToRefs(useAppStore())
+
+  // if the AI model is used to generate content or extract DOIs from text
   const isAiUsed = ref(false)
 
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
@@ -16,8 +21,12 @@ export const useAiStore = defineStore('ai', () => {
 
   // Generate content using the AI model
   async function generateContent(prompt: string) {
+    isLoading.value = true
+    isAiUsed.value = false
+
     try {
       const result = await model.value.generateContent(prompt)
+      isAiUsed.value = true
       return result.response.text()
     }
     catch (error: any) {
@@ -26,6 +35,9 @@ export const useAiStore = defineStore('ai', () => {
       }
       console.error('Error generating content:', error)
       throw error
+    }
+    finally {
+      isLoading.value = false
     }
   }
 

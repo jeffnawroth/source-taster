@@ -50,13 +50,11 @@ export const useDoiStore = defineStore('doi', () => {
     }
     // Reset the extracted DOIs and AI usage
     extractedDois.value = []
-    aiStore.isAiUsed = false
 
     try {
       // If the AI extraction is enabled, use the AI model to extract DOIs else use regex
       if (useAiExtraction.value) {
         extractedDois.value = await aiStore.extractDoisUsingAi(trimmedText)
-        aiStore.isAiUsed = true
       }
       else {
         extractedDois.value = extractDoisUsingRegex(trimmedText)
