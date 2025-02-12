@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { mdiFilePdfBox } from '@mdi/js'
 import { useDoiStore } from '~/stores/doi'
+import { useFileStore } from '~/stores/file'
 import { extractTextFromPdfFile } from '~/utils/pdfUtils'
 
 // Doi Store
 const doiStore = useDoiStore()
-const { file, extractedDois } = storeToRefs(doiStore)
+const { extractedDois } = storeToRefs(doiStore)
 const { reset, handleDoisExtraction } = doiStore
+
+// FILE
+const { file } = storeToRefs(useFileStore())
 
 // PDF TEXT
 const { text } = storeToRefs(doiStore)
