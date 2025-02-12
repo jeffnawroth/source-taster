@@ -4,6 +4,8 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 export const useAiStore = defineStore('ai', () => {
   const loading = ref(false)
 
+  const isAiUsed = ref(false)
+
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
 
   const genAI = computed(() => {
@@ -45,7 +47,7 @@ export const useAiStore = defineStore('ai', () => {
       throw error
     }
   }
-  return { generateContent, extractDoisUsingAi, loading }
+  return { generateContent, extractDoisUsingAi, loading, isAiUsed }
 })
 
 if (import.meta.hot) {

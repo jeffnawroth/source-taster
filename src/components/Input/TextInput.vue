@@ -32,8 +32,6 @@ onMessage('autoImportText', async ({ data }) => {
 
 // HANDLE TEXT CHANGE
 async function handleTextChange(newVal: string) {
-  if (newVal.trim() === '')
-    return
   await handleDoisExtraction(newVal)
 }
 </script>

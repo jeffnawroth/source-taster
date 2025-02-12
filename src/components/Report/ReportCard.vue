@@ -16,6 +16,7 @@ const { t } = useI18n()
       />
     </template>
     <template #append>
+      <ReportIconAi />
       <ReportPdfDownload />
     </template>
     <template

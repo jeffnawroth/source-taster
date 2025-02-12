@@ -7,6 +7,8 @@ import { extractDoisUsingRegex } from '~/utils/doiExtractor'
 import { useAiStore } from './ai'
 
 export const useDoiStore = defineStore('doi', () => {
+  const aiStore = useAiStore()
+
   // Data
   const text = ref<string>('')
   const client = new CrossrefClient()
@@ -38,23 +40,30 @@ export const useDoiStore = defineStore('doi', () => {
   const extractedDois = ref<string[]>([])
 
   const handleDoisExtraction = useDebounceFn(async (text: string) => {
+    // Trim the text
     const trimmedText = text.trim()
+
+    // If the text is empty, reset the extracted DOIs
     if (!trimmedText) {
       extractedDois.value = []
       return
     }
-
+    // Reset the extracted DOIs and AI usage
     extractedDois.value = []
+    aiStore.isAiUsed = false
 
     try {
+      // If the AI extraction is enabled, use the AI model to extract DOIs else use regex
       if (useAiExtraction.value) {
-        extractedDois.value = await useAiStore().extractDoisUsingAi(trimmedText)
+        extractedDois.value = await aiStore.extractDoisUsingAi(trimmedText)
+        aiStore.isAiUsed = true
       }
       else {
         extractedDois.value = extractDoisUsingRegex(trimmedText)
       }
     }
     catch (error) {
+      // If an error occurs, fallback to regex
       console.error('Error extracting Dois using AI :', error)
       extractedDois.value = extractDoisUsingRegex(trimmedText)
     }
