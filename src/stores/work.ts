@@ -38,7 +38,9 @@ export const useWorkStore = defineStore('work', () => {
     works.value = []
     isLoading.value = true
     try {
-      await Promise.all(doisArray.map(doi => getWorkByDoi(doi)))
+      for (const doi of doisArray) {
+        await getWorkByDoi(doi)
+      }
     }
     catch (error) {
       console.error('Error getting works by DOIs :', error)
