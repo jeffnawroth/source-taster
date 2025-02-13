@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { useWorkStore } from '~/stores/work'
 import connection from '/assets/connection.svg'
 
@@ -46,4 +46,4 @@ watch(isOnline, (newValue) => {
       <v-img :src="connection" />
     </template>
   </v-empty-state>
-</template>
+</template> -->
