@@ -1,35 +1,20 @@
-import { CrossrefClient, type HttpResponse, type Item, type Work } from '@jamesgopsill/crossref-client'
 import { useDebounceFn } from '@vueuse/core'
-
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '~/logic'
 import { extractDoisUsingRegex } from '~/utils/doiExtractor'
 import { useAiStore } from './ai'
-import { useAppStore } from './app'
 import { useFileStore } from './file'
 import { useTextStore } from './text'
+import { useWorkStore } from './work'
 
 export const useDoiStore = defineStore('doi', () => {
   const aiStore = useAiStore()
-  const { isLoading } = storeToRefs(useAppStore())
+  const workStore = useWorkStore()
   const { file } = storeToRefs(useFileStore())
   const { text } = storeToRefs(useTextStore())
 
-  // Data
-  const client = new CrossrefClient()
-
-  const works = ref<HttpResponse<Item<Work>>[]>([])
-
-  // Computed
-
-  // Number of DOIs found in the text
-  const found = computed(() => works.value.length)
-
-  // Number of DOIs that passed the check
-  const valid = computed(() => works.value.filter(work => work.ok).length)
-
-  // Number of DOIs that failed the check
-  const invalid = computed(() => works.value.filter(work => !work.ok).length)
+  // RESET
+  const { works } = storeToRefs(workStore)
 
   function reset() {
     text.value = ''
@@ -66,35 +51,14 @@ export const useDoiStore = defineStore('doi', () => {
       console.error('Error extracting Dois using AI :', error)
       extractedDois.value = extractDoisUsingRegex(trimmedText)
     }
+    finally {
+      if (extractedDois.value.length > 0) {
+        workStore.getDOIsMetadata()
+      }
+    }
   }, 500)
 
   // DOIS META DATA
-
-  watch(extractedDois, () => getDOIsMetadata())
-
-  async function getDOIsMetadata() {
-    works.value = []
-
-    for (const doi of extractedDois.value) {
-      try {
-        isLoading.value = true
-        const response = await client.work(doi)
-
-        if (!response.ok) {
-          const response2 = await checkDoiExists(doi) as HttpResponse<Item<Work>>
-          works.value.push(response2)
-          continue
-        }
-        works.value.push(response)
-      }
-      catch (error) {
-        console.error(error)
-      }
-      finally {
-        isLoading.value = false
-      }
-    }
-  }
 
   // Resolves the DOI
   async function checkDoiExists(doi: string) {
@@ -113,7 +77,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  return { extractedDois, checkDoiExists, works, found, valid, invalid, getDOIsMetadata, reset, handleDoisExtraction }
+  return { extractedDois, checkDoiExists, reset, handleDoisExtraction }
 })
 
 if (import.meta.hot) {

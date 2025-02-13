@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { mdiDownload } from '@mdi/js'
 import { useDoiStore } from '~/stores/doi'
+import { useWorkStore } from '~/stores/work'
 import { generatePDFReport } from '../../../utils/pdfUtils'
 
 // Work Store
 
 // DOI Store
-const { extractedDois, works, valid, invalid } = storeToRefs(useDoiStore())
+const { extractedDois } = storeToRefs(useDoiStore())
+
+// WORKS
+const workStore = useWorkStore()
+const { valid, invalid, works } = storeToRefs(workStore)
 
 // I18n
 const { t } = useI18n()

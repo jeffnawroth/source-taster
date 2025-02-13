@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDoiStore } from '~/stores/doi'
+import { useWorkStore } from '~/stores/work'
 
 // App Store
-const { valid, invalid, found } = storeToRefs(useDoiStore())
+const { valid, invalid, found } = storeToRefs(useWorkStore())
 
 // I18n
 const { t } = useI18n()

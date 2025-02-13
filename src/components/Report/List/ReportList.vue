@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDoiStore } from '~/stores/doi'
+import { useWorkStore } from '~/stores/work'
 
 // App Store
-const { works } = storeToRefs(useDoiStore())
+const { works } = storeToRefs(useWorkStore())
 </script>
 
 <template>

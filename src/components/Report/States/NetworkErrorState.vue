@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDoiStore } from '~/stores/doi'
+import { useWorkStore } from '~/stores/work'
 import connection from '/assets/connection.svg'
 
-const { getDOIsMetadata } = useDoiStore()
+const { getDOIsMetadata } = useWorkStore()
 
 // Refs
 const isOnline = ref(navigator.onLine)
