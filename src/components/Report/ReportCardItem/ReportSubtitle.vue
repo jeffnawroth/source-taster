@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useDoiStore } from '~/stores/doi'
 import { useWorkStore } from '~/stores/work'
 
 // App Store
-const { valid, invalid, found } = storeToRefs(useWorkStore())
+const { valid, invalid } = storeToRefs(useWorkStore())
+
+// FOUND DOIs
+const { extractedDois } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()
@@ -12,7 +16,7 @@ const { t } = useI18n()
   <div>
     <div class="text-wrap">
       <span class="mx-1">
-        {{ `${t('found')}: ${found}` }}
+        {{ `${t('found')}: ${extractedDois.length}` }}
       </span>
       <span
         class=" mx-1"

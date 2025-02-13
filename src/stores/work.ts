@@ -18,9 +18,6 @@ export const useWorkStore = defineStore('work', () => {
   // Number of DOIs that failed the check
   const invalid = computed(() => works.value.filter(work => !work.ok).length)
 
-  // Number of DOIs found in the text
-  const found = computed(() => works.value.length)
-
   // Get work by DOI
   async function getWorkByDoi(doi: string) {
     try {
@@ -80,7 +77,7 @@ export const useWorkStore = defineStore('work', () => {
     }
   }
 
-  return { works, valid, invalid, found, getDOIsMetadata, getWorksByDois }
+  return { works, valid, invalid, getDOIsMetadata, getWorksByDois }
 })
 
 if (import.meta.hot) {
