@@ -64,6 +64,7 @@ export const useDoiStore = defineStore('doi', () => {
   // Resolves the DOI
   const { isLoading } = storeToRefs(useAppStore())
 
+  // Check if the DOI exists
   async function checkDoiExists(doi: string): Promise<Response | undefined> {
     const url = `https://doi.org/${doi}`
     try {
@@ -80,6 +81,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
+  // Check if the DOIs exist
   async function checkDoisExists() {
     isLoading.value = true
     try {
