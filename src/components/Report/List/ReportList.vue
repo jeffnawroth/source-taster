@@ -10,10 +10,9 @@ const { works } = storeToRefs(useWorkStore())
     v-if="works.length > 0"
   >
     <ReportListItem
-      v-for="(work, index) in works"
+      v-for="(work) in works"
       :key="work.content?.message.DOI"
       :work
-      :index
     />
   </v-list>
 </template>

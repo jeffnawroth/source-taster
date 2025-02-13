@@ -1,18 +1,15 @@
 <script setup lang="ts">
+import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { mdiCheck, mdiContentCopy } from '@mdi/js'
 import { useClipboard } from '@vueuse/core'
-import { useDoiStore } from '~/stores/doi'
 
 // Props
-const { index } = defineProps<{
-  index: number
+defineProps<{
+  work: HttpResponse<Item<Work>>
 }>()
 
 // I18n
 const { t } = useI18n()
-
-// Doi Store
-const { extractedDois } = storeToRefs(useDoiStore())
 
 // Clipboard
 const { copy, copied } = useClipboard()
@@ -27,7 +24,7 @@ const { copy, copied } = useClipboard()
         :icon="copied ? mdiCheck : mdiContentCopy"
         variant="plain"
         size="large"
-        @click="copy(extractedDois[index])"
+        @click="work.content?.message.DOI ? copy(work.content?.message.DOI) : ''"
       />
     </template>
     {{ copied ? `${t('doi-copied')}!` : t('copy-doi') }}

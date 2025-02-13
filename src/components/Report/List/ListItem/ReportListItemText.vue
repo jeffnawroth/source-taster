@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
-import { useDoiStore } from '~/stores/doi'
 
 // Props
 defineProps<{
   work: HttpResponse<Item<Work>>
-  index: number
 }>()
-
-// Doi Store
-const { extractedDois } = storeToRefs(useDoiStore())
 </script>
 
 <template>
   <v-list-item-title>
-    {{ extractedDois[index] }}
+    {{ work.content?.message.DOI }}
   </v-list-item-title>
 </template>

@@ -5,7 +5,6 @@ import ReportListItemOpenBtn from './ReportListItemOpenBtn.vue'
 // Props
 const { work } = defineProps<{
   work: HttpResponse<Item<Work>>
-  index: number
 }>()
 
 const color = computed(() => {
@@ -23,21 +22,13 @@ const color = computed(() => {
     class="my-1"
   >
     <template #prepend>
-      <ReportListItemStatusIcon
-        :work
-        :index
-      />
+      <ReportListItemStatusIcon :work />
     </template>
 
-    <ReportListItemText
-      :work
-      :index
-    />
+    <ReportListItemText :work />
 
     <template #append>
-      <ReportListItemCopyBtn
-        :index
-      />
+      <ReportListItemCopyBtn :work />
 
       <ReportListItemOpenBtn :work />
     </template>

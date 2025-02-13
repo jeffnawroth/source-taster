@@ -5,7 +5,6 @@ import { mdiCheckCircleOutline, mdiCloseCircleOutline } from '@mdi/js'
 // Props
 const { work } = defineProps<{
   work: HttpResponse<Item<Work>>
-  index: number
 }>()
 
 const { t } = useI18n()

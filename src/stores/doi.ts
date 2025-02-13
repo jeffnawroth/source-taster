@@ -11,12 +11,11 @@ import { useWorkStore } from './work'
 
 export const useDoiStore = defineStore('doi', () => {
   const aiStore = useAiStore()
-  const workStore = useWorkStore()
   const { file } = storeToRefs(useFileStore())
   const { text } = storeToRefs(useTextStore())
+  const { works } = storeToRefs(useWorkStore())
 
   // RESET
-  const { works } = storeToRefs(workStore)
 
   function reset() {
     text.value = ''
@@ -64,11 +63,12 @@ export const useDoiStore = defineStore('doi', () => {
   // Resolves the DOI
   const { isLoading } = storeToRefs(useAppStore())
 
+  const baseUrl = `https://doi.org/`
+
   // Check if the DOI exists
   async function checkDoiExists(doi: string): Promise<Response | undefined> {
-    const url = `https://doi.org/${doi}`
     try {
-      const response = await fetch(url, {
+      const response = await fetch(baseUrl + doi, {
         method: 'HEAD',
         headers: {
           Accept: 'application/json',
@@ -84,11 +84,20 @@ export const useDoiStore = defineStore('doi', () => {
   // Check if the DOIs exist
   async function checkDoisExists() {
     isLoading.value = true
+    works.value = []
     try {
       for (const doi of extractedDois.value) {
         const response = await checkDoiExists(doi)
         if (response) {
-          works.value.push(response as HttpResponse<Item<Work>>)
+          works.value.push({
+            ok: response.ok,
+            content: {
+              message: {
+                DOI: doi,
+                URL: baseUrl + doi,
+              },
+            } as Item<Work>,
+          } as HttpResponse<Item<Work>>)
         }
       }
     }
@@ -100,7 +109,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  return { extractedDois, checkDoiExists, reset, handleDoisExtraction }
+  return { extractedDois, checkDoiExists, handleDoisExtraction, reset }
 })
 
 if (import.meta.hot) {
