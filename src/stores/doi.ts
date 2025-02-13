@@ -26,16 +26,15 @@ export const useDoiStore = defineStore('doi', () => {
   const extractedDois = ref<string[]>([])
 
   const handleDoisExtraction = useDebounceFn(async (text: string) => {
+    // Reset the extracted DOIs and AI usage
+    extractedDois.value = []
+
     // Trim the text
     const trimmedText = text.trim()
 
     // If the text is empty, reset the extracted DOIs
-    if (!trimmedText) {
-      extractedDois.value = []
+    if (!trimmedText)
       return
-    }
-    // Reset the extracted DOIs and AI usage
-    extractedDois.value = []
 
     try {
       // If the AI extraction is enabled, use the AI model to extract DOIs else use regex
