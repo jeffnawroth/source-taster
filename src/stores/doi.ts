@@ -63,18 +63,29 @@ export const useDoiStore = defineStore('doi', () => {
   // Resolves the DOI
   const { isLoading } = storeToRefs(useAppStore())
 
-  const baseUrl = `https://doi.org/`
-
   // Check if the DOI exists
-  async function checkDoiExists(doi: string): Promise<Response | undefined> {
+  async function checkDoiExists(doi: string) {
+    const url = `https://doi.org/${doi}`
+
     try {
-      const response = await fetch(baseUrl + doi, {
+      const response = await fetch(url, {
         method: 'HEAD',
         headers: {
           Accept: 'application/json',
         },
       })
-      return response
+
+      if (response) {
+        works.value.push({
+          ok: response.ok,
+          content: {
+            message: {
+              DOI: doi,
+              URL: url,
+            },
+          } as Item<Work>,
+        } as HttpResponse<Item<Work>>)
+      }
     }
     catch (error) {
       console.error('Error checking DOI exists:', error)
@@ -87,18 +98,7 @@ export const useDoiStore = defineStore('doi', () => {
     works.value = []
     try {
       for (const doi of extractedDois.value) {
-        const response = await checkDoiExists(doi)
-        if (response) {
-          works.value.push({
-            ok: response.ok,
-            content: {
-              message: {
-                DOI: doi,
-                URL: baseUrl + doi,
-              },
-            } as Item<Work>,
-          } as HttpResponse<Item<Work>>)
-        }
+        await checkDoiExists(doi)
       }
     }
     catch (error) {
