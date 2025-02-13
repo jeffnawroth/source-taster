@@ -1,8 +1,10 @@
+import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { useDebounceFn } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '~/logic'
 import { extractDoisUsingRegex } from '~/utils/doiExtractor'
 import { useAiStore } from './ai'
+import { useAppStore } from './app'
 import { useFileStore } from './file'
 import { useTextStore } from './text'
 import { useWorkStore } from './work'
@@ -52,7 +54,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
     finally {
       if (extractedDois.value.length > 0) {
-        workStore.getDOIsMetadata(extractedDois.value)
+        checkDoisExists()
       }
     }
   }, 500)
@@ -60,7 +62,9 @@ export const useDoiStore = defineStore('doi', () => {
   // DOIS META DATA
 
   // Resolves the DOI
-  async function checkDoiExists(doi: string) {
+  const { isLoading } = storeToRefs(useAppStore())
+
+  async function checkDoiExists(doi: string): Promise<Response | undefined> {
     const url = `https://doi.org/${doi}`
     try {
       const response = await fetch(url, {
@@ -72,7 +76,25 @@ export const useDoiStore = defineStore('doi', () => {
       return response
     }
     catch (error) {
-      console.error(error)
+      console.error('Error checking DOI exists:', error)
+    }
+  }
+
+  async function checkDoisExists() {
+    isLoading.value = true
+    try {
+      for (const doi of extractedDois.value) {
+        const response = await checkDoiExists(doi)
+        if (response) {
+          works.value.push(response as HttpResponse<Item<Work>>)
+        }
+      }
+    }
+    catch (error) {
+      console.error('Error checking DOIs exist:', error)
+    }
+    finally {
+      isLoading.value = false
     }
   }
 
