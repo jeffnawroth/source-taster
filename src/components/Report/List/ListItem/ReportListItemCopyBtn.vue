@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { mdiCheck, mdiContentCopy } from '@mdi/js'
 import { useClipboard } from '@vueuse/core'
-import { useDoiStore } from '~/stores/doi'
 
 // Props
 const { index } = defineProps<{

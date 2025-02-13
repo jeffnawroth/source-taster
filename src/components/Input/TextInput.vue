@@ -2,8 +2,6 @@
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
 import { useAutoImport } from '~/logic'
-import { useDoiStore } from '~/stores/doi'
-import { useTextStore } from '~/stores/text'
 
 // TRANSLATION
 const { t } = useI18n()

@@ -59,10 +59,14 @@ export const sharedConfig: UserConfig = {
         },
         'vue-i18n',
         'pinia',
+        { 'src/stores/text': ['useTextStore'] },
+        { 'src/stores/ai': ['useAiStore'] },
+        { 'src/stores/doi': ['useDoiStore'] },
+        { 'src/stores/app': ['useAppStore'] },
+        { 'src/stores/file': ['useFileStore'] },
         VueRouterAutoImports,
       ],
       dts: r('src/auto-imports.d.ts'),
-      dirs: ['src/stores'],
 
     }),
 

@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { mdiAlertCircleOutline } from '@mdi/js'
-import { useDoiStore } from '~/stores/doi'
-import { useFileStore } from '~/stores/file'
 
 // I18n
 const { t } = useI18n()
 
 // Doi Store
-const { extractedDois, text } = storeToRefs(useDoiStore())
+const { extractedDois } = storeToRefs(useDoiStore())
 
 // file
 const { file } = storeToRefs(useFileStore())
+
+// TEXT
+const { text } = storeToRefs(useTextStore())
 </script>
 
 <template>
