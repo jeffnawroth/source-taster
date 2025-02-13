@@ -52,7 +52,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
     finally {
       if (extractedDois.value.length > 0) {
-        workStore.getDOIsMetadata()
+        workStore.getDOIsMetadata(extractedDois.value)
       }
     }
   }, 500)

@@ -49,14 +49,12 @@ export const useWorkStore = defineStore('work', () => {
   }
 
   // GET DOIs METADATA
-  const doiStore = useDoiStore()
-  const { extractedDois } = storeToRefs(doiStore)
-  const { checkDoiExists } = doiStore
+  const { checkDoiExists } = useDoiStore()
 
-  async function getDOIsMetadata() {
+  async function getDOIsMetadata(dois: string[]) {
     works.value = []
 
-    for (const doi of extractedDois.value) {
+    for (const doi of dois) {
       try {
         isLoading.value = true
         const response = await client.work(doi)
