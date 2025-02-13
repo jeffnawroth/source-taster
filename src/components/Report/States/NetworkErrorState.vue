@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { useDoiStore } from '~/stores/doi'
 import connection from '/assets/connection.svg'
 
-const { getDOIsMetadata, abortFetching } = useDoiStore()
+const { getDOIsMetadata } = useDoiStore()
 
 // Refs
 const isOnline = ref(navigator.onLine)
@@ -30,9 +29,9 @@ watch(isOnline, (newValue) => {
   if (newValue) {
     getDOIsMetadata()
   }
-  else {
-    abortFetching()
-  }
+  // else {
+  //   abortFetching()
+  // }
 })
 </script>
 

@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { mdiInformationOutline } from '@mdi/js'
-import { useDoiStore } from '~/stores/doi'
-import { useFileStore } from '~/stores/file'
 
 // I18n
 const { t } = useI18n()
 
-// Doi Store
-const { text } = storeToRefs(useDoiStore())
+// TEXT
+const { text } = storeToRefs(useTextStore())
 
 // file
 const { file } = storeToRefs(useFileStore())
