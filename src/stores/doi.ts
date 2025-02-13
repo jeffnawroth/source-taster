@@ -7,14 +7,15 @@ import { extractDoisUsingRegex } from '~/utils/doiExtractor'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useFileStore } from './file'
+import { useTextStore } from './text'
 
 export const useDoiStore = defineStore('doi', () => {
   const aiStore = useAiStore()
   const { isLoading } = storeToRefs(useAppStore())
   const { file } = storeToRefs(useFileStore())
+  const { text } = storeToRefs(useTextStore())
 
   // Data
-  const text = ref<string>('')
   const client = new CrossrefClient()
 
   const works = ref<HttpResponse<Item<Work>>[]>([])
@@ -112,7 +113,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  return { extractedDois, checkDoiExists, text, works, found, valid, invalid, getDOIsMetadata, reset, handleDoisExtraction }
+  return { extractedDois, checkDoiExists, works, found, valid, invalid, getDOIsMetadata, reset, handleDoisExtraction }
 })
 
 if (import.meta.hot) {

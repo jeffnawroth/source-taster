@@ -2,6 +2,7 @@
 import { mdiFilePdfBox } from '@mdi/js'
 import { useDoiStore } from '~/stores/doi'
 import { useFileStore } from '~/stores/file'
+import { useTextStore } from '~/stores/text'
 import { extractTextFromPdfFile } from '~/utils/pdfUtils'
 
 // Doi Store
@@ -13,7 +14,7 @@ const { reset, handleDoisExtraction } = doiStore
 const { file } = storeToRefs(useFileStore())
 
 // PDF TEXT
-const { text } = storeToRefs(doiStore)
+const { text } = storeToRefs(useTextStore())
 
 watch(file, async (newValue) => {
   if (!newValue)
