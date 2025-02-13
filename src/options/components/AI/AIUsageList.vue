@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core'
 import { requestsMadeThisMinute, requestsMadeToday, tokensUsedThisMintue } from '~/logic'
 import { useAiStore } from '~/stores/ai'
@@ -88,4 +88,4 @@ const aiUsageListItems = ref([
     :disabled
     v-bind="item"
   />
-</template>
+</template> -->
