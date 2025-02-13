@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { mdiInformationOutline } from '@mdi/js'
+import { useFileStore } from '~/stores/file'
+import { useTextStore } from '~/stores/text'
 
 // I18n
 const { t } = useI18n()

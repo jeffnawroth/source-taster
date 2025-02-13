@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useDoiStore } from '~/stores/doi'
+
 // App Store
 const { valid, invalid, found } = storeToRefs(useDoiStore())
 

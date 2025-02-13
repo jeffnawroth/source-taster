@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppStore } from '~/stores/app'
+
 // App Store
 const { isLoading } = storeToRefs(useAppStore())
 </script>

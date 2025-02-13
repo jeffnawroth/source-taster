@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { mdiAlertCircleOutline } from '@mdi/js'
+import { useDoiStore } from '~/stores/doi'
+import { useFileStore } from '~/stores/file'
+import { useTextStore } from '~/stores/text'
 
 // I18n
 const { t } = useI18n()

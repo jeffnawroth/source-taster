@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mdiStarFourPointsOutline } from '@mdi/js'
+import { useAiStore } from '~/stores/ai'
 
 const { isAiUsed } = storeToRefs(useAiStore())
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mdiDownload } from '@mdi/js'
+import { useDoiStore } from '~/stores/doi'
 import { generatePDFReport } from '../../../utils/pdfUtils'
 
 // Work Store

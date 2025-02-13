@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDoiStore } from '~/stores/doi'
 import connection from '/assets/connection.svg'
 
 const { getDOIsMetadata } = useDoiStore()
