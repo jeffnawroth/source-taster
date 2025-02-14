@@ -8,7 +8,7 @@ import { extractTextFromPdfFile } from '~/utils/pdfUtils'
 // Doi Store
 const doiStore = useDoiStore()
 const { extractedDois } = storeToRefs(doiStore)
-const { reset, handleDoisExtraction } = doiStore
+const { handleDoisExtraction } = doiStore
 
 // FILE
 const { file } = storeToRefs(useFileStore())
@@ -42,6 +42,5 @@ watch(file, async (newValue) => {
     prepend-icon=""
     clearable
     hide-details="auto"
-    @click:clear="reset"
   />
 </template>

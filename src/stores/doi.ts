@@ -5,22 +5,10 @@ import { useAiExtraction } from '~/logic'
 import { extractDoisUsingRegex } from '~/utils/doiExtractor'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
-import { useFileStore } from './file'
-import { useTextStore } from './text'
 import { useWorkStore } from './work'
 
 export const useDoiStore = defineStore('doi', () => {
-  const { file } = storeToRefs(useFileStore())
-  const { text } = storeToRefs(useTextStore())
   const { works } = storeToRefs(useWorkStore())
-
-  // RESET
-
-  function reset() {
-    text.value = ''
-    file.value = null
-    works.value = []
-  }
 
   // DOIS EXTRACTION
   const aiStore = useAiStore()
@@ -31,6 +19,7 @@ export const useDoiStore = defineStore('doi', () => {
 
   const handleDoisExtraction = useDebounceFn(async (text: string) => {
     // Reset the extracted DOIs and AI usage
+    works.value = []
     extractedDois.value = []
     isAiUsed.value = false
 
@@ -117,7 +106,7 @@ export const useDoiStore = defineStore('doi', () => {
     }
   }
 
-  return { extractedDois, checkDoiExists, handleDoisExtraction, reset }
+  return { extractedDois, checkDoiExists, handleDoisExtraction }
 })
 
 if (import.meta.hot) {
