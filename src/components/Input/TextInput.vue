@@ -11,7 +11,7 @@ const { t } = useI18n()
 // Doi Store
 const doiStore = useDoiStore()
 const { extractedDois } = storeToRefs(doiStore)
-const { reset, handleDoisExtraction } = doiStore
+const { handleDoisExtraction } = doiStore
 
 // TEXTAREA PLACEHOLDER
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
@@ -51,6 +51,5 @@ async function handleTextChange(newVal: string) {
     variant="solo-filled"
     clearable
     @update:model-value="handleTextChange($event)"
-    @click:clear="reset"
   />
 </template>

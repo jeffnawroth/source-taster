@@ -57,9 +57,7 @@ export const useDoiStore = defineStore('doi', () => {
       extractedDois.value = extractDoisUsingRegex(trimmedText)
     }
     finally {
-      if (extractedDois.value.length > 0) {
-        checkDoisExists()
-      }
+      checkDoisExists()
     }
   }, 500)
 
@@ -99,8 +97,13 @@ export const useDoiStore = defineStore('doi', () => {
 
   // Check if the DOIs exist
   async function checkDoisExists() {
-    isLoading.value = true
     works.value = []
+
+    if (extractedDois.value.length === 0)
+      return
+
+    isLoading.value = true
+
     try {
       for (const doi of extractedDois.value) {
         await checkDoiExists(doi)
