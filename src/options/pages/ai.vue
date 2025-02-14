@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiInformationOutline, mdiStarFourPointsOutline } from '@mdi/js'
+import { mdiStarFourPointsOutline } from '@mdi/js'
 import { useAiExtraction } from '~/logic'
 
 // i18n
@@ -26,17 +26,10 @@ const { t } = useI18n()
       <template #subtitle>
         <p>{{ t('ai-extraction-description') }}</p>
         <p class="text-medium-emphasis mt-2">
-          <v-icon
-            :icon="mdiInformationOutline"
-            size="small"
-          />
           {{ t('ai-extraction-description-info') }}
-          <a
-            class="text-decoration-none"
-            href="https://ai.google.dev/"
-          >
-            {{ t('learn-more') }}
-          </a>
+        </p>
+        <p class="text-medium-emphasis mt-2">
+          {{ t('ai-extraction-description-limit') }}
         </p>
       </template>
 
