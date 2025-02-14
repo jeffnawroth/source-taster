@@ -10,7 +10,6 @@ import { useTextStore } from './text'
 import { useWorkStore } from './work'
 
 export const useDoiStore = defineStore('doi', () => {
-  const aiStore = useAiStore()
   const { file } = storeToRefs(useFileStore())
   const { text } = storeToRefs(useTextStore())
   const { works } = storeToRefs(useWorkStore())
@@ -24,11 +23,16 @@ export const useDoiStore = defineStore('doi', () => {
   }
 
   // DOIS EXTRACTION
+  const aiStore = useAiStore()
+  const { isAiUsed } = storeToRefs(aiStore)
+  const { extractDoisUsingAi } = aiStore
+
   const extractedDois = ref<string[]>([])
 
   const handleDoisExtraction = useDebounceFn(async (text: string) => {
     // Reset the extracted DOIs and AI usage
     extractedDois.value = []
+    isAiUsed.value = false
 
     // Trim the text
     const trimmedText = text.trim()
@@ -39,8 +43,9 @@ export const useDoiStore = defineStore('doi', () => {
 
     try {
       // If the AI extraction is enabled, use the AI model to extract DOIs else use regex
+
       if (useAiExtraction.value) {
-        extractedDois.value = await aiStore.extractDoisUsingAi(trimmedText)
+        extractedDois.value = await extractDoisUsingAi(trimmedText)
       }
       else {
         extractedDois.value = extractDoisUsingRegex(trimmedText)
