@@ -46,7 +46,9 @@ export const useDoiStore = defineStore('doi', () => {
       extractedDois.value = extractDoisUsingRegex(trimmedText)
     }
     finally {
-      checkDoisExists()
+      if (extractedDois.value.length > 0) {
+        checkDoisExists()
+      }
     }
   }, 500)
 
