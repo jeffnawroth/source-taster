@@ -28,7 +28,7 @@ app.post('/generate', async (c) => {
   }
 })
 
-const port = process.env.PORT as number | undefined || 8000
+const port = Number(process.env.PORT || '') || 8000
 // eslint-disable-next-line no-console
 console.log(`Server is running on http://localhost:${port}`)
 
