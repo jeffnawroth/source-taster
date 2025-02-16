@@ -13,8 +13,7 @@
     "resolveJsonModule": true,
     "types": [
       "vite/client",
-      "unplugin-vue-router/client",
-      "node"
+      "unplugin-vue-router/client"
     ],
     "strict": true,
     "noUnusedLocals": true,
