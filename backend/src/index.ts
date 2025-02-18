@@ -14,7 +14,10 @@ app.post('/generate', async (c) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY ?? ''
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: 'You are a system that extracts valid DOIs from a given input text. Your sole purpose is to find all valid DOIs. Return the DOIs as an array of strings without duplicates. If no DOIs are found, return an empty array. Do not include any additional information or explanations.' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: 'You are a system that extracts valid DOIs from a given input text. Your sole purpose is to find all valid DOIs. Return the DOIs as an array of strings without duplicates. If no DOIs are found, return an empty array. Do not include any additional information or explanations.', generationConfig: {
+      responseMimeType: 'application/json',
+      temperature: 0.2,
+    } })
 
     const prompt = await c.req.text()
     const result = await model.generateContent(prompt)
