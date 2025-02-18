@@ -12,7 +12,8 @@ export const useAiStore = defineStore('ai', () => {
     isLoading.value = true
     isAiUsed.value = false
     try {
-      const response = await fetch('http://localhost:8000/generate', {
+      const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
+      const response = await fetch(`${baseUrl}` + '/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
