@@ -180,7 +180,7 @@ export async function generatePDFReport(
       // Note
       page.setFontColor(rgb(0, 0, 0)) // Schwarz
       page.setFontSize(12)
-      const urlText = `Note: ${i18n.global.t('invalid-description')}`
+      const urlText = `${i18n.global.t('note')}: ${i18n.global.t('invalid-description')}`
       const urlX = 10 // x-position for the URL
       page.drawText(urlText, { x: urlX, y: yOffset })
       yOffset -= 20
