@@ -9,7 +9,7 @@ if (import.meta.hot) {
   import('./contentScriptHMR')
 }
 
-declare let chrome: any
+// declare let chrome: any
 const USE_SIDE_PANEL = true
 let cachedDisplayOption: string = 'sidepanel'
 let isSidePanelOpen = false // Track Sidepanel open status
@@ -30,14 +30,14 @@ browser.runtime.onInstalled.addListener((): void => {
   // Create the "Check Bibliography" context menu item
   browser.contextMenus.create({
     id: 'check-bibliography',
-    title: chrome.i18n.getMessage('checkSelectedText'),
+    title: browser.i18n.getMessage('checkSelectedText'),
     contexts: ['selection'],
   })
 
   // Create the "Open side panel" context menu item
   browser.contextMenus.create({
     id: 'openSidePanel',
-    title: chrome.i18n.getMessage('openSidePanel'),
+    title: browser.i18n.getMessage('openSidePanel'),
     contexts: ['all'],
   })
 
@@ -90,7 +90,7 @@ self.addEventListener('unhandledrejection', (event) => {
 
 // Function to open Sidepanel and update state
 // @ts-expect-error missing types
-function attemptSidePanelOpen(windowId: number | null, selectedText?: string, tab?: chrome.tabs.Tab) {
+function attemptSidePanelOpen(windowId: number | null, selectedText?: string, tab?: browser.tabs.Tab) {
   if (windowId && windowId !== -1) {
     // eslint-disable-next-line no-console
     console.log(`Performing sidepanel open with validated windowId: ${windowId}`)
@@ -110,16 +110,21 @@ function attemptSidePanelOpen(windowId: number | null, selectedText?: string, ta
   }
   else {
     console.warn('Invalid `windowId`, attempting fallback to last focused window...')
-    chrome.windows.getLastFocused({ populate: true }, (lastFocusedWindow: { id: number | null }) => {
-      if (lastFocusedWindow?.id && lastFocusedWindow.id !== -1) {
-        // eslint-disable-next-line no-console
-        console.log(`Fallback windowId obtained: ${lastFocusedWindow.id}`)
-        attemptSidePanelOpen(lastFocusedWindow.id, selectedText, tab)
-      }
-      else {
-        console.error('No valid windowId available. Sidepanel cannot be opened.')
-      }
-    })
+    browser.windows.getLastFocused({ populate: true })
+      .then((lastFocusedWindow) => {
+        const windowId = lastFocusedWindow.id ?? null
+        if (windowId !== null && windowId !== -1) {
+          // eslint-disable-next-line no-console
+          console.log(`Fallback windowId obtained: ${windowId}`)
+          attemptSidePanelOpen(windowId, selectedText, tab)
+        }
+        else {
+          console.error('No valid windowId available. Sidepanel cannot be opened.')
+        }
+      })
+      .catch((error) => {
+        console.error('Error getting last focused window:', error)
+      })
   }
 }
 
@@ -130,7 +135,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     if (cachedDisplayOption === 'popup') {
       // eslint-disable-next-line no-console
       console.log('Opening popup...')
-      chrome.action.openPopup().then(() => {
+      browser.action.openPopup().then(() => {
         // @ts-expect-error missing types
         sendMessage('selectedText', { text: info.selectionText }, { context: 'popup', tabId: tab!.id! })
       }).catch((error: any) => {
@@ -157,26 +162,24 @@ function initializeView(displayOption: string) {
   if (displayOption === 'popup') {
     // eslint-disable-next-line no-console
     console.log('Popup option selected')
-    chrome.action.setPopup({ popup: './dist/popup/index.html' })
-    if (chrome.sidePanel) {
-      chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error: any) => {
+    browser.action.setPopup({ popup: './dist/popup/index.html' })
+    // @ts-expect-error missing types
+    if (browser.sidePanel) {
+      // @ts-expect-error missing types
+      browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error: any) => {
         console.error('Error disabling side panel:', error)
       })
     }
   }
   // If 'sidepanel' is selected, remove the popup and enable the sidepanel behavior
   else if (displayOption === 'sidepanel' && USE_SIDE_PANEL) {
-    browser.contextMenus.onClicked.addListener((info, tab) => {
-      if (info.menuItemId === 'openSidePanel') {
-        // @ts-expect-error missing types
-        browser.sidePanel.open({ windowId: tab.windowId })
-      }
-    })
     // eslint-disable-next-line no-console
     console.log('Side panel option selected')
-    chrome.action.setPopup({ popup: '' })
-    if (chrome.sidePanel) {
-      chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: any) => {
+    browser.action.setPopup({ popup: '' })
+    // @ts-expect-error missing types
+    if (browser.sidePanel) {
+      // @ts-expect-error missing types
+      browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: any) => {
         console.error('Error setting side panel behavior:', error)
       })
     }
@@ -191,10 +194,10 @@ getDisplayOption().then((option) => {
   console.error('Failed to load display option:', error)
 })
 
-// Listen for changes in chrome.storage.sync and update the view based on the new selection
-chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: string } }, area: string) => {
+// Listen for changes in browser.storage.sync and update the view based on the new selection
+browser.storage.onChanged.addListener((changes: { displayOption?: { newValue: string } }, area: string) => {
   // eslint-disable-next-line no-console
-  console.log('chrome.storage.onChanged triggered:', changes)
+  console.log('browser.storage.onChanged triggered:', changes)
 
   if (area === 'sync' && changes.displayOption) {
     const newDisplayOption = changes.displayOption.newValue
@@ -220,13 +223,13 @@ chrome.storage.onChanged.addListener((changes: { displayOption?: { newValue: str
       // Re-add the sidepanel menu item if Sidepanel is active
       browser.contextMenus.create({
         id: 'openSidePanel',
-        title: chrome.i18n.getMessage('openSidePanel'),
+        title: browser.i18n.getMessage('openSidePanel'),
         contexts: ['all'],
       }, async () => {
         const translations = await getTranslations(currentLocale)
         updateContexMenu('openSidePanel', translations.openSidePanel.message)
-        if (chrome.runtime.lastError) {
-          console.warn('Failed to create openSidePanel menu item:', chrome.runtime.lastError.message)
+        if (browser.runtime.lastError) {
+          console.warn('Failed to create openSidePanel menu item:', browser.runtime.lastError.message)
         }
       })
     }

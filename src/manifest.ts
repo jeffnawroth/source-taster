@@ -1,7 +1,13 @@
 import type { Manifest } from 'webextension-polyfill'
 import type PkgType from '../package.json'
 import fs from 'fs-extra'
-import { isDev, isFirefox, port, r } from '../scripts/utils'
+import { isDev, port, r } from '../scripts/utils'
+import { isFirefox, VITE_EXTENSION } from './env'
+
+// eslint-disable-next-line no-console
+console.log('Manifest-Generator: VITE_EXTENSION =', VITE_EXTENSION)
+// eslint-disable-next-line no-console
+console.log('Manifest-Generator: isFirefox =', isFirefox)
 
 export async function getManifest() {
   const pkg = await fs.readJSON(r('package.json')) as typeof PkgType
@@ -40,13 +46,9 @@ export async function getManifest() {
       48: './assets/icon48.png',
       128: './assets/icon128.png',
     },
-    permissions: [
-      // 'tabs',
-      'storage',
-      'activeTab',
-      'contextMenus',
-      'sidePanel',
-    ],
+    permissions: isFirefox
+      ? ['storage', 'activeTab', 'contextMenus']
+      : ['storage', 'activeTab', 'contextMenus', 'sidePanel'],
     // host_permissions: ['*://*/*'],
     content_scripts: [
       {
