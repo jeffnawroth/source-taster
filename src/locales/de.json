@@ -7,6 +7,7 @@
   "ai-extraction-description": "Wenn diese Option aktiviert ist, wird Google Gemini verwendet, um DOIs aus der Eingabe zu extrahieren. Dadurch können DOIs oft genauer erkannt werden als mit der Standardmethode.",
   "ai-extraction-description-info": "Bitte beachte, dass Google Gemini ein Drittanbieterdienst ist. Vermeide daher die Eingabe sensibler oder vertraulicher Daten, da diese an den Dienst gesendet werden. ",
   "ai-extraction-description-limit": "⚠ Hinweis: Die Anzahl der Anfragen an Google Gemini ist begrenzt. Wenn das Limit erreicht ist, wird die Standardmethode verwendet.",
+  "ai-used": "DOIs mit KI extrahiert",
   "api-key-invalid": "Ungültig",
   "api-key-texfield-message": "Geben Sie hier Ihren API-Schlüssel ein, um die KI-Extraktion zu verwenden. Falls Sie noch keinen API-Schlüssel haben, können Sie diesen",
   "api-key-valid": "Gültig",
@@ -51,6 +52,7 @@
   "min": "min",
   "no-input-provided": "Keine Eingabe bereitgestellt",
   "no-valid-dois-were-found": "Keine DOIs gefunden",
+  "note": "Hinweis",
   "open-work": "Werk öffnen",
   "pdf-file": "PDF-Datei",
   "popup": "Popup",
@@ -78,6 +80,5 @@
   "view-demo": "Eine Demonstration zur Verwendung der Erweiterung ansehen",
   "view-github": "Projekt auf GitHub ansehen",
   "visit-website": "Webseite besuchen",
-  "website": "Webseite",
-  "ai-used": "DOIs mit KI extrahiert"
+  "website": "Webseite"
 }
