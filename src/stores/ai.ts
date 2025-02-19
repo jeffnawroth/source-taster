@@ -36,11 +36,9 @@ export const useAiStore = defineStore('ai', () => {
 
   // Extract DOIs from text using the AI model
   async function extractDoisUsingAi(text: string) {
-    const prompt = `Extract all valid DOIs from the text below. Return the DOIs as a JSON array of strings without duplicates. If no DOIs are found, return an empty array: ${text}`
-    const response = await generateContent(prompt)
+    const response = await generateContent(text)
 
-    const cleanedResponse = response.text.replace(/```json|```/g, '').trim()
-    return JSON.parse(cleanedResponse)
+    return JSON.parse(response)
   }
   return { extractDoisUsingAi, isAiUsed }
 })
