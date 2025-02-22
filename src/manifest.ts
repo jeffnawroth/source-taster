@@ -73,6 +73,11 @@ export async function getManifest() {
         : 'script-src \'self\'; object-src \'self\'',
     },
     default_locale: 'en',
+    browser_specific_settings: {
+      gecko: {
+        id: 'source-taster@example.com',
+      },
+    },
   }
 
   // add sidepanel
