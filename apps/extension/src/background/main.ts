@@ -1,6 +1,6 @@
+import { isFirefox } from '@/extension/env'
 import { getDisplayOption } from '@/extension/logic/storage'
 import { onMessage, sendMessage } from 'webext-bridge/background'
-import { isFirefox } from '../env'
 
 // only on dev mode
 if (import.meta.hot) {
@@ -29,7 +29,6 @@ if (USE_SIDE_PANEL) {
     // @ts-expect-error missing types
     if (!globalThis._sidepanelListenerAdded) {
       browser.action.onClicked.addListener(() => {
-        // @ts-expect-error missing types
         browser.sidebarAction.toggle().catch((error: any) => {
           console.error('sidebarAction.toggle error:', error)
         })
@@ -108,57 +107,41 @@ self.addEventListener('unhandledrejection', (event) => {
 // Function to open Sidepanel and update state
 // @ts-expect-error missing types
 function attemptSidePanelOpen(windowId: number | null, selectedText?: string, tab?: browser.tabs.Tab) {
-  if (isFirefox) {
-    // In Firefox nutzen wir sidebarAction.open() statt sidePanel.open()
-    browser.sidebarAction.open().then(() => {
+  if (windowId && windowId !== -1) {
+    // eslint-disable-next-line no-console
+    console.log(`Performing sidepanel open with validated windowId: ${windowId}`)
+    // @ts-expect-error missing types
+
+    browser.sidePanel.open({ windowId }).then(() => {
       isSidePanelOpen = true
       updateContextMenuState()
       // eslint-disable-next-line no-console
-      console.log('Sidebar opened in Firefox')
+      console.log('Sidepanel opened with validated `windowId`...')
       if (selectedText && tab) {
         sendMessage('selectedText', { text: selectedText }, { context: 'popup', tabId: tab.id! })
       }
     }).catch((error: any) => {
-      console.error('Failed to open sidebar in Firefox:', error)
+      console.error('Failed to open sidepanel:', error)
     })
   }
-  else
-
-    if (windowId && windowId !== -1) {
-    // eslint-disable-next-line no-console
-      console.log(`Performing sidepanel open with validated windowId: ${windowId}`)
-      // @ts-expect-error missing types
-
-      browser.sidePanel.open({ windowId }).then(() => {
-        isSidePanelOpen = true
-        updateContextMenuState()
-        // eslint-disable-next-line no-console
-        console.log('Sidepanel opened with validated `windowId`...')
-        if (selectedText && tab) {
-          sendMessage('selectedText', { text: selectedText }, { context: 'popup', tabId: tab.id! })
-        }
-      }).catch((error: any) => {
-        console.error('Failed to open sidepanel:', error)
-      })
-    }
-    else {
-      console.warn('Invalid `windowId`, attempting fallback to last focused window...')
-      browser.windows.getLastFocused({ populate: true })
-        .then((lastFocusedWindow) => {
-          const windowId = lastFocusedWindow.id ?? null
-          if (windowId !== null && windowId !== -1) {
+  else {
+    console.warn('Invalid `windowId`, attempting fallback to last focused window...')
+    browser.windows.getLastFocused({ populate: true })
+      .then((lastFocusedWindow) => {
+        const windowId = lastFocusedWindow.id ?? null
+        if (windowId !== null && windowId !== -1) {
           // eslint-disable-next-line no-console
-            console.log(`Fallback windowId obtained: ${windowId}`)
-            attemptSidePanelOpen(windowId, selectedText, tab)
-          }
-          else {
-            console.error('No valid windowId available. Sidepanel cannot be opened.')
-          }
-        })
-        .catch((error) => {
-          console.error('Error getting last focused window:', error)
-        })
-    }
+          console.log(`Fallback windowId obtained: ${windowId}`)
+          attemptSidePanelOpen(windowId, selectedText, tab)
+        }
+        else {
+          console.error('No valid windowId available. Sidepanel cannot be opened.')
+        }
+      })
+      .catch((error) => {
+        console.error('Error getting last focused window:', error)
+      })
+  }
 }
 
 // Handle context menu clicks
@@ -182,7 +165,6 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
   }
   else if (info.menuItemId === 'openSidePanel' && !isSidePanelOpen) {
     if (isFirefox) {
-      // @ts-expect-error missing types
       browser.sidebarAction.toggle().then(() => {
         isSidePanelOpen = true
         updateContextMenuState()
@@ -225,7 +207,6 @@ function initializeView(displayOption: string) {
       // @ts-expect-error missing types
       if (!globalThis._sidepanelListenerAdded) {
         browser.action.onClicked.addListener(() => {
-          // @ts-expect-error missing types
           browser.sidebarAction.toggle().catch((error: any) => {
             console.error('Error toggling sidebar:', error)
           })

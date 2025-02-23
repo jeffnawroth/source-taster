@@ -1,13 +1,7 @@
 import type { Manifest } from 'webextension-polyfill'
 import type PkgType from '../package.json'
 import fs from 'fs-extra'
-import { isDev, port, r } from '../scripts/utils'
-import { isFirefox, VITE_EXTENSION } from './env'
-
-// eslint-disable-next-line no-console
-console.log('Manifest-Generator: VITE_EXTENSION =', VITE_EXTENSION)
-// eslint-disable-next-line no-console
-console.log('Manifest-Generator: isFirefox =', isFirefox)
+import { isDev, isFirefox, port, r } from '../scripts/utils'
 
 export async function getManifest() {
   const pkg = await fs.readJSON(r('package.json')) as typeof PkgType
@@ -49,7 +43,6 @@ export async function getManifest() {
     permissions: isFirefox
       ? ['storage', 'activeTab', 'contextMenus']
       : ['storage', 'activeTab', 'contextMenus', 'sidePanel'],
-    // host_permissions: ['*://*/*'],
     content_scripts: [
       {
         matches: [
@@ -67,17 +60,12 @@ export async function getManifest() {
       },
     ],
     content_security_policy: {
-      extension_pages: isDev
+      extension_pages: isDev && !isFirefox
         // this is required on dev for Vite script to load
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
         : 'script-src \'self\'; object-src \'self\'',
     },
     default_locale: 'en',
-    browser_specific_settings: {
-      gecko: {
-        id: 'source-taster@example.com',
-      },
-    },
   }
 
   // add sidepanel
