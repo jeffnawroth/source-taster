@@ -1,5 +1,6 @@
 import { getDisplayOption } from '@/extension/logic/storage'
 import { onMessage, sendMessage } from 'webext-bridge/background'
+import { isFirefox } from '../env'
 
 // only on dev mode
 if (import.meta.hot) {
@@ -17,10 +18,26 @@ let currentLocale: string
 
 // to toggle the sidepanel with the action button in chromium:
 if (USE_SIDE_PANEL) {
-  // @ts-expect-error missing types
-  browser.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error: unknown) => console.error(error))
+  if (!isFirefox) {
+    // Chromium: sidePanel API
+    // @ts-expect-error missing types
+    browser.sidePanel
+      .setPanelBehavior({ openPanelOnActionClick: true })
+      .catch((error: unknown) => console.error('sidePanel error:', error))
+  }
+  else {
+    // @ts-expect-error missing types
+    if (!globalThis._sidepanelListenerAdded) {
+      browser.action.onClicked.addListener(() => {
+        // @ts-expect-error missing types
+        browser.sidebarAction.toggle().catch((error: any) => {
+          console.error('sidebarAction.toggle error:', error)
+        })
+      })
+      // @ts-expect-error missing types
+      globalThis._sidepanelListenerAdded = true
+    }
+  }
 }
 
 browser.runtime.onInstalled.addListener((): void => {
@@ -48,7 +65,7 @@ browser.runtime.onInstalled.addListener((): void => {
 // Call this function initially after setting the locale to set the language correctly
 async function updateContextMenuState() {
   const translations = await getTranslations(currentLocale || 'en')
-  const title = translations.openSidePanel.message
+  const title = translations.openSidePanel?.message || 'Open Side Panel'
   // eslint-disable-next-line no-console
   console.log('Setting menu title for openSidePanel:', title)
   browser.contextMenus.update('openSidePanel', {
@@ -91,41 +108,57 @@ self.addEventListener('unhandledrejection', (event) => {
 // Function to open Sidepanel and update state
 // @ts-expect-error missing types
 function attemptSidePanelOpen(windowId: number | null, selectedText?: string, tab?: browser.tabs.Tab) {
-  if (windowId && windowId !== -1) {
-    // eslint-disable-next-line no-console
-    console.log(`Performing sidepanel open with validated windowId: ${windowId}`)
-    // @ts-expect-error missing types
-
-    browser.sidePanel.open({ windowId }).then(() => {
+  if (isFirefox) {
+    // In Firefox nutzen wir sidebarAction.open() statt sidePanel.open()
+    browser.sidebarAction.open().then(() => {
       isSidePanelOpen = true
       updateContextMenuState()
       // eslint-disable-next-line no-console
-      console.log('Sidepanel opened with validated `windowId`...')
+      console.log('Sidebar opened in Firefox')
       if (selectedText && tab) {
         sendMessage('selectedText', { text: selectedText }, { context: 'popup', tabId: tab.id! })
       }
     }).catch((error: any) => {
-      console.error('Failed to open sidepanel:', error)
+      console.error('Failed to open sidebar in Firefox:', error)
     })
   }
-  else {
-    console.warn('Invalid `windowId`, attempting fallback to last focused window...')
-    browser.windows.getLastFocused({ populate: true })
-      .then((lastFocusedWindow) => {
-        const windowId = lastFocusedWindow.id ?? null
-        if (windowId !== null && windowId !== -1) {
+  else
+
+    if (windowId && windowId !== -1) {
+    // eslint-disable-next-line no-console
+      console.log(`Performing sidepanel open with validated windowId: ${windowId}`)
+      // @ts-expect-error missing types
+
+      browser.sidePanel.open({ windowId }).then(() => {
+        isSidePanelOpen = true
+        updateContextMenuState()
+        // eslint-disable-next-line no-console
+        console.log('Sidepanel opened with validated `windowId`...')
+        if (selectedText && tab) {
+          sendMessage('selectedText', { text: selectedText }, { context: 'popup', tabId: tab.id! })
+        }
+      }).catch((error: any) => {
+        console.error('Failed to open sidepanel:', error)
+      })
+    }
+    else {
+      console.warn('Invalid `windowId`, attempting fallback to last focused window...')
+      browser.windows.getLastFocused({ populate: true })
+        .then((lastFocusedWindow) => {
+          const windowId = lastFocusedWindow.id ?? null
+          if (windowId !== null && windowId !== -1) {
           // eslint-disable-next-line no-console
-          console.log(`Fallback windowId obtained: ${windowId}`)
-          attemptSidePanelOpen(windowId, selectedText, tab)
-        }
-        else {
-          console.error('No valid windowId available. Sidepanel cannot be opened.')
-        }
-      })
-      .catch((error) => {
-        console.error('Error getting last focused window:', error)
-      })
-  }
+            console.log(`Fallback windowId obtained: ${windowId}`)
+            attemptSidePanelOpen(windowId, selectedText, tab)
+          }
+          else {
+            console.error('No valid windowId available. Sidepanel cannot be opened.')
+          }
+        })
+        .catch((error) => {
+          console.error('Error getting last focused window:', error)
+        })
+    }
 }
 
 // Handle context menu clicks
@@ -148,8 +181,19 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
     }
   }
   else if (info.menuItemId === 'openSidePanel' && !isSidePanelOpen) {
-    // @ts-expect-error missing types
-    attemptSidePanelOpen(tab?.windowId)
+    if (isFirefox) {
+      // @ts-expect-error missing types
+      browser.sidebarAction.toggle().then(() => {
+        isSidePanelOpen = true
+        updateContextMenuState()
+      }).catch((error: any) => {
+        console.error('Failed to toggle sidebar:', error)
+      })
+    }
+    else {
+      // @ts-expect-error missing types
+      attemptSidePanelOpen(tab?.windowId)
+    }
   }
 })
 
@@ -176,13 +220,31 @@ function initializeView(displayOption: string) {
     // eslint-disable-next-line no-console
     console.log('Side panel option selected')
     browser.action.setPopup({ popup: '' })
-    // @ts-expect-error missing types
-    if (browser.sidePanel) {
+    if (isFirefox) {
+      // Listener to toggle the view in firefox
       // @ts-expect-error missing types
-      browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: any) => {
-        console.error('Error setting side panel behavior:', error)
-      })
+      if (!globalThis._sidepanelListenerAdded) {
+        browser.action.onClicked.addListener(() => {
+          // @ts-expect-error missing types
+          browser.sidebarAction.toggle().catch((error: any) => {
+            console.error('Error toggling sidebar:', error)
+          })
+        })
+        // @ts-expect-error missing types
+        globalThis._sidepanelListenerAdded = true
+      }
     }
+    else
+    // @ts-expect-error missing types
+      if (browser.sidePanel) {
+      // @ts-expect-error missing types
+        browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: any) => {
+          console.error('Error setting side panel behavior:', error)
+        })
+      }
+      else {
+        console.warn('sidePanel API not available in this browser.')
+      }
   }
 }
 
@@ -258,10 +320,14 @@ function updateContexMenu(id: string, title: string) {
 async function getTranslations(locale: string) {
   try {
     const response = await fetch(`/_locales/${locale}/messages.json`)
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`)
+    }
     return await response.json()
   }
   catch (error) {
     console.error('Failed to fetch translations:', error)
+    return {}
   }
 }
 
