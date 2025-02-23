@@ -65,6 +65,11 @@ export async function getManifest() {
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
         : 'script-src \'self\'; object-src \'self\'',
     },
+    browser_specific_settings: {
+      gecko: {
+        id: 'contact@sourcetaster.com',
+      },
+    },
     default_locale: 'en',
   }
 
