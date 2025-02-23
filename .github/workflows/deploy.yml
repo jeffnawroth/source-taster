@@ -31,4 +31,4 @@ jobs:
             source ~/.nvm/nvm.sh
 
             pnpm install
-            pnpm docs:build
+            pnpm build

@@ -1,17 +1,3 @@
-import antfu from '@antfu/eslint-config'
+import config from './packages/eslint-config/eslint.config.js'
 
-export default antfu({
-  vue: {
-    overrides: {
-      'vue/max-attributes-per-line': 'error',
-      'vue/v-bind-style': ['error', 'shorthand', {
-        sameNameShorthand: 'always',
-      }],
-    },
-  },
-  ignores: [
-    'dist',
-    'node_modules',
-    'public',
-  ],
-})
+export default config
