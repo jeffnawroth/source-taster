@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "jsx": "preserve",
+    "lib": ["DOM", "ESNext"],
+    "baseUrl": ".",
+    "paths": {
+      "@/extension/*": ["./src/*"]
+    },
+    "resolveJsonModule": true,
+    "types": [
+      "vite/client",
+      "unplugin-vue-router/client"
+    ],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": ["dist", "node_modules"]
+
+}

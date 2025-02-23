@@ -1,0 +1,21 @@
+{
+  "name": "@source-taster/docs",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  },
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@source-taster/eslint-config": "workspace:^",
+    "eslint": "^9.20.1",
+    "vitepress": "^1.6.3"
+  }
+}
