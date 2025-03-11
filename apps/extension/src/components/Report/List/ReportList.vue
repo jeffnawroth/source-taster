@@ -7,12 +7,14 @@ const { works } = storeToRefs(useWorkStore())
 
 <template>
   <v-list
-    v-if="works.length > 0"
+    v-if="works.length"
   >
-    <ReportListItem
-      v-for="(work) in works"
-      :key="work.content?.message.DOI"
-      :work
-    />
+    <v-slide-y-transition group>
+      <ReportListItem
+        v-for="(work) in works"
+        :key="work.content?.message.DOI"
+        :work
+      />
+    </v-slide-y-transition>
   </v-list>
 </template>
