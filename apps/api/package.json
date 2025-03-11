@@ -10,14 +10,14 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
-    "hono": "^4.7.2"
+    "hono": "^4.7.4"
   },
   "devDependencies": {
     "@google/generative-ai": "^0.21.0",
     "@source-taster/eslint-config": "workspace:^",
-    "@types/node": "^20.17.19",
-    "eslint": "^9.21.0",
+    "@types/node": "^20.17.24",
+    "eslint": "^9.22.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.2"
   }
 }
