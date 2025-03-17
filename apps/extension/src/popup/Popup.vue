@@ -1,7 +1,7 @@
 <template>
-  <v-app>
+  <v-app style="height: 100vh; overflow: hidden;">
     <AppBar />
-    <v-main>
+    <v-main :scrollable="false">
       <v-container>
         <AppCard />
       </v-container>
