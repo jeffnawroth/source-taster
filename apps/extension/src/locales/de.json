@@ -34,6 +34,8 @@
   "download-report-pdf": "Bericht als PDF herunterladen",
   "english": "Englisch",
   "enter-dois": "Bitte geben Sie DOIs ein, einen Text mit DOIs oder importieren Sie eine PDF-Datei mit DOIs, um diese zu validieren",
+  "extracting-dois": "Extrahiere DOIs",
+  "extracting-dois-description": "Extrahiere DOIs aus dem Text. Bitte warten...",
   "found": "Gefunden",
   "general": "Allgemein",
   "general-description": "Verwalte grundlegende Einstellungen für die Funktionalität der Extension.",

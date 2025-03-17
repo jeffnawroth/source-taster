@@ -34,6 +34,8 @@
   "download-report-pdf": "Download report as PDF",
   "english": "English",
   "enter-dois": "Please enter DOIs, a text containing DOIs, or import a PDF containing DOIs to validate them",
+  "extracting-dois": "Extracting DOIs",
+  "extracting-dois-description": "Extracting DOIs from the Text. Please wait...",
   "found": "Found",
   "general": "General",
   "general-description": "Manage basic settings for the extension's functionality.",
