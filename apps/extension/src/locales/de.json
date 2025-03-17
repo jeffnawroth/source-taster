@@ -63,6 +63,7 @@
   "requests-per-minute": "Anfragen pro Minute",
   "requests-per-minute-description": "Dies ist das Limit der KI-Anfragen pro Minute",
   "resets-in": "Wird zurückgesetzt in ca.",
+  "search-on-web": "Im Web suchen",
   "sec": "s",
   "side-panel": "Seitenleiste",
   "source-code": "Quellcode",

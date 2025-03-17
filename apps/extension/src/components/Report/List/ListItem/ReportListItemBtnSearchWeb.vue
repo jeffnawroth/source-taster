@@ -14,7 +14,7 @@ function openInWeb() {
 </script>
 
 <template>
-  <v-tooltip v-if="!work.ok" text="Search in Web">
+  <v-tooltip v-if="!work.ok" :text="$t('search-on-web')">
     <template #activator="{ props }">
       <v-btn
         v-bind="props"

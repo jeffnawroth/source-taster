@@ -63,6 +63,7 @@
   "requests-per-minute": "Requests per minute",
   "requests-per-minute-description": "This is the limit of AI requests per minute",
   "resets-in": "Resets in approximately",
+  "search-on-web": "Search on the Web",
   "sec": "sec",
   "side-panel": "Side Panel",
   "source-code": "Source Code",
