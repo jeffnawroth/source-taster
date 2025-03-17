@@ -30,6 +30,8 @@ const color = computed(() => {
     <template #append>
       <ReportListItemCopyBtn :work />
 
+      <ReportListItemBtnSearchWeb :work />
+
       <ReportListItemOpenBtn :work />
     </template>
   </v-list-item>
