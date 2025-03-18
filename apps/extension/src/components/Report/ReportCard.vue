@@ -28,9 +28,9 @@ const { t } = useI18n()
       class="pa-0"
     >
       <ReportLoadingBar />
-
-      <ReportList />
-
+      <div style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column;">
+        <ReportList />
+      </div>
       <ReportState />
     </v-card-text>
   </v-card>

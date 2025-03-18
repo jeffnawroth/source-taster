@@ -46,7 +46,7 @@ async function handleTextChange(newVal: string) {
     :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"
-    max-rows="8"
+    max-rows="4"
     rows="2"
     variant="solo-filled"
     clearable
