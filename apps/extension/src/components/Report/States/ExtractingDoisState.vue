@@ -8,12 +8,10 @@ const { extractedDois } = storeToRefs(useDoiStore())
 </script>
 
 <template>
-  <v-fade-transition>
-    <v-empty-state
-      v-if="isLoading && extractedDois.length === 0"
-      :icon="mdiContentCut"
-      :title="$t('extracting-dois')"
-      :text="$t('extracting-dois-description')"
-    />
-  </v-fade-transition>
+  <v-empty-state
+    v-show="isLoading && extractedDois.length === 0"
+    :icon="mdiContentCut"
+    :title="$t('extracting-dois')"
+    :text="$t('extracting-dois-description')"
+  />
 </template>

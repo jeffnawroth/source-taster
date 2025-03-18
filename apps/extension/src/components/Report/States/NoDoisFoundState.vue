@@ -23,7 +23,7 @@ const { isLoading } = storeToRefs(useAppStore())
 
 <template>
   <v-empty-state
-    v-if="extractedDois.length === 0 && (!!text.length || file) && !isLoading"
+    v-show="extractedDois.length === 0 && (!!text.length || file) && !isLoading"
     :icon=" mdiAlertCircleOutline"
     :title="t('no-valid-dois-were-found')"
     :text="t('check-dois')"
