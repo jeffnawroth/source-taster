@@ -29,7 +29,6 @@ if (USE_SIDE_PANEL) {
     // @ts-expect-error missing types
     if (!globalThis._sidepanelListenerAdded) {
       browser.action.onClicked.addListener(() => {
-        // @ts-expect-error missing types
         browser.sidebarAction.toggle().catch((error: any) => {
           console.error('sidebarAction.toggle error:', error)
         })
@@ -182,7 +181,6 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
   }
   else if (info.menuItemId === 'openSidePanel' && !isSidePanelOpen) {
     if (isFirefox) {
-      // @ts-expect-error missing types
       browser.sidebarAction.toggle().then(() => {
         isSidePanelOpen = true
         updateContextMenuState()
@@ -225,7 +223,6 @@ function initializeView(displayOption: string) {
       // @ts-expect-error missing types
       if (!globalThis._sidepanelListenerAdded) {
         browser.action.onClicked.addListener(() => {
-          // @ts-expect-error missing types
           browser.sidebarAction.toggle().catch((error: any) => {
             console.error('Error toggling sidebar:', error)
           })
@@ -334,12 +331,10 @@ async function getTranslations(locale: string) {
 // Listen for messages from the sidepanel about visibility changes
 // @ts-expect-error missing types
 browser.runtime.onMessage.addListener((message) => {
-  // @ts-expect-error missing types
   if (message.type === 'SIDE_PANEL_CLOSED') {
     isSidePanelOpen = false
     updateContextMenuState()
   }
-  // @ts-expect-error missing types
   else if (message.type === 'SIDE_PANEL_OPENED') {
     isSidePanelOpen = true
     updateContextMenuState()

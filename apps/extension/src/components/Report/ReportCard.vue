@@ -28,7 +28,7 @@ const { t } = useI18n()
       class="pa-0"
     >
       <ReportLoadingBar />
-      <div style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column;">
+      <div style="max-height: calc(100vh - 470px); overflow-y: auto; display: flex; flex-direction: column;">
         <ReportList />
       </div>
       <ReportState />
