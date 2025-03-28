@@ -83,5 +83,11 @@
   "view-demo": "View a demonstration of how to use the extension",
   "view-github": "View Project on GitHub",
   "visit-website": "Visit Website",
-  "website": "Website"
+  "website": "Website",
+  "ai-model": "AI Model",
+  "ai-model-description": "Select the AI model to be used for the extraction.",
+  "gemini-2.5-pro-description": "Best results, but slow and few requests per minute possible",
+  "gemini-2.0-flash-description": "Faster results, but less accurate and more requests per minute possible",
+  "gemini-2.0-flash-lite-description": "Fastest results, but least accurate and most requests per minute possible",
+  "recommended": "Recommended"
 }

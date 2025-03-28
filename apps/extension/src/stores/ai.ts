@@ -1,4 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { selectedAiModel } from '../logic'
 import { useAppStore } from './app'
 
 export const useAiStore = defineStore('ai', () => {
@@ -16,9 +17,12 @@ export const useAiStore = defineStore('ai', () => {
       const response = await fetch(`${baseUrl}` + '/generate', {
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain',
+          'Content-Type': 'application/json',
         },
-        body: prompt,
+        body: JSON.stringify({
+          model: selectedAiModel.value,
+          prompt,
+        }),
       })
 
       if (!response.ok) {

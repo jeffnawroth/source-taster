@@ -83,5 +83,11 @@
   "view-demo": "Eine Demonstration zur Verwendung der Erweiterung ansehen",
   "view-github": "Projekt auf GitHub ansehen",
   "visit-website": "Webseite besuchen",
-  "website": "Webseite"
+  "website": "Webseite",
+  "ai-model": "KI-Modell",
+  "ai-model-description": "Wählen Sie das KI-Modell, das für die Extraktion verwendet werden soll",
+  "gemini-2.5-pro-description": "Beste Ergebnisse, aber langsam und wenige Anfragen pro Minute möglich",
+  "gemini-2.0-flash-description": "Schnellere Ergebnisse, aber weniger genau und mehr Anfragen pro Minute möglich",
+  "gemini-2.0-flash-lite-description": "Schnellste Ergebnisse, aber am wenigsten genau und die meisten Anfragen pro Minute möglich",
+  "recommended": "Empfohlen"
 }
