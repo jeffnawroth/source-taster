@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useAppStore } from '@/extension/stores/app'
 import { useDoiStore } from '@/extension/stores/doi'
 import { useWorkStore } from '@/extension/stores/work'
 import { mdiDownload } from '@mdi/js'
 import { generatePDFReport } from '../../../utils/pdfUtils'
 
-// Work Store
+// Loading
+const { isLoading } = storeToRefs(useAppStore())
 
 // DOI Store
 const { extractedDois } = storeToRefs(useDoiStore())
@@ -36,11 +38,12 @@ async function downloadPDF() {
 </script>
 
 <template>
-  <v-tooltip v-if="works.length > 0">
+  <v-tooltip v-if="works.length > 0 && !isLoading">
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
         :icon="mdiDownload"
+        density="compact"
         variant="plain"
         @click="downloadPDF"
       />
