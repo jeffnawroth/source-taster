@@ -57,7 +57,7 @@ const { results } = useFuse(search, works, {
       />
 
       <div
-        style="max-height: calc(100vh - 470px); overflow-y: auto; display: flex; flex-direction: column;"
+        style="max-height: calc(100vh - 520px); overflow-y: auto;"
       >
         <!-- LIST -->
         <ReportList :results />
@@ -68,3 +68,10 @@ const { results } = useFuse(search, works, {
     </v-card-text>
   </v-card>
 </template>
+
+<style scoped>
+* {
+  scrollbar-color: #404040b3 transparent; /*firefox*/
+  /* scrollbar-width: thin; */
+}
+</style>

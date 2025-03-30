@@ -11,7 +11,10 @@ const { works } = storeToRefs(useWorkStore())
 </script>
 
 <template>
-  <v-list v-if="results.length > 0">
+  <v-list
+    v-if="results.length > 0"
+    class="pa-0"
+  >
     <v-slide-y-transition group>
       <ReportListItem
         v-for="(result) in results"
