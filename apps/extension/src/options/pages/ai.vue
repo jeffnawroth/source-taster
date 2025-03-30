@@ -56,10 +56,17 @@ const aiModels = ref([
           {{ t('ai-model-description') }}
         </p>
 
-        <p v-for="(model, index) in aiModels" :key="model.value" class="text-medium-emphasis mt-1">
+        <p
+          v-for="(model, index) in aiModels"
+          :key="model.value"
+          class="text-medium-emphasis mt-1"
+        >
           <span class="font-weight-bold">{{ model.title }}</span>
           <span class="text-medium-emphasis"> - {{ model.description }}</span>
-          <span v-if="index === 0" class="font-weight-bold">{{ ` (${t('recommended')})` }} </span>
+          <span
+            v-if="index === 0"
+            class="font-weight-bold"
+          >{{ ` (${t('recommended')})` }} </span>
         </p>
       </template>
       <v-select
