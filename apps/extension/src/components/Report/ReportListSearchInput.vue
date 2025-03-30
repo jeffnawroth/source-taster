@@ -10,5 +10,6 @@ const search = defineModel({ default: '' })
     variant="solo-filled"
     :placeholder="`${$t('search')}...`"
     flat
+    clearable
   />
 </template>

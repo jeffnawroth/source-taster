@@ -53,6 +53,7 @@ const { results } = useFuse(search, works, {
       <!-- SEARCH -->
       <ReportListSearchInput
         v-model="search"
+        class="my-2"
       />
 
       <div
