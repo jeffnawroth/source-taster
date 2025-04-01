@@ -17,5 +17,8 @@
     "@source-taster/eslint-config": "workspace:^",
     "eslint": "^9.23.0",
     "vitepress": "^1.6.3"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

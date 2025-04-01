@@ -14,5 +14,8 @@
     "@antfu/eslint-config": "^3.16.0",
     "eslint": "^9.23.0",
     "eslint-plugin-format": "^1.0.1"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }
