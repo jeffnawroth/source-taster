@@ -7,9 +7,14 @@
     "build": "pnpm run -r build",
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
-    "deploy": "pnpm build && pnpm run -r deploy"
+    "deploy": "pnpm build && pnpm run -r deploy",
+    "preinstall": "simple-git-hooks"
   },
   "devDependencies": {
-    "eslint": "^9.23.0"
+    "eslint": "^9.23.0",
+    "simple-git-hooks": "^2.12.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint"
   }
 }
