@@ -57,7 +57,7 @@ const { results } = useFuse(search, works, {
       />
 
       <div
-        style="max-height: calc(100vh - 520px); overflow-y: auto;"
+        style="max-height: calc(100vh - 528px); overflow-y: auto;"
       >
         <!-- LIST -->
         <ReportList :results />
