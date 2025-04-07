@@ -7,6 +7,7 @@ const { isLoading } = storeToRefs(useAppStore())
 
 <template>
   <v-row
+    v-show="isLoading"
     dense
     no-gutters
   >
