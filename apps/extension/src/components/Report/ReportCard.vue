@@ -47,14 +47,14 @@ const { results } = useFuse(search, works, {
     <v-card-text
       class="pa-0"
     >
-      <!-- LOADING BAR -->
-      <ReportLoadingBar />
-
       <!-- SEARCH -->
       <ReportListSearchInput
         v-model="search"
-        class="my-2"
+        class="mb-2"
       />
+
+      <!-- LOADING BAR -->
+      <ReportLoadingBar class="mb-2" />
 
       <div
         style="max-height: calc(100vh - 528px); overflow-y: auto;"
