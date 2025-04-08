@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AIModel } from '@/extension/types'
 import { selectedAiModel, useAiExtraction } from '@/extension/logic'
 import { mdiRobotHappyOutline, mdiStarFourPointsOutline } from '@mdi/js'
 import OptionListItem from '../components/OptionListItem.vue'
@@ -6,10 +7,12 @@ import OptionListItem from '../components/OptionListItem.vue'
 // i18n
 const { t } = useI18n()
 
-const aiModels = ref([
-  { title: 'Gemini 2.5 Pro', value: 'gemini-2.5-pro-exp-03-25', description: t('gemini-2.5-pro-description') },
-  { title: 'Gemini 2.0 Flash', value: 'gemini-2.0-flash', description: t('gemini-2.0-flash-description') },
-  { title: 'Gemini 2.0 Flash-Lite', value: 'gemini-2.0-flash-lite', description: t('gemini-2.0-flash-lite-description') },
+const aiModels = ref<Array<AIModel>>([
+  { title: 'Gemini 2.5 Pro', value: 'gemini-2.5-pro-exp-03-25', description: t('gemini-2.5-pro-description'), service: 'gemini' },
+  { title: 'Gemini 2.0 Flash', value: 'gemini-2.0-flash', description: t('gemini-2.0-flash-description'), service: 'gemini' },
+  { title: 'Gemini 2.0 Flash-Lite', value: 'gemini-2.0-flash-lite', description: t('gemini-2.0-flash-lite-description'), service: 'gemini' },
+  { title: 'GPT-4o', value: 'gpt-4o', description: t('gpt-4o-description'), service: 'openai' },
+  { title: 'o3-mini', value: 'o3-mini', description: t('o3-mini-description'), service: 'openai' },
 ])
 </script>
 
@@ -77,6 +80,7 @@ const aiModels = ref([
         density="compact"
         hide-details
         variant="solo-filled"
+        return-object
       />
     </OptionListItem>
   </v-container>

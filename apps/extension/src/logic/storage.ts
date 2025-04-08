@@ -1,10 +1,11 @@
+import type { AIModel } from '../types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
 export const useAutoImport = useWebExtensionStorage('auto-import-option', false)
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
 export const useAiExtraction = useWebExtensionStorage('ai-extraction-option', false)
-export const selectedAiModel = useWebExtensionStorage('selected-ai-model', 'gemini-2.5-pro-exp-03-25')
+export const selectedAiModel = useWebExtensionStorage('selected-ai-model', { value: 'gemini-2.5-pro-exp-03-25', service: 'gemini' } as AIModel)
 
 declare let chrome: any
 
