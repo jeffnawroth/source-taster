@@ -17,6 +17,7 @@
     "@source-taster/eslint-config": "workspace:^",
     "@types/node": "^20.17.30",
     "eslint": "^9.24.0",
+    "openai": "^4.92.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   },
