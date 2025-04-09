@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app style="min-width: 430px;">
     <AppBar />
     <v-main>
       <v-container>
