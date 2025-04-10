@@ -13,5 +13,7 @@ export default function extractIssns(text: string) {
   // \b      - word boundary to finish the match cleanly
   const regex = /\b\d{4}-\d{3}[\dX]\b/g
   const matches = text.match(regex)
-  return matches || []
+
+  // Return unique ISSNs
+  return [...new Set(matches)]
 }
