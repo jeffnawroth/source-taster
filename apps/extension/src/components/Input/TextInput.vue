@@ -36,9 +36,12 @@ onMessage('autoImportText', async ({ data }) => {
 
 // HANDLE TEXT CHANGE
 const { processIssns } = useIssnStore()
+
 async function handleTextChange(newVal: string) {
-  await processDois(newVal)
-  await processIssns(newVal)
+  Promise.all([
+    processDois(newVal),
+    processIssns(newVal),
+  ])
 }
 </script>
 

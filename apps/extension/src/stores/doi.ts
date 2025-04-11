@@ -78,7 +78,8 @@ export const useDoiStore = defineStore('doi', () => {
 
   async function extractAiDois(text: string) {
     try {
-      return await extractUsingAi(text)
+      const dois = await extractUsingAi(text, 'doi')
+      return dois
     }
     catch (error) {
       console.error('Error extracting DOIs with AI, Fallback to Regex', error)

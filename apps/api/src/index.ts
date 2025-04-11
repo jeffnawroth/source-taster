@@ -5,7 +5,7 @@ import extractRoute from './routes/extract'
 
 const app = new Hono()
 
-app.route('/extract-doi', extractRoute)
+app.route('/extract-identifier', extractRoute)
 
 const port = Number(process.env.PORT || '') || 8000
 // eslint-disable-next-line no-console
