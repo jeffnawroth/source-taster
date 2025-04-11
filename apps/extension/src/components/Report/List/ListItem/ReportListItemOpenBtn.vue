@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
+import type { IdentifierResult } from '@/extension/types'
 import { mdiOpenInNew } from '@mdi/js'
 
 // Props
-const { work } = defineProps<{
-  work: HttpResponse<Item<Work>>
+const { identifier } = defineProps<{
+  identifier: IdentifierResult
 }>()
 
 // I18n
@@ -12,24 +12,24 @@ const { t } = useI18n()
 
 // Function
 
-// Opens the work in a new tab
-function openWork(work: HttpResponse<Item<Work>>) {
-  if (work.ok && work.content?.message.URL) {
-    const url = work.content.message.URL
-    window.open(url, '_blank')
+// Open in a new tab
+function open() {
+  try {
+    if (identifier.type === 'DOI') {
+      window.open(`https://doi.org/${identifier.value}`, '_blank')
+    }
+    else {
+      window.open(`https://portal.issn.org/resource/ISSN/${identifier.value}`, '_blank')
+    }
   }
-  else if (work.ok) {
-    const url = work.url
-    window.open(url, '_blank')
-  }
-  else {
-    console.error('Invalid URL or DOI not found:', work)
+  catch (error) {
+    console.error('Error opening:', error)
   }
 }
 </script>
 
 <template>
-  <v-tooltip v-if="work.ok">
+  <v-tooltip v-if="identifier.registered">
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
@@ -37,7 +37,7 @@ function openWork(work: HttpResponse<Item<Work>>) {
         :icon="mdiOpenInNew"
         variant="plain"
         size="large"
-        @click="() => openWork(work)"
+        @click="open"
       />
     </template>
     {{ t('open-work') }}

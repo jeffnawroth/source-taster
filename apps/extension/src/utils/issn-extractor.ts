@@ -3,7 +3,7 @@
  * @param {string} text - The text from which to extract ISSNs.
  * @returns {string[]} An array of ISSN strings found in the text.
  */
-export default function extractIssns(text: string) {
+export default function extractIssns(text: string): string[] {
   // Regular expression to match the ISSN pattern:
   // \b      - word boundary ensures that we don't match extra characters
   // \d{4}   - exactly four digits
@@ -15,5 +15,5 @@ export default function extractIssns(text: string) {
   const matches = text.match(regex)
 
   // Return unique ISSNs
-  return [...new Set(matches)]
+  return matches || []
 }

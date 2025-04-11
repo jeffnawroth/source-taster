@@ -4,12 +4,12 @@ import { useDoiStore } from '@/extension/stores/doi'
 import { mdiContentCut } from '@mdi/js'
 
 const { isLoading } = storeToRefs(useAppStore())
-const { extractedDois } = storeToRefs(useDoiStore())
+const { dois } = storeToRefs(useDoiStore())
 </script>
 
 <template>
   <v-empty-state
-    v-show="isLoading && extractedDois.length === 0"
+    v-show="isLoading && dois.length === 0"
     :icon="mdiContentCut"
     :title="$t('extracting-dois')"
     :text="$t('extracting-dois-description')"

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { mdiCheck, mdiContentCopy } from '@mdi/js'
 import { useClipboard } from '@vueuse/core'
 
 // Props
-defineProps<{
-  work: HttpResponse<Item<Work>>
+const { value } = defineProps<{
+  value: string
 }>()
 
 // I18n
@@ -24,7 +23,7 @@ const { copy, copied } = useClipboard()
         :icon="copied ? mdiCheck : mdiContentCopy"
         variant="plain"
         size="large"
-        @click="work.content?.message.DOI ? copy(work.content?.message.DOI) : ''"
+        @click="copy(value)"
       />
     </template>
     {{ copied ? `${t('doi-copied')}!` : t('copy-doi') }}

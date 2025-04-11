@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { useWorkStore } from '@/extension/stores/work'
+import { useDoiStore } from '@/extension/stores/doi'
+import { useIssnStore } from '@/extension/stores/issn'
 import { mdiFileDocumentOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 
 // SEARCH
-const { works } = storeToRefs(useWorkStore())
+const { dois } = storeToRefs(useDoiStore())
+const { issns } = storeToRefs(useIssnStore())
 
 const search = ref('')
 
-const { results } = useFuse(search, works, {
+const data = computed(() => {
+  return [...dois.value, ...issns.value]
+})
+
+const { results } = useFuse(search, data, {
   fuseOptions: {
-    keys: ['content.message.DOI'],
+    keys: ['value'],
     threshold: 0.3,
 
   },

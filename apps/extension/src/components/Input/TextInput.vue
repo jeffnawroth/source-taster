@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAutoImport } from '@/extension/logic'
 import { useDoiStore } from '@/extension/stores/doi'
+import { useIssnStore } from '@/extension/stores/issn'
 import { useTextStore } from '@/extension/stores/text'
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
@@ -10,8 +11,8 @@ const { t } = useI18n()
 
 // Doi Store
 const doiStore = useDoiStore()
-const { extractedDois } = storeToRefs(doiStore)
-const { handleDoisExtraction } = doiStore
+const { dois } = storeToRefs(doiStore)
+const { processDois } = doiStore
 
 // TEXTAREA PLACEHOLDER
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
@@ -30,12 +31,14 @@ onMessage('autoImportText', async ({ data }) => {
     return
 
   await handleTextChange(data.text)
-  text.value = extractedDois.value.length > 0 ? extractedDois.value.join('\n') : ''
+  text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
 
 // HANDLE TEXT CHANGE
+const { processIssns } = useIssnStore()
 async function handleTextChange(newVal: string) {
-  await handleDoisExtraction(newVal)
+  await processDois(newVal)
+  await processIssns(newVal)
 }
 </script>
 

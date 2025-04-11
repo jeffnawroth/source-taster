@@ -9,7 +9,7 @@ import { mdiAlertCircleOutline } from '@mdi/js'
 const { t } = useI18n()
 
 // Doi Store
-const { extractedDois } = storeToRefs(useDoiStore())
+const { dois } = storeToRefs(useDoiStore())
 
 // file
 const { file } = storeToRefs(useFileStore())
@@ -23,7 +23,7 @@ const { isLoading } = storeToRefs(useAppStore())
 
 <template>
   <v-empty-state
-    v-show="extractedDois.length === 0 && (!!text.length || file) && !isLoading"
+    v-show="dois.length === 0 && (!!text.length || file) && !isLoading"
     :icon=" mdiAlertCircleOutline"
     :title="t('no-valid-dois-were-found')"
     :text="t('check-dois')"

@@ -1,5 +1,5 @@
 // src/utils/doiExtractor.ts
-export function extractDoisUsingRegex(text: string): string[] {
+export function extractDois(text: string): string[] {
   const extractedDOIs: string[] = []
 
   const doiPatterns = [
@@ -31,6 +31,5 @@ export function extractDoisUsingRegex(text: string): string[] {
     }
   })
 
-  // Remove duplicates
-  return [...new Set(extractedDOIs)]
+  return extractedDOIs || []
 }

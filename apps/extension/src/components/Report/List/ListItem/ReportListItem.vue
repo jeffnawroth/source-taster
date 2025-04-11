@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
+import type { IdentifierResult } from '@/extension/types'
 import ReportListItemOpenBtn from './ReportListItemOpenBtn.vue'
 
 // Props
-const { work } = defineProps<{
-  work: HttpResponse<Item<Work>>
+const { identifier } = defineProps<{
+  identifier: IdentifierResult
 }>()
 
 const color = computed(() => {
-  return work.ok ? 'success' : 'error'
+  return identifier.registered ? 'success' : 'error'
 })
 
 // Functions
@@ -20,19 +20,18 @@ const color = computed(() => {
     :color
     active
     class="my-1"
+    :title="identifier.value"
   >
     <template #prepend>
-      <ReportListItemStatusIcon :work />
+      <ReportListItemStatusIcon :registered="identifier.registered" />
     </template>
 
-    <ReportListItemText :work />
-
     <template #append>
-      <ReportListItemCopyBtn :work />
+      <ReportListItemCopyBtn :value="identifier.value" />
 
-      <ReportListItemBtnSearchWeb :work />
+      <ReportListItemBtnSearchWeb :identifier />
 
-      <ReportListItemOpenBtn :work />
+      <ReportListItemOpenBtn :identifier />
     </template>
   </v-list-item>
 </template>

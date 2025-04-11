@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import type { IdentifierResult } from '@/extension/types'
 import type { FuseResult } from 'fuse.js'
-import type { HttpResponse, Item, Work } from 'node_modules/@jamesgopsill/crossref-client/dist/esm/definitions/interfaces'
-import { useWorkStore } from '@/extension/stores/work'
 
-defineProps<{
-  results: FuseResult<HttpResponse<Item<Work>>>[]
+const { results } = defineProps<{
+  results: FuseResult<IdentifierResult>[]
 }>()
 
-const { works } = storeToRefs(useWorkStore())
+const dois = computed(() => results.filter(result => result.item.type === 'DOI'))
+const issns = computed(() => results.filter(result => result.item.type === 'ISSN'))
 </script>
 
 <template>
@@ -15,13 +15,30 @@ const { works } = storeToRefs(useWorkStore())
     v-if="results.length > 0"
     class="pa-0"
   >
+    <v-list-subheader
+      v-if="dois.length"
+      title="DOIs"
+    />
+
     <v-slide-y-transition group>
       <ReportListItem
-        v-for="(result) in results"
-        :key="result.item.content?.message.DOI"
-        :work="result.item"
+        v-for="(doi) in dois"
+        :key="doi.item.value"
+        :identifier="doi.item"
+      />
+    </v-slide-y-transition>
+    <v-list-subheader
+      v-if="issns.length"
+      title="ISSNs"
+    />
+
+    <v-slide-y-transition group>
+      <ReportListItem
+        v-for="(issn) in issns"
+        :key="issn.item.value"
+        :identifier="issn.item"
       />
     </v-slide-y-transition>
   </v-list>
-  <NoResultsFoundState v-else-if="works.length > 0" />
+  <!-- <NoResultsFoundState v-else-if="works.length > 0" /> -->
 </template>

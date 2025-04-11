@@ -6,7 +6,7 @@ import { useWorkStore } from '@/extension/stores/work'
 const { valid, invalid } = storeToRefs(useWorkStore())
 
 // FOUND DOIs
-const { extractedDois } = storeToRefs(useDoiStore())
+const { dois } = storeToRefs(useDoiStore())
 
 // I18n
 const { t } = useI18n()
@@ -16,7 +16,7 @@ const { t } = useI18n()
   <div>
     <div class="text-wrap">
       <span class="mx-1">
-        {{ `${t('found')}: ${extractedDois.length}` }}
+        {{ `${t('found')}: ${dois.length}` }}
       </span>
       <span
         class=" mx-1"

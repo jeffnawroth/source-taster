@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline } from '@mdi/js'
 
 // Props
-const { work } = defineProps<{
-  work: HttpResponse<Item<Work>>
+const { registered } = defineProps<{
+  registered: boolean
 }>()
 
 const { t } = useI18n()
@@ -16,10 +15,10 @@ const { t } = useI18n()
       <v-icon
         v-bind="tooltipProps"
         size="x-large"
-        :icon="work.ok ? mdiCheckCircleOutline : mdiCloseCircleOutline"
+        :icon="registered ? mdiCheckCircleOutline : mdiCloseCircleOutline"
       />
     </template>
-    <p>{{ work.ok ? t('valid-description') : t('invalid-description') }}</p>
+    <p>{{ registered ? t('valid-description') : t('invalid-description') }}</p>
     <!-- <template v-else>
       <div class="ma-1">
         <p>{{ t('doi-not-found') }}</p>

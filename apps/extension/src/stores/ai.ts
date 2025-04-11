@@ -9,7 +9,7 @@ export const useAiStore = defineStore('ai', () => {
   // if the AI model is used to generate content or extract DOIs from text
   const isAiUsed = ref(false)
 
-  async function extractDoisUsingAi(prompt: string) {
+  async function extractUsingAi(prompt: string): Promise<string[]> {
     isLoading.value = true
     isAiUsed.value = false
     try {
@@ -27,19 +27,20 @@ export const useAiStore = defineStore('ai', () => {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(`AI extraction failed `)
       }
 
       isAiUsed.value = true
 
-      return response.json()
+      const data = await response.json()
+      return data.dois || []
     }
     finally {
       isLoading.value = false
     }
   }
 
-  return { extractDoisUsingAi, isAiUsed }
+  return { extractUsingAi, isAiUsed }
 })
 
 if (import.meta.hot) {

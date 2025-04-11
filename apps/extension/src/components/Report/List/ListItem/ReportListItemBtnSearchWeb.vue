@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client'
+import type { IdentifierResult } from '@/extension/types'
 import { mdiWeb } from '@mdi/js'
 
 // Props
-const { work } = defineProps<{
-  work: HttpResponse<Item<Work>>
+const { identifier } = defineProps<{
+  identifier: IdentifierResult
 }>()
 
 // Search DOI in a new Browser Tab
 function openInWeb() {
-  window.open(`https://www.google.com/search?q=${work.content?.message.DOI}`, '_blank')
+  window.open(`https://www.google.com/search?q=${identifier.value}`, '_blank')
 }
 </script>
 
 <template>
   <v-tooltip
-    v-if="!work.ok"
+    v-if="!identifier.registered"
     :text="$t('search-on-web')"
   >
     <template #activator="{ props }">
