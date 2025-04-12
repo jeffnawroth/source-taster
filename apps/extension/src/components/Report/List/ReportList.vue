@@ -21,7 +21,7 @@ const { registeredIssnsCount, unregisteredIssnsCount } = storeToRefs(useIssnStor
     class="pa-0"
   >
     <v-list-subheader
-      v-if="dois.length"
+      v-if="dois.length && issns.length"
       title="DOIs"
     >
       <template #default>
@@ -58,7 +58,7 @@ const { registeredIssnsCount, unregisteredIssnsCount } = storeToRefs(useIssnStor
       />
     </v-slide-y-transition>
     <v-list-subheader
-      v-if="dois.length"
+      v-if="issns.length && dois.length"
     >
       <template #default>
         <v-row
