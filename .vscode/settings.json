@@ -59,5 +59,6 @@
   "i18n-ally.keepFulfilled": true,
   "i18n-ally.enabledFrameworks": [
     "vue"
-  ]
+  ],
+  "i18n-ally.keystyle": "flat"
 }

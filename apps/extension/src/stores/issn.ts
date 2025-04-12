@@ -11,6 +11,16 @@ export const useIssnStore = defineStore('issn', () => {
 
   const issns = ref<IdentifierResult[]>([])
 
+  // Returns the number of registered ISSNs either from Crossref or ISSN Portal
+  const registeredIssnsCount = computed(() => {
+    return issns.value.filter(issn => issn.registered).length
+  })
+
+  // Returns the number of unregistered ISSNs
+  const unregisteredIssnsCount = computed(() => {
+    return issns.value.filter(issn => !issn.registered).length
+  })
+
   // Function to check if the ISSN is registered
   async function checkISSN(issn: string) {
     try {
@@ -87,7 +97,7 @@ export const useIssnStore = defineStore('issn', () => {
     }
   }
 
-  return { processIssns, issns }
+  return { processIssns, issns, unregisteredIssnsCount, registeredIssnsCount }
 })
 
 if (import.meta.hot) {

@@ -8,6 +8,17 @@ import { useAppStore } from './app'
 export const useDoiStore = defineStore('doi', () => {
   const dois = ref<IdentifierResult[]>([])
 
+  // Returns the number of registered DOIs either from Crossref or DOI Resolver
+  const registeredDoisCount = computed(() => {
+    return dois.value.filter(doi => doi.registered).length
+  })
+
+  // Returns the number of unregistered DOIs
+  const unregisteredDoisCount = computed(() => {
+    return dois.value.filter(doi => !doi.registered).length
+  })
+
+  // Checks if the DOI is exists by using the Crossref API or DOI Resolver
   async function checkDoi(doi: string) {
     const crossrefUrl = `https://api.crossref.org/works/${encodeURIComponent(doi)}`
     try {
@@ -178,7 +189,7 @@ export const useDoiStore = defineStore('doi', () => {
   //   }
   // }
 
-  return { processDois, dois }
+  return { processDois, dois, registeredDoisCount, unregisteredDoisCount }
 })
 
 if (import.meta.hot) {
