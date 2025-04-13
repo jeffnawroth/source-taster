@@ -14,7 +14,8 @@ export const useAiStore = defineStore('ai', () => {
     isAiUsed.value = false
     try {
       const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
-      const response = await fetch(`${baseUrl}` + '/extract-identifier', {
+      const apiEndpoint = type === 'doi' ? '/extract-doi' : '/extract-issn'
+      const response = await fetch(`${baseUrl}${apiEndpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
