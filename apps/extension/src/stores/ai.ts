@@ -23,8 +23,7 @@ export const useAiStore = defineStore('ai', () => {
         body: JSON.stringify({
           service: selectedAiModel.value.service,
           model: selectedAiModel.value.value,
-          text: prompt,
-          type,
+          input: prompt,
         }),
       })
 

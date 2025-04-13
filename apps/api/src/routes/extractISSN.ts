@@ -4,14 +4,14 @@ import { extractISSNWithModel } from '../utilts/extractISSN'
 const extractISSN = new Hono()
 
 extractISSN.post('/', async (c) => {
-  const { service, model, text } = await c.req.json()
+  const { service, model, input } = await c.req.json()
 
-  if (!service || !model || !text) {
-    return c.json({ error: 'Service, model and text are required' }, 400)
+  if (!service || !model || !input) {
+    return c.json({ error: 'Service, model and input are required' }, 400)
   }
 
   try {
-    const issns = await extractISSNWithModel(service, model, text)
+    const { issns } = await extractISSNWithModel(service, model, input)
     return c.json(issns)
   }
   catch (error) {
