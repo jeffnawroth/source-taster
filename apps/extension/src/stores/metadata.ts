@@ -1,6 +1,7 @@
 import type { ExtractedMetadata, IdentifierResult } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiStore } from './ai'
+import { useAppStore } from './app'
 
 export const useMetadataStore = defineStore('metadata', () => {
   const { extractUsingAi } = useAiStore()
@@ -45,7 +46,15 @@ export const useMetadataStore = defineStore('metadata', () => {
     }
   }
 
+  const { isLoading } = storeToRefs(useAppStore())
   async function extractAndSearchMetadata(text: string) {
+    metadataResults.value = []
+
+    if (!text.length)
+      return
+
+    isLoading.value = true
+
     const metadataList = await extractUsingAi(text, 'metadata')
     if (!metadataList)
       return []
@@ -54,6 +63,8 @@ export const useMetadataStore = defineStore('metadata', () => {
       const match = await searchCrossrefByMetadata(metadata)
       metadataResults.value.push(match)
     }
+
+    isLoading.value = false
   }
 
   return { extractAndSearchMetadata, metadataResults }

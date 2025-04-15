@@ -72,6 +72,10 @@ export const useIssnStore = defineStore('issn', () => {
   // Function to process the text and extract ISSNs
   async function processIssns(text: string) {
     issns.value = []
+
+    if (!text.length)
+      return
+
     isLoading.value = true
 
     const extractedIssns = useAiExtraction.value ? await extractAiIssn(text) : extractIssns(text)

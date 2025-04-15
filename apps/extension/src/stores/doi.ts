@@ -74,6 +74,10 @@ export const useDoiStore = defineStore('doi', () => {
   // Function to process the text and extract ISSNs
   async function processDois(text: string) {
     dois.value = []
+
+    if (!text.length)
+      return
+
     isLoading.value = true
 
     const extractedDois = useAiExtraction.value ? await extractAiDois(text) : extractDois(text)
