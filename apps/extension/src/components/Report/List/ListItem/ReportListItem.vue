@@ -20,8 +20,10 @@ const color = computed(() => {
     :color
     active
     class="my-1"
-    :title="identifier.value"
   >
+    <v-list-item-title class="wrap-text">
+      {{ identifier.value }}
+    </v-list-item-title>
     <template #prepend>
       <ReportListItemStatusIcon :registered="identifier.registered" />
     </template>
@@ -35,3 +37,9 @@ const color = computed(() => {
     </template>
   </v-list-item>
 </template>
+
+<style scoped>
+.wrap-text {
+  white-space: normal;
+}
+</style>

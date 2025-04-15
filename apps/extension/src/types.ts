@@ -11,7 +11,15 @@ export type AIService = 'gemini' | 'openai'
 
 export interface IdentifierResult {
   value: string
-  type: 'DOI' | 'ISSN'
+  type: 'DOI' | 'ISSN' | 'METADATA'
   registered: boolean
   crossrefData?: Journal | Work
+}
+
+export interface ExtractedMetadata {
+  title: string
+  authors?: string[]
+  journal?: string
+  year?: string
+  snippet: string
 }

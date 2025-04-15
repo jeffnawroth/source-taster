@@ -9,13 +9,17 @@ export const useAiStore = defineStore('ai', () => {
   // if the AI model is used to generate content or extract DOIs from text
   const isAiUsed = ref(false)
 
-  async function extractUsingAi(prompt: string, type: 'doi' | 'issn'): Promise<string[]> {
+  async function extractUsingAi(prompt: string, type: 'doi' | 'issn' | 'metadata'): Promise<any[]> {
     isLoading.value = true
     isAiUsed.value = false
     try {
       const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
-      const apiEndpoint = type === 'doi' ? '/extract-doi' : '/extract-issn'
-      const response = await fetch(`${baseUrl}${apiEndpoint}`, {
+      const endpoint = {
+        doi: '/extract-doi',
+        issn: '/extract-issn',
+        metadata: '/extract-metadata',
+      }
+      const response = await fetch(`${baseUrl}${endpoint[type]}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

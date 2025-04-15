@@ -2,6 +2,7 @@
 import { useAutoImport } from '@/extension/logic'
 import { useDoiStore } from '@/extension/stores/doi'
 import { useIssnStore } from '@/extension/stores/issn'
+import { useMetadataStore } from '@/extension/stores/metadata'
 import { useTextStore } from '@/extension/stores/text'
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
@@ -36,11 +37,13 @@ onMessage('autoImportText', async ({ data }) => {
 
 // HANDLE TEXT CHANGE
 const { processIssns } = useIssnStore()
+const { extractAndSearchMetadata } = useMetadataStore()
 
 async function handleTextChange(newVal: string) {
   Promise.all([
     processDois(newVal),
     processIssns(newVal),
+    extractAndSearchMetadata(newVal),
   ])
 }
 </script>

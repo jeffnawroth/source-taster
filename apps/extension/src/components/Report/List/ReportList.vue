@@ -10,6 +10,7 @@ const { results } = defineProps<{
 
 const dois = computed(() => results.filter(result => result.item.type === 'DOI'))
 const issns = computed(() => results.filter(result => result.item.type === 'ISSN'))
+const metadataResults = computed(() => results.filter(result => result.item.type === 'METADATA'))
 
 const { registeredDoisCount, unregisteredDoisCount } = storeToRefs(useDoiStore())
 const { registeredIssnsCount, unregisteredIssnsCount } = storeToRefs(useIssnStore())
@@ -21,7 +22,7 @@ const { registeredIssnsCount, unregisteredIssnsCount } = storeToRefs(useIssnStor
     class="pa-0"
   >
     <v-list-subheader
-      v-if="dois.length && issns.length"
+      v-if="dois.length && (issns.length || metadataResults.length)"
       title="DOIs"
     >
       <template #default>
@@ -58,7 +59,7 @@ const { registeredIssnsCount, unregisteredIssnsCount } = storeToRefs(useIssnStor
       />
     </v-slide-y-transition>
     <v-list-subheader
-      v-if="issns.length && dois.length"
+      v-if="issns.length && (dois.length || metadataResults.length)"
     >
       <template #default>
         <v-row
@@ -92,6 +93,42 @@ const { registeredIssnsCount, unregisteredIssnsCount } = storeToRefs(useIssnStor
         v-for="(issn) in issns"
         :key="issn.item.value"
         :identifier="issn.item"
+      />
+    </v-slide-y-transition>
+    <v-list-subheader
+      v-if="metadataResults.length && (issns.length || dois.length)"
+    >
+      <template #default>
+        <v-row
+          no-gutters
+          density="compact"
+          align="center"
+        >
+          <span class="mx-4 font-weight-bold">
+            {{ $t('metadata') }}
+          </span>
+          <span class="mx-4">
+            {{ `${$t('found')}: ${metadataResults.length}` }}
+          </span>
+          <v-divider vertical />
+
+          <span class="mx-4">
+            {{ `${$t('registered')}: ${registeredIssnsCount}` }}
+          </span>
+
+          <v-divider vertical />
+
+          <span class="mx-4">
+            {{ `${$t('unregistered')}: ${unregisteredIssnsCount}` }}
+          </span>
+        </v-row>
+      </template>
+    </v-list-subheader>
+    <v-slide-y-transition group>
+      <ReportListItem
+        v-for="(metadata) in metadataResults"
+        :key="metadata.item.value"
+        :identifier="metadata.item"
       />
     </v-slide-y-transition>
   </v-list>
