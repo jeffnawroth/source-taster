@@ -5,6 +5,7 @@ import { useIssnStore } from '@/extension/stores/issn'
 import { useMetadataStore } from '@/extension/stores/metadata'
 import { useTextStore } from '@/extension/stores/text'
 import { mdiText } from '@mdi/js'
+import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
 
 // TRANSLATION
@@ -17,6 +18,18 @@ const { processDois } = doiStore
 
 // TEXTAREA PLACEHOLDER
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
+
+// HANDLE TEXT CHANGE
+const { processIssns } = useIssnStore()
+const { extractAndSearchMetadata } = useMetadataStore()
+
+const handleTextChange = useDebounceFn(async (newVal: string) => {
+  Promise.all([
+    processDois(newVal),
+    processIssns(newVal),
+    extractAndSearchMetadata(newVal),
+  ])
+}, 1000)
 
 // SET SELECTED TEXT
 const { text } = storeToRefs(useTextStore())
@@ -34,18 +47,6 @@ onMessage('autoImportText', async ({ data }) => {
   await handleTextChange(data.text)
   text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
-
-// HANDLE TEXT CHANGE
-const { processIssns } = useIssnStore()
-const { extractAndSearchMetadata } = useMetadataStore()
-
-async function handleTextChange(newVal: string) {
-  Promise.all([
-    processDois(newVal),
-    processIssns(newVal),
-    extractAndSearchMetadata(newVal),
-  ])
-}
 </script>
 
 <template>
