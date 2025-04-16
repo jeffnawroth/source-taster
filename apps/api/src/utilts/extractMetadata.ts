@@ -55,14 +55,35 @@ const geminiConfig = {
   responseSchema: {
     type: Type.OBJECT,
     properties: {
-      issns: {
+      metadata: {
         type: Type.ARRAY,
         items: {
-          type: Type.STRING,
+          type: Type.OBJECT,
+          properties: {
+            title: {
+              type: Type.STRING,
+            },
+            authors: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.STRING,
+              },
+            },
+            journal: {
+              type: Type.STRING,
+            },
+            year: {
+              type: Type.STRING,
+            },
+            snippet: {
+              type: Type.STRING,
+            },
+          },
+          required: ['title', 'authors', 'journal', 'year', 'snippet'],
         },
       },
     },
-    required: ['issns'],
+    required: ['metadata'],
     additionalProperties: false,
   },
   systemInstruction: instruction,
