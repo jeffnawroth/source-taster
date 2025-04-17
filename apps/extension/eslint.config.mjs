@@ -13,5 +13,6 @@ export default createConfig({
     'dist',
     'node_modules',
     'public',
+    'src/crossref-client',
   ],
 })
