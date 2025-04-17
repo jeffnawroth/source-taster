@@ -1,5 +1,7 @@
+import type { Work } from '@jamesgopsill/crossref-client'
 import type { ExtractedMetadata, IdentifierResult } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { selectedAiModel } from '../logic'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 
@@ -7,6 +9,27 @@ export const useMetadataStore = defineStore('metadata', () => {
   const { extractUsingAi } = useAiStore()
 
   const metadataResults = ref<IdentifierResult[]>([])
+
+  async function verifyMatchWithAI(sourceMetadata: ExtractedMetadata, crossrefItem: Work): Promise<{ match: boolean, reason?: string }> {
+    try {
+      const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+      const response = await fetch(`${baseURL}/verify-metadata-match`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service: selectedAiModel.value.service, model: selectedAiModel.value.value, sourceMetadata, crossrefItem }),
+      })
+
+      if (!response.ok)
+        throw new Error('AI verification failed')
+
+      const result = await response.json()
+      return { match: result.match, reason: result.reason }
+    }
+    catch (error) {
+      console.error('Error with AI verification', error)
+      return { match: false }
+    }
+  }
 
   async function searchCrossrefByMetadata(metadata: ExtractedMetadata): Promise<IdentifierResult> {
     const queryParts = [metadata.title, ...(metadata.authors || []), metadata.journal, metadata.year]
@@ -21,11 +44,13 @@ export const useMetadataStore = defineStore('metadata', () => {
       const item = json.message.items?.[0]
 
       if (item) {
+        const aiVerification = await verifyMatchWithAI(metadata, item)
         return {
           value: metadata.snippet,
-          registered: true,
+          registered: aiVerification.match,
           crossrefData: item,
           type: 'METADATA',
+          reason: aiVerification.reason,
         }
       }
       else {
@@ -33,6 +58,7 @@ export const useMetadataStore = defineStore('metadata', () => {
           value: metadata.snippet,
           registered: false,
           type: 'METADATA',
+          reason: 'No matching item found in Crossref',
         }
       }
     }

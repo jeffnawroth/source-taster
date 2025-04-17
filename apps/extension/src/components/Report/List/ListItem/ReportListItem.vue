@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IdentifierResult } from '@/extension/types'
+import { mdiInformationOutline } from '@mdi/js'
 import ReportListItemOpenBtn from './ReportListItemOpenBtn.vue'
 
 // Props
@@ -29,6 +30,18 @@ const color = computed(() => {
     </template>
 
     <template #append>
+      <v-tooltip v-if="!identifier.registered">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            density="compact"
+            variant="plain"
+            size="large"
+            :icon="mdiInformationOutline"
+          />
+        </template>
+        {{ identifier.reason }}
+      </v-tooltip>
       <ReportListItemCopyBtn :value="identifier.value" />
 
       <ReportListItemBtnSearchWeb :identifier />

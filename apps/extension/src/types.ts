@@ -14,6 +14,7 @@ export interface IdentifierResult {
   type: 'DOI' | 'ISSN' | 'METADATA'
   registered: boolean
   crossrefData?: Journal | Work
+  reason?: string
 }
 
 export interface ExtractedMetadata {
