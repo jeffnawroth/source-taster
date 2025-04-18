@@ -6,9 +6,9 @@ const config = new Configuration({
   basePath: 'https://api.crossref.org',
 })
 
-const DEFAULT_QUERY_PARAMS = {
-  mailto: import.meta.env.VITE_CROSSREF_MAILTO,
-}
+// const DEFAULT_QUERY_PARAMS = {
+//   mailto: import.meta.env.VITE_CROSSREF_MAILTO,
+// }
 
 export const useCrossrefStore = defineStore('crossref', () => {
   const api = new WorksApi(config)
@@ -16,7 +16,7 @@ export const useCrossrefStore = defineStore('crossref', () => {
   async function getWorks(query?: WorksGetRequest): Promise<Work[]> {
     try {
       const response = await api.worksGet({
-        ...DEFAULT_QUERY_PARAMS,
+        // ...DEFAULT_QUERY_PARAMS,
         ...query,
       })
 
@@ -31,7 +31,26 @@ export const useCrossrefStore = defineStore('crossref', () => {
       return []
     }
   }
-  return { getWorks }
+
+  async function getWorkByDOI(doi: string): Promise<Work | null> {
+    try {
+      const response = await api.worksDoiGet({
+        // ...DEFAULT_QUERY_PARAMS,
+        doi,
+      })
+
+      if (response.status !== 'ok') {
+        return Promise.reject(response)
+      }
+
+      return response.message
+    }
+    catch (error) {
+      console.error('', error)
+      return null
+    }
+  }
+  return { getWorks, getWorkByDOI }
 })
 
 if (import.meta.hot) {
