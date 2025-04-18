@@ -1,3 +1,4 @@
+import type { Work } from '../crossref-client'
 import type { ReferenceMetadata, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiStore } from './ai'
@@ -7,70 +8,73 @@ import { useCrossrefStore } from './crossref'
 export const useMetadataStore = defineStore('metadata', () => {
   const { extractUsingAi } = useAiStore()
 
-  const { getWorks } = useCrossrefStore()
+  const { getWorks, getWorkByDOI } = useCrossrefStore()
   const { verifyMatchWithAI } = useAiStore()
 
-  // function verifyMatch(referenceMetadata: ReferenceMetadata, crossrefItem: Work): VerificationResult {
-  //   const { authors: metadataAuthor, year: metadataYear, title: metadataTitle, journal: metadataJournal, doi: metadataDoi } = referenceMetadata
-  //   const { author: crossrefWorkAuthors, title: crossrefWorkTitle, published: crossrefWorkYear, containerTitle: crossrefWorkJournal, dOI: crossrefWorkDoi } = crossrefItem
+  async function searchCrossrefWork(meta: ReferenceMetadata): Promise<Work | null> {
+    // Check if DOI is present in the metadata. If so, use it to get the work directly.
+    if (meta.doi) {
+      const work = await getWorkByDOI(meta.doi)
+      if (work)
+        return work
+    }
 
-  //   const isMatch = !!(
-  //     (!metadataTitle || (crossrefWorkTitle ?? [])[0].toLowerCase().includes((metadataTitle ?? '').toLowerCase()))
-  //     && (crossrefWorkAuthors ?? []).every((author) => {
-  //       const authorName = `${author.given} ${author.family}`
-  //       return metadataAuthor?.some(name => authorName.toLowerCase().includes(name.toLowerCase())) ?? false
-  //     })
-  //     && crossrefWorkYear?.dateParts[0][0].toString() === (metadataYear ?? '').toString()
-  //     && (!metadataJournal || (crossrefWorkJournal ?? [])[0].toLowerCase().includes((metadataJournal ?? '').toLowerCase()))
-  //     && (!metadataDoi || (crossrefWorkDoi ?? '').toLowerCase() === metadataDoi.toLowerCase())
-  //   )
+    // If DOI is not present, construct a query using the metadata fields.
+    if (!meta.title && !meta.journal && !meta.authors?.length && !meta.year)
+      return null
 
-  //   const reason = isMatch ? undefined : 'No match found'
-  //   return {
-  //     match: isMatch,
-  //     reason,
-  //   }
-  // }
+    // The query is constructed by concatenating the title, authors, journal, and year.
+    const params = [meta.title, ...(meta.authors ?? []), meta.journal, meta.year]
+    const queryBibliographic = params.filter(Boolean).join(' ')
+    const query = params ? `query.bibliographic=${queryBibliographic}` : undefined
 
-  async function searchCrossrefByMetadata(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
-    const queryBibliographic = [referenceMetadata.title, ...(referenceMetadata.authors ?? []), referenceMetadata.journal, referenceMetadata.year]
-    const query = queryBibliographic.filter(Boolean).join(' ')
+    // The filter is constructed by checking if the year is present in the metadata.
+    const filterParams = [
+      meta.year ? `from-pub-date:${meta.year}-01-01,until-pub-date:${meta.year}-12-31` : undefined,
+    ]
+    const filter = filterParams.filter(Boolean).join(',')
 
-    const filter = [
-      referenceMetadata.year
-        ? `from-pub-date:${referenceMetadata.year},until-pub-date:${referenceMetadata.year}`
-        : undefined,
-      referenceMetadata.doi
-        ? `doi:${referenceMetadata.doi}`
-        : undefined,
-    ].filter(Boolean).join(',')
+    const select = [
+      'title',
+      'author',
+      'issued',
+      'published',
+      'published-print',
+      'published-online',
+      'DOI',
+      'container-title',
+      'volume',
+      'issue',
+      'page',
+      'URL',
+    ].join(',')
 
+    const rows = 1
+
+    const sort = 'score'
+
+    const works = await getWorks({ query, filter, select, rows, sort })
+    return works[0] || null
+  }
+
+  // Search Crossref using the metadata and verify the match with AI
+  async function searchAndVerifyWork(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
     try {
-      const queryParam = query ? `query.bibliographic=${query}` : undefined
-      const works = await getWorks({
-        query: queryParam,
-        select: 'title,author,issued,published,published-print,published-online,DOI,container-title,volume,issue,page,URL',
-        filter: filter || undefined,
-        rows: 1,
-        sort: 'score',
-      })
+      const work = await searchCrossrefWork(referenceMetadata)
 
-      const item = works[0]
-
-      if (item) {
-        const aiVerification = await verifyMatchWithAI(referenceMetadata, item)
-        // const verificationResult = verifyMatch(referenceMetadata, item)
-        return {
-          metadata: referenceMetadata,
-          verification: aiVerification,
-          crossrefData: item,
-        }
-      }
-      else {
+      if (!work) {
         return {
           metadata: referenceMetadata,
           verification: { match: false, reason: 'No matching item found' },
         }
+      }
+
+      const aiVerification = await verifyMatchWithAI(referenceMetadata, work)
+
+      return {
+        metadata: referenceMetadata,
+        verification: aiVerification,
+        crossrefData: work,
       }
     }
     catch (error) {
@@ -97,7 +101,7 @@ export const useMetadataStore = defineStore('metadata', () => {
     const metadataList = await extractUsingAi(text)
 
     for (const metadata of metadataList) {
-      const match = await searchCrossrefByMetadata(metadata)
+      const match = await searchAndVerifyWork(metadata)
       metadataResults.value.push(match)
     }
 
