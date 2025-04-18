@@ -1,78 +1,91 @@
-import type { Work } from '@jamesgopsill/crossref-client'
-import type { ExtractedMetadata, IdentifierResult } from '../types'
+import type { ReferenceMetadata, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { selectedAiModel } from '../logic'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
+import { useCrossrefStore } from './crossref'
 
 export const useMetadataStore = defineStore('metadata', () => {
   const { extractUsingAi } = useAiStore()
 
-  const metadataResults = ref<IdentifierResult[]>([])
+  const { getWorks } = useCrossrefStore()
+  const { verifyMatchWithAI } = useAiStore()
 
-  async function verifyMatchWithAI(sourceMetadata: ExtractedMetadata, crossrefItem: Work): Promise<{ match: boolean, reason?: string }> {
+  // function verifyMatch(referenceMetadata: ReferenceMetadata, crossrefItem: Work): VerificationResult {
+  //   const { authors: metadataAuthor, year: metadataYear, title: metadataTitle, journal: metadataJournal, doi: metadataDoi } = referenceMetadata
+  //   const { author: crossrefWorkAuthors, title: crossrefWorkTitle, published: crossrefWorkYear, containerTitle: crossrefWorkJournal, dOI: crossrefWorkDoi } = crossrefItem
+
+  //   const isMatch = !!(
+  //     (!metadataTitle || (crossrefWorkTitle ?? [])[0].toLowerCase().includes((metadataTitle ?? '').toLowerCase()))
+  //     && (crossrefWorkAuthors ?? []).every((author) => {
+  //       const authorName = `${author.given} ${author.family}`
+  //       return metadataAuthor?.some(name => authorName.toLowerCase().includes(name.toLowerCase())) ?? false
+  //     })
+  //     && crossrefWorkYear?.dateParts[0][0].toString() === (metadataYear ?? '').toString()
+  //     && (!metadataJournal || (crossrefWorkJournal ?? [])[0].toLowerCase().includes((metadataJournal ?? '').toLowerCase()))
+  //     && (!metadataDoi || (crossrefWorkDoi ?? '').toLowerCase() === metadataDoi.toLowerCase())
+  //   )
+
+  //   const reason = isMatch ? undefined : 'No match found'
+  //   return {
+  //     match: isMatch,
+  //     reason,
+  //   }
+  // }
+
+  async function searchCrossrefByMetadata(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
+    const queryBibliographic = [referenceMetadata.title, ...(referenceMetadata.authors ?? []), referenceMetadata.journal, referenceMetadata.year]
+    const query = queryBibliographic.filter(Boolean).join(' ')
+
+    const filter = [
+      referenceMetadata.year
+        ? `from-pub-date:${referenceMetadata.year},until-pub-date:${referenceMetadata.year}`
+        : undefined,
+      referenceMetadata.doi
+        ? `doi:${referenceMetadata.doi}`
+        : undefined,
+    ].filter(Boolean).join(',')
+
     try {
-      const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
-      const response = await fetch(`${baseURL}/verify-metadata-match`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ service: selectedAiModel.value.service, model: selectedAiModel.value.value, sourceMetadata, crossrefItem }),
+      const queryParam = query ? `query.bibliographic=${query}` : undefined
+      const works = await getWorks({
+        query: queryParam,
+        select: 'title,author,issued,published,published-print,published-online,DOI,container-title,volume,issue,page,URL',
+        filter: filter || undefined,
+        rows: 1,
+        sort: 'score',
       })
 
-      if (!response.ok)
-        throw new Error('AI verification failed')
-
-      const result = await response.json()
-      return { match: result.match, reason: result.reason }
-    }
-    catch (error) {
-      console.error('Error with AI verification', error)
-      return { match: false }
-    }
-  }
-
-  async function searchCrossrefByMetadata(metadata: ExtractedMetadata): Promise<IdentifierResult> {
-    const queryParts = [metadata.title, ...(metadata.authors || []), metadata.journal, metadata.year]
-    const query = encodeURIComponent(queryParts.join(' '))
-
-    try {
-      const res = await fetch(`https://api.crossref.org/works?rows=1&sort=score&query=query.bibliographic=${query}`)
-      if (!res.ok)
-        throw new Error('Crossref API request failed')
-
-      const json = await res.json()
-      const item = json.message.items?.[0]
+      const item = works[0]
 
       if (item) {
-        const aiVerification = await verifyMatchWithAI(metadata, item)
+        const aiVerification = await verifyMatchWithAI(referenceMetadata, item)
+        // const verificationResult = verifyMatch(referenceMetadata, item)
         return {
-          value: metadata.snippet,
-          registered: aiVerification.match,
+          metadata: referenceMetadata,
+          verification: aiVerification,
           crossrefData: item,
-          type: 'METADATA',
-          reason: aiVerification.reason,
         }
       }
       else {
         return {
-          value: metadata.snippet,
-          registered: false,
-          type: 'METADATA',
-          reason: 'No matching item found in Crossref',
+          metadata: referenceMetadata,
+          verification: { match: false, reason: 'No matching item found' },
         }
       }
     }
     catch (error) {
-      console.error('Fehler bei der Crossref-Suche:', error)
+      console.error('Error using crossref search', error)
       return {
-        value: metadata.snippet,
-        registered: false,
-        type: 'METADATA',
+        metadata: referenceMetadata,
+        verification: { match: false, reason: 'Error using crossref search' },
       }
     }
   }
 
+  // Extract metadata from text and search Crossref
+  const metadataResults = ref<VerifiedReference[]>([])
   const { isLoading } = storeToRefs(useAppStore())
+
   async function extractAndSearchMetadata(text: string) {
     metadataResults.value = []
 
@@ -81,9 +94,7 @@ export const useMetadataStore = defineStore('metadata', () => {
 
     isLoading.value = true
 
-    const metadataList = await extractUsingAi(text, 'metadata')
-    if (!metadataList)
-      return []
+    const metadataList = await extractUsingAi(text)
 
     for (const metadata of metadataList) {
       const match = await searchCrossrefByMetadata(metadata)
