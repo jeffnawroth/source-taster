@@ -1,4 +1,4 @@
-import type { Journal, Work } from '@jamesgopsill/crossref-client'
+import type { Journal, Work } from './crossref-client'
 
 export interface AIModel {
   title: string
@@ -9,18 +9,27 @@ export interface AIModel {
 
 export type AIService = 'gemini' | 'openai'
 
-export interface IdentifierResult {
-  value: string
-  type: 'DOI' | 'ISSN' | 'METADATA'
-  registered: boolean
-  crossrefData?: Journal | Work
+export interface ReferenceMetadata {
+  originalEntry: string
+  authors?: string[]
+  year?: number
+  title?: string
+  journal?: string | null
+  volume?: string | null
+  issue?: string | null
+  pages?: string | null
+  doi?: string | null
+  publisher?: string | null
+  url?: string | null
+}
+
+export interface VerificationResult {
+  match: boolean
   reason?: string
 }
 
-export interface ExtractedMetadata {
-  title: string
-  authors?: string[]
-  journal?: string
-  year?: string
-  snippet: string
+export interface VerifiedReference {
+  metadata: ReferenceMetadata
+  verification: VerificationResult
+  crossrefData?: Journal | Work
 }

@@ -3,9 +3,7 @@ import { Type } from '@google/genai'
 import { extractWithGemini } from '../services/geminiService'
 import { extractWithOpenAI } from '../services/openaiService'
 
-const instruction = `Extract metadata from the following bibliographic reference or paragraph. 
-Return it as a JSON object with keys: title (required), authors (array of strings), journal (optional), year (optional). 
-Return also the corresponding text snippet.`
+const instruction = `Extract metadata from the following bibliographic reference or paragraph. Do not invent data, only extract what is present.`
 
 const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
   format: {
@@ -19,26 +17,55 @@ const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
           items: {
             type: 'object',
             properties: {
-              title: {
+              originalEntry: {
                 type: 'string',
+                description: 'The original entry from which the metadata was extracted.',
               },
               authors: {
                 type: 'array',
                 items: {
-                  type: 'string',
+                  type: ['string', 'null'],
                 },
-              },
-              journal: {
-                type: 'string',
+                description: 'List of authors of the work.',
               },
               year: {
-                type: 'string',
+                type: ['string', 'null'],
+                description: 'Year of publication.',
               },
-              snippet: {
-                type: 'string',
+              title: {
+                type: ['string', 'null'],
+                description: 'Title of the work.',
+              },
+              journal: {
+                type: ['string', 'null'],
+                description: 'Name of the journal in which the work was published.',
+              },
+              volume: {
+                type: ['string', 'null'],
+                description: 'Volume number of the journal.',
+              },
+              issue: {
+                type: ['string', 'null'],
+                description: 'Issue number of the journal.',
+              },
+              pages: {
+                type: ['string', 'null'],
+                description: 'Page range of the work.',
+              },
+              doi: {
+                type: ['string', 'null'],
+                description: 'Digital Object Identifier (DOI) of the work.',
+              },
+              publisher: {
+                type: ['string', 'null'],
+                description: 'Publisher of the work.',
+              },
+              url: {
+                type: ['string', 'null'],
+                description: 'URL where the work can be accessed.',
               },
             },
-            required: ['title', 'authors', 'journal', 'year', 'snippet'],
+            required: ['originalEntry', 'authors', 'year', 'title', 'journal', 'volume', 'issue', 'pages', 'doi', 'publisher', 'url'],
             additionalProperties: false,
           },
         },
