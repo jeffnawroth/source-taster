@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useAutoImport } from '@/extension/logic'
-import { useDoiStore } from '@/extension/stores/doi'
-import { useIssnStore } from '@/extension/stores/issn'
 import { useMetadataStore } from '@/extension/stores/metadata'
 import { useTextStore } from '@/extension/stores/text'
 import { mdiText } from '@mdi/js'
@@ -11,25 +9,13 @@ import { onMessage } from 'webext-bridge/popup'
 // TRANSLATION
 const { t } = useI18n()
 
-// Doi Store
-const doiStore = useDoiStore()
-const { dois } = storeToRefs(doiStore)
-const { processDois } = doiStore
-
 // TEXTAREA PLACEHOLDER
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
 
 // HANDLE TEXT CHANGE
-const { processIssns } = useIssnStore()
 const { extractAndSearchMetadata } = useMetadataStore()
 
-const handleTextChange = useDebounceFn(async (newVal: string) => {
-  Promise.all([
-    processDois(newVal),
-    processIssns(newVal),
-    extractAndSearchMetadata(newVal),
-  ])
-}, 1000)
+const handleTextChange = useDebounceFn(async (newVal: string) => await extractAndSearchMetadata(newVal), 1000)
 
 // SET SELECTED TEXT
 const { text } = storeToRefs(useTextStore())
@@ -44,8 +30,8 @@ onMessage('autoImportText', async ({ data }) => {
   if (!useAutoImport.value)
     return
 
+  text.value = data.text
   await handleTextChange(data.text)
-  text.value = dois.value.length > 0 ? dois.value.join('\n') : ''
 })
 </script>
 

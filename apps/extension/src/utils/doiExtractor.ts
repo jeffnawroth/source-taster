@@ -1,6 +1,8 @@
+import type { ReferenceMetadata } from '../types'
+
 // src/utils/doiExtractor.ts
-export function extractDois(text: string): string[] {
-  const extractedDOIs: string[] = []
+export function extractDois(text: string): ReferenceMetadata[] {
+  const extractedDOIs: ReferenceMetadata[] = []
 
   const doiPatterns = [
     /10\.\d{4,9}\/[-.\w;()/:]+/g, // Modern Crossref DOIs
@@ -18,7 +20,12 @@ export function extractDois(text: string): string[] {
   let urlMatches
   // eslint-disable-next-line no-cond-assign
   while ((urlMatches = urlPattern.exec(text)) !== null) {
-    extractedDOIs.push(urlMatches[1].replace(/\.$/, '')) // Remove any trailing period
+    extractedDOIs.push(
+      {
+        originalEntry: urlMatches[1].replace(/\.$/, ''),
+        doi: urlMatches[1].replace(/\.$/, ''),
+      },
+    ) // Wrap in ReferenceMetadata object
   }
 
   // Check for normal DOIs based on the defined patterns
@@ -26,7 +33,10 @@ export function extractDois(text: string): string[] {
     const matches = text.match(pattern)
     if (matches) {
       extractedDOIs.push(
-        ...matches.map(match => match.replace(/\.$/, '')), // Remove any trailing period if present
+        ...matches.map(match => ({
+          originalEntry: match.replace(/\.$/, ''),
+          doi: match.replace(/\.$/, ''), // Remove any trailing period if present
+        })), // Map to ReferenceMetadata objects
       )
     }
   })

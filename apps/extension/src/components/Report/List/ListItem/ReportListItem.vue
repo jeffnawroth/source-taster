@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { IdentifierResult } from '@/extension/types'
+import type { VerifiedReference } from '@/extension/types'
 import { mdiInformationOutline } from '@mdi/js'
 import ReportListItemOpenBtn from './ReportListItemOpenBtn.vue'
 
 // Props
-const { identifier } = defineProps<{
-  identifier: IdentifierResult
+const { verifiedReference } = defineProps<{
+  verifiedReference: VerifiedReference
 }>()
 
 const color = computed(() => {
-  return identifier.registered ? 'success' : 'error'
+  return verifiedReference.verification.match ? 'success' : 'error'
 })
 
 // Functions
@@ -23,14 +23,14 @@ const color = computed(() => {
     class="my-1"
   >
     <v-list-item-title class="wrap-text">
-      {{ identifier.value }}
+      {{ verifiedReference.metadata.originalEntry }}
     </v-list-item-title>
     <template #prepend>
-      <ReportListItemStatusIcon :registered="identifier.registered" />
+      <ReportListItemStatusIcon :verified="verifiedReference.verification.match" />
     </template>
 
     <template #append>
-      <v-tooltip v-if="!identifier.registered">
+      <v-tooltip v-if="!verifiedReference.verification.match">
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
@@ -40,13 +40,13 @@ const color = computed(() => {
             :icon="mdiInformationOutline"
           />
         </template>
-        {{ identifier.reason }}
+        {{ verifiedReference.verification.reason }}
       </v-tooltip>
-      <ReportListItemCopyBtn :value="identifier.value" />
+      <ReportListItemCopyBtn :value="verifiedReference.metadata.originalEntry" />
 
-      <ReportListItemBtnSearchWeb :identifier />
+      <ReportListItemBtnSearchWeb :verified-reference />
 
-      <ReportListItemOpenBtn :identifier />
+      <ReportListItemOpenBtn :verified-reference />
     </template>
   </v-list-item>
 </template>

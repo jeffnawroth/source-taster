@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { IdentifierResult } from '@/extension/types'
+import type { VerifiedReference } from '@/extension/types'
 import { mdiWeb } from '@mdi/js'
 
 // Props
-const { identifier } = defineProps<{
-  identifier: IdentifierResult
+const { verifiedReference } = defineProps<{
+  verifiedReference: VerifiedReference
 }>()
 
 // Search DOI in a new Browser Tab
 function openInWeb() {
-  window.open(`https://www.google.com/search?q=${identifier.value}`, '_blank')
+  window.open(`https://www.google.com/search?q=${verifiedReference.metadata.originalEntry}`, '_blank')
 }
 </script>
 
 <template>
   <v-tooltip
-    v-if="!identifier.registered"
+    v-if="!verifiedReference.verification.match"
     :text="$t('search-on-web')"
   >
     <template #activator="{ props }">

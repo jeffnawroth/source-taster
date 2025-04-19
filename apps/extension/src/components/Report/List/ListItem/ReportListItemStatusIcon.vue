@@ -2,8 +2,8 @@
 import { mdiCheckCircleOutline, mdiCloseCircleOutline } from '@mdi/js'
 
 // Props
-const { registered } = defineProps<{
-  registered: boolean
+const { verified } = defineProps<{
+  verified: boolean
 }>()
 
 const { t } = useI18n()
@@ -15,10 +15,10 @@ const { t } = useI18n()
       <v-icon
         v-bind="tooltipProps"
         size="x-large"
-        :icon="registered ? mdiCheckCircleOutline : mdiCloseCircleOutline"
+        :icon="verified ? mdiCheckCircleOutline : mdiCloseCircleOutline"
       />
     </template>
-    <p>{{ registered ? t('valid-description') : t('invalid-description') }}</p>
+    <p>{{ verified ? t('valid-description') : t('invalid-description') }}</p>
     <!-- <template v-else>
       <div class="ma-1">
         <p>{{ t('doi-not-found') }}</p>

@@ -42,8 +42,12 @@ const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
           type: 'string',
           description: 'A short explanation of the match result.',
         },
+        confidence: {
+          type: 'number',
+          description: 'A confidence score between 0.0 and 1.0 indicating the strength of the match.',
+        },
       },
-      required: ['match', 'reason'],
+      required: ['match', 'reason', 'confidence'],
       additionalProperties: false,
     },
   },

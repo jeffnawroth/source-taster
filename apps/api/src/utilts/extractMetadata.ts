@@ -22,9 +22,9 @@ const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
                 description: 'The original entry from which the metadata was extracted.',
               },
               authors: {
-                type: 'array',
+                type: ['array', 'null'],
                 items: {
-                  type: ['string', 'null'],
+                  type: 'string',
                 },
                 description: 'List of authors of the work.',
               },
@@ -87,26 +87,65 @@ const geminiConfig = {
         items: {
           type: Type.OBJECT,
           properties: {
-            title: {
+            originalEntry: {
               type: Type.STRING,
+              description: 'The original entry from which the metadata was extracted.',
             },
             authors: {
               type: Type.ARRAY,
               items: {
                 type: Type.STRING,
               },
-            },
-            journal: {
-              type: Type.STRING,
+              description: 'List of authors of the work.',
+              nullable: true,
             },
             year: {
               type: Type.STRING,
+              description: 'Year of publication.',
+              nullable: true,
             },
-            snippet: {
+            title: {
               type: Type.STRING,
+              description: 'Title of the work.',
+              nullable: true,
+            },
+            journal: {
+              type: Type.STRING,
+              description: 'Name of the journal in which the work was published.',
+              nullable: true,
+            },
+            volume: {
+              type: Type.STRING,
+              description: 'Volume number of the journal.',
+              nullable: true,
+            },
+            issue: {
+              type: Type.STRING,
+              description: 'Issue number of the journal.',
+              nullable: true,
+            },
+            pages: {
+              type: Type.STRING,
+              description: 'Page range of the work.',
+              nullable: true,
+            },
+            doi: {
+              type: Type.STRING,
+              description: 'Digital Object Identifier (DOI) of the work.',
+              nullable: true,
+            },
+            publisher: {
+              type: Type.STRING,
+              description: 'Publisher of the work.',
+              nullable: true,
+            },
+            url: {
+              type: Type.STRING,
+              description: 'URL where the work can be accessed.',
+              nullable: true,
             },
           },
-          required: ['title', 'authors', 'journal', 'year', 'snippet'],
+          required: ['originalEntry', 'authors', 'year', 'title', 'journal', 'volume', 'issue', 'pages', 'doi', 'publisher', 'url'],
         },
       },
     },

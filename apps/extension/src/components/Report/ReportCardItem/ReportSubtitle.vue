@@ -1,25 +1,7 @@
 <script setup lang="ts">
-import { useDoiStore } from '@/extension/stores/doi'
-import { useIssnStore } from '@/extension/stores/issn'
+import { useMetadataStore } from '@/extension/stores/metadata'
 
-const { dois, registeredDoisCount, unregisteredDoisCount } = storeToRefs(useDoiStore())
-const { issns, registeredIssnsCount, unregisteredIssnsCount } = storeToRefs(useIssnStore())
-
-// Total DOIs and ISSNs found
-const foundTotal = computed(() => {
-  return dois.value.length + issns.value.length
-})
-
-// Total DOIs and ISSNs registered
-const registeredTotal = computed(() => {
-  return registeredDoisCount.value + registeredIssnsCount.value
-})
-
-// Total DOIs and ISSNs unregistered
-const unregisteredTotal = computed(() => {
-  return unregisteredDoisCount.value + unregisteredIssnsCount.value
-})
-
+const { foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount } = storeToRefs(useMetadataStore())
 // I18n
 const { t } = useI18n()
 </script>
@@ -30,18 +12,18 @@ const { t } = useI18n()
     density="compact"
   >
     <span class="mr-4">
-      {{ `${t('found')}: ${foundTotal}` }}
+      {{ `${t('found')}: ${foundReferencesCount}` }}
     </span>
     <v-divider vertical />
 
     <span class="mx-4">
-      {{ `${t('registered')}: ${registeredTotal}` }}
+      {{ `${t('registered')}: ${registeredReferencesCount}` }}
     </span>
 
     <v-divider vertical />
 
     <span class="mx-4">
-      {{ `${t('unregistered')}: ${unregisteredTotal}` }}
+      {{ `${t('unregistered')}: ${unregisteredReferencesCount}` }}
     </span>
   </v-row>
 </template>

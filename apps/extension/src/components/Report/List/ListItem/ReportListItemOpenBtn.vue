@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { IdentifierResult } from '@/extension/types'
-import type { Work } from '@jamesgopsill/crossref-client'
+import type { Work } from '@/extension/crossref-client'
+import type { VerifiedReference } from '@/extension/types'
 import { mdiOpenInNew } from '@mdi/js'
 
 // Props
-const { identifier } = defineProps<{
-  identifier: IdentifierResult
+const { verifiedReference } = defineProps<{
+  verifiedReference: VerifiedReference
 }>()
 
 // I18n
@@ -13,27 +13,15 @@ const { t } = useI18n()
 
 // Function
 
-// Open in a new tab
 function open() {
-  try {
-    if ((identifier.type === 'METADATA' || identifier.type === 'DOI') && identifier.crossrefData && (identifier.crossrefData as Work).URL) {
-      window.open((identifier.crossrefData as Work).URL, '_blank')
-    }
-    else if (identifier.type === 'DOI') {
-      window.open(`https://doi.org/${identifier.value}`, '_blank')
-    }
-    else {
-      window.open(`https://portal.issn.org/resource/ISSN/${identifier.value}`, '_blank')
-    }
-  }
-  catch (error) {
-    console.error('Error opening:', error)
+  if (verifiedReference.verification.match && verifiedReference.crossrefData && (verifiedReference.crossrefData as Work).uRL) {
+    window.open((verifiedReference.crossrefData as Work).uRL, '_blank')
   }
 }
 </script>
 
 <template>
-  <v-tooltip v-if="identifier.registered">
+  <v-tooltip v-if="verifiedReference.verification.match">
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"

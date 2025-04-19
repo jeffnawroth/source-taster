@@ -1,15 +1,72 @@
 import type { Work } from '../crossref-client'
 import type { ReferenceMetadata, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useAiExtraction } from '../logic'
+import { extractDois } from '../utils/doiExtractor'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
 
 export const useMetadataStore = defineStore('metadata', () => {
+  const metadataResults = ref<VerifiedReference[]>([])
+
+  const foundReferencesCount = computed(() => metadataResults.value.length)
+  const registeredReferencesCount = computed(() => metadataResults.value.filter(ref => ref.verification.match).length)
+  const unregisteredReferencesCount = computed(() => metadataResults.value.filter(ref => !ref.verification.match).length)
+
+  // Extract metadata from text and search Crossref
   const { extractUsingAi } = useAiStore()
+  const { isLoading } = storeToRefs(useAppStore())
+
+  async function extractAndSearchMetadata(text: string) {
+    metadataResults.value = []
+
+    if (!text.length)
+      return
+
+    isLoading.value = true
+
+    const metadataList = useAiExtraction.value ? await extractUsingAi(text) : extractDois(text)
+
+    for (const metadata of metadataList) {
+      const match = await searchAndVerifyWork(metadata)
+      metadataResults.value.push(match)
+    }
+
+    isLoading.value = false
+  }
+
+  const { verifyMatchWithAI } = useAiStore()
+  // Search Crossref using the metadata and verify the match with AI
+  async function searchAndVerifyWork(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
+    try {
+      const work = await searchCrossrefWork(referenceMetadata)
+
+      if (!work) {
+        return {
+          metadata: referenceMetadata,
+          verification: { match: false, reason: 'No matching item found' },
+        }
+      }
+
+      const verification = useAiExtraction ? await verifyMatchWithAI(referenceMetadata, work) : { match: true }
+
+      return {
+        metadata: referenceMetadata,
+        verification,
+        crossrefData: work,
+      }
+    }
+    catch (error) {
+      console.error('Error using crossref search', error)
+      return {
+        metadata: referenceMetadata,
+        verification: { match: false, reason: 'Error using crossref search' },
+      }
+    }
+  }
 
   const { getWorks, getWorkByDOI } = useCrossrefStore()
-  const { verifyMatchWithAI } = useAiStore()
 
   async function searchCrossrefWork(meta: ReferenceMetadata): Promise<Work | null> {
     // Check if DOI is present in the metadata. If so, use it to get the work directly.
@@ -57,58 +114,7 @@ export const useMetadataStore = defineStore('metadata', () => {
     return works[0] || null
   }
 
-  // Search Crossref using the metadata and verify the match with AI
-  async function searchAndVerifyWork(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
-    try {
-      const work = await searchCrossrefWork(referenceMetadata)
-
-      if (!work) {
-        return {
-          metadata: referenceMetadata,
-          verification: { match: false, reason: 'No matching item found' },
-        }
-      }
-
-      const aiVerification = await verifyMatchWithAI(referenceMetadata, work)
-
-      return {
-        metadata: referenceMetadata,
-        verification: aiVerification,
-        crossrefData: work,
-      }
-    }
-    catch (error) {
-      console.error('Error using crossref search', error)
-      return {
-        metadata: referenceMetadata,
-        verification: { match: false, reason: 'Error using crossref search' },
-      }
-    }
-  }
-
-  // Extract metadata from text and search Crossref
-  const metadataResults = ref<VerifiedReference[]>([])
-  const { isLoading } = storeToRefs(useAppStore())
-
-  async function extractAndSearchMetadata(text: string) {
-    metadataResults.value = []
-
-    if (!text.length)
-      return
-
-    isLoading.value = true
-
-    const metadataList = await extractUsingAi(text)
-
-    for (const metadata of metadataList) {
-      const match = await searchAndVerifyWork(metadata)
-      metadataResults.value.push(match)
-    }
-
-    isLoading.value = false
-  }
-
-  return { extractAndSearchMetadata, metadataResults }
+  return { extractAndSearchMetadata, metadataResults, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount }
 })
 
 if (import.meta.hot) {

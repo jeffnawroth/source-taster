@@ -1,24 +1,15 @@
 <script setup lang="ts">
-import { useDoiStore } from '@/extension/stores/doi'
-import { useIssnStore } from '@/extension/stores/issn'
 import { useMetadataStore } from '@/extension/stores/metadata'
 import { mdiFileDocumentOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 
-// SEARCH
-const { dois } = storeToRefs(useDoiStore())
-const { issns } = storeToRefs(useIssnStore())
 const { metadataResults } = storeToRefs(useMetadataStore())
 
 const search = ref('')
 
-const data = computed(() => {
-  return [...dois.value, ...issns.value, ...metadataResults.value]
-})
-
-const { results } = useFuse(search, data, {
+const { results } = useFuse(search, metadataResults, {
   fuseOptions: {
-    keys: ['value'],
+    keys: ['metadata.originalEntry'],
     threshold: 0.3,
 
   },
@@ -43,7 +34,7 @@ const { results } = useFuse(search, data, {
       <ReportIconAi />
 
       <!-- PDF DOWNLOAD -->
-      <ReportPdfDownload />
+      <!-- <ReportPdfDownload /> -->
     </template>
 
     <!-- SUBTITLE -->
@@ -72,7 +63,7 @@ const { results } = useFuse(search, data, {
       </div>
 
       <!-- STATES -->
-      <ReportState />
+      <!-- <ReportState /> -->
     </v-card-text>
   </v-card>
 </template>
