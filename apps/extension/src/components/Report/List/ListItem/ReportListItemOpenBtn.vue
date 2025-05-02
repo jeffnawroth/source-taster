@@ -17,6 +17,9 @@ function open() {
   if (verifiedReference.verification.match && verifiedReference.crossrefData && (verifiedReference.crossrefData as Work).uRL) {
     window.open((verifiedReference.crossrefData as Work).uRL, '_blank')
   }
+  else if (verifiedReference.websiteUrl) {
+    window.open((verifiedReference.websiteUrl))
+  }
 }
 </script>
 

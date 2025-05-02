@@ -3,6 +3,7 @@ import type { ReferenceMetadata, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '../logic'
 import { extractDois } from '../utils/doiExtractor'
+import { validateUrl } from '../utils/validateUrl'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
@@ -42,19 +43,40 @@ export const useMetadataStore = defineStore('metadata', () => {
     try {
       const work = await searchCrossrefWork(referenceMetadata)
 
-      if (!work) {
+      if (work) {
+        const verification = useAiExtraction
+          ? await verifyMatchWithAI(referenceMetadata, work)
+          : { match: true }
+
+        if (verification.match) {
+          return {
+            metadata: referenceMetadata,
+            crossrefData: work,
+            verification,
+          }
+        }
+      }
+      // Check if URL is valid and reachable
+      if (referenceMetadata.url) {
+        const urlRes = await validateUrl(referenceMetadata.url)
         return {
           metadata: referenceMetadata,
-          verification: { match: false, reason: 'No matching item found' },
+          websiteUrl: referenceMetadata.url,
+          verification: {
+            match: urlRes.reachable,
+            reason: urlRes.reachable
+              ? 'URL not valid'
+              : `URL-Validation failed: ${urlRes.reason}`,
+          },
         }
       }
 
-      const verification = useAiExtraction ? await verifyMatchWithAI(referenceMetadata, work) : { match: true }
-
       return {
         metadata: referenceMetadata,
-        verification,
-        crossrefData: work,
+        verification: {
+          match: false,
+          reason: 'No data for CrossRef and URL',
+        },
       }
     }
     catch (error) {
@@ -111,6 +133,8 @@ export const useMetadataStore = defineStore('metadata', () => {
     const sort = 'score'
 
     const works = await getWorks({ query, filter, select, rows, sort })
+    // eslint-disable-next-line no-console
+    console.log('returned erstes werk')
     return works[0] || null
   }
 

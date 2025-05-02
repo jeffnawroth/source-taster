@@ -32,4 +32,5 @@ export interface VerifiedReference {
   metadata: ReferenceMetadata
   verification: VerificationResult
   crossrefData?: Journal | Work
+  websiteUrl?: string | null
 }
