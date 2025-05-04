@@ -29,8 +29,10 @@ export const useMetadataStore = defineStore('metadata', () => {
 
     const metadataList = useAiExtraction.value ? await extractUsingAi(text) : extractDois(text)
 
-    const matches = await Promise.all(metadataList.map(metadata => searchAndVerifyWork(metadata)))
-    metadataResults.value.push(...matches)
+    for (const metadata of metadataList) {
+      const match = await searchAndVerifyWork(metadata)
+      metadataResults.value.push(match)
+    }
 
     isLoading.value = false
   }
