@@ -43,6 +43,10 @@ export async function getManifest() {
     permissions: isFirefox
       ? ['storage', 'activeTab', 'contextMenus']
       : ['storage', 'activeTab', 'contextMenus', 'sidePanel'],
+    host_permissions: [
+      'http://*/*',
+      'https://*/*',
+    ],
     content_scripts: [
       {
         matches: [
