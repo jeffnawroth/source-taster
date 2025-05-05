@@ -1,4 +1,4 @@
-import type { Journal, Work } from './crossref-client'
+import type { Journal, Work } from './clients/crossref-client'
 
 export interface AIModel {
   title: string

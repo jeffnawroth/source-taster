@@ -1,4 +1,4 @@
-import type { Work } from '../crossref-client'
+import type { Work } from '../clients/crossref-client'
 import type { ReferenceMetadata, VerificationResult } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { selectedAiModel } from '../logic'

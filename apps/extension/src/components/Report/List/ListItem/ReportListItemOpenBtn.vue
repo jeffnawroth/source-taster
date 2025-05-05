@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Work } from '@/extension/crossref-client'
+import type { Work } from '@/extension/clients/crossref-client'
 import type { VerifiedReference } from '@/extension/types'
 import { mdiOpenInNew } from '@mdi/js'
 
