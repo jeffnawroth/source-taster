@@ -14,7 +14,7 @@ const { t } = useI18n()
     <template #activator="{ props: tooltipProps }">
       <v-icon
         v-bind="tooltipProps"
-        size="x-large"
+        size="large"
         :icon="verified ? mdiCheckCircleOutline : mdiCloseCircleOutline"
       />
     </template>
