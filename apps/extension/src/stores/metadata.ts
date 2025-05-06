@@ -1,12 +1,13 @@
-import type { Work } from '../crossref-client'
+import type { Work } from '../clients/crossref-client'
+import type { FullPaper } from '../clients/semanticscholar-client'
 import type { ReferenceMetadata, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '../logic'
 import { extractDois } from '../utils/doiExtractor'
-import { validateUrl } from '../utils/validateUrl'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
+import { useSemanticScholarStore } from './semantic-scholar'
 
 export const useMetadataStore = defineStore('metadata', () => {
   const metadataResults = ref<VerifiedReference[]>([])
@@ -27,115 +28,91 @@ export const useMetadataStore = defineStore('metadata', () => {
 
     isLoading.value = true
 
-    const metadataList = useAiExtraction.value ? await extractUsingAi(text) : extractDois(text)
+    const referencesMetadata = useAiExtraction.value ? await extractUsingAi(text) : extractDois(text)
 
-    for (const metadata of metadataList) {
-      const match = await searchAndVerifyWork(metadata)
+    for (const referenceMetadata of referencesMetadata) {
+      const match = await searchAndVerifyWork(referenceMetadata)
       metadataResults.value.push(match)
     }
 
     isLoading.value = false
   }
 
+  const { searchCrossrefWork } = useCrossrefStore()
+  const { searchSemanticScholarWork } = useSemanticScholarStore()
+
+  async function searchWork(referenceMetadata: ReferenceMetadata) {
+    const [crossrefWork, semanticScholarWork] = await Promise.all([
+      searchCrossrefWork(referenceMetadata),
+      searchSemanticScholarWork(referenceMetadata),
+    ])
+    return { crossrefWork, semanticScholarWork }
+  }
+
   const { verifyMatchWithAI } = useAiStore()
+  async function verifyMatch(referenceMetadata: ReferenceMetadata, works: { crossrefWork: Work | null, semanticScholarWork: FullPaper | null }) {
+    if (works.crossrefWork && !works.semanticScholarWork)
+      return { match: false, reason: 'No data for CrossRef and Semantic Scholar' }
+
+    const verificationResult = await verifyMatchWithAI(referenceMetadata, works)
+    return verificationResult
+  }
+
   // Search Crossref using the metadata and verify the match with AI
   async function searchAndVerifyWork(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
     try {
-      const work = await searchCrossrefWork(referenceMetadata)
-
-      if (work) {
-        const verification = useAiExtraction
-          ? await verifyMatchWithAI(referenceMetadata, work)
-          : { match: true }
-
-        if (verification.match) {
-          return {
-            metadata: referenceMetadata,
-            crossrefData: work,
-            verification,
-          }
-        }
-      }
-      // Check if URL is valid and reachable
-      if (referenceMetadata.url) {
-        const urlRes = await validateUrl(referenceMetadata.url)
-        return {
-          metadata: referenceMetadata,
-          websiteUrl: referenceMetadata.url,
-          verification: {
-            match: urlRes.reachable,
-            reason: urlRes.reachable
-              ? 'URL not valid'
-              : `URL-Validation failed: ${urlRes.reason}`,
-          },
-        }
-      }
+      const works = await searchWork(referenceMetadata)
+      const verificationResult = await verifyMatch(referenceMetadata, works)
 
       return {
         metadata: referenceMetadata,
-        verification: {
-          match: false,
-          reason: 'No data for CrossRef and URL',
-        },
+        verification: verificationResult,
+        crossrefData: works.crossrefWork || undefined,
+        semanticScholarData: works.semanticScholarWork || undefined,
       }
+
+      // if (work) {
+      //   const verification = useAiExtraction
+      //     ? await verifyMatchWithAI(referenceMetadata, work)
+      //     : { match: true }
+
+      //   if (verification.match) {
+      //     return {
+      //       metadata: referenceMetadata,
+      //       crossrefData: work,
+      //       verification,
+      //     }
+      //   }
+      // }
+      // // Check if URL is valid and reachable
+      // if (referenceMetadata.url) {
+      //   const urlRes = await validateUrl(referenceMetadata.url)
+      //   return {
+      //     metadata: referenceMetadata,
+      //     websiteUrl: referenceMetadata.url,
+      //     verification: {
+      //       match: urlRes.reachable,
+      //       reason: urlRes.reachable
+      //         ? 'URL not valid'
+      //         : `URL-Validation failed: ${urlRes.reason}`,
+      //     },
+      //   }
+      // }
+
+      // return {
+      //   metadata: referenceMetadata,
+      //   verification: {
+      //     match: false,
+      //     reason: 'No data for CrossRef and URL',
+      //   },
+      // }
     }
     catch (error) {
-      console.error('Error using crossref search', error)
       return {
         metadata: referenceMetadata,
-        verification: { match: false, reason: 'Error using crossref search' },
+        verification: { match: false, reason: `Error verifying reference: ${error}` },
       }
     }
-  }
-
-  const { getWorks, getWorkByDOI } = useCrossrefStore()
-
-  async function searchCrossrefWork(meta: ReferenceMetadata): Promise<Work | null> {
-    // Check if DOI is present in the metadata. If so, use it to get the work directly.
-    if (meta.doi) {
-      const work = await getWorkByDOI(meta.doi)
-      if (work)
-        return work
-    }
-
-    // If DOI is not present, construct a query using the metadata fields.
-    if (!meta.title && !meta.journal && !meta.authors?.length && !meta.year)
-      return null
-
-    // The query is constructed by concatenating the title, authors, journal, and year.
-    const params = [meta.title, ...(meta.authors ?? []), meta.journal, meta.year]
-    const queryBibliographic = params.filter(Boolean).join(' ')
-    const query = params ? `query.bibliographic=${queryBibliographic}` : undefined
-
-    // The filter is constructed by checking if the year is present in the metadata.
-    const filterParams = [
-      meta.year ? `from-pub-date:${meta.year}-01-01,until-pub-date:${meta.year}-12-31` : undefined,
-    ]
-    const filter = filterParams.filter(Boolean).join(',')
-
-    const select = [
-      'title',
-      'author',
-      'issued',
-      'published',
-      'published-print',
-      'published-online',
-      'DOI',
-      'container-title',
-      'volume',
-      'issue',
-      'page',
-      'URL',
-    ].join(',')
-
-    const rows = 1
-
-    const sort = 'score'
-
-    const works = await getWorks({ query, filter, select, rows, sort })
-    // eslint-disable-next-line no-console
-    console.log('returned erstes werk')
-    return works[0] || null
   }
 
   return { extractAndSearchMetadata, metadataResults, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount }

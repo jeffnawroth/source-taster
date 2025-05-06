@@ -7,15 +7,15 @@ import { extractWithOpenAI } from '../services/openaiService'
 
 const instruction = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
 	1.	ReferenceMetadata: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
-	2.	Work: A structured object retrieved from the Crossref API, containing authoritative bibliographic information.
+	2.	Works: An array of structured objects retrieved from the Crossref API and Semantic Scholar API, containing authoritative bibliographic information.
 
-Your task is to assess whether these two inputs describe the same publication. Follow these steps:
-	•	Title Comparison: Compare ReferenceMetadata.title with Work.title[0]. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
-	•	Author Comparison: Compare ReferenceMetadata.authors with Work.author (array of author objects). Focus on matching surnames, allowing for slight variations or order differences.
-	•	Year Comparison: Compare ReferenceMetadata.year with the publication year in Work.issued.date-parts[0][0] (or another available date field such as published, publishedPrint, or publishedOnline).
-	•	DOI: If both ReferenceMetadata.doi and Work.dOI are present, compare them directly (they should be identical for a perfect match).
-	•	Journal Comparison: Compare ReferenceMetadata.journal with Work.containerTitle[0], if available.
-	•	Volume, Issue, Pages: Compare volume, issue, and pages (from ReferenceMetadata) with the corresponding fields in Work (volume, issue, page), if present.
+Your task is to assess whether **any** of the items in the Works array describes the same publication as ReferenceMetadata. Follow these steps for each item in Works:
+	•	Title Comparison: Compare ReferenceMetadata.title with crossrefWork.title[0] and semanticScholarWork.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
+	•	Author Comparison: Compare ReferenceMetadata.authors with crossrefWork.author and semanticScholarWork.authors (array of author objects). Focus on matching surnames, allowing for slight variations or order differences.
+	•	Year Comparison: Compare ReferenceMetadata.year with the publication year in crossrefWork.issued.date-parts[0][0] (or another available date field such as published, publishedPrint, or publishedOnline) and semanticScholarWork.year (or another available date field such as publicationDate).
+	•	DOI: If both ReferenceMetadata.doi and crossrefWork.dOI are present, compare them directly (they should be identical for a perfect match).
+	•	Journal Comparison: Compare ReferenceMetadata.journal with crossrefWork.containerTitle[0] and semanticScholarWork.journal.name, if available.
+	•	Volume, Issue, Pages: Compare volume, issue, and pages (from ReferenceMetadata) with the corresponding fields in crossrefWork (volume, issue, page) and semanticScholarWork.journal, if present.
 
 Be tolerant of minor mismatches but look for strong agreement across multiple fields.
 
@@ -72,12 +72,12 @@ const geminiConfig: GenerateContentConfig = {
   systemInstruction: instruction,
 }
 
-export async function verifyMetadataMatchWithModel(service: string, model: string, referenceMetadata: any, crossrefItem: any) {
+export async function verifyMetadataMatchWithModel(service: string, model: string, referenceMetadata: any, works: any) {
   switch (service) {
     case 'openai':
-      return await extractWithOpenAI(model, instruction, JSON.stringify({ extractedMetadata: referenceMetadata, crossrefItem }), openAIConfig)
+      return await extractWithOpenAI(model, instruction, JSON.stringify({ extractedMetadata: referenceMetadata, works }), openAIConfig)
     case 'gemini':
-      return await extractWithGemini(model, JSON.stringify({ extractedMetadata: referenceMetadata, crossrefItem }), geminiConfig)
+      return await extractWithGemini(model, JSON.stringify({ extractedMetadata: referenceMetadata, works }), geminiConfig)
     default:
       throw new Error('Unsupported service')
   }

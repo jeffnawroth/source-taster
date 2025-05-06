@@ -1,4 +1,5 @@
 import type { Journal, Work } from './clients/crossref-client'
+import type { FullPaper } from './clients/semanticscholar-client'
 
 export interface AIModel {
   title: string
@@ -32,5 +33,6 @@ export interface VerifiedReference {
   metadata: ReferenceMetadata
   verification: VerificationResult
   crossrefData?: Journal | Work
+  semanticScholarData?: FullPaper
   websiteUrl?: string | null
 }

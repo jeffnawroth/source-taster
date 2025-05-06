@@ -1,14 +1,15 @@
-import type { Work, WorksGetRequest } from '@/extension/crossref-client'
-import { Configuration, WorksApi } from '@/extension/crossref-client'
+import type { Work, WorksGetRequest } from '@/extension/clients/crossref-client'
+import type { ReferenceMetadata } from '../types'
+import { Configuration, WorksApi } from '@/extension/clients/crossref-client'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
 const config = new Configuration({
   basePath: 'https://api.crossref.org',
+  headers: {
+    'User-Agent': import.meta.env.VITE_CROSSREF_USER_AGENT,
+    'mailto': import.meta.env.VITE_CROSSREF_MAILTO,
+  },
 })
-
-// const DEFAULT_QUERY_PARAMS = {
-//   mailto: import.meta.env.VITE_CROSSREF_MAILTO,
-// }
 
 export const useCrossrefStore = defineStore('crossref', () => {
   const api = new WorksApi(config)
@@ -16,7 +17,6 @@ export const useCrossrefStore = defineStore('crossref', () => {
   async function getWorks(query?: WorksGetRequest): Promise<Work[]> {
     try {
       const response = await api.worksGet({
-        // ...DEFAULT_QUERY_PARAMS,
         ...query,
       })
 
@@ -35,7 +35,6 @@ export const useCrossrefStore = defineStore('crossref', () => {
   async function getWorkByDOI(doi: string): Promise<Work | null> {
     try {
       const response = await api.worksDoiGet({
-        // ...DEFAULT_QUERY_PARAMS,
         doi,
       })
 
@@ -50,7 +49,42 @@ export const useCrossrefStore = defineStore('crossref', () => {
       return null
     }
   }
-  return { getWorks, getWorkByDOI }
+
+  async function searchCrossrefWork(meta: ReferenceMetadata): Promise<Work | null> {
+    const params = [meta.title, ...(meta.authors ?? []), meta.journal, meta.year]
+    const queryBibliographic = params.filter(Boolean).join(' ')
+    const query = params ? `query.bibliographic=${queryBibliographic}` : undefined
+
+    // The filter is constructed by checking if the year is present in the metadata.
+    const filterParams = [
+      meta.year ? `from-pub-date:${meta.year}-01-01,until-pub-date:${meta.year}-12-31` : undefined,
+    ]
+    const filter = filterParams.filter(Boolean).join(',')
+
+    const select = [
+      'title',
+      'author',
+      'issued',
+      'published',
+      'published-print',
+      'published-online',
+      'DOI',
+      'container-title',
+      'volume',
+      'issue',
+      'page',
+      'URL',
+    ].join(',')
+
+    const rows = 1
+
+    const sort = 'score'
+
+    const works = await getWorks({ query, filter, select, rows, sort })
+
+    return works[0] || null
+  }
+  return { getWorks, getWorkByDOI, searchCrossrefWork }
 })
 
 if (import.meta.hot) {

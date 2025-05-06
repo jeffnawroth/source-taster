@@ -4,14 +4,14 @@ import { verifyMetadataMatchWithModel } from '../utilts/verifyMetadataMatch'
 const verifyMetadataMatch = new Hono()
 
 verifyMetadataMatch.post('/', async (c) => {
-  const { service, model, referenceMetadata, crossrefItem } = await c.req.json()
+  const { service, model, referenceMetadata, works } = await c.req.json()
 
-  if (!service || !model || !referenceMetadata || !crossrefItem) {
-    return c.json({ error: 'Service, model, referenceMetadata and crossrefItem are required' }, 400)
+  if (!service || !model || !referenceMetadata || !works) {
+    return c.json({ error: 'Service, model, referenceMetadata and works are required' }, 400)
   }
 
   try {
-    const response = await verifyMetadataMatchWithModel(service, model, referenceMetadata, crossrefItem)
+    const response = await verifyMetadataMatchWithModel(service, model, referenceMetadata, works)
     return c.json(response)
   }
   catch (error) {

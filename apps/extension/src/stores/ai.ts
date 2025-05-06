@@ -1,4 +1,5 @@
 import type { Work } from '../clients/crossref-client'
+import type { FullPaper } from '../clients/semanticscholar-client'
 import type { ReferenceMetadata, VerificationResult } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { selectedAiModel } from '../logic'
@@ -47,7 +48,7 @@ export const useAiStore = defineStore('ai', () => {
     }
   }
 
-  async function verifyMatchWithAI(referenceMetadata: ReferenceMetadata, crossrefItem: Work): Promise<VerificationResult> {
+  async function verifyMatchWithAI(referenceMetadata: ReferenceMetadata, works: { crossrefWork: Work | null, semanticScholarWork: FullPaper | null }): Promise<VerificationResult> {
     try {
       const response = await fetch(`${baseUrl}/verify-metadata-match`, {
         method: 'POST',
@@ -56,7 +57,7 @@ export const useAiStore = defineStore('ai', () => {
           service: selectedAiModel.value.service,
           model: selectedAiModel.value.value,
           referenceMetadata,
-          crossrefItem,
+          works,
         }),
       })
 
