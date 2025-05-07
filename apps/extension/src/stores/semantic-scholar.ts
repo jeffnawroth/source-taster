@@ -1,5 +1,6 @@
-import type { FullPaper, GetGraphPaperRelevanceSearchRequest } from '../clients/semanticscholar-client'
+import type { FullPaper } from '../clients/semanticscholar-client'
 import type { ReferenceMetadata } from '../types'
+import { useMemoize } from '@vueuse/core'
 import fetchRetry from 'fetch-retry'
 import PQueue from 'p-queue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -32,44 +33,49 @@ export const useSemanticScholarStore = defineStore('semantic-scholar', () => {
     autoStart: true,
   })
 
-  // Wrap API calls in the queue
-  async function queuedSearchPaper(query: GetGraphPaperRelevanceSearchRequest) {
-    return queue.add(async () => {
+  // Memoized paper search function - caches results by query string
+  const memoizedSearchPaper = useMemoize(
+    async (queryString: string, fields: string, limit: number) => {
+      isLoading.value = true
       try {
-        const response = await client.getGraphPaperRelevanceSearch(query)
-        return response.data || []
+        return await queue.add(async () => {
+          try {
+            const response = await client.getGraphPaperRelevanceSearch({
+              query: queryString,
+              fields,
+              limit,
+            })
+            return response.data || []
+          }
+          catch (error) {
+            console.error('Semantic Scholar API Error:', error)
+            return []
+          }
+        })
       }
-      catch (error) {
-        console.error('Semantic Scholar API Error:', error)
-        return []
+      finally {
+        isLoading.value = false
       }
-    })
-  }
-
-  async function searchPaper(query: GetGraphPaperRelevanceSearchRequest) {
-    isLoading.value = true
-    try {
-      return await queuedSearchPaper(query)
-    }
-    finally {
-      isLoading.value = false
-    }
-  }
+    },
+  )
 
   // Search for a paper using Semantic Scholar API and return the first result if available
-  async function searchSemanticScholarWork(meta: ReferenceMetadata): Promise<FullPaper | null> {
-    const query = meta.title || ''
-    const fields = 'title,authors,year,publicationDate,journal,url'
-    const limit = 1
+  const searchSemanticScholarWork = useMemoize(
+    async (meta: ReferenceMetadata): Promise<FullPaper | null> => {
+      const query = meta.title || ''
+      if (!query.trim())
+        return null
 
-    const paper = await searchPaper({
-      query,
-      limit,
-      fields,
-    })
+      const fields = 'title,authors,year,publicationDate,journal,url'
+      const limit = 1
 
-    return Array.isArray(paper) && paper.length > 0 ? paper[0] : null
-  }
+      const paper = await memoizedSearchPaper(query, fields, limit)
+      return Array.isArray(paper) && paper.length > 0 ? paper[0] : null
+    },
+    {
+      getKey: (meta: ReferenceMetadata) => meta.title || '',
+    },
+  )
 
   // Get queue status for UI feedback
   function getQueueStatus() {
@@ -80,10 +86,17 @@ export const useSemanticScholarStore = defineStore('semantic-scholar', () => {
     }
   }
 
+  // Clear memoization caches
+  function clearCache() {
+    memoizedSearchPaper.cache.clear()
+    searchSemanticScholarWork.cache.clear()
+  }
+
   return {
     searchSemanticScholarWork,
     isLoading,
     getQueueStatus,
+    clearCache,
   }
 })
 
