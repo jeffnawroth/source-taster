@@ -6,18 +6,20 @@ import { extractWithGemini } from '../services/geminiService'
 import { extractWithOpenAI } from '../services/openaiService'
 
 const instruction = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
-	1.	ReferenceMetadata: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
-	2.	Works: An array of structured objects retrieved from the Crossref API and Semantic Scholar API, containing authoritative bibliographic information.
+	1. ReferenceMetadata: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
+	2. Works: An array of structured objects retrieved from the Crossref API and Semantic Scholar API, containing authoritative bibliographic information.
 
-Your task is to assess whether **any** of the items in the Works array describes the same publication as ReferenceMetadata. Follow these steps for each item in Works:
-	•	Title Comparison: Compare ReferenceMetadata.title with crossrefWork.title[0] and semanticScholarWork.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
-	•	Author Comparison: Compare ReferenceMetadata.authors with crossrefWork.author and semanticScholarWork.authors (array of author objects). Focus on matching surnames, allowing for slight variations or order differences.
-	•	Year Comparison: Compare ReferenceMetadata.year with the publication year in crossrefWork.issued.date-parts[0][0] (or another available date field such as published, publishedPrint, or publishedOnline) and semanticScholarWork.year (or another available date field such as publicationDate).
-	•	DOI: If both ReferenceMetadata.doi and crossrefWork.dOI are present, compare them directly (they should be identical for a perfect match).
-	•	Journal Comparison: Compare ReferenceMetadata.journal with crossrefWork.containerTitle[0] and semanticScholarWork.journal.name, if available.
-	•	Volume, Issue, Pages: Compare volume, issue, and pages (from ReferenceMetadata) with the corresponding fields in crossrefWork (volume, issue, page) and semanticScholarWork.journal, if present.
+Your task is to assess whether **any** of the items in the Works array describes the same publication as ReferenceMetadata. It is sufficient for a match if **either** the Crossref data **or** the Semantic Scholar data aligns well with the ReferenceMetadata.
 
-Be tolerant of minor mismatches but look for strong agreement across multiple fields.
+For each item in Works, follow these steps:
+	• Title Comparison: Compare ReferenceMetadata.title with crossrefWork.title[0] and/or semanticScholarWork.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
+	• Author Comparison: Compare ReferenceMetadata.authors with crossrefWork.author and/or semanticScholarWork.authors (array of author objects). Focus on matching surnames, allowing for slight variations or order differences.
+	• Year Comparison: Compare ReferenceMetadata.year with the publication year in crossrefWork.issued.date-parts[0][0] (or published, publishedPrint, publishedOnline) and/or semanticScholarWork.year (or publicationDate).
+	• DOI: If both ReferenceMetadata.doi and crossrefWork.DOI are present, compare them directly (they should be identical for a perfect match).
+	• Journal Comparison: Compare ReferenceMetadata.journal with crossrefWork.containerTitle[0] and/or semanticScholarWork.journal.name, if available.
+	• Volume, Issue, Pages: Compare volume, issue, and pages (from ReferenceMetadata) with the corresponding fields in crossrefWork (volume, issue, page) and/or semanticScholarWork.journal, if present.
+
+Be tolerant of minor mismatches but look for strong agreement across multiple fields. You do not need both Crossref and Semantic Scholar to match — a strong match with either is sufficient.
 
 At the end of your analysis, return a clear evaluation in the following format:
 {
