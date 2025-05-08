@@ -4,7 +4,7 @@ import type { ReferenceMetadata, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '../logic'
 import { extractDois } from '../utils/doiExtractor'
-import { isUrlReachable } from '../utils/validateUrl'
+import { isUrlReachable, normalizeUrl } from '../utils/validateUrl'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
@@ -82,7 +82,7 @@ export const useMetadataStore = defineStore('metadata', () => {
             match,
             reason: match ? 'URL reachable' : 'URL not reachable',
           },
-          websiteUrl: referenceMetadata.url,
+          websiteUrl: normalizeUrl(referenceMetadata.url),
         }
       }
 
