@@ -4,6 +4,7 @@ import type { ReferenceMetadata, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '../logic'
 import { extractDois } from '../utils/doiExtractor'
+import { isUrlReachable } from '../utils/validateUrl'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
@@ -64,48 +65,33 @@ export const useMetadataStore = defineStore('metadata', () => {
       const works = await searchWork(referenceMetadata)
       const verificationResult = await verifyMatch(referenceMetadata, works)
 
+      if (verificationResult.match) {
+        return {
+          metadata: referenceMetadata,
+          verification: verificationResult,
+          crossrefData: works.crossrefWork || undefined,
+          semanticScholarData: works.semanticScholarWork || undefined,
+        }
+      }
+      if (referenceMetadata.url) {
+        const match = await isUrlReachable(referenceMetadata.url)
+
+        return {
+          metadata: referenceMetadata,
+          verification: {
+            match,
+            reason: match ? 'URL reachable' : 'URL not reachable',
+          },
+          websiteUrl: referenceMetadata.url,
+        }
+      }
+
       return {
         metadata: referenceMetadata,
         verification: verificationResult,
         crossrefData: works.crossrefWork || undefined,
         semanticScholarData: works.semanticScholarWork || undefined,
       }
-
-      // if (work) {
-      //   const verification = useAiExtraction
-      //     ? await verifyMatchWithAI(referenceMetadata, work)
-      //     : { match: true }
-
-      //   if (verification.match) {
-      //     return {
-      //       metadata: referenceMetadata,
-      //       crossrefData: work,
-      //       verification,
-      //     }
-      //   }
-      // }
-      // // Check if URL is valid and reachable
-      // if (referenceMetadata.url) {
-      //   const urlRes = await validateUrl(referenceMetadata.url)
-      //   return {
-      //     metadata: referenceMetadata,
-      //     websiteUrl: referenceMetadata.url,
-      //     verification: {
-      //       match: urlRes.reachable,
-      //       reason: urlRes.reachable
-      //         ? 'URL not valid'
-      //         : `URL-Validation failed: ${urlRes.reason}`,
-      //     },
-      //   }
-      // }
-
-      // return {
-      //   metadata: referenceMetadata,
-      //   verification: {
-      //     match: false,
-      //     reason: 'No data for CrossRef and URL',
-      //   },
-      // }
     }
     catch (error) {
       return {
