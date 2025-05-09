@@ -1,9 +1,11 @@
 import type { Work } from '../clients/crossref-client'
 import type { FullPaper } from '../clients/semanticscholar-client'
-import type { ReferenceMetadata, VerifiedReference } from '../types'
+import type { ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAiExtraction } from '../logic'
 import { extractDois } from '../utils/doiExtractor'
+import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
+import { extractPdfTextFromUrl } from '../utils/pdfUtils'
 import { isUrlReachable, normalizeUrl } from '../utils/validateUrl'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
@@ -19,6 +21,7 @@ export const useMetadataStore = defineStore('metadata', () => {
 
   // Extract metadata from text and search Crossref
   const { extractUsingAi } = useAiStore()
+  const { verifyPageMatchWithAI } = useAiStore()
   const { isLoading } = storeToRefs(useAppStore())
 
   async function extractAndSearchMetadata(text: string) {
@@ -74,13 +77,13 @@ export const useMetadataStore = defineStore('metadata', () => {
         }
       }
       if (referenceMetadata.url) {
-        const match = await isUrlReachable(referenceMetadata.url)
+        const urlVerification = await verifyUrlContent(referenceMetadata)
 
         return {
           metadata: referenceMetadata,
           verification: {
-            match,
-            reason: match ? 'URL reachable' : 'URL not reachable',
+            match: urlVerification.match,
+            reason: urlVerification.reason ? 'URL reachable' : 'URL not reachable',
           },
           websiteUrl: normalizeUrl(referenceMetadata.url),
         }
@@ -99,6 +102,28 @@ export const useMetadataStore = defineStore('metadata', () => {
         verification: { match: false, reason: `Error verifying reference: ${error}` },
       }
     }
+  }
+
+  async function verifyUrlContent(referenceMetadata: ReferenceMetadata): Promise<VerificationResult> {
+    const raw = referenceMetadata.url!
+    if (!(await isUrlReachable(raw))) {
+      return { match: false, reason: 'URL not reachable' }
+    }
+
+    // HEAD-Request, to differentiate between PDF and HTML
+    const head = await fetch(raw, { method: 'HEAD', redirect: 'follow' })
+    const ct = (head.headers.get('Content-Type') || '').toLowerCase()
+
+    let text = ''
+    if (ct.includes('pdf')) {
+      text = await extractPdfTextFromUrl(raw)
+    }
+    else {
+      text = await extractHtmlTextFromUrl(raw)
+    }
+
+    const verification = await verifyPageMatchWithAI(referenceMetadata, text)
+    return verification
   }
 
   return { extractAndSearchMetadata, metadataResults, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount }
