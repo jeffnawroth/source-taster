@@ -29,6 +29,21 @@ At the end of your analysis, return a clear evaluation in the following format:
 }
 `
 
+const pageInstruction = `
+You are a system that checks whether the text content of a web page matches
+the bibliographic ReferenceMetadata extracted from a citation string.
+
+Input:
+  - ReferenceMetadata: an object with title, authors, year, etc.
+  - pageText: the full text of the target page (HTML or PDF).
+
+Your task:
+  Compare the metadata fields against the pageText. If you find strong
+  confirmation (matching title phrases, author names, year, etc.) return
+  { "match": true, "reason": "...", "confidence": 0.XX }. Otherwise
+  return { "match": false, "reason": "...", "confidence": 0.XX }.
+`
+
 const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
   format: {
     type: 'json_schema',
@@ -80,6 +95,17 @@ export async function verifyMetadataMatchWithModel(service: string, model: strin
       return await extractWithOpenAI(model, instruction, JSON.stringify({ extractedMetadata: referenceMetadata, works }), openAIConfig)
     case 'gemini':
       return await extractWithGemini(model, JSON.stringify({ extractedMetadata: referenceMetadata, works }), geminiConfig)
+    default:
+      throw new Error('Unsupported service')
+  }
+}
+
+export async function verifyPageMatchWithModel(service: string, model: string, referenceMetadata: any, pageText: string) {
+  switch (service) {
+    case 'openai':
+      return await extractWithOpenAI(model, pageInstruction, JSON.stringify({ extractedMetadata: referenceMetadata, pageText }), openAIConfig)
+    case 'gemini':
+      return await extractWithGemini(model, JSON.stringify({ extractedMetadata: referenceMetadata, pageText }), geminiConfig)
     default:
       throw new Error('Unsupported service')
   }
