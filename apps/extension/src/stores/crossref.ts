@@ -8,8 +8,8 @@ import { ref } from 'vue'
 const config = new Configuration({
   basePath: 'https://api.crossref.org',
   headers: {
-    'User-Agent': import.meta.env.VITE_CROSSREF_USER_AGENT,
-    'mailto': import.meta.env.VITE_CROSSREF_MAILTO,
+    'User-Agent': import.meta.env.VITE_USER_AGENT,
+    'mailto': import.meta.env.VITE_MAILTO,
   },
 })
 
