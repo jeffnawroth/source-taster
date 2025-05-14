@@ -1,12 +1,12 @@
-import type { WorkSchema } from '../clients/open-alex'
-import type { ReferenceMetadata } from '../types'
+import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { OpenAlexApi } from '../clients/open-alex'
+import { mapOpenAlexToPublication } from '../utils/metadataMapper'
 
 export const useOpenAlexStore = defineStore('openAlex', () => {
   const client = new OpenAlexApi()
 
-  async function searchWork(referenceMetadata: ReferenceMetadata): Promise<WorkSchema | null> {
+  async function searchWork(referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> {
     if (!referenceMetadata.title) {
       return null
     }
@@ -29,7 +29,12 @@ export const useOpenAlexStore = defineStore('openAlex', () => {
 
       })
 
-      return works.results[0] || null
+      if (!works.results?.length) {
+        return null
+      }
+
+      const mappedResponse = mapOpenAlexToPublication(works.results[0])
+      return mappedResponse
     }
     catch (error) {
       console.error('OpenAlex API Error:', error)

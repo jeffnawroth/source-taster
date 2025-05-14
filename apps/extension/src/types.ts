@@ -25,6 +25,19 @@ export interface ReferenceMetadata {
   url?: string | null
 }
 
+export interface PublicationMetadata {
+  id: string
+  title?: string
+  authors?: string[]
+  journal?: string
+  volume?: string
+  issue?: string
+  pages?: string
+  doi?: string
+  url?: string
+  publicationYear?: number
+}
+
 export interface VerificationResult {
   match: boolean
   reason?: string
@@ -42,12 +55,12 @@ export interface EuropePmcPublication {
   authorString: string
   doi: string
   title: string
-  firstPublicationDate: string
   id: number
-  issue: number
+  issue: string
   journalTitle: string
   journalVolume: string
   pageInfo: string
+  pubYear: number
 }
 
 export interface EuropePmcPublicationsResponse {

@@ -1,6 +1,7 @@
-import type { EuropePmcPublicationsResponse, ReferenceMetadata } from '../types'
+import type { EuropePmcPublicationsResponse, PublicationMetadata, ReferenceMetadata } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { Configuration, EuropePMCArticlesRESTfulAPIApi } from '../clients/europe-pmc'
+import { mapEuropePMCToPublication } from '../utils/metadataMapper'
 
 const config = new Configuration({
   basePath: 'https://www.ebi.ac.uk/europepmc/webservices/rest',
@@ -9,7 +10,7 @@ const config = new Configuration({
 export const useEuropePmcStore = defineStore('europe-pmc', () => {
   const client = new EuropePMCArticlesRESTfulAPIApi(config)
 
-  async function searchArticle(referenceMetadata: ReferenceMetadata) {
+  async function searchArticle(referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> {
     if (!referenceMetadata.title) {
       return null
     }
@@ -22,7 +23,12 @@ export const useEuropePmcStore = defineStore('europe-pmc', () => {
         email: import.meta.env.VITE_MAILTO,
       }) as EuropePmcPublicationsResponse
 
-      return response.resultList?.result?.[0] || null
+      if (!response.resultList?.result?.length) {
+        return null
+      }
+
+      const mappedResponse = mapEuropePMCToPublication(response.resultList?.result?.[0])
+      return mappedResponse
     }
 
     catch (error) {
