@@ -18,6 +18,7 @@ import {
     InternationalisationFromJSON,
     InternationalisationFromJSONTyped,
     InternationalisationToJSON,
+    InternationalisationToJSONTyped,
 } from './Internationalisation';
 
 /**
@@ -55,10 +56,15 @@ export function InternationalDescriptionFromJSONTyped(json: any, ignoreDiscrimin
     };
 }
 
-export function InternationalDescriptionToJSON(value?: InternationalDescription | null): any {
+export function InternationalDescriptionToJSON(json: any): InternationalDescription {
+    return InternationalDescriptionToJSONTyped(json, false);
+}
+
+export function InternationalDescriptionToJSONTyped(value?: InternationalDescription | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'description': InternationalisationToJSON(value['description']),

@@ -24,13 +24,13 @@ export interface SourceSocietiesInner {
      * @type {string}
      * @memberof SourceSocietiesInner
      */
-    organization?: string;
+    url?: string;
     /**
      * 
      * @type {string}
      * @memberof SourceSocietiesInner
      */
-    url?: string;
+    organization?: string;
 }
 
 /**
@@ -50,19 +50,24 @@ export function SourceSocietiesInnerFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'organization': json['organization'] == null ? undefined : json['organization'],
         'url': json['url'] == null ? undefined : json['url'],
+        'organization': json['organization'] == null ? undefined : json['organization'],
     };
 }
 
-export function SourceSocietiesInnerToJSON(value?: SourceSocietiesInner | null): any {
+export function SourceSocietiesInnerToJSON(json: any): SourceSocietiesInner {
+    return SourceSocietiesInnerToJSONTyped(json, false);
+}
+
+export function SourceSocietiesInnerToJSONTyped(value?: SourceSocietiesInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'organization': value['organization'],
         'url': value['url'],
+        'organization': value['organization'],
     };
 }
 

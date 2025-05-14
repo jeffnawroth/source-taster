@@ -36,7 +36,7 @@ export interface NgramMeta {
      * @type {string}
      * @memberof NgramMeta
      */
-    openalexId: string;
+    openalex_id: string;
 }
 
 /**
@@ -44,7 +44,7 @@ export interface NgramMeta {
  */
 export function instanceOfNgramMeta(value: object): value is NgramMeta {
     if (!('count' in value) || value['count'] === undefined) return false;
-    if (!('openalexId' in value) || value['openalexId'] === undefined) return false;
+    if (!('openalex_id' in value) || value['openalex_id'] === undefined) return false;
     return true;
 }
 
@@ -60,19 +60,24 @@ export function NgramMetaFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         
         'count': json['count'],
         'doi': json['doi'] == null ? undefined : json['doi'],
-        'openalexId': json['openalex_id'],
+        'openalex_id': json['openalex_id'],
     };
 }
 
-export function NgramMetaToJSON(value?: NgramMeta | null): any {
+export function NgramMetaToJSON(json: any): NgramMeta {
+    return NgramMetaToJSONTyped(json, false);
+}
+
+export function NgramMetaToJSONTyped(value?: NgramMeta | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'count': value['count'],
         'doi': value['doi'],
-        'openalex_id': value['openalexId'],
+        'openalex_id': value['openalex_id'],
     };
 }
 

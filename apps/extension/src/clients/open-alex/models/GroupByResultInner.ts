@@ -36,7 +36,7 @@ export interface GroupByResultInner {
      * @type {string}
      * @memberof GroupByResultInner
      */
-    keyDisplayName: string;
+    key_display_name: string;
 }
 
 /**
@@ -45,7 +45,7 @@ export interface GroupByResultInner {
 export function instanceOfGroupByResultInner(value: object): value is GroupByResultInner {
     if (!('count' in value) || value['count'] === undefined) return false;
     if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('keyDisplayName' in value) || value['keyDisplayName'] === undefined) return false;
+    if (!('key_display_name' in value) || value['key_display_name'] === undefined) return false;
     return true;
 }
 
@@ -61,19 +61,24 @@ export function GroupByResultInnerFromJSONTyped(json: any, ignoreDiscriminator: 
         
         'count': json['count'],
         'key': json['key'],
-        'keyDisplayName': json['key_display_name'],
+        'key_display_name': json['key_display_name'],
     };
 }
 
-export function GroupByResultInnerToJSON(value?: GroupByResultInner | null): any {
+export function GroupByResultInnerToJSON(json: any): GroupByResultInner {
+    return GroupByResultInnerToJSONTyped(json, false);
+}
+
+export function GroupByResultInnerToJSONTyped(value?: GroupByResultInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'count': value['count'],
         'key': value['key'],
-        'key_display_name': value['keyDisplayName'],
+        'key_display_name': value['key_display_name'],
     };
 }
 

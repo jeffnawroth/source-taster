@@ -24,7 +24,7 @@ export interface DehydratedConcept {
      * @type {string}
      * @memberof DehydratedConcept
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {string}
@@ -55,7 +55,7 @@ export interface DehydratedConcept {
  * Check if a given object implements the DehydratedConcept interface.
  */
 export function instanceOfDehydratedConcept(value: object): value is DehydratedConcept {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -70,7 +70,7 @@ export function DehydratedConceptFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'displayName': json['display_name'],
+        'display_name': json['display_name'],
         'id': json['id'],
         'level': json['level'] == null ? undefined : json['level'],
         'score': json['score'] == null ? undefined : json['score'],
@@ -78,13 +78,18 @@ export function DehydratedConceptFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function DehydratedConceptToJSON(value?: DehydratedConcept | null): any {
+export function DehydratedConceptToJSON(json: any): DehydratedConcept {
+    return DehydratedConceptToJSONTyped(json, false);
+}
+
+export function DehydratedConceptToJSONTyped(value?: DehydratedConcept | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
+        'display_name': value['display_name'],
         'id': value['id'],
         'level': value['level'],
         'score': value['score'],

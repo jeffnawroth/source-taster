@@ -24,7 +24,7 @@ export interface WorkBiblio {
      * @type {string}
      * @memberof WorkBiblio
      */
-    firstPage?: string;
+    volume?: string;
     /**
      * 
      * @type {string}
@@ -36,13 +36,13 @@ export interface WorkBiblio {
      * @type {string}
      * @memberof WorkBiblio
      */
-    lastPage?: string;
+    first_page?: string;
     /**
      * 
      * @type {string}
      * @memberof WorkBiblio
      */
-    volume?: string;
+    last_page?: string;
 }
 
 /**
@@ -62,23 +62,28 @@ export function WorkBiblioFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-        'firstPage': json['first_page'] == null ? undefined : json['first_page'],
-        'issue': json['issue'] == null ? undefined : json['issue'],
-        'lastPage': json['last_page'] == null ? undefined : json['last_page'],
         'volume': json['volume'] == null ? undefined : json['volume'],
+        'issue': json['issue'] == null ? undefined : json['issue'],
+        'first_page': json['first_page'] == null ? undefined : json['first_page'],
+        'last_page': json['last_page'] == null ? undefined : json['last_page'],
     };
 }
 
-export function WorkBiblioToJSON(value?: WorkBiblio | null): any {
+export function WorkBiblioToJSON(json: any): WorkBiblio {
+    return WorkBiblioToJSONTyped(json, false);
+}
+
+export function WorkBiblioToJSONTyped(value?: WorkBiblio | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'first_page': value['firstPage'],
-        'issue': value['issue'],
-        'last_page': value['lastPage'],
         'volume': value['volume'],
+        'issue': value['issue'],
+        'first_page': value['first_page'],
+        'last_page': value['last_page'],
     };
 }
 

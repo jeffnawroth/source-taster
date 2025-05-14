@@ -18,6 +18,7 @@ import {
     DehydratedInstitutionFromJSON,
     DehydratedInstitutionFromJSONTyped,
     DehydratedInstitutionToJSON,
+    DehydratedInstitutionToJSONTyped,
 } from './DehydratedInstitution';
 
 /**
@@ -64,10 +65,15 @@ export function AffiliationsInnerFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function AffiliationsInnerToJSON(value?: AffiliationsInner | null): any {
+export function AffiliationsInnerToJSON(json: any): AffiliationsInner {
+    return AffiliationsInnerToJSONTyped(json, false);
+}
+
+export function AffiliationsInnerToJSONTyped(value?: AffiliationsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'institution': DehydratedInstitutionToJSON(value['institution']),

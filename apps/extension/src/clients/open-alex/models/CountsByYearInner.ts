@@ -24,13 +24,13 @@ export interface CountsByYearInner {
      * @type {number}
      * @memberof CountsByYearInner
      */
-    citedByCount: number;
+    cited_by_count: number;
     /**
      * 
      * @type {number}
      * @memberof CountsByYearInner
      */
-    worksCount?: number;
+    works_count?: number;
     /**
      * 
      * @type {number}
@@ -43,7 +43,7 @@ export interface CountsByYearInner {
  * Check if a given object implements the CountsByYearInner interface.
  */
 export function instanceOfCountsByYearInner(value: object): value is CountsByYearInner {
-    if (!('citedByCount' in value) || value['citedByCount'] === undefined) return false;
+    if (!('cited_by_count' in value) || value['cited_by_count'] === undefined) return false;
     if (!('year' in value) || value['year'] === undefined) return false;
     return true;
 }
@@ -58,20 +58,25 @@ export function CountsByYearInnerFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'citedByCount': json['cited_by_count'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
+        'cited_by_count': json['cited_by_count'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
         'year': json['year'],
     };
 }
 
-export function CountsByYearInnerToJSON(value?: CountsByYearInner | null): any {
+export function CountsByYearInnerToJSON(json: any): CountsByYearInner {
+    return CountsByYearInnerToJSONTyped(json, false);
+}
+
+export function CountsByYearInnerToJSONTyped(value?: CountsByYearInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'cited_by_count': value['citedByCount'],
-        'works_count': value['worksCount'],
+        'cited_by_count': value['cited_by_count'],
+        'works_count': value['works_count'],
         'year': value['year'],
     };
 }

@@ -18,6 +18,7 @@ import {
     InternationalisationFromJSON,
     InternationalisationFromJSONTyped,
     InternationalisationToJSON,
+    InternationalisationToJSONTyped,
 } from './Internationalisation';
 
 /**
@@ -31,7 +32,7 @@ export interface InternationalDisplayName {
      * @type {Internationalisation}
      * @memberof InternationalDisplayName
      */
-    displayName?: Internationalisation;
+    display_name?: Internationalisation;
 }
 
 /**
@@ -51,17 +52,22 @@ export function InternationalDisplayNameFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-        'displayName': json['display_name'] == null ? undefined : InternationalisationFromJSON(json['display_name']),
+        'display_name': json['display_name'] == null ? undefined : InternationalisationFromJSON(json['display_name']),
     };
 }
 
-export function InternationalDisplayNameToJSON(value?: InternationalDisplayName | null): any {
+export function InternationalDisplayNameToJSON(json: any): InternationalDisplayName {
+    return InternationalDisplayNameToJSONTyped(json, false);
+}
+
+export function InternationalDisplayNameToJSONTyped(value?: InternationalDisplayName | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': InternationalisationToJSON(value['displayName']),
+        'display_name': InternationalisationToJSON(value['display_name']),
     };
 }
 

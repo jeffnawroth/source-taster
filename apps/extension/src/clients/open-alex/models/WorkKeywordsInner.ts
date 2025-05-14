@@ -24,13 +24,13 @@ export interface WorkKeywordsInner {
      * @type {string}
      * @memberof WorkKeywordsInner
      */
-    displayName: string;
+    id: string;
     /**
      * 
      * @type {string}
      * @memberof WorkKeywordsInner
      */
-    id: string;
+    display_name: string;
     /**
      * 
      * @type {number}
@@ -43,8 +43,8 @@ export interface WorkKeywordsInner {
  * Check if a given object implements the WorkKeywordsInner interface.
  */
 export function instanceOfWorkKeywordsInner(value: object): value is WorkKeywordsInner {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('score' in value) || value['score'] === undefined) return false;
     return true;
 }
@@ -59,20 +59,25 @@ export function WorkKeywordsInnerFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'displayName': json['display_name'],
         'id': json['id'],
+        'display_name': json['display_name'],
         'score': json['score'],
     };
 }
 
-export function WorkKeywordsInnerToJSON(value?: WorkKeywordsInner | null): any {
+export function WorkKeywordsInnerToJSON(json: any): WorkKeywordsInner {
+    return WorkKeywordsInnerToJSONTyped(json, false);
+}
+
+export function WorkKeywordsInnerToJSONTyped(value?: WorkKeywordsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
         'id': value['id'],
+        'display_name': value['display_name'],
         'score': value['score'],
     };
 }

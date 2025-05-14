@@ -36,12 +36,6 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    aebArab?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     af?: string;
     /**
      * 
@@ -79,12 +73,6 @@ export interface Internationalisation {
      * @memberof Internationalisation
      */
     ar?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    arc?: string;
     /**
      * 
      * @type {string}
@@ -168,7 +156,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    beTarask?: string;
+    be_tarask?: string;
     /**
      * 
      * @type {string}
@@ -186,31 +174,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    bi?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    bm?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     bn?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    bo?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    bpy?: string;
     /**
      * 
      * @type {string}
@@ -228,19 +192,13 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    bxr?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     ca?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    cbkZam?: string;
+    cbk_zam?: string;
     /**
      * 
      * @type {string}
@@ -252,19 +210,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    ce?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     ceb?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    chr?: string;
     /**
      * 
      * @type {string}
@@ -288,7 +234,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    crhLatn?: string;
+    crh_latn?: string;
     /**
      * 
      * @type {string}
@@ -330,13 +276,13 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    deAt?: string;
+    de_at?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    deCh?: string;
+    de_ch?: string;
     /**
      * 
      * @type {string}
@@ -372,19 +318,19 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    enCa?: string;
+    en_ca?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    enGb?: string;
+    en_gb?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    enUs?: string;
+    en_us?: string;
     /**
      * 
      * @type {string}
@@ -486,19 +432,13 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    ganHans?: string;
+    gan_hans?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    ganHant?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    gcr?: string;
+    gan_hant?: string;
     /**
      * 
      * @type {string}
@@ -570,12 +510,6 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    hif?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     hr?: string;
     /**
      * 
@@ -642,12 +576,6 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    inh?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     io?: string;
     /**
      * 
@@ -666,19 +594,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    iu?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     ja?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    jam?: string;
     /**
      * 
      * @type {string}
@@ -726,37 +642,37 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    kkArab?: string;
+    kk_arab?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    kkCn?: string;
+    kk_cn?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    kkCyrl?: string;
+    kk_cyrl?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    kkKz?: string;
+    kk_kz?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    kkLatn?: string;
+    kk_latn?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    kkTr?: string;
+    kk_tr?: string;
     /**
      * 
      * @type {string}
@@ -786,7 +702,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    koKp?: string;
+    ko_kp?: string;
     /**
      * 
      * @type {string}
@@ -816,7 +732,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    kuLatn?: string;
+    ku_latn?: string;
     /**
      * 
      * @type {string}
@@ -942,12 +858,6 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    mni?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     mr?: string;
     /**
      * 
@@ -960,7 +870,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    msArab?: string;
+    ms_arab?: string;
     /**
      * 
      * @type {string}
@@ -1020,7 +930,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    ndsNl?: string;
+    nds_nl?: string;
     /**
      * 
      * @type {string}
@@ -1051,12 +961,6 @@ export interface Internationalisation {
      * @memberof Internationalisation
      */
     nn?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    nov?: string;
     /**
      * 
      * @type {string}
@@ -1122,12 +1026,6 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    pih?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     pl?: string;
     /**
      * 
@@ -1158,7 +1056,7 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    ptBr?: string;
+    pt_br?: string;
     /**
      * 
      * @type {string}
@@ -1260,12 +1158,6 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    shi?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     si?: string;
     /**
      * 
@@ -1314,13 +1206,13 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    srEc?: string;
+    sr_ec?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    srEl?: string;
+    sr_el?: string;
     /**
      * 
      * @type {string}
@@ -1380,19 +1272,13 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    tgLatn?: string;
+    tg_latn?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
     th?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    ti?: string;
     /**
      * 
      * @type {string}
@@ -1416,19 +1302,13 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    ts?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
     tt?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    ttCyrl?: string;
+    tt_cyrl?: string;
     /**
      * 
      * @type {string}
@@ -1483,12 +1363,6 @@ export interface Internationalisation {
      * @memberof Internationalisation
      */
     vo?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Internationalisation
-     */
-    vro?: string;
     /**
      * 
      * @type {string}
@@ -1554,55 +1428,181 @@ export interface Internationalisation {
      * @type {string}
      * @memberof Internationalisation
      */
-    zhCn?: string;
+    zh_cn?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    zhHans?: string;
+    zh_hans?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    zhHant?: string;
+    zh_hant?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    zhHk?: string;
+    zh_hk?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    zhMo?: string;
+    zh_mo?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    zhMy?: string;
+    zh_my?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    zhSg?: string;
+    zh_sg?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
-    zhTw?: string;
+    zh_tw?: string;
     /**
      * 
      * @type {string}
      * @memberof Internationalisation
      */
     zu?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    aeb_arab?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    arc?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    bi?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    bm?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    bo?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    bpy?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    bxr?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    ce?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    chr?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    gcr?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    hif?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    inh?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    iu?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    jam?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    mni?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    nov?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    pih?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    shi?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    ti?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    ts?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Internationalisation
+     */
+    vro?: string;
 }
 
 /**
@@ -1625,7 +1625,6 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         
         'ab': json['ab'] == null ? undefined : json['ab'],
         'ace': json['ace'] == null ? undefined : json['ace'],
-        'aebArab': json['aeb-arab'] == null ? undefined : json['aeb-arab'],
         'af': json['af'] == null ? undefined : json['af'],
         'ak': json['ak'] == null ? undefined : json['ak'],
         'alt': json['alt'] == null ? undefined : json['alt'],
@@ -1633,7 +1632,6 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'an': json['an'] == null ? undefined : json['an'],
         'ang': json['ang'] == null ? undefined : json['ang'],
         'ar': json['ar'] == null ? undefined : json['ar'],
-        'arc': json['arc'] == null ? undefined : json['arc'],
         'ary': json['ary'] == null ? undefined : json['ary'],
         'arz': json['arz'] == null ? undefined : json['arz'],
         'as': json['as'] == null ? undefined : json['as'],
@@ -1647,43 +1645,36 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'bar': json['bar'] == null ? undefined : json['bar'],
         'bcl': json['bcl'] == null ? undefined : json['bcl'],
         'be': json['be'] == null ? undefined : json['be'],
-        'beTarask': json['be-tarask'] == null ? undefined : json['be-tarask'],
+        'be_tarask': json['be-tarask'] == null ? undefined : json['be-tarask'],
         'bg': json['bg'] == null ? undefined : json['bg'],
         'bho': json['bho'] == null ? undefined : json['bho'],
-        'bi': json['bi'] == null ? undefined : json['bi'],
-        'bm': json['bm'] == null ? undefined : json['bm'],
         'bn': json['bn'] == null ? undefined : json['bn'],
-        'bo': json['bo'] == null ? undefined : json['bo'],
-        'bpy': json['bpy'] == null ? undefined : json['bpy'],
         'br': json['br'] == null ? undefined : json['br'],
         'bs': json['bs'] == null ? undefined : json['bs'],
-        'bxr': json['bxr'] == null ? undefined : json['bxr'],
         'ca': json['ca'] == null ? undefined : json['ca'],
-        'cbkZam': json['cbk-zam'] == null ? undefined : json['cbk-zam'],
+        'cbk_zam': json['cbk-zam'] == null ? undefined : json['cbk-zam'],
         'cdo': json['cdo'] == null ? undefined : json['cdo'],
-        'ce': json['ce'] == null ? undefined : json['ce'],
         'ceb': json['ceb'] == null ? undefined : json['ceb'],
-        'chr': json['chr'] == null ? undefined : json['chr'],
         'ckb': json['ckb'] == null ? undefined : json['ckb'],
         'co': json['co'] == null ? undefined : json['co'],
         'crh': json['crh'] == null ? undefined : json['crh'],
-        'crhLatn': json['crh-latn'] == null ? undefined : json['crh-latn'],
+        'crh_latn': json['crh-latn'] == null ? undefined : json['crh-latn'],
         'cs': json['cs'] == null ? undefined : json['cs'],
         'csb': json['csb'] == null ? undefined : json['csb'],
         'cv': json['cv'] == null ? undefined : json['cv'],
         'cy': json['cy'] == null ? undefined : json['cy'],
         'da': json['da'] == null ? undefined : json['da'],
         'de': json['de'] == null ? undefined : json['de'],
-        'deAt': json['de-at'] == null ? undefined : json['de-at'],
-        'deCh': json['de-ch'] == null ? undefined : json['de-ch'],
+        'de_at': json['de-at'] == null ? undefined : json['de-at'],
+        'de_ch': json['de-ch'] == null ? undefined : json['de-ch'],
         'diq': json['diq'] == null ? undefined : json['diq'],
         'dv': json['dv'] == null ? undefined : json['dv'],
         'el': json['el'] == null ? undefined : json['el'],
         'eml': json['eml'] == null ? undefined : json['eml'],
         'en': json['en'],
-        'enCa': json['en-ca'] == null ? undefined : json['en-ca'],
-        'enGb': json['en-gb'] == null ? undefined : json['en-gb'],
-        'enUs': json['en-us'] == null ? undefined : json['en-us'],
+        'en_ca': json['en-ca'] == null ? undefined : json['en-ca'],
+        'en_gb': json['en-gb'] == null ? undefined : json['en-gb'],
+        'en_us': json['en-us'] == null ? undefined : json['en-us'],
         'eo': json['eo'] == null ? undefined : json['eo'],
         'es': json['es'] == null ? undefined : json['es'],
         'et': json['et'] == null ? undefined : json['et'],
@@ -1700,9 +1691,8 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'fy': json['fy'] == null ? undefined : json['fy'],
         'ga': json['ga'] == null ? undefined : json['ga'],
         'gan': json['gan'] == null ? undefined : json['gan'],
-        'ganHans': json['gan-hans'] == null ? undefined : json['gan-hans'],
-        'ganHant': json['gan-hant'] == null ? undefined : json['gan-hant'],
-        'gcr': json['gcr'] == null ? undefined : json['gcr'],
+        'gan_hans': json['gan-hans'] == null ? undefined : json['gan-hans'],
+        'gan_hant': json['gan-hant'] == null ? undefined : json['gan-hant'],
         'gd': json['gd'] == null ? undefined : json['gd'],
         'gl': json['gl'] == null ? undefined : json['gl'],
         'gn': json['gn'] == null ? undefined : json['gn'],
@@ -1714,7 +1704,6 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'hak': json['hak'] == null ? undefined : json['hak'],
         'he': json['he'] == null ? undefined : json['he'],
         'hi': json['hi'] == null ? undefined : json['hi'],
-        'hif': json['hif'] == null ? undefined : json['hif'],
         'hr': json['hr'] == null ? undefined : json['hr'],
         'hsb': json['hsb'] == null ? undefined : json['hsb'],
         'ht': json['ht'] == null ? undefined : json['ht'],
@@ -1726,13 +1715,10 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'ie': json['ie'] == null ? undefined : json['ie'],
         'ig': json['ig'] == null ? undefined : json['ig'],
         'ilo': json['ilo'] == null ? undefined : json['ilo'],
-        'inh': json['inh'] == null ? undefined : json['inh'],
         'io': json['io'] == null ? undefined : json['io'],
         'is': json['is'] == null ? undefined : json['is'],
         'it': json['it'] == null ? undefined : json['it'],
-        'iu': json['iu'] == null ? undefined : json['iu'],
         'ja': json['ja'] == null ? undefined : json['ja'],
-        'jam': json['jam'] == null ? undefined : json['jam'],
         'jv': json['jv'] == null ? undefined : json['jv'],
         'ka': json['ka'] == null ? undefined : json['ka'],
         'kaa': json['kaa'] == null ? undefined : json['kaa'],
@@ -1740,22 +1726,22 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'kbp': json['kbp'] == null ? undefined : json['kbp'],
         'kg': json['kg'] == null ? undefined : json['kg'],
         'kk': json['kk'] == null ? undefined : json['kk'],
-        'kkArab': json['kk-arab'] == null ? undefined : json['kk-arab'],
-        'kkCn': json['kk-cn'] == null ? undefined : json['kk-cn'],
-        'kkCyrl': json['kk-cyrl'] == null ? undefined : json['kk-cyrl'],
-        'kkKz': json['kk-kz'] == null ? undefined : json['kk-kz'],
-        'kkLatn': json['kk-latn'] == null ? undefined : json['kk-latn'],
-        'kkTr': json['kk-tr'] == null ? undefined : json['kk-tr'],
+        'kk_arab': json['kk-arab'] == null ? undefined : json['kk-arab'],
+        'kk_cn': json['kk-cn'] == null ? undefined : json['kk-cn'],
+        'kk_cyrl': json['kk-cyrl'] == null ? undefined : json['kk-cyrl'],
+        'kk_kz': json['kk-kz'] == null ? undefined : json['kk-kz'],
+        'kk_latn': json['kk-latn'] == null ? undefined : json['kk-latn'],
+        'kk_tr': json['kk-tr'] == null ? undefined : json['kk-tr'],
         'kl': json['kl'] == null ? undefined : json['kl'],
         'km': json['km'] == null ? undefined : json['km'],
         'kn': json['kn'] == null ? undefined : json['kn'],
         'ko': json['ko'] == null ? undefined : json['ko'],
-        'koKp': json['ko-kp'] == null ? undefined : json['ko-kp'],
+        'ko_kp': json['ko-kp'] == null ? undefined : json['ko-kp'],
         'krc': json['krc'] == null ? undefined : json['krc'],
         'ks': json['ks'] == null ? undefined : json['ks'],
         'ksh': json['ksh'] == null ? undefined : json['ksh'],
         'ku': json['ku'] == null ? undefined : json['ku'],
-        'kuLatn': json['ku-latn'] == null ? undefined : json['ku-latn'],
+        'ku_latn': json['ku-latn'] == null ? undefined : json['ku-latn'],
         'kw': json['kw'] == null ? undefined : json['kw'],
         'ky': json['ky'] == null ? undefined : json['ky'],
         'la': json['la'] == null ? undefined : json['la'],
@@ -1776,10 +1762,9 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'mk': json['mk'] == null ? undefined : json['mk'],
         'ml': json['ml'] == null ? undefined : json['ml'],
         'mn': json['mn'] == null ? undefined : json['mn'],
-        'mni': json['mni'] == null ? undefined : json['mni'],
         'mr': json['mr'] == null ? undefined : json['mr'],
         'ms': json['ms'] == null ? undefined : json['ms'],
-        'msArab': json['ms-arab'] == null ? undefined : json['ms-arab'],
+        'ms_arab': json['ms-arab'] == null ? undefined : json['ms-arab'],
         'mt': json['mt'] == null ? undefined : json['mt'],
         'mwl': json['mwl'] == null ? undefined : json['mwl'],
         'my': json['my'] == null ? undefined : json['my'],
@@ -1789,13 +1774,12 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'nap': json['nap'] == null ? undefined : json['nap'],
         'nb': json['nb'] == null ? undefined : json['nb'],
         'nds': json['nds'] == null ? undefined : json['nds'],
-        'ndsNl': json['nds-nl'] == null ? undefined : json['nds-nl'],
+        'nds_nl': json['nds-nl'] == null ? undefined : json['nds-nl'],
         'ne': json['ne'] == null ? undefined : json['ne'],
         '_new': json['new'] == null ? undefined : json['new'],
         'nia': json['nia'] == null ? undefined : json['nia'],
         'nl': json['nl'] == null ? undefined : json['nl'],
         'nn': json['nn'] == null ? undefined : json['nn'],
-        'nov': json['nov'] == null ? undefined : json['nov'],
         'nqo': json['nqo'] == null ? undefined : json['nqo'],
         'nrm': json['nrm'] == null ? undefined : json['nrm'],
         'oc': json['oc'] == null ? undefined : json['oc'],
@@ -1806,13 +1790,12 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'pap': json['pap'] == null ? undefined : json['pap'],
         'pcd': json['pcd'] == null ? undefined : json['pcd'],
         'pdc': json['pdc'] == null ? undefined : json['pdc'],
-        'pih': json['pih'] == null ? undefined : json['pih'],
         'pl': json['pl'] == null ? undefined : json['pl'],
         'pms': json['pms'] == null ? undefined : json['pms'],
         'pnb': json['pnb'] == null ? undefined : json['pnb'],
         'ps': json['ps'] == null ? undefined : json['ps'],
         'pt': json['pt'] == null ? undefined : json['pt'],
-        'ptBr': json['pt-br'] == null ? undefined : json['pt-br'],
+        'pt_br': json['pt-br'] == null ? undefined : json['pt-br'],
         'qu': json['qu'] == null ? undefined : json['qu'],
         'rm': json['rm'] == null ? undefined : json['rm'],
         'ro': json['ro'] == null ? undefined : json['ro'],
@@ -1829,7 +1812,6 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'se': json['se'] == null ? undefined : json['se'],
         'sgs': json['sgs'] == null ? undefined : json['sgs'],
         'sh': json['sh'] == null ? undefined : json['sh'],
-        'shi': json['shi'] == null ? undefined : json['shi'],
         'si': json['si'] == null ? undefined : json['si'],
         'sk': json['sk'] == null ? undefined : json['sk'],
         'sl': json['sl'] == null ? undefined : json['sl'],
@@ -1838,8 +1820,8 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'so': json['so'] == null ? undefined : json['so'],
         'sq': json['sq'] == null ? undefined : json['sq'],
         'sr': json['sr'] == null ? undefined : json['sr'],
-        'srEc': json['sr-ec'] == null ? undefined : json['sr-ec'],
-        'srEl': json['sr-el'] == null ? undefined : json['sr-el'],
+        'sr_ec': json['sr-ec'] == null ? undefined : json['sr-ec'],
+        'sr_el': json['sr-el'] == null ? undefined : json['sr-el'],
         'stq': json['stq'] == null ? undefined : json['stq'],
         'su': json['su'] == null ? undefined : json['su'],
         'sv': json['sv'] == null ? undefined : json['sv'],
@@ -1849,15 +1831,13 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'ta': json['ta'] == null ? undefined : json['ta'],
         'te': json['te'] == null ? undefined : json['te'],
         'tg': json['tg'] == null ? undefined : json['tg'],
-        'tgLatn': json['tg-latn'] == null ? undefined : json['tg-latn'],
+        'tg_latn': json['tg-latn'] == null ? undefined : json['tg-latn'],
         'th': json['th'] == null ? undefined : json['th'],
-        'ti': json['ti'] == null ? undefined : json['ti'],
         'tk': json['tk'] == null ? undefined : json['tk'],
         'tl': json['tl'] == null ? undefined : json['tl'],
         'tr': json['tr'] == null ? undefined : json['tr'],
-        'ts': json['ts'] == null ? undefined : json['ts'],
         'tt': json['tt'] == null ? undefined : json['tt'],
-        'ttCyrl': json['tt-cyrl'] == null ? undefined : json['tt-cyrl'],
+        'tt_cyrl': json['tt-cyrl'] == null ? undefined : json['tt-cyrl'],
         'tw': json['tw'] == null ? undefined : json['tw'],
         'ug': json['ug'] == null ? undefined : json['ug'],
         'uk': json['uk'] == null ? undefined : json['uk'],
@@ -1867,7 +1847,6 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'vi': json['vi'] == null ? undefined : json['vi'],
         'vls': json['vls'] == null ? undefined : json['vls'],
         'vo': json['vo'] == null ? undefined : json['vo'],
-        'vro': json['vro'] == null ? undefined : json['vro'],
         'wa': json['wa'] == null ? undefined : json['wa'],
         'war': json['war'] == null ? undefined : json['war'],
         'wo': json['wo'] == null ? undefined : json['wo'],
@@ -1878,27 +1857,52 @@ export function InternationalisationFromJSONTyped(json: any, ignoreDiscriminator
         'yue': json['yue'] == null ? undefined : json['yue'],
         'za': json['za'] == null ? undefined : json['za'],
         'zh': json['zh'] == null ? undefined : json['zh'],
-        'zhCn': json['zh-cn'] == null ? undefined : json['zh-cn'],
-        'zhHans': json['zh-hans'] == null ? undefined : json['zh-hans'],
-        'zhHant': json['zh-hant'] == null ? undefined : json['zh-hant'],
-        'zhHk': json['zh-hk'] == null ? undefined : json['zh-hk'],
-        'zhMo': json['zh-mo'] == null ? undefined : json['zh-mo'],
-        'zhMy': json['zh-my'] == null ? undefined : json['zh-my'],
-        'zhSg': json['zh-sg'] == null ? undefined : json['zh-sg'],
-        'zhTw': json['zh-tw'] == null ? undefined : json['zh-tw'],
+        'zh_cn': json['zh-cn'] == null ? undefined : json['zh-cn'],
+        'zh_hans': json['zh-hans'] == null ? undefined : json['zh-hans'],
+        'zh_hant': json['zh-hant'] == null ? undefined : json['zh-hant'],
+        'zh_hk': json['zh-hk'] == null ? undefined : json['zh-hk'],
+        'zh_mo': json['zh-mo'] == null ? undefined : json['zh-mo'],
+        'zh_my': json['zh-my'] == null ? undefined : json['zh-my'],
+        'zh_sg': json['zh-sg'] == null ? undefined : json['zh-sg'],
+        'zh_tw': json['zh-tw'] == null ? undefined : json['zh-tw'],
         'zu': json['zu'] == null ? undefined : json['zu'],
+        'aeb_arab': json['aeb-arab'] == null ? undefined : json['aeb-arab'],
+        'arc': json['arc'] == null ? undefined : json['arc'],
+        'bi': json['bi'] == null ? undefined : json['bi'],
+        'bm': json['bm'] == null ? undefined : json['bm'],
+        'bo': json['bo'] == null ? undefined : json['bo'],
+        'bpy': json['bpy'] == null ? undefined : json['bpy'],
+        'bxr': json['bxr'] == null ? undefined : json['bxr'],
+        'ce': json['ce'] == null ? undefined : json['ce'],
+        'chr': json['chr'] == null ? undefined : json['chr'],
+        'gcr': json['gcr'] == null ? undefined : json['gcr'],
+        'hif': json['hif'] == null ? undefined : json['hif'],
+        'inh': json['inh'] == null ? undefined : json['inh'],
+        'iu': json['iu'] == null ? undefined : json['iu'],
+        'jam': json['jam'] == null ? undefined : json['jam'],
+        'mni': json['mni'] == null ? undefined : json['mni'],
+        'nov': json['nov'] == null ? undefined : json['nov'],
+        'pih': json['pih'] == null ? undefined : json['pih'],
+        'shi': json['shi'] == null ? undefined : json['shi'],
+        'ti': json['ti'] == null ? undefined : json['ti'],
+        'ts': json['ts'] == null ? undefined : json['ts'],
+        'vro': json['vro'] == null ? undefined : json['vro'],
     };
 }
 
-export function InternationalisationToJSON(value?: Internationalisation | null): any {
+export function InternationalisationToJSON(json: any): Internationalisation {
+    return InternationalisationToJSONTyped(json, false);
+}
+
+export function InternationalisationToJSONTyped(value?: Internationalisation | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'ab': value['ab'],
         'ace': value['ace'],
-        'aeb-arab': value['aebArab'],
         'af': value['af'],
         'ak': value['ak'],
         'alt': value['alt'],
@@ -1906,7 +1910,6 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'an': value['an'],
         'ang': value['ang'],
         'ar': value['ar'],
-        'arc': value['arc'],
         'ary': value['ary'],
         'arz': value['arz'],
         'as': value['as'],
@@ -1920,43 +1923,36 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'bar': value['bar'],
         'bcl': value['bcl'],
         'be': value['be'],
-        'be-tarask': value['beTarask'],
+        'be-tarask': value['be_tarask'],
         'bg': value['bg'],
         'bho': value['bho'],
-        'bi': value['bi'],
-        'bm': value['bm'],
         'bn': value['bn'],
-        'bo': value['bo'],
-        'bpy': value['bpy'],
         'br': value['br'],
         'bs': value['bs'],
-        'bxr': value['bxr'],
         'ca': value['ca'],
-        'cbk-zam': value['cbkZam'],
+        'cbk-zam': value['cbk_zam'],
         'cdo': value['cdo'],
-        'ce': value['ce'],
         'ceb': value['ceb'],
-        'chr': value['chr'],
         'ckb': value['ckb'],
         'co': value['co'],
         'crh': value['crh'],
-        'crh-latn': value['crhLatn'],
+        'crh-latn': value['crh_latn'],
         'cs': value['cs'],
         'csb': value['csb'],
         'cv': value['cv'],
         'cy': value['cy'],
         'da': value['da'],
         'de': value['de'],
-        'de-at': value['deAt'],
-        'de-ch': value['deCh'],
+        'de-at': value['de_at'],
+        'de-ch': value['de_ch'],
         'diq': value['diq'],
         'dv': value['dv'],
         'el': value['el'],
         'eml': value['eml'],
         'en': value['en'],
-        'en-ca': value['enCa'],
-        'en-gb': value['enGb'],
-        'en-us': value['enUs'],
+        'en-ca': value['en_ca'],
+        'en-gb': value['en_gb'],
+        'en-us': value['en_us'],
         'eo': value['eo'],
         'es': value['es'],
         'et': value['et'],
@@ -1973,9 +1969,8 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'fy': value['fy'],
         'ga': value['ga'],
         'gan': value['gan'],
-        'gan-hans': value['ganHans'],
-        'gan-hant': value['ganHant'],
-        'gcr': value['gcr'],
+        'gan-hans': value['gan_hans'],
+        'gan-hant': value['gan_hant'],
         'gd': value['gd'],
         'gl': value['gl'],
         'gn': value['gn'],
@@ -1987,7 +1982,6 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'hak': value['hak'],
         'he': value['he'],
         'hi': value['hi'],
-        'hif': value['hif'],
         'hr': value['hr'],
         'hsb': value['hsb'],
         'ht': value['ht'],
@@ -1999,13 +1993,10 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'ie': value['ie'],
         'ig': value['ig'],
         'ilo': value['ilo'],
-        'inh': value['inh'],
         'io': value['io'],
         'is': value['is'],
         'it': value['it'],
-        'iu': value['iu'],
         'ja': value['ja'],
-        'jam': value['jam'],
         'jv': value['jv'],
         'ka': value['ka'],
         'kaa': value['kaa'],
@@ -2013,22 +2004,22 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'kbp': value['kbp'],
         'kg': value['kg'],
         'kk': value['kk'],
-        'kk-arab': value['kkArab'],
-        'kk-cn': value['kkCn'],
-        'kk-cyrl': value['kkCyrl'],
-        'kk-kz': value['kkKz'],
-        'kk-latn': value['kkLatn'],
-        'kk-tr': value['kkTr'],
+        'kk-arab': value['kk_arab'],
+        'kk-cn': value['kk_cn'],
+        'kk-cyrl': value['kk_cyrl'],
+        'kk-kz': value['kk_kz'],
+        'kk-latn': value['kk_latn'],
+        'kk-tr': value['kk_tr'],
         'kl': value['kl'],
         'km': value['km'],
         'kn': value['kn'],
         'ko': value['ko'],
-        'ko-kp': value['koKp'],
+        'ko-kp': value['ko_kp'],
         'krc': value['krc'],
         'ks': value['ks'],
         'ksh': value['ksh'],
         'ku': value['ku'],
-        'ku-latn': value['kuLatn'],
+        'ku-latn': value['ku_latn'],
         'kw': value['kw'],
         'ky': value['ky'],
         'la': value['la'],
@@ -2049,10 +2040,9 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'mk': value['mk'],
         'ml': value['ml'],
         'mn': value['mn'],
-        'mni': value['mni'],
         'mr': value['mr'],
         'ms': value['ms'],
-        'ms-arab': value['msArab'],
+        'ms-arab': value['ms_arab'],
         'mt': value['mt'],
         'mwl': value['mwl'],
         'my': value['my'],
@@ -2062,13 +2052,12 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'nap': value['nap'],
         'nb': value['nb'],
         'nds': value['nds'],
-        'nds-nl': value['ndsNl'],
+        'nds-nl': value['nds_nl'],
         'ne': value['ne'],
         'new': value['_new'],
         'nia': value['nia'],
         'nl': value['nl'],
         'nn': value['nn'],
-        'nov': value['nov'],
         'nqo': value['nqo'],
         'nrm': value['nrm'],
         'oc': value['oc'],
@@ -2079,13 +2068,12 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'pap': value['pap'],
         'pcd': value['pcd'],
         'pdc': value['pdc'],
-        'pih': value['pih'],
         'pl': value['pl'],
         'pms': value['pms'],
         'pnb': value['pnb'],
         'ps': value['ps'],
         'pt': value['pt'],
-        'pt-br': value['ptBr'],
+        'pt-br': value['pt_br'],
         'qu': value['qu'],
         'rm': value['rm'],
         'ro': value['ro'],
@@ -2102,7 +2090,6 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'se': value['se'],
         'sgs': value['sgs'],
         'sh': value['sh'],
-        'shi': value['shi'],
         'si': value['si'],
         'sk': value['sk'],
         'sl': value['sl'],
@@ -2111,8 +2098,8 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'so': value['so'],
         'sq': value['sq'],
         'sr': value['sr'],
-        'sr-ec': value['srEc'],
-        'sr-el': value['srEl'],
+        'sr-ec': value['sr_ec'],
+        'sr-el': value['sr_el'],
         'stq': value['stq'],
         'su': value['su'],
         'sv': value['sv'],
@@ -2122,15 +2109,13 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'ta': value['ta'],
         'te': value['te'],
         'tg': value['tg'],
-        'tg-latn': value['tgLatn'],
+        'tg-latn': value['tg_latn'],
         'th': value['th'],
-        'ti': value['ti'],
         'tk': value['tk'],
         'tl': value['tl'],
         'tr': value['tr'],
-        'ts': value['ts'],
         'tt': value['tt'],
-        'tt-cyrl': value['ttCyrl'],
+        'tt-cyrl': value['tt_cyrl'],
         'tw': value['tw'],
         'ug': value['ug'],
         'uk': value['uk'],
@@ -2140,7 +2125,6 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'vi': value['vi'],
         'vls': value['vls'],
         'vo': value['vo'],
-        'vro': value['vro'],
         'wa': value['wa'],
         'war': value['war'],
         'wo': value['wo'],
@@ -2151,15 +2135,36 @@ export function InternationalisationToJSON(value?: Internationalisation | null):
         'yue': value['yue'],
         'za': value['za'],
         'zh': value['zh'],
-        'zh-cn': value['zhCn'],
-        'zh-hans': value['zhHans'],
-        'zh-hant': value['zhHant'],
-        'zh-hk': value['zhHk'],
-        'zh-mo': value['zhMo'],
-        'zh-my': value['zhMy'],
-        'zh-sg': value['zhSg'],
-        'zh-tw': value['zhTw'],
+        'zh-cn': value['zh_cn'],
+        'zh-hans': value['zh_hans'],
+        'zh-hant': value['zh_hant'],
+        'zh-hk': value['zh_hk'],
+        'zh-mo': value['zh_mo'],
+        'zh-my': value['zh_my'],
+        'zh-sg': value['zh_sg'],
+        'zh-tw': value['zh_tw'],
         'zu': value['zu'],
+        'aeb-arab': value['aeb_arab'],
+        'arc': value['arc'],
+        'bi': value['bi'],
+        'bm': value['bm'],
+        'bo': value['bo'],
+        'bpy': value['bpy'],
+        'bxr': value['bxr'],
+        'ce': value['ce'],
+        'chr': value['chr'],
+        'gcr': value['gcr'],
+        'hif': value['hif'],
+        'inh': value['inh'],
+        'iu': value['iu'],
+        'jam': value['jam'],
+        'mni': value['mni'],
+        'nov': value['nov'],
+        'pih': value['pih'],
+        'shi': value['shi'],
+        'ti': value['ti'],
+        'ts': value['ts'],
+        'vro': value['vro'],
     };
 }
 

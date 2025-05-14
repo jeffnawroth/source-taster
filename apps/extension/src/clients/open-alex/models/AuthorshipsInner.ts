@@ -18,12 +18,14 @@ import {
     AuthorshipsInnerAuthorFromJSON,
     AuthorshipsInnerAuthorFromJSONTyped,
     AuthorshipsInnerAuthorToJSON,
+    AuthorshipsInnerAuthorToJSONTyped,
 } from './AuthorshipsInnerAuthor';
 import type { AuthorshipsInnerInstitutionsInner } from './AuthorshipsInnerInstitutionsInner';
 import {
     AuthorshipsInnerInstitutionsInnerFromJSON,
     AuthorshipsInnerInstitutionsInnerFromJSONTyped,
     AuthorshipsInnerInstitutionsInnerToJSON,
+    AuthorshipsInnerInstitutionsInnerToJSONTyped,
 } from './AuthorshipsInnerInstitutionsInner';
 
 /**
@@ -43,7 +45,7 @@ export interface AuthorshipsInner {
      * @type {string}
      * @memberof AuthorshipsInner
      */
-    authorPosition: string;
+    author_position: string;
     /**
      * 
      * @type {Array<string>}
@@ -61,25 +63,25 @@ export interface AuthorshipsInner {
      * @type {boolean}
      * @memberof AuthorshipsInner
      */
-    isCorresponding: boolean;
+    is_corresponding: boolean;
     /**
      * 
      * @type {string}
      * @memberof AuthorshipsInner
      */
-    rawAffiliationString?: string;
+    raw_affiliation_string?: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof AuthorshipsInner
      */
-    rawAffiliationStrings: Array<string>;
+    raw_affiliation_strings: Array<string>;
     /**
      * 
      * @type {string}
      * @memberof AuthorshipsInner
      */
-    rawAuthorName: string;
+    raw_author_name: string;
 }
 
 /**
@@ -87,12 +89,12 @@ export interface AuthorshipsInner {
  */
 export function instanceOfAuthorshipsInner(value: object): value is AuthorshipsInner {
     if (!('author' in value) || value['author'] === undefined) return false;
-    if (!('authorPosition' in value) || value['authorPosition'] === undefined) return false;
+    if (!('author_position' in value) || value['author_position'] === undefined) return false;
     if (!('countries' in value) || value['countries'] === undefined) return false;
     if (!('institutions' in value) || value['institutions'] === undefined) return false;
-    if (!('isCorresponding' in value) || value['isCorresponding'] === undefined) return false;
-    if (!('rawAffiliationStrings' in value) || value['rawAffiliationStrings'] === undefined) return false;
-    if (!('rawAuthorName' in value) || value['rawAuthorName'] === undefined) return false;
+    if (!('is_corresponding' in value) || value['is_corresponding'] === undefined) return false;
+    if (!('raw_affiliation_strings' in value) || value['raw_affiliation_strings'] === undefined) return false;
+    if (!('raw_author_name' in value) || value['raw_author_name'] === undefined) return false;
     return true;
 }
 
@@ -107,30 +109,35 @@ export function AuthorshipsInnerFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
         
         'author': AuthorshipsInnerAuthorFromJSON(json['author']),
-        'authorPosition': json['author_position'],
+        'author_position': json['author_position'],
         'countries': json['countries'],
         'institutions': ((json['institutions'] as Array<any>).map(AuthorshipsInnerInstitutionsInnerFromJSON)),
-        'isCorresponding': json['is_corresponding'],
-        'rawAffiliationString': json['raw_affiliation_string'] == null ? undefined : json['raw_affiliation_string'],
-        'rawAffiliationStrings': json['raw_affiliation_strings'],
-        'rawAuthorName': json['raw_author_name'],
+        'is_corresponding': json['is_corresponding'],
+        'raw_affiliation_string': json['raw_affiliation_string'] == null ? undefined : json['raw_affiliation_string'],
+        'raw_affiliation_strings': json['raw_affiliation_strings'],
+        'raw_author_name': json['raw_author_name'],
     };
 }
 
-export function AuthorshipsInnerToJSON(value?: AuthorshipsInner | null): any {
+export function AuthorshipsInnerToJSON(json: any): AuthorshipsInner {
+    return AuthorshipsInnerToJSONTyped(json, false);
+}
+
+export function AuthorshipsInnerToJSONTyped(value?: AuthorshipsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'author': AuthorshipsInnerAuthorToJSON(value['author']),
-        'author_position': value['authorPosition'],
+        'author_position': value['author_position'],
         'countries': value['countries'],
         'institutions': ((value['institutions'] as Array<any>).map(AuthorshipsInnerInstitutionsInnerToJSON)),
-        'is_corresponding': value['isCorresponding'],
-        'raw_affiliation_string': value['rawAffiliationString'],
-        'raw_affiliation_strings': value['rawAffiliationStrings'],
-        'raw_author_name': value['rawAuthorName'],
+        'is_corresponding': value['is_corresponding'],
+        'raw_affiliation_string': value['raw_affiliation_string'],
+        'raw_affiliation_strings': value['raw_affiliation_strings'],
+        'raw_author_name': value['raw_author_name'],
     };
 }
 

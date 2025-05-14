@@ -18,18 +18,21 @@ import {
     TopicLevelArraySchemaFromJSON,
     TopicLevelArraySchemaFromJSONTyped,
     TopicLevelArraySchemaToJSON,
+    TopicLevelArraySchemaToJSONTyped,
 } from './TopicLevelArraySchema';
 import type { TopicLevelSchema } from './TopicLevelSchema';
 import {
     TopicLevelSchemaFromJSON,
     TopicLevelSchemaFromJSONTyped,
     TopicLevelSchemaToJSON,
+    TopicLevelSchemaToJSONTyped,
 } from './TopicLevelSchema';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
 
 /**
@@ -43,13 +46,13 @@ export interface Field {
      * @type {number}
      * @memberof Field
      */
-    citedByCount: number;
+    cited_by_count: number;
     /**
      * 
      * @type {string}
      * @memberof Field
      */
-    createdDate: string;
+    created_date: string;
     /**
      * 
      * @type {string}
@@ -61,13 +64,13 @@ export interface Field {
      * @type {string}
      * @memberof Field
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof Field
      */
-    displayNameAlternatives: Array<string>;
+    display_name_alternatives: Array<string>;
     /**
      * 
      * @type {TopicLevelSchema}
@@ -103,38 +106,38 @@ export interface Field {
      * @type {string}
      * @memberof Field
      */
-    updatedDate: string;
+    updated_date: string;
     /**
      * 
      * @type {string}
      * @memberof Field
      */
-    worksApiUrl: string;
+    works_api_url: string;
     /**
      * 
      * @type {number}
      * @memberof Field
      */
-    worksCount: number;
+    works_count: number;
 }
 
 /**
  * Check if a given object implements the Field interface.
  */
 export function instanceOfField(value: object): value is Field {
-    if (!('citedByCount' in value) || value['citedByCount'] === undefined) return false;
-    if (!('createdDate' in value) || value['createdDate'] === undefined) return false;
+    if (!('cited_by_count' in value) || value['cited_by_count'] === undefined) return false;
+    if (!('created_date' in value) || value['created_date'] === undefined) return false;
     if (!('description' in value) || value['description'] === undefined) return false;
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
-    if (!('displayNameAlternatives' in value) || value['displayNameAlternatives'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
+    if (!('display_name_alternatives' in value) || value['display_name_alternatives'] === undefined) return false;
     if (!('domain' in value) || value['domain'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('ids' in value) || value['ids'] === undefined) return false;
     if (!('siblings' in value) || value['siblings'] === undefined) return false;
     if (!('subfields' in value) || value['subfields'] === undefined) return false;
-    if (!('updatedDate' in value) || value['updatedDate'] === undefined) return false;
-    if (!('worksApiUrl' in value) || value['worksApiUrl'] === undefined) return false;
-    if (!('worksCount' in value) || value['worksCount'] === undefined) return false;
+    if (!('updated_date' in value) || value['updated_date'] === undefined) return false;
+    if (!('works_api_url' in value) || value['works_api_url'] === undefined) return false;
+    if (!('works_count' in value) || value['works_count'] === undefined) return false;
     return true;
 }
 
@@ -148,41 +151,46 @@ export function FieldFromJSONTyped(json: any, ignoreDiscriminator: boolean): Fie
     }
     return {
         
-        'citedByCount': json['cited_by_count'],
-        'createdDate': json['created_date'],
+        'cited_by_count': json['cited_by_count'],
+        'created_date': json['created_date'],
         'description': json['description'],
-        'displayName': json['display_name'],
-        'displayNameAlternatives': json['display_name_alternatives'],
+        'display_name': json['display_name'],
+        'display_name_alternatives': json['display_name_alternatives'],
         'domain': TopicLevelSchemaFromJSON(json['domain']),
         'id': json['id'],
         'ids': IdsFromJSON(json['ids']),
         'siblings': TopicLevelArraySchemaFromJSON(json['siblings']),
         'subfields': TopicLevelArraySchemaFromJSON(json['subfields']),
-        'updatedDate': json['updated_date'],
-        'worksApiUrl': json['works_api_url'],
-        'worksCount': json['works_count'],
+        'updated_date': json['updated_date'],
+        'works_api_url': json['works_api_url'],
+        'works_count': json['works_count'],
     };
 }
 
-export function FieldToJSON(value?: Field | null): any {
+export function FieldToJSON(json: any): Field {
+    return FieldToJSONTyped(json, false);
+}
+
+export function FieldToJSONTyped(value?: Field | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'cited_by_count': value['citedByCount'],
-        'created_date': value['createdDate'],
+        'cited_by_count': value['cited_by_count'],
+        'created_date': value['created_date'],
         'description': value['description'],
-        'display_name': value['displayName'],
-        'display_name_alternatives': value['displayNameAlternatives'],
+        'display_name': value['display_name'],
+        'display_name_alternatives': value['display_name_alternatives'],
         'domain': TopicLevelSchemaToJSON(value['domain']),
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
         'siblings': TopicLevelArraySchemaToJSON(value['siblings']),
         'subfields': TopicLevelArraySchemaToJSON(value['subfields']),
-        'updated_date': value['updatedDate'],
-        'works_api_url': value['worksApiUrl'],
-        'works_count': value['worksCount'],
+        'updated_date': value['updated_date'],
+        'works_api_url': value['works_api_url'],
+        'works_count': value['works_count'],
     };
 }
 

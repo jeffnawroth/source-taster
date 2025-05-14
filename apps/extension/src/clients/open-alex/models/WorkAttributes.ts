@@ -68,7 +68,7 @@ export type WorkAttributes = typeof WorkAttributes[keyof typeof WorkAttributes];
 export function instanceOfWorkAttributes(value: any): boolean {
     for (const key in WorkAttributes) {
         if (Object.prototype.hasOwnProperty.call(WorkAttributes, key)) {
-            if ((WorkAttributes as Record<string, WorkAttributes>)[key] === value) {
+            if (WorkAttributes[key as keyof typeof WorkAttributes] === value) {
                 return true;
             }
         }
@@ -86,5 +86,9 @@ export function WorkAttributesFromJSONTyped(json: any, ignoreDiscriminator: bool
 
 export function WorkAttributesToJSON(value?: WorkAttributes | null): any {
     return value as any;
+}
+
+export function WorkAttributesToJSONTyped(value: any, ignoreDiscriminator: boolean): WorkAttributes {
+    return value as WorkAttributes;
 }
 

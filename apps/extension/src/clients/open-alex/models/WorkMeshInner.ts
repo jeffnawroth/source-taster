@@ -24,42 +24,42 @@ export interface WorkMeshInner {
      * @type {string}
      * @memberof WorkMeshInner
      */
-    descriptorName: string;
+    descriptor_ui: string;
     /**
      * 
      * @type {string}
      * @memberof WorkMeshInner
      */
-    descriptorUi: string;
+    descriptor_name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkMeshInner
+     */
+    qualifier_ui: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkMeshInner
+     */
+    qualifier_name: string;
     /**
      * 
      * @type {boolean}
      * @memberof WorkMeshInner
      */
-    isMajorTopic: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkMeshInner
-     */
-    qualifierName: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkMeshInner
-     */
-    qualifierUi: string;
+    is_major_topic: boolean;
 }
 
 /**
  * Check if a given object implements the WorkMeshInner interface.
  */
 export function instanceOfWorkMeshInner(value: object): value is WorkMeshInner {
-    if (!('descriptorName' in value) || value['descriptorName'] === undefined) return false;
-    if (!('descriptorUi' in value) || value['descriptorUi'] === undefined) return false;
-    if (!('isMajorTopic' in value) || value['isMajorTopic'] === undefined) return false;
-    if (!('qualifierName' in value) || value['qualifierName'] === undefined) return false;
-    if (!('qualifierUi' in value) || value['qualifierUi'] === undefined) return false;
+    if (!('descriptor_ui' in value) || value['descriptor_ui'] === undefined) return false;
+    if (!('descriptor_name' in value) || value['descriptor_name'] === undefined) return false;
+    if (!('qualifier_ui' in value) || value['qualifier_ui'] === undefined) return false;
+    if (!('qualifier_name' in value) || value['qualifier_name'] === undefined) return false;
+    if (!('is_major_topic' in value) || value['is_major_topic'] === undefined) return false;
     return true;
 }
 
@@ -73,25 +73,30 @@ export function WorkMeshInnerFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'descriptorName': json['descriptor_name'],
-        'descriptorUi': json['descriptor_ui'],
-        'isMajorTopic': json['is_major_topic'],
-        'qualifierName': json['qualifier_name'],
-        'qualifierUi': json['qualifier_ui'],
+        'descriptor_ui': json['descriptor_ui'],
+        'descriptor_name': json['descriptor_name'],
+        'qualifier_ui': json['qualifier_ui'],
+        'qualifier_name': json['qualifier_name'],
+        'is_major_topic': json['is_major_topic'],
     };
 }
 
-export function WorkMeshInnerToJSON(value?: WorkMeshInner | null): any {
+export function WorkMeshInnerToJSON(json: any): WorkMeshInner {
+    return WorkMeshInnerToJSONTyped(json, false);
+}
+
+export function WorkMeshInnerToJSONTyped(value?: WorkMeshInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'descriptor_name': value['descriptorName'],
-        'descriptor_ui': value['descriptorUi'],
-        'is_major_topic': value['isMajorTopic'],
-        'qualifier_name': value['qualifierName'],
-        'qualifier_ui': value['qualifierUi'],
+        'descriptor_ui': value['descriptor_ui'],
+        'descriptor_name': value['descriptor_name'],
+        'qualifier_ui': value['qualifier_ui'],
+        'qualifier_name': value['qualifier_name'],
+        'is_major_topic': value['is_major_topic'],
     };
 }
 

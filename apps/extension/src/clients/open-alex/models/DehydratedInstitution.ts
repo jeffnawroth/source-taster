@@ -24,13 +24,13 @@ export interface DehydratedInstitution {
      * @type {string}
      * @memberof DehydratedInstitution
      */
-    countryCode?: string;
+    country_code?: string;
     /**
      * 
      * @type {string}
      * @memberof DehydratedInstitution
      */
-    displayName?: string;
+    display_name?: string;
     /**
      * 
      * @type {string}
@@ -74,8 +74,8 @@ export function DehydratedInstitutionFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'countryCode': json['country_code'] == null ? undefined : json['country_code'],
-        'displayName': json['display_name'] == null ? undefined : json['display_name'],
+        'country_code': json['country_code'] == null ? undefined : json['country_code'],
+        'display_name': json['display_name'] == null ? undefined : json['display_name'],
         'id': json['id'] == null ? undefined : json['id'],
         'lineage': json['lineage'] == null ? undefined : json['lineage'],
         'ror': json['ror'] == null ? undefined : json['ror'],
@@ -83,14 +83,19 @@ export function DehydratedInstitutionFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function DehydratedInstitutionToJSON(value?: DehydratedInstitution | null): any {
+export function DehydratedInstitutionToJSON(json: any): DehydratedInstitution {
+    return DehydratedInstitutionToJSONTyped(json, false);
+}
+
+export function DehydratedInstitutionToJSONTyped(value?: DehydratedInstitution | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'country_code': value['countryCode'],
-        'display_name': value['displayName'],
+        'country_code': value['country_code'],
+        'display_name': value['display_name'],
         'id': value['id'],
         'lineage': value['lineage'],
         'ror': value['ror'],

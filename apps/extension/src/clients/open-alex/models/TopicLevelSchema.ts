@@ -18,6 +18,7 @@ import {
     TopicLevelSchemaIdFromJSON,
     TopicLevelSchemaIdFromJSONTyped,
     TopicLevelSchemaIdToJSON,
+    TopicLevelSchemaIdToJSONTyped,
 } from './TopicLevelSchemaId';
 
 /**
@@ -28,24 +29,24 @@ import {
 export interface TopicLevelSchema {
     /**
      * 
-     * @type {string}
-     * @memberof TopicLevelSchema
-     */
-    displayName: string;
-    /**
-     * 
      * @type {TopicLevelSchemaId}
      * @memberof TopicLevelSchema
      */
     id: TopicLevelSchemaId;
+    /**
+     * 
+     * @type {string}
+     * @memberof TopicLevelSchema
+     */
+    display_name: string;
 }
 
 /**
  * Check if a given object implements the TopicLevelSchema interface.
  */
 export function instanceOfTopicLevelSchema(value: object): value is TopicLevelSchema {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     return true;
 }
 
@@ -59,19 +60,24 @@ export function TopicLevelSchemaFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'displayName': json['display_name'],
         'id': TopicLevelSchemaIdFromJSON(json['id']),
+        'display_name': json['display_name'],
     };
 }
 
-export function TopicLevelSchemaToJSON(value?: TopicLevelSchema | null): any {
+export function TopicLevelSchemaToJSON(json: any): TopicLevelSchema {
+    return TopicLevelSchemaToJSONTyped(json, false);
+}
+
+export function TopicLevelSchemaToJSONTyped(value?: TopicLevelSchema | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
         'id': TopicLevelSchemaIdToJSON(value['id']),
+        'display_name': value['display_name'],
     };
 }
 

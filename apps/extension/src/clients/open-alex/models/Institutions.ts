@@ -18,19 +18,22 @@ import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
-import type { GroupByResult } from './GroupByResult';
+import type { GroupByResultInner } from './GroupByResultInner';
 import {
-    GroupByResultFromJSON,
-    GroupByResultFromJSONTyped,
-    GroupByResultToJSON,
-} from './GroupByResult';
-import type { InstitutionArray } from './InstitutionArray';
+    GroupByResultInnerFromJSON,
+    GroupByResultInnerFromJSONTyped,
+    GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
+} from './GroupByResultInner';
+import type { InstitutionSchema } from './InstitutionSchema';
 import {
-    InstitutionArrayFromJSON,
-    InstitutionArrayFromJSONTyped,
-    InstitutionArrayToJSON,
-} from './InstitutionArray';
+    InstitutionSchemaFromJSON,
+    InstitutionSchemaFromJSONTyped,
+    InstitutionSchemaToJSON,
+    InstitutionSchemaToJSONTyped,
+} from './InstitutionSchema';
 
 /**
  * 
@@ -40,10 +43,10 @@ import {
 export interface Institutions {
     /**
      * 
-     * @type {GroupByResult}
+     * @type {Array<GroupByResultInner>}
      * @memberof Institutions
      */
-    groupBy: GroupByResult;
+    group_by: Array<GroupByResultInner>;
     /**
      * 
      * @type {Meta}
@@ -52,17 +55,17 @@ export interface Institutions {
     meta: Meta;
     /**
      * 
-     * @type {InstitutionArray}
+     * @type {Array<InstitutionSchema>}
      * @memberof Institutions
      */
-    results?: InstitutionArray;
+    results?: Array<InstitutionSchema>;
 }
 
 /**
  * Check if a given object implements the Institutions interface.
  */
 export function instanceOfInstitutions(value: object): value is Institutions {
-    if (!('groupBy' in value) || value['groupBy'] === undefined) return false;
+    if (!('group_by' in value) || value['group_by'] === undefined) return false;
     if (!('meta' in value) || value['meta'] === undefined) return false;
     return true;
 }
@@ -77,21 +80,26 @@ export function InstitutionsFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-        'groupBy': GroupByResultFromJSON(json['group_by']),
+        'group_by': ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
         'meta': MetaFromJSON(json['meta']),
-        'results': json['results'] == null ? undefined : InstitutionArrayFromJSON(json['results']),
+        'results': json['results'] == null ? undefined : ((json['results'] as Array<any>).map(InstitutionSchemaFromJSON)),
     };
 }
 
-export function InstitutionsToJSON(value?: Institutions | null): any {
+export function InstitutionsToJSON(json: any): Institutions {
+    return InstitutionsToJSONTyped(json, false);
+}
+
+export function InstitutionsToJSONTyped(value?: Institutions | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': GroupByResultToJSON(value['groupBy']),
+        'group_by': ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
         'meta': MetaToJSON(value['meta']),
-        'results': InstitutionArrayToJSON(value['results']),
+        'results': value['results'] == null ? undefined : ((value['results'] as Array<any>).map(InstitutionSchemaToJSON)),
     };
 }
 

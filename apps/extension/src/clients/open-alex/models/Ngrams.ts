@@ -13,18 +13,20 @@
  */
 
 import { mapValues } from '../runtime';
+import type { NgramInner } from './NgramInner';
+import {
+    NgramInnerFromJSON,
+    NgramInnerFromJSONTyped,
+    NgramInnerToJSON,
+    NgramInnerToJSONTyped,
+} from './NgramInner';
 import type { NgramMeta } from './NgramMeta';
 import {
     NgramMetaFromJSON,
     NgramMetaFromJSONTyped,
     NgramMetaToJSON,
+    NgramMetaToJSONTyped,
 } from './NgramMeta';
-import type { Ngram } from './Ngram';
-import {
-    NgramFromJSON,
-    NgramFromJSONTyped,
-    NgramToJSON,
-} from './Ngram';
 
 /**
  * 
@@ -40,10 +42,10 @@ export interface Ngrams {
     meta?: NgramMeta;
     /**
      * 
-     * @type {Ngram}
+     * @type {Array<NgramInner>}
      * @memberof Ngrams
      */
-    ngrams?: Ngram;
+    ngrams?: Array<NgramInner>;
 }
 
 /**
@@ -64,18 +66,23 @@ export function NgramsFromJSONTyped(json: any, ignoreDiscriminator: boolean): Ng
     return {
         
         'meta': json['meta'] == null ? undefined : NgramMetaFromJSON(json['meta']),
-        'ngrams': json['ngrams'] == null ? undefined : NgramFromJSON(json['ngrams']),
+        'ngrams': json['ngrams'] == null ? undefined : ((json['ngrams'] as Array<any>).map(NgramInnerFromJSON)),
     };
 }
 
-export function NgramsToJSON(value?: Ngrams | null): any {
+export function NgramsToJSON(json: any): Ngrams {
+    return NgramsToJSONTyped(json, false);
+}
+
+export function NgramsToJSONTyped(value?: Ngrams | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'meta': NgramMetaToJSON(value['meta']),
-        'ngrams': NgramToJSON(value['ngrams']),
+        'ngrams': value['ngrams'] == null ? undefined : ((value['ngrams'] as Array<any>).map(NgramInnerToJSON)),
     };
 }
 

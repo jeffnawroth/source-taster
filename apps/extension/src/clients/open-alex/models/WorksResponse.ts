@@ -18,19 +18,22 @@ import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
-import type { GroupByResult } from './GroupByResult';
+import type { GroupByResultInner } from './GroupByResultInner';
 import {
-    GroupByResultFromJSON,
-    GroupByResultFromJSONTyped,
-    GroupByResultToJSON,
-} from './GroupByResult';
-import type { WorksArray } from './WorksArray';
+    GroupByResultInnerFromJSON,
+    GroupByResultInnerFromJSONTyped,
+    GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
+} from './GroupByResultInner';
+import type { WorkSchema } from './WorkSchema';
 import {
-    WorksArrayFromJSON,
-    WorksArrayFromJSONTyped,
-    WorksArrayToJSON,
-} from './WorksArray';
+    WorkSchemaFromJSON,
+    WorkSchemaFromJSONTyped,
+    WorkSchemaToJSON,
+    WorkSchemaToJSONTyped,
+} from './WorkSchema';
 
 /**
  * 
@@ -40,22 +43,22 @@ import {
 export interface WorksResponse {
     /**
      * 
-     * @type {GroupByResult}
-     * @memberof WorksResponse
-     */
-    groupBy?: GroupByResult;
-    /**
-     * 
      * @type {Meta}
      * @memberof WorksResponse
      */
     meta: Meta;
     /**
      * 
-     * @type {WorksArray}
+     * @type {Array<WorkSchema>}
      * @memberof WorksResponse
      */
-    results: WorksArray;
+    results: Array<WorkSchema>;
+    /**
+     * 
+     * @type {Array<GroupByResultInner>}
+     * @memberof WorksResponse
+     */
+    group_by?: Array<GroupByResultInner>;
 }
 
 /**
@@ -77,21 +80,26 @@ export function WorksResponseFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'groupBy': json['group_by'] == null ? undefined : GroupByResultFromJSON(json['group_by']),
         'meta': MetaFromJSON(json['meta']),
-        'results': WorksArrayFromJSON(json['results']),
+        'results': ((json['results'] as Array<any>).map(WorkSchemaFromJSON)),
+        'group_by': json['group_by'] == null ? undefined : ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
     };
 }
 
-export function WorksResponseToJSON(value?: WorksResponse | null): any {
+export function WorksResponseToJSON(json: any): WorksResponse {
+    return WorksResponseToJSONTyped(json, false);
+}
+
+export function WorksResponseToJSONTyped(value?: WorksResponse | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': GroupByResultToJSON(value['groupBy']),
         'meta': MetaToJSON(value['meta']),
-        'results': WorksArrayToJSON(value['results']),
+        'results': ((value['results'] as Array<any>).map(WorkSchemaToJSON)),
+        'group_by': value['group_by'] == null ? undefined : ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
     };
 }
 

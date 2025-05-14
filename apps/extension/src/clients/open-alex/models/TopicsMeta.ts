@@ -30,13 +30,13 @@ export interface TopicsMeta {
      * @type {number}
      * @memberof TopicsMeta
      */
-    dbResponseTimeMs: number;
+    db_response_time_ms: number;
     /**
      * 
      * @type {number}
      * @memberof TopicsMeta
      */
-    groupsCount: number;
+    groups_count: number;
     /**
      * 
      * @type {number}
@@ -48,7 +48,7 @@ export interface TopicsMeta {
      * @type {number}
      * @memberof TopicsMeta
      */
-    perPage: number;
+    per_page: number;
 }
 
 /**
@@ -56,10 +56,10 @@ export interface TopicsMeta {
  */
 export function instanceOfTopicsMeta(value: object): value is TopicsMeta {
     if (!('count' in value) || value['count'] === undefined) return false;
-    if (!('dbResponseTimeMs' in value) || value['dbResponseTimeMs'] === undefined) return false;
-    if (!('groupsCount' in value) || value['groupsCount'] === undefined) return false;
+    if (!('db_response_time_ms' in value) || value['db_response_time_ms'] === undefined) return false;
+    if (!('groups_count' in value) || value['groups_count'] === undefined) return false;
     if (!('page' in value) || value['page'] === undefined) return false;
-    if (!('perPage' in value) || value['perPage'] === undefined) return false;
+    if (!('per_page' in value) || value['per_page'] === undefined) return false;
     return true;
 }
 
@@ -74,24 +74,29 @@ export function TopicsMetaFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     return {
         
         'count': json['count'],
-        'dbResponseTimeMs': json['db_response_time_ms'],
-        'groupsCount': json['groups_count'],
+        'db_response_time_ms': json['db_response_time_ms'],
+        'groups_count': json['groups_count'],
         'page': json['page'],
-        'perPage': json['per_page'],
+        'per_page': json['per_page'],
     };
 }
 
-export function TopicsMetaToJSON(value?: TopicsMeta | null): any {
+export function TopicsMetaToJSON(json: any): TopicsMeta {
+    return TopicsMetaToJSONTyped(json, false);
+}
+
+export function TopicsMetaToJSONTyped(value?: TopicsMeta | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'count': value['count'],
-        'db_response_time_ms': value['dbResponseTimeMs'],
-        'groups_count': value['groupsCount'],
+        'db_response_time_ms': value['db_response_time_ms'],
+        'groups_count': value['groups_count'],
         'page': value['page'],
-        'per_page': value['perPage'],
+        'per_page': value['per_page'],
     };
 }
 

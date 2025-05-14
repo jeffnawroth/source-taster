@@ -36,7 +36,7 @@ export interface Role {
      * @type {number}
      * @memberof Role
      */
-    worksCount: number;
+    works_count: number;
 }
 
 /**
@@ -45,7 +45,7 @@ export interface Role {
 export function instanceOfRole(value: object): value is Role {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('role' in value) || value['role'] === undefined) return false;
-    if (!('worksCount' in value) || value['worksCount'] === undefined) return false;
+    if (!('works_count' in value) || value['works_count'] === undefined) return false;
     return true;
 }
 
@@ -61,19 +61,24 @@ export function RoleFromJSONTyped(json: any, ignoreDiscriminator: boolean): Role
         
         'id': json['id'],
         'role': json['role'],
-        'worksCount': json['works_count'],
+        'works_count': json['works_count'],
     };
 }
 
-export function RoleToJSON(value?: Role | null): any {
+export function RoleToJSON(json: any): Role {
+    return RoleToJSONTyped(json, false);
+}
+
+export function RoleToJSONTyped(value?: Role | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'id': value['id'],
         'role': value['role'],
-        'works_count': value['worksCount'],
+        'works_count': value['works_count'],
     };
 }
 

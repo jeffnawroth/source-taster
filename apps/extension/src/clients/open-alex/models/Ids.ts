@@ -54,7 +54,7 @@ export interface Ids {
      * @type {string}
      * @memberof Ids
      */
-    issnL?: string;
+    issn_l?: string;
     /**
      * 
      * @type {string}
@@ -134,7 +134,7 @@ export function IdsFromJSONTyped(json: any, ignoreDiscriminator: boolean): Ids {
         'fatcat': json['fatcat'] == null ? undefined : json['fatcat'],
         'grid': json['grid'] == null ? undefined : json['grid'],
         'issn': json['issn'] == null ? undefined : json['issn'],
-        'issnL': json['issn_l'] == null ? undefined : json['issn_l'],
+        'issn_l': json['issn_l'] == null ? undefined : json['issn_l'],
         'mag': json['mag'] == null ? undefined : json['mag'],
         'openalex': json['openalex'],
         'orcid': json['orcid'] == null ? undefined : json['orcid'],
@@ -147,10 +147,15 @@ export function IdsFromJSONTyped(json: any, ignoreDiscriminator: boolean): Ids {
     };
 }
 
-export function IdsToJSON(value?: Ids | null): any {
+export function IdsToJSON(json: any): Ids {
+    return IdsToJSONTyped(json, false);
+}
+
+export function IdsToJSONTyped(value?: Ids | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'crossref': value['crossref'],
@@ -158,7 +163,7 @@ export function IdsToJSON(value?: Ids | null): any {
         'fatcat': value['fatcat'],
         'grid': value['grid'],
         'issn': value['issn'],
-        'issn_l': value['issnL'],
+        'issn_l': value['issn_l'],
         'mag': value['mag'],
         'openalex': value['openalex'],
         'orcid': value['orcid'],

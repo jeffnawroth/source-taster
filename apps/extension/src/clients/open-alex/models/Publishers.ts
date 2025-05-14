@@ -18,19 +18,22 @@ import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
+import type { GroupByResultInner } from './GroupByResultInner';
+import {
+    GroupByResultInnerFromJSON,
+    GroupByResultInnerFromJSONTyped,
+    GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
+} from './GroupByResultInner';
 import type { PublisherSchema } from './PublisherSchema';
 import {
     PublisherSchemaFromJSON,
     PublisherSchemaFromJSONTyped,
     PublisherSchemaToJSON,
+    PublisherSchemaToJSONTyped,
 } from './PublisherSchema';
-import type { GroupByResult } from './GroupByResult';
-import {
-    GroupByResultFromJSON,
-    GroupByResultFromJSONTyped,
-    GroupByResultToJSON,
-} from './GroupByResult';
 
 /**
  * 
@@ -40,10 +43,10 @@ import {
 export interface Publishers {
     /**
      * 
-     * @type {GroupByResult}
+     * @type {Array<GroupByResultInner>}
      * @memberof Publishers
      */
-    groupBy: GroupByResult;
+    group_by: Array<GroupByResultInner>;
     /**
      * 
      * @type {Meta}
@@ -62,7 +65,7 @@ export interface Publishers {
  * Check if a given object implements the Publishers interface.
  */
 export function instanceOfPublishers(value: object): value is Publishers {
-    if (!('groupBy' in value) || value['groupBy'] === undefined) return false;
+    if (!('group_by' in value) || value['group_by'] === undefined) return false;
     if (!('meta' in value) || value['meta'] === undefined) return false;
     if (!('results' in value) || value['results'] === undefined) return false;
     return true;
@@ -78,19 +81,24 @@ export function PublishersFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-        'groupBy': GroupByResultFromJSON(json['group_by']),
+        'group_by': ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
         'meta': MetaFromJSON(json['meta']),
         'results': ((json['results'] as Array<any>).map(PublisherSchemaFromJSON)),
     };
 }
 
-export function PublishersToJSON(value?: Publishers | null): any {
+export function PublishersToJSON(json: any): Publishers {
+    return PublishersToJSONTyped(json, false);
+}
+
+export function PublishersToJSONTyped(value?: Publishers | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': GroupByResultToJSON(value['groupBy']),
+        'group_by': ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
         'meta': MetaToJSON(value['meta']),
         'results': ((value['results'] as Array<any>).map(PublisherSchemaToJSON)),
     };

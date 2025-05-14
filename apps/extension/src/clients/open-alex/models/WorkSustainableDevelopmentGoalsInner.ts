@@ -24,13 +24,13 @@ export interface WorkSustainableDevelopmentGoalsInner {
      * @type {string}
      * @memberof WorkSustainableDevelopmentGoalsInner
      */
-    displayName: string;
+    id: string;
     /**
      * 
      * @type {string}
      * @memberof WorkSustainableDevelopmentGoalsInner
      */
-    id: string;
+    display_name: string;
     /**
      * 
      * @type {number}
@@ -43,8 +43,8 @@ export interface WorkSustainableDevelopmentGoalsInner {
  * Check if a given object implements the WorkSustainableDevelopmentGoalsInner interface.
  */
 export function instanceOfWorkSustainableDevelopmentGoalsInner(value: object): value is WorkSustainableDevelopmentGoalsInner {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('score' in value) || value['score'] === undefined) return false;
     return true;
 }
@@ -59,20 +59,25 @@ export function WorkSustainableDevelopmentGoalsInnerFromJSONTyped(json: any, ign
     }
     return {
         
-        'displayName': json['display_name'],
         'id': json['id'],
+        'display_name': json['display_name'],
         'score': json['score'],
     };
 }
 
-export function WorkSustainableDevelopmentGoalsInnerToJSON(value?: WorkSustainableDevelopmentGoalsInner | null): any {
+export function WorkSustainableDevelopmentGoalsInnerToJSON(json: any): WorkSustainableDevelopmentGoalsInner {
+    return WorkSustainableDevelopmentGoalsInnerToJSONTyped(json, false);
+}
+
+export function WorkSustainableDevelopmentGoalsInnerToJSONTyped(value?: WorkSustainableDevelopmentGoalsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
         'id': value['id'],
+        'display_name': value['display_name'],
         'score': value['score'],
     };
 }

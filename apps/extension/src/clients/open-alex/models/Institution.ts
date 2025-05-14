@@ -13,60 +13,69 @@
  */
 
 import { mapValues } from '../runtime';
-import type { AssociatedInstitutionArray } from './AssociatedInstitutionArray';
-import {
-    AssociatedInstitutionArrayFromJSON,
-    AssociatedInstitutionArrayFromJSONTyped,
-    AssociatedInstitutionArrayToJSON,
-} from './AssociatedInstitutionArray';
-import type { CountsByYear } from './CountsByYear';
-import {
-    CountsByYearFromJSON,
-    CountsByYearFromJSONTyped,
-    CountsByYearToJSON,
-} from './CountsByYear';
 import type { Geo } from './Geo';
 import {
     GeoFromJSON,
     GeoFromJSONTyped,
     GeoToJSON,
+    GeoToJSONTyped,
 } from './Geo';
-import type { RepositoriesArray } from './RepositoriesArray';
+import type { RepositoriesArrayInner } from './RepositoriesArrayInner';
 import {
-    RepositoriesArrayFromJSON,
-    RepositoriesArrayFromJSONTyped,
-    RepositoriesArrayToJSON,
-} from './RepositoriesArray';
-import type { DehydratedConceptArray } from './DehydratedConceptArray';
+    RepositoriesArrayInnerFromJSON,
+    RepositoriesArrayInnerFromJSONTyped,
+    RepositoriesArrayInnerToJSON,
+    RepositoriesArrayInnerToJSONTyped,
+} from './RepositoriesArrayInner';
+import type { Role } from './Role';
 import {
-    DehydratedConceptArrayFromJSON,
-    DehydratedConceptArrayFromJSONTyped,
-    DehydratedConceptArrayToJSON,
-} from './DehydratedConceptArray';
+    RoleFromJSON,
+    RoleFromJSONTyped,
+    RoleToJSON,
+    RoleToJSONTyped,
+} from './Role';
+import type { CountsByYearInner } from './CountsByYearInner';
+import {
+    CountsByYearInnerFromJSON,
+    CountsByYearInnerFromJSONTyped,
+    CountsByYearInnerToJSON,
+    CountsByYearInnerToJSONTyped,
+} from './CountsByYearInner';
 import type { InternationalDisplayName } from './InternationalDisplayName';
 import {
     InternationalDisplayNameFromJSON,
     InternationalDisplayNameFromJSONTyped,
     InternationalDisplayNameToJSON,
+    InternationalDisplayNameToJSONTyped,
 } from './InternationalDisplayName';
+import type { AssociatedInstitution } from './AssociatedInstitution';
+import {
+    AssociatedInstitutionFromJSON,
+    AssociatedInstitutionFromJSONTyped,
+    AssociatedInstitutionToJSON,
+    AssociatedInstitutionToJSONTyped,
+} from './AssociatedInstitution';
 import type { SummaryStats } from './SummaryStats';
 import {
     SummaryStatsFromJSON,
     SummaryStatsFromJSONTyped,
     SummaryStatsToJSON,
+    SummaryStatsToJSONTyped,
 } from './SummaryStats';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
-import type { Roles } from './Roles';
+import type { DehydratedConcept } from './DehydratedConcept';
 import {
-    RolesFromJSON,
-    RolesFromJSONTyped,
-    RolesToJSON,
-} from './Roles';
+    DehydratedConceptFromJSON,
+    DehydratedConceptFromJSONTyped,
+    DehydratedConceptToJSON,
+    DehydratedConceptToJSONTyped,
+} from './DehydratedConcept';
 
 /**
  * 
@@ -76,52 +85,52 @@ import {
 export interface Institution {
     /**
      * 
-     * @type {AssociatedInstitutionArray}
+     * @type {Array<AssociatedInstitution>}
      * @memberof Institution
      */
-    associatedInstitutions?: AssociatedInstitutionArray;
+    associated_institutions?: Array<AssociatedInstitution>;
     /**
      * 
      * @type {number}
      * @memberof Institution
      */
-    citedByCount?: number;
+    cited_by_count?: number;
     /**
      * 
      * @type {string}
      * @memberof Institution
      */
-    countryCode?: string;
+    country_code?: string;
     /**
      * 
-     * @type {CountsByYear}
+     * @type {Array<CountsByYearInner>}
      * @memberof Institution
      */
-    countsByYear?: CountsByYear;
-    /**
-     * 
-     * @type {string}
-     * @memberof Institution
-     */
-    createdDate?: string;
+    counts_by_year?: Array<CountsByYearInner>;
     /**
      * 
      * @type {string}
      * @memberof Institution
      */
-    displayName: string;
+    created_date?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Institution
+     */
+    display_name: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof Institution
      */
-    displayNameAcronyms?: Array<string>;
+    display_name_acronyms?: Array<string>;
     /**
      * 
      * @type {Array<string>}
      * @memberof Institution
      */
-    displayNameAlternatives?: Array<string>;
+    display_name_alternatives?: Array<string>;
     /**
      * 
      * @type {Geo}
@@ -133,7 +142,7 @@ export interface Institution {
      * @type {string}
      * @memberof Institution
      */
-    homepageUrl?: string;
+    homepage_url?: string;
     /**
      * 
      * @type {string}
@@ -151,13 +160,13 @@ export interface Institution {
      * @type {string}
      * @memberof Institution
      */
-    imageThumbnailUrl?: string;
+    image_thumbnail_url?: string;
     /**
      * 
      * @type {string}
      * @memberof Institution
      */
-    imageUrl?: string;
+    image_url?: string;
     /**
      * 
      * @type {InternationalDisplayName}
@@ -172,16 +181,16 @@ export interface Institution {
     lineage?: Array<string>;
     /**
      * 
-     * @type {RepositoriesArray}
+     * @type {Array<RepositoriesArrayInner>}
      * @memberof Institution
      */
-    repositories?: RepositoriesArray;
+    repositories?: Array<RepositoriesArrayInner>;
     /**
      * 
-     * @type {Roles}
+     * @type {Array<Role>}
      * @memberof Institution
      */
-    roles?: Roles;
+    roles?: Array<Role>;
     /**
      * 
      * @type {string}
@@ -193,7 +202,7 @@ export interface Institution {
      * @type {SummaryStats}
      * @memberof Institution
      */
-    summaryStats?: SummaryStats;
+    summary_stats?: SummaryStats;
     /**
      * 
      * @type {string}
@@ -205,32 +214,32 @@ export interface Institution {
      * @type {string}
      * @memberof Institution
      */
-    updatedDate?: string;
+    updated_date?: string;
     /**
      * 
      * @type {string}
      * @memberof Institution
      */
-    worksApiUrl?: string;
+    works_api_url?: string;
     /**
      * 
      * @type {number}
      * @memberof Institution
      */
-    worksCount?: number;
+    works_count?: number;
     /**
      * 
-     * @type {DehydratedConceptArray}
+     * @type {Array<DehydratedConcept>}
      * @memberof Institution
      */
-    xConcepts?: DehydratedConceptArray;
+    x_concepts?: Array<DehydratedConcept>;
 }
 
 /**
  * Check if a given object implements the Institution interface.
  */
 export function instanceOfInstitution(value: object): value is Institution {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -245,65 +254,70 @@ export function InstitutionFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'associatedInstitutions': json['associated_institutions'] == null ? undefined : AssociatedInstitutionArrayFromJSON(json['associated_institutions']),
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'countryCode': json['country_code'] == null ? undefined : json['country_code'],
-        'countsByYear': json['counts_by_year'] == null ? undefined : CountsByYearFromJSON(json['counts_by_year']),
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
-        'displayName': json['display_name'],
-        'displayNameAcronyms': json['display_name_acronyms'] == null ? undefined : json['display_name_acronyms'],
-        'displayNameAlternatives': json['display_name_alternatives'] == null ? undefined : json['display_name_alternatives'],
+        'associated_institutions': json['associated_institutions'] == null ? undefined : ((json['associated_institutions'] as Array<any>).map(AssociatedInstitutionFromJSON)),
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'country_code': json['country_code'] == null ? undefined : json['country_code'],
+        'counts_by_year': json['counts_by_year'] == null ? undefined : ((json['counts_by_year'] as Array<any>).map(CountsByYearInnerFromJSON)),
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
+        'display_name': json['display_name'],
+        'display_name_acronyms': json['display_name_acronyms'] == null ? undefined : json['display_name_acronyms'],
+        'display_name_alternatives': json['display_name_alternatives'] == null ? undefined : json['display_name_alternatives'],
         'geo': json['geo'] == null ? undefined : GeoFromJSON(json['geo']),
-        'homepageUrl': json['homepage_url'] == null ? undefined : json['homepage_url'],
+        'homepage_url': json['homepage_url'] == null ? undefined : json['homepage_url'],
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : IdsFromJSON(json['ids']),
-        'imageThumbnailUrl': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
-        'imageUrl': json['image_url'] == null ? undefined : json['image_url'],
+        'image_thumbnail_url': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
+        'image_url': json['image_url'] == null ? undefined : json['image_url'],
         'international': json['international'] == null ? undefined : InternationalDisplayNameFromJSON(json['international']),
         'lineage': json['lineage'] == null ? undefined : json['lineage'],
-        'repositories': json['repositories'] == null ? undefined : RepositoriesArrayFromJSON(json['repositories']),
-        'roles': json['roles'] == null ? undefined : RolesFromJSON(json['roles']),
+        'repositories': json['repositories'] == null ? undefined : ((json['repositories'] as Array<any>).map(RepositoriesArrayInnerFromJSON)),
+        'roles': json['roles'] == null ? undefined : ((json['roles'] as Array<any>).map(RoleFromJSON)),
         'ror': json['ror'] == null ? undefined : json['ror'],
-        'summaryStats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
+        'summary_stats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
         'type': json['type'] == null ? undefined : json['type'],
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
-        'worksApiUrl': json['works_api_url'] == null ? undefined : json['works_api_url'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
-        'xConcepts': json['x_concepts'] == null ? undefined : DehydratedConceptArrayFromJSON(json['x_concepts']),
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
+        'works_api_url': json['works_api_url'] == null ? undefined : json['works_api_url'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
+        'x_concepts': json['x_concepts'] == null ? undefined : ((json['x_concepts'] as Array<any>).map(DehydratedConceptFromJSON)),
     };
 }
 
-export function InstitutionToJSON(value?: Institution | null): any {
+export function InstitutionToJSON(json: any): Institution {
+    return InstitutionToJSONTyped(json, false);
+}
+
+export function InstitutionToJSONTyped(value?: Institution | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'associated_institutions': AssociatedInstitutionArrayToJSON(value['associatedInstitutions']),
-        'cited_by_count': value['citedByCount'],
-        'country_code': value['countryCode'],
-        'counts_by_year': CountsByYearToJSON(value['countsByYear']),
-        'created_date': value['createdDate'],
-        'display_name': value['displayName'],
-        'display_name_acronyms': value['displayNameAcronyms'],
-        'display_name_alternatives': value['displayNameAlternatives'],
+        'associated_institutions': value['associated_institutions'] == null ? undefined : ((value['associated_institutions'] as Array<any>).map(AssociatedInstitutionToJSON)),
+        'cited_by_count': value['cited_by_count'],
+        'country_code': value['country_code'],
+        'counts_by_year': value['counts_by_year'] == null ? undefined : ((value['counts_by_year'] as Array<any>).map(CountsByYearInnerToJSON)),
+        'created_date': value['created_date'],
+        'display_name': value['display_name'],
+        'display_name_acronyms': value['display_name_acronyms'],
+        'display_name_alternatives': value['display_name_alternatives'],
         'geo': GeoToJSON(value['geo']),
-        'homepage_url': value['homepageUrl'],
+        'homepage_url': value['homepage_url'],
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
-        'image_thumbnail_url': value['imageThumbnailUrl'],
-        'image_url': value['imageUrl'],
+        'image_thumbnail_url': value['image_thumbnail_url'],
+        'image_url': value['image_url'],
         'international': InternationalDisplayNameToJSON(value['international']),
         'lineage': value['lineage'],
-        'repositories': RepositoriesArrayToJSON(value['repositories']),
-        'roles': RolesToJSON(value['roles']),
+        'repositories': value['repositories'] == null ? undefined : ((value['repositories'] as Array<any>).map(RepositoriesArrayInnerToJSON)),
+        'roles': value['roles'] == null ? undefined : ((value['roles'] as Array<any>).map(RoleToJSON)),
         'ror': value['ror'],
-        'summary_stats': SummaryStatsToJSON(value['summaryStats']),
+        'summary_stats': SummaryStatsToJSON(value['summary_stats']),
         'type': value['type'],
-        'updated_date': value['updatedDate'],
-        'works_api_url': value['worksApiUrl'],
-        'works_count': value['worksCount'],
-        'x_concepts': DehydratedConceptArrayToJSON(value['xConcepts']),
+        'updated_date': value['updated_date'],
+        'works_api_url': value['works_api_url'],
+        'works_count': value['works_count'],
+        'x_concepts': value['x_concepts'] == null ? undefined : ((value['x_concepts'] as Array<any>).map(DehydratedConceptToJSON)),
     };
 }
 

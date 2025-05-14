@@ -18,12 +18,14 @@ import {
     InternationalDisplayNameFromJSON,
     InternationalDisplayNameFromJSONTyped,
     InternationalDisplayNameToJSON,
+    InternationalDisplayNameToJSONTyped,
 } from './InternationalDisplayName';
 import type { InternationalDescription } from './InternationalDescription';
 import {
     InternationalDescriptionFromJSON,
     InternationalDescriptionFromJSONTyped,
     InternationalDescriptionToJSON,
+    InternationalDescriptionToJSONTyped,
 } from './InternationalDescription';
 
 /**
@@ -43,7 +45,7 @@ export interface InternationalDisplayNameAndDescription {
      * @type {InternationalDisplayName}
      * @memberof InternationalDisplayNameAndDescription
      */
-    displayName?: InternationalDisplayName;
+    display_name?: InternationalDisplayName;
 }
 
 /**
@@ -64,18 +66,23 @@ export function InternationalDisplayNameAndDescriptionFromJSONTyped(json: any, i
     return {
         
         'description': json['description'] == null ? undefined : InternationalDescriptionFromJSON(json['description']),
-        'displayName': json['display_name'] == null ? undefined : InternationalDisplayNameFromJSON(json['display_name']),
+        'display_name': json['display_name'] == null ? undefined : InternationalDisplayNameFromJSON(json['display_name']),
     };
 }
 
-export function InternationalDisplayNameAndDescriptionToJSON(value?: InternationalDisplayNameAndDescription | null): any {
+export function InternationalDisplayNameAndDescriptionToJSON(json: any): InternationalDisplayNameAndDescription {
+    return InternationalDisplayNameAndDescriptionToJSONTyped(json, false);
+}
+
+export function InternationalDisplayNameAndDescriptionToJSONTyped(value?: InternationalDisplayNameAndDescription | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'description': InternationalDescriptionToJSON(value['description']),
-        'display_name': InternationalDisplayNameToJSON(value['displayName']),
+        'display_name': InternationalDisplayNameToJSON(value['display_name']),
     };
 }
 

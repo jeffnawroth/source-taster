@@ -13,36 +13,41 @@
  */
 
 import { mapValues } from '../runtime';
-import type { CountsByYear } from './CountsByYear';
-import {
-    CountsByYearFromJSON,
-    CountsByYearFromJSONTyped,
-    CountsByYearToJSON,
-} from './CountsByYear';
 import type { PublisherParentPublisher } from './PublisherParentPublisher';
 import {
     PublisherParentPublisherFromJSON,
     PublisherParentPublisherFromJSONTyped,
     PublisherParentPublisherToJSON,
+    PublisherParentPublisherToJSONTyped,
 } from './PublisherParentPublisher';
+import type { Role } from './Role';
+import {
+    RoleFromJSON,
+    RoleFromJSONTyped,
+    RoleToJSON,
+    RoleToJSONTyped,
+} from './Role';
+import type { CountsByYearInner } from './CountsByYearInner';
+import {
+    CountsByYearInnerFromJSON,
+    CountsByYearInnerFromJSONTyped,
+    CountsByYearInnerToJSON,
+    CountsByYearInnerToJSONTyped,
+} from './CountsByYearInner';
 import type { SummaryStats } from './SummaryStats';
 import {
     SummaryStatsFromJSON,
     SummaryStatsFromJSONTyped,
     SummaryStatsToJSON,
+    SummaryStatsToJSONTyped,
 } from './SummaryStats';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
-import type { Roles } from './Roles';
-import {
-    RolesFromJSON,
-    RolesFromJSONTyped,
-    RolesToJSON,
-} from './Roles';
 
 /**
  * 
@@ -55,49 +60,49 @@ export interface PublisherSchema {
      * @type {Array<string>}
      * @memberof PublisherSchema
      */
-    alternateTitles?: Array<string>;
+    alternate_titles?: Array<string>;
     /**
      * 
      * @type {number}
      * @memberof PublisherSchema
      */
-    citedByCount?: number;
+    cited_by_count?: number;
     /**
      * 
      * @type {Array<string>}
      * @memberof PublisherSchema
      */
-    countryCodes?: Array<string>;
+    country_codes?: Array<string>;
     /**
      * 
-     * @type {CountsByYear}
+     * @type {Array<CountsByYearInner>}
      * @memberof PublisherSchema
      */
-    countsByYear?: CountsByYear;
-    /**
-     * 
-     * @type {string}
-     * @memberof PublisherSchema
-     */
-    createdDate?: string;
+    counts_by_year?: Array<CountsByYearInner>;
     /**
      * 
      * @type {string}
      * @memberof PublisherSchema
      */
-    displayName: string;
+    created_date?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PublisherSchema
+     */
+    display_name: string;
     /**
      * 
      * @type {number}
      * @memberof PublisherSchema
      */
-    hierarchyLevel?: number;
+    hierarchy_level?: number;
     /**
      * 
      * @type {string}
      * @memberof PublisherSchema
      */
-    homepageUrl?: string;
+    homepage_url?: string;
     /**
      * 
      * @type {string}
@@ -115,13 +120,13 @@ export interface PublisherSchema {
      * @type {string}
      * @memberof PublisherSchema
      */
-    imageThumbnailUrl?: string;
+    image_thumbnail_url?: string;
     /**
      * 
      * @type {string}
      * @memberof PublisherSchema
      */
-    imageUrl?: string;
+    image_url?: string;
     /**
      * 
      * @type {Array<string>}
@@ -133,44 +138,44 @@ export interface PublisherSchema {
      * @type {PublisherParentPublisher}
      * @memberof PublisherSchema
      */
-    parentPublisher?: PublisherParentPublisher;
+    parent_publisher?: PublisherParentPublisher;
     /**
      * 
-     * @type {Roles}
+     * @type {Array<Role>}
      * @memberof PublisherSchema
      */
-    roles?: Roles;
+    roles?: Array<Role>;
     /**
      * 
      * @type {string}
      * @memberof PublisherSchema
      */
-    sourcesApiUrl?: string;
+    sources_api_url?: string;
     /**
      * 
      * @type {SummaryStats}
      * @memberof PublisherSchema
      */
-    summaryStats?: SummaryStats;
+    summary_stats?: SummaryStats;
     /**
      * 
      * @type {string}
      * @memberof PublisherSchema
      */
-    updatedDate?: string;
+    updated_date?: string;
     /**
      * 
      * @type {number}
      * @memberof PublisherSchema
      */
-    worksCount?: number;
+    works_count?: number;
 }
 
 /**
  * Check if a given object implements the PublisherSchema interface.
  */
 export function instanceOfPublisherSchema(value: object): value is PublisherSchema {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -185,53 +190,58 @@ export function PublisherSchemaFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'alternateTitles': json['alternate_titles'] == null ? undefined : json['alternate_titles'],
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'countryCodes': json['country_codes'] == null ? undefined : json['country_codes'],
-        'countsByYear': json['counts_by_year'] == null ? undefined : CountsByYearFromJSON(json['counts_by_year']),
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
-        'displayName': json['display_name'],
-        'hierarchyLevel': json['hierarchy_level'] == null ? undefined : json['hierarchy_level'],
-        'homepageUrl': json['homepage_url'] == null ? undefined : json['homepage_url'],
+        'alternate_titles': json['alternate_titles'] == null ? undefined : json['alternate_titles'],
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'country_codes': json['country_codes'] == null ? undefined : json['country_codes'],
+        'counts_by_year': json['counts_by_year'] == null ? undefined : ((json['counts_by_year'] as Array<any>).map(CountsByYearInnerFromJSON)),
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
+        'display_name': json['display_name'],
+        'hierarchy_level': json['hierarchy_level'] == null ? undefined : json['hierarchy_level'],
+        'homepage_url': json['homepage_url'] == null ? undefined : json['homepage_url'],
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : IdsFromJSON(json['ids']),
-        'imageThumbnailUrl': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
-        'imageUrl': json['image_url'] == null ? undefined : json['image_url'],
+        'image_thumbnail_url': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
+        'image_url': json['image_url'] == null ? undefined : json['image_url'],
         'lineage': json['lineage'] == null ? undefined : json['lineage'],
-        'parentPublisher': json['parent_publisher'] == null ? undefined : PublisherParentPublisherFromJSON(json['parent_publisher']),
-        'roles': json['roles'] == null ? undefined : RolesFromJSON(json['roles']),
-        'sourcesApiUrl': json['sources_api_url'] == null ? undefined : json['sources_api_url'],
-        'summaryStats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
+        'parent_publisher': json['parent_publisher'] == null ? undefined : PublisherParentPublisherFromJSON(json['parent_publisher']),
+        'roles': json['roles'] == null ? undefined : ((json['roles'] as Array<any>).map(RoleFromJSON)),
+        'sources_api_url': json['sources_api_url'] == null ? undefined : json['sources_api_url'],
+        'summary_stats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
     };
 }
 
-export function PublisherSchemaToJSON(value?: PublisherSchema | null): any {
+export function PublisherSchemaToJSON(json: any): PublisherSchema {
+    return PublisherSchemaToJSONTyped(json, false);
+}
+
+export function PublisherSchemaToJSONTyped(value?: PublisherSchema | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'alternate_titles': value['alternateTitles'],
-        'cited_by_count': value['citedByCount'],
-        'country_codes': value['countryCodes'],
-        'counts_by_year': CountsByYearToJSON(value['countsByYear']),
-        'created_date': value['createdDate'],
-        'display_name': value['displayName'],
-        'hierarchy_level': value['hierarchyLevel'],
-        'homepage_url': value['homepageUrl'],
+        'alternate_titles': value['alternate_titles'],
+        'cited_by_count': value['cited_by_count'],
+        'country_codes': value['country_codes'],
+        'counts_by_year': value['counts_by_year'] == null ? undefined : ((value['counts_by_year'] as Array<any>).map(CountsByYearInnerToJSON)),
+        'created_date': value['created_date'],
+        'display_name': value['display_name'],
+        'hierarchy_level': value['hierarchy_level'],
+        'homepage_url': value['homepage_url'],
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
-        'image_thumbnail_url': value['imageThumbnailUrl'],
-        'image_url': value['imageUrl'],
+        'image_thumbnail_url': value['image_thumbnail_url'],
+        'image_url': value['image_url'],
         'lineage': value['lineage'],
-        'parent_publisher': PublisherParentPublisherToJSON(value['parentPublisher']),
-        'roles': RolesToJSON(value['roles']),
-        'sources_api_url': value['sourcesApiUrl'],
-        'summary_stats': SummaryStatsToJSON(value['summaryStats']),
-        'updated_date': value['updatedDate'],
-        'works_count': value['worksCount'],
+        'parent_publisher': PublisherParentPublisherToJSON(value['parent_publisher']),
+        'roles': value['roles'] == null ? undefined : ((value['roles'] as Array<any>).map(RoleToJSON)),
+        'sources_api_url': value['sources_api_url'],
+        'summary_stats': SummaryStatsToJSON(value['summary_stats']),
+        'updated_date': value['updated_date'],
+        'works_count': value['works_count'],
     };
 }
 

@@ -36,7 +36,11 @@ export function TopicLevelSchemaIdFromJSONTyped(json: any, ignoreDiscriminator: 
     return json;
 }
 
-export function TopicLevelSchemaIdToJSON(value?: TopicLevelSchemaId | null): any {
+export function TopicLevelSchemaIdToJSON(json: any): TopicLevelSchemaId {
+    return TopicLevelSchemaIdToJSONTyped(json, false);
+}
+
+export function TopicLevelSchemaIdToJSONTyped(value?: TopicLevelSchemaId | null, ignoreDiscriminator: boolean = false): any {
     return value;
 }
 

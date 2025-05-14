@@ -13,48 +13,48 @@
  */
 
 import { mapValues } from '../runtime';
-import type { CountsByYear } from './CountsByYear';
+import type { CountsByYearInner } from './CountsByYearInner';
 import {
-    CountsByYearFromJSON,
-    CountsByYearFromJSONTyped,
-    CountsByYearToJSON,
-} from './CountsByYear';
-import type { DehydratedConceptArray } from './DehydratedConceptArray';
-import {
-    DehydratedConceptArrayFromJSON,
-    DehydratedConceptArrayFromJSONTyped,
-    DehydratedConceptArrayToJSON,
-} from './DehydratedConceptArray';
-import type { Affiliations } from './Affiliations';
-import {
-    AffiliationsFromJSON,
-    AffiliationsFromJSONTyped,
-    AffiliationsToJSON,
-} from './Affiliations';
+    CountsByYearInnerFromJSON,
+    CountsByYearInnerFromJSONTyped,
+    CountsByYearInnerToJSON,
+    CountsByYearInnerToJSONTyped,
+} from './CountsByYearInner';
 import type { DehydratedInstitution } from './DehydratedInstitution';
 import {
     DehydratedInstitutionFromJSON,
     DehydratedInstitutionFromJSONTyped,
     DehydratedInstitutionToJSON,
+    DehydratedInstitutionToJSONTyped,
 } from './DehydratedInstitution';
-import type { DehydratedInstitutionArray } from './DehydratedInstitutionArray';
-import {
-    DehydratedInstitutionArrayFromJSON,
-    DehydratedInstitutionArrayFromJSONTyped,
-    DehydratedInstitutionArrayToJSON,
-} from './DehydratedInstitutionArray';
 import type { SummaryStats } from './SummaryStats';
 import {
     SummaryStatsFromJSON,
     SummaryStatsFromJSONTyped,
     SummaryStatsToJSON,
+    SummaryStatsToJSONTyped,
 } from './SummaryStats';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
+import type { AffiliationsInner } from './AffiliationsInner';
+import {
+    AffiliationsInnerFromJSON,
+    AffiliationsInnerFromJSONTyped,
+    AffiliationsInnerToJSON,
+    AffiliationsInnerToJSONTyped,
+} from './AffiliationsInner';
+import type { DehydratedConcept } from './DehydratedConcept';
+import {
+    DehydratedConceptFromJSON,
+    DehydratedConceptFromJSONTyped,
+    DehydratedConceptToJSON,
+    DehydratedConceptToJSONTyped,
+} from './DehydratedConcept';
 
 /**
  * 
@@ -64,40 +64,40 @@ import {
 export interface Author {
     /**
      * 
-     * @type {Affiliations}
+     * @type {Array<AffiliationsInner>}
      * @memberof Author
      */
-    affiliations?: Affiliations;
+    affiliations?: Array<AffiliationsInner>;
     /**
      * 
      * @type {number}
      * @memberof Author
      */
-    citedByCount?: number;
+    cited_by_count?: number;
     /**
      * 
-     * @type {CountsByYear}
+     * @type {Array<CountsByYearInner>}
      * @memberof Author
      */
-    countsByYear?: CountsByYear;
-    /**
-     * 
-     * @type {string}
-     * @memberof Author
-     */
-    createdDate?: string;
+    counts_by_year?: Array<CountsByYearInner>;
     /**
      * 
      * @type {string}
      * @memberof Author
      */
-    displayName: string;
+    created_date?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Author
+     */
+    display_name: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof Author
      */
-    displayNameAlternatives?: Array<string>;
+    display_name_alternatives?: Array<string>;
     /**
      * 
      * @type {string}
@@ -115,13 +115,13 @@ export interface Author {
      * @type {DehydratedInstitution}
      * @memberof Author
      */
-    lastKnownInstitution?: DehydratedInstitution;
+    last_known_institution?: DehydratedInstitution;
     /**
      * 
-     * @type {DehydratedInstitutionArray}
+     * @type {Array<DehydratedInstitution>}
      * @memberof Author
      */
-    lastKnownInstitutions?: DehydratedInstitutionArray;
+    last_known_institutions?: Array<DehydratedInstitution>;
     /**
      * 
      * @type {string}
@@ -133,38 +133,38 @@ export interface Author {
      * @type {SummaryStats}
      * @memberof Author
      */
-    summaryStats?: SummaryStats;
+    summary_stats?: SummaryStats;
     /**
      * 
      * @type {string}
      * @memberof Author
      */
-    updatedDate?: string;
+    updated_date?: string;
     /**
      * 
      * @type {string}
      * @memberof Author
      */
-    worksApiUrl?: string;
+    works_api_url?: string;
     /**
      * 
      * @type {number}
      * @memberof Author
      */
-    worksCount?: number;
+    works_count?: number;
     /**
      * 
-     * @type {DehydratedConceptArray}
+     * @type {Array<DehydratedConcept>}
      * @memberof Author
      */
-    xConcepts?: DehydratedConceptArray;
+    x_concepts?: Array<DehydratedConcept>;
 }
 
 /**
  * Check if a given object implements the Author interface.
  */
 export function instanceOfAuthor(value: object): value is Author {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -179,47 +179,52 @@ export function AuthorFromJSONTyped(json: any, ignoreDiscriminator: boolean): Au
     }
     return {
         
-        'affiliations': json['affiliations'] == null ? undefined : AffiliationsFromJSON(json['affiliations']),
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'countsByYear': json['counts_by_year'] == null ? undefined : CountsByYearFromJSON(json['counts_by_year']),
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
-        'displayName': json['display_name'],
-        'displayNameAlternatives': json['display_name_alternatives'] == null ? undefined : json['display_name_alternatives'],
+        'affiliations': json['affiliations'] == null ? undefined : ((json['affiliations'] as Array<any>).map(AffiliationsInnerFromJSON)),
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'counts_by_year': json['counts_by_year'] == null ? undefined : ((json['counts_by_year'] as Array<any>).map(CountsByYearInnerFromJSON)),
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
+        'display_name': json['display_name'],
+        'display_name_alternatives': json['display_name_alternatives'] == null ? undefined : json['display_name_alternatives'],
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : IdsFromJSON(json['ids']),
-        'lastKnownInstitution': json['last_known_institution'] == null ? undefined : DehydratedInstitutionFromJSON(json['last_known_institution']),
-        'lastKnownInstitutions': json['last_known_institutions'] == null ? undefined : DehydratedInstitutionArrayFromJSON(json['last_known_institutions']),
+        'last_known_institution': json['last_known_institution'] == null ? undefined : DehydratedInstitutionFromJSON(json['last_known_institution']),
+        'last_known_institutions': json['last_known_institutions'] == null ? undefined : ((json['last_known_institutions'] as Array<any>).map(DehydratedInstitutionFromJSON)),
         'orcid': json['orcid'] == null ? undefined : json['orcid'],
-        'summaryStats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
-        'worksApiUrl': json['works_api_url'] == null ? undefined : json['works_api_url'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
-        'xConcepts': json['x_concepts'] == null ? undefined : DehydratedConceptArrayFromJSON(json['x_concepts']),
+        'summary_stats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
+        'works_api_url': json['works_api_url'] == null ? undefined : json['works_api_url'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
+        'x_concepts': json['x_concepts'] == null ? undefined : ((json['x_concepts'] as Array<any>).map(DehydratedConceptFromJSON)),
     };
 }
 
-export function AuthorToJSON(value?: Author | null): any {
+export function AuthorToJSON(json: any): Author {
+    return AuthorToJSONTyped(json, false);
+}
+
+export function AuthorToJSONTyped(value?: Author | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'affiliations': AffiliationsToJSON(value['affiliations']),
-        'cited_by_count': value['citedByCount'],
-        'counts_by_year': CountsByYearToJSON(value['countsByYear']),
-        'created_date': value['createdDate'],
-        'display_name': value['displayName'],
-        'display_name_alternatives': value['displayNameAlternatives'],
+        'affiliations': value['affiliations'] == null ? undefined : ((value['affiliations'] as Array<any>).map(AffiliationsInnerToJSON)),
+        'cited_by_count': value['cited_by_count'],
+        'counts_by_year': value['counts_by_year'] == null ? undefined : ((value['counts_by_year'] as Array<any>).map(CountsByYearInnerToJSON)),
+        'created_date': value['created_date'],
+        'display_name': value['display_name'],
+        'display_name_alternatives': value['display_name_alternatives'],
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
-        'last_known_institution': DehydratedInstitutionToJSON(value['lastKnownInstitution']),
-        'last_known_institutions': DehydratedInstitutionArrayToJSON(value['lastKnownInstitutions']),
+        'last_known_institution': DehydratedInstitutionToJSON(value['last_known_institution']),
+        'last_known_institutions': value['last_known_institutions'] == null ? undefined : ((value['last_known_institutions'] as Array<any>).map(DehydratedInstitutionToJSON)),
         'orcid': value['orcid'],
-        'summary_stats': SummaryStatsToJSON(value['summaryStats']),
-        'updated_date': value['updatedDate'],
-        'works_api_url': value['worksApiUrl'],
-        'works_count': value['worksCount'],
-        'x_concepts': DehydratedConceptArrayToJSON(value['xConcepts']),
+        'summary_stats': SummaryStatsToJSON(value['summary_stats']),
+        'updated_date': value['updated_date'],
+        'works_api_url': value['works_api_url'],
+        'works_count': value['works_count'],
+        'x_concepts': value['x_concepts'] == null ? undefined : ((value['x_concepts'] as Array<any>).map(DehydratedConceptToJSON)),
     };
 }
 

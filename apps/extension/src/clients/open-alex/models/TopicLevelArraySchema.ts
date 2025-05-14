@@ -18,6 +18,7 @@ import {
     TopicLevelSchemaFromJSON,
     TopicLevelSchemaFromJSONTyped,
     TopicLevelSchemaToJSON,
+    TopicLevelSchemaToJSONTyped,
 } from './TopicLevelSchema';
 
 /**
@@ -55,10 +56,15 @@ export function TopicLevelArraySchemaFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function TopicLevelArraySchemaToJSON(value?: TopicLevelArraySchema | null): any {
+export function TopicLevelArraySchemaToJSON(json: any): TopicLevelArraySchema {
+    return TopicLevelArraySchemaToJSONTyped(json, false);
+}
+
+export function TopicLevelArraySchemaToJSONTyped(value?: TopicLevelArraySchema | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'siblings': value['siblings'] == null ? undefined : ((value['siblings'] as Array<any>).map(TopicLevelSchemaToJSON)),

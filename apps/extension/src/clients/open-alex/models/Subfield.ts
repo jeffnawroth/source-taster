@@ -18,24 +18,28 @@ import {
     TopicLevelArraySchemaFromJSON,
     TopicLevelArraySchemaFromJSONTyped,
     TopicLevelArraySchemaToJSON,
+    TopicLevelArraySchemaToJSONTyped,
 } from './TopicLevelArraySchema';
 import type { TopicLevelSchema } from './TopicLevelSchema';
 import {
     TopicLevelSchemaFromJSON,
     TopicLevelSchemaFromJSONTyped,
     TopicLevelSchemaToJSON,
+    TopicLevelSchemaToJSONTyped,
 } from './TopicLevelSchema';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
 import type { SubfieldTopicsInner } from './SubfieldTopicsInner';
 import {
     SubfieldTopicsInnerFromJSON,
     SubfieldTopicsInnerFromJSONTyped,
     SubfieldTopicsInnerToJSON,
+    SubfieldTopicsInnerToJSONTyped,
 } from './SubfieldTopicsInner';
 
 /**
@@ -49,13 +53,13 @@ export interface Subfield {
      * @type {number}
      * @memberof Subfield
      */
-    citedByCount: number;
+    cited_by_count: number;
     /**
      * 
      * @type {string}
      * @memberof Subfield
      */
-    createdDate: string;
+    created_date: string;
     /**
      * 
      * @type {string}
@@ -67,13 +71,13 @@ export interface Subfield {
      * @type {string}
      * @memberof Subfield
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof Subfield
      */
-    displayNameAlternatives: Array<string>;
+    display_name_alternatives: Array<string>;
     /**
      * 
      * @type {TopicLevelSchema}
@@ -115,39 +119,39 @@ export interface Subfield {
      * @type {string}
      * @memberof Subfield
      */
-    updatedDate: string;
+    updated_date: string;
     /**
      * 
      * @type {string}
      * @memberof Subfield
      */
-    worksApiUrl: string;
+    works_api_url: string;
     /**
      * 
      * @type {number}
      * @memberof Subfield
      */
-    worksCount: number;
+    works_count: number;
 }
 
 /**
  * Check if a given object implements the Subfield interface.
  */
 export function instanceOfSubfield(value: object): value is Subfield {
-    if (!('citedByCount' in value) || value['citedByCount'] === undefined) return false;
-    if (!('createdDate' in value) || value['createdDate'] === undefined) return false;
+    if (!('cited_by_count' in value) || value['cited_by_count'] === undefined) return false;
+    if (!('created_date' in value) || value['created_date'] === undefined) return false;
     if (!('description' in value) || value['description'] === undefined) return false;
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
-    if (!('displayNameAlternatives' in value) || value['displayNameAlternatives'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
+    if (!('display_name_alternatives' in value) || value['display_name_alternatives'] === undefined) return false;
     if (!('domain' in value) || value['domain'] === undefined) return false;
     if (!('field' in value) || value['field'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('ids' in value) || value['ids'] === undefined) return false;
     if (!('siblings' in value) || value['siblings'] === undefined) return false;
     if (!('topics' in value) || value['topics'] === undefined) return false;
-    if (!('updatedDate' in value) || value['updatedDate'] === undefined) return false;
-    if (!('worksApiUrl' in value) || value['worksApiUrl'] === undefined) return false;
-    if (!('worksCount' in value) || value['worksCount'] === undefined) return false;
+    if (!('updated_date' in value) || value['updated_date'] === undefined) return false;
+    if (!('works_api_url' in value) || value['works_api_url'] === undefined) return false;
+    if (!('works_count' in value) || value['works_count'] === undefined) return false;
     return true;
 }
 
@@ -161,43 +165,48 @@ export function SubfieldFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-        'citedByCount': json['cited_by_count'],
-        'createdDate': json['created_date'],
+        'cited_by_count': json['cited_by_count'],
+        'created_date': json['created_date'],
         'description': json['description'],
-        'displayName': json['display_name'],
-        'displayNameAlternatives': json['display_name_alternatives'],
+        'display_name': json['display_name'],
+        'display_name_alternatives': json['display_name_alternatives'],
         'domain': TopicLevelSchemaFromJSON(json['domain']),
         'field': TopicLevelSchemaFromJSON(json['field']),
         'id': json['id'],
         'ids': IdsFromJSON(json['ids']),
         'siblings': TopicLevelArraySchemaFromJSON(json['siblings']),
         'topics': ((json['topics'] as Array<any>).map(SubfieldTopicsInnerFromJSON)),
-        'updatedDate': json['updated_date'],
-        'worksApiUrl': json['works_api_url'],
-        'worksCount': json['works_count'],
+        'updated_date': json['updated_date'],
+        'works_api_url': json['works_api_url'],
+        'works_count': json['works_count'],
     };
 }
 
-export function SubfieldToJSON(value?: Subfield | null): any {
+export function SubfieldToJSON(json: any): Subfield {
+    return SubfieldToJSONTyped(json, false);
+}
+
+export function SubfieldToJSONTyped(value?: Subfield | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'cited_by_count': value['citedByCount'],
-        'created_date': value['createdDate'],
+        'cited_by_count': value['cited_by_count'],
+        'created_date': value['created_date'],
         'description': value['description'],
-        'display_name': value['displayName'],
-        'display_name_alternatives': value['displayNameAlternatives'],
+        'display_name': value['display_name'],
+        'display_name_alternatives': value['display_name_alternatives'],
         'domain': TopicLevelSchemaToJSON(value['domain']),
         'field': TopicLevelSchemaToJSON(value['field']),
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
         'siblings': TopicLevelArraySchemaToJSON(value['siblings']),
         'topics': ((value['topics'] as Array<any>).map(SubfieldTopicsInnerToJSON)),
-        'updated_date': value['updatedDate'],
-        'works_api_url': value['worksApiUrl'],
-        'works_count': value['worksCount'],
+        'updated_date': value['updated_date'],
+        'works_api_url': value['works_api_url'],
+        'works_count': value['works_count'],
     };
 }
 

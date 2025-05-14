@@ -24,49 +24,19 @@ export interface LocationSource {
      * @type {string}
      * @memberof LocationSource
      */
-    displayName?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof LocationSource
-     */
-    hostOrganization?: string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof LocationSource
-     */
-    hostOrganizationLineage?: Array<string>;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof LocationSource
-     */
-    hostOrganizationLineageNames?: Array<string>;
-    /**
-     * 
-     * @type {string}
-     * @memberof LocationSource
-     */
-    hostOrganizationName?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof LocationSource
-     */
     id?: string;
     /**
      * 
-     * @type {boolean}
+     * @type {string}
      * @memberof LocationSource
      */
-    isInDoaj?: boolean;
+    display_name?: string;
     /**
      * 
-     * @type {boolean}
+     * @type {string}
      * @memberof LocationSource
      */
-    isOa?: boolean;
+    issn_l?: string;
     /**
      * 
      * @type {Array<string>}
@@ -75,10 +45,40 @@ export interface LocationSource {
     issn?: Array<string>;
     /**
      * 
+     * @type {boolean}
+     * @memberof LocationSource
+     */
+    is_oa?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof LocationSource
+     */
+    is_in_doaj?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof LocationSource
      */
-    issnL?: string;
+    host_organization?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LocationSource
+     */
+    host_organization_name?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof LocationSource
+     */
+    host_organization_lineage?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof LocationSource
+     */
+    host_organization_lineage_names?: Array<string>;
     /**
      * 
      * @type {string}
@@ -104,36 +104,41 @@ export function LocationSourceFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-        'displayName': json['display_name'] == null ? undefined : json['display_name'],
-        'hostOrganization': json['host_organization'] == null ? undefined : json['host_organization'],
-        'hostOrganizationLineage': json['host_organization_lineage'] == null ? undefined : json['host_organization_lineage'],
-        'hostOrganizationLineageNames': json['host_organization_lineage_names'] == null ? undefined : json['host_organization_lineage_names'],
-        'hostOrganizationName': json['host_organization_name'] == null ? undefined : json['host_organization_name'],
         'id': json['id'] == null ? undefined : json['id'],
-        'isInDoaj': json['is_in_doaj'] == null ? undefined : json['is_in_doaj'],
-        'isOa': json['is_oa'] == null ? undefined : json['is_oa'],
+        'display_name': json['display_name'] == null ? undefined : json['display_name'],
+        'issn_l': json['issn_l'] == null ? undefined : json['issn_l'],
         'issn': json['issn'] == null ? undefined : json['issn'],
-        'issnL': json['issn_l'] == null ? undefined : json['issn_l'],
+        'is_oa': json['is_oa'] == null ? undefined : json['is_oa'],
+        'is_in_doaj': json['is_in_doaj'] == null ? undefined : json['is_in_doaj'],
+        'host_organization': json['host_organization'] == null ? undefined : json['host_organization'],
+        'host_organization_name': json['host_organization_name'] == null ? undefined : json['host_organization_name'],
+        'host_organization_lineage': json['host_organization_lineage'] == null ? undefined : json['host_organization_lineage'],
+        'host_organization_lineage_names': json['host_organization_lineage_names'] == null ? undefined : json['host_organization_lineage_names'],
         'type': json['type'] == null ? undefined : json['type'],
     };
 }
 
-export function LocationSourceToJSON(value?: LocationSource | null): any {
+export function LocationSourceToJSON(json: any): LocationSource {
+    return LocationSourceToJSONTyped(json, false);
+}
+
+export function LocationSourceToJSONTyped(value?: LocationSource | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
-        'host_organization': value['hostOrganization'],
-        'host_organization_lineage': value['hostOrganizationLineage'],
-        'host_organization_lineage_names': value['hostOrganizationLineageNames'],
-        'host_organization_name': value['hostOrganizationName'],
         'id': value['id'],
-        'is_in_doaj': value['isInDoaj'],
-        'is_oa': value['isOa'],
+        'display_name': value['display_name'],
+        'issn_l': value['issn_l'],
         'issn': value['issn'],
-        'issn_l': value['issnL'],
+        'is_oa': value['is_oa'],
+        'is_in_doaj': value['is_in_doaj'],
+        'host_organization': value['host_organization'],
+        'host_organization_name': value['host_organization_name'],
+        'host_organization_lineage': value['host_organization_lineage'],
+        'host_organization_lineage_names': value['host_organization_lineage_names'],
         'type': value['type'],
     };
 }

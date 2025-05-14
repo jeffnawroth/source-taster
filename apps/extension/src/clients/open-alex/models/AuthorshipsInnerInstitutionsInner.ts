@@ -24,25 +24,13 @@ export interface AuthorshipsInnerInstitutionsInner {
      * @type {string}
      * @memberof AuthorshipsInnerInstitutionsInner
      */
-    countryCode: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorshipsInnerInstitutionsInner
-     */
-    displayName: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AuthorshipsInnerInstitutionsInner
-     */
     id: string;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof AuthorshipsInnerInstitutionsInner
      */
-    lineage: Array<string>;
+    display_name: string;
     /**
      * 
      * @type {string}
@@ -54,19 +42,31 @@ export interface AuthorshipsInnerInstitutionsInner {
      * @type {string}
      * @memberof AuthorshipsInnerInstitutionsInner
      */
+    country_code: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthorshipsInnerInstitutionsInner
+     */
     type: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof AuthorshipsInnerInstitutionsInner
+     */
+    lineage: Array<string>;
 }
 
 /**
  * Check if a given object implements the AuthorshipsInnerInstitutionsInner interface.
  */
 export function instanceOfAuthorshipsInnerInstitutionsInner(value: object): value is AuthorshipsInnerInstitutionsInner {
-    if (!('countryCode' in value) || value['countryCode'] === undefined) return false;
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('lineage' in value) || value['lineage'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('ror' in value) || value['ror'] === undefined) return false;
+    if (!('country_code' in value) || value['country_code'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('lineage' in value) || value['lineage'] === undefined) return false;
     return true;
 }
 
@@ -80,27 +80,32 @@ export function AuthorshipsInnerInstitutionsInnerFromJSONTyped(json: any, ignore
     }
     return {
         
-        'countryCode': json['country_code'],
-        'displayName': json['display_name'],
         'id': json['id'],
-        'lineage': json['lineage'],
+        'display_name': json['display_name'],
         'ror': json['ror'],
+        'country_code': json['country_code'],
         'type': json['type'],
+        'lineage': json['lineage'],
     };
 }
 
-export function AuthorshipsInnerInstitutionsInnerToJSON(value?: AuthorshipsInnerInstitutionsInner | null): any {
+export function AuthorshipsInnerInstitutionsInnerToJSON(json: any): AuthorshipsInnerInstitutionsInner {
+    return AuthorshipsInnerInstitutionsInnerToJSONTyped(json, false);
+}
+
+export function AuthorshipsInnerInstitutionsInnerToJSONTyped(value?: AuthorshipsInnerInstitutionsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'country_code': value['countryCode'],
-        'display_name': value['displayName'],
         'id': value['id'],
-        'lineage': value['lineage'],
+        'display_name': value['display_name'],
         'ror': value['ror'],
+        'country_code': value['country_code'],
         'type': value['type'],
+        'lineage': value['lineage'],
     };
 }
 

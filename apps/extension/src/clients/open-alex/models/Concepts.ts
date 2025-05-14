@@ -13,24 +13,27 @@
  */
 
 import { mapValues } from '../runtime';
+import type { Concept } from './Concept';
+import {
+    ConceptFromJSON,
+    ConceptFromJSONTyped,
+    ConceptToJSON,
+    ConceptToJSONTyped,
+} from './Concept';
 import type { Meta } from './Meta';
 import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
-import type { ConceptArray } from './ConceptArray';
+import type { GroupByResultInner } from './GroupByResultInner';
 import {
-    ConceptArrayFromJSON,
-    ConceptArrayFromJSONTyped,
-    ConceptArrayToJSON,
-} from './ConceptArray';
-import type { GroupByResult } from './GroupByResult';
-import {
-    GroupByResultFromJSON,
-    GroupByResultFromJSONTyped,
-    GroupByResultToJSON,
-} from './GroupByResult';
+    GroupByResultInnerFromJSON,
+    GroupByResultInnerFromJSONTyped,
+    GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
+} from './GroupByResultInner';
 
 /**
  * 
@@ -40,10 +43,10 @@ import {
 export interface Concepts {
     /**
      * 
-     * @type {GroupByResult}
+     * @type {Array<GroupByResultInner>}
      * @memberof Concepts
      */
-    groupBy?: GroupByResult;
+    group_by?: Array<GroupByResultInner>;
     /**
      * 
      * @type {Meta}
@@ -52,10 +55,10 @@ export interface Concepts {
     meta?: Meta;
     /**
      * 
-     * @type {ConceptArray}
+     * @type {Array<Concept>}
      * @memberof Concepts
      */
-    results?: ConceptArray;
+    results?: Array<Concept>;
 }
 
 /**
@@ -75,21 +78,26 @@ export function ConceptsFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-        'groupBy': json['group_by'] == null ? undefined : GroupByResultFromJSON(json['group_by']),
+        'group_by': json['group_by'] == null ? undefined : ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
         'meta': json['meta'] == null ? undefined : MetaFromJSON(json['meta']),
-        'results': json['results'] == null ? undefined : ConceptArrayFromJSON(json['results']),
+        'results': json['results'] == null ? undefined : ((json['results'] as Array<any>).map(ConceptFromJSON)),
     };
 }
 
-export function ConceptsToJSON(value?: Concepts | null): any {
+export function ConceptsToJSON(json: any): Concepts {
+    return ConceptsToJSONTyped(json, false);
+}
+
+export function ConceptsToJSONTyped(value?: Concepts | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': GroupByResultToJSON(value['groupBy']),
+        'group_by': value['group_by'] == null ? undefined : ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
         'meta': MetaToJSON(value['meta']),
-        'results': ConceptArrayToJSON(value['results']),
+        'results': value['results'] == null ? undefined : ((value['results'] as Array<any>).map(ConceptToJSON)),
     };
 }
 

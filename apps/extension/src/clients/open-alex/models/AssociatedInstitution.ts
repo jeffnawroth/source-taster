@@ -18,6 +18,7 @@ import {
     DehydratedInstitutionFromJSON,
     DehydratedInstitutionFromJSONTyped,
     DehydratedInstitutionToJSON,
+    DehydratedInstitutionToJSONTyped,
 } from './DehydratedInstitution';
 
 /**
@@ -57,10 +58,15 @@ export function AssociatedInstitutionFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function AssociatedInstitutionToJSON(value?: AssociatedInstitution | null): any {
+export function AssociatedInstitutionToJSON(json: any): AssociatedInstitution {
+    return AssociatedInstitutionToJSONTyped(json, false);
+}
+
+export function AssociatedInstitutionToJSONTyped(value?: AssociatedInstitution | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
             ...value,

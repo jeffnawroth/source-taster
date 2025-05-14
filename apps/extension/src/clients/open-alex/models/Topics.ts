@@ -18,18 +18,21 @@ import {
     GroupByResultInnerFromJSON,
     GroupByResultInnerFromJSONTyped,
     GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
 } from './GroupByResultInner';
 import type { TopicsResultsInner } from './TopicsResultsInner';
 import {
     TopicsResultsInnerFromJSON,
     TopicsResultsInnerFromJSONTyped,
     TopicsResultsInnerToJSON,
+    TopicsResultsInnerToJSONTyped,
 } from './TopicsResultsInner';
 import type { TopicsMeta } from './TopicsMeta';
 import {
     TopicsMetaFromJSON,
     TopicsMetaFromJSONTyped,
     TopicsMetaToJSON,
+    TopicsMetaToJSONTyped,
 } from './TopicsMeta';
 
 /**
@@ -43,7 +46,7 @@ export interface Topics {
      * @type {Array<GroupByResultInner>}
      * @memberof Topics
      */
-    groupBy: Array<GroupByResultInner>;
+    group_by: Array<GroupByResultInner>;
     /**
      * 
      * @type {TopicsMeta}
@@ -62,7 +65,7 @@ export interface Topics {
  * Check if a given object implements the Topics interface.
  */
 export function instanceOfTopics(value: object): value is Topics {
-    if (!('groupBy' in value) || value['groupBy'] === undefined) return false;
+    if (!('group_by' in value) || value['group_by'] === undefined) return false;
     if (!('meta' in value) || value['meta'] === undefined) return false;
     return true;
 }
@@ -77,19 +80,24 @@ export function TopicsFromJSONTyped(json: any, ignoreDiscriminator: boolean): To
     }
     return {
         
-        'groupBy': ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
+        'group_by': ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
         'meta': TopicsMetaFromJSON(json['meta']),
         'results': json['results'] == null ? undefined : ((json['results'] as Array<any>).map(TopicsResultsInnerFromJSON)),
     };
 }
 
-export function TopicsToJSON(value?: Topics | null): any {
+export function TopicsToJSON(json: any): Topics {
+    return TopicsToJSONTyped(json, false);
+}
+
+export function TopicsToJSONTyped(value?: Topics | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': ((value['groupBy'] as Array<any>).map(GroupByResultInnerToJSON)),
+        'group_by': ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
         'meta': TopicsMetaToJSON(value['meta']),
         'results': value['results'] == null ? undefined : ((value['results'] as Array<any>).map(TopicsResultsInnerToJSON)),
     };

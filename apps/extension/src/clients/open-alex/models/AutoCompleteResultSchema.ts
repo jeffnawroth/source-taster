@@ -18,12 +18,14 @@ import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
 import type { AutoCompleteResultItem } from './AutoCompleteResultItem';
 import {
     AutoCompleteResultItemFromJSON,
     AutoCompleteResultItemFromJSONTyped,
     AutoCompleteResultItemToJSON,
+    AutoCompleteResultItemToJSONTyped,
 } from './AutoCompleteResultItem';
 
 /**
@@ -70,10 +72,15 @@ export function AutoCompleteResultSchemaFromJSONTyped(json: any, ignoreDiscrimin
     };
 }
 
-export function AutoCompleteResultSchemaToJSON(value?: AutoCompleteResultSchema | null): any {
+export function AutoCompleteResultSchemaToJSON(json: any): AutoCompleteResultSchema {
+    return AutoCompleteResultSchemaToJSONTyped(json, false);
+}
+
+export function AutoCompleteResultSchemaToJSONTyped(value?: AutoCompleteResultSchema | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'meta': MetaToJSON(value['meta']),

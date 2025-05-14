@@ -13,30 +13,34 @@
  */
 
 import { mapValues } from '../runtime';
-import type { CountsByYear } from './CountsByYear';
+import type { Role } from './Role';
 import {
-    CountsByYearFromJSON,
-    CountsByYearFromJSONTyped,
-    CountsByYearToJSON,
-} from './CountsByYear';
+    RoleFromJSON,
+    RoleFromJSONTyped,
+    RoleToJSON,
+    RoleToJSONTyped,
+} from './Role';
+import type { CountsByYearInner } from './CountsByYearInner';
+import {
+    CountsByYearInnerFromJSON,
+    CountsByYearInnerFromJSONTyped,
+    CountsByYearInnerToJSON,
+    CountsByYearInnerToJSONTyped,
+} from './CountsByYearInner';
 import type { SummaryStats } from './SummaryStats';
 import {
     SummaryStatsFromJSON,
     SummaryStatsFromJSONTyped,
     SummaryStatsToJSON,
+    SummaryStatsToJSONTyped,
 } from './SummaryStats';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
-import type { Roles } from './Roles';
-import {
-    RolesFromJSON,
-    RolesFromJSONTyped,
-    RolesToJSON,
-} from './Roles';
 
 /**
  * 
@@ -49,31 +53,31 @@ export interface Funder {
      * @type {Array<string>}
      * @memberof Funder
      */
-    alternateTitles: Array<string>;
+    alternate_titles: Array<string>;
     /**
      * 
      * @type {number}
      * @memberof Funder
      */
-    citedByCount?: number;
+    cited_by_count?: number;
     /**
      * 
      * @type {string}
      * @memberof Funder
      */
-    countryCode?: string;
+    country_code?: string;
     /**
      * 
-     * @type {CountsByYear}
+     * @type {Array<CountsByYearInner>}
      * @memberof Funder
      */
-    countsByYear?: CountsByYear;
+    counts_by_year?: Array<CountsByYearInner>;
     /**
      * 
      * @type {string}
      * @memberof Funder
      */
-    createdDate?: string;
+    created_date?: string;
     /**
      * 
      * @type {string}
@@ -85,19 +89,19 @@ export interface Funder {
      * @type {string}
      * @memberof Funder
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {number}
      * @memberof Funder
      */
-    grantsCount?: number;
+    grants_count?: number;
     /**
      * 
      * @type {string}
      * @memberof Funder
      */
-    homepageUrl?: string;
+    homepage_url?: string;
     /**
      * 
      * @type {string}
@@ -115,51 +119,51 @@ export interface Funder {
      * @type {string}
      * @memberof Funder
      */
-    imageThumbnailUrl?: string;
+    image_thumbnail_url?: string;
     /**
      * 
      * @type {string}
      * @memberof Funder
      */
-    imageUrl?: string;
+    image_url?: string;
     /**
      * 
      * @type {number}
      * @memberof Funder
      */
-    relevanceScore?: number;
+    relevance_score?: number;
     /**
      * 
-     * @type {Roles}
+     * @type {Array<Role>}
      * @memberof Funder
      */
-    roles?: Roles;
+    roles?: Array<Role>;
     /**
      * 
      * @type {SummaryStats}
      * @memberof Funder
      */
-    summaryStats?: SummaryStats;
+    summary_stats?: SummaryStats;
     /**
      * 
      * @type {string}
      * @memberof Funder
      */
-    updatedDate?: string;
+    updated_date?: string;
     /**
      * 
      * @type {number}
      * @memberof Funder
      */
-    worksCount?: number;
+    works_count?: number;
 }
 
 /**
  * Check if a given object implements the Funder interface.
  */
 export function instanceOfFunder(value: object): value is Funder {
-    if (!('alternateTitles' in value) || value['alternateTitles'] === undefined) return false;
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('alternate_titles' in value) || value['alternate_titles'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -174,51 +178,56 @@ export function FunderFromJSONTyped(json: any, ignoreDiscriminator: boolean): Fu
     }
     return {
         
-        'alternateTitles': json['alternate_titles'],
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'countryCode': json['country_code'] == null ? undefined : json['country_code'],
-        'countsByYear': json['counts_by_year'] == null ? undefined : CountsByYearFromJSON(json['counts_by_year']),
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
+        'alternate_titles': json['alternate_titles'],
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'country_code': json['country_code'] == null ? undefined : json['country_code'],
+        'counts_by_year': json['counts_by_year'] == null ? undefined : ((json['counts_by_year'] as Array<any>).map(CountsByYearInnerFromJSON)),
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
         'description': json['description'] == null ? undefined : json['description'],
-        'displayName': json['display_name'],
-        'grantsCount': json['grants_count'] == null ? undefined : json['grants_count'],
-        'homepageUrl': json['homepage_url'] == null ? undefined : json['homepage_url'],
+        'display_name': json['display_name'],
+        'grants_count': json['grants_count'] == null ? undefined : json['grants_count'],
+        'homepage_url': json['homepage_url'] == null ? undefined : json['homepage_url'],
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : IdsFromJSON(json['ids']),
-        'imageThumbnailUrl': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
-        'imageUrl': json['image_url'] == null ? undefined : json['image_url'],
-        'relevanceScore': json['relevance_score'] == null ? undefined : json['relevance_score'],
-        'roles': json['roles'] == null ? undefined : RolesFromJSON(json['roles']),
-        'summaryStats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
+        'image_thumbnail_url': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
+        'image_url': json['image_url'] == null ? undefined : json['image_url'],
+        'relevance_score': json['relevance_score'] == null ? undefined : json['relevance_score'],
+        'roles': json['roles'] == null ? undefined : ((json['roles'] as Array<any>).map(RoleFromJSON)),
+        'summary_stats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
     };
 }
 
-export function FunderToJSON(value?: Funder | null): any {
+export function FunderToJSON(json: any): Funder {
+    return FunderToJSONTyped(json, false);
+}
+
+export function FunderToJSONTyped(value?: Funder | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'alternate_titles': value['alternateTitles'],
-        'cited_by_count': value['citedByCount'],
-        'country_code': value['countryCode'],
-        'counts_by_year': CountsByYearToJSON(value['countsByYear']),
-        'created_date': value['createdDate'],
+        'alternate_titles': value['alternate_titles'],
+        'cited_by_count': value['cited_by_count'],
+        'country_code': value['country_code'],
+        'counts_by_year': value['counts_by_year'] == null ? undefined : ((value['counts_by_year'] as Array<any>).map(CountsByYearInnerToJSON)),
+        'created_date': value['created_date'],
         'description': value['description'],
-        'display_name': value['displayName'],
-        'grants_count': value['grantsCount'],
-        'homepage_url': value['homepageUrl'],
+        'display_name': value['display_name'],
+        'grants_count': value['grants_count'],
+        'homepage_url': value['homepage_url'],
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
-        'image_thumbnail_url': value['imageThumbnailUrl'],
-        'image_url': value['imageUrl'],
-        'relevance_score': value['relevanceScore'],
-        'roles': RolesToJSON(value['roles']),
-        'summary_stats': SummaryStatsToJSON(value['summaryStats']),
-        'updated_date': value['updatedDate'],
-        'works_count': value['worksCount'],
+        'image_thumbnail_url': value['image_thumbnail_url'],
+        'image_url': value['image_url'],
+        'relevance_score': value['relevance_score'],
+        'roles': value['roles'] == null ? undefined : ((value['roles'] as Array<any>).map(RoleToJSON)),
+        'summary_stats': SummaryStatsToJSON(value['summary_stats']),
+        'updated_date': value['updated_date'],
+        'works_count': value['works_count'],
     };
 }
 

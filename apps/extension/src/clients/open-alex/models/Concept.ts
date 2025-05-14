@@ -13,36 +13,41 @@
  */
 
 import { mapValues } from '../runtime';
-import type { CountsByYear } from './CountsByYear';
+import type { CountsByYearInner } from './CountsByYearInner';
 import {
-    CountsByYearFromJSON,
-    CountsByYearFromJSONTyped,
-    CountsByYearToJSON,
-} from './CountsByYear';
-import type { DehydratedConceptArray } from './DehydratedConceptArray';
-import {
-    DehydratedConceptArrayFromJSON,
-    DehydratedConceptArrayFromJSONTyped,
-    DehydratedConceptArrayToJSON,
-} from './DehydratedConceptArray';
+    CountsByYearInnerFromJSON,
+    CountsByYearInnerFromJSONTyped,
+    CountsByYearInnerToJSON,
+    CountsByYearInnerToJSONTyped,
+} from './CountsByYearInner';
 import type { ConceptIds } from './ConceptIds';
 import {
     ConceptIdsFromJSON,
     ConceptIdsFromJSONTyped,
     ConceptIdsToJSON,
+    ConceptIdsToJSONTyped,
 } from './ConceptIds';
 import type { SummaryStats } from './SummaryStats';
 import {
     SummaryStatsFromJSON,
     SummaryStatsFromJSONTyped,
     SummaryStatsToJSON,
+    SummaryStatsToJSONTyped,
 } from './SummaryStats';
 import type { InternationalDisplayNameAndDescription } from './InternationalDisplayNameAndDescription';
 import {
     InternationalDisplayNameAndDescriptionFromJSON,
     InternationalDisplayNameAndDescriptionFromJSONTyped,
     InternationalDisplayNameAndDescriptionToJSON,
+    InternationalDisplayNameAndDescriptionToJSONTyped,
 } from './InternationalDisplayNameAndDescription';
+import type { DehydratedConcept } from './DehydratedConcept';
+import {
+    DehydratedConceptFromJSON,
+    DehydratedConceptFromJSONTyped,
+    DehydratedConceptToJSON,
+    DehydratedConceptToJSONTyped,
+} from './DehydratedConcept';
 
 /**
  * 
@@ -52,28 +57,28 @@ import {
 export interface Concept {
     /**
      * 
-     * @type {DehydratedConceptArray}
+     * @type {Array<DehydratedConcept>}
      * @memberof Concept
      */
-    ancestors?: DehydratedConceptArray;
+    ancestors?: Array<DehydratedConcept>;
     /**
      * 
      * @type {number}
      * @memberof Concept
      */
-    citedByCount?: number;
+    cited_by_count?: number;
     /**
      * 
-     * @type {CountsByYear}
+     * @type {Array<CountsByYearInner>}
      * @memberof Concept
      */
-    countsByYear?: CountsByYear;
+    counts_by_year?: Array<CountsByYearInner>;
     /**
      * 
      * @type {string}
      * @memberof Concept
      */
-    createdDate?: string;
+    created_date?: string;
     /**
      * 
      * @type {string}
@@ -85,7 +90,7 @@ export interface Concept {
      * @type {string}
      * @memberof Concept
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {string}
@@ -103,13 +108,13 @@ export interface Concept {
      * @type {string}
      * @memberof Concept
      */
-    imageThumbnailUrl?: string;
+    image_thumbnail_url?: string;
     /**
      * 
      * @type {string}
      * @memberof Concept
      */
-    imageUrl?: string;
+    image_url?: string;
     /**
      * 
      * @type {InternationalDisplayNameAndDescription}
@@ -124,22 +129,22 @@ export interface Concept {
     level?: number;
     /**
      * 
-     * @type {DehydratedConceptArray}
+     * @type {Array<DehydratedConcept>}
      * @memberof Concept
      */
-    relatedConcepts?: DehydratedConceptArray;
+    related_concepts?: Array<DehydratedConcept>;
     /**
      * 
      * @type {SummaryStats}
      * @memberof Concept
      */
-    summaryStats?: SummaryStats;
+    summary_stats?: SummaryStats;
     /**
      * 
      * @type {string}
      * @memberof Concept
      */
-    updatedDate?: string;
+    updated_date?: string;
     /**
      * 
      * @type {string}
@@ -151,20 +156,20 @@ export interface Concept {
      * @type {string}
      * @memberof Concept
      */
-    worksApiUrl?: string;
+    works_api_url?: string;
     /**
      * 
      * @type {number}
      * @memberof Concept
      */
-    worksCount?: number;
+    works_count?: number;
 }
 
 /**
  * Check if a given object implements the Concept interface.
  */
 export function instanceOfConcept(value: object): value is Concept {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -179,51 +184,56 @@ export function ConceptFromJSONTyped(json: any, ignoreDiscriminator: boolean): C
     }
     return {
         
-        'ancestors': json['ancestors'] == null ? undefined : DehydratedConceptArrayFromJSON(json['ancestors']),
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'countsByYear': json['counts_by_year'] == null ? undefined : CountsByYearFromJSON(json['counts_by_year']),
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
+        'ancestors': json['ancestors'] == null ? undefined : ((json['ancestors'] as Array<any>).map(DehydratedConceptFromJSON)),
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'counts_by_year': json['counts_by_year'] == null ? undefined : ((json['counts_by_year'] as Array<any>).map(CountsByYearInnerFromJSON)),
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
         'description': json['description'] == null ? undefined : json['description'],
-        'displayName': json['display_name'],
+        'display_name': json['display_name'],
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : ConceptIdsFromJSON(json['ids']),
-        'imageThumbnailUrl': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
-        'imageUrl': json['image_url'] == null ? undefined : json['image_url'],
+        'image_thumbnail_url': json['image_thumbnail_url'] == null ? undefined : json['image_thumbnail_url'],
+        'image_url': json['image_url'] == null ? undefined : json['image_url'],
         'international': json['international'] == null ? undefined : InternationalDisplayNameAndDescriptionFromJSON(json['international']),
         'level': json['level'] == null ? undefined : json['level'],
-        'relatedConcepts': json['related_concepts'] == null ? undefined : DehydratedConceptArrayFromJSON(json['related_concepts']),
-        'summaryStats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
+        'related_concepts': json['related_concepts'] == null ? undefined : ((json['related_concepts'] as Array<any>).map(DehydratedConceptFromJSON)),
+        'summary_stats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
         'wikidata': json['wikidata'] == null ? undefined : json['wikidata'],
-        'worksApiUrl': json['works_api_url'] == null ? undefined : json['works_api_url'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
+        'works_api_url': json['works_api_url'] == null ? undefined : json['works_api_url'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
     };
 }
 
-export function ConceptToJSON(value?: Concept | null): any {
+export function ConceptToJSON(json: any): Concept {
+    return ConceptToJSONTyped(json, false);
+}
+
+export function ConceptToJSONTyped(value?: Concept | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'ancestors': DehydratedConceptArrayToJSON(value['ancestors']),
-        'cited_by_count': value['citedByCount'],
-        'counts_by_year': CountsByYearToJSON(value['countsByYear']),
-        'created_date': value['createdDate'],
+        'ancestors': value['ancestors'] == null ? undefined : ((value['ancestors'] as Array<any>).map(DehydratedConceptToJSON)),
+        'cited_by_count': value['cited_by_count'],
+        'counts_by_year': value['counts_by_year'] == null ? undefined : ((value['counts_by_year'] as Array<any>).map(CountsByYearInnerToJSON)),
+        'created_date': value['created_date'],
         'description': value['description'],
-        'display_name': value['displayName'],
+        'display_name': value['display_name'],
         'id': value['id'],
         'ids': ConceptIdsToJSON(value['ids']),
-        'image_thumbnail_url': value['imageThumbnailUrl'],
-        'image_url': value['imageUrl'],
+        'image_thumbnail_url': value['image_thumbnail_url'],
+        'image_url': value['image_url'],
         'international': InternationalDisplayNameAndDescriptionToJSON(value['international']),
         'level': value['level'],
-        'related_concepts': DehydratedConceptArrayToJSON(value['relatedConcepts']),
-        'summary_stats': SummaryStatsToJSON(value['summaryStats']),
-        'updated_date': value['updatedDate'],
+        'related_concepts': value['related_concepts'] == null ? undefined : ((value['related_concepts'] as Array<any>).map(DehydratedConceptToJSON)),
+        'summary_stats': SummaryStatsToJSON(value['summary_stats']),
+        'updated_date': value['updated_date'],
         'wikidata': value['wikidata'],
-        'works_api_url': value['worksApiUrl'],
-        'works_count': value['worksCount'],
+        'works_api_url': value['works_api_url'],
+        'works_count': value['works_count'],
     };
 }
 

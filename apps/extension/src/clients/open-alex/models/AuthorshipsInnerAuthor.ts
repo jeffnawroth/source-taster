@@ -24,13 +24,13 @@ export interface AuthorshipsInnerAuthor {
      * @type {string}
      * @memberof AuthorshipsInnerAuthor
      */
-    displayName: string;
+    id: string;
     /**
      * 
      * @type {string}
      * @memberof AuthorshipsInnerAuthor
      */
-    id: string;
+    display_name: string;
     /**
      * 
      * @type {string}
@@ -43,8 +43,8 @@ export interface AuthorshipsInnerAuthor {
  * Check if a given object implements the AuthorshipsInnerAuthor interface.
  */
 export function instanceOfAuthorshipsInnerAuthor(value: object): value is AuthorshipsInnerAuthor {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     return true;
 }
 
@@ -58,20 +58,25 @@ export function AuthorshipsInnerAuthorFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'displayName': json['display_name'],
         'id': json['id'],
+        'display_name': json['display_name'],
         'orcid': json['orcid'] == null ? undefined : json['orcid'],
     };
 }
 
-export function AuthorshipsInnerAuthorToJSON(value?: AuthorshipsInnerAuthor | null): any {
+export function AuthorshipsInnerAuthorToJSON(json: any): AuthorshipsInnerAuthor {
+    return AuthorshipsInnerAuthorToJSONTyped(json, false);
+}
+
+export function AuthorshipsInnerAuthorToJSONTyped(value?: AuthorshipsInnerAuthor | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
         'id': value['id'],
+        'display_name': value['display_name'],
         'orcid': value['orcid'],
     };
 }

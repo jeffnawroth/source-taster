@@ -24,7 +24,7 @@ export interface PublisherParentPublisher {
      * @type {string}
      * @memberof PublisherParentPublisher
      */
-    displayName?: string;
+    display_name?: string;
     /**
      * 
      * @type {string}
@@ -50,18 +50,23 @@ export function PublisherParentPublisherFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-        'displayName': json['display_name'] == null ? undefined : json['display_name'],
+        'display_name': json['display_name'] == null ? undefined : json['display_name'],
         'id': json['id'] == null ? undefined : json['id'],
     };
 }
 
-export function PublisherParentPublisherToJSON(value?: PublisherParentPublisher | null): any {
+export function PublisherParentPublisherToJSON(json: any): PublisherParentPublisher {
+    return PublisherParentPublisherToJSONTyped(json, false);
+}
+
+export function PublisherParentPublisherToJSONTyped(value?: PublisherParentPublisher | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
+        'display_name': value['display_name'],
         'id': value['id'],
     };
 }

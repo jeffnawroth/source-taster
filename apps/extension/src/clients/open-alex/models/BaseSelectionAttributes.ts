@@ -27,7 +27,7 @@ export type BaseSelectionAttributes = typeof BaseSelectionAttributes[keyof typeo
 export function instanceOfBaseSelectionAttributes(value: any): boolean {
     for (const key in BaseSelectionAttributes) {
         if (Object.prototype.hasOwnProperty.call(BaseSelectionAttributes, key)) {
-            if ((BaseSelectionAttributes as Record<string, BaseSelectionAttributes>)[key] === value) {
+            if (BaseSelectionAttributes[key as keyof typeof BaseSelectionAttributes] === value) {
                 return true;
             }
         }
@@ -45,5 +45,9 @@ export function BaseSelectionAttributesFromJSONTyped(json: any, ignoreDiscrimina
 
 export function BaseSelectionAttributesToJSON(value?: BaseSelectionAttributes | null): any {
     return value as any;
+}
+
+export function BaseSelectionAttributesToJSONTyped(value: any, ignoreDiscriminator: boolean): BaseSelectionAttributes {
+    return value as BaseSelectionAttributes;
 }
 

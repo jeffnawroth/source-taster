@@ -18,18 +18,21 @@ import {
     TopicLevelArraySchemaFromJSON,
     TopicLevelArraySchemaFromJSONTyped,
     TopicLevelArraySchemaToJSON,
+    TopicLevelArraySchemaToJSONTyped,
 } from './TopicLevelArraySchema';
 import type { TopicLevelSchema } from './TopicLevelSchema';
 import {
     TopicLevelSchemaFromJSON,
     TopicLevelSchemaFromJSONTyped,
     TopicLevelSchemaToJSON,
+    TopicLevelSchemaToJSONTyped,
 } from './TopicLevelSchema';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
 
 /**
@@ -43,13 +46,13 @@ export interface TopicsResultsInner {
      * @type {number}
      * @memberof TopicsResultsInner
      */
-    citedByCount?: number;
+    cited_by_count?: number;
     /**
      * 
      * @type {string}
      * @memberof TopicsResultsInner
      */
-    createdDate?: string;
+    created_date?: string;
     /**
      * 
      * @type {string}
@@ -61,7 +64,7 @@ export interface TopicsResultsInner {
      * @type {string}
      * @memberof TopicsResultsInner
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {TopicLevelSchema}
@@ -97,7 +100,7 @@ export interface TopicsResultsInner {
      * @type {number}
      * @memberof TopicsResultsInner
      */
-    relevanceScore?: number;
+    relevance_score?: number;
     /**
      * 
      * @type {TopicLevelArraySchema}
@@ -115,13 +118,13 @@ export interface TopicsResultsInner {
      * @type {string}
      * @memberof TopicsResultsInner
      */
-    updatedDate?: string;
+    updated_date?: string;
     /**
      * 
      * @type {number}
      * @memberof TopicsResultsInner
      */
-    worksCount?: number;
+    works_count?: number;
 }
 
 /**
@@ -129,7 +132,7 @@ export interface TopicsResultsInner {
  */
 export function instanceOfTopicsResultsInner(value: object): value is TopicsResultsInner {
     if (!('description' in value) || value['description'] === undefined) return false;
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -144,43 +147,48 @@ export function TopicsResultsInnerFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
         'description': json['description'],
-        'displayName': json['display_name'],
+        'display_name': json['display_name'],
         'domain': json['domain'] == null ? undefined : TopicLevelSchemaFromJSON(json['domain']),
         'field': json['field'] == null ? undefined : TopicLevelSchemaFromJSON(json['field']),
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : IdsFromJSON(json['ids']),
         'keywords': json['keywords'] == null ? undefined : json['keywords'],
-        'relevanceScore': json['relevance_score'] == null ? undefined : json['relevance_score'],
+        'relevance_score': json['relevance_score'] == null ? undefined : json['relevance_score'],
         'siblings': json['siblings'] == null ? undefined : TopicLevelArraySchemaFromJSON(json['siblings']),
         'subfield': json['subfield'] == null ? undefined : TopicLevelSchemaFromJSON(json['subfield']),
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
     };
 }
 
-export function TopicsResultsInnerToJSON(value?: TopicsResultsInner | null): any {
+export function TopicsResultsInnerToJSON(json: any): TopicsResultsInner {
+    return TopicsResultsInnerToJSONTyped(json, false);
+}
+
+export function TopicsResultsInnerToJSONTyped(value?: TopicsResultsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'cited_by_count': value['citedByCount'],
-        'created_date': value['createdDate'],
+        'cited_by_count': value['cited_by_count'],
+        'created_date': value['created_date'],
         'description': value['description'],
-        'display_name': value['displayName'],
+        'display_name': value['display_name'],
         'domain': TopicLevelSchemaToJSON(value['domain']),
         'field': TopicLevelSchemaToJSON(value['field']),
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
         'keywords': value['keywords'],
-        'relevance_score': value['relevanceScore'],
+        'relevance_score': value['relevance_score'],
         'siblings': TopicLevelArraySchemaToJSON(value['siblings']),
         'subfield': TopicLevelSchemaToJSON(value['subfield']),
-        'updated_date': value['updatedDate'],
-        'works_count': value['worksCount'],
+        'updated_date': value['updated_date'],
+        'works_count': value['works_count'],
     };
 }
 

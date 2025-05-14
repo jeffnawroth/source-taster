@@ -24,7 +24,7 @@ export interface RootResponseSchema {
      * @type {string}
      * @memberof RootResponseSchema
      */
-    documentationUrl: string;
+    documentation_url: string;
     /**
      * 
      * @type {string}
@@ -43,7 +43,7 @@ export interface RootResponseSchema {
  * Check if a given object implements the RootResponseSchema interface.
  */
 export function instanceOfRootResponseSchema(value: object): value is RootResponseSchema {
-    if (!('documentationUrl' in value) || value['documentationUrl'] === undefined) return false;
+    if (!('documentation_url' in value) || value['documentation_url'] === undefined) return false;
     if (!('msg' in value) || value['msg'] === undefined) return false;
     if (!('version' in value) || value['version'] === undefined) return false;
     return true;
@@ -59,19 +59,24 @@ export function RootResponseSchemaFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'documentationUrl': json['documentation_url'],
+        'documentation_url': json['documentation_url'],
         'msg': json['msg'],
         'version': json['version'],
     };
 }
 
-export function RootResponseSchemaToJSON(value?: RootResponseSchema | null): any {
+export function RootResponseSchemaToJSON(json: any): RootResponseSchema {
+    return RootResponseSchemaToJSONTyped(json, false);
+}
+
+export function RootResponseSchemaToJSONTyped(value?: RootResponseSchema | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'documentation_url': value['documentationUrl'],
+        'documentation_url': value['documentation_url'],
         'msg': value['msg'],
         'version': value['version'],
     };

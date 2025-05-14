@@ -18,6 +18,7 @@ import {
     LocationSourceFromJSON,
     LocationSourceFromJSONTyped,
     LocationSourceToJSON,
+    LocationSourceToJSONTyped,
 } from './LocationSource';
 
 /**
@@ -31,25 +32,25 @@ export interface Location {
      * @type {boolean}
      * @memberof Location
      */
-    isAccepted?: boolean;
+    is_accepted?: boolean;
     /**
      * 
      * @type {boolean}
      * @memberof Location
      */
-    isOa?: boolean;
+    is_oa?: boolean;
     /**
      * 
      * @type {boolean}
      * @memberof Location
      */
-    isPublished?: boolean;
+    is_published?: boolean;
     /**
      * 
      * @type {string}
      * @memberof Location
      */
-    landingPageUrl?: string;
+    landing_page_url?: string;
     /**
      * 
      * @type {string}
@@ -61,7 +62,7 @@ export interface Location {
      * @type {string}
      * @memberof Location
      */
-    pdfUrl?: string;
+    pdf_url?: string;
     /**
      * 
      * @type {LocationSource}
@@ -93,29 +94,34 @@ export function LocationFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-        'isAccepted': json['is_accepted'] == null ? undefined : json['is_accepted'],
-        'isOa': json['is_oa'] == null ? undefined : json['is_oa'],
-        'isPublished': json['is_published'] == null ? undefined : json['is_published'],
-        'landingPageUrl': json['landing_page_url'] == null ? undefined : json['landing_page_url'],
+        'is_accepted': json['is_accepted'] == null ? undefined : json['is_accepted'],
+        'is_oa': json['is_oa'] == null ? undefined : json['is_oa'],
+        'is_published': json['is_published'] == null ? undefined : json['is_published'],
+        'landing_page_url': json['landing_page_url'] == null ? undefined : json['landing_page_url'],
         'license': json['license'] == null ? undefined : json['license'],
-        'pdfUrl': json['pdf_url'] == null ? undefined : json['pdf_url'],
+        'pdf_url': json['pdf_url'] == null ? undefined : json['pdf_url'],
         'source': json['source'] == null ? undefined : LocationSourceFromJSON(json['source']),
         'version': json['version'] == null ? undefined : json['version'],
     };
 }
 
-export function LocationToJSON(value?: Location | null): any {
+export function LocationToJSON(json: any): Location {
+    return LocationToJSONTyped(json, false);
+}
+
+export function LocationToJSONTyped(value?: Location | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'is_accepted': value['isAccepted'],
-        'is_oa': value['isOa'],
-        'is_published': value['isPublished'],
-        'landing_page_url': value['landingPageUrl'],
+        'is_accepted': value['is_accepted'],
+        'is_oa': value['is_oa'],
+        'is_published': value['is_published'],
+        'landing_page_url': value['landing_page_url'],
         'license': value['license'],
-        'pdf_url': value['pdfUrl'],
+        'pdf_url': value['pdf_url'],
         'source': LocationSourceToJSON(value['source']),
         'version': value['version'],
     };

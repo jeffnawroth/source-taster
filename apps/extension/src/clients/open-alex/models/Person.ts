@@ -24,7 +24,7 @@ export interface Person {
      * @type {string}
      * @memberof Person
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {string}
@@ -43,7 +43,7 @@ export interface Person {
  * Check if a given object implements the Person interface.
  */
 export function instanceOfPerson(value: object): value is Person {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('orcid' in value) || value['orcid'] === undefined) return false;
     return true;
@@ -59,19 +59,24 @@ export function PersonFromJSONTyped(json: any, ignoreDiscriminator: boolean): Pe
     }
     return {
         
-        'displayName': json['display_name'],
+        'display_name': json['display_name'],
         'id': json['id'],
         'orcid': json['orcid'],
     };
 }
 
-export function PersonToJSON(value?: Person | null): any {
+export function PersonToJSON(json: any): Person {
+    return PersonToJSONTyped(json, false);
+}
+
+export function PersonToJSONTyped(value?: Person | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
+        'display_name': value['display_name'],
         'id': value['id'],
         'orcid': value['orcid'],
     };

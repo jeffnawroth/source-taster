@@ -18,19 +18,22 @@ import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
 import type { FunderSchema } from './FunderSchema';
 import {
     FunderSchemaFromJSON,
     FunderSchemaFromJSONTyped,
     FunderSchemaToJSON,
+    FunderSchemaToJSONTyped,
 } from './FunderSchema';
-import type { GroupByResult } from './GroupByResult';
+import type { GroupByResultInner } from './GroupByResultInner';
 import {
-    GroupByResultFromJSON,
-    GroupByResultFromJSONTyped,
-    GroupByResultToJSON,
-} from './GroupByResult';
+    GroupByResultInnerFromJSON,
+    GroupByResultInnerFromJSONTyped,
+    GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
+} from './GroupByResultInner';
 
 /**
  * 
@@ -40,10 +43,10 @@ import {
 export interface FundersArray {
     /**
      * 
-     * @type {GroupByResult}
+     * @type {Array<GroupByResultInner>}
      * @memberof FundersArray
      */
-    groupBy: GroupByResult;
+    group_by: Array<GroupByResultInner>;
     /**
      * 
      * @type {Meta}
@@ -62,7 +65,7 @@ export interface FundersArray {
  * Check if a given object implements the FundersArray interface.
  */
 export function instanceOfFundersArray(value: object): value is FundersArray {
-    if (!('groupBy' in value) || value['groupBy'] === undefined) return false;
+    if (!('group_by' in value) || value['group_by'] === undefined) return false;
     if (!('meta' in value) || value['meta'] === undefined) return false;
     return true;
 }
@@ -77,19 +80,24 @@ export function FundersArrayFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-        'groupBy': GroupByResultFromJSON(json['group_by']),
+        'group_by': ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
         'meta': MetaFromJSON(json['meta']),
         'results': json['results'] == null ? undefined : ((json['results'] as Array<any>).map(FunderSchemaFromJSON)),
     };
 }
 
-export function FundersArrayToJSON(value?: FundersArray | null): any {
+export function FundersArrayToJSON(json: any): FundersArray {
+    return FundersArrayToJSONTyped(json, false);
+}
+
+export function FundersArrayToJSONTyped(value?: FundersArray | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': GroupByResultToJSON(value['groupBy']),
+        'group_by': ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
         'meta': MetaToJSON(value['meta']),
         'results': value['results'] == null ? undefined : ((value['results'] as Array<any>).map(FunderSchemaToJSON)),
     };

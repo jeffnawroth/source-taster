@@ -24,35 +24,35 @@ export interface WorkOpenAccess {
      * @type {boolean}
      * @memberof WorkOpenAccess
      */
-    anyRepositoryHasFulltext: boolean;
+    is_oa: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkOpenAccess
+     */
+    oa_status: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkOpenAccess
+     */
+    oa_url: string;
     /**
      * 
      * @type {boolean}
      * @memberof WorkOpenAccess
      */
-    isOa: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkOpenAccess
-     */
-    oaStatus: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkOpenAccess
-     */
-    oaUrl: string;
+    any_repository_has_fulltext: boolean;
 }
 
 /**
  * Check if a given object implements the WorkOpenAccess interface.
  */
 export function instanceOfWorkOpenAccess(value: object): value is WorkOpenAccess {
-    if (!('anyRepositoryHasFulltext' in value) || value['anyRepositoryHasFulltext'] === undefined) return false;
-    if (!('isOa' in value) || value['isOa'] === undefined) return false;
-    if (!('oaStatus' in value) || value['oaStatus'] === undefined) return false;
-    if (!('oaUrl' in value) || value['oaUrl'] === undefined) return false;
+    if (!('is_oa' in value) || value['is_oa'] === undefined) return false;
+    if (!('oa_status' in value) || value['oa_status'] === undefined) return false;
+    if (!('oa_url' in value) || value['oa_url'] === undefined) return false;
+    if (!('any_repository_has_fulltext' in value) || value['any_repository_has_fulltext'] === undefined) return false;
     return true;
 }
 
@@ -66,23 +66,28 @@ export function WorkOpenAccessFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-        'anyRepositoryHasFulltext': json['any_repository_has_fulltext'],
-        'isOa': json['is_oa'],
-        'oaStatus': json['oa_status'],
-        'oaUrl': json['oa_url'],
+        'is_oa': json['is_oa'],
+        'oa_status': json['oa_status'],
+        'oa_url': json['oa_url'],
+        'any_repository_has_fulltext': json['any_repository_has_fulltext'],
     };
 }
 
-export function WorkOpenAccessToJSON(value?: WorkOpenAccess | null): any {
+export function WorkOpenAccessToJSON(json: any): WorkOpenAccess {
+    return WorkOpenAccessToJSONTyped(json, false);
+}
+
+export function WorkOpenAccessToJSONTyped(value?: WorkOpenAccess | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'any_repository_has_fulltext': value['anyRepositoryHasFulltext'],
-        'is_oa': value['isOa'],
-        'oa_status': value['oaStatus'],
-        'oa_url': value['oaUrl'],
+        'is_oa': value['is_oa'],
+        'oa_status': value['oa_status'],
+        'oa_url': value['oa_url'],
+        'any_repository_has_fulltext': value['any_repository_has_fulltext'],
     };
 }
 

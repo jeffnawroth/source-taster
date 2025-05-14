@@ -18,19 +18,22 @@ import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
+import type { GroupByResultInner } from './GroupByResultInner';
+import {
+    GroupByResultInnerFromJSON,
+    GroupByResultInnerFromJSONTyped,
+    GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
+} from './GroupByResultInner';
 import type { Author } from './Author';
 import {
     AuthorFromJSON,
     AuthorFromJSONTyped,
     AuthorToJSON,
+    AuthorToJSONTyped,
 } from './Author';
-import type { GroupByResult } from './GroupByResult';
-import {
-    GroupByResultFromJSON,
-    GroupByResultFromJSONTyped,
-    GroupByResultToJSON,
-} from './GroupByResult';
 
 /**
  * 
@@ -40,10 +43,10 @@ import {
 export interface Authors {
     /**
      * 
-     * @type {GroupByResult}
+     * @type {Array<GroupByResultInner>}
      * @memberof Authors
      */
-    groupBy: GroupByResult;
+    group_by: Array<GroupByResultInner>;
     /**
      * 
      * @type {Meta}
@@ -62,7 +65,7 @@ export interface Authors {
  * Check if a given object implements the Authors interface.
  */
 export function instanceOfAuthors(value: object): value is Authors {
-    if (!('groupBy' in value) || value['groupBy'] === undefined) return false;
+    if (!('group_by' in value) || value['group_by'] === undefined) return false;
     if (!('meta' in value) || value['meta'] === undefined) return false;
     return true;
 }
@@ -77,19 +80,24 @@ export function AuthorsFromJSONTyped(json: any, ignoreDiscriminator: boolean): A
     }
     return {
         
-        'groupBy': GroupByResultFromJSON(json['group_by']),
+        'group_by': ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
         'meta': MetaFromJSON(json['meta']),
         'results': json['results'] == null ? undefined : ((json['results'] as Array<any>).map(AuthorFromJSON)),
     };
 }
 
-export function AuthorsToJSON(value?: Authors | null): any {
+export function AuthorsToJSON(json: any): Authors {
+    return AuthorsToJSONTyped(json, false);
+}
+
+export function AuthorsToJSONTyped(value?: Authors | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': GroupByResultToJSON(value['groupBy']),
+        'group_by': ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
         'meta': MetaToJSON(value['meta']),
         'results': value['results'] == null ? undefined : ((value['results'] as Array<any>).map(AuthorToJSON)),
     };

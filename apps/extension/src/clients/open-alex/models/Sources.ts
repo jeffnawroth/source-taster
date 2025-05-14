@@ -18,19 +18,22 @@ import {
     SourceSchemaFromJSON,
     SourceSchemaFromJSONTyped,
     SourceSchemaToJSON,
+    SourceSchemaToJSONTyped,
 } from './SourceSchema';
 import type { Meta } from './Meta';
 import {
     MetaFromJSON,
     MetaFromJSONTyped,
     MetaToJSON,
+    MetaToJSONTyped,
 } from './Meta';
-import type { GroupByResult } from './GroupByResult';
+import type { GroupByResultInner } from './GroupByResultInner';
 import {
-    GroupByResultFromJSON,
-    GroupByResultFromJSONTyped,
-    GroupByResultToJSON,
-} from './GroupByResult';
+    GroupByResultInnerFromJSON,
+    GroupByResultInnerFromJSONTyped,
+    GroupByResultInnerToJSON,
+    GroupByResultInnerToJSONTyped,
+} from './GroupByResultInner';
 
 /**
  * 
@@ -40,10 +43,10 @@ import {
 export interface Sources {
     /**
      * 
-     * @type {GroupByResult}
+     * @type {Array<GroupByResultInner>}
      * @memberof Sources
      */
-    groupBy?: GroupByResult;
+    group_by?: Array<GroupByResultInner>;
     /**
      * 
      * @type {Meta}
@@ -75,19 +78,24 @@ export function SourcesFromJSONTyped(json: any, ignoreDiscriminator: boolean): S
     }
     return {
         
-        'groupBy': json['group_by'] == null ? undefined : GroupByResultFromJSON(json['group_by']),
+        'group_by': json['group_by'] == null ? undefined : ((json['group_by'] as Array<any>).map(GroupByResultInnerFromJSON)),
         'meta': json['meta'] == null ? undefined : MetaFromJSON(json['meta']),
         'results': json['results'] == null ? undefined : ((json['results'] as Array<any>).map(SourceSchemaFromJSON)),
     };
 }
 
-export function SourcesToJSON(value?: Sources | null): any {
+export function SourcesToJSON(json: any): Sources {
+    return SourcesToJSONTyped(json, false);
+}
+
+export function SourcesToJSONTyped(value?: Sources | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'group_by': GroupByResultToJSON(value['groupBy']),
+        'group_by': value['group_by'] == null ? undefined : ((value['group_by'] as Array<any>).map(GroupByResultInnerToJSON)),
         'meta': MetaToJSON(value['meta']),
         'results': value['results'] == null ? undefined : ((value['results'] as Array<any>).map(SourceSchemaToJSON)),
     };

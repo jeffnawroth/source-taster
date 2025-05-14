@@ -24,28 +24,28 @@ export interface SummaryStats {
      * @type {number}
      * @memberof SummaryStats
      */
-    _2yrMeanCitedness: number;
+    _2yr_mean_citedness: number;
     /**
      * 
      * @type {number}
      * @memberof SummaryStats
      */
-    hIndex: number;
+    h_index: number;
     /**
      * 
      * @type {number}
      * @memberof SummaryStats
      */
-    i10Index: number;
+    i10_index: number;
 }
 
 /**
  * Check if a given object implements the SummaryStats interface.
  */
 export function instanceOfSummaryStats(value: object): value is SummaryStats {
-    if (!('_2yrMeanCitedness' in value) || value['_2yrMeanCitedness'] === undefined) return false;
-    if (!('hIndex' in value) || value['hIndex'] === undefined) return false;
-    if (!('i10Index' in value) || value['i10Index'] === undefined) return false;
+    if (!('_2yr_mean_citedness' in value) || value['_2yr_mean_citedness'] === undefined) return false;
+    if (!('h_index' in value) || value['h_index'] === undefined) return false;
+    if (!('i10_index' in value) || value['i10_index'] === undefined) return false;
     return true;
 }
 
@@ -59,21 +59,26 @@ export function SummaryStatsFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-        '_2yrMeanCitedness': json['2yr_mean_citedness'],
-        'hIndex': json['h_index'],
-        'i10Index': json['i10_index'],
+        '_2yr_mean_citedness': json['2yr_mean_citedness'],
+        'h_index': json['h_index'],
+        'i10_index': json['i10_index'],
     };
 }
 
-export function SummaryStatsToJSON(value?: SummaryStats | null): any {
+export function SummaryStatsToJSON(json: any): SummaryStats {
+    return SummaryStatsToJSONTyped(json, false);
+}
+
+export function SummaryStatsToJSONTyped(value?: SummaryStats | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        '2yr_mean_citedness': value['_2yrMeanCitedness'],
-        'h_index': value['hIndex'],
-        'i10_index': value['i10Index'],
+        '2yr_mean_citedness': value['_2yr_mean_citedness'],
+        'h_index': value['h_index'],
+        'i10_index': value['i10_index'],
     };
 }
 

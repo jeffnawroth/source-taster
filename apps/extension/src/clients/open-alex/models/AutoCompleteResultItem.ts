@@ -24,31 +24,31 @@ export interface AutoCompleteResultItem {
      * @type {number}
      * @memberof AutoCompleteResultItem
      */
-    citedByCount: number;
+    cited_by_count: number;
     /**
      * 
      * @type {string}
      * @memberof AutoCompleteResultItem
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {string}
      * @memberof AutoCompleteResultItem
      */
-    entityType: string;
+    entity_type: string;
     /**
      * 
      * @type {string}
      * @memberof AutoCompleteResultItem
      */
-    externalId: string;
+    external_id: string;
     /**
      * 
      * @type {string}
      * @memberof AutoCompleteResultItem
      */
-    filterKey: string;
+    filter_key: string;
     /**
      * 
      * @type {string}
@@ -66,21 +66,21 @@ export interface AutoCompleteResultItem {
      * @type {number}
      * @memberof AutoCompleteResultItem
      */
-    worksCount: number;
+    works_count: number;
 }
 
 /**
  * Check if a given object implements the AutoCompleteResultItem interface.
  */
 export function instanceOfAutoCompleteResultItem(value: object): value is AutoCompleteResultItem {
-    if (!('citedByCount' in value) || value['citedByCount'] === undefined) return false;
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
-    if (!('entityType' in value) || value['entityType'] === undefined) return false;
-    if (!('externalId' in value) || value['externalId'] === undefined) return false;
-    if (!('filterKey' in value) || value['filterKey'] === undefined) return false;
+    if (!('cited_by_count' in value) || value['cited_by_count'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
+    if (!('entity_type' in value) || value['entity_type'] === undefined) return false;
+    if (!('external_id' in value) || value['external_id'] === undefined) return false;
+    if (!('filter_key' in value) || value['filter_key'] === undefined) return false;
     if (!('hint' in value) || value['hint'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('worksCount' in value) || value['worksCount'] === undefined) return false;
+    if (!('works_count' in value) || value['works_count'] === undefined) return false;
     return true;
 }
 
@@ -94,31 +94,36 @@ export function AutoCompleteResultItemFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'citedByCount': json['cited_by_count'],
-        'displayName': json['display_name'],
-        'entityType': json['entity_type'],
-        'externalId': json['external_id'],
-        'filterKey': json['filter_key'],
+        'cited_by_count': json['cited_by_count'],
+        'display_name': json['display_name'],
+        'entity_type': json['entity_type'],
+        'external_id': json['external_id'],
+        'filter_key': json['filter_key'],
         'hint': json['hint'],
         'id': json['id'],
-        'worksCount': json['works_count'],
+        'works_count': json['works_count'],
     };
 }
 
-export function AutoCompleteResultItemToJSON(value?: AutoCompleteResultItem | null): any {
+export function AutoCompleteResultItemToJSON(json: any): AutoCompleteResultItem {
+    return AutoCompleteResultItemToJSONTyped(json, false);
+}
+
+export function AutoCompleteResultItemToJSONTyped(value?: AutoCompleteResultItem | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'cited_by_count': value['citedByCount'],
-        'display_name': value['displayName'],
-        'entity_type': value['entityType'],
-        'external_id': value['externalId'],
-        'filter_key': value['filterKey'],
+        'cited_by_count': value['cited_by_count'],
+        'display_name': value['display_name'],
+        'entity_type': value['entity_type'],
+        'external_id': value['external_id'],
+        'filter_key': value['filter_key'],
         'hint': value['hint'],
         'id': value['id'],
-        'works_count': value['worksCount'],
+        'works_count': value['works_count'],
     };
 }
 

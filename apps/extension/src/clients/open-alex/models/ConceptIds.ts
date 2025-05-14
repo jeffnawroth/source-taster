@@ -36,7 +36,7 @@ export interface ConceptIds {
      * @type {Array<string>}
      * @memberof ConceptIds
      */
-    umlsCui?: Array<string>;
+    umls_cui?: Array<string>;
     /**
      * 
      * @type {string}
@@ -71,21 +71,26 @@ export function ConceptIdsFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'mag': json['mag'] == null ? undefined : json['mag'],
         'openalex': json['openalex'],
-        'umlsCui': json['umls_cui'] == null ? undefined : json['umls_cui'],
+        'umls_cui': json['umls_cui'] == null ? undefined : json['umls_cui'],
         'wikidata': json['wikidata'] == null ? undefined : json['wikidata'],
         'wikipedia': json['wikipedia'] == null ? undefined : json['wikipedia'],
     };
 }
 
-export function ConceptIdsToJSON(value?: ConceptIds | null): any {
+export function ConceptIdsToJSON(json: any): ConceptIds {
+    return ConceptIdsToJSONTyped(json, false);
+}
+
+export function ConceptIdsToJSONTyped(value?: ConceptIds | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'mag': value['mag'],
         'openalex': value['openalex'],
-        'umls_cui': value['umlsCui'],
+        'umls_cui': value['umls_cui'],
         'wikidata': value['wikidata'],
         'wikipedia': value['wikipedia'],
     };

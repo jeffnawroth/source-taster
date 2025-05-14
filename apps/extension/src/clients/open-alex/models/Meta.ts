@@ -30,13 +30,7 @@ export interface Meta {
      * @type {number}
      * @memberof Meta
      */
-    dbResponseTimeMs: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof Meta
-     */
-    groupsCount: string;
+    db_response_time_ms: number;
     /**
      * 
      * @type {number}
@@ -48,7 +42,13 @@ export interface Meta {
      * @type {number}
      * @memberof Meta
      */
-    perPage: number;
+    per_page: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Meta
+     */
+    groups_count: string;
 }
 
 /**
@@ -56,10 +56,10 @@ export interface Meta {
  */
 export function instanceOfMeta(value: object): value is Meta {
     if (!('count' in value) || value['count'] === undefined) return false;
-    if (!('dbResponseTimeMs' in value) || value['dbResponseTimeMs'] === undefined) return false;
-    if (!('groupsCount' in value) || value['groupsCount'] === undefined) return false;
+    if (!('db_response_time_ms' in value) || value['db_response_time_ms'] === undefined) return false;
     if (!('page' in value) || value['page'] === undefined) return false;
-    if (!('perPage' in value) || value['perPage'] === undefined) return false;
+    if (!('per_page' in value) || value['per_page'] === undefined) return false;
+    if (!('groups_count' in value) || value['groups_count'] === undefined) return false;
     return true;
 }
 
@@ -74,24 +74,29 @@ export function MetaFromJSONTyped(json: any, ignoreDiscriminator: boolean): Meta
     return {
         
         'count': json['count'],
-        'dbResponseTimeMs': json['db_response_time_ms'],
-        'groupsCount': json['groups_count'],
+        'db_response_time_ms': json['db_response_time_ms'],
         'page': json['page'],
-        'perPage': json['per_page'],
+        'per_page': json['per_page'],
+        'groups_count': json['groups_count'],
     };
 }
 
-export function MetaToJSON(value?: Meta | null): any {
+export function MetaToJSON(json: any): Meta {
+    return MetaToJSONTyped(json, false);
+}
+
+export function MetaToJSONTyped(value?: Meta | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'count': value['count'],
-        'db_response_time_ms': value['dbResponseTimeMs'],
-        'groups_count': value['groupsCount'],
+        'db_response_time_ms': value['db_response_time_ms'],
         'page': value['page'],
-        'per_page': value['perPage'],
+        'per_page': value['per_page'],
+        'groups_count': value['groups_count'],
     };
 }
 

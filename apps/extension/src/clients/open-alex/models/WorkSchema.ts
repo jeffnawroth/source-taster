@@ -18,78 +18,91 @@ import {
     WorkGrantsInnerFromJSON,
     WorkGrantsInnerFromJSONTyped,
     WorkGrantsInnerToJSON,
+    WorkGrantsInnerToJSONTyped,
 } from './WorkGrantsInner';
-import type { DehydratedConceptArray } from './DehydratedConceptArray';
+import type { CountsByYearInner } from './CountsByYearInner';
 import {
-    DehydratedConceptArrayFromJSON,
-    DehydratedConceptArrayFromJSONTyped,
-    DehydratedConceptArrayToJSON,
-} from './DehydratedConceptArray';
+    CountsByYearInnerFromJSON,
+    CountsByYearInnerFromJSONTyped,
+    CountsByYearInnerToJSON,
+    CountsByYearInnerToJSONTyped,
+} from './CountsByYearInner';
 import type { WorkSustainableDevelopmentGoalsInner } from './WorkSustainableDevelopmentGoalsInner';
 import {
     WorkSustainableDevelopmentGoalsInnerFromJSON,
     WorkSustainableDevelopmentGoalsInnerFromJSONTyped,
     WorkSustainableDevelopmentGoalsInnerToJSON,
+    WorkSustainableDevelopmentGoalsInnerToJSONTyped,
 } from './WorkSustainableDevelopmentGoalsInner';
-import type { Authorships } from './Authorships';
+import type { DehydratedConcept } from './DehydratedConcept';
 import {
-    AuthorshipsFromJSON,
-    AuthorshipsFromJSONTyped,
-    AuthorshipsToJSON,
-} from './Authorships';
-import type { CountsByYear } from './CountsByYear';
-import {
-    CountsByYearFromJSON,
-    CountsByYearFromJSONTyped,
-    CountsByYearToJSON,
-} from './CountsByYear';
+    DehydratedConceptFromJSON,
+    DehydratedConceptFromJSONTyped,
+    DehydratedConceptToJSON,
+    DehydratedConceptToJSONTyped,
+} from './DehydratedConcept';
 import type { WorkOpenAccess } from './WorkOpenAccess';
 import {
     WorkOpenAccessFromJSON,
     WorkOpenAccessFromJSONTyped,
     WorkOpenAccessToJSON,
+    WorkOpenAccessToJSONTyped,
 } from './WorkOpenAccess';
 import type { Apc } from './Apc';
 import {
     ApcFromJSON,
     ApcFromJSONTyped,
     ApcToJSON,
+    ApcToJSONTyped,
 } from './Apc';
+import type { AuthorshipsInner } from './AuthorshipsInner';
+import {
+    AuthorshipsInnerFromJSON,
+    AuthorshipsInnerFromJSONTyped,
+    AuthorshipsInnerToJSON,
+    AuthorshipsInnerToJSONTyped,
+} from './AuthorshipsInner';
 import type { WorkKeywordsInner } from './WorkKeywordsInner';
 import {
     WorkKeywordsInnerFromJSON,
     WorkKeywordsInnerFromJSONTyped,
     WorkKeywordsInnerToJSON,
+    WorkKeywordsInnerToJSONTyped,
 } from './WorkKeywordsInner';
 import type { WorkMeshInner } from './WorkMeshInner';
 import {
     WorkMeshInnerFromJSON,
     WorkMeshInnerFromJSONTyped,
     WorkMeshInnerToJSON,
+    WorkMeshInnerToJSONTyped,
 } from './WorkMeshInner';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
 import type { WorkCitedByPercentileYear } from './WorkCitedByPercentileYear';
 import {
     WorkCitedByPercentileYearFromJSON,
     WorkCitedByPercentileYearFromJSONTyped,
     WorkCitedByPercentileYearToJSON,
+    WorkCitedByPercentileYearToJSONTyped,
 } from './WorkCitedByPercentileYear';
 import type { Location } from './Location';
 import {
     LocationFromJSON,
     LocationFromJSONTyped,
     LocationToJSON,
+    LocationToJSONTyped,
 } from './Location';
 import type { WorkBiblio } from './WorkBiblio';
 import {
     WorkBiblioFromJSON,
     WorkBiblioFromJSONTyped,
     WorkBiblioToJSON,
+    WorkBiblioToJSONTyped,
 } from './WorkBiblio';
 
 /**
@@ -103,31 +116,31 @@ export interface WorkSchema {
      * @type {object}
      * @memberof WorkSchema
      */
-    abstractInvertedIndex?: object;
+    abstract_inverted_index?: object;
     /**
      * 
      * @type {Apc}
      * @memberof WorkSchema
      */
-    apcList?: Apc;
+    apc_list?: Apc;
     /**
      * 
      * @type {Apc}
      * @memberof WorkSchema
      */
-    apcPaid?: Apc;
+    apc_paid?: Apc;
     /**
      * 
-     * @type {Authorships}
+     * @type {Array<AuthorshipsInner>}
      * @memberof WorkSchema
      */
-    authorships?: Authorships;
+    authorships?: Array<AuthorshipsInner>;
     /**
      * 
      * @type {Location}
      * @memberof WorkSchema
      */
-    bestOaLocation?: Location;
+    best_oa_location?: Location;
     /**
      * 
      * @type {WorkBiblio}
@@ -139,61 +152,61 @@ export interface WorkSchema {
      * @type {string}
      * @memberof WorkSchema
      */
-    citedByApiUrl?: string;
+    cited_by_api_url?: string;
     /**
      * 
      * @type {number}
      * @memberof WorkSchema
      */
-    citedByCount?: number;
+    cited_by_count?: number;
     /**
      * 
      * @type {WorkCitedByPercentileYear}
      * @memberof WorkSchema
      */
-    citedByPercentileYear?: WorkCitedByPercentileYear;
+    cited_by_percentile_year?: WorkCitedByPercentileYear;
     /**
      * 
-     * @type {DehydratedConceptArray}
+     * @type {Array<DehydratedConcept>}
      * @memberof WorkSchema
      */
-    concepts?: DehydratedConceptArray;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof WorkSchema
-     */
-    correspondingAuthorIds?: Array<string>;
+    concepts?: Array<DehydratedConcept>;
     /**
      * 
      * @type {Array<string>}
      * @memberof WorkSchema
      */
-    correspondingInstitutionIds?: Array<string>;
+    corresponding_author_ids?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof WorkSchema
+     */
+    corresponding_institution_ids?: Array<string>;
     /**
      * 
      * @type {number}
      * @memberof WorkSchema
      */
-    countriesDistinctCount?: number;
+    countries_distinct_count?: number;
     /**
      * 
-     * @type {CountsByYear}
+     * @type {Array<CountsByYearInner>}
      * @memberof WorkSchema
      */
-    countsByYear?: CountsByYear;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkSchema
-     */
-    createdDate?: string;
+    counts_by_year?: Array<CountsByYearInner>;
     /**
      * 
      * @type {string}
      * @memberof WorkSchema
      */
-    displayName: string;
+    created_date?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkSchema
+     */
+    display_name: string;
     /**
      * 
      * @type {string}
@@ -211,7 +224,7 @@ export interface WorkSchema {
      * @type {boolean}
      * @memberof WorkSchema
      */
-    hasFulltext?: boolean;
+    has_fulltext?: boolean;
     /**
      * 
      * @type {string}
@@ -229,19 +242,19 @@ export interface WorkSchema {
      * @type {number}
      * @memberof WorkSchema
      */
-    institutionsDistinctCount?: number;
+    institutions_distinct_count?: number;
     /**
      * 
      * @type {boolean}
      * @memberof WorkSchema
      */
-    isParatext?: boolean;
+    is_paratext?: boolean;
     /**
      * 
      * @type {boolean}
      * @memberof WorkSchema
      */
-    isRetracted?: boolean;
+    is_retracted?: boolean;
     /**
      * 
      * @type {Array<WorkKeywordsInner>}
@@ -265,7 +278,7 @@ export interface WorkSchema {
      * @type {number}
      * @memberof WorkSchema
      */
-    locationsCount?: number;
+    locations_count?: number;
     /**
      * 
      * @type {Array<WorkMeshInner>}
@@ -277,55 +290,55 @@ export interface WorkSchema {
      * @type {string}
      * @memberof WorkSchema
      */
-    ngramsUrl?: string;
+    ngrams_url?: string;
     /**
      * 
      * @type {WorkOpenAccess}
      * @memberof WorkSchema
      */
-    openAccess?: WorkOpenAccess;
+    open_access?: WorkOpenAccess;
     /**
      * 
      * @type {Location}
      * @memberof WorkSchema
      */
-    primaryLocation?: Location;
+    primary_location?: Location;
     /**
      * 
      * @type {string}
      * @memberof WorkSchema
      */
-    publicationDate?: string;
+    publication_date?: string;
     /**
      * 
      * @type {number}
      * @memberof WorkSchema
      */
-    publicationYear?: number;
+    publication_year?: number;
     /**
      * 
      * @type {Array<string>}
      * @memberof WorkSchema
      */
-    referencedWorks?: Array<string>;
+    referenced_works?: Array<string>;
     /**
      * 
      * @type {number}
      * @memberof WorkSchema
      */
-    referencedWorksCount?: number;
+    referenced_works_count?: number;
     /**
      * 
      * @type {Array<string>}
      * @memberof WorkSchema
      */
-    relatedWorks?: Array<string>;
+    related_works?: Array<string>;
     /**
      * 
      * @type {Array<WorkSustainableDevelopmentGoalsInner>}
      * @memberof WorkSchema
      */
-    sustainableDevelopmentGoals?: Array<WorkSustainableDevelopmentGoalsInner>;
+    sustainable_development_goals?: Array<WorkSustainableDevelopmentGoalsInner>;
     /**
      * 
      * @type {string}
@@ -343,20 +356,20 @@ export interface WorkSchema {
      * @type {string}
      * @memberof WorkSchema
      */
-    typeCrossref?: string;
+    type_crossref?: string;
     /**
      * 
      * @type {string}
      * @memberof WorkSchema
      */
-    updatedDate?: string;
+    updated_date?: string;
 }
 
 /**
  * Check if a given object implements the WorkSchema interface.
  */
 export function instanceOfWorkSchema(value: object): value is WorkSchema {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -371,99 +384,104 @@ export function WorkSchemaFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-        'abstractInvertedIndex': json['abstract_inverted_index'] == null ? undefined : json['abstract_inverted_index'],
-        'apcList': json['apc_list'] == null ? undefined : ApcFromJSON(json['apc_list']),
-        'apcPaid': json['apc_paid'] == null ? undefined : ApcFromJSON(json['apc_paid']),
-        'authorships': json['authorships'] == null ? undefined : AuthorshipsFromJSON(json['authorships']),
-        'bestOaLocation': json['best_oa_location'] == null ? undefined : LocationFromJSON(json['best_oa_location']),
+        'abstract_inverted_index': json['abstract_inverted_index'] == null ? undefined : json['abstract_inverted_index'],
+        'apc_list': json['apc_list'] == null ? undefined : ApcFromJSON(json['apc_list']),
+        'apc_paid': json['apc_paid'] == null ? undefined : ApcFromJSON(json['apc_paid']),
+        'authorships': json['authorships'] == null ? undefined : ((json['authorships'] as Array<any>).map(AuthorshipsInnerFromJSON)),
+        'best_oa_location': json['best_oa_location'] == null ? undefined : LocationFromJSON(json['best_oa_location']),
         'biblio': json['biblio'] == null ? undefined : WorkBiblioFromJSON(json['biblio']),
-        'citedByApiUrl': json['cited_by_api_url'] == null ? undefined : json['cited_by_api_url'],
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'citedByPercentileYear': json['cited_by_percentile_year'] == null ? undefined : WorkCitedByPercentileYearFromJSON(json['cited_by_percentile_year']),
-        'concepts': json['concepts'] == null ? undefined : DehydratedConceptArrayFromJSON(json['concepts']),
-        'correspondingAuthorIds': json['corresponding_author_ids'] == null ? undefined : json['corresponding_author_ids'],
-        'correspondingInstitutionIds': json['corresponding_institution_ids'] == null ? undefined : json['corresponding_institution_ids'],
-        'countriesDistinctCount': json['countries_distinct_count'] == null ? undefined : json['countries_distinct_count'],
-        'countsByYear': json['counts_by_year'] == null ? undefined : CountsByYearFromJSON(json['counts_by_year']),
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
-        'displayName': json['display_name'],
+        'cited_by_api_url': json['cited_by_api_url'] == null ? undefined : json['cited_by_api_url'],
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'cited_by_percentile_year': json['cited_by_percentile_year'] == null ? undefined : WorkCitedByPercentileYearFromJSON(json['cited_by_percentile_year']),
+        'concepts': json['concepts'] == null ? undefined : ((json['concepts'] as Array<any>).map(DehydratedConceptFromJSON)),
+        'corresponding_author_ids': json['corresponding_author_ids'] == null ? undefined : json['corresponding_author_ids'],
+        'corresponding_institution_ids': json['corresponding_institution_ids'] == null ? undefined : json['corresponding_institution_ids'],
+        'countries_distinct_count': json['countries_distinct_count'] == null ? undefined : json['countries_distinct_count'],
+        'counts_by_year': json['counts_by_year'] == null ? undefined : ((json['counts_by_year'] as Array<any>).map(CountsByYearInnerFromJSON)),
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
+        'display_name': json['display_name'],
         'doi': json['doi'] == null ? undefined : json['doi'],
         'grants': json['grants'] == null ? undefined : ((json['grants'] as Array<any>).map(WorkGrantsInnerFromJSON)),
-        'hasFulltext': json['has_fulltext'] == null ? undefined : json['has_fulltext'],
+        'has_fulltext': json['has_fulltext'] == null ? undefined : json['has_fulltext'],
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : IdsFromJSON(json['ids']),
-        'institutionsDistinctCount': json['institutions_distinct_count'] == null ? undefined : json['institutions_distinct_count'],
-        'isParatext': json['is_paratext'] == null ? undefined : json['is_paratext'],
-        'isRetracted': json['is_retracted'] == null ? undefined : json['is_retracted'],
+        'institutions_distinct_count': json['institutions_distinct_count'] == null ? undefined : json['institutions_distinct_count'],
+        'is_paratext': json['is_paratext'] == null ? undefined : json['is_paratext'],
+        'is_retracted': json['is_retracted'] == null ? undefined : json['is_retracted'],
         'keywords': json['keywords'] == null ? undefined : ((json['keywords'] as Array<any>).map(WorkKeywordsInnerFromJSON)),
         'language': json['language'] == null ? undefined : json['language'],
         'locations': json['locations'] == null ? undefined : ((json['locations'] as Array<any>).map(LocationFromJSON)),
-        'locationsCount': json['locations_count'] == null ? undefined : json['locations_count'],
+        'locations_count': json['locations_count'] == null ? undefined : json['locations_count'],
         'mesh': json['mesh'] == null ? undefined : ((json['mesh'] as Array<any>).map(WorkMeshInnerFromJSON)),
-        'ngramsUrl': json['ngrams_url'] == null ? undefined : json['ngrams_url'],
-        'openAccess': json['open_access'] == null ? undefined : WorkOpenAccessFromJSON(json['open_access']),
-        'primaryLocation': json['primary_location'] == null ? undefined : LocationFromJSON(json['primary_location']),
-        'publicationDate': json['publication_date'] == null ? undefined : json['publication_date'],
-        'publicationYear': json['publication_year'] == null ? undefined : json['publication_year'],
-        'referencedWorks': json['referenced_works'] == null ? undefined : json['referenced_works'],
-        'referencedWorksCount': json['referenced_works_count'] == null ? undefined : json['referenced_works_count'],
-        'relatedWorks': json['related_works'] == null ? undefined : json['related_works'],
-        'sustainableDevelopmentGoals': json['sustainable_development_goals'] == null ? undefined : ((json['sustainable_development_goals'] as Array<any>).map(WorkSustainableDevelopmentGoalsInnerFromJSON)),
+        'ngrams_url': json['ngrams_url'] == null ? undefined : json['ngrams_url'],
+        'open_access': json['open_access'] == null ? undefined : WorkOpenAccessFromJSON(json['open_access']),
+        'primary_location': json['primary_location'] == null ? undefined : LocationFromJSON(json['primary_location']),
+        'publication_date': json['publication_date'] == null ? undefined : json['publication_date'],
+        'publication_year': json['publication_year'] == null ? undefined : json['publication_year'],
+        'referenced_works': json['referenced_works'] == null ? undefined : json['referenced_works'],
+        'referenced_works_count': json['referenced_works_count'] == null ? undefined : json['referenced_works_count'],
+        'related_works': json['related_works'] == null ? undefined : json['related_works'],
+        'sustainable_development_goals': json['sustainable_development_goals'] == null ? undefined : ((json['sustainable_development_goals'] as Array<any>).map(WorkSustainableDevelopmentGoalsInnerFromJSON)),
         'title': json['title'] == null ? undefined : json['title'],
         'type': json['type'] == null ? undefined : json['type'],
-        'typeCrossref': json['type_crossref'] == null ? undefined : json['type_crossref'],
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
+        'type_crossref': json['type_crossref'] == null ? undefined : json['type_crossref'],
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
     };
 }
 
-export function WorkSchemaToJSON(value?: WorkSchema | null): any {
+export function WorkSchemaToJSON(json: any): WorkSchema {
+    return WorkSchemaToJSONTyped(json, false);
+}
+
+export function WorkSchemaToJSONTyped(value?: WorkSchema | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'abstract_inverted_index': value['abstractInvertedIndex'],
-        'apc_list': ApcToJSON(value['apcList']),
-        'apc_paid': ApcToJSON(value['apcPaid']),
-        'authorships': AuthorshipsToJSON(value['authorships']),
-        'best_oa_location': LocationToJSON(value['bestOaLocation']),
+        'abstract_inverted_index': value['abstract_inverted_index'],
+        'apc_list': ApcToJSON(value['apc_list']),
+        'apc_paid': ApcToJSON(value['apc_paid']),
+        'authorships': value['authorships'] == null ? undefined : ((value['authorships'] as Array<any>).map(AuthorshipsInnerToJSON)),
+        'best_oa_location': LocationToJSON(value['best_oa_location']),
         'biblio': WorkBiblioToJSON(value['biblio']),
-        'cited_by_api_url': value['citedByApiUrl'],
-        'cited_by_count': value['citedByCount'],
-        'cited_by_percentile_year': WorkCitedByPercentileYearToJSON(value['citedByPercentileYear']),
-        'concepts': DehydratedConceptArrayToJSON(value['concepts']),
-        'corresponding_author_ids': value['correspondingAuthorIds'],
-        'corresponding_institution_ids': value['correspondingInstitutionIds'],
-        'countries_distinct_count': value['countriesDistinctCount'],
-        'counts_by_year': CountsByYearToJSON(value['countsByYear']),
-        'created_date': value['createdDate'],
-        'display_name': value['displayName'],
+        'cited_by_api_url': value['cited_by_api_url'],
+        'cited_by_count': value['cited_by_count'],
+        'cited_by_percentile_year': WorkCitedByPercentileYearToJSON(value['cited_by_percentile_year']),
+        'concepts': value['concepts'] == null ? undefined : ((value['concepts'] as Array<any>).map(DehydratedConceptToJSON)),
+        'corresponding_author_ids': value['corresponding_author_ids'],
+        'corresponding_institution_ids': value['corresponding_institution_ids'],
+        'countries_distinct_count': value['countries_distinct_count'],
+        'counts_by_year': value['counts_by_year'] == null ? undefined : ((value['counts_by_year'] as Array<any>).map(CountsByYearInnerToJSON)),
+        'created_date': value['created_date'],
+        'display_name': value['display_name'],
         'doi': value['doi'],
         'grants': value['grants'] == null ? undefined : ((value['grants'] as Array<any>).map(WorkGrantsInnerToJSON)),
-        'has_fulltext': value['hasFulltext'],
+        'has_fulltext': value['has_fulltext'],
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
-        'institutions_distinct_count': value['institutionsDistinctCount'],
-        'is_paratext': value['isParatext'],
-        'is_retracted': value['isRetracted'],
+        'institutions_distinct_count': value['institutions_distinct_count'],
+        'is_paratext': value['is_paratext'],
+        'is_retracted': value['is_retracted'],
         'keywords': value['keywords'] == null ? undefined : ((value['keywords'] as Array<any>).map(WorkKeywordsInnerToJSON)),
         'language': value['language'],
         'locations': value['locations'] == null ? undefined : ((value['locations'] as Array<any>).map(LocationToJSON)),
-        'locations_count': value['locationsCount'],
+        'locations_count': value['locations_count'],
         'mesh': value['mesh'] == null ? undefined : ((value['mesh'] as Array<any>).map(WorkMeshInnerToJSON)),
-        'ngrams_url': value['ngramsUrl'],
-        'open_access': WorkOpenAccessToJSON(value['openAccess']),
-        'primary_location': LocationToJSON(value['primaryLocation']),
-        'publication_date': value['publicationDate'],
-        'publication_year': value['publicationYear'],
-        'referenced_works': value['referencedWorks'],
-        'referenced_works_count': value['referencedWorksCount'],
-        'related_works': value['relatedWorks'],
-        'sustainable_development_goals': value['sustainableDevelopmentGoals'] == null ? undefined : ((value['sustainableDevelopmentGoals'] as Array<any>).map(WorkSustainableDevelopmentGoalsInnerToJSON)),
+        'ngrams_url': value['ngrams_url'],
+        'open_access': WorkOpenAccessToJSON(value['open_access']),
+        'primary_location': LocationToJSON(value['primary_location']),
+        'publication_date': value['publication_date'],
+        'publication_year': value['publication_year'],
+        'referenced_works': value['referenced_works'],
+        'referenced_works_count': value['referenced_works_count'],
+        'related_works': value['related_works'],
+        'sustainable_development_goals': value['sustainable_development_goals'] == null ? undefined : ((value['sustainable_development_goals'] as Array<any>).map(WorkSustainableDevelopmentGoalsInnerToJSON)),
         'title': value['title'],
         'type': value['type'],
-        'type_crossref': value['typeCrossref'],
-        'updated_date': value['updatedDate'],
+        'type_crossref': value['type_crossref'],
+        'updated_date': value['updated_date'],
     };
 }
 

@@ -24,28 +24,28 @@ export interface WorkGrantsInner {
      * @type {string}
      * @memberof WorkGrantsInner
      */
-    awardId: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkGrantsInner
-     */
     funder: string;
     /**
      * 
      * @type {string}
      * @memberof WorkGrantsInner
      */
-    funderDisplayName: string;
+    funder_display_name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkGrantsInner
+     */
+    award_id: string;
 }
 
 /**
  * Check if a given object implements the WorkGrantsInner interface.
  */
 export function instanceOfWorkGrantsInner(value: object): value is WorkGrantsInner {
-    if (!('awardId' in value) || value['awardId'] === undefined) return false;
     if (!('funder' in value) || value['funder'] === undefined) return false;
-    if (!('funderDisplayName' in value) || value['funderDisplayName'] === undefined) return false;
+    if (!('funder_display_name' in value) || value['funder_display_name'] === undefined) return false;
+    if (!('award_id' in value) || value['award_id'] === undefined) return false;
     return true;
 }
 
@@ -59,21 +59,26 @@ export function WorkGrantsInnerFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'awardId': json['award_id'],
         'funder': json['funder'],
-        'funderDisplayName': json['funder_display_name'],
+        'funder_display_name': json['funder_display_name'],
+        'award_id': json['award_id'],
     };
 }
 
-export function WorkGrantsInnerToJSON(value?: WorkGrantsInner | null): any {
+export function WorkGrantsInnerToJSON(json: any): WorkGrantsInner {
+    return WorkGrantsInnerToJSONTyped(json, false);
+}
+
+export function WorkGrantsInnerToJSONTyped(value?: WorkGrantsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'award_id': value['awardId'],
         'funder': value['funder'],
-        'funder_display_name': value['funderDisplayName'],
+        'funder_display_name': value['funder_display_name'],
+        'award_id': value['award_id'],
     };
 }
 

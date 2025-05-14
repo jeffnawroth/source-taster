@@ -24,7 +24,7 @@ export interface SubfieldTopicsInner {
      * @type {string}
      * @memberof SubfieldTopicsInner
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {string}
@@ -37,7 +37,7 @@ export interface SubfieldTopicsInner {
  * Check if a given object implements the SubfieldTopicsInner interface.
  */
 export function instanceOfSubfieldTopicsInner(value: object): value is SubfieldTopicsInner {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -52,18 +52,23 @@ export function SubfieldTopicsInnerFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-        'displayName': json['display_name'],
+        'display_name': json['display_name'],
         'id': json['id'],
     };
 }
 
-export function SubfieldTopicsInnerToJSON(value?: SubfieldTopicsInner | null): any {
+export function SubfieldTopicsInnerToJSON(json: any): SubfieldTopicsInner {
+    return SubfieldTopicsInnerToJSONTyped(json, false);
+}
+
+export function SubfieldTopicsInnerToJSONTyped(value?: SubfieldTopicsInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
+        'display_name': value['display_name'],
         'id': value['id'],
     };
 }

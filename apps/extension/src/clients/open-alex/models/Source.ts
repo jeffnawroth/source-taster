@@ -13,42 +13,41 @@
  */
 
 import { mapValues } from '../runtime';
-import type { CountsByYear } from './CountsByYear';
+import type { CountsByYearInner } from './CountsByYearInner';
 import {
-    CountsByYearFromJSON,
-    CountsByYearFromJSONTyped,
-    CountsByYearToJSON,
-} from './CountsByYear';
-import type { DehydratedConceptArray } from './DehydratedConceptArray';
-import {
-    DehydratedConceptArrayFromJSON,
-    DehydratedConceptArrayFromJSONTyped,
-    DehydratedConceptArrayToJSON,
-} from './DehydratedConceptArray';
+    CountsByYearInnerFromJSON,
+    CountsByYearInnerFromJSONTyped,
+    CountsByYearInnerToJSON,
+    CountsByYearInnerToJSONTyped,
+} from './CountsByYearInner';
 import type { SourceSocietiesInner } from './SourceSocietiesInner';
 import {
     SourceSocietiesInnerFromJSON,
     SourceSocietiesInnerFromJSONTyped,
     SourceSocietiesInnerToJSON,
+    SourceSocietiesInnerToJSONTyped,
 } from './SourceSocietiesInner';
-import type { ApcPrices } from './ApcPrices';
-import {
-    ApcPricesFromJSON,
-    ApcPricesFromJSONTyped,
-    ApcPricesToJSON,
-} from './ApcPrices';
 import type { SummaryStats } from './SummaryStats';
 import {
     SummaryStatsFromJSON,
     SummaryStatsFromJSONTyped,
     SummaryStatsToJSON,
+    SummaryStatsToJSONTyped,
 } from './SummaryStats';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
+import type { DehydratedConcept } from './DehydratedConcept';
+import {
+    DehydratedConceptFromJSON,
+    DehydratedConceptFromJSONTyped,
+    DehydratedConceptToJSON,
+    DehydratedConceptToJSONTyped,
+} from './DehydratedConcept';
 
 /**
  * 
@@ -61,79 +60,79 @@ export interface Source {
      * @type {string}
      * @memberof Source
      */
-    abbreviatedTitle?: string;
+    abbreviated_title?: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof Source
      */
-    alternateTitles?: Array<string>;
+    alternate_titles?: Array<string>;
     /**
      * 
-     * @type {ApcPrices}
+     * @type {Array<object>}
      * @memberof Source
      */
-    apcPrices?: ApcPrices;
-    /**
-     * 
-     * @type {number}
-     * @memberof Source
-     */
-    apcUsd?: number;
+    apc_prices?: Array<object>;
     /**
      * 
      * @type {number}
      * @memberof Source
      */
-    citedByCount?: number;
+    apc_usd?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Source
+     */
+    cited_by_count?: number;
     /**
      * 
      * @type {string}
      * @memberof Source
      */
-    countryCode?: string;
+    country_code?: string;
     /**
      * 
-     * @type {CountsByYear}
+     * @type {Array<CountsByYearInner>}
      * @memberof Source
      */
-    countsByYear?: CountsByYear;
-    /**
-     * 
-     * @type {string}
-     * @memberof Source
-     */
-    createdDate?: string;
+    counts_by_year?: Array<CountsByYearInner>;
     /**
      * 
      * @type {string}
      * @memberof Source
      */
-    displayName: string;
+    created_date?: string;
     /**
      * 
      * @type {string}
      * @memberof Source
      */
-    homepageUrl?: string;
+    display_name: string;
     /**
      * 
      * @type {string}
      * @memberof Source
      */
-    hostOrganization?: string;
+    homepage_url?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Source
+     */
+    host_organization?: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof Source
      */
-    hostOrganizationLineage?: Array<string>;
+    host_organization_lineage?: Array<string>;
     /**
      * 
      * @type {string}
      * @memberof Source
      */
-    hostOrganizationName?: string;
+    host_organization_name?: string;
     /**
      * 
      * @type {string}
@@ -151,13 +150,13 @@ export interface Source {
      * @type {boolean}
      * @memberof Source
      */
-    isInDoaj?: boolean;
+    is_in_doaj?: boolean;
     /**
      * 
      * @type {boolean}
      * @memberof Source
      */
-    isOa?: boolean;
+    is_oa?: boolean;
     /**
      * 
      * @type {Array<string>}
@@ -169,7 +168,7 @@ export interface Source {
      * @type {string}
      * @memberof Source
      */
-    issnL?: string;
+    issn_l?: string;
     /**
      * 
      * @type {Array<SourceSocietiesInner>}
@@ -181,7 +180,7 @@ export interface Source {
      * @type {SummaryStats}
      * @memberof Source
      */
-    summaryStats?: SummaryStats;
+    summary_stats?: SummaryStats;
     /**
      * 
      * @type {string}
@@ -193,32 +192,32 @@ export interface Source {
      * @type {string}
      * @memberof Source
      */
-    updatedDate?: string;
+    updated_date?: string;
     /**
      * 
      * @type {string}
      * @memberof Source
      */
-    worksApiUrl?: string;
+    works_api_url?: string;
     /**
      * 
      * @type {number}
      * @memberof Source
      */
-    worksCount?: number;
+    works_count?: number;
     /**
      * 
-     * @type {DehydratedConceptArray}
+     * @type {Array<DehydratedConcept>}
      * @memberof Source
      */
-    xConcepts?: DehydratedConceptArray;
+    x_concepts?: Array<DehydratedConcept>;
 }
 
 /**
  * Check if a given object implements the Source interface.
  */
 export function instanceOfSource(value: object): value is Source {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -233,67 +232,72 @@ export function SourceFromJSONTyped(json: any, ignoreDiscriminator: boolean): So
     }
     return {
         
-        'abbreviatedTitle': json['abbreviated_title'] == null ? undefined : json['abbreviated_title'],
-        'alternateTitles': json['alternate_titles'] == null ? undefined : json['alternate_titles'],
-        'apcPrices': json['apc_prices'] == null ? undefined : ApcPricesFromJSON(json['apc_prices']),
-        'apcUsd': json['apc_usd'] == null ? undefined : json['apc_usd'],
-        'citedByCount': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
-        'countryCode': json['country_code'] == null ? undefined : json['country_code'],
-        'countsByYear': json['counts_by_year'] == null ? undefined : CountsByYearFromJSON(json['counts_by_year']),
-        'createdDate': json['created_date'] == null ? undefined : json['created_date'],
-        'displayName': json['display_name'],
-        'homepageUrl': json['homepage_url'] == null ? undefined : json['homepage_url'],
-        'hostOrganization': json['host_organization'] == null ? undefined : json['host_organization'],
-        'hostOrganizationLineage': json['host_organization_lineage'] == null ? undefined : json['host_organization_lineage'],
-        'hostOrganizationName': json['host_organization_name'] == null ? undefined : json['host_organization_name'],
+        'abbreviated_title': json['abbreviated_title'] == null ? undefined : json['abbreviated_title'],
+        'alternate_titles': json['alternate_titles'] == null ? undefined : json['alternate_titles'],
+        'apc_prices': json['apc_prices'] == null ? undefined : json['apc_prices'],
+        'apc_usd': json['apc_usd'] == null ? undefined : json['apc_usd'],
+        'cited_by_count': json['cited_by_count'] == null ? undefined : json['cited_by_count'],
+        'country_code': json['country_code'] == null ? undefined : json['country_code'],
+        'counts_by_year': json['counts_by_year'] == null ? undefined : ((json['counts_by_year'] as Array<any>).map(CountsByYearInnerFromJSON)),
+        'created_date': json['created_date'] == null ? undefined : json['created_date'],
+        'display_name': json['display_name'],
+        'homepage_url': json['homepage_url'] == null ? undefined : json['homepage_url'],
+        'host_organization': json['host_organization'] == null ? undefined : json['host_organization'],
+        'host_organization_lineage': json['host_organization_lineage'] == null ? undefined : json['host_organization_lineage'],
+        'host_organization_name': json['host_organization_name'] == null ? undefined : json['host_organization_name'],
         'id': json['id'],
         'ids': json['ids'] == null ? undefined : IdsFromJSON(json['ids']),
-        'isInDoaj': json['is_in_doaj'] == null ? undefined : json['is_in_doaj'],
-        'isOa': json['is_oa'] == null ? undefined : json['is_oa'],
+        'is_in_doaj': json['is_in_doaj'] == null ? undefined : json['is_in_doaj'],
+        'is_oa': json['is_oa'] == null ? undefined : json['is_oa'],
         'issn': json['issn'] == null ? undefined : json['issn'],
-        'issnL': json['issn_l'] == null ? undefined : json['issn_l'],
+        'issn_l': json['issn_l'] == null ? undefined : json['issn_l'],
         'societies': json['societies'] == null ? undefined : ((json['societies'] as Array<any>).map(SourceSocietiesInnerFromJSON)),
-        'summaryStats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
+        'summary_stats': json['summary_stats'] == null ? undefined : SummaryStatsFromJSON(json['summary_stats']),
         'type': json['type'] == null ? undefined : json['type'],
-        'updatedDate': json['updated_date'] == null ? undefined : json['updated_date'],
-        'worksApiUrl': json['works_api_url'] == null ? undefined : json['works_api_url'],
-        'worksCount': json['works_count'] == null ? undefined : json['works_count'],
-        'xConcepts': json['x_concepts'] == null ? undefined : DehydratedConceptArrayFromJSON(json['x_concepts']),
+        'updated_date': json['updated_date'] == null ? undefined : json['updated_date'],
+        'works_api_url': json['works_api_url'] == null ? undefined : json['works_api_url'],
+        'works_count': json['works_count'] == null ? undefined : json['works_count'],
+        'x_concepts': json['x_concepts'] == null ? undefined : ((json['x_concepts'] as Array<any>).map(DehydratedConceptFromJSON)),
     };
 }
 
-export function SourceToJSON(value?: Source | null): any {
+export function SourceToJSON(json: any): Source {
+    return SourceToJSONTyped(json, false);
+}
+
+export function SourceToJSONTyped(value?: Source | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'abbreviated_title': value['abbreviatedTitle'],
-        'alternate_titles': value['alternateTitles'],
-        'apc_prices': ApcPricesToJSON(value['apcPrices']),
-        'apc_usd': value['apcUsd'],
-        'cited_by_count': value['citedByCount'],
-        'country_code': value['countryCode'],
-        'counts_by_year': CountsByYearToJSON(value['countsByYear']),
-        'created_date': value['createdDate'],
-        'display_name': value['displayName'],
-        'homepage_url': value['homepageUrl'],
-        'host_organization': value['hostOrganization'],
-        'host_organization_lineage': value['hostOrganizationLineage'],
-        'host_organization_name': value['hostOrganizationName'],
+        'abbreviated_title': value['abbreviated_title'],
+        'alternate_titles': value['alternate_titles'],
+        'apc_prices': value['apc_prices'],
+        'apc_usd': value['apc_usd'],
+        'cited_by_count': value['cited_by_count'],
+        'country_code': value['country_code'],
+        'counts_by_year': value['counts_by_year'] == null ? undefined : ((value['counts_by_year'] as Array<any>).map(CountsByYearInnerToJSON)),
+        'created_date': value['created_date'],
+        'display_name': value['display_name'],
+        'homepage_url': value['homepage_url'],
+        'host_organization': value['host_organization'],
+        'host_organization_lineage': value['host_organization_lineage'],
+        'host_organization_name': value['host_organization_name'],
         'id': value['id'],
         'ids': IdsToJSON(value['ids']),
-        'is_in_doaj': value['isInDoaj'],
-        'is_oa': value['isOa'],
+        'is_in_doaj': value['is_in_doaj'],
+        'is_oa': value['is_oa'],
         'issn': value['issn'],
-        'issn_l': value['issnL'],
+        'issn_l': value['issn_l'],
         'societies': value['societies'] == null ? undefined : ((value['societies'] as Array<any>).map(SourceSocietiesInnerToJSON)),
-        'summary_stats': SummaryStatsToJSON(value['summaryStats']),
+        'summary_stats': SummaryStatsToJSON(value['summary_stats']),
         'type': value['type'],
-        'updated_date': value['updatedDate'],
-        'works_api_url': value['worksApiUrl'],
-        'works_count': value['worksCount'],
-        'x_concepts': DehydratedConceptArrayToJSON(value['xConcepts']),
+        'updated_date': value['updated_date'],
+        'works_api_url': value['works_api_url'],
+        'works_count': value['works_count'],
+        'x_concepts': value['x_concepts'] == null ? undefined : ((value['x_concepts'] as Array<any>).map(DehydratedConceptToJSON)),
     };
 }
 

@@ -21,38 +21,38 @@ import { mapValues } from '../runtime';
 export interface Apc {
     /**
      * 
-     * @type {string}
-     * @memberof Apc
-     */
-    currency: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof Apc
-     */
-    provenance: string;
-    /**
-     * 
      * @type {number}
      * @memberof Apc
      */
     value: number;
     /**
      * 
+     * @type {string}
+     * @memberof Apc
+     */
+    currency: string;
+    /**
+     * 
      * @type {number}
      * @memberof Apc
      */
-    valueUsd: number;
+    value_usd: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Apc
+     */
+    provenance: string;
 }
 
 /**
  * Check if a given object implements the Apc interface.
  */
 export function instanceOfApc(value: object): value is Apc {
-    if (!('currency' in value) || value['currency'] === undefined) return false;
-    if (!('provenance' in value) || value['provenance'] === undefined) return false;
     if (!('value' in value) || value['value'] === undefined) return false;
-    if (!('valueUsd' in value) || value['valueUsd'] === undefined) return false;
+    if (!('currency' in value) || value['currency'] === undefined) return false;
+    if (!('value_usd' in value) || value['value_usd'] === undefined) return false;
+    if (!('provenance' in value) || value['provenance'] === undefined) return false;
     return true;
 }
 
@@ -66,23 +66,28 @@ export function ApcFromJSONTyped(json: any, ignoreDiscriminator: boolean): Apc {
     }
     return {
         
-        'currency': json['currency'],
-        'provenance': json['provenance'],
         'value': json['value'],
-        'valueUsd': json['value_usd'],
+        'currency': json['currency'],
+        'value_usd': json['value_usd'],
+        'provenance': json['provenance'],
     };
 }
 
-export function ApcToJSON(value?: Apc | null): any {
+export function ApcToJSON(json: any): Apc {
+    return ApcToJSONTyped(json, false);
+}
+
+export function ApcToJSONTyped(value?: Apc | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'currency': value['currency'],
-        'provenance': value['provenance'],
         'value': value['value'],
-        'value_usd': value['valueUsd'],
+        'currency': value['currency'],
+        'value_usd': value['value_usd'],
+        'provenance': value['provenance'],
     };
 }
 

@@ -18,18 +18,21 @@ import {
     TopicLevelArraySchemaFromJSON,
     TopicLevelArraySchemaFromJSONTyped,
     TopicLevelArraySchemaToJSON,
+    TopicLevelArraySchemaToJSONTyped,
 } from './TopicLevelArraySchema';
 import type { TopicLevelSchema } from './TopicLevelSchema';
 import {
     TopicLevelSchemaFromJSON,
     TopicLevelSchemaFromJSONTyped,
     TopicLevelSchemaToJSON,
+    TopicLevelSchemaToJSONTyped,
 } from './TopicLevelSchema';
 import type { Ids } from './Ids';
 import {
     IdsFromJSON,
     IdsFromJSONTyped,
     IdsToJSON,
+    IdsToJSONTyped,
 } from './Ids';
 
 /**
@@ -43,13 +46,13 @@ export interface Topic {
      * @type {number}
      * @memberof Topic
      */
-    citedByCount: number;
+    cited_by_count: number;
     /**
      * 
      * @type {string}
      * @memberof Topic
      */
-    createdDate: string;
+    created_date: string;
     /**
      * 
      * @type {string}
@@ -61,7 +64,7 @@ export interface Topic {
      * @type {string}
      * @memberof Topic
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {TopicLevelArraySchema}
@@ -109,23 +112,23 @@ export interface Topic {
      * @type {string}
      * @memberof Topic
      */
-    updatedDate: string;
+    updated_date: string;
     /**
      * 
      * @type {number}
      * @memberof Topic
      */
-    worksCount: number;
+    works_count: number;
 }
 
 /**
  * Check if a given object implements the Topic interface.
  */
 export function instanceOfTopic(value: object): value is Topic {
-    if (!('citedByCount' in value) || value['citedByCount'] === undefined) return false;
-    if (!('createdDate' in value) || value['createdDate'] === undefined) return false;
+    if (!('cited_by_count' in value) || value['cited_by_count'] === undefined) return false;
+    if (!('created_date' in value) || value['created_date'] === undefined) return false;
     if (!('description' in value) || value['description'] === undefined) return false;
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
     if (!('domain' in value) || value['domain'] === undefined) return false;
     if (!('field' in value) || value['field'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
@@ -133,8 +136,8 @@ export function instanceOfTopic(value: object): value is Topic {
     if (!('keywords' in value) || value['keywords'] === undefined) return false;
     if (!('siblings' in value) || value['siblings'] === undefined) return false;
     if (!('subfield' in value) || value['subfield'] === undefined) return false;
-    if (!('updatedDate' in value) || value['updatedDate'] === undefined) return false;
-    if (!('worksCount' in value) || value['worksCount'] === undefined) return false;
+    if (!('updated_date' in value) || value['updated_date'] === undefined) return false;
+    if (!('works_count' in value) || value['works_count'] === undefined) return false;
     return true;
 }
 
@@ -148,10 +151,10 @@ export function TopicFromJSONTyped(json: any, ignoreDiscriminator: boolean): Top
     }
     return {
         
-        'citedByCount': json['cited_by_count'],
-        'createdDate': json['created_date'],
+        'cited_by_count': json['cited_by_count'],
+        'created_date': json['created_date'],
         'description': json['description'],
-        'displayName': json['display_name'],
+        'display_name': json['display_name'],
         'domain': TopicLevelArraySchemaFromJSON(json['domain']),
         'field': TopicLevelArraySchemaFromJSON(json['field']),
         'id': json['id'],
@@ -159,21 +162,26 @@ export function TopicFromJSONTyped(json: any, ignoreDiscriminator: boolean): Top
         'keywords': json['keywords'],
         'siblings': TopicLevelSchemaFromJSON(json['siblings']),
         'subfield': TopicLevelArraySchemaFromJSON(json['subfield']),
-        'updatedDate': json['updated_date'],
-        'worksCount': json['works_count'],
+        'updated_date': json['updated_date'],
+        'works_count': json['works_count'],
     };
 }
 
-export function TopicToJSON(value?: Topic | null): any {
+export function TopicToJSON(json: any): Topic {
+    return TopicToJSONTyped(json, false);
+}
+
+export function TopicToJSONTyped(value?: Topic | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'cited_by_count': value['citedByCount'],
-        'created_date': value['createdDate'],
+        'cited_by_count': value['cited_by_count'],
+        'created_date': value['created_date'],
         'description': value['description'],
-        'display_name': value['displayName'],
+        'display_name': value['display_name'],
         'domain': TopicLevelArraySchemaToJSON(value['domain']),
         'field': TopicLevelArraySchemaToJSON(value['field']),
         'id': value['id'],
@@ -181,8 +189,8 @@ export function TopicToJSON(value?: Topic | null): any {
         'keywords': value['keywords'],
         'siblings': TopicLevelSchemaToJSON(value['siblings']),
         'subfield': TopicLevelArraySchemaToJSON(value['subfield']),
-        'updated_date': value['updatedDate'],
-        'works_count': value['worksCount'],
+        'updated_date': value['updated_date'],
+        'works_count': value['works_count'],
     };
 }
 

@@ -24,21 +24,21 @@ export interface WorkCitedByPercentileYear {
      * @type {number}
      * @memberof WorkCitedByPercentileYear
      */
-    max: number;
+    min: number;
     /**
      * 
      * @type {number}
      * @memberof WorkCitedByPercentileYear
      */
-    min: number;
+    max: number;
 }
 
 /**
  * Check if a given object implements the WorkCitedByPercentileYear interface.
  */
 export function instanceOfWorkCitedByPercentileYear(value: object): value is WorkCitedByPercentileYear {
-    if (!('max' in value) || value['max'] === undefined) return false;
     if (!('min' in value) || value['min'] === undefined) return false;
+    if (!('max' in value) || value['max'] === undefined) return false;
     return true;
 }
 
@@ -52,19 +52,24 @@ export function WorkCitedByPercentileYearFromJSONTyped(json: any, ignoreDiscrimi
     }
     return {
         
-        'max': json['max'],
         'min': json['min'],
+        'max': json['max'],
     };
 }
 
-export function WorkCitedByPercentileYearToJSON(value?: WorkCitedByPercentileYear | null): any {
+export function WorkCitedByPercentileYearToJSON(json: any): WorkCitedByPercentileYear {
+    return WorkCitedByPercentileYearToJSONTyped(json, false);
+}
+
+export function WorkCitedByPercentileYearToJSONTyped(value?: WorkCitedByPercentileYear | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'max': value['max'],
         'min': value['min'],
+        'max': value['max'],
     };
 }
 

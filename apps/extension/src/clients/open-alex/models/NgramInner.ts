@@ -30,19 +30,19 @@ export interface NgramInner {
      * @type {number}
      * @memberof NgramInner
      */
-    ngramCount: number;
+    ngram_count: number;
     /**
      * 
      * @type {number}
      * @memberof NgramInner
      */
-    ngramTokens: number;
+    ngram_tokens: number;
     /**
      * 
      * @type {number}
      * @memberof NgramInner
      */
-    termFrequency: number;
+    term_frequency: number;
 }
 
 /**
@@ -50,9 +50,9 @@ export interface NgramInner {
  */
 export function instanceOfNgramInner(value: object): value is NgramInner {
     if (!('ngram' in value) || value['ngram'] === undefined) return false;
-    if (!('ngramCount' in value) || value['ngramCount'] === undefined) return false;
-    if (!('ngramTokens' in value) || value['ngramTokens'] === undefined) return false;
-    if (!('termFrequency' in value) || value['termFrequency'] === undefined) return false;
+    if (!('ngram_count' in value) || value['ngram_count'] === undefined) return false;
+    if (!('ngram_tokens' in value) || value['ngram_tokens'] === undefined) return false;
+    if (!('term_frequency' in value) || value['term_frequency'] === undefined) return false;
     return true;
 }
 
@@ -67,22 +67,27 @@ export function NgramInnerFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     return {
         
         'ngram': json['ngram'],
-        'ngramCount': json['ngram_count'],
-        'ngramTokens': json['ngram_tokens'],
-        'termFrequency': json['term_frequency'],
+        'ngram_count': json['ngram_count'],
+        'ngram_tokens': json['ngram_tokens'],
+        'term_frequency': json['term_frequency'],
     };
 }
 
-export function NgramInnerToJSON(value?: NgramInner | null): any {
+export function NgramInnerToJSON(json: any): NgramInner {
+    return NgramInnerToJSONTyped(json, false);
+}
+
+export function NgramInnerToJSONTyped(value?: NgramInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'ngram': value['ngram'],
-        'ngram_count': value['ngramCount'],
-        'ngram_tokens': value['ngramTokens'],
-        'term_frequency': value['termFrequency'],
+        'ngram_count': value['ngram_count'],
+        'ngram_tokens': value['ngram_tokens'],
+        'term_frequency': value['term_frequency'],
     };
 }
 

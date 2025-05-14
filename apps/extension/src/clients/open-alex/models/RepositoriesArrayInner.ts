@@ -24,25 +24,25 @@ export interface RepositoriesArrayInner {
      * @type {string}
      * @memberof RepositoriesArrayInner
      */
-    displayName: string;
+    display_name: string;
     /**
      * 
      * @type {string}
      * @memberof RepositoriesArrayInner
      */
-    hostOrganization: string;
+    host_organization: string;
     /**
      * 
      * @type {Array<string>}
      * @memberof RepositoriesArrayInner
      */
-    hostOrganizationLineage: Array<string>;
+    host_organization_lineage: Array<string>;
     /**
      * 
      * @type {string}
      * @memberof RepositoriesArrayInner
      */
-    hostOrganizationName: string;
+    host_organization_name: string;
     /**
      * 
      * @type {string}
@@ -55,10 +55,10 @@ export interface RepositoriesArrayInner {
  * Check if a given object implements the RepositoriesArrayInner interface.
  */
 export function instanceOfRepositoriesArrayInner(value: object): value is RepositoriesArrayInner {
-    if (!('displayName' in value) || value['displayName'] === undefined) return false;
-    if (!('hostOrganization' in value) || value['hostOrganization'] === undefined) return false;
-    if (!('hostOrganizationLineage' in value) || value['hostOrganizationLineage'] === undefined) return false;
-    if (!('hostOrganizationName' in value) || value['hostOrganizationName'] === undefined) return false;
+    if (!('display_name' in value) || value['display_name'] === undefined) return false;
+    if (!('host_organization' in value) || value['host_organization'] === undefined) return false;
+    if (!('host_organization_lineage' in value) || value['host_organization_lineage'] === undefined) return false;
+    if (!('host_organization_name' in value) || value['host_organization_name'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
@@ -73,24 +73,29 @@ export function RepositoriesArrayInnerFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'displayName': json['display_name'],
-        'hostOrganization': json['host_organization'],
-        'hostOrganizationLineage': json['host_organization_lineage'],
-        'hostOrganizationName': json['host_organization_name'],
+        'display_name': json['display_name'],
+        'host_organization': json['host_organization'],
+        'host_organization_lineage': json['host_organization_lineage'],
+        'host_organization_name': json['host_organization_name'],
         'id': json['id'],
     };
 }
 
-export function RepositoriesArrayInnerToJSON(value?: RepositoriesArrayInner | null): any {
+export function RepositoriesArrayInnerToJSON(json: any): RepositoriesArrayInner {
+    return RepositoriesArrayInnerToJSONTyped(json, false);
+}
+
+export function RepositoriesArrayInnerToJSONTyped(value?: RepositoriesArrayInner | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
-        'display_name': value['displayName'],
-        'host_organization': value['hostOrganization'],
-        'host_organization_lineage': value['hostOrganizationLineage'],
-        'host_organization_name': value['hostOrganizationName'],
+        'display_name': value['display_name'],
+        'host_organization': value['host_organization'],
+        'host_organization_lineage': value['host_organization_lineage'],
+        'host_organization_name': value['host_organization_name'],
         'id': value['id'],
     };
 }

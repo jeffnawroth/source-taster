@@ -36,13 +36,13 @@ export interface Geo {
      * @type {string}
      * @memberof Geo
      */
-    countryCode: string;
+    country_code: string;
     /**
      * 
      * @type {string}
      * @memberof Geo
      */
-    geonamesCityId: string;
+    geonames_city_id: string;
     /**
      * 
      * @type {number}
@@ -69,8 +69,8 @@ export interface Geo {
 export function instanceOfGeo(value: object): value is Geo {
     if (!('city' in value) || value['city'] === undefined) return false;
     if (!('country' in value) || value['country'] === undefined) return false;
-    if (!('countryCode' in value) || value['countryCode'] === undefined) return false;
-    if (!('geonamesCityId' in value) || value['geonamesCityId'] === undefined) return false;
+    if (!('country_code' in value) || value['country_code'] === undefined) return false;
+    if (!('geonames_city_id' in value) || value['geonames_city_id'] === undefined) return false;
     if (!('latitude' in value) || value['latitude'] === undefined) return false;
     if (!('longitude' in value) || value['longitude'] === undefined) return false;
     if (!('region' in value) || value['region'] === undefined) return false;
@@ -89,24 +89,29 @@ export function GeoFromJSONTyped(json: any, ignoreDiscriminator: boolean): Geo {
         
         'city': json['city'],
         'country': json['country'],
-        'countryCode': json['country_code'],
-        'geonamesCityId': json['geonames_city_id'],
+        'country_code': json['country_code'],
+        'geonames_city_id': json['geonames_city_id'],
         'latitude': json['latitude'],
         'longitude': json['longitude'],
         'region': json['region'],
     };
 }
 
-export function GeoToJSON(value?: Geo | null): any {
+export function GeoToJSON(json: any): Geo {
+    return GeoToJSONTyped(json, false);
+}
+
+export function GeoToJSONTyped(value?: Geo | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'city': value['city'],
         'country': value['country'],
-        'country_code': value['countryCode'],
-        'geonames_city_id': value['geonamesCityId'],
+        'country_code': value['country_code'],
+        'geonames_city_id': value['geonames_city_id'],
         'latitude': value['latitude'],
         'longitude': value['longitude'],
         'region': value['region'],
