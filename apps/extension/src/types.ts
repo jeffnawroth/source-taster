@@ -1,4 +1,5 @@
 import type { Journal, Work } from './clients/crossref-client'
+import type { SearchRequest } from './clients/europe-pmc'
 import type { FullPaper } from './clients/semanticscholar-client'
 
 export interface AIModel {
@@ -35,4 +36,27 @@ export interface VerifiedReference {
   crossrefData?: Journal | Work
   semanticScholarData?: FullPaper
   websiteUrl?: string | null
+}
+
+export interface EuropePmcPublication {
+  authorString: string
+  doi: string
+  title: string
+  firstPublicationDate: string
+  id: number
+  issue: number
+  journalTitle: string
+  journalVolume: string
+  pageInfo: string
+}
+
+export interface EuropePmcPublicationsResponse {
+  hitCount: number
+  nextCursorMark: string
+  nextPageUrl: string
+  request: SearchRequest
+  resultList: {
+    result: EuropePmcPublication[]
+  }
+  version: string
 }

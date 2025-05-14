@@ -739,7 +739,7 @@ export class EuropePMCArticlesRESTfulAPIApi extends runtime.BaseAPI {
      * This module adheres to the CORS standard of headers to enable javascript cross-domain search.Construct your URL for search requests as follows: <br/><br/>GET https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=parameters <br/><br/>Note that for this module, the user may specify either a slash symbol (/) or a question mark symbol (?) after the method name, and before the query. For example:search?query=parameters or search/query=parameters
      * Use this module to search our publication database. For more information on query syntax, search field combination and other curiosities, see the Europe PMC help page
      */
-    async searchRaw(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async searchRaw(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.JSONApiResponse<unknown>> {
         if (requestParameters['query'] == null) {
             throw new runtime.RequiredError(
                 'query',
@@ -794,15 +794,17 @@ export class EuropePMCArticlesRESTfulAPIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response);
+
     }
 
     /**
      * This module adheres to the CORS standard of headers to enable javascript cross-domain search.Construct your URL for search requests as follows: <br/><br/>GET https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=parameters <br/><br/>Note that for this module, the user may specify either a slash symbol (/) or a question mark symbol (?) after the method name, and before the query. For example:search?query=parameters or search/query=parameters
      * Use this module to search our publication database. For more information on query syntax, search field combination and other curiosities, see the Europe PMC help page
      */
-    async search(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.searchRaw(requestParameters, initOverrides);
+    async search(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<unknown> {
+       const response = await this.searchRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -887,7 +889,7 @@ export class EuropePMCArticlesRESTfulAPIApi extends runtime.BaseAPI {
      * Use this module to search our publication database. For more information on query syntax, search field combination and other curiosities, see the Europe PMC help page
      */
     async searchPOST(requestParameters: SearchPOSTRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.searchPOSTRaw(requestParameters, initOverrides);
+      await this.searchPOSTRaw(requestParameters, initOverrides);
     }
 
     /**
