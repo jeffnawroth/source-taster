@@ -23,7 +23,7 @@ const color = computed(() => {
     class="my-1"
   >
     <v-list-item-title class="wrap-text">
-      {{ verifiedReference.metadata.originalEntry }}
+      {{ verifiedReference.referenceMetadata.originalEntry }}
     </v-list-item-title>
     <template #prepend>
       <ReportListItemStatusIcon :verified="verifiedReference.verification.match" />
@@ -42,7 +42,7 @@ const color = computed(() => {
         </template>
         {{ verifiedReference.verification.reason }}
       </v-tooltip>
-      <ReportListItemCopyBtn :value="verifiedReference.metadata.originalEntry" />
+      <ReportListItemCopyBtn :value="verifiedReference.referenceMetadata.originalEntry" />
 
       <ReportListItemBtnSearchWeb :verified-reference />
 

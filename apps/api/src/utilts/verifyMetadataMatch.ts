@@ -7,25 +7,25 @@ import { extractWithOpenAI } from '../services/openaiService'
 
 const instruction = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
 	1. ReferenceMetadata: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
-	2. Works: An array of structured objects retrieved from the Crossref API and Semantic Scholar API, containing authoritative bibliographic information.
+	2. PublicationsMetadata: An array of structured PublicationMetadata objects, containing authoritative bibliographic information.
 
-Your task is to assess whether **any** of the items in the Works array describes the same publication as ReferenceMetadata. It is sufficient for a match if **either** the Crossref data **or** the Semantic Scholar data aligns well with the ReferenceMetadata.
+Your task is to assess whether **any** of the items in the PublicationsMetadata array describes the same publication as ReferenceMetadata.
 
-For each item in Works, follow these steps:
-	• Title Comparison: Compare ReferenceMetadata.title with crossrefWork.title[0] and/or semanticScholarWork.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
-	• Author Comparison: Compare ReferenceMetadata.authors with crossrefWork.author and/or semanticScholarWork.authors (array of author objects). Focus on matching surnames, allowing for slight variations or order differences.
-	• Year Comparison: Compare ReferenceMetadata.year with the publication year in crossrefWork.issued.date-parts[0][0] (or published, publishedPrint, publishedOnline) and/or semanticScholarWork.year (or publicationDate).
-	• DOI: If both ReferenceMetadata.doi and crossrefWork.DOI are present, compare them directly (they should be identical for a perfect match).
-	• Journal Comparison: Compare ReferenceMetadata.journal with crossrefWork.containerTitle[0] and/or semanticScholarWork.journal.name, if available.
-	• Volume, Issue, Pages: Compare volume, issue, and pages (from ReferenceMetadata) with the corresponding fields in crossrefWork (volume, issue, page) and/or semanticScholarWork.journal, if present.
+For each item in publicationsMetadata, follow these steps::
+	• Title Comparison: Compare ReferenceMetadata.title with publicationMetadata.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
+	• Author Comparison: Compare referenceMetadata.authors with publicationMetadata.authors (array of author names). Focus on matching surnames, allowing for slight variations or order differences.
+	• Year Comparison: Comparison: Compare referenceMetadata.year with publicationMetadata.year.
+	• DOI: If both referenceMetadata.doi and publicationMetadata.doi are present, compare them directly (they should be identical for a perfect match).
+	• Journal Comparison: Compare referenceMetadata.journal with publicationMetadata.journal, if available.
+	• Volume, Issue, Pages: Volume, Issue, Pages: Compare volume, issue, and pages (from referenceMetadata) with the corresponding fields in publicationMetadata (volume, issue, pages), if present.
 
-Be tolerant of minor mismatches but look for strong agreement across multiple fields. You do not need both Crossref and Semantic Scholar to match — a strong match with either is sufficient.
+Be tolerant of minor mismatches but look for strong agreement across multiple fields. A strong match is sufficient.
 
 At the end of your analysis, return a clear evaluation in the following format:
 {
   "match": true | false,
-  "confidence": 0.0 - 1.0,
   "reason": "Brief explanation of why the items do or do not represent the same work."
+  "publication": The best matching publication object from publicationsMetadata, or null if no suitable match is found.
 }
 `
 
@@ -44,6 +44,7 @@ Your task:
   return { "match": false, "reason": "...", "confidence": 0.XX }.
 `
 
+// OpenAI config
 const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
   format: {
     type: 'json_schema',
@@ -59,17 +60,61 @@ const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
           type: 'string',
           description: 'A short explanation of the match result.',
         },
-        confidence: {
-          type: 'number',
-          description: 'A confidence score between 0.0 and 1.0 indicating the strength of the match.',
+        publicationMetadata: {
+          type: ['object', 'null'],
+          description: 'The matched publication object from publicationsMetadata.',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'The unique identifier of the publication.',
+            },
+            title: {
+              type: 'string',
+              description: 'The title of the publication.',
+            },
+            authors: {
+              type: 'array',
+              items: {
+                type: 'string',
+                description: 'The authors of the publication.',
+              },
+            },
+            journal: {
+              type: ['string', 'null'],
+              description: 'The journal in which the publication appeared.',
+            },
+            volume: {
+              type: ['string', 'null'],
+              description: 'The volume of the journal.',
+            },
+            issue: {
+              type: ['string', 'null'],
+              description: 'The issue of the journal.',
+            },
+            pages: {
+              type: ['string', 'null'],
+              description: 'The pages on which the publication appears.',
+            },
+            doi: {
+              type: ['string', 'null'],
+              description: 'The DOI of the publication.',
+            },
+            url: {
+              type: ['string', 'null'],
+              description: 'The URL of the publication.',
+            },
+          },
+          required: ['id', 'title', 'authors', 'journal', 'volume', 'issue', 'pages', 'doi', 'url'],
+          additionalProperties: false,
         },
       },
-      required: ['match', 'reason', 'confidence'],
+      required: ['match', 'reason', 'publicationMetadata'],
       additionalProperties: false,
     },
   },
 }
 
+// Gemini config
 const geminiConfig: GenerateContentConfig = {
   responseMimeType: 'application/json',
   responseSchema: {
@@ -89,12 +134,12 @@ const geminiConfig: GenerateContentConfig = {
   systemInstruction: instruction,
 }
 
-export async function verifyMetadataMatchWithModel(service: string, model: string, referenceMetadata: any, works: any) {
+export async function verifyMetadataMatchWithModel(service: string, model: string, referenceMetadata: any, publicationsMetadata: any) {
   switch (service) {
     case 'openai':
-      return await extractWithOpenAI(model, instruction, JSON.stringify({ extractedMetadata: referenceMetadata, works }), openAIConfig)
+      return await extractWithOpenAI(model, instruction, JSON.stringify({ referenceMetadata, publicationsMetadata }), openAIConfig)
     case 'gemini':
-      return await extractWithGemini(model, JSON.stringify({ extractedMetadata: referenceMetadata, works }), geminiConfig)
+      return await extractWithGemini(model, JSON.stringify({ referenceMetadata, publicationsMetadata }), geminiConfig)
     default:
       throw new Error('Unsupported service')
   }

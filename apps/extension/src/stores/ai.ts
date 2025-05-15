@@ -1,6 +1,4 @@
-import type { Work } from '../clients/crossref-client'
-import type { FullPaper } from '../clients/semanticscholar-client'
-import type { ReferenceMetadata, VerificationResult } from '../types'
+import type { PublicationMetadata, ReferenceMetadata, VerificationResult } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -65,8 +63,7 @@ export const useAiStore = defineStore('ai', () => {
   const memoizedVerify = useMemoize(
     async (
       referenceMetadata: ReferenceMetadata,
-      crossrefWork: Work | null,
-      semanticScholarWork: FullPaper | null,
+      publicationsMetadata: PublicationMetadata[],
       service: string,
       model: string,
     ): Promise<VerificationResult> => {
@@ -78,7 +75,7 @@ export const useAiStore = defineStore('ai', () => {
             service,
             model,
             referenceMetadata,
-            works: { crossrefWork, semanticScholarWork },
+            publicationsMetadata,
           }),
         })
 
@@ -97,23 +94,19 @@ export const useAiStore = defineStore('ai', () => {
     },
     {
       // Create a stable cache key from the combined data
-      getKey: (meta, crossref, semantic, service, model) => {
-        const metaKey = meta.title || meta.doi || ''
-        const crossrefKey = crossref?.dOI || ''
-        const semanticKey = semantic?.paperId || ''
-        return `${metaKey}-${crossrefKey}-${semanticKey}-${service}-${model}`
+      getKey: (referenceMetadata, publicationMetadata, service, model) => {
+        return `${referenceMetadata.title}-${publicationMetadata}-${service}-${model}`
       },
     },
   )
 
   async function verifyMatchWithAI(
     referenceMetadata: ReferenceMetadata,
-    works: { crossrefWork: Work | null, semanticScholarWork: FullPaper | null },
+    publicationsMetadata: PublicationMetadata[],
   ): Promise<VerificationResult> {
     return memoizedVerify(
       referenceMetadata,
-      works.crossrefWork,
-      works.semanticScholarWork,
+      publicationsMetadata,
       selectedAiModel.value.service,
       selectedAiModel.value.value,
     )

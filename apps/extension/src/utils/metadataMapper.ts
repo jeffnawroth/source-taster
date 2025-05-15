@@ -6,7 +6,7 @@ export function mapEuropePMCToPublication(result: EuropePmcPublication): Publica
     id: result.id.toString(),
     title: result.title,
     authors: result.authorString.split(',').map(author => author.trim()),
-    publicationYear: result.pubYear,
+    year: result.pubYear,
     journal: result.journalTitle,
     volume: result.journalVolume,
     issue: result.issue,
@@ -20,7 +20,7 @@ export function mapOpenAlexToPublication(result: WorkSchema): PublicationMetadat
     id: result.id,
     title: result.title,
     authors: result.authorships?.map(author => author.author.display_name),
-    publicationYear: result.publication_year,
+    year: result.publication_year,
     volume: result.biblio?.volume,
     issue: result.biblio?.issue,
     pages: result.biblio?.first_page && result.biblio?.last_page

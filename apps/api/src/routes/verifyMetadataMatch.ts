@@ -4,16 +4,16 @@ import { verifyMetadataMatchWithModel, verifyPageMatchWithModel } from '../utilt
 const verifyMetadataMatch = new Hono()
 
 verifyMetadataMatch.post('', async (c) => {
-  const { service, model, referenceMetadata, works, pageText } = await c.req.json()
+  const { service, model, referenceMetadata, publicationsMetadata, pageText } = await c.req.json()
 
-  if (!service || !model || !referenceMetadata || (typeof works === 'undefined' && typeof pageText === 'undefined')) {
+  if (!service || !model || !referenceMetadata || !publicationsMetadata || (typeof publicationsMetadata === 'undefined' && typeof pageText === 'undefined')) {
     return c.json({ error: 'Service, model, referenceMetadat, works or pageText are required' }, 400)
   }
 
   try {
     let response
-    if (works) {
-      response = await verifyMetadataMatchWithModel(service, model, referenceMetadata, works)
+    if (publicationsMetadata) {
+      response = await verifyMetadataMatchWithModel(service, model, referenceMetadata, publicationsMetadata)
       return c.json(response)
     }
     else if (pageText) {

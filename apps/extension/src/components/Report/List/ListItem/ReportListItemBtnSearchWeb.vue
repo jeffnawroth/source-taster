@@ -9,7 +9,7 @@ const { verifiedReference } = defineProps<{
 
 // Search DOI in a new Browser Tab
 function openInWeb() {
-  window.open(`https://www.google.com/search?q=${verifiedReference.metadata.originalEntry}`, '_blank')
+  window.open(`https://www.google.com/search?q=${verifiedReference.referenceMetadata.originalEntry}`, '_blank')
 }
 </script>
 

@@ -17,7 +17,7 @@ const { results } = defineProps<{
     <v-slide-y-transition group>
       <ReportListItem
         v-for="(verifiedReference) in results"
-        :key="verifiedReference.item.metadata.originalEntry"
+        :key="verifiedReference.item.referenceMetadata.originalEntry"
         :verified-reference="verifiedReference.item"
       />
     </v-slide-y-transition>

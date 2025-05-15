@@ -1,15 +1,13 @@
-import type { Work } from '../clients/crossref-client'
-import type { FullPaper } from '../clients/semanticscholar-client'
-import type { ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
+import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { useAiExtraction } from '../logic'
-import { extractDois } from '../utils/doiExtractor'
 import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
 import { extractPdfTextFromUrl } from '../utils/pdfUtils'
 import { isUrlReachable, normalizeUrl } from '../utils/validateUrl'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
+import { useEuropePmcStore } from './europe-pmc'
+import { useOpenAlexStore } from './openAlex'
 import { useSemanticScholarStore } from './semantic-scholar'
 
 export const useMetadataStore = defineStore('metadata', () => {
@@ -32,7 +30,7 @@ export const useMetadataStore = defineStore('metadata', () => {
 
     isLoading.value = true
 
-    const referencesMetadata = useAiExtraction.value ? await extractUsingAi(text) : extractDois(text)
+    const referencesMetadata = await extractUsingAi(text)
 
     for (const referenceMetadata of referencesMetadata) {
       const match = await searchAndVerifyWork(referenceMetadata)
@@ -42,45 +40,48 @@ export const useMetadataStore = defineStore('metadata', () => {
     isLoading.value = false
   }
 
+  const { searchWork: searchOpenAlexWork } = useOpenAlexStore()
+  const { searchArticle: searchEuropePmcWork } = useEuropePmcStore()
   const { searchCrossrefWork } = useCrossrefStore()
   const { searchSemanticScholarWork } = useSemanticScholarStore()
 
   async function searchWork(referenceMetadata: ReferenceMetadata) {
-    const [crossrefWork, semanticScholarWork] = await Promise.all([
+    const publications = await Promise.all([
       searchCrossrefWork(referenceMetadata),
       searchSemanticScholarWork(referenceMetadata),
+      searchOpenAlexWork(referenceMetadata),
+      searchEuropePmcWork(referenceMetadata),
     ])
-    return { crossrefWork, semanticScholarWork }
+
+    return publications.filter(Boolean) as PublicationMetadata[]
   }
 
+  // Verify the match with AI
   const { verifyMatchWithAI } = useAiStore()
-  async function verifyMatch(referenceMetadata: ReferenceMetadata, works: { crossrefWork: Work | null, semanticScholarWork: FullPaper | null }) {
-    if (works.crossrefWork && !works.semanticScholarWork)
-      return { match: false, reason: 'No data for CrossRef and Semantic Scholar' }
 
-    const verificationResult = await verifyMatchWithAI(referenceMetadata, works)
+  async function verifyMatch(referenceMetadata: ReferenceMetadata, publicationsMetadata: PublicationMetadata[]) {
+    const verificationResult = await verifyMatchWithAI(referenceMetadata, publicationsMetadata)
+
     return verificationResult
   }
 
   // Search Crossref using the metadata and verify the match with AI
   async function searchAndVerifyWork(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
     try {
-      const works = await searchWork(referenceMetadata)
-      const verificationResult = await verifyMatch(referenceMetadata, works)
+      const publicationsMetadata = await searchWork(referenceMetadata)
+      const verification = await verifyMatch(referenceMetadata, publicationsMetadata)
 
-      if (verificationResult.match) {
+      if (verification.match) {
         return {
-          metadata: referenceMetadata,
-          verification: verificationResult,
-          crossrefData: works.crossrefWork || undefined,
-          semanticScholarData: works.semanticScholarWork || undefined,
+          referenceMetadata,
+          verification,
         }
       }
       if (referenceMetadata.url) {
         const urlVerification = await verifyUrlContent(referenceMetadata)
 
         return {
-          metadata: referenceMetadata,
+          referenceMetadata,
           verification: {
             match: urlVerification.match,
             reason: urlVerification.reason ? 'URL reachable' : 'URL not reachable',
@@ -90,15 +91,13 @@ export const useMetadataStore = defineStore('metadata', () => {
       }
 
       return {
-        metadata: referenceMetadata,
-        verification: verificationResult,
-        crossrefData: works.crossrefWork || undefined,
-        semanticScholarData: works.semanticScholarWork || undefined,
+        referenceMetadata,
+        verification,
       }
     }
     catch (error) {
       return {
-        metadata: referenceMetadata,
+        referenceMetadata,
         verification: { match: false, reason: `Error verifying reference: ${error}` },
       }
     }

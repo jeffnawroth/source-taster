@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Work } from '@/extension/clients/crossref-client'
 import type { VerifiedReference } from '@/extension/types'
 import { mdiOpenInNew } from '@mdi/js'
 
@@ -14,17 +13,21 @@ const { t } = useI18n()
 // Function
 
 function open() {
-  if (verifiedReference.verification.match && verifiedReference.crossrefData && (verifiedReference.crossrefData as Work).uRL) {
-    window.open((verifiedReference.crossrefData as Work).uRL, '_blank')
+  if (verifiedReference.referenceMetadata.url || verifiedReference.verification.publicationMetadata?.url) {
+    const url = verifiedReference.referenceMetadata.url || verifiedReference.verification.publicationMetadata?.url
+    window.open(url, '_blank')
   }
-  else if (verifiedReference.websiteUrl) {
-    window.open((verifiedReference.websiteUrl))
-  }
+  // if (verifiedReference.verification.match && veriedReference.crossrefData && (verifiedReference.crossrefData as Work).uRL) {
+  //   window.open((verifiedReference.crossrefData as Work).uRL, '_blank')
+  // }
+  // else if (verifiedReference.websiteUrl) {
+  //   window.open((verifiedReference.websiteUrl))
+  // }
 }
 </script>
 
 <template>
-  <v-tooltip v-if="verifiedReference.verification.match">
+  <v-tooltip v-if="verifiedReference.verification.match && (verifiedReference.referenceMetadata.url || verifiedReference.verification.publicationMetadata?.url)">
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
