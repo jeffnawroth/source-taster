@@ -1,8 +1,8 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
+import { normalizeUrl } from '../utils/normalizeUrl'
 import { extractPdfTextFromUrl } from '../utils/pdfUtils'
-import { isUrlReachable, normalizeUrl } from '../utils/validateUrl'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
@@ -105,23 +105,31 @@ export const useMetadataStore = defineStore('metadata', () => {
 
   async function verifyUrlContent(referenceMetadata: ReferenceMetadata): Promise<VerificationResult> {
     const raw = referenceMetadata.url!
-    if (!(await isUrlReachable(raw))) {
+    const url = normalizeUrl(raw)
+
+    let headResp: Response
+    try {
+      headResp = await fetch(url, { method: 'HEAD', redirect: 'follow' })
+    }
+    catch {
       return { match: false, reason: 'URL not reachable' }
     }
 
-    // HEAD-Request, to differentiate between PDF and HTML
-    const head = await fetch(raw, { method: 'HEAD', redirect: 'follow' })
-    const ct = (head.headers.get('Content-Type') || '').toLowerCase()
+    if (!headResp.ok) {
+      return { match: false, reason: `HTTP ${headResp.status}` }
+    }
 
-    let text = ''
+    const ct = (headResp.headers.get('Content-Type') || '').toLowerCase()
+
+    let pageText = ''
     if (ct.includes('pdf')) {
-      text = await extractPdfTextFromUrl(raw)
+      pageText = await extractPdfTextFromUrl(url)
     }
     else {
-      text = await extractHtmlTextFromUrl(raw)
+      pageText = await extractHtmlTextFromUrl(url)
     }
 
-    const verification = await verifyPageMatchWithAI(referenceMetadata, text)
+    const verification = await verifyPageMatchWithAI(referenceMetadata, pageText)
     return verification
   }
 
