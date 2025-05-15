@@ -10,15 +10,15 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.1",
-    "hono": "^4.7.7"
+    "hono": "^4.7.9"
   },
   "devDependencies": {
     "@google/genai": "^0.7.0",
     "@source-taster/eslint-config": "workspace:^",
-    "@types/node": "^20.17.30",
-    "eslint": "^9.25.0",
-    "openai": "^4.95.1",
-    "tsx": "^4.19.3",
+    "@types/node": "^20.17.47",
+    "eslint": "^9.26.0",
+    "openai": "^4.98.0",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   },
   "lint-staged": {

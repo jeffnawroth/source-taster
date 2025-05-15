@@ -11,11 +11,11 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "vue": "^3.5.13"
+    "vue": "^3.5.14"
   },
   "devDependencies": {
     "@source-taster/eslint-config": "workspace:^",
-    "eslint": "^9.25.0",
+    "eslint": "^9.26.0",
     "vitepress": "^1.6.3"
   },
   "lint-staged": {
