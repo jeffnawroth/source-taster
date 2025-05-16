@@ -49,8 +49,8 @@ export const useMetadataStore = defineStore('metadata', () => {
   }
 
   // Search for works using OpenAlex, Europe PMC, and Crossref
-  const { searchPublication: SearchOpenAlexPublication } = useOpenAlexStore()
-  const { searchArticle: searchEuropePmcWork } = useEuropePmcStore()
+  const { searchPublication: searchOpenAlexPublication } = useOpenAlexStore()
+  const { searchPublication: searchEuropePmcPublication } = useEuropePmcStore()
   const { searchCrossrefWork } = useCrossrefStore()
 
   async function searchWork(referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata[] | null> {
@@ -62,8 +62,8 @@ export const useMetadataStore = defineStore('metadata', () => {
     // Search for works using OpenAlex, Europe PMC, and Crossref
     const publications = await Promise.all([
       searchCrossrefWork(referenceMetadata),
-      SearchOpenAlexPublication(referenceMetadata),
-      searchEuropePmcWork(referenceMetadata),
+      searchOpenAlexPublication(referenceMetadata),
+      searchEuropePmcPublication(referenceMetadata),
     ])
 
     // Filter out null values from the publications array
