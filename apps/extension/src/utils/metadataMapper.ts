@@ -1,9 +1,9 @@
+import type { Work } from '../clients/crossref-client/models/Work'
 import type { WorkSchema } from '../clients/open-alex'
 import type { EuropePmcPublication, PublicationMetadata } from '../types'
 
 export function mapEuropePMCToPublication(result: EuropePmcPublication): PublicationMetadata {
   return {
-    id: result.id.toString(),
     title: result.title,
     authors: result.authorString.split(',').map(author => author.trim()),
     year: result.pubYear,
@@ -17,7 +17,6 @@ export function mapEuropePMCToPublication(result: EuropePmcPublication): Publica
 
 export function mapOpenAlexToPublication(result: WorkSchema): PublicationMetadata {
   return {
-    id: result.id,
     title: result.title,
     authors: result.authorships?.map(author => author.author.display_name),
     year: result.publication_year,
@@ -29,5 +28,20 @@ export function mapOpenAlexToPublication(result: WorkSchema): PublicationMetadat
     doi: result.doi,
     url: result.primary_location?.landing_page_url,
     journal: result.primary_location?.source?.display_name,
+  }
+}
+
+export function mapCrossrefToPublication(result: Work): PublicationMetadata {
+  return {
+    title: result.title?.[0],
+    authors: result.author?.map(author => `${author.given} ${author.family}`),
+    year: result.published?.dateParts[0][0],
+    volume: result.volume,
+    issue: result.issue,
+    pages: result.page,
+    doi: result.dOI,
+    journal: result.containerTitle?.[0],
+    url: result.uRL,
+
   }
 }
