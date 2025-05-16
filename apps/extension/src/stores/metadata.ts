@@ -49,7 +49,7 @@ export const useMetadataStore = defineStore('metadata', () => {
   }
 
   // Search for works using OpenAlex, Europe PMC, and Crossref
-  const { searchWork: searchOpenAlexWork } = useOpenAlexStore()
+  const { searchPublication: SearchOpenAlexPublication } = useOpenAlexStore()
   const { searchArticle: searchEuropePmcWork } = useEuropePmcStore()
   const { searchCrossrefWork } = useCrossrefStore()
 
@@ -62,7 +62,7 @@ export const useMetadataStore = defineStore('metadata', () => {
     // Search for works using OpenAlex, Europe PMC, and Crossref
     const publications = await Promise.all([
       searchCrossrefWork(referenceMetadata),
-      searchOpenAlexWork(referenceMetadata),
+      SearchOpenAlexPublication(referenceMetadata),
       searchEuropePmcWork(referenceMetadata),
     ])
 
