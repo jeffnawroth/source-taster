@@ -1,5 +1,4 @@
 import type { PublicationMetadata, ReferenceMetadata } from '../types'
-import type { Work, WorksGetRequest } from '@/extension/clients/crossref-client'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { Configuration, WorksApi } from '@/extension/clients/crossref-client'
@@ -17,76 +16,76 @@ export const useCrossrefStore = defineStore('crossref', () => {
   const api = new WorksApi(config)
 
   // Memoized works function to avoid duplicate API calls
-  const memoizedGetWorks = useMemoize(
-    async (query: string, filter?: string, select?: string, rows?: number, sort?: string) => {
-      try {
-        const response = await api.worksGet({
-          query,
-          filter,
-          select,
-          rows,
-          sort,
-        })
+  // const memoizedGetWorks = useMemoize(
+  //   async (query: string, filter?: string, select?: string, rows?: number, sort?: string) => {
+  //     try {
+  //       const response = await api.worksGet({
+  //         query,
+  //         filter,
+  //         select,
+  //         rows,
+  //         sort,
+  //       })
 
-        if (response.status !== 'ok') {
-          return Promise.reject(response)
-        }
+  //       if (response.status !== 'ok') {
+  //         return Promise.reject(response)
+  //       }
 
-        return response.message.items || []
-      }
-      catch (error) {
-        console.error('Crossref API Error:', error)
-        return []
-      }
-    },
-  )
+  //       return response.message.items || []
+  //     }
+  //     catch (error) {
+  //       console.error('Crossref API Error:', error)
+  //       return []
+  //     }
+  //   },
+  // )
 
-  async function getWorks(query?: WorksGetRequest): Promise<Work[]> {
-    // If we have complex query parameters, delegate to the non-memoized version
-    if (typeof query !== 'object' || Object.keys(query).length === 0) {
-      return []
-    }
+  // async function getWorks(query?: WorksGetRequest): Promise<Work[]> {
+  //   // If we have complex query parameters, delegate to the non-memoized version
+  //   if (typeof query !== 'object' || Object.keys(query).length === 0) {
+  //     return []
+  //   }
 
-    // Extract and normalize parameters for memoization key generation
-    const { query: queryParam, filter, select, rows, sort } = query
-    return memoizedGetWorks(queryParam || '', filter, select, rows, sort)
-  }
+  //   // Extract and normalize parameters for memoization key generation
+  //   const { query: queryParam, filter, select, rows, sort } = query
+  //   return memoizedGetWorks(queryParam || '', filter, select, rows, sort)
+  // }
 
-  // Memoize DOI lookups
-  const memoizedGetWorkByDOI = useMemoize(
-    async (doi: string): Promise<Work | null> => {
-      try {
-        const response = await api.worksDoiGet({
-          doi,
-        })
+  // // Memoize DOI lookups
+  // const memoizedGetWorkByDOI = useMemoize(
+  //   async (doi: string): Promise<Work | null> => {
+  //     try {
+  //       const response = await api.worksDoiGet({
+  //         doi,
+  //       })
 
-        if (response.status !== 'ok') {
-          return Promise.reject(response)
-        }
+  //       if (response.status !== 'ok') {
+  //         return Promise.reject(response)
+  //       }
 
-        return response.message
-      }
-      catch (error) {
-        console.error('Crossref DOI API Error:', error)
-        return null
-      }
-    },
-  )
+  //       return response.message
+  //     }
+  //     catch (error) {
+  //       console.error('Crossref DOI API Error:', error)
+  //       return null
+  //     }
+  //   },
+  // )
 
-  async function getWorkByDOI(doi: string): Promise<Work | null> {
-    return memoizedGetWorkByDOI(doi)
-  }
+  // async function getWorkByDOI(doi: string): Promise<Work | null> {
+  //   return memoizedGetWorkByDOI(doi)
+  // }
 
   // Memoize reference metadata searches
-  const searchCrossrefWork = useMemoize(
-    async (meta: ReferenceMetadata): Promise<PublicationMetadata | null> => {
-      const params = [meta.title, ...(meta.authors ?? []), meta.journal, meta.year]
+  const searchPublication = useMemoize(
+    async (referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> => {
+      const params = [referenceMetadata.title, ...(referenceMetadata.authors ?? []), referenceMetadata.journal, referenceMetadata.year]
       const queryBibliographic = params.filter(Boolean).join(' ')
       const query = params ? `query.bibliographic=${queryBibliographic}` : undefined
 
       // The filter is constructed by checking if the year is present in the metadata.
       const filterParams = [
-        meta.year ? `from-pub-date:${meta.year}-01-01,until-pub-date:${meta.year}-12-31` : undefined,
+        referenceMetadata.year ? `from-pub-date:${referenceMetadata.year}-01-01,until-pub-date:${referenceMetadata.year}-12-31` : undefined,
       ]
       const filter = filterParams.filter(Boolean).join(',')
 
@@ -109,22 +108,26 @@ export const useCrossrefStore = defineStore('crossref', () => {
 
       const sort = 'score'
 
-      const works = await getWorks({ query, filter, select, rows, sort })
+      try {
+        const works = await api.worksGet({ query, filter, select, rows, sort })
 
-      const mappedResponse = mapCrossrefToPublication(works[0])
+        if (works.status !== 'ok') {
+          return null
+        }
 
-      return mappedResponse || null
-    },
-    {
-      // Use title as the cache key
-      getKey: (meta: ReferenceMetadata) => meta.title || '',
+        const mappedResponse = mapCrossrefToPublication(works.message.items[0])
+
+        return mappedResponse || null
+      }
+      catch (error) {
+        console.error('Crossref API Error:', error)
+        return null
+      }
     },
   )
 
   return {
-    getWorks,
-    getWorkByDOI,
-    searchCrossrefWork,
+    searchPublication,
   }
 })
 
