@@ -24,7 +24,6 @@ export interface ReferenceMetadata {
 }
 
 export interface PublicationMetadata {
-  id: string
   title?: string
   authors?: string[]
   journal?: string
@@ -44,7 +43,7 @@ export interface VerificationResult {
 
 export interface VerifiedReference {
   referenceMetadata: ReferenceMetadata
-  verification: VerificationResult
+  verification: VerificationResult | null
   websiteUrl?: string | null
 }
 
