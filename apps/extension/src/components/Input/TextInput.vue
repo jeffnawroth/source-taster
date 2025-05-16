@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useAutoImport } from '@/extension/logic'
-import { useMetadataStore } from '@/extension/stores/metadata'
-import { useTextStore } from '@/extension/stores/text'
 import { mdiText } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
+import { useAutoImport } from '@/extension/logic'
+import { useMetadataStore } from '@/extension/stores/metadata'
+import { useTextStore } from '@/extension/stores/text'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -37,7 +37,7 @@ onMessage('autoImportText', async ({ data }) => {
 
 <template>
   <v-textarea
-    v-model="text"
+    v-model.trim="text"
     auto-grow
     :prepend-inner-icon="mdiText"
     :placeholder
