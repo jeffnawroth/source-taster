@@ -1,24 +1,18 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { ref } from 'vue'
 import { selectedAiModel } from '../logic'
-import { useAppStore } from './app'
 
 const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
 
 export const useAiStore = defineStore('ai', () => {
-  // GENERATE CONTENT
-  const { isLoading } = storeToRefs(useAppStore())
-
-  // if the AI model is used to generate content or extract DOIs from text
-  const isAiUsed = ref(false)
-
-  // Memoized extraction function to avoid duplicate API calls for the same prompt
-  const memoizedExtract = useMemoize(
-    async (prompt: string, service: string, model: string): Promise<ReferenceMetadata[]> => {
-      isLoading.value = true
-      isAiUsed.value = false
+  /**
+   * Extract references metadata from a given prompt using the AI model.
+   * @param prompt - The input text from which to extract references metadata.
+   * @returns A promise that resolves to an array of ReferenceMetadata or null if an error occurs.
+   */
+  const extractReferencesMetadata = useMemoize(
+    async (prompt: string): Promise<ReferenceMetadata[] | null> => {
       try {
         const response = await fetch(`${baseUrl}/extract-metadata`, {
           method: 'POST',
@@ -26,91 +20,64 @@ export const useAiStore = defineStore('ai', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            service,
-            model,
+            service: selectedAiModel.value.service,
+            model: selectedAiModel.value.value,
             input: prompt,
           }),
         })
 
         if (!response.ok) {
-          return Promise.reject(response)
+          return null
         }
 
-        isAiUsed.value = true
-
         const data = await response.json()
-        return data || []
+        return data
       }
-      catch (error) {
-        console.error('Error with AI extraction', error)
-        return []
-      }
-      finally {
-        isLoading.value = false
+      catch {
+        return null
       }
     },
   )
 
-  async function extractUsingAi(prompt: string): Promise<ReferenceMetadata[]> {
-    return memoizedExtract(
-      prompt,
-      selectedAiModel.value.service,
-      selectedAiModel.value.value,
-    )
-  }
-
-  // Memoized verification function
-  const memoizedVerify = useMemoize(
+  /**
+   * Verify the reference metadata against the publications metadata using the AI model.
+   * @param referenceMetadata - The reference metadata to verify.
+   * @param publicationsMetadata - The publications metadata to verify against.
+   * @returns A promise that resolves to a VerificationResult or null if an error occurs.
+   */
+  const verifyReferenceAgainstPublications = useMemoize(
     async (
       referenceMetadata: ReferenceMetadata,
       publicationsMetadata: PublicationMetadata[],
-      service: string,
-      model: string,
-    ): Promise<VerificationResult> => {
+    ): Promise<VerificationResult | null> => {
       try {
         const response = await fetch(`${baseUrl}/verify-metadata-match`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            service,
-            model,
+            service: selectedAiModel.value.service,
+            model: selectedAiModel.value.value,
             referenceMetadata,
             publicationsMetadata,
           }),
         })
 
-        if (!response.ok)
-          return Promise.reject(new Error(`AI verification failed: ${response.status} ${response.statusText}`))
+        if (!response.ok) {
+          return null
+        }
 
         return await response.json()
       }
-      catch (error) {
-        console.error('Error with AI verification', error)
-        return {
-          match: false,
-          reason: 'AI verification failed',
-        }
+      catch {
+        return null
       }
     },
     {
-      // Create a stable cache key from the combined data
-      getKey: (referenceMetadata, publicationMetadata, service, model) => {
-        return `${referenceMetadata.title}-${publicationMetadata}-${service}-${model}`
+      getKey: (referenceMetadata, publicationMetadata) => {
+        return `${JSON.stringify(referenceMetadata)}-${JSON.stringify(publicationMetadata)}`
       },
     },
   )
-
-  async function verifyMatchWithAI(
-    referenceMetadata: ReferenceMetadata,
-    publicationsMetadata: PublicationMetadata[],
-  ): Promise<VerificationResult> {
-    return memoizedVerify(
-      referenceMetadata,
-      publicationsMetadata,
-      selectedAiModel.value.service,
-      selectedAiModel.value.value,
-    )
-  }
 
   async function verifyPageMatchWithAI(
     referenceMetadata: ReferenceMetadata,
@@ -139,9 +106,8 @@ export const useAiStore = defineStore('ai', () => {
   }
 
   return {
-    extractUsingAi,
-    isAiUsed,
-    verifyMatchWithAI,
+    extractReferencesMetadata,
+    verifyReferenceAgainstPublications,
     verifyPageMatchWithAI,
   }
 })
