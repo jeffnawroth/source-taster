@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AIModel } from '@/extension/types'
-import { selectedAiModel, useAiExtraction } from '@/extension/logic'
 import { mdiRobotHappyOutline, mdiStarFourPointsOutline } from '@mdi/js'
+import { selectedAiModel, useAiExtraction } from '@/extension/logic'
 import OptionListItem from '../components/OptionListItem.vue'
 
 // i18n
@@ -13,6 +13,7 @@ const aiModels = ref<Array<AIModel>>([
   { title: 'Gemini 2.0 Flash-Lite', value: 'gemini-2.0-flash-lite', description: t('gemini-2.0-flash-lite-description'), service: 'gemini' },
   { title: 'GPT-4o', value: 'gpt-4o', description: t('gpt-4o-description'), service: 'openai' },
   { title: 'o3-mini', value: 'o3-mini', description: t('o3-mini-description'), service: 'openai' },
+  { title: 'GPT-4.1 nano', value: 'gpt-4.1-nano', description: t('gpt-4.1-nano-description'), service: 'openai' },
 ])
 </script>
 
