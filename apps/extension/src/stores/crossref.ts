@@ -1,9 +1,10 @@
+import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import type { Work, WorksGetRequest } from '@/extension/clients/crossref-client'
-import type { ReferenceMetadata } from '../types'
-import { Configuration, WorksApi } from '@/extension/clients/crossref-client'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
+import { Configuration, WorksApi } from '@/extension/clients/crossref-client'
+import { mapCrossrefToPublication } from '../utils/metadataMapper'
 
 const config = new Configuration({
   basePath: 'https://api.crossref.org',
@@ -88,7 +89,7 @@ export const useCrossrefStore = defineStore('crossref', () => {
 
   // Memoize reference metadata searches
   const searchCrossrefWork = useMemoize(
-    async (meta: ReferenceMetadata): Promise<Work | null> => {
+    async (meta: ReferenceMetadata): Promise<PublicationMetadata | null> => {
       const params = [meta.title, ...(meta.authors ?? []), meta.journal, meta.year]
       const queryBibliographic = params.filter(Boolean).join(' ')
       const query = params ? `query.bibliographic=${queryBibliographic}` : undefined
@@ -120,7 +121,9 @@ export const useCrossrefStore = defineStore('crossref', () => {
 
       const works = await getWorks({ query, filter, select, rows, sort })
 
-      return works[0] || null
+      const mappedResponse = mapCrossrefToPublication(works[0])
+
+      return mappedResponse || null
     },
     {
       // Use title as the cache key
