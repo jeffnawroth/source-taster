@@ -4,7 +4,6 @@ import { useMemoize } from '@vueuse/core'
 import fetchRetry from 'fetch-retry'
 import PQueue from 'p-queue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { ref } from 'vue'
 import { Configuration, PaperDataApi } from '../clients/semanticscholar-client'
 
 // Enhance fetch with retry capability
@@ -22,7 +21,6 @@ const config = new Configuration({
 
 export const useSemanticScholarStore = defineStore('semantic-scholar', () => {
   const client = new PaperDataApi(config)
-  const isLoading = ref(false)
 
   // Create request queue with concurrency control
   // Only allow 1 request at a time with 1 second interval between requests
@@ -36,26 +34,20 @@ export const useSemanticScholarStore = defineStore('semantic-scholar', () => {
   // Memoized paper search function - caches results by query string
   const memoizedSearchPaper = useMemoize(
     async (queryString: string, fields: string, limit: number) => {
-      isLoading.value = true
-      try {
-        return await queue.add(async () => {
-          try {
-            const response = await client.getGraphPaperRelevanceSearch({
-              query: queryString,
-              fields,
-              limit,
-            })
-            return response.data || []
-          }
-          catch (error) {
-            console.error('Semantic Scholar API Error:', error)
-            return []
-          }
-        })
-      }
-      finally {
-        isLoading.value = false
-      }
+      return await queue.add(async () => {
+        try {
+          const response = await client.getGraphPaperRelevanceSearch({
+            query: queryString,
+            fields,
+            limit,
+          })
+          return response.data || []
+        }
+        catch (error) {
+          console.error('Semantic Scholar API Error:', error)
+          return []
+        }
+      })
     },
   )
 
@@ -94,7 +86,6 @@ export const useSemanticScholarStore = defineStore('semantic-scholar', () => {
 
   return {
     searchSemanticScholarWork,
-    isLoading,
     getQueueStatus,
     clearCache,
   }

@@ -2,7 +2,6 @@ import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import type { Work, WorksGetRequest } from '@/extension/clients/crossref-client'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { ref } from 'vue'
 import { Configuration, WorksApi } from '@/extension/clients/crossref-client'
 import { mapCrossrefToPublication } from '../utils/metadataMapper'
 
@@ -16,12 +15,10 @@ const config = new Configuration({
 
 export const useCrossrefStore = defineStore('crossref', () => {
   const api = new WorksApi(config)
-  const isLoading = ref(false)
 
   // Memoized works function to avoid duplicate API calls
   const memoizedGetWorks = useMemoize(
     async (query: string, filter?: string, select?: string, rows?: number, sort?: string) => {
-      isLoading.value = true
       try {
         const response = await api.worksGet({
           query,
@@ -41,9 +38,6 @@ export const useCrossrefStore = defineStore('crossref', () => {
         console.error('Crossref API Error:', error)
         return []
       }
-      finally {
-        isLoading.value = false
-      }
     },
   )
 
@@ -61,7 +55,6 @@ export const useCrossrefStore = defineStore('crossref', () => {
   // Memoize DOI lookups
   const memoizedGetWorkByDOI = useMemoize(
     async (doi: string): Promise<Work | null> => {
-      isLoading.value = true
       try {
         const response = await api.worksDoiGet({
           doi,
@@ -76,9 +69,6 @@ export const useCrossrefStore = defineStore('crossref', () => {
       catch (error) {
         console.error('Crossref DOI API Error:', error)
         return null
-      }
-      finally {
-        isLoading.value = false
       }
     },
   )
@@ -135,7 +125,6 @@ export const useCrossrefStore = defineStore('crossref', () => {
     getWorks,
     getWorkByDOI,
     searchCrossrefWork,
-    isLoading,
   }
 })
 
