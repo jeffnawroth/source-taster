@@ -2,7 +2,7 @@ import type { ReferenceMetadata } from '../interface'
 import { extractApaBookChapterReference, extractApaBookReference, extractApaBookWithEditionReference } from './bookExtractors'
 import { extractApaJournalReference, extractApaJournalSupplementReference, extractApaJournalWithPrefixReference } from './journalExtractors'
 import { extractApaArtworkReference, extractApaMediaReference } from './mediaExtractors'
-import { extractApaBlogPostReference, extractApaNewspaperArticleReference, extractApaNoAuthorReference, extractApaSourceWithParagraphReference, extractApaWebpageRetrievalReference } from './webExtractors'
+import { extractApaBlogPostReference, extractApaNewspaperArticleReference, extractApaNoAuthorReference, extractApaOrganizationWebpageReference, extractApaSourceWithParagraphReference, extractApaWebpageNoAuthorNoDateReference, extractApaWebpageNoDateReference, extractApaWebpageRetrievalReference, extractApaWebpageWithUnknownAuthorReference } from './webExtractors'
 
 /**
  * Extracts metadata from APA 7 references of various types
@@ -49,15 +49,46 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
   if (journalWithPrefixResult)
     return journalWithPrefixResult
 
-  // Check for standard journal articles before books
+  // Check for standard journal articles
   const journalResult = extractApaJournalReference(reference)
   if (journalResult)
     return journalResult
 
-  // Then check for sources with retrieval dates
+  // Check for online sources and blog posts BEFORE books to avoid misidentification
+  // Prüfe zuerst Webseiten ohne Autor und ohne Datum mit Retrieval-Datum
+  const webpageNoAuthorNoDateResult = extractApaWebpageNoAuthorNoDateReference(reference)
+  if (webpageNoAuthorNoDateResult)
+    return webpageNoAuthorNoDateResult
+
+  // Prüfe dann Webseiten mit Autor aber ohne Datum
+  const webpageNoDateResult = extractApaWebpageNoDateReference(reference)
+  if (webpageNoDateResult)
+    return webpageNoDateResult
+
+  const organizationWebpageResult = extractApaOrganizationWebpageReference(reference)
+  if (organizationWebpageResult)
+    return organizationWebpageResult
+
+  const webpageWithUnknownAuthorResult = extractApaWebpageWithUnknownAuthorReference(reference)
+  if (webpageWithUnknownAuthorResult)
+    return webpageWithUnknownAuthorResult
+
+  const blogPostResult = extractApaBlogPostReference(reference)
+  if (blogPostResult)
+    return blogPostResult
+
   const webpageRetrievalResult = extractApaWebpageRetrievalReference(reference)
   if (webpageRetrievalResult)
     return webpageRetrievalResult
+
+  // Check for news articles
+  const newspaperResult = extractApaNewspaperArticleReference(reference)
+  if (newspaperResult)
+    return newspaperResult
+
+  const noAuthorResult = extractApaNoAuthorReference(reference)
+  if (noAuthorResult)
+    return noAuthorResult
 
   // Check for book chapters and books with specific formatting
   const bookChapterResult = extractApaBookChapterReference(reference)
@@ -72,19 +103,6 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
   const bookResult = extractApaBookReference(reference)
   if (bookResult)
     return bookResult
-
-  // Check for news articles and online sources
-  const newspaperResult = extractApaNewspaperArticleReference(reference)
-  if (newspaperResult)
-    return newspaperResult
-
-  const blogPostResult = extractApaBlogPostReference(reference)
-  if (blogPostResult)
-    return blogPostResult
-
-  const noAuthorResult = extractApaNoAuthorReference(reference)
-  if (noAuthorResult)
-    return noAuthorResult
 
   // Check for media and artwork
   const mediaResult = extractApaMediaReference(reference)

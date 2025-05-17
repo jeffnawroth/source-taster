@@ -75,15 +75,15 @@ export function extractApaMediaReference(reference: string): ReferenceMetadata[]
     yearEnd,
     yearSuffix,
     noDate,
-    title: `${title} [${mediaType}]`,
-    containerTitle: null,
+    title, // Nur den Titel ohne den Medientyp
+    containerTitle: platform, // Die Plattform (z.B. YouTube) als Container-Titel
     volume: null,
     issue: null,
     pages: null,
     doi: null,
-    publisher: platform,
+    publisher: null, // Publisher auf null setzen
     url,
-    sourceType: mediaType,
+    sourceType: mediaType, // Medientyp (z.B. "Video") als sourceType
   }]
 }
 
