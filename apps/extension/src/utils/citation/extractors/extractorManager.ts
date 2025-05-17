@@ -2,7 +2,21 @@ import type { ReferenceMetadata } from '../interface'
 import { extractApaBookChapterReference, extractApaBookReference, extractApaBookWithEditionReference } from './bookExtractors'
 import { extractApaJournalReference, extractApaJournalSupplementReference, extractApaJournalWithPrefixReference } from './journalExtractors'
 import { extractApaArtworkReference, extractApaMediaReference } from './mediaExtractors'
-import { extractApaBlogPostReference, extractApaNewspaperArticleReference, extractApaNoAuthorReference, extractApaOrganizationWebpageReference, extractApaSourceWithParagraphReference, extractApaWebpageNoAuthorNoDateReference, extractApaWebpageNoDateReference, extractApaWebpageRetrievalReference, extractApaWebpageWithUnknownAuthorReference } from './webExtractors'
+import {
+  extractApaBlogPostReference,
+  extractApaNewspaperArticleReference,
+  extractApaNoAuthorReference,
+  extractApaOrganizationWebpageReference,
+  extractApaPrintNewspaperArticleReference,
+  extractApaPrintNewspaperNoAuthorNoDateReference,
+  extractApaPrintNewspaperNoAuthorReference,
+  extractApaPrintNewspaperNoDateReference, // NEUE IMPORT
+  extractApaSourceWithParagraphReference,
+  extractApaWebpageNoAuthorNoDateReference,
+  extractApaWebpageNoDateReference,
+  extractApaWebpageRetrievalReference,
+  extractApaWebpageWithUnknownAuthorReference,
+} from './webExtractors'
 
 /**
  * Extracts metadata from APA 7 references of various types
@@ -29,6 +43,7 @@ import { extractApaBlogPostReference, extractApaNewspaperArticleReference, extra
  * Example (Webpage with retrieval date): Worldometer. (n.d.). World population clock. Retrieved October 20, 2020, from https://www.worldometers.info/world-population/
  * Example (Blog post): McCombes, S. (2020, June 19). How to write a problem statement. Scribbr. https://www.scribbr.com/research-process/problem-statement/
  * Example (Newspaper article): Wakabayashi, D. (2020, October 21). Google antitrust fight thrusts low-key C.E.O. into the line of fire. The New York Times. https://www.nytimes.com/2020/10/21/technology/google-antitrust-sundar-pichai.html
+ * Example (Print newspaper article): Popkin, G. (2020, August 12). Global warming could unlock carbon from tropical soil. The New York Times, D3.
  * Example (Journal article with volume prefix): Smith, P. (2018). Analysis of urban development. Journal of Urban Studies, Vol. 12(3), pp. 45-67. https://doi.org/10.1177/123456789
  * Example (Article with paragraph number): Smith, P. (2019). How to cite with paragraph numbers. Research Guide. https://example.com/citing-guide (para. 5)
  * Example (Journal supplement): Jones, R. (2020). Special analysis. Journal of Research, 15(Suppl. 2), S123-S135. https://doi.org/10.1177/12345678
@@ -82,6 +97,27 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
     return webpageRetrievalResult
 
   // Check for news articles
+  // Prüfe zuerst Print-Zeitungsartikel
+  const printNewspaperResult = extractApaPrintNewspaperArticleReference(reference)
+  if (printNewspaperResult)
+    return printNewspaperResult
+
+  // Prüfe Print-Zeitungsartikel ohne Datum
+  const printNewspaperNoDateResult = extractApaPrintNewspaperNoDateReference(reference)
+  if (printNewspaperNoDateResult)
+    return printNewspaperNoDateResult
+
+  // Prüfe Print-Zeitungsartikel ohne Autor
+  const printNewspaperNoAuthorResult = extractApaPrintNewspaperNoAuthorReference(reference)
+  if (printNewspaperNoAuthorResult)
+    return printNewspaperNoAuthorResult
+
+  // Prüfe Print-Zeitungsartikel ohne Autor UND ohne Datum
+  const printNewspaperNoAuthorNoDateResult = extractApaPrintNewspaperNoAuthorNoDateReference(reference)
+  if (printNewspaperNoAuthorNoDateResult)
+    return printNewspaperNoAuthorNoDateResult
+
+  // Dann Online-Zeitungsartikel
   const newspaperResult = extractApaNewspaperArticleReference(reference)
   if (newspaperResult)
     return newspaperResult
