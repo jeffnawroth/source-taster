@@ -3,14 +3,16 @@ import { extractApaBookChapterReference, extractApaBookReference, extractApaBook
 import { extractApaJournalReference, extractApaJournalSupplementReference, extractApaJournalWithPrefixReference } from './journalExtractors'
 import { extractApaArtworkReference, extractApaMediaReference } from './mediaExtractors'
 import {
-  extractApaBlogPostReference,
   extractApaNewspaperArticleReference,
-  extractApaNoAuthorReference,
-  extractApaOrganizationWebpageReference,
   extractApaPrintNewspaperArticleReference,
   extractApaPrintNewspaperNoAuthorNoDateReference,
   extractApaPrintNewspaperNoAuthorReference,
-  extractApaPrintNewspaperNoDateReference, // NEUE IMPORT
+  extractApaPrintNewspaperNoDateReference,
+} from './newspaperExtractors'
+import {
+  extractApaBlogPostReference,
+  extractApaNoAuthorReference,
+  extractApaOrganizationWebpageReference,
   extractApaSourceWithParagraphReference,
   extractApaWebpageNoAuthorNoDateReference,
   extractApaWebpageNoDateReference,
