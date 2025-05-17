@@ -35,7 +35,7 @@ export function mapCrossrefToPublication(result: Work): PublicationMetadata {
   return {
     title: result.title?.[0],
     authors: result.author?.map(author => `${author.given} ${author.family}`),
-    year: result.published?.dateParts[0][0],
+    year: result.publishedPrint?.dateParts[0][0],
     volume: result.volume,
     issue: result.issue,
     pages: result.page,
