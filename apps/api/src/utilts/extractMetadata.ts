@@ -25,7 +25,7 @@ export interface ReferenceMetadata {
 }
 
 Guidelines:
-	•	originalEntry: Always return the original input string here.
+	•	originalEntry: Always return the original input string **without any leading numbering or bullet markers**.
 	•	Authors: Extract a list of author names in "Firstname Lastname" or "Lastname, Firstname" format. Include all authors if possible.
 	•	Year: Extract the publication year as a 4-digit number.
 	•	Title: Extract the title of the article, book, or chapter.
