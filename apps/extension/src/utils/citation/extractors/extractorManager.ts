@@ -1,5 +1,6 @@
 import type { ReferenceMetadata } from '../interface'
 import { extractApaBookChapterReference, extractApaBookReference, extractApaBookWithEditionReference } from './bookExtractors'
+import { extractApaDictionaryEntryReference } from './dictionaryExtractors'
 import { extractApaJournalReference, extractApaJournalSupplementReference, extractApaJournalWithPrefixReference } from './journalExtractors'
 import { extractApaArtworkReference, extractApaMediaReference } from './mediaExtractors'
 import {
@@ -52,8 +53,13 @@ import {
  */
 export function extractApaReference(reference: string): ReferenceMetadata[] | null {
   // Try each type of reference pattern in order from most specific to most general
-
   // Check for sources with specific formatting first
+
+  // Vor der Prüfung auf Bücher
+  const dictionaryEntryResult = extractApaDictionaryEntryReference(reference)
+  if (dictionaryEntryResult)
+    return dictionaryEntryResult
+
   const sourceWithParagraphResult = extractApaSourceWithParagraphReference(reference)
   if (sourceWithParagraphResult)
     return sourceWithParagraphResult
