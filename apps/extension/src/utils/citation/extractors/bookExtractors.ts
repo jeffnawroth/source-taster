@@ -1,7 +1,7 @@
 /* eslint-disable regexp/optimal-quantifier-concatenation */
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
-import type { ReferenceMetadata } from '../interface'
+import type { DateInfo, ReferenceMetadata, SourceInfo, TitleInfo } from '../interface'
 import { normalizeRole, parseAuthors } from '../helpers/authorParser'
 
 /**
@@ -91,9 +91,8 @@ export function extractApaBookWithEditionReference(reference: string): Reference
     }
   }
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -101,7 +100,16 @@ export function extractApaBookWithEditionReference(reference: string): Reference
     yearEnd,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: null,
     volume: null,
     issue: null,
@@ -109,16 +117,26 @@ export function extractApaBookWithEditionReference(reference: string): Reference
     doi,
     publisher,
     url,
-    edition,
     sourceType: 'Book',
     location: null,
     retrievalDate: null,
+    edition,
     contributors: null,
     pageType: null,
     paragraphNumber: null,
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: authors,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -228,9 +246,8 @@ export function extractApaBookChapterReference(reference: string): ReferenceMeta
   // Publisher is match[13]
   const publisher = match[13].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -238,24 +255,43 @@ export function extractApaBookChapterReference(reference: string): ReferenceMeta
     yearEnd,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle,
     volume: null,
     issue: null,
     pages,
-    pageType,
     doi: null,
     publisher,
     url: null,
-    edition,
-    contributors,
     sourceType: 'Book chapter',
     location: null,
     retrievalDate: null,
+    edition,
+    contributors,
+    pageType,
     paragraphNumber: null,
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: authors,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -357,9 +393,8 @@ export function extractApaBookReference(reference: string): ReferenceMetadata[] 
     }
   }
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -367,7 +402,16 @@ export function extractApaBookReference(reference: string): ReferenceMetadata[] 
     yearEnd,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: null,
     volume: null,
     issue: null,
@@ -385,6 +429,16 @@ export function extractApaBookReference(reference: string): ReferenceMetadata[] 
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: authors,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -491,9 +545,8 @@ export function extractApaBookWithAuthorRoleReference(reference: string): Refere
     }
   }
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -501,7 +554,16 @@ export function extractApaBookWithAuthorRoleReference(reference: string): Refere
     yearEnd,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: null,
     volume: null,
     issue: null,
@@ -519,5 +581,90 @@ export function extractApaBookWithAuthorRoleReference(reference: string): Refere
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: authors,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
+  }]
+}
+
+/**
+ * Extracts metadata from APA 7 book references with approximate date (ca.)
+ * Example: Smith, J. (ca. 1999). Ancient wisdom for modern times. Publisher.
+ */
+export function extractApaBookApproximateDateReference(reference: string): ReferenceMetadata[] | null {
+  const apaBookApproximateDatePattern = /^([^(]+)\s+\(ca\.\s+(\d{4})\)\.\s+([^.]+)\.\s+([^.]+)\.$/
+
+  const match = reference.match(apaBookApproximateDatePattern)
+
+  if (!match) {
+    return null
+  }
+
+  // Extract authors
+  const authorString = match[1].trim()
+  const authors = parseAuthors(authorString)
+
+  // Extract year (approximate)
+  const year = Number.parseInt(match[2], 10)
+
+  // Title is match[3]
+  const title = match[3].trim()
+
+  // Publisher is match[4]
+  const publisher = match[4].trim()
+
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
+    year,
+    month: null,
+    day: null,
+    dateRange: false,
+    yearEnd: null,
+    yearSuffix: null,
+    noDate: false,
+    inPress: false,
+    approximateDate: true,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
+    title,
+  }
+
+  const sourceInfo: SourceInfo = {
+    containerTitle: null,
+    volume: null,
+    issue: null,
+    pages: null,
+    doi: null,
+    publisher,
+    url: null,
+    sourceType: 'Book',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: authors,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }

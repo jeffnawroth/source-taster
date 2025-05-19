@@ -1,7 +1,7 @@
 /* eslint-disable regexp/optimal-quantifier-concatenation */
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
-import type { Author, ReferenceMetadata } from '../interface'
+import type { Author, DateInfo, ReferenceMetadata, SourceInfo, TitleInfo } from '../interface'
 import { parseAuthors } from '../helpers/authorParser'
 
 /**
@@ -50,7 +50,7 @@ export function extractApaDictionaryEntryReference(reference: string): Reference
 
   // Extract authors
   const authorString = match[1].trim()
-  const authors = parseAuthors(authorString)
+  const author = parseAuthors(authorString)
 
   // Extract date components - check if it's "n.d." or a year
   const dateString = match[2].trim()
@@ -146,9 +146,8 @@ export function extractApaDictionaryEntryReference(reference: string): Reference
     url = match[8].trim()
   }
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month: null,
     day: null,
@@ -156,7 +155,16 @@ export function extractApaDictionaryEntryReference(reference: string): Reference
     yearEnd: null,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: dictionaryTitle,
     volume: null,
     issue: null,
@@ -174,5 +182,15 @@ export function extractApaDictionaryEntryReference(reference: string): Reference
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }

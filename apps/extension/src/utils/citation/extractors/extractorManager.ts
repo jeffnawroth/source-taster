@@ -1,7 +1,20 @@
 import type { ReferenceMetadata } from '../interface'
-import { extractApaBookChapterReference, extractApaBookReference, extractApaBookWithAuthorRoleReference, extractApaBookWithEditionReference } from './bookExtractors'
+import {
+  extractApaBookApproximateDateReference, // Neu
+  extractApaBookChapterReference,
+  extractApaBookReference,
+  extractApaBookWithAuthorRoleReference,
+  extractApaBookWithEditionReference,
+} from './bookExtractors'
 import { extractApaDictionaryEntryReference } from './dictionaryExtractors'
-import { extractApaJournalReference, extractApaJournalSupplementReference, extractApaJournalWithPrefixReference } from './journalExtractors'
+import {
+  extractApaInPressJournalReference, // Neu
+  extractApaJournalArticleNumberReference, // Neu
+  extractApaJournalReference,
+  extractApaJournalSupplementReference,
+  extractApaJournalWithPrefixReference,
+  extractApaJournalWithSeasonReference, // Neu
+} from './journalExtractors'
 import { extractApaArtworkReference, extractApaMediaReference } from './mediaExtractors'
 import {
   extractApaNewspaperArticleReference,
@@ -55,10 +68,23 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
   // Try each type of reference pattern in order from most specific to most general
   // Check for sources with specific formatting first
 
-  // Vor der Prüfung auf Bücher
-  const dictionaryEntryResult = extractApaDictionaryEntryReference(reference)
-  if (dictionaryEntryResult)
-    return dictionaryEntryResult
+  // Die aproximativen und In-Press-Referenzen haben eine hohe Priorität
+  const approximateDateResult = extractApaBookApproximateDateReference(reference)
+  if (approximateDateResult)
+    return approximateDateResult
+
+  const inPressResult = extractApaInPressJournalReference(reference)
+  if (inPressResult)
+    return inPressResult
+
+  // Artikel mit Artikelnummer oder Jahreszeit
+  const articleNumberResult = extractApaJournalArticleNumberReference(reference)
+  if (articleNumberResult)
+    return articleNumberResult
+
+  const seasonResult = extractApaJournalWithSeasonReference(reference)
+  if (seasonResult)
+    return seasonResult
 
   const sourceWithParagraphResult = extractApaSourceWithParagraphReference(reference)
   if (sourceWithParagraphResult)
@@ -147,6 +173,11 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
   const bookWithEditionResult = extractApaBookWithEditionReference(reference)
   if (bookWithEditionResult)
     return bookWithEditionResult
+
+  // Wörterbuch-Einträge
+  const dictionaryEntryResult = extractApaDictionaryEntryReference(reference)
+  if (dictionaryEntryResult)
+    return dictionaryEntryResult
 
   // Check for standard books
   const bookResult = extractApaBookReference(reference)

@@ -1,7 +1,7 @@
 /* eslint-disable regexp/optimal-quantifier-concatenation */
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
-import type { ReferenceMetadata } from '../interface'
+import type { DateInfo, ReferenceMetadata, SourceInfo, TitleInfo } from '../interface'
 import { parseAuthors } from '../helpers/authorParser'
 
 /**
@@ -21,7 +21,7 @@ export function extractApaNewspaperArticleReference(reference: string): Referenc
 
   // Extract authors
   const authorString = match[1].trim()
-  const authors = parseAuthors(authorString)
+  const author = parseAuthors(authorString)
 
   // Extract date components
   const year = Number.parseInt(match[2], 10)
@@ -37,9 +37,8 @@ export function extractApaNewspaperArticleReference(reference: string): Referenc
   // URL is match[7]
   const url = match[7].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -47,7 +46,16 @@ export function extractApaNewspaperArticleReference(reference: string): Referenc
     yearEnd: null,
     yearSuffix: null,
     noDate: false,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: newspaper,
     volume: null,
     issue: null,
@@ -65,6 +73,16 @@ export function extractApaNewspaperArticleReference(reference: string): Referenc
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -85,7 +103,7 @@ export function extractApaPrintNewspaperArticleReference(reference: string): Ref
 
   // Extract authors
   const authorString = match[1].trim()
-  const authors = parseAuthors(authorString)
+  const author = parseAuthors(authorString)
 
   // Extract date components
   const year = Number.parseInt(match[2], 10)
@@ -101,9 +119,8 @@ export function extractApaPrintNewspaperArticleReference(reference: string): Ref
   // Pages is match[7]
   const pages = match[7].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -111,7 +128,16 @@ export function extractApaPrintNewspaperArticleReference(reference: string): Ref
     yearEnd: null,
     yearSuffix: null,
     noDate: false,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: newspaper,
     volume: null,
     issue: null,
@@ -129,6 +155,16 @@ export function extractApaPrintNewspaperArticleReference(reference: string): Ref
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -155,17 +191,25 @@ export function extractApaPrintNewspaperNoAuthorNoDateReference(reference: strin
   // Pages is match[3]
   const pages = match[3].trim()
 
-  return [{
-    originalEntry: reference,
-    authors: null, // Kein Autor
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year: null,
     month: null,
     day: null,
     dateRange: false,
     yearEnd: null,
     yearSuffix: null,
-    noDate: true, // Kein Datum
+    noDate: true,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: newspaper,
     volume: null,
     issue: null,
@@ -183,6 +227,16 @@ export function extractApaPrintNewspaperNoAuthorNoDateReference(reference: strin
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: null, // Kein Autor
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -216,9 +270,8 @@ export function extractApaPrintNewspaperNoAuthorReference(reference: string): Re
   // Pages is match[6]
   const pages = match[6].trim()
 
-  return [{
-    originalEntry: reference,
-    authors: null, // Kein Autor
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -226,7 +279,16 @@ export function extractApaPrintNewspaperNoAuthorReference(reference: string): Re
     yearEnd: null,
     yearSuffix: null,
     noDate: false,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: newspaper,
     volume: null,
     issue: null,
@@ -244,6 +306,16 @@ export function extractApaPrintNewspaperNoAuthorReference(reference: string): Re
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: null, // Kein Autor
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -263,7 +335,7 @@ export function extractApaPrintNewspaperNoDateReference(reference: string): Refe
 
   // Extract authors
   const authorString = match[1].trim()
-  const authors = parseAuthors(authorString)
+  const author = parseAuthors(authorString)
 
   // Title is match[2]
   const title = match[2].trim()
@@ -274,9 +346,8 @@ export function extractApaPrintNewspaperNoDateReference(reference: string): Refe
   // Pages is match[4]
   const pages = match[4].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year: null,
     month: null,
     day: null,
@@ -284,7 +355,16 @@ export function extractApaPrintNewspaperNoDateReference(reference: string): Refe
     yearEnd: null,
     yearSuffix: null,
     noDate: true,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: newspaper,
     volume: null,
     issue: null,
@@ -302,6 +382,16 @@ export function extractApaPrintNewspaperNoDateReference(reference: string): Refe
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -333,9 +423,8 @@ export function extractApaNewspaperNoAuthorReference(reference: string): Referen
   // URL is match[6]
   const url = match[6].trim()
 
-  return [{
-    originalEntry: reference,
-    authors: null, // Kein Autor
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -343,7 +432,16 @@ export function extractApaNewspaperNoAuthorReference(reference: string): Referen
     yearEnd: null,
     yearSuffix: null,
     noDate: false,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: newspaper,
     volume: null,
     issue: null,
@@ -361,5 +459,15 @@ export function extractApaNewspaperNoAuthorReference(reference: string): Referen
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: null, // Kein Autor
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }

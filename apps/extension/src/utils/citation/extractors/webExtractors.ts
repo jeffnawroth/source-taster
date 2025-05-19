@@ -1,7 +1,7 @@
 /* eslint-disable regexp/optimal-quantifier-concatenation */
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
-import type { Author, ReferenceMetadata } from '../interface'
+import type { Author, DateInfo, ReferenceMetadata, SourceInfo, TitleInfo } from '../interface'
 import { parseAuthors } from '../helpers/authorParser'
 
 /**
@@ -20,7 +20,7 @@ export function extractApaBlogPostReference(reference: string): ReferenceMetadat
 
   // Extract authors
   const authorString = match[1].trim()
-  const authors = parseAuthors(authorString)
+  const author = parseAuthors(authorString)
 
   // Extract date components
   const year = Number.parseInt(match[2], 10)
@@ -37,9 +37,8 @@ export function extractApaBlogPostReference(reference: string): ReferenceMetadat
   // URL is match[8]
   const url = match[8].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -47,15 +46,24 @@ export function extractApaBlogPostReference(reference: string): ReferenceMetadat
     yearEnd: null,
     yearSuffix,
     noDate: false,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
-    containerTitle: websiteName, // Setze den Websitennamen als containerTitle
+  }
+
+  const sourceInfo: SourceInfo = {
+    containerTitle: websiteName,
     volume: null,
     issue: null,
     pages: null,
     doi: null,
-    publisher: null, // Publisher auf null setzen, da Website schon als containerTitle gesetzt ist
+    publisher: null,
     url,
-    sourceType: 'Webpage', // "Webpage" statt "Blog post" für allgemeinere Webseiten
+    sourceType: 'Webpage',
     location: null,
     retrievalDate: null,
     edition: null,
@@ -65,6 +73,16 @@ export function extractApaBlogPostReference(reference: string): ReferenceMetadat
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -85,7 +103,7 @@ export function extractApaWebpageRetrievalReference(reference: string): Referenc
 
   // Extract authors (removing trailing whitespace)
   const authorString = match[1].trim()
-  const authors = authorString ? parseAuthors(authorString) : null
+  const author = authorString ? parseAuthors(authorString) : null
 
   // Extract and parse date information
   const dateString = match[2] ? match[2].trim() : null
@@ -133,9 +151,8 @@ export function extractApaWebpageRetrievalReference(reference: string): Referenc
   // URL is match[9]
   const url = match[9].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -143,17 +160,26 @@ export function extractApaWebpageRetrievalReference(reference: string): Referenc
     yearEnd,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: null,
     volume: null,
     issue: null,
     pages: null,
     doi: null,
-    publisher: null, // No explicit publisher in this format
+    publisher: null,
     url,
-    retrievalDate,
     sourceType: 'Webpage',
     location: null,
+    retrievalDate,
     edition: null,
     contributors: null,
     pageType: null,
@@ -161,6 +187,16 @@ export function extractApaWebpageRetrievalReference(reference: string): Referenc
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -227,9 +263,8 @@ export function extractApaNoAuthorReference(reference: string): ReferenceMetadat
   // URL is match[9] with the updated pattern
   const url = match[9].trim()
 
-  return [{
-    originalEntry: reference,
-    authors: null, // Explicitly set to null for unknown author
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -237,7 +272,16 @@ export function extractApaNoAuthorReference(reference: string): ReferenceMetadat
     yearEnd,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: null,
     volume: null,
     issue: null,
@@ -245,9 +289,9 @@ export function extractApaNoAuthorReference(reference: string): ReferenceMetadat
     doi: null,
     publisher,
     url,
-    retrievalDate,
     sourceType: 'Online source',
     location: null,
+    retrievalDate,
     edition: null,
     contributors: null,
     pageType: null,
@@ -255,6 +299,16 @@ export function extractApaNoAuthorReference(reference: string): ReferenceMetadat
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: null, // Explicitly set to null for unknown author
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -273,7 +327,7 @@ export function extractApaSourceWithParagraphReference(reference: string): Refer
 
   // Extract authors
   const authorString = match[1].trim()
-  const authors = parseAuthors(authorString)
+  const author = parseAuthors(authorString)
 
   // Extract date components
   const dateString = match[2] ? match[2].trim() : null
@@ -324,9 +378,8 @@ export function extractApaSourceWithParagraphReference(reference: string): Refer
   // Paragraph number is match[10]
   const paragraphNumber = match[10].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -334,7 +387,16 @@ export function extractApaSourceWithParagraphReference(reference: string): Refer
     yearEnd,
     yearSuffix,
     noDate,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: null,
     volume: null,
     issue: null,
@@ -342,16 +404,26 @@ export function extractApaSourceWithParagraphReference(reference: string): Refer
     doi: null,
     publisher,
     url,
-    paragraphNumber,
     sourceType: 'Online source',
     location: null,
     retrievalDate: null,
     edition: null,
     contributors: null,
     pageType: null,
+    paragraphNumber,
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -385,7 +457,7 @@ export function extractApaOrganizationWebpageReference(reference: string): Refer
   }
 
   // Erstelle ein Author-Objekt für die Organisation
-  const authors: Author[] = [{
+  const author: Author[] = [{
     name: orgName,
     role: null,
   }]
@@ -401,9 +473,8 @@ export function extractApaOrganizationWebpageReference(reference: string): Refer
   // URL is match[6]
   const url = match[6].trim()
 
-  return [{
-    originalEntry: reference,
-    authors, // Die Organisation als Autor im Author-Format
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -411,17 +482,26 @@ export function extractApaOrganizationWebpageReference(reference: string): Refer
     yearEnd: null,
     yearSuffix: null,
     noDate: false,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
-    containerTitle: null, // Hier sollte kein containerTitle gesetzt werden, da die Organisation der Autor ist
+  }
+
+  const sourceInfo: SourceInfo = {
+    containerTitle: null,
     volume: null,
     issue: null,
     pages: null,
     doi: null,
     publisher: null,
     url,
-    retrievalDate: null,
     sourceType: 'Webpage',
     location: null,
+    retrievalDate: null,
     edition: null,
     contributors: null,
     pageType: null,
@@ -429,6 +509,16 @@ export function extractApaOrganizationWebpageReference(reference: string): Refer
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: true,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -459,9 +549,8 @@ export function extractApaWebpageWithUnknownAuthorReference(reference: string): 
   // URL is match[6]
   const url = match[6].trim()
 
-  return [{
-    originalEntry: reference,
-    authors: null, // Unbekannter Autor
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year,
     month,
     day,
@@ -469,7 +558,16 @@ export function extractApaWebpageWithUnknownAuthorReference(reference: string): 
     yearEnd: null,
     yearSuffix: null,
     noDate: false,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: websiteName,
     volume: null,
     issue: null,
@@ -477,9 +575,9 @@ export function extractApaWebpageWithUnknownAuthorReference(reference: string): 
     doi: null,
     publisher: null,
     url,
-    retrievalDate: null,
     sourceType: 'Webpage',
     location: null,
+    retrievalDate: null,
     edition: null,
     contributors: null,
     pageType: null,
@@ -487,6 +585,16 @@ export function extractApaWebpageWithUnknownAuthorReference(reference: string): 
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: null, // Unbekannter Autor
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -505,7 +613,7 @@ export function extractApaWebpageNoDateReference(reference: string): ReferenceMe
 
   // Extract authors
   const authorString = match[1].trim()
-  const authors = parseAuthors(authorString)
+  const author = parseAuthors(authorString)
 
   // Title is match[2]
   const title = match[2].trim()
@@ -519,9 +627,8 @@ export function extractApaWebpageNoDateReference(reference: string): ReferenceMe
   // URL is match[5]
   const url = match[5].trim()
 
-  return [{
-    originalEntry: reference,
-    authors,
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year: null,
     month: null,
     day: null,
@@ -529,7 +636,16 @@ export function extractApaWebpageNoDateReference(reference: string): ReferenceMe
     yearEnd: null,
     yearSuffix: null,
     noDate: true,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: websiteName,
     volume: null,
     issue: null,
@@ -537,9 +653,9 @@ export function extractApaWebpageNoDateReference(reference: string): ReferenceMe
     doi: null,
     publisher: null,
     url,
-    retrievalDate,
     sourceType: 'Webpage',
     location: null,
+    retrievalDate,
     edition: null,
     contributors: null,
     pageType: null,
@@ -547,6 +663,16 @@ export function extractApaWebpageNoDateReference(reference: string): ReferenceMe
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author,
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
 
@@ -575,9 +701,8 @@ export function extractApaWebpageNoAuthorNoDateReference(reference: string): Ref
   // URL is match[4]
   const url = match[4].trim()
 
-  return [{
-    originalEntry: reference,
-    authors: null, // Kein Autor
+  // Erstelle die strukturierten Objekte für das neue Interface
+  const dateInfo: DateInfo = {
     year: null,
     month: null,
     day: null,
@@ -585,7 +710,16 @@ export function extractApaWebpageNoAuthorNoDateReference(reference: string): Ref
     yearEnd: null,
     yearSuffix: null,
     noDate: true,
+    inPress: false,
+    approximateDate: false,
+    season: null,
+  }
+
+  const titleInfo: TitleInfo = {
     title,
+  }
+
+  const sourceInfo: SourceInfo = {
     containerTitle: websiteName,
     volume: null,
     issue: null,
@@ -593,9 +727,9 @@ export function extractApaWebpageNoAuthorNoDateReference(reference: string): Ref
     doi: null,
     publisher: null,
     url,
-    retrievalDate,
     sourceType: 'Webpage',
     location: null,
+    retrievalDate,
     edition: null,
     contributors: null,
     pageType: null,
@@ -603,5 +737,15 @@ export function extractApaWebpageNoAuthorNoDateReference(reference: string): Ref
     volumePrefix: null,
     issuePrefix: null,
     supplementInfo: null,
+    articleNumber: null,
+    isStandAlone: false,
+  }
+
+  return [{
+    originalEntry: reference,
+    author: null, // Kein Autor
+    date: dateInfo,
+    title: titleInfo,
+    source: sourceInfo,
   }]
 }
