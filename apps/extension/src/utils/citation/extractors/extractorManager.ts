@@ -8,12 +8,19 @@ import {
 } from './bookExtractors'
 import { extractApaDictionaryEntryReference } from './dictionaryExtractors'
 import {
-  extractApaInPressJournalReference, // Neu
-  extractApaJournalArticleNumberReference, // Neu
+  extractApaAbstractReference, // Neu
+  extractApaAdvanceOnlineReference, // Neu
+  extractApaInPressJournalReference,
+  extractApaJournalArticleNumberReference,
   extractApaJournalReference,
   extractApaJournalSupplementReference,
+  extractApaJournalWithMissingInfoReference, // Neu
   extractApaJournalWithPrefixReference,
-  extractApaJournalWithSeasonReference, // Neu
+  extractApaJournalWithSeasonReference,
+  extractApaMonographReference,
+  extractApaOnlineJournalWithoutPagesReference, // Neu
+  extractApaRetractedArticleReference, // Neu
+  extractApaRetractionNoticeReference, // Neu
 } from './journalExtractors'
 import { extractApaArtworkReference, extractApaMediaReference } from './mediaExtractors'
 import {
@@ -63,6 +70,12 @@ import {
  * Example (Journal article with volume prefix): Smith, P. (2018). Analysis of urban development. Journal of Urban Studies, Vol. 12(3), pp. 45-67. https://doi.org/10.1177/123456789
  * Example (Article with paragraph number): Smith, P. (2019). How to cite with paragraph numbers. Research Guide. https://example.com/citing-guide (para. 5)
  * Example (Journal supplement): Jones, R. (2020). Special analysis. Journal of Research, 15(Suppl. 2), S123-S135. https://doi.org/10.1177/12345678
+ * Example (Journal with missing info): Koehler, M. J., & Mishra, P. (2009). What is technological pedagogical content knowledge? Contemporary Issues in Technology and Teacher Education, 9, 60-70.
+ * Example (Retracted article): Joly, J. F., Stapel, D. A., & Lindenberg, S. M. (2008). Silence and table manners: When environments activate norms. Personality and Social Psychology Bulletin, 34(8), 1047–1056. https://doi.org/10.1177/0146167208318401 (Retraction published 2012, Personality and Social Psychology Bulletin, 38[10], 1378)
+ * Example (Retraction notice): de la Fuente, R., Bernad, A., Garcia-Castro, J., Martin, M. C., & Cigudosa, J. C. (2010). Retraction: Spontaneous human adult stem cell transformation [Retraction of article]. Cancer Research, 70(16), 6682. https://doi.org/10.1158/0008-5472.CAN-10-2451
+ * Example (Journal abstract): Hare, L. R., & O'Neill, K. (2000). Effectiveness and efficiency in small academic peer groups (Abstract from Small Group Research, 2000, 31, 24–53). Dissertation Abstracts International: Section A. Humanities and Social Sciences, 60(8), 3004.
+ * Example (Journal monograph): Ganster, D. C., Schaubroeck, J., Sime, W. E., & Mayes, B. T. (1991). The nomological validity of the Type A personality among employed adults [Monograph]. Journal of Applied Psychology, 76(1), 143–168. http://doi.org/10.1037/0021-9010.76.1.143
+ * Example (Advance online publication): Tran, B. X., Harijanto, C., Vu, G. T., & Ho, R. C. M. (2020). Global mapping of interventions to improve quality of life of patients with depression during 1990–2018. Quality of Life Research. Advance online publication. https://doi.org/10.1007/s11136-020-02500-x
  */
 export function extractApaReference(reference: string): ReferenceMetadata[] | null {
   // Try each type of reference pattern in order from most specific to most general
@@ -76,6 +89,32 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
   const inPressResult = extractApaInPressJournalReference(reference)
   if (inPressResult)
     return inPressResult
+
+  // Prüfe spezielle Journal-Artikel-Typen
+  // Zeitschriftenartikel mit Retraktionsinformationen
+  const retractedArticleResult = extractApaRetractedArticleReference(reference)
+  if (retractedArticleResult)
+    return retractedArticleResult
+
+  // Retraktionsmitteilungen
+  const retractionNoticeResult = extractApaRetractionNoticeReference(reference)
+  if (retractionNoticeResult)
+    return retractionNoticeResult
+
+  // Monografien in Journals
+  const monographResult = extractApaMonographReference(reference)
+  if (monographResult)
+    return monographResult
+
+  // Vorab-Veröffentlichungen
+  const advanceOnlineResult = extractApaAdvanceOnlineReference(reference)
+  if (advanceOnlineResult)
+    return advanceOnlineResult
+
+  // Journal-Abstracts
+  const abstractResult = extractApaAbstractReference(reference)
+  if (abstractResult)
+    return abstractResult
 
   // Artikel mit Artikelnummer oder Jahreszeit
   const articleNumberResult = extractApaJournalArticleNumberReference(reference)
@@ -98,7 +137,16 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
   if (journalWithPrefixResult)
     return journalWithPrefixResult
 
-  // Check for standard journal articles
+  // Zeitschriftenartikel mit fehlenden Informationen
+  const journalWithMissingInfoResult = extractApaJournalWithMissingInfoReference(reference)
+  if (journalWithMissingInfoResult)
+    return journalWithMissingInfoResult
+
+  const onlineJournalWithoutPagesResult = extractApaOnlineJournalWithoutPagesReference(reference)
+  if (onlineJournalWithoutPagesResult)
+    return onlineJournalWithoutPagesResult
+
+  // Standard-Journal-Artikel (unverändert)
   const journalResult = extractApaJournalReference(reference)
   if (journalResult)
     return journalResult
