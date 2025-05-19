@@ -1,4 +1,12 @@
 /**
+ * Interface representing an author with optional role information
+ */
+export interface Author {
+  name: string
+  role?: string | null
+}
+
+/**
  * Interface representing metadata of a bibliographic reference.
  *
  * This interface provides a comprehensive structure for storing citation information
@@ -7,7 +15,7 @@
  * @interface ReferenceMetadata
  *
  * @property {string} originalEntry - The original reference text
- * @property {string[] | null} [authors] - List of authors
+ * @property {Author[] | null} [authors] - List of authors with optional roles
  * @property {number | null} [year] - Publication year
  * @property {string | null} [month] - Month name (e.g., "January")
  * @property {number | null} [day] - Day of the month
@@ -27,7 +35,7 @@
  * @property {string | null} [location] - Location information (e.g., museum location)
  * @property {string | null} [retrievalDate] - Date when the reference was accessed or retrieved
  * @property {string | null} [edition] - Edition information (e.g., "5th ed.", "Rev. ed.")
- * @property {{ name: string, role: string }[] | null} [contributors] - Additional contributors with roles (editors, translators)
+ * @property {Author[] | null} [contributors] - Additional contributors with roles (editors, translators)
  * @property {string | null} [pageType] - Type of page reference (p./pp.)
  * @property {string | null} [paragraphNumber] - Paragraph reference information (para.)
  * @property {string | null} [volumePrefix] - Explicit volume designation (Vol./Vols.)
@@ -36,7 +44,7 @@
  */
 export interface ReferenceMetadata {
   originalEntry: string
-  authors?: string[] | null
+  authors?: Author[] | null
   year?: number | null
   month?: string | null
   day?: number | null
@@ -56,7 +64,7 @@ export interface ReferenceMetadata {
   location?: string | null
   retrievalDate?: string | null
   edition?: string | null
-  contributors?: { name: string, role: string }[] | null
+  contributors?: Author[] | null
   pageType?: string | null
   paragraphNumber?: string | null
   volumePrefix?: string | null

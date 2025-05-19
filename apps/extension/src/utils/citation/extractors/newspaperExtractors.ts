@@ -56,6 +56,15 @@ export function extractApaNewspaperArticleReference(reference: string): Referenc
     publisher: null,
     url,
     sourceType: 'Newspaper article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -111,6 +120,15 @@ export function extractApaPrintNewspaperArticleReference(reference: string): Ref
     publisher: null,
     url: null,
     sourceType: 'Newspaper article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -156,6 +174,15 @@ export function extractApaPrintNewspaperNoAuthorNoDateReference(reference: strin
     publisher: null,
     url: null,
     sourceType: 'Newspaper article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -208,6 +235,15 @@ export function extractApaPrintNewspaperNoAuthorReference(reference: string): Re
     publisher: null,
     url: null,
     sourceType: 'Newspaper article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -257,5 +293,73 @@ export function extractApaPrintNewspaperNoDateReference(reference: string): Refe
     publisher: null,
     url: null,
     sourceType: 'Newspaper article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
+  }]
+}
+
+/**
+ * Extracts metadata from APA 7 online newspaper articles with no author
+ * Example: Global warming could unlock carbon from tropical soil. (2020, August 12). The New York Times. https://www.nytimes.com/2020/08/12/climate/global-warming-soil-carbon.html
+ */
+export function extractApaNewspaperNoAuthorReference(reference: string): ReferenceMetadata[] | null {
+  // Pattern für Zeitungsartikel ohne Autor mit URL
+  const apaNewspaperNoAuthorPattern = /^([^.(]+)\.\s+\((\d{4}),\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(\d{1,2}))?\)\.\s+([^.]+)\.\s+(https:\/\/www\.[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?:\/[\w\-.~:/?#[\]@!$&'()*+,;=]*)?)$/
+
+  const match = reference.match(apaNewspaperNoAuthorPattern)
+
+  if (!match) {
+    return null
+  }
+
+  // Title is the first part (no author)
+  const title = match[1].trim()
+
+  // Extract date components
+  const year = Number.parseInt(match[2], 10)
+  const month = match[3] ? match[3].trim() : null
+  const day = match[4] ? Number.parseInt(match[4], 10) : null
+
+  // Newspaper name is match[5]
+  const newspaper = match[5].trim()
+
+  // URL is match[6]
+  const url = match[6].trim()
+
+  return [{
+    originalEntry: reference,
+    authors: null, // Kein Autor
+    year,
+    month,
+    day,
+    dateRange: false,
+    yearEnd: null,
+    yearSuffix: null,
+    noDate: false,
+    title,
+    containerTitle: newspaper,
+    volume: null,
+    issue: null,
+    pages: null,
+    doi: null,
+    publisher: null,
+    url,
+    sourceType: 'Newspaper article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }

@@ -111,6 +111,15 @@ export function extractApaJournalReference(reference: string): ReferenceMetadata
     publisher: null,
     url: isDoi ? null : urlString,
     sourceType: 'Journal article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -230,6 +239,12 @@ export function extractApaJournalWithPrefixReference(reference: string): Referen
     publisher: null,
     url: isDoi ? null : urlString,
     sourceType: 'Journal article',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    paragraphNumber: null,
+    supplementInfo: null,
   }]
 }
 
@@ -326,5 +341,13 @@ export function extractApaJournalSupplementReference(reference: string): Referen
     publisher: null,
     url: isDoi ? null : urlString,
     sourceType: 'Journal supplement',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
   }]
 }

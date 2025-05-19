@@ -1,7 +1,7 @@
 /* eslint-disable regexp/optimal-quantifier-concatenation */
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
-import type { ReferenceMetadata } from '../interface'
+import type { Author, ReferenceMetadata } from '../interface'
 import { parseAuthors } from '../helpers/authorParser'
 
 /**
@@ -84,6 +84,15 @@ export function extractApaMediaReference(reference: string): ReferenceMetadata[]
     publisher: null, // Publisher auf null setzen
     url,
     sourceType: mediaType, // Medientyp (z.B. "Video") als sourceType
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -169,5 +178,117 @@ export function extractApaArtworkReference(reference: string): ReferenceMetadata
     url: null,
     sourceType: artworkType,
     location,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
+  }]
+}
+
+/**
+ * Extracts metadata from APA 7 film or TV show references
+ * Example: Spielberg, S. (Director). (1993). Schindler's list [Film]. Universal Pictures.
+ * Example: Hooper, T. (Director), & Lloyd Webber, A. (Composer). (2019). Cats [Film]. Universal Pictures.
+ * Example: Simon, D., Colesberry, R., & Kostroff Noble, N. (Executive producers). (2002–2008). The wire [TV series]. HBO.
+ */
+export function extractApaFilmTvReference(reference: string): ReferenceMetadata[] | null {
+  const apaFilmTvPattern = /^([^(]+)\s+\(([^)]+)\)\.\s+\((?:(\d{4})([a-z]?)(?:–(\d{4}))?(?:,\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(\d{1,2}))?)?|n\.d\.)\)\.\s+([^[.]+)\s+\[([^[\]]+)\]\.\s+([^.]+)\.$/
+
+  const match = reference.match(apaFilmTvPattern)
+
+  if (!match) {
+    // If pattern doesn't match, return null
+    return null
+  }
+
+  // Extract authors (removing trailing whitespace) with role information
+  const authorString = match[1].trim()
+
+  // Extrahiere die Rolle des Autors (Director, Producer, etc.)
+  const authorRoleString = match[2].trim()
+
+  // Parse die Autoren zunächst ohne Rollen
+  const authorsWithoutRole = parseAuthors(authorString)
+
+  // Füge die Rolle allen Autoren hinzu
+  const authors: Author[] = authorsWithoutRole.map(author => ({
+    name: author.name,
+    role: authorRoleString, // Die Rolle aus dem Match direkt zuweisen
+  }))
+
+  // Extract and parse date information
+  const dateString = match[3] ? match[3].trim() : null
+  const yearSuffix = match[4] ? match[4].trim() : null
+  const yearEndString = match[5] ? match[5].trim() : null
+  const monthString = match[6] ? match[6].trim() : null
+  const dayString = match[7] ? match[7].trim() : null
+
+  let year: number | null = null
+  let yearEnd: number | null = null
+  let month: string | null = null
+  let day: number | null = null
+  let dateRange = false
+  let noDate = false
+
+  // Check if the date is "n.d." (no date)
+  if (!dateString && reference.includes('(n.d.)')) {
+    year = null
+    noDate = true
+  }
+  else if (dateString) {
+    year = Number.parseInt(dateString, 10)
+
+    // Check for year range
+    if (yearEndString) {
+      yearEnd = Number.parseInt(yearEndString, 10)
+      dateRange = true
+    }
+
+    // Check for month and day
+    if (monthString) {
+      month = monthString
+      if (dayString) {
+        day = Number.parseInt(dayString, 10)
+      }
+    }
+  }
+
+  // Extract title and media type
+  const title = match[8].trim()
+  const mediaType = match[9].trim() // Film, TV series, etc.
+  const studio = match[10].trim()
+
+  return [{
+    originalEntry: reference,
+    authors,
+    year,
+    month,
+    day,
+    dateRange,
+    yearEnd,
+    yearSuffix,
+    noDate,
+    title,
+    containerTitle: null,
+    volume: null,
+    issue: null,
+    pages: null,
+    doi: null,
+    publisher: studio, // Studio als Publisher
+    url: null,
+    sourceType: mediaType, // Film, TV series etc. als sourceType
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }

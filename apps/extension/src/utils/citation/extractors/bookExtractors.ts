@@ -2,7 +2,7 @@
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
 import type { ReferenceMetadata } from '../interface'
-import { parseAuthors } from '../helpers/authorParser'
+import { normalizeRole, parseAuthors } from '../helpers/authorParser'
 
 /**
  * Extracts metadata from APA 7 book references with edition information
@@ -111,6 +111,14 @@ export function extractApaBookWithEditionReference(reference: string): Reference
     url,
     edition,
     sourceType: 'Book',
+    location: null,
+    retrievalDate: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -175,11 +183,34 @@ export function extractApaBookChapterReference(reference: string): ReferenceMeta
 
   // Editor information
   const editorString = match[8].trim()
-  const editorRole = match[9].trim() // Hier erfassen wir die genaue Rolle (Ed., Eds., Trans., etc.)
-  const contributors = [{
-    name: editorString,
+  const editors = parseAuthors(editorString)
+
+  // Extrahiere die Rolle (Ed., Eds., Trans., Narr., etc.) und normalisiere sie
+  const editorRoleAbbr = match[9].trim() // "Ed.", "Eds.", "Trans.", etc.
+  let editorRole: string
+
+  // Normalisiere die Rolle
+  switch (editorRoleAbbr.toLowerCase()) {
+    case 'ed.':
+    case 'eds.':
+      editorRole = 'editor'
+      break
+    case 'trans.':
+      editorRole = 'translator'
+      break
+    case 'narr.':
+    case 'narrs.':
+      editorRole = 'narrator'
+      break
+    default:
+      editorRole = editorRoleAbbr.toLowerCase()
+  }
+
+  // Setze die Rolle für alle Editoren
+  const contributors = editors.map(editor => ({
+    name: editor.name,
     role: editorRole,
-  }]
+  }))
 
   // Book title is match[10]
   const containerTitle = match[10].trim()
@@ -219,6 +250,12 @@ export function extractApaBookChapterReference(reference: string): ReferenceMeta
     edition,
     contributors,
     sourceType: 'Book chapter',
+    location: null,
+    retrievalDate: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -339,5 +376,148 @@ export function extractApaBookReference(reference: string): ReferenceMetadata[] 
     publisher,
     url,
     sourceType: 'Book',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
+  }]
+}
+
+/**
+ * Extracts metadata from APA 7 book references where the author has an explicit role like (Ed.) or (Trans.)
+ * Examples:
+ * Smith, J. A. (Ed.). (2023). Handbook of qualitative research methods. Oxford University Press.
+ * Williams, T., & Johnson, K. (Eds.). (2022). Advances in cognitive psychology. Cambridge University Press.
+ * Garcia, M. (Trans.). (2021). The philosophy of modern art. Yale University Press.
+ */
+export function extractApaBookWithAuthorRoleReference(reference: string): ReferenceMetadata[] | null {
+  // Pattern für Bücher mit Autorenrollen wie (Ed.), (Eds.), (Trans.), etc.
+  const apaBookWithAuthorRolePattern = /^([^(]+)\s+\(((?:Ed|Eds|Trans|Narr|Narrs|Dir|Prod)\.)\)\.\s+\((?:(\d{4})([a-z]?)(?:–(\d{4}))?(?:,\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(\d{1,2}))?)?|n\.d\.)\)\.\s+([^.[\]]+)(?:\s+\[([^[\]]+)\])?\.\s+([^,.]+)(?:\.|\.\s+(https:\/\/(?:doi\.org\/[\w./]+|www\.[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?:\/[\w\-.~:/?#[\]@!$&'()*+,;=]*)?)))$/
+
+  let match = reference.match(apaBookWithAuthorRolePattern)
+
+  if (!match) {
+    // Wenn das Pattern nicht passt, prüfen wir eine Variante ohne URL/DOI
+    const noUrlPattern = /^([^(]+)\s+\(((?:Ed|Eds|Trans|Narr|Narrs|Dir|Prod)\.)\)\.\s+\((?:(\d{4})([a-z]?)(?:–(\d{4}))?(?:,\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(\d{1,2}))?)?|n\.d\.)\)\.\s+([^.[\]]+)(?:\s+\[([^[\]]+)\])?\.\s+([^,.]+)\.$/
+    const noUrlMatch = reference.match(noUrlPattern)
+
+    if (!noUrlMatch) {
+      return null
+    }
+
+    // Wir verwenden ab jetzt noUrlMatch
+    match = noUrlMatch
+  }
+
+  // Extrahiere Autorennamen mit Rolle
+  const authorString = match[1].trim()
+  const authorRole = match[2].trim()
+
+  // Parse Autoren ohne Rolle und füge die Rolle manuell hinzu
+  const authorsWithoutRole = parseAuthors(authorString)
+  const authors = authorsWithoutRole.map(author => ({
+    name: author.name,
+    role: normalizeRole(authorRole),
+  }))
+
+  // Extract and parse date information
+  const dateString = match[3] ? match[3].trim() : null
+  const yearSuffix = match[4] ? match[4].trim() : null
+  const yearEndString = match[5] ? match[5].trim() : null
+  const monthString = match[6] ? match[6].trim() : null
+  const dayString = match[7] ? match[7].trim() : null
+
+  let year: number | null = null
+  let yearEnd: number | null = null
+  let month: string | null = null
+  let day: number | null = null
+  let dateRange = false
+  let noDate = false
+
+  // Check if the date is "n.d." (no date)
+  if (!dateString && reference.includes('(n.d.)')) {
+    year = null
+    noDate = true
+  }
+  else if (dateString) {
+    year = Number.parseInt(dateString, 10)
+
+    // Check for year range
+    if (yearEndString) {
+      yearEnd = Number.parseInt(yearEndString, 10)
+      dateRange = true
+    }
+
+    // Check for month and day
+    if (monthString) {
+      month = monthString
+      if (dayString) {
+        day = Number.parseInt(dayString, 10)
+      }
+    }
+  }
+
+  // Extract title information
+  let title = match[8].trim()
+
+  // Check if we have a bracketed description
+  const description = match[9] ? match[9].trim() : null
+  if (description) {
+    // Add the description to the title in brackets
+    title = `${title} [${description}]`
+  }
+
+  // Publisher is match[10]
+  const publisher = match[10].trim()
+
+  // URL/DOI is match[11] if it exists
+  const urlString = match[11] ? match[11].trim() : null
+
+  // Check if it's a DOI
+  let doi: string | null = null
+  let url: string | null = null
+
+  if (urlString) {
+    if (urlString.startsWith('https://doi.org/')) {
+      doi = urlString
+    }
+    else {
+      url = urlString
+    }
+  }
+
+  return [{
+    originalEntry: reference,
+    authors,
+    year,
+    month,
+    day,
+    dateRange,
+    yearEnd,
+    yearSuffix,
+    noDate,
+    title,
+    containerTitle: null,
+    volume: null,
+    issue: null,
+    pages: null,
+    doi,
+    publisher,
+    url,
+    sourceType: 'Book',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }

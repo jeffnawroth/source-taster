@@ -1,7 +1,7 @@
 /* eslint-disable regexp/optimal-quantifier-concatenation */
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
-import type { ReferenceMetadata } from '../interface'
+import type { Author, ReferenceMetadata } from '../interface'
 import { parseAuthors } from '../helpers/authorParser'
 
 /**
@@ -75,10 +75,14 @@ export function extractApaDictionaryEntryReference(reference: string): Reference
 
   // Editor information is in match[4] if present
   const editorString = match[4] ? match[4].trim() : null
-  let contributors = null
+  let contributors: Author[] | null = null
   if (editorString) {
     const editors = parseAuthors(editorString)
-    contributors = editors.map(editor => ({ name: editor, role: 'editor' }))
+    // Korrigiere die Struktur der Contributors - nur den Namen extrahieren und die Rolle explizit setzen
+    contributors = editors.map(editor => ({
+      name: editor.name, // Nur den Namen-String extrahieren
+      role: 'editor', // Rolle explizit als "editor" setzen
+    }))
   }
 
   // Dictionary title is match[5]

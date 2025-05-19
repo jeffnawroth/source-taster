@@ -1,7 +1,7 @@
 /* eslint-disable regexp/optimal-quantifier-concatenation */
 /* eslint-disable regexp/no-misleading-capturing-group */
 /* eslint-disable regexp/no-super-linear-backtracking */
-import type { ReferenceMetadata } from '../interface'
+import type { Author, ReferenceMetadata } from '../interface'
 import { parseAuthors } from '../helpers/authorParser'
 
 /**
@@ -56,6 +56,15 @@ export function extractApaBlogPostReference(reference: string): ReferenceMetadat
     publisher: null, // Publisher auf null setzen, da Website schon als containerTitle gesetzt ist
     url,
     sourceType: 'Webpage', // "Webpage" statt "Blog post" für allgemeinere Webseiten
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -144,6 +153,14 @@ export function extractApaWebpageRetrievalReference(reference: string): Referenc
     url,
     retrievalDate,
     sourceType: 'Webpage',
+    location: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -230,6 +247,14 @@ export function extractApaNoAuthorReference(reference: string): ReferenceMetadat
     url,
     retrievalDate,
     sourceType: 'Online source',
+    location: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -319,6 +344,14 @@ export function extractApaSourceWithParagraphReference(reference: string): Refer
     url,
     paragraphNumber,
     sourceType: 'Online source',
+    location: null,
+    retrievalDate: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -351,7 +384,11 @@ export function extractApaOrganizationWebpageReference(reference: string): Refer
     return null // Wahrscheinlich kein Organisationsname
   }
 
-  const authors = [orgName]
+  // Erstelle ein Author-Objekt für die Organisation
+  const authors: Author[] = [{
+    name: orgName,
+    role: null,
+  }]
 
   // Extract date components
   const year = Number.parseInt(match[2], 10)
@@ -366,7 +403,7 @@ export function extractApaOrganizationWebpageReference(reference: string): Refer
 
   return [{
     originalEntry: reference,
-    authors, // Die Organisation als Autor
+    authors, // Die Organisation als Autor im Author-Format
     year,
     month,
     day,
@@ -384,6 +421,14 @@ export function extractApaOrganizationWebpageReference(reference: string): Refer
     url,
     retrievalDate: null,
     sourceType: 'Webpage',
+    location: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -434,6 +479,14 @@ export function extractApaWebpageWithUnknownAuthorReference(reference: string): 
     url,
     retrievalDate: null,
     sourceType: 'Webpage',
+    location: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -486,6 +539,14 @@ export function extractApaWebpageNoDateReference(reference: string): ReferenceMe
     url,
     retrievalDate,
     sourceType: 'Webpage',
+    location: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }
 
@@ -534,5 +595,13 @@ export function extractApaWebpageNoAuthorNoDateReference(reference: string): Ref
     url,
     retrievalDate,
     sourceType: 'Webpage',
+    location: null,
+    edition: null,
+    contributors: null,
+    pageType: null,
+    paragraphNumber: null,
+    volumePrefix: null,
+    issuePrefix: null,
+    supplementInfo: null,
   }]
 }

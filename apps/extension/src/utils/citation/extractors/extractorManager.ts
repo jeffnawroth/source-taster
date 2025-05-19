@@ -1,5 +1,5 @@
 import type { ReferenceMetadata } from '../interface'
-import { extractApaBookChapterReference, extractApaBookReference, extractApaBookWithEditionReference } from './bookExtractors'
+import { extractApaBookChapterReference, extractApaBookReference, extractApaBookWithAuthorRoleReference, extractApaBookWithEditionReference } from './bookExtractors'
 import { extractApaDictionaryEntryReference } from './dictionaryExtractors'
 import { extractApaJournalReference, extractApaJournalSupplementReference, extractApaJournalWithPrefixReference } from './journalExtractors'
 import { extractApaArtworkReference, extractApaMediaReference } from './mediaExtractors'
@@ -138,6 +138,11 @@ export function extractApaReference(reference: string): ReferenceMetadata[] | nu
   const bookChapterResult = extractApaBookChapterReference(reference)
   if (bookChapterResult)
     return bookChapterResult
+
+  // Bücher mit Autorenrollen (wie Editor, Übersetzer) haben eine hohe Priorität
+  const bookWithAuthorRoleResult = extractApaBookWithAuthorRoleReference(reference)
+  if (bookWithAuthorRoleResult)
+    return bookWithAuthorRoleResult
 
   const bookWithEditionResult = extractApaBookWithEditionReference(reference)
   if (bookWithEditionResult)
