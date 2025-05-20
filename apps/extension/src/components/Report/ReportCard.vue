@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useMetadataStore } from '@/extension/stores/metadata'
 import { mdiFileDocumentOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
+import { useMetadataStore } from '@/extension/stores/metadata'
 
-const { metadataResults } = storeToRefs(useMetadataStore())
+const { verifiedReferences } = storeToRefs(useMetadataStore())
 
 const search = ref('')
 
-const { results } = useFuse(search, metadataResults, {
+const { results } = useFuse(search, verifiedReferences, {
   fuseOptions: {
     keys: ['metadata.originalEntry'],
     threshold: 0.3,

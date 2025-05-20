@@ -10,11 +10,11 @@ import { useEuropePmcStore } from './europe-pmc'
 import { useOpenAlexStore } from './openAlex'
 
 export const useMetadataStore = defineStore('metadata', () => {
-  const metadataResults = ref<VerifiedReference[]>([])
+  const verifiedReferences = ref<VerifiedReference[]>([])
 
-  const foundReferencesCount = computed(() => metadataResults.value.length)
-  const registeredReferencesCount = computed(() => metadataResults.value.filter(ref => ref.verification?.match).length)
-  const unregisteredReferencesCount = computed(() => metadataResults.value.filter(ref => !ref.verification || !ref.verification.match).length)
+  const foundReferencesCount = computed(() => verifiedReferences.value.length)
+  const registeredReferencesCount = computed(() => verifiedReferences.value.filter(ref => ref.verification?.match).length)
+  const unregisteredReferencesCount = computed(() => verifiedReferences.value.filter(ref => !ref.verification || !ref.verification.match).length)
 
   // Extract metadata from text and search Crossref
   const { extractReferencesMetadata } = useAiStore()
@@ -23,7 +23,7 @@ export const useMetadataStore = defineStore('metadata', () => {
 
   async function extractAndSearchMetadata(text: string) {
     // Clear previous results
-    metadataResults.value = []
+    verifiedReferences.value = []
 
     // Check if the text is empty
     if (!text.trim().length)
@@ -43,7 +43,7 @@ export const useMetadataStore = defineStore('metadata', () => {
     const VerifiedReferences = await Promise.all(referencesMetadata.map(searchAndVerifyWork))
 
     // Set the metadata results
-    metadataResults.value = [...VerifiedReferences]
+    verifiedReferences.value = [...VerifiedReferences]
 
     isLoading.value = false
   }
@@ -162,7 +162,7 @@ export const useMetadataStore = defineStore('metadata', () => {
   //   return verification
   // }
 
-  return { extractAndSearchMetadata, metadataResults, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount }
+  return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount }
 })
 
 if (import.meta.hot) {

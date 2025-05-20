@@ -10,12 +10,12 @@ const { isLoading } = storeToRefs(useAppStore())
 // I18n
 const { t } = useI18n()
 
-// const { registeredReferencesCount, unregisteredReferencesCount, metadataResults } = storeToRefs(useMetadataStore())
+// const { registeredReferencesCount, unregisteredReferencesCount, verifiedReferences } = storeToRefs(useMetadataStore())
 
 async function downloadPDF() {
 
   // const pdfBytes = await generatePDFReport(
-  //   metadataResults.value,
+  //   verifiedReferences.value,
   //   registeredReferencesCount.value,
   //   unregisteredReferencesCount.value,
   // )
@@ -32,7 +32,7 @@ async function downloadPDF() {
 </script>
 
 <template>
-  <v-tooltip v-if="(metadataResults.length) && !isLoading">
+  <v-tooltip v-if="(verifiedReferences.length) && !isLoading">
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
