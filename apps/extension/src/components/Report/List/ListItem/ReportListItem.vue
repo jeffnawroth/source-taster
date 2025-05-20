@@ -9,8 +9,13 @@ const { verifiedReference } = defineProps<{
 }>()
 
 const color = computed(() => {
-  return verifiedReference.verification.match ? 'success' : 'error'
+  if (!verifiedReference.verification) {
+    return 'error'
+  }
+  return verifiedReference.verification.match ? 'success' : 'warning'
 })
+
+const isVerificationMismatch = computed(() => !verifiedReference.verification?.match)
 
 // Functions
 </script>
@@ -26,11 +31,11 @@ const color = computed(() => {
       {{ verifiedReference.referenceMetadata.originalEntry }}
     </v-list-item-title>
     <template #prepend>
-      <ReportListItemStatusIcon :verified="verifiedReference.verification.match" />
+      <ReportListItemStatusIcon :verification="verifiedReference.verification" />
     </template>
 
     <template #append>
-      <v-tooltip v-if="!verifiedReference.verification.match">
+      <v-tooltip v-if="isVerificationMismatch">
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
@@ -40,7 +45,7 @@ const color = computed(() => {
             :icon="mdiInformationOutline"
           />
         </template>
-        {{ verifiedReference.verification.reason }}
+        {{ verifiedReference.verification?.reason }}
       </v-tooltip>
       <ReportListItemCopyBtn :value="verifiedReference.referenceMetadata.originalEntry" />
 
@@ -52,6 +57,7 @@ const color = computed(() => {
 </template>
 
 <style scoped>
+/* Ensures text wraps within the container to prevent overflow */
 .wrap-text {
   white-space: normal;
 }

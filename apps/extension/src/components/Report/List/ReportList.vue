@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { VerifiedReference } from '@/extension/types'
 import type { FuseResult } from 'fuse.js'
+import type { VerifiedReference } from '@/extension/types'
 
 const { results } = defineProps<{
   results: FuseResult<VerifiedReference>[]
