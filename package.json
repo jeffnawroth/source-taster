@@ -11,7 +11,7 @@
     "preinstall": "simple-git-hooks"
   },
   "devDependencies": {
-    "eslint": "^9.26.0",
+    "eslint": "^9.27.0",
     "lint-staged": "^15.5.2",
     "simple-git-hooks": "^2.13.0"
   },

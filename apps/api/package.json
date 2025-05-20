@@ -9,15 +9,15 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "@hono/node-server": "^1.14.1",
-    "hono": "^4.7.9"
+    "@hono/node-server": "^1.14.2",
+    "hono": "^4.7.10"
   },
   "devDependencies": {
     "@google/genai": "^0.7.0",
     "@source-taster/eslint-config": "workspace:^",
-    "@types/node": "^20.17.47",
-    "eslint": "^9.26.0",
-    "openai": "^4.98.0",
+    "@types/node": "^20.17.48",
+    "eslint": "^9.27.0",
+    "openai": "^4.100.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   },
