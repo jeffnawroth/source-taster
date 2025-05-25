@@ -1,9 +1,9 @@
 import { Hono } from 'hono'
 import { extractMetadataWithModel } from '../utilts/extractMetadata'
 
-const extractDOI = new Hono()
+const extractMetadata = new Hono()
 
-extractDOI.post('/', async (c) => {
+extractMetadata.post('/', async (c) => {
   const { service, model, input } = await c.req.json()
 
   if (!service || !model || !input) {
@@ -20,4 +20,4 @@ extractDOI.post('/', async (c) => {
   }
 })
 
-export default extractDOI
+export default extractMetadata
