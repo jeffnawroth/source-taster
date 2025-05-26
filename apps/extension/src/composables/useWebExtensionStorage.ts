@@ -61,7 +61,7 @@ export function useWebExtensionStorage<T>(
   key: string,
   initialValue: MaybeRefOrGetter<T>,
   options: WebExtensionStorageOptions<T> = {},
-): RemovableRef<T> {
+): { data: RemovableRef<T>, dataReady: Promise<T> } {
   const {
     flush = 'pre',
     deep = true,
@@ -108,6 +108,10 @@ export function useWebExtensionStorage<T>(
       onError(error)
     }
   }
+
+  const dataReadyPromise = new Promise<T>((resolve, reject) => {
+    read().then(() => resolve(data.value)).catch(reject)
+  })
 
   void read()
 
@@ -157,5 +161,8 @@ export function useWebExtensionStorage<T>(
     })
   }
 
-  return data as RemovableRef<T>
+  return {
+    data: data as RemovableRef<T>,
+    dataReady: dataReadyPromise,
+  }
 }
