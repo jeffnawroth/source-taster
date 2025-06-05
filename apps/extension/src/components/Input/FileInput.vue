@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { mdiFilePdfBox } from '@mdi/js'
+import { useAutoCheckReferences } from '@/extension/logic'
 import { useFileStore } from '@/extension/stores/file'
 import { useMetadataStore } from '@/extension/stores/metadata'
 import { useTextStore } from '@/extension/stores/text'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
-import { mdiFilePdfBox } from '@mdi/js'
 
 // Doi Store
 
@@ -12,7 +13,7 @@ const { file } = storeToRefs(useFileStore())
 
 // PDF TEXT
 const { text } = storeToRefs(useTextStore())
-const { extractAndSearchMetadata } = useMetadataStore()
+const { extractAndSearchMetadata, clear } = useMetadataStore()
 
 watch(file, async (newValue) => {
   if (!newValue)
@@ -24,7 +25,9 @@ watch(file, async (newValue) => {
   text.value = pdfText
 
   // Handle extraction
-  await extractAndSearchMetadata(pdfText)
+
+  if (useAutoCheckReferences.value)
+    await extractAndSearchMetadata(pdfText)
 })
 </script>
 
@@ -39,5 +42,6 @@ watch(file, async (newValue) => {
     prepend-icon=""
     clearable
     hide-details="auto"
+    @click:clear="clear"
   />
 </template>
