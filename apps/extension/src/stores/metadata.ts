@@ -16,6 +16,10 @@ export const useMetadataStore = defineStore('metadata', () => {
   const registeredReferencesCount = computed(() => verifiedReferences.value.filter(ref => ref.verification?.match).length)
   const unregisteredReferencesCount = computed(() => verifiedReferences.value.filter(ref => !ref.verification || !ref.verification.match).length)
 
+  function clear() {
+    verifiedReferences.value = []
+  }
+
   // Extract metadata from text and search Crossref
   const { extractReferencesMetadata } = useAiStore()
   // const { verifyPageMatchWithAI } = useAiStore()
@@ -23,7 +27,7 @@ export const useMetadataStore = defineStore('metadata', () => {
 
   async function extractAndSearchMetadata(text: string) {
     // Clear previous results
-    verifiedReferences.value = []
+    clear()
 
     // Check if the text is empty
     if (!text.trim().length)
@@ -162,7 +166,7 @@ export const useMetadataStore = defineStore('metadata', () => {
   //   return verification
   // }
 
-  return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount }
+  return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount, clear }
 })
 
 if (import.meta.hot) {

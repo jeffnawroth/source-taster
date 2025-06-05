@@ -2,7 +2,7 @@
 import { mdiText } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
-import { useAutoImport } from '@/extension/logic'
+import { useAutoCheckReferences, useAutoImport } from '@/extension/logic'
 import { useMetadataStore } from '@/extension/stores/metadata'
 import { useTextStore } from '@/extension/stores/text'
 
@@ -13,9 +13,13 @@ const { t } = useI18n()
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
 
 // HANDLE TEXT CHANGE
-const { extractAndSearchMetadata } = useMetadataStore()
+const { extractAndSearchMetadata, clear } = useMetadataStore()
 
-const handleTextChange = useDebounceFn(async (newVal: string) => await extractAndSearchMetadata(newVal), 1000)
+// AUTO CHECK REFERENCES
+const handleTextChange = useDebounceFn(async (newVal: string) => {
+  if (useAutoCheckReferences.value)
+    await extractAndSearchMetadata(newVal)
+}, 1000)
 
 // SET SELECTED TEXT
 const { text } = storeToRefs(useTextStore())
@@ -38,14 +42,14 @@ onMessage('autoImportText', async ({ data }) => {
 <template>
   <v-textarea
     v-model.trim="text"
-    auto-grow
     :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"
-    max-rows="4"
     rows="2"
     variant="solo-filled"
     clearable
+    flat
+    @click:clear="clear"
     @update:model-value="handleTextChange($event)"
   />
 </template>

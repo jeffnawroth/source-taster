@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CheckReferencesButton from './CheckReferencesButton.vue'
 import FileInput from './FileInput.vue'
 import TextInput from './TextInput.vue'
 
@@ -6,6 +7,7 @@ import TextInput from './TextInput.vue'
 const components = [
   FileInput,
   TextInput,
+  CheckReferencesButton,
 ]
 </script>
 
