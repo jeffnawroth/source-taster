@@ -1,6 +1,6 @@
 import type { Work } from '../clients/crossref-client/models/Work'
 import type { WorkSchema } from '../clients/open-alex'
-import type { EuropePmcPublication, PublicationMetadata } from '../types'
+import type { EuropePmcPublication, PublicationMetadata, ReferenceMetadata } from '../types'
 
 export function mapEuropePMCToPublication(result: EuropePmcPublication): PublicationMetadata {
   return {
@@ -43,5 +43,21 @@ export function mapCrossrefToPublication(result: Work): PublicationMetadata {
     journal: result.containerTitle?.[0],
     url: result.uRL,
 
+  }
+}
+
+export function mapReferenceToPublication(
+  ref: ReferenceMetadata,
+): PublicationMetadata {
+  return {
+    title: ref.title ?? undefined,
+    authors: ref.authors ?? undefined,
+    year: ref.year ?? undefined,
+    journal: ref.journal ?? undefined,
+    volume: ref.volume ?? undefined,
+    issue: ref.issue ?? undefined,
+    pages: ref.pages ?? undefined,
+    doi: ref.doi ?? undefined,
+    url: ref.url ?? undefined,
   }
 }

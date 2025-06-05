@@ -14,7 +14,11 @@ Your task is to assess whether **any** of the items in the PublicationsMetadata 
 For each item in publicationsMetadata, follow these steps::
 	• Title Comparison: Compare ReferenceMetadata.title with publicationMetadata.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
 	• Author Comparison: Compare referenceMetadata.authors with publicationMetadata.authors (array of author names). Focus on matching surnames, allowing for slight variations or order differences.
-	• Year Comparison: Comparison: Compare referenceMetadata.year with publicationMetadata.year.
+	• Year Comparison:
+      – If ReferenceMetadata.url is **not** present (i.e., a normal citation), compare ReferenceMetadata.year with publicationMetadata.year strictly: they must match exactly.
+      – If ReferenceMetadata.url **is** present (i.e., a webpage/PDF fallback), be more lenient:  
+        • If title and authors match strongly, allow a year mismatch (even if off by 1–2 years or one is null).  
+        • Only penalize the year if title/authors are weak matches.
 	• DOI: If both referenceMetadata.doi and publicationMetadata.doi are present, compare them directly (they should be identical for a perfect match).
 	• Journal Comparison: Compare referenceMetadata.journal with publicationMetadata.journal, if available.
 	• Volume, Issue, Pages: Volume, Issue, Pages: Compare volume, issue, and pages (from referenceMetadata) with the corresponding fields in publicationMetadata (volume, issue, pages), if present.
@@ -29,20 +33,20 @@ At the end of your analysis, return a clear evaluation in the following format:
 }
 `
 
-const pageInstruction = `
-You are a system that checks whether the text content of a web page matches
-the bibliographic ReferenceMetadata extracted from a citation string.
+// const pageInstruction = `
+// You are a system that checks whether the text content of a web page matches
+// the bibliographic ReferenceMetadata extracted from a citation string.
 
-Input:
-  - ReferenceMetadata: an object with title, authors, year, etc.
-  - pageText: the full text of the target page (HTML or PDF).
+// Input:
+//   - ReferenceMetadata: an object with title, authors, year, etc.
+//   - pageText: the full text of the target page (HTML or PDF).
 
-Your task:
-  Compare the metadata fields against the pageText. If you find strong
-  confirmation (matching title phrases, author names, year, etc.) return
-  { "match": true, "reason": "...", "confidence": 0.XX }. Otherwise
-  return { "match": false, "reason": "...", "confidence": 0.XX }.
-`
+// Your task:
+//   Compare the metadata fields against the pageText. If you find strong
+//   confirmation (matching title phrases, author names, year, etc.) return
+//   { "match": true, "reason": "...", "confidence": 0.XX }. Otherwise
+//   return { "match": false, "reason": "...", "confidence": 0.XX }.
+// `
 
 // OpenAI config
 const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
@@ -140,17 +144,6 @@ export async function verifyMetadataMatchWithModel(service: string, model: strin
       return await extractWithOpenAI(model, instruction, JSON.stringify({ referenceMetadata, publicationsMetadata }), openAIConfig)
     case 'gemini':
       return await extractWithGemini(model, JSON.stringify({ referenceMetadata, publicationsMetadata }), geminiConfig)
-    default:
-      throw new Error('Unsupported service')
-  }
-}
-
-export async function verifyPageMatchWithModel(service: string, model: string, referenceMetadata: any, pageText: string) {
-  switch (service) {
-    case 'openai':
-      return await extractWithOpenAI(model, pageInstruction, JSON.stringify({ extractedMetadata: referenceMetadata, pageText }), openAIConfig)
-    case 'gemini':
-      return await extractWithGemini(model, JSON.stringify({ extractedMetadata: referenceMetadata, pageText }), geminiConfig)
     default:
       throw new Error('Unsupported service')
   }

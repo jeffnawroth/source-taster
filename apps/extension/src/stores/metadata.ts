@@ -1,8 +1,9 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-// import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
-// import { normalizeUrl } from '../utils/normalizeUrl'
-// import { extractPdfTextFromUrl } from '../utils/pdfUtils'
+import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
+import { mapReferenceToPublication } from '../utils/metadataMapper'
+import { normalizeUrl } from '../utils/normalizeUrl'
+import { extractPdfTextFromUrl } from '../utils/pdfUtils'
 import { useAiStore } from './ai'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
@@ -105,28 +106,30 @@ export const useMetadataStore = defineStore('metadata', () => {
         verification = await verifyMatch(referenceMetadata, publicationsMetadata)
       }
 
+      if (verification?.match) {
+        return {
+          referenceMetadata,
+          verification,
+        }
+      }
+
+      if (referenceMetadata.url) {
+        const urlVerification = await verifyUrlContent(referenceMetadata)
+
+        return {
+          referenceMetadata,
+          verification: {
+            match: urlVerification.match,
+            reason: urlVerification.reason ? 'URL reachable' : 'URL not reachable',
+          },
+          websiteUrl: normalizeUrl(referenceMetadata.url),
+        }
+      }
+
       return {
         referenceMetadata,
         verification,
       }
-
-      // if (referenceMetadata.url) {
-      //   const urlVerification = await verifyUrlContent(referenceMetadata)
-
-      //   return {
-      //     referenceMetadata,
-      //     verification: {
-      //       match: urlVerification.match,
-      //       reason: urlVerification.reason ? 'URL reachable' : 'URL not reachable',
-      //     },
-      //     websiteUrl: normalizeUrl(referenceMetadata.url),
-      //   }
-      // }
-
-      // return {
-      //   referenceMetadata,
-      //   verification,
-      // }
     }
     catch {
       return {
@@ -136,35 +139,60 @@ export const useMetadataStore = defineStore('metadata', () => {
     }
   }
 
-  // async function verifyUrlContent(referenceMetadata: ReferenceMetadata): Promise<VerificationResult> {
-  //   const raw = referenceMetadata.url!
-  //   const url = normalizeUrl(raw)
+  async function verifyUrlContent(referenceMetadata: ReferenceMetadata): Promise<VerificationResult> {
+    const raw = referenceMetadata.url!
+    const url = normalizeUrl(raw)
 
-  //   let headResp: Response
-  //   try {
-  //     headResp = await fetch(url, { method: 'HEAD', redirect: 'follow' })
-  //   }
-  //   catch {
-  //     return { match: false, reason: 'URL not reachable' }
-  //   }
+    let headResp: Response
+    try {
+      headResp = await fetch(url, { method: 'HEAD', redirect: 'follow' })
+    }
+    catch {
+      return { match: false, reason: 'URL not reachable' }
+    }
 
-  //   if (!headResp.ok) {
-  //     return { match: false, reason: `HTTP ${headResp.status}` }
-  //   }
+    if (!headResp.ok) {
+      return { match: false, reason: `HTTP ${headResp.status}` }
+    }
 
-  //   const ct = (headResp.headers.get('Content-Type') || '').toLowerCase()
+    const ct = (headResp.headers.get('Content-Type') || '').toLowerCase()
 
-  //   let pageText = ''
-  //   if (ct.includes('pdf')) {
-  //     pageText = await extractPdfTextFromUrl(url)
-  //   }
-  //   else {
-  //     pageText = await extractHtmlTextFromUrl(url)
-  //   }
+    let pageText = ''
+    if (ct.includes('pdf')) {
+      pageText = await extractPdfTextFromUrl(url)
+    }
+    else {
+      pageText = await extractHtmlTextFromUrl(url)
+    }
 
-  //   const verification = await verifyPageMatchWithAI(referenceMetadata, pageText)
-  //   return verification
-  // }
+    let extractedRefs: ReferenceMetadata[] | null
+    try {
+      extractedRefs = await extractReferencesMetadata(pageText)
+    }
+    // eslint-disable-next-line unused-imports/no-unused-vars
+    catch (e: any) {
+      return { match: false, reason: 'Metadata extraction failed' }
+    }
+
+    if (!extractedRefs || extractedRefs.length === 0) {
+      return { match: false, reason: 'No metadata extracted from page text' }
+    }
+
+    const extractedRef: ReferenceMetadata = extractedRefs[0]
+
+    const pub: PublicationMetadata = mapReferenceToPublication(extractedRef)
+    const publications: PublicationMetadata[] = [pub]
+
+    const verification = await verifyReferenceAgainstPublications(
+      referenceMetadata,
+      publications,
+    )
+    if (!verification) {
+      return { match: false, reason: 'AI verification error or no publication metadata' }
+    }
+
+    return verification
+  }
 
   return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount, clear }
 })

@@ -8,8 +8,7 @@ export async function extractHtmlTextFromUrl(url: string): Promise<string> {
     const html = await resp.text()
     const doc = new DOMParser().parseFromString(html, 'text/html')
 
-    // eslint-disable-next-line unicorn/prefer-dom-node-text-content
-    return doc.body.innerText || ''
+    return doc.body.innerHTML || ''
   }
   catch (e) {
     console.error('Error extracting HTML text:', e)

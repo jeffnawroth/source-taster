@@ -1,43 +1,46 @@
-/* eslint-disable style/no-tabs */
 import type OpenAI from 'openai'
 import { Type } from '@google/genai'
 import { extractWithGemini } from '../services/geminiService'
 import { extractWithOpenAI } from '../services/openaiService'
 
-const instruction = `You are an AI assistant that extracts structured bibliographic metadata from a free-text reference string. Your goal is to identify and extract as much accurate information as possible about the cited work.
+const instruction = `You receive a single string as input, which is either
+1. a free-form bibliographic reference (e.g., "Smith, J. (2020). Deep Learning…, IEEE Transactions on Neural Networks…") OR
+2. the full text of a webpage or PDF page (e.g., HTML or plain text).
 
-You will receive one input: a single reference entry as a plain text string, written in a typical citation format (e.g., APA, MLA, Chicago, etc.). The format may be incomplete, inconsistent, or contain minor errors.
+1. If it is a free-form bibliographic reference (identifiable by typical author-year structures, DOI, journal names, etc.), then apply the existing logic exactly:
+- Extract "authors", "year", "title", "journal", "volume", "issue", "pages", "doi", "url", "publisher" (etc.) from the citation.
+- At the end, return only the JSON object in this form:
 
-Your task is to extract the following metadata and return it in a structured JSON object using this format:
+  export interface ReferenceMetadata {
+    originalEntry: string
+    authors?: string[]
+    year?: number
+    title?: string
+    journal?: string | null
+    volume?: string | null
+    issue?: string | null
+    pages?: string | null
+    doi?: string | null
+    url?: string | null
+    publisher?: string | null
+  }
 
-export interface ReferenceMetadata {
-  originalEntry: string
-  authors?: string[]
-  year?: number
-  title?: string
-  journal?: string | null
-  volume?: string | null
-  issue?: string | null
-  pages?: string | null
-  doi?: string | null
-  publisher?: string | null
-  url?: string | null
-}
+2. If it is the raw webpage/PDF text (identifiable, for example, by:
+- multiple lines, paragraphs, or the presence of HTML tags ("<div>", "<p>", "<body>" etc.)
+- OR by typical PDF paragraph structures without clearly recognizable "author – title – journal" patterns),
+then extract from this plain text as best as possible:
+- "title": the title of the webpage (e.g., from the <title> tag or a heading)
+- "authors": author names if present in the page header or metadata (e.g., "<meta name="author" content="…">")
+- "year": the publication year (e.g., "© 2021" in the footer)
+- "url": if the URL is included in the input or mentioned in "<meta>" tags
+- "publisher": if mentioned in the footer or metadata
+- "doi": if a DOI appears in the text
 
-Guidelines:
-	•	originalEntry: Always return the original input string **without any leading numbering or bullet markers**.
-	•	Authors: Extract a list of author names in "Firstname Lastname" or "Lastname, Firstname" format. Include all authors if possible.
-	•	Year: Extract the publication year as a 4-digit number.
-	•	Title: Extract the title of the article, book, or chapter.
-	•	Journal: If it’s a journal article, extract the name of the journal.
-	•	Volume, Issue, Pages: Extract volume and issue numbers (if available) and page range in the format "123–130".
-	•	DOI and URL: Extract any DOI or URL if present.
-	•	Publisher: If it’s a book or conference proceeding, extract the publisher name.
+Again, return at the end a JSON object of type ReferenceMetadata. Fields that cannot be reliably found in the text should be set to null or omitted.
 
-If any field cannot be confidently extracted, return it as null or leave it undefined.
+You must first determine whether the input is a citation string ("Author + Year + Title" etc.) or a plain text document (webpage/PDF). Depending on that, invoke either the citation extraction logic or the webpage metadata logic.
 
-At the end, return only the JSON object in the exact format specified—no explanation or additional text.
-`
+In the end, the output must be exactly a JSON object of type ReferenceMetadata—without any additional explanations, only the raw metadata.`
 
 const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
   format: {
@@ -107,7 +110,6 @@ const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
       required: ['metadata'],
       additionalProperties: false,
     },
-    strict: true,
   },
 }
 
