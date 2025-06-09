@@ -19,19 +19,19 @@ const { t } = useI18n()
     <v-divider class="my-4" />
 
     <OptionListItem
-      :title="t('auto-import-dois')"
+      :title="t('auto-import-references')"
       :prepend-icon="mdiAutoUpload"
 
       @click="useAutoImport = !useAutoImport"
     >
       <template #subtitle>
-        <p>{{ t('auto-import-dois-description') }}</p>
+        <p>{{ t('auto-import-references-description') }}</p>
         <p class="text-medium-emphasis mt-1">
           <v-icon
             :icon="mdiInformationOutline"
             size="small"
           />
-          {{ t('auto-import-dois-info') }}
+          {{ t('auto-import-references-info') }}
         </p>
       </template>
       <OptionSwitch
