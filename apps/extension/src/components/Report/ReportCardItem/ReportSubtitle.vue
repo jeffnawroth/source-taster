@@ -11,19 +11,53 @@ const { t } = useI18n()
     no-gutters
     density="compact"
   >
-    <span class="mr-4">
-      {{ `${t('found')}: ${foundReferencesCount}` }}
-    </span>
+    <v-tooltip :text="$t('found-references-tooltip')">
+      <template #activator="{ props }">
+        <span
+          v-bind="props"
+          class="mr-4"
+        >
+          {{ `${t('found')}: ${foundReferencesCount}` }}
+        </span>
+      </template>
+    </v-tooltip>
     <v-divider vertical />
 
-    <span class="mx-4">
-      {{ `${t('registered')}: ${registeredReferencesCount}` }}
-    </span>
+    <v-tooltip :text="$t('verified-references-tooltip')">
+      <template #activator="{ props }">
+        <span
+          v-bind="props"
+          class="mx-4"
+        >
+          {{ `${t('verified')}: ${registeredReferencesCount}` }}
+        </span>
+      </template>
+    </v-tooltip>
 
     <v-divider vertical />
 
-    <span class="mx-4">
-      {{ `${t('unregistered')}: ${unregisteredReferencesCount}` }}
-    </span>
+    <v-tooltip :text="$t('unverified-references-tooltip')">
+      <template #activator="{ props }">
+        <span
+          v-bind="props"
+          class="mx-4"
+        >
+          {{ `${t('unverified')}: ${unregisteredReferencesCount}` }}
+        </span>
+      </template>
+    </v-tooltip>
+
+    <v-divider vertical />
+
+    <v-tooltip :text="$t('error-references-tooltip')">
+      <template #activator="{ props }">
+        <span
+          v-bind="props"
+          class="mx-4"
+        >
+          {{ `${t('error')}: 0` }}
+        </span>
+      </template>
+    </v-tooltip>
   </v-row>
 </template>
