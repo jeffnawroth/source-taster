@@ -75,6 +75,7 @@
   "recommended": "Recommended",
   "registered": "Registered",
   "reload-page-auto-import": "Reload the page to automatically import DOIs, or enter DOIs or a text containing DOIs",
+  "remove-file-to-enable-text-input": "Remove file to enable text input",
   "report": "Report",
   "requests-per-day": "Requests per day",
   "requests-per-day-description": "This is the limit of AI requests per day",

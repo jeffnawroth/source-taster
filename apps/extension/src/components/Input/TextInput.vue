@@ -54,6 +54,7 @@ const disabled = computed(() => !!file.value)
     clearable
     flat
     :disabled
+    :messages="disabled ? [t('remove-file-to-enable-text-input')] : []"
     @click:clear="clear"
     @update:model-value="handleTextChange($event)"
   />
