@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { VerifiedReference } from '@/extension/types'
-import { mdiInformationOutline } from '@mdi/js'
 import ReportListItemOpenBtn from './ReportListItemOpenBtn.vue'
 
 // Props
@@ -14,10 +13,6 @@ const color = computed(() => {
   }
   return verifiedReference.verification.match ? 'success' : 'warning'
 })
-
-const isVerificationMismatch = computed(() => !verifiedReference.verification?.match)
-
-// Functions
 </script>
 
 <template>
@@ -35,18 +30,6 @@ const isVerificationMismatch = computed(() => !verifiedReference.verification?.m
     </template>
 
     <template #append>
-      <v-tooltip v-if="isVerificationMismatch">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            density="compact"
-            variant="plain"
-            size="large"
-            :icon="mdiInformationOutline"
-          />
-        </template>
-        {{ verifiedReference.verification?.reason }}
-      </v-tooltip>
       <ReportListItemCopyBtn :value="verifiedReference.referenceMetadata.originalEntry" />
 
       <ReportListItemBtnSearchWeb :verified-reference />
