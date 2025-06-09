@@ -10,6 +10,7 @@
 
 <template>
   <NoInputState />
+  <ExtractingReferencesState />
   <!-- <NoDoisFoundState /> -->
   <!-- <ExtractingDoisState /> -->
   <!-- <NoWorksFoundState

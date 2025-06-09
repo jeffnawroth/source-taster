@@ -45,6 +45,8 @@
   "extract-and-verify": "Extrahieren und Überprüfen",
   "extracting-dois": "Extrahiere DOIs",
   "extracting-dois-description": "Extrahiere DOIs aus dem Text. Bitte warten...",
+  "extracting-references": "Extrahiere Referenzen",
+  "extracting-references-description": "Extrahiere Referenzen aus dem Text...",
   "found": "Gefunden",
   "found-references-tooltip": "Alle im Text erkannten Referenzen",
   "gemini-2.0-flash-description": "Schnellere Ergebnisse, aber weniger genau und mehr Anfragen pro Minute möglich",

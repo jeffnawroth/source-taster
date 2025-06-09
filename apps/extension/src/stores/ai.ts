@@ -6,6 +6,8 @@ import { selectedAiModel } from '../logic'
 const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
 
 export const useAiStore = defineStore('ai', () => {
+  const isExtractingReferences = ref(false)
+
   /**
    * Extract references metadata from a given prompt using the AI model.
    * @param prompt - The input text from which to extract references metadata.
@@ -13,6 +15,7 @@ export const useAiStore = defineStore('ai', () => {
    */
   const extractReferencesMetadata = useMemoize(
     async (prompt: string): Promise<ReferenceMetadata[] | null> => {
+      isExtractingReferences.value = true
       try {
         const response = await fetch(`${baseUrl}/extract-metadata`, {
           method: 'POST',
@@ -35,6 +38,9 @@ export const useAiStore = defineStore('ai', () => {
       }
       catch {
         return null
+      }
+      finally {
+        isExtractingReferences.value = false
       }
     },
   )
@@ -82,6 +88,7 @@ export const useAiStore = defineStore('ai', () => {
   return {
     extractReferencesMetadata,
     verifyReferenceAgainstPublications,
+    isExtractingReferences,
   }
 })
 
