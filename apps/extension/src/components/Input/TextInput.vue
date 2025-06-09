@@ -49,6 +49,7 @@ const disabled = computed(() => !!file.value)
     v-model.trim="text"
     :prepend-inner-icon="mdiText"
     :placeholder
+    hide-details="auto"
     rows="2"
     variant="solo-filled"
     clearable
