@@ -11,7 +11,7 @@ import { useTextStore } from '@/extension/stores/text'
 const { t } = useI18n()
 
 // TEXTAREA PLACEHOLDER
-const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
+const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-references'))
 
 // HANDLE TEXT CHANGE
 const { extractAndSearchMetadata, clear } = useMetadataStore()

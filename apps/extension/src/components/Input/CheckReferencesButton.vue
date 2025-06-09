@@ -9,7 +9,7 @@ const { text } = storeToRefs(useTextStore())
 <template>
   <v-btn
     variant="tonal"
-    :text="$t('check')"
+    :text="$t('extract-and-verify')"
     block
     @click="extractAndSearchMetadata(text)"
   />
