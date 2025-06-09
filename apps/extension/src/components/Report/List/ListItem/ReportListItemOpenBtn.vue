@@ -38,6 +38,6 @@ function open() {
         @click="open"
       />
     </template>
-    {{ t('open-work') }}
+    {{ t('open-source') }}
   </v-tooltip>
 </template>
