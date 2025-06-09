@@ -89,6 +89,8 @@
   "requests-per-minute-description": "Dies ist das Limit der KI-Anfragen pro Minute",
   "resets-in": "Wird zurückgesetzt in ca.",
   "search": "Suche",
+  "search-and-verify": "Suche und Überprüfung",
+  "search-and-verify-description": "Suche nach passenden Quellen und Prüfung der Referenzen",
   "search-on-web": "Im Web suchen",
   "sec": "s",
   "side-panel": "Seitenleiste",

@@ -89,6 +89,8 @@
   "requests-per-minute-description": "This is the limit of AI requests per minute",
   "resets-in": "Resets in approximately",
   "search": "Search",
+  "search-and-verify": "Search and Verify",
+  "search-and-verify-description": "Searching for matching sources and verifying references",
   "search-on-web": "Search on the Web",
   "sec": "sec",
   "side-panel": "Side Panel",

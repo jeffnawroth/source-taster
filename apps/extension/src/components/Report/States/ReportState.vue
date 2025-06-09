@@ -11,6 +11,7 @@
 <template>
   <NoInputState />
   <ExtractingReferencesState />
+  <SearchAndVerifyState />
   <!-- <NoDoisFoundState /> -->
   <!-- <ExtractingDoisState /> -->
   <!-- <NoWorksFoundState
