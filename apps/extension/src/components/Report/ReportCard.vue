@@ -63,7 +63,7 @@ const { results } = useFuse(search, verifiedReferences, {
       </div>
 
       <!-- STATES -->
-      <!-- <ReportState /> -->
+      <ReportState />
     </v-card-text>
   </v-card>
 </template>

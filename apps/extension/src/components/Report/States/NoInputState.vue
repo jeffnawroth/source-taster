@@ -1,23 +1,23 @@
 <script setup lang="ts">
+import { mdiInformationOutline } from '@mdi/js'
 import { useFileStore } from '@/extension/stores/file'
 import { useTextStore } from '@/extension/stores/text'
-import { mdiInformationOutline } from '@mdi/js'
 
 // I18n
 const { t } = useI18n()
 
-// TEXT
+// SHOW NO INPUT STATE IF THERE IS NO TEXT OR FILE INPUT
 const { text } = storeToRefs(useTextStore())
-
-// file
 const { file } = storeToRefs(useFileStore())
+
+const show = computed(() => text.value.length === 0 && !file.value)
 </script>
 
 <template>
   <v-empty-state
-    v-show="text.length === 0 && !file"
+    v-show="show"
     :icon="mdiInformationOutline"
-    :text="t('enter-dois')"
+    :text="t('enter-references')"
     :title="t('no-input-provided')"
   />
 </template>
