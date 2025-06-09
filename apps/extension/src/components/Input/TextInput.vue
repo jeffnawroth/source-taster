@@ -3,6 +3,7 @@ import { mdiText } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
 import { useAutoCheckReferences, useAutoImport } from '@/extension/logic'
+import { useFileStore } from '@/extension/stores/file'
 import { useMetadataStore } from '@/extension/stores/metadata'
 import { useTextStore } from '@/extension/stores/text'
 
@@ -37,6 +38,10 @@ onMessage('autoImportText', async ({ data }) => {
   text.value = data.text
   await handleTextChange(data.text)
 })
+
+// DISABLED STATE
+const { file } = storeToRefs(useFileStore())
+const disabled = computed(() => !!file.value)
 </script>
 
 <template>
@@ -44,11 +49,11 @@ onMessage('autoImportText', async ({ data }) => {
     v-model.trim="text"
     :prepend-inner-icon="mdiText"
     :placeholder
-    hide-details="auto"
     rows="2"
     variant="solo-filled"
     clearable
     flat
+    :disabled
     @click:clear="clear"
     @update:model-value="handleTextChange($event)"
   />
