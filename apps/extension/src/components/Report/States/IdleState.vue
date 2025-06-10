@@ -17,7 +17,7 @@ const show = computed(() => text.value.length === 0 && !file.value)
   <v-empty-state
     v-show="show"
     :icon="mdiInformationOutline"
-    :text="t('enter-references')"
-    :title="t('no-input-provided')"
+    :text="t('idle-state-text')"
+    :title="t('idle-state-title')"
   />
 </template>
