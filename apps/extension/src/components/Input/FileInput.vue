@@ -3,6 +3,7 @@ import { mdiFilePdfBox } from '@mdi/js'
 import { useAutoCheckReferences } from '@/extension/logic'
 import { useFileStore } from '@/extension/stores/file'
 import { useMetadataStore } from '@/extension/stores/metadata'
+import { useTextStore } from '@/extension/stores/text'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
 // Doi Store
@@ -13,12 +14,17 @@ const { file } = storeToRefs(useFileStore())
 // PDF TEXT
 const { extractAndSearchMetadata, clear } = useMetadataStore()
 
+const { text } = storeToRefs(useTextStore())
+
 watch(file, async (newValue) => {
   if (!newValue)
     return
 
   // Extract text from PDF file
   const pdfText = await extractTextFromPdfFile(newValue)
+
+  // Set global text
+  text.value = pdfText
 
   // Handle extraction
 

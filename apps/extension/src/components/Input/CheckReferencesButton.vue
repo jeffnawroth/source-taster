@@ -12,6 +12,13 @@ const { file } = storeToRefs(useFileStore())
 const { isLoading } = storeToRefs(useAppStore())
 
 const disabled = computed(() => (!file.value && !text.value.trim()) || isLoading.value)
+
+// HANDLE CLICK
+function handleClick() {
+  if (!disabled.value) {
+    extractAndSearchMetadata(text.value)
+  }
+}
 </script>
 
 <template>
@@ -20,6 +27,6 @@ const disabled = computed(() => (!file.value && !text.value.trim()) || isLoading
     :text="$t('verify')"
     block
     :disabled
-    @click="extractAndSearchMetadata(text)"
+    @click="handleClick"
   />
 </template>

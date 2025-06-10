@@ -23,10 +23,18 @@ const handleTextChange = useDebounceFn(async (newVal: string) => {
 }, 1000)
 
 // SET SELECTED TEXT
+const currentText = ref('')
 const { text } = storeToRefs(useTextStore())
 
+watch(currentText, async (newVal) => {
+  if (newVal === text.value)
+    return
+
+  text.value = newVal
+})
+
 onMessage('selectedText', async ({ data }) => {
-  text.value = data.text
+  currentText.value = data.text
   await handleTextChange(data.text)
 })
 
@@ -35,7 +43,7 @@ onMessage('autoImportText', async ({ data }) => {
   if (!useAutoImport.value)
     return
 
-  text.value = data.text
+  currentText.value = data.text
   await handleTextChange(data.text)
 })
 
@@ -46,7 +54,7 @@ const disabled = computed(() => !!file.value)
 
 <template>
   <v-textarea
-    v-model.trim="text"
+    v-model.trim="currentText"
     :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"
