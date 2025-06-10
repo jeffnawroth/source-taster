@@ -20,9 +20,9 @@ const { t } = useI18n()
 
 const text = computed(() => {
   if (!verification) {
-    return t('error')
+    return t('error-reference')
   }
-  return verification.match ? t('verified') : t('unverified')
+  return verification.match ? t('verified-reference') : t('unverified-reference')
 })
 </script>
 

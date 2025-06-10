@@ -17,12 +17,14 @@ export const useMetadataStore = defineStore('metadata', () => {
 
   const isSearchingAndVerifying = ref(false)
 
-  const foundReferencesCount = computed(() => verifiedReferences.value.length)
+  const foundReferencesCount = computed(() => extractedReferencesMetadata.value?.length || 0)
   const registeredReferencesCount = computed(() => verifiedReferences.value.filter(ref => ref.verification?.match).length)
   const unregisteredReferencesCount = computed(() => verifiedReferences.value.filter(ref => !ref.verification || !ref.verification.match).length)
 
   function clear() {
     verifiedReferences.value = []
+    extractedReferencesMetadata.value = []
+    processedCount.value = 0
   }
 
   // Extract metadata from text and search Crossref
