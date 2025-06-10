@@ -9,7 +9,7 @@ const search = ref('')
 
 const { results } = useFuse(search, verifiedReferences, {
   fuseOptions: {
-    keys: ['metadata.originalEntry'],
+    keys: ['referenceMetadata.originalEntry'],
     threshold: 0.3,
 
   },
