@@ -9,11 +9,10 @@
 </script>
 
 <template>
-  <NoInputState />
+  <IdleState />
   <ExtractingReferencesState />
+  <!-- <NoReferencesFoundState /> -->
   <SearchAndVerifyState />
-  <!-- <NoDoisFoundState /> -->
-  <!-- <ExtractingDoisState /> -->
   <!-- <NoWorksFoundState
     v-show="works.length === 0 && !loading && networkErrorStateRef?.isOnline"
   /> -->
