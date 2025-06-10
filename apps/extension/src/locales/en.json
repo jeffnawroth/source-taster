@@ -42,7 +42,7 @@
   "enter-references": "Please enter a text or import a PDF containing references to verify them",
   "error": "Error",
   "error-references-tooltip": "References that could not be verified due to a technical error",
-  "extract-and-verify": "Extract and verify",
+  "verify": "Verify",
   "extracting-dois": "Extracting DOIs",
   "extracting-dois-description": "Extracting DOIs from the Text. Please wait...",
   "extracting-references": "Extracting References",

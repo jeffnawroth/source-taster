@@ -42,7 +42,7 @@
   "enter-references": "Bitte geben Sie einen Text ein oder importieren Sie eine PDF-Datei mit Referenzen, um diese zu überprüfen",
   "error": "Fehler",
   "error-references-tooltip": "Referenzen, die aufgrund eines technischen Fehlers nicht überprüft werden konnten",
-  "extract-and-verify": "Extrahieren und Überprüfen",
+  "verify": "Überprüfen",
   "extracting-dois": "Extrahiere DOIs",
   "extracting-dois-description": "Extrahiere DOIs aus dem Text. Bitte warten...",
   "extracting-references": "Extrahiere Referenzen",

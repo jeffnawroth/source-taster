@@ -17,7 +17,7 @@ const disabled = computed(() => (!file.value && !text.value.trim()) || isLoading
 <template>
   <v-btn
     variant="tonal"
-    :text="$t('extract-and-verify')"
+    :text="$t('verify')"
     block
     :disabled
     @click="extractAndSearchMetadata(text)"
