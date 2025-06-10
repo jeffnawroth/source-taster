@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { useAppStore } from '@/extension/stores/app'
-import { useDoiStore } from '@/extension/stores/doi'
-import { useFileStore } from '@/extension/stores/file'
-import { useTextStore } from '@/extension/stores/text'
 import { mdiAlertCircleOutline } from '@mdi/js'
+import { useAppStore } from '@/extension/stores/app'
+import { useFileStore } from '@/extension/stores/file'
+import { useMetadataStore } from '@/extension/stores/metadata'
+import { useTextStore } from '@/extension/stores/text'
 
 // I18n
 const { t } = useI18n()
 
-// Doi Store
-const { dois } = storeToRefs(useDoiStore())
+//
+
+const { extractedReferencesMetadata, verifiedReferences } = storeToRefs(useMetadataStore())
 
 // file
 const { file } = storeToRefs(useFileStore())
@@ -23,9 +24,9 @@ const { isLoading } = storeToRefs(useAppStore())
 
 <template>
   <v-empty-state
-    v-show="dois.length === 0 && (!!text.length || file) && !isLoading"
+    v-show="extractedReferencesMetadata?.length === 0 && (text || file) && !isLoading && verifiedReferences?.length === 0"
     :icon=" mdiAlertCircleOutline"
-    :title="t('no-valid-dois-were-found')"
-    :text="t('check-dois')"
+    :title="t('no-references-found-title')"
+    :text="t('no-references-found-text')"
   />
 </template>

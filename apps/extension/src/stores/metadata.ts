@@ -12,6 +12,7 @@ import { useOpenAlexStore } from './openAlex'
 
 export const useMetadataStore = defineStore('metadata', () => {
   const verifiedReferences = ref<VerifiedReference[]>([])
+  const extractedReferencesMetadata = ref<ReferenceMetadata[] | null>([])
 
   const isSearchingAndVerifying = ref(false)
 
@@ -40,16 +41,16 @@ export const useMetadataStore = defineStore('metadata', () => {
     isLoading.value = true
 
     // Extract references metadata from the text
-    const referencesMetadata = await extractReferencesMetadata(text)
+    extractedReferencesMetadata.value = await extractReferencesMetadata(text)
 
     // Check if references metadata is empty
-    if (!referencesMetadata)
+    if (!extractedReferencesMetadata.value)
       return
 
     isSearchingAndVerifying.value = true
 
     // Search and verify for each reference metadata
-    const VerifiedReferences = await Promise.all(referencesMetadata.map(searchAndVerifyWork))
+    const VerifiedReferences = await Promise.all(extractedReferencesMetadata.value.map(searchAndVerifyWork))
 
     isSearchingAndVerifying.value = false
 
@@ -200,7 +201,7 @@ export const useMetadataStore = defineStore('metadata', () => {
     return verification
   }
 
-  return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount, clear, isSearchingAndVerifying }
+  return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount, clear, isSearchingAndVerifying, extractedReferencesMetadata }
 })
 
 if (import.meta.hot) {
