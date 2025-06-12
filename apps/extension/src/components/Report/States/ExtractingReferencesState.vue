@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiTextSearch } from '@mdi/js'
-import { useAiStore } from '@/extension/stores/ai'
+import { useAiStore } from '@/extension/stores/aiStore'
 
 const { isExtractingReferences } = storeToRefs(useAiStore())
 </script>
