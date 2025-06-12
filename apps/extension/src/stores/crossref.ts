@@ -1,126 +1,18 @@
+// src/stores/crossrefStore.ts
+
 import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { Configuration, WorksApi } from '@/extension/api/crossref'
-import { mapCrossrefToPublication } from '../utils/metadataMapper'
-
-const config = new Configuration({
-  basePath: 'https://api.crossref.org',
-  headers: {
-    'User-Agent': import.meta.env.VITE_USER_AGENT,
-    'mailto': import.meta.env.VITE_MAILTO,
-  },
-})
+import { searchCrossrefPublication } from '../services/crossrefService'
 
 export const useCrossrefStore = defineStore('crossref', () => {
-  const api = new WorksApi(config)
-
-  // Memoized works function to avoid duplicate API calls
-  // const memoizedGetWorks = useMemoize(
-  //   async (query: string, filter?: string, select?: string, rows?: number, sort?: string) => {
-  //     try {
-  //       const response = await api.worksGet({
-  //         query,
-  //         filter,
-  //         select,
-  //         rows,
-  //         sort,
-  //       })
-
-  //       if (response.status !== 'ok') {
-  //         return Promise.reject(response)
-  //       }
-
-  //       return response.message.items || []
-  //     }
-  //     catch (error) {
-  //       console.error('Crossref API Error:', error)
-  //       return []
-  //     }
-  //   },
-  // )
-
-  // async function getWorks(query?: WorksGetRequest): Promise<Work[]> {
-  //   // If we have complex query parameters, delegate to the non-memoized version
-  //   if (typeof query !== 'object' || Object.keys(query).length === 0) {
-  //     return []
-  //   }
-
-  //   // Extract and normalize parameters for memoization key generation
-  //   const { query: queryParam, filter, select, rows, sort } = query
-  //   return memoizedGetWorks(queryParam || '', filter, select, rows, sort)
-  // }
-
-  // // Memoize DOI lookups
-  // const memoizedGetWorkByDOI = useMemoize(
-  //   async (doi: string): Promise<Work | null> => {
-  //     try {
-  //       const response = await api.worksDoiGet({
-  //         doi,
-  //       })
-
-  //       if (response.status !== 'ok') {
-  //         return Promise.reject(response)
-  //       }
-
-  //       return response.message
-  //     }
-  //     catch (error) {
-  //       console.error('Crossref DOI API Error:', error)
-  //       return null
-  //     }
-  //   },
-  // )
-
-  // async function getWorkByDOI(doi: string): Promise<Work | null> {
-  //   return memoizedGetWorkByDOI(doi)
-  // }
-
-  // Memoize reference metadata searches
   const searchPublication = useMemoize(
     async (referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> => {
-      const params = [referenceMetadata.title, ...(referenceMetadata.authors ?? []), referenceMetadata.journal, referenceMetadata.year]
-      const queryBibliographic = params.filter(Boolean).join(' ')
-      const query = params ? `query.bibliographic=${queryBibliographic}` : undefined
-
-      // The filter is constructed by checking if the year is present in the metadata.
-      const filterParams = [
-        referenceMetadata.year ? `from-pub-date:${referenceMetadata.year}-01-01,until-pub-date:${referenceMetadata.year}-12-31` : undefined,
-      ]
-      const filter = filterParams.filter(Boolean).join(',')
-
-      const select = [
-        'title',
-        'author',
-        'issued',
-        'published',
-        'published-print',
-        'published-online',
-        'DOI',
-        'container-title',
-        'volume',
-        'issue',
-        'page',
-        'URL',
-      ].join(',')
-
-      const rows = 1
-
-      const sort = 'score'
-
       try {
-        const works = await api.worksGet({ query, filter, select, rows, sort })
-
-        if (works.status !== 'ok') {
-          return null
-        }
-
-        const mappedResponse = mapCrossrefToPublication(works.message.items[0])
-
-        return mappedResponse || null
+        return await searchCrossrefPublication(referenceMetadata)
       }
       catch (error) {
-        console.error('Crossref API Error:', error)
+        console.error('Crossref Store Error:', error)
         return null
       }
     },
