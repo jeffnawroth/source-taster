@@ -1,7 +1,7 @@
 import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { Configuration, WorksApi } from '@/extension/clients/crossref-client'
+import { Configuration, WorksApi } from '@/extension/api/crossref'
 import { mapCrossrefToPublication } from '../utils/metadataMapper'
 
 const config = new Configuration({
