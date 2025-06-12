@@ -1,4 +1,4 @@
-import type { PublicationMetadata, ReferenceMetadata, VerificationResult } from '../types'
+import type { PublicationMetadata, ReferenceMetadata, VerificationResult, WebsiteMetadata, WebsiteVerificationResult } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { selectedAiModel } from '../logic'
@@ -85,10 +85,73 @@ export const useAiStore = defineStore('ai', () => {
     },
   )
 
+  const extractWebsiteMetadata = useMemoize(
+    async (input: string): Promise<WebsiteMetadata | null> => {
+      isExtractingReferences.value = true
+      try {
+        const res = await fetch(`${baseUrl}/extract-metadata-website`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service: selectedAiModel.value.service,
+            model: selectedAiModel.value.value,
+            input,
+          }),
+        })
+        if (!res.ok)
+          return null
+        const data = await res.json()
+        // hier unwrappen:
+        return data.metadata as WebsiteMetadata
+      }
+      catch {
+        return null
+      }
+      finally {
+        isExtractingReferences.value = false
+      }
+    },
+  )
+
+  const verifyAgainstWebsite = useMemoize(
+    async (
+      referenceMetadata: ReferenceMetadata,
+      websiteMetadata: WebsiteMetadata,
+    ): Promise<WebsiteVerificationResult | null> => {
+      try {
+        const res = await fetch(
+          `${baseUrl}/verify-metadata-match-website`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              service: selectedAiModel.value.service,
+              model: selectedAiModel.value.value,
+              referenceMetadata,
+              websiteMetadata,
+            }),
+          },
+        )
+        if (!res.ok)
+          return null
+        return await res.json()
+      }
+      catch {
+        return null
+      }
+    },
+    {
+      getKey: (ref, site) =>
+        `${JSON.stringify(ref)}-${site.url}`,
+    },
+  )
+
   return {
     extractReferencesMetadata,
     verifyReferenceAgainstPublications,
     isExtractingReferences,
+    verifyAgainstWebsite,
+    extractWebsiteMetadata,
   }
 })
 

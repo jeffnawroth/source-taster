@@ -35,6 +35,18 @@ export interface PublicationMetadata {
   year?: number
 }
 
+export interface WebsiteMetadata {
+  url: string
+  title?: string | null
+  authors?: string[] | null
+  year?: number | null
+}
+export interface WebsiteVerificationResult {
+  match: boolean
+  reason?: string
+  confidence?: number
+}
+
 export interface VerificationResult {
   match: boolean
   reason?: string

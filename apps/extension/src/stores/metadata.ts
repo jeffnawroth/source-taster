@@ -1,7 +1,6 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
-import { mapReferenceToPublication } from '../utils/metadataMapper'
 import { normalizeUrl } from '../utils/normalizeUrl'
 import { extractPdfTextFromUrl } from '../utils/pdfUtils'
 import { useAiStore } from './ai'
@@ -27,9 +26,9 @@ export const useMetadataStore = defineStore('metadata', () => {
     processedCount.value = 0
   }
 
-  // Extract metadata from text and search Crossref
-  const { extractReferencesMetadata } = useAiStore()
-  // const { verifyPageMatchWithAI } = useAiStore()
+  // Extract metadata from text and verify
+  const { extractReferencesMetadata, extractWebsiteMetadata, verifyAgainstWebsite } = useAiStore()
+
   const { isLoading } = storeToRefs(useAppStore())
 
   async function extractAndSearchMetadata(text: string) {
@@ -181,33 +180,23 @@ export const useMetadataStore = defineStore('metadata', () => {
       pageText = await extractHtmlTextFromUrl(url)
     }
 
-    let extractedRefs: ReferenceMetadata[] | null
-    try {
-      extractedRefs = await extractReferencesMetadata(pageText)
-    }
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    catch (e: any) {
-      return { match: false, reason: 'Metadata extraction failed' }
+    const websiteMetadata = await extractWebsiteMetadata(pageText)
+    if (!websiteMetadata) {
+      return { match: false, reason: 'Website metadata extraction failed' }
     }
 
-    if (!extractedRefs || extractedRefs.length === 0) {
-      return { match: false, reason: 'No metadata extracted from page text' }
-    }
-
-    const extractedRef: ReferenceMetadata = extractedRefs[0]
-
-    const pub: PublicationMetadata = mapReferenceToPublication(extractedRef)
-    const publications: PublicationMetadata[] = [pub]
-
-    const verification = await verifyReferenceAgainstPublications(
+    const websiteResult = await verifyAgainstWebsite(
       referenceMetadata,
-      publications,
+      websiteMetadata,
     )
-    if (!verification) {
-      return { match: false, reason: 'AI verification error or no publication metadata' }
+    if (!websiteResult) {
+      return { match: false, reason: 'Website metadata verification failed' }
     }
 
-    return verification
+    return {
+      match: websiteResult.match,
+      reason: websiteResult.reason,
+    }
   }
 
   return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount, clear, isSearchingAndVerifying, extractedReferencesMetadata, processedCount }
