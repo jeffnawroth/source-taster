@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiContentCut } from '@mdi/js'
+import { mdiTextSearch } from '@mdi/js'
 import { useAiStore } from '@/extension/stores/ai'
 
 const { isExtractingReferences } = storeToRefs(useAiStore())
@@ -8,8 +8,9 @@ const { isExtractingReferences } = storeToRefs(useAiStore())
 <template>
   <v-empty-state
     v-show="isExtractingReferences"
-    :icon="mdiContentCut"
-    :title="$t('extracting-references')"
-    :text="$t('extracting-references-description')"
+    :icon="mdiTextSearch"
+    :headline="$t('extracting-references')"
+    :title="$t('analyzing-text-content')"
+    :text="$t('analyzing-text-content-description')"
   />
 </template>
