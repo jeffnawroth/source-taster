@@ -24,8 +24,9 @@ function handleClick() {
 <template>
   <v-btn
     variant="tonal"
-    :text="$t('verify')"
+    :text="$t('verify-references')"
     block
+
     :disabled
     @click="handleClick"
   />

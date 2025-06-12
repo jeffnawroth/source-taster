@@ -1,43 +1,20 @@
+// src/stores/aiStore.ts
+
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, WebsiteMetadata, WebsiteVerificationResult } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { ref } from 'vue'
 import { selectedAiModel } from '../logic'
-
-const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
+import { extractReferencesMetadata, verifyReferenceAgainstPublications } from '../services/aiService'
 
 export const useAiStore = defineStore('ai', () => {
   const isExtractingReferences = ref(false)
 
-  /**
-   * Extract references metadata from a given prompt using the AI model.
-   * @param prompt - The input text from which to extract references metadata.
-   * @returns A promise that resolves to an array of ReferenceMetadata or null if an error occurs.
-   */
-  const extractReferencesMetadata = useMemoize(
+  const memoizedExtractReferencesMetadata = useMemoize(
     async (prompt: string): Promise<ReferenceMetadata[] | null> => {
       isExtractingReferences.value = true
       try {
-        const response = await fetch(`${baseUrl}/extract-metadata`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            service: selectedAiModel.value.service,
-            model: selectedAiModel.value.value,
-            input: prompt,
-          }),
-        })
-
-        if (!response.ok) {
-          return null
-        }
-
-        const data = await response.json()
-        return data
-      }
-      catch {
-        return null
+        return await extractReferencesMetadata(prompt)
       }
       finally {
         isExtractingReferences.value = false
@@ -45,43 +22,16 @@ export const useAiStore = defineStore('ai', () => {
     },
   )
 
-  /**
-   * Verify the reference metadata against the publications metadata using the AI model.
-   * @param referenceMetadata - The reference metadata to verify.
-   * @param publicationsMetadata - The publications metadata to verify against.
-   * @returns A promise that resolves to a VerificationResult or null if an error occurs.
-   */
-  const verifyReferenceAgainstPublications = useMemoize(
+  const memoizedVerifyReferenceAgainstPublications = useMemoize(
     async (
       referenceMetadata: ReferenceMetadata,
       publicationsMetadata: PublicationMetadata[],
     ): Promise<VerificationResult | null> => {
-      try {
-        const response = await fetch(`${baseUrl}/verify-metadata-match`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            service: selectedAiModel.value.service,
-            model: selectedAiModel.value.value,
-            referenceMetadata,
-            publicationsMetadata,
-          }),
-        })
-
-        if (!response.ok) {
-          return null
-        }
-
-        return await response.json()
-      }
-      catch {
-        return null
-      }
+      return await verifyReferenceAgainstPublications(referenceMetadata, publicationsMetadata)
     },
     {
-      getKey: (referenceMetadata, publicationMetadata) => {
-        return `${JSON.stringify(referenceMetadata)}-${JSON.stringify(publicationMetadata)}`
-      },
+      getKey: (referenceMetadata, publicationsMetadata) =>
+        `${JSON.stringify(referenceMetadata)}-${JSON.stringify(publicationsMetadata)}`,
     },
   )
 
@@ -147,8 +97,8 @@ export const useAiStore = defineStore('ai', () => {
   )
 
   return {
-    extractReferencesMetadata,
-    verifyReferenceAgainstPublications,
+    extractReferencesMetadata: memoizedExtractReferencesMetadata,
+    verifyReferenceAgainstPublications: memoizedVerifyReferenceAgainstPublications,
     isExtractingReferences,
     verifyAgainstWebsite,
     extractWebsiteMetadata,

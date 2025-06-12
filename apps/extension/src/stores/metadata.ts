@@ -3,11 +3,11 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
 import { normalizeUrl } from '../utils/normalizeUrl'
 import { extractPdfTextFromUrl } from '../utils/pdfUtils'
-import { useAiStore } from './ai'
+import { useAiStore } from './aiStore'
 import { useAppStore } from './app'
 import { useCrossrefStore } from './crossref'
-import { useEuropePmcStore } from './europe-pmc'
-import { useOpenAlexStore } from './openAlex'
+import { useEuropePmcStore } from './europePmcStore'
+import { useOpenAlexStore } from './openAlexStore'
 
 export const useMetadataStore = defineStore('metadata', () => {
   const verifiedReferences = ref<VerifiedReference[]>([])

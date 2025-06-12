@@ -13,6 +13,6 @@ export default createConfig({
     'dist',
     'node_modules',
     'public',
-    'src/clients',
+    'src/api',
   ],
 })

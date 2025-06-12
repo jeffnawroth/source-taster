@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiInformationOutline } from '@mdi/js'
+import { mdiFileDocumentMultipleOutline } from '@mdi/js'
 import { useFileStore } from '@/extension/stores/file'
 import { useTextStore } from '@/extension/stores/text'
 
@@ -16,8 +16,9 @@ const show = computed(() => text.value.length === 0 && !file.value)
 <template>
   <v-empty-state
     v-show="show"
-    :icon="mdiInformationOutline"
-    :text="t('idle-state-text')"
-    :title="t('idle-state-title')"
+    :icon="mdiFileDocumentMultipleOutline"
+    :headline="t('input-required')"
+    :text="t('import-pdf-or-add-references')"
+    :title="t('no-references-to-check')"
   />
 </template>

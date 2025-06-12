@@ -1,18 +1,18 @@
-// src/stores/crossrefStore.ts
+// src/stores/europePmcStore.ts
 
 import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { searchCrossrefPublication } from '../services/crossrefService'
+import { searchEuropePmcPublication } from '../services/europePmcService'
 
-export const useCrossrefStore = defineStore('crossref', () => {
+export const useEuropePmcStore = defineStore('europe-pmc', () => {
   const searchPublication = useMemoize(
     async (referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> => {
       try {
-        return await searchCrossrefPublication(referenceMetadata)
+        return await searchEuropePmcPublication(referenceMetadata)
       }
       catch (error) {
-        console.error('Crossref Store Error:', error)
+        console.error('Europe PMC Store Error:', error)
         return null
       }
     },
@@ -24,5 +24,5 @@ export const useCrossrefStore = defineStore('crossref', () => {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useCrossrefStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useEuropePmcStore, import.meta.hot))
 }

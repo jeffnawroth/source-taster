@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiMagnify } from '@mdi/js'
+import { mdiMagnifyScan } from '@mdi/js'
 import { useMetadataStore } from '@/extension/stores/metadata'
 
 const { isSearchingAndVerifying } = storeToRefs(useMetadataStore())
@@ -20,15 +20,17 @@ const progressText = computed(() => {
 <template>
   <v-empty-state
     v-show="isSearchingAndVerifying"
-    :title="$t('search-and-verify')"
-    :text="$t('search-and-verify-description')"
-    :icon="mdiMagnify"
+    :title="$t('analyzing-references')"
+    :text="$t('analyzing-references-description')"
+    :headline="$t('search-and-verification')"
+    :icon="mdiMagnifyScan"
   >
     <template #actions>
       <v-chip
         variant="outlined"
+        class="mt-4"
       >
-        {{ progressText }}
+        {{ `${progressText} ${$t('checked')}` }}
       </v-chip>
     </template>
   </v-empty-state>

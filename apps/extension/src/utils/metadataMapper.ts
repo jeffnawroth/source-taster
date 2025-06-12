@@ -1,7 +1,12 @@
-import type { Work } from '../clients/crossref-client/models/Work'
-import type { WorkSchema } from '../clients/open-alex'
+import type { Work } from '../api/crossref/models/Work'
+import type { WorkSchema } from '../api/open-alex'
 import type { EuropePmcPublication, PublicationMetadata, ReferenceMetadata } from '../types'
 
+/**
+ * Maps a Europe PMC publication to a standard publication metadata format.
+ * @param result The Europe PMC publication to map.
+ * @returns The mapped publication metadata.
+ */
 export function mapEuropePMCToPublication(result: EuropePmcPublication): PublicationMetadata {
   return {
     title: result.title,
@@ -15,6 +20,11 @@ export function mapEuropePMCToPublication(result: EuropePmcPublication): Publica
   }
 }
 
+/**
+ * Maps an OpenAlex work to a standard publication metadata format.
+ * @param result The OpenAlex work to map.
+ * @returns The mapped publication metadata.
+ */
 export function mapOpenAlexToPublication(result: WorkSchema): PublicationMetadata {
   return {
     title: result.title,
@@ -31,6 +41,11 @@ export function mapOpenAlexToPublication(result: WorkSchema): PublicationMetadat
   }
 }
 
+/**
+ * Maps a Crossref work to a standard publication metadata format.
+ * @param result The Crossref work to map.
+ * @returns The mapped publication metadata.
+ */
 export function mapCrossrefToPublication(result: Work): PublicationMetadata {
   return {
     title: result.title?.[0],
@@ -46,6 +61,11 @@ export function mapCrossrefToPublication(result: Work): PublicationMetadata {
   }
 }
 
+/**
+ * Maps a reference metadata object to a standard publication metadata format.
+ * @param ref The reference metadata to map.
+ * @returns The mapped publication metadata.
+ */
 export function mapReferenceToPublication(
   ref: ReferenceMetadata,
 ): PublicationMetadata {

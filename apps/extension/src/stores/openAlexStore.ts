@@ -1,18 +1,16 @@
-// src/stores/crossrefStore.ts
-
 import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { searchCrossrefPublication } from '../services/crossrefService'
+import { searchPublication as searchPublicationFromService } from '../services/openAlexService'
 
-export const useCrossrefStore = defineStore('crossref', () => {
+export const useOpenAlexStore = defineStore('openAlex', () => {
   const searchPublication = useMemoize(
     async (referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> => {
       try {
-        return await searchCrossrefPublication(referenceMetadata)
+        return await searchPublicationFromService(referenceMetadata)
       }
       catch (error) {
-        console.error('Crossref Store Error:', error)
+        console.error('Error searching OpenAlex:', error)
         return null
       }
     },
@@ -24,5 +22,5 @@ export const useCrossrefStore = defineStore('crossref', () => {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useCrossrefStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useOpenAlexStore, import.meta.hot))
 }
