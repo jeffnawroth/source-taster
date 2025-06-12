@@ -1,10 +1,10 @@
-import type { FullPaper } from '../clients/semanticscholar-client'
+import type { FullPaper } from '../api/semantic-scholar'
 import type { ReferenceMetadata } from '../types'
 import { useMemoize } from '@vueuse/core'
 import fetchRetry from 'fetch-retry'
 import PQueue from 'p-queue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { Configuration, PaperDataApi } from '../clients/semanticscholar-client'
+import { Configuration, PaperDataApi } from '../api/semantic-scholar'
 
 // Enhance fetch with retry capability
 const fetchWithRetry = fetchRetry(fetch, {
