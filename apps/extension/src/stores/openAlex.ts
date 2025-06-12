@@ -1,7 +1,7 @@
 import type { PublicationMetadata, ReferenceMetadata } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { OpenAlexApi } from '../clients/open-alex'
+import { OpenAlexApi } from '../api/open-alex'
 import { mapOpenAlexToPublication } from '../utils/metadataMapper'
 
 export const useOpenAlexStore = defineStore('openAlex', () => {

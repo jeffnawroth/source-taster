@@ -1,5 +1,5 @@
 import type { Work } from '../api/crossref/models/Work'
-import type { WorkSchema } from '../clients/open-alex'
+import type { WorkSchema } from '../api/open-alex'
 import type { EuropePmcPublication, PublicationMetadata, ReferenceMetadata } from '../types'
 
 /**
