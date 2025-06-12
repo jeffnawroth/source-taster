@@ -1,4 +1,4 @@
-import type { SearchRequest } from './clients/europe-pmc'
+import type { SearchRequest } from './api/europe-pmc'
 
 export interface AIModel {
   title: string

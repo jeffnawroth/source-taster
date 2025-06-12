@@ -1,7 +1,7 @@
 import type { EuropePmcPublicationsResponse, PublicationMetadata, ReferenceMetadata } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { Configuration, EuropePMCArticlesRESTfulAPIApi } from '../clients/europe-pmc'
+import { Configuration, EuropePMCArticlesRESTfulAPIApi } from '../api/europe-pmc'
 import { mapEuropePMCToPublication } from '../utils/metadataMapper'
 
 const config = new Configuration({
