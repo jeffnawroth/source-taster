@@ -129,6 +129,7 @@
   "verified-reference": "Reference could be successfully matched to a source",
   "verified-references-tooltip": "References that were successfully matched to a source",
   "verify": "Verify",
+  "verify-references": "Verify references",
   "view-demo": "View a demonstration of how to use the extension",
   "view-github": "View Project on GitHub",
   "visit-website": "Visit Website",
