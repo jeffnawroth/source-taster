@@ -32,7 +32,7 @@ const { t } = useI18n()
 
     <v-divider vertical />
 
-    <v-cols
+    <v-col
       cols="auto"
     >
       <v-tooltip :text="$t('verified-references-tooltip')">
@@ -48,11 +48,11 @@ const { t } = useI18n()
           </v-chip>
         </template>
       </v-tooltip>
-    </v-cols>
+    </v-col>
 
     <v-divider vertical />
 
-    <v-cols
+    <v-col
       cols="auto"
     >
       <v-tooltip :text="$t('unverified-references-tooltip')">
@@ -68,7 +68,7 @@ const { t } = useI18n()
           </v-chip>
         </template>
       </v-tooltip>
-    </v-cols>
+    </v-col>
 
     <v-divider vertical />
 
