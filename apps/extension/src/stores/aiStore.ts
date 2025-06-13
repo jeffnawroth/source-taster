@@ -7,18 +7,19 @@ import { ref } from 'vue'
 import { selectedAiModel } from '../logic'
 import { extractReferencesMetadata, verifyReferenceAgainstPublications } from '../services/aiService'
 
+const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
+
 export const useAiStore = defineStore('ai', () => {
   const isExtractingReferences = ref(false)
 
   const memoizedExtractReferencesMetadata = useMemoize(
     async (prompt: string): Promise<ReferenceMetadata[] | null> => {
       isExtractingReferences.value = true
-      try {
-        return await extractReferencesMetadata(prompt)
-      }
-      finally {
-        isExtractingReferences.value = false
-      }
+
+      const result = await extractReferencesMetadata(prompt)
+
+      isExtractingReferences.value = false
+      return result
     },
   )
 
@@ -27,7 +28,8 @@ export const useAiStore = defineStore('ai', () => {
       referenceMetadata: ReferenceMetadata,
       publicationsMetadata: PublicationMetadata[],
     ): Promise<VerificationResult | null> => {
-      return await verifyReferenceAgainstPublications(referenceMetadata, publicationsMetadata)
+      const result = await verifyReferenceAgainstPublications(referenceMetadata, publicationsMetadata)
+      return result
     },
     {
       getKey: (referenceMetadata, publicationsMetadata) =>

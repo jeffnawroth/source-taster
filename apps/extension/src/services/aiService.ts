@@ -21,12 +21,13 @@ export async function extractReferencesMetadata(prompt: string): Promise<Referen
     })
 
     if (!response.ok) {
-      return null
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
     return await response.json()
   }
-  catch {
+  catch (error) {
+    console.error('Failed to extract references metadata:', error)
     return null
   }
 }
@@ -55,12 +56,13 @@ export async function verifyReferenceAgainstPublications(
     })
 
     if (!response.ok) {
-      return null
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
     return await response.json()
   }
-  catch {
+  catch (error) {
+    console.error('Failed to verify reference against publications:', error)
     return null
   }
 }
