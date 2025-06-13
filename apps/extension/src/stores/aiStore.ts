@@ -4,10 +4,7 @@ import type { PublicationMetadata, ReferenceMetadata, VerificationResult, Websit
 import { useMemoize } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
-import { selectedAiModel } from '../logic'
-import { extractReferencesMetadata, verifyReferenceAgainstPublications } from '../services/aiService'
-
-const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
+import { extractReferencesMetadata, extractWebsiteMetadata, verifyAgainstWebsite, verifyReferenceAgainstPublications } from '../services/aiService'
 
 export const useAiStore = defineStore('ai', () => {
   const isExtractingReferences = ref(false)
@@ -28,8 +25,7 @@ export const useAiStore = defineStore('ai', () => {
       referenceMetadata: ReferenceMetadata,
       publicationsMetadata: PublicationMetadata[],
     ): Promise<VerificationResult | null> => {
-      const result = await verifyReferenceAgainstPublications(referenceMetadata, publicationsMetadata)
-      return result
+      return await verifyReferenceAgainstPublications(referenceMetadata, publicationsMetadata)
     },
     {
       getKey: (referenceMetadata, publicationsMetadata) =>
@@ -37,60 +33,18 @@ export const useAiStore = defineStore('ai', () => {
     },
   )
 
-  const extractWebsiteMetadata = useMemoize(
+  const memoizedExtractWebsiteMetadata = useMemoize(
     async (input: string): Promise<WebsiteMetadata | null> => {
-      isExtractingReferences.value = true
-      try {
-        const res = await fetch(`${baseUrl}/extract-metadata-website`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            service: selectedAiModel.value.service,
-            model: selectedAiModel.value.value,
-            input,
-          }),
-        })
-        if (!res.ok)
-          return null
-        const data = await res.json()
-        // hier unwrappen:
-        return data.metadata as WebsiteMetadata
-      }
-      catch {
-        return null
-      }
-      finally {
-        isExtractingReferences.value = false
-      }
+      return await extractWebsiteMetadata(input)
     },
   )
 
-  const verifyAgainstWebsite = useMemoize(
+  const memoizedVerifyAgainstWebsite = useMemoize(
     async (
       referenceMetadata: ReferenceMetadata,
       websiteMetadata: WebsiteMetadata,
     ): Promise<WebsiteVerificationResult | null> => {
-      try {
-        const res = await fetch(
-          `${baseUrl}/verify-metadata-match-website`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              service: selectedAiModel.value.service,
-              model: selectedAiModel.value.value,
-              referenceMetadata,
-              websiteMetadata,
-            }),
-          },
-        )
-        if (!res.ok)
-          return null
-        return await res.json()
-      }
-      catch {
-        return null
-      }
+      return await verifyAgainstWebsite(referenceMetadata, websiteMetadata)
     },
     {
       getKey: (ref, site) =>
@@ -102,8 +56,8 @@ export const useAiStore = defineStore('ai', () => {
     extractReferencesMetadata: memoizedExtractReferencesMetadata,
     verifyReferenceAgainstPublications: memoizedVerifyReferenceAgainstPublications,
     isExtractingReferences,
-    verifyAgainstWebsite,
-    extractWebsiteMetadata,
+    verifyAgainstWebsite: memoizedVerifyAgainstWebsite,
+    extractWebsiteMetadata: memoizedExtractWebsiteMetadata,
   }
 })
 
