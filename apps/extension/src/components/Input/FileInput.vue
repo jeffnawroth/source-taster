@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { mdiFilePdfBox } from '@mdi/js'
 import { useAutoCheckReferences } from '@/extension/logic'
-import { useFileStore } from '@/extension/stores/file'
+import { useAppStore } from '@/extension/stores/app'
 import { useMetadataStore } from '@/extension/stores/metadata'
-import { useTextStore } from '@/extension/stores/text'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
 // Doi Store
 
 // FILE
-const { file } = storeToRefs(useFileStore())
+const { file, text } = storeToRefs(useAppStore())
 
 // PDF TEXT
 const { extractAndSearchMetadata, clear } = useMetadataStore()
-
-const { text } = storeToRefs(useTextStore())
 
 watch(file, async (newValue) => {
   if (!newValue)

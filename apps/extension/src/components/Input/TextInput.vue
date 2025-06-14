@@ -3,9 +3,8 @@ import { mdiText } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
 import { useAutoCheckReferences, useAutoImport } from '@/extension/logic'
-import { useFileStore } from '@/extension/stores/file'
+import { useAppStore } from '@/extension/stores/app'
 import { useMetadataStore } from '@/extension/stores/metadata'
-import { useTextStore } from '@/extension/stores/text'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -24,7 +23,7 @@ const handleTextChange = useDebounceFn(async (newVal: string) => {
 
 // SET SELECTED TEXT
 const currentText = ref('')
-const { text } = storeToRefs(useTextStore())
+const { text } = storeToRefs(useAppStore())
 
 watch(currentText, async (newVal) => {
   if (newVal === text.value)
@@ -48,7 +47,7 @@ onMessage('autoImportText', async ({ data }) => {
 })
 
 // DISABLED STATE
-const { file } = storeToRefs(useFileStore())
+const { file } = storeToRefs(useAppStore())
 const disabled = computed(() => !!file.value)
 </script>
 

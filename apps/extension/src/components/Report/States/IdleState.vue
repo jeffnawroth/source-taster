@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { mdiFileDocumentMultipleOutline } from '@mdi/js'
-import { useFileStore } from '@/extension/stores/file'
-import { useTextStore } from '@/extension/stores/text'
+import { useAppStore } from '@/extension/stores/app'
 
 // I18n
 const { t } = useI18n()
 
 // SHOW NO INPUT STATE IF THERE IS NO TEXT OR FILE INPUT
-const { text } = storeToRefs(useTextStore())
-const { file } = storeToRefs(useFileStore())
+const { text, file } = storeToRefs(useAppStore())
 
 const show = computed(() => text.value.length === 0 && !file.value)
 </script>
