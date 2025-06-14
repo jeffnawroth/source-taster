@@ -1,6 +1,7 @@
 // src/services/europePmcService.ts
 
 import type { EuropePmcPublicationsResponse, PublicationMetadata, ReferenceMetadata } from '../types'
+import { useMemoize } from '@vueuse/core'
 import { Configuration, EuropePMCArticlesRESTfulAPIApi } from '../api/europe-pmc'
 import { mapEuropePMCToPublication } from '../utils/metadataMapper'
 
@@ -15,21 +16,27 @@ const client = new EuropePMCArticlesRESTfulAPIApi(config)
  * @param {ReferenceMetadata} referenceMetadata - The metadata of the reference to search for.
  * @returns {Promise<PublicationMetadata | null>} - The publication metadata if found, otherwise null.
  */
-export async function searchEuropePmcPublication(referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> {
+export const searchEuropePmcPublication = useMemoize(async (referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata | null> => {
   if (!referenceMetadata.title) {
     return null
   }
 
-  const response = await client.search({
-    query: referenceMetadata.title,
-    pageSize: 1,
-    format: 'json',
-    email: import.meta.env.VITE_MAILTO,
-  }) as EuropePmcPublicationsResponse
+  try {
+    const response = await client.search({
+      query: referenceMetadata.title,
+      pageSize: 1,
+      format: 'json',
+      email: import.meta.env.VITE_MAILTO,
+    }) as EuropePmcPublicationsResponse
 
-  if (!response.resultList?.result?.length) {
+    if (!response.resultList?.result?.length) {
+      return null
+    }
+
+    return mapEuropePMCToPublication(response.resultList.result[0])
+  }
+  catch (error) {
+    console.error('Error searching Europe PMC:', error)
     return null
   }
-
-  return mapEuropePMCToPublication(response.resultList.result[0])
-}
+})
