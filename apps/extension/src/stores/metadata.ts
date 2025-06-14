@@ -1,12 +1,12 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { extractWebsiteMetadata, verifyAgainstWebsite, verifyReferenceAgainstPublications } from '../services/aiService'
+import { searchCrossrefPublication } from '../services/crossrefService'
 import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
 import { normalizeUrl } from '../utils/normalizeUrl'
 import { extractPdfTextFromUrl } from '../utils/pdfUtils'
 import { useAiStore } from './aiStore'
 import { useAppStore } from './app'
-import { useCrossrefStore } from './crossref'
 import { useEuropePmcStore } from './europePmcStore'
 import { useOpenAlexStore } from './openAlexStore'
 
@@ -72,7 +72,6 @@ export const useMetadataStore = defineStore('metadata', () => {
   // Search for works using OpenAlex, Europe PMC, and Crossref
   const { searchPublication: searchOpenAlexPublication } = useOpenAlexStore()
   const { searchPublication: searchEuropePmcPublication } = useEuropePmcStore()
-  const { searchPublication: searchCrossrefPublication } = useCrossrefStore()
 
   async function searchWork(referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata[] | null> {
     // Check if the reference metadata title is empty

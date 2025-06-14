@@ -1,5 +1,3 @@
-// src/stores/aiStore.ts
-
 import type { ReferenceMetadata } from '../types'
 
 import { acceptHMRUpdate, defineStore } from 'pinia'
