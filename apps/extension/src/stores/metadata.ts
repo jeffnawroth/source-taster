@@ -1,5 +1,6 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { extractWebsiteMetadata, verifyAgainstWebsite, verifyReferenceAgainstPublications } from '../services/aiService'
 import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
 import { normalizeUrl } from '../utils/normalizeUrl'
 import { extractPdfTextFromUrl } from '../utils/pdfUtils'
@@ -27,7 +28,7 @@ export const useMetadataStore = defineStore('metadata', () => {
   }
 
   // Extract metadata from text and verify
-  const { extractReferencesMetadata, extractWebsiteMetadata, verifyAgainstWebsite } = useAiStore()
+  const { extractReferences } = useAiStore()
 
   const { isLoading } = storeToRefs(useAppStore())
 
@@ -43,7 +44,7 @@ export const useMetadataStore = defineStore('metadata', () => {
     isLoading.value = true
 
     // Extract references metadata from the text
-    extractedReferencesMetadata.value = await extractReferencesMetadata(text)
+    extractedReferencesMetadata.value = await extractReferences(text)
 
     // Check if references metadata is empty
     if (!extractedReferencesMetadata.value)
@@ -94,7 +95,6 @@ export const useMetadataStore = defineStore('metadata', () => {
   }
 
   // Verify the match with AI
-  const { verifyReferenceAgainstPublications } = useAiStore()
 
   async function verifyMatch(referenceMetadata: ReferenceMetadata, publicationsMetadata: PublicationMetadata[]): Promise<VerificationResult | null> {
     // Check if the publications metadata is empty
