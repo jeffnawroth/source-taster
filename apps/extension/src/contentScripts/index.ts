@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { extractPdfTextFromUrl } from '@/extension/utils/pdfUtils'
 import { sendMessage } from 'webext-bridge/content-script'
+import { extractPdfTextFromUrl } from '@/extension/utils/pdfUtils'
 
 // Firefox `browser.tabs.executeScript()` requires scripts return a primitive value
 (() => {

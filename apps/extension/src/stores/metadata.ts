@@ -4,9 +4,9 @@ import { verifyAgainstWebsite, verifyReferenceAgainstPublications } from '../ser
 import { searchCrossrefPublication } from '../services/crossrefService'
 import { searchEuropePmcPublication } from '../services/europePmcService'
 import { searchOpenAlexPublication } from '../services/openAlexService'
-import { extractHtmlTextFromUrl } from '../utils/htmlUtils'
+import { extractHtmlText } from '../utils/htmlUtils'
 import { normalizeUrl } from '../utils/normalizeUrl'
-import { extractPdfTextFromUrl } from '../utils/pdfUtils'
+import { extractPdfTextFromBuffer } from '../utils/pdfUtils'
 import { useAiStore } from './aiStore'
 import { useAppStore } from './app'
 
@@ -155,26 +155,28 @@ export const useMetadataStore = defineStore('metadata', () => {
     const raw = referenceMetadata.url!
     const url = normalizeUrl(raw)
 
-    let headResp: Response
+    let response: Response
     try {
-      headResp = await fetch(url, { method: 'HEAD', redirect: 'follow' })
+      response = await fetch(url, { method: 'GET', redirect: 'follow' })
     }
     catch {
       return { match: false, reason: 'URL not reachable' }
     }
 
-    if (!headResp.ok) {
-      return { match: false, reason: `HTTP ${headResp.status}` }
+    if (!response.ok) {
+      return { match: false, reason: `HTTP ${response.status}` }
     }
 
-    const ct = (headResp.headers.get('Content-Type') || '').toLowerCase()
+    const ct = (response.headers.get('Content-Type') || '').toLowerCase()
 
     let pageText = ''
     if (ct.includes('pdf')) {
-      pageText = await extractPdfTextFromUrl(url)
+      const buffer = await response.arrayBuffer()
+      pageText = await extractPdfTextFromBuffer(buffer)
     }
     else {
-      pageText = await extractHtmlTextFromUrl(url)
+      const html = await response.text()
+      pageText = extractHtmlText(html)
     }
 
     const websiteResult = await verifyAgainstWebsite(

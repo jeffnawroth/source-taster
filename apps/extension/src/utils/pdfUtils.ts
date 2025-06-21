@@ -1,8 +1,8 @@
 import type { HttpResponse, Item, Work } from '@jamesgopsill/crossref-client/dist/cjs/definitions/interfaces'
-import i18n from '@/extension/plugins/i18n'
 import fontkit from '@pdf-lib/fontkit'
 import { PDFDocument, rgb } from 'pdf-lib'
 import { extractText, getDocumentProxy } from 'unpdf'
+import i18n from '@/extension/plugins/i18n'
 import NotoSans from '../../extension/assets/NotoSans-Regular.ttf'
 
 export async function generatePDFReport(
@@ -192,6 +192,11 @@ export async function generatePDFReport(
   // PDF in Bytes speichern und zurückgeben
   const pdfBytes = await pdfDoc.save()
   return pdfBytes
+}
+
+// New helper to extract PDF text from a buffer without fetching again
+export async function extractPdfTextFromBuffer(buffer: ArrayBuffer): Promise<string> {
+  return await extractPDFText(buffer)
 }
 
 // Extract text from a PDF URL
