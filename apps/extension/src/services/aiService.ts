@@ -1,4 +1,4 @@
-import type { PublicationMetadata, ReferenceMetadata, VerificationResult, WebsiteMetadata, WebsiteVerificationResult } from '../types'
+import type { PublicationMetadata, ReferenceMetadata, VerificationResult, WebsiteVerificationResult } from '../types'
 import { useMemoize } from '@vueuse/core'
 import { selectedAiModel } from '../logic'
 
@@ -73,37 +73,6 @@ export const verifyReferenceAgainstPublications = useMemoize(
   {
     getKey: (referenceMetadata, publicationsMetadata) =>
       `${JSON.stringify(referenceMetadata)}-${JSON.stringify(publicationsMetadata)}`,
-  },
-)
-
-/**
- * Extracts website metadata from the given input using the AI service.
- * @param input The input string containing the website information.
- * @returns A promise that resolves to the extracted WebsiteMetadata or null if an error occurs.
- */
-export const extractWebsiteMetadata = useMemoize(
-  async (input: string): Promise<WebsiteMetadata | null> => {
-    try {
-      const res = await fetch(`${baseUrl}/extract-metadata-website`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          service: selectedAiModel.value.service,
-          model: selectedAiModel.value.value,
-          input,
-        }),
-      })
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`)
-      }
-
-      return await res.json() as WebsiteMetadata
-    }
-    catch (error) {
-      console.error('Failed to extract website metadata:', error)
-      return null
-    }
   },
 )
 
