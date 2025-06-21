@@ -4,9 +4,9 @@ import { verifyMetadataMatchWebsiteWithModel } from '../utilts/verifyMetadataMat
 const verifyMetadataMatchWebsiteRoute = new Hono()
 
 verifyMetadataMatchWebsiteRoute.post('/', async (c) => {
-  const { service, model, referenceMetadata, websiteMetadata } = await c.req.json()
+  const { service, model, referenceMetadata, pageText } = await c.req.json()
 
-  if (!service || !model || !referenceMetadata || !websiteMetadata) {
+  if (!service || !model || !referenceMetadata || !pageText) {
     return c.json(
       { error: 'Service, model, referenceMetadata and websiteMetadata are required' },
       400,
@@ -18,7 +18,7 @@ verifyMetadataMatchWebsiteRoute.post('/', async (c) => {
       service,
       model,
       referenceMetadata,
-      websiteMetadata,
+      pageText,
     )
     return c.json(result)
   }

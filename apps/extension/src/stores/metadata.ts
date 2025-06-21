@@ -1,6 +1,6 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { extractWebsiteMetadata, verifyAgainstWebsite, verifyReferenceAgainstPublications } from '../services/aiService'
+import { verifyAgainstWebsite, verifyReferenceAgainstPublications } from '../services/aiService'
 import { searchCrossrefPublication } from '../services/crossrefService'
 import { searchEuropePmcPublication } from '../services/europePmcService'
 import { searchOpenAlexPublication } from '../services/openAlexService'
@@ -177,14 +177,9 @@ export const useMetadataStore = defineStore('metadata', () => {
       pageText = await extractHtmlTextFromUrl(url)
     }
 
-    const websiteMetadata = await extractWebsiteMetadata(pageText)
-    if (!websiteMetadata) {
-      return { match: false, reason: 'Website metadata extraction failed' }
-    }
-
     const websiteResult = await verifyAgainstWebsite(
       referenceMetadata,
-      websiteMetadata,
+      pageText,
     )
     if (!websiteResult) {
       return { match: false, reason: 'Website metadata verification failed' }

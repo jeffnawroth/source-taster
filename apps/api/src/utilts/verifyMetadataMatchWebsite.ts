@@ -3,13 +3,15 @@ import { Type } from '@google/genai'
 import { extractWithGemini } from '../services/geminiService'
 import { extractWithOpenAI } from '../services/openaiService'
 
-const instruction = `You are an AI system that determines whether a given scholarly reference matches the metadata extracted from a scientific web page. 
-Input: a ReferenceMetadata object and a WebsiteMetadata object.
+const instruction = `You are an AI system that determines whether the bibliographic reference metadata extracted from a citation matches the full text of a target web page (HTML or PDF).
+Input:
+- ReferenceMetadata: an object containing fields like title, authors, year, etc.
+- pageText: the complete textual content of the web page or PDF.
 
-Your task is to compare these two objects field by field:
-- Title: check if websiteMetadata.title matches or closely paraphrases referenceMetadata.title.
-- Authors: check if at least one surname from referenceMetadata.authors appears in websiteMetadata.authors.
-- Year: check if websiteMetadata.year equals referenceMetadata.year.
+Your task is to analyze the pageText to verify if:
+- Title phrases from ReferenceMetadata appear or are closely paraphrased.
+- At least one author surname from ReferenceMetadata appears.
+- The publication year from ReferenceMetadata is present.
 
 Based on this, output **only** this JSON object:
 
@@ -19,12 +21,11 @@ Based on this, output **only** this JSON object:
   "confidence": number
 }
 
-where:
-- "match" is true if you find strong agreement on title, authors, and year; otherwise false.
-- "reason" briefly explains which checks passed or failed.
-- "confidence" is a number between 0.0 and 1.0 indicating your certainty.
-
-Do **not** include any other fields or commentary.`
+where 
+"match" is true if all fields are strongly confirmed, otherwise false;
+"reason" explains which checks passed or failed;
+"confidence" is a 0.0–1.0 score indicating certainty. Do not include any additional commentary.
+`
 
 const openAIConfig: OpenAI.Responses.ResponseTextConfig = {
   format: {
@@ -78,14 +79,19 @@ const geminiConfig = {
 
 /**
  * Verifies a ReferenceMetadata against WebsiteMetadata via AI.
+ *
+ * @param service The AI service to use ('openai' or 'gemini').
+ * @param model The model name to use.
+ * @param referenceMetadata The bibliographic reference metadata object.
+ * @param pageText The full text content of the website or PDF to verify against.
  */
 export async function verifyMetadataMatchWebsiteWithModel(
   service: 'openai' | 'gemini',
   model: string,
   referenceMetadata: any,
-  websiteMetadata: any,
+  pageText: string,
 ) {
-  const payload = JSON.stringify({ referenceMetadata, websiteMetadata })
+  const payload = JSON.stringify({ referenceMetadata, pageText })
 
   switch (service) {
     case 'openai':

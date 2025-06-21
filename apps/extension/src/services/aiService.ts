@@ -110,11 +110,11 @@ export const extractWebsiteMetadata = useMemoize(
 /**
  * Verifies the reference metadata against the website metadata using the AI service.
  * @param referenceMetadata The reference metadata to verify.
- * @param websiteMetadata The website metadata to verify against.
+ * @param pageText The raw text content of the website or PDF to verify against.
  * @returns A promise that resolves to a WebsiteVerificationResult or null if an error occurs.
  */
 export const verifyAgainstWebsite = useMemoize(
-  async (referenceMetadata: ReferenceMetadata, websiteMetadata: WebsiteMetadata): Promise<WebsiteVerificationResult | null> => {
+  async (referenceMetadata: ReferenceMetadata, pageText: string): Promise<WebsiteVerificationResult | null> => {
     try {
       const res = await fetch(
         `${baseUrl}/verify-metadata-match-website`,
@@ -125,7 +125,7 @@ export const verifyAgainstWebsite = useMemoize(
             service: selectedAiModel.value.service,
             model: selectedAiModel.value.value,
             referenceMetadata,
-            websiteMetadata,
+            pageText,
           }),
         },
       )
@@ -142,7 +142,7 @@ export const verifyAgainstWebsite = useMemoize(
     }
   },
   {
-    getKey: (ref, site) =>
-      `${JSON.stringify(ref)}-${site.url}`,
+    getKey: (ref, text) =>
+      `${JSON.stringify(ref)}-${text}`,
   },
 )
