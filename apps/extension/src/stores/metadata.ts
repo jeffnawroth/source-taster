@@ -1,12 +1,11 @@
 import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { verifyAgainstWebsite, verifyReferenceAgainstPublications } from '../services/aiService'
+import { verifyReferenceAgainstPublications } from '../services/aiService'
 import { searchCrossrefPublication } from '../services/crossrefService'
 import { searchEuropePmcPublication } from '../services/europePmcService'
 import { searchOpenAlexPublication } from '../services/openAlexService'
-import { extractHtmlText } from '../utils/htmlUtils'
+import { verifyUrlContent } from '../services/urlVerificationService'
 import { normalizeUrl } from '../utils/normalizeUrl'
-import { extractPdfTextFromBuffer } from '../utils/pdfUtils'
 import { useAiStore } from './aiStore'
 import { useAppStore } from './app'
 
@@ -126,7 +125,7 @@ export const useMetadataStore = defineStore('metadata', () => {
       }
 
       if (referenceMetadata.url) {
-        const urlVerification = await verifyUrlContent(referenceMetadata)
+        const urlVerification = await verifyUrlContent(referenceMetadata.url, referenceMetadata)
 
         return {
           referenceMetadata,
@@ -148,48 +147,6 @@ export const useMetadataStore = defineStore('metadata', () => {
         referenceMetadata,
         verification: null,
       }
-    }
-  }
-
-  async function verifyUrlContent(referenceMetadata: ReferenceMetadata): Promise<VerificationResult> {
-    const raw = referenceMetadata.url!
-    const url = normalizeUrl(raw)
-
-    let response: Response
-    try {
-      response = await fetch(url, { method: 'GET', redirect: 'follow' })
-    }
-    catch {
-      return { match: false, reason: 'URL not reachable' }
-    }
-
-    if (!response.ok) {
-      return { match: false, reason: `HTTP ${response.status}` }
-    }
-
-    const ct = (response.headers.get('Content-Type') || '').toLowerCase()
-
-    let pageText = ''
-    if (ct.includes('pdf')) {
-      const buffer = await response.arrayBuffer()
-      pageText = await extractPdfTextFromBuffer(buffer)
-    }
-    else {
-      const html = await response.text()
-      pageText = extractHtmlText(html)
-    }
-
-    const websiteResult = await verifyAgainstWebsite(
-      referenceMetadata,
-      pageText,
-    )
-    if (!websiteResult) {
-      return { match: false, reason: 'Website metadata verification failed' }
-    }
-
-    return {
-      match: websiteResult.match,
-      reason: websiteResult.reason,
     }
   }
 
