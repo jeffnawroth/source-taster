@@ -28,8 +28,8 @@ importers:
         version: 4.8.2
     devDependencies:
       '@google/genai':
-        specifier: ^0.7.0
-        version: 0.7.0
+        specifier: ^1.6.0
+        version: 1.6.0
       '@source-taster/eslint-config':
         specifier: workspace:^
         version: link:../../packages/eslint-config
@@ -44,7 +44,7 @@ importers:
         version: 9.29.0(jiti@2.4.2)
       openai:
         specifier: ^4.104.0
-        version: 4.104.0(ws@8.18.2)(zod@3.24.4)
+        version: 4.104.0(ws@8.18.2)(zod@3.25.67)
       tsx:
         specifier: ^4.20.3
         version: 4.20.3
@@ -861,9 +861,14 @@ packages:
     resolution: {integrity: sha512-PyUXQWB42s4jBli435TDiYuVsadwRHnMc27YaLouINktvTWsL3FcKrRMGawTayFk46X+n5bE23RjUTWQwrukWw==}
     engines: {node: '>= 0.10.0'}
 
-  '@google/genai@0.7.0':
-    resolution: {integrity: sha512-r+Fwj/emnXZN5R+4JCxDXboY4AGTmTn7+Wnori5dgyJiStP0P82f9YYL0CVsCnDIumNY2i0UIcZ1zGZdtHJ34w==}
-    engines: {node: '>=18.0.0'}
+  '@google/genai@1.6.0':
+    resolution: {integrity: sha512-0vn8wMGesjiEsHeFsl10T8+SFqLj7q+RSE6mml66sE+jwI7U9wW2LQ3qYtwUEaI+P8ZYeEYE5IpYmNLcRQUBPQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.11.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
 
   '@hono/node-server@1.14.4':
     resolution: {integrity: sha512-DnxpshhYewr2q9ZN8ez/M5mmc3sucr8CT1sIgIy1bkeUXut9XWDkqHoFHRhWIQgkYnKpVRxunyhK7WzpJeJ6qQ==}
@@ -5246,8 +5251,13 @@ packages:
     resolution: {integrity: sha512-EkXc2JGcKhO5N5aZ7TmuNo45budRaFGHOmz24wtJR7znbNqDPmdZtUauKX6et8KAVseAMBOyWJqEpXcHTBsh7Q==}
     engines: {node: '>= 6'}
 
-  zod@3.24.4:
-    resolution: {integrity: sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg==}
+  zod-to-json-schema@3.24.5:
+    resolution: {integrity: sha512-/AuWwMP+YqiPbsJx5D6TfgRTc4kTLjsh5SOcd4bLsfUg2RcEXrFMJl1DGgdHy2aCfsIA/cr/1JM0xcB2GZji8g==}
+    peerDependencies:
+      zod: ^3.24.1
+
+  zod@3.25.67:
+    resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -5799,10 +5809,12 @@ snapshots:
 
   '@fregante/relaxed-json@2.0.0': {}
 
-  '@google/genai@0.7.0':
+  '@google/genai@1.6.0':
     dependencies:
       google-auth-library: 9.15.1
       ws: 8.18.2
+      zod: 3.25.67
+      zod-to-json-schema: 3.24.5(zod@3.25.67)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -9298,7 +9310,7 @@ snapshots:
       is-inside-container: 1.0.0
       is-wsl: 3.1.0
 
-  openai@4.104.0(ws@8.18.2)(zod@3.24.4):
+  openai@4.104.0(ws@8.18.2)(zod@3.25.67):
     dependencies:
       '@types/node': 18.19.112
       '@types/node-fetch': 2.6.12
@@ -9309,7 +9321,7 @@ snapshots:
       node-fetch: 2.7.0
     optionalDependencies:
       ws: 8.18.2
-      zod: 3.24.4
+      zod: 3.25.67
     transitivePeerDependencies:
       - encoding
 
@@ -10860,7 +10872,10 @@ snapshots:
       compress-commons: 2.1.1
       readable-stream: 3.6.2
 
-  zod@3.24.4:
-    optional: true
+  zod-to-json-schema@3.24.5(zod@3.25.67):
+    dependencies:
+      zod: 3.25.67
+
+  zod@3.25.67: {}
 
   zwitch@2.0.4: {}
