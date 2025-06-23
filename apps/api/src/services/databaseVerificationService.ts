@@ -14,8 +14,6 @@ export class DatabaseVerificationService {
 
   async verifyReferences(
     references: Reference[],
-    databases: string[],
-    verificationMethod: 'ai' | 'exact' | 'fuzzy',
     aiService?: 'openai' | 'gemini',
   ): Promise<VerificationResult[]> {
     const results: VerificationResult[] = []
@@ -23,8 +21,6 @@ export class DatabaseVerificationService {
     for (const reference of references) {
       const result = await this.verifyReference(
         reference,
-        databases,
-        verificationMethod,
         aiService,
       )
       results.push(result)
@@ -35,61 +31,33 @@ export class DatabaseVerificationService {
 
   private async verifyReference(
     reference: Reference,
-    databases: string[],
-    verificationMethod: 'ai' | 'exact' | 'fuzzy',
     aiService?: 'openai' | 'gemini',
   ): Promise<VerificationResult> {
-    const sources: ExternalSource[] = []
-
-    // Search in databases
-    if (databases.includes('openalex')) {
-      const openAlexResults = await this.openAlex.search(reference.metadata)
-      sources.push(...openAlexResults)
-    }
-
-    // Find best match
-    const bestMatch = this.findBestMatch(sources)
+    // Search in OpenAlex (always)
+    const bestMatch = await this.openAlex.search(reference.metadata)
 
     if (!bestMatch) {
       return {
         referenceId: reference.id,
         isVerified: false,
-        confidence: 0,
-        verificationMethod,
-        checkedDatabases: databases,
-        discrepancies: ['No matching source found'],
       }
     }
 
-    // Verify with AI if requested
-    if (verificationMethod === 'ai' && aiService) {
-      const aiVerification = await this.verifyWithAI(
-        reference,
-        bestMatch,
-        aiService,
-      )
-
-      return {
-        referenceId: reference.id,
-        isVerified: aiVerification.confidence > 0.7,
-        confidence: aiVerification.confidence,
-        matchedSource: bestMatch,
-        discrepancies: aiVerification.discrepancies,
-        verificationMethod,
-        checkedDatabases: databases,
-      }
+    // Verify with AI (always required)
+    if (!aiService) {
+      throw new Error('AI service is required for verification')
     }
 
-    // Simple exact/fuzzy matching
-    const confidence = this.calculateMatchConfidence(reference, bestMatch)
+    const aiVerified = await this.verifyWithAI(
+      reference,
+      bestMatch,
+      aiService,
+    )
 
     return {
       referenceId: reference.id,
-      isVerified: confidence > 0.8,
-      confidence,
+      isVerified: aiVerified,
       matchedSource: bestMatch,
-      verificationMethod,
-      checkedDatabases: databases,
     }
   }
 
@@ -152,66 +120,52 @@ export class DatabaseVerificationService {
     }
   }
 
-  private findBestMatch(sources: ExternalSource[]): ExternalSource | null {
-    if (sources.length === 0)
-      return null
-
-    // Sort by confidence and return the best match
-    return sources.sort((a, b) => b.confidence - a.confidence)[0]
-  }
-
-  private calculateMatchConfidence(reference: Reference, source: ExternalSource): number {
-    // Simple matching algorithm - can be improved
-    let score = 0
-    let checks = 0
-
-    if (reference.metadata.title && source.metadata.title) {
-      const titleSimilarity = this.calculateStringSimilarity(
-        reference.metadata.title,
-        source.metadata.title,
-      )
-      score += titleSimilarity
-      checks++
-    }
-
-    if (reference.metadata.doi && source.metadata.doi) {
-      score += reference.metadata.doi === source.metadata.doi ? 1 : 0
-      checks++
-    }
-
-    return checks > 0 ? score / checks : 0
-  }
-
   private async verifyWithAI(
     reference: Reference,
     source: ExternalSource,
     aiService: 'openai' | 'gemini',
-  ): Promise<{ confidence: number, discrepancies: string[] }> {
+  ): Promise<boolean> {
     const ai = AIServiceFactory.create(aiService)
 
-    const prompt = `
-Compare these two academic references and determine if they refer to the same work:
+    const prompt = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
+1. reference: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
+2. source: Structured object, containing authoritative bibliographic information.
 
-Reference 1 (Original):
+Your task is to assess whether the Source describes the same publication as Reference.
+
+Follow these steps:
+• Title Comparison: Compare Reference.title with source.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
+• Author Comparison: Compare Reference.authors with source.authors (array of author names). Focus on matching surnames, allowing for slight variations or order differences.
+• Year Comparison:
+  – If Reference.url is not present (i.e., a normal citation), compare Reference.year with source.year strictly: they must match exactly.
+  – If Reference.url is present (i.e., a webpage/PDF fallback), be more lenient:
+    • If title and authors match strongly, allow a year mismatch (even if off by 1–2 years or one is null).
+    • Only penalize the year if title/authors are weak matches.
+• DOI: If both Reference.doi and source.doi are present, compare them directly (they should be identical for a perfect match).
+• Journal Comparison: Compare Reference.journal with source.journal, if available.
+• Volume, Issue, Pages: Compare Reference.volume, Reference.issue, Reference.pages with source.volume, source.issue, source.pages, if present.
+
+Be tolerant of minor mismatches but look for strong agreement across multiple fields. A strong match is sufficient.
+
+At the end of your analysis, return a clear evaluation in the following format:
+{
+  "isMatch": true/false
+}
+
+Reference:
 ${JSON.stringify(reference.metadata, null, 2)}
 
-Reference 2 (Database):
-${JSON.stringify(source.metadata, null, 2)}
+Source:
+${JSON.stringify(source.metadata, null, 2)}`
 
-Respond with JSON:
-{
-  "confidence": 0.0-1.0,
-  "discrepancies": ["list of differences found"]
-}
-    `
-
-    const response = await ai.generateText(prompt)
+    const response = await ai.verifyMatch(prompt)
 
     try {
-      return JSON.parse(response)
+      const result = JSON.parse(response)
+      return result.isMatch === true
     }
     catch {
-      return { confidence: 0, discrepancies: ['AI verification failed'] }
+      return false
     }
   }
 

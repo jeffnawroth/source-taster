@@ -44,19 +44,13 @@ export interface ExtractionResponse {
 // Verification Types
 export interface VerificationRequest {
   references: Reference[]
-  databases?: ('openalex' | 'crossref' | 'semanticscholar' | 'europepmc')[]
-  verificationMethod: 'ai' | 'exact' | 'fuzzy'
   aiService?: 'openai' | 'gemini'
 }
 
 export interface VerificationResult {
   referenceId: string
   isVerified: boolean
-  confidence: number
   matchedSource?: ExternalSource
-  discrepancies?: string[]
-  verificationMethod: string
-  checkedDatabases: string[]
 }
 
 export interface VerificationResponse {
@@ -71,7 +65,6 @@ export interface ExternalSource {
   source: string // 'openalex', 'crossref', etc.
   metadata: ReferenceMetadata
   url?: string
-  confidence: number
 }
 
 // Website Verification Types

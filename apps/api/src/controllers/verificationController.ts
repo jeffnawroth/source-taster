@@ -35,8 +35,6 @@ export class VerificationController {
       // Verify references
       const results = await this.verificationService.verifyReferences(
         request.references,
-        request.databases || ['openalex', 'crossref'],
-        request.verificationMethod,
         request.aiService,
       )
 

@@ -3,9 +3,7 @@ import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
 export class OpenAlexService {
   private baseUrl = 'https://api.openalex.org'
 
-  async search(metadata: ReferenceMetadata): Promise<ExternalSource[]> {
-    const results: ExternalSource[] = []
-
+  async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
       // Build search query
       const queryParams = this.buildSearchQuery(metadata)
@@ -14,15 +12,13 @@ export class OpenAlexService {
       const response = await fetch(url)
       const data = await response.json() as any
 
-      if (data.results) {
-        for (const work of data.results) {
-          results.push({
-            id: work.id,
-            source: 'openalex',
-            metadata: this.parseOpenAlexWork(work),
-            url: work.id,
-            confidence: this.calculateConfidence(metadata, work),
-          })
+      if (data.results && data.results.length > 0) {
+        const work = data.results[0] // Only take the first (and only) result
+        return {
+          id: work.id,
+          source: 'openalex',
+          metadata: this.parseOpenAlexWork(work),
+          url: work.id,
         }
       }
     }
@@ -30,7 +26,7 @@ export class OpenAlexService {
       console.error('OpenAlex search error:', error)
     }
 
-    return results
+    return null
   }
 
   private buildSearchQuery(metadata: ReferenceMetadata): string {
@@ -48,7 +44,12 @@ export class OpenAlexService {
       params.append('filter', `publication_year:${metadata.year}`)
     }
 
-    params.append('per-page', '10')
+    // Only return the best match
+    params.append('per-page', '1')
+    params.append('page', '1')
+
+    // Select only important properties to reduce response size
+    params.append('select', 'id,title,authorships,primary_location,publication_year,doi,biblio,abstract_inverted_index')
 
     return params.toString()
   }
@@ -79,60 +80,5 @@ export class OpenAlexService {
     }
 
     return words.join(' ')
-  }
-
-  private calculateConfidence(original: ReferenceMetadata, work: any): number {
-    let score = 0
-    let factors = 0
-
-    // DOI match is very strong
-    if (original.doi && work.doi) {
-      score += original.doi === work.doi?.replace('https://doi.org/', '') ? 1 : 0
-      factors++
-    }
-
-    // Title similarity
-    if (original.title && work.title) {
-      const similarity = this.calculateStringSimilarity(original.title, work.title)
-      score += similarity
-      factors++
-    }
-
-    // Year match
-    if (original.year && work.publication_year) {
-      score += original.year === work.publication_year ? 1 : 0
-      factors++
-    }
-
-    return factors > 0 ? score / factors : 0
-  }
-
-  private calculateStringSimilarity(str1: string, str2: string): number {
-    const longer = str1.length > str2.length ? str1 : str2
-    const shorter = str1.length > str2.length ? str2 : str1
-
-    const editDistance = this.levenshteinDistance(longer, shorter)
-    return (longer.length - editDistance) / longer.length
-  }
-
-  private levenshteinDistance(str1: string, str2: string): number {
-    const matrix = Array.from({ length: str2.length + 1 }, () =>
-      Array.from({ length: str1.length + 1 }, () => 0))
-
-    for (let i = 0; i <= str1.length; i++) matrix[0][i] = i
-    for (let j = 0; j <= str2.length; j++) matrix[j][0] = j
-
-    for (let j = 1; j <= str2.length; j++) {
-      for (let i = 1; i <= str1.length; i++) {
-        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1
-        matrix[j][i] = Math.min(
-          matrix[j][i - 1] + 1,
-          matrix[j - 1][i] + 1,
-          matrix[j - 1][i - 1] + cost,
-        )
-      }
-    }
-
-    return matrix[str2.length][str1.length]
   }
 }

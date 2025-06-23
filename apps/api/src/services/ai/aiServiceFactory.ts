@@ -5,6 +5,7 @@ import OpenAI from 'openai'
 
 export interface AIService {
   generateText: (prompt: string) => Promise<string>
+  verifyMatch: (prompt: string) => Promise<string>
 }
 
 export class OpenAIService implements AIService {
@@ -64,7 +65,7 @@ export class OpenAIService implements AIService {
                         additionalProperties: false,
                       },
                     },
-                    required: ['originalText', 'type', 'metadata'],
+                    required: ['originalText', 'metadata'],
                     additionalProperties: false,
                   },
                 },
@@ -81,6 +82,40 @@ export class OpenAIService implements AIService {
     catch (error) {
       console.error('OpenAI API error:', error)
       return '{"references":[]}'
+    }
+  }
+
+  async verifyMatch(prompt: string): Promise<string> {
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: this.config.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: this.config.temperature || 0.1,
+        max_tokens: this.config.maxTokens || 4000,
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'verification_result',
+            schema: {
+              type: 'object',
+              properties: {
+                isMatch: {
+                  type: 'boolean',
+                  description: 'Whether the two references match',
+                },
+              },
+              required: ['isMatch'],
+              additionalProperties: false,
+            },
+          },
+        },
+      })
+
+      return completion.choices[0]?.message?.content || '{"isMatch":false}'
+    }
+    catch (error) {
+      console.error('OpenAI verification error:', error)
+      return '{"isMatch":false}'
     }
   }
 }
@@ -138,7 +173,7 @@ export class GeminiService implements AIService {
                       },
                     },
                   },
-                  required: ['originalText', 'type', 'metadata'],
+                  required: ['originalText', 'metadata'],
                 },
               },
             },
@@ -152,6 +187,36 @@ export class GeminiService implements AIService {
     catch (error) {
       console.error('Gemini API error:', error)
       return '{"references":[]}'
+    }
+  }
+
+  async verifyMatch(prompt: string): Promise<string> {
+    try {
+      const response = await this.client.models.generateContent({
+        model: this.config.model,
+        contents: prompt,
+        config: {
+          temperature: this.config.temperature || 0.1,
+          maxOutputTokens: this.config.maxTokens || 4000,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'object',
+            properties: {
+              isMatch: {
+                type: 'boolean',
+                description: 'Whether the two references match',
+              },
+            },
+            required: ['isMatch'],
+          },
+        },
+      })
+
+      return response.text || '{"isMatch":false}'
+    }
+    catch (error) {
+      console.error('Gemini verification error:', error)
+      return '{"isMatch":false}'
     }
   }
 }
