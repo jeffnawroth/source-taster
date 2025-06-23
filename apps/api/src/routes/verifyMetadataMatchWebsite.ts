@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { verifyMetadataMatchWebsiteWithModel } from '../utilts/verifyMetadataMatchWebsite'
+import { verifyMetadataMatchWebsiteWithModel } from '../utils/verifyMetadataMatchWebsite'
 
 const verifyMetadataMatchWebsiteRoute = new Hono()
 

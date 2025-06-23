@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { verifyMetadataMatchWithModel } from '../utilts/verifyMetadataMatch'
+import { verifyMetadataMatchWithModel } from '../utils/verifyMetadataMatch'
 
 const verifyMetadataMatch = new Hono()
 

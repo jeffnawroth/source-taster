@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { extractMetadataWithModel } from '../utilts/extractMetadata'
+import { extractMetadataWithModel } from '../utils/extractMetadata'
 
 const extractMetadata = new Hono()
 
