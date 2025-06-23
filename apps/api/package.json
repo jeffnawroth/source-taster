@@ -15,6 +15,7 @@
   "devDependencies": {
     "@google/genai": "^0.7.0",
     "@source-taster/eslint-config": "workspace:^",
+    "@source-taster/types": "workspace:^",
     "@types/node": "^20.19.1",
     "eslint": "^9.29.0",
     "openai": "^4.104.0",
