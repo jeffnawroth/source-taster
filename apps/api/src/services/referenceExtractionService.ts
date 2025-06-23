@@ -20,33 +20,32 @@ export class ReferenceExtractionService {
 
   private buildExtractionPrompt(text: string): string {
     return `
-Extract all academic references from the following text. Return them as a JSON array with the following structure:
+Extract all academic references from the following text. Return them as a JSON object with a "references" array containing the following structure:
 
-[
-  {
-    "originalText": "complete reference as it appears in the text",
-    "type": "academic|website|book|unknown",
-    "metadata": {
-      "title": "title of the work",
-      "authors": ["author1", "author2"],
-      "journal": "journal name (if applicable)",
-      "year": 2023,
-      "doi": "DOI if present",
-      "issn": "ISSN if present", 
-      "isbn": "ISBN if present",
-      "url": "URL if present",
-      "volume": "volume number",
-      "issue": "issue number",
-      "pages": "page range",
-      "publisher": "publisher name"
+{
+  "references": [
+    {
+      "originalText": "complete reference as it appears in the text",
+      "type": "academic|website|book|unknown",
+      "metadata": {
+        "title": "title of the work",
+        "authors": ["author1", "author2"],
+        "journal": "journal name (if applicable)",
+        "year": 2023,
+        "doi": "DOI if present",
+        "issn": "ISSN if present",
+        "isbn": "ISBN if present",
+        "url": "URL if present",
+        "volume": "volume number",
+        "issue": "issue number",
+        "pages": "page range",
+        "publisher": "publisher name"
+      }
     }
-  }
-]
+  ]
+}
 
-Text to analyze:
-${text}
-
-Important: 
+Rules:
 - Only extract actual references/citations, not regular text
 - Classify each reference type accurately
 - Extract as much metadata as possible
@@ -61,7 +60,10 @@ ${text}
     try {
       const parsed = JSON.parse(response)
 
-      return parsed.map((ref: any) => ({
+      // Handle both old format (array) and new format (object with references property)
+      const references = Array.isArray(parsed) ? parsed : parsed.references || []
+
+      return references.map((ref: any) => ({
         id: generateId(),
         originalText: ref.originalText,
         type: ref.type || 'unknown',
@@ -71,6 +73,7 @@ ${text}
     }
     catch (error) {
       console.error('Failed to parse AI response:', error)
+      console.error('Raw response:', response)
       return []
     }
   }
