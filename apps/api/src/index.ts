@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import { corsMiddleware } from './middleware/common'
+import { cors } from 'hono/cors'
 import { errorHandler } from './middleware/errorHandler'
 import extractionRouter from './routes/extraction'
 import verificationRouter from './routes/verification'
@@ -9,7 +9,11 @@ import verificationRouter from './routes/verification'
 const app = new Hono()
 
 // Apply middleware
-app.use('*', corsMiddleware)
+app.use('*', cors({
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}))
 app.use('*', errorHandler)
 
 // Mount API routes
