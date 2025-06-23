@@ -1,27 +1,67 @@
 import type { AIServiceConfig } from '@source-taster/types'
 import process from 'node:process'
+import { GoogleGenAI } from '@google/genai'
+import OpenAI from 'openai'
 
 export interface AIService {
   generateText: (prompt: string) => Promise<string>
 }
 
 export class OpenAIService implements AIService {
-  constructor(_config: AIServiceConfig) {}
+  private client: OpenAI
+  private config: AIServiceConfig
 
-  async generateText(_prompt: string): Promise<string> {
-    // OpenAI implementation would go here
-    // For now, return a placeholder
-    return JSON.stringify([])
+  constructor(config: AIServiceConfig) {
+    this.client = new OpenAI({
+      apiKey: config.apiKey,
+    })
+    this.config = config
+  }
+
+  async generateText(prompt: string): Promise<string> {
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: this.config.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: this.config.temperature || 0.1,
+        max_tokens: this.config.maxTokens || 4000,
+      })
+
+      return completion.choices[0]?.message?.content || '[]'
+    }
+    catch (error) {
+      console.error('OpenAI API error:', error)
+      return '[]'
+    }
   }
 }
 
 export class GeminiService implements AIService {
-  constructor(_config: AIServiceConfig) {}
+  private client: GoogleGenAI
+  private config: AIServiceConfig
 
-  async generateText(_prompt: string): Promise<string> {
-    // Gemini implementation would go here
-    // For now, return a placeholder
-    return JSON.stringify([])
+  constructor(config: AIServiceConfig) {
+    this.client = new GoogleGenAI({ apiKey: config.apiKey })
+    this.config = config
+  }
+
+  async generateText(prompt: string): Promise<string> {
+    try {
+      const response = await this.client.models.generateContent({
+        model: this.config.model,
+        contents: prompt,
+        config: {
+          temperature: this.config.temperature || 0.1,
+          maxOutputTokens: this.config.maxTokens || 4000,
+        },
+      })
+
+      return response.text || '[]'
+    }
+    catch (error) {
+      console.error('Gemini API error:', error)
+      return '[]'
+    }
   }
 }
 
