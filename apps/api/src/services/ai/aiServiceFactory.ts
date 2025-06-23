@@ -171,7 +171,7 @@ export class AIServiceFactory {
 
     const config: AIServiceConfig = {
       apiKey,
-      model: model || (service === 'openai' ? 'gpt-3.5-turbo' : 'gemini-pro'),
+      model: model || (service === 'openai' ? 'gpt-4o' : 'gemini-2.5-flash'),
       temperature: 0.1,
       maxTokens: 4000,
     }
