@@ -13,17 +13,3 @@ export async function corsMiddleware(c: Context, next: Next) {
 
   await next()
 }
-
-export async function requestLogger(c: Context, next: Next) {
-  const start = Date.now()
-  const method = c.req.method
-  const path = c.req.path
-
-  await next()
-
-  const duration = Date.now() - start
-  const status = c.res.status
-
-  // eslint-disable-next-line no-console
-  console.log(`${method} ${path} - ${status} (${duration}ms)`)
-}
