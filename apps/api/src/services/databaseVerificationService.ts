@@ -5,13 +5,11 @@ import type {
   WebsiteVerificationResult,
 } from '@source-taster/types'
 import { AIServiceFactory } from './ai/aiServiceFactory'
-import { CrossrefService } from './databases/crossrefService'
 import { OpenAlexService } from './databases/openAlexService'
 import { WebScrapingService } from './webScrapingService'
 
 export class DatabaseVerificationService {
   private openAlex = new OpenAlexService()
-  private crossref = new CrossrefService()
   private webScraper = new WebScrapingService()
 
   async verifyReferences(
@@ -47,11 +45,6 @@ export class DatabaseVerificationService {
     if (databases.includes('openalex')) {
       const openAlexResults = await this.openAlex.search(reference.metadata)
       sources.push(...openAlexResults)
-    }
-
-    if (databases.includes('crossref')) {
-      const crossrefResults = await this.crossref.search(reference.metadata)
-      sources.push(...crossrefResults)
     }
 
     // Find best match
