@@ -18,7 +18,6 @@ curl -X POST http://localhost:8000/api/verify \
           "pages": "123-130", 
           "volume": "600"
         },
-        "extractedAt": "2024-01-01T00:00:00.000Z"
       }
     ],
     "databases": ["openalex", "crossref"],

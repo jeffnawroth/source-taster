@@ -10,9 +10,7 @@ export interface ApiResponse<T = any> {
 export interface Reference {
   id: string
   originalText: string
-  type: 'academic' | 'website' | 'book' | 'unknown'
   metadata: ReferenceMetadata
-  extractedAt: Date
 }
 
 export interface ReferenceMetadata {

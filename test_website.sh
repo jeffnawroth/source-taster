@@ -15,7 +15,6 @@ curl -X POST http://localhost:8000/api/verify/websites \
           "url": "https://openai.com/research",
           "authors": ["OpenAI Team"]
         },
-        "extractedAt": "2024-01-01T00:00:00.000Z"
       }
     ],
     "aiService": "openai"

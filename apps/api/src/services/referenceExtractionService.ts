@@ -26,7 +26,6 @@ Extract all academic references from the following text. Return them as a JSON o
   "references": [
     {
       "originalText": "complete reference as it appears in the text",
-      "type": "academic|website|book|unknown",
       "metadata": {
         "title": "title of the work",
         "authors": ["author1", "author2"],
@@ -66,9 +65,7 @@ ${text}
       return references.map((ref: any) => ({
         id: generateId(),
         originalText: ref.originalText,
-        type: ref.type || 'unknown',
         metadata: ref.metadata || {},
-        extractedAt: new Date(),
       }))
     }
     catch (error) {

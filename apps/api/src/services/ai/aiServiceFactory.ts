@@ -41,11 +41,6 @@ export class OpenAIService implements AIService {
                         type: 'string',
                         description: 'Complete reference as it appears in the text',
                       },
-                      type: {
-                        type: 'string',
-                        enum: ['academic', 'website', 'book', 'unknown'],
-                        description: 'Type of reference',
-                      },
                       metadata: {
                         type: 'object',
                         properties: {
@@ -119,10 +114,6 @@ export class GeminiService implements AIService {
                     originalText: {
                       type: 'string',
                       description: 'Complete reference as it appears in the text',
-                    },
-                    type: {
-                      type: 'string',
-                      description: 'Type of reference: academic, website, book, or unknown',
                     },
                     metadata: {
                       type: 'object',
