@@ -36,16 +36,11 @@ export interface ExtractionRequest {
   text: string
   aiService: 'openai' | 'gemini'
   model?: string
-  options?: {
-    language?: string
-    includeContext?: boolean
-  }
 }
 
 export interface ExtractionResponse {
   references: Reference[]
   totalFound: number
-  processingTime: number
 }
 
 // Verification Types
@@ -70,7 +65,6 @@ export interface VerificationResponse {
   results: VerificationResult[]
   totalVerified: number
   totalFailed: number
-  processingTime: number
 }
 
 // External Source Types
@@ -86,11 +80,6 @@ export interface ExternalSource {
 export interface WebsiteVerificationRequest {
   references: Reference[]
   aiService?: 'openai' | 'gemini'
-  options?: {
-    timeout?: number
-    followRedirects?: boolean
-    extractFullContent?: boolean
-  }
 }
 
 export interface WebsiteVerificationResult {
@@ -111,7 +100,6 @@ export interface WebsiteVerificationResponse {
   results: WebsiteVerificationResult[]
   totalChecked: number
   totalAccessible: number
-  processingTime: number
 }
 
 // AI Service Types
@@ -131,35 +119,4 @@ export interface DatabaseConfig {
     requestsPerSecond: number
     burstLimit: number
   }
-}
-
-// Processing Status Types
-export interface ProcessingJob {
-  id: string
-  type: 'extraction' | 'verification' | 'website-verification'
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  progress: number
-  startedAt: Date
-  completedAt?: Date
-  result?: any
-  error?: string
-}
-
-// Bulk Processing Types
-export interface BulkProcessingRequest {
-  texts: string[]
-  options: {
-    extractReferences: boolean
-    verifyReferences: boolean
-    checkWebsites: boolean
-    aiService: 'openai' | 'gemini'
-    databases?: string[]
-  }
-}
-
-export interface BulkProcessingResponse {
-  jobId: string
-  status: 'queued' | 'processing'
-  estimatedTime: number
-  itemCount: number
 }

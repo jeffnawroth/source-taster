@@ -4,21 +4,19 @@ interface ScrapedData {
   isAccessible: boolean
   statusCode?: number
   metadata: ReferenceMetadata
-  content?: string
 }
 
 export class WebScrapingService {
-  async scrapeMetadata(url: string, options?: any): Promise<ScrapedData> {
+  async scrapeMetadata(url: string): Promise<ScrapedData> {
     try {
-      const timeout = options?.timeout || 10000
-      const followRedirects = options?.followRedirects !== false
+      const timeout = 10000
 
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; SourceTaster/1.0; +https://sourcetaster.com/bot)',
         },
-        redirect: followRedirects ? 'follow' : 'manual',
+        redirect: 'follow',
         signal: AbortSignal.timeout(timeout),
       })
 
@@ -37,7 +35,6 @@ export class WebScrapingService {
         isAccessible: true,
         statusCode: response.status,
         metadata,
-        content: options?.extractFullContent ? html : undefined,
       }
     }
     catch (error) {

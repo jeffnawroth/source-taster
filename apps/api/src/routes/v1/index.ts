@@ -2,19 +2,15 @@ import { Hono } from 'hono'
 import extractionRouter from './extraction'
 import verificationRouter from './verification'
 
-const v1Router = new Hono()
+const apiRouter = new Hono()
 
-// Mount sub-routers
-v1Router.route('/extract', extractionRouter)
-v1Router.route('/verify', verificationRouter)
+// Mount routers
+apiRouter.route('/extract', extractionRouter)
+apiRouter.route('/verify', verificationRouter)
 
-// Health check endpoint
-v1Router.get('/health', (c) => {
-  return c.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: 'v1',
-  })
+// Health check
+apiRouter.get('/health', (c) => {
+  return c.json({ status: 'ok' })
 })
 
-export default v1Router
+export default apiRouter

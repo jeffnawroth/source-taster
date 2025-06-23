@@ -103,13 +103,12 @@ export class DatabaseVerificationService {
   async verifyWebsiteReferences(
     references: Reference[],
     aiService?: 'openai' | 'gemini',
-    options?: any,
   ): Promise<WebsiteVerificationResult[]> {
     const results: WebsiteVerificationResult[] = []
 
     for (const reference of references) {
       if (reference.metadata.url) {
-        const result = await this.verifyWebsite(reference, aiService, options)
+        const result = await this.verifyWebsite(reference, aiService)
         results.push(result)
       }
     }
@@ -120,12 +119,11 @@ export class DatabaseVerificationService {
   private async verifyWebsite(
     reference: Reference,
     _aiService?: 'openai' | 'gemini',
-    options?: any,
   ): Promise<WebsiteVerificationResult> {
     const url = reference.metadata.url!
 
     try {
-      const scrapedData = await this.webScraper.scrapeMetadata(url, options)
+      const scrapedData = await this.webScraper.scrapeMetadata(url)
 
       if (!scrapedData.isAccessible) {
         return {

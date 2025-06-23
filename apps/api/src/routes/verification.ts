@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { VerificationController } from '../../controllers/verificationController'
+import { VerificationController } from '../controllers/verificationController'
 
 const router = new Hono()
 const controller = new VerificationController()

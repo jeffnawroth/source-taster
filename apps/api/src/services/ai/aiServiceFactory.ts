@@ -6,11 +6,7 @@ export interface AIService {
 }
 
 export class OpenAIService implements AIService {
-  private config: AIServiceConfig
-
-  constructor(config: AIServiceConfig) {
-    this.config = config
-  }
+  constructor(_config: AIServiceConfig) {}
 
   async generateText(_prompt: string): Promise<string> {
     // OpenAI implementation would go here
@@ -20,11 +16,7 @@ export class OpenAIService implements AIService {
 }
 
 export class GeminiService implements AIService {
-  private config: AIServiceConfig
-
-  constructor(config: AIServiceConfig) {
-    this.config = config
-  }
+  constructor(_config: AIServiceConfig) {}
 
   async generateText(_prompt: string): Promise<string> {
     // Gemini implementation would go here

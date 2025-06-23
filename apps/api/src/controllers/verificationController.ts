@@ -2,6 +2,8 @@ import type {
   ApiResponse,
   VerificationRequest,
   VerificationResponse,
+  WebsiteVerificationRequest,
+  WebsiteVerificationResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
 import { DatabaseVerificationService } from '../services/databaseVerificationService'
@@ -15,11 +17,10 @@ export class VerificationController {
 
   /**
    * Verify references against academic databases
-   * POST /api/v1/verify
+   * POST /api/verify
    */
   async verifyReferences(c: Context) {
     try {
-      const startTime = Date.now()
       const request = await c.req.json() as VerificationRequest
 
       // Validation
@@ -39,15 +40,12 @@ export class VerificationController {
         request.aiService,
       )
 
-      const processingTime = Date.now() - startTime
-
       const response: ApiResponse<VerificationResponse> = {
         success: true,
         data: {
           results,
           totalVerified: results.filter(r => r.isVerified).length,
           totalFailed: results.filter(r => !r.isVerified).length,
-          processingTime,
         },
       }
 
@@ -65,28 +63,23 @@ export class VerificationController {
 
   /**
    * Verify website references
-   * POST /api/v1/verify/websites
+   * POST /api/verify/websites
    */
   async verifyWebsites(c: Context) {
     try {
-      const startTime = Date.now()
-      const request = await c.req.json()
+      const request = await c.req.json() as WebsiteVerificationRequest
 
       const results = await this.verificationService.verifyWebsiteReferences(
         request.references,
         request.aiService,
-        request.options,
       )
 
-      const processingTime = Date.now() - startTime
-
-      const response: ApiResponse = {
+      const response: ApiResponse<WebsiteVerificationResponse> = {
         success: true,
         data: {
           results,
           totalChecked: results.length,
           totalAccessible: results.filter(r => r.isAccessible).length,
-          processingTime,
         },
       }
 
