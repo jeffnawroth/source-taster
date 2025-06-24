@@ -1,11 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export const useAppStore = defineStore('app', () => {
-  const isLoading = ref(false)
   const file = ref<File | null>(null)
-  const text = ref<string>('')
 
-  return { file, isLoading, text }
+  return { file }
 })
 
 if (import.meta.hot) {
