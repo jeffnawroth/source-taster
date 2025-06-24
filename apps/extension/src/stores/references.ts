@@ -75,7 +75,7 @@ export const useReferencesStore = defineStore('references', () => {
   }
 
   // Main action
-  async function extractAndVerifyReferences(aiService: 'openai' | 'gemini' = 'openai') {
+  async function extractAndVerifyReferences() {
     if (!inputText.value.trim())
       return
 
@@ -83,7 +83,7 @@ export const useReferencesStore = defineStore('references', () => {
       initializeProcessing()
 
       // Step 1: Extract references
-      const extractedRefs = await ReferencesService.extractReferences(inputText.value, aiService)
+      const extractedRefs = await ReferencesService.extractReferences(inputText.value)
 
       if (extractedRefs.length === 0) {
         references.value = []
@@ -100,7 +100,7 @@ export const useReferencesStore = defineStore('references', () => {
       currentPhase.value = 'verifying'
 
       // Step 2: Verify references
-      const verificationResults = await ReferencesService.verifyReferences(extractedRefs, aiService)
+      const verificationResults = await ReferencesService.verifyReferences(extractedRefs)
 
       // Step 3: Apply verification results
       applyVerificationResults(verificationResults)
