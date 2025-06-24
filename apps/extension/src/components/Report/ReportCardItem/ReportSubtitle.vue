@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { mdiAlertCircleOutline, mdiCheckCircleOutline, mdiCloseCircleOutline, mdiMagnify } from '@mdi/js'
-import { useMetadataStore } from '@/extension/stores/metadata'
+import { useReferencesStore } from '@/extension/stores/references'
 
-const { foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount } = storeToRefs(useMetadataStore())
+const { statusCounts } = storeToRefs(useReferencesStore())
+
 // I18n
 const { t } = useI18n()
 </script>
@@ -24,7 +25,7 @@ const { t } = useI18n()
             variant="text"
             density="compact"
           >
-            {{ `${t('found')}: ${foundReferencesCount}` }}
+            {{ `${t('found')}: ${statusCounts.total}` }}
           </v-chip>
         </template>
       </v-tooltip>
@@ -44,7 +45,7 @@ const { t } = useI18n()
             variant="text"
             density="compact"
           >
-            {{ `${t('verified')}: ${registeredReferencesCount}` }}
+            {{ `${t('verified')}: ${statusCounts.verified}` }}
           </v-chip>
         </template>
       </v-tooltip>
@@ -64,26 +65,28 @@ const { t } = useI18n()
             variant="text"
             density="compact"
           >
-            {{ `${t('unverified')}: ${unregisteredReferencesCount}` }}
+            {{ `${t('unverified')}: ${statusCounts.notVerified}` }}
           </v-chip>
         </template>
       </v-tooltip>
     </v-col>
 
-    <v-divider vertical />
+    <div v-if="statusCounts.error > 0">
+      <v-divider vertical />
 
-    <v-tooltip :text="$t('error-references-tooltip')">
-      <template #activator="{ props }">
-        <v-chip
-          label
-          :prepend-icon="mdiCloseCircleOutline"
-          v-bind="props"
-          variant="text"
-          density="compact"
-        >
-          {{ `${t('error')}: 0` }}
-        </v-chip>
-      </template>
-    </v-tooltip>
+      <v-tooltip :text="$t('error-references-tooltip')">
+        <template #activator="{ props }">
+          <v-chip
+            label
+            :prepend-icon="mdiCloseCircleOutline"
+            v-bind="props"
+            variant="text"
+            density="compact"
+          >
+            {{ `${t('error')}: ${statusCounts.error}` }}
+          </v-chip>
+        </template>
+      </v-tooltip>
+    </div>
   </v-row>
 </template>
