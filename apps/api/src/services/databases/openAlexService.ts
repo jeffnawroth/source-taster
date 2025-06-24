@@ -1,13 +1,20 @@
 import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import process from 'node:process'
 
 export class OpenAlexService {
   private baseUrl = 'https://api.openalex.org'
+  private email = process.env.OPENALEX_EMAIL
 
   async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
       // Build search query
       const queryParams = this.buildSearchQuery(metadata)
       const url = `${this.baseUrl}/works?${queryParams}`
+
+      // Warn if no email is configured for better performance
+      if (!this.email || this.email === 'your-email@example.com') {
+        console.warn('OpenAlex: No email configured - consider adding OPENALEX_EMAIL to .env for better API performance')
+      }
 
       const response = await fetch(url)
       const data = await response.json() as any
@@ -36,9 +43,9 @@ export class OpenAlexService {
       params.append('search', metadata.title)
     }
 
-    if (metadata.doi) {
-      params.append('filter', `doi:${metadata.doi}`)
-    }
+    // if (metadata.doi) {
+    //   params.append('filter', `doi:${metadata.doi}`)
+    // }
 
     if (metadata.year) {
       params.append('filter', `publication_year:${metadata.year}`)
@@ -49,7 +56,12 @@ export class OpenAlexService {
     params.append('page', '1')
 
     // Select only important properties to reduce response size
-    params.append('select', 'id,title,authorships,primary_location,publication_year,doi,biblio,abstract_inverted_index')
+    params.append('select', 'id,title,authorships,primary_location,publication_year,doi,biblio')
+
+    // Add email for better API performance (recommended by OpenAlex)
+    if (this.email && this.email !== 'your-email@example.com') {
+      params.append('mailto', this.email)
+    }
 
     return params.toString()
   }
