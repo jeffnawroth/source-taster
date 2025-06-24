@@ -2,16 +2,18 @@
 import { mdiFilePdfBox } from '@mdi/js'
 import { useAutoCheckReferences } from '@/extension/logic'
 import { useAppStore } from '@/extension/stores/app'
-import { useMetadataStore } from '@/extension/stores/metadata'
+import { useReferencesStore } from '@/extension/stores/references'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
-// Doi Store
+// REFERENCES STORE
+const referencesStore = useReferencesStore()
 
 // FILE
-const { file, text } = storeToRefs(useAppStore())
+const { file } = storeToRefs(useAppStore())
 
 // PDF TEXT
-const { extractAndSearchMetadata, clear } = useMetadataStore()
+const { inputText } = storeToRefs(referencesStore)
+const { extractAndVerifyReferences } = useReferencesStore()
 
 watch(file, async (newValue) => {
   if (!newValue)
@@ -20,14 +22,19 @@ watch(file, async (newValue) => {
   // Extract text from PDF file
   const pdfText = await extractTextFromPdfFile(newValue)
 
-  // Set global text
-  text.value = pdfText
-
-  // Handle extraction
+  inputText.value = pdfText
 
   if (useAutoCheckReferences.value)
-    await extractAndSearchMetadata(pdfText)
+    await extractAndVerifyReferences()
 })
+
+// CLEAR HANDLER
+const { clearReferences } = referencesStore
+
+function handleClear() {
+  clearReferences()
+  file.value = null
+}
 </script>
 
 <template>
@@ -41,6 +48,6 @@ watch(file, async (newValue) => {
     prepend-icon=""
     clearable
     hide-details="auto"
-    @click:clear="clear"
+    @click:clear="handleClear"
   />
 </template>
