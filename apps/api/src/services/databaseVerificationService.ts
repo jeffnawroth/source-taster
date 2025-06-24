@@ -5,11 +5,13 @@ import type {
   WebsiteVerificationResult,
 } from '@source-taster/types'
 import { AIServiceFactory } from './ai/aiServiceFactory'
+import { CrossrefService } from './databases/crossrefService'
 import { OpenAlexService } from './databases/openAlexService'
 import { WebScrapingService } from './webScrapingService'
 
 export class DatabaseVerificationService {
   private openAlex = new OpenAlexService()
+  private crossref = new CrossrefService()
   private webScraper = new WebScrapingService()
 
   async verifyReferences(
@@ -33,31 +35,54 @@ export class DatabaseVerificationService {
     reference: Reference,
     aiService?: 'openai' | 'gemini',
   ): Promise<VerificationResult> {
-    // Search in OpenAlex (always)
-    const bestMatch = await this.openAlex.search(reference.metadata)
+    // Search in both databases in parallel for better performance
+    const [openAlexResult, crossrefResult] = await Promise.allSettled([
+      this.crossref.search(reference.metadata),
+      this.openAlex.search(reference.metadata),
+    ])
 
-    if (!bestMatch) {
+    // Extract successful results
+    const sources: ExternalSource[] = []
+
+    if (openAlexResult.status === 'fulfilled' && openAlexResult.value) {
+      sources.push(openAlexResult.value)
+    }
+
+    if (crossrefResult.status === 'fulfilled' && crossrefResult.value) {
+      sources.push(crossrefResult.value)
+    }
+
+    // If no sources found, return unverified
+    if (sources.length === 0) {
       return {
         referenceId: reference.id,
         isVerified: false,
       }
     }
 
-    // Verify with AI (always required)
+    // Verify with AI using the best available sources
     if (!aiService) {
       throw new Error('AI service is required for verification')
     }
 
-    const aiVerified = await this.verifyWithAI(
-      reference,
-      bestMatch,
-      aiService,
-    )
+    // Try to verify against each source until we find a match
+    for (const source of sources) {
+      const isVerified = await this.verifyWithAI(reference, source, aiService)
 
+      if (isVerified) {
+        return {
+          referenceId: reference.id,
+          isVerified: true,
+          matchedSource: source,
+        }
+      }
+    }
+
+    // If no source matched, return the best source anyway for reference
     return {
       referenceId: reference.id,
-      isVerified: aiVerified,
-      matchedSource: bestMatch,
+      isVerified: false,
+      matchedSource: sources[0], // Use the first (presumably best) source
     }
   }
 
