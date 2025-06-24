@@ -1,158 +1,150 @@
-import type { PublicationMetadata, ReferenceMetadata, VerificationResult, VerifiedReference } from '../types'
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { verifyReferenceAgainstPublications } from '../services/aiService'
-import { searchCrossrefPublication } from '../services/crossrefService'
-import { searchEuropePmcPublication } from '../services/europePmcService'
-import { searchOpenAlexPublication } from '../services/openAlexService'
-import { verifyUrlContent } from '../services/urlVerificationService'
-import { normalizeUrl } from '../utils/normalizeUrl'
-import { useAiStore } from './aiStore'
-import { useAppStore } from './app'
+// import type { ReferenceMetadata } from '@source-taster/types'
+// import type { PublicationMetadata, VerificationResult, VerifiedReference } from '../types'
+// import { acceptHMRUpdate, defineStore } from 'pinia'
+// import { verifyReferenceAgainstPublications } from '../services/aiService'
+// import { verifyUrlContent } from '../services/urlVerificationService'
+// import { normalizeUrl } from '../utils/normalizeUrl'
+// import { useAiStore } from './aiStore'
+// import { useAppStore } from './app'
 
-export const useMetadataStore = defineStore('metadata', () => {
-  const verifiedReferences = ref<VerifiedReference[]>([])
-  const extractedReferencesMetadata = ref<ReferenceMetadata[] | null>([])
-  const processedCount = ref(0)
+// export const useMetadataStore = defineStore('metadata', () => {
+//   const verifiedReferences = ref<VerifiedReference[]>([])
+//   const extractedReferencesMetadata = ref<ReferenceMetadata[] | null>([])
+//   const processedCount = ref(0)
 
-  const isSearchingAndVerifying = ref(false)
+//   const isSearchingAndVerifying = ref(false)
 
-  const foundReferencesCount = computed(() => extractedReferencesMetadata.value?.length || 0)
-  const registeredReferencesCount = computed(() => verifiedReferences.value.filter(ref => ref.verification?.match).length)
-  const unregisteredReferencesCount = computed(() => verifiedReferences.value.filter(ref => !ref.verification || !ref.verification.match).length)
+//   function clear() {
+//     verifiedReferences.value = []
+//     extractedReferencesMetadata.value = []
+//     processedCount.value = 0
+//   }
 
-  function clear() {
-    verifiedReferences.value = []
-    extractedReferencesMetadata.value = []
-    processedCount.value = 0
-  }
+//   // Extract metadata from text and verify
+//   const { extractReferences } = useAiStore()
 
-  // Extract metadata from text and verify
-  const { extractReferences } = useAiStore()
+//   const { isLoading } = storeToRefs(useAppStore())
 
-  const { isLoading } = storeToRefs(useAppStore())
+//   async function extractAndSearchMetadata(text: string) {
+//     // Clear previous results
+//     clear()
 
-  async function extractAndSearchMetadata(text: string) {
-    // Clear previous results
-    clear()
+//     // Check if the text is empty
+//     if (!text.trim().length)
+//       return
 
-    // Check if the text is empty
-    if (!text.trim().length)
-      return
+//     // Set loading state
+//     isLoading.value = true
 
-    // Set loading state
-    isLoading.value = true
+//     // Extract references metadata from the text
+//     extractedReferencesMetadata.value = await extractReferences(text)
 
-    // Extract references metadata from the text
-    extractedReferencesMetadata.value = await extractReferences(text)
+//     // Check if references metadata is empty
+//     if (!extractedReferencesMetadata.value)
+//       return
 
-    // Check if references metadata is empty
-    if (!extractedReferencesMetadata.value)
-      return
+//     isSearchingAndVerifying.value = true
 
-    isSearchingAndVerifying.value = true
+//     // Search and verify for each reference metadata
+//     const promises = extractedReferencesMetadata.value.map(async (referenceMetadata) => {
+//       const result = await searchAndVerifyWork(referenceMetadata)
+//       processedCount.value++ // Zähler erhöhen nach jeder Verarbeitung
+//       return result
+//     })
 
-    // Search and verify for each reference metadata
-    const promises = extractedReferencesMetadata.value.map(async (referenceMetadata) => {
-      const result = await searchAndVerifyWork(referenceMetadata)
-      processedCount.value++ // Zähler erhöhen nach jeder Verarbeitung
-      return result
-    })
+//     const references = await Promise.all(promises)
 
-    const references = await Promise.all(promises)
+//     isSearchingAndVerifying.value = false
 
-    isSearchingAndVerifying.value = false
+//     // Set the metadata results
+//     verifiedReferences.value = [...references]
 
-    // Set the metadata results
-    verifiedReferences.value = [...references]
+//     isLoading.value = false
+//   }
 
-    isLoading.value = false
-  }
+//   // Search for works using OpenAlex, Europe PMC, and Crossref
 
-  // Search for works using OpenAlex, Europe PMC, and Crossref
+//   async function searchWork(referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata[] | null> {
+//     // Check if the reference metadata title is empty
+//     if (!referenceMetadata.title) {
+//       return null
+//     }
 
-  async function searchWork(referenceMetadata: ReferenceMetadata): Promise<PublicationMetadata[] | null> {
-    // Check if the reference metadata title is empty
-    if (!referenceMetadata.title) {
-      return null
-    }
+//     // Search for works using OpenAlex, Europe PMC, and Crossref
+//     const publications = await Promise.all([
+//       // searchEuropePmcPublication(referenceMetadata),
+//     ])
 
-    // Search for works using OpenAlex, Europe PMC, and Crossref
-    const publications = await Promise.all([
-      searchCrossrefPublication(referenceMetadata),
-      searchOpenAlexPublication(referenceMetadata),
-      searchEuropePmcPublication(referenceMetadata),
-    ])
+//     // Filter out null values from the publications array
+//     const filteredPublications = publications.filter(publication => publication !== null)
 
-    // Filter out null values from the publications array
-    const filteredPublications = publications.filter(publication => publication !== null)
+//     // Check if the filtered publications array is empty
+//     return filteredPublications.length > 0 ? filteredPublications : null
+//   }
 
-    // Check if the filtered publications array is empty
-    return filteredPublications.length > 0 ? filteredPublications : null
-  }
+//   // Verify the match with AI
 
-  // Verify the match with AI
+//   async function verifyMatch(referenceMetadata: ReferenceMetadata, publicationsMetadata: PublicationMetadata[]): Promise<VerificationResult | null> {
+//     // Check if the publications metadata is empty
+//     if (!publicationsMetadata.length) {
+//       return null
+//     }
 
-  async function verifyMatch(referenceMetadata: ReferenceMetadata, publicationsMetadata: PublicationMetadata[]): Promise<VerificationResult | null> {
-    // Check if the publications metadata is empty
-    if (!publicationsMetadata.length) {
-      return null
-    }
+//     // Verify the reference metadata against the publications metadata using AI
+//     const verificationResult = await verifyReferenceAgainstPublications(referenceMetadata, publicationsMetadata)
 
-    // Verify the reference metadata against the publications metadata using AI
-    const verificationResult = await verifyReferenceAgainstPublications(referenceMetadata, publicationsMetadata)
+//     return verificationResult
+//   }
 
-    return verificationResult
-  }
+//   // Search Crossref using the metadata and verify the match with AI
+//   async function searchAndVerifyWork(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
+//     try {
+//       // Search for works using OpenAlex, Europe PMC, and Crossref
+//       const publicationsMetadata = await searchWork(referenceMetadata)
 
-  // Search Crossref using the metadata and verify the match with AI
-  async function searchAndVerifyWork(referenceMetadata: ReferenceMetadata): Promise<VerifiedReference> {
-    try {
-      // Search for works using OpenAlex, Europe PMC, and Crossref
-      const publicationsMetadata = await searchWork(referenceMetadata)
+//       let verification: VerificationResult | null = null
 
-      let verification: VerificationResult | null = null
+//       if (publicationsMetadata) {
+//         // Verify reference metadata against the publications metadata
+//         verification = await verifyMatch(referenceMetadata, publicationsMetadata)
+//       }
 
-      if (publicationsMetadata) {
-        // Verify reference metadata against the publications metadata
-        verification = await verifyMatch(referenceMetadata, publicationsMetadata)
-      }
+//       if (verification?.match) {
+//         return {
+//           referenceMetadata,
+//           verification,
+//         }
+//       }
 
-      if (verification?.match) {
-        return {
-          referenceMetadata,
-          verification,
-        }
-      }
+//       if (referenceMetadata.url) {
+//         const urlVerification = await verifyUrlContent(referenceMetadata.url, referenceMetadata)
 
-      if (referenceMetadata.url) {
-        const urlVerification = await verifyUrlContent(referenceMetadata.url, referenceMetadata)
+//         return {
+//           referenceMetadata,
+//           verification: {
+//             match: urlVerification.match,
+//             reason: urlVerification.reason ? 'URL reachable' : 'URL not reachable',
+//           },
+//           websiteUrl: normalizeUrl(referenceMetadata.url),
+//         }
+//       }
 
-        return {
-          referenceMetadata,
-          verification: {
-            match: urlVerification.match,
-            reason: urlVerification.reason ? 'URL reachable' : 'URL not reachable',
-          },
-          websiteUrl: normalizeUrl(referenceMetadata.url),
-        }
-      }
+//       return {
+//         referenceMetadata,
+//         verification,
+//       }
+//     }
+//     catch {
+//       return {
+//         referenceMetadata,
+//         verification: null,
+//       }
+//     }
+//   }
 
-      return {
-        referenceMetadata,
-        verification,
-      }
-    }
-    catch {
-      return {
-        referenceMetadata,
-        verification: null,
-      }
-    }
-  }
+//   return { extractAndSearchMetadata, verifiedReferences, clear, isSearchingAndVerifying, extractedReferencesMetadata, processedCount }
+// })
 
-  return { extractAndSearchMetadata, verifiedReferences, foundReferencesCount, registeredReferencesCount, unregisteredReferencesCount, clear, isSearchingAndVerifying, extractedReferencesMetadata, processedCount }
-})
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useMetadataStore, import.meta.hot))
-}
+// if (import.meta.hot) {
+//   import.meta.hot.accept(acceptHMRUpdate(useMetadataStore, import.meta.hot))
+// }
