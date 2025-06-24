@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import ReportCard from '@/extension/components/Report/ReportCard.vue'
-import { localeOption } from '@/extension/logic/storage'
 import { useLocale } from 'vuetify'
 import { VDivider } from 'vuetify/lib/components/index.mjs'
+import ReportCard from '@/extension/components/Report/ReportCard.vue'
+import { localeOption } from '@/extension/logic/storage'
 import InputCard from '../Input/InputCard.vue'
 
 // LOCALE
