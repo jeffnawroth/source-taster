@@ -1,7 +1,7 @@
 import type {
   Reference,
 } from '@source-taster/types'
-import { generateId } from '../utils/idGenerator'
+import crypto from 'node:crypto'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
 export class ReferenceExtractionService {
@@ -12,14 +12,7 @@ export class ReferenceExtractionService {
   ): Promise<Reference[]> {
     const ai = AIServiceFactory.create(aiService, model)
 
-    const prompt = this.buildExtractionPrompt(text)
-    const response = await ai.generateText(prompt)
-
-    return this.parseAIResponse(response)
-  }
-
-  private buildExtractionPrompt(text: string): string {
-    return `
+    const prompt = `
 Extract all academic references from the following text. Return them as a JSON object with a "references" array containing the following structure:
 
 {
@@ -53,6 +46,10 @@ Rules:
 Text to analyze:
 ${text}
     `.trim()
+
+    const response = await ai.generateText(prompt)
+
+    return this.parseAIResponse(response)
   }
 
   private parseAIResponse(response: string): Reference[] {
@@ -63,7 +60,7 @@ ${text}
       const references = Array.isArray(parsed) ? parsed : parsed.references || []
 
       return references.map((ref: any) => ({
-        id: generateId(),
+        id: crypto.randomUUID(),
         originalText: ref.originalText,
         metadata: ref.metadata || {},
       }))
