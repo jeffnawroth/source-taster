@@ -1,19 +1,25 @@
 <script setup lang="ts">
+import { mdiMagnify } from '@mdi/js'
 import { useAppStore } from '@/extension/stores/app'
-import { useMetadataStore } from '@/extension/stores/metadata'
+import { useReferencesStore } from '@/extension/stores/references'
 
-const { extractAndSearchMetadata } = useMetadataStore()
+const referencesStore = useReferencesStore()
 
 // DISABLE BUTTON IF NO TEXT AND FILE OR LOADING
-const { text, file } = storeToRefs(useAppStore())
-const { isLoading } = storeToRefs(useAppStore())
-
-const disabled = computed(() => (!file.value && !text.value.trim()) || isLoading.value)
+const { inputText, isProcessing } = storeToRefs(referencesStore)
+const { file } = storeToRefs(useAppStore())
+const disabled = computed(() => (!inputText.value.trim() && !file.value) || isProcessing.value)
 
 // HANDLE CLICK
-function handleClick() {
+const { extractAndVerifyReferences } = referencesStore
+async function handleClick() {
   if (!disabled.value) {
-    extractAndSearchMetadata(text.value)
+    try {
+      await extractAndVerifyReferences()
+    }
+    catch (error) {
+      console.error('Error processing references:', error)
+    }
   }
 }
 </script>
@@ -21,9 +27,10 @@ function handleClick() {
 <template>
   <v-btn
     variant="tonal"
-    :text="$t('verify-references')"
+    color="primary"
+    :text="$t('check-references')"
     block
-
+    :prepend-icon="mdiMagnify"
     :disabled
     @click="handleClick"
   />

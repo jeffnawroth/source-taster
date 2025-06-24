@@ -4,32 +4,39 @@ import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
 import { useAutoCheckReferences, useAutoImport } from '@/extension/logic'
 import { useAppStore } from '@/extension/stores/app'
-import { useMetadataStore } from '@/extension/stores/metadata'
+import { useReferencesStore } from '@/extension/stores/references'
 
 // TRANSLATION
 const { t } = useI18n()
 
+// REFERENCES STORE
+const referencesStore = useReferencesStore()
+const { inputText } = storeToRefs(referencesStore)
+
 // TEXTAREA PLACEHOLDER
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-references'))
 
-// HANDLE TEXT CHANGE
-const { extractAndSearchMetadata, clear } = useMetadataStore()
-
 // AUTO CHECK REFERENCES
 const handleTextChange = useDebounceFn(async (newVal: string) => {
-  if (useAutoCheckReferences.value)
-    await extractAndSearchMetadata(newVal)
+  if (useAutoCheckReferences.value && newVal.trim()) {
+    inputText.value = newVal
+  }
 }, 1000)
 
-// SET SELECTED TEXT
+// SYNC TEXT
 const currentText = ref('')
-const { text } = storeToRefs(useAppStore())
 
 watch(currentText, async (newVal) => {
-  if (newVal === text.value)
-    return
+  if (newVal !== inputText.value) {
+    inputText.value = newVal
+  }
+})
 
-  text.value = newVal
+// Sync with references store
+watch(inputText, (newVal) => {
+  if (newVal !== currentText.value) {
+    currentText.value = newVal
+  }
 })
 
 onMessage('selectedText', async ({ data }) => {
@@ -46,9 +53,17 @@ onMessage('autoImportText', async ({ data }) => {
   await handleTextChange(data.text)
 })
 
+// CLEAR HANDLER
+const { clearReferences } = referencesStore
+function handleClear() {
+  clearReferences()
+  currentText.value = ''
+}
+
 // DISABLED STATE
+const { isProcessing } = storeToRefs(referencesStore)
 const { file } = storeToRefs(useAppStore())
-const disabled = computed(() => !!file.value)
+const disabled = computed(() => !!file.value || isProcessing.value)
 </script>
 
 <template>
@@ -63,7 +78,7 @@ const disabled = computed(() => !!file.value)
     flat
     :disabled
     :messages="disabled ? [t('remove-file-to-enable-text-input')] : []"
-    @click:clear="clear"
+    @click:clear="handleClear"
     @update:model-value="handleTextChange($event)"
   />
 </template>
