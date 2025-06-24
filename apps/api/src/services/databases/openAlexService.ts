@@ -66,6 +66,11 @@ export class OpenAlexService {
     return params.toString()
   }
 
+  /**
+   * Parses the OpenAlex work object into a ReferenceMetadata object.
+   * @param work The OpenAlex work object to parse.
+   * @returns The parsed ReferenceMetadata object.
+   */
   private parseOpenAlexWork(work: any): ReferenceMetadata {
     return {
       title: work.title,

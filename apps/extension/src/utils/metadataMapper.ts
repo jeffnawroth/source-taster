@@ -1,5 +1,4 @@
 import type { Work } from '../api/crossref/models/Work'
-import type { WorkSchema } from '../api/open-alex'
 import type { EuropePmcPublication, PublicationMetadata, ReferenceMetadata } from '../types'
 
 /**
@@ -20,26 +19,26 @@ export function mapEuropePMCToPublication(result: EuropePmcPublication): Publica
   }
 }
 
-/**
- * Maps an OpenAlex work to a standard publication metadata format.
- * @param result The OpenAlex work to map.
- * @returns The mapped publication metadata.
- */
-export function mapOpenAlexToPublication(result: WorkSchema): PublicationMetadata {
-  return {
-    title: result.title,
-    authors: result.authorships?.map(author => author.author.display_name),
-    year: result.publication_year,
-    volume: result.biblio?.volume,
-    issue: result.biblio?.issue,
-    pages: result.biblio?.first_page && result.biblio?.last_page
-      ? `${result.biblio.first_page}-${result.biblio.last_page}`
-      : result.biblio?.first_page || result.biblio?.last_page,
-    doi: result.doi,
-    url: result.primary_location?.landing_page_url,
-    journal: result.primary_location?.source?.display_name,
-  }
-}
+// /**
+//  * Maps an OpenAlex work to a standard publication metadata format.
+//  * @param result The OpenAlex work to map.
+//  * @returns The mapped publication metadata.
+//  */
+// export function mapOpenAlexToPublication(result: WorkSchema): PublicationMetadata {
+//   return {
+//     title: result.title,
+//     authors: result.authorships?.map(author => author.author.display_name),
+//     year: result.publication_year,
+//     volume: result.biblio?.volume,
+//     issue: result.biblio?.issue,
+//     pages: result.biblio?.first_page && result.biblio?.last_page
+//       ? `${result.biblio.first_page}-${result.biblio.last_page}`
+//       : result.biblio?.first_page || result.biblio?.last_page,
+//     doi: result.doi,
+//     url: result.primary_location?.landing_page_url,
+//     journal: result.primary_location?.source?.display_name,
+//   }
+// }
 
 /**
  * Maps a Crossref work to a standard publication metadata format.
