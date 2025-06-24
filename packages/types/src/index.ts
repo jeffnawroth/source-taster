@@ -28,6 +28,12 @@ export interface ReferenceMetadata {
   publisher?: string
 }
 
+export interface ProcessedReference extends Reference {
+  status: 'pending' | 'verified' | 'not-verified' | 'error'
+  verificationResult?: VerificationResult
+  error?: string
+}
+
 // Extraction Types
 export interface ExtractionRequest {
   text: string
@@ -61,7 +67,7 @@ export interface VerificationResponse {
 // External Source Types
 export interface ExternalSource {
   id: string
-  source: string // 'openalex', 'crossref', etc.
+  source: 'openalex' | 'crossref' | 'europepmc'
   metadata: ReferenceMetadata
   url?: string
 }
