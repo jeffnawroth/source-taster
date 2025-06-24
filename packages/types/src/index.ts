@@ -26,7 +26,6 @@ export interface ReferenceMetadata {
   issue?: string
   pages?: string
   publisher?: string
-  abstract?: string
 }
 
 // Extraction Types

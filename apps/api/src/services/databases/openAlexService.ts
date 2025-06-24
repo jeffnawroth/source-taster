@@ -66,19 +66,6 @@ export class OpenAlexService {
       pages: work.biblio?.first_page && work.biblio?.last_page
         ? `${work.biblio.first_page}-${work.biblio.last_page}`
         : undefined,
-      abstract: work.abstract_inverted_index ? this.reconstructAbstract(work.abstract_inverted_index) : undefined,
     }
-  }
-
-  private reconstructAbstract(invertedIndex: Record<string, number[]>): string {
-    const words: string[] = []
-
-    for (const [word, positions] of Object.entries(invertedIndex)) {
-      for (const pos of positions) {
-        words[pos] = word
-      }
-    }
-
-    return words.join(' ')
   }
 }
