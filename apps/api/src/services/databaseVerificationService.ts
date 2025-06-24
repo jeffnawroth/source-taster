@@ -6,12 +6,14 @@ import type {
 } from '@source-taster/types'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 import { CrossrefService } from './databases/crossrefService'
+import { EuropePmcService } from './databases/europePmcService'
 import { OpenAlexService } from './databases/openAlexService'
 import { WebScrapingService } from './webScrapingService'
 
 export class DatabaseVerificationService {
   private openAlex = new OpenAlexService()
   private crossref = new CrossrefService()
+  private europePmc = new EuropePmcService()
   private webScraper = new WebScrapingService()
 
   async verifyReferences(
@@ -35,10 +37,11 @@ export class DatabaseVerificationService {
     reference: Reference,
     aiService?: 'openai' | 'gemini',
   ): Promise<VerificationResult> {
-    // Search in both databases in parallel for better performance
-    const [openAlexResult, crossrefResult] = await Promise.allSettled([
-      this.crossref.search(reference.metadata),
+    // Search in all databases in parallel for better performance
+    const [openAlexResult, crossrefResult, europePmcResult] = await Promise.allSettled([
       this.openAlex.search(reference.metadata),
+      this.crossref.search(reference.metadata),
+      this.europePmc.search(reference.metadata),
     ])
 
     // Extract successful results
@@ -50,6 +53,10 @@ export class DatabaseVerificationService {
 
     if (crossrefResult.status === 'fulfilled' && crossrefResult.value) {
       sources.push(crossrefResult.value)
+    }
+
+    if (europePmcResult.status === 'fulfilled' && europePmcResult.value) {
+      sources.push(europePmcResult.value)
     }
 
     // If no sources found, return unverified
