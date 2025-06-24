@@ -1,8 +1,0 @@
-.openapi-generator-ignore
-apis/EuropePMCArticlesRESTfulAPIApi.ts
-apis/index.ts
-index.ts
-models/ArticleInput.ts
-models/ArticleStatusSearchRequest.ts
-models/index.ts
-runtime.ts
