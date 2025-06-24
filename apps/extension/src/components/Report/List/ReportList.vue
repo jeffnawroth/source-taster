@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { ProcessedReference } from '@source-taster/types'
 import type { FuseResult } from 'fuse.js'
-import type { VerifiedReference } from '@/extension/types'
 
 const { results } = defineProps<{
-  results: FuseResult<VerifiedReference>[]
+  results: FuseResult<ProcessedReference>[]
 }>()
 </script>
 
@@ -16,9 +16,9 @@ const { results } = defineProps<{
   >
     <v-slide-y-transition group>
       <ReportListItem
-        v-for="(verifiedReference) in results"
-        :key="verifiedReference.item.referenceMetadata.originalEntry"
-        :verified-reference="verifiedReference.item"
+        v-for="(processedReference) in results"
+        :key="processedReference.item.id"
+        :reference="processedReference.item"
       />
     </v-slide-y-transition>
   </v-list>
