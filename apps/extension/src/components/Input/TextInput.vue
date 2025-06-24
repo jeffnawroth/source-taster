@@ -17,9 +17,11 @@ const { inputText } = storeToRefs(referencesStore)
 const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-references'))
 
 // AUTO CHECK REFERENCES
+const { extractAndVerifyReferences } = referencesStore
 const handleTextChange = useDebounceFn(async (newVal: string) => {
   if (useAutoCheckReferences.value && newVal.trim()) {
     inputText.value = newVal
+    await extractAndVerifyReferences()
   }
 }, 1000)
 
@@ -29,13 +31,6 @@ const currentText = ref('')
 watch(currentText, async (newVal) => {
   if (newVal !== inputText.value) {
     inputText.value = newVal
-  }
-})
-
-// Sync with references store
-watch(inputText, (newVal) => {
-  if (newVal !== currentText.value) {
-    currentText.value = newVal
   }
 })
 
