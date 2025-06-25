@@ -2,8 +2,6 @@ import type {
   ApiResponse,
   VerificationRequest,
   VerificationResponse,
-  WebsiteVerificationRequest,
-  WebsiteVerificationResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
 import { DatabaseVerificationService } from '../services/databaseVerificationService'
@@ -44,40 +42,6 @@ export class VerificationController {
           results,
           totalVerified: results.filter(r => r.isVerified).length,
           totalFailed: results.filter(r => !r.isVerified).length,
-        },
-      }
-
-      return c.json(response)
-    }
-    catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: errorMessage,
-      }
-      return c.json(errorResponse, 500)
-    }
-  }
-
-  /**
-   * Verify website references
-   * POST /api/verify/websites
-   */
-  async verifyWebsites(c: Context) {
-    try {
-      const request = await c.req.json() as WebsiteVerificationRequest
-
-      const results = await this.verificationService.verifyWebsiteReferences(
-        request.references,
-        request.aiService,
-      )
-
-      const response: ApiResponse<WebsiteVerificationResponse> = {
-        success: true,
-        data: {
-          results,
-          totalChecked: results.length,
-          totalAccessible: results.filter(r => r.isAccessible).length,
         },
       }
 
