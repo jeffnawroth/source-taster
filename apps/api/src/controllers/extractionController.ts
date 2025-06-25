@@ -41,7 +41,6 @@ export class ExtractionController {
         success: true,
         data: {
           references,
-          totalFound: references.length,
         },
       }
 
