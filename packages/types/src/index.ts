@@ -19,13 +19,10 @@ export interface ReferenceMetadata {
   journal?: string
   year?: number
   doi?: string
-  issn?: string
-  isbn?: string
   url?: string
   volume?: string
   issue?: string
   pages?: string
-  publisher?: string
 }
 
 export interface ProcessedReference extends Reference {
@@ -43,7 +40,6 @@ export interface ExtractionRequest {
 
 export interface ExtractionResponse {
   references: Reference[]
-  totalFound: number
 }
 
 // Verification Types
@@ -56,6 +52,21 @@ export interface VerificationResult {
   referenceId: string
   isVerified: boolean
   matchedSource?: ExternalSource
+  verificationDetails?: VerificationDetails
+}
+
+export interface VerificationDetails {
+  sourcesFound: ExternalSource[]
+  matchDetails?: MatchDetails
+}
+
+export interface MatchDetails {
+  titleMatch: boolean
+  authorsMatch: boolean
+  yearMatch: boolean
+  doiMatch: boolean
+  journalMatch: boolean
+  overallScore: number
 }
 
 export interface VerificationResponse {
