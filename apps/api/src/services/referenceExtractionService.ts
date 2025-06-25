@@ -25,13 +25,10 @@ Extract all academic references from the following text. Return them as a JSON o
         "journal": "journal name (if applicable)",
         "year": 2023,
         "doi": "DOI if present",
-        "issn": "ISSN if present",
-        "isbn": "ISBN if present",
         "url": "URL if present",
         "volume": "volume number",
         "issue": "issue number",
-        "pages": "page range",
-        "publisher": "publisher name"
+        "pages": "page range"
       }
     }
   ]
