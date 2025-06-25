@@ -17,7 +17,7 @@ const show = computed(() => references.value.length)
     :prepend-inner-icon="mdiMagnify"
     hide-details
     variant="solo-filled"
-    :placeholder="`${$t('search-references')}...`"
+    :placeholder="`${$t('search-references')}…`"
     flat
     clearable
     class="mb-4"
