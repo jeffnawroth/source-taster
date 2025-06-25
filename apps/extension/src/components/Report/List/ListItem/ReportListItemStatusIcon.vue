@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
-import { mdiAlertOutline, mdiCheckOutline, mdiClockOutline, mdiFileDocumentOutline, mdiHelp } from '@mdi/js'
+import { mdiAlertOutline, mdiCheck, mdiClockOutline, mdiFileDocumentOutline, mdiHelp } from '@mdi/js'
 
 // Props
 const props = defineProps<{
@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const icon = computed(() => {
   switch (props.reference.status) {
-    case 'verified': return mdiCheckOutline
+    case 'verified': return mdiCheck
     case 'not-verified': return mdiHelp
     case 'error': return mdiAlertOutline
     case 'pending': return mdiClockOutline
