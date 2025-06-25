@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { mdiMagnify } from '@mdi/js'
-import { useAppStore } from '@/extension/stores/app'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const referencesStore = useReferencesStore()
 
 // DISABLE BUTTON IF NO TEXT AND FILE OR LOADING
-const { inputText, isProcessing } = storeToRefs(referencesStore)
-const { file } = storeToRefs(useAppStore())
+const { inputText, isProcessing, file } = storeToRefs(referencesStore)
 const disabled = computed(() => (!inputText.value.trim() && !file.value) || isProcessing.value)
 
 // HANDLE CLICK

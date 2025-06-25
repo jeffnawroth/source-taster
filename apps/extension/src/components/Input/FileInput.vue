@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { mdiFilePdfBox } from '@mdi/js'
 import { useAutoCheckReferences } from '@/extension/logic'
-import { useAppStore } from '@/extension/stores/app'
 import { useReferencesStore } from '@/extension/stores/references'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
@@ -9,7 +8,7 @@ import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 const referencesStore = useReferencesStore()
 
 // FILE
-const { file } = storeToRefs(useAppStore())
+const { file } = storeToRefs(referencesStore)
 
 // PDF TEXT
 const { inputText } = storeToRefs(referencesStore)

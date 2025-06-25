@@ -3,7 +3,6 @@ import { mdiText } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
 import { useAutoCheckReferences, useAutoImport } from '@/extension/logic'
-import { useAppStore } from '@/extension/stores/app'
 import { useReferencesStore } from '@/extension/stores/references'
 
 // TRANSLATION
@@ -56,8 +55,7 @@ function handleClear() {
 }
 
 // DISABLED STATE
-const { isProcessing } = storeToRefs(referencesStore)
-const { file } = storeToRefs(useAppStore())
+const { isProcessing, file } = storeToRefs(referencesStore)
 const disabled = computed(() => !!file.value || isProcessing.value)
 </script>
 
