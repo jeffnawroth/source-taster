@@ -1,4 +1,4 @@
-import type { ProcessedReference } from '@source-taster/types'
+import type { ProcessedReference, Reference } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { ReferencesService } from '@/extension/services/referencesService'
@@ -54,6 +54,68 @@ export const useReferencesStore = defineStore('references', () => {
     currentPhase.value = 'idle'
   }
 
+  async function extractReferences(): Promise<Reference[]> {
+    const extractedRefs = await ReferencesService.extractReferences(inputText.value)
+
+    if (extractedRefs.length === 0) {
+      references.value = []
+      return []
+    }
+
+    // Initialize references with pending status
+    references.value = extractedRefs.map(ref => ({
+      ...ref,
+      status: 'pending' as const,
+    }))
+
+    totalCount.value = extractedRefs.length
+    return extractedRefs
+  }
+
+  async function verifyReferenceSequentially(ref: Reference, index: number): Promise<void> {
+    try {
+      // Verify single reference
+      const verificationResults = await ReferencesService.verifyReferences([ref])
+      const result = verificationResults[0]
+
+      // Update the specific reference
+      if (result) {
+        references.value[index] = {
+          ...references.value[index],
+          status: result.isVerified ? 'verified' : 'not-verified',
+          verificationResult: result,
+        }
+      }
+      else {
+        references.value[index] = {
+          ...references.value[index],
+          status: 'error',
+          error: 'No verification result found',
+        }
+      }
+    }
+    catch (error) {
+      // Handle individual reference error
+      references.value[index] = {
+        ...references.value[index],
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Verification failed',
+      }
+    }
+
+    // Update processed count
+    processedCount.value = index + 1
+  }
+
+  async function verifyAllReferences(extractedRefs: Reference[]): Promise<void> {
+    currentPhase.value = 'verifying'
+
+    // Verify references one by one for live progress updates
+    for (let i = 0; i < extractedRefs.length; i++) {
+      await verifyReferenceSequentially(extractedRefs[i], i)
+    }
+  }
+
   // Main action
   async function extractAndVerifyReferences() {
     if (!inputText.value.trim())
@@ -62,60 +124,11 @@ export const useReferencesStore = defineStore('references', () => {
     try {
       initializeProcessing()
 
-      // Step 1: Extract references
-      const extractedRefs = await ReferencesService.extractReferences(inputText.value)
-
-      if (extractedRefs.length === 0) {
-        references.value = []
+      const extractedRefs = await extractReferences()
+      if (extractedRefs.length === 0)
         return
-      }
 
-      // Initialize references with pending status
-      references.value = extractedRefs.map(ref => ({
-        ...ref,
-        status: 'pending' as const,
-      }))
-
-      totalCount.value = extractedRefs.length
-      currentPhase.value = 'verifying'
-
-      // Step 2: Verify references one by one for live progress updates
-      for (let i = 0; i < extractedRefs.length; i++) {
-        const ref = extractedRefs[i]
-
-        try {
-          // Verify single reference
-          const verificationResults = await ReferencesService.verifyReferences([ref])
-          const result = verificationResults[0]
-
-          // Update the specific reference
-          if (result) {
-            references.value[i] = {
-              ...references.value[i],
-              status: result.isVerified ? 'verified' : 'not-verified',
-              verificationResult: result,
-            }
-          }
-          else {
-            references.value[i] = {
-              ...references.value[i],
-              status: 'error',
-              error: 'No verification result found',
-            }
-          }
-        }
-        catch (error) {
-          // Handle individual reference error
-          references.value[i] = {
-            ...references.value[i],
-            status: 'error',
-            error: error instanceof Error ? error.message : 'Verification failed',
-          }
-        }
-
-        // Update processed count
-        processedCount.value = i + 1
-      }
+      await verifyAllReferences(extractedRefs)
     }
     catch (error) {
       handleProcessingError(error)
