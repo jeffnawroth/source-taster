@@ -7,6 +7,19 @@ const { reference } = defineProps<{
 }>()
 
 const { t } = useI18n()
+
+// Helper function to format source names for better user experience
+function formatSourceName(source: string): string {
+  const sourceMap: Record<string, string> = {
+    openalex: 'OpenAlex',
+    crossref: 'Crossref',
+    europepmc: 'Europe PMC',
+    semanticscholar: 'Semantic Scholar',
+    pubmed: 'PubMed',
+  }
+
+  return sourceMap[source] || source.charAt(0).toUpperCase() + source.slice(1)
+}
 </script>
 
 <template>
@@ -103,7 +116,7 @@ const { t } = useI18n()
           <ReferenceCardDetailsItem
             :icon="mdiDatabaseOutline"
             :title="t('source')"
-            :text="reference.verificationResult.matchedSource.source"
+            :text="formatSourceName(reference.verificationResult.matchedSource.source)"
           />
 
           <ReferenceCardDetailsItem
