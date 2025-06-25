@@ -1,47 +1,60 @@
 <script setup lang="ts">
-import type { VerifiedReference } from '@/extension/types'
-import ReportListItemOpenBtn from './ReportListItemOpenBtn.vue'
+import type { ProcessedReference } from '@source-taster/types'
 
-// Props
-const { verifiedReference } = defineProps<{
-  verifiedReference: VerifiedReference
+// PROPS
+const { reference } = defineProps<{
+  reference: ProcessedReference
 }>()
 
+// TRANSLATION
+const { t } = useI18n()
+
+// CARD COLOR
 const color = computed(() => {
-  if (!verifiedReference.verification) {
-    return 'error'
+  switch (reference.status) {
+    case 'verified': return 'success'
+    case 'not-verified': return 'warning'
+    case 'error': return 'error'
+    default: return undefined
   }
-  return verifiedReference.verification.match ? 'success' : 'warning'
 })
+
+// TITLE
+const title = computed(() => reference.metadata.title || t('no-title'))
+
+// SHOW DETAILS
+const showDetails = ref(false)
 </script>
 
 <template>
-  <v-list-item
-    rounded="lg"
+  <v-card
+    density="compact"
+    variant="outlined"
+    class="mb-2"
+    :title
     :color
-    active
-    class="my-1"
   >
-    <v-list-item-title class="wrap-text">
-      {{ verifiedReference.referenceMetadata.originalEntry }}
-    </v-list-item-title>
-    <template #prepend>
-      <ReportListItemStatusIcon :verification="verifiedReference.verification" />
-    </template>
-
+    <!-- STATUS ICON -->
     <template #append>
-      <ReportListItemCopyBtn :value="verifiedReference.referenceMetadata.originalEntry" />
-
-      <ReportListItemBtnSearchWeb :verified-reference />
-
-      <ReportListItemOpenBtn :verified-reference />
+      <ReportListItemStatusIcon :reference />
     </template>
-  </v-list-item>
-</template>
 
-<style scoped>
-/* Ensures text wraps within the container to prevent overflow */
-.wrap-text {
-  white-space: normal;
-}
-</style>
+    <!-- SUBTITLE -->
+    <ReferenceCardSubtitle :reference />
+
+    <!-- ACTIONS -->
+    <v-card-actions>
+      <ReportListItemOpenBtn :reference />
+      <ReportListItemBtnSearchWeb :query="reference.originalText" />
+      <ReportListItemCopyBtn :value="reference.originalText" />
+      <v-spacer />
+
+      <ReferenceShowDetailsBtn v-model="showDetails" />
+    </v-card-actions>
+
+    <ReferenceCardDetails
+      v-show="showDetails"
+      :reference
+    />
+  </v-card>
+</template>

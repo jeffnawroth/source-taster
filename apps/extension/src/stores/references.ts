@@ -6,6 +6,7 @@ import { ReferencesService } from '@/extension/services/referencesService'
 export const useReferencesStore = defineStore('references', () => {
   // State
   const inputText = ref('')
+  const file = ref<File | null>(null)
   const references = ref<ProcessedReference[]>([])
   const isProcessing = ref(false)
   const currentPhase = ref<'idle' | 'extracting' | 'verifying'>('idle')
@@ -129,6 +130,7 @@ export const useReferencesStore = defineStore('references', () => {
     currentPhase,
     processedCount,
     totalCount,
+    file,
 
     // Computed
     progress,

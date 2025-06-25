@@ -20,12 +20,13 @@ const { copy, copied } = useClipboard()
       <v-btn
         v-bind="tooltipProps"
         density="compact"
-        :icon="copied ? mdiCheck : mdiContentCopy"
-        variant="plain"
-        size="large"
+        :prepend-icon="copied ? mdiCheck : mdiContentCopy"
+        variant="text"
+        slim
+        :text="t('copy')"
         @click="copy(value)"
       />
     </template>
-    {{ copied ? `${t('doi-copied')}!` : t('copy-doi') }}
+    {{ copied ? `${t('doi-copied')}!` : t('copy-reference') }}
   </v-tooltip>
 </template>

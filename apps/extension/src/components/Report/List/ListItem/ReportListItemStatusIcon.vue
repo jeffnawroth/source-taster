@@ -1,28 +1,33 @@
 <script setup lang="ts">
-import type { VerificationResult } from '@/extension/types'
-import { mdiAlertCircleOutline, mdiCheckCircleOutline, mdiCloseCircleOutline } from '@mdi/js'
+import type { ProcessedReference } from '@source-taster/types'
+import { mdiAlertOutline, mdiCheckOutline, mdiClockOutline, mdiFileDocumentOutline, mdiHelp } from '@mdi/js'
 
 // Props
 const props = defineProps<{
-  verification: VerificationResult | null
+  reference: ProcessedReference
 }>()
 
-const verification = props.verification
 const icon = computed(() => {
-  if (!verification) {
-    return mdiCloseCircleOutline
+  switch (props.reference.status) {
+    case 'verified': return mdiCheckOutline
+    case 'not-verified': return mdiHelp
+    case 'error': return mdiAlertOutline
+    case 'pending': return mdiClockOutline
+    default: return mdiFileDocumentOutline
   }
-  return verification.match ? mdiCheckCircleOutline : mdiAlertCircleOutline
 })
 
 // ICON TOOLTIP TEXT
 const { t } = useI18n()
 
 const text = computed(() => {
-  if (!verification) {
-    return t('error-reference')
+  switch (props.reference.status) {
+    case 'verified': return t('verified-reference')
+    case 'not-verified': return t('unverified-reference')
+    case 'error': return t('error-reference')
+    case 'pending': return t('pending-reference')
+    default: return t('no-additional-error-info')
   }
-  return verification.match ? t('verified-reference') : t('unverified-reference')
 })
 </script>
 
@@ -31,7 +36,6 @@ const text = computed(() => {
     <template #activator="{ props }">
       <v-icon
         v-bind="props"
-        size="large"
         :icon
       />
     </template>
