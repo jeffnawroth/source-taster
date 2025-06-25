@@ -2,17 +2,18 @@
 import { mdiMagnifyScan } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 
-// const progressText = computed(() => {
-//   const verified = processedCount.value || 0
-//   const total = extractedReferencesMetadata.value?.length || 0
+const { currentPhase, processedCount, totalCount } = storeToRefs(useReferencesStore())
 
-//   if (total > 0) {
-//     return `${verified}/${total}`
-//   }
-//   return '0/0'
-// })
+const progressText = computed(() => {
+  const verified = processedCount.value || 0
+  const total = totalCount.value || 0
 
-const { currentPhase } = storeToRefs(useReferencesStore())
+  if (currentPhase.value === 'verifying' && totalCount.value > 0) {
+    return `${verified} / ${total}`
+  }
+  return '0/0'
+})
+
 const show = computed(() => currentPhase.value === 'verifying')
 </script>
 
@@ -25,13 +26,13 @@ const show = computed(() => currentPhase.value === 'verifying')
     :headline="$t('search-and-verification')"
     :icon="mdiMagnifyScan"
   >
-    <!-- <template #actions>
+    <template #actions>
       <v-chip
         variant="outlined"
         class="mt-4"
       >
         {{ `${progressText} ${$t('checked')}` }}
       </v-chip>
-    </template> -->
+    </template>
   </v-empty-state>
 </template>

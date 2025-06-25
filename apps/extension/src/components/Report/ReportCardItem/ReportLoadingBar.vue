@@ -2,7 +2,7 @@
 import { useReferencesStore } from '@/extension/stores/references'
 
 // App Store
-const { isProcessing } = storeToRefs(useReferencesStore())
+const { isProcessing, currentPhase, progress } = storeToRefs(useReferencesStore())
 </script>
 
 <template>
@@ -13,9 +13,8 @@ const { isProcessing } = storeToRefs(useReferencesStore())
   >
     <v-col>
       <v-progress-linear
-        v-show="isProcessing"
-        :is-loading="isProcessing"
-        :indeterminate="isProcessing"
+        :model-value="progress"
+        :indeterminate="currentPhase === 'extracting'"
         rounded
       />
     </v-col>

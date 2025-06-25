@@ -1,4 +1,4 @@
-import type { ProcessedReference, VerificationResult } from '@source-taster/types'
+import type { ProcessedReference } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { ReferencesService } from '@/extension/services/referencesService'
@@ -28,27 +28,6 @@ export const useReferencesStore = defineStore('references', () => {
   }))
 
   // Helper functions
-  function applyVerificationResults(verificationResults: VerificationResult[]) {
-    references.value = references.value.map((ref) => {
-      const result = verificationResults.find(r => r.referenceId === ref.id)
-      if (result) {
-        return {
-          ...ref,
-          status: result.isVerified ? 'verified' : 'not-verified',
-          verificationResult: result,
-        }
-      }
-      else {
-        return {
-          ...ref,
-          status: 'error',
-          error: 'No verification result found',
-        }
-      }
-    })
-    processedCount.value = totalCount.value
-  }
-
   function handleProcessingError(error: unknown) {
     console.error('Error processing references:', error)
 
@@ -100,11 +79,43 @@ export const useReferencesStore = defineStore('references', () => {
       totalCount.value = extractedRefs.length
       currentPhase.value = 'verifying'
 
-      // Step 2: Verify references
-      const verificationResults = await ReferencesService.verifyReferences(extractedRefs)
+      // Step 2: Verify references one by one for live progress updates
+      for (let i = 0; i < extractedRefs.length; i++) {
+        const ref = extractedRefs[i]
 
-      // Step 3: Apply verification results
-      applyVerificationResults(verificationResults)
+        try {
+          // Verify single reference
+          const verificationResults = await ReferencesService.verifyReferences([ref])
+          const result = verificationResults[0]
+
+          // Update the specific reference
+          if (result) {
+            references.value[i] = {
+              ...references.value[i],
+              status: result.isVerified ? 'verified' : 'not-verified',
+              verificationResult: result,
+            }
+          }
+          else {
+            references.value[i] = {
+              ...references.value[i],
+              status: 'error',
+              error: 'No verification result found',
+            }
+          }
+        }
+        catch (error) {
+          // Handle individual reference error
+          references.value[i] = {
+            ...references.value[i],
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Verification failed',
+          }
+        }
+
+        // Update processed count
+        processedCount.value = i + 1
+      }
     }
     catch (error) {
       handleProcessingError(error)
