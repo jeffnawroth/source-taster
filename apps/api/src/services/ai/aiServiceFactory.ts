@@ -53,13 +53,10 @@ export class OpenAIService implements AIService {
                           journal: { type: ['string', 'null'] },
                           year: { type: ['integer', 'null'] },
                           doi: { type: ['string', 'null'] },
-                          issn: { type: ['string', 'null'] },
-                          isbn: { type: ['string', 'null'] },
                           url: { type: ['string', 'null'] },
                           volume: { type: ['string', 'null'] },
                           issue: { type: ['string', 'null'] },
                           pages: { type: ['string', 'null'] },
-                          publisher: { type: ['string', 'null'] },
                         },
                         additionalProperties: false,
                       },
@@ -102,19 +99,45 @@ export class OpenAIService implements AIService {
                   type: 'boolean',
                   description: 'Whether the two references match',
                 },
+                titleMatch: {
+                  type: 'boolean',
+                  description: 'Whether the titles match',
+                },
+                authorsMatch: {
+                  type: 'boolean',
+                  description: 'Whether the authors match',
+                },
+                yearMatch: {
+                  type: 'boolean',
+                  description: 'Whether the years match',
+                },
+                doiMatch: {
+                  type: 'boolean',
+                  description: 'Whether the DOIs match',
+                },
+                journalMatch: {
+                  type: 'boolean',
+                  description: 'Whether the journals match',
+                },
+                overallScore: {
+                  type: 'integer',
+                  description: 'Overall match score from 0-100',
+                  minimum: 0,
+                  maximum: 100,
+                },
               },
-              required: ['isMatch'],
+              required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'overallScore'],
               additionalProperties: false,
             },
           },
         },
       })
 
-      return completion.choices[0]?.message?.content || '{"isMatch":false}'
+      return completion.choices[0]?.message?.content || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
     }
     catch (error) {
       console.error('OpenAI verification error:', error)
-      return '{"isMatch":false}'
+      return '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
     }
   }
 }
@@ -161,13 +184,10 @@ export class GeminiService implements AIService {
                         journal: { type: 'string', nullable: true },
                         year: { type: 'integer', nullable: true },
                         doi: { type: 'string', nullable: true },
-                        issn: { type: 'string', nullable: true },
-                        isbn: { type: 'string', nullable: true },
                         url: { type: 'string', nullable: true },
                         volume: { type: 'string', nullable: true },
                         issue: { type: 'string', nullable: true },
                         pages: { type: 'string', nullable: true },
-                        publisher: { type: 'string', nullable: true },
                       },
                     },
                   },
@@ -204,17 +224,43 @@ export class GeminiService implements AIService {
                 type: 'boolean',
                 description: 'Whether the two references match',
               },
+              titleMatch: {
+                type: 'boolean',
+                description: 'Whether the titles match',
+              },
+              authorsMatch: {
+                type: 'boolean',
+                description: 'Whether the authors match',
+              },
+              yearMatch: {
+                type: 'boolean',
+                description: 'Whether the years match',
+              },
+              doiMatch: {
+                type: 'boolean',
+                description: 'Whether the DOIs match',
+              },
+              journalMatch: {
+                type: 'boolean',
+                description: 'Whether the journals match',
+              },
+              overallScore: {
+                type: 'integer',
+                description: 'Overall match score from 0-100',
+                minimum: 0,
+                maximum: 100,
+              },
             },
-            required: ['isMatch'],
+            required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'overallScore'],
           },
         },
       })
 
-      return response.text || '{"isMatch":false}'
+      return response.text || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
     }
     catch (error) {
       console.error('Gemini verification error:', error)
-      return '{"isMatch":false}'
+      return '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
     }
   }
 }
