@@ -5,15 +5,41 @@ export class OpenAlexService {
 
   async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
-      // Build search query
-      const queryParams = this.buildSearchQuery(metadata)
-      const url = `${this.baseUrl}/works?${queryParams}`
+      // If DOI is available, search directly by DOI (most reliable)
+      if (metadata.doi) {
+        const directResult = await this.searchByDOI(metadata.doi)
+        if (directResult)
+          return directResult
+      }
+
+      // Fallback to query-based search
+      return await this.searchByQuery(metadata)
+    }
+    catch (error) {
+      console.error('OpenAlex search error:', error)
+    }
+
+    return null
+  }
+
+  private async searchByDOI(doi: string): Promise<ExternalSource | null> {
+    try {
+      // Clean DOI and construct direct URL
+      const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
+      const fullDoi = cleanDoi.startsWith('https://doi.org/') ? cleanDoi : `https://doi.org/${cleanDoi}`
+      const url = `${this.baseUrl}/works/${encodeURIComponent(fullDoi)}`
+
+      console.warn(`OpenAlex: Searching by DOI: ${url}`)
 
       const response = await fetch(url)
-      const data = await response.json() as any
 
-      if (data.results && data.results.length > 0) {
-        const work = data.results[0] // Only take the first (and only) result
+      if (!response.ok) {
+        return null // DOI not found, try query search
+      }
+
+      const work = await response.json() as any
+
+      if (work && work.id) {
         return {
           id: work.id,
           source: 'openalex',
@@ -23,7 +49,32 @@ export class OpenAlexService {
       }
     }
     catch (error) {
-      console.error('OpenAlex search error:', error)
+      console.error('OpenAlex DOI search error:', error)
+    }
+
+    return null
+  }
+
+  private async searchByQuery(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+    try {
+      const queryParams = this.buildSearchQuery(metadata)
+      const url = `${this.baseUrl}/works?${queryParams}`
+
+      const response = await fetch(url)
+      const data = await response.json() as any
+
+      if (data.results && data.results.length > 0) {
+        const work = data.results[0]
+        return {
+          id: work.id,
+          source: 'openalex',
+          metadata: this.parseOpenAlexWork(work),
+          url: work.id,
+        }
+      }
+    }
+    catch (error) {
+      console.error('OpenAlex query search error:', error)
     }
 
     return null
@@ -35,10 +86,6 @@ export class OpenAlexService {
     if (metadata.title) {
       params.append('search', metadata.title)
     }
-
-    // if (metadata.doi) {
-    //   params.append('filter', `doi:${metadata.doi}`)
-    // }
 
     if (metadata.year) {
       params.append('filter', `publication_year:${metadata.year}`)
