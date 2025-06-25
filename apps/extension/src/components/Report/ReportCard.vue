@@ -3,7 +3,7 @@ import { mdiFileDocumentOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { useReferencesStore } from '@/extension/stores/references'
 
-const { references } = storeToRefs(useReferencesStore())
+const { references, isProcessing } = storeToRefs(useReferencesStore())
 
 const search = ref('')
 
@@ -55,8 +55,10 @@ const { results } = useFuse(search, references, {
         style="max-height: calc(100vh - 528px); overflow-y: auto;"
       >
         <!-- LIST -->
-        <ReportList :results />
-        <!-- <ReferenceCard :reference="reference.item" v-for="reference in results" :key="reference.item.id" /> -->
+        <ReportList
+          v-if="!isProcessing"
+          :results
+        />
       </div>
 
       <!-- STATES -->

@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { mdiTextSearch } from '@mdi/js'
-import { useAiStore } from '@/extension/stores/aiStore'
+import { useReferencesStore } from '@/extension/stores/references'
 
-const { isExtractingReferences } = storeToRefs(useAiStore())
+const { currentPhase } = storeToRefs(useReferencesStore())
+const show = computed(() => currentPhase.value === 'extracting')
 </script>
 
 <template>
   <v-empty-state
-    v-show="isExtractingReferences"
+    v-show="show"
     :icon="mdiTextSearch"
     :headline="$t('extracting-references')"
     :title="$t('analyzing-text-content')"
