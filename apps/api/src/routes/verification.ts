@@ -10,10 +10,4 @@ const controller = new VerificationController()
  */
 router.post('/', c => controller.verifyReferences(c))
 
-/**
- * @route POST /api/verify/websites
- * @desc Verify website references
- */
-router.post('/websites', c => controller.verifyWebsites(c))
-
 export default router
