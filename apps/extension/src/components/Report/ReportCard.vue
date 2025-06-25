@@ -29,9 +29,6 @@ const { results } = useFuse(search, references, {
     </template>
 
     <template #append>
-      <!-- AI ICON -->
-      <ReportIconAi />
-
       <!-- PDF DOWNLOAD -->
       <!-- <ReportPdfDownload /> -->
     </template>
@@ -59,6 +56,7 @@ const { results } = useFuse(search, references, {
       >
         <!-- LIST -->
         <ReportList :results />
+        <!-- <ReferenceCard :reference="reference.item" v-for="reference in results" :key="reference.item.id" /> -->
       </div>
 
       <!-- STATES -->
@@ -70,6 +68,6 @@ const { results } = useFuse(search, references, {
 <style scoped>
 * {
   scrollbar-color: #404040b3 transparent; /*firefox*/
-  /* scrollbar-width: thin; */
+  scrollbar-width: thin;
 }
 </style>
