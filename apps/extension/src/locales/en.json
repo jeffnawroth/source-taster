@@ -124,6 +124,7 @@
   "test-api-key": "Test API Key",
   "theme": "Theme",
   "theme-option-description": "Select the theme of the extension",
+  "title": "title",
   "tokens-per-minute": "Tokens per minute",
   "tokens-per-minute-description": "This is the limit of AI tokens per minute",
   "unregistered": "Unregistered",

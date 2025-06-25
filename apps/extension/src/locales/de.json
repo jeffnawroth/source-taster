@@ -124,6 +124,7 @@
   "test-api-key": "API-Schlüssel testen",
   "theme": "Design",
   "theme-option-description": "Wählen Sie das Design der Erweiterung",
+  "title": "Titel",
   "tokens-per-minute": "Token pro Minute",
   "tokens-per-minute-description": "Dies ist das Limit der KI-Token pro Minute",
   "unregistered": "Nicht registriert",
