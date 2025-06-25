@@ -72,32 +72,6 @@ export interface ExternalSource {
   url?: string
 }
 
-// Website Verification Types
-export interface WebsiteVerificationRequest {
-  references: Reference[]
-  aiService?: 'openai' | 'gemini'
-}
-
-export interface WebsiteVerificationResult {
-  referenceId: string
-  url: string
-  isAccessible: boolean
-  statusCode?: number
-  extractedMetadata?: ReferenceMetadata
-  contentMatch?: {
-    titleMatch: number
-    authorMatch: number
-    overallMatch: number
-  }
-  issues?: string[]
-}
-
-export interface WebsiteVerificationResponse {
-  results: WebsiteVerificationResult[]
-  totalChecked: number
-  totalAccessible: number
-}
-
 // AI Service Types
 export interface AIServiceConfig {
   apiKey: string
