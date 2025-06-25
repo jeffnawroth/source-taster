@@ -1,11 +1,15 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   icon: string
   title: string
   text?: string | number
   color?: string
   link?: boolean
 }>()
+
+const href = computed(() => {
+  return String(props.text).startsWith('http') ? String(props.text) : `https://${props.text}`
+})
 </script>
 
 <template>
@@ -22,18 +26,11 @@ defineProps<{
 
     <span v-if="link">
       <a
-        class="text-primary"
-        :href="text.toString()"
+        :href
         target="_blank"
-      >
-        {{ text }}
-      </a>
+        rel="noopener noreferrer"
+      >{{ text }}</a>
     </span>
-    <span
-      v-else
-      class="text-medium-emphasis"
-    >
-      {{ text }}
-    </span>
+    <span v-else>{{ text }}</span>
   </v-list-item>
 </template>

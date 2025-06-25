@@ -87,6 +87,7 @@ const { t } = useI18n()
           :icon="mdiLink"
           title="URL"
           :text="reference.metadata.url"
+          link
         />
         <v-divider class="my-2" />
 
