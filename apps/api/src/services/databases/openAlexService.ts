@@ -85,16 +85,17 @@ export class OpenAlexService {
   private buildSearchQuery(metadata: ReferenceMetadata): string {
     const params = new URLSearchParams()
 
+    // Simple title-based search - much more reliable than complex queries
     if (metadata.title) {
       params.append('search', metadata.title)
     }
-
-    if (metadata.year) {
-      params.append('filter', `publication_year:${metadata.year}`)
+    else {
+      // Fallback if no title available
+      params.append('search', '*')
     }
 
-    // Only return the best match
-    params.append('per-page', '1')
+    // Get a few results for better matching
+    params.append('per-page', '5')
     params.append('page', '1')
 
     // Select only important properties to reduce response size

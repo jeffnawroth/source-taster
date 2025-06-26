@@ -98,26 +98,18 @@ export class CrossrefService {
   private buildSearchQuery(metadata: ReferenceMetadata): string {
     const params = new URLSearchParams()
 
-    // Build bibliographic query from available metadata
-    const queryParts = []
-    if (metadata.title)
-      queryParts.push(metadata.title)
-    if (metadata.authors?.length)
-      queryParts.push(...metadata.authors.slice(0, 2)) // Limit to first 2 authors
-    if (metadata.journal)
-      queryParts.push(metadata.journal)
-
-    if (queryParts.length > 0) {
-      params.append('query.bibliographic', queryParts.join(' '))
+    // Simple title-based search - much more reliable than complex queries
+    if (metadata.title) {
+      // Search by title only - most papers have unique titles
+      params.append('query.title', metadata.title)
     }
-
-    // Add filters
-    if (metadata.year) {
-      params.append('filter', `from-pub-date:${metadata.year},until-pub-date:${metadata.year}`)
+    else {
+      // Fallback if no title available
+      params.append('query', '*')
     }
 
     // Limit results and select fields
-    params.append('rows', '1')
+    params.append('rows', '5') // Get a few results for better matching
     params.append('sort', 'score')
     params.append('select', 'title,author,issued,published,DOI,container-title,volume,issue,page,URL')
 
