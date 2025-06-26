@@ -7,6 +7,7 @@ import type {
 } from '@source-taster/types'
 import process from 'node:process'
 import { AIServiceFactory } from './ai/aiServiceFactory'
+import { ArxivService } from './databases/arxivService'
 import { CrossrefService } from './databases/crossrefService'
 import { EuropePmcService } from './databases/europePmcService'
 import { OpenAlexService } from './databases/openAlexService'
@@ -17,6 +18,7 @@ export class DatabaseVerificationService {
   private crossref = new CrossrefService()
   private europePmc = new EuropePmcService()
   private semanticScholar = new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY)
+  private arxiv = new ArxivService()
 
   async verifyReferences(
     references: Reference[],
@@ -40,11 +42,12 @@ export class DatabaseVerificationService {
     aiService?: 'openai' | 'gemini',
   ): Promise<VerificationResult> {
     // Search in all databases in parallel for better performance
-    const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult] = await Promise.allSettled([
+    const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
       this.openAlex.search(reference.metadata),
       this.crossref.search(reference.metadata),
       this.europePmc.search(reference.metadata),
       this.semanticScholar.search(reference.metadata),
+      this.arxiv.search(reference.metadata),
     ])
 
     // Extract successful results
@@ -64,6 +67,10 @@ export class DatabaseVerificationService {
 
     if (semanticScholarResult.status === 'fulfilled' && semanticScholarResult.value) {
       sources.push(semanticScholarResult.value)
+    }
+
+    if (arxivResult.status === 'fulfilled' && arxivResult.value) {
+      sources.push(arxivResult.value)
     }
 
     // If no sources found, return unverified
