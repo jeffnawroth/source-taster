@@ -101,7 +101,7 @@ export class CrossrefService {
     // Simple title-based search - much more reliable than complex queries
     if (metadata.title) {
       // Search by title only - most papers have unique titles
-      params.append('query.title', metadata.title)
+      params.append('query', `query.title=${metadata.title}`)
     }
     else {
       // Fallback if no title available
@@ -109,7 +109,7 @@ export class CrossrefService {
     }
 
     // Limit results and select fields
-    params.append('rows', '5') // Get a few results for better matching
+    params.append('rows', '1')
     params.append('sort', 'score')
     params.append('select', 'title,author,issued,published,DOI,container-title,volume,issue,page,URL')
 
