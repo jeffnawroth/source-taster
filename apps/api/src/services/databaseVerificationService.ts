@@ -1,6 +1,8 @@
 import type {
   ExternalSource,
+  MatchDetails,
   Reference,
+  SourceEvaluation,
   VerificationResult,
 } from '@source-taster/types'
 import { AIServiceFactory } from './ai/aiServiceFactory'
@@ -61,6 +63,9 @@ export class DatabaseVerificationService {
       return {
         referenceId: reference.id,
         isVerified: false,
+        verificationDetails: {
+          sourcesFound: [],
+        },
       }
     }
 
@@ -69,24 +74,48 @@ export class DatabaseVerificationService {
       throw new Error('AI service is required for verification')
     }
 
-    // Try to verify against each source until we find a match
-    for (const source of sources) {
-      const isVerified = await this.verifyWithAI(reference, source, aiService)
+    // Evaluate all sources and find the best one based on AI scoring
+    const sourceEvaluations: SourceEvaluation[] = []
 
-      if (isVerified) {
-        return {
-          referenceId: reference.id,
-          isVerified: true,
-          matchedSource: source,
-        }
+    // Evaluate each source with AI
+    for (const source of sources) {
+      const matchResult = await this.verifyWithAI(reference, source, aiService)
+      sourceEvaluations.push({
+        source,
+        matchDetails: matchResult.details,
+        isMatch: matchResult.isMatch,
+      })
+    }
+
+    // Sort by overall score (highest first)
+    sourceEvaluations.sort((a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore)
+
+    // Check if the best source is verified (has a high enough score for verification)
+    const bestEvaluation = sourceEvaluations[0]
+
+    if (bestEvaluation.isMatch) {
+      return {
+        referenceId: reference.id,
+        isVerified: true,
+        matchedSource: bestEvaluation.source,
+        verificationDetails: {
+          sourcesFound: sources,
+          matchDetails: bestEvaluation.matchDetails,
+          allSourceEvaluations: sourceEvaluations,
+        },
       }
     }
 
-    // If no source matched, return the best source anyway for reference
+    // If no source matched sufficiently, return the best scoring one anyway
     return {
       referenceId: reference.id,
       isVerified: false,
-      matchedSource: sources[0], // Use the first (presumably best) source
+      matchedSource: bestEvaluation.source, // Now truly the best source based on score
+      verificationDetails: {
+        sourcesFound: sources,
+        matchDetails: bestEvaluation.matchDetails,
+        allSourceEvaluations: sourceEvaluations,
+      },
     }
   }
 
@@ -94,28 +123,31 @@ export class DatabaseVerificationService {
     reference: Reference,
     source: ExternalSource,
     aiService: 'openai' | 'gemini',
-  ): Promise<boolean> {
+  ): Promise<{ isMatch: boolean, details: MatchDetails }> {
     const ai = AIServiceFactory.create(aiService)
 
     const prompt = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
 1. reference: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
 2. source: Structured object, containing authoritative bibliographic information.
 
-Your task is to assess whether the Source describes the same publication as Reference.
+Your task is to assess whether the Source describes the same publication as Reference and provide detailed match information.
 
-Follow these steps:
-• Title Comparison: Compare Reference.title with source.title. Use a tolerant matching strategy that accounts for minor formatting differences, punctuation, and capitalization.
-• Author Comparison: Compare Reference.authors with source.authors (array of author names). Focus on matching surnames, allowing for slight variations or order differences.
-• Year Comparison: Compare Reference.year with source.year strictly: they must match exactly.
-• DOI: If both Reference.doi and source.doi are present, compare them directly (they should be identical for a perfect match).
-• Journal Comparison: Compare Reference.journal with source.journal, if available.
-• Volume, Issue, Pages: Compare Reference.volume, Reference.issue, Reference.pages with source.volume, source.issue, source.pages, if present.
+Compare each field systematically:
+• Title: Use tolerant matching for formatting differences, punctuation, and capitalization
+• Authors: Focus on surname matching, allow for variations and order differences
+• Year: Must match exactly if both are present
+• DOI: Must be identical if both are present
+• Journal: Use tolerant matching for abbreviations and formatting
 
-Be tolerant of minor mismatches but look for strong agreement across multiple fields. A strong match is sufficient.
-
-At the end of your analysis, return a clear evaluation in the following format:
+Return your analysis in this JSON format:
 {
-  "isMatch": true/false
+  "isMatch": true/false,
+  "titleMatch": true/false,
+  "authorsMatch": true/false,
+  "yearMatch": true/false,
+  "doiMatch": true/false,
+  "journalMatch": true/false,
+  "overallScore": 0-100
 }
 
 Reference:
@@ -128,10 +160,30 @@ ${JSON.stringify(source.metadata, null, 2)}`
 
     try {
       const result = JSON.parse(response)
-      return result.isMatch === true
+      return {
+        isMatch: result.isMatch === true,
+        details: {
+          titleMatch: result.titleMatch || false,
+          authorsMatch: result.authorsMatch || false,
+          yearMatch: result.yearMatch || false,
+          doiMatch: result.doiMatch || false,
+          journalMatch: result.journalMatch || false,
+          overallScore: result.overallScore || 0,
+        },
+      }
     }
     catch {
-      return false
+      return {
+        isMatch: false,
+        details: {
+          titleMatch: false,
+          authorsMatch: false,
+          yearMatch: false,
+          doiMatch: false,
+          journalMatch: false,
+          overallScore: 0,
+        },
+      }
     }
   }
 }

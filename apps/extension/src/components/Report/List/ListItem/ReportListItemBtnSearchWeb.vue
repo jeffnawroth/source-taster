@@ -20,7 +20,6 @@ function openInWeb() {
       <v-btn
         v-bind="props"
         :prepend-icon="mdiWeb"
-        density="compact"
         variant="text"
         slim
         text="Web"

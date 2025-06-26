@@ -25,7 +25,6 @@ function open() {
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-bind="tooltipProps"
-        density="compact"
         :prepend-icon="mdiFilePdfBox"
         variant="text"
         slim

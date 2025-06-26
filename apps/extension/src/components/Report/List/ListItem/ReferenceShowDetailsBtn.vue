@@ -9,7 +9,7 @@ const showDetails = defineModel<boolean>({ required: true })
     :append-icon="showDetails ? mdiChevronUp : mdiChevronDown"
     variant="text"
     slim
-    :text="showDetails ? 'Hide details' : 'Show details'"
+    :text="showDetails ? $t('hide-details') : $t('show-details')"
     @click="showDetails = !showDetails"
   />
 </template>

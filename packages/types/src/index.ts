@@ -58,6 +58,13 @@ export interface VerificationResult {
 export interface VerificationDetails {
   sourcesFound: ExternalSource[]
   matchDetails?: MatchDetails
+  allSourceEvaluations?: SourceEvaluation[]
+}
+
+export interface SourceEvaluation {
+  source: ExternalSource
+  matchDetails: MatchDetails
+  isMatch: boolean
 }
 
 export interface MatchDetails {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
-import { mdiAccountGroup, mdiAlertCircle, mdiBookOpenBlankVariantOutline, mdiCalendarOutline, mdiCalendarRange, mdiCheckCircleOutline, mdiDatabaseOutline, mdiEarth, mdiFileDocumentOutline, mdiHelpCircleOutline, mdiIdentifier, mdiLink, mdiNotebookOutline, mdiText } from '@mdi/js'
+import { mdiAlertCircle } from '@mdi/js'
+import SourceEvaluationList from './SourceEvaluationList.vue'
 
 const { reference } = defineProps<{
   reference: ProcessedReference
@@ -9,17 +10,17 @@ const { reference } = defineProps<{
 const { t } = useI18n()
 
 // Helper function to format source names for better user experience
-function formatSourceName(source: string): string {
-  const sourceMap: Record<string, string> = {
-    openalex: 'OpenAlex',
-    crossref: 'Crossref',
-    europepmc: 'Europe PMC',
-    semanticscholar: 'Semantic Scholar',
-    pubmed: 'PubMed',
-  }
+// function formatSourceName(source: string): string {
+//   const sourceMap: Record<string, string> = {
+//     openalex: 'OpenAlex',
+//     crossref: 'Crossref',
+//     europepmc: 'Europe PMC',
+//     semanticscholar: 'Semantic Scholar',
+//     pubmed: 'PubMed',
+//   }
 
-  return sourceMap[source] || source.charAt(0).toUpperCase() + source.slice(1)
-}
+//   return sourceMap[source] || source.charAt(0).toUpperCase() + source.slice(1)
+// }
 </script>
 
 <template>
@@ -27,130 +28,190 @@ function formatSourceName(source: string): string {
     <div>
       <v-divider />
 
-      <v-list
-        density="compact"
-        slim
-      >
-        <!-- ORIGINAL TEXT -->
+      <ReferenceMetadataList
+        :reference
+        :subheader="$t('reference-metadata')"
+      />
+
+      <v-divider class="my-2" />
+
+      <!-- VERIFIED -->
+      <!-- <div v-if="reference.status === 'verified' && reference.verificationResult?.matchedSource">
         <ReferenceCardDetailsItem
-          :icon="mdiText"
-          :title="t('original-text')"
-          :text="reference.originalText"
+          :icon="mdiCheckCircleOutline"
+          :title="t('verified-against')"
+          color="success"
+          text=" "
         />
 
-        <!-- TITLE -->
         <ReferenceCardDetailsItem
-          :icon="mdiFileDocumentOutline"
-          :title="t('title')"
-          :text="reference.metadata.title"
+          :icon="mdiDatabaseOutline"
+          :title="t('source')"
+          :text="formatSourceName(reference.verificationResult.matchedSource.source)"
         />
 
-        <!-- AUTHORS -->
-        <ReferenceCardDetailsItem
-          :icon="mdiAccountGroup"
-          :title="t('authors')"
-          :text="reference.metadata.authors?.join(', ')"
-        />
+        <div v-if="reference.verificationResult?.verificationDetails?.matchDetails">
+          <v-divider class="my-2" />
 
-        <!-- JOURNAL -->
-        <ReferenceCardDetailsItem
-          :icon="mdiEarth"
-          :title="t('journal')"
-          :text="reference.metadata.journal"
-        />
+          <div class="pa-2">
+            <div class="text-caption mb-1">
+              {{ t('match-score') }}: {{ reference.verificationResult.verificationDetails.matchDetails.overallScore }}%
+            </div>
+            <v-progress-linear
+              :model-value="reference.verificationResult.verificationDetails.matchDetails.overallScore"
+              color="success"
+              height="4"
+            />
+          </div>
 
-        <!-- YEAR -->
-        <ReferenceCardDetailsItem
-          :icon="mdiCalendarOutline"
-          :title="t('year')"
-          :text="reference.metadata.year"
-        />
+          <v-divider class="my-2" />
+        </div>
 
-        <!-- DOI -->
         <ReferenceCardDetailsItem
-          v-if="reference.metadata.volume"
           :icon="mdiIdentifier"
           title="DOI"
-          :text="reference.metadata.doi"
+          :text="reference.verificationResult.matchedSource.metadata.doi"
         />
 
-        <!-- VOLUME -->
-        <ReferenceCardDetailsItem
-          :icon="mdiBookOpenBlankVariantOutline"
-          :title="t('volume')"
-          :text="reference.metadata.volume"
-        />
-
-        <!-- ISSUE -->
-        <ReferenceCardDetailsItem
-          :icon="mdiCalendarRange"
-          :title="t('issue')"
-          :text="reference.metadata.issue"
-        />
-
-        <!-- PAGES -->
-        <ReferenceCardDetailsItem
-          :icon="mdiNotebookOutline"
-          :title="t('pages')"
-          :text="reference.metadata.pages"
-        />
-
-        <!-- URL -->
         <ReferenceCardDetailsItem
           :icon="mdiLink"
           title="URL"
-          :text="reference.metadata.url"
+          :text="reference.verificationResult.matchedSource.url"
           link
         />
-        <v-divider class="my-2" />
+      </div> -->
 
-        <!-- VERIFIED -->
-        <div v-if="reference.status === 'verified' && reference.verificationResult?.matchedSource">
+      <!-- ERROR -->
+      <ReferenceCardDetailsItem
+        v-if="reference.status === 'error' && reference.error"
+        :icon="mdiAlertCircle"
+        :title="t('error')"
+        color="error"
+        :text="reference.error || t('no-additional-error-info')"
+      />
+
+      <!-- NOT VERIFIED -->
+      <!-- <div v-if="reference.status === 'not-verified'">
           <ReferenceCardDetailsItem
-            :icon="mdiCheckCircleOutline"
-            :title="t('verified-against')"
-            color="success"
-            text=" "
+            :icon="mdiHelpCircleOutline"
+            :title="t('not-verified')"
+            color="warning"
+            :text="t('no-matching-source-found')"
           />
 
-          <ReferenceCardDetailsItem
-            :icon="mdiDatabaseOutline"
-            :title="t('source')"
-            :text="formatSourceName(reference.verificationResult.matchedSource.source)"
+          <div v-if="reference.verificationResult?.verificationDetails?.matchDetails">
+            <v-divider class="my-2" />
+
+            <ReferenceCardDetailsItem
+              v-if="reference.verificationResult.verificationDetails.sourcesFound?.length > 0"
+              :icon="mdiDatabaseOutline"
+              :title="t('sources-found')"
+              :text="reference.verificationResult.verificationDetails.sourcesFound.map(s => formatSourceName(s.source)).join(', ')"
+            />
+
+            <div class="pa-2">
+              <div class="text-caption mb-2">
+          {{ t('match-analysis') }}:
+              </div>
+
+              <div class="d-flex flex-column ga-1">
+          <div class="d-flex align-center ga-2">
+            <v-icon
+              :icon="reference.verificationResult.verificationDetails.matchDetails.titleMatch ? mdiCheckCircleOutline : mdiAlertCircle"
+              :color="reference.verificationResult.verificationDetails.matchDetails.titleMatch ? 'success' : 'error'"
+              size="x-small"
+            />
+            <span class="text-caption">{{ t('title-match') }}</span>
+          </div>
+
+          <div class="d-flex align-center ga-2">
+            <v-icon
+              :icon="reference.verificationResult.verificationDetails.matchDetails.authorsMatch ? mdiCheckCircleOutline : mdiAlertCircle"
+              :color="reference.verificationResult.verificationDetails.matchDetails.authorsMatch ? 'success' : 'error'"
+              size="x-small"
+            />
+            <span class="text-caption">{{ t('authors-match') }}</span>
+          </div>
+
+          <div class="d-flex align-center ga-2">
+            <v-icon
+              :icon="reference.verificationResult.verificationDetails.matchDetails.yearMatch ? mdiCheckCircleOutline : mdiAlertCircle"
+              :color="reference.verificationResult.verificationDetails.matchDetails.yearMatch ? 'success' : 'error'"
+              size="x-small"
+            />
+            <span class="text-caption">{{ t('year-match') }}</span>
+          </div>
+
+          <div class="d-flex align-center ga-2">
+            <v-icon
+              :icon="reference.verificationResult.verificationDetails.matchDetails.doiMatch ? mdiCheckCircleOutline : mdiAlertCircle"
+              :color="reference.verificationResult.verificationDetails.matchDetails.doiMatch ? 'success' : 'error'"
+              size="x-small"
+            />
+            <span class="text-caption">{{ t('doi-match') }}</span>
+          </div>
+
+          <div class="d-flex align-center ga-2">
+            <v-icon
+              :icon="reference.verificationResult.verificationDetails.matchDetails.journalMatch ? mdiCheckCircleOutline : mdiAlertCircle"
+              :color="reference.verificationResult.verificationDetails.matchDetails.journalMatch ? 'success' : 'error'"
+              size="x-small"
+            />
+            <span class="text-caption">{{ t('journal-match') }}</span>
+          </div>
+              </div>
+
+              <div class="mt-2">
+          <div class="text-caption mb-1">
+            {{ t('match-score') }}: {{ reference.verificationResult.verificationDetails.matchDetails.overallScore }}%
+          </div>
+          <v-progress-linear
+            :model-value="reference.verificationResult.verificationDetails.matchDetails.overallScore"
+            :color="reference.verificationResult.verificationDetails.matchDetails.overallScore > 70 ? 'success' : reference.verificationResult.verificationDetails.matchDetails.overallScore > 40 ? 'warning' : 'error'"
+            height="4"
           />
+              </div>
+            </div>
 
-          <ReferenceCardDetailsItem
-            :icon="mdiIdentifier"
-            title="DOI"
-            :text="reference.verificationResult.matchedSource.metadata.doi"
-          />
+            <div v-if="reference.verificationResult.matchedSource">
+              <v-divider class="my-2" />
+              <div class="text-caption mb-2">
+          {{ t('best-match-from') }} {{ formatSourceName(reference.verificationResult.matchedSource.source) }}:
+              </div>
 
-          <ReferenceCardDetailsItem
-            :icon="mdiLink"
-            title="URL"
-            :text="reference.verificationResult.matchedSource.url"
-            link
-          />
-        </div>
+              <ReferenceCardDetailsItem
+          :icon="mdiFileDocumentOutline"
+          :title="t('title')"
+          :text="reference.verificationResult.matchedSource.metadata.title"
+              />
 
-        <!-- ERROR -->
-        <ReferenceCardDetailsItem
-          v-if="reference.status === 'error' && reference.error"
-          :icon="mdiAlertCircle"
-          :title="t('error')"
-          color="error"
-          :text="reference.error || t('no-additional-error-info')"
-        />
+              <ReferenceCardDetailsItem
+          :icon="mdiAccountGroup"
+          :title="t('authors')"
+          :text="reference.verificationResult.matchedSource.metadata.authors?.join(', ')"
+              />
 
-        <!-- NOT VERIFIED -->
-        <ReferenceCardDetailsItem
-          v-if="reference.status === 'not-verified'"
-          :icon="mdiHelpCircleOutline"
-          :title="t('not-verified')"
-          color="warning"
-          :text="t('no-matching-source-found')"
-        />
-      </v-list>
+              <ReferenceCardDetailsItem
+          :icon="mdiCalendarOutline"
+          :title="t('year')"
+          :text="reference.verificationResult.matchedSource.metadata.year"
+              />
+
+              <ReferenceCardDetailsItem
+          v-if="reference.verificationResult.matchedSource.metadata.doi"
+          :icon="mdiIdentifier"
+          title="DOI"
+          :text="reference.verificationResult.matchedSource.metadata.doi"
+              />
+            </div>
+          </div>
+        </div> -->
+
+      <!-- All Source Evaluations for Transparency -->
+      <SourceEvaluationList
+        v-if="reference.verificationResult?.verificationDetails?.allSourceEvaluations?.length"
+        :source-evaluations="reference.verificationResult.verificationDetails.allSourceEvaluations"
+      />
     </div>
   </v-expand-transition>
 </template>

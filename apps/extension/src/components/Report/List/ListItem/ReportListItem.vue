@@ -44,12 +44,24 @@ const showDetails = ref(false)
 
     <!-- ACTIONS -->
     <v-card-actions>
-      <ReportListItemOpenBtn :reference />
-      <ReportListItemBtnSearchWeb :query="reference.originalText" />
-      <ReportListItemCopyBtn :value="reference.originalText" />
-      <v-spacer />
+      <v-row dense>
+        <v-col cols="auto">
+          <ReportListItemOpenBtn :reference />
+        </v-col>
+        <v-col cols="auto">
+          <ReportListItemBtnSearchWeb :query="reference.originalText" />
+        </v-col>
 
-      <ReferenceShowDetailsBtn v-model="showDetails" />
+        <v-col cols="auto">
+          <ReportListItemCopyBtn :value="reference.originalText" />
+        </v-col>
+
+        <v-spacer />
+
+        <v-col cols="auto">
+          <ReferenceShowDetailsBtn v-model="showDetails" />
+        </v-col>
+      </v-row>
     </v-card-actions>
 
     <ReferenceCardDetails
