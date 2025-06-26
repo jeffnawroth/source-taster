@@ -73,6 +73,9 @@ export interface MatchDetails {
   yearMatch: boolean
   doiMatch: boolean
   journalMatch: boolean
+  volumeMatch: boolean
+  issueMatch: boolean
+  pagesMatch: boolean
   overallScore: number
 }
 

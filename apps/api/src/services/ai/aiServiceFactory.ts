@@ -119,6 +119,18 @@ export class OpenAIService implements AIService {
                   type: 'boolean',
                   description: 'Whether the journals match',
                 },
+                volumeMatch: {
+                  type: 'boolean',
+                  description: 'Whether the volumes match',
+                },
+                issueMatch: {
+                  type: 'boolean',
+                  description: 'Whether the issues match',
+                },
+                pagesMatch: {
+                  type: 'boolean',
+                  description: 'Whether the pages match',
+                },
                 overallScore: {
                   type: 'integer',
                   description: 'Overall match score from 0-100',
@@ -126,14 +138,14 @@ export class OpenAIService implements AIService {
                   maximum: 100,
                 },
               },
-              required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'overallScore'],
+              required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'volumeMatch', 'issueMatch', 'pagesMatch', 'overallScore'],
               additionalProperties: false,
             },
           },
         },
       })
 
-      return completion.choices[0]?.message?.content || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
+      return completion.choices[0]?.message?.content || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"volumeMatch":false,"issueMatch":false,"pagesMatch":false,"overallScore":0}'
     }
     catch (error) {
       console.error('OpenAI verification error:', error)
@@ -244,6 +256,18 @@ export class GeminiService implements AIService {
                 type: 'boolean',
                 description: 'Whether the journals match',
               },
+              volumeMatch: {
+                type: 'boolean',
+                description: 'Whether the volumes match',
+              },
+              issueMatch: {
+                type: 'boolean',
+                description: 'Whether the issues match',
+              },
+              pagesMatch: {
+                type: 'boolean',
+                description: 'Whether the pages match',
+              },
               overallScore: {
                 type: 'integer',
                 description: 'Overall match score from 0-100',
@@ -251,16 +275,16 @@ export class GeminiService implements AIService {
                 maximum: 100,
               },
             },
-            required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'overallScore'],
+            required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'volumeMatch', 'issueMatch', 'pagesMatch', 'overallScore'],
           },
         },
       })
 
-      return response.text || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
+      return response.text || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"volumeMatch":false,"issueMatch":false,"pagesMatch":false,"overallScore":0}'
     }
     catch (error) {
       console.error('Gemini verification error:', error)
-      return '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
+      return '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"volumeMatch":false,"issueMatch":false,"pagesMatch":false,"overallScore":0}'
     }
   }
 }

@@ -176,5 +176,8 @@
   "volume": "Band",
   "website": "Webseite",
   "year": "Jahr",
-  "year-match": "Jahr-Übereinstimmung"
+  "year-match": "Jahr-Übereinstimmung",
+  "volume-match": "Band-Übereinstimmung",
+  "issue-match": "Ausgabe-Übereinstimmung",
+  "pages-match": "Seiten-Übereinstimmung"
 }

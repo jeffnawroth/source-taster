@@ -176,5 +176,8 @@
   "volume": "Volume",
   "website": "Website",
   "year": "Year",
-  "year-match": "Year Match"
+  "year-match": "Year Match",
+  "volume-match": "Volume Match",
+  "issue-match": "Issue Match",
+  "pages-match": "Pages Match"
 }

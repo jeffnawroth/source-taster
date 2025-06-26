@@ -138,6 +138,9 @@ Compare each field systematically:
 • Year: Must match exactly if both are present
 • DOI: Must be identical if both are present
 • Journal: Use tolerant matching for abbreviations and formatting
+• Volume: Must match exactly if both are present
+• Issue: Must match exactly if both are present
+• Pages: Use tolerant matching for different formats (e.g., "123-456" vs "123-56" vs "123–456")
 
 Return your analysis in this JSON format:
 {
@@ -147,6 +150,9 @@ Return your analysis in this JSON format:
   "yearMatch": true/false,
   "doiMatch": true/false,
   "journalMatch": true/false,
+  "volumeMatch": true/false,
+  "issueMatch": true/false,
+  "pagesMatch": true/false,
   "overallScore": 0-100
 }
 
@@ -168,6 +174,9 @@ ${JSON.stringify(source.metadata, null, 2)}`
           yearMatch: result.yearMatch || false,
           doiMatch: result.doiMatch || false,
           journalMatch: result.journalMatch || false,
+          volumeMatch: result.volumeMatch || false,
+          issueMatch: result.issueMatch || false,
+          pagesMatch: result.pagesMatch || false,
           overallScore: result.overallScore || 0,
         },
       }
@@ -181,6 +190,9 @@ ${JSON.stringify(source.metadata, null, 2)}`
           yearMatch: false,
           doiMatch: false,
           journalMatch: false,
+          volumeMatch: false,
+          issueMatch: false,
+          pagesMatch: false,
           overallScore: 0,
         },
       }

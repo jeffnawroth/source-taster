@@ -45,6 +45,24 @@ defineProps<{
       </v-col>
       <v-col cols="6">
         <SourceEvaluationMatchItem
+          :match="evaluation.matchDetails.volumeMatch"
+          :text="$t('volume-match')"
+        />
+      </v-col>
+      <v-col cols="6">
+        <SourceEvaluationMatchItem
+          :match="evaluation.matchDetails.issueMatch"
+          :text="$t('issue-match')"
+        />
+      </v-col>
+      <v-col cols="6">
+        <SourceEvaluationMatchItem
+          :match="evaluation.matchDetails.pagesMatch"
+          :text="$t('pages-match')"
+        />
+      </v-col>
+      <v-col cols="6">
+        <SourceEvaluationMatchItem
           :match="evaluation.isMatch"
           :text="$t('overall-match')"
         />
