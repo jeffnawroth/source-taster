@@ -88,7 +88,7 @@ export interface VerificationResponse {
 // External Source Types
 export interface ExternalSource {
   id: string
-  source: 'openalex' | 'crossref' | 'europepmc'
+  source: 'openalex' | 'crossref' | 'europepmc' | 'semanticscholar'
   metadata: ReferenceMetadata
   url?: string
 }
