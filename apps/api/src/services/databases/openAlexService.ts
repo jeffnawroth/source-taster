@@ -60,6 +60,8 @@ export class OpenAlexService {
       const queryParams = this.buildSearchQuery(metadata)
       const url = `${this.baseUrl}/works?${queryParams}`
 
+      console.warn(`OpenAlex: Query search: ${url}`)
+
       const response = await fetch(url)
       const data = await response.json() as any
 
