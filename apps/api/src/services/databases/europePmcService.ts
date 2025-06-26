@@ -25,7 +25,8 @@ export class EuropePmcService {
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
     try {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
-      const url = `${this.baseUrl}/search?query=DOI:${encodeURIComponent(cleanDoi)}&format=json&resultType=core&pageSize=1`
+      const query = encodeURIComponent(cleanDoi)
+      const url = `${this.baseUrl}/search?query=${query}&format=json&resultType=core&pageSize=1`
 
       console.warn(`Europe PMC: Searching by DOI: ${url}`)
 
