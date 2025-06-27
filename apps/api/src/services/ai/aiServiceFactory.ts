@@ -95,21 +95,6 @@ export class OpenAIService implements AIService {
             schema: {
               type: 'object',
               properties: {
-                isMatch: {
-                  type: 'boolean',
-                  description: 'Whether the two references match',
-                },
-                overallScore: {
-                  type: 'integer',
-                  description: 'Overall weighted match score from 0-100',
-                  minimum: 0,
-                  maximum: 100,
-                },
-                fieldsEvaluated: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  description: 'List of fields that were evaluated',
-                },
                 fieldDetails: {
                   type: 'array',
                   items: {
@@ -131,31 +116,25 @@ export class OpenAIService implements AIService {
                         minimum: 0,
                         maximum: 100,
                       },
-                      weight: {
-                        type: 'integer',
-                        description: 'Weight of this field in the overall calculation',
-                        minimum: 0,
-                        maximum: 100,
-                      },
                     },
-                    required: ['field', 'reference_value', 'source_value', 'match_score', 'weight'],
+                    required: ['field', 'reference_value', 'source_value', 'match_score'],
                     additionalProperties: false,
                   },
                   description: 'Detailed scoring information for each field',
                 },
               },
-              required: ['isMatch', 'overallScore', 'fieldsEvaluated', 'fieldDetails'],
+              required: ['fieldDetails'],
               additionalProperties: false,
             },
           },
         },
       })
 
-      return completion.choices[0]?.message?.content || '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
+      return completion.choices[0]?.message?.content || '{"fieldDetails":[]}'
     }
     catch (error) {
       console.error('OpenAI verification error:', error)
-      return '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
+      return '{"fieldDetails":[]}'
     }
   }
 }
@@ -238,21 +217,6 @@ export class GeminiService implements AIService {
           responseSchema: {
             type: 'object',
             properties: {
-              isMatch: {
-                type: 'boolean',
-                description: 'Whether the two references match',
-              },
-              overallScore: {
-                type: 'integer',
-                description: 'Overall weighted match score from 0-100',
-                minimum: 0,
-                maximum: 100,
-              },
-              fieldsEvaluated: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'List of fields that were evaluated',
-              },
               fieldDetails: {
                 type: 'array',
                 items: {
@@ -274,28 +238,22 @@ export class GeminiService implements AIService {
                       minimum: 0,
                       maximum: 100,
                     },
-                    weight: {
-                      type: 'integer',
-                      description: 'Weight of this field in the overall calculation',
-                      minimum: 0,
-                      maximum: 100,
-                    },
                   },
-                  required: ['field', 'reference_value', 'source_value', 'match_score', 'weight'],
+                  required: ['field', 'reference_value', 'source_value', 'match_score'],
                 },
                 description: 'Detailed scoring information for each field',
               },
             },
-            required: ['isMatch', 'overallScore', 'fieldsEvaluated', 'fieldDetails'],
+            required: ['fieldDetails'],
           },
         },
       })
 
-      return response.text || '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
+      return response.text || '{"fieldDetails":[]}'
     }
     catch (error) {
       console.error('Gemini verification error:', error)
-      return '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
+      return '{"fieldDetails":[]}'
     }
   }
 }

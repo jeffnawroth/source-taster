@@ -214,12 +214,9 @@ export class DatabaseVerificationService {
 1. reference: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
 2. source: Structured object, containing authoritative bibliographic information.
 
-Your task is to assess whether the Source describes the same publication as Reference and provide detailed match information with precise scoring.
+Your task is to assess whether the Source describes the same publication as Reference and provide detailed match scores for each field.
 
 IMPORTANT: Only evaluate fields that are present in the reference. For each field, provide a match_score (0-100) based on similarity.
-
-Field Weights (only for fields present in reference):
-${Object.entries(fieldWeights).map(([field, weight]) => `• ${field}: ${weight}%`).join('\n')}
 
 Available fields to evaluate: ${availableFields.join(', ')}
 
@@ -233,21 +230,14 @@ Scoring Guidelines for each field (0-100):
 • Issue: 100=exact match, 0=different (no partial scoring)
 • Pages: 100=identical, 90=same range different format, 70=overlapping ranges, 0=different
 
-Calculate the final weighted score as:
-Score = Σ(field_match_score * field_weight) / Σ(field_weights_for_available_fields)
-
 Return your analysis in this JSON format:
 {
-  "isMatch": true/false,
-  "overallScore": 0-100,
-  "fieldsEvaluated": ["field1", "field2", ...],
   "fieldDetails": [
     {
       "field": "title",
       "reference_value": "...",
       "source_value": "...",
-      "match_score": 0-100,
-      "weight": 35
+      "match_score": 0-100
     }
   ]
 }
@@ -263,15 +253,27 @@ ${JSON.stringify(source.metadata, null, 2)}`
     try {
       const result = JSON.parse(response)
 
-      // Create match details from AI response (AI calculates the weighted score as overallScore)
+      // Ensure fieldDetails have weights assigned (from our calculation)
+      const fieldDetails = (result.fieldDetails || []).map((detail: any) => ({
+        ...detail,
+        weight: fieldWeights[detail.field] || 0,
+      }))
+
+      // Calculate the overall score ourselves
+      const overallScore = this.calculateOverallScore(fieldDetails)
+
+      // Derive fieldsEvaluated from fieldDetails
+      const fieldsEvaluated = fieldDetails.map((detail: any) => detail.field)
+
+      // Create match details from AI response with our calculated score
       const aiMatchDetails: MatchDetails = {
-        overallScore: result.overallScore || 0,
-        fieldsEvaluated: result.fieldsEvaluated || [],
-        fieldDetails: result.fieldDetails || [],
+        overallScore,
+        fieldsEvaluated,
+        fieldDetails,
       }
 
       // Use overall score for determining match (can be adjusted with thresholds later)
-      const isMatch = aiMatchDetails.overallScore >= 75 // Default threshold for now
+      const isMatch = overallScore >= 75 // Default threshold for now
 
       return {
         isMatch,
@@ -291,5 +293,23 @@ ${JSON.stringify(source.metadata, null, 2)}`
         details: fallbackMatchDetails,
       }
     }
+  }
+
+  /**
+   * Calculate the overall weighted score from field details
+   */
+  private calculateOverallScore(fieldDetails: Array<{ match_score: number, weight: number }>): number {
+    if (fieldDetails.length === 0)
+      return 0
+
+    let totalWeightedScore = 0
+    let totalWeight = 0
+
+    for (const detail of fieldDetails) {
+      totalWeightedScore += detail.match_score * detail.weight
+      totalWeight += detail.weight
+    }
+
+    return totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0
   }
 }
