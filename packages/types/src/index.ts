@@ -70,9 +70,9 @@ export interface ProcessedReference extends Reference {
 export interface ExtractionRequest {
   /** The text to extract references from */
   text: string
-  /** AI service to use for extraction */
+  /** AI service to use */
   aiService: 'openai' | 'gemini'
-  /** Specific model to use (optional) */
+  /** AI model to use (optional) */
   model?: string
 }
 
@@ -91,8 +91,10 @@ export interface ExtractionResponse {
 export interface VerificationRequest {
   /** References to verify */
   references: Reference[]
-  /** AI service to use for verification (optional) */
+  /** AI service to use (optional) */
   aiService?: 'openai' | 'gemini'
+  /** AI model to use (optional) */
+  model?: string
 }
 
 /**
@@ -198,6 +200,16 @@ export interface AIServiceConfig {
   temperature?: number
   /** Maximum tokens in the response */
   maxTokens?: number
+}
+
+/**
+ * AI model specification for requests
+ */
+export interface AIModel {
+  /** AI service to use */
+  service: 'openai' | 'gemini'
+  /** Specific model to use */
+  model: string
 }
 
 // Field weights for score calculation

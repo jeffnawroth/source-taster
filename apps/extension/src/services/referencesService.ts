@@ -15,6 +15,7 @@ export class ReferencesService {
       body: JSON.stringify({
         text,
         aiService: selectedAiModel.value.service,
+        model: selectedAiModel.value.model,
       }),
     })
 
@@ -43,6 +44,7 @@ export class ReferencesService {
       body: JSON.stringify({
         references,
         aiService: selectedAiModel.value.service,
+        model: selectedAiModel.value.model,
       }),
     })
 
