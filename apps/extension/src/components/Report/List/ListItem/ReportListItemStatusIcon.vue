@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@source-taster/types'
-
 // Props
 defineProps<{
-  reference: ProcessedReference
+  scoreText: string | null
+  color?: string
 }>()
 
 // const icon = computed(() => {
@@ -42,8 +41,12 @@ defineProps<{
   </v-list-item> -->
 
   <v-chip
-    class="ma-2"
+    v-if="scoreText"
+    :color
+    size="small"
+    variant="tonal"
+    class="font-weight-bold"
   >
-    {{ `${reference.verificationResult?.verificationDetails?.matchDetails?.overallScore || 0} %` }}
+    {{ scoreText }}
   </v-chip>
 </template>

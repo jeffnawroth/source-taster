@@ -148,53 +148,51 @@ export class DatabaseVerificationService {
   }
 
   /**
-   * Get the fields that are actually present in the reference
+   * Get the fields that should be evaluated for matching
+   * We evaluate core fields (title, authors) even if they don't match exactly
+   * Other fields only if present in both
    */
-  private getAvailableFields(reference: Reference): string[] {
+  private getAvailableFields(reference: Reference, source: ExternalSource): string[] {
     const fields: string[] = []
 
-    if (reference.metadata.title)
+    // Always evaluate title and authors if present in reference, even if source has different/missing values
+    // This is crucial to detect mismatches with same DOI/year but different papers
+    if (reference.metadata.title) {
       fields.push('title')
-    if (reference.metadata.authors && reference.metadata.authors.length > 0)
+    }
+    if (reference.metadata.authors && reference.metadata.authors.length > 0) {
       fields.push('authors')
-    if (reference.metadata.year)
+    }
+
+    // For other fields, only include if present in both
+    if (reference.metadata.year && source.metadata.year)
       fields.push('year')
-    if (reference.metadata.doi)
+    if (reference.metadata.doi && source.metadata.doi)
       fields.push('doi')
-    if (reference.metadata.journal)
+    if (reference.metadata.journal && source.metadata.journal)
       fields.push('journal')
-    if (reference.metadata.volume)
+    if (reference.metadata.volume && source.metadata.volume)
       fields.push('volume')
-    if (reference.metadata.issue)
+    if (reference.metadata.issue && source.metadata.issue)
       fields.push('issue')
-    if (reference.metadata.pages)
+    if (reference.metadata.pages && source.metadata.pages)
       fields.push('pages')
 
     return fields
   }
 
   /**
-   * Get field weights only for fields that are present in the reference
+   * Get field weights for all fields that should be evaluated
+   * This includes core fields from reference even if missing in source
    */
-  private getFieldWeightsForReference(reference: Reference): Record<string, number> {
+  private getFieldWeightsForAvailableFields(availableFields: string[]): Record<string, number> {
     const weights: Record<string, number> = {}
 
-    if (reference.metadata.title)
-      weights.title = this.defaultFieldWeights.title
-    if (reference.metadata.authors && reference.metadata.authors.length > 0)
-      weights.authors = this.defaultFieldWeights.authors
-    if (reference.metadata.year)
-      weights.year = this.defaultFieldWeights.year
-    if (reference.metadata.doi)
-      weights.doi = this.defaultFieldWeights.doi
-    if (reference.metadata.journal)
-      weights.journal = this.defaultFieldWeights.journal
-    if (reference.metadata.volume)
-      weights.volume = this.defaultFieldWeights.volume
-    if (reference.metadata.issue)
-      weights.issue = this.defaultFieldWeights.issue
-    if (reference.metadata.pages)
-      weights.pages = this.defaultFieldWeights.pages
+    for (const field of availableFields) {
+      if (field in this.defaultFieldWeights) {
+        weights[field] = this.defaultFieldWeights[field as keyof FieldWeights]
+      }
+    }
 
     return weights
   }
@@ -206,9 +204,9 @@ export class DatabaseVerificationService {
   ): Promise<{ isMatch: boolean, details: MatchDetails }> {
     const ai = AIServiceFactory.create(aiService)
 
-    // Get the fields that are actually present in the reference
-    const availableFields = this.getAvailableFields(reference)
-    const fieldWeights = this.getFieldWeightsForReference(reference)
+    // Get the fields that should be evaluated (including core fields even if missing in source)
+    const availableFields = this.getAvailableFields(reference, source)
+    const fieldWeights = this.getFieldWeightsForAvailableFields(availableFields)
 
     const prompt = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
 1. reference: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
@@ -216,13 +214,18 @@ export class DatabaseVerificationService {
 
 Your task is to assess whether the Source describes the same publication as Reference and provide detailed match scores for each field.
 
-IMPORTANT: Only evaluate fields that are present in the reference. For each field, provide a match_score (0-100) based on similarity.
+IMPORTANT RULES:
+- For CORE FIELDS (title, authors): Always evaluate them if present in reference, even if missing/null in source
+- If title is in reference but missing in source, score as 0 (strong mismatch indicator)
+- If authors are in reference but missing in source, score as 0 (strong mismatch indicator)
+- For OTHER FIELDS (year, doi, journal, etc.): Only evaluate if present in both reference and source
+- Same DOI/year does NOT guarantee same paper - title and authors are crucial for verification
 
 Available fields to evaluate: ${availableFields.join(', ')}
 
 Scoring Guidelines for each field (0-100):
-• Title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different
-• Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
+• Title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different OR missing in source
+• Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match OR missing in source
 • Year: 100=exact match, 0=different (no partial scoring for year)
 • DOI: 100=identical, 0=different (no partial scoring for DOI)
 • Journal: 100=identical, 90=same journal different format, 70=abbreviated vs full name, 0=different
@@ -236,7 +239,7 @@ Return your analysis in this JSON format:
     {
       "field": "title",
       "reference_value": "...",
-      "source_value": "...",
+      "source_value": "..." or null,
       "match_score": 0-100
     }
   ]
