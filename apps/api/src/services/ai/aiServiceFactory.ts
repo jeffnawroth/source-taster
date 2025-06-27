@@ -99,57 +99,63 @@ export class OpenAIService implements AIService {
                   type: 'boolean',
                   description: 'Whether the two references match',
                 },
-                titleMatch: {
-                  type: 'boolean',
-                  description: 'Whether the titles match',
-                },
-                authorsMatch: {
-                  type: 'boolean',
-                  description: 'Whether the authors match',
-                },
-                yearMatch: {
-                  type: 'boolean',
-                  description: 'Whether the years match',
-                },
-                doiMatch: {
-                  type: 'boolean',
-                  description: 'Whether the DOIs match',
-                },
-                journalMatch: {
-                  type: 'boolean',
-                  description: 'Whether the journals match',
-                },
-                volumeMatch: {
-                  type: 'boolean',
-                  description: 'Whether the volumes match',
-                },
-                issueMatch: {
-                  type: 'boolean',
-                  description: 'Whether the issues match',
-                },
-                pagesMatch: {
-                  type: 'boolean',
-                  description: 'Whether the pages match',
-                },
                 overallScore: {
                   type: 'integer',
-                  description: 'Overall match score from 0-100',
+                  description: 'Overall weighted match score from 0-100',
                   minimum: 0,
                   maximum: 100,
                 },
+                fieldsEvaluated: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'List of fields that were evaluated',
+                },
+                fieldDetails: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      field: {
+                        type: 'string',
+                        description: 'Name of the field',
+                      },
+                      reference_value: {
+                        description: 'Value from reference (can be string, number, array, or null)',
+                      },
+                      source_value: {
+                        description: 'Value from source (can be string, number, array, or null)',
+                      },
+                      match_score: {
+                        type: 'integer',
+                        description: 'Match score for this field from 0-100',
+                        minimum: 0,
+                        maximum: 100,
+                      },
+                      weight: {
+                        type: 'integer',
+                        description: 'Weight of this field in the overall calculation',
+                        minimum: 0,
+                        maximum: 100,
+                      },
+                    },
+                    required: ['field', 'reference_value', 'source_value', 'match_score', 'weight'],
+                    additionalProperties: false,
+                  },
+                  description: 'Detailed scoring information for each field',
+                },
               },
-              required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'volumeMatch', 'issueMatch', 'pagesMatch', 'overallScore'],
+              required: ['isMatch', 'overallScore', 'fieldsEvaluated', 'fieldDetails'],
               additionalProperties: false,
             },
           },
         },
       })
 
-      return completion.choices[0]?.message?.content || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"volumeMatch":false,"issueMatch":false,"pagesMatch":false,"overallScore":0}'
+      return completion.choices[0]?.message?.content || '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
     }
     catch (error) {
       console.error('OpenAI verification error:', error)
-      return '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"overallScore":0}'
+      return '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
     }
   }
 }
@@ -236,55 +242,60 @@ export class GeminiService implements AIService {
                 type: 'boolean',
                 description: 'Whether the two references match',
               },
-              titleMatch: {
-                type: 'boolean',
-                description: 'Whether the titles match',
-              },
-              authorsMatch: {
-                type: 'boolean',
-                description: 'Whether the authors match',
-              },
-              yearMatch: {
-                type: 'boolean',
-                description: 'Whether the years match',
-              },
-              doiMatch: {
-                type: 'boolean',
-                description: 'Whether the DOIs match',
-              },
-              journalMatch: {
-                type: 'boolean',
-                description: 'Whether the journals match',
-              },
-              volumeMatch: {
-                type: 'boolean',
-                description: 'Whether the volumes match',
-              },
-              issueMatch: {
-                type: 'boolean',
-                description: 'Whether the issues match',
-              },
-              pagesMatch: {
-                type: 'boolean',
-                description: 'Whether the pages match',
-              },
               overallScore: {
                 type: 'integer',
-                description: 'Overall match score from 0-100',
+                description: 'Overall weighted match score from 0-100',
                 minimum: 0,
                 maximum: 100,
               },
+              fieldsEvaluated: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'List of fields that were evaluated',
+              },
+              fieldDetails: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    field: {
+                      type: 'string',
+                      description: 'Name of the field',
+                    },
+                    reference_value: {
+                      description: 'Value from reference (can be string, number, array, or null)',
+                    },
+                    source_value: {
+                      description: 'Value from source (can be string, number, array, or null)',
+                    },
+                    match_score: {
+                      type: 'integer',
+                      description: 'Match score for this field from 0-100',
+                      minimum: 0,
+                      maximum: 100,
+                    },
+                    weight: {
+                      type: 'integer',
+                      description: 'Weight of this field in the overall calculation',
+                      minimum: 0,
+                      maximum: 100,
+                    },
+                  },
+                  required: ['field', 'reference_value', 'source_value', 'match_score', 'weight'],
+                },
+                description: 'Detailed scoring information for each field',
+              },
             },
-            required: ['isMatch', 'titleMatch', 'authorsMatch', 'yearMatch', 'doiMatch', 'journalMatch', 'volumeMatch', 'issueMatch', 'pagesMatch', 'overallScore'],
+            required: ['isMatch', 'overallScore', 'fieldsEvaluated', 'fieldDetails'],
           },
         },
       })
 
-      return response.text || '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"volumeMatch":false,"issueMatch":false,"pagesMatch":false,"overallScore":0}'
+      return response.text || '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
     }
     catch (error) {
       console.error('Gemini verification error:', error)
-      return '{"isMatch":false,"titleMatch":false,"authorsMatch":false,"yearMatch":false,"doiMatch":false,"journalMatch":false,"volumeMatch":false,"issueMatch":false,"pagesMatch":false,"overallScore":0}'
+      return '{"isMatch":false,"overallScore":0,"fieldsEvaluated":[],"fieldDetails":[]}'
     }
   }
 }

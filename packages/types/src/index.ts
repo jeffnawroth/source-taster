@@ -67,16 +67,19 @@ export interface SourceEvaluation {
   isMatch: boolean
 }
 
+// Detailed field match information
+export interface FieldMatchDetail {
+  field: string
+  reference_value: string | number | string[] | null
+  source_value: string | number | string[] | null
+  match_score: number // 0-100 score for this specific field
+  weight: number // Weight used for this field
+}
+
 export interface MatchDetails {
-  titleMatch: boolean
-  authorsMatch: boolean
-  yearMatch: boolean
-  doiMatch: boolean
-  journalMatch: boolean
-  volumeMatch: boolean
-  issueMatch: boolean
-  pagesMatch: boolean
-  overallScore: number
+  overallScore: number // Final weighted score: Σ(match_score * weight) / Σ(weights)
+  fieldsEvaluated?: string[] // Which fields were actually compared
+  fieldDetails?: FieldMatchDetail[] // Detailed scoring per field
 }
 
 export interface VerificationResponse {
@@ -110,4 +113,16 @@ export interface DatabaseConfig {
     requestsPerSecond: number
     burstLimit: number
   }
+}
+
+// Field weights for score calculation
+export interface FieldWeights {
+  title: number
+  authors: number
+  year: number
+  doi: number
+  journal: number
+  volume: number
+  issue: number
+  pages: number
 }

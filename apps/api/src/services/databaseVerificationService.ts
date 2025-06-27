@@ -1,5 +1,6 @@
 import type {
   ExternalSource,
+  FieldWeights,
   MatchDetails,
   Reference,
   SourceEvaluation,
@@ -19,6 +20,18 @@ export class DatabaseVerificationService {
   private europePmc = new EuropePmcService()
   private semanticScholar = new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY)
   private arxiv = new ArxivService()
+
+  // Default field weights - title and authors are most important
+  private readonly defaultFieldWeights: FieldWeights = {
+    title: 35, // Most important - 35%
+    authors: 25, // Very important - 25%
+    year: 10, // Moderately important - 10%
+    doi: 15, // Important when available - 15%
+    journal: 10, // Moderately important - 10%
+    volume: 2, // Less important - 2%
+    issue: 1, // Less important - 1%
+    pages: 2, // Less important - 2%
+  }
 
   async verifyReferences(
     references: Reference[],
@@ -134,6 +147,58 @@ export class DatabaseVerificationService {
     }
   }
 
+  /**
+   * Get the fields that are actually present in the reference
+   */
+  private getAvailableFields(reference: Reference): string[] {
+    const fields: string[] = []
+
+    if (reference.metadata.title)
+      fields.push('title')
+    if (reference.metadata.authors && reference.metadata.authors.length > 0)
+      fields.push('authors')
+    if (reference.metadata.year)
+      fields.push('year')
+    if (reference.metadata.doi)
+      fields.push('doi')
+    if (reference.metadata.journal)
+      fields.push('journal')
+    if (reference.metadata.volume)
+      fields.push('volume')
+    if (reference.metadata.issue)
+      fields.push('issue')
+    if (reference.metadata.pages)
+      fields.push('pages')
+
+    return fields
+  }
+
+  /**
+   * Get field weights only for fields that are present in the reference
+   */
+  private getFieldWeightsForReference(reference: Reference): Record<string, number> {
+    const weights: Record<string, number> = {}
+
+    if (reference.metadata.title)
+      weights.title = this.defaultFieldWeights.title
+    if (reference.metadata.authors && reference.metadata.authors.length > 0)
+      weights.authors = this.defaultFieldWeights.authors
+    if (reference.metadata.year)
+      weights.year = this.defaultFieldWeights.year
+    if (reference.metadata.doi)
+      weights.doi = this.defaultFieldWeights.doi
+    if (reference.metadata.journal)
+      weights.journal = this.defaultFieldWeights.journal
+    if (reference.metadata.volume)
+      weights.volume = this.defaultFieldWeights.volume
+    if (reference.metadata.issue)
+      weights.issue = this.defaultFieldWeights.issue
+    if (reference.metadata.pages)
+      weights.pages = this.defaultFieldWeights.pages
+
+    return weights
+  }
+
   private async verifyWithAI(
     reference: Reference,
     source: ExternalSource,
@@ -141,34 +206,50 @@ export class DatabaseVerificationService {
   ): Promise<{ isMatch: boolean, details: MatchDetails }> {
     const ai = AIServiceFactory.create(aiService)
 
+    // Get the fields that are actually present in the reference
+    const availableFields = this.getAvailableFields(reference)
+    const fieldWeights = this.getFieldWeightsForReference(reference)
+
     const prompt = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
 1. reference: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
 2. source: Structured object, containing authoritative bibliographic information.
 
-Your task is to assess whether the Source describes the same publication as Reference and provide detailed match information.
+Your task is to assess whether the Source describes the same publication as Reference and provide detailed match information with precise scoring.
 
-Compare each field systematically:
-• Title: Use tolerant matching for formatting differences, punctuation, and capitalization
-• Authors: Focus on surname matching, allow for variations and order differences
-• Year: Must match exactly if both are present
-• DOI: Must be identical if both are present
-• Journal: Use tolerant matching for abbreviations and formatting
-• Volume: Must match exactly if both are present
-• Issue: Must match exactly if both are present
-• Pages: Use tolerant matching for different formats (e.g., "123-456" vs "123-56" vs "123–456")
+IMPORTANT: Only evaluate fields that are present in the reference. For each field, provide a match_score (0-100) based on similarity.
+
+Field Weights (only for fields present in reference):
+${Object.entries(fieldWeights).map(([field, weight]) => `• ${field}: ${weight}%`).join('\n')}
+
+Available fields to evaluate: ${availableFields.join(', ')}
+
+Scoring Guidelines for each field (0-100):
+• Title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different
+• Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
+• Year: 100=exact match, 0=different (no partial scoring for year)
+• DOI: 100=identical, 0=different (no partial scoring for DOI)
+• Journal: 100=identical, 90=same journal different format, 70=abbreviated vs full name, 0=different
+• Volume: 100=exact match, 0=different (no partial scoring)
+• Issue: 100=exact match, 0=different (no partial scoring)
+• Pages: 100=identical, 90=same range different format, 70=overlapping ranges, 0=different
+
+Calculate the final weighted score as:
+Score = Σ(field_match_score * field_weight) / Σ(field_weights_for_available_fields)
 
 Return your analysis in this JSON format:
 {
   "isMatch": true/false,
-  "titleMatch": true/false,
-  "authorsMatch": true/false,
-  "yearMatch": true/false,
-  "doiMatch": true/false,
-  "journalMatch": true/false,
-  "volumeMatch": true/false,
-  "issueMatch": true/false,
-  "pagesMatch": true/false,
-  "overallScore": 0-100
+  "overallScore": 0-100,
+  "fieldsEvaluated": ["field1", "field2", ...],
+  "fieldDetails": [
+    {
+      "field": "title",
+      "reference_value": "...",
+      "source_value": "...",
+      "match_score": 0-100,
+      "weight": 35
+    }
+  ]
 }
 
 Reference:
@@ -181,35 +262,33 @@ ${JSON.stringify(source.metadata, null, 2)}`
 
     try {
       const result = JSON.parse(response)
+
+      // Create match details from AI response (AI calculates the weighted score as overallScore)
+      const aiMatchDetails: MatchDetails = {
+        overallScore: result.overallScore || 0,
+        fieldsEvaluated: result.fieldsEvaluated || [],
+        fieldDetails: result.fieldDetails || [],
+      }
+
+      // Use overall score for determining match (can be adjusted with thresholds later)
+      const isMatch = aiMatchDetails.overallScore >= 75 // Default threshold for now
+
       return {
-        isMatch: result.isMatch === true,
-        details: {
-          titleMatch: result.titleMatch || false,
-          authorsMatch: result.authorsMatch || false,
-          yearMatch: result.yearMatch || false,
-          doiMatch: result.doiMatch || false,
-          journalMatch: result.journalMatch || false,
-          volumeMatch: result.volumeMatch || false,
-          issueMatch: result.issueMatch || false,
-          pagesMatch: result.pagesMatch || false,
-          overallScore: result.overallScore || 0,
-        },
+        isMatch,
+        details: aiMatchDetails,
       }
     }
     catch {
+      // Fallback if AI response parsing fails
+      const fallbackMatchDetails: MatchDetails = {
+        overallScore: 0,
+        fieldsEvaluated: [],
+        fieldDetails: [],
+      }
+
       return {
         isMatch: false,
-        details: {
-          titleMatch: false,
-          authorsMatch: false,
-          yearMatch: false,
-          doiMatch: false,
-          journalMatch: false,
-          volumeMatch: false,
-          issueMatch: false,
-          pagesMatch: false,
-          overallScore: 0,
-        },
+        details: fallbackMatchDetails,
       }
     }
   }

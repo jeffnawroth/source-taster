@@ -12,56 +12,30 @@ defineProps<{
       {{ $t('match-details') }}
     </div>
 
-    <v-row dense>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.titleMatch"
-          :text="$t('title-match')"
+    <!-- Field Details (if available) -->
+    <v-row
+      v-if="evaluation.matchDetails.fieldDetails?.length"
+      dense
+    >
+      <v-col
+        v-for="fieldDetail in evaluation.matchDetails.fieldDetails"
+        :key="fieldDetail.field"
+        cols="6"
+      >
+        <SourceEvaluationScoreItem
+          :score="fieldDetail.match_score"
+          :text="$t(`${fieldDetail.field}-match`)"
+          :weight="fieldDetail.weight"
         />
       </v-col>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.authorsMatch"
-          :text="$t('authors-match')"
-        />
-      </v-col>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.yearMatch"
-          :text="$t('year-match')"
-        />
-      </v-col>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.doiMatch"
-          :text="$t('doi-match')"
-        />
-      </v-col>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.journalMatch"
-          :text="$t('journal-match')"
-        />
-      </v-col>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.volumeMatch"
-          :text="$t('volume-match')"
-        />
-      </v-col>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.issueMatch"
-          :text="$t('issue-match')"
-        />
-      </v-col>
-      <v-col cols="6">
-        <SourceEvaluationMatchItem
-          :match="evaluation.matchDetails.pagesMatch"
-          :text="$t('pages-match')"
-        />
-      </v-col>
-      <v-col cols="6">
+    </v-row>
+
+    <!-- Fallback: Show overall match if no field details -->
+    <v-row
+      v-else
+      dense
+    >
+      <v-col cols="12">
         <SourceEvaluationMatchItem
           :match="evaluation.isMatch"
           :text="$t('overall-match')"

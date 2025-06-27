@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
-import { mdiAlertOutline, mdiCheck, mdiClockOutline, mdiFileDocumentOutline, mdiHelp } from '@mdi/js'
 
 // Props
-const props = defineProps<{
+defineProps<{
   reference: ProcessedReference
 }>()
 
-const icon = computed(() => {
-  switch (props.reference.status) {
-    case 'verified': return mdiCheck
-    case 'not-verified': return mdiHelp
-    case 'error': return mdiAlertOutline
-    case 'pending': return mdiClockOutline
-    default: return mdiFileDocumentOutline
-  }
-})
+// const icon = computed(() => {
+//   switch (props.reference.status) {
+//     case 'verified': return mdiCheck
+//     case 'not-verified': return mdiHelp
+//     case 'error': return mdiAlertOutline
+//     case 'pending': return mdiClockOutline
+//     default: return mdiFileDocumentOutline
+//   }
+// })
 
 // ICON TOOLTIP TEXT
 // const { t } = useI18n()
@@ -46,9 +45,5 @@ const icon = computed(() => {
     class="ma-2"
   >
     {{ `${reference.verificationResult?.verificationDetails?.matchDetails?.overallScore || 0} %` }}
-    <v-icon
-      :icon
-      end
-    />
   </v-chip>
 </template>
