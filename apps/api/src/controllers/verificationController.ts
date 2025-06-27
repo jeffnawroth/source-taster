@@ -40,8 +40,6 @@ export class VerificationController {
         success: true,
         data: {
           results,
-          totalVerified: results.filter(r => r.isVerified).length,
-          totalFailed: results.filter(r => !r.isVerified).length,
         },
       }
 

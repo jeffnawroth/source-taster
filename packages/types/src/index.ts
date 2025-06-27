@@ -168,10 +168,6 @@ export interface MatchDetails {
 export interface VerificationResponse {
   /** Individual verification results */
   results: VerificationResult[]
-  /** Number of successfully verified references */
-  totalVerified: number
-  /** Number of references that failed verification */
-  totalFailed: number
 }
 
 // External Source Types
