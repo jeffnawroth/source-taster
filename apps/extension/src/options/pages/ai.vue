@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AIModel } from '@/extension/types'
+import type { AIModel } from '../../types'
 import { mdiRobotHappyOutline, mdiStarFourPointsOutline } from '@mdi/js'
 import { selectedAiModel, useAiExtraction } from '@/extension/logic'
 import OptionListItem from '../components/OptionListItem.vue'
@@ -8,12 +8,12 @@ import OptionListItem from '../components/OptionListItem.vue'
 const { t } = useI18n()
 
 const aiModels = ref<Array<AIModel>>([
-  { title: 'Gemini 2.5 Pro', value: 'gemini-2.5-pro-exp-03-25', description: t('gemini-2.5-pro-description'), service: 'gemini' },
-  { title: 'Gemini 2.0 Flash', value: 'gemini-2.0-flash', description: t('gemini-2.0-flash-description'), service: 'gemini' },
-  { title: 'Gemini 2.0 Flash-Lite', value: 'gemini-2.0-flash-lite', description: t('gemini-2.0-flash-lite-description'), service: 'gemini' },
-  { title: 'GPT-4o', value: 'gpt-4o', description: t('gpt-4o-description'), service: 'openai' },
-  { title: 'o3-mini', value: 'o3-mini', description: t('o3-mini-description'), service: 'openai' },
-  { title: 'GPT-4.1 nano', value: 'gpt-4.1-nano', description: t('gpt-4.1-nano-description'), service: 'openai' },
+  { title: 'Gemini 2.5 Pro', model: 'gemini-2.5-pro-exp-03-25', description: t('gemini-2.5-pro-description'), service: 'gemini' },
+  { title: 'Gemini 2.0 Flash', model: 'gemini-2.0-flash', description: t('gemini-2.0-flash-description'), service: 'gemini' },
+  { title: 'Gemini 2.0 Flash-Lite', model: 'gemini-2.0-flash-lite', description: t('gemini-2.0-flash-lite-description'), service: 'gemini' },
+  { title: 'GPT-4o', model: 'gpt-4o', description: t('gpt-4o-description'), service: 'openai' },
+  { title: 'o3-mini', model: 'o3-mini', description: t('o3-mini-description'), service: 'openai' },
+  { title: 'GPT-4.1 nano', model: 'gpt-4.1-nano', description: t('gpt-4.1-nano-description'), service: 'openai' },
 ])
 </script>
 
@@ -61,12 +61,12 @@ const aiModels = ref<Array<AIModel>>([
         </p>
 
         <p
-          v-for="(model, index) in aiModels"
-          :key="model.value"
+          v-for="(aiModel, index) in aiModels"
+          :key="aiModel.model"
           class="text-medium-emphasis mt-1"
         >
-          <span class="font-weight-bold">{{ model.title }}</span>
-          <span class="text-medium-emphasis"> - {{ model.description }}</span>
+          <span class="font-weight-bold">{{ aiModel.title }}</span>
+          <span class="text-medium-emphasis"> - {{ aiModel.description }}</span>
           <span
             v-if="index === 0"
             class="font-weight-bold"
@@ -76,7 +76,7 @@ const aiModels = ref<Array<AIModel>>([
       <v-select
         v-model="selectedAiModel"
         :items="aiModels"
-        item-value="value"
+        item-value="model"
         item-title="title"
         density="compact"
         hide-details

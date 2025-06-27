@@ -5,7 +5,7 @@ export const useAutoImport = useWebExtensionStorage('auto-import-option', false)
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
 export const useAiExtraction = useWebExtensionStorage('ai-extraction-option', false)
-export const selectedAiModel = useWebExtensionStorage('selected-ai-model', { value: 'gemini-2.5-pro-exp-03-25', service: 'gemini' } as AIModel)
+export const selectedAiModel = useWebExtensionStorage('selected-ai-model', { model: 'gemini-2.5-pro-exp-03-25', service: 'gemini' } as AIModel)
 export const useAutoCheckReferences = useWebExtensionStorage('auto-check-references', false)
 
 declare let chrome: any
