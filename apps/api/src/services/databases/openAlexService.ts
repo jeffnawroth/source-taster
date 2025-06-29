@@ -4,6 +4,7 @@ import process from 'node:process'
 export class OpenAlexService {
   private baseUrl = 'https://api.openalex.org'
   private mailto: string | undefined
+  private userAgent = 'SourceTaster/1.0 (https://github.com/source-taster/source-taster)'
 
   constructor(mailto?: string) {
     this.mailto = mailto || process.env.OPENALEX_MAILTO
@@ -34,19 +35,21 @@ export class OpenAlexService {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
       const fullDoi = cleanDoi.startsWith('https://doi.org/') ? cleanDoi : `https://doi.org/${cleanDoi}`
 
-      // Build URL with polite pool if available
-      const params = new URLSearchParams()
-      if (this.mailto) {
-        params.append('mailto', this.mailto)
-      }
-
-      const url = `${this.baseUrl}/works/${encodeURIComponent(fullDoi)}${params.toString() ? `?${params.toString()}` : ''}`
+      const url = `${this.baseUrl}/works/${encodeURIComponent(fullDoi)}`
 
       console.warn(`OpenAlex: Searching by DOI: ${url}`)
 
-      const response = await fetch(url)
+      const headers: Record<string, string> = {
+        'User-Agent': this.mailto
+          ? `${this.userAgent} (mailto:${this.mailto})`
+          : this.userAgent,
+      }
+
+      const response = await fetch(url, { headers })
 
       if (!response.ok) {
+        // Check rate limit headers
+        this.checkRateLimit(response)
         return null // DOI not found, try query search
       }
 
@@ -75,7 +78,17 @@ export class OpenAlexService {
 
       console.warn(`OpenAlex: Query search: ${url}`)
 
-      const response = await fetch(url)
+      const headers: Record<string, string> = {
+        'User-Agent': this.mailto
+          ? `${this.userAgent} (mailto:${this.mailto})`
+          : this.userAgent,
+      }
+
+      const response = await fetch(url, { headers })
+
+      // Check rate limit headers
+      this.checkRateLimit(response)
+
       const data = await response.json() as any
 
       // Always take the first result - trust OpenAlex ranking
@@ -99,45 +112,56 @@ export class OpenAlexService {
   private buildSearchQuery(metadata: ReferenceMetadata): string {
     const params = new URLSearchParams()
 
-    // Use fielded search for more precise queries - following OpenAlex best practices
+    // Strategy: Prioritize title matching over everything else for better precision
+    // Use title.search filter for exact title matching combined with year
     const filters: string[] = []
 
+    // Always use title.search filter if title is available - this is more precise than general search
     if (metadata.title) {
-      // Use title.search filter for more precise title matching
       filters.push(`title.search:${metadata.title}`)
     }
 
+    // Year filter is very reliable and helps narrow down results significantly
     if (metadata.date.year) {
-      // Exact year match
       filters.push(`publication_year:${metadata.date.year}`)
     }
 
+    // Apply filters as primary search method
     if (filters.length > 0) {
       params.append('filter', filters.join(','))
     }
     else {
-      // Fallback if no filterable criteria available
-      params.append('search', metadata.title || '*')
+      // Fallback: Use general search if no filters available
+      const searchTerms: string[] = []
+      if (metadata.title)
+        searchTerms.push(metadata.title)
+      if (metadata.source.containerTitle)
+        searchTerms.push(metadata.source.containerTitle)
+
+      if (searchTerms.length > 0) {
+        params.append('search', searchTerms.join(' '))
+      }
+      else {
+        params.append('search', '*')
+      }
     }
 
     // Only get one result - trust OpenAlex ranking
     params.append('per-page', '1')
     params.append('page', '1')
 
-    // Select only important properties to reduce response size and improve performance
-    params.append('select', 'id,title,authorships,primary_location,publication_year,doi,biblio')
+    // Select expanded properties to get more metadata for parsing
+    params.append('select', 'id,title,authorships,primary_location,publication_year,publication_date,doi,biblio,ids,type,type_crossref')
 
-    // Add polite pool if available
-    if (this.mailto) {
-      params.append('mailto', this.mailto)
-    }
+    // Note: mailto is now included in User-Agent header instead of URL parameter
+    // This follows OpenAlex polite pool recommendations
 
     return params.toString()
   }
 
   /**
    * Parses the OpenAlex work object into a ReferenceMetadata object.
-   * Only includes fields defined in the ReferenceMetadata interface.
+   * Enhanced to support more fields from the Reference interface based on OpenAlex API.
    * @param work The OpenAlex work object to parse.
    * @returns The parsed ReferenceMetadata object.
    */
@@ -147,53 +171,141 @@ export class OpenAlexService {
       source: {},
     }
 
-    // Only include fields that exist in ReferenceMetadata interface
+    // Title
     if (work.title) {
       metadata.title = work.title
     }
 
+    // Authors - parse more detailed author information
     if (work.authorships?.length > 0) {
-      const authors = work.authorships
-        .map((a: any) => a.author?.display_name)
+      const parsedAuthors = work.authorships
+        .map((authorship: any) => {
+          const author = authorship.author
+          if (!author?.display_name)
+            return null
+
+          // Try to parse first and last name from display_name
+          const nameParts = author.display_name.split(' ')
+          if (nameParts.length >= 2) {
+            return {
+              firstName: nameParts.slice(0, -1).join(' '),
+              lastName: nameParts[nameParts.length - 1],
+            }
+          }
+          else {
+            // If only one name part, treat as lastName
+            return {
+              lastName: author.display_name,
+            }
+          }
+        })
         .filter(Boolean)
-      if (authors.length > 0) {
-        metadata.authors = authors
+
+      // Use parsed authors if we got any, otherwise fallback to simple strings
+      if (parsedAuthors.length > 0) {
+        metadata.authors = parsedAuthors
+      }
+      else {
+        metadata.authors = work.authorships
+          .map((a: any) => a.author?.display_name)
+          .filter(Boolean)
       }
     }
 
-    if (work.primary_location?.source?.display_name) {
-      metadata.source.containerTitle = work.primary_location.source.display_name
+    // Source information
+    if (work.primary_location?.source) {
+      const source = work.primary_location.source
+      if (source.display_name) {
+        metadata.source.containerTitle = source.display_name
+      }
+
+      // Source type mapping
+      if (source.type || work.type_crossref) {
+        metadata.source.sourceType = source.type || work.type_crossref
+      }
+
+      // ISSN from source
+      if (source.issn_l || (source.issn && source.issn.length > 0)) {
+        metadata.identifiers = metadata.identifiers || {}
+        metadata.identifiers.issn = source.issn_l || source.issn[0]
+      }
     }
 
+    // Date information - more comprehensive parsing
     if (work.publication_year) {
       metadata.date.year = work.publication_year
     }
 
+    // Parse more detailed date if available
+    if (work.publication_date) {
+      try {
+        const pubDate = new Date(work.publication_date)
+        metadata.date.year = pubDate.getFullYear()
+        metadata.date.month = pubDate.toLocaleString('en-US', { month: 'long' })
+        metadata.date.day = pubDate.getDate()
+      }
+      catch {
+        // Ignore date parsing errors
+      }
+    }
+
+    // External identifiers - comprehensive support
+    metadata.identifiers = metadata.identifiers || {}
+
     if (work.doi) {
       // Clean DOI - remove https://doi.org/ prefix if present
-      metadata.identifiers = {
-        doi: work.doi.replace(/^https:\/\/doi\.org\//, ''),
+      metadata.identifiers.doi = work.doi.replace(/^https:\/\/doi\.org\//, '')
+    }
+
+    if (work.ids) {
+      if (work.ids.pmid) {
+        metadata.identifiers.pmid = work.ids.pmid.toString()
+      }
+      if (work.ids.pmcid) {
+        // PMC IDs usually have PMC prefix
+        metadata.identifiers.pmid = work.ids.pmcid.replace(/^PMC/, '')
       }
     }
 
-    if (work.biblio?.volume) {
-      metadata.source.volume = work.biblio.volume
-    }
-
-    if (work.biblio?.issue) {
-      metadata.source.issue = work.biblio.issue
-    }
-
-    // Construct pages from first_page and last_page if available
-    if (work.biblio?.first_page) {
-      if (work.biblio.last_page && work.biblio.first_page !== work.biblio.last_page) {
-        metadata.source.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
+    // Bibliographic information
+    if (work.biblio) {
+      if (work.biblio.volume) {
+        metadata.source.volume = work.biblio.volume
       }
-      else {
-        metadata.source.pages = work.biblio.first_page
+
+      if (work.biblio.issue) {
+        metadata.source.issue = work.biblio.issue
+      }
+
+      // Construct pages from first_page and last_page
+      if (work.biblio.first_page) {
+        if (work.biblio.last_page && work.biblio.first_page !== work.biblio.last_page) {
+          metadata.source.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
+        }
+        else {
+          metadata.source.pages = work.biblio.first_page
+        }
       }
     }
 
     return metadata
+  }
+
+  /**
+   * Check rate limit headers and log warnings if limits are low
+   */
+  private checkRateLimit(response: Response): void {
+    const dailyLimit = response.headers.get('x-ratelimit-limit')
+    const dailyRemaining = response.headers.get('x-ratelimit-remaining')
+    const intervalLimit = response.headers.get('x-ratelimit-interval-limit')
+    const intervalRemaining = response.headers.get('x-ratelimit-interval-remaining')
+
+    if (dailyRemaining && Number(dailyRemaining) < 1000) {
+      console.warn(`OpenAlex: Daily rate limit low: ${dailyRemaining}/${dailyLimit} remaining`)
+    }
+
+    if (intervalRemaining && Number(intervalRemaining) < 5) {
+      console.warn(`OpenAlex: Interval rate limit low: ${intervalRemaining}/${intervalLimit} remaining`)
+    }
   }
 }
