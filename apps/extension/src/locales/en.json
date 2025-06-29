@@ -38,6 +38,7 @@
   "chapter-title": "Chapter Title",
   "check-dois": "Please check your input and ensure it contains DOIs and is correctly formatted to improve search results",
   "check-references": "Check References",
+  "check-references-shortcut": "Check References (Cmd+Enter / Ctrl+Enter)",
   "checked": "checked",
   "conference": "Conference",
   "connection-problem": "There might be a problem with your connection. Please check your internet connection.",

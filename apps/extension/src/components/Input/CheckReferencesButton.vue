@@ -23,13 +23,21 @@ async function handleClick() {
 </script>
 
 <template>
-  <v-btn
-    variant="tonal"
-    color="primary"
-    :text="$t('check-references')"
-    block
-    :prepend-icon="mdiMagnify"
-    :disabled
-    @click="handleClick"
-  />
+  <v-tooltip
+    :text="$t('check-references-shortcut')"
+    location="bottom"
+  >
+    <template #activator="{ props }">
+      <v-btn
+        v-bind="props"
+        variant="tonal"
+        color="primary"
+        :text="$t('check-references')"
+        block
+        :prepend-icon="mdiMagnify"
+        :disabled
+        @click="handleClick"
+      />
+    </template>
+  </v-tooltip>
 </template>
