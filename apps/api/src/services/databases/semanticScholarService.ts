@@ -17,6 +17,14 @@ export class SemanticScholarService {
           return directResult
       }
 
+      // Try title match search (new, more accurate for exact titles)
+      if (metadata.title) {
+        const titleMatchResult = await this.searchByTitleMatch(metadata.title)
+        if (titleMatchResult) {
+          return titleMatchResult
+        }
+      }
+
       // Fallback to query-based search
       return await this.searchByQuery(metadata)
     }
@@ -30,8 +38,26 @@ export class SemanticScholarService {
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
     try {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
-      // Add fields parameter to get all needed metadata
-      const fields = 'paperId,title,authors,year,venue,citationCount,publicationDate,journal,url,openAccessPdf,externalIds'
+      // Enhanced fields parameter to get comprehensive metadata
+      const fields = [
+        'paperId',
+        'title',
+        'authors',
+        'year',
+        'venue',
+        'journal',
+        'citationCount',
+        'publicationDate',
+        'publicationVenue',
+        'url',
+        'openAccessPdf',
+        'externalIds',
+        'abstract',
+        'fieldsOfStudy',
+        'publicationTypes',
+        'isOpenAccess',
+      ].join(',')
+
       const url = `${this.baseUrl}/paper/DOI:${encodeURIComponent(cleanDoi)}?fields=${encodeURIComponent(fields)}`
 
       console.warn(`Semantic Scholar: Searching by DOI: ${url}`)
@@ -44,7 +70,7 @@ export class SemanticScholarService {
       })
 
       if (!response.ok) {
-        return null // DOI not found, try query search
+        return null // DOI not found, try other methods
       }
 
       const work = await response.json() as any
@@ -65,12 +91,35 @@ export class SemanticScholarService {
     return null
   }
 
-  private async searchByQuery(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+  private async searchByTitleMatch(title: string): Promise<ExternalSource | null> {
     try {
-      const queryParams = this.buildSearchQuery(metadata)
-      const url = `${this.baseUrl}/paper/search?${queryParams}`
+      // Use the specialized title match endpoint for best title matches
+      const fields = [
+        'paperId',
+        'title',
+        'authors',
+        'year',
+        'venue',
+        'journal',
+        'citationCount',
+        'publicationDate',
+        'publicationVenue',
+        'url',
+        'openAccessPdf',
+        'externalIds',
+        'abstract',
+        'fieldsOfStudy',
+        'publicationTypes',
+        'isOpenAccess',
+      ].join(',')
 
-      console.warn(`Semantic Scholar: Query search: ${url}`)
+      const params = new URLSearchParams()
+      params.append('query', title)
+      params.append('fields', fields)
+
+      const url = `${this.baseUrl}/paper/search/match?${params.toString()}`
+
+      console.warn(`Semantic Scholar: Title match search: ${url}`)
 
       const response = await fetch(url, {
         headers: {
@@ -79,19 +128,61 @@ export class SemanticScholarService {
         },
       })
 
-      if (!response.ok) {
-        throw new Error(`Semantic Scholar API error: ${response.status} ${response.statusText}`)
+      if (response.ok) {
+        const data = await response.json() as any
+        // The match endpoint returns a single best match with a matchScore
+        if (data && data.paperId) {
+          return {
+            id: data.paperId,
+            source: 'semanticscholar',
+            metadata: this.parseSemanticScholarWork(data),
+            url: data.url || `https://www.semanticscholar.org/paper/${data.paperId}`,
+          }
+        }
+      }
+    }
+    catch (error) {
+      console.warn('Semantic Scholar title match search failed:', error)
+    }
+
+    return null
+  }
+
+  private async searchByQuery(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+    try {
+      // Try multiple search strategies for better coverage
+      const searchQueries = []
+
+      // Strategy 1: Author + Year + Key terms for better precision (most specific)
+      if (metadata.authors?.[0] && metadata.year && metadata.title) {
+        const authorLastName = metadata.authors[0].split(' ').pop()
+        const keyTerms = metadata.title.toLowerCase()
+          .split(' ')
+          .filter(word => word.length > 2 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an'].includes(word))
+          .slice(0, 3) // Take first 3 key terms
+        searchQueries.push(`${authorLastName} ${metadata.year} ${keyTerms.join(' ')}`)
       }
 
-      const data = await response.json() as any
+      // Strategy 2: Exact title
+      if (metadata.title) {
+        searchQueries.push(metadata.title)
+      }
 
-      if (data.data && data.data.length > 0) {
-        const work = data.data[0] // Take the best match
-        return {
-          id: work.paperId,
-          source: 'semanticscholar',
-          metadata: this.parseSemanticScholarWork(work),
-          url: work.url || `https://www.semanticscholar.org/paper/${work.paperId}`,
+      // Strategy 3: Key terms only
+      if (metadata.title) {
+        const keyTerms = metadata.title.toLowerCase()
+          .split(' ')
+          .filter(word => word.length > 2 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an'].includes(word))
+        if (keyTerms.length > 0) {
+          searchQueries.push(keyTerms.join(' '))
+        }
+      }
+
+      // Try each search strategy
+      for (const query of searchQueries) {
+        const result = await this.performRelevanceSearch(query, metadata)
+        if (result) {
+          return result
         }
       }
     }
@@ -102,33 +193,121 @@ export class SemanticScholarService {
     return null
   }
 
-  private buildSearchQuery(metadata: ReferenceMetadata): string {
-    const params = new URLSearchParams()
+  private async performRelevanceSearch(query: string, metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+    try {
+      const params = new URLSearchParams()
+      params.append('query', query)
+      params.append('limit', '1') // Only need the best match
+      params.append('offset', '0')
 
-    // Simple title-based search - much more reliable than complex queries
-    if (metadata.title) {
-      params.append('query', metadata.title)
+      // Enhanced fields for comprehensive metadata
+      const fields = [
+        'paperId',
+        'title',
+        'authors',
+        'year',
+        'venue',
+        'journal',
+        'citationCount',
+        'publicationDate',
+        'publicationVenue',
+        'url',
+        'openAccessPdf',
+        'externalIds',
+        'abstract',
+        'fieldsOfStudy',
+        'publicationTypes',
+        'isOpenAccess',
+      ].join(',')
+      params.append('fields', fields)
+
+      // Add filters if we have additional metadata
+      if (metadata.year) {
+        // Allow some flexibility in year (±2 years)
+        const startYear = metadata.year - 2
+        const endYear = metadata.year + 2
+        params.append('year', `${startYear}-${endYear}`)
+      }
+
+      // Filter by field of study if we can infer it from title
+      const fieldsOfStudy = this.inferFieldsOfStudy(metadata.title || '')
+      if (fieldsOfStudy.length > 0) {
+        params.append('fieldsOfStudy', fieldsOfStudy.join(','))
+      }
+
+      const url = `${this.baseUrl}/paper/search?${params.toString()}`
+
+      console.warn(`Semantic Scholar: Query search: ${url}`)
+
+      const response = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+          ...(this.apiKey && { 'x-api-key': this.apiKey }),
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json() as any
+        if (data.data && data.data.length > 0) {
+          // Take the first result - Semantic Scholar's relevance ranking is reliable
+          const work = data.data[0]
+          return {
+            id: work.paperId,
+            source: 'semanticscholar',
+            metadata: this.parseSemanticScholarWork(work),
+            url: work.url || `https://www.semanticscholar.org/paper/${work.paperId}`,
+          }
+        }
+      }
     }
-    else {
-      // Fallback if no title available
-      params.append('query', '*')
+    catch (error) {
+      console.warn('Semantic Scholar relevance search failed:', error)
     }
 
-    // Get a few results for better matching
-    params.append('limit', '5')
-    params.append('offset', '0')
+    return null
+  }
 
-    // Select important fields to reduce response size and get needed data
-    params.append('fields', 'paperId,title,authors,year,venue,citationCount,publicationDate,journal,url,openAccessPdf,externalIds')
+  private inferFieldsOfStudy(title: string): string[] {
+    const fields: string[] = []
+    const lowerTitle = title.toLowerCase()
 
-    return params.toString()
+    // Computer Science keywords
+    if (lowerTitle.includes('algorithm') || lowerTitle.includes('machine learning')
+      || lowerTitle.includes('neural network') || lowerTitle.includes('computer')
+      || lowerTitle.includes('software') || lowerTitle.includes('programming')
+      || lowerTitle.includes('artificial intelligence') || lowerTitle.includes('data mining')) {
+      fields.push('Computer Science')
+    }
+
+    // Medicine keywords
+    if (lowerTitle.includes('patient') || lowerTitle.includes('clinical')
+      || lowerTitle.includes('medical') || lowerTitle.includes('therapy')
+      || lowerTitle.includes('disease') || lowerTitle.includes('treatment')) {
+      fields.push('Medicine')
+    }
+
+    // Engineering keywords
+    if (lowerTitle.includes('optimization') || lowerTitle.includes('design')
+      || lowerTitle.includes('system') || lowerTitle.includes('control')
+      || lowerTitle.includes('engineering') || lowerTitle.includes('technical')) {
+      fields.push('Engineering')
+    }
+
+    // Mathematics keywords
+    if (lowerTitle.includes('mathematical') || lowerTitle.includes('equation')
+      || lowerTitle.includes('theorem') || lowerTitle.includes('proof')
+      || lowerTitle.includes('analysis') || lowerTitle.includes('statistics')) {
+      fields.push('Mathematics')
+    }
+
+    return fields
   }
 
   private parseSemanticScholarWork(work: any): ReferenceMetadata {
-    // Parse authors
+    // Parse authors with enhanced handling
     const authors = work.authors?.map((author: any) => author.name).filter(Boolean) || []
 
-    // Parse year from multiple possible sources
+    // Parse year from multiple possible sources with priority
     let year: number | undefined
     if (work.year) {
       year = work.year
@@ -139,15 +318,31 @@ export class SemanticScholarService {
         year = Number.parseInt(dateMatch[1])
       }
     }
+    else if (work.publicationVenue?.name) {
+      // Sometimes year is embedded in venue information
+      const venueYearMatch = work.publicationVenue.name.match(/(\d{4})/)
+      if (venueYearMatch) {
+        year = Number.parseInt(venueYearMatch[1])
+      }
+    }
 
-    // Parse DOI from external IDs
+    // Parse DOI from external IDs with multiple sources
     let doi: string | undefined
     if (work.externalIds?.DOI) {
       doi = work.externalIds.DOI
     }
 
-    // Parse journal/venue
-    const journal = work.journal?.name || work.venue
+    // Parse journal/venue with enhanced logic
+    let journal: string | undefined
+    if (work.journal?.name) {
+      journal = work.journal.name
+    }
+    else if (work.venue) {
+      journal = work.venue
+    }
+    else if (work.publicationVenue?.name) {
+      journal = work.publicationVenue.name
+    }
 
     // Parse volume and pages from journal object
     let volume: string | undefined
@@ -157,7 +352,7 @@ export class SemanticScholarService {
       pages = work.journal.pages
     }
 
-    // Parse URL (prefer PDF if available)
+    // Parse URL with priority for open access
     let url: string | undefined
     if (work.openAccessPdf?.url) {
       url = work.openAccessPdf.url
@@ -169,7 +364,8 @@ export class SemanticScholarService {
       url = `https://www.semanticscholar.org/paper/${work.paperId}`
     }
 
-    return {
+    // Parse additional metadata that might be useful
+    const metadata: ReferenceMetadata = {
       title: work.title,
       authors,
       journal,
@@ -180,5 +376,7 @@ export class SemanticScholarService {
       pages,
       url,
     }
+
+    return metadata
   }
 }
