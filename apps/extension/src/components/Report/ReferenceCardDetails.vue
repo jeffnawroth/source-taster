@@ -70,7 +70,7 @@ const { t } = useI18n()
         <ReferenceCardDetailsItem
           :icon="mdiIdentifier"
           title="DOI"
-          :text="reference.verificationResult.matchedSource.metadata.doi"
+          :text="reference.verificationResult.matchedSource.metadata.identifiers?.doi"
         />
 
         <ReferenceCardDetailsItem
@@ -188,20 +188,22 @@ const { t } = useI18n()
               <ReferenceCardDetailsItem
           :icon="mdiAccountGroup"
           :title="t('authors')"
-          :text="reference.verificationResult.matchedSource.metadata.authors?.join(', ')"
+          :text="reference.verificationResult.matchedSource.metadata.authors?.map(author =>
+            typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`.trim()
+          ).join(', ')"
               />
 
               <ReferenceCardDetailsItem
           :icon="mdiCalendarOutline"
           :title="t('year')"
-          :text="reference.verificationResult.matchedSource.metadata.year"
+          :text="reference.verificationResult.matchedSource.metadata.date.year"
               />
 
               <ReferenceCardDetailsItem
-          v-if="reference.verificationResult.matchedSource.metadata.doi"
+          v-if="reference.verificationResult.matchedSource.metadata.identifiers?.doi"
           :icon="mdiIdentifier"
           title="DOI"
-          :text="reference.verificationResult.matchedSource.metadata.doi"
+          :text="reference.verificationResult.matchedSource.metadata.identifiers.doi"
               />
             </div>
           </div>

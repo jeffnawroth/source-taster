@@ -9,7 +9,13 @@ const search = ref('')
 
 const { results } = useFuse(search, references, {
   fuseOptions: {
-    keys: ['originalText', 'metadata.title', 'metadata.authors'],
+    keys: [
+      'originalText',
+      'metadata.title',
+      'metadata.authors',
+      'metadata.source.containerTitle',
+      'metadata.date.year',
+    ],
     threshold: 0.3,
   },
   matchAllWhenSearchEmpty: true,

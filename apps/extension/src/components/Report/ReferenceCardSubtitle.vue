@@ -9,21 +9,26 @@ const { reference } = defineProps<{
 // If there are more than 2 authors, show first 2 and "et al."
 const authors = computed(() => {
   if (reference.metadata.authors && reference.metadata.authors.length > 2) {
-    return `${reference.metadata.authors.slice(0, 2).join(', ')} et al.`
+    const first2Authors = reference.metadata.authors.slice(0, 2).map(author =>
+      typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`.trim(),
+    )
+    return `${first2Authors.join(', ')} et al.`
   }
-  return reference.metadata.authors?.join(', ')
+  return reference.metadata.authors?.map(author =>
+    typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`.trim(),
+  ).join(', ')
 })
 
 // CARD SUBTITLE
 // Combine year, authors, and journal into a single subtitle string
 const subtitle = computed(() => {
   const parts = []
-  if (reference.metadata.year)
-    parts.push(reference.metadata.year)
+  if (reference.metadata.date.year)
+    parts.push(reference.metadata.date.year)
   if (authors.value)
     parts.push(authors.value)
-  if (reference.metadata.journal)
-    parts.push(reference.metadata.journal)
+  if (reference.metadata.source.containerTitle)
+    parts.push(reference.metadata.source.containerTitle)
   return parts.join(' · ')
 })
 </script>
