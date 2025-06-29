@@ -12,8 +12,8 @@ export class OpenAlexService {
   async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
       // If DOI is available, search directly by DOI (most reliable)
-      if (metadata.doi) {
-        const directResult = await this.searchByDOI(metadata.doi)
+      if (metadata.identifiers?.doi) {
+        const directResult = await this.searchByDOI(metadata.identifiers.doi)
         if (directResult)
           return directResult
       }
@@ -107,9 +107,9 @@ export class OpenAlexService {
       filters.push(`title.search:${metadata.title}`)
     }
 
-    if (metadata.year) {
+    if (metadata.date.year) {
       // Exact year match
-      filters.push(`publication_year:${metadata.year}`)
+      filters.push(`publication_year:${metadata.date.year}`)
     }
 
     if (filters.length > 0) {
@@ -142,7 +142,10 @@ export class OpenAlexService {
    * @returns The parsed ReferenceMetadata object.
    */
   private parseOpenAlexWork(work: any): ReferenceMetadata {
-    const metadata: ReferenceMetadata = {}
+    const metadata: ReferenceMetadata = {
+      date: {},
+      source: {},
+    }
 
     // Only include fields that exist in ReferenceMetadata interface
     if (work.title) {
@@ -159,33 +162,35 @@ export class OpenAlexService {
     }
 
     if (work.primary_location?.source?.display_name) {
-      metadata.journal = work.primary_location.source.display_name
+      metadata.source.containerTitle = work.primary_location.source.display_name
     }
 
     if (work.publication_year) {
-      metadata.year = work.publication_year
+      metadata.date.year = work.publication_year
     }
 
     if (work.doi) {
       // Clean DOI - remove https://doi.org/ prefix if present
-      metadata.doi = work.doi.replace(/^https:\/\/doi\.org\//, '')
+      metadata.identifiers = {
+        doi: work.doi.replace(/^https:\/\/doi\.org\//, ''),
+      }
     }
 
     if (work.biblio?.volume) {
-      metadata.volume = work.biblio.volume
+      metadata.source.volume = work.biblio.volume
     }
 
     if (work.biblio?.issue) {
-      metadata.issue = work.biblio.issue
+      metadata.source.issue = work.biblio.issue
     }
 
     // Construct pages from first_page and last_page if available
     if (work.biblio?.first_page) {
       if (work.biblio.last_page && work.biblio.first_page !== work.biblio.last_page) {
-        metadata.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
+        metadata.source.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
       }
       else {
-        metadata.pages = work.biblio.first_page
+        metadata.source.pages = work.biblio.first_page
       }
     }
 

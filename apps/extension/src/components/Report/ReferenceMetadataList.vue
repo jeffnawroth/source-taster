@@ -38,63 +38,65 @@ const { t } = useI18n()
       v-if="reference.metadata.authors?.length"
       :icon="mdiAccountGroup"
       :title="t('authors')"
-      :text="reference.metadata.authors?.join(', ')"
+      :text="reference.metadata.authors?.map(author =>
+        typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`.trim(),
+      ).join(', ')"
     />
 
-    <!-- JOURNAL -->
+    <!-- JOURNAL/CONTAINER TITLE -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.journal"
+      v-if="reference.metadata.source.containerTitle"
       :icon="mdiEarth"
       :title="t('journal')"
-      :text="reference.metadata.journal"
+      :text="reference.metadata.source.containerTitle"
     />
 
     <!-- YEAR -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.year"
+      v-if="reference.metadata.date.year"
       :icon="mdiCalendarOutline"
       :title="t('year')"
-      :text="reference.metadata.year"
+      :text="reference.metadata.date.year"
     />
 
     <!-- VOLUME -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.volume"
+      v-if="reference.metadata.source.volume"
       :icon="mdiBookOpenBlankVariantOutline"
       :title="t('volume')"
-      :text="reference.metadata.volume"
+      :text="reference.metadata.source.volume"
     />
 
     <!-- ISSUE -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.issue"
+      v-if="reference.metadata.source.issue"
       :icon="mdiCalendarRange"
       :title="t('issue')"
-      :text="reference.metadata.issue"
+      :text="reference.metadata.source.issue"
     />
 
     <!-- PAGES -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.pages"
+      v-if="reference.metadata.source.pages"
       :icon="mdiNotebookOutline"
       :title="t('pages')"
-      :text="reference.metadata.pages"
+      :text="reference.metadata.source.pages"
     />
 
     <!-- DOI -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.doi"
+      v-if="reference.metadata.identifiers?.doi"
       :icon="mdiIdentifier"
       title="DOI"
-      :text="reference.metadata.doi"
+      :text="reference.metadata.identifiers.doi"
     />
 
-    <!-- URL -->
+    <!-- URL for ExternalSource -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.url"
+      v-if="'url' in reference && reference.url"
       :icon="mdiLink"
       title="URL"
-      :text="reference.metadata.url"
+      :text="reference.url"
       link
     />
   </v-list>

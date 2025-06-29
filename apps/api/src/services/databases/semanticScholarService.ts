@@ -11,8 +11,8 @@ export class SemanticScholarService {
   async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
       // If DOI is available, search directly by DOI (most reliable)
-      if (metadata.doi) {
-        const directResult = await this.searchByDOI(metadata.doi)
+      if (metadata.identifiers?.doi) {
+        const directResult = await this.searchByDOI(metadata.identifiers.doi)
         if (directResult)
           return directResult
       }
@@ -142,13 +142,22 @@ export class SemanticScholarService {
       const searchQueries = []
 
       // Strategy 1: Author + Year + Key terms for better precision (most specific)
-      if (metadata.authors?.[0] && metadata.year && metadata.title) {
-        const authorLastName = metadata.authors[0].split(' ').pop()
-        const keyTerms = metadata.title.toLowerCase()
-          .split(' ')
-          .filter(word => word.length > 2 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an'].includes(word))
-          .slice(0, 3) // Take first 3 key terms
-        searchQueries.push(`${authorLastName} ${metadata.year} ${keyTerms.join(' ')}`)
+      if (metadata.authors?.[0] && metadata.date.year && metadata.title) {
+        const firstAuthor = metadata.authors[0]
+        let authorLastName: string | undefined
+        if (typeof firstAuthor === 'string') {
+          authorLastName = (firstAuthor as string).split(' ').pop()
+        }
+        else {
+          authorLastName = firstAuthor.lastName || firstAuthor.firstName
+        }
+        if (authorLastName) {
+          const keyTerms = metadata.title.toLowerCase()
+            .split(' ')
+            .filter(word => word.length > 2 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an'].includes(word))
+            .slice(0, 3) // Take first 3 key terms
+          searchQueries.push(`${authorLastName} ${metadata.date.year} ${keyTerms.join(' ')}`)
+        }
       }
 
       // Strategy 2: Exact title
@@ -204,10 +213,10 @@ export class SemanticScholarService {
       params.append('fields', fields)
 
       // Add filters if we have additional metadata
-      if (metadata.year) {
+      if (metadata.date.year) {
         // Allow some flexibility in year (±2 years)
-        const startYear = metadata.year - 2
-        const endYear = metadata.year + 2
+        const startYear = metadata.date.year - 2
+        const endYear = metadata.date.year + 2
         params.append('year', `${startYear}-${endYear}`)
       }
 
@@ -292,29 +301,23 @@ export class SemanticScholarService {
       pages = work.journal.pages
     }
 
-    // Parse URL with priority for open access
-    let url: string | undefined
-    if (work.openAccessPdf?.url) {
-      url = work.openAccessPdf.url
-    }
-    else if (work.url) {
-      url = work.url
-    }
-    else if (work.paperId) {
-      url = `https://www.semanticscholar.org/paper/${work.paperId}`
-    }
+    // Parse URL with priority for open access (stored in ExternalSource, not ReferenceMetadata)
+    // This will be used when creating the ExternalSource object
 
     // Parse additional metadata that might be useful
     const metadata: ReferenceMetadata = {
       title: work.title,
       authors,
-      journal,
-      year,
-      doi,
-      volume,
-      issue: undefined, // Semantic Scholar doesn't typically provide issue in journal object
-      pages,
-      url,
+      date: {
+        year,
+      },
+      source: {
+        containerTitle: journal,
+        volume,
+        issue: undefined, // Semantic Scholar doesn't typically provide issue in journal object
+        pages,
+      },
+      identifiers: doi ? { doi } : undefined,
     }
 
     return metadata

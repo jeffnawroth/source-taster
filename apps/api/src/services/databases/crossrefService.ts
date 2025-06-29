@@ -16,8 +16,8 @@ export class CrossrefService {
   async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
       // If DOI is available, search directly by DOI (most reliable)
-      if (metadata.doi) {
-        const directResult = await this.searchByDOI(metadata.doi)
+      if (metadata.identifiers?.doi) {
+        const directResult = await this.searchByDOI(metadata.identifiers.doi)
         if (directResult)
           return directResult
       }
@@ -40,7 +40,7 @@ export class CrossrefService {
   }
 
   private hasBibliographicData(metadata: ReferenceMetadata): boolean {
-    return !!(metadata.title && metadata.authors?.length && metadata.year)
+    return !!(metadata.title && metadata.authors?.length && metadata.date.year)
   }
 
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
@@ -93,8 +93,8 @@ export class CrossrefService {
       params.append('query.bibliographic', bibQuery)
 
       // Add filters for better matching
-      if (metadata.year) {
-        params.append('filter', `from-pub-date:${metadata.year},until-pub-date:${metadata.year}`)
+      if (metadata.date.year) {
+        params.append('filter', `from-pub-date:${metadata.date.year},until-pub-date:${metadata.date.year}`)
       }
 
       // Limit results and select relevant fields
@@ -150,18 +150,25 @@ export class CrossrefService {
     if (metadata.authors?.length) {
       // Add first author's surname for better matching
       const firstAuthor = metadata.authors[0]
-      const surname = firstAuthor.split(' ').pop()
+      let surname: string | undefined
+      if (typeof firstAuthor === 'string') {
+        surname = (firstAuthor as string).split(' ').pop()
+      }
+      else {
+        // Handle Author object structure
+        surname = firstAuthor.lastName || firstAuthor.firstName
+      }
       if (surname) {
         parts.push(surname)
       }
     }
 
-    if (metadata.year) {
-      parts.push(metadata.year.toString())
+    if (metadata.date.year) {
+      parts.push(metadata.date.year.toString())
     }
 
-    if (metadata.journal) {
-      parts.push(metadata.journal)
+    if (metadata.source.containerTitle) {
+      parts.push(metadata.source.containerTitle)
     }
 
     return parts.join(' ')
@@ -218,11 +225,14 @@ export class CrossrefService {
     if (metadata.authors?.length) {
       // Use first author for query.author
       const firstAuthor = metadata.authors[0]
-      fieldQueries.push(`query.author=${encodeURIComponent(firstAuthor)}`)
+      const authorString = typeof firstAuthor === 'string'
+        ? firstAuthor
+        : `${firstAuthor.firstName || ''} ${firstAuthor.lastName || ''}`.trim()
+      fieldQueries.push(`query.author=${encodeURIComponent(authorString)}`)
     }
 
-    if (metadata.journal) {
-      fieldQueries.push(`query.container-title=${encodeURIComponent(metadata.journal)}`)
+    if (metadata.source.containerTitle) {
+      fieldQueries.push(`query.container-title=${encodeURIComponent(metadata.source.containerTitle)}`)
     }
 
     // Combine field queries
@@ -236,9 +246,9 @@ export class CrossrefService {
 
     // Add filters
     const filters: string[] = []
-    if (metadata.year) {
-      filters.push(`from-pub-date:${metadata.year}`)
-      filters.push(`until-pub-date:${metadata.year}`)
+    if (metadata.date.year) {
+      filters.push(`from-pub-date:${metadata.date.year}`)
+      filters.push(`until-pub-date:${metadata.date.year}`)
     }
 
     if (filters.length > 0) {
@@ -304,13 +314,18 @@ export class CrossrefService {
     return {
       title,
       authors,
-      journal,
-      year,
-      doi: work.DOI,
-      volume: work.volume,
-      issue: work.issue,
-      pages,
-      url: work.URL || (work.DOI ? `https://doi.org/${work.DOI}` : undefined),
+      date: {
+        year,
+      },
+      source: {
+        containerTitle: journal,
+        volume: work.volume,
+        issue: work.issue,
+        pages,
+      },
+      identifiers: {
+        doi: work.DOI,
+      },
     }
   }
 }

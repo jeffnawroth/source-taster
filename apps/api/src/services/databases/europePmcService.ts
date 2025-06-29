@@ -12,8 +12,8 @@ export class EuropePmcService {
   async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
       // If DOI is available, search directly by DOI (most reliable)
-      if (metadata.doi) {
-        const directResult = await this.searchByDOI(metadata.doi)
+      if (metadata.identifiers?.doi) {
+        const directResult = await this.searchByDOI(metadata.identifiers.doi)
         if (directResult)
           return directResult
       }
@@ -163,7 +163,10 @@ export class EuropePmcService {
    * @returns The parsed ReferenceMetadata object.
    */
   private parseEuropePmcWork(work: any): ReferenceMetadata {
-    const metadata: ReferenceMetadata = {}
+    const metadata: ReferenceMetadata = {
+      date: {},
+      source: {},
+    }
 
     // Only include fields that exist in ReferenceMetadata interface
     if (work.title) {
@@ -182,31 +185,33 @@ export class EuropePmcService {
     }
 
     if (work.journalTitle) {
-      metadata.journal = work.journalTitle
+      metadata.source.containerTitle = work.journalTitle
     }
 
     if (work.pubYear) {
       const year = Number.parseInt(work.pubYear, 10)
       if (!Number.isNaN(year)) {
-        metadata.year = year
+        metadata.date.year = year
       }
     }
 
     if (work.doi) {
       // Clean DOI - remove https://doi.org/ prefix if present
-      metadata.doi = work.doi.replace(/^https:\/\/doi\.org\//, '')
+      metadata.identifiers = {
+        doi: work.doi.replace(/^https:\/\/doi\.org\//, ''),
+      }
     }
 
     if (work.journalVolume) {
-      metadata.volume = work.journalVolume
+      metadata.source.volume = work.journalVolume
     }
 
     if (work.issue) {
-      metadata.issue = work.issue
+      metadata.source.issue = work.issue
     }
 
     if (work.pageInfo) {
-      metadata.pages = work.pageInfo
+      metadata.source.pages = work.pageInfo
     }
 
     return metadata

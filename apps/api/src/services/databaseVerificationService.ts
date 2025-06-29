@@ -27,7 +27,7 @@ export class DatabaseVerificationService {
     authors: 25, // Very important - 25%
     year: 10, // Moderately important - 10%
     doi: 15, // Important when available - 15%
-    journal: 10, // Moderately important - 10%
+    containerTitle: 10, // Moderately important - 10%
     volume: 2, // Less important - 2%
     issue: 1, // Less important - 1%
     pages: 2, // Less important - 2%
@@ -163,17 +163,17 @@ export class DatabaseVerificationService {
       && source.metadata.authors && source.metadata.authors.length > 0) {
       fields.push('authors')
     }
-    if (reference.metadata.year && source.metadata.year)
+    if (reference.metadata.date.year && source.metadata.date.year)
       fields.push('year')
-    if (reference.metadata.doi && source.metadata.doi)
+    if (reference.metadata.identifiers?.doi && source.metadata.identifiers?.doi)
       fields.push('doi')
-    if (reference.metadata.journal && source.metadata.journal)
-      fields.push('journal')
-    if (reference.metadata.volume && source.metadata.volume)
+    if (reference.metadata.source.containerTitle && source.metadata.source.containerTitle)
+      fields.push('containerTitle')
+    if (reference.metadata.source.volume && source.metadata.source.volume)
       fields.push('volume')
-    if (reference.metadata.issue && source.metadata.issue)
+    if (reference.metadata.source.issue && source.metadata.source.issue)
       fields.push('issue')
-    if (reference.metadata.pages && source.metadata.pages)
+    if (reference.metadata.source.pages && source.metadata.source.pages)
       fields.push('pages')
 
     return fields
@@ -187,8 +187,9 @@ export class DatabaseVerificationService {
     const weights: Record<string, number> = {}
 
     for (const field of availableFields) {
-      if (field in this.defaultFieldWeights) {
-        weights[field] = this.defaultFieldWeights[field as keyof FieldWeights]
+      const weight = this.defaultFieldWeights[field as keyof FieldWeights]
+      if (typeof weight === 'number') {
+        weights[field] = weight
       }
     }
 

@@ -12,8 +12,8 @@ export class ArxivService {
       await this.enforceRateLimit()
 
       // If DOI is available, search directly by DOI (most reliable)
-      if (metadata.doi) {
-        const directResult = await this.searchByDOI(metadata.doi)
+      if (metadata.identifiers?.doi) {
+        const directResult = await this.searchByDOI(metadata.identifiers.doi)
         if (directResult)
           return directResult
       }
@@ -419,23 +419,29 @@ export class ArxivService {
     const metadata: ReferenceMetadata = {
       title: entry.title || '',
       authors: entry.authors || [],
-      year: entry.year,
-      doi: entry.doi,
-      journal: entry.journalRef || 'arXiv preprint',
+      date: {
+        year: entry.year,
+      },
+      source: {
+        containerTitle: entry.journalRef || 'arXiv preprint',
+      },
+      identifiers: {
+        doi: entry.doi,
+      },
     }
 
     // Try to extract volume/pages from journal reference if available
     if (entry.journalRef) {
       // Simple extraction - just try to find volume and year in parentheses
       const yearMatch = entry.journalRef.match(/\((\d{4})\)/)
-      if (yearMatch && !metadata.year) {
-        metadata.year = Number.parseInt(yearMatch[1], 10)
+      if (yearMatch && !metadata.date.year) {
+        metadata.date.year = Number.parseInt(yearMatch[1], 10)
       }
 
       // Extract journal name (everything before first number)
       const journalNameMatch = entry.journalRef.match(/^(\D+)/)
       if (journalNameMatch) {
-        metadata.journal = journalNameMatch[1].trim()
+        metadata.source.containerTitle = journalNameMatch[1].trim()
       }
     }
 

@@ -26,8 +26,8 @@ export interface Reference {
  * citation style completeness and future database expansion.
  */
 export interface ReferenceMetadata {
-  /** Authors of the work */
-  authors?: Author[]
+  /** Authors of the work (can be strings or Author objects) */
+  authors?: (Author | string)[]
   /** Date information */
   date: DateInfo
   /** Title information */
