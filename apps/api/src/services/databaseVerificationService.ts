@@ -149,22 +149,20 @@ export class DatabaseVerificationService {
 
   /**
    * Get the fields that should be evaluated for matching
-   * We evaluate core fields (title, authors) even if they don't match exactly
-   * Other fields only if present in both
+   * Only evaluate fields that are present in both reference and source
+   * This prevents unfair penalties when source data is incomplete
    */
   private getAvailableFields(reference: Reference, source: ExternalSource): string[] {
     const fields: string[] = []
 
-    // Always evaluate title and authors if present in reference, even if source has different/missing values
-    // This is crucial to detect mismatches with same DOI/year but different papers
-    if (reference.metadata.title) {
+    // Only evaluate fields that are present in both reference and source
+    if (reference.metadata.title && source.metadata.title) {
       fields.push('title')
     }
-    if (reference.metadata.authors && reference.metadata.authors.length > 0) {
+    if (reference.metadata.authors && reference.metadata.authors.length > 0
+      && source.metadata.authors && source.metadata.authors.length > 0) {
       fields.push('authors')
     }
-
-    // For other fields, only include if present in both
     if (reference.metadata.year && source.metadata.year)
       fields.push('year')
     if (reference.metadata.doi && source.metadata.doi)
@@ -215,17 +213,15 @@ export class DatabaseVerificationService {
 Your task is to assess whether the Source describes the same publication as Reference and provide detailed match scores for each field.
 
 IMPORTANT RULES:
-- For CORE FIELDS (title, authors): Always evaluate them if present in reference, even if missing/null in source
-- If title is in reference but missing in source, score as 0 (strong mismatch indicator)
-- If authors are in reference but missing in source, score as 0 (strong mismatch indicator)
-- For OTHER FIELDS (year, doi, journal, etc.): Only evaluate if present in both reference and source
-- Same DOI/year does NOT guarantee same paper - title and authors are crucial for verification
+- Only evaluate fields that are present in both reference and source
+- This prevents unfair penalties when source databases have incomplete metadata
+- Focus on comparing the available data fairly
 
 Available fields to evaluate: ${availableFields.join(', ')}
 
 Scoring Guidelines for each field (0-100):
-• Title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different OR missing in source
-• Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match OR missing in source
+• Title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different
+• Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
 • Year: 100=exact match, 0=different (no partial scoring for year)
 • DOI: 100=identical, 0=different (no partial scoring for DOI)
 • Journal: 100=identical, 90=same journal different format, 70=abbreviated vs full name, 0=different
