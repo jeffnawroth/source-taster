@@ -1,4 +1,4 @@
-import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import type { Author, DateInfo, ExternalSource, ReferenceMetadata } from '@source-taster/types'
 
 export class ArxivService {
   private baseUrl = 'http://export.arxiv.org/api/query'
@@ -11,11 +11,26 @@ export class ArxivService {
       // Implement polite delay between requests
       await this.enforceRateLimit()
 
-      // If DOI is available, search directly by DOI (most reliable)
+      // If arXiv ID is directly available, search by it (most reliable)
+      if (metadata.identifiers?.arxivId) {
+        const directResult = await this.searchByArxivId(metadata.identifiers.arxivId)
+        if (directResult)
+          return directResult
+      }
+
+      // If DOI is available, search directly by DOI (also reliable)
       if (metadata.identifiers?.doi) {
         const directResult = await this.searchByDOI(metadata.identifiers.doi)
         if (directResult)
           return directResult
+      }
+
+      // If we have authors, we can try a more targeted search
+      if (metadata.title && metadata.authors && metadata.authors.length > 0) {
+        const authorBasedResult = await this.searchByTitleAndAuthor(metadata.title, metadata.authors)
+        if (authorBasedResult) {
+          return authorBasedResult
+        }
       }
 
       // Fallback to title-based search
@@ -43,6 +58,123 @@ export class ArxivService {
     }
 
     this.lastRequestTime = Date.now()
+  }
+
+  private async searchByTitleAndAuthor(title: string, authors: (Author | string)[]): Promise<ExternalSource | null> {
+    try {
+      // Extract the last name of the first author for search
+      const firstAuthor = authors[0]
+      let authorLastName = ''
+
+      if (typeof firstAuthor === 'string') {
+        // Parse string author
+        const authorObj = this.parseAuthorName(firstAuthor)
+        authorLastName = authorObj.lastName
+      }
+      else {
+        authorLastName = firstAuthor.lastName
+      }
+
+      if (!authorLastName) {
+        return null // Can't search without author name
+      }
+
+      // Clean the title for search
+      const cleanTitle = this.cleanTitleForSearch(title)
+
+      // Create a combined search query with title and author
+      const query = `ti:"${cleanTitle.replace(/"/g, '\\"')}" AND au:${authorLastName}`
+
+      await this.enforceRateLimit()
+
+      const url = `${this.baseUrl}?search_query=${encodeURIComponent(query)}&max_results=${this.maxResults}&sortBy=relevance&sortOrder=descending`
+
+      console.warn(`arXiv: Trying title+author search: ${query}`)
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'source-taster/1.0 (academic reference verification)',
+        },
+      })
+
+      if (!response.ok) {
+        console.warn(`arXiv: HTTP ${response.status} for title+author query`)
+        return null
+      }
+
+      const xmlText = await response.text()
+
+      // Check for API errors
+      if (this.hasApiError(xmlText)) {
+        console.warn(`arXiv: API error for title+author query`)
+        return null
+      }
+
+      const entries = this.parseAtomFeed(xmlText)
+
+      if (entries.length > 0) {
+        // Return the first (most relevant) result
+        return this.mapToExternalSource(entries[0])
+      }
+
+      return null
+    }
+    catch (error) {
+      console.error('arXiv title+author search error:', error)
+      return null
+    }
+  }
+
+  private async searchByArxivId(arxivId: string): Promise<ExternalSource | null> {
+    try {
+      // Clean the arXiv ID (remove any prefixes)
+      const cleanId = arxivId
+        .replace(/^arXiv:/, '') // Remove arXiv: prefix
+        .trim()
+
+      // Validate arXiv ID format before making requests
+      if (!this.isValidArxivId(cleanId)) {
+        console.warn(`arXiv: Invalid arXiv ID format: ${cleanId}`)
+        return null
+      }
+
+      await this.enforceRateLimit()
+
+      const url = `${this.baseUrl}?id_list=${encodeURIComponent(cleanId)}&max_results=1`
+
+      console.warn(`arXiv: Searching by arXiv ID: ${cleanId}`)
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'source-taster/1.0 (academic reference verification)',
+        },
+      })
+
+      if (!response.ok) {
+        console.warn(`arXiv: HTTP ${response.status} for ID: ${cleanId}`)
+        return null
+      }
+
+      const xmlText = await response.text()
+
+      // Check for API errors in the response
+      if (this.hasApiError(xmlText)) {
+        console.warn(`arXiv: API error for ID: ${cleanId}`)
+        return null
+      }
+
+      const entries = this.parseAtomFeed(xmlText)
+
+      if (entries.length > 0) {
+        return this.mapToExternalSource(entries[0])
+      }
+
+      return null
+    }
+    catch (error) {
+      console.error('arXiv ID search error:', error)
+      return null
+    }
   }
 
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
@@ -333,25 +465,22 @@ export class ArxivService {
         }
       }
 
-      // Extract published date
+      // Extract published date with more detailed parsing
       const publishedMatch = entryXml.match(/<published[^>]*>(.*?)<\/published>/)
       if (publishedMatch) {
         entry.published = publishedMatch[1].trim()
-        // Extract year more robustly
-        const yearMatch = entry.published.match(/(\d{4})/)
-        if (yearMatch) {
-          entry.year = Number.parseInt(yearMatch[1], 10)
-        }
+        // Parse date information more comprehensively
+        entry.dateInfo = this.parsePublishedDate(entry.published)
       }
 
-      // Extract authors with better handling
-      const authors: string[] = []
+      // Extract authors with better handling and convert to Author objects
+      const authors: Author[] = []
       const authorRegex = /<author[^>]*>\s*<name[^>]*>(.*?)<\/name>/g
       let authorMatch = authorRegex.exec(entryXml)
       while (authorMatch !== null) {
         const authorName = this.cleanXmlText(authorMatch[1])
         if (authorName) {
-          authors.push(authorName)
+          authors.push(this.parseAuthorName(authorName))
         }
         authorMatch = authorRegex.exec(entryXml)
       }
@@ -385,6 +514,26 @@ export class ArxivService {
       }
       entry.categories = categories
 
+      // Extract additional arXiv-specific metadata
+
+      // Extract comments (often contains publication info or notes)
+      const commentMatch = entryXml.match(/<arxiv:comment[^>]*>(.*?)<\/arxiv:comment>/)
+      if (commentMatch) {
+        entry.comment = this.cleanXmlText(commentMatch[1])
+      }
+
+      // Extract version information from the ID
+      const versionMatch = entry.id?.match(/v(\d+)$/)
+      if (versionMatch) {
+        entry.version = Number.parseInt(versionMatch[1], 10)
+      }
+
+      // Extract updated date (for version history)
+      const updatedMatch = entryXml.match(/<updated[^>]*>(.*?)<\/updated>/)
+      if (updatedMatch) {
+        entry.updated = updatedMatch[1].trim()
+      }
+
       // Extract PDF link with better regex
       const pdfLinkMatch = entryXml.match(/<link[^>]+title="pdf"[^>]+href="([^"]+)"/i)
         || entryXml.match(/<link[^>]+href="([^"]+)"[^>]+title="pdf"/i)
@@ -397,6 +546,86 @@ export class ArxivService {
     catch (error) {
       console.error('arXiv entry parsing error:', error)
       return null
+    }
+  }
+
+  /**
+   * Parse published date string into DateInfo object
+   */
+  private parsePublishedDate(publishedStr: string): DateInfo {
+    const dateInfo: DateInfo = {}
+
+    // Parse ISO 8601 format: 2023-01-25T18:30:45Z
+    const isoMatch = publishedStr.match(/^(\d{4})-(\d{2})-(\d{2})T/)
+    if (isoMatch) {
+      dateInfo.year = Number.parseInt(isoMatch[1], 10)
+      const monthNum = Number.parseInt(isoMatch[2], 10)
+      dateInfo.month = this.getMonthName(monthNum)
+      dateInfo.day = Number.parseInt(isoMatch[3], 10)
+      return dateInfo
+    }
+
+    // Fallback: extract just the year
+    const yearMatch = publishedStr.match(/(\d{4})/)
+    if (yearMatch) {
+      dateInfo.year = Number.parseInt(yearMatch[1], 10)
+    }
+
+    return dateInfo
+  }
+
+  /**
+   * Convert month number to month name
+   */
+  private getMonthName(monthNum: number): string {
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ]
+    return monthNames[monthNum - 1] || ''
+  }
+
+  /**
+   * Parse author name string into Author object
+   */
+  private parseAuthorName(fullName: string): Author {
+    // Handle common formats: "Last, First" or "First Last" or "First Middle Last"
+    const trimmedName = fullName.trim()
+
+    if (trimmedName.includes(',')) {
+      // "Last, First" format
+      const [lastName, firstName] = trimmedName.split(',', 2)
+      return {
+        firstName: firstName?.trim() || undefined,
+        lastName: lastName.trim(),
+      }
+    }
+    else {
+      // "First Last" or "First Middle Last" format
+      const nameParts = trimmedName.split(/\s+/)
+      if (nameParts.length === 1) {
+        return {
+          lastName: nameParts[0],
+        }
+      }
+      else {
+        const lastName = nameParts[nameParts.length - 1]
+        const firstName = nameParts.slice(0, -1).join(' ')
+        return {
+          firstName: firstName || undefined,
+          lastName,
+        }
+      }
     }
   }
 
@@ -419,30 +648,22 @@ export class ArxivService {
     const metadata: ReferenceMetadata = {
       title: entry.title || '',
       authors: entry.authors || [],
-      date: {
-        year: entry.year,
-      },
+      date: entry.dateInfo || { year: entry.year },
       source: {
-        containerTitle: entry.journalRef || 'arXiv preprint',
+        containerTitle: this.parseContainerTitle(entry),
+        sourceType: 'Preprint',
+        // Parse additional source info from journal reference
+        ...this.parseJournalReference(entry.journalRef),
       },
       identifiers: {
         doi: entry.doi,
+        arxivId: entry.arxivId,
       },
     }
 
-    // Try to extract volume/pages from journal reference if available
-    if (entry.journalRef) {
-      // Simple extraction - just try to find volume and year in parentheses
-      const yearMatch = entry.journalRef.match(/\((\d{4})\)/)
-      if (yearMatch && !metadata.date.year) {
-        metadata.date.year = Number.parseInt(yearMatch[1], 10)
-      }
-
-      // Extract journal name (everything before first number)
-      const journalNameMatch = entry.journalRef.match(/^(\D+)/)
-      if (journalNameMatch) {
-        metadata.source.containerTitle = journalNameMatch[1].trim()
-      }
+    // Add categories as additional metadata if available
+    if (entry.categories && entry.categories.length > 0) {
+      metadata.source.series = entry.categories.join(', ')
     }
 
     return {
@@ -451,5 +672,53 @@ export class ArxivService {
       metadata,
       url: entry.id || `https://arxiv.org/abs/${entry.arxivId}`,
     }
+  }
+
+  /**
+   * Parse container title from entry data
+   */
+  private parseContainerTitle(entry: any): string {
+    if (entry.journalRef) {
+      // Extract journal name from journal reference
+      const journalNameMatch = entry.journalRef.match(/^([^,\d]+)/)
+      if (journalNameMatch) {
+        return journalNameMatch[1].trim()
+      }
+    }
+    return 'arXiv preprint'
+  }
+
+  /**
+   * Parse additional source information from journal reference
+   */
+  private parseJournalReference(journalRef?: string): Partial<ReferenceMetadata['source']> {
+    if (!journalRef)
+      return {}
+
+    const sourceInfo: Partial<ReferenceMetadata['source']> = {}
+
+    // Try to extract volume, issue, pages from various formats
+    // Examples: "Phys. Rev. D 98, 123456 (2018)" or "Nature 586, 378-383 (2020)"
+
+    // Extract year from parentheses
+    const yearMatch = journalRef.match(/\((\d{4})\)/)
+    if (yearMatch) {
+      // Don't override the date if already parsed from published field
+    }
+
+    // Extract volume and pages pattern: "Vol Pages" - match volume and page numbers before parentheses
+    const volPagesMatch = journalRef.match(/\s(\d{1,4}),\s*(\d{1,10}(?:-\d{1,10})?)\s*\(/)
+    if (volPagesMatch) {
+      sourceInfo.volume = volPagesMatch[1]
+      sourceInfo.pages = volPagesMatch[2]
+    }
+
+    // Extract DOI if present in journal ref
+    const doiMatch = journalRef.match(/doi[:\s]*([0-9./]+)/i)
+    if (doiMatch) {
+      // DOI already extracted elsewhere, but could be used for validation
+    }
+
+    return sourceInfo
   }
 }
