@@ -29,7 +29,7 @@ const scoreIcon = computed(() => {
 // Display text combining the base text and score
 const displayText = computed(() => {
   const baseText = props.text
-  const scoreText = `(${props.score}%)`
+  const scoreText = `(${props.score} %)`
   return `${baseText} ${scoreText}`
 })
 </script>
