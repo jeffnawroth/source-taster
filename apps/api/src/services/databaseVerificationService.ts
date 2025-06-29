@@ -23,14 +23,18 @@ export class DatabaseVerificationService {
 
   // Default field weights - title and authors are most important
   private readonly defaultFieldWeights: FieldWeights = {
-    title: 35, // Most important - 35%
+    title: 30, // Most important - 30%
     authors: 25, // Very important - 25%
-    year: 10, // Moderately important - 10%
-    doi: 15, // Important when available - 15%
+    year: 8, // Moderately important - 8%
+    doi: 12, // Important when available - 12%
     containerTitle: 10, // Moderately important - 10%
     volume: 2, // Less important - 2%
     issue: 1, // Less important - 1%
     pages: 2, // Less important - 2%
+    arxivId: 8, // Important for preprints - 8%
+    pmid: 6, // Important for medical literature - 6%
+    isbn: 4, // Important for books - 4%
+    issn: 3, // Important for journals - 3%
   }
 
   async verifyReferences(
@@ -165,8 +169,20 @@ export class DatabaseVerificationService {
     }
     if (reference.metadata.date.year && source.metadata.date.year)
       fields.push('year')
+
+    // Identifier fields
     if (reference.metadata.identifiers?.doi && source.metadata.identifiers?.doi)
       fields.push('doi')
+    if (reference.metadata.identifiers?.arxivId && source.metadata.identifiers?.arxivId)
+      fields.push('arxivId')
+    if (reference.metadata.identifiers?.pmid && source.metadata.identifiers?.pmid)
+      fields.push('pmid')
+    if (reference.metadata.identifiers?.isbn && source.metadata.identifiers?.isbn)
+      fields.push('isbn')
+    if (reference.metadata.identifiers?.issn && source.metadata.identifiers?.issn)
+      fields.push('issn')
+
+    // Source fields
     if (reference.metadata.source.containerTitle && source.metadata.source.containerTitle)
       fields.push('containerTitle')
     if (reference.metadata.source.volume && source.metadata.source.volume)
@@ -225,10 +241,14 @@ Scoring Guidelines for each field (0-100):
 • Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
 • Year: 100=exact match, 0=different (no partial scoring for year)
 • DOI: 100=identical, 0=different (no partial scoring for DOI)
-• Journal: 100=identical, 90=same journal different format, 70=abbreviated vs full name, 0=different
+• ContainerTitle: 100=identical, 90=same journal different format, 70=abbreviated vs full name, 0=different
 • Volume: 100=exact match, 0=different (no partial scoring)
 • Issue: 100=exact match, 0=different (no partial scoring)
 • Pages: 100=identical, 90=same range different format, 70=overlapping ranges, 0=different
+• ArxivId: 100=identical, 0=different (no partial scoring for arXiv IDs)
+• PMID: 100=identical, 0=different (no partial scoring for PubMed IDs)
+• ISBN: 100=identical, 0=different (no partial scoring for ISBNs)
+• ISSN: 100=identical, 0=different (no partial scoring for ISSNs)
 
 Return your analysis in this JSON format:
 {

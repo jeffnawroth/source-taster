@@ -24,7 +24,7 @@ defineProps<{
       >
         <SourceEvaluationScoreItem
           :score="fieldDetail.match_score"
-          :text="$t(`${fieldDetail.field}-match`)"
+          :text="$t(`${fieldDetail.field}`)"
           :weight="fieldDetail.weight"
         />
       </v-col>

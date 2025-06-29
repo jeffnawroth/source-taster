@@ -1,13 +1,85 @@
 <script setup lang="ts">
 import type { ExternalSource, Reference } from '@source-taster/types'
-import { mdiAccountGroup, mdiBookOpenBlankVariantOutline, mdiCalendarOutline, mdiCalendarRange, mdiEarth, mdiFileDocumentOutline, mdiIdentifier, mdiLink, mdiNotebookOutline, mdiText } from '@mdi/js'
+import {
+  mdiAccountGroup,
+  mdiAccountTie,
+  mdiBookmark,
+  mdiBookOpenBlankVariantOutline,
+  mdiCalendarClock,
+  mdiCalendarOutline,
+  mdiCalendarRange,
+  mdiChevronDown,
+  mdiChevronUp,
+  mdiDomain,
+  mdiEarth,
+  mdiFileDocumentOutline,
+  mdiFileMultiple,
+  mdiGavel,
+  mdiIdentifier,
+  mdiLibrary,
+  mdiLink,
+  mdiMapMarker,
+  mdiMedicalBag,
+  mdiMicrophone,
+  mdiNewspaper,
+  mdiNotebookOutline,
+  mdiNumeric,
+  mdiSchool,
+  mdiTag,
+  mdiTelevision,
+  mdiText,
+  mdiTranslate,
+} from '@mdi/js'
 
-defineProps<{
+const props = defineProps<{
   reference: Reference | ExternalSource
   subheader?: string
 }>()
 
 const { t } = useI18n()
+
+// State for collapsible sections
+const showAdditionalFields = ref(false)
+const showDateFields = ref(false)
+
+// Computed properties to check if additional fields exist
+const hasAdditionalFields = computed(() => {
+  const source = props.reference.metadata.source
+  return !!(
+    source.subtitle
+    || source.location
+    || source.retrievalDate
+    || source.contributors?.length
+    || source.pageType
+    || source.paragraphNumber
+    || source.volumePrefix
+    || source.issuePrefix
+    || source.supplementInfo
+    || source.articleNumber
+    || source.conference
+    || source.seriesNumber
+    || source.chapterTitle
+    || source.medium
+    || source.originalTitle
+    || source.originalLanguage
+    || source.degree
+    || source.advisor
+    || source.department
+  )
+})
+
+const hasExtendedDateFields = computed(() => {
+  const date = props.reference.metadata.date
+  return !!(
+    date.yearSuffix
+    || date.season
+    || date.dateRange
+    || date.yearEnd
+    || date.noDate
+    || date.inPress
+    || date.approximateDate
+  )
+})
 </script>
 
 <template>
@@ -19,85 +91,433 @@ const { t } = useI18n()
 
     <!-- ORIGINAL TEXT -->
     <ReferenceCardDetailsItem
-      v-if="'originalText' in reference && reference.originalText"
+      v-if="'originalText' in props.reference && props.reference.originalText"
       :icon="mdiText"
       :title="t('original-text')"
-      :text="reference.originalText"
+      :text="props.reference.originalText"
     />
 
     <!-- TITLE -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.title"
+      v-if="props.reference.metadata.title"
       :icon="mdiFileDocumentOutline"
       :title="t('title')"
-      :text="reference.metadata.title"
+      :text="props.reference.metadata.title"
     />
 
     <!-- AUTHORS -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.authors?.length"
+      v-if="props.reference.metadata.authors?.length"
       :icon="mdiAccountGroup"
       :title="t('authors')"
-      :text="reference.metadata.authors?.map(author =>
+      :text="props.reference.metadata.authors?.map(author =>
         typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`.trim(),
       ).join(', ')"
     />
 
     <!-- JOURNAL/CONTAINER TITLE -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.source.containerTitle"
+      v-if="props.reference.metadata.source.containerTitle"
       :icon="mdiEarth"
-      :title="t('journal')"
-      :text="reference.metadata.source.containerTitle"
+      :title="t('containerTitle')"
+      :text="props.reference.metadata.source.containerTitle"
     />
 
     <!-- YEAR -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.date.year"
+      v-if="props.reference.metadata.date.year"
       :icon="mdiCalendarOutline"
       :title="t('year')"
-      :text="reference.metadata.date.year"
+      :text="props.reference.metadata.date.year"
+    />
+
+    <!-- MONTH -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.date.month"
+      :icon="mdiCalendarOutline"
+      :title="t('month')"
+      :text="props.reference.metadata.date.month"
+    />
+
+    <!-- DAY -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.date.day"
+      :icon="mdiCalendarOutline"
+      :title="t('day')"
+      :text="props.reference.metadata.date.day"
     />
 
     <!-- VOLUME -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.source.volume"
+      v-if="props.reference.metadata.source.volume"
       :icon="mdiBookOpenBlankVariantOutline"
       :title="t('volume')"
-      :text="reference.metadata.source.volume"
+      :text="props.reference.metadata.source.volume"
     />
 
     <!-- ISSUE -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.source.issue"
+      v-if="props.reference.metadata.source.issue"
       :icon="mdiCalendarRange"
       :title="t('issue')"
-      :text="reference.metadata.source.issue"
+      :text="props.reference.metadata.source.issue"
     />
 
     <!-- PAGES -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.source.pages"
+      v-if="props.reference.metadata.source.pages"
       :icon="mdiNotebookOutline"
       :title="t('pages')"
-      :text="reference.metadata.source.pages"
+      :text="props.reference.metadata.source.pages"
     />
 
-    <!-- DOI -->
+    <!-- SOURCE TYPE -->
     <ReferenceCardDetailsItem
-      v-if="reference.metadata.identifiers?.doi"
-      :icon="mdiIdentifier"
-      title="DOI"
-      :text="reference.metadata.identifiers.doi"
+      v-if="props.reference.metadata.source.sourceType"
+      :icon="mdiTag"
+      :title="t('source-type')"
+      :text="props.reference.metadata.source.sourceType"
     />
+
+    <!-- PUBLISHER -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.source.publisher"
+      :icon="mdiDomain"
+      :title="t('publisher')"
+      :text="props.reference.metadata.source.publisher"
+    />
+
+    <!-- PUBLICATION PLACE -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.source.publicationPlace"
+      :icon="mdiMapMarker"
+      :title="t('publication-place')"
+      :text="props.reference.metadata.source.publicationPlace"
+    />
+
+    <!-- EDITION -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.source.edition"
+      :icon="mdiBookmark"
+      :title="t('edition')"
+      :text="props.reference.metadata.source.edition"
+    />
+
+    <!-- SERIES -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.source.series"
+      :icon="mdiLibrary"
+      :title="t('series')"
+      :text="props.reference.metadata.source.series"
+    />
+
+    <!-- INSTITUTION -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.source.institution"
+      :icon="mdiSchool"
+      :title="t('institution')"
+      :text="props.reference.metadata.source.institution"
+    />
+
+    <!-- IDENTIFIERS SECTION (Important) -->
+    <template
+      v-if="props.reference.metadata.identifiers && (
+        props.reference.metadata.identifiers.doi
+        || props.reference.metadata.identifiers.arxivId
+        || props.reference.metadata.identifiers.pmid
+        || props.reference.metadata.identifiers.isbn
+        || props.reference.metadata.identifiers.issn
+      )"
+    >
+      <v-divider class="my-2" />
+
+      <!-- DOI -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.identifiers?.doi"
+        :icon="mdiIdentifier"
+        title="DOI"
+        :text="props.reference.metadata.identifiers.doi"
+        link
+      />
+
+      <!-- ARXIV ID -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.identifiers?.arxivId"
+        :icon="mdiNewspaper"
+        title="arXiv ID"
+        :text="props.reference.metadata.identifiers.arxivId"
+        link
+      />
+
+      <!-- PMID -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.identifiers?.pmid"
+        :icon="mdiMedicalBag"
+        title="PMID"
+        :text="props.reference.metadata.identifiers.pmid"
+        link
+      />
+
+      <!-- ISBN -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.identifiers?.isbn"
+        :icon="mdiLibrary"
+        title="ISBN"
+        :text="props.reference.metadata.identifiers.isbn"
+        link
+      />
+
+      <!-- ISSN -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.identifiers?.issn"
+        :icon="mdiNewspaper"
+        title="ISSN"
+        :text="props.reference.metadata.identifiers.issn"
+        link
+      />
+    </template>
 
     <!-- URL for ExternalSource -->
     <ReferenceCardDetailsItem
-      v-if="'url' in reference && reference.url"
+      v-if="'url' in props.reference && props.reference.url"
       :icon="mdiLink"
       title="URL"
-      :text="reference.url"
+      :text="props.reference.url"
       link
     />
+
+    <!-- SOURCE URL -->
+    <ReferenceCardDetailsItem
+      v-if="props.reference.metadata.source.url"
+      :icon="mdiLink"
+      :title="t('source-url')"
+      :text="props.reference.metadata.source.url"
+      link
+    />
+
+    <!-- ADDITIONAL FIELDS SECTION (Collapsible) -->
+    <template v-if="hasAdditionalFields">
+      <v-divider class="my-2" />
+
+      <v-list-item
+        :title="showAdditionalFields ? t('hide-additional-fields') : t('show-additional-fields')"
+        :prepend-icon="showAdditionalFields ? mdiChevronUp : mdiChevronDown"
+        @click="showAdditionalFields = !showAdditionalFields"
+      />
+
+      <template v-if="showAdditionalFields">
+        <!-- SUBTITLE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.subtitle"
+          :icon="mdiFileDocumentOutline"
+          :title="t('subtitle')"
+          :text="props.reference.metadata.source.subtitle"
+        />
+
+        <!-- LOCATION -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.location"
+          :icon="mdiMapMarker"
+          :title="t('location')"
+          :text="props.reference.metadata.source.location"
+        />
+
+        <!-- RETRIEVAL DATE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.retrievalDate"
+          :icon="mdiCalendarClock"
+          :title="t('retrieval-date')"
+          :text="props.reference.metadata.source.retrievalDate"
+        />
+
+        <!-- CONTRIBUTORS -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.contributors?.length"
+          :icon="mdiAccountTie"
+          :title="t('contributors')"
+          :text="props.reference.metadata.source.contributors?.map(contributor =>
+            typeof contributor === 'string' ? contributor : `${contributor.firstName || ''} ${contributor.lastName || ''}`.trim(),
+          ).join(', ')"
+        />
+
+        <!-- PAGE TYPE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.pageType"
+          :icon="mdiNotebookOutline"
+          :title="t('page-type')"
+          :text="props.reference.metadata.source.pageType"
+        />
+
+        <!-- PARAGRAPH NUMBER -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.paragraphNumber"
+          :icon="mdiNumeric"
+          :title="t('paragraph-number')"
+          :text="props.reference.metadata.source.paragraphNumber"
+        />
+
+        <!-- VOLUME PREFIX -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.volumePrefix"
+          :icon="mdiBookOpenBlankVariantOutline"
+          :title="t('volume-prefix')"
+          :text="props.reference.metadata.source.volumePrefix"
+        />
+
+        <!-- ISSUE PREFIX -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.issuePrefix"
+          :icon="mdiCalendarRange"
+          :title="t('issue-prefix')"
+          :text="props.reference.metadata.source.issuePrefix"
+        />
+
+        <!-- SUPPLEMENT INFO -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.supplementInfo"
+          :icon="mdiFileMultiple"
+          :title="t('supplement-info')"
+          :text="props.reference.metadata.source.supplementInfo"
+        />
+
+        <!-- ARTICLE NUMBER -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.articleNumber"
+          :icon="mdiNumeric"
+          :title="t('article-number')"
+          :text="props.reference.metadata.source.articleNumber"
+        />
+
+        <!-- CONFERENCE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.conference"
+          :icon="mdiMicrophone"
+          :title="t('conference')"
+          :text="props.reference.metadata.source.conference"
+        />
+
+        <!-- SERIES NUMBER -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.seriesNumber"
+          :icon="mdiLibrary"
+          :title="t('series-number')"
+          :text="props.reference.metadata.source.seriesNumber"
+        />
+
+        <!-- CHAPTER TITLE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.chapterTitle"
+          :icon="mdiFileDocumentOutline"
+          :title="t('chapter-title')"
+          :text="props.reference.metadata.source.chapterTitle"
+        />
+
+        <!-- MEDIUM -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.medium"
+          :icon="mdiTelevision"
+          :title="t('medium')"
+          :text="props.reference.metadata.source.medium"
+        />
+
+        <!-- ORIGINAL TITLE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.originalTitle"
+          :icon="mdiTranslate"
+          :title="t('original-title')"
+          :text="props.reference.metadata.source.originalTitle"
+        />
+
+        <!-- ORIGINAL LANGUAGE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.originalLanguage"
+          :icon="mdiTranslate"
+          :title="t('original-language')"
+          :text="props.reference.metadata.source.originalLanguage"
+        />
+
+        <!-- DEGREE -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.degree"
+          :icon="mdiGavel"
+          :title="t('degree')"
+          :text="props.reference.metadata.source.degree"
+        />
+
+        <!-- ADVISOR -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.advisor"
+          :icon="mdiAccountTie"
+          :title="t('advisor')"
+          :text="props.reference.metadata.source.advisor"
+        />
+
+        <!-- DEPARTMENT -->
+        <ReferenceCardDetailsItem
+          v-if="props.reference.metadata.source.department"
+          :icon="mdiSchool"
+          :title="t('department')"
+          :text="props.reference.metadata.source.department"
+        />
+      </template>
+    </template>
+
+    <!-- EXTENDED DATE FIELDS SECTION (Collapsible) -->
+    <template v-if="hasExtendedDateFields">
+      <v-divider class="my-2" />
+
+      <v-list-item
+        :title="showDateFields ? t('hide-date-details') : t('show-date-details')"
+        :prepend-icon="showDateFields ? mdiChevronUp : mdiChevronDown"
+        @click="showDateFields = !showDateFields"
+      />
+      <!-- YEAR SUFFIX -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.date.yearSuffix"
+        :icon="mdiCalendarOutline"
+        :title="t('year-suffix')"
+        :text="props.reference.metadata.date.yearSuffix"
+      />
+
+      <!-- SEASON -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.date.season"
+        :icon="mdiCalendarOutline"
+        :title="t('season')"
+        :text="props.reference.metadata.date.season"
+      />
+
+      <!-- DATE RANGE -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.date.dateRange && props.reference.metadata.date.yearEnd"
+        :icon="mdiCalendarRange"
+        :title="t('date-range')"
+        :text="`${props.reference.metadata.date.year}–${props.reference.metadata.date.yearEnd}`"
+      />
+
+      <!-- NO DATE -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.date.noDate"
+        :icon="mdiCalendarOutline"
+        :title="t('no-date')"
+        :text="t('no-date-indicator')"
+      />
+
+      <!-- IN PRESS -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.date.inPress"
+        :icon="mdiCalendarOutline"
+        :title="t('in-press')"
+        :text="t('in-press-indicator')"
+      />
+
+      <!-- APPROXIMATE DATE -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.date.approximateDate"
+        :icon="mdiCalendarOutline"
+        :title="t('approximate-date')"
+        :text="t('approximate-date-indicator')"
+      />
+    </template>
   </v-list>
 </template>

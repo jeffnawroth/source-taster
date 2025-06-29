@@ -8,7 +8,41 @@ const props = defineProps<{
 }>()
 
 const href = computed(() => {
-  return String(props.text).startsWith('http') ? String(props.text) : `https://${props.text}`
+  const textStr = String(props.text)
+  const titleStr = props.title?.toString().toLowerCase() || ''
+
+  // Handle DOI links - check if it's a DOI by looking for common DOI patterns
+  if (textStr.match(/^10\.\d{4,}/)) {
+    return `https://doi.org/${textStr}`
+  }
+
+  // Handle PMID links - check if it's a numeric PMID
+  if (textStr.match(/^\d+$/) && titleStr.includes('pmid')) {
+    return `https://pubmed.ncbi.nlm.nih.gov/${textStr}`
+  }
+
+  // Handle arXiv ID links - check for arXiv patterns
+  if (textStr.match(/^\d{4}\.\d{4,5}(v\d+)?$/) || titleStr.includes('arxiv')) {
+    return `https://arxiv.org/abs/${textStr}`
+  }
+
+  // Handle ISSN links - check for ISSN patterns (XXXX-XXXX)
+  if (textStr.match(/^\d{4}-\d{3}[\dX]$/) || titleStr.includes('issn')) {
+    return `https://portal.issn.org/api/search?search[]=MUST=allissnbis=%22${encodeURIComponent(textStr)}%22`
+  }
+
+  // Handle ISBN links - check for ISBN patterns (various formats)
+  if (textStr.match(/^\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?[\dX]$/) || titleStr.includes('isbn')) {
+    return `https://www.isbn.de/buecher/suche/${textStr}`
+  }
+
+  // Handle URLs that already start with http/https
+  if (textStr.startsWith('http')) {
+    return textStr
+  }
+
+  // Default: add https:// prefix
+  return `https://${textStr}`
 })
 </script>
 
