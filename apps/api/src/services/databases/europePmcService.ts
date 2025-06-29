@@ -1,7 +1,13 @@
 import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import process from 'node:process'
 
 export class EuropePmcService {
   private baseUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest'
+  private email: string | undefined
+
+  constructor(email?: string) {
+    this.email = email || process.env.EUROPEPMC_EMAIL
+  }
 
   async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
@@ -25,8 +31,19 @@ export class EuropePmcService {
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
     try {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
-      const query = encodeURIComponent(cleanDoi)
-      const url = `${this.baseUrl}/search?query=${query}&format=json&result_type=core&page_size=1`
+
+      // Build URL with email parameter if available
+      const params = new URLSearchParams()
+      params.append('query', `DOI:"${cleanDoi}"`)
+      params.append('format', 'json')
+      params.append('resultType', 'core')
+      params.append('pageSize', '1')
+
+      if (this.email) {
+        params.append('email', this.email)
+      }
+
+      const url = `${this.baseUrl}/search?${params.toString()}`
 
       console.warn(`Europe PMC: Searching by DOI: ${url}`)
 
@@ -48,11 +65,7 @@ export class EuropePmcService {
           id: work.pmid || work.pmcid || work.doi || `europepmc-${Date.now()}`,
           source: 'europepmc',
           metadata: this.parseEuropePmcWork(work),
-          url: work.doi
-            ? `https://doi.org/${work.doi}`
-            : work.pmcid
-              ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${work.pmcid}/`
-              : work.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${work.pmid}/` : undefined,
+          url: this.buildWorkUrl(work),
         }
       }
     }
@@ -65,7 +78,7 @@ export class EuropePmcService {
 
   private async searchByQuery(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
-      // Build search query
+      // Build search query using fielded search
       const queryParams = this.buildSearchQuery(metadata)
       const url = `${this.baseUrl}/search?${queryParams}`
 
@@ -83,17 +96,14 @@ export class EuropePmcService {
 
       const data = await response.json() as any
 
+      // Always take the first result - trust Europe PMC ranking
       if (data.resultList?.result && data.resultList.result.length > 0) {
-        const work = data.resultList.result[0] // Take the best match
+        const work = data.resultList.result[0]
         return {
           id: work.pmid || work.pmcid || work.doi || `europepmc-${Date.now()}`,
           source: 'europepmc',
           metadata: this.parseEuropePmcWork(work),
-          url: work.doi
-            ? `https://doi.org/${work.doi}`
-            : work.pmcid
-              ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${work.pmcid}/`
-              : work.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${work.pmid}/` : undefined,
+          url: this.buildWorkUrl(work),
         }
       }
     }
@@ -107,9 +117,9 @@ export class EuropePmcService {
   private buildSearchQuery(metadata: ReferenceMetadata): string {
     const params = new URLSearchParams()
 
-    // Simple title-based search - much more reliable than complex queries
+    // Use fielded search for more precise queries - following Europe PMC best practices
     if (metadata.title) {
-      // Search by title only - most papers have unique titles
+      // Use TITLE field for precise title matching
       params.append('query', `TITLE:"${metadata.title}"`)
     }
     else {
@@ -117,53 +127,88 @@ export class EuropePmcService {
       params.append('query', '*')
     }
 
-    // Set response format and limits - using correct Europe PMC parameter names!
+    // Set response format and options
     params.append('format', 'json')
-    params.append('result_type', 'core')
-    params.append('page_size', '5')
+    params.append('resultType', 'core') // Get full metadata
+    params.append('pageSize', '1') // Only get one result - trust Europe PMC ranking
+
+    // Add email if available for better API performance
+    if (this.email) {
+      params.append('email', this.email)
+    }
 
     return params.toString()
   }
 
+  /**
+   * Build the best URL for a Europe PMC work (prefer DOI, then PMC, then PubMed)
+   */
+  private buildWorkUrl(work: any): string | undefined {
+    if (work.doi) {
+      return `https://doi.org/${work.doi}`
+    }
+    if (work.pmcid) {
+      return `https://www.ncbi.nlm.nih.gov/pmc/articles/${work.pmcid}/`
+    }
+    if (work.pmid) {
+      return `https://pubmed.ncbi.nlm.nih.gov/${work.pmid}/`
+    }
+    return undefined
+  }
+
+  /**
+   * Parses the Europe PMC work object into a ReferenceMetadata object.
+   * Only includes fields defined in the ReferenceMetadata interface.
+   * @param work The Europe PMC work object to parse.
+   * @returns The parsed ReferenceMetadata object.
+   */
   private parseEuropePmcWork(work: any): ReferenceMetadata {
+    const metadata: ReferenceMetadata = {}
+
+    // Only include fields that exist in ReferenceMetadata interface
+    if (work.title) {
+      metadata.title = work.title
+    }
+
     // Parse authors from authorString (format: "Author1, Author2, Author3.")
-    let authors: string[] = []
     if (work.authorString) {
-      // Split by comma and clean up
-      authors = work.authorString
+      const authors = work.authorString
         .split(',')
         .map((author: string) => author.trim().replace(/\.$/, '')) // Remove trailing dot
         .filter(Boolean)
+      if (authors.length > 0) {
+        metadata.authors = authors
+      }
     }
 
-    // Parse pages
-    let pages: string | undefined
-    if (work.pageInfo) {
-      pages = work.pageInfo
+    if (work.journalTitle) {
+      metadata.journal = work.journalTitle
     }
 
-    // Determine best URL (prefer DOI, then PMC)
-    let url: string | undefined
+    if (work.pubYear) {
+      const year = Number.parseInt(work.pubYear, 10)
+      if (!Number.isNaN(year)) {
+        metadata.year = year
+      }
+    }
+
     if (work.doi) {
-      url = `https://doi.org/${work.doi}`
-    }
-    else if (work.pmcid) {
-      url = `https://www.ncbi.nlm.nih.gov/pmc/articles/${work.pmcid}/`
-    }
-    else if (work.pmid) {
-      url = `https://pubmed.ncbi.nlm.nih.gov/${work.pmid}/`
+      // Clean DOI - remove https://doi.org/ prefix if present
+      metadata.doi = work.doi.replace(/^https:\/\/doi\.org\//, '')
     }
 
-    return {
-      title: work.title,
-      authors,
-      journal: work.journalTitle, // Correct field name
-      year: work.pubYear ? Number.parseInt(work.pubYear) : undefined,
-      doi: work.doi,
-      volume: work.journalVolume, // Correct field name
-      issue: work.issue, // Correct field name
-      pages,
-      url,
+    if (work.journalVolume) {
+      metadata.volume = work.journalVolume
     }
+
+    if (work.issue) {
+      metadata.issue = work.issue
+    }
+
+    if (work.pageInfo) {
+      metadata.pages = work.pageInfo
+    }
+
+    return metadata
   }
 }
