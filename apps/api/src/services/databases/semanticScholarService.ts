@@ -38,7 +38,7 @@ export class SemanticScholarService {
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
     try {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
-      // Enhanced fields parameter to get comprehensive metadata
+      // Only request fields we actually need (performance optimization per API tutorial)
       const fields = [
         'paperId',
         'title',
@@ -46,16 +46,10 @@ export class SemanticScholarService {
         'year',
         'venue',
         'journal',
-        'citationCount',
         'publicationDate',
         'publicationVenue',
         'url',
-        'openAccessPdf',
         'externalIds',
-        'abstract',
-        'fieldsOfStudy',
-        'publicationTypes',
-        'isOpenAccess',
       ].join(',')
 
       const url = `${this.baseUrl}/paper/DOI:${encodeURIComponent(cleanDoi)}?fields=${encodeURIComponent(fields)}`
@@ -93,7 +87,7 @@ export class SemanticScholarService {
 
   private async searchByTitleMatch(title: string): Promise<ExternalSource | null> {
     try {
-      // Use the specialized title match endpoint for best title matches
+      // Only request fields we actually need (performance optimization per API tutorial)
       const fields = [
         'paperId',
         'title',
@@ -101,16 +95,10 @@ export class SemanticScholarService {
         'year',
         'venue',
         'journal',
-        'citationCount',
         'publicationDate',
         'publicationVenue',
         'url',
-        'openAccessPdf',
         'externalIds',
-        'abstract',
-        'fieldsOfStudy',
-        'publicationTypes',
-        'isOpenAccess',
       ].join(',')
 
       const params = new URLSearchParams()
@@ -200,7 +188,7 @@ export class SemanticScholarService {
       params.append('limit', '1') // Only need the best match
       params.append('offset', '0')
 
-      // Enhanced fields for comprehensive metadata
+      // Only request fields we actually need (performance optimization per API tutorial)
       const fields = [
         'paperId',
         'title',
@@ -208,16 +196,10 @@ export class SemanticScholarService {
         'year',
         'venue',
         'journal',
-        'citationCount',
         'publicationDate',
         'publicationVenue',
         'url',
-        'openAccessPdf',
         'externalIds',
-        'abstract',
-        'fieldsOfStudy',
-        'publicationTypes',
-        'isOpenAccess',
       ].join(',')
       params.append('fields', fields)
 
@@ -227,12 +209,6 @@ export class SemanticScholarService {
         const startYear = metadata.year - 2
         const endYear = metadata.year + 2
         params.append('year', `${startYear}-${endYear}`)
-      }
-
-      // Filter by field of study if we can infer it from title
-      const fieldsOfStudy = this.inferFieldsOfStudy(metadata.title || '')
-      if (fieldsOfStudy.length > 0) {
-        params.append('fieldsOfStudy', fieldsOfStudy.join(','))
       }
 
       const url = `${this.baseUrl}/paper/search?${params.toString()}`
@@ -265,42 +241,6 @@ export class SemanticScholarService {
     }
 
     return null
-  }
-
-  private inferFieldsOfStudy(title: string): string[] {
-    const fields: string[] = []
-    const lowerTitle = title.toLowerCase()
-
-    // Computer Science keywords
-    if (lowerTitle.includes('algorithm') || lowerTitle.includes('machine learning')
-      || lowerTitle.includes('neural network') || lowerTitle.includes('computer')
-      || lowerTitle.includes('software') || lowerTitle.includes('programming')
-      || lowerTitle.includes('artificial intelligence') || lowerTitle.includes('data mining')) {
-      fields.push('Computer Science')
-    }
-
-    // Medicine keywords
-    if (lowerTitle.includes('patient') || lowerTitle.includes('clinical')
-      || lowerTitle.includes('medical') || lowerTitle.includes('therapy')
-      || lowerTitle.includes('disease') || lowerTitle.includes('treatment')) {
-      fields.push('Medicine')
-    }
-
-    // Engineering keywords
-    if (lowerTitle.includes('optimization') || lowerTitle.includes('design')
-      || lowerTitle.includes('system') || lowerTitle.includes('control')
-      || lowerTitle.includes('engineering') || lowerTitle.includes('technical')) {
-      fields.push('Engineering')
-    }
-
-    // Mathematics keywords
-    if (lowerTitle.includes('mathematical') || lowerTitle.includes('equation')
-      || lowerTitle.includes('theorem') || lowerTitle.includes('proof')
-      || lowerTitle.includes('analysis') || lowerTitle.includes('statistics')) {
-      fields.push('Mathematics')
-    }
-
-    return fields
   }
 
   private parseSemanticScholarWork(work: any): ReferenceMetadata {
