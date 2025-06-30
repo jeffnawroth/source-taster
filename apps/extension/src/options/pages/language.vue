@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { localeOption } from '@/extension/logic/storage'
 import { mdiTranslate } from '@mdi/js'
 import { useLocale } from 'vuetify/lib/framework.mjs'
 import { sendMessage } from 'webext-bridge/options'
+import { localeOption } from '@/extension/logic/storage'
 
 // LOCALE
 const { t } = useI18n()

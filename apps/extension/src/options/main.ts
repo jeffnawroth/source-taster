@@ -1,6 +1,6 @@
-import { setupApp } from '@/extension/logic/common-setup'
-
 import { createApp } from 'vue'
+
+import { setupApp } from '@/extension/logic/common-setup'
 
 import router from '../plugins/router'
 import App from './Options.vue'

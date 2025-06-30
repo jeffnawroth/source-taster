@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { themeOption } from '@/extension/logic/storage'
 import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
+import { themeOption } from '@/extension/logic/storage'
 
 // PROPS
 defineProps<{

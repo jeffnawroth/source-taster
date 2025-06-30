@@ -1,6 +1,6 @@
+import { onMessage, sendMessage } from 'webext-bridge/background'
 import { isFirefox } from '@/extension/env'
 import { getDisplayOption } from '@/extension/logic/storage'
-import { onMessage, sendMessage } from 'webext-bridge/background'
 
 // only on dev mode
 if (import.meta.hot) {

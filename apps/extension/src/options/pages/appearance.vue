@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { getDisplayOption, setDisplayOption, themeOption } from '@/extension/logic'
 import { mdiDesktopTowerMonitor, mdiPageLayoutSidebarRight, mdiWeatherNight, mdiWhiteBalanceSunny, mdiWindowMaximize } from '@mdi/js'
+import { getDisplayOption, setDisplayOption, themeOption } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
