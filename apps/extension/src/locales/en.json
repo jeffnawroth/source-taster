@@ -227,6 +227,8 @@
   "verified-against": "Verified against",
   "verified-reference": "Reference could be successfully matched to a source",
   "verified-references-tooltip": "References that were successfully matched to a source",
+  "verifying-references-progress": "Verifying references ({current}/{total})",
+  "verifying-reference-current": "Verifying: {reference}",
   "verify": "Verify",
   "verify-references": "Verify references",
   "view-demo": "View a demonstration of how to use the extension",

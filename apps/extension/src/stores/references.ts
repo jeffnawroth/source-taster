@@ -12,6 +12,7 @@ export const useReferencesStore = defineStore('references', () => {
   const currentPhase = ref<'idle' | 'extracting' | 'verifying'>('idle')
   const processedCount = ref(0)
   const totalCount = ref(0)
+  const currentlyVerifyingIndex = ref(-1)
 
   // Computed
   const progress = computed(() => {
@@ -26,6 +27,13 @@ export const useReferencesStore = defineStore('references', () => {
     error: references.value.filter(r => r.status === 'error').length,
     total: references.value.length,
   }))
+
+  const currentlyVerifyingReference = computed(() => {
+    if (currentlyVerifyingIndex.value >= 0 && currentlyVerifyingIndex.value < references.value.length) {
+      return references.value[currentlyVerifyingIndex.value]
+    }
+    return null
+  })
 
   // Helper functions
   function handleProcessingError(error: unknown) {
@@ -74,6 +82,9 @@ export const useReferencesStore = defineStore('references', () => {
 
   async function verifyReferenceSequentially(ref: Reference, index: number): Promise<void> {
     try {
+      // Set currently verifying index
+      currentlyVerifyingIndex.value = index
+
       // Verify single reference
       const verificationResults = await ReferencesService.verifyReferences([ref])
       const result = verificationResults[0]
@@ -102,9 +113,11 @@ export const useReferencesStore = defineStore('references', () => {
         error: error instanceof Error ? error.message : 'Verification failed',
       }
     }
-
-    // Update processed count
-    processedCount.value = index + 1
+    finally {
+      // Always update processed count and clear current index after verification
+      processedCount.value = index + 1
+      currentlyVerifyingIndex.value = -1
+    }
   }
 
   async function verifyAllReferences(extractedRefs: Reference[]): Promise<void> {
@@ -114,6 +127,8 @@ export const useReferencesStore = defineStore('references', () => {
     for (let i = 0; i < extractedRefs.length; i++) {
       await verifyReferenceSequentially(extractedRefs[i], i)
     }
+
+    // All references are now verified, index is already cleared in verifyReferenceSequentially
   }
 
   // Main action
@@ -144,6 +159,7 @@ export const useReferencesStore = defineStore('references', () => {
     processedCount.value = 0
     totalCount.value = 0
     currentPhase.value = 'idle'
+    currentlyVerifyingIndex.value = -1
   }
 
   return {
@@ -155,10 +171,12 @@ export const useReferencesStore = defineStore('references', () => {
     processedCount,
     totalCount,
     file,
+    currentlyVerifyingIndex,
 
     // Computed
     progress,
     statusCounts,
+    currentlyVerifyingReference,
 
     // Actions
     extractAndVerifyReferences,

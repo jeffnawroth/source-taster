@@ -227,6 +227,8 @@
   "verified-against": "Verifiziert gegen",
   "verified-reference": "Referenz konnte erfolgreich einer Quelle zugeordnet werden",
   "verified-references-tooltip": "Referenzen, die erfolgreich einer Quelle zugeordnet werden konnten",
+  "verifying-references-progress": "Überprüfe Referenzen ({current}/{total})",
+  "verifying-reference-current": "Überprüfe: {reference}",
   "verify": "Überprüfen",
   "verify-references": "Quellenangaben überprüfen",
   "view-demo": "Eine Demonstration zur Verwendung der Erweiterung ansehen",

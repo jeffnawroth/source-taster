@@ -2,8 +2,9 @@
 import type { ProcessedReference } from '@source-taster/types'
 import { mdiCheck, mdiChevronDown, mdiChevronUp, mdiContentCopy, mdiOpenInNew } from '@mdi/js'
 // PROPS
-const { reference } = defineProps<{
+const { reference, isCurrentlyVerifying = false } = defineProps<{
   reference: ProcessedReference
+  isCurrentlyVerifying?: boolean
 }>()
 
 // TRANSLATION
@@ -11,6 +12,11 @@ const { t } = useI18n()
 
 // CARD COLOR based on verification score
 const color = computed(() => {
+  // If currently verifying, show special color
+  if (isCurrentlyVerifying) {
+    return 'primary'
+  }
+
   // If there's an error, show error color
   if (reference.status === 'error') {
     return 'error'
@@ -149,6 +155,7 @@ function openSource() {
     density="compact"
     variant="outlined"
     class="mb-2"
+    :class="{ 'currently-verifying': isCurrentlyVerifying }"
     :title
     :color
   >
@@ -275,3 +282,31 @@ function openSource() {
     />
   </v-card>
 </template>
+
+<style scoped>
+.currently-verifying {
+  position: relative;
+  overflow: hidden;
+}
+
+.currently-verifying::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-primary), 0.1), transparent);
+  animation: shimmer 2s infinite;
+  z-index: 1;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+</style>
