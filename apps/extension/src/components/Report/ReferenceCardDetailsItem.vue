@@ -30,6 +30,12 @@ const href = computed(() => {
     return `https://pubmed.ncbi.nlm.nih.gov/${textStr}`
   }
 
+  // Handle PMCID links - check for PMC pattern
+  if ((textStr.match(/^PMC\d+$/) || textStr.match(/^\d+$/)) && titleStr.includes('pmcid')) {
+    const pmcid = textStr.startsWith('PMC') ? textStr : `PMC${textStr}`
+    return `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/`
+  }
+
   // Handle arXiv ID links - check for arXiv patterns
   if (textStr.match(/^\d{4}\.\d{4,5}(v\d+)?$/) || titleStr.includes('arxiv')) {
     return `https://arxiv.org/abs/${textStr}`

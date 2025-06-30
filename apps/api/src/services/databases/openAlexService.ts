@@ -262,8 +262,8 @@ export class OpenAlexService {
         metadata.identifiers.pmid = work.ids.pmid.toString()
       }
       if (work.ids.pmcid) {
-        // PMC IDs usually have PMC prefix
-        metadata.identifiers.pmid = work.ids.pmcid.replace(/^PMC/, '')
+        // PMC IDs should be stored as PMCID, not PMID
+        metadata.identifiers.pmcid = work.ids.pmcid
       }
     }
 

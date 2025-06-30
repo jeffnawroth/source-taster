@@ -225,6 +225,7 @@ const hasExtendedDateFields = computed(() => {
         props.reference.metadata.identifiers.doi
         || props.reference.metadata.identifiers.arxivId
         || props.reference.metadata.identifiers.pmid
+        || props.reference.metadata.identifiers.pmcid
         || props.reference.metadata.identifiers.isbn
         || props.reference.metadata.identifiers.issn
       )"
@@ -255,6 +256,15 @@ const hasExtendedDateFields = computed(() => {
         :icon="mdiMedicalBag"
         title="PMID"
         :text="props.reference.metadata.identifiers.pmid"
+        link
+      />
+
+      <!-- PMCID -->
+      <ReferenceCardDetailsItem
+        v-if="props.reference.metadata.identifiers?.pmcid"
+        :icon="mdiMedicalBag"
+        title="PMCID"
+        :text="props.reference.metadata.identifiers.pmcid"
         link
       />
 

@@ -49,6 +49,8 @@ export interface FieldWeights {
   issn?: number
   /** Weight for PMID matching (exact match) */
   pmid?: number
+  /** Weight for PMC ID matching (exact match) */
+  pmcid?: number
   /** Weight for arXiv ID matching (exact match) */
   arxivId?: number
 

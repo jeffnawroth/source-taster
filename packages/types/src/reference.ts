@@ -62,6 +62,8 @@ export interface ExternalIdentifiers {
   issn?: string
   /** PubMed ID for medical literature */
   pmid?: string
+  /** PubMed Central ID for medical literature */
+  pmcid?: string
   /** arXiv identifier (e.g., "2301.12345") */
   arxivId?: string
 }

@@ -33,6 +33,7 @@ export class DatabaseVerificationService {
     pages: 2, // Less important - 2%
     arxivId: 8, // Important for preprints - 8%
     pmid: 6, // Important for medical literature - 6%
+    pmcid: 6, // Important for medical literature - 6%
     isbn: 4, // Important for books - 4%
     issn: 3, // Important for journals - 3%
   }
@@ -177,6 +178,8 @@ export class DatabaseVerificationService {
       fields.push('arxivId')
     if (reference.metadata.identifiers?.pmid && source.metadata.identifiers?.pmid)
       fields.push('pmid')
+    if (reference.metadata.identifiers?.pmcid && source.metadata.identifiers?.pmcid)
+      fields.push('pmcid')
     if (reference.metadata.identifiers?.isbn && source.metadata.identifiers?.isbn)
       fields.push('isbn')
     if (reference.metadata.identifiers?.issn && source.metadata.identifiers?.issn)
@@ -247,6 +250,7 @@ Scoring Guidelines for each field (0-100):
 • Pages: 100=identical, 90=same range different format, 70=overlapping ranges, 0=different
 • ArxivId: 100=identical, 0=different (no partial scoring for arXiv IDs)
 • PMID: 100=identical, 0=different (no partial scoring for PubMed IDs)
+• PMCID: 100=identical, 0=different (no partial scoring for PMC IDs)
 • ISBN: 100=identical, 0=different (no partial scoring for ISBNs)
 • ISSN: 100=identical, 0=different (no partial scoring for ISSNs)
 

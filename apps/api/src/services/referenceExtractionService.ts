@@ -71,6 +71,7 @@ Extract all academic references from the following text. Return them as a JSON o
           "isbn": "ISBN if present",
           "issn": "ISSN if present",
           "pmid": "PubMed ID if present",
+          "pmcid": "PMC ID if present",
           "arxivId": "arXiv ID if present"
         }
       }
@@ -86,7 +87,7 @@ Rules:
 - For authors, use simple string format unless structured data is clearly available
 - For dates: extract year (required), month, day, and special indicators like "in press", "no date"
 - For sources: containerTitle is the journal/book name, pages should include full range
-- For identifiers: extract DOI, ISBN, ISSN, PMID, arXiv ID when present
+- For identifiers: extract DOI, ISBN, ISSN, PMID, PMCID, arXiv ID when present
 - Common source types: "Journal article", "Book", "Book chapter", "Conference paper", "Thesis", "Report", "Webpage"
 - Return valid JSON only
 
@@ -164,6 +165,7 @@ ${text}
             isbn: metadata.identifiers?.isbn || metadata.isbn,
             issn: metadata.identifiers?.issn || metadata.issn,
             pmid: metadata.identifiers?.pmid || metadata.pmid,
+            pmcid: metadata.identifiers?.pmcid || metadata.pmcid,
             arxivId: metadata.identifiers?.arxivId || metadata.arxivId,
           },
         }

@@ -25,6 +25,12 @@ export class EuropePmcService {
           return pmidResult
       }
 
+      if (metadata.identifiers?.pmcid) {
+        const pmcidResult = await this.searchByPMCID(metadata.identifiers.pmcid)
+        if (pmcidResult)
+          return pmcidResult
+      }
+
       // Also try PMCID search if the PMID looks like a PMCID
       if (metadata.identifiers?.pmid && metadata.identifiers.pmid.startsWith('PMC')) {
         const pmcidResult = await this.searchByPMCID(metadata.identifiers.pmid)
@@ -520,6 +526,10 @@ export class EuropePmcService {
 
     if (work.pmid) {
       metadata.identifiers.pmid = work.pmid
+    }
+
+    if (work.pmcid) {
+      metadata.identifiers.pmcid = work.pmcid
     }
 
     // ISSN - could be in several places
