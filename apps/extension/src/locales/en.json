@@ -48,6 +48,8 @@
   "containerTitle-match": "Container Title Match",
   "contributors": "Contributors",
   "copy": "Copy",
+  "copy-clicked": "Copied!",
+  "copy-hover": "Click to copy",
   "copy-reference": "Copy reference",
   "create-one-here": "create one here",
   "dark": "Dark",

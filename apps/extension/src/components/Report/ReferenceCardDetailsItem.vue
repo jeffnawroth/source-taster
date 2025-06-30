@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { mdiCheck, mdiContentCopy } from '@mdi/js'
+import { useClipboard } from '@vueuse/core'
+
 const props = defineProps<{
   icon: string
   title?: string | number
@@ -6,6 +9,12 @@ const props = defineProps<{
   color?: string
   link?: boolean
 }>()
+
+const { t } = useI18n()
+const { copy } = useClipboard()
+
+const valueHovered = ref(false)
+const showCopiedMessage = ref(false)
 
 const href = computed(() => {
   const textStr = String(props.text)
@@ -44,56 +53,91 @@ const href = computed(() => {
   // Default: add https:// prefix
   return `https://${textStr}`
 })
+
+async function copyText(text: string) {
+  await copy(text)
+  showCopiedMessage.value = true
+  setTimeout(() => {
+    showCopiedMessage.value = false
+  }, 2000)
+}
+
+function copyValue() {
+  return copyText(String(props.text))
+}
 </script>
 
 <template>
-  <!-- <v-list-item
-    v-if="text"
-  >
-    <v-icon
-      class="me-1 pb-1"
-      :icon
-      :color
-    />
-
-    <strong :class="`text-${color}`">{{ title }}: </strong>
-
-    <span v-if="link">
-      <a
-        :href
-        target="_blank"
-        rel="noopener noreferrer"
-      >{{ text }}</a>
-    </span>
-    <span v-else>{{ text }}</span>
-  </v-list-item> -->
   <v-list-item>
-    <div
-      class="mb-1"
-    >
+    <div class="mb-1">
       <div class="d-flex align-start">
         <v-icon
           :icon
           size="small"
           class="me-2 mt-1"
         />
-        <div>
+        <div class="flex-grow-1">
+          <!-- Title -->
           <div class="text-caption text-medium-emphasis">
             {{ title }}
           </div>
+
+          <!-- Value with copy functionality on hover -->
           <div
             v-if="!link"
-            class="text-body-2"
+            class="text-body-2 d-flex align-center cursor-pointer"
+            @click="copyValue"
+            @mouseenter="valueHovered = true"
+            @mouseleave="valueHovered = false"
           >
-            {{ text }}
+            <span class="flex-grow-1">{{ text }}</span>
+            <v-tooltip
+              v-if="valueHovered"
+              location="top"
+              :text="showCopiedMessage ? t('copy-clicked') : t('copy-hover')"
+            >
+              <template #activator="{ props: tooltipProps }">
+                <v-icon
+                  v-bind="tooltipProps"
+                  :icon="showCopiedMessage ? mdiCheck : mdiContentCopy"
+                  size="x-small"
+                  class="ms-1 cursor-pointer"
+                  :class="showCopiedMessage ? 'text-success' : 'opacity-75'"
+                  @click.stop="copyValue"
+                />
+              </template>
+            </v-tooltip>
           </div>
-          <div v-else>
+
+          <!-- Link value with discrete copy functionality -->
+          <div
+            v-else
+            class="d-flex align-center"
+            @mouseenter="valueHovered = true"
+            @mouseleave="valueHovered = false"
+          >
             <a
               :href
               target="_blank"
               rel="noopener noreferrer"
-              class="text-body-2 text-primary text-decoration-none"
+              class="text-body-2 text-primary text-decoration-none flex-grow-1"
             >{{ text }}</a>
+            <v-tooltip
+              v-if="valueHovered"
+              location="top"
+              :text="showCopiedMessage ? t('copy-clicked') : t('copy-hover')"
+            >
+              <template #activator="{ props: tooltipProps }">
+                <v-icon
+                  v-bind="tooltipProps"
+                  :icon="showCopiedMessage ? mdiCheck : mdiContentCopy"
+                  size="x-small"
+                  class="ms-1 opacity-75 cursor-pointer"
+                  :class="{ 'text-success': showCopiedMessage }"
+                  @click="copyValue"
+                />
+              </template>
+            </v-tooltip>
           </div>
         </div>
       </div>

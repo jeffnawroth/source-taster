@@ -48,6 +48,8 @@
   "containerTitle-match": "Erscheinungsort-Übereinstimmung",
   "contributors": "Mitwirkende",
   "copy": "Kopieren",
+  "copy-clicked": "Kopiert!",
+  "copy-hover": "Klicken zum Kopieren",
   "copy-reference": "Referenz kopieren",
   "create-one-here": "hier erstellen",
   "dark": "Dunkel",
