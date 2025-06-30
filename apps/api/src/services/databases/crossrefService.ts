@@ -247,6 +247,7 @@ export class CrossrefService {
       const url = `${this.baseUrl}/works?${params}`
 
       console.warn(`Crossref: Advanced query search: ${url}`)
+      console.warn(`Crossref: Query params debug:`, params)
 
       const response = await fetch(url, {
         headers: {
@@ -282,114 +283,50 @@ export class CrossrefService {
   private buildAdvancedSearchQuery(metadata: ReferenceMetadata): string {
     const params = new URLSearchParams()
 
-    // Use field-specific queries as recommended by Crossref API
-    const fieldQueries: string[] = []
+    console.warn('Crossref: Building query for metadata:', JSON.stringify(metadata, null, 2))
 
-    // Use query.bibliographic instead of deprecated query.title for better results
+    // Use simple query approach - much more reliable
+    const queryParts: string[] = []
+
     if (metadata.title) {
-      fieldQueries.push(`query.bibliographic=${encodeURIComponent(metadata.title)}`)
+      queryParts.push(metadata.title)
     }
 
     if (metadata.authors?.length) {
-      // Use first author for query.author with better parsing
       const firstAuthor = metadata.authors[0]
-      let authorString: string
-
       if (typeof firstAuthor === 'string') {
-        authorString = firstAuthor
+        queryParts.push(firstAuthor)
       }
       else {
-        // Handle Author object structure
-        const parts = []
-        if (firstAuthor.firstName)
-          parts.push(firstAuthor.firstName)
-        if (firstAuthor.lastName)
-          parts.push(firstAuthor.lastName)
-        authorString = parts.join(' ')
-      }
-
-      if (authorString.trim()) {
-        fieldQueries.push(`query.author=${encodeURIComponent(authorString)}`)
+        if (firstAuthor.lastName) {
+          queryParts.push(firstAuthor.lastName)
+        }
       }
     }
 
     if (metadata.source.containerTitle) {
-      fieldQueries.push(`query.container-title=${encodeURIComponent(metadata.source.containerTitle)}`)
+      queryParts.push(metadata.source.containerTitle)
     }
 
-    // Add publisher query if available
-    if (metadata.source.publisher) {
-      fieldQueries.push(`query.publisher-name=${encodeURIComponent(metadata.source.publisher)}`)
-    }
+    const queryString = queryParts.join(' ')
+    console.warn('Crossref: Simple query string:', queryString)
 
-    // Add affiliation query if institution is available (for theses/reports)
-    if (metadata.source.institution) {
-      fieldQueries.push(`query.affiliation=${encodeURIComponent(metadata.source.institution)}`)
-    }
-
-    // Combine field queries
-    if (fieldQueries.length > 0) {
-      params.append('query', fieldQueries.join('&'))
+    if (queryString.trim()) {
+      params.append('query', queryString)
     }
     else {
-      // Fallback for incomplete metadata
       params.append('query', '*')
     }
 
-    // Add filters with enhanced date handling
-    const filters: string[] = []
-    if (metadata.date.year) {
-      if (metadata.date.dateRange && metadata.date.yearEnd) {
-        // Handle date ranges
-        filters.push(`from-pub-date:${metadata.date.year}`)
-        filters.push(`until-pub-date:${metadata.date.yearEnd}`)
-      }
-      else {
-        // Single year with tolerance for approximate dates
-        const tolerance = metadata.date.approximateDate ? 1 : 0
-        filters.push(`from-pub-date:${metadata.date.year - tolerance}`)
-        filters.push(`until-pub-date:${metadata.date.year + tolerance}`)
-      }
-    }
-
-    // Add type filter if we can infer it from sourceType
-    if (metadata.source.sourceType) {
-      const crossrefType = this.mapSourceTypeToCrossrefType(metadata.source.sourceType)
-      if (crossrefType) {
-        filters.push(`type:${crossrefType}`)
-      }
-    }
-
-    // Add ISBN filter for books (direct filter, not query)
-    if (metadata.identifiers?.isbn && ['Book', 'Report', 'Thesis'].includes(metadata.source.sourceType || '')) {
-      filters.push(`isbn:${metadata.identifiers.isbn}`)
-    }
-
-    // Add ISSN filter for journal articles (direct filter, not query)
-    if (metadata.identifiers?.issn && metadata.source.sourceType === 'Journal article') {
-      filters.push(`issn:${metadata.identifiers.issn}`)
-    }
-
-    // Add publisher filter for books and reports
-    if (metadata.source.publisher && ['Book', 'Report', 'Thesis'].includes(metadata.source.sourceType || '')) {
-      // URL encode for filter
-      const publisherFilter = encodeURIComponent(metadata.source.publisher)
-      filters.push(`publisher-name:${publisherFilter}`)
-    }
-
-    if (filters.length > 0) {
-      params.append('filter', filters.join(','))
-    }
-
-    // Optimize results - trust Crossref's relevance scoring
-    params.append('rows', '1') // Only get the best match according to Crossref
-    params.append('sort', 'relevance') // Use Crossref's relevance scoring
+    // Keep minimal, reliable parameters only
+    params.append('rows', '3') // Get a few results to find the best match
+    params.append('sort', 'relevance')
     params.append('order', 'desc')
-
-    params.append('select', 'title,subtitle,author,editor,translator,issued,published,published-print,published-online,DOI,ISSN,ISBN,container-title,volume,issue,page,URL,type,publisher,publisher-location,abstract,is-referenced-by-count,article-number,series,edition,original-title')
     params.append('mailto', this.mailto)
 
-    return params.toString()
+    const result = params.toString()
+    console.warn('Crossref: Final query string:', result)
+    return result
   }
 
   /**
