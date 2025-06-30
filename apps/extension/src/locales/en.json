@@ -229,6 +229,8 @@
   "verified-references-tooltip": "References that were successfully matched to a source",
   "verifying-references-progress": "Verifying references ({current}/{total})",
   "verifying-reference-current": "Verifying: {reference}",
+  "re-verifying-reference": "Re-verifying: {reference}",
+  "verification-in-progress": "Another verification is in progress",
   "cancel-verification": "Cancel verification",
   "restart-verification": "Restart verification",
   "verify": "Verify",

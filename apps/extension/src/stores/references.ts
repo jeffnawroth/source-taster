@@ -206,6 +206,115 @@ export const useReferencesStore = defineStore('references', () => {
     currentlyVerifyingIndex.value = -1
   }
 
+  // Re-verify a single reference by index
+  async function reVerifyReference(index: number) {
+    if (index < 0 || index >= references.value.length) {
+      console.error('Invalid reference index for re-verification:', index)
+      return
+    }
+
+    // Prevent concurrent operations - check if another verification is already running
+    if (currentlyVerifyingIndex.value >= 0) {
+      console.warn('Cannot start re-verification: another verification is already in progress')
+      return
+    }
+
+    // Prevent starting re-verify during main processing
+    if (isProcessing.value) {
+      console.warn('Cannot start re-verification: main processing is in progress')
+      return
+    }
+
+    const reference = references.value[index]
+
+    // Store the original state to restore if cancelled
+    const originalReference = { ...reference }
+
+    // Create new abort controller for this re-verification
+    const reVerifyController = new AbortController()
+
+    // Store reference to the current abort controller for this operation
+    const previousController = abortController
+    abortController = reVerifyController
+
+    // Set the reference back to pending status
+    references.value[index] = {
+      ...reference,
+      status: 'pending',
+      error: undefined,
+      verificationResult: undefined,
+    }
+
+    try {
+      // Set currently verifying index
+      currentlyVerifyingIndex.value = index
+
+      // Check if operation was cancelled before starting
+      if (reVerifyController.signal.aborted) {
+        // Restore original state if cancelled before starting
+        references.value[index] = originalReference
+        return
+      }
+
+      // Create a fresh reference object for verification
+      const refToVerify: Reference = {
+        id: reference.id,
+        originalText: reference.originalText,
+        metadata: reference.metadata,
+      }
+
+      // Verify the reference with abort signal
+      const verificationResults = await ReferencesService.verifyReferences([refToVerify], reVerifyController.signal)
+
+      // Check if operation was cancelled after verification
+      if (reVerifyController.signal.aborted) {
+        // Restore original state if cancelled after verification
+        references.value[index] = originalReference
+        return
+      }
+
+      const result = verificationResults[0]
+
+      // Update the specific reference
+      if (result) {
+        references.value[index] = {
+          ...references.value[index],
+          status: result.isVerified ? 'verified' : 'not-verified',
+          verificationResult: result,
+        }
+      }
+      else {
+        references.value[index] = {
+          ...references.value[index],
+          status: 'error',
+          error: 'No verification result found',
+        }
+      }
+    }
+    catch (error) {
+      // Don't handle as error if it was just cancelled
+      if (reVerifyController.signal.aborted || (error instanceof Error && error.name === 'AbortError')) {
+        // Restore original state if cancelled during verification
+        references.value[index] = originalReference
+        return
+      }
+
+      // Handle verification error
+      references.value[index] = {
+        ...references.value[index],
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Re-verification failed',
+      }
+    }
+    finally {
+      // Clear currently verifying index
+      currentlyVerifyingIndex.value = -1
+
+      // Restore previous abort controller
+      abortController = previousController
+    }
+  }
+
   return {
     // State
     inputText,
@@ -226,5 +335,6 @@ export const useReferencesStore = defineStore('references', () => {
     extractAndVerifyReferences,
     clearReferences,
     cancelProcessing,
+    reVerifyReference,
   }
 })

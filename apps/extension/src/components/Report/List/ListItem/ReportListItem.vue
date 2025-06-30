@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
-import { mdiCheck, mdiChevronDown, mdiChevronUp, mdiContentCopy, mdiOpenInNew } from '@mdi/js'
+import { mdiCheck, mdiChevronDown, mdiChevronUp, mdiContentCopy, mdiOpenInNew, mdiRefresh } from '@mdi/js'
+import { useReferencesStore } from '@/extension/stores/references'
 // PROPS
 const { reference, isCurrentlyVerifying = false } = defineProps<{
   reference: ProcessedReference
@@ -9,6 +10,15 @@ const { reference, isCurrentlyVerifying = false } = defineProps<{
 
 // TRANSLATION
 const { t } = useI18n()
+
+// STORE
+const referencesStore = useReferencesStore()
+const { isProcessing, currentlyVerifyingIndex } = storeToRefs(referencesStore)
+
+// Check if any verification is currently running (prevents concurrent operations)
+const isAnyVerificationRunning = computed(() =>
+  isProcessing.value || currentlyVerifyingIndex.value >= 0,
+)
 
 // CARD COLOR based on verification score
 const color = computed(() => {
@@ -144,10 +154,12 @@ function openSource() {
 // }
 
 // RE-VERIFY function
-// function reVerify() {
-//   // TODO: Implement re-verification functionality
-//   // This could emit an event to trigger re-verification
-// }
+function reVerify() {
+  const index = referencesStore.references.findIndex(ref => ref.id === reference.id)
+  if (index !== -1) {
+    referencesStore.reVerifyReference(index)
+  }
+}
 </script>
 
 <template>
@@ -255,8 +267,8 @@ function openSource() {
         <span>{{ $t('flag-problematic-tooltip') }}</span>
       </v-tooltip> -->
         <!-- </v-col> -->
-        <!-- <v-col cols="auto">
-           Re-verify
+        <v-col cols="auto">
+          <!-- Re-verify -->
           <v-tooltip
             v-if="reference.status === 'error' || (verificationScore !== undefined && verificationScore < 60)"
             location="top"
@@ -267,12 +279,13 @@ function openSource() {
                 variant="text"
                 size="small"
                 :icon="mdiRefresh"
+                :disabled="isAnyVerificationRunning"
                 @click="reVerify"
               />
             </template>
-            <span>{{ $t('re-verify-tooltip') }}</span>
+            <span>{{ isAnyVerificationRunning ? $t('verification-in-progress') : $t('re-verify-tooltip') }}</span>
           </v-tooltip>
-        </v-col> -->
+        </v-col>
       </v-row>
     </v-card-actions>
 

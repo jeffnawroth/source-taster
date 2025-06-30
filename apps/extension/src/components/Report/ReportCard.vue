@@ -25,9 +25,15 @@ const { results } = useFuse(search, references, {
 })
 
 // Progress feedback for verification
-const showProgressFeedback = computed(() =>
-  isProcessing.value && (currentPhase.value === 'extracting' || currentPhase.value === 'verifying'),
-)
+const showProgressFeedback = computed(() => {
+  // Show during main processing (extract + verify all)
+  const isMainProcessing = isProcessing.value && (currentPhase.value === 'extracting' || currentPhase.value === 'verifying')
+
+  // Show during individual re-verification (when currentlyVerifyingIndex is set but not main processing)
+  const isReVerifying = !isProcessing.value && currentlyVerifyingIndex.value >= 0
+
+  return isMainProcessing || isReVerifying
+})
 
 const progressText = computed(() => {
   if (currentPhase.value === 'extracting') {
@@ -55,6 +61,12 @@ const progressText = computed(() => {
     }
 
     return baseProgress
+  }
+
+  // Handle re-verification (when not in main processing but currentlyVerifyingIndex is set)
+  if (!isProcessing.value && currentlyVerifyingIndex.value >= 0 && currentlyVerifyingReference.value) {
+    const currentRefText = getCurrentReferenceDisplayText(currentlyVerifyingReference.value)
+    return t('re-verifying-reference', { reference: currentRefText })
   }
 
   return ''
@@ -170,6 +182,13 @@ function handleRestart() {
               width="2"
               class="me-2"
             />
+            <v-progress-circular
+              v-else-if="!isProcessing && currentlyVerifyingIndex >= 0"
+              indeterminate
+              size="16"
+              width="2"
+              class="me-2"
+            />
             <span class="text-caption">{{ progressText }}</span>
           </div>
 
@@ -216,8 +235,8 @@ function handleRestart() {
         />
       </div>
 
-      <!-- STATES - Only show when no references available -->
-      <IdleState v-if="references.length === 0" />
+      <!-- STATES - Only show when no references available AND not processing -->
+      <IdleState v-if="references.length === 0 && !isProcessing" />
     </v-card-text>
   </v-card>
 </template>

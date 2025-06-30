@@ -229,6 +229,8 @@
   "verified-references-tooltip": "Referenzen, die erfolgreich einer Quelle zugeordnet werden konnten",
   "verifying-references-progress": "Überprüfe Referenzen ({current}/{total})",
   "verifying-reference-current": "Überprüfe: {reference}",
+  "re-verifying-reference": "Überprüfe erneut: {reference}",
+  "verification-in-progress": "Eine andere Überprüfung läuft bereits",
   "cancel-verification": "Überprüfung abbrechen",
   "restart-verification": "Überprüfung neu starten",
   "verify": "Überprüfen",
