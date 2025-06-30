@@ -71,14 +71,65 @@ const hasAdditionalFields = computed(() => {
 const hasExtendedDateFields = computed(() => {
   const date = props.reference.metadata.date
   return !!(
-    date.yearSuffix
-    || date.season
+    date.season
     || date.dateRange
     || date.yearEnd
-    || date.noDate
-    || date.inPress
-    || date.approximateDate
+    // Note: yearSuffix, noDate, inPress, approximateDate are now handled in formattedDate
   )
+})
+
+// Computed property for formatted date display
+const formattedDate = computed(() => {
+  const date = props.reference.metadata.date
+
+  // Handle special date cases first
+  if (date.noDate) {
+    return t('no-date-indicator')
+  }
+
+  if (date.inPress) {
+    return t('in-press-indicator')
+  }
+
+  if (!date.year && !date.month && !date.day)
+    return null
+
+  const parts: string[] = []
+
+  // Format: Day Month Year (e.g., "15 March 2023" or "March 2023" or "2023")
+
+  // Add day if available
+  if (date.day) {
+    parts.push(date.day.toString())
+  }
+
+  // Add month if available
+  if (date.month) {
+    parts.push(date.month)
+  }
+
+  // Add year if available
+  if (date.year) {
+    let yearStr = date.year.toString()
+    if (date.yearSuffix) {
+      yearStr += date.yearSuffix
+    }
+    parts.push(yearStr)
+  }
+
+  const formattedStr = parts.join(' ')
+
+  // Handle date range
+  if (date.dateRange && date.yearEnd && date.year) {
+    return `${date.year}–${date.yearEnd}`
+  }
+
+  // Handle approximate date
+  if (date.approximateDate && formattedStr) {
+    return `ca. ${formattedStr}`
+  }
+
+  return formattedStr || null
 })
 </script>
 
@@ -123,28 +174,12 @@ const hasExtendedDateFields = computed(() => {
       :text="props.reference.metadata.source.containerTitle"
     />
 
-    <!-- YEAR -->
+    <!-- PUBLICATION DATE (combined day, month, year) -->
     <ReferenceCardDetailsItem
-      v-if="props.reference.metadata.date.year"
+      v-if="formattedDate"
       :icon="mdiCalendarOutline"
-      :title="t('year')"
-      :text="props.reference.metadata.date.year"
-    />
-
-    <!-- MONTH -->
-    <ReferenceCardDetailsItem
-      v-if="props.reference.metadata.date.month"
-      :icon="mdiCalendarOutline"
-      :title="t('month')"
-      :text="props.reference.metadata.date.month"
-    />
-
-    <!-- DAY -->
-    <ReferenceCardDetailsItem
-      v-if="props.reference.metadata.date.day"
-      :icon="mdiCalendarOutline"
-      :title="t('day')"
-      :text="props.reference.metadata.date.day"
+      :title="t('publication-date')"
+      :text="formattedDate"
     />
 
     <!-- VOLUME -->
@@ -488,14 +523,6 @@ const hasExtendedDateFields = computed(() => {
 
       <v-expand-transition>
         <div v-if="showDateFields">
-          <!-- YEAR SUFFIX -->
-          <ReferenceCardDetailsItem
-            v-if="props.reference.metadata.date.yearSuffix"
-            :icon="mdiCalendarOutline"
-            :title="t('year-suffix')"
-            :text="props.reference.metadata.date.yearSuffix"
-          />
-
           <!-- SEASON -->
           <ReferenceCardDetailsItem
             v-if="props.reference.metadata.date.season"
@@ -510,30 +537,6 @@ const hasExtendedDateFields = computed(() => {
             :icon="mdiCalendarRange"
             :title="t('date-range')"
             :text="`${props.reference.metadata.date.year}–${props.reference.metadata.date.yearEnd}`"
-          />
-
-          <!-- NO DATE -->
-          <ReferenceCardDetailsItem
-            v-if="props.reference.metadata.date.noDate"
-            :icon="mdiCalendarOutline"
-            :title="t('no-date')"
-            :text="t('no-date-indicator')"
-          />
-
-          <!-- IN PRESS -->
-          <ReferenceCardDetailsItem
-            v-if="props.reference.metadata.date.inPress"
-            :icon="mdiCalendarOutline"
-            :title="t('in-press')"
-            :text="t('in-press-indicator')"
-          />
-
-          <!-- APPROXIMATE DATE -->
-          <ReferenceCardDetailsItem
-            v-if="props.reference.metadata.date.approximateDate"
-            :icon="mdiCalendarOutline"
-            :title="t('approximate-date')"
-            :text="t('approximate-date-indicator')"
           />
         </div>
       </v-expand-transition>
