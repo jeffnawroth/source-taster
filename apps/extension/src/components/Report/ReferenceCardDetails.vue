@@ -167,7 +167,7 @@ const { t } = useI18n()
           </div>
           <v-progress-linear
             :model-value="reference.verificationResult.verificationDetails.matchDetails.overallScore"
-            :color="reference.verificationResult.verificationDetails.matchDetails.overallScore > 70 ? 'success' : reference.verificationResult.verificationDetails.matchDetails.overallScore > 40 ? 'warning' : 'error'"
+            :color="getScoreColor(reference.verificationResult.verificationDetails.matchDetails.overallScore)"
             height="4"
           />
               </div>

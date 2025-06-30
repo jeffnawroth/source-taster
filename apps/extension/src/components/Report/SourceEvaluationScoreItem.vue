@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { mdiCheckCircle, mdiCloseCircle, mdiMinusCircle } from '@mdi/js'
 import { computed } from 'vue'
+import { getScoreColor } from '@/extension/utils/scoreUtils'
 
 const props = defineProps<{
   score: number
@@ -8,22 +9,16 @@ const props = defineProps<{
   weight?: number
 }>()
 
-// Define the color based on score thresholds
-const scoreColor = computed(() => {
-  if (props.score >= 80)
-    return 'success'
-  if (props.score >= 60)
-    return 'warning'
-  return 'error'
-})
+// Define the color based on score thresholds (using consistent scoreUtils)
+const scoreColor = computed(() => getScoreColor(props.score))
 
-// Define the icon based on score thresholds
+// Define the icon based on score thresholds (aligned with color logic)
 const scoreIcon = computed(() => {
-  if (props.score >= 80)
+  if (props.score >= 75) // High confidence (verified)
     return mdiCheckCircle
-  if (props.score >= 40)
+  if (props.score >= 50) // Medium confidence
     return mdiMinusCircle
-  return mdiCloseCircle
+  return mdiCloseCircle // Low confidence
 })
 
 // Display text combining the base text and score

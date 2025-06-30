@@ -2,6 +2,7 @@
 import type { ProcessedReference } from '@source-taster/types'
 import { mdiCheck, mdiChevronDown, mdiChevronUp, mdiContentCopy, mdiOpenInNew, mdiRefresh } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
+import { getScoreColor, shouldShowReVerify } from '@/extension/utils/scoreUtils'
 // PROPS
 const { reference, isCurrentlyVerifying = false } = defineProps<{
   reference: ProcessedReference
@@ -44,16 +45,8 @@ const color = computed(() => {
     return 'warning' // No score available
   }
 
-  // Score-based color mapping:
-  // 80-100%: Green (success) - High confidence match
-  // 60-79%:  Blue (info) - Medium-high confidence
-  // 40-59%:  Orange (warning) - Medium confidence
-  // 0-39%:   Red (error) - Low confidence
-  if (score >= 80)
-    return 'success'
-  if (score >= 60)
-    return 'warning'
-  return 'error'
+  // Use consistent score-based color mapping from scoreUtils
+  return getScoreColor(score)
 })
 
 // TITLE
@@ -270,7 +263,7 @@ function reVerify() {
         <v-col cols="auto">
           <!-- Re-verify -->
           <v-tooltip
-            v-if="reference.status === 'error' || (verificationScore !== undefined && verificationScore < 60)"
+            v-if="shouldShowReVerify(reference.status, verificationScore)"
             location="top"
           >
             <template #activator="{ props }">

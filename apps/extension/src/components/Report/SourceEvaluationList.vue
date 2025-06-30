@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SourceEvaluation } from '@source-taster/types'
 import { mdiDatabaseOutline, mdiSourceBranch } from '@mdi/js'
+import { getScoreColor } from '@/extension/utils/scoreUtils'
 
 const { sourceEvaluations } = defineProps<{
   sourceEvaluations: SourceEvaluation[]
@@ -18,15 +19,6 @@ function formatSourceName(source: string): string {
     pubmed: 'PubMed',
   }
   return sourceMap[source] || source.charAt(0).toUpperCase() + source.slice(1)
-}
-
-// Helper function to get score color
-function getScoreColor(score: number): string {
-  if (score >= 80)
-    return 'success'
-  if (score >= 60)
-    return 'warning'
-  return 'error'
 }
 
 // Sort sources by score (highest first)
