@@ -3,8 +3,6 @@ import { mdiFileDocumentMultipleOutline } from '@mdi/js'
 
 // I18n
 const { t } = useI18n()
-
-// No additional logic needed - ReportCard already handles the show condition
 </script>
 
 <template>
