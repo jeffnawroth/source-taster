@@ -229,6 +229,8 @@
   "verified-references-tooltip": "References that were successfully matched to a source",
   "verifying-references-progress": "Verifying references ({current}/{total})",
   "verifying-reference-current": "Verifying: {reference}",
+  "cancel-verification": "Cancel verification",
+  "restart-verification": "Restart verification",
   "verify": "Verify",
   "verify-references": "Verify references",
   "view-demo": "View a demonstration of how to use the extension",

@@ -6,7 +6,7 @@ export class ReferencesService {
   /**
    * Extract references from text using AI
    */
-  static async extractReferences(text: string): Promise<Reference[]> {
+  static async extractReferences(text: string, signal?: AbortSignal): Promise<Reference[]> {
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.extract}`, {
       method: 'POST',
       headers: {
@@ -17,6 +17,7 @@ export class ReferencesService {
         aiService: selectedAiModel.value.service,
         model: selectedAiModel.value.model,
       }),
+      signal,
     })
 
     if (!response.ok) {
@@ -35,7 +36,7 @@ export class ReferencesService {
   /**
    * Verify references against databases
    */
-  static async verifyReferences(references: Reference[]): Promise<VerificationResult[]> {
+  static async verifyReferences(references: Reference[], signal?: AbortSignal): Promise<VerificationResult[]> {
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.verify}`, {
       method: 'POST',
       headers: {
@@ -46,6 +47,7 @@ export class ReferencesService {
         aiService: selectedAiModel.value.service,
         model: selectedAiModel.value.model,
       }),
+      signal,
     })
 
     if (!response.ok) {
@@ -64,17 +66,17 @@ export class ReferencesService {
   /**
    * Extract and verify references in one call
    */
-  static async extractAndVerify(text: string): Promise<{
+  static async extractAndVerify(text: string, signal?: AbortSignal): Promise<{
     references: Reference[]
     verificationResults: VerificationResult[]
   }> {
-    const references = await this.extractReferences(text)
+    const references = await this.extractReferences(text, signal)
 
     if (references.length === 0) {
       return { references: [], verificationResults: [] }
     }
 
-    const verificationResults = await this.verifyReferences(references)
+    const verificationResults = await this.verifyReferences(references, signal)
 
     return { references, verificationResults }
   }

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
-import { mdiFileDocumentOutline } from '@mdi/js'
+import { mdiClose, mdiFileDocumentOutline, mdiRestart } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const { t } = useI18n()
 const { references, currentPhase, processedCount, totalCount, isProcessing, currentlyVerifyingReference, currentlyVerifyingIndex } = storeToRefs(useReferencesStore())
+const { cancelProcessing, extractAndVerifyReferences } = useReferencesStore()
 
 const search = ref('')
 
@@ -102,6 +103,15 @@ const progressPercentage = computed(() => {
   }
   return 0
 })
+
+// Action handlers
+function handleCancel() {
+  cancelProcessing()
+}
+
+function handleRestart() {
+  extractAndVerifyReferences()
+}
 </script>
 
 <template>
@@ -144,22 +154,55 @@ const progressPercentage = computed(() => {
         color="primary"
         class="mb-2"
       >
-        <div class="d-flex align-center">
-          <v-progress-circular
-            v-if="currentPhase === 'extracting'"
-            indeterminate
-            size="16"
-            width="2"
-            class="me-2"
-          />
-          <v-progress-circular
-            v-else-if="currentPhase === 'verifying'"
-            :model-value="progressPercentage"
-            size="16"
-            width="2"
-            class="me-2"
-          />
-          <span class="text-caption">{{ progressText }}</span>
+        <div class="d-flex align-center justify-space-between">
+          <div class="d-flex align-center">
+            <v-progress-circular
+              v-if="currentPhase === 'extracting'"
+              indeterminate
+              size="16"
+              width="2"
+              class="me-2"
+            />
+            <v-progress-circular
+              v-else-if="currentPhase === 'verifying'"
+              :model-value="progressPercentage"
+              size="16"
+              width="2"
+              class="me-2"
+            />
+            <span class="text-caption">{{ progressText }}</span>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="d-flex align-center ga-1">
+            <v-tooltip location="top">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  :icon="mdiRestart"
+                  size="x-small"
+                  variant="text"
+                  color="primary"
+                  @click="handleRestart"
+                />
+              </template>
+              <span>{{ t('restart-verification') }}</span>
+            </v-tooltip>
+
+            <v-tooltip location="top">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  :icon="mdiClose"
+                  size="x-small"
+                  variant="text"
+                  color="primary"
+                  @click="handleCancel"
+                />
+              </template>
+              <span>{{ t('cancel-verification') }}</span>
+            </v-tooltip>
+          </div>
         </div>
       </v-alert>
 

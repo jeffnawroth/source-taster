@@ -14,6 +14,9 @@ export const useReferencesStore = defineStore('references', () => {
   const totalCount = ref(0)
   const currentlyVerifyingIndex = ref(-1)
 
+  // Abort controller for cancellation
+  let abortController: AbortController | null = null
+
   // Computed
   const progress = computed(() => {
     if (totalCount.value === 0)
@@ -50,6 +53,8 @@ export const useReferencesStore = defineStore('references', () => {
   }
 
   function initializeProcessing() {
+    // Create new abort controller for this operation
+    abortController = new AbortController()
     isProcessing.value = true
     currentPhase.value = 'extracting'
     references.value = []
@@ -60,10 +65,29 @@ export const useReferencesStore = defineStore('references', () => {
   function finalizeProcessing() {
     isProcessing.value = false
     currentPhase.value = 'idle'
+    currentlyVerifyingIndex.value = -1
+    abortController = null
+  }
+
+  function cancelProcessing() {
+    if (abortController) {
+      abortController.abort()
+    }
+    finalizeProcessing()
   }
 
   async function extractReferences(): Promise<Reference[]> {
-    const extractedRefs = await ReferencesService.extractReferences(inputText.value)
+    // Check if operation was cancelled before starting
+    if (abortController?.signal.aborted) {
+      return []
+    }
+
+    const extractedRefs = await ReferencesService.extractReferences(inputText.value, abortController?.signal)
+
+    // Check again if operation was cancelled after extraction
+    if (abortController?.signal.aborted) {
+      return []
+    }
 
     if (extractedRefs.length === 0) {
       references.value = []
@@ -86,7 +110,7 @@ export const useReferencesStore = defineStore('references', () => {
       currentlyVerifyingIndex.value = index
 
       // Verify single reference
-      const verificationResults = await ReferencesService.verifyReferences([ref])
+      const verificationResults = await ReferencesService.verifyReferences([ref], abortController?.signal)
       const result = verificationResults[0]
 
       // Update the specific reference
@@ -106,6 +130,11 @@ export const useReferencesStore = defineStore('references', () => {
       }
     }
     catch (error) {
+      // Don't handle as error if it was just cancelled
+      if (abortController?.signal.aborted || (error instanceof Error && error.name === 'AbortError')) {
+        return
+      }
+
       // Handle individual reference error
       references.value[index] = {
         ...references.value[index],
@@ -125,6 +154,11 @@ export const useReferencesStore = defineStore('references', () => {
 
     // Verify references one by one for live progress updates
     for (let i = 0; i < extractedRefs.length; i++) {
+      // Check if operation was cancelled
+      if (abortController?.signal.aborted) {
+        break
+      }
+
       await verifyReferenceSequentially(extractedRefs[i], i)
     }
 
@@ -140,12 +174,22 @@ export const useReferencesStore = defineStore('references', () => {
       initializeProcessing()
 
       const extractedRefs = await extractReferences()
+
+      // Check if cancelled during extraction
+      if (abortController?.signal.aborted) {
+        return
+      }
+
       if (extractedRefs.length === 0)
         return
 
       await verifyAllReferences(extractedRefs)
     }
     catch (error) {
+      // Don't handle as error if it was just cancelled
+      if (abortController?.signal.aborted || (error instanceof Error && error.name === 'AbortError')) {
+        return
+      }
       handleProcessingError(error)
     }
     finally {
@@ -181,5 +225,6 @@ export const useReferencesStore = defineStore('references', () => {
     // Actions
     extractAndVerifyReferences,
     clearReferences,
+    cancelProcessing,
   }
 })
