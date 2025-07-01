@@ -6,15 +6,9 @@ const controller = new VerificationController()
 
 /**
  * @route POST /api/verify
- * @desc Verify references against academic databases
+ * @desc Verify references - automatically chooses database or website verification based on source type
  */
 router.post('/', c => controller.verifyReferences(c))
-
-/**
- * @route POST /api/verify/extended
- * @desc Verify references with extended strategy (database + website fallback)
- */
-router.post('/extended', c => controller.verifyReferencesExtended(c))
 
 /**
  * @route POST /api/verify/website
