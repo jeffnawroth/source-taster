@@ -129,29 +129,19 @@ function handleRestart() {
 <template>
   <v-card
     flat
-    :title="$t('report')"
   >
-    <template #prepend>
-      <v-icon
-        :icon="mdiFileDocumentOutline"
-        size="large"
-      />
-    </template>
-
-    <template #append>
-      <!-- PDF DOWNLOAD -->
-      <!-- <ReportPdfDownload /> -->
-    </template>
+    <v-card-title class="px-0">
+      <v-icon size="x-small">
+        {{ mdiFileDocumentOutline }}
+      </v-icon>
+      {{ t('report') }}
+    </v-card-title>
 
     <!-- SUBTITLE -->
-    <template
-      #subtitle
-    >
+    <v-card-subtitle class="px-0">
       <ReportSubtitle />
-    </template>
-    <v-card-text
-      class="pa-0"
-    >
+    </v-card-subtitle>
+    <v-card-text class="px-0">
       <!-- SEARCH -->
       <ReportListSearchInput
         v-model="search"

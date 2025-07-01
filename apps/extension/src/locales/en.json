@@ -245,5 +245,12 @@
   "publication-date": "Publication Date",
   "year": "Year",
   "year-match": "Year Match",
-  "year-suffix": "Year Suffix"
+  "year-suffix": "Year Suffix",
+  "verification-with-errors": "{verified}/{total} verified ({errors} errors)",
+  "all-references-verified": "All {total} references verified ✓",
+  "no-references-verified": "0/{total} references verified",
+  "partial-verification": "{verified}/{total} verified ({percentage}%)",
+  "retry-verification": "Retry Verification",
+  "references-count": "{count} references",
+  "no-data-available": "No data available"
 }
