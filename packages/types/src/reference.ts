@@ -36,6 +36,8 @@ export interface ReferenceMetadata {
   source: SourceInfo
   /** External database identifiers */
   identifiers?: ExternalIdentifiers
+  /** URL for web-based references (e.g., news articles, blog posts) */
+  url?: string
 }
 
 /**

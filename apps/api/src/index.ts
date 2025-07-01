@@ -36,7 +36,8 @@ app.get('/', (c) => {
       health: '/api/health',
       extract: '/api/extract',
       verify: '/api/verify',
-      verifyWebsites: '/api/verify/websites',
+      verifyExtended: '/api/verify/extended',
+      verifyWebsite: '/api/verify/website',
     },
   })
 })
