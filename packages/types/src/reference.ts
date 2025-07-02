@@ -36,8 +36,6 @@ export interface ReferenceMetadata {
   source: SourceInfo
   /** External database identifiers */
   identifiers?: ExternalIdentifiers
-  /** URL for web-based references (e.g., news articles, blog posts) */
-  url?: string
 }
 
 /**
@@ -183,7 +181,7 @@ export interface ExternalSource {
   /** Unique identifier in the external database */
   id: string
   /** Which database this source comes from */
-  source: 'openalex' | 'crossref' | 'europepmc' | 'semanticscholar' | 'arxiv'
+  source: 'openalex' | 'crossref' | 'europepmc' | 'semanticscholar' | 'arxiv' | 'website'
   /** Bibliographic metadata from the database */
   metadata: ReferenceMetadata
   /** Canonical URL to access this source in the database */
