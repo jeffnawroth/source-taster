@@ -329,32 +329,6 @@ export class CrossrefService {
     return result
   }
 
-  /**
-   * Map our sourceType back to Crossref work types for filtering
-   */
-  private mapSourceTypeToCrossrefType(sourceType: string): string | undefined {
-    const typeMap: { [key: string]: string | undefined } = {
-      'Journal article': 'journal-article',
-      'Book': 'book',
-      'Book chapter': 'book-chapter',
-      'Conference paper': 'proceedings-article',
-      'Thesis': 'dissertation',
-      'Dissertation': 'dissertation',
-      'Report': 'report',
-      'Dataset': 'dataset',
-      'Preprint': 'posted-content',
-      'Peer review': 'peer-review',
-      'Reference book': 'reference-book',
-      'Monograph': 'monograph',
-      'Edited book': 'edited-book',
-      'Book series': 'book-series',
-      'Webpage': 'component', // Crossref doesn't have webpage, use component
-      'Other': undefined, // Don't filter by type for "Other"
-    }
-
-    return typeMap[sourceType]
-  }
-
   private parseCrossrefWork(work: any): ReferenceMetadata {
     // Parse publication date with comprehensive handling
     const dateInfo = this.parseCrossrefDate(work)

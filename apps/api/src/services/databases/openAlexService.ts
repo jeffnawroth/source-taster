@@ -219,9 +219,9 @@ export class OpenAlexService {
         metadata.source.containerTitle = source.display_name
       }
 
-      // Source type mapping
-      if (source.type || work.type_crossref) {
-        metadata.source.sourceType = source.type || work.type_crossref
+      // Source type mapping - prioritize document type over venue type
+      if (work.type_crossref || work.type) {
+        metadata.source.sourceType = this.mapOpenAlexTypeToSourceType(work.type_crossref || work.type)
       }
 
       // ISSN from source
@@ -331,5 +331,43 @@ export class OpenAlexService {
 
     // Fallback: OpenAlex catalog URL
     return work.id || ''
+  }
+
+  /**
+   * Map OpenAlex/Crossref types to human-readable source types.
+   * This prioritizes document type over venue type for more accurate classification.
+   */
+  private mapOpenAlexTypeToSourceType(type: string): string {
+    const typeMap: Record<string, string> = {
+      // Crossref types (more specific, preferred)
+      'journal-article': 'Journal article',
+      'proceedings-article': 'Conference paper',
+      'book-chapter': 'Book chapter',
+      'book': 'Book',
+      'monograph': 'Book',
+      'edited-book': 'Book',
+      'reference-book': 'Book',
+      'report': 'Report',
+      'dataset': 'Dataset',
+      'dissertation': 'Thesis',
+      'posted-content': 'Preprint',
+      'preprint': 'Preprint',
+      'component': 'Other',
+      'peer-review': 'Peer review',
+      'standard': 'Standard',
+      'grant': 'Grant',
+
+      // OpenAlex types (fallback)
+      'article': 'Article',
+      'paratext': 'Article',
+      'other': 'Other',
+      'erratum': 'Erratum',
+      'letter': 'Letter',
+      'editorial': 'Editorial',
+      'review': 'Review',
+      'retraction': 'Retraction',
+    }
+
+    return typeMap[type?.toLowerCase()] || 'Article'
   }
 }
