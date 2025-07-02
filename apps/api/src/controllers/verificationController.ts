@@ -99,6 +99,7 @@ export class VerificationController {
 
   /**
    * Helper method to determine if a reference has a web URL that should be verified via website verification
+   * This excludes academic database URLs (DOI, PubMed, arXiv, etc.) which should use database verification
    */
   private hasWebURL(reference: any): boolean {
     // Check if the reference has a URL in its source information
@@ -108,8 +109,40 @@ export class VerificationController {
       // Basic URL validation
       try {
         const urlObj = new URL(url)
-        // Only consider http/https URLs for website verification
-        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
+
+        // Only consider http/https URLs
+        if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+          return false
+        }
+
+        // Exclude academic database URLs - these should use database verification
+        const academicHosts = [
+          'doi.org',
+          'dx.doi.org',
+          'www.doi.org',
+          'pubmed.ncbi.nlm.nih.gov',
+          'www.ncbi.nlm.nih.gov',
+          'arxiv.org',
+          'www.arxiv.org',
+          'europepmc.org',
+          'www.europepmc.org',
+          'semanticscholar.org',
+          'www.semanticscholar.org',
+          'openalex.org',
+          'www.openalex.org',
+        ]
+
+        const hostname = urlObj.hostname.toLowerCase()
+        if (academicHosts.some(host => hostname === host || hostname.endsWith(`.${host}`))) {
+          return false
+        }
+
+        // If reference has a DOI identifier, prefer database verification over website verification
+        if (reference.metadata?.identifiers?.doi) {
+          return false
+        }
+
+        return true
       }
       catch {
         return false
