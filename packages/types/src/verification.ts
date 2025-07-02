@@ -98,6 +98,8 @@ export interface FieldWeights {
   degree?: number
   /** Weight for advisor matching (for theses) */
   advisor?: number
+  /** Weight for description/abstract matching (for websites) */
+  description?: number
 }
 
 /**

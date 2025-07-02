@@ -1,4 +1,4 @@
-import type { Reference, VerificationResult } from '@source-taster/types'
+import type { Reference, VerificationResult, WebsiteVerificationResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
 import { selectedAiModel } from '../logic'
 
@@ -61,6 +61,44 @@ export class ReferencesService {
     }
 
     return data.data.results || []
+  }
+
+  /**
+   * Verify a reference against a website URL
+   */
+  static async verifyWebsiteReference(
+    reference: Reference,
+    url: string,
+    signal?: AbortSignal,
+  ): Promise<WebsiteVerificationResult> {
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.verify}/website`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reference,
+        url,
+        aiService: selectedAiModel.value.service,
+        options: {
+          timeout: 10000,
+          enableWaybackMachine: true,
+        },
+      }),
+      signal,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Website verification failed: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    if (!data.success) {
+      throw new Error(data.error || 'Website verification failed')
+    }
+
+    return data.data
   }
 
   /**

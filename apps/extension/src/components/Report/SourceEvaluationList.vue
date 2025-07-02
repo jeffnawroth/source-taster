@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { SourceEvaluation } from '@source-taster/types'
-import { mdiDatabaseOutline, mdiSourceBranch } from '@mdi/js'
+import { mdiDatabaseOutline, mdiSourceBranch, mdiWeb } from '@mdi/js'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
 
 const { sourceEvaluations } = defineProps<{
@@ -17,6 +17,7 @@ function formatSourceName(source: string): string {
     europepmc: 'Europe PMC',
     semanticscholar: 'Semantic Scholar',
     pubmed: 'PubMed',
+    website: 'Website',
   }
   return sourceMap[source] || source.charAt(0).toUpperCase() + source.slice(1)
 }
@@ -104,7 +105,7 @@ const sortedEvaluations = computed(() =>
               align-self="center"
             >
               <v-icon
-                :icon="mdiDatabaseOutline"
+                :icon="evaluation.source.source === 'website' ? mdiWeb : mdiDatabaseOutline"
                 class="me-2"
               />
             </v-col>

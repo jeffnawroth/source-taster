@@ -1,5 +1,6 @@
 import type {
   ArchivedVersion,
+  FieldWeights,
   Reference,
   WebsiteMetadata,
   WebsiteVerificationResult,
@@ -25,6 +26,25 @@ export class WebsiteVerificationService {
     timeout: 10000, // 10 seconds
     enableWaybackMachine: true,
     userAgent: 'Source-Taster-Bot/1.0 (https://source-taster.app)',
+  }
+
+  // Default field weights for website verification - adapted for web content
+  private readonly defaultFieldWeights: FieldWeights = {
+    title: 35, // Most important for websites - 35%
+    authors: 20, // Important but less reliable on websites - 20%
+    year: 10, // Moderately important - 10%
+    doi: 8, // Less common on websites - 8%
+    containerTitle: 5, // Less relevant for websites - 5%
+    volume: 1, // Rarely on websites - 1%
+    issue: 1, // Rarely on websites - 1%
+    pages: 1, // Rarely on websites - 1%
+    arxivId: 5, // Less common on websites - 5%
+    pmid: 3, // Uncommon on websites - 3%
+    pmcid: 3, // Uncommon on websites - 3%
+    isbn: 3, // Less common on websites - 3%
+    issn: 2, // Uncommon on websites - 2%
+    url: 15, // Important for website verification - 15%
+    description: 8, // Useful for content matching - 8%
   }
 
   /**
@@ -668,37 +688,54 @@ export class WebsiteVerificationService {
   ) {
     const aiServiceInstance = AIServiceFactory.create(aiService)
 
-    const prompt = `
-Please analyze whether the following bibliographic reference matches the website metadata and determine if they refer to the same work.
+    // Get the fields that should be evaluated and their weights
+    const availableFields = this.getAvailableFields(reference, websiteMetadata)
+    const fieldWeights = this.getFieldWeightsForAvailableFields(availableFields)
+
+    const prompt = `Compare the following bibliographic reference with the website metadata to determine if they refer to the same work.
 
 REFERENCE:
 ${reference.originalText}
 
 Parsed Reference Data:
-- Title: ${reference.metadata.title || 'N/A'}
-- Authors: ${reference.metadata.authors?.map(a => typeof a === 'string' ? a : `${a.firstName || ''} ${a.lastName}`.trim()).join(', ') || 'N/A'}
-- Date: ${reference.metadata.date.year || 'N/A'}
-- URL: ${reference.metadata.url || 'N/A'}
+- title: ${reference.metadata.title || 'N/A'}
+- authors: ${reference.metadata.authors?.map(a => typeof a === 'string' ? a : `${a.firstName || ''} ${a.lastName}`.trim()).join(', ') || 'N/A'}
+- publication-date: ${reference.metadata.date.year || 'N/A'}
+- url: ${reference.metadata.source.url || 'N/A'}
 
 WEBSITE METADATA:
-- Title: ${websiteMetadata.title || 'N/A'}
-- Authors: ${websiteMetadata.authors?.join(', ') || 'N/A'}
-- Published Date: ${websiteMetadata.publishedDate?.toISOString().split('T')[0] || 'N/A'}
-- Site Name: ${websiteMetadata.siteName || 'N/A'}
-- URL: ${websiteMetadata.url}
-- Description: ${websiteMetadata.description || 'N/A'}
+- title: ${websiteMetadata.title || 'N/A'}
+- authors: ${websiteMetadata.authors?.join(', ') || 'N/A'}
+- publication-date: ${websiteMetadata.publishedDate?.toISOString().split('T')[0] || 'N/A'}
+- webpage: ${websiteMetadata.siteName || 'N/A'}
+- url: ${websiteMetadata.url}
+- description: ${websiteMetadata.description || 'N/A'}
 
-Please provide a detailed analysis comparing:
-1. Title similarity (accounting for variations, truncations, subtitle differences)
-2. Author matching (considering different name formats, partial names)
-3. Date consistency (considering year, month, day if available)
-4. URL/source consistency
-5. Overall content coherence
+IMPORTANT RULES:
+- Only evaluate fields that are present in both reference and website metadata
+- This prevents unfair penalties when website data is incomplete
+- Focus on comparing the available data fairly
 
-Rate the similarity on a scale of 0-100 and provide specific field scores.
-Consider this a MATCH if the overall score is 70 or higher.
+Available fields to evaluate: ${availableFields.join(', ')}
 
-Return only field details in the existing format.
+Scoring Guidelines for each field (0-100):
+• title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different
+• authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
+• year: 100=exact match, 0=different (no partial scoring for year)
+• url: 100=identical, 90=same domain different path, 70=related URLs, 0=different domains
+• description: 100=highly relevant, 80=relevant, 60=somewhat relevant, 40=loosely related, 0=unrelated
+• doi: 100=identical, 0=different (no partial scoring for DOI)
+• containerTitle: 100=identical, 90=same publication different format, 70=abbreviated vs full name, 0=different
+
+For each field, provide:
+- reference_value: The value from the reference
+- source_value: The value from the website
+- match_score: Score from 0-100 (0=no match, 100=perfect match)
+
+Consider partial matches, fuzzy matching, and semantic similarity.
+Missing values should be scored appropriately (e.g., 50 if one value is missing but not contradictory).
+
+Return as JSON with fieldDetails array containing objects with: field, reference_value, source_value, match_score.
 `
 
     const response = await aiServiceInstance.verifyMatch(prompt)
@@ -706,45 +743,31 @@ Return only field details in the existing format.
     try {
       const parsed = JSON.parse(response)
 
-      // Calculate overall score from field details
-      const fieldDetails = parsed.fieldDetails || []
-      let totalScore = 0
-      let totalWeight = 0
+      // Ensure fieldDetails have weights assigned (from our calculation)
+      const fieldDetails = (parsed.fieldDetails || []).map((detail: any) => ({
+        ...detail,
+        weight: fieldWeights[detail.field] || 0,
+      }))
 
-      for (const detail of fieldDetails) {
-        const score = detail.match_score || 0
-        let weight = 1
+      // Calculate the overall score ourselves using proper weights
+      const overallScore = this.calculateOverallScore(fieldDetails)
 
-        // Apply weights based on field importance
-        switch (detail.field) {
-          case 'title':
-            weight = 30
-            break
-          case 'authors':
-            weight = 25
-            break
-          case 'date':
-            weight = 15
-            break
-          case 'url':
-            weight = 20
-            break
-          default:
-            weight = 10
-        }
+      // Derive fieldsEvaluated from fieldDetails
+      const fieldsEvaluated = fieldDetails.map((detail: any) => detail.field)
 
-        totalScore += score * weight
-        totalWeight += weight
+      // Create match details from AI response with our calculated score
+      const matchDetails = {
+        overallScore,
+        fieldsEvaluated,
+        fieldDetails,
       }
 
-      const overallScore = totalWeight > 0 ? Math.round(totalScore / totalWeight) : 0
-      const isMatch = overallScore >= 70
+      // Use overall score for determining match (threshold can be adjusted)
+      const isMatch = overallScore >= 70 // Default threshold for website verification
 
       return {
         isMatch,
-        details: {
-          overallScore,
-        },
+        details: matchDetails,
       }
     }
     catch (error) {
@@ -756,5 +779,82 @@ Return only field details in the existing format.
         },
       }
     }
+  }
+
+  /**
+   * Get the fields that should be evaluated for matching between reference and website
+   * Only evaluate fields that are present in both reference and website metadata
+   * This prevents unfair penalties when website metadata is incomplete
+   */
+  private getAvailableFields(reference: Reference, websiteMetadata: WebsiteMetadata): string[] {
+    const fields: string[] = []
+
+    // Core fields
+    if (reference.metadata.title && websiteMetadata.title) {
+      fields.push('title')
+    }
+    if (reference.metadata.authors && reference.metadata.authors.length > 0
+      && websiteMetadata.authors && websiteMetadata.authors.length > 0) {
+      fields.push('authors')
+    }
+    if (reference.metadata.date.year && websiteMetadata.publishedDate) {
+      fields.push('year')
+    }
+
+    // URL comparison
+    if (reference.metadata.source.url && websiteMetadata.url) {
+      fields.push('url')
+    }
+
+    // Description comparison
+    if ((reference.metadata.title || reference.originalText) && websiteMetadata.description) {
+      fields.push('description')
+    }
+
+    // Identifier fields (less common on websites but possible)
+    if (reference.metadata.identifiers?.doi) {
+      fields.push('doi')
+    }
+
+    // Source fields (uncommon but possible on websites)
+    if (reference.metadata.source.containerTitle && websiteMetadata.siteName) {
+      fields.push('containerTitle')
+    }
+
+    return fields
+  }
+
+  /**
+   * Get field weights for all fields that should be evaluated
+   */
+  private getFieldWeightsForAvailableFields(availableFields: string[]): Record<string, number> {
+    const weights: Record<string, number> = {}
+
+    for (const field of availableFields) {
+      const weight = this.defaultFieldWeights[field as keyof FieldWeights]
+      if (typeof weight === 'number') {
+        weights[field] = weight
+      }
+    }
+
+    return weights
+  }
+
+  /**
+   * Calculate the overall weighted score from field details
+   */
+  private calculateOverallScore(fieldDetails: Array<{ match_score: number, weight: number }>): number {
+    if (fieldDetails.length === 0)
+      return 0
+
+    let totalWeightedScore = 0
+    let totalWeight = 0
+
+    for (const detail of fieldDetails) {
+      totalWeightedScore += detail.match_score * detail.weight
+      totalWeight += detail.weight
+    }
+
+    return totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0
   }
 }

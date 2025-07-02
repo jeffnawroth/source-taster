@@ -1,4 +1,4 @@
-import type { ProcessedReference, Reference } from '@source-taster/types'
+import type { ProcessedReference, Reference, WebsiteVerificationResult } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { ReferencesService } from '@/extension/services/referencesService'
@@ -183,6 +183,7 @@ export const useReferencesStore = defineStore('references', () => {
       if (extractedRefs.length === 0)
         return
 
+      // Use intelligent verification by default (automatically chooses website vs database verification)
       await verifyAllReferences(extractedRefs)
     }
     catch (error) {
@@ -315,6 +316,69 @@ export const useReferencesStore = defineStore('references', () => {
     }
   }
 
+  // Verify a reference against a website URL
+  async function verifyReferenceWebsite(index: number, url: string): Promise<WebsiteVerificationResult | null> {
+    if (index < 0 || index >= references.value.length) {
+      console.error('Invalid reference index for website verification:', index)
+      return null
+    }
+
+    // Prevent concurrent operations
+    if (currentlyVerifyingIndex.value >= 0) {
+      console.warn('Cannot start website verification: another verification is already in progress')
+      return null
+    }
+
+    const reference = references.value[index]
+
+    // Create new abort controller for this website verification
+    const websiteVerifyController = new AbortController()
+    const previousController = abortController
+    abortController = websiteVerifyController
+
+    try {
+      // Set currently verifying index
+      currentlyVerifyingIndex.value = index
+
+      // Create a fresh reference object for verification
+      const refToVerify: Reference = {
+        id: reference.id,
+        originalText: reference.originalText,
+        metadata: reference.metadata,
+      }
+
+      // Verify the reference against the website
+      const result = await ReferencesService.verifyWebsiteReference(
+        refToVerify,
+        url,
+        websiteVerifyController.signal,
+      )
+
+      // Check if operation was cancelled
+      if (websiteVerifyController.signal.aborted) {
+        return null
+      }
+
+      return result
+    }
+    catch (error) {
+      // Don't handle as error if it was just cancelled
+      if (websiteVerifyController.signal.aborted || (error instanceof Error && error.name === 'AbortError')) {
+        return null
+      }
+
+      console.error('Website verification failed:', error)
+      throw error
+    }
+    finally {
+      // Clear currently verifying index
+      currentlyVerifyingIndex.value = -1
+
+      // Restore previous abort controller
+      abortController = previousController
+    }
+  }
+
   return {
     // State
     inputText,
@@ -336,5 +400,6 @@ export const useReferencesStore = defineStore('references', () => {
     clearReferences,
     cancelProcessing,
     reVerifyReference,
+    verifyReferenceWebsite,
   }
 })
