@@ -206,62 +206,60 @@ export class SemanticScholarService {
 
   private async searchByQuery(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
     try {
-      // Try multiple search strategies for better coverage with enhanced query construction
+      // Try multiple search strategies, starting with the simplest and most effective
       const searchQueries = []
 
-      // Strategy 1: Author + Year + Venue for better precision (most specific)
-      if (metadata.authors?.[0] && metadata.date.year && metadata.title) {
-        const firstAuthor = metadata.authors[0]
-        let authorLastName: string | undefined
-        if (typeof firstAuthor === 'string') {
-          authorLastName = (firstAuthor as string).split(' ').pop()
-        }
-        else {
-          authorLastName = firstAuthor.lastName || firstAuthor.firstName
-        }
-        if (authorLastName) {
-          const keyTerms = metadata.title.toLowerCase()
-            .split(' ')
-            .filter(word => word.length > 2 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an'].includes(word))
-            .slice(0, 3) // Take first 3 key terms
-
-          const queryParts = [authorLastName, metadata.date.year.toString(), ...keyTerms]
-
-          // Add venue/journal if available
-          if (metadata.source?.containerTitle) {
-            queryParts.push(metadata.source.containerTitle)
-          }
-
-          searchQueries.push(queryParts.join(' '))
-        }
-      }
-
-      // Strategy 2: Author + Title for cases without year
-      if (metadata.authors?.[0] && metadata.title) {
-        const firstAuthor = metadata.authors[0]
-        let authorLastName: string | undefined
-        if (typeof firstAuthor === 'string') {
-          authorLastName = (firstAuthor as string).split(' ').pop()
-        }
-        else {
-          authorLastName = firstAuthor.lastName || firstAuthor.firstName
-        }
-        if (authorLastName) {
-          searchQueries.push(`${authorLastName} ${metadata.title}`)
-        }
-      }
-
-      // Strategy 3: Exact title (quoted for phrase search)
-      if (metadata.title) {
-        searchQueries.push(`"${metadata.title}"`)
-      }
-
-      // Strategy 4: Title without quotes for flexible matching
+      // Strategy 0: Simple title search (often most effective!)
       if (metadata.title) {
         searchQueries.push(metadata.title)
       }
 
-      // Strategy 5: Key terms only with field-specific search
+      // Strategy 1: Most specific - Full title + first author + year (highest precision)
+      if (metadata.title && metadata.authors?.[0] && metadata.date.year) {
+        const authorLastName = this.extractAuthorLastName(metadata.authors[0])
+        if (authorLastName) {
+          searchQueries.push(`"${metadata.title}" ${authorLastName} ${metadata.date.year}`)
+        }
+      }
+
+      // Strategy 2: Author + Year + Key title terms (high precision)
+      if (metadata.authors?.[0] && metadata.date.year && metadata.title) {
+        const authorLastName = this.extractAuthorLastName(metadata.authors[0])
+        if (authorLastName) {
+          const keyTerms = metadata.title.toLowerCase()
+            .split(' ')
+            .filter(word => word.length > 3 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an', 'and', 'or', 'from', 'using', 'text'].includes(word))
+            .slice(0, 4) // Take first 4 distinctive terms
+
+          const queryParts = [authorLastName, metadata.date.year.toString(), ...keyTerms]
+          searchQueries.push(queryParts.join(' '))
+        }
+      }
+
+      // Strategy 3: Exact title + year for unique identification
+      if (metadata.title && metadata.date.year) {
+        searchQueries.push(`"${metadata.title}" ${metadata.date.year}`)
+      }
+
+      // Strategy 4: Author + Title for cases without year
+      if (metadata.authors?.[0] && metadata.title) {
+        const authorLastName = this.extractAuthorLastName(metadata.authors[0])
+        if (authorLastName) {
+          searchQueries.push(`${authorLastName} "${metadata.title}"`)
+        }
+      }
+
+      // Strategy 5: Exact title (quoted for phrase search)
+      if (metadata.title) {
+        searchQueries.push(`"${metadata.title}"`)
+      }
+
+      // Strategy 6: Title without quotes for flexible matching
+      if (metadata.title) {
+        searchQueries.push(metadata.title)
+      }
+
+      // Strategy 7: Key terms only with field-specific search
       if (metadata.title) {
         const keyTerms = metadata.title.toLowerCase()
           .split(' ')
@@ -271,10 +269,37 @@ export class SemanticScholarService {
         }
       }
 
+      // Strategy 8: Author last names + key title words (handles format variations)
+      if (metadata.authors && metadata.authors.length > 0 && metadata.title) {
+        const authorLastNames = metadata.authors
+          .map(author => this.extractAuthorLastName(author))
+          .filter(Boolean)
+          .slice(0, 2) // Use first 2 authors
+
+        if (authorLastNames.length > 0) {
+          const titleKeywords = this.extractTitleKeywords(metadata.title, 3)
+          if (titleKeywords.length > 0) {
+            searchQueries.push([...authorLastNames, ...titleKeywords].join(' '))
+          }
+        }
+      }
+
+      // Strategy 9: Split author name formats - handle "Lastname, F." -> "F. Lastname"
+      if (metadata.authors && metadata.authors.length > 0 && metadata.title) {
+        const normalizedAuthors = metadata.authors.map(author => this.normalizeAuthorName(author)).filter(Boolean)
+        if (normalizedAuthors.length > 0) {
+          searchQueries.push(`${normalizedAuthors[0]} ${metadata.title}`)
+        }
+      }
+
       // Try each search strategy
-      for (const query of searchQueries) {
+      console.warn(`Semantic Scholar: Trying ${searchQueries.length} search strategies for: "${metadata.title}"`)
+      for (let i = 0; i < searchQueries.length; i++) {
+        const query = searchQueries[i]
+        console.warn(`Semantic Scholar: Strategy ${i + 1}: "${query}"`)
         const result = await this.performRelevanceSearch(query, metadata)
         if (result) {
+          console.warn(`Semantic Scholar: Found result with strategy ${i + 1}: ${result.id}`)
           return result
         }
       }
@@ -290,7 +315,7 @@ export class SemanticScholarService {
     try {
       const params = new URLSearchParams()
       params.append('query', query)
-      params.append('limit', '1') // Only need the first result since we take it anyway
+      params.append('limit', '10') // Get multiple results to choose from
       params.append('offset', '0')
 
       // Only request fields we actually need (performance optimization per API tutorial)
@@ -311,17 +336,6 @@ export class SemanticScholarService {
       ].join(',')
       params.append('fields', fields)
 
-      // Add filters if we have additional metadata for more precise results
-      if (metadata.date.year) {
-        // Allow some flexibility in year (±2 years)
-        const startYear = metadata.date.year - 2
-        const endYear = metadata.date.year + 2
-        params.append('year', `${startYear}-${endYear}`)
-      }
-
-      // Add publication type filters if available (journal articles are more reliable)
-      params.append('publicationTypes', 'JournalArticle,ConferencePaper')
-
       const url = `${this.baseUrl}/paper/search?${params.toString()}`
 
       console.warn(`Semantic Scholar: Query search: ${url}`)
@@ -336,13 +350,35 @@ export class SemanticScholarService {
       if (response.ok) {
         const data = await response.json() as any
         if (data.data && data.data.length > 0) {
-          // Take the first result - trust Semantic Scholar's relevance ranking
-          const work = data.data[0]
+          // For the first strategy (simple title search), take the first result
+          // Semantic Scholar already ranks by relevance
+          const bestMatch = data.data[0]
+
+          // Basic sanity check: if we have a year, make sure it's reasonably close
+          if (metadata.date.year && bestMatch.year) {
+            const yearDiff = Math.abs(bestMatch.year - metadata.date.year)
+            if (yearDiff > 5) {
+              // Try next result if year is way off
+              for (let i = 1; i < Math.min(data.data.length, 3); i++) {
+                const candidate = data.data[i]
+                if (candidate.year && Math.abs(candidate.year - metadata.date.year) <= 2) {
+                  return {
+                    id: candidate.paperId,
+                    source: 'semanticscholar',
+                    metadata: this.parseSemanticScholarWork(candidate),
+                    url: candidate.url || `https://www.semanticscholar.org/paper/${candidate.paperId}`,
+                  }
+                }
+              }
+            }
+          }
+
+          // Return the best match (first result)
           return {
-            id: work.paperId,
+            id: bestMatch.paperId,
             source: 'semanticscholar',
-            metadata: this.parseSemanticScholarWork(work),
-            url: work.url || `https://www.semanticscholar.org/paper/${work.paperId}`,
+            metadata: this.parseSemanticScholarWork(bestMatch),
+            url: bestMatch.url || `https://www.semanticscholar.org/paper/${bestMatch.paperId}`,
           }
         }
       }
@@ -515,5 +551,93 @@ export class SemanticScholarService {
     }
 
     return metadata
+  }
+
+  /**
+   * Enhanced author name extraction to handle various formats:
+   * - "Akbik, A." -> "Akbik"
+   * - "John Smith" -> "Smith"
+   * - "Smith" -> "Smith"
+   * - {firstName: "John", lastName: "Smith"} -> "Smith"
+   */
+  private extractAuthorLastName(author: string | { firstName?: string, lastName?: string }): string | undefined {
+    if (typeof author === 'string') {
+      const authorStr = author.trim()
+
+      // Handle "LastName, FirstInitial" format (e.g., "Akbik, A.")
+      if (authorStr.includes(',')) {
+        const parts = authorStr.split(',')
+        if (parts.length >= 2) {
+          return parts[0].trim() // Return the part before the comma
+        }
+      }
+
+      // Handle "FirstName LastName" format
+      const nameParts = authorStr.split(/\s+/)
+      if (nameParts.length >= 2) {
+        return nameParts[nameParts.length - 1] // Return the last part
+      }
+
+      // Single name - could be either first or last name
+      if (nameParts.length === 1) {
+        // If it looks like an initial (single letter or letter with dot), skip it
+        if (authorStr.match(/^[A-Z]\.?$/)) {
+          return undefined
+        }
+        return authorStr
+      }
+    }
+    else if (author && typeof author === 'object') {
+      // Handle author object format
+      return author.lastName || author.firstName
+    }
+
+    return undefined
+  }
+
+  /**
+   * Normalize author names to handle different formats
+   * "Akbik, A." -> "A. Akbik"
+   * "John Smith" -> "John Smith"
+   */
+  private normalizeAuthorName(author: string | { firstName?: string, lastName?: string }): string | undefined {
+    if (typeof author === 'string') {
+      const authorStr = author.trim()
+
+      // Handle "LastName, FirstInitial" format (e.g., "Akbik, A.")
+      if (authorStr.includes(',')) {
+        const parts = authorStr.split(',').map(p => p.trim())
+        if (parts.length >= 2 && parts[1]) {
+          return `${parts[1]} ${parts[0]}` // "A. Akbik"
+        }
+      }
+
+      // Return as-is for other formats
+      return authorStr
+    }
+    else if (author && typeof author === 'object') {
+      // Handle author object format
+      const firstName = author.firstName || ''
+      const lastName = author.lastName || ''
+      return `${firstName} ${lastName}`.trim()
+    }
+
+    return undefined
+  }
+
+  /**
+   * Extract meaningful keywords from title for flexible search
+   */
+  private extractTitleKeywords(title: string, maxKeywords: number = 5): string[] {
+    const stopWords = new Set(['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'from', 'using', 'based', 'via'])
+
+    return title.toLowerCase()
+      .split(/\s+/)
+      .filter(word =>
+        word.length > 2
+        && !stopWords.has(word)
+        && /^[a-z]/i.test(word), // Start with letter
+      )
+      .slice(0, maxKeywords)
   }
 }
