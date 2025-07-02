@@ -8,12 +8,8 @@ import OptionListItem from '../components/OptionListItem.vue'
 const { t } = useI18n()
 
 const aiModels = ref<Array<AIModel>>([
-  { title: 'Gemini 2.5 Pro', model: 'gemini-2.5-pro-exp-03-25', description: t('gemini-2.5-pro-description'), service: 'gemini' },
-  { title: 'Gemini 2.0 Flash', model: 'gemini-2.0-flash', description: t('gemini-2.0-flash-description'), service: 'gemini' },
-  { title: 'Gemini 2.0 Flash-Lite', model: 'gemini-2.0-flash-lite', description: t('gemini-2.0-flash-lite-description'), service: 'gemini' },
+  { title: 'Gemini 2.5 Flash', model: 'gemini-2.5-flash', description: t('gemini-2.0-flash-description'), service: 'gemini' },
   { title: 'GPT-4o', model: 'gpt-4o', description: t('gpt-4o-description'), service: 'openai' },
-  { title: 'o3-mini', model: 'o3-mini', description: t('o3-mini-description'), service: 'openai' },
-  { title: 'GPT-4.1 nano', model: 'gpt-4.1-nano', description: t('gpt-4.1-nano-description'), service: 'openai' },
 ])
 </script>
 
