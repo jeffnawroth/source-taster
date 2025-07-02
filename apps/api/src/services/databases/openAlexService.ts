@@ -60,7 +60,7 @@ export class OpenAlexService {
           id: work.id,
           source: 'openalex',
           metadata: this.parseOpenAlexWork(work),
-          url: work.id,
+          url: this.extractBestUrl(work),
         }
       }
     }
@@ -98,7 +98,7 @@ export class OpenAlexService {
           id: work.id,
           source: 'openalex',
           metadata: this.parseOpenAlexWork(work),
-          url: work.id,
+          url: this.extractBestUrl(work),
         }
       }
     }
@@ -307,5 +307,29 @@ export class OpenAlexService {
     if (intervalRemaining && Number(intervalRemaining) < 5) {
       console.warn(`OpenAlex: Interval rate limit low: ${intervalRemaining}/${intervalLimit} remaining`)
     }
+  }
+
+  /**
+   * Extract the best URL from an OpenAlex work object.
+   * Prioritizes actual landing page URLs over catalog URLs.
+   *
+   * Priority order:
+   * 1. Best OA location landing page URL (for open access)
+   * 2. Primary location landing page URL (official publisher link)
+   * 3. OpenAlex catalog URL (as fallback)
+   */
+  private extractBestUrl(work: any): string {
+    // First priority: Best OA location (open access version)
+    if (work.best_oa_location?.landing_page_url) {
+      return work.best_oa_location.landing_page_url
+    }
+
+    // Second priority: Primary location (official publisher)
+    if (work.primary_location?.landing_page_url) {
+      return work.primary_location.landing_page_url
+    }
+
+    // Fallback: OpenAlex catalog URL
+    return work.id || ''
   }
 }
