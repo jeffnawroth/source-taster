@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiTranslate } from '@mdi/js'
-import { useLocale } from 'vuetify/lib/framework.mjs'
+import { useLocale } from 'vuetify'
 import { sendMessage } from 'webext-bridge/options'
 import { localeOption } from '@/extension/logic/storage'
 
