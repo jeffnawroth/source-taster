@@ -1,4 +1,4 @@
-import type { UserConfig } from 'vite'
+import type { PluginOption, UserConfig } from 'vite'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
@@ -32,7 +32,7 @@ export const sharedConfig: UserConfig = {
         src: 'src/options/pages',
       },
       dts: 'src/typed-router.d.ts',
-    }),
+    }) as PluginOption,
     Vue({
       template: { transformAssetUrls },
     }),
@@ -63,7 +63,7 @@ export const sharedConfig: UserConfig = {
       ],
       dts: r('src/auto-imports.d.ts'),
 
-    }),
+    }) as PluginOption,
 
     // https://github.com/antfu/unplugin-vue-components
     Components({
@@ -71,13 +71,13 @@ export const sharedConfig: UserConfig = {
       // generate `components.d.ts` for ts support with Volar
       dts: r('src/components.d.ts'),
 
-    }),
+    }) as PluginOption,
 
     VueI18nPlugin({
       /* options */
       // locale messages resource pre-compile option
       include: resolve(dirname(fileURLToPath(import.meta.url)), './src/locales/**'),
-    }),
+    }) as PluginOption,
 
     // rewrite assets to use relative path
     {
