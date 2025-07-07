@@ -166,8 +166,8 @@ function reVerify() {
   >
     <!-- STATUS ICON & SCORE -->
     <template #append>
-      <ReportListItemStatusIcon
-        :score-text
+      <ReferenceScore
+        :score="scoreText"
         :color
       />
     </template>

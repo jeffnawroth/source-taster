@@ -18,7 +18,7 @@ const { currentlyVerifyingReference } = storeToRefs(useReferencesStore())
     slim
   >
     <v-slide-y-transition group>
-      <ReportListItem
+      <ReferenceItem
         v-for="(processedReference) in results"
         :key="processedReference.item.id"
         :reference="processedReference.item"

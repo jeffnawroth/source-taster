@@ -143,7 +143,7 @@ function handleRestart() {
     </v-card-subtitle>
     <v-card-text class="px-0">
       <!-- SEARCH -->
-      <ReportListSearchInput
+      <ReferencesSearchInput
         v-model="search"
         class="mb-2"
       />
@@ -219,7 +219,7 @@ function handleRestart() {
         style="max-height: calc(100vh - 528px); overflow-y: auto;"
       >
         <!-- LIST - Show immediately after extraction, even during processing -->
-        <ReportList
+        <ReferencesList
           v-if="references.length > 0"
           :results
         />
