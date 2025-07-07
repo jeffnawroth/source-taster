@@ -14,7 +14,6 @@
     "hono": "^4.8.3"
   },
   "devDependencies": {
-    "@google/genai": "^1.7.0",
     "@source-taster/eslint-config": "workspace:^",
     "@source-taster/types": "workspace:^",
     "@types/cheerio": "^1.0.0",
