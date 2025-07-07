@@ -56,7 +56,7 @@ function openOptionsPage() {
     />
 
     <v-app-bar-title>
-      The Source Taster
+      {{ $t('app-title') }}
     </v-app-bar-title>
 
     <template

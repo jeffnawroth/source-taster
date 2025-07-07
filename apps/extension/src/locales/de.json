@@ -3,6 +3,7 @@
   "about-description": "Erfahre mehr über die Extension",
   "advisor": "Betreuer",
   "ai": "KI",
+  "app-title": "The Source Taster",
   "ai-description": "Aktiviere und konfiguriere KI-gestützte Funktionen",
   "ai-extraction": "KI-Extraktion",
   "ai-extraction-description": "Wenn diese Option aktiviert ist, wird Google Gemini verwendet, um DOIs aus der Eingabe zu extrahieren. Dadurch können DOIs oft genauer erkannt werden als mit der Standardmethode.",

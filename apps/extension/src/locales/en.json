@@ -3,6 +3,7 @@
   "about-description": "Learn more about the extension",
   "advisor": "Advisor",
   "ai": "AI",
+  "app-title": "The Source Taster",
   "ai-description": "Enable and configure AI-powered functionality",
   "ai-extraction": "AI Extraction",
   "ai-extraction-description": "When this option is enabled, Google Gemini is used to extract DOIs from the input. This often allows for more accurate DOI recognition compared to the standard method.",
