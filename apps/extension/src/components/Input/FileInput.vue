@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { mdiFilePdfBox } from '@mdi/js'
-import { useAutoCheckReferences } from '@/extension/logic'
 import { useReferencesStore } from '@/extension/stores/references'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
@@ -12,7 +11,6 @@ const { file } = storeToRefs(referencesStore)
 
 // PDF TEXT
 const { inputText } = storeToRefs(referencesStore)
-const { extractAndVerifyReferences } = useReferencesStore()
 
 watch(file, async (newValue) => {
   if (!newValue)
@@ -22,9 +20,6 @@ watch(file, async (newValue) => {
   const pdfText = await extractTextFromPdfFile(newValue)
 
   inputText.value = pdfText
-
-  if (useAutoCheckReferences.value)
-    await extractAndVerifyReferences()
 })
 
 // CLEAR HANDLER

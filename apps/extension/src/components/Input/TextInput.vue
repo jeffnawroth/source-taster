@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { mdiText } from '@mdi/js'
-import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
-import { useAutoCheckReferences } from '@/extension/logic'
 import { useReferencesStore } from '@/extension/stores/references'
 
 // TRANSLATION
@@ -15,15 +13,6 @@ const { inputText } = storeToRefs(referencesStore)
 // TEXTAREA PLACEHOLDER
 const placeholder = computed(() => t('insert-references'))
 
-// AUTO CHECK REFERENCES
-const { extractAndVerifyReferences } = referencesStore
-const handleTextChange = useDebounceFn(async (newVal: string) => {
-  if (useAutoCheckReferences.value && newVal.trim()) {
-    inputText.value = newVal
-    await extractAndVerifyReferences()
-  }
-}, 1000)
-
 // SYNC TEXT
 const currentText = ref('')
 
@@ -35,7 +24,6 @@ watch(currentText, async (newVal) => {
 
 onMessage('selectedText', async ({ data }) => {
   currentText.value = data.text
-  await handleTextChange(data.text)
 })
 
 // CLEAR HANDLER
@@ -63,6 +51,5 @@ const disabled = computed(() => !!file.value || isProcessing.value)
     :disabled
     :messages="disabled ? [t('remove-file-to-enable-text-input')] : []"
     @click:clear="handleClear"
-    @update:model-value="handleTextChange($event)"
   />
 </template>

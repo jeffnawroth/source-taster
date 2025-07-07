@@ -2,7 +2,6 @@ import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionS
 
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
-export const useAutoCheckReferences = useWebExtensionStorage('auto-check-references', false)
 
 declare let chrome: any
 
