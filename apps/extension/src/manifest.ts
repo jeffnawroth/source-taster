@@ -15,15 +15,15 @@ export async function getManifest() {
     description: pkg.description,
     action: {
       default_icon: {
-        16: './assets/icon16.png',
-        32: './assets/icon32.png',
-        48: './assets/icon48.png',
-        128: './assets/icon128.png',
+        16: 'assets/icon16.png',
+        32: 'assets/icon32.png',
+        48: 'assets/icon48.png',
+        128: 'assets/icon128.png',
       },
-      default_popup: './dist/popup/index.html',
+      default_popup: 'dist/popup/index.html',
     },
     options_ui: {
-      page: './dist/options/index.html',
+      page: 'dist/options/index.html',
       open_in_tab: true,
     },
     background: isFirefox
@@ -32,13 +32,13 @@ export async function getManifest() {
           type: 'module',
         }
       : {
-          service_worker: './dist/background/index.mjs',
+          service_worker: 'dist/background/index.mjs',
         },
     icons: {
-      16: './assets/icon16.png',
-      32: './assets/icon32.png',
-      48: './assets/icon48.png',
-      128: './assets/icon128.png',
+      16: 'assets/icon16.png',
+      32: 'assets/icon32.png',
+      48: 'assets/icon48.png',
+      128: 'assets/icon128.png',
     },
     permissions: isFirefox
       ? ['storage', 'activeTab', 'contextMenus']
