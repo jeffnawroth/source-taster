@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core'
 import { useReferencesStore } from '@/extension/stores/references'
-import CheckReferencesButton from './CheckReferencesButton.vue'
+import CheckButton from './CheckButton.vue'
 import FileInput from './FileInput.vue'
 import TextInput from './TextInput.vue'
 
@@ -9,7 +9,7 @@ import TextInput from './TextInput.vue'
 const components = [
   FileInput,
   TextInput,
-  CheckReferencesButton,
+  CheckButton,
 ]
 
 // KEYBOARD SHORTCUT FOR CHECK REFERENCES
