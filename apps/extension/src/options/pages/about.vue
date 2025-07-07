@@ -34,7 +34,7 @@ const version = `v${__APP_VERSION__}`
 
       <div class="text-center">
         <h1 class="text-h2 font-weight-bold mb-2">
-          The Source Taster
+          {{ t('app-title') }}
         </h1>
 
         <div class="text-body-2 font-weight-light mb-2">
