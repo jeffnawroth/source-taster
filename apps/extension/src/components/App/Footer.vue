@@ -16,7 +16,7 @@ const fullYear = computed(() => new Date().getFullYear())
         class="text-center"
         cols="12"
       >
-        {{ fullYear }} — <strong>The Source Taster</strong>
+        {{ fullYear }} — <strong>{{ $t('app-title') }}</strong>
       </v-col>
     </v-row>
   </v-footer>
