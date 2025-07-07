@@ -2,7 +2,7 @@
 import { mdiText } from '@mdi/js'
 import { useDebounceFn } from '@vueuse/core'
 import { onMessage } from 'webext-bridge/popup'
-import { useAutoCheckReferences, useAutoImport } from '@/extension/logic'
+import { useAutoCheckReferences } from '@/extension/logic'
 import { useReferencesStore } from '@/extension/stores/references'
 
 // TRANSLATION
@@ -13,7 +13,7 @@ const referencesStore = useReferencesStore()
 const { inputText } = storeToRefs(referencesStore)
 
 // TEXTAREA PLACEHOLDER
-const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-references'))
+const placeholder = computed(() => t('insert-references'))
 
 // AUTO CHECK REFERENCES
 const { extractAndVerifyReferences } = referencesStore
@@ -34,15 +34,6 @@ watch(currentText, async (newVal) => {
 })
 
 onMessage('selectedText', async ({ data }) => {
-  currentText.value = data.text
-  await handleTextChange(data.text)
-})
-
-// SET AUTO IMPORTED TEXT
-onMessage('autoImportText', async ({ data }) => {
-  if (!useAutoImport.value)
-    return
-
   currentText.value = data.text
   await handleTextChange(data.text)
 })

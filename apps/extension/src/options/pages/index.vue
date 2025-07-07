@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { mdiAutoUpload, mdiInformationOutline, mdiTextBoxSearchOutline } from '@mdi/js'
-import { useAutoCheckReferences, useAutoImport } from '@/extension/logic'
+import { mdiInformationOutline, mdiTextBoxSearchOutline } from '@mdi/js'
+import { useAutoCheckReferences } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -18,26 +18,6 @@ const { t } = useI18n()
 
     <v-divider class="my-4" />
 
-    <OptionListItem
-      :title="t('auto-import-references')"
-      :prepend-icon="mdiAutoUpload"
-
-      @click="useAutoImport = !useAutoImport"
-    >
-      <template #subtitle>
-        <p>{{ t('auto-import-references-description') }}</p>
-        <p class="text-medium-emphasis mt-1">
-          <v-icon
-            :icon="mdiInformationOutline"
-            size="small"
-          />
-          {{ t('auto-import-references-info') }}
-        </p>
-      </template>
-      <OptionSwitch
-        v-model="useAutoImport"
-      />
-    </OptionListItem>
     <OptionListItem
       :title="t('auto-references-check')"
       :prepend-icon="mdiTextBoxSearchOutline"
