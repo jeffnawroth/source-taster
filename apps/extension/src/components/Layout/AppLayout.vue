@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLocale } from 'vuetify'
 import { VDivider } from 'vuetify/lib/components/index.mjs'
-import ReportCard from '@/extension/components/Report/ReportCard.vue'
+import Report from '@/extension/components/Report/Report.vue'
 import { localeOption } from '@/extension/logic/storage'
 import InputCard from '../Input/InputCard.vue'
 
@@ -18,7 +18,7 @@ watchEffect(() => {
 const components = [
   InputCard,
   VDivider,
-  ReportCard,
+  Report,
 ]
 </script>
 
