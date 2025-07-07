@@ -173,7 +173,7 @@ function reVerify() {
     </template>
 
     <!-- SUBTITLE -->
-    <ReferenceCardSubtitle :reference />
+    <ReferenceSubtitle :reference />
 
     <!-- ACTIONS -->
     <v-card-actions>
@@ -282,7 +282,7 @@ function reVerify() {
       </v-row>
     </v-card-actions>
 
-    <ReferenceCardDetails
+    <ReferenceDetails
       v-show="showDetails"
       :reference
     />

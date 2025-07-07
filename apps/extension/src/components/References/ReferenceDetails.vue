@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
 import { mdiAlertCircle } from '@mdi/js'
-import SourceEvaluationList from './SourceEvaluationList.vue'
 
 const { reference } = defineProps<{
   reference: ProcessedReference
@@ -23,7 +22,7 @@ const { t } = useI18n()
       <v-divider class="my-2" />
 
       <!-- ERROR -->
-      <ReferenceCardDetailsItem
+      <ReferenceMetadataItem
         v-if="reference.status === 'error' && reference.error"
         :icon="mdiAlertCircle"
         :title="t('error')"
@@ -32,7 +31,7 @@ const { t } = useI18n()
       />
 
       <!-- All Source Evaluations for Transparency -->
-      <SourceEvaluationList
+      <EvaluationList
         v-if="reference.verificationResult?.verificationDetails?.allSourceEvaluations?.length"
         :source-evaluations="reference.verificationResult.verificationDetails.allSourceEvaluations"
       />

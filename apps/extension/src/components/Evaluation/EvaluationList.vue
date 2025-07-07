@@ -30,16 +30,6 @@ const sortedEvaluations = computed(() =>
 
 <template>
   <div v-if="sourceEvaluations.length > 0">
-    <!-- <v-divider class="my-4" /> -->
-
-    <!-- <div class="text-subtitle-1 font-weight-medium mb-3">
-      <v-icon
-        :icon="mdiDatabaseOutline"
-        class="me-2"
-      />
-      {{ t('all-found-sources') }} ({{ sourceEvaluations.length }})
-    </div> -->
-
     <v-list-subheader>
       <v-icon
         :icon="mdiSourceBranch"

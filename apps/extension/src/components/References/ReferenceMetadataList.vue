@@ -141,7 +141,7 @@ const formattedDate = computed(() => {
     <v-list-subheader>{{ subheader }}</v-list-subheader>
 
     <!-- ORIGINAL TEXT -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="'originalText' in props.reference && props.reference.originalText"
       :icon="mdiText"
       :title="t('original-text')"
@@ -149,7 +149,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- TITLE -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.title"
       :icon="mdiFileDocumentOutline"
       :title="t('title')"
@@ -157,7 +157,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- AUTHORS -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.authors?.length"
       :icon="mdiAccountGroup"
       :title="t('authors')"
@@ -167,7 +167,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- JOURNAL/CONTAINER TITLE -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.containerTitle"
       :icon="mdiEarth"
       :title="t('containerTitle')"
@@ -175,7 +175,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- PUBLICATION DATE (combined day, month, year) -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="formattedDate"
       :icon="mdiCalendarOutline"
       :title="t('publication-date')"
@@ -183,7 +183,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- VOLUME -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.volume"
       :icon="mdiBookOpenBlankVariantOutline"
       :title="t('volume')"
@@ -191,7 +191,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- ISSUE -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.issue"
       :icon="mdiCalendarRange"
       :title="t('issue')"
@@ -199,7 +199,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- PAGES -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.pages"
       :icon="mdiNotebookOutline"
       :title="t('pages')"
@@ -207,7 +207,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- SOURCE TYPE -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.sourceType"
       :icon="mdiTag"
       :title="t('source-type')"
@@ -215,7 +215,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- PUBLISHER -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.publisher"
       :icon="mdiDomain"
       :title="t('publisher')"
@@ -223,7 +223,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- PUBLICATION PLACE -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.publicationPlace"
       :icon="mdiMapMarker"
       :title="t('publication-place')"
@@ -231,7 +231,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- EDITION -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.edition"
       :icon="mdiBookmark"
       :title="t('edition')"
@@ -239,7 +239,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- SERIES -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.series"
       :icon="mdiLibrary"
       :title="t('series')"
@@ -247,7 +247,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- INSTITUTION -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.institution"
       :icon="mdiSchool"
       :title="t('institution')"
@@ -268,7 +268,7 @@ const formattedDate = computed(() => {
       <v-divider class="my-2" />
 
       <!-- DOI -->
-      <ReferenceCardDetailsItem
+      <ReferenceMetadataItem
         v-if="props.reference.metadata.identifiers?.doi"
         :icon="mdiIdentifier"
         title="DOI"
@@ -277,7 +277,7 @@ const formattedDate = computed(() => {
       />
 
       <!-- ARXIV ID -->
-      <ReferenceCardDetailsItem
+      <ReferenceMetadataItem
         v-if="props.reference.metadata.identifiers?.arxivId"
         :icon="mdiNewspaper"
         title="arXiv ID"
@@ -286,7 +286,7 @@ const formattedDate = computed(() => {
       />
 
       <!-- PMID -->
-      <ReferenceCardDetailsItem
+      <ReferenceMetadataItem
         v-if="props.reference.metadata.identifiers?.pmid"
         :icon="mdiMedicalBag"
         title="PMID"
@@ -295,7 +295,7 @@ const formattedDate = computed(() => {
       />
 
       <!-- PMCID -->
-      <ReferenceCardDetailsItem
+      <ReferenceMetadataItem
         v-if="props.reference.metadata.identifiers?.pmcid"
         :icon="mdiMedicalBag"
         title="PMCID"
@@ -304,7 +304,7 @@ const formattedDate = computed(() => {
       />
 
       <!-- ISBN -->
-      <ReferenceCardDetailsItem
+      <ReferenceMetadataItem
         v-if="props.reference.metadata.identifiers?.isbn"
         :icon="mdiLibrary"
         title="ISBN"
@@ -313,7 +313,7 @@ const formattedDate = computed(() => {
       />
 
       <!-- ISSN -->
-      <ReferenceCardDetailsItem
+      <ReferenceMetadataItem
         v-if="props.reference.metadata.identifiers?.issn"
         :icon="mdiNewspaper"
         title="ISSN"
@@ -323,7 +323,7 @@ const formattedDate = computed(() => {
     </template>
 
     <!-- URL for ExternalSource -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="'url' in props.reference && props.reference.url"
       :icon="mdiLink"
       title="URL"
@@ -332,7 +332,7 @@ const formattedDate = computed(() => {
     />
 
     <!-- SOURCE URL -->
-    <ReferenceCardDetailsItem
+    <ReferenceMetadataItem
       v-if="props.reference.metadata.source.url"
       :icon="mdiLink"
       :title="t('source-url')"
@@ -354,7 +354,7 @@ const formattedDate = computed(() => {
       <v-expand-transition>
         <div v-if="showAdditionalFields">
           <!-- SUBTITLE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.subtitle"
             :icon="mdiFileDocumentOutline"
             :title="t('subtitle')"
@@ -362,7 +362,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- LOCATION -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.location"
             :icon="mdiMapMarker"
             :title="t('location')"
@@ -370,7 +370,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- RETRIEVAL DATE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.retrievalDate"
             :icon="mdiCalendarClock"
             :title="t('retrieval-date')"
@@ -378,7 +378,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- CONTRIBUTORS -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.contributors?.length"
             :icon="mdiAccountTie"
             :title="t('contributors')"
@@ -388,7 +388,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- PAGE TYPE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.pageType"
             :icon="mdiNotebookOutline"
             :title="t('page-type')"
@@ -396,7 +396,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- PARAGRAPH NUMBER -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.paragraphNumber"
             :icon="mdiNumeric"
             :title="t('paragraph-number')"
@@ -404,7 +404,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- VOLUME PREFIX -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.volumePrefix"
             :icon="mdiBookOpenBlankVariantOutline"
             :title="t('volume-prefix')"
@@ -412,7 +412,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- ISSUE PREFIX -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.issuePrefix"
             :icon="mdiCalendarRange"
             :title="t('issue-prefix')"
@@ -420,7 +420,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- SUPPLEMENT INFO -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.supplementInfo"
             :icon="mdiFileMultiple"
             :title="t('supplement-info')"
@@ -428,7 +428,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- ARTICLE NUMBER -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.articleNumber"
             :icon="mdiNumeric"
             :title="t('article-number')"
@@ -436,7 +436,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- CONFERENCE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.conference"
             :icon="mdiMicrophone"
             :title="t('conference')"
@@ -444,7 +444,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- SERIES NUMBER -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.seriesNumber"
             :icon="mdiLibrary"
             :title="t('series-number')"
@@ -452,7 +452,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- CHAPTER TITLE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.chapterTitle"
             :icon="mdiFileDocumentOutline"
             :title="t('chapter-title')"
@@ -460,7 +460,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- MEDIUM -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.medium"
             :icon="mdiTelevision"
             :title="t('medium')"
@@ -468,7 +468,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- ORIGINAL TITLE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.originalTitle"
             :icon="mdiTranslate"
             :title="t('original-title')"
@@ -476,7 +476,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- ORIGINAL LANGUAGE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.originalLanguage"
             :icon="mdiTranslate"
             :title="t('original-language')"
@@ -484,7 +484,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- DEGREE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.degree"
             :icon="mdiGavel"
             :title="t('degree')"
@@ -492,7 +492,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- ADVISOR -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.advisor"
             :icon="mdiAccountTie"
             :title="t('advisor')"
@@ -500,7 +500,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- DEPARTMENT -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.source.department"
             :icon="mdiSchool"
             :title="t('department')"
@@ -524,7 +524,7 @@ const formattedDate = computed(() => {
       <v-expand-transition>
         <div v-if="showDateFields">
           <!-- SEASON -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.date.season"
             :icon="mdiCalendarOutline"
             :title="t('season')"
@@ -532,7 +532,7 @@ const formattedDate = computed(() => {
           />
 
           <!-- DATE RANGE -->
-          <ReferenceCardDetailsItem
+          <ReferenceMetadataItem
             v-if="props.reference.metadata.date.dateRange && props.reference.metadata.date.yearEnd"
             :icon="mdiCalendarRange"
             :title="t('date-range')"
