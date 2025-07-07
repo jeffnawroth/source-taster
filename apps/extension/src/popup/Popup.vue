@@ -3,7 +3,7 @@
     <AppBar />
     <v-main>
       <v-container>
-        <App />
+        <AppLayout />
       </v-container>
     </v-main>
     <Footer />

@@ -5,7 +5,7 @@
     <AppBar />
     <v-main>
       <v-container style="max-height: calc(100vh - 95px); overflow: hidden;">
-        <App />
+        <AppLayout />
       </v-container>
     </v-main>
     <Footer />
