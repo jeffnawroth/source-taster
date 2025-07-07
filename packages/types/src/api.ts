@@ -18,12 +18,12 @@ export interface ApiResponse<T = any> {
 }
 
 /**
- * Configuration for AI services (OpenAI, Gemini)
+ * Configuration for AI services (OpenAI only)
  */
 export interface AIServiceConfig {
   /** API key for the service */
   apiKey: string
-  /** Model name to use (e.g., 'gpt-4o', 'gemini-2.5-flash') */
+  /** Model name to use (e.g., 'gpt-4o', 'gpt-4-turbo') */
   model: string
   /** Temperature for response randomness (0.0-1.0) */
   temperature?: number
@@ -35,8 +35,6 @@ export interface AIServiceConfig {
  * AI model specification for requests
  */
 export interface AIModel {
-  /** AI service to use */
-  service: 'openai' | 'gemini'
-  /** Specific model to use */
+  /** Specific OpenAI model to use */
   model: string
 }

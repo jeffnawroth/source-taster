@@ -7,10 +7,9 @@ import { AIServiceFactory } from './ai/aiServiceFactory'
 export class ReferenceExtractionService {
   async extractReferences(
     text: string,
-    aiService: 'openai' | 'gemini',
     model?: string,
   ): Promise<Reference[]> {
-    const ai = AIServiceFactory.create(aiService, model)
+    const ai = AIServiceFactory.create(model)
 
     const prompt = `
 Extract all academic references from the following text. Return them as a JSON object with a "references" array containing the following hierarchical structure:

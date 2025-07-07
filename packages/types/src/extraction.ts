@@ -9,9 +9,7 @@ import type { Reference } from './reference'
 export interface ExtractionRequest {
   /** The text to extract references from */
   text: string
-  /** AI service to use */
-  aiService: 'openai' | 'gemini'
-  /** AI model to use (optional) */
+  /** OpenAI model to use (optional, defaults to gpt-4o) */
   model?: string
 }
 

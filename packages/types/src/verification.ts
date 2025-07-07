@@ -13,9 +13,7 @@ import type {
 export interface VerificationRequest {
   /** References to verify */
   references: Reference[]
-  /** AI service to use (optional) */
-  aiService?: 'openai' | 'gemini'
-  /** AI model to use (optional) */
+  /** OpenAI model to use (optional, defaults to gpt-4o) */
   model?: string
 }
 

@@ -48,7 +48,6 @@ export class VerificationController {
             const websiteResult = await this.websiteVerificationService.verifyWebsiteReference(
               reference,
               reference.metadata.source.url!,
-              request.aiService || 'openai',
             )
 
             // Convert website verification result to standard verification result format
@@ -67,13 +66,13 @@ export class VerificationController {
           catch (error) {
             // If website verification fails, fall back to database verification
             console.warn(`Website verification failed for reference ${reference.id}, falling back to database:`, error)
-            const dbResults = await this.verificationService.verifyReferences([reference], request.aiService)
+            const dbResults = await this.verificationService.verifyReferences([reference])
             results.push(...dbResults)
           }
         }
         else {
           // Use database verification for academic references
-          const dbResults = await this.verificationService.verifyReferences([reference], request.aiService)
+          const dbResults = await this.verificationService.verifyReferences([reference])
           results.push(...dbResults)
         }
       }
@@ -191,7 +190,6 @@ export class VerificationController {
       const request = await c.req.json() as {
         reference: any
         url: string
-        aiService: 'openai' | 'gemini'
         options?: any
       }
 
@@ -212,19 +210,10 @@ export class VerificationController {
         return c.json(errorResponse, 400)
       }
 
-      if (!request.aiService) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: 'AI service is required',
-        }
-        return c.json(errorResponse, 400)
-      }
-
       // Verify website reference
       const result = await this.websiteVerificationService.verifyWebsiteReference(
         request.reference,
         request.url,
-        request.aiService,
         request.options,
       )
 

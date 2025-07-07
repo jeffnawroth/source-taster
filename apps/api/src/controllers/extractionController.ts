@@ -22,10 +22,10 @@ export class ExtractionController {
       const request = await c.req.json() as ExtractionRequest
 
       // Validation
-      if (!request.text || !request.aiService) {
+      if (!request.text) {
         const errorResponse: ApiResponse = {
           success: false,
-          error: 'Text and aiService are required',
+          error: 'Text is required',
         }
         return c.json(errorResponse, 400)
       }
@@ -33,7 +33,6 @@ export class ExtractionController {
       // Extract references
       const references = await this.extractionService.extractReferences(
         request.text,
-        request.aiService,
         request.model,
       )
 

@@ -40,14 +40,12 @@ export class DatabaseVerificationService {
 
   async verifyReferences(
     references: Reference[],
-    aiService?: 'openai' | 'gemini',
   ): Promise<VerificationResult[]> {
     const results: VerificationResult[] = []
 
     for (const reference of references) {
       const result = await this.verifyReference(
         reference,
-        aiService,
       )
       results.push(result)
     }
@@ -57,7 +55,6 @@ export class DatabaseVerificationService {
 
   private async verifyReference(
     reference: Reference,
-    aiService?: 'openai' | 'gemini',
   ): Promise<VerificationResult> {
     // Search in all databases in parallel for better performance
     const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
@@ -103,16 +100,12 @@ export class DatabaseVerificationService {
     }
 
     // Verify with AI using the best available sources
-    if (!aiService) {
-      throw new Error('AI service is required for verification')
-    }
-
     // Evaluate all sources and find the best one based on AI scoring
     const sourceEvaluations: SourceEvaluation[] = []
 
     // Evaluate each source with AI
     for (const source of sources) {
-      const matchResult = await this.verifyWithAI(reference, source, aiService)
+      const matchResult = await this.verifyWithAI(reference, source)
       sourceEvaluations.push({
         source,
         matchDetails: matchResult.details,
@@ -218,9 +211,8 @@ export class DatabaseVerificationService {
   private async verifyWithAI(
     reference: Reference,
     source: ExternalSource,
-    aiService: 'openai' | 'gemini',
   ): Promise<{ isMatch: boolean, details: MatchDetails }> {
-    const ai = AIServiceFactory.create(aiService)
+    const ai = AIServiceFactory.create()
 
     // Get the fields that should be evaluated (including core fields even if missing in source)
     const availableFields = this.getAvailableFields(reference, source)

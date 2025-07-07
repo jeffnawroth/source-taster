@@ -53,7 +53,6 @@ export class WebsiteVerificationService {
   async verifyWebsiteReference(
     reference: Reference,
     url: string,
-    aiService: 'openai' | 'gemini',
     options?: WebsiteVerificationOptions,
   ): Promise<WebsiteVerificationResult> {
     const opts = { ...this.defaultOptions, ...options }
@@ -64,7 +63,7 @@ export class WebsiteVerificationService {
 
       if (websiteMetadata) {
         console.warn(`Extracted metadata for ${url}:`, JSON.stringify(websiteMetadata, null, 2))
-        const matchResult = await this.verifyWithAI(reference, websiteMetadata, aiService)
+        const matchResult = await this.verifyWithAI(reference, websiteMetadata)
         console.warn(`AI verification result:`, JSON.stringify(matchResult, null, 2))
         return {
           referenceId: reference.id,
@@ -89,7 +88,7 @@ export class WebsiteVerificationService {
       try {
         const archivedVersion = await this.getArchivedVersion(url)
         if (archivedVersion && archivedVersion.metadata) {
-          const matchResult = await this.verifyWithAI(reference, archivedVersion.metadata, aiService)
+          const matchResult = await this.verifyWithAI(reference, archivedVersion.metadata)
           return {
             referenceId: reference.id,
             url,
@@ -684,9 +683,8 @@ export class WebsiteVerificationService {
   private async verifyWithAI(
     reference: Reference,
     websiteMetadata: WebsiteMetadata,
-    aiService: 'openai' | 'gemini',
   ) {
-    const aiServiceInstance = AIServiceFactory.create(aiService)
+    const aiServiceInstance = AIServiceFactory.create()
 
     // Get the fields that should be evaluated and their weights
     const availableFields = this.getAvailableFields(reference, websiteMetadata)
