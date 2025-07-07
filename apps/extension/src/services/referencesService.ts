@@ -1,6 +1,5 @@
 import type { Reference, VerificationResult, WebsiteVerificationResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
-import { selectedAiModel } from '../logic'
 
 export class ReferencesService {
   /**
@@ -14,8 +13,6 @@ export class ReferencesService {
       },
       body: JSON.stringify({
         text,
-        aiService: selectedAiModel.value.service,
-        model: selectedAiModel.value.model,
       }),
       signal,
     })
@@ -44,8 +41,6 @@ export class ReferencesService {
       },
       body: JSON.stringify({
         references,
-        aiService: selectedAiModel.value.service,
-        model: selectedAiModel.value.model,
       }),
       signal,
     })
@@ -79,7 +74,6 @@ export class ReferencesService {
       body: JSON.stringify({
         reference,
         url,
-        aiService: selectedAiModel.value.service,
         options: {
           timeout: 10000,
           enableWaybackMachine: true,
