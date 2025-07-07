@@ -22,23 +22,10 @@ defineProps<{
         :key="fieldDetail.field"
         cols="6"
       >
-        <SourceEvaluationScoreItem
+        <ScoreItem
           :score="fieldDetail.match_score"
           :text="$t(`${fieldDetail.field}`)"
           :weight="fieldDetail.weight"
-        />
-      </v-col>
-    </v-row>
-
-    <!-- Fallback: Show overall match if no field details -->
-    <v-row
-      v-else
-      dense
-    >
-      <v-col cols="12">
-        <SourceEvaluationMatchItem
-          :match="evaluation.isMatch"
-          :text="$t('overall-match')"
         />
       </v-col>
     </v-row>

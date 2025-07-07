@@ -80,7 +80,7 @@ const sortedEvaluations = computed(() =>
             </div>
 
             <!-- Match Details -->
-            <SourceEvaluationMatchDetails
+            <MatchDetails
               :evaluation
             />
 
