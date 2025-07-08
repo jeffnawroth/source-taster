@@ -87,6 +87,7 @@ const showDetails = ref(false)
       />
     </v-card-actions>
 
+    <!-- DETAILS -->
     <ReferenceDetails
       v-show="showDetails"
       :reference

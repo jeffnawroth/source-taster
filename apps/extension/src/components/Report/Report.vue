@@ -27,6 +27,7 @@ const { results } = useFuse(search, references, {
   <v-card
     flat
   >
+    <!-- TITLE -->
     <v-card-title class="px-0">
       <v-icon size="x-small">
         {{ mdiFileDocumentOutline }}
@@ -38,6 +39,7 @@ const { results } = useFuse(search, references, {
     <v-card-subtitle class="px-0">
       <ReportSubtitle />
     </v-card-subtitle>
+
     <v-card-text class="px-0">
       <!-- SEARCH -->
       <ReferencesSearchInput
