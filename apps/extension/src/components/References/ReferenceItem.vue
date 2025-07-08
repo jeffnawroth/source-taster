@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
-import { mdiCheck, mdiChevronDown, mdiChevronUp, mdiContentCopy, mdiOpenInNew, mdiRefresh } from '@mdi/js'
+import { mdiCheck, mdiContentCopy, mdiOpenInNew, mdiRefresh } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 import { getScoreColor, shouldShowReVerify } from '@/extension/utils/scoreUtils'
 // PROPS
@@ -185,15 +185,7 @@ function reVerify() {
           cols="auto"
           align-self="center"
         >
-          <!-- Details Toggle -->
-          <v-btn
-            variant="text"
-            size="small"
-            :prepend-icon="showDetails ? mdiChevronUp : mdiChevronDown"
-            @click="showDetails = !showDetails"
-          >
-            {{ showDetails ? $t('hide-details') : $t('show-details') }}
-          </v-btn>
+          <DetailsToggleBtn v-model="showDetails" />
         </v-col>
 
         <v-spacer />
