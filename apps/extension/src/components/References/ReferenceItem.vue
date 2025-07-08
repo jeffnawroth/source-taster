@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
-import { mdiCheck, mdiContentCopy, mdiOpenInNew, mdiRefresh } from '@mdi/js'
-import { useReferencesStore } from '@/extension/stores/references'
-import { getScoreColor, shouldShowReVerify } from '@/extension/utils/scoreUtils'
+import { getScoreColor } from '@/extension/utils/scoreUtils'
+import CopyIdentifierBtn from './Actions/CopyIdentifierBtn.vue'
+import DetailsToggleBtn from './Actions/DetailsToggleBtn.vue'
+import OpenSrcBtn from './Actions/OpenSrcBtn.vue'
+import ReVerifyBtn from './Actions/ReVerifyBtn.vue'
+
 // PROPS
 const { reference, isCurrentlyVerifying = false } = defineProps<{
   reference: ProcessedReference
@@ -11,15 +14,6 @@ const { reference, isCurrentlyVerifying = false } = defineProps<{
 
 // TRANSLATION
 const { t } = useI18n()
-
-// STORE
-const referencesStore = useReferencesStore()
-const { isProcessing, currentlyVerifyingIndex } = storeToRefs(referencesStore)
-
-// Check if any verification is currently running (prevents concurrent operations)
-const isAnyVerificationRunning = computed(() =>
-  isProcessing.value || currentlyVerifyingIndex.value >= 0,
-)
 
 // CARD COLOR based on verification score
 const color = computed(() => {
@@ -67,92 +61,24 @@ const scoreText = computed(() => {
 // SHOW DETAILS
 const showDetails = ref(false)
 
-// COPY STATE
-const isCopied = ref(false)
-
-// PRIMARY URL for opening source
-const primaryUrl = computed(() => {
-  // Priority: DOI > PMC > PMID > URL
-  if (reference.metadata.identifiers?.doi) {
-    return `https://doi.org/${reference.metadata.identifiers.doi}`
-  }
-  if (reference.metadata.identifiers?.pmcid) {
-    const pmcid = reference.metadata.identifiers.pmcid.startsWith('PMC')
-      ? reference.metadata.identifiers.pmcid
-      : `PMC${reference.metadata.identifiers.pmcid}`
-    return `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/`
-  }
-  if (reference.metadata.identifiers?.pmid) {
-    return `https://pubmed.ncbi.nlm.nih.gov/${reference.metadata.identifiers.pmid}`
-  }
-  if (reference.metadata.source.url) {
-    return reference.metadata.source.url
-  }
-  return undefined
-})
-
-// COPY IDENTIFIER function
-async function copyIdentifier() {
-  let identifier = ''
-
-  // Priority: DOI > PMCID > PMID > arXiv > ISBN > ISSN
-  if (reference.metadata.identifiers?.doi) {
-    identifier = reference.metadata.identifiers.doi
-  }
-  else if (reference.metadata.identifiers?.pmcid) {
-    identifier = reference.metadata.identifiers.pmcid
-  }
-  else if (reference.metadata.identifiers?.pmid) {
-    identifier = reference.metadata.identifiers.pmid
-  }
-  else if (reference.metadata.identifiers?.arxivId) {
-    identifier = reference.metadata.identifiers.arxivId
-  }
-  else if (reference.metadata.identifiers?.isbn) {
-    identifier = reference.metadata.identifiers.isbn
-  }
-  else if (reference.metadata.identifiers?.issn) {
-    identifier = reference.metadata.identifiers.issn
-  }
-
-  if (identifier) {
-    try {
-      await navigator.clipboard.writeText(identifier)
-
-      // Show success icon
-      isCopied.value = true
-
-      // Reset icon after 2 seconds
-      setTimeout(() => {
-        isCopied.value = false
-      }, 2000)
-    }
-    catch (error) {
-      console.error('Failed to copy identifier:', error)
-    }
-  }
-}
-
-// OPEN SOURCE function
-function openSource() {
-  if (primaryUrl.value) {
-    window.open(primaryUrl.value, '_blank')
-  }
-}
-
-// FLAG AS PROBLEMATIC function
-// function flagProblematic() {
-//   // TODO: Implement flagging functionality
-//   // This could emit an event to parent component or update a store
-// }
-
-// RE-VERIFY function
-function reVerify() {
-  const index = referencesStore.references.findIndex(ref => ref.id === reference.id)
-  if (index !== -1) {
-    referencesStore.reVerifyReference(index)
-  }
-}
+const actionButtons = [
+  {
+    component: DetailsToggleBtn,
+    props: {},
+  },
+  {
+    component: CopyIdentifierBtn,
+    props: { reference },
+  },
+  {
+    component: OpenSrcBtn,
+    props: { reference },
+  },
+  {
+    component: ReVerifyBtn,
+    props: { reference, verificationScore: verificationScore.value },
+  },
+]
 </script>
 
 <template>
@@ -181,6 +107,7 @@ function reVerify() {
         dense
         align-content="center"
       >
+        <!-- Details Toggle Button (left side) -->
         <v-col
           cols="auto"
           align-self="center"
@@ -188,88 +115,20 @@ function reVerify() {
           <DetailsToggleBtn v-model="showDetails" />
         </v-col>
 
+        <!-- Spacer to push other buttons to the right -->
         <v-spacer />
 
+        <!-- Other action buttons (right side) -->
         <v-col
+          v-for="(button, index) in actionButtons.slice(1)"
+          :key="index"
           cols="auto"
           align-self="center"
         >
-          <!-- Copy DOI/Identifier -->
-          <v-tooltip
-            v-if="reference.metadata.identifiers?.doi || reference.metadata.identifiers?.pmid || reference.metadata.identifiers?.pmcid"
-            location="top"
-          >
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                variant="text"
-                size="small"
-                :icon="isCopied ? mdiCheck : mdiContentCopy"
-                :color="isCopied ? 'success' : undefined"
-                @click="copyIdentifier"
-              />
-            </template>
-            <span>{{ isCopied ? $t('copy-clicked') : $t('copy-identifier-tooltip') }}</span>
-          </v-tooltip>
-        </v-col>
-        <v-col
-          cols="auto"
-          align-self="center"
-        >
-          <!-- Open Source -->
-          <v-tooltip
-            v-if="primaryUrl"
-            location="top"
-          >
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                variant="text"
-                size="small"
-                :icon="mdiOpenInNew"
-                @click="openSource"
-              />
-            </template>
-            <span>{{ $t('open-source-tooltip') }}</span>
-          </v-tooltip>
-        </v-col>
-        <!-- <v-col cols="auto"> -->
-        <!-- Flag as Problematic -->
-        <!-- <v-tooltip
-        v-if="reference.status === 'verified' || reference.status === 'not-verified'"
-        location="top"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            variant="text"
-            size="small"
-            :icon="mdiFlagOutline"
-            color="warning"
-            @click="flagProblematic"
+          <component
+            :is="button.component"
+            v-bind="button.props"
           />
-        </template>
-        <span>{{ $t('flag-problematic-tooltip') }}</span>
-      </v-tooltip> -->
-        <!-- </v-col> -->
-        <v-col cols="auto">
-          <!-- Re-verify -->
-          <v-tooltip
-            v-if="shouldShowReVerify(reference.status, verificationScore)"
-            location="top"
-          >
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                variant="text"
-                size="small"
-                :icon="mdiRefresh"
-                :disabled="isAnyVerificationRunning"
-                @click="reVerify"
-              />
-            </template>
-            <span>{{ isAnyVerificationRunning ? $t('verification-in-progress') : $t('re-verify-tooltip') }}</span>
-          </v-tooltip>
         </v-col>
       </v-row>
     </v-card-actions>
