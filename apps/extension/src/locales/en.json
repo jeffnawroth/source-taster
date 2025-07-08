@@ -252,6 +252,7 @@
   "verify-reference-against-website-description": "Enter a website URL to verify this reference against the website content",
   "verifying-reference-current": "Verifying: {reference}",
   "verifying-references-progress": "Verifying references ({current}/{total})",
+  "view-demo": "View Demo",
   "visit-website": "Visit Website",
   "volume": "Volume",
   "volume-match": "Volume Match",
