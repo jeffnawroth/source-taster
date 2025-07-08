@@ -12,14 +12,37 @@ const { file } = storeToRefs(referencesStore)
 // PDF TEXT
 const { inputText } = storeToRefs(referencesStore)
 
+// Loading state for PDF processing
+const isProcessingPdf = ref(false)
+
 watch(file, async (newValue) => {
-  if (!newValue)
+  if (!newValue) {
+    inputText.value = ''
     return
+  }
 
-  // Extract text from PDF file
-  const pdfText = await extractTextFromPdfFile(newValue)
+  try {
+    isProcessingPdf.value = true
 
-  inputText.value = pdfText
+    // Extract text from PDF file
+    const pdfText = await extractTextFromPdfFile(newValue)
+
+    if (pdfText) {
+      inputText.value = pdfText
+    }
+    else {
+      // Handle case where PDF extraction failed
+      console.warn('Failed to extract text from PDF file')
+      inputText.value = ''
+    }
+  }
+  catch (error) {
+    console.error('Error processing PDF file:', error)
+    inputText.value = ''
+  }
+  finally {
+    isProcessingPdf.value = false
+  }
 })
 
 // CLEAR HANDLER
@@ -28,6 +51,7 @@ const { clearReferences } = referencesStore
 function handleClear() {
   clearReferences()
   file.value = null
+  inputText.value = ''
 }
 </script>
 
@@ -42,6 +66,8 @@ function handleClear() {
     prepend-icon=""
     clearable
     hide-details="auto"
+    :loading="isProcessingPdf"
+    :disabled="isProcessingPdf"
     @click:clear="handleClear"
   />
 </template>
