@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@source-taster/types'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
-import CopyIdentifierBtn from './Actions/CopyIdentifierBtn.vue'
-import DetailsToggleBtn from './Actions/DetailsToggleBtn.vue'
-import OpenSrcBtn from './Actions/OpenSrcBtn.vue'
-import ReVerifyBtn from './Actions/ReVerifyBtn.vue'
+import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
 const { reference, isCurrentlyVerifying = false } = defineProps<{
@@ -58,27 +55,8 @@ const scoreText = computed(() => {
   return `${Math.round(verificationScore.value)} %`
 })
 
-// SHOW DETAILS
+// SHOW DETAILS - managed by ReferenceActions component
 const showDetails = ref(false)
-
-const actionButtons = [
-  {
-    component: DetailsToggleBtn,
-    props: {},
-  },
-  {
-    component: CopyIdentifierBtn,
-    props: { reference },
-  },
-  {
-    component: OpenSrcBtn,
-    props: { reference },
-  },
-  {
-    component: ReVerifyBtn,
-    props: { reference, verificationScore: verificationScore.value },
-  },
-]
 </script>
 
 <template>
@@ -103,34 +81,10 @@ const actionButtons = [
 
     <!-- ACTIONS -->
     <v-card-actions>
-      <v-row
-        dense
-        align-content="center"
-      >
-        <!-- Details Toggle Button (left side) -->
-        <v-col
-          cols="auto"
-          align-self="center"
-        >
-          <DetailsToggleBtn v-model="showDetails" />
-        </v-col>
-
-        <!-- Spacer to push other buttons to the right -->
-        <v-spacer />
-
-        <!-- Other action buttons (right side) -->
-        <v-col
-          v-for="(button, index) in actionButtons.slice(1)"
-          :key="index"
-          cols="auto"
-          align-self="center"
-        >
-          <component
-            :is="button.component"
-            v-bind="button.props"
-          />
-        </v-col>
-      </v-row>
+      <ReferenceActions
+        v-model:show-details="showDetails"
+        :reference
+      />
     </v-card-actions>
 
     <ReferenceDetails
