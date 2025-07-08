@@ -49,7 +49,6 @@ const disabled = computed(() => !!file.value || isProcessing.value)
     clearable
     flat
     :disabled
-    :messages="disabled ? [t('remove-file-to-enable-text-input')] : []"
     @click:clear="handleClear"
   />
 </template>
