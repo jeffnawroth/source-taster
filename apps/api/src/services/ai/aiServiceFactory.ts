@@ -96,62 +96,261 @@ export class OpenAIService implements AIService {
                       metadata: {
                         type: 'object',
                         properties: {
-                          title: { type: ['string', 'null'] },
+                          title: {
+                            type: 'string',
+                            description: 'Title of the work',
+                          },
                           authors: {
-                            type: ['array', 'null'],
-                            items: { type: 'string' },
+                            type: 'array',
+                            items: {
+                              oneOf: [
+                                { type: 'string' },
+                                {
+                                  type: 'object',
+                                  properties: {
+                                    firstName: { type: 'string', description: 'First name of the author' },
+                                    lastName: { type: 'string', description: 'Last name of the author' },
+                                    role: { type: 'string', description: 'Role of the author (e.g., editor, translator)' },
+                                  },
+                                  required: ['lastName'],
+                                  additionalProperties: false,
+                                },
+                              ],
+                            },
+                            description: 'List of author names or author objects',
                           },
                           date: {
                             type: 'object',
                             properties: {
-                              year: { type: ['integer', 'null'] },
-                              month: { type: ['string', 'null'] },
-                              day: { type: ['integer', 'null'] },
-                              yearSuffix: { type: ['string', 'null'] },
-                              noDate: { type: 'boolean' },
-                              inPress: { type: 'boolean' },
-                              approximateDate: { type: 'boolean' },
-                              season: { type: ['string', 'null'] },
-                              dateRange: { type: 'boolean' },
-                              yearEnd: { type: ['integer', 'null'] },
+                              year: {
+                                type: 'integer',
+                                description: 'Publication year',
+                              },
+                              month: {
+                                type: 'string',
+                                description: 'Publication month',
+                              },
+                              day: {
+                                type: 'integer',
+                                description: 'Publication day',
+                              },
+                              yearSuffix: {
+                                type: 'string',
+                                description: 'Year suffix like "a" or "b"',
+                              },
+                              noDate: {
+                                type: 'boolean',
+                                description: 'Indicates if no date is available',
+                              },
+                              inPress: {
+                                type: 'boolean',
+                                description: 'Indicates if work is in press',
+                              },
+                              approximateDate: {
+                                type: 'boolean',
+                                description: 'Indicates if date is approximate',
+                              },
+                              season: {
+                                type: 'string',
+                                description: 'Season of publication',
+                              },
+                              dateRange: {
+                                type: 'boolean',
+                                description: 'Indicates if this is a date range',
+                              },
+                              yearEnd: {
+                                type: 'integer',
+                                description: 'End year for date ranges',
+                              },
                             },
-                            required: ['year', 'month', 'day', 'yearSuffix', 'noDate', 'inPress', 'approximateDate', 'season', 'dateRange', 'yearEnd'],
+                            required: [],
+                            additionalProperties: false,
                           },
                           source: {
                             type: 'object',
                             properties: {
-                              containerTitle: { type: ['string', 'null'] },
-                              volume: { type: ['string', 'null'] },
-                              issue: { type: ['string', 'null'] },
-                              pages: { type: ['string', 'null'] },
-                              publisher: { type: ['string', 'null'] },
-                              location: { type: ['string', 'null'] },
-                              url: { type: ['string', 'null'] },
-                              sourceType: { type: 'string' },
+                              containerTitle: {
+                                type: 'string',
+                                description: 'Journal or book title',
+                              },
+                              subtitle: {
+                                type: 'string',
+                                description: 'Subtitle of the work',
+                              },
+                              volume: {
+                                type: 'string',
+                                description: 'Volume number',
+                              },
+                              issue: {
+                                type: 'string',
+                                description: 'Issue number',
+                              },
+                              pages: {
+                                type: 'string',
+                                description: 'Page range',
+                              },
+                              publisher: {
+                                type: 'string',
+                                description: 'Publisher name',
+                              },
+                              publicationPlace: {
+                                type: 'string',
+                                description: 'Place of publication',
+                              },
+                              location: {
+                                type: 'string',
+                                description: 'Physical location',
+                              },
+                              url: {
+                                type: 'string',
+                                description: 'URL of the source',
+                              },
+                              sourceType: {
+                                type: 'string',
+                                description: 'Type of source (e.g., Journal article, Book)',
+                                enum: ['Journal article', 'Book', 'Book chapter', 'Conference paper', 'Thesis', 'Report', 'Webpage'],
+                              },
+                              retrievalDate: {
+                                type: 'string',
+                                description: 'Date the source was retrieved',
+                              },
+                              edition: {
+                                type: 'string',
+                                description: 'Edition information',
+                              },
+                              pageType: {
+                                type: 'string',
+                                description: 'Type of page reference',
+                              },
+                              paragraphNumber: {
+                                type: 'string',
+                                description: 'Paragraph number',
+                              },
+                              volumePrefix: {
+                                type: 'string',
+                                description: 'Volume prefix',
+                              },
+                              issuePrefix: {
+                                type: 'string',
+                                description: 'Issue prefix',
+                              },
+                              supplementInfo: {
+                                type: 'string',
+                                description: 'Supplement information',
+                              },
+                              articleNumber: {
+                                type: 'string',
+                                description: 'Article number',
+                              },
+                              isStandAlone: {
+                                type: 'boolean',
+                                description: 'Whether this is a standalone work',
+                              },
+                              conference: {
+                                type: 'string',
+                                description: 'Conference name',
+                              },
+                              institution: {
+                                type: 'string',
+                                description: 'Institution name',
+                              },
+                              series: {
+                                type: 'string',
+                                description: 'Series name',
+                              },
+                              seriesNumber: {
+                                type: 'string',
+                                description: 'Series number',
+                              },
+                              chapterTitle: {
+                                type: 'string',
+                                description: 'Chapter title',
+                              },
+                              medium: {
+                                type: 'string',
+                                description: 'Medium of publication',
+                              },
+                              originalTitle: {
+                                type: 'string',
+                                description: 'Original title for translations',
+                              },
+                              originalLanguage: {
+                                type: 'string',
+                                description: 'Original language',
+                              },
+                              degree: {
+                                type: 'string',
+                                description: 'Academic degree',
+                              },
+                              advisor: {
+                                type: 'string',
+                                description: 'Thesis advisor',
+                              },
+                              department: {
+                                type: 'string',
+                                description: 'Academic department',
+                              },
+                              contributors: {
+                                type: 'array',
+                                items: {
+                                  type: 'object',
+                                  properties: {
+                                    firstName: { type: 'string', description: 'First name of the contributor' },
+                                    lastName: { type: 'string', description: 'Last name of the contributor' },
+                                    role: { type: 'string', description: 'Role of the contributor (e.g., editor, translator)' },
+                                  },
+                                  required: ['lastName'],
+                                  additionalProperties: false,
+                                },
+                                description: 'Additional contributors beyond the main authors',
+                              },
                             },
-                            required: ['containerTitle', 'volume', 'issue', 'pages', 'publisher', 'location', 'url', 'sourceType'],
+                            required: [],
+                            additionalProperties: false,
                           },
                           identifiers: {
                             type: 'object',
                             properties: {
-                              doi: { type: ['string', 'null'] },
-                              pmid: { type: ['string', 'null'] },
-                              pmcid: { type: ['string', 'null'] },
-                              isbn: { type: ['string', 'null'] },
-                              issn: { type: ['string', 'null'] },
-                              arxivId: { type: ['string', 'null'] },
+                              doi: {
+                                type: 'string',
+                                description: 'Digital Object Identifier',
+                              },
+                              pmid: {
+                                type: 'string',
+                                description: 'PubMed ID',
+                              },
+                              pmcid: {
+                                type: 'string',
+                                description: 'PMC ID',
+                              },
+                              isbn: {
+                                type: 'string',
+                                description: 'International Standard Book Number',
+                              },
+                              issn: {
+                                type: 'string',
+                                description: 'International Standard Serial Number',
+                              },
+                              arxivId: {
+                                type: 'string',
+                                description: 'arXiv identifier',
+                              },
                             },
-                            required: ['doi', 'pmid', 'pmcid', 'isbn', 'issn', 'arxivId'],
+                            required: [],
+                            additionalProperties: false,
                           },
                         },
-                        required: ['title', 'authors', 'date', 'source', 'identifiers'],
+                        required: ['originalText', 'metadata'],
+                        additionalProperties: false,
                       },
                     },
                     required: ['originalText', 'metadata'],
+                    additionalProperties: false,
                   },
                 },
               },
               required: ['references'],
+              additionalProperties: false,
             },
           },
         },

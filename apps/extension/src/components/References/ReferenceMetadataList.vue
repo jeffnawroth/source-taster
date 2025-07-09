@@ -162,9 +162,11 @@ const formattedDate = computed(() => {
       v-if="props.reference.metadata.authors?.length"
       :icon="mdiAccountGroup"
       :title="t('authors')"
-      :text="props.reference.metadata.authors?.map(author =>
-        typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`.trim(),
-      ).join(', ')"
+      :text="props.reference.metadata.authors?.map(author => {
+        if (typeof author === 'string') return author
+        const name = `${author.firstName || ''} ${author.lastName || ''}`.trim()
+        return author.role ? `${name} (${author.role})` : name
+      }).join(', ')"
     />
 
     <!-- JOURNAL/CONTAINER TITLE -->
@@ -383,9 +385,11 @@ const formattedDate = computed(() => {
             v-if="props.reference.metadata.source.contributors?.length"
             :icon="mdiAccountTie"
             :title="t('contributors')"
-            :text="props.reference.metadata.source.contributors?.map(contributor =>
-              typeof contributor === 'string' ? contributor : `${contributor.firstName || ''} ${contributor.lastName || ''}`.trim(),
-            ).join(', ')"
+            :text="props.reference.metadata.source.contributors?.map(contributor => {
+              if (typeof contributor === 'string') return contributor
+              const name = `${contributor.firstName || ''} ${contributor.lastName || ''}`.trim()
+              return contributor.role ? `${name} (${contributor.role})` : name
+            }).join(', ')"
           />
 
           <!-- PAGE TYPE -->
