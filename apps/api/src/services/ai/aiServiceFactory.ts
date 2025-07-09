@@ -230,8 +230,11 @@ export class AIServiceFactory {
   static create(model?: string): AIService {
     const apiKey = process.env.OPENAI_API_KEY || ''
 
-    // Optimize model selection and parameters based on task
-    const selectedModel = model || 'gpt-4o'
+    // Model selection priority:
+    // 1. Function parameter (highest priority)
+    // 2. Environment variable OPENAI_MODEL
+    // 3. Default fallback to gpt-4o
+    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4o'
 
     // Different configurations for different models
     const config: AIServiceConfig = {
