@@ -114,6 +114,7 @@
   "invalid-description": "Invalid. Please check the DOI for accuracy",
   "invalid-url": "Please enter a valid URL",
   "isbn": "ISBN",
+  "is-standalone": "Standalone Work",
   "issn": "ISSN",
   "issue": "Issue",
   "issue-match": "Issue Match",
@@ -262,5 +263,7 @@
   "website-url": "Website URL",
   "year": "Year",
   "year-match": "Year Match",
-  "year-suffix": "Year Suffix"
+  "year-suffix": "Year Suffix",
+  "yes": "Yes",
+  "no": "No"
 }

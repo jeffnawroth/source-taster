@@ -114,6 +114,7 @@
   "invalid-description": "Ungültig. Bitte überprüfen Sie den DOI auf Richtigkeit",
   "invalid-url": "Bitte geben Sie eine gültige URL ein",
   "isbn": "ISBN",
+  "is-standalone": "Eigenständiges Werk",
   "issn": "ISSN",
   "issue": "Ausgabe",
   "issue-match": "Ausgabe-Übereinstimmung",
@@ -262,5 +263,7 @@
   "website-url": "Website-URL",
   "year": "Jahr",
   "year-match": "Jahr-Übereinstimmung",
-  "year-suffix": "Jahr-Suffix"
+  "year-suffix": "Jahr-Suffix",
+  "yes": "Ja",
+  "no": "Nein"
 }

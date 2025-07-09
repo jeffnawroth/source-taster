@@ -65,6 +65,7 @@ const hasAdditionalFields = computed(() => {
     || source.degree
     || source.advisor
     || source.department
+    || source.isStandAlone !== undefined
   )
 })
 
@@ -505,6 +506,14 @@ const formattedDate = computed(() => {
             :icon="mdiSchool"
             :title="t('department')"
             :text="props.reference.metadata.source.department"
+          />
+
+          <!-- IS STANDALONE -->
+          <ReferenceMetadataItem
+            v-if="props.reference.metadata.source.isStandAlone !== undefined"
+            :icon="mdiBookOpenBlankVariantOutline"
+            :title="t('is-standalone')"
+            :text="props.reference.metadata.source.isStandAlone ? t('yes') : t('no')"
           />
         </div>
       </v-expand-transition>
