@@ -1,6 +1,6 @@
 import type { AIService, OpenAIConfig } from './interfaces/index.js'
 import process from 'node:process'
-import { OpenAIService } from './services/openaiService.js'
+import { OpenAIService } from './openaiService.js'
 
 // Re-export interfaces for external use
 export type { AIService } from './interfaces/index.js'
