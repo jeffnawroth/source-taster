@@ -212,7 +212,7 @@ export class DatabaseVerificationService {
     reference: Reference,
     source: ExternalSource,
   ): Promise<{ isMatch: boolean, details: MatchDetails }> {
-    const ai = AIServiceFactory.create()
+    const ai = AIServiceFactory.createOpenAIService()
 
     // Get the fields that should be evaluated (including core fields even if missing in source)
     const availableFields = this.getAvailableFields(reference, source)
@@ -267,7 +267,8 @@ ${JSON.stringify(source.metadata, null, 2)}`
     const response = await ai.verifyMatch(prompt)
 
     try {
-      const result = JSON.parse(response)
+      // Response is now a structured object, not a string
+      const result = response
 
       // Ensure fieldDetails have weights assigned (from our calculation)
       const fieldDetails = (result.fieldDetails || []).map((detail: any) => ({

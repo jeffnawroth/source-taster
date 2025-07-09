@@ -684,7 +684,7 @@ export class WebsiteVerificationService {
     reference: Reference,
     websiteMetadata: WebsiteMetadata,
   ) {
-    const aiServiceInstance = AIServiceFactory.create()
+    const aiServiceInstance = AIServiceFactory.createOpenAIService()
 
     // Get the fields that should be evaluated and their weights
     const availableFields = this.getAvailableFields(reference, websiteMetadata)
@@ -739,7 +739,8 @@ Return as JSON with fieldDetails array containing objects with: field, reference
     const response = await aiServiceInstance.verifyMatch(prompt)
 
     try {
-      const parsed = JSON.parse(response)
+      // Response is now a structured object, not a string
+      const parsed = response
 
       // Ensure fieldDetails have weights assigned (from our calculation)
       const fieldDetails = (parsed.fieldDetails || []).map((detail: any) => ({
