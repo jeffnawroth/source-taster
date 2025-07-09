@@ -29,7 +29,3 @@ export class AIServiceFactory {
 
 // Export the default service instance
 export const aiService = AIServiceFactory.createOpenAIService()
-
-// Re-export Zod types for backward compatibility
-export type { ExtractionResponse, ZodAuthor, ZodReference, ZodReferenceMetadata } from './schemas/reference.js'
-export type { FieldDetail, VerificationResponse } from './schemas/verification.js'

@@ -12,7 +12,6 @@ export class ReferenceExtractionService {
     const ai = AIServiceFactory.createOpenAIService()
 
     try {
-      // Use the new Zod-based extraction method
       const result = await ai.extractReferences(text)
 
       // Convert the Zod-validated response to our Reference format
