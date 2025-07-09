@@ -1,12 +1,9 @@
-import type { ExtractionResponse } from './schemas/reference.js'
-import type { VerificationResponse } from './schemas/verification.js'
+import type { AIService, OpenAIConfig } from './interfaces/index.js'
 import process from 'node:process'
-import { type OpenAIConfig, OpenAIService } from './services/openaiService.js'
+import { OpenAIService } from './services/openaiService.js'
 
-export interface AIService {
-  extractReferences: (text: string) => Promise<ExtractionResponse>
-  verifyMatch: (prompt: string) => Promise<VerificationResponse>
-}
+// Re-export interfaces for external use
+export type { AIService } from './interfaces/index.js'
 
 export class AIServiceFactory {
   static createOpenAIService(): AIService {

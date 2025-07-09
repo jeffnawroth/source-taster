@@ -16,17 +16,3 @@ export interface ApiResponse<T = any> {
   /** Additional human-readable message */
   message?: string
 }
-
-/**
- * Configuration for AI services (OpenAI only)
- */
-export interface AIServiceConfig {
-  /** API key for the service */
-  apiKey: string
-  /** Model name to use (e.g., 'gpt-4o', 'gpt-4-turbo') */
-  model: string
-  /** Temperature for response randomness (0.0-1.0) */
-  temperature?: number
-  /** Maximum tokens in the response */
-  maxTokens?: number
-}
