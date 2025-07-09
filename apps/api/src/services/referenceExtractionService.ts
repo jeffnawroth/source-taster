@@ -11,88 +11,101 @@ export class ReferenceExtractionService {
   ): Promise<Reference[]> {
     const ai = AIServiceFactory.create(model)
 
-    const prompt = `
-Extract all academic references from the following text. Return them as a JSON object with a "references" array containing the following hierarchical structure:
+    const prompt = `Extract all academic references from the text below and return them as valid JSON using the exact format specified.
 
+## TASK:
+Identify and extract all bibliographic references/citations from the provided text.
+
+## OUTPUT FORMAT:
+Return a JSON object with a "references" array. Each reference must follow this exact structure:
+
+\`\`\`json
 {
   "references": [
     {
-      "originalText": "complete reference as it appears in the text",
+      "originalText": "exact text as it appears",
       "metadata": {
-        "title": "title of the work",
-        "authors": ["author1", "author2"],
-        "date": {
-          "year": 2023,
-          "month": "June",
-          "day": 15,
-          "yearSuffix": "a",
-          "noDate": false,
-          "inPress": false,
-          "approximateDate": false,
-          "season": "Spring",
-          "dateRange": false,
-          "yearEnd": 2024
-        },
+        "title": "work title",
+        "authors": ["Author Name"],
+        "date": { "year": 2023 },
+        "source": { "containerTitle": "journal name", "sourceType": "Journal article" },
+        "identifiers": { "doi": "10.1234/example" }
+      }
+    }
+  ]
+}
+\`\`\`
+
+## EXTRACTION RULES:
+1. Extract ONLY actual references/citations, not regular text
+2. Include ALL metadata fields that are clearly present
+3. OMIT fields that are not found or unclear
+4. Use exact hierarchical structure: date, source, identifiers
+5. For authors: use string array format ["Last, F."]
+6. For dates: always include year; add month/day if present
+7. Common source types: "Journal article", "Book", "Book chapter", "Conference paper", "Thesis", "Report", "Webpage"
+
+## EXAMPLES:
+
+**Example 1 - Journal Article:**
+Input: "Smith, J. (2023). Machine learning applications. Journal of AI Research, 15(3), 45-67. doi:10.1234/jair.2023.001"
+
+Output:
+\`\`\`json
+{
+  "references": [
+    {
+      "originalText": "Smith, J. (2023). Machine learning applications. Journal of AI Research, 15(3), 45-67. doi:10.1234/jair.2023.001",
+      "metadata": {
+        "title": "Machine learning applications",
+        "authors": ["Smith, J."],
+        "date": { "year": 2023 },
         "source": {
-          "containerTitle": "journal/book name",
-          "subtitle": "subtitle if present",
-          "volume": "volume number",
-          "issue": "issue number", 
-          "pages": "page range",
-          "publisher": "publisher name",
-          "publicationPlace": "city of publication",
-          "url": "URL if present",
-          "sourceType": "Journal article",
-          "location": "physical location if applicable",
-          "retrievalDate": "date accessed for online sources",
-          "edition": "2nd ed.",
-          "pageType": "pp.",
-          "paragraphNumber": "para. 3",
-          "volumePrefix": "Vol.",
-          "issuePrefix": "No.",
-          "supplementInfo": "Suppl. 2",
-          "articleNumber": "e12345",
-          "isStandAlone": false,
-          "conference": "conference name for proceedings",
-          "institution": "institution for theses/reports",
-          "series": "series name",
-          "seriesNumber": "series number",
-          "chapterTitle": "chapter title for book chapters",
-          "medium": "print/web/CD-ROM",
-          "originalTitle": "original title for translations",
-          "originalLanguage": "original language",
-          "degree": "PhD/Master's",
-          "advisor": "thesis advisor",
-          "department": "academic department"
+          "containerTitle": "Journal of AI Research",
+          "volume": "15",
+          "issue": "3", 
+          "pages": "45-67",
+          "sourceType": "Journal article"
         },
-        "identifiers": {
-          "doi": "DOI if present",
-          "isbn": "ISBN if present",
-          "issn": "ISSN if present",
-          "pmid": "PubMed ID if present",
-          "pmcid": "PMC ID if present",
-          "arxivId": "arXiv ID if present"
+        "identifiers": { "doi": "10.1234/jair.2023.001" }
+      }
+    }
+  ]
+}
+\`\`\`
+
+**Example 2 - Book:**
+Input: "Brown, A., & Davis, C. (2022). Data Science Handbook (2nd ed.). Tech Publications."
+
+Output:
+\`\`\`json
+{
+  "references": [
+    {
+      "originalText": "Brown, A., & Davis, C. (2022). Data Science Handbook (2nd ed.). Tech Publications.",
+      "metadata": {
+        "title": "Data Science Handbook", 
+        "authors": ["Brown, A.", "Davis, C."],
+        "date": { "year": 2022 },
+        "source": {
+          "publisher": "Tech Publications",
+          "edition": "2nd ed.",
+          "sourceType": "Book"
         }
       }
     }
   ]
 }
+\`\`\`
 
-Rules:
-- Only extract actual references/citations, not regular text
-- Use the hierarchical structure: date, source, identifiers
-- Extract as much metadata as possible into the correct categories
-- Include only fields that are actually present in the reference - omit fields that are not found
-- For authors, use simple string format unless structured data is clearly available
-- For dates: extract year (required), month, day, and special indicators like "in press", "no date"
-- For sources: containerTitle is the journal/book name, pages should include full range
-- For identifiers: extract DOI, ISBN, ISSN, PMID, PMCID, arXiv ID when present
-- Common source types: "Journal article", "Book", "Book chapter", "Conference paper", "Thesis", "Report", "Webpage"
-- Return valid JSON only
-
-Text to analyze:
+## TEXT TO ANALYZE:
+"""
 ${text}
-    `.trim()
+"""
+
+Return valid JSON only. Begin with:
+{
+  "references":`
 
     const response = await ai.generateText(prompt)
 
