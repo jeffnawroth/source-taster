@@ -30,11 +30,3 @@ export interface AIServiceConfig {
   /** Maximum tokens in the response */
   maxTokens?: number
 }
-
-/**
- * AI model specification for requests
- */
-export interface AIModel {
-  /** Specific OpenAI model to use */
-  model: string
-}
