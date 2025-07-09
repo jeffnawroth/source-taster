@@ -1,7 +1,7 @@
 import type {
   Reference,
 } from '@source-taster/types'
-import type { ExtractedReference } from '../types/extraction'
+import type { AIExtractedReference } from '../types/extraction'
 import crypto from 'node:crypto'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
@@ -15,7 +15,7 @@ export class ReferenceExtractionService {
       const result = await ai.extractReferences(text)
 
       // Convert the AI response to our Reference format with unique IDs
-      return result.references.map((ref: ExtractedReference) => ({
+      return result.references.map((ref: AIExtractedReference) => ({
         id: crypto.randomUUID(),
         originalText: ref.originalText,
         metadata: ref.metadata,

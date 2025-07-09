@@ -1,12 +1,12 @@
 import type { VerificationResponse } from '../services/ai/schemas/verification'
-import type { ExtractionResponse } from './extraction'
+import type { AIExtractionResponse } from './extraction'
 
 /**
  * Interface for AI service implementations
  * Defines the contract that all AI services must implement
  */
 export interface AIService {
-  extractReferences: (text: string) => Promise<ExtractionResponse>
+  extractReferences: (text: string) => Promise<AIExtractionResponse>
   verifyMatch: (prompt: string) => Promise<VerificationResponse>
 }
 

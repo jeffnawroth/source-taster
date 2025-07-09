@@ -1,5 +1,5 @@
 import type { AIService, OpenAIConfig } from '@/api/types/ai'
-import type { ExtractionResponse } from '@/api/types/extraction'
+import type { AIExtractionResponse } from '@/api/types/extraction'
 import { OpenAI } from 'openai'
 import { extractionJsonSchema, ExtractionResponseSchema } from './schemas/reference'
 import { verificationJsonSchema, type VerificationResponse, VerificationResponseSchema } from './schemas/verification.js'
@@ -17,7 +17,7 @@ export class OpenAIService implements AIService {
     })
   }
 
-  async extractReferences(text: string): Promise<ExtractionResponse> {
+  async extractReferences(text: string): Promise<AIExtractionResponse> {
     const systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.
 
 IMPORTANT INSTRUCTIONS:
