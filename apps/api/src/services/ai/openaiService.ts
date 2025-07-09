@@ -1,6 +1,7 @@
-import type { AIService, OpenAIConfig } from './interfaces/index.js'
+import type { AIService, OpenAIConfig } from '@/api/types/ai'
+import type { ExtractionResponse } from '@/api/types/extraction'
 import { OpenAI } from 'openai'
-import { extractionJsonSchema, type ExtractionResponse, ExtractionResponseSchema } from './schemas/reference.js'
+import { extractionJsonSchema, ExtractionResponseSchema } from './schemas/reference'
 import { verificationJsonSchema, type VerificationResponse, VerificationResponseSchema } from './schemas/verification.js'
 
 export class OpenAIService implements AIService {

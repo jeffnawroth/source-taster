@@ -1,9 +1,6 @@
-import type { AIService, OpenAIConfig } from './interfaces/index.js'
+import type { AIService, OpenAIConfig } from '@/api/types/ai'
 import process from 'node:process'
-import { OpenAIService } from './openaiService.js'
-
-// Re-export interfaces for external use
-export type { AIService } from './interfaces/index.js'
+import { OpenAIService } from './openaiService'
 
 export class AIServiceFactory {
   static createOpenAIService(): AIService {

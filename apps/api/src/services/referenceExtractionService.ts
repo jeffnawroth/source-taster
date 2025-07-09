@@ -1,7 +1,7 @@
 import type {
   Reference,
 } from '@source-taster/types'
-import type { ZodReference } from './ai/schemas/reference'
+import type { ExtractedReference } from '../types/extraction'
 import crypto from 'node:crypto'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
@@ -14,8 +14,8 @@ export class ReferenceExtractionService {
     try {
       const result = await ai.extractReferences(text)
 
-      // Convert the Zod-validated response to our Reference format
-      return result.references.map((ref: ZodReference) => ({
+      // Convert the AI response to our Reference format with unique IDs
+      return result.references.map((ref: ExtractedReference) => ({
         id: crypto.randomUUID(),
         originalText: ref.originalText,
         metadata: ref.metadata,

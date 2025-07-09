@@ -1,5 +1,5 @@
-import type { ExtractionResponse } from '../schemas/reference.js'
-import type { VerificationResponse } from '../schemas/verification.js'
+import type { VerificationResponse } from '../services/ai/schemas/verification'
+import type { ExtractionResponse } from './extraction'
 
 /**
  * Interface for AI service implementations

@@ -88,9 +88,3 @@ export const extractionJsonSchema = {
     $refStrategy: 'none', // Inline all schemas for OpenAI compatibility
   }),
 }
-
-// Export Zod types for external use
-export type ExtractionResponse = z.infer<typeof ExtractionResponseSchema>
-export type ZodReference = z.infer<typeof ReferenceSchema>
-export type ZodReferenceMetadata = z.infer<typeof ReferenceMetadataSchema>
-export type ZodAuthor = z.infer<typeof AuthorSchema>
