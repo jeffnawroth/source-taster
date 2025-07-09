@@ -33,7 +33,6 @@ export class ExtractionController {
       // Extract references
       const references = await this.extractionService.extractReferences(
         request.text,
-        request.model,
       )
 
       const response: ApiResponse<ExtractionResponse> = {
