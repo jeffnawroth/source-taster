@@ -38,22 +38,7 @@ export class DatabaseVerificationService {
     issn: 3, // Important for journals - 3%
   }
 
-  async verifyReferences(
-    references: Reference[],
-  ): Promise<VerificationResult[]> {
-    const results: VerificationResult[] = []
-
-    for (const reference of references) {
-      const result = await this.verifyReference(
-        reference,
-      )
-      results.push(result)
-    }
-
-    return results
-  }
-
-  private async verifyReference(
+  async verifyReference(
     reference: Reference,
   ): Promise<VerificationResult> {
     // Search in all databases in parallel for better performance

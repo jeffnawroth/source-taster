@@ -66,14 +66,14 @@ export class VerificationController {
           catch (error) {
             // If website verification fails, fall back to database verification
             console.warn(`Website verification failed for reference ${reference.id}, falling back to database:`, error)
-            const dbResults = await this.verificationService.verifyReferences([reference])
-            results.push(...dbResults)
+            const dbResult = await this.verificationService.verifyReference(reference)
+            results.push(dbResult)
           }
         }
         else {
           // Use database verification for academic references
-          const dbResults = await this.verificationService.verifyReferences([reference])
-          results.push(...dbResults)
+          const dbResult = await this.verificationService.verifyReference(reference)
+          results.push(dbResult)
         }
       }
 
