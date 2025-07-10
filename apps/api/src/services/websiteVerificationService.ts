@@ -1,10 +1,10 @@
 import type {
   ArchivedVersion,
-  FieldWeights,
   Reference,
   WebsiteMetadata,
   WebsiteVerificationResult,
 } from '@source-taster/types'
+import type { FieldWeights } from '../types/verification'
 import * as cheerio from 'cheerio'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
