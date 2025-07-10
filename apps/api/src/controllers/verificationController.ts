@@ -9,9 +9,6 @@ import type { VerificationRequest } from '../types/verification'
 import { DatabaseVerificationService } from '../services/databaseVerificationService'
 import { WebsiteVerificationService } from '../services/websiteVerificationService'
 
-// Constants
-const WEBSITE_VERIFICATION_THRESHOLD = 70
-
 export class VerificationController {
   private verificationService: DatabaseVerificationService
   private websiteVerificationService: WebsiteVerificationService
@@ -177,7 +174,6 @@ export class VerificationController {
         url: websiteResult.url,
       },
       matchDetails: websiteResult.matchDetails,
-      isMatch: websiteResult.matchDetails.overallScore >= WEBSITE_VERIFICATION_THRESHOLD,
     }
   }
 

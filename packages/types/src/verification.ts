@@ -122,8 +122,6 @@ export interface SourceEvaluation {
   source: ExternalSource
   /** Detailed match scoring */
   matchDetails: MatchDetails
-  /** Whether this source is considered a match */
-  isMatch: boolean
 }
 
 export interface FieldMatchDetail {

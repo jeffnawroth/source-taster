@@ -98,7 +98,7 @@ export abstract class BaseVerificationService {
   protected async verifyWithAI(
     reference: Reference,
     source: ExternalSource,
-  ): Promise<{ isMatch: boolean, details: MatchDetails }> {
+  ): Promise<{ details: MatchDetails }> {
     const ai = AIServiceFactory.createOpenAIService()
 
     // Get the fields that should be evaluated
@@ -137,11 +137,7 @@ ${JSON.stringify(source.metadata, null, 2)}`
         fieldDetails,
       }
 
-      // Use overall score for determining match (can be adjusted with thresholds later)
-      const isMatch = overallScore >= 75 // Default threshold for now
-
       return {
-        isMatch,
         details: aiMatchDetails,
       }
     }
@@ -153,7 +149,6 @@ ${JSON.stringify(source.metadata, null, 2)}`
       }
 
       return {
-        isMatch: false,
         details: fallbackMatchDetails,
       }
     }

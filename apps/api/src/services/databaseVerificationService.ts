@@ -80,34 +80,20 @@ export class DatabaseVerificationService extends BaseVerificationService {
       sourceEvaluations.push({
         source,
         matchDetails: matchResult.details,
-        isMatch: matchResult.isMatch,
       })
     }
 
     // Sort by overall score (highest first)
     sourceEvaluations.sort((a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore)
 
-    // Check if the best source is verified (has a high enough score for verification)
+    // Get the best source (highest score)
     const bestEvaluation = sourceEvaluations[0]
 
-    if (bestEvaluation.isMatch) {
-      return {
-        referenceId: reference.id,
-        isVerified: true,
-        matchedSource: bestEvaluation.source,
-        verificationDetails: {
-          sourcesFound: sources,
-          matchDetails: bestEvaluation.matchDetails,
-          allSourceEvaluations: sourceEvaluations,
-        },
-      }
-    }
-
-    // If no source matched sufficiently, return the best scoring one anyway
+    // Return result with best source - let frontend decide on verification based on score
     return {
       referenceId: reference.id,
-      isVerified: false,
-      matchedSource: bestEvaluation.source, // Now truly the best source based on score
+      isVerified: false, // Backend no longer decides - frontend will based on score
+      matchedSource: bestEvaluation.source,
       verificationDetails: {
         sourcesFound: sources,
         matchDetails: bestEvaluation.matchDetails,

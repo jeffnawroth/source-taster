@@ -59,7 +59,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
           url,
           isAccessible: true,
           websiteMetadata,
-          isVerified: matchResult.isMatch,
+          isVerified: false, // Backend no longer decides - frontend will based on score
           matchDetails: matchResult.details,
           archivedVersion: undefined,
         }
@@ -83,7 +83,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
             url,
             isAccessible: false,
             websiteMetadata: archivedVersion.metadata,
-            isVerified: matchResult.isMatch,
+            isVerified: false, // Backend no longer decides - frontend will based on score
             matchDetails: matchResult.details,
             archivedVersion,
           }
@@ -701,18 +701,14 @@ export class WebsiteVerificationService extends BaseVerificationService {
   private async verifyWebsiteWithAI(
     reference: Reference,
     websiteMetadata: WebsiteMetadata,
-  ): Promise<{ isMatch: boolean, details: MatchDetails }> {
+  ): Promise<{ details: MatchDetails }> {
     // Convert WebsiteMetadata to ExternalSource format
     const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)
 
-    // Use the base verification logic with website-specific threshold
+    // Use the base verification logic - let frontend decide on thresholds
     const result = await this.verifyWithAI(reference, externalSource)
 
-    // Override threshold for website verification (lower threshold since website data is often less structured)
-    const isMatch = result.details.overallScore >= 70 // Website-specific threshold
-
     return {
-      isMatch,
       details: result.details,
     }
   }
