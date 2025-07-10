@@ -3,19 +3,8 @@
  */
 import type {
   MatchDetails,
-  Reference,
   VerificationResult,
 } from './reference'
-
-/**
- * Request to verify references against databases
- */
-export interface VerificationRequest {
-  /** References to verify */
-  references: Reference[]
-  /** OpenAI model to use (optional, defaults to gpt-4o) */
-  model?: string
-}
 
 /**
  * Response containing multiple verification results

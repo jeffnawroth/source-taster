@@ -1,11 +1,11 @@
 import type {
   ApiResponse,
   SourceEvaluation,
-  VerificationRequest,
   VerificationResponse,
   WebsiteVerificationResult,
 } from '@source-taster/types'
 import type { Context } from 'hono'
+import type { VerificationRequest } from '../types/verification'
 import { DatabaseVerificationService } from '../services/databaseVerificationService'
 import { WebsiteVerificationService } from '../services/websiteVerificationService'
 
