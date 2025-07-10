@@ -1,4 +1,5 @@
-import type { ProcessedReference, Reference, WebsiteVerificationResult } from '@source-taster/types'
+import type { Reference, WebsiteVerificationResult } from '@source-taster/types'
+import type { ProcessedReference } from '../types/reference'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { ReferencesService } from '@/extension/services/referencesService'
@@ -115,9 +116,13 @@ export const useReferencesStore = defineStore('references', () => {
 
       // Update the specific reference
       if (result) {
+        // Use score-based verification instead of isVerified field
+        const verificationScore = result.verificationDetails?.matchDetails?.overallScore || 0
+        const isVerified = verificationScore >= 70 // 70% threshold for verification
+
         references.value[index] = {
           ...references.value[index],
-          status: result.isVerified ? 'verified' : 'not-verified',
+          status: isVerified ? 'verified' : 'not-verified',
           verificationResult: result,
         }
       }
@@ -278,9 +283,13 @@ export const useReferencesStore = defineStore('references', () => {
 
       // Update the specific reference
       if (result) {
+        // Use score-based verification instead of isVerified field
+        const verificationScore = result.verificationDetails?.matchDetails?.overallScore || 0
+        const isVerified = verificationScore >= 70 // 70% threshold for verification
+
         references.value[index] = {
           ...references.value[index],
-          status: result.isVerified ? 'verified' : 'not-verified',
+          status: isVerified ? 'verified' : 'not-verified',
           verificationResult: result,
         }
       }

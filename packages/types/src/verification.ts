@@ -51,8 +51,6 @@ export interface WebsiteVerificationResult {
   statusCode?: number
   /** Extracted website metadata (if accessible or archived) */
   websiteMetadata?: WebsiteMetadata
-  /** Whether the reference matches the website content */
-  isVerified: boolean
   /** Detailed matching information */
   matchDetails: MatchDetails
   /** Information about archived version if used */
@@ -93,8 +91,6 @@ export interface ExternalSource {
 export interface VerificationResult {
   /** ID of the reference that was verified */
   referenceId: string
-  /** Whether the reference was successfully verified */
-  isVerified: boolean
   /** The best matching source (if found) */
   matchedSource?: ExternalSource
   /** Detailed verification information */

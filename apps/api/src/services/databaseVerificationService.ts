@@ -63,7 +63,6 @@ export class DatabaseVerificationService extends BaseVerificationService {
     if (sources.length === 0) {
       return {
         referenceId: reference.id,
-        isVerified: false,
         verificationDetails: {
           sourcesFound: [],
         },
@@ -92,7 +91,6 @@ export class DatabaseVerificationService extends BaseVerificationService {
     // Return result with best source - let frontend decide on verification based on score
     return {
       referenceId: reference.id,
-      isVerified: false, // Backend no longer decides - frontend will based on score
       matchedSource: bestEvaluation.source,
       verificationDetails: {
         sourcesFound: sources,

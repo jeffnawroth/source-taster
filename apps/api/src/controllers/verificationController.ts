@@ -52,7 +52,6 @@ export class VerificationController {
 
             results.push({
               referenceId: reference.id,
-              isVerified: websiteResult.isVerified,
               verificationDetails: {
                 sourcesFound: [], // Website verification doesn't use database sources
                 matchDetails: websiteResult.matchDetails,

@@ -59,7 +59,6 @@ export class WebsiteVerificationService extends BaseVerificationService {
           url,
           isAccessible: true,
           websiteMetadata,
-          isVerified: false, // Backend no longer decides - frontend will based on score
           matchDetails: matchResult.details,
           archivedVersion: undefined,
         }
@@ -83,7 +82,6 @@ export class WebsiteVerificationService extends BaseVerificationService {
             url,
             isAccessible: false,
             websiteMetadata: archivedVersion.metadata,
-            isVerified: false, // Backend no longer decides - frontend will based on score
             matchDetails: matchResult.details,
             archivedVersion,
           }
@@ -100,7 +98,6 @@ export class WebsiteVerificationService extends BaseVerificationService {
       url,
       isAccessible: false,
       websiteMetadata: undefined,
-      isVerified: false,
       matchDetails: {
         overallScore: 0,
       },
