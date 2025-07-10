@@ -1,8 +1,9 @@
 import type { AIService, OpenAIConfig } from '@/api/types/ai'
 import type { AIExtractionResponse } from '@/api/types/extraction'
+import type { AIVerificationResponse } from '@/api/types/verification'
 import { OpenAI } from 'openai'
 import { extractionJsonSchema, ExtractionResponseSchema } from './schemas/reference'
-import { verificationJsonSchema, type VerificationResponse, VerificationResponseSchema } from './schemas/verification.js'
+import { verificationJsonSchema, VerificationResponseSchema } from './schemas/verification.js'
 
 export class OpenAIService implements AIService {
   private client: OpenAI
@@ -18,16 +19,7 @@ export class OpenAIService implements AIService {
   }
 
   async extractReferences(text: string): Promise<AIExtractionResponse> {
-    const systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.
-
-IMPORTANT INSTRUCTIONS:
-1. Only extract actual references/citations, not text content
-2. For authors: If you can identify first/last names, use the object format; otherwise use string format
-3. Be precise with field extraction - only include data you're confident about
-4. For dates: Extract year as number, other date parts as strings
-5. For source info: Distinguish between journal articles, books, chapters, etc.
-6. Include DOI, PMID, ISBN, ISSN when present
-7. If no references found, return empty array`
+    const systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.`
 
     const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:
 
@@ -79,16 +71,24 @@ ${text}`
     }
   }
 
-  async verifyMatch(prompt: string): Promise<VerificationResponse> {
-    const systemMessage = `You are an expert bibliographic verification assistant. Your task is to analyze a verification prompt and provide detailed matching analysis.
+  async verifyMatch(prompt: string): Promise<AIVerificationResponse> {
+    const systemMessage = `You are an expert bibliographic verification assistant. Your task is to analyze a verification prompt and provide field-by-field matching scores.
 
 INSTRUCTIONS:
-1. Parse the provided prompt and extract comparison data
-2. Evaluate field-by-field matches between reference and source
-3. Provide confidence scores for each field comparison (0-100)
-4. Return structured JSON with fieldDetails array
-5. Each field detail must include: field name, reference_value, source_value, match_score
-6. Use semantic similarity and bibliographic standards for scoring`
+1. Parse the provided prompt and extract comparison data between a reference and source
+2. Evaluate field-by-field matches using bibliographic standards
+3. Provide match scores for each field (0-100 scale)
+4. Return an object with 'fieldDetails' array containing objects with 'field' and 'match_score'
+5. Use semantic similarity and bibliographic standards for scoring
+6. Focus on key fields: title, authors, year, doi, isbn, containerTitle, volume, issue, pages
+
+SCORING GUIDELINES:
+- 100: Perfect match
+- 80-99: Very close match (minor differences)
+- 60-79: Good match (some differences)
+- 40-59: Partial match (significant differences)
+- 20-39: Poor match (major differences)
+- 0-19: No match`
 
     try {
       const response = await this.client.chat.completions.create({

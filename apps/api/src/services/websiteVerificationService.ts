@@ -1,13 +1,13 @@
 import type {
   ArchivedVersion,
-  FieldMatchDetail,
+  ExternalSource,
+  MatchDetails,
   Reference,
   WebsiteMetadata,
   WebsiteVerificationResult,
 } from '@source-taster/types'
-import type { AIFieldMatchDetail, FieldWeights } from '../types/verification'
 import * as cheerio from 'cheerio'
-import { AIServiceFactory } from './ai/aiServiceFactory'
+import { BaseVerificationService } from './baseVerificationService'
 
 export interface WebsiteVerificationOptions {
   /** Maximum time to wait for website response in milliseconds */
@@ -22,30 +22,15 @@ export interface WebsiteVerificationOptions {
  * Service for verifying references against website content
  * Handles URL accessibility, metadata extraction, and content matching
  */
-export class WebsiteVerificationService {
+export class WebsiteVerificationService extends BaseVerificationService {
   private readonly defaultOptions: Required<WebsiteVerificationOptions> = {
     timeout: 10000, // 10 seconds
     enableWaybackMachine: true,
     userAgent: 'Source-Taster-Bot/1.0 (https://source-taster.app)',
   }
 
-  // Default field weights for website verification - adapted for web content
-  private readonly defaultFieldWeights: FieldWeights = {
-    title: 35, // Most important for websites - 35%
-    authors: 20, // Important but less reliable on websites - 20%
-    year: 10, // Moderately important - 10%
-    doi: 8, // Less common on websites - 8%
-    containerTitle: 5, // Less relevant for websites - 5%
-    volume: 1, // Rarely on websites - 1%
-    issue: 1, // Rarely on websites - 1%
-    pages: 1, // Rarely on websites - 1%
-    arxivId: 5, // Less common on websites - 5%
-    pmid: 3, // Uncommon on websites - 3%
-    pmcid: 3, // Uncommon on websites - 3%
-    isbn: 3, // Less common on websites - 3%
-    issn: 2, // Uncommon on websites - 2%
-    url: 15, // Important for website verification - 15%
-    description: 8, // Useful for content matching - 8%
+  constructor() {
+    super()
   }
 
   /**
@@ -64,7 +49,10 @@ export class WebsiteVerificationService {
 
       if (websiteMetadata) {
         console.warn(`Extracted metadata for ${url}:`, JSON.stringify(websiteMetadata, null, 2))
-        const matchResult = await this.verifyWithAI(reference, websiteMetadata)
+
+        // Use a specialized website verification method
+        const matchResult = await this.verifyWebsiteWithAI(reference, websiteMetadata)
+
         console.warn(`AI verification result:`, JSON.stringify(matchResult, null, 2))
         return {
           referenceId: reference.id,
@@ -89,7 +77,7 @@ export class WebsiteVerificationService {
       try {
         const archivedVersion = await this.getArchivedVersion(url)
         if (archivedVersion && archivedVersion.metadata) {
-          const matchResult = await this.verifyWithAI(reference, archivedVersion.metadata)
+          const matchResult = await this.verifyWebsiteWithAI(reference, archivedVersion.metadata)
           return {
             referenceId: reference.id,
             url,
@@ -679,179 +667,53 @@ export class WebsiteVerificationService {
   }
 
   /**
-   * Verify reference against website metadata using AI
+   * Convert WebsiteMetadata to ExternalSource format so we can use the base verification logic
    */
-  private async verifyWithAI(
+  private convertWebsiteMetadataToExternalSource(websiteMetadata: WebsiteMetadata): ExternalSource {
+    return {
+      id: websiteMetadata.url,
+      source: 'website',
+      url: websiteMetadata.url,
+      metadata: {
+        title: websiteMetadata.title,
+        authors: websiteMetadata.authors?.map(author => ({
+          firstName: '',
+          lastName: author,
+          role: 'author',
+        })),
+        date: {
+          year: websiteMetadata.publishedDate?.getFullYear(),
+          month: websiteMetadata.publishedDate?.getMonth() !== undefined ? (websiteMetadata.publishedDate.getMonth() + 1).toString() : undefined,
+          day: websiteMetadata.publishedDate?.getDate(),
+        },
+        source: {
+          containerTitle: websiteMetadata.siteName,
+          url: websiteMetadata.url,
+        },
+        identifiers: {},
+      },
+    }
+  }
+
+  /**
+   * Verify reference against website metadata using the base AI verification
+   */
+  private async verifyWebsiteWithAI(
     reference: Reference,
     websiteMetadata: WebsiteMetadata,
-  ) {
-    const aiServiceInstance = AIServiceFactory.createOpenAIService()
+  ): Promise<{ isMatch: boolean, details: MatchDetails }> {
+    // Convert WebsiteMetadata to ExternalSource format
+    const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)
 
-    // Get the fields that should be evaluated and their weights
-    const availableFields = this.getAvailableFields(reference, websiteMetadata)
-    const fieldWeights = this.getFieldWeightsForAvailableFields(availableFields)
+    // Use the base verification logic with website-specific threshold
+    const result = await this.verifyWithAI(reference, externalSource)
 
-    const prompt = `Compare the following bibliographic reference with the website metadata to determine if they refer to the same work.
+    // Override threshold for website verification (lower threshold since website data is often less structured)
+    const isMatch = result.details.overallScore >= 70 // Website-specific threshold
 
-REFERENCE:
-${reference.originalText}
-
-Parsed Reference Data:
-- title: ${reference.metadata.title || 'N/A'}
-- authors: ${reference.metadata.authors?.map(a => typeof a === 'string' ? a : `${a.firstName || ''} ${a.lastName}`.trim()).join(', ') || 'N/A'}
-- publication-date: ${reference.metadata.date.year || 'N/A'}
-- url: ${reference.metadata.source.url || 'N/A'}
-
-WEBSITE METADATA:
-- title: ${websiteMetadata.title || 'N/A'}
-- authors: ${websiteMetadata.authors?.join(', ') || 'N/A'}
-- publication-date: ${websiteMetadata.publishedDate?.toISOString().split('T')[0] || 'N/A'}
-- webpage: ${websiteMetadata.siteName || 'N/A'}
-- url: ${websiteMetadata.url}
-- description: ${websiteMetadata.description || 'N/A'}
-
-IMPORTANT RULES:
-- Only evaluate fields that are present in both reference and website metadata
-- This prevents unfair penalties when website data is incomplete
-- Focus on comparing the available data fairly
-
-Available fields to evaluate: ${availableFields.join(', ')}
-
-Scoring Guidelines for each field (0-100):
-• title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different
-• authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
-• year: 100=exact match, 0=different (no partial scoring for year)
-• url: 100=identical, 90=same domain different path, 70=related URLs, 0=different domains
-• description: 100=highly relevant, 80=relevant, 60=somewhat relevant, 40=loosely related, 0=unrelated
-• doi: 100=identical, 0=different (no partial scoring for DOI)
-• containerTitle: 100=identical, 90=same publication different format, 70=abbreviated vs full name, 0=different
-
-For each field, provide:
-- reference_value: The value from the reference
-- match_score: Score from 0-100 (0=no match, 100=perfect match)
-
-Consider partial matches, fuzzy matching, and semantic similarity.
-Missing values should be scored appropriately (e.g., 50 if one value is missing but not contradictory).
-
-Return as JSON array with objects containing: field, match_score.
-`
-
-    const response = await aiServiceInstance.verifyMatch(prompt)
-
-    try {
-      // Response has fieldDetails array with { field, match_score } objects
-      const fieldDetails: FieldMatchDetail[] = response.fieldDetails.map((detail: AIFieldMatchDetail) => ({
-        field: detail.field,
-        match_score: detail.match_score,
-        weight: fieldWeights[detail.field] || 0,
-      }))
-
-      // Calculate the overall score ourselves using proper weights
-      const overallScore = this.calculateOverallScore(fieldDetails)
-
-      // Derive fieldsEvaluated from fieldDetails
-      const fieldsEvaluated = fieldDetails.map(detail => detail.field)
-
-      // Create match details from AI response with our calculated score
-      const matchDetails = {
-        overallScore,
-        fieldsEvaluated,
-        fieldDetails,
-      }
-
-      // Use overall score for determining match (threshold can be adjusted)
-      const isMatch = overallScore >= 70 // Default threshold for website verification
-
-      return {
-        isMatch,
-        details: matchDetails,
-      }
+    return {
+      isMatch,
+      details: result.details,
     }
-    catch (error) {
-      console.error('Failed to parse AI response:', error)
-      return {
-        isMatch: false,
-        details: {
-          overallScore: 0,
-        },
-      }
-    }
-  }
-
-  /**
-   * Get the fields that should be evaluated for matching between reference and website
-   * Only evaluate fields that are present in both reference and website metadata
-   * This prevents unfair penalties when website metadata is incomplete
-   */
-  private getAvailableFields(reference: Reference, websiteMetadata: WebsiteMetadata): string[] {
-    const fields: string[] = []
-
-    // Core fields
-    if (reference.metadata.title && websiteMetadata.title) {
-      fields.push('title')
-    }
-    if (reference.metadata.authors && reference.metadata.authors.length > 0
-      && websiteMetadata.authors && websiteMetadata.authors.length > 0) {
-      fields.push('authors')
-    }
-    if (reference.metadata.date.year && websiteMetadata.publishedDate) {
-      fields.push('year')
-    }
-
-    // URL comparison
-    if (reference.metadata.source.url && websiteMetadata.url) {
-      fields.push('url')
-    }
-
-    // Description comparison
-    if ((reference.metadata.title || reference.originalText) && websiteMetadata.description) {
-      fields.push('description')
-    }
-
-    // Identifier fields (less common on websites but possible)
-    if (reference.metadata.identifiers?.doi) {
-      fields.push('doi')
-    }
-
-    // Source fields (uncommon but possible on websites)
-    if (reference.metadata.source.containerTitle && websiteMetadata.siteName) {
-      fields.push('containerTitle')
-    }
-
-    return fields
-  }
-
-  /**
-   * Get field weights for all fields that should be evaluated
-   */
-  private getFieldWeightsForAvailableFields(availableFields: string[]): Record<string, number> {
-    const weights: Record<string, number> = {}
-
-    for (const field of availableFields) {
-      const weight = this.defaultFieldWeights[field as keyof FieldWeights]
-      if (typeof weight === 'number') {
-        weights[field] = weight
-      }
-    }
-
-    return weights
-  }
-
-  /**
-   * Calculate the overall weighted score from field details
-   */
-  private calculateOverallScore(fieldDetails: FieldMatchDetail[]): number {
-    if (fieldDetails.length === 0)
-      return 0
-
-    let totalWeightedScore = 0
-    let totalWeight = 0
-
-    for (const detail of fieldDetails) {
-      totalWeightedScore += detail.match_score * detail.weight
-      totalWeight += detail.weight
-    }
-
-    return totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0
   }
 }
