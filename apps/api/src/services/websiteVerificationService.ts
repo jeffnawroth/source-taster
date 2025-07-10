@@ -1,10 +1,11 @@
 import type {
   ArchivedVersion,
+  FieldMatchDetail,
   Reference,
   WebsiteMetadata,
   WebsiteVerificationResult,
 } from '@source-taster/types'
-import type { FieldWeights } from '../types/verification'
+import type { AIFieldMatchDetail, FieldWeights } from '../types/verification'
 import * as cheerio from 'cheerio'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
@@ -727,24 +728,21 @@ Scoring Guidelines for each field (0-100):
 
 For each field, provide:
 - reference_value: The value from the reference
-- source_value: The value from the website
 - match_score: Score from 0-100 (0=no match, 100=perfect match)
 
 Consider partial matches, fuzzy matching, and semantic similarity.
 Missing values should be scored appropriately (e.g., 50 if one value is missing but not contradictory).
 
-Return as JSON with fieldDetails array containing objects with: field, reference_value, source_value, match_score.
+Return as JSON array with objects containing: field, match_score.
 `
 
     const response = await aiServiceInstance.verifyMatch(prompt)
 
     try {
-      // Response is now a structured object, not a string
-      const parsed = response
-
-      // Ensure fieldDetails have weights assigned (from our calculation)
-      const fieldDetails = (parsed.fieldDetails || []).map((detail: any) => ({
-        ...detail,
+      // Response has fieldDetails array with { field, match_score } objects
+      const fieldDetails: FieldMatchDetail[] = response.fieldDetails.map((detail: AIFieldMatchDetail) => ({
+        field: detail.field,
+        match_score: detail.match_score,
         weight: fieldWeights[detail.field] || 0,
       }))
 
@@ -752,7 +750,7 @@ Return as JSON with fieldDetails array containing objects with: field, reference
       const overallScore = this.calculateOverallScore(fieldDetails)
 
       // Derive fieldsEvaluated from fieldDetails
-      const fieldsEvaluated = fieldDetails.map((detail: any) => detail.field)
+      const fieldsEvaluated = fieldDetails.map(detail => detail.field)
 
       // Create match details from AI response with our calculated score
       const matchDetails = {
@@ -842,7 +840,7 @@ Return as JSON with fieldDetails array containing objects with: field, reference
   /**
    * Calculate the overall weighted score from field details
    */
-  private calculateOverallScore(fieldDetails: Array<{ match_score: number, weight: number }>): number {
+  private calculateOverallScore(fieldDetails: FieldMatchDetail[]): number {
     if (fieldDetails.length === 0)
       return 0
 

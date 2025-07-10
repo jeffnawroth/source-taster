@@ -1,16 +1,15 @@
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
-// Zod schema for verification response
-export const FieldDetailSchema = z.object({
+// Zod schema for a single field match detail from AI
+export const AIFieldDetailSchema = z.object({
   field: z.string().describe('Field name being compared'),
-  reference_value: z.any().describe('Value from reference'),
-  source_value: z.any().describe('Value from source'),
   match_score: z.number().int().min(0).max(100).describe('Match score from 0-100'),
 })
 
+// Zod schema for verification response - object with fieldDetails array
 export const VerificationResponseSchema = z.object({
-  fieldDetails: z.array(FieldDetailSchema).describe('Detailed scoring information for each field'),
+  fieldDetails: z.array(AIFieldDetailSchema).describe('Array of field match scores'),
 })
 
 // Generate JSON Schema for verification
@@ -20,7 +19,3 @@ export const verificationJsonSchema = {
     $refStrategy: 'none', // Inline all schemas for OpenAI compatibility
   }),
 }
-
-// Export verification types
-export type VerificationResponse = z.infer<typeof VerificationResponseSchema>
-export type FieldDetail = z.infer<typeof FieldDetailSchema>

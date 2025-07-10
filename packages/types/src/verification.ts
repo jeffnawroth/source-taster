@@ -131,10 +131,6 @@ export interface SourceEvaluation {
 export interface FieldMatchDetail {
   /** Name of the field being compared (e.g., 'title', 'authors') */
   field: string
-  /** Value from the original reference */
-  reference_value: string | number | string[] | null
-  /** Value from the external source */
-  source_value: string | number | string[] | null
   /** Match score for this specific field (0-100) */
   match_score: number
   /** Weight used for this field in overall calculation */

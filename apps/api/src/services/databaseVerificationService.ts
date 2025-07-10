@@ -1,11 +1,12 @@
 import type {
   ExternalSource,
+  FieldMatchDetail,
   MatchDetails,
   Reference,
   SourceEvaluation,
   VerificationResult,
 } from '@source-taster/types'
-import type { FieldWeights } from '../types/verification'
+import type { AIFieldMatchDetail, FieldWeights } from '../types/verification'
 import process from 'node:process'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 import { ArxivService } from './databases/arxivService'
@@ -252,12 +253,10 @@ ${JSON.stringify(source.metadata, null, 2)}`
     const response = await ai.verifyMatch(prompt)
 
     try {
-      // Response is now a structured object, not a string
-      const result = response
-
-      // Ensure fieldDetails have weights assigned (from our calculation)
-      const fieldDetails = (result.fieldDetails || []).map((detail: any) => ({
-        ...detail,
+      // Response has fieldDetails array with { field, match_score } objects
+      const fieldDetails: FieldMatchDetail[] = response.fieldDetails.map((detail: AIFieldMatchDetail) => ({
+        field: detail.field,
+        match_score: detail.match_score,
         weight: fieldWeights[detail.field] || 0,
       }))
 
@@ -265,7 +264,7 @@ ${JSON.stringify(source.metadata, null, 2)}`
       const overallScore = this.calculateOverallScore(fieldDetails)
 
       // Derive fieldsEvaluated from fieldDetails
-      const fieldsEvaluated = fieldDetails.map((detail: any) => detail.field)
+      const fieldsEvaluated = fieldDetails.map(detail => detail.field)
 
       // Create match details from AI response with our calculated score
       const aiMatchDetails: MatchDetails = {
@@ -300,7 +299,7 @@ ${JSON.stringify(source.metadata, null, 2)}`
   /**
    * Calculate the overall weighted score from field details
    */
-  private calculateOverallScore(fieldDetails: Array<{ match_score: number, weight: number }>): number {
+  private calculateOverallScore(fieldDetails: FieldMatchDetail[]): number {
     if (fieldDetails.length === 0)
       return 0
 
