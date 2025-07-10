@@ -14,26 +14,18 @@ app.use('*', cors({
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
 }))
+
 app.use('*', errorHandler)
 
 // Mount API routes
 app.route('/api/extract', extractionRouter)
 app.route('/api/verify', verificationRouter)
 
-// Health check
-app.get('/api/health', (c) => {
-  return c.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-  })
-})
-
 // Root endpoint
 app.get('/', (c) => {
   return c.json({
     name: 'Source Taster API',
     endpoints: {
-      health: '/api/health',
       extract: '/api/extract',
       verify: '/api/verify',
       verifyWebsite: '/api/verify/website',
