@@ -1,11 +1,11 @@
 import type {
   ExternalSource,
-  FieldWeights,
   MatchDetails,
   Reference,
   SourceEvaluation,
   VerificationResult,
 } from '@source-taster/types'
+import type { FieldWeights } from '../types/verification'
 import process from 'node:process'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 import { ArxivService } from './databases/arxivService'
