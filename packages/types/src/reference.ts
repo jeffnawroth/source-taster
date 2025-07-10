@@ -163,18 +163,6 @@ export interface SourceInfo {
 }
 
 /**
- * Reference with verification status and results
- */
-export interface ProcessedReference extends Reference {
-  /** Current verification status */
-  status: 'pending' | 'verified' | 'not-verified' | 'error'
-  /** Detailed verification results (if completed) */
-  verificationResult?: VerificationResult
-  /** Error message if verification failed */
-  error?: string
-}
-
-/**
  * Represents a reference found in an external database
  */
 export interface ExternalSource {
