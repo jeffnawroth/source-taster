@@ -104,43 +104,10 @@ export abstract class BaseVerificationService {
     // Get the fields that should be evaluated
     const availableFields = this.getAvailableFields(reference, source)
 
-    const prompt = `You are a system that compares two objects to determine whether they refer to the same scholarly work. You will receive two inputs:
-1. reference: Metadata extracted from a free-form reference string. This data may be incomplete or slightly inaccurate.
-2. source: Structured object, containing authoritative bibliographic information.
+    const prompt = `
 
-Your task is to assess whether the Source describes the same publication as Reference and provide detailed match scores for each field.
-
-IMPORTANT RULES:
-- Only evaluate fields that are present in both reference and source
-- This prevents unfair penalties when source databases have incomplete metadata
-- Focus on comparing the available data fairly
-
-Available fields to evaluate: ${availableFields.join(', ')}
-
-Scoring Guidelines for each field (0-100):
-• Title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different
-• Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
-• Year: 100=exact match, 0=different (no partial scoring for year)
-• DOI: 100=identical, 0=different (no partial scoring for DOI)
-• ContainerTitle: 100=identical, 90=same journal different format, 70=abbreviated vs full name, 0=different
-• Volume: 100=exact match, 0=different (no partial scoring)
-• Issue: 100=exact match, 0=different (no partial scoring)
-• Pages: 100=identical, 90=same range different format, 70=overlapping ranges, 0=different
-• ArxivId: 100=identical, 0=different (no partial scoring for arXiv IDs)
-• PMID: 100=identical, 0=different (no partial scoring for PubMed IDs)
-• PMCID: 100=identical, 0=different (no partial scoring for PMC IDs)
-• ISBN: 100=identical, 0=different (no partial scoring for ISBNs)
-• ISSN: 100=identical, 0=different (no partial scoring for ISSNs)
-
-Return your analysis in this JSON format:
-{
-  "fieldDetails": [
-    {
-      "field": "title",
-      "match_score": 0-100
-    }
-  ]
-}
+Available fields for verification:
+${availableFields.join(', ')}
 
 Reference:
 ${JSON.stringify(reference.metadata, null, 2)}
@@ -164,13 +131,9 @@ ${JSON.stringify(source.metadata, null, 2)}`
       // Calculate the overall score ourselves
       const overallScore = this.calculateOverallScore(fieldDetails)
 
-      // Derive fieldsEvaluated from fieldDetails
-      const fieldsEvaluated = fieldDetails.map(detail => detail.field)
-
       // Create match details from AI response with our calculated score
       const aiMatchDetails: MatchDetails = {
         overallScore,
-        fieldsEvaluated,
         fieldDetails,
       }
 
@@ -186,7 +149,6 @@ ${JSON.stringify(source.metadata, null, 2)}`
       // Fallback if AI response parsing fails
       const fallbackMatchDetails: MatchDetails = {
         overallScore: 0,
-        fieldsEvaluated: [],
         fieldDetails: [],
       }
 

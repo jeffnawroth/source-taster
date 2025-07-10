@@ -113,8 +113,6 @@ export interface VerificationDetails {
 export interface MatchDetails {
   /** Final weighted score: Σ(match_score * weight) / Σ(weights) */
   overallScore: number
-  /** Which fields were actually compared */
-  fieldsEvaluated?: string[]
   /** Detailed scoring per field */
   fieldDetails?: FieldMatchDetail[]
 }

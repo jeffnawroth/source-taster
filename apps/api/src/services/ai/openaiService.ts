@@ -72,23 +72,28 @@ ${text}`
   }
 
   async verifyMatch(prompt: string): Promise<AIVerificationResponse> {
-    const systemMessage = `You are an expert bibliographic verification assistant. Your task is to analyze a verification prompt and provide field-by-field matching scores.
+    const systemMessage = `You are an expert bibliographic verification assistant. Your task is to provide field-by-field matching scores.
+    
+IMPORTANT RULES:
+- Only evaluate fields that are present in both reference and source
+- This prevents unfair penalties when source databases have incomplete metadata
 
-INSTRUCTIONS:
-1. Parse the provided prompt and extract comparison data between a reference and source
-2. Evaluate field-by-field matches using bibliographic standards
-3. Provide match scores for each field (0-100 scale)
-4. Return an object with 'fieldDetails' array containing objects with 'field' and 'match_score'
-5. Use semantic similarity and bibliographic standards for scoring
-6. Focus on key fields: title, authors, year, doi, isbn, containerTitle, volume, issue, pages
+Scoring Guidelines for each field (0-100):
+• Title: 100=identical, 90=very similar, 70=similar core meaning, 50=related, 0=completely different
+• Authors: 100=all match exactly, 80=most surnames match, 60=some match, 40=few match, 0=none match
+• Year: 100=exact match, 0=different (no partial scoring for year)
+• DOI: 100=identical, 0=different (no partial scoring for DOI)
+• ContainerTitle: 100=identical, 90=same journal different format, 70=abbreviated vs full name, 0=different
+• Volume: 100=exact match, 0=different (no partial scoring)
+• Issue: 100=exact match, 0=different (no partial scoring)
+• Pages: 100=identical, 90=same range different format, 70=overlapping ranges, 0=different
+• ArxivId: 100=identical, 0=different (no partial scoring for arXiv IDs)
+• PMID: 100=identical, 0=different (no partial scoring for PubMed IDs)
+• PMCID: 100=identical, 0=different (no partial scoring for PMC IDs)
+• ISBN: 100=identical, 0=different (no partial scoring for ISBNs)
+• ISSN: 100=identical, 0=different (no partial scoring for ISSNs)
 
-SCORING GUIDELINES:
-- 100: Perfect match
-- 80-99: Very close match (minor differences)
-- 60-79: Good match (some differences)
-- 40-59: Partial match (significant differences)
-- 20-39: Poor match (major differences)
-- 0-19: No match`
+${prompt}`
 
     try {
       const response = await this.client.chat.completions.create({
