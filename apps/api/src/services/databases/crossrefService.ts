@@ -1,5 +1,5 @@
 import type { Author, DateInfo, ExternalIdentifiers, ExternalSource, ReferenceMetadata, SourceInfo } from '@source-taster/types'
-import type { components } from '../../crossref-types'
+import type { components } from '../../types/crossref'
 import process from 'node:process'
 
 // Type aliases for better readability
