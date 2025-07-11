@@ -1,4 +1,5 @@
 import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import type { AuthorshipsInner, Work, WorksResponse } from '../../types/openAlexTypes'
 import process from 'node:process'
 
 export class OpenAlexService {
@@ -53,7 +54,7 @@ export class OpenAlexService {
         return null // DOI not found, try query search
       }
 
-      const work = await response.json() as any
+      const work = await response.json() as Work
 
       if (work && work.id) {
         return {
@@ -89,7 +90,7 @@ export class OpenAlexService {
       // Check rate limit headers
       this.checkRateLimit(response)
 
-      const data = await response.json() as any
+      const data = await response.json() as WorksResponse
 
       // Always take the first result - trust OpenAlex ranking
       if (data.results && data.results.length > 0) {
@@ -165,7 +166,7 @@ export class OpenAlexService {
    * @param work The OpenAlex work object to parse.
    * @returns The parsed ReferenceMetadata object.
    */
-  private parseOpenAlexWork(work: any): ReferenceMetadata {
+  private parseOpenAlexWork(work: Work): ReferenceMetadata {
     const metadata: ReferenceMetadata = {
       date: {},
       source: {},
@@ -175,17 +176,20 @@ export class OpenAlexService {
     if (work.title) {
       metadata.title = work.title
     }
+    else if (work.displayName) {
+      metadata.title = work.displayName
+    }
 
     // Authors - parse more detailed author information
-    if (work.authorships?.length > 0) {
+    if (work.authorships && work.authorships.length > 0) {
       const parsedAuthors = work.authorships
-        .map((authorship: any) => {
+        .map((authorship: AuthorshipsInner) => {
           const author = authorship.author
-          if (!author?.display_name)
+          if (!author?.displayName)
             return null
 
           // Try to parse first and last name from display_name
-          const nameParts = author.display_name.split(' ')
+          const nameParts = author.displayName.split(' ')
           if (nameParts.length >= 2) {
             return {
               firstName: nameParts.slice(0, -1).join(' '),
@@ -195,11 +199,11 @@ export class OpenAlexService {
           else {
             // If only one name part, treat as lastName
             return {
-              lastName: author.display_name,
+              lastName: author.displayName,
             }
           }
         })
-        .filter(Boolean)
+        .filter(Boolean) as Array<{ firstName?: string, lastName: string }>
 
       // Use parsed authors if we got any, otherwise fallback to simple strings
       if (parsedAuthors.length > 0) {
@@ -207,39 +211,39 @@ export class OpenAlexService {
       }
       else {
         metadata.authors = work.authorships
-          .map((a: any) => a.author?.display_name)
-          .filter(Boolean)
+          .map((a: AuthorshipsInner) => a.author?.displayName)
+          .filter(Boolean) as string[]
       }
     }
 
     // Source information
-    if (work.primary_location?.source) {
-      const source = work.primary_location.source
-      if (source.display_name) {
-        metadata.source.containerTitle = source.display_name
+    if (work.primaryLocation?.source) {
+      const source = work.primaryLocation.source
+      if (source.displayName) {
+        metadata.source.containerTitle = source.displayName
       }
 
       // Source type mapping - prioritize document type over venue type
-      if (work.type_crossref || work.type) {
-        metadata.source.sourceType = this.mapOpenAlexTypeToSourceType(work.type_crossref || work.type)
+      if (work.typeCrossref || work.type) {
+        metadata.source.sourceType = this.mapOpenAlexTypeToSourceType((work.typeCrossref || work.type)!)
       }
 
       // ISSN from source
-      if (source.issn_l || (source.issn && source.issn.length > 0)) {
+      if (source.issnL || (source.issn && Array.isArray(source.issn) && source.issn.length > 0)) {
         metadata.identifiers = metadata.identifiers || {}
-        metadata.identifiers.issn = source.issn_l || source.issn[0]
+        metadata.identifiers.issn = source.issnL || (source.issn as string[])[0]
       }
     }
 
     // Date information - more comprehensive parsing
-    if (work.publication_year) {
-      metadata.date.year = work.publication_year
+    if (work.publicationYear) {
+      metadata.date.year = work.publicationYear
     }
 
     // Parse more detailed date if available
-    if (work.publication_date) {
+    if (work.publicationDate) {
       try {
-        const pubDate = new Date(work.publication_date)
+        const pubDate = new Date(work.publicationDate)
         metadata.date.year = pubDate.getFullYear()
         metadata.date.month = pubDate.toLocaleString('en-US', { month: 'long' })
         metadata.date.day = pubDate.getDate()
@@ -277,13 +281,13 @@ export class OpenAlexService {
         metadata.source.issue = work.biblio.issue
       }
 
-      // Construct pages from first_page and last_page
-      if (work.biblio.first_page) {
-        if (work.biblio.last_page && work.biblio.first_page !== work.biblio.last_page) {
-          metadata.source.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
+      // Construct pages from firstPage and lastPage
+      if (work.biblio.firstPage) {
+        if (work.biblio.lastPage && work.biblio.firstPage !== work.biblio.lastPage) {
+          metadata.source.pages = `${work.biblio.firstPage}-${work.biblio.lastPage}`
         }
         else {
-          metadata.source.pages = work.biblio.first_page
+          metadata.source.pages = work.biblio.firstPage
         }
       }
     }
@@ -318,15 +322,15 @@ export class OpenAlexService {
    * 2. Primary location landing page URL (official publisher link)
    * 3. OpenAlex catalog URL (as fallback)
    */
-  private extractBestUrl(work: any): string {
+  private extractBestUrl(work: Work): string {
     // First priority: Best OA location (open access version)
-    if (work.best_oa_location?.landing_page_url) {
-      return work.best_oa_location.landing_page_url
+    if (work.bestOaLocation?.landingPageUrl) {
+      return work.bestOaLocation.landingPageUrl
     }
 
     // Second priority: Primary location (official publisher)
-    if (work.primary_location?.landing_page_url) {
-      return work.primary_location.landing_page_url
+    if (work.primaryLocation?.landingPageUrl) {
+      return work.primaryLocation.landingPageUrl
     }
 
     // Fallback: OpenAlex catalog URL
