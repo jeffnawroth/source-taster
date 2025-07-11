@@ -1,4 +1,9 @@
 import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import type { components } from '../../types/semanticScholar'
+
+type SemanticScholarPaper = components['schemas']['FullPaper']
+type SemanticScholarSearchResponse = components['schemas']['PaperRelevanceSearchBatch']
+type SemanticScholarTitleMatchResponse = components['schemas']['PaperMatch']
 
 export class SemanticScholarService {
   private baseUrl = 'https://api.semanticscholar.org/graph/v1'
@@ -79,7 +84,7 @@ export class SemanticScholarService {
         return null // DOI not found, try other methods
       }
 
-      const work = await response.json() as any
+      const work = await response.json() as SemanticScholarPaper
 
       if (work && work.paperId) {
         return {
@@ -132,7 +137,7 @@ export class SemanticScholarService {
         return null // arXiv ID not found, try other methods
       }
 
-      const work = await response.json() as any
+      const work = await response.json() as SemanticScholarPaper
 
       if (work && work.paperId) {
         return {
@@ -185,14 +190,15 @@ export class SemanticScholarService {
       })
 
       if (response.ok) {
-        const data = await response.json() as any
+        const data = await response.json() as SemanticScholarTitleMatchResponse
         // The match endpoint returns a single best match with a matchScore
-        if (data && data.paperId) {
+        if (data && data.data && data.data.length > 0) {
+          const match = data.data[0]
           return {
-            id: data.paperId,
+            id: match.paperId!,
             source: 'semanticscholar',
-            metadata: this.parseSemanticScholarWork(data),
-            url: data.url || `https://www.semanticscholar.org/paper/${data.paperId}`,
+            metadata: this.parseSemanticScholarWork(match),
+            url: match.url || `https://www.semanticscholar.org/paper/${match.paperId}`,
           }
         }
       }
@@ -348,7 +354,7 @@ export class SemanticScholarService {
       })
 
       if (response.ok) {
-        const data = await response.json() as any
+        const data = await response.json() as SemanticScholarSearchResponse
         if (data.data && data.data.length > 0) {
           // For the first strategy (simple title search), take the first result
           // Semantic Scholar already ranks by relevance
@@ -363,7 +369,7 @@ export class SemanticScholarService {
                 const candidate = data.data[i]
                 if (candidate.year && Math.abs(candidate.year - metadata.date.year) <= 2) {
                   return {
-                    id: candidate.paperId,
+                    id: candidate.paperId!,
                     source: 'semanticscholar',
                     metadata: this.parseSemanticScholarWork(candidate),
                     url: candidate.url || `https://www.semanticscholar.org/paper/${candidate.paperId}`,
@@ -375,7 +381,7 @@ export class SemanticScholarService {
 
           // Return the best match (first result)
           return {
-            id: bestMatch.paperId,
+            id: bestMatch.paperId!,
             source: 'semanticscholar',
             metadata: this.parseSemanticScholarWork(bestMatch),
             url: bestMatch.url || `https://www.semanticscholar.org/paper/${bestMatch.paperId}`,
@@ -390,7 +396,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private parseSemanticScholarWork(work: any): ReferenceMetadata {
+  private parseSemanticScholarWork(work: SemanticScholarPaper): ReferenceMetadata {
     // Parse authors with enhanced handling for both string and object formats
     const authors = work.authors?.map((author: any) => {
       if (typeof author === 'string') {
@@ -411,45 +417,49 @@ export class SemanticScholarService {
         year = Number.parseInt(dateMatch[1])
       }
     }
-    else if (work.publicationVenue?.name) {
+    else if (work.publicationVenue && 'name' in work.publicationVenue) {
       // Sometimes year is embedded in venue information
-      const venueYearMatch = work.publicationVenue.name.match(/(\d{4})/)
-      if (venueYearMatch) {
-        year = Number.parseInt(venueYearMatch[1])
+      const venueName = (work.publicationVenue as any).name
+      if (typeof venueName === 'string') {
+        const venueYearMatch = venueName.match(/(\d{4})/)
+        if (venueYearMatch) {
+          year = Number.parseInt(venueYearMatch[1])
+        }
       }
     }
 
     // Parse identifiers from external IDs with comprehensive mapping
     const identifiers: any = {}
     if (work.externalIds) {
+      const extIds = work.externalIds as any
       // DOI
-      if (work.externalIds.DOI) {
-        identifiers.doi = work.externalIds.DOI
+      if (extIds.DOI) {
+        identifiers.doi = extIds.DOI
       }
 
       // ArXiv ID
-      if (work.externalIds.ArXiv) {
-        identifiers.arxivId = work.externalIds.ArXiv
+      if (extIds.ArXiv) {
+        identifiers.arxivId = extIds.ArXiv
       }
 
       // PubMed ID
-      if (work.externalIds.PubMed) {
-        identifiers.pmid = work.externalIds.PubMed
+      if (extIds.PubMed) {
+        identifiers.pmid = extIds.PubMed
       }
 
       // PMC ID
-      if (work.externalIds.PubMedCentral) {
-        identifiers.pmcid = work.externalIds.PubMedCentral
+      if (extIds.PubMedCentral) {
+        identifiers.pmcid = extIds.PubMedCentral
       }
 
       // ISSN
-      if (work.externalIds.ISSN) {
-        identifiers.issn = work.externalIds.ISSN
+      if (extIds.ISSN) {
+        identifiers.issn = extIds.ISSN
       }
 
       // ISBN
-      if (work.externalIds.ISBN) {
-        identifiers.isbn = work.externalIds.ISBN
+      if (extIds.ISBN) {
+        identifiers.isbn = extIds.ISBN
       }
     }
 
@@ -458,16 +468,18 @@ export class SemanticScholarService {
     let issn: string | undefined
 
     // Priority: journal object > publicationVenue > venue
-    if (work.journal?.name) {
-      journal = work.journal.name
-      if (work.journal.issn) {
-        issn = work.journal.issn
+    if (work.journal && 'name' in work.journal) {
+      const journalObj = work.journal as any
+      journal = journalObj.name
+      if (journalObj.issn) {
+        issn = journalObj.issn
       }
     }
-    else if (work.publicationVenue?.name) {
-      journal = work.publicationVenue.name
-      if (work.publicationVenue.issn) {
-        issn = work.publicationVenue.issn
+    else if (work.publicationVenue && 'name' in work.publicationVenue) {
+      const venueObj = work.publicationVenue as any
+      journal = venueObj.name
+      if (venueObj.issn) {
+        issn = venueObj.issn
       }
     }
     else if (work.venue) {
@@ -485,14 +497,16 @@ export class SemanticScholarService {
     let pages: string | undefined
 
     if (work.journal) {
-      volume = work.journal.volume
-      issue = work.journal.issue
-      pages = work.journal.pages
+      const journalObj = work.journal as any
+      volume = journalObj.volume
+      issue = journalObj.issue
+      pages = journalObj.pages
     }
     else if (work.publicationVenue) {
-      volume = work.publicationVenue.volume
-      issue = work.publicationVenue.issue
-      pages = work.publicationVenue.pages
+      const venueObj = work.publicationVenue as any
+      volume = venueObj.volume
+      issue = venueObj.issue
+      pages = venueObj.pages
     }
 
     // Parse publication type for enhanced metadata
