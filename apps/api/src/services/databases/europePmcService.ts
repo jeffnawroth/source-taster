@@ -1,4 +1,5 @@
 import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import type { EuropePmcSearchResponse, EuropePmcWork } from '../../types/europePmc'
 import process from 'node:process'
 
 export class EuropePmcService {
@@ -77,7 +78,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -125,7 +126,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -175,7 +176,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -212,7 +213,7 @@ export class EuropePmcService {
         throw new Error(`Europe PMC API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         // For query-based searches, take the first result which should be most relevant
@@ -292,7 +293,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -408,7 +409,7 @@ export class EuropePmcService {
   /**
    * Build the best URL for a Europe PMC work (prefer DOI, then PMC, then PubMed)
    */
-  private buildWorkUrl(work: any): string | undefined {
+  private buildWorkUrl(work: EuropePmcWork): string | undefined {
     if (work.doi) {
       return `https://doi.org/${work.doi}`
     }
@@ -427,7 +428,7 @@ export class EuropePmcService {
    * @param work The Europe PMC work object to parse.
    * @returns The parsed ReferenceMetadata object.
    */
-  private parseEuropePmcWork(work: any): ReferenceMetadata {
+  private parseEuropePmcWork(work: EuropePmcWork): ReferenceMetadata {
     const metadata: ReferenceMetadata = {
       date: {},
       source: {},
