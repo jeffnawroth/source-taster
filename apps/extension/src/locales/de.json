@@ -289,5 +289,19 @@
   "field-description-volume": "Gewichtung für Band-Nummer-Übereinstimmungen",
   "field-description-issue": "Gewichtung für Ausgabe-Nummer-Übereinstimmungen",
   "field-description-pages": "Gewichtung für Seitenzahl-Übereinstimmungen",
-  "container-title": "Container-Titel"
+  "container-title": "Container-Titel",
+  "how-field-weights-work": "Wie Feldgewichtungen funktionieren",
+  "field-weights-explanation": "Feldgewichtungen bestimmen, wie wichtig jedes Metadatenfeld beim Vergleich von Referenzen ist. Höhere Gewichtungen bedeuten, dass das Feld mehr Einfluss auf die Gesamtbewertung hat. Die Summe muss 100% ergeben.",
+  "practical-example": "Praktisches Beispiel",
+  "scenario": "Szenario",
+  "example-scenario": "Sie möchten sich nur auf Titel- und DOI-Abgleich konzentrieren und alle anderen Felder ignorieren",
+  "field": "Feld",
+  "weight": "Gewichtung",
+  "impact": "Auswirkung",
+  "high-impact": "Großer Einfluss auf Bewertung",
+  "medium-impact": "Mittlerer Einfluss auf Bewertung",
+  "low-impact": "Geringer Einfluss auf Bewertung",
+  "no-impact": "Feld wird ignoriert",
+  "other-fields": "Andere Felder",
+  "example-explanation": "In diesem Beispiel konzentriert sich die Verifizierung zu 50% auf Titel-Ähnlichkeit, zu 30% auf DOI-Übereinstimmung und zu 20% auf Autoren-Ähnlichkeit. Alle anderen Felder (Jahr, Zeitschrift, Seiten, etc.) werden ignoriert."
 }

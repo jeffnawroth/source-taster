@@ -289,5 +289,19 @@
   "field-description-volume": "Weight for volume number matching",
   "field-description-issue": "Weight for issue number matching",
   "field-description-pages": "Weight for page range matching",
-  "container-title": "Container Title"
+  "container-title": "Container Title",
+  "how-field-weights-work": "How Field Weights Work",
+  "field-weights-explanation": "Field weights determine how important each metadata field is when comparing references. Higher weights mean that field has more influence on the overall match score. The total must equal 100%.",
+  "practical-example": "Practical Example",
+  "scenario": "Scenario",
+  "example-scenario": "You want to focus only on title and DOI matching, ignoring all other fields",
+  "field": "Field",
+  "weight": "Weight",
+  "impact": "Impact",
+  "high-impact": "Major influence on match score",
+  "medium-impact": "Moderate influence on match score",
+  "low-impact": "Minor influence on match score",
+  "no-impact": "Field is ignored",
+  "other-fields": "Other fields",
+  "example-explanation": "In this example, verification will focus 50% on title similarity, 30% on DOI match, and 20% on author similarity. All other fields (year, journal, pages, etc.) are ignored."
 }
