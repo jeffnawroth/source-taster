@@ -1,7 +1,23 @@
+import type { FieldWeights } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
+export const fieldWeights = useWebExtensionStorage('field-weights', {
+  title: 30,
+  authors: 25,
+  year: 8,
+  doi: 12,
+  containerTitle: 10,
+  volume: 2,
+  issue: 1,
+  pages: 2,
+  arxivId: 8,
+  pmid: 6,
+  pmcid: 6,
+  isbn: 4,
+  issn: 3,
+} as FieldWeights)
 
 declare let chrome: any
 
