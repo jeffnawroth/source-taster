@@ -1,6 +1,10 @@
 import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
-import type { AuthorshipsInner, Work, WorksResponse } from '../../types/openAlexTypes'
+import type { components } from '../../types/openAlex'
 import process from 'node:process'
+
+// Type aliases for better readability
+type Work = components['schemas']['workSchema']
+type WorksResponse = components['schemas']['worksResponse']
 
 export class OpenAlexService {
   private baseUrl = 'https://api.openalex.org'
@@ -176,20 +180,20 @@ export class OpenAlexService {
     if (work.title) {
       metadata.title = work.title
     }
-    else if (work.displayName) {
-      metadata.title = work.displayName
+    else if (work.display_name) {
+      metadata.title = work.display_name
     }
 
     // Authors - parse more detailed author information
     if (work.authorships && work.authorships.length > 0) {
       const parsedAuthors = work.authorships
-        .map((authorship: AuthorshipsInner) => {
+        .map((authorship) => {
           const author = authorship.author
-          if (!author?.displayName)
+          if (!author?.display_name)
             return null
 
           // Try to parse first and last name from display_name
-          const nameParts = author.displayName.split(' ')
+          const nameParts = author.display_name.split(' ')
           if (nameParts.length >= 2) {
             return {
               firstName: nameParts.slice(0, -1).join(' '),
@@ -199,7 +203,7 @@ export class OpenAlexService {
           else {
             // If only one name part, treat as lastName
             return {
-              lastName: author.displayName,
+              lastName: author.display_name,
             }
           }
         })
@@ -211,39 +215,39 @@ export class OpenAlexService {
       }
       else {
         metadata.authors = work.authorships
-          .map((a: AuthorshipsInner) => a.author?.displayName)
+          .map(a => a.author?.display_name)
           .filter(Boolean) as string[]
       }
     }
 
     // Source information
-    if (work.primaryLocation?.source) {
-      const source = work.primaryLocation.source
-      if (source.displayName) {
-        metadata.source.containerTitle = source.displayName
+    if (work.primary_location?.source) {
+      const source = work.primary_location.source
+      if (source.display_name) {
+        metadata.source.containerTitle = source.display_name
       }
 
       // Source type mapping - prioritize document type over venue type
-      if (work.typeCrossref || work.type) {
-        metadata.source.sourceType = this.mapOpenAlexTypeToSourceType((work.typeCrossref || work.type)!)
+      if (work.type_crossref || work.type) {
+        metadata.source.sourceType = this.mapOpenAlexTypeToSourceType((work.type_crossref || work.type)!)
       }
 
       // ISSN from source
-      if (source.issnL || (source.issn && Array.isArray(source.issn) && source.issn.length > 0)) {
+      if (source.issn_l || (source.issn && Array.isArray(source.issn) && source.issn.length > 0)) {
         metadata.identifiers = metadata.identifiers || {}
-        metadata.identifiers.issn = source.issnL || (source.issn as string[])[0]
+        metadata.identifiers.issn = source.issn_l || (source.issn as string[])[0]
       }
     }
 
     // Date information - more comprehensive parsing
-    if (work.publicationYear) {
-      metadata.date.year = work.publicationYear
+    if (work.publication_year) {
+      metadata.date.year = work.publication_year
     }
 
     // Parse more detailed date if available
-    if (work.publicationDate) {
+    if (work.publication_date) {
       try {
-        const pubDate = new Date(work.publicationDate)
+        const pubDate = new Date(work.publication_date)
         metadata.date.year = pubDate.getFullYear()
         metadata.date.month = pubDate.toLocaleString('en-US', { month: 'long' })
         metadata.date.day = pubDate.getDate()
@@ -281,13 +285,13 @@ export class OpenAlexService {
         metadata.source.issue = work.biblio.issue
       }
 
-      // Construct pages from firstPage and lastPage
-      if (work.biblio.firstPage) {
-        if (work.biblio.lastPage && work.biblio.firstPage !== work.biblio.lastPage) {
-          metadata.source.pages = `${work.biblio.firstPage}-${work.biblio.lastPage}`
+      // Construct pages from first_page and last_page
+      if (work.biblio.first_page) {
+        if (work.biblio.last_page && work.biblio.first_page !== work.biblio.last_page) {
+          metadata.source.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
         }
         else {
-          metadata.source.pages = work.biblio.firstPage
+          metadata.source.pages = work.biblio.first_page
         }
       }
     }
@@ -324,13 +328,13 @@ export class OpenAlexService {
    */
   private extractBestUrl(work: Work): string {
     // First priority: Best OA location (open access version)
-    if (work.bestOaLocation?.landingPageUrl) {
-      return work.bestOaLocation.landingPageUrl
+    if (work.best_oa_location?.landing_page_url) {
+      return work.best_oa_location.landing_page_url
     }
 
     // Second priority: Primary location (official publisher)
-    if (work.primaryLocation?.landingPageUrl) {
-      return work.primaryLocation.landingPageUrl
+    if (work.primary_location?.landing_page_url) {
+      return work.primary_location.landing_page_url
     }
 
     // Fallback: OpenAlex catalog URL
