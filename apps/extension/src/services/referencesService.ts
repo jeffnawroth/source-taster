@@ -1,5 +1,6 @@
 import type { Reference, VerificationResult, WebsiteVerificationResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
+import { fieldWeights } from '@/extension/logic/storage'
 
 export class ReferencesService {
   /**
@@ -41,6 +42,7 @@ export class ReferencesService {
       },
       body: JSON.stringify({
         references,
+        fieldWeights: fieldWeights.value,
       }),
       signal,
     })
@@ -74,6 +76,7 @@ export class ReferencesService {
       body: JSON.stringify({
         reference,
         url,
+        fieldWeights: fieldWeights.value,
         options: {
           timeout: 10000,
           enableWaybackMachine: true,

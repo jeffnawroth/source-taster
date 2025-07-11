@@ -1,32 +1,16 @@
 import type {
   ExternalSource,
   FieldMatchDetail,
+  FieldWeights,
   MatchDetails,
   Reference,
 } from '@source-taster/types'
-import type { AIFieldMatchDetail, FieldWeights } from '../types/verification'
+import type { AIFieldMatchDetail } from '../types/verification'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
 export abstract class BaseVerificationService {
-  // Default field weights - title and authors are most important
-  protected readonly defaultFieldWeights: FieldWeights
+  constructor() {
 
-  constructor(fieldWeights?: FieldWeights) {
-    this.defaultFieldWeights = fieldWeights || {
-      title: 30, // Most important - 30%
-      authors: 25, // Very important - 25%
-      year: 8, // Moderately important - 8%
-      doi: 12, // Important when available - 12%
-      containerTitle: 10, // Moderately important - 10%
-      volume: 2, // Less important - 2%
-      issue: 1, // Less important - 1%
-      pages: 2, // Less important - 2%
-      arxivId: 8, // Important for preprints - 8%
-      pmid: 6, // Important for medical literature - 6%
-      pmcid: 6, // Important for medical literature - 6%
-      isbn: 4, // Important for books - 4%
-      issn: 3, // Important for journals - 3%
-    }
   }
 
   /**
@@ -77,13 +61,16 @@ export abstract class BaseVerificationService {
 
   /**
    * Get field weights for all fields that should be evaluated
-   * This includes core fields from reference even if missing in source
+   * Field weights must be provided by the frontend
    */
-  protected getFieldWeightsForAvailableFields(availableFields: string[]): Record<string, number> {
+  protected getFieldWeightsForAvailableFields(
+    availableFields: string[],
+    fieldWeights: FieldWeights,
+  ): Record<string, number> {
     const weights: Record<string, number> = {}
 
     for (const field of availableFields) {
-      const weight = this.defaultFieldWeights[field as keyof FieldWeights]
+      const weight = fieldWeights[field as keyof FieldWeights]
       if (typeof weight === 'number') {
         weights[field] = weight
       }
@@ -94,10 +81,12 @@ export abstract class BaseVerificationService {
 
   /**
    * Verify a reference against a source using AI
+   * Field weights must be provided by the caller
    */
   protected async verifyWithAI(
     reference: Reference,
     source: ExternalSource,
+    fieldWeights: FieldWeights,
   ): Promise<{ details: MatchDetails }> {
     const ai = AIServiceFactory.createOpenAIService()
 
@@ -118,14 +107,14 @@ ${JSON.stringify(source.metadata, null, 2)}`
     const response = await ai.verifyMatch(prompt)
 
     try {
-      // Get field weights for the fields that were actually evaluated
-      const fieldWeights = this.getFieldWeightsForAvailableFields(availableFields)
+      // Use provided field weights
+      const weights = this.getFieldWeightsForAvailableFields(availableFields, fieldWeights)
 
       // Response has fieldDetails array with { field, match_score } objects
       const fieldDetails: FieldMatchDetail[] = response.fieldDetails.map((detail: AIFieldMatchDetail) => ({
         field: detail.field,
         match_score: detail.match_score,
-        weight: fieldWeights[detail.field] || 0,
+        weight: weights[detail.field] || 0,
       }))
 
       // Calculate the overall score ourselves

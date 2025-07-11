@@ -1,7 +1,7 @@
 /**
  * Backend-specific verification types
  */
-import type { Reference } from '@source-taster/types'
+import type { FieldWeights, Reference } from '@source-taster/types'
 
 /**
  * Request to verify references against databases
@@ -10,6 +10,8 @@ import type { Reference } from '@source-taster/types'
 export interface VerificationRequest {
   /** References to verify */
   references: Reference[]
+  /** Field weights for verification (provided by frontend) */
+  fieldWeights: FieldWeights
 }
 
 /**

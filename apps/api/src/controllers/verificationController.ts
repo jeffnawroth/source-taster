@@ -35,6 +35,14 @@ export class VerificationController {
         return c.json(errorResponse, 400)
       }
 
+      if (!request.fieldWeights) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: 'Field weights are required',
+        }
+        return c.json(errorResponse, 400)
+      }
+
       // Intelligent routing: detect references with URLs and process them accordingly
       const results = []
 
@@ -45,6 +53,7 @@ export class VerificationController {
             const websiteResult = await this.websiteVerificationService.verifyWebsiteReference(
               reference,
               reference.metadata.source.url!,
+              request.fieldWeights,
             )
 
             // Convert website verification result to standard verification result format
@@ -62,13 +71,13 @@ export class VerificationController {
           catch (error) {
             // If website verification fails, fall back to database verification
             console.warn(`Website verification failed for reference ${reference.id}, falling back to database:`, error)
-            const dbResult = await this.verificationService.verifyReference(reference)
+            const dbResult = await this.verificationService.verifyReference(reference, request.fieldWeights)
             results.push(dbResult)
           }
         }
         else {
           // Use database verification for academic references
-          const dbResult = await this.verificationService.verifyReference(reference)
+          const dbResult = await this.verificationService.verifyReference(reference, request.fieldWeights)
           results.push(dbResult)
         }
       }
@@ -185,6 +194,7 @@ export class VerificationController {
       const request = await c.req.json() as {
         reference: any
         url: string
+        fieldWeights: any
         options?: any
       }
 
@@ -205,10 +215,19 @@ export class VerificationController {
         return c.json(errorResponse, 400)
       }
 
+      if (!request.fieldWeights) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: 'Field weights are required',
+        }
+        return c.json(errorResponse, 400)
+      }
+
       // Verify website reference
       const result = await this.websiteVerificationService.verifyWebsiteReference(
         request.reference,
         request.url,
+        request.fieldWeights,
         request.options,
       )
 

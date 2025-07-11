@@ -1,5 +1,6 @@
 import type {
   ExternalSource,
+  FieldWeights,
   Reference,
   SourceEvaluation,
   VerificationResult,
@@ -26,6 +27,7 @@ export class DatabaseVerificationService extends BaseVerificationService {
 
   async verifyReference(
     reference: Reference,
+    fieldWeights: FieldWeights,
   ): Promise<VerificationResult> {
     // Search in all databases in parallel for better performance
     const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
@@ -75,7 +77,7 @@ export class DatabaseVerificationService extends BaseVerificationService {
 
     // Evaluate each source with AI
     for (const source of sources) {
-      const matchResult = await this.verifyWithAI(reference, source)
+      const matchResult = await this.verifyWithAI(reference, source, fieldWeights)
       sourceEvaluations.push({
         source,
         matchDetails: matchResult.details,

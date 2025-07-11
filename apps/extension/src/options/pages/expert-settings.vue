@@ -10,19 +10,19 @@ const panel = ref([1])
 
 // Default field weights (could be extracted to a constant)
 const defaultFieldWeights: FieldWeights = {
-  title: 30,
-  authors: 25,
-  year: 8,
-  doi: 12,
+  title: 25,
+  authors: 20,
+  year: 5,
+  doi: 15,
   containerTitle: 10,
-  volume: 2,
-  issue: 1,
+  volume: 5,
+  issue: 3,
   pages: 2,
   arxivId: 8,
-  pmid: 6,
-  pmcid: 6,
-  isbn: 4,
-  issn: 3,
+  pmid: 3,
+  pmcid: 2,
+  isbn: 1,
+  issn: 1,
 }
 
 // Reset to defaults

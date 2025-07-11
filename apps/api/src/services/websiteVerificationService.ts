@@ -1,6 +1,7 @@
 import type {
   ArchivedVersion,
   ExternalSource,
+  FieldWeights,
   MatchDetails,
   Reference,
   WebsiteMetadata,
@@ -39,6 +40,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
   async verifyWebsiteReference(
     reference: Reference,
     url: string,
+    fieldWeights: FieldWeights,
     options?: WebsiteVerificationOptions,
   ): Promise<WebsiteVerificationResult> {
     const opts = { ...this.defaultOptions, ...options }
@@ -51,7 +53,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
         console.warn(`Extracted metadata for ${url}:`, JSON.stringify(websiteMetadata, null, 2))
 
         // Use a specialized website verification method
-        const matchResult = await this.verifyWebsiteWithAI(reference, websiteMetadata)
+        const matchResult = await this.verifyWebsiteWithAI(reference, websiteMetadata, fieldWeights)
 
         console.warn(`AI verification result:`, JSON.stringify(matchResult, null, 2))
         return {
@@ -76,7 +78,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
       try {
         const archivedVersion = await this.getArchivedVersion(url)
         if (archivedVersion && archivedVersion.metadata) {
-          const matchResult = await this.verifyWebsiteWithAI(reference, archivedVersion.metadata)
+          const matchResult = await this.verifyWebsiteWithAI(reference, archivedVersion.metadata, fieldWeights)
           return {
             referenceId: reference.id,
             url,
@@ -698,12 +700,13 @@ export class WebsiteVerificationService extends BaseVerificationService {
   private async verifyWebsiteWithAI(
     reference: Reference,
     websiteMetadata: WebsiteMetadata,
+    fieldWeights: FieldWeights,
   ): Promise<{ details: MatchDetails }> {
     // Convert WebsiteMetadata to ExternalSource format
     const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)
 
-    // Use the base verification logic - let frontend decide on thresholds
-    const result = await this.verifyWithAI(reference, externalSource)
+    // Use the base verification logic with provided field weights
+    const result = await this.verifyWithAI(reference, externalSource, fieldWeights)
 
     return {
       details: result.details,
