@@ -182,24 +182,6 @@ export interface FieldWeights {
   edition?: number
   /** Weight for article number matching */
   articleNumber?: number
-  /** Weight for retrieval date matching */
-  retrievalDate?: number
   /** Weight for subtitle matching (important for German citation styles) */
   subtitle?: number
-  /** Weight for publication place matching */
-  publicationPlace?: number
-  /** Weight for series name matching */
-  series?: number
-  /** Weight for chapter title matching */
-  chapterTitle?: number
-  /** Weight for medium matching (important for MLA) */
-  medium?: number
-  /** Weight for original title matching (for translated works) */
-  originalTitle?: number
-  /** Weight for degree matching (for theses) */
-  degree?: number
-  /** Weight for advisor matching (for theses) */
-  advisor?: number
-  /** Weight for description/abstract matching (for websites) */
-  description?: number
 }
