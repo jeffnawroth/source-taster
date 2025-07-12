@@ -1,6 +1,4 @@
-import type { AIService, OpenAIConfig } from '@/api/types/ai'
-import type { AIExtractionResponse } from '@/api/types/extraction'
-import type { AIVerificationResponse } from '@/api/types/verification'
+import type { AIExtractionResponse, AIService, AIVerificationResponse, OpenAIConfig } from '@source-taster/types'
 import { OpenAI } from 'openai'
 import { extractionJsonSchema, ExtractionResponseSchema } from './schemas/reference'
 import { verificationJsonSchema, VerificationResponseSchema } from './schemas/verification.js'

@@ -1,10 +1,10 @@
 import type {
+  AIFieldMatchDetail,
   ExternalSource,
   FieldWeights,
   MatchDetails,
   Reference,
 } from '@source-taster/types'
-import type { AIFieldMatchDetail } from '../types/verification'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
 export abstract class BaseVerificationService {

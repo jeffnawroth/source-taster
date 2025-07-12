@@ -1,4 +1,4 @@
-import type { AIService, OpenAIConfig } from '@/api/types/ai'
+import type { AIService, OpenAIConfig } from '@source-taster/types'
 import process from 'node:process'
 import { OpenAIService } from './openaiService'
 

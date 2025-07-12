@@ -1,7 +1,7 @@
 import type {
+  AIExtractedReference,
   Reference,
 } from '@source-taster/types'
-import type { AIExtractedReference } from '../types/extraction'
 import crypto from 'node:crypto'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 

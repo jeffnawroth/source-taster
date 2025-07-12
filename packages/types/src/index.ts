@@ -5,6 +5,9 @@
  * All types are organized into logical modules for better maintainability.
  */
 
+// AI Service Types
+export * from './ai'
+
 // API Types
 export * from './api'
 
