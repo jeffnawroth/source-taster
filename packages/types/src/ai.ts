@@ -2,6 +2,8 @@
  * AI service interfaces and configuration types
  */
 
+import type { ReferenceMetadata } from './reference'
+
 /**
  * Single field match detail from AI (without weight)
  * Used internally by AI services
@@ -30,7 +32,7 @@ export interface AIExtractedReference {
   /** The raw reference text as it appeared in the source document */
   originalText: string
   /** Parsed/extracted bibliographic information */
-  metadata: import('./reference').ReferenceMetadata
+  metadata: ReferenceMetadata
 }
 
 /**
@@ -60,15 +62,4 @@ export interface OpenAIConfig {
   maxRetries: number
   timeout: number
   temperature: number
-}
-
-/**
- * Request to verify references against databases
- * Backend-only type - the frontend sends VerificationRequest
- */
-export interface VerificationRequest {
-  /** References to verify */
-  references: import('./reference').Reference[]
-  /** Field weights for verification (provided by frontend) */
-  fieldWeights: import('./verification').FieldWeights
 }

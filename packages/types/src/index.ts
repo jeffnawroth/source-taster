@@ -19,3 +19,6 @@ export * from './reference'
 
 // Verification and Matching Types
 export * from './verification'
+
+// Website Types
+export * from './website'
