@@ -157,9 +157,7 @@ export class CrossrefService {
     const parts: string[] = []
 
     if (metadata.title) {
-      // Clean title for better matching
-      const cleanTitle = metadata.title.replace(/[^\w\s]/g, ' ').trim()
-      parts.push(cleanTitle)
+      parts.push(metadata.title)
     }
 
     if (metadata.authors?.length) {
@@ -216,9 +214,7 @@ export class CrossrefService {
     }
 
     if (metadata.source.containerTitle) {
-      // Clean journal name for better matching
-      const cleanJournal = metadata.source.containerTitle.replace(/[^\w\s]/g, ' ').trim()
-      parts.push(cleanJournal)
+      parts.push(metadata.source.containerTitle)
     }
 
     // Add volume if available for better matching
@@ -238,8 +234,7 @@ export class CrossrefService {
 
     // Add publisher for books and reports
     if (metadata.source.publisher && ['Book', 'Report', 'Thesis'].includes(metadata.source.sourceType || '')) {
-      const cleanPublisher = metadata.source.publisher.replace(/[^\w\s]/g, ' ').trim()
-      parts.push(cleanPublisher)
+      parts.push(metadata.source.publisher)
     }
 
     return parts.join(' ')
@@ -344,19 +339,19 @@ export class CrossrefService {
     // Parse additional contributors (editors, translators, etc.)
     const contributors = this.parseCrossrefContributors(work.editor || [], work.translator || [])
 
-    // Get the best available title and subtitle
+    // Get raw title and subtitle from Crossref
     const title = work.title?.[0] || work['short-title']?.[0] || work['original-title']?.[0]
     const subtitle = work.subtitle?.[0] || work.title?.[1] // Sometimes subtitle is in title[1]
 
-    // Get the best available journal/container name
+    // Get raw journal/container name from Crossref
     const containerTitle = work['container-title']?.[0] || work['short-container-title']?.[0]
 
-    // Extract publisher information with enhanced details
+    // Get raw publisher information from Crossref
     const publisher = work.publisher
     const publicationPlace = work['publisher-location']
 
-    // Map work type to our sourceType
-    const sourceType = this.mapCrossrefType(work.type)
+    // Use raw work type instead of mapping to standardized sourceType
+    const sourceType = work.type
 
     // Extract comprehensive identifiers
     const identifiers = this.extractCrossrefIdentifiers(work)
@@ -370,10 +365,10 @@ export class CrossrefService {
       url = work.URL
     }
 
-    // Parse pages with enhanced formatting
+    // Parse pages - return raw value
     const pages = this.parseCrossrefPages(work.page)
 
-    // Extract enhanced source information
+    // Get raw source information from Crossref
     const sourceInfo = this.buildSourceInfo(work, {
       containerTitle,
       subtitle,
@@ -398,7 +393,7 @@ export class CrossrefService {
    * Parse date information from Crossref work with comprehensive handling
    */
   /**
-   * Parse date information from Crossref work with comprehensive handling
+   * Parse date information from Crossref work - return raw values
    */
   private parseCrossrefDate(work: CrossrefWork): DateInfo {
     let year: number | undefined
@@ -418,28 +413,14 @@ export class CrossrefService {
       // The date-parts field exists in the API but the generated types are too restrictive
       // We need to work with the actual structure returned by the API
       if (dateField && typeof dateField === 'object') {
-        const dateFieldAny = dateField as any
-        const dateParts = dateFieldAny?.['date-parts']?.[0] as number[] | undefined
+        const dateFieldWithParts = dateField as Record<string, unknown>
+        const dateParts = (dateFieldWithParts?.['date-parts'] as number[][] | undefined)?.[0]
         if (dateParts && Array.isArray(dateParts)) {
           if (typeof dateParts[0] === 'number' && dateParts[0] > 0)
             year = dateParts[0]
           if (typeof dateParts[1] === 'number' && dateParts[1] > 0) {
-            // Convert month number to month name
-            const monthNames = [
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'October',
-              'November',
-              'December',
-            ]
-            month = monthNames[dateParts[1] - 1]
+            // Keep month as number, don't convert to string
+            month = dateParts[1].toString()
           }
           if (typeof dateParts[2] === 'number' && dateParts[2] > 0)
             day = dateParts[2]
@@ -454,9 +435,8 @@ export class CrossrefService {
       day,
     }
 
-    // Check for "in press" status - the status field isn't in the generated types
-    // but can be present in the API response
-    const workWithStatus = work as any
+    // Check for "in press" status - raw value from Crossref
+    const workWithStatus = work as Record<string, unknown>
     if (workWithStatus.status === 'aheadofprint' || workWithStatus.status === 'in-press') {
       dateInfo.inPress = true
     }
@@ -465,24 +445,16 @@ export class CrossrefService {
   }
 
   /**
-   * Parse authors from Crossref work with enhanced structure support
+   * Parse authors from Crossref work - return raw structure
    */
   private parseCrossrefAuthors(authorArray: components['schemas']['Author'][]): (Author | string)[] {
     return authorArray.map((author) => {
       if (author.given && author.family) {
-        // Return as Author object for better structure
-        const authorObj: Author = {
+        // Return as Author object with raw values
+        return {
           firstName: author.given,
           lastName: author.family,
         }
-
-        // Add role if specified and not default "author"
-        if (author.sequence && author.sequence !== 'first') {
-          // Crossref uses sequence to indicate author order, not role
-          // We could map this if needed, but typically not necessary
-        }
-
-        return authorObj
       }
 
       // Handle cases where only family name is available
@@ -542,31 +514,28 @@ export class CrossrefService {
   }
 
   /**
-   * Extract comprehensive identifiers from Crossref work
+   * Extract identifiers from Crossref work - return raw values
    */
   private extractCrossrefIdentifiers(work: CrossrefWork): ExternalIdentifiers {
     const identifiers: ExternalIdentifiers = {}
 
-    // DOI
+    // DOI - raw value
     if (work.DOI) {
       identifiers.doi = work.DOI
     }
 
-    // ISSN - prefer electronic ISSN, fall back to print ISSN
+    // ISSN - raw values from Crossref
     if (work.ISSN && work.ISSN.length > 0) {
-      // Crossref may provide multiple ISSNs, prioritize electronic
-      const electronicISSN = work.ISSN.find((issn: string) =>
-        work['issn-type']?.find(type => type.value === issn && type.type === 'electronic'),
-      )
-      identifiers.issn = electronicISSN || work.ISSN[0]
+      // Take first ISSN without preference logic
+      identifiers.issn = work.ISSN[0]
     }
 
-    // ISBN
+    // ISBN - raw value
     if (work.ISBN && work.ISBN.length > 0) {
       identifiers.isbn = work.ISBN[0]
     }
 
-    // PubMed ID from Crossref links
+    // PubMed ID from Crossref links - raw extraction
     if (work.link) {
       const pubmedLink = work.link.find(link =>
         link['intended-application'] === 'text-mining'
@@ -584,24 +553,14 @@ export class CrossrefService {
   }
 
   /**
-   * Parse page information with enhanced formatting
+   * Parse page information - return raw value from Crossref
    */
   private parseCrossrefPages(pageString?: string): string | undefined {
-    if (!pageString)
-      return undefined
-
-    // Clean up common page formatting issues
-    let pages = pageString.trim()
-
-    // Handle different page separators
-    pages = pages.replace(/[\u2013\u2014]/, '-') // en-dash, em-dash to hyphen
-    pages = pages.replace(/\s*-\s*/, '-') // normalize spacing around hyphens
-
-    return pages
+    return pageString
   }
 
   /**
-   * Build comprehensive source information
+   * Build source information - return raw values from Crossref
    */
   private buildSourceInfo(
     work: CrossrefWork,
@@ -629,90 +588,24 @@ export class CrossrefService {
       contributors: baseInfo.contributors.length > 0 ? baseInfo.contributors : undefined,
     }
 
-    // Add article number for electronic journals
+    // Add raw values directly from Crossref
     if (work['article-number']) {
       sourceInfo.articleNumber = work['article-number']
     }
 
-    // Add series information if available (using type assertion for optional properties)
-    const workAny = work as any
-    if (workAny.series) {
-      sourceInfo.series = workAny.series
+    const workWithExtras = work as Record<string, unknown>
+    if (typeof workWithExtras.series === 'string') {
+      sourceInfo.series = workWithExtras.series
     }
 
-    // Add edition information
-    if (workAny.edition) {
-      sourceInfo.edition = workAny.edition
+    if (typeof workWithExtras.edition === 'string') {
+      sourceInfo.edition = workWithExtras.edition
     }
 
-    // Add medium information based on work type and availability
-    if (work.type === 'journal-article') {
-      // Check if it's an online-only journal
-      if (work.ISSN?.length === 1 && work['issn-type']?.some(type => type.type === 'electronic')) {
-        sourceInfo.medium = 'web'
-      }
-      else {
-        sourceInfo.medium = 'print'
-      }
-    }
-    else if (work.type === 'posted-content') {
-      sourceInfo.medium = 'web'
-    }
-    else if (work.type === 'book' && work.URL && !work.ISBN) {
-      sourceInfo.medium = 'web'
-    }
-
-    // Handle special publication types with enhanced information
-    if (work.type === 'proceedings-article') {
-      sourceInfo.conference = baseInfo.containerTitle
-      sourceInfo.sourceType = 'Conference paper'
-    }
-    else if (work.type === 'dissertation' || work.type === 'thesis') {
-      sourceInfo.institution = baseInfo.publisher
-      sourceInfo.sourceType = 'Thesis'
-    }
-
-    // Add original title for translated works
     if (work['original-title']?.[0] && work['original-title'][0] !== work.title?.[0]) {
       sourceInfo.originalTitle = work['original-title'][0]
     }
 
-    // Extract chapter information for book chapters
-    if (work.type === 'book-chapter' && (work as any)['chapter-number']) {
-      sourceInfo.chapterTitle = work.title?.[0]
-    }
-
     return sourceInfo
-  }
-
-  /**
-   * Map Crossref work types to our standardized source types
-   */
-  private mapCrossrefType(type: string): string {
-    const typeMap: { [key: string]: string } = {
-      'journal-article': 'Journal article',
-      'book': 'Book',
-      'book-chapter': 'Book chapter',
-      'proceedings-article': 'Conference paper',
-      'thesis': 'Thesis',
-      'dissertation': 'Thesis',
-      'report': 'Report',
-      'dataset': 'Dataset',
-      'posted-content': 'Preprint',
-      'peer-review': 'Peer review',
-      'book-series': 'Book series',
-      'book-set': 'Book set',
-      'book-track': 'Book',
-      'edited-book': 'Book',
-      'reference-book': 'Reference book',
-      'monograph': 'Monograph',
-      'component': 'Webpage',
-      'standard': 'Standard',
-      'report-series': 'Report',
-      'proceedings': 'Conference proceedings',
-      'other': 'Other',
-    }
-
-    return typeMap[type] || 'Other'
   }
 }
