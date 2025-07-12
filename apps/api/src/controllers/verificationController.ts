@@ -43,6 +43,16 @@ export class VerificationController {
         return c.json(errorResponse, 400)
       }
 
+      // Validate field weights sum to 100%
+      const totalWeight = Object.values(request.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
+      if (totalWeight !== 100) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: `Invalid field weights: ${totalWeight}% (expected 100%)`,
+        }
+        return c.json(errorResponse, 400)
+      }
+
       // Intelligent routing: detect references with URLs and process them accordingly
       const results = []
 
@@ -219,6 +229,16 @@ export class VerificationController {
         const errorResponse: ApiResponse = {
           success: false,
           error: 'Field weights are required',
+        }
+        return c.json(errorResponse, 400)
+      }
+
+      // Validate field weights sum to 100%
+      const totalWeight = Object.values(request.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
+      if (totalWeight !== 100) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: `Invalid field weights: ${totalWeight}% (expected 100%)`,
         }
         return c.json(errorResponse, 400)
       }
