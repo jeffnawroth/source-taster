@@ -821,11 +821,6 @@ function toggleField(field: keyof FieldWeights, defaultValue = 5) {
                   density="compact"
                   class="mb-4"
                 >
-                  <v-icon
-                    icon="mdi-information"
-                    class="mr-2"
-                    size="small"
-                  />
                   {{ t('advanced-fields-description') }}
                 </v-alert>
 
