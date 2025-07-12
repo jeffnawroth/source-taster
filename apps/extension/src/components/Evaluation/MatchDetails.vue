@@ -4,6 +4,12 @@ import type { SourceEvaluation } from '@source-taster/types'
 defineProps<{
   evaluation: SourceEvaluation
 }>()
+
+//
+function formatFieldName(field: string) {
+  // Convert camelCase to kebab-case for translation keys
+  return field.replace(/([A-Z])/g, '-$1').toLowerCase()
+}
 </script>
 
 <template>
@@ -24,8 +30,7 @@ defineProps<{
       >
         <ScoreItem
           :score="fieldDetail.match_score"
-          :text="$t(`${fieldDetail.field}`)"
-          :weight="fieldDetail.weight"
+          :text="$t(`${formatFieldName(fieldDetail.field)}`)"
         />
       </v-col>
     </v-row>

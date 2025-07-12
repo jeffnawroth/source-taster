@@ -125,8 +125,6 @@ export interface FieldMatchDetail {
   field: string
   /** Match score for this specific field (0-100) */
   match_score: number
-  /** Weight used for this field in overall calculation */
-  weight: number
 }
 
 /**

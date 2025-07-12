@@ -1,6 +1,5 @@
 import type {
   ExternalSource,
-  FieldMatchDetail,
   FieldWeights,
   MatchDetails,
   Reference,
@@ -15,68 +14,64 @@ export abstract class BaseVerificationService {
 
   /**
    * Get the fields that should be evaluated for matching
-   * Only evaluate fields that are present in both reference and source
-   * This prevents unfair penalties when source data is incomplete
+   * Only evaluate fields that are present in both reference and source AND have weight > 0
+   * This prevents unfair penalties when source data is incomplete and avoids processing fields that don't contribute to the score
    */
-  protected getAvailableFields(reference: Reference, source: ExternalSource): string[] {
+  protected getAvailableFields(reference: Reference, source: ExternalSource, fieldWeights: FieldWeights): string[] {
     const fields: string[] = []
 
-    // Only evaluate fields that are present in both reference and source
-    if (reference.metadata.title && source.metadata.title) {
+    // Only evaluate fields that are present in both reference and source AND have weight > 0
+    if (reference.metadata.title && source.metadata.title && (fieldWeights.title || 0) > 0) {
       fields.push('title')
     }
     if (reference.metadata.authors && reference.metadata.authors.length > 0
-      && source.metadata.authors && source.metadata.authors.length > 0) {
+      && source.metadata.authors && source.metadata.authors.length > 0 && (fieldWeights.authors || 0) > 0) {
       fields.push('authors')
     }
-    if (reference.metadata.date.year && source.metadata.date.year)
+    if (reference.metadata.date.year && source.metadata.date.year && (fieldWeights.year || 0) > 0)
       fields.push('year')
 
     // Identifier fields
-    if (reference.metadata.identifiers?.doi && source.metadata.identifiers?.doi)
+    if (reference.metadata.identifiers?.doi && source.metadata.identifiers?.doi && (fieldWeights.doi || 0) > 0)
       fields.push('doi')
-    if (reference.metadata.identifiers?.arxivId && source.metadata.identifiers?.arxivId)
+    if (reference.metadata.identifiers?.arxivId && source.metadata.identifiers?.arxivId && (fieldWeights.arxivId || 0) > 0)
       fields.push('arxivId')
-    if (reference.metadata.identifiers?.pmid && source.metadata.identifiers?.pmid)
+    if (reference.metadata.identifiers?.pmid && source.metadata.identifiers?.pmid && (fieldWeights.pmid || 0) > 0)
       fields.push('pmid')
-    if (reference.metadata.identifiers?.pmcid && source.metadata.identifiers?.pmcid)
+    if (reference.metadata.identifiers?.pmcid && source.metadata.identifiers?.pmcid && (fieldWeights.pmcid || 0) > 0)
       fields.push('pmcid')
-    if (reference.metadata.identifiers?.isbn && source.metadata.identifiers?.isbn)
+    if (reference.metadata.identifiers?.isbn && source.metadata.identifiers?.isbn && (fieldWeights.isbn || 0) > 0)
       fields.push('isbn')
-    if (reference.metadata.identifiers?.issn && source.metadata.identifiers?.issn)
+    if (reference.metadata.identifiers?.issn && source.metadata.identifiers?.issn && (fieldWeights.issn || 0) > 0)
       fields.push('issn')
 
     // Source fields
-    if (reference.metadata.source.containerTitle && source.metadata.source.containerTitle)
+    if (reference.metadata.source.containerTitle && source.metadata.source.containerTitle && (fieldWeights.containerTitle || 0) > 0)
       fields.push('containerTitle')
-    if (reference.metadata.source.volume && source.metadata.source.volume)
+    if (reference.metadata.source.volume && source.metadata.source.volume && (fieldWeights.volume || 0) > 0)
       fields.push('volume')
-    if (reference.metadata.source.issue && source.metadata.source.issue)
+    if (reference.metadata.source.issue && source.metadata.source.issue && (fieldWeights.issue || 0) > 0)
       fields.push('issue')
-    if (reference.metadata.source.pages && source.metadata.source.pages)
+    if (reference.metadata.source.pages && source.metadata.source.pages && (fieldWeights.pages || 0) > 0)
       fields.push('pages')
+    if (reference.metadata.source.publisher && source.metadata.source.publisher && (fieldWeights.publisher || 0) > 0)
+      fields.push('publisher')
+    if (reference.metadata.source.url && source.metadata.source.url && (fieldWeights.url || 0) > 0)
+      fields.push('url')
+    if (reference.metadata.source.sourceType && source.metadata.source.sourceType && (fieldWeights.sourceType || 0) > 0)
+      fields.push('sourceType')
+    if (reference.metadata.source.conference && source.metadata.source.conference && (fieldWeights.conference || 0) > 0)
+      fields.push('conference')
+    if (reference.metadata.source.institution && source.metadata.source.institution && (fieldWeights.institution || 0) > 0)
+      fields.push('institution')
+    if (reference.metadata.source.edition && source.metadata.source.edition && (fieldWeights.edition || 0) > 0)
+      fields.push('edition')
+    if (reference.metadata.source.articleNumber && source.metadata.source.articleNumber && (fieldWeights.articleNumber || 0) > 0)
+      fields.push('articleNumber')
+    if (reference.metadata.source.subtitle && source.metadata.source.subtitle && (fieldWeights.subtitle || 0) > 0)
+      fields.push('subtitle')
 
     return fields
-  }
-
-  /**
-   * Get field weights for all fields that should be evaluated
-   * Field weights must be provided by the frontend
-   */
-  protected getFieldWeightsForAvailableFields(
-    availableFields: string[],
-    fieldWeights: FieldWeights,
-  ): Record<string, number> {
-    const weights: Record<string, number> = {}
-
-    for (const field of availableFields) {
-      const weight = fieldWeights[field as keyof FieldWeights]
-      if (typeof weight === 'number') {
-        weights[field] = weight
-      }
-    }
-
-    return weights
   }
 
   /**
@@ -90,8 +85,8 @@ export abstract class BaseVerificationService {
   ): Promise<{ details: MatchDetails }> {
     const ai = AIServiceFactory.createOpenAIService()
 
-    // Get the fields that should be evaluated
-    const availableFields = this.getAvailableFields(reference, source)
+    // Get the fields that should be evaluated (only those with weight > 0)
+    const availableFields = this.getAvailableFields(reference, source, fieldWeights)
 
     const prompt = `
 
@@ -107,23 +102,13 @@ ${JSON.stringify(source.metadata, null, 2)}`
     const response = await ai.verifyMatch(prompt)
 
     try {
-      // Use provided field weights
-      const weights = this.getFieldWeightsForAvailableFields(availableFields, fieldWeights)
-
-      // Response has fieldDetails array with { field, match_score } objects
-      const fieldDetails: FieldMatchDetail[] = response.fieldDetails.map((detail: AIFieldMatchDetail) => ({
-        field: detail.field,
-        match_score: detail.match_score,
-        weight: weights[detail.field] || 0,
-      }))
-
-      // Calculate the overall score ourselves
-      const overallScore = this.calculateOverallScore(fieldDetails)
+      // Calculate the overall score directly from AI response
+      const overallScore = this.calculateOverallScore(response.fieldDetails, fieldWeights)
 
       // Create match details from AI response with our calculated score
       const aiMatchDetails: MatchDetails = {
         overallScore,
-        fieldDetails,
+        fieldDetails: response.fieldDetails,
       }
 
       return {
@@ -144,9 +129,9 @@ ${JSON.stringify(source.metadata, null, 2)}`
   }
 
   /**
-   * Calculate the overall weighted score from field details
+   * Calculate the overall weighted score from AI field details
    */
-  protected calculateOverallScore(fieldDetails: FieldMatchDetail[]): number {
+  protected calculateOverallScore(fieldDetails: AIFieldMatchDetail[], fieldWeights: FieldWeights): number {
     if (fieldDetails.length === 0)
       return 0
 
@@ -154,8 +139,9 @@ ${JSON.stringify(source.metadata, null, 2)}`
     let totalWeight = 0
 
     for (const detail of fieldDetails) {
-      totalWeightedScore += detail.match_score * detail.weight
-      totalWeight += detail.weight
+      const weight = fieldWeights[detail.field as keyof FieldWeights] || 0
+      totalWeightedScore += detail.match_score * weight
+      totalWeight += weight
     }
 
     return totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0

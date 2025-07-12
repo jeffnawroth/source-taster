@@ -74,7 +74,9 @@ ${text}`
   async verifyMatch(prompt: string): Promise<AIVerificationResponse> {
     const systemMessage = `You are an expert bibliographic verification assistant. Your task is to provide field-by-field matching scores.
     
-IMPORTANT RULES:
+CRITICAL INSTRUCTIONS:
+- ONLY evaluate the fields explicitly listed in "Available fields for verification" in the user prompt
+- Do NOT evaluate any other fields, even if they exist in the data
 - Only evaluate fields that are present in both reference and source
 - This prevents unfair penalties when source databases have incomplete metadata
 
@@ -92,8 +94,14 @@ Scoring Guidelines for each field (0-100):
 • PMCID: 100=identical, 0=different (no partial scoring for PMC IDs)
 • ISBN: 100=identical, 0=different (no partial scoring for ISBNs)
 • ISSN: 100=identical, 0=different (no partial scoring for ISSNs)
-
-${prompt}`
+• Publisher: 100=identical, 90=same publisher different format, 70=related publishers, 0=different
+• URL: 100=identical, 90=same URL different protocol/format, 0=different
+• SourceType: 100=identical, 0=different (no partial scoring)
+• Conference: 100=identical, 90=same conference different format, 70=related conferences, 0=different
+• Institution: 100=identical, 90=same institution different format, 70=related institutions, 0=different
+• Edition: 100=identical, 0=different (no partial scoring)
+• ArticleNumber: 100=identical, 0=different (no partial scoring)
+• Subtitle: 100=identical, 90=very similar, 70=similar meaning, 50=related, 0=different`
 
     try {
       const response = await this.client.chat.completions.create({

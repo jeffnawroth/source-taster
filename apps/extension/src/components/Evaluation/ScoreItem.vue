@@ -6,7 +6,6 @@ import { getScoreColor } from '@/extension/utils/scoreUtils'
 const props = defineProps<{
   score: number
   text: string
-  weight?: number
 }>()
 
 // Define the color based on score thresholds (using consistent scoreUtils)
