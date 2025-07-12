@@ -138,29 +138,34 @@ function selectEssentials() {
   >
     <v-card-text>
       <!-- Quick Actions -->
-      <v-btn
-        size="small"
-        variant="outlined"
-        class="mr-2"
-        @click="selectAll"
-      >
-        {{ t('select-all') }}
-      </v-btn>
-      <v-btn
-        size="small"
-        variant="outlined"
-        class="mr-2"
-        @click="selectEssentials"
-      >
-        {{ t('select-essentials') }}
-      </v-btn>
-      <v-btn
-        size="small"
-        variant="outlined"
-        @click="deselectAll"
-      >
-        {{ t('deselect-all') }}
-      </v-btn>
+      <div class="mb-4">
+        <v-btn
+          size="small"
+          color="primary"
+          class="mr-2"
+          variant="tonal"
+          @click="selectAll"
+        >
+          {{ t('select-all') }}
+        </v-btn>
+        <v-btn
+          size="small"
+          variant="tonal"
+          class="mr-2"
+          color="primary"
+          @click="selectEssentials"
+        >
+          {{ t('select-essentials') }}
+        </v-btn>
+        <v-btn
+          size="small"
+          variant="tonal"
+          color="primary"
+          @click="deselectAll"
+        >
+          {{ t('deselect-all') }}
+        </v-btn>
+      </div>
 
       <v-expansion-panels
         elevation="0"

@@ -104,6 +104,17 @@ const additionalFieldsWeight = computed(() => {
         </div>
       </v-alert>
 
+      <v-btn
+        :prepend-icon="mdiRestore"
+        size="small"
+        variant="tonal"
+        color="primary"
+        class="mb-4"
+        @click="resetToDefaults"
+      >
+        {{ t('reset-to-defaults') }}
+      </v-btn>
+
       <v-expansion-panels
         elevation="0"
       >
@@ -299,16 +310,6 @@ const additionalFieldsWeight = computed(() => {
       </v-expansion-panels>
     </v-card-text>
 
-    <v-card-actions>
-      <v-btn
-        :prepend-icon="mdiRestore"
-        size="small"
-        variant="outlined"
-        block
-        @click="resetToDefaults"
-      >
-        {{ t('reset-to-defaults') }}
-      </v-btn>
-    </v-card-actions>
+    <v-card-actions />
   </v-card>
 </template>
