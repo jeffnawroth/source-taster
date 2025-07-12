@@ -4,7 +4,7 @@
  */
 export interface FieldMatchDetail {
   /** Name of the field being compared (e.g., 'title', 'authors') */
-  field: string
+  field: keyof FieldWeights
   /** Match score for this specific field (0-100) */
   match_score: number
 }
