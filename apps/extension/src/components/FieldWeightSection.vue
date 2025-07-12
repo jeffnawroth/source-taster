@@ -15,22 +15,32 @@ withDefaults(defineProps<Props>(), {
 <template>
   <v-expansion-panel>
     <v-expansion-panel-title>
-      {{ title }} ({{ weight }} %)
+      <div class="d-flex align-center">
+        <!-- <v-icon
+          :icon
+          class="mr-2"
+        /> -->
+        {{ title }}
+        <v-chip
+          size="small"
+          class="ml-2"
+        >
+          {{ weight }} %
+        </v-chip>
+      </div>
     </v-expansion-panel-title>
     <v-expansion-panel-text>
-      <div class="py-2">
-        <v-alert
-          v-if="showAlert"
-          type="info"
-          variant="tonal"
-          density="compact"
-          class="mb-4"
-        >
-          {{ alertText }}
-        </v-alert>
+      <v-alert
+        v-if="showAlert"
+        type="info"
+        variant="tonal"
+        density="compact"
+        class="mb-4"
+      >
+        {{ alertText }}
+      </v-alert>
 
-        <slot />
-      </div>
+      <slot />
     </v-expansion-panel-text>
   </v-expansion-panel>
 </template>
