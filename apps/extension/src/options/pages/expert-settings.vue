@@ -24,6 +24,10 @@ const { t } = useI18n()
 
     <v-divider class="my-4" />
 
+    <ExtractionSettings />
+
+    <v-divider class="my-4" />
+
     <FieldWeightsSettings />
   </v-container>
 </template>

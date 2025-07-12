@@ -15,7 +15,7 @@ withDefaults(defineProps<Props>(), {
 <template>
   <v-expansion-panel>
     <v-expansion-panel-title>
-      {{ title }} ({{ weight }}%)
+      {{ title }} ({{ weight }} %)
     </v-expansion-panel-title>
     <v-expansion-panel-text>
       <div class="py-2">

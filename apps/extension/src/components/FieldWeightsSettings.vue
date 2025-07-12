@@ -104,7 +104,9 @@ const additionalFieldsWeight = computed(() => {
         </div>
       </v-alert>
 
-      <v-expansion-panels flat>
+      <v-expansion-panels
+        elevation="0"
+      >
         <!-- Core Fields -->
         <FieldWeightSection
           :title="t('core-fields')"
