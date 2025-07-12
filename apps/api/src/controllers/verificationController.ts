@@ -19,6 +19,35 @@ export class VerificationController {
   }
 
   /**
+   * Validate common request fields and field weights
+   */
+  private validateRequest(request: any): { isValid: boolean, errorResponse?: ApiResponse } {
+    if (!request.fieldWeights) {
+      return {
+        isValid: false,
+        errorResponse: {
+          success: false,
+          error: 'Field weights are required',
+        },
+      }
+    }
+
+    // Validate field weights sum to 100%
+    const totalWeight = Object.values(request.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
+    if (totalWeight !== 100) {
+      return {
+        isValid: false,
+        errorResponse: {
+          success: false,
+          error: `Invalid field weights: ${totalWeight}% (expected 100%)`,
+        },
+      }
+    }
+
+    return { isValid: true }
+  }
+
+  /**
    * Intelligently verify references - automatically chooses database or website verification based on source type
    * POST /api/verify
    */
@@ -35,22 +64,9 @@ export class VerificationController {
         return c.json(errorResponse, 400)
       }
 
-      if (!request.fieldWeights) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: 'Field weights are required',
-        }
-        return c.json(errorResponse, 400)
-      }
-
-      // Validate field weights sum to 100%
-      const totalWeight = Object.values(request.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
-      if (totalWeight !== 100) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: `Invalid field weights: ${totalWeight}% (expected 100%)`,
-        }
-        return c.json(errorResponse, 400)
+      const validation = this.validateRequest(request)
+      if (!validation.isValid) {
+        return c.json(validation.errorResponse, 400)
       }
 
       // Intelligent routing: detect references with URLs and process them accordingly
@@ -225,22 +241,9 @@ export class VerificationController {
         return c.json(errorResponse, 400)
       }
 
-      if (!request.fieldWeights) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: 'Field weights are required',
-        }
-        return c.json(errorResponse, 400)
-      }
-
-      // Validate field weights sum to 100%
-      const totalWeight = Object.values(request.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
-      if (totalWeight !== 100) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: `Invalid field weights: ${totalWeight}% (expected 100%)`,
-        }
-        return c.json(errorResponse, 400)
+      const validation = this.validateRequest(request)
+      if (!validation.isValid) {
+        return c.json(validation.errorResponse, 400)
       }
 
       // Verify website reference
