@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { FieldWeights } from '@source-taster/types'
-import { mdiInformationOutline, mdiLightbulbOutline, mdiRestore, mdiTune } from '@mdi/js'
+import { mdiRestore, mdiTune } from '@mdi/js'
+import FieldWeightControl from '@/extension/components/FieldWeightControl.vue'
+import FieldWeightSection from '@/extension/components/FieldWeightSection.vue'
+import FieldWeightsTooltip from '@/extension/components/FieldWeightsTooltip.vue'
 import { fieldWeights } from '@/extension/logic'
 
 // TRANSLATION
@@ -72,15 +75,6 @@ const sourceFieldsWeight = computed(() => {
 const additionalFieldsWeight = computed(() => {
   return (fieldWeights.value.sourceType || 0) + (fieldWeights.value.conference || 0) + (fieldWeights.value.institution || 0) + (fieldWeights.value.edition || 0) + (fieldWeights.value.articleNumber || 0) + (fieldWeights.value.subtitle || 0)
 })
-
-// Helper function to check if a field is enabled (weight > 0)
-const isFieldEnabled = (fieldValue: number | undefined) => (fieldValue || 0) > 0
-
-// Toggle field enabled/disabled state
-function toggleField(field: keyof FieldWeights, defaultValue = 5) {
-  const currentValue = fieldWeights.value[field] || 0
-  fieldWeights.value[field] = currentValue > 0 ? 0 : defaultValue
-}
 </script>
 
 <template>
@@ -107,116 +101,7 @@ function toggleField(field: keyof FieldWeights, defaultValue = 5) {
       flat
     >
       <template #append>
-        <v-tooltip
-          location="left"
-          max-width="400"
-        >
-          <template #activator="{ props: activatorProps }">
-            <v-icon
-              :icon="mdiInformationOutline"
-              v-bind="activatorProps"
-              size="large"
-              class="text-medium-emphasis"
-            />
-          </template>
-
-          <div class="pa-2">
-            <div class="d-flex align-center mb-3">
-              <v-icon
-                :icon="mdiInformationOutline"
-                class="mr-2"
-                size="small"
-              />
-              <span class="font-weight-medium">{{ t('how-field-weights-work') }}</span>
-            </div>
-
-            <p class="text-body-2 mb-3">
-              {{ t('field-weights-explanation') }}
-            </p>
-
-            <div class="d-flex align-center mb-2">
-              <v-icon
-                :icon="mdiLightbulbOutline"
-                class="mr-2"
-                size="small"
-              />
-              <span class="font-weight-medium">{{ t('practical-example') }}</span>
-            </div>
-
-            <p class="text-caption mb-2">
-              <strong>{{ t('scenario') }}:</strong> {{ t('example-scenario') }}
-            </p>
-
-            <v-table
-              density="compact"
-              class="mb-3"
-            >
-              <thead>
-                <tr>
-                  <th class="text-caption">
-                    {{ t('field') }}
-                  </th>
-                  <th class="text-caption">
-                    {{ t('weight') }}
-                  </th>
-                  <th class="text-caption">
-                    {{ t('impact') }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="text-caption">
-                    {{ t('title') }}
-                  </td>
-                  <td class="text-caption">
-                    50%
-                  </td>
-                  <td class="text-caption">
-                    {{ t('high-impact') }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-caption">
-                    DOI
-                  </td>
-                  <td class="text-caption">
-                    30%
-                  </td>
-                  <td class="text-caption">
-                    {{ t('medium-impact') }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-caption">
-                    {{ t('authors') }}
-                  </td>
-                  <td class="text-caption">
-                    20%
-                  </td>
-                  <td class="text-caption">
-                    {{ t('low-impact') }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-caption">
-                    {{ t('other-fields') }}
-                  </td>
-                  <td class="text-caption">
-                    0%
-                  </td>
-                  <td class="text-caption">
-                    {{ t('no-impact') }}
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-
-            <p class="text-caption text-medium-emphasis">
-              {{ t('example-explanation') }}
-            </p>
-          </div>
-        </v-tooltip>
+        <FieldWeightsTooltip />
       </template>
       <v-card-text>
         <v-alert
@@ -235,835 +120,200 @@ function toggleField(field: keyof FieldWeights, defaultValue = 5) {
           </div>
         </v-alert>
 
-        <v-expansion-panels
-          flat
-        >
+        <v-expansion-panels flat>
           <!-- Core Fields -->
-          <v-expansion-panel>
-            <v-expansion-panel-title>
-              {{ t('core-fields') }} ({{ coreFieldsWeight }}%)
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <div class="py-2">
-                <!-- Title -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.title)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('title', 25)"
-                      />
-                      <label class="font-weight-medium">{{ t('title') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.title) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.title || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.title"
-                    :disabled="!isFieldEnabled(fieldWeights.title)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-title') }}
-                  </p>
-                </div>
+          <FieldWeightSection
+            :title="t('core-fields')"
+            :weight="coreFieldsWeight"
+          >
+            <FieldWeightControl
+              v-model="fieldWeights.title"
+              :label="t('title')"
+              :description="t('field-description-title')"
+              :default-value="25"
+            />
 
-                <!-- Authors -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.authors)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('authors', 20)"
-                      />
-                      <label class="font-weight-medium">{{ t('authors') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.authors) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.authors || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.authors"
-                    :disabled="!isFieldEnabled(fieldWeights.authors)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-authors') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.authors"
+              :label="t('authors')"
+              :description="t('field-description-authors')"
+              :default-value="20"
+            />
 
-                <!-- Year -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.year)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('year', 5)"
-                      />
-                      <label class="font-weight-medium">{{ t('year') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.year) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.year || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.year"
-                    :disabled="!isFieldEnabled(fieldWeights.year)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-year') }}
-                  </p>
-                </div>
-              </div>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
+            <FieldWeightControl
+              v-model="fieldWeights.year"
+              :label="t('year')"
+              :description="t('field-description-year')"
+              :default-value="5"
+            />
+          </FieldWeightSection>
 
           <!-- Identifier Fields -->
-          <v-expansion-panel>
-            <v-expansion-panel-title>
-              {{ t('identifier-fields') }} ({{ identifierFieldsWeight }}%)
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <div class="py-2">
-                <!-- DOI -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.doi)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('doi', 15)"
-                      />
-                      <label class="font-weight-medium">DOI</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.doi) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.doi || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.doi"
-                    :disabled="!isFieldEnabled(fieldWeights.doi)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-doi') }}
-                  </p>
-                </div>
+          <FieldWeightSection
+            :title="t('identifier-fields')"
+            :weight="identifierFieldsWeight"
+          >
+            <FieldWeightControl
+              v-model="fieldWeights.doi"
+              label="DOI"
+              :description="t('field-description-doi')"
+              :default-value="15"
+            />
 
-                <!-- ArXiv ID -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.arxivId)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('arxivId', 8)"
-                      />
-                      <label class="font-weight-medium">ArXiv ID</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.arxivId) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.arxivId || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.arxivId"
-                    :disabled="!isFieldEnabled(fieldWeights.arxivId)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-arxivId') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.arxivId"
+              label="ArXiv ID"
+              :description="t('field-description-arxivId')"
+              :default-value="8"
+            />
 
-                <!-- PMID -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.pmid)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('pmid', 3)"
-                      />
-                      <label class="font-weight-medium">PMID</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.pmid) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.pmid || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.pmid"
-                    :disabled="!isFieldEnabled(fieldWeights.pmid)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-pmid') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.pmid"
+              label="PMID"
+              :description="t('field-description-pmid')"
+              :default-value="3"
+            />
 
-                <!-- PMCID -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.pmcid)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('pmcid', 2)"
-                      />
-                      <label class="font-weight-medium">PMC ID</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.pmcid) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.pmcid || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.pmcid"
-                    :disabled="!isFieldEnabled(fieldWeights.pmcid)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-pmcid') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.pmcid"
+              label="PMC ID"
+              :description="t('field-description-pmcid')"
+              :default-value="2"
+            />
 
-                <!-- ISBN -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.isbn)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('isbn', 1)"
-                      />
-                      <label class="font-weight-medium">ISBN</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.isbn) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.isbn || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.isbn"
-                    :disabled="!isFieldEnabled(fieldWeights.isbn)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-isbn') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.isbn"
+              label="ISBN"
+              :description="t('field-description-isbn')"
+              :default-value="1"
+            />
 
-                <!-- ISSN -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.issn)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('issn', 1)"
-                      />
-                      <label class="font-weight-medium">ISSN</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.issn) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.issn || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.issn"
-                    :disabled="!isFieldEnabled(fieldWeights.issn)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-issn') }}
-                  </p>
-                </div>
-              </div>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
+            <FieldWeightControl
+              v-model="fieldWeights.issn"
+              label="ISSN"
+              :description="t('field-description-issn')"
+              :default-value="1"
+            />
+          </FieldWeightSection>
 
           <!-- Source Fields -->
-          <v-expansion-panel>
-            <v-expansion-panel-title>
-              {{ t('source-fields') }} ({{ sourceFieldsWeight }}%)
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <div class="py-2">
-                <!-- Container Title -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.containerTitle)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('containerTitle', 10)"
-                      />
-                      <label class="font-weight-medium">{{ t('container-title') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.containerTitle) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.containerTitle || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.containerTitle"
-                    :disabled="!isFieldEnabled(fieldWeights.containerTitle)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-containerTitle') }}
-                  </p>
-                </div>
+          <FieldWeightSection
+            :title="t('source-fields')"
+            :weight="sourceFieldsWeight"
+          >
+            <FieldWeightControl
+              v-model="fieldWeights.containerTitle"
+              :label="t('container-title')"
+              :description="t('field-description-containerTitle')"
+              :default-value="10"
+            />
 
-                <!-- Volume -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.volume)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('volume', 5)"
-                      />
-                      <label class="font-weight-medium">{{ t('volume') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.volume) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.volume || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.volume"
-                    :disabled="!isFieldEnabled(fieldWeights.volume)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-volume') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.volume"
+              :label="t('volume')"
+              :description="t('field-description-volume')"
+              :default-value="5"
+            />
 
-                <!-- Issue -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.issue)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('issue', 3)"
-                      />
-                      <label class="font-weight-medium">{{ t('issue') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.issue) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.issue || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.issue"
-                    :disabled="!isFieldEnabled(fieldWeights.issue)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-issue') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.issue"
+              :label="t('issue')"
+              :description="t('field-description-issue')"
+              :default-value="3"
+            />
 
-                <!-- Pages -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.pages)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('pages', 2)"
-                      />
-                      <label class="font-weight-medium">{{ t('pages') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.pages) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.pages || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.pages"
-                    :disabled="!isFieldEnabled(fieldWeights.pages)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-pages') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.pages"
+              :label="t('pages')"
+              :description="t('field-description-pages')"
+              :default-value="2"
+            />
 
-                <!-- Publisher -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.publisher)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('publisher', 3)"
-                      />
-                      <label class="font-weight-medium">{{ t('publisher') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.publisher) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.publisher || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.publisher"
-                    :disabled="!isFieldEnabled(fieldWeights.publisher)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-publisher') }}
-                  </p>
-                </div>
+            <FieldWeightControl
+              v-model="fieldWeights.publisher"
+              :label="t('publisher')"
+              :description="t('field-description-publisher')"
+              :default-value="3"
+            />
 
-                <!-- URL -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.url)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('url', 2)"
-                      />
-                      <label class="font-weight-medium">URL</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.url) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.url || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.url"
-                    :disabled="!isFieldEnabled(fieldWeights.url)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
-                  />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-url') }}
-                  </p>
-                </div>
-              </div>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
+            <FieldWeightControl
+              v-model="fieldWeights.url"
+              label="URL"
+              :description="t('field-description-url')"
+              :default-value="2"
+            />
+          </FieldWeightSection>
 
           <!-- Advanced Fields -->
-          <v-expansion-panel>
-            <v-expansion-panel-title>
-              {{ t('advanced-fields') }} ({{ additionalFieldsWeight }}%)
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <div class="py-2">
-                <v-alert
-                  type="info"
-                  variant="tonal"
-                  density="compact"
-                  class="mb-4"
-                >
-                  {{ t('advanced-fields-description') }}
-                </v-alert>
+          <FieldWeightSection
+            :title="t('advanced-fields')"
+            :weight="additionalFieldsWeight"
+            :show-alert="true"
+            :alert-text="t('advanced-fields-description')"
+          >
+            <FieldWeightControl
+              v-model="fieldWeights.sourceType"
+              :label="t('source-type')"
+              :description="t('field-description-sourceType')"
+              :default-value="2"
+            />
 
-                <!-- Source Type -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.sourceType)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('sourceType', 2)"
-                      />
-                      <label class="font-weight-medium">{{ t('source-type') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.sourceType) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.sourceType || 0 }}%
-                    </v-chip>
+            <FieldWeightControl
+              v-model="fieldWeights.conference"
+              :label="t('conference')"
+              :description="t('field-description-conference')"
+              :default-value="5"
+            />
+
+            <FieldWeightControl
+              v-model="fieldWeights.subtitle"
+              :label="t('subtitle')"
+              :description="t('field-description-subtitle')"
+              :default-value="3"
+            />
+
+            <!-- More Advanced Fields -->
+            <v-expansion-panels
+              variant="accordion"
+              class="mt-4"
+            >
+              <v-expansion-panel>
+                <v-expansion-panel-title class="text-body-2">
+                  {{ t('more-advanced-fields') }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <div class="text-caption text-medium-emphasis mb-4">
+                    {{ t('more-advanced-fields-description') }}
                   </div>
-                  <v-slider
-                    v-model="fieldWeights.sourceType"
-                    :disabled="!isFieldEnabled(fieldWeights.sourceType)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
+
+                  <FieldWeightControl
+                    v-model="fieldWeights.institution"
+                    :label="t('institution')"
+                    :description="t('field-description-institution')"
+                    :default-value="3"
                   />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-sourceType') }}
-                  </p>
-                </div>
 
-                <!-- Conference -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.conference)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('conference', 5)"
-                      />
-                      <label class="font-weight-medium">{{ t('conference') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.conference) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.conference || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.conference"
-                    :disabled="!isFieldEnabled(fieldWeights.conference)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
+                  <FieldWeightControl
+                    v-model="fieldWeights.edition"
+                    :label="t('edition')"
+                    :description="t('field-description-edition')"
+                    :default-value="2"
                   />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-conference') }}
-                  </p>
-                </div>
 
-                <!-- Subtitle -->
-                <div class="mb-4">
-                  <div class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center">
-                      <v-switch
-                        :model-value="isFieldEnabled(fieldWeights.subtitle)"
-                        density="compact"
-                        color="primary"
-                        hide-details
-                        class="mr-3"
-                        @update:model-value="toggleField('subtitle', 3)"
-                      />
-                      <label class="font-weight-medium">{{ t('subtitle') }}</label>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="isFieldEnabled(fieldWeights.subtitle) ? 'primary' : 'default'"
-                    >
-                      {{ fieldWeights.subtitle || 0 }}%
-                    </v-chip>
-                  </div>
-                  <v-slider
-                    v-model="fieldWeights.subtitle"
-                    :disabled="!isFieldEnabled(fieldWeights.subtitle)"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    color="primary"
-                    show-ticks="always"
-                    thumb-label
+                  <FieldWeightControl
+                    v-model="fieldWeights.articleNumber"
+                    :label="t('article-number')"
+                    :description="t('field-description-articleNumber')"
+                    :default-value="1"
                   />
-                  <p class="text-caption text-medium-emphasis">
-                    {{ t('field-description-subtitle') }}
-                  </p>
-                </div>
-
-                <!-- Advanced Fields (Limited to database-available fields) -->
-                <v-expansion-panels
-                  variant="accordion"
-                  class="mt-4"
-                >
-                  <v-expansion-panel>
-                    <v-expansion-panel-title class="text-body-2">
-                      {{ t('more-advanced-fields') }}
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                      <div class="text-caption text-medium-emphasis mb-4">
-                        {{ t('more-advanced-fields-description') }}
-                      </div>
-
-                      <!-- Institution -->
-                      <div class="mb-4">
-                        <div class="d-flex justify-space-between align-center mb-2">
-                          <div class="d-flex align-center">
-                            <v-switch
-                              :model-value="isFieldEnabled(fieldWeights.institution)"
-                              density="compact"
-                              color="primary"
-                              hide-details
-                              class="mr-3"
-                              @update:model-value="toggleField('institution', 3)"
-                            />
-                            <label class="font-weight-medium">{{ t('institution') }}</label>
-                          </div>
-                          <v-chip
-                            size="small"
-                            :color="isFieldEnabled(fieldWeights.institution) ? 'primary' : 'default'"
-                          >
-                            {{ fieldWeights.institution || 0 }}%
-                          </v-chip>
-                        </div>
-                        <v-slider
-                          v-model="fieldWeights.institution"
-                          :disabled="!isFieldEnabled(fieldWeights.institution)"
-                          :min="0"
-                          :max="100"
-                          :step="1"
-                          color="primary"
-                          show-ticks="always"
-                          thumb-label
-                        />
-                        <p class="text-caption text-medium-emphasis">
-                          {{ t('field-description-institution') }}
-                        </p>
-                      </div>
-
-                      <!-- Edition -->
-                      <div class="mb-4">
-                        <div class="d-flex justify-space-between align-center mb-2">
-                          <div class="d-flex align-center">
-                            <v-switch
-                              :model-value="isFieldEnabled(fieldWeights.edition)"
-                              density="compact"
-                              color="primary"
-                              hide-details
-                              class="mr-3"
-                              @update:model-value="toggleField('edition', 2)"
-                            />
-                            <label class="font-weight-medium">{{ t('edition') }}</label>
-                          </div>
-                          <v-chip
-                            size="small"
-                            :color="isFieldEnabled(fieldWeights.edition) ? 'primary' : 'default'"
-                          >
-                            {{ fieldWeights.edition || 0 }}%
-                          </v-chip>
-                        </div>
-                        <v-slider
-                          v-model="fieldWeights.edition"
-                          :disabled="!isFieldEnabled(fieldWeights.edition)"
-                          :min="0"
-                          :max="100"
-                          :step="1"
-                          color="primary"
-                          show-ticks="always"
-                          thumb-label
-                        />
-                        <p class="text-caption text-medium-emphasis">
-                          {{ t('field-description-edition') }}
-                        </p>
-                      </div>
-
-                      <!-- Article Number -->
-                      <div class="mb-4">
-                        <div class="d-flex justify-space-between align-center mb-2">
-                          <div class="d-flex align-center">
-                            <v-switch
-                              :model-value="isFieldEnabled(fieldWeights.articleNumber)"
-                              density="compact"
-                              color="primary"
-                              hide-details
-                              class="mr-3"
-                              @update:model-value="toggleField('articleNumber', 1)"
-                            />
-                            <label class="font-weight-medium">{{ t('article-number') }}</label>
-                          </div>
-                          <v-chip
-                            size="small"
-                            :color="isFieldEnabled(fieldWeights.articleNumber) ? 'primary' : 'default'"
-                          >
-                            {{ fieldWeights.articleNumber || 0 }}%
-                          </v-chip>
-                        </div>
-                        <v-slider
-                          v-model="fieldWeights.articleNumber"
-                          :disabled="!isFieldEnabled(fieldWeights.articleNumber)"
-                          :min="0"
-                          :max="100"
-                          :step="1"
-                          color="primary"
-                          show-ticks="always"
-                          thumb-label
-                        />
-                        <p class="text-caption text-medium-emphasis">
-                          {{ t('field-description-articleNumber') }}
-                        </p>
-                      </div>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </div>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </FieldWeightSection>
         </v-expansion-panels>
       </v-card-text>
 
       <v-card-actions>
-        <!-- Action buttons for field weights -->
         <v-btn
           :prepend-icon="mdiRestore"
           size="small"
