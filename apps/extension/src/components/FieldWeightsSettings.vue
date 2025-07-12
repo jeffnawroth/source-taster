@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import type { FieldWeights } from '@source-taster/types'
-import { mdiRestore } from '@mdi/js'
+import {
+  mdiBookOpenVariant,
+  mdiCardAccountDetailsOutline,
+  mdiRestore,
+  mdiStarFourPoints,
+  mdiWrench,
+} from '@mdi/js'
 import FieldWeightControl from '@/extension/components/FieldWeightControl.vue'
 import FieldWeightSection from '@/extension/components/FieldWeightSection.vue'
 import FieldWeightsTooltip from '@/extension/components/FieldWeightsTooltip.vue'
@@ -121,6 +127,7 @@ const additionalFieldsWeight = computed(() => {
         <!-- Core Fields -->
         <FieldWeightSection
           :title="t('core-fields')"
+          :icon="mdiStarFourPoints"
           :weight="coreFieldsWeight"
         >
           <FieldWeightControl
@@ -148,6 +155,7 @@ const additionalFieldsWeight = computed(() => {
         <!-- Identifier Fields -->
         <FieldWeightSection
           :title="t('identifier-fields')"
+          :icon="mdiCardAccountDetailsOutline"
           :weight="identifierFieldsWeight"
         >
           <FieldWeightControl
@@ -196,6 +204,7 @@ const additionalFieldsWeight = computed(() => {
         <!-- Source Fields -->
         <FieldWeightSection
           :title="t('source-fields')"
+          :icon="mdiBookOpenVariant"
           :weight="sourceFieldsWeight"
         >
           <FieldWeightControl
@@ -244,6 +253,7 @@ const additionalFieldsWeight = computed(() => {
         <!-- Advanced Fields -->
         <FieldWeightSection
           :title="t('advanced-fields')"
+          :icon="mdiWrench"
           :weight="additionalFieldsWeight"
           :show-alert="true"
           :alert-text="t('advanced-fields-description')"

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 interface Props {
   title: string
+  icon?: string
   weight: number
   showAlert?: boolean
   alertText?: string
 }
 
 withDefaults(defineProps<Props>(), {
+  icon: '',
   showAlert: false,
   alertText: '',
 })
@@ -16,10 +18,11 @@ withDefaults(defineProps<Props>(), {
   <v-expansion-panel>
     <v-expansion-panel-title>
       <div class="d-flex align-center">
-        <!-- <v-icon
+        <v-icon
+          v-if="icon"
           :icon
           class="mr-2"
-        /> -->
+        />
         {{ title }}
         <v-chip
           size="small"
