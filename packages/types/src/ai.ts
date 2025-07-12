@@ -38,7 +38,7 @@ export interface AIExtractionResponse {
  * Defines the contract that all AI services must implement
  */
 export interface AIService {
-  extractReferences: (text: string) => Promise<AIExtractionResponse>
+  extractReferences: (text: string, extractionSettings?: ExtractionSettings) => Promise<AIExtractionResponse>
   verifyMatch: (prompt: string) => Promise<AIVerificationResponse>
 }
 
@@ -150,9 +150,17 @@ export interface ExtractionSettings {
     /** Extract academic department */
     department: boolean
 
+    // Additional source fields
+    /** Extract contributors (beyond main authors) */
+    contributors: boolean
+    /** Detect standalone works */
+    isStandAlone: boolean
+
     // Special date fields
     /** Detect date ranges (e.g., "2019–2020") */
     dateRange: boolean
+    /** Extract end year for date ranges */
+    yearEnd: boolean
     /** Mark references with no date (n.d.) */
     noDate: boolean
     /** Mark references as "in press" */

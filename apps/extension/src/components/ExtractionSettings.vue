@@ -9,11 +9,11 @@ const { t } = useI18n()
 
 // FIELD DEFINITIONS
 const coreFields = ['title', 'authors', 'year']
-const dateFields = ['month', 'day', 'yearSuffix', 'dateRange', 'noDate', 'inPress', 'approximateDate', 'season']
+const dateFields = ['month', 'day', 'yearSuffix', 'dateRange', 'yearEnd', 'noDate', 'inPress', 'approximateDate', 'season']
 const identifierFields = ['doi', 'isbn', 'issn', 'pmid', 'pmcid', 'arxivId']
-const publicationFields = ['containerTitle', 'subtitle', 'volume', 'issue', 'pages', 'publisher', 'publicationPlace', 'url', 'sourceType', 'location', 'retrievalDate', 'edition', 'medium', 'originalTitle', 'originalLanguage', 'chapterTitle']
+const publicationFields = ['containerTitle', 'subtitle', 'volume', 'issue', 'pages', 'publisher', 'publicationPlace', 'url', 'sourceType', 'location', 'retrievalDate', 'edition', 'medium', 'originalTitle', 'originalLanguage', 'chapterTitle', 'contributors']
 const academicFields = ['conference', 'institution', 'series', 'seriesNumber', 'degree', 'advisor', 'department']
-const technicalFields = ['pageType', 'paragraphNumber', 'volumePrefix', 'issuePrefix', 'supplementInfo', 'articleNumber']
+const technicalFields = ['pageType', 'paragraphNumber', 'volumePrefix', 'issuePrefix', 'supplementInfo', 'articleNumber', 'isStandAlone']
 
 // COMPUTED - Field Counts and Colors
 const getCoreFieldsCount = computed(() => {
@@ -188,7 +188,7 @@ function selectEssentials() {
           :icon="mdiCalendar"
           :fields="dateFields"
           :count="getDateFieldsCount"
-          :total-fields="8"
+          :total-fields="9"
           :color="getDateFieldsColor"
         />
 
@@ -210,7 +210,7 @@ function selectEssentials() {
           :icon="mdiFileDocument"
           :fields="publicationFields"
           :count="getPublicationCount"
-          :total-fields="16"
+          :total-fields="17"
           :color="getPublicationColor"
         />
 
@@ -232,7 +232,7 @@ function selectEssentials() {
           :icon="mdiWrench"
           :fields="technicalFields"
           :count="getTechnicalCount"
-          :total-fields="6"
+          :total-fields="7"
           :color="getTechnicalColor"
         />
       </v-expansion-panels>

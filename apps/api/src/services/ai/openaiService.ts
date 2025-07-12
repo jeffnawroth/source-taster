@@ -1,6 +1,6 @@
-import type { AIExtractionResponse, AIService, AIVerificationResponse, OpenAIConfig } from '@source-taster/types'
+import type { AIExtractionResponse, AIService, AIVerificationResponse, ExtractionSettings, OpenAIConfig } from '@source-taster/types'
 import { OpenAI } from 'openai'
-import { extractionJsonSchema, ExtractionResponseSchema } from './schemas/reference'
+import { createDynamicExtractionSchema } from './schemas/reference'
 import { verificationJsonSchema, VerificationResponseSchema } from './schemas/verification.js'
 
 export class OpenAIService implements AIService {
@@ -16,12 +16,28 @@ export class OpenAIService implements AIService {
     })
   }
 
-  async extractReferences(text: string): Promise<AIExtractionResponse> {
-    const systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.`
+  async extractReferences(text: string, extractionSettings?: ExtractionSettings): Promise<AIExtractionResponse> {
+    let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.`
+
+    // Add extraction settings instructions if provided
+    if (extractionSettings) {
+      const enabledFields = Object.entries(extractionSettings.enabledFields)
+        .filter(([_, enabled]) => enabled)
+        .map(([field, _]) => field)
+
+      console.warn('Enabled fields:', enabledFields)
+
+      if (enabledFields.length > 0) {
+        systemMessage += ` Focus ONLY on extracting the following fields: ${enabledFields.join(', ')}. Do not extract any other fields.`
+      }
+    }
 
     const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:
 
 ${text}`
+
+    // Use dynamic schema based on extraction settings
+    const schema = createDynamicExtractionSchema(extractionSettings)
 
     try {
       const response = await this.client.chat.completions.create({
@@ -33,7 +49,7 @@ ${text}`
         ],
         response_format: {
           type: 'json_schema',
-          json_schema: extractionJsonSchema,
+          json_schema: schema,
         },
       })
 
@@ -51,10 +67,21 @@ ${text}`
         throw new Error('Invalid JSON response from OpenAI')
       }
 
-      // Validate response with Zod
-      const validatedResponse = ExtractionResponseSchema.parse(parsedResponse)
+      // Transform the response to match the expected structure
+      const transformedResponse = {
+        references: parsedResponse.references?.map((ref: any) => ({
+          originalText: ref.originalText,
+          metadata: {
+            title: ref.metadata?.title,
+            authors: ref.metadata?.authors,
+            date: ref.metadata?.date || {},
+            source: ref.metadata?.source || {},
+            identifiers: ref.metadata?.identifiers,
+          },
+        })) || [],
+      }
 
-      return validatedResponse
+      return transformedResponse
     }
     catch (error: any) {
       if (error.name === 'ZodError') {

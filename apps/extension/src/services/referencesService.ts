@@ -1,6 +1,6 @@
 import type { Reference, VerificationResult, WebsiteVerificationResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
-import { fieldWeights } from '@/extension/logic/storage'
+import { extractionSettings, fieldWeights } from '@/extension/logic/storage'
 
 export class ReferencesService {
   /**
@@ -14,6 +14,7 @@ export class ReferencesService {
       },
       body: JSON.stringify({
         text,
+        extractionSettings: extractionSettings.value,
       }),
       signal,
     })

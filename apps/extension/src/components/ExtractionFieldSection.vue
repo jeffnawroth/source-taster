@@ -40,6 +40,7 @@ const extractionSettings = defineModel<{
         <v-col
           v-for="field in fields"
           :key="field"
+          cols="auto"
         >
           <FieldCheckbox
             v-model="extractionSettings.enabledFields[field]"

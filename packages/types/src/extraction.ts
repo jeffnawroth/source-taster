@@ -1,6 +1,7 @@
 /**
  * AI extraction-related types
  */
+import type { ExtractionSettings } from './ai'
 import type { Reference } from './reference'
 
 /**
@@ -9,6 +10,8 @@ import type { Reference } from './reference'
 export interface ExtractionRequest {
   /** The text to extract references from */
   text: string
+  /** User-configurable extraction settings */
+  extractionSettings?: ExtractionSettings
 }
 
 /**
