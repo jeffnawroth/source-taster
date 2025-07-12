@@ -2,18 +2,8 @@
  * AI service interfaces and configuration types
  */
 
+import type { FieldMatchDetail } from './match'
 import type { ReferenceMetadata } from './reference'
-
-/**
- * Single field match detail from AI (without weight)
- * Used internally by AI services
- */
-export interface AIFieldMatchDetail {
-  /** Name of the field being compared (e.g., 'title', 'authors') */
-  field: string
-  /** Match score for this specific field (0-100) */
-  match_score: number
-}
 
 /**
  * Response from AI verification service
@@ -21,7 +11,7 @@ export interface AIFieldMatchDetail {
  */
 export interface AIVerificationResponse {
   /** Array of field match details */
-  fieldDetails: AIFieldMatchDetail[]
+  fieldDetails: FieldMatchDetail[]
 }
 
 /**

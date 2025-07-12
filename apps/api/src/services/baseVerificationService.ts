@@ -1,6 +1,6 @@
 import type {
-  AIFieldMatchDetail,
   ExternalSource,
+  FieldMatchDetail,
   FieldWeights,
   MatchDetails,
   Reference,
@@ -131,7 +131,7 @@ ${JSON.stringify(source.metadata, null, 2)}`
   /**
    * Calculate the overall weighted score from AI field details
    */
-  protected calculateOverallScore(fieldDetails: AIFieldMatchDetail[], fieldWeights: FieldWeights): number {
+  protected calculateOverallScore(fieldDetails: FieldMatchDetail[], fieldWeights: FieldWeights): number {
     if (fieldDetails.length === 0)
       return 0
 
