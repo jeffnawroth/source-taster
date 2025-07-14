@@ -16,7 +16,9 @@ import ExtractionModePanel from './ExtractionModePanel.vue'
         multiple
       >
         <!-- Extraction Mode Panel -->
-        <ExtractionModePanel v-model="extractionSettings.extractionMode" />
+        <ExtractionModePanel
+          v-model="extractionSettings"
+        />
 
         <!-- Field Selection Panel -->
         <ExtractionFieldsPanel v-model="extractionSettings" />

@@ -15,6 +15,8 @@ export enum ExtractionMode {
   BALANCED = 'balanced',
   /** Tolerant mode: Extract even from incomplete/erroneous sources with intelligent inference */
   TOLERANT = 'tolerant',
+  /** Custom mode: User-defined extraction rules and preferences */
+  CUSTOM = 'custom',
 }
 
 /**
@@ -67,6 +69,47 @@ export interface OpenAIConfig {
 }
 
 /**
+ * Custom extraction configuration for user-defined extraction rules
+ * Allows users to build their own extraction behavior by selecting specific options
+ */
+export interface CustomExtractionSettings {
+  /** Enable typo correction (e.g., "Jouranl" → "Journal") */
+  correctTypos: boolean
+  /** Normalize capitalization for standards */
+  normalizeCapitalization: boolean
+  /** Standardize common abbreviations (e.g., "J." → "Journal") */
+  standardizeAbbreviations: boolean
+  /** Clean up and standardize punctuation */
+  standardizePunctuation: boolean
+  /** Format author names consistently */
+  formatAuthorNames: boolean
+  /** Remove duplicate authors */
+  removeDuplicateAuthors: boolean
+  /** Standardize date formatting */
+  standardizeDateFormatting: boolean
+  /** Validate and standardize identifier formats (DOI/ISSN/etc.) */
+  standardizeIdentifiers: boolean
+  /** Add missing, clearly derivable fields */
+  addDerivableFields: boolean
+  /** Interpret incomplete or abbreviated information */
+  interpretIncompleteInfo: boolean
+  /** Recognize and standardize source types */
+  recognizeSourceTypes: boolean
+  /** Convert titles to appropriate Title Case */
+  convertToTitleCase: boolean
+  /** Fix Unicode and encoding issues */
+  fixUnicodeIssues: boolean
+  /** Handle OCR errors and copy-paste artifacts */
+  handleOcrErrors: boolean
+  /** Reconstruct information separated by line breaks */
+  reconstructSeparatedInfo: boolean
+  /** Complete obviously incomplete data */
+  completeIncompleteData: boolean
+  /** Fix common formatting problems */
+  fixFormattingProblems: boolean
+}
+
+/**
  * User-configurable extraction settings
  * Controls which metadata fields should be extracted by the AI
  * Includes ALL fields from ReferenceMetadata structure
@@ -74,6 +117,9 @@ export interface OpenAIConfig {
 export interface ExtractionSettings {
   /** Extraction mode controlling AI behavior and accuracy vs tolerance */
   extractionMode: ExtractionMode
+
+  /** Custom extraction configuration (only used when extractionMode is CUSTOM) */
+  customSettings?: CustomExtractionSettings
 
   /** Which metadata fields to extract */
   enabledFields: {

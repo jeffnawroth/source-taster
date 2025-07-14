@@ -167,6 +167,17 @@
     "not-happens-2": "Inhalte werden nicht absichtlich \"verschönert\" - Referenztreue bleibt bewahrt",
     "not-happens-3": "Keine spekulativen Ergänzungen ohne klaren Kontext"
   },
+  "extraction-mode-custom": "Individuell",
+  "extraction-mode-custom-description": "Erstellen Sie Ihre eigenen Extraktionsregeln und -präferenzen - volle Kontrolle über das KI-Verhalten",
+  "extraction-mode-custom-tooltip": {
+    "title": "Individuell-Modus Details",
+    "description": "Benutzerdefinierte Extraktionskonfiguration mit personalisierten Regeln und Präferenzen.",
+    "features": "Hauptmerkmale:",
+    "feature-1": "Wählen Sie genau aus, welche Korrekturen und Normalisierungen angewendet werden",
+    "feature-2": "Kombinieren Sie Funktionen aus allen anderen Modi nach Belieben",
+    "feature-3": "Konfigurieren Sie granulare Einstellungen für Tippfehlerkorrektur, Formatierung usw.",
+    "feature-4": "Perfekt für spezialisierte Anwendungsfälle und persönliche Workflows"
+  },
   "field": "Feld",
   "field-abstract": "Abstract",
   "field-accepted": "Annahmedatum",

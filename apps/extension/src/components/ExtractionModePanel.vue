@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import type { CustomExtractionSettings, ExtractionMode } from '@source-taster/types'
+import type { ExtractionSettings } from '@source-taster/types'
 import { mdiCog } from '@mdi/js'
 import ExtractionModeSelector from './ExtractionModeSelector.vue'
 
-interface Props {
-  customSettings?: CustomExtractionSettings
-}
-
-defineProps<Props>()
-
 // Use defineModel for cleaner reactive bindings
-const modelValue = defineModel<ExtractionMode>({ required: true })
-const customSettings = defineModel<CustomExtractionSettings>('customSettings')
+const modelValue = defineModel<ExtractionSettings>({ required: true })
 </script>
 
 <template>
@@ -35,7 +28,6 @@ const customSettings = defineModel<CustomExtractionSettings>('customSettings')
     <v-expansion-panel-text>
       <ExtractionModeSelector
         v-model="modelValue"
-        v-model:custom-settings="customSettings"
       />
     </v-expansion-panel-text>
   </v-expansion-panel>

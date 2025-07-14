@@ -21,6 +21,25 @@ export const fieldWeights = useWebExtensionStorage('field-weights', {
 
 const defaultExtractionSettings: ExtractionSettings = {
   extractionMode: 'balanced' as ExtractionMode,
+  customSettings: {
+    correctTypos: false,
+    normalizeCapitalization: false,
+    standardizeAbbreviations: false,
+    standardizePunctuation: false,
+    formatAuthorNames: false,
+    removeDuplicateAuthors: false,
+    standardizeDateFormatting: false,
+    standardizeIdentifiers: false,
+    addDerivableFields: false,
+    interpretIncompleteInfo: false,
+    recognizeSourceTypes: false,
+    convertToTitleCase: false,
+    fixUnicodeIssues: false,
+    handleOcrErrors: false,
+    reconstructSeparatedInfo: false,
+    completeIncompleteData: false,
+    fixFormattingProblems: false,
+  },
   enabledFields: {
     // Core fields
     title: true,

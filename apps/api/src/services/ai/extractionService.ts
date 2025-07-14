@@ -21,7 +21,10 @@ export class ExtractionService {
 
     // Add extraction mode instructions if provided
     if (extractionSettings?.extractionMode) {
-      const modeInstructions = getExtractionInstructions(extractionSettings.extractionMode)
+      const modeInstructions = getExtractionInstructions(
+        extractionSettings.extractionMode,
+        extractionSettings.customSettings,
+      )
       systemMessage += `\n\n${modeInstructions}`
       console.warn(`[Extraction Mode: ${extractionSettings.extractionMode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
     }

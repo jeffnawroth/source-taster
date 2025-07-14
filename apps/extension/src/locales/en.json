@@ -166,6 +166,17 @@
     "not-happens-2": "Do not intentionally \"beautify\" content - maintain reference fidelity",
     "not-happens-3": "No speculative additions without clear context"
   },
+  "extraction-mode-custom": "Custom",
+  "extraction-mode-custom-description": "Build your own extraction rules and preferences - full control over AI behavior",
+  "extraction-mode-custom-tooltip": {
+    "title": "Custom Mode Details",
+    "description": "User-defined extraction configuration with personalized rules and preferences.",
+    "features": "Key features:",
+    "feature-1": "Choose exactly which corrections and normalizations to apply",
+    "feature-2": "Mix and match features from all other modes",
+    "feature-3": "Configure granular settings for typo correction, formatting, etc.",
+    "feature-4": "Perfect for specialized use cases and personal workflows"
+  },
   "field": "Field",
   "field-abstract": "Abstract",
   "field-accepted": "Acceptance Date",
