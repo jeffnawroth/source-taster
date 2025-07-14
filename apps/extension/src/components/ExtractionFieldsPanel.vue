@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import type { ExtractionSettings } from '@source-taster/types'
 import { mdiBookOpen, mdiCalendar, mdiCheckboxMultipleMarked, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
 import { computed } from 'vue'
+import { extractionSettings } from '../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
-
-// Use defineModel for cleaner reactive binding
-const modelValue = defineModel<ExtractionSettings>({ required: true })
 
 // TRANSLATION
 const { t } = useI18n()
@@ -20,7 +17,7 @@ const technicalFields = ['pageType', 'paragraphNumber', 'volumePrefix', 'issuePr
 
 // COMPUTED - Field Counts and Colors
 const getCoreFieldsCount = computed(() => {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   return coreFields.filter(field => fields[field as keyof typeof fields]).length
 })
 
@@ -34,7 +31,7 @@ const getCoreFieldsColor = computed(() => {
 })
 
 const getDateFieldsCount = computed(() => {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   return dateFields.filter(field => fields[field as keyof typeof fields]).length
 })
 
@@ -48,7 +45,7 @@ const getDateFieldsColor = computed(() => {
 })
 
 const getIdentifiersCount = computed(() => {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   return identifierFields.filter(field => fields[field as keyof typeof fields]).length
 })
 
@@ -62,7 +59,7 @@ const getIdentifiersColor = computed(() => {
 })
 
 const getPublicationCount = computed(() => {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   return publicationFields.filter(field => fields[field as keyof typeof fields]).length
 })
 
@@ -76,7 +73,7 @@ const getPublicationColor = computed(() => {
 })
 
 const getAcademicCount = computed(() => {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   return academicFields.filter(field => fields[field as keyof typeof fields]).length
 })
 
@@ -90,7 +87,7 @@ const getAcademicColor = computed(() => {
 })
 
 const getTechnicalCount = computed(() => {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   return technicalFields.filter(field => fields[field as keyof typeof fields]).length
 })
 
@@ -105,14 +102,14 @@ const getTechnicalColor = computed(() => {
 
 // METHODS
 function deselectAll() {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   Object.keys(fields).forEach((key) => {
     fields[key as keyof typeof fields] = false
   })
 }
 
 function selectAll() {
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   Object.keys(fields).forEach((key) => {
     fields[key as keyof typeof fields] = true
   })
@@ -123,7 +120,7 @@ function selectEssentials() {
   deselectAll()
 
   // Then select essential fields
-  const fields = modelValue.value.enabledFields
+  const fields = extractionSettings.value.enabledFields
   fields.title = true
   fields.authors = true
   fields.year = true
@@ -187,7 +184,7 @@ function selectEssentials() {
       >
         <!-- Core Fields Section -->
         <ExtractionFieldSection
-          v-model="modelValue"
+          v-model="extractionSettings"
           :title="t('core-metadata')"
           :icon="mdiBookOpen"
           :fields="coreFields"
@@ -198,7 +195,7 @@ function selectEssentials() {
 
         <!-- Date Information Section -->
         <ExtractionFieldSection
-          v-model="modelValue"
+          v-model="extractionSettings"
           :title="t('date-information')"
           :icon="mdiCalendar"
           :fields="dateFields"
@@ -209,7 +206,7 @@ function selectEssentials() {
 
         <!-- Identifiers Section -->
         <ExtractionFieldSection
-          v-model="modelValue"
+          v-model="extractionSettings"
           :title="t('identifiers')"
           :icon="mdiIdentifier"
           :fields="identifierFields"
@@ -220,7 +217,7 @@ function selectEssentials() {
 
         <!-- Publication Details Section -->
         <ExtractionFieldSection
-          v-model="modelValue"
+          v-model="extractionSettings"
           :title="t('publication-details')"
           :icon="mdiFileDocument"
           :fields="publicationFields"
@@ -231,7 +228,7 @@ function selectEssentials() {
 
         <!-- Academic & Institutional Section -->
         <ExtractionFieldSection
-          v-model="modelValue"
+          v-model="extractionSettings"
           :title="t('academic-institutional')"
           :icon="mdiSchool"
           :fields="academicFields"
@@ -242,7 +239,7 @@ function selectEssentials() {
 
         <!-- Technical Details Section -->
         <ExtractionFieldSection
-          v-model="modelValue"
+          v-model="extractionSettings"
           :title="t('technical-details')"
           :icon="mdiWrench"
           :fields="technicalFields"

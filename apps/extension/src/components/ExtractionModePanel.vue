@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import type { ExtractionSettings } from '@source-taster/types'
 import { mdiCog } from '@mdi/js'
 import ExtractionModeSelector from './ExtractionModeSelector.vue'
-
-// Use defineModel for cleaner reactive bindings
-const modelValue = defineModel<ExtractionSettings>({ required: true })
 </script>
 
 <template>
@@ -26,9 +22,7 @@ const modelValue = defineModel<ExtractionSettings>({ required: true })
       </div>
     </v-expansion-panel-title>
     <v-expansion-panel-text>
-      <ExtractionModeSelector
-        v-model="modelValue"
-      />
+      <ExtractionModeSelector />
     </v-expansion-panel-text>
   </v-expansion-panel>
 </template>

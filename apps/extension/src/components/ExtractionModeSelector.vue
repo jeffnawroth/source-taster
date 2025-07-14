@@ -1,77 +1,14 @@
 <script setup lang="ts">
-import type { CustomExtractionSettings, ExtractionSettings } from '@source-taster/types'
+import type { CustomExtractionSettings } from '@source-taster/types'
 import { mdiHelpCircleOutline } from '@mdi/js'
 import { ExtractionMode } from '@source-taster/types'
-
-// MODELS
-const modelValue = defineModel<ExtractionSettings>({ required: true })
+import { extractionSettings } from '../logic'
 
 // TRANSLATION
 const { t } = useI18n()
 
 // Check if custom mode is selected
-const showCustomSettings = computed(() => modelValue.value.extractionMode === ExtractionMode.CUSTOM)
-
-// Ensure customSettings exists with defaults
-const customSettings = computed({
-  get() {
-    if (!modelValue.value.customSettings) {
-      // Initialize with defaults but don't mutate during get
-      return {
-        correctTypos: false,
-        normalizeCapitalization: false,
-        standardizeAbbreviations: false,
-        standardizePunctuation: false,
-        formatAuthorNames: false,
-        removeDuplicateAuthors: false,
-        standardizeDateFormatting: false,
-        standardizeIdentifiers: false,
-        addDerivableFields: false,
-        interpretIncompleteInfo: false,
-        recognizeSourceTypes: false,
-        convertToTitleCase: false,
-        fixUnicodeIssues: false,
-        handleOcrErrors: false,
-        reconstructSeparatedInfo: false,
-        completeIncompleteData: false,
-        fixFormattingProblems: false,
-      }
-    }
-    return modelValue.value.customSettings
-  },
-  set(value) {
-    // Ensure we're in CUSTOM mode when setting custom settings
-    if (modelValue.value.extractionMode !== ExtractionMode.CUSTOM) {
-      modelValue.value.extractionMode = ExtractionMode.CUSTOM
-    }
-    modelValue.value.customSettings = value
-  },
-})
-
-// Initialize custom settings when switching to CUSTOM mode
-watch(() => modelValue.value.extractionMode, (newMode) => {
-  if (newMode === ExtractionMode.CUSTOM && !modelValue.value.customSettings) {
-    modelValue.value.customSettings = {
-      correctTypos: false,
-      normalizeCapitalization: false,
-      standardizeAbbreviations: false,
-      standardizePunctuation: false,
-      formatAuthorNames: false,
-      removeDuplicateAuthors: false,
-      standardizeDateFormatting: false,
-      standardizeIdentifiers: false,
-      addDerivableFields: false,
-      interpretIncompleteInfo: false,
-      recognizeSourceTypes: false,
-      convertToTitleCase: false,
-      fixUnicodeIssues: false,
-      handleOcrErrors: false,
-      reconstructSeparatedInfo: false,
-      completeIncompleteData: false,
-      fixFormattingProblems: false,
-    }
-  }
-})
+const showCustomSettings = computed(() => extractionSettings.value.extractionMode === ExtractionMode.CUSTOM)
 
 // Group settings for better UX
 const textProcessingSettings = computed(() => [
@@ -191,35 +128,35 @@ const technicalSettings = computed(() => [
 // Preset functions
 function loadStrictPreset() {
   // Ensure we're in CUSTOM mode
-  if (modelValue.value.extractionMode !== ExtractionMode.CUSTOM) {
-    modelValue.value.extractionMode = ExtractionMode.CUSTOM
+  if (extractionSettings.value.extractionMode !== ExtractionMode.CUSTOM) {
+    extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
   }
 
   // Initialize if needed
-  if (!modelValue.value.customSettings) {
-    modelValue.value.customSettings = {} as CustomExtractionSettings
+  if (!extractionSettings.value.customSettings) {
+    extractionSettings.value.customSettings = {} as CustomExtractionSettings
   }
 
-  const newSettings = { ...modelValue.value.customSettings }
+  const newSettings = { ...extractionSettings.value.customSettings }
   Object.keys(newSettings).forEach((key) => {
     newSettings[key as keyof CustomExtractionSettings] = false
   })
-  modelValue.value.customSettings = newSettings
+  extractionSettings.value.customSettings = newSettings
 }
 
 function loadBalancedPreset() {
   // Ensure we're in CUSTOM mode
-  if (modelValue.value.extractionMode !== ExtractionMode.CUSTOM) {
-    modelValue.value.extractionMode = ExtractionMode.CUSTOM
+  if (extractionSettings.value.extractionMode !== ExtractionMode.CUSTOM) {
+    extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
   }
 
   // Initialize if needed
-  if (!modelValue.value.customSettings) {
-    modelValue.value.customSettings = {} as CustomExtractionSettings
+  if (!extractionSettings.value.customSettings) {
+    extractionSettings.value.customSettings = {} as CustomExtractionSettings
   }
 
   // Start with all false
-  const newSettings = { ...modelValue.value.customSettings }
+  const newSettings = { ...extractionSettings.value.customSettings }
   Object.keys(newSettings).forEach((key) => {
     newSettings[key as keyof CustomExtractionSettings] = false
   })
@@ -234,22 +171,22 @@ function loadBalancedPreset() {
   newSettings.standardizeDateFormatting = true
   newSettings.standardizeIdentifiers = true
 
-  modelValue.value.customSettings = newSettings
+  extractionSettings.value.customSettings = newSettings
 }
 
 function loadTolerantPreset() {
   // Ensure we're in CUSTOM mode
-  if (modelValue.value.extractionMode !== ExtractionMode.CUSTOM) {
-    modelValue.value.extractionMode = ExtractionMode.CUSTOM
+  if (extractionSettings.value.extractionMode !== ExtractionMode.CUSTOM) {
+    extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
   }
 
   // Initialize if needed
-  if (!modelValue.value.customSettings) {
-    modelValue.value.customSettings = {} as CustomExtractionSettings
+  if (!extractionSettings.value.customSettings) {
+    extractionSettings.value.customSettings = {} as CustomExtractionSettings
   }
 
   // Start with balanced settings
-  const newSettings = { ...modelValue.value.customSettings }
+  const newSettings = { ...extractionSettings.value.customSettings }
   Object.keys(newSettings).forEach((key) => {
     newSettings[key as keyof CustomExtractionSettings] = false
   })
@@ -275,52 +212,53 @@ function loadTolerantPreset() {
   newSettings.completeIncompleteData = true
   newSettings.fixFormattingProblems = true
 
-  modelValue.value.customSettings = newSettings
+  extractionSettings.value.customSettings = newSettings
 }
 
 function clearAll() {
   // Ensure we're in CUSTOM mode
-  if (modelValue.value.extractionMode !== ExtractionMode.CUSTOM) {
-    modelValue.value.extractionMode = ExtractionMode.CUSTOM
+  if (extractionSettings.value.extractionMode !== ExtractionMode.CUSTOM) {
+    extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
   }
 
   // Initialize if needed
-  if (!modelValue.value.customSettings) {
-    modelValue.value.customSettings = {} as CustomExtractionSettings
+  if (!extractionSettings.value.customSettings) {
+    extractionSettings.value.customSettings = {} as CustomExtractionSettings
   }
 
-  const newSettings = { ...modelValue.value.customSettings }
+  const newSettings = { ...extractionSettings.value.customSettings }
   Object.keys(newSettings).forEach((key) => {
     newSettings[key as keyof CustomExtractionSettings] = false
   })
-  modelValue.value.customSettings = newSettings
+  extractionSettings.value.customSettings = newSettings
 }
 
 function selectAll() {
   // Ensure we're in CUSTOM mode
-  if (modelValue.value.extractionMode !== ExtractionMode.CUSTOM) {
-    modelValue.value.extractionMode = ExtractionMode.CUSTOM
+  if (extractionSettings.value.extractionMode !== ExtractionMode.CUSTOM) {
+    extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
   }
 
   // Initialize if needed
-  if (!modelValue.value.customSettings) {
-    modelValue.value.customSettings = {} as CustomExtractionSettings
+  if (!extractionSettings.value.customSettings) {
+    extractionSettings.value.customSettings = {} as CustomExtractionSettings
   }
 
-  const newSettings = { ...modelValue.value.customSettings }
+  const newSettings = { ...extractionSettings.value.customSettings }
   Object.keys(newSettings).forEach((key) => {
     newSettings[key as keyof CustomExtractionSettings] = true
   })
-  modelValue.value.customSettings = newSettings
+  extractionSettings.value.customSettings = newSettings
 }
 </script>
 
 <template>
   <!-- Mode Selection -->
   <v-radio-group
-    v-model="modelValue.extractionMode"
+    v-model="extractionSettings.extractionMode"
     class="mb-0"
   >
+    {{ extractionSettings.extractionMode }}
     <div class="d-flex align-center justify-space-between mb-2">
       <v-radio
         :value="ExtractionMode.STRICT"
@@ -543,325 +481,325 @@ function selectAll() {
         </div>
       </v-tooltip>
     </div>
-
-    <!-- Custom Settings (shown when Custom mode is selected) -->
-    <v-expand-transition>
-      <div
-        v-if="showCustomSettings"
-        class="mt-4 pt-4 border-t"
-      >
-        <div class="mb-3">
-          <h4 class="text-subtitle-1 font-weight-medium mb-1">
-            Custom Configuration
-          </h4>
-          <p class="text-caption text-medium-emphasis">
-            Configure your personalized extraction rules and preferences
-          </p>
-        </div>
-
-        <!-- Settings organized in Expansion Panels -->
-        <v-expansion-panels
-          multiple
-          variant="accordion"
-          class="mb-4"
-          elevation="0"
-        >
-          <!-- Text Processing -->
-          <v-expansion-panel
-            title="📝 Text Processing"
-            text="Basic text corrections and normalizations"
-          >
-            <template #text>
-              <div class="pa-4">
-                <v-row>
-                  <v-col
-                    v-for="setting in textProcessingSettings"
-                    :key="setting.key"
-                    cols="12"
-                    md="6"
-                  >
-                    <div class="d-flex align-center justify-space-between">
-                      <v-checkbox
-                        v-model="customSettings[setting.key]"
-                        :label="setting.label"
-                        class="flex-grow-1"
-                        density="comfortable"
-                        hide-details
-                      >
-                        <template #label>
-                          <div>
-                            <div class="font-weight-medium">
-                              {{ setting.label }}
-                            </div>
-                            <div class="text-caption text-medium-emphasis">
-                              {{ setting.description }}
-                            </div>
-                          </div>
-                        </template>
-                      </v-checkbox>
-                      <v-tooltip
-                        location="left"
-                        max-width="350"
-                      >
-                        <template #activator="{ props }">
-                          <v-icon
-                            v-bind="props"
-                            :icon="mdiHelpCircleOutline"
-                            size="small"
-                            class="text-medium-emphasis ml-2"
-                          />
-                        </template>
-                        <div class="pa-2">
-                          <div class="font-weight-bold mb-1">
-                            {{ setting.label }}
-                          </div>
-                          <div class="mb-2">
-                            {{ setting.description }}
-                          </div>
-                          <div class="text-caption">
-                            <strong>Example:</strong> {{ setting.example }}
-                          </div>
-                        </div>
-                      </v-tooltip>
-                    </div>
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-          </v-expansion-panel>
-
-          <!-- Formatting -->
-          <v-expansion-panel
-            title="🎨 Formatting & Structure"
-            text="Author names, dates, and identifier formatting"
-          >
-            <template #text>
-              <div class="pa-4">
-                <v-row>
-                  <v-col
-                    v-for="setting in formattingSettings"
-                    :key="setting.key"
-                    cols="12"
-                    md="6"
-                  >
-                    <div class="d-flex align-center justify-space-between">
-                      <v-checkbox
-                        v-model="customSettings[setting.key]"
-                        :label="setting.label"
-                        class="flex-grow-1"
-                        density="comfortable"
-                        hide-details
-                      >
-                        <template #label>
-                          <div>
-                            <div class="font-weight-medium">
-                              {{ setting.label }}
-                            </div>
-                            <div class="text-caption text-medium-emphasis">
-                              {{ setting.description }}
-                            </div>
-                          </div>
-                        </template>
-                      </v-checkbox>
-                      <v-tooltip
-                        location="left"
-                        max-width="350"
-                      >
-                        <template #activator="{ props }">
-                          <v-icon
-                            v-bind="props"
-                            :icon="mdiHelpCircleOutline"
-                            size="small"
-                            class="text-medium-emphasis ml-2"
-                          />
-                        </template>
-                        <div class="pa-2">
-                          <div class="font-weight-bold mb-1">
-                            {{ setting.label }}
-                          </div>
-                          <div class="mb-2">
-                            {{ setting.description }}
-                          </div>
-                          <div class="text-caption">
-                            <strong>Example:</strong> {{ setting.example }}
-                          </div>
-                        </div>
-                      </v-tooltip>
-                    </div>
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-          </v-expansion-panel>
-
-          <!-- Advanced -->
-          <v-expansion-panel
-            title="🧠 Advanced Interpretation"
-            text="Intelligent content completion and source recognition"
-          >
-            <template #text>
-              <div class="pa-4">
-                <v-row>
-                  <v-col
-                    v-for="setting in advancedSettings"
-                    :key="setting.key"
-                    cols="12"
-                    md="6"
-                  >
-                    <div class="d-flex align-center justify-space-between">
-                      <v-checkbox
-                        v-model="customSettings[setting.key]"
-                        :label="setting.label"
-                        class="flex-grow-1"
-                        density="comfortable"
-                        hide-details
-                      >
-                        <template #label>
-                          <div>
-                            <div class="font-weight-medium">
-                              {{ setting.label }}
-                            </div>
-                            <div class="text-caption text-medium-emphasis">
-                              {{ setting.description }}
-                            </div>
-                          </div>
-                        </template>
-                      </v-checkbox>
-                      <v-tooltip
-                        location="left"
-                        max-width="350"
-                      >
-                        <template #activator="{ props }">
-                          <v-icon
-                            v-bind="props"
-                            :icon="mdiHelpCircleOutline"
-                            size="small"
-                            class="text-medium-emphasis ml-2"
-                          />
-                        </template>
-                        <div class="pa-2">
-                          <div class="font-weight-bold mb-1">
-                            {{ setting.label }}
-                          </div>
-                          <div class="mb-2">
-                            {{ setting.description }}
-                          </div>
-                          <div class="text-caption">
-                            <strong>Example:</strong> {{ setting.example }}
-                          </div>
-                        </div>
-                      </v-tooltip>
-                    </div>
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-          </v-expansion-panel>
-
-          <!-- Technical -->
-          <v-expansion-panel
-            title="🔧 Technical Fixes"
-            text="OCR errors, Unicode issues, and formatting problems"
-          >
-            <template #text>
-              <div class="pa-4">
-                <v-row>
-                  <v-col
-                    v-for="setting in technicalSettings"
-                    :key="setting.key"
-                    cols="12"
-                    md="6"
-                  >
-                    <div class="d-flex align-center justify-space-between">
-                      <v-checkbox
-                        v-model="customSettings[setting.key]"
-                        :label="setting.label"
-                        class="flex-grow-1"
-                        density="comfortable"
-                        hide-details
-                      >
-                        <template #label>
-                          <div>
-                            <div class="font-weight-medium">
-                              {{ setting.label }}
-                            </div>
-                            <div class="text-caption text-medium-emphasis">
-                              {{ setting.description }}
-                            </div>
-                          </div>
-                        </template>
-                      </v-checkbox>
-                      <v-tooltip
-                        location="left"
-                        max-width="350"
-                      >
-                        <template #activator="{ props }">
-                          <v-icon
-                            v-bind="props"
-                            :icon="mdiHelpCircleOutline"
-                            size="small"
-                            class="text-medium-emphasis ml-2"
-                          />
-                        </template>
-                        <div class="pa-2">
-                          <div class="font-weight-bold mb-1">
-                            {{ setting.label }}
-                          </div>
-                          <div class="mb-2">
-                            {{ setting.description }}
-                          </div>
-                          <div class="text-caption">
-                            <strong>Example:</strong> {{ setting.example }}
-                          </div>
-                        </div>
-                      </v-tooltip>
-                    </div>
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-          </v-expansion-panel>
-        </v-expansion-panels>
-
-        <!-- Preset Buttons -->
-        <div class="d-flex gap-2 flex-wrap">
-          <v-btn
-            variant="outlined"
-            size="small"
-            @click="loadStrictPreset"
-          >
-            🔒 Load Strict
-          </v-btn>
-          <v-btn
-            variant="outlined"
-            size="small"
-            @click="loadBalancedPreset"
-          >
-            ⚖️ Load Balanced
-          </v-btn>
-          <v-btn
-            variant="outlined"
-            size="small"
-            @click="loadTolerantPreset"
-          >
-            🤸 Load Tolerant
-          </v-btn>
-          <v-btn
-            variant="outlined"
-            size="small"
-            @click="clearAll"
-          >
-            Clear All
-          </v-btn>
-          <v-btn
-            variant="outlined"
-            size="small"
-            @click="selectAll"
-          >
-            Select All
-          </v-btn>
-        </div>
-      </div>
-    </v-expand-transition>
   </v-radio-group>
+
+  <!-- Custom Settings (shown when Custom mode is selected) -->
+  <v-expand-transition>
+    <div
+      v-if="showCustomSettings"
+      class="mt-4 pt-4 border-t"
+    >
+      <div class="mb-3">
+        <h4 class="text-subtitle-1 font-weight-medium mb-1">
+          Custom Configuration
+        </h4>
+        <p class="text-caption text-medium-emphasis">
+          Configure your personalized extraction rules and preferences
+        </p>
+      </div>
+
+      <!-- Settings organized in Expansion Panels -->
+      <v-expansion-panels
+        multiple
+        variant="accordion"
+        class="mb-4"
+        elevation="0"
+      >
+        <!-- Text Processing -->
+        <v-expansion-panel
+          title="📝 Text Processing"
+          text="Basic text corrections and normalizations"
+        >
+          <template #text>
+            <div class="pa-4">
+              <v-row>
+                <v-col
+                  v-for="setting in textProcessingSettings"
+                  :key="setting.key"
+                  cols="12"
+                  md="6"
+                >
+                  <div class="d-flex align-center justify-space-between">
+                    <v-checkbox
+                      v-model="extractionSettings.customSettings![setting.key]"
+                      :label="setting.label"
+                      class="flex-grow-1"
+                      density="comfortable"
+                      hide-details
+                    >
+                      <template #label>
+                        <div>
+                          <div class="font-weight-medium">
+                            {{ setting.label }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis">
+                            {{ setting.description }}
+                          </div>
+                        </div>
+                      </template>
+                    </v-checkbox>
+                    <v-tooltip
+                      location="left"
+                      max-width="350"
+                    >
+                      <template #activator="{ props }">
+                        <v-icon
+                          v-bind="props"
+                          :icon="mdiHelpCircleOutline"
+                          size="small"
+                          class="text-medium-emphasis ml-2"
+                        />
+                      </template>
+                      <div class="pa-2">
+                        <div class="font-weight-bold mb-1">
+                          {{ setting.label }}
+                        </div>
+                        <div class="mb-2">
+                          {{ setting.description }}
+                        </div>
+                        <div class="text-caption">
+                          <strong>Example:</strong> {{ setting.example }}
+                        </div>
+                      </div>
+                    </v-tooltip>
+                  </div>
+                </v-col>
+              </v-row>
+            </div>
+          </template>
+        </v-expansion-panel>
+
+        <!-- Formatting -->
+        <v-expansion-panel
+          title="🎨 Formatting & Structure"
+          text="Author names, dates, and identifier formatting"
+        >
+          <template #text>
+            <div class="pa-4">
+              <v-row>
+                <v-col
+                  v-for="setting in formattingSettings"
+                  :key="setting.key"
+                  cols="12"
+                  md="6"
+                >
+                  <div class="d-flex align-center justify-space-between">
+                    <v-checkbox
+                      v-model="extractionSettings.customSettings![setting.key]"
+                      :label="setting.label"
+                      class="flex-grow-1"
+                      density="comfortable"
+                      hide-details
+                    >
+                      <template #label>
+                        <div>
+                          <div class="font-weight-medium">
+                            {{ setting.label }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis">
+                            {{ setting.description }}
+                          </div>
+                        </div>
+                      </template>
+                    </v-checkbox>
+                    <v-tooltip
+                      location="left"
+                      max-width="350"
+                    >
+                      <template #activator="{ props }">
+                        <v-icon
+                          v-bind="props"
+                          :icon="mdiHelpCircleOutline"
+                          size="small"
+                          class="text-medium-emphasis ml-2"
+                        />
+                      </template>
+                      <div class="pa-2">
+                        <div class="font-weight-bold mb-1">
+                          {{ setting.label }}
+                        </div>
+                        <div class="mb-2">
+                          {{ setting.description }}
+                        </div>
+                        <div class="text-caption">
+                          <strong>Example:</strong> {{ setting.example }}
+                        </div>
+                      </div>
+                    </v-tooltip>
+                  </div>
+                </v-col>
+              </v-row>
+            </div>
+          </template>
+        </v-expansion-panel>
+
+        <!-- Advanced -->
+        <v-expansion-panel
+          title="🧠 Advanced Interpretation"
+          text="Intelligent content completion and source recognition"
+        >
+          <template #text>
+            <div class="pa-4">
+              <v-row>
+                <v-col
+                  v-for="setting in advancedSettings"
+                  :key="setting.key"
+                  cols="12"
+                  md="6"
+                >
+                  <div class="d-flex align-center justify-space-between">
+                    <v-checkbox
+                      v-model="extractionSettings.customSettings![setting.key]"
+                      :label="setting.label"
+                      class="flex-grow-1"
+                      density="comfortable"
+                      hide-details
+                    >
+                      <template #label>
+                        <div>
+                          <div class="font-weight-medium">
+                            {{ setting.label }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis">
+                            {{ setting.description }}
+                          </div>
+                        </div>
+                      </template>
+                    </v-checkbox>
+                    <v-tooltip
+                      location="left"
+                      max-width="350"
+                    >
+                      <template #activator="{ props }">
+                        <v-icon
+                          v-bind="props"
+                          :icon="mdiHelpCircleOutline"
+                          size="small"
+                          class="text-medium-emphasis ml-2"
+                        />
+                      </template>
+                      <div class="pa-2">
+                        <div class="font-weight-bold mb-1">
+                          {{ setting.label }}
+                        </div>
+                        <div class="mb-2">
+                          {{ setting.description }}
+                        </div>
+                        <div class="text-caption">
+                          <strong>Example:</strong> {{ setting.example }}
+                        </div>
+                      </div>
+                    </v-tooltip>
+                  </div>
+                </v-col>
+              </v-row>
+            </div>
+          </template>
+        </v-expansion-panel>
+
+        <!-- Technical -->
+        <v-expansion-panel
+          title="🔧 Technical Fixes"
+          text="OCR errors, Unicode issues, and formatting problems"
+        >
+          <template #text>
+            <div class="pa-4">
+              <v-row>
+                <v-col
+                  v-for="setting in technicalSettings"
+                  :key="setting.key"
+                  cols="12"
+                  md="6"
+                >
+                  <div class="d-flex align-center justify-space-between">
+                    <v-checkbox
+                      v-model="extractionSettings.customSettings![setting.key]"
+                      :label="setting.label"
+                      class="flex-grow-1"
+                      density="comfortable"
+                      hide-details
+                    >
+                      <template #label>
+                        <div>
+                          <div class="font-weight-medium">
+                            {{ setting.label }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis">
+                            {{ setting.description }}
+                          </div>
+                        </div>
+                      </template>
+                    </v-checkbox>
+                    <v-tooltip
+                      location="left"
+                      max-width="350"
+                    >
+                      <template #activator="{ props }">
+                        <v-icon
+                          v-bind="props"
+                          :icon="mdiHelpCircleOutline"
+                          size="small"
+                          class="text-medium-emphasis ml-2"
+                        />
+                      </template>
+                      <div class="pa-2">
+                        <div class="font-weight-bold mb-1">
+                          {{ setting.label }}
+                        </div>
+                        <div class="mb-2">
+                          {{ setting.description }}
+                        </div>
+                        <div class="text-caption">
+                          <strong>Example:</strong> {{ setting.example }}
+                        </div>
+                      </div>
+                    </v-tooltip>
+                  </div>
+                </v-col>
+              </v-row>
+            </div>
+          </template>
+        </v-expansion-panel>
+      </v-expansion-panels>
+
+      <!-- Preset Buttons -->
+      <div class="d-flex gap-2 flex-wrap">
+        <v-btn
+          variant="outlined"
+          size="small"
+          @click="loadStrictPreset"
+        >
+          🔒 Load Strict
+        </v-btn>
+        <v-btn
+          variant="outlined"
+          size="small"
+          @click="loadBalancedPreset"
+        >
+          ⚖️ Load Balanced
+        </v-btn>
+        <v-btn
+          variant="outlined"
+          size="small"
+          @click="loadTolerantPreset"
+        >
+          🤸 Load Tolerant
+        </v-btn>
+        <v-btn
+          variant="outlined"
+          size="small"
+          @click="clearAll"
+        >
+          Clear All
+        </v-btn>
+        <v-btn
+          variant="outlined"
+          size="small"
+          @click="selectAll"
+        >
+          Select All
+        </v-btn>
+      </div>
+    </div>
+  </v-expand-transition>
 </template>

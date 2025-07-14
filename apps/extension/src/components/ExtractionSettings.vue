@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { extractionSettings } from '../logic'
 import ExtractionFieldsPanel from './ExtractionFieldsPanel.vue'
 import ExtractionModePanel from './ExtractionModePanel.vue'
 </script>
@@ -16,12 +15,10 @@ import ExtractionModePanel from './ExtractionModePanel.vue'
         multiple
       >
         <!-- Extraction Mode Panel -->
-        <ExtractionModePanel
-          v-model="extractionSettings"
-        />
+        <ExtractionModePanel />
 
         <!-- Field Selection Panel -->
-        <ExtractionFieldsPanel v-model="extractionSettings" />
+        <ExtractionFieldsPanel />
       </v-expansion-panels>
     </v-card-text>
   </v-card>
