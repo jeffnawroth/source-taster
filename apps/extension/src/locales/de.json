@@ -109,7 +109,16 @@
   "extraction-publication-details": "Publikations-Details",
   "extraction-select-all": "Alle auswählen",
   "extraction-settings": "Extraktions-Einstellungen",
-  "extraction-settings-description": "Konfiguriere, welche Metadatenfelder bei der Dokumentenverarbeitung extrahiert werden sollen",
+  "extraction-settings-description": "Konfiguriere den Extraktionsmodus und wähle die Metadatenfelder aus, die bei der Dokumentenverarbeitung extrahiert werden sollen",
+  "extractionSettings": {
+    "title": "Extraktions-Einstellungen",
+    "description": "Feld-Auswahl",
+    "fieldSelectionDescription": "Wähle die Metadatenfelder für die Extraktion",
+    "mode": {
+      "title": "Extraktions-Modus",
+      "description": "Wähle den Extraktions-Modus für die KI-Analyse"
+    }
+  },
   "extraction-technical-details": "Technische Details",
   "extraction-mode": "Extraktions-Modus",
   "extraction-mode-description": "Wähle, wie die KI Metadaten aus deinen Dokumenten verarbeiten und extrahieren soll",

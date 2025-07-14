@@ -108,7 +108,16 @@
   "extraction-publication-details": "Publication Details",
   "extraction-select-all": "Select All",
   "extraction-settings": "Extraction Settings",
-  "extraction-settings-description": "Configure which metadata fields should be extracted during document processing",
+  "extraction-settings-description": "Configure the extraction mode and select which metadata fields should be extracted during document processing",
+  "extractionSettings": {
+    "title": "Extraction Settings",
+    "description": "Field Selection",
+    "fieldSelectionDescription": "Choose the metadata fields for extraction",
+    "mode": {
+      "title": "Extraction Mode",
+      "description": "Choose the extraction mode for AI analysis"
+    }
+  },
   "extraction-technical-details": "Technical Details",
   "extraction-mode": "Extraction Mode",
   "extraction-mode-description": "Choose how the AI should process and extract metadata from your documents",
