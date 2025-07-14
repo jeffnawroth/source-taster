@@ -121,7 +121,7 @@
   "extraction-technical-details": "Technical Details",
   "extraction-mode": "Extraction Mode",
   "extraction-mode-description": "Choose how the AI should process and extract metadata from your documents",
-  "extraction-mode-strict": "Scientific",
+  "extraction-mode-strict": "Strict",
   "extraction-mode-strict-description": "1:1 extraction without corrections - ideal for quality control and plagiarism analysis",
   "extraction-mode-strict-tooltip": {
     "title": "Strict Mode Details",
@@ -135,10 +135,10 @@
     "not-happens-3": "No interpretation of abbreviations (e.g., \"et a.\" remains \"et a.\")",
     "not-happens-4": "No addition of missing information"
   },
-  "extraction-mode-balanced": "Standard",
+  "extraction-mode-balanced": "Balanced",
   "extraction-mode-balanced-description": "Fix formatting and typos but maintain content accuracy - perfect for everyday use",
   "extraction-mode-balanced-tooltip": {
-    "title": "Standard Mode Details",
+    "title": "Balanced Mode Details",
     "description": "Systematically fix formatting and typos while maintaining content accuracy.",
     "what-happens": "What happens:",
     "happens-1": "Correct obvious typos and spelling errors (e.g., \"Jouranl\" → \"Journal\")",
@@ -151,12 +151,12 @@
     "not-happens-2": "No addition of missing fields through guessing",
     "not-happens-3": "No modification of technical terms or specialized expressions"
   },
-  "extraction-mode-tolerant": "Flexible",
+  "extraction-mode-tolerant": "Tolerant",
   "extraction-mode-tolerant-description": "Extract even from incomplete sources with intelligent inference - for web data and OCR",
   "extraction-mode-tolerant-tooltip": {
-    "title": "Flexible Mode Details",
+    "title": "Tolerant Mode Details",
     "description": "Maximum AI intelligence for error-tolerant extraction from problematic sources.",
-    "what-happens": "What happens (all Standard features PLUS):",
+    "what-happens": "What happens (all Balanced features PLUS):",
     "happens-1": "Typo correction and comprehensive format improvements",
     "happens-2": "Intelligent addition of missing, derivable fields (e.g., date from context)",
     "happens-3": "Interpret incomplete or heavily abbreviated information",

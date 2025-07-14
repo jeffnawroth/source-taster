@@ -122,7 +122,7 @@
   "extraction-technical-details": "Technische Details",
   "extraction-mode": "Extraktions-Modus",
   "extraction-mode-description": "Wähle, wie die KI Metadaten aus deinen Dokumenten verarbeiten und extrahieren soll",
-  "extraction-mode-strict": "Wissenschaftlich",
+  "extraction-mode-strict": "Strikt",
   "extraction-mode-strict-description": "1:1 Extraktion ohne Korrekturen - ideal für Qualitätskontrolle und Plagiatsprüfung",
   "extraction-mode-strict-tooltip": {
     "title": "Strikt-Modus Details",
@@ -136,10 +136,10 @@
     "not-happens-3": "Keine Interpretation von Abkürzungen (z.B. \"et a.\" bleibt \"et a.\")",
     "not-happens-4": "Keine Ergänzung fehlender Informationen"
   },
-  "extraction-mode-balanced": "Standard",
+  "extraction-mode-balanced": "Ausgewogen",
   "extraction-mode-balanced-description": "Korrigiert Formatierung und Tippfehler, behält aber inhaltliche Genauigkeit bei - perfekt für den Alltag",
   "extraction-mode-balanced-tooltip": {
-    "title": "Standard-Modus Details",
+    "title": "Ausgewogen-Modus Details",
     "description": "Korrigiert systematisch Formatierung und Tippfehler, behält aber inhaltliche Genauigkeit bei.",
     "what-happens": "Was passiert:",
     "happens-1": "Korrektur offensichtlicher Tippfehler und Rechtschreibfehler (z.B. \"Jouranl\" → \"Journal\")",
@@ -152,12 +152,12 @@
     "not-happens-2": "Keine Ergänzung fehlender Felder durch Vermutungen",
     "not-happens-3": "Keine Veränderung von Fachbegriffen oder speziellen Ausdrücken"
   },
-  "extraction-mode-tolerant": "Flexibel",
+  "extraction-mode-tolerant": "Tolerant",
   "extraction-mode-tolerant-description": "Extrahiert auch aus unvollständigen Quellen mit intelligenter Inferenz - für Webdaten und OCR",
   "extraction-mode-tolerant-tooltip": {
-    "title": "Flexibel-Modus Details",
+    "title": "Tolerant-Modus Details",
     "description": "Maximale KI-Intelligenz für fehlertolerante Extraktion aus problematischen Quellen.",
-    "what-happens": "Was passiert (alle Standard-Funktionen PLUS):",
+    "what-happens": "Was passiert (alle Ausgewogen-Funktionen PLUS):",
     "happens-1": "Tippfehlerkorrektur und umfassende Formatverbesserungen",
     "happens-2": "Intelligente Ergänzung fehlender, ableitbarer Felder (z.B. Datum aus Kontext)",
     "happens-3": "Interpretation unvollständiger oder stark abgekürzter Informationen",
