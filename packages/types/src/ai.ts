@@ -6,6 +6,18 @@ import type { FieldMatchDetail } from './match'
 import type { ReferenceMetadata } from './reference'
 
 /**
+ * Extraction mode types for AI processing
+ */
+export enum ExtractionMode {
+  /** Strict mode: 1:1 extraction without any corrections or interpretations */
+  STRICT = 'strict',
+  /** Balanced mode: Fix formatting/typos but maintain content accuracy */
+  BALANCED = 'balanced',
+  /** Tolerant mode: Extract even from incomplete/erroneous sources with intelligent inference */
+  TOLERANT = 'tolerant',
+}
+
+/**
  * Response from AI verification service
  * Contains field-level match scores for each reference
  */
@@ -60,6 +72,9 @@ export interface OpenAIConfig {
  * Includes ALL fields from ReferenceMetadata structure
  */
 export interface ExtractionSettings {
+  /** Extraction mode controlling AI behavior and accuracy vs tolerance */
+  extractionMode: ExtractionMode
+
   /** Which metadata fields to extract */
   enabledFields: {
     // Core bibliographic fields

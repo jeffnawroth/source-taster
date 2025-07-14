@@ -1,6 +1,42 @@
-import type { ExtractionSettings } from '@source-taster/types'
+import type { ExtractionMode, ExtractionSettings } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
+
+/**
+ * Generate extraction instructions based on mode
+ */
+export function getExtractionInstructions(mode: ExtractionMode): string {
+  switch (mode) {
+    case 'strict':
+      return `STRICT MODE: Extract metadata exactly as it appears in the source text. Do NOT:
+- Correct typos or spelling errors
+- Standardize formatting
+- Infer missing information
+- Make any interpretations
+This mode is for scientific accuracy where the original form must be preserved exactly.`
+
+    case 'balanced':
+      return `BALANCED MODE: Extract metadata with reasonable corrections. You MAY:
+- Fix obvious typos and formatting inconsistencies
+- Standardize common abbreviations (e.g., "J." to "Journal")
+- Normalize spacing and capitalization
+You must NOT:
+- Change the meaning or content
+- Add information not present in the source
+This mode balances accuracy with usability.`
+
+    case 'tolerant':
+      return `TOLERANT MODE: Extract metadata with intelligent inference. You MAY:
+- Fix errors and inconsistencies
+- Infer missing standard information when context is clear
+- Complete partial data using domain knowledge
+- Handle OCR errors and formatting issues
+This mode maximizes extraction success from problematic sources.`
+
+    default:
+      return getExtractionInstructions('balanced' as ExtractionMode)
+  }
+}
 
 // Zod schemas for reference extraction
 export const AuthorSchema = z.object({
@@ -93,7 +129,16 @@ export const extractionJsonSchema = {
 // Create dynamic schema based on extraction settings
 export function createDynamicExtractionSchema(extractionSettings?: ExtractionSettings) {
   if (!extractionSettings) {
-    return extractionJsonSchema
+    // Return default schema with balanced mode instructions for fallback
+    const defaultSchema = { ...extractionJsonSchema }
+    const instructions = getExtractionInstructions('balanced' as ExtractionMode)
+    if (defaultSchema.schema && typeof defaultSchema.schema === 'object' && 'description' in defaultSchema.schema) {
+      defaultSchema.schema.description = `${instructions}\n\n${defaultSchema.schema.description || ''}`
+    }
+    else if (defaultSchema.schema && typeof defaultSchema.schema === 'object') {
+      (defaultSchema.schema as any).description = instructions
+    }
+    return defaultSchema
   }
 
   const enabledFields = extractionSettings.enabledFields
@@ -402,5 +447,23 @@ export function createDynamicValidationSchema(extractionSettings?: ExtractionSet
     references: z.array(DynamicReferenceSchema).describe('Array of extracted references'),
   })
 
-  return DynamicExtractionResponseSchema
+  // Generate final JSON schema with extraction mode instructions
+  const jsonSchema = zodToJsonSchema(DynamicExtractionResponseSchema, {
+    name: 'ExtractionResponse',
+    $refStrategy: 'none',
+  })
+
+  // Add extraction mode instructions to schema description
+  const extractionInstructions = getExtractionInstructions(extractionSettings.extractionMode)
+  if (jsonSchema && typeof jsonSchema === 'object' && 'description' in jsonSchema) {
+    jsonSchema.description = `${extractionInstructions}\n\n${jsonSchema.description || ''}`
+  }
+  else if (jsonSchema && typeof jsonSchema === 'object') {
+    (jsonSchema as any).description = extractionInstructions
+  }
+
+  return {
+    name: 'reference_extraction',
+    schema: jsonSchema,
+  }
 }

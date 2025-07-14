@@ -1,4 +1,4 @@
-import type { ExtractionSettings, FieldWeights } from '@source-taster/types'
+import type { ExtractionMode, ExtractionSettings, FieldWeights } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
@@ -20,6 +20,7 @@ export const fieldWeights = useWebExtensionStorage('field-weights', {
 } as FieldWeights)
 
 const defaultExtractionSettings: ExtractionSettings = {
+  extractionMode: 'balanced' as ExtractionMode,
   enabledFields: {
     // Core fields
     title: true,
@@ -78,6 +79,9 @@ const defaultExtractionSettings: ExtractionSettings = {
     issuePrefix: false,
     supplementInfo: false,
     articleNumber: false,
+    contributors: false,
+    isStandAlone: false,
+    yearEnd: false,
   },
 }
 

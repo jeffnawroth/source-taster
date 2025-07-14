@@ -1,6 +1,6 @@
 import type { AIExtractionResponse, AIService, AIVerificationResponse, ExtractionSettings, OpenAIConfig } from '@source-taster/types'
 import { OpenAI } from 'openai'
-import { createDynamicExtractionSchema } from './schemas/reference'
+import { createDynamicExtractionSchema, getExtractionInstructions } from './schemas/reference'
 import { verificationJsonSchema, VerificationResponseSchema } from './schemas/verification.js'
 
 export class OpenAIService implements AIService {
@@ -19,6 +19,13 @@ export class OpenAIService implements AIService {
   async extractReferences(text: string, extractionSettings?: ExtractionSettings): Promise<AIExtractionResponse> {
     let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.`
 
+    // Add extraction mode instructions if provided
+    if (extractionSettings?.extractionMode) {
+      const modeInstructions = getExtractionInstructions(extractionSettings.extractionMode)
+      systemMessage += `\n\n${modeInstructions}`
+      console.warn(`[Extraction Mode: ${extractionSettings.extractionMode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
+    }
+
     // Add extraction settings instructions if provided
     if (extractionSettings) {
       const enabledFields = Object.entries(extractionSettings.enabledFields)
@@ -28,7 +35,7 @@ export class OpenAIService implements AIService {
       console.warn('Enabled fields:', enabledFields)
 
       if (enabledFields.length > 0) {
-        systemMessage += ` Focus ONLY on extracting the following fields: ${enabledFields.join(', ')}. Do not extract any other fields.`
+        systemMessage += `\n\nFocus ONLY on extracting the following fields: ${enabledFields.join(', ')}. Do not extract any other fields.`
       }
     }
 

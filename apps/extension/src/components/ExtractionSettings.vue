@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { mdiBookOpen, mdiCalendar, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
+import { mdiBookOpen, mdiCalendar, mdiCog, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
+import { ExtractionMode } from '@source-taster/types'
 import { computed } from 'vue'
 import { extractionSettings } from '../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
@@ -166,6 +167,74 @@ function selectEssentials() {
           {{ t('deselect-all') }}
         </v-btn>
       </div>
+
+      <!-- Extraction Mode Section -->
+      <div class="mb-4">
+        <h3 class="text-h6 mb-3">
+          <v-icon
+            :icon="mdiCog"
+            class="mr-2"
+          />
+          {{ t('extraction-mode') }}
+        </h3>
+        <p class="text-body-2 text-medium-emphasis mb-3">
+          {{ t('extraction-mode-description') }}
+        </p>
+
+        <v-radio-group
+          v-model="extractionSettings.extractionMode"
+          class="mb-0"
+        >
+          <v-radio
+            :value="ExtractionMode.STRICT"
+            class="mb-2"
+          >
+            <template #label>
+              <div>
+                <div class="font-weight-medium">
+                  {{ t('extraction-mode-strict') }}
+                </div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ t('extraction-mode-strict-description') }}
+                </div>
+              </div>
+            </template>
+          </v-radio>
+
+          <v-radio
+            :value="ExtractionMode.BALANCED"
+            class="mb-2"
+          >
+            <template #label>
+              <div>
+                <div class="font-weight-medium">
+                  {{ t('extraction-mode-balanced') }}
+                </div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ t('extraction-mode-balanced-description') }}
+                </div>
+              </div>
+            </template>
+          </v-radio>
+
+          <v-radio
+            :value="ExtractionMode.TOLERANT"
+          >
+            <template #label>
+              <div>
+                <div class="font-weight-medium">
+                  {{ t('extraction-mode-tolerant') }}
+                </div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ t('extraction-mode-tolerant-description') }}
+                </div>
+              </div>
+            </template>
+          </v-radio>
+        </v-radio-group>
+      </div>
+
+      <v-divider class="my-4" />
 
       <v-expansion-panels
         elevation="0"
