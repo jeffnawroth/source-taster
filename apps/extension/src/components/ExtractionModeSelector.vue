@@ -10,6 +10,19 @@ const { t } = useI18n()
 // Check if custom mode is selected
 const showCustomSettings = computed(() => extractionSettings.value.extractionMode === ExtractionMode.CUSTOM)
 
+// Safe access to custom settings with initialization
+const customSettings = computed({
+  get: () => {
+    if (!extractionSettings.value.customSettings) {
+      extractionSettings.value.customSettings = {} as CustomExtractionSettings
+    }
+    return extractionSettings.value.customSettings
+  },
+  set: (value) => {
+    extractionSettings.value.customSettings = value
+  },
+})
+
 // Group settings for better UX
 const textProcessingSettings = computed(() => [
   {
@@ -521,7 +534,7 @@ function selectAll() {
                 >
                   <div class="d-flex align-center justify-space-between">
                     <v-checkbox
-                      v-model="extractionSettings.customSettings![setting.key]"
+                      v-model="customSettings[setting.key]"
                       :label="setting.label"
                       class="flex-grow-1"
                       density="comfortable"
@@ -585,7 +598,7 @@ function selectAll() {
                 >
                   <div class="d-flex align-center justify-space-between">
                     <v-checkbox
-                      v-model="extractionSettings.customSettings![setting.key]"
+                      v-model="customSettings[setting.key]"
                       :label="setting.label"
                       class="flex-grow-1"
                       density="comfortable"
@@ -649,7 +662,7 @@ function selectAll() {
                 >
                   <div class="d-flex align-center justify-space-between">
                     <v-checkbox
-                      v-model="extractionSettings.customSettings![setting.key]"
+                      v-model="customSettings[setting.key]"
                       :label="setting.label"
                       class="flex-grow-1"
                       density="comfortable"
@@ -713,7 +726,7 @@ function selectAll() {
                 >
                   <div class="d-flex align-center justify-space-between">
                     <v-checkbox
-                      v-model="extractionSettings.customSettings![setting.key]"
+                      v-model="customSettings[setting.key]"
                       :label="setting.label"
                       class="flex-grow-1"
                       density="comfortable"
