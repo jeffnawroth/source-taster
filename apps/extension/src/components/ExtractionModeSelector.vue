@@ -27,114 +27,114 @@ const customSettings = computed({
 const textProcessingSettings = computed(() => [
   {
     key: 'correctTypos' as keyof CustomExtractionSettings,
-    label: 'Typo Correction',
-    description: 'Fix obvious spelling errors',
-    example: '"Jouranl" → "Journal"',
+    label: t('setting-typo-correction'),
+    description: t('setting-typo-correction-description'),
+    example: t('setting-typo-correction-example'),
   },
   {
     key: 'normalizeCapitalization' as keyof CustomExtractionSettings,
-    label: 'Normalize Capitalization',
-    description: 'Standardize letter casing',
-    example: '"machine learning" → "Machine Learning"',
+    label: t('setting-normalize-capitalization'),
+    description: t('setting-normalize-capitalization-description'),
+    example: t('setting-normalize-capitalization-example'),
   },
   {
     key: 'standardizeAbbreviations' as keyof CustomExtractionSettings,
-    label: 'Standardize Abbreviations',
-    description: 'Expand common abbreviations',
-    example: '"J." → "Journal", "Vol." → "Volume"',
+    label: t('setting-standardize-abbreviations'),
+    description: t('setting-standardize-abbreviations-description'),
+    example: t('setting-standardize-abbreviations-example'),
   },
   {
     key: 'standardizePunctuation' as keyof CustomExtractionSettings,
-    label: 'Standardize Punctuation',
-    description: 'Clean up punctuation marks',
-    example: 'Remove extra spaces, fix quote marks',
+    label: t('setting-standardize-punctuation'),
+    description: t('setting-standardize-punctuation-description'),
+    example: t('setting-standardize-punctuation-example'),
   },
 ])
 
 const formattingSettings = computed(() => [
   {
     key: 'formatAuthorNames' as keyof CustomExtractionSettings,
-    label: 'Format Author Names',
-    description: 'Consistent author name formatting',
-    example: '"smith j" → "Smith, J."',
+    label: t('setting-format-author-names'),
+    description: t('setting-format-author-names-description'),
+    example: t('setting-format-author-names-example'),
   },
   {
     key: 'removeDuplicateAuthors' as keyof CustomExtractionSettings,
-    label: 'Remove Duplicate Authors',
-    description: 'Eliminate duplicate entries',
-    example: 'Remove repeated author names',
+    label: t('setting-remove-duplicate-authors'),
+    description: t('setting-remove-duplicate-authors-description'),
+    example: t('setting-remove-duplicate-authors-example'),
   },
   {
     key: 'standardizeDateFormatting' as keyof CustomExtractionSettings,
-    label: 'Standardize Date Formatting',
-    description: 'Consistent date formats',
-    example: '"2024-03-15" for all dates',
+    label: t('setting-standardize-date-formatting'),
+    description: t('setting-standardize-date-formatting-description'),
+    example: t('setting-standardize-date-formatting-example'),
   },
   {
     key: 'standardizeIdentifiers' as keyof CustomExtractionSettings,
-    label: 'Standardize Identifiers',
-    description: 'Validate DOI/ISSN/ISBN formats',
-    example: 'Format DOIs with proper prefix',
+    label: t('setting-standardize-identifiers'),
+    description: t('setting-standardize-identifiers-description'),
+    example: t('setting-standardize-identifiers-example'),
   },
 ])
 
 const advancedSettings = computed(() => [
   {
     key: 'addDerivableFields' as keyof CustomExtractionSettings,
-    label: 'Add Derivable Fields',
-    description: 'Fill in clearly inferrable information',
-    example: 'Add missing month from context',
+    label: t('setting-add-derivable-fields'),
+    description: t('setting-add-derivable-fields-description'),
+    example: t('setting-add-derivable-fields-example'),
   },
   {
     key: 'interpretIncompleteInfo' as keyof CustomExtractionSettings,
-    label: 'Interpret Incomplete Info',
-    description: 'Expand abbreviated information',
-    example: '"et al." → full author list if available',
+    label: t('setting-interpret-incomplete-info'),
+    description: t('setting-interpret-incomplete-info-description'),
+    example: t('setting-interpret-incomplete-info-example'),
   },
   {
     key: 'recognizeSourceTypes' as keyof CustomExtractionSettings,
-    label: 'Recognize Source Types',
-    description: 'Automatically detect publication types',
-    example: 'Detect "journal-article" vs "book"',
+    label: t('setting-recognize-source-types'),
+    description: t('setting-recognize-source-types-description'),
+    example: t('setting-recognize-source-types-example'),
   },
   {
     key: 'convertToTitleCase' as keyof CustomExtractionSettings,
-    label: 'Convert to Title Case',
-    description: 'Standardize title capitalization',
-    example: '"machine learning in healthcare" → "Machine Learning in Healthcare"',
+    label: t('setting-convert-to-title-case'),
+    description: t('setting-convert-to-title-case-description'),
+    example: t('setting-convert-to-title-case-example'),
   },
 ])
 
 const technicalSettings = computed(() => [
   {
     key: 'fixUnicodeIssues' as keyof CustomExtractionSettings,
-    label: 'Fix Unicode Issues',
-    description: 'Normalize special characters',
-    example: '"–" → "-", fix encoding problems',
+    label: t('setting-fix-unicode-issues'),
+    description: t('setting-fix-unicode-issues-description'),
+    example: t('setting-fix-unicode-issues-example'),
   },
   {
     key: 'handleOcrErrors' as keyof CustomExtractionSettings,
-    label: 'Handle OCR Errors',
-    description: 'Fix scanning/copy-paste artifacts',
-    example: 'Fix "rn" → "m", "li" → "h"',
+    label: t('setting-handle-ocr-errors'),
+    description: t('setting-handle-ocr-errors-description'),
+    example: t('setting-handle-ocr-errors-example'),
   },
   {
     key: 'reconstructSeparatedInfo' as keyof CustomExtractionSettings,
-    label: 'Reconstruct Separated Info',
-    description: 'Merge line-broken content',
-    example: 'Join titles split across lines',
+    label: t('setting-reconstruct-separated-info'),
+    description: t('setting-reconstruct-separated-info-description'),
+    example: t('setting-reconstruct-separated-info-example'),
   },
   {
     key: 'completeIncompleteData' as keyof CustomExtractionSettings,
-    label: 'Complete Incomplete Data',
-    description: 'Fill obvious gaps',
-    example: 'Add missing page numbers from range',
+    label: t('setting-complete-incomplete-data'),
+    description: t('setting-complete-incomplete-data-description'),
+    example: t('setting-complete-incomplete-data-example'),
   },
   {
     key: 'fixFormattingProblems' as keyof CustomExtractionSettings,
-    label: 'Fix Formatting Problems',
-    description: 'Correct spacing and structure',
-    example: 'Fix missing spaces after punctuation',
+    label: t('setting-fix-formatting-problems'),
+    description: t('setting-fix-formatting-problems-description'),
+    example: t('setting-fix-formatting-problems-example'),
   },
 ])
 
@@ -503,10 +503,10 @@ function selectAll() {
     >
       <div class="mb-3">
         <h4 class="text-subtitle-1 font-weight-medium mb-1">
-          Custom Configuration
+          {{ t('custom-configuration') }}
         </h4>
         <p class="text-caption text-medium-emphasis">
-          Configure your personalized extraction rules and preferences
+          {{ t('custom-configuration-description') }}
         </p>
       </div>
 
@@ -519,8 +519,8 @@ function selectAll() {
       >
         <!-- Text Processing -->
         <v-expansion-panel
-          title="📝 Text Processing"
-          text="Basic text corrections and normalizations"
+          :title="`📝 ${t('text-processing')}`"
+          :text="t('text-processing-description')"
         >
           <template #text>
             <div class="pa-4">
@@ -570,7 +570,7 @@ function selectAll() {
                           {{ setting.description }}
                         </div>
                         <div class="text-caption">
-                          <strong>Example:</strong> {{ setting.example }}
+                          <strong>{{ t('example') }}:</strong> {{ setting.example }}
                         </div>
                       </div>
                     </v-tooltip>
@@ -583,8 +583,8 @@ function selectAll() {
 
         <!-- Formatting -->
         <v-expansion-panel
-          title="🎨 Formatting & Structure"
-          text="Author names, dates, and identifier formatting"
+          :title="`🎨 ${t('formatting-structure')}`"
+          :text="t('formatting-structure-description')"
         >
           <template #text>
             <div class="pa-4">
@@ -634,7 +634,7 @@ function selectAll() {
                           {{ setting.description }}
                         </div>
                         <div class="text-caption">
-                          <strong>Example:</strong> {{ setting.example }}
+                          <strong>{{ t('example') }}:</strong> {{ setting.example }}
                         </div>
                       </div>
                     </v-tooltip>
@@ -647,8 +647,8 @@ function selectAll() {
 
         <!-- Advanced -->
         <v-expansion-panel
-          title="🧠 Advanced Interpretation"
-          text="Intelligent content completion and source recognition"
+          :title="`🧠 ${t('advanced-interpretation')}`"
+          :text="t('advanced-interpretation-description')"
         >
           <template #text>
             <div class="pa-4">
@@ -698,7 +698,7 @@ function selectAll() {
                           {{ setting.description }}
                         </div>
                         <div class="text-caption">
-                          <strong>Example:</strong> {{ setting.example }}
+                          <strong>{{ t('example') }}:</strong> {{ setting.example }}
                         </div>
                       </div>
                     </v-tooltip>
@@ -711,8 +711,8 @@ function selectAll() {
 
         <!-- Technical -->
         <v-expansion-panel
-          title="🔧 Technical Fixes"
-          text="OCR errors, Unicode issues, and formatting problems"
+          :title="`🔧 ${t('technical-fixes')}`"
+          :text="t('technical-fixes-description')"
         >
           <template #text>
             <div class="pa-4">
@@ -762,7 +762,7 @@ function selectAll() {
                           {{ setting.description }}
                         </div>
                         <div class="text-caption">
-                          <strong>Example:</strong> {{ setting.example }}
+                          <strong>{{ t('example') }}:</strong> {{ setting.example }}
                         </div>
                       </div>
                     </v-tooltip>
@@ -781,35 +781,35 @@ function selectAll() {
           size="small"
           @click="loadStrictPreset"
         >
-          🔒 Load Strict
+          🔒 {{ t('load-strict') }}
         </v-btn>
         <v-btn
           variant="outlined"
           size="small"
           @click="loadBalancedPreset"
         >
-          ⚖️ Load Balanced
+          ⚖️ {{ t('load-balanced') }}
         </v-btn>
         <v-btn
           variant="outlined"
           size="small"
           @click="loadTolerantPreset"
         >
-          🤸 Load Tolerant
+          🤸 {{ t('load-tolerant') }}
         </v-btn>
         <v-btn
           variant="outlined"
           size="small"
           @click="clearAll"
         >
-          Clear All
+          {{ t('clear-all') }}
         </v-btn>
         <v-btn
           variant="outlined"
           size="small"
           @click="selectAll"
         >
-          Select All
+          {{ t('select-all') }}
         </v-btn>
       </div>
     </div>
