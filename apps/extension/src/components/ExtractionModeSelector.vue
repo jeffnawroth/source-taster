@@ -271,7 +271,6 @@ function selectAll() {
     v-model="extractionSettings.extractionMode"
     class="mb-0"
   >
-    {{ extractionSettings.extractionMode }}
     <div class="d-flex align-center justify-space-between mb-2">
       <v-radio
         :value="ExtractionMode.STRICT"
