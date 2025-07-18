@@ -2,7 +2,7 @@
  * AI service interfaces and configuration types
  */
 
-import type { FieldMatchDetail } from './match'
+import type { FieldMatchDetail } from './matching'
 import type { ReferenceMetadata } from './reference'
 
 /**

@@ -15,8 +15,6 @@ export * from './api'
 export * from './extraction'
 
 // Matching Types
-export * from './match'
-
 export * from './matching'
 
 // Core Reference Types
