@@ -17,11 +17,10 @@ export * from './extraction'
 // Matching Types
 export * from './match'
 
+export * from './matching'
+
 // Core Reference Types
 export * from './reference'
-
-// Verification and Matching Types
-export * from './verification'
 
 // Website Types
 export * from './website'

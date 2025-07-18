@@ -1,8 +1,8 @@
-import type { AIVerificationResponse, OpenAIConfig } from '@source-taster/types'
+import type { AIMatchingResponse, OpenAIConfig } from '@source-taster/types'
 import { OpenAI } from 'openai'
-import { verificationJsonSchema, VerificationResponseSchema } from './schemas/verification'
+import { matchingJsonSchema, MatchingResponseSchema } from './schemas/matching'
 
-export class VerificationService {
+export class MatchingService {
   private client: OpenAI
   private config: OpenAIConfig
 
@@ -15,11 +15,11 @@ export class VerificationService {
     })
   }
 
-  async verifyMatch(prompt: string): Promise<AIVerificationResponse> {
-    const systemMessage = `You are an expert bibliographic verification assistant. Your task is to provide field-by-field matching scores.
+  async matchFields(prompt: string): Promise<AIMatchingResponse> {
+    const systemMessage = `You are an expert bibliographic matching assistant. Your task is to provide field-by-field matching scores.
     
 CRITICAL INSTRUCTIONS:
-- ONLY evaluate the fields explicitly listed in "Available fields for verification" in the user prompt
+- ONLY evaluate the fields explicitly listed in "Available fields for matching" in the user prompt
 - Do NOT evaluate any other fields, even if they exist in the data
 - Only evaluate fields that are present in both reference and source
 - This prevents unfair penalties when source databases have incomplete metadata
@@ -57,7 +57,7 @@ Scoring Guidelines for each field (0-100):
         ],
         response_format: {
           type: 'json_schema',
-          json_schema: verificationJsonSchema,
+          json_schema: matchingJsonSchema,
         },
       })
 
@@ -71,25 +71,25 @@ Scoring Guidelines for each field (0-100):
         parsedResponse = JSON.parse(content)
       }
       catch {
-        console.error('Failed to parse OpenAI verification response as JSON:', content)
-        throw new Error('Invalid JSON response from OpenAI verification')
+        console.error('Failed to parse OpenAI matching response as JSON:', content)
+        throw new Error('Invalid JSON response from OpenAI matching')
       }
 
       // Validate response with Zod
-      const validatedResponse = VerificationResponseSchema.parse(parsedResponse)
+      const validatedResponse = MatchingResponseSchema.parse(parsedResponse)
 
       return validatedResponse
     }
     catch (error: any) {
       if (error.name === 'ZodError') {
-        console.error('Verification validation error:', error.errors)
+        console.error('Matching validation error:', error.errors)
         // Return empty fieldDetails array as fallback
         console.warn('Returning empty fieldDetails array due to validation error')
         return { fieldDetails: [] }
       }
 
-      console.error('OpenAI verifyMatch error:', error)
-      throw new Error(`Failed to verify match: ${error.message}`)
+      console.error('OpenAI matchFields error:', error)
+      throw new Error(`Failed to match fields: ${error.message}`)
     }
   }
 }

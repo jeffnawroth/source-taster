@@ -1,6 +1,3 @@
-/**
- * Verification and matching-related types
- */
 import type { FieldWeights, MatchDetails } from './match'
 import type {
   Reference,
@@ -9,29 +6,29 @@ import type {
 import type { ArchivedVersion, WebsiteMetadata } from './website'
 
 /**
- * Response containing multiple verification results
+ * Response containing multiple matching results
  */
-export interface VerificationResponse {
-  /** Individual verification results */
-  results: VerificationResult[]
+export interface MatchingResponse {
+  /** Individual matching results */
+  results: MatchingResult[]
 }
 
 /**
- * Request to verify references against databases
- * Backend-only type - the frontend sends VerificationRequest
+ * Request to match references against databases
+ * Backend-only type - the frontend sends MatchingRequest
  */
-export interface VerificationRequest {
-  /** References to verify */
+export interface MatchingRequest {
+  /** References to match */
   references: Reference[]
-  /** Field weights for verification (provided by frontend) */
+  /** Field weights for matching (provided by frontend) */
   fieldWeights: FieldWeights
 }
 
 /**
- * Result of website verification
+ * Result of website matching
  */
-export interface WebsiteVerificationResult {
-  /** Reference ID being verified */
+export interface WebsiteMatchingResult {
+  /** Reference ID being matched */
   referenceId: string
   /** Original URL being checked */
   url: string
@@ -45,7 +42,7 @@ export interface WebsiteVerificationResult {
   matchDetails: MatchDetails
   /** Information about archived version if used */
   archivedVersion?: ArchivedVersion
-  /** Error message if verification failed */
+  /** Error message if matching failed */
   error?: string
 }
 
@@ -64,16 +61,16 @@ export interface ExternalSource {
 }
 
 // Forward declarations for types that depend on each other
-export interface VerificationResult {
-  /** ID of the reference that was verified */
+export interface MatchingResult {
+  /** ID of the reference that was matched */
   referenceId: string
   /** The best matching source (if found) */
   matchedSource?: ExternalSource
-  /** Detailed verification information */
-  verificationDetails?: VerificationDetails
+  /** Detailed matching information */
+  matchingDetails?: MatchingDetails
 }
 
-export interface VerificationDetails {
+export interface MatchingDetails {
   /** All sources found in databases */
   sourcesFound: ExternalSource[]
   /** Match details for the best source */

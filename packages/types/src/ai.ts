@@ -20,10 +20,10 @@ export enum ExtractionMode {
 }
 
 /**
- * Response from AI verification service
+ * Response from AI matching service
  * Contains field-level match scores for each reference
  */
-export interface AIVerificationResponse {
+export interface AIMatchingResponse {
   /** Array of field match details */
   fieldDetails: FieldMatchDetail[]
 }
@@ -53,7 +53,7 @@ export interface AIExtractionResponse {
  */
 export interface AIService {
   extractReferences: (text: string, extractionSettings?: ExtractionSettings) => Promise<AIExtractionResponse>
-  verifyMatch: (prompt: string) => Promise<AIVerificationResponse>
+  matchFields: (prompt: string) => Promise<AIMatchingResponse>
 }
 
 /**

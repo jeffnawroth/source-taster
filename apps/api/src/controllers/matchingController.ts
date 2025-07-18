@@ -1,21 +1,21 @@
 import type {
   ApiResponse,
+  MatchingRequest,
+  MatchingResponse,
   SourceEvaluation,
-  VerificationRequest,
-  VerificationResponse,
-  WebsiteVerificationResult,
+  WebsiteMatchingResult,
 } from '@source-taster/types'
 import type { Context } from 'hono'
-import { DatabaseVerificationService } from '../services/databaseVerificationService'
-import { WebsiteVerificationService } from '../services/websiteVerificationService'
+import { DatabaseMatchingService } from '../services/databaseMatchingService'
+import { WebsiteMatchingService } from '../services/websiteMatchingService'
 
-export class VerificationController {
-  private verificationService: DatabaseVerificationService
-  private websiteVerificationService: WebsiteVerificationService
+export class MatchingController {
+  private matchingService: DatabaseMatchingService
+  private websiteMatchingService: WebsiteMatchingService
 
   constructor() {
-    this.verificationService = new DatabaseVerificationService()
-    this.websiteVerificationService = new WebsiteVerificationService()
+    this.matchingService = new DatabaseMatchingService()
+    this.websiteMatchingService = new WebsiteMatchingService()
   }
 
   /**
@@ -48,12 +48,12 @@ export class VerificationController {
   }
 
   /**
-   * Intelligently verify references - automatically chooses database or website verification based on source type
-   * POST /api/verify
+   * Intelligently match references - automatically chooses database or website matching based on source type
+   * POST /api/match
    */
-  async verifyReferences(c: Context) {
+  async matchReferences(c: Context) {
     try {
-      const request = await c.req.json() as VerificationRequest
+      const request = await c.req.json() as MatchingRequest
 
       // Validation
       if (!request.references || !Array.isArray(request.references)) {
@@ -74,41 +74,41 @@ export class VerificationController {
 
       for (const reference of request.references) {
         if (this.hasWebURL(reference)) {
-          // Use website verification for references with URLs
+          // Use website matching for references with URLs
           try {
-            const websiteResult = await this.websiteVerificationService.verifyWebsiteReference(
+            const websiteResult = await this.websiteMatchingService.matchWebsiteReference(
               reference,
               reference.metadata.source.url!,
               request.fieldWeights,
             )
 
-            // Convert website verification result to standard verification result format
+            // Convert website matching result to standard matching result format
             const websiteSourceEvaluation = this.createWebsiteSourceEvaluation(websiteResult)
 
             results.push({
               referenceId: reference.id,
-              verificationDetails: {
-                sourcesFound: [], // Website verification doesn't use database sources
+              matchingDetails: {
+                sourcesFound: [], // Website matching doesn't use database sources
                 matchDetails: websiteResult.matchDetails,
                 allSourceEvaluations: [websiteSourceEvaluation],
               },
             })
           }
           catch (error) {
-            // If website verification fails, fall back to database verification
-            console.warn(`Website verification failed for reference ${reference.id}, falling back to database:`, error)
-            const dbResult = await this.verificationService.verifyReference(reference, request.fieldWeights)
+            // If website matching fails, fall back to database matching
+            console.warn(`Website matching failed for reference ${reference.id}, falling back to database:`, error)
+            const dbResult = await this.matchingService.matchReference(reference, request.fieldWeights)
             results.push(dbResult)
           }
         }
         else {
-          // Use database verification for academic references
-          const dbResult = await this.verificationService.verifyReference(reference, request.fieldWeights)
+          // Use database matching for academic references
+          const dbResult = await this.matchingService.matchReference(reference, request.fieldWeights)
           results.push(dbResult)
         }
       }
 
-      const response: ApiResponse<VerificationResponse> = {
+      const response: ApiResponse<MatchingResponse> = {
         success: true,
         data: {
           results,
@@ -128,8 +128,8 @@ export class VerificationController {
   }
 
   /**
-   * Helper method to determine if a reference has a web URL that should be verified via website verification
-   * This excludes academic database URLs (DOI, PubMed, arXiv, etc.) which should use database verification
+   * Helper method to determine if a reference has a web URL that should be matched via website matching
+   * This excludes academic database URLs (DOI, PubMed, arXiv, etc.) which should use database matching
    */
   private hasWebURL(reference: any): boolean {
     // Check if the reference has a URL in its source information
@@ -145,7 +145,7 @@ export class VerificationController {
           return false
         }
 
-        // Exclude academic database URLs - these should use database verification
+        // Exclude academic database URLs - these should use database matching
         const academicHosts = [
           'doi.org',
           'dx.doi.org',
@@ -167,7 +167,7 @@ export class VerificationController {
           return false
         }
 
-        // If reference has a DOI identifier, prefer database verification over website verification
+        // If reference has a DOI identifier, prefer database matching over website matching
         if (reference.metadata?.identifiers?.doi) {
           return false
         }
@@ -183,9 +183,9 @@ export class VerificationController {
   }
 
   /**
-   * Convert a WebsiteVerificationResult to a SourceEvaluation
+   * Convert a WebsiteMatchingResult to a SourceEvaluation
    */
-  private createWebsiteSourceEvaluation(websiteResult: WebsiteVerificationResult): SourceEvaluation {
+  private createWebsiteSourceEvaluation(websiteResult: WebsiteMatchingResult): SourceEvaluation {
     return {
       source: {
         id: websiteResult.url,
@@ -212,10 +212,10 @@ export class VerificationController {
   }
 
   /**
-   * Verify a reference against a website URL
-   * POST /api/verify/website
+   * Match a reference against a website URL
+   * POST /api/match/website
    */
-  async verifyWebsiteReference(c: Context) {
+  async matchWebsiteReference(c: Context) {
     try {
       const request = await c.req.json() as {
         reference: any
@@ -246,15 +246,15 @@ export class VerificationController {
         return c.json(validation.errorResponse, 400)
       }
 
-      // Verify website reference
-      const result = await this.websiteVerificationService.verifyWebsiteReference(
+      // Match website reference
+      const result = await this.websiteMatchingService.matchWebsiteReference(
         request.reference,
         request.url,
         request.fieldWeights,
         request.options,
       )
 
-      const response: ApiResponse<WebsiteVerificationResult> = {
+      const response: ApiResponse<WebsiteMatchingResult> = {
         success: true,
         data: result,
       }

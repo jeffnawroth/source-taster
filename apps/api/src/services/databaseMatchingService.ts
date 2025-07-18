@@ -1,19 +1,19 @@
 import type {
   ExternalSource,
   FieldWeights,
+  MatchingResult,
   Reference,
   SourceEvaluation,
-  VerificationResult,
 } from '@source-taster/types'
 import process from 'node:process'
-import { BaseVerificationService } from './baseVerificationService'
+import { BaseMatchingService } from './baseMatchingService'
 import { ArxivService } from './databases/arxivService'
 import { CrossrefService } from './databases/crossrefService'
 import { EuropePmcService } from './databases/europePmcService'
 import { OpenAlexService } from './databases/openAlexService'
 import { SemanticScholarService } from './databases/semanticScholarService'
 
-export class DatabaseVerificationService extends BaseVerificationService {
+export class DatabaseMatchingService extends BaseMatchingService {
   private openAlex = new OpenAlexService()
   private crossref = new CrossrefService()
   private europePmc = new EuropePmcService()
@@ -21,14 +21,14 @@ export class DatabaseVerificationService extends BaseVerificationService {
   private arxiv = new ArxivService()
 
   constructor() {
-    // Use default field weights for database verification
+    // Use default field weights for database matching
     super()
   }
 
-  async verifyReference(
+  async matchReference(
     reference: Reference,
     fieldWeights: FieldWeights,
-  ): Promise<VerificationResult> {
+  ): Promise<MatchingResult> {
     // Search in all databases in parallel for better performance
     const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
       this.openAlex.search(reference.metadata),
@@ -61,23 +61,23 @@ export class DatabaseVerificationService extends BaseVerificationService {
       sources.push(arxivResult.value)
     }
 
-    // If no sources found, return unverified
+    // If no sources found, return unmatched
     if (sources.length === 0) {
       return {
         referenceId: reference.id,
-        verificationDetails: {
+        matchingDetails: {
           sourcesFound: [],
         },
       }
     }
 
-    // Verify with AI using the best available sources
+    // Match with AI using the best available sources
     // Evaluate all sources and find the best one based on AI scoring
     const sourceEvaluations: SourceEvaluation[] = []
 
     // Evaluate each source with AI
     for (const source of sources) {
-      const matchResult = await this.verifyWithAI(reference, source, fieldWeights)
+      const matchResult = await this.matchWithAI(reference, source, fieldWeights)
       sourceEvaluations.push({
         source,
         matchDetails: matchResult.details,
@@ -90,11 +90,11 @@ export class DatabaseVerificationService extends BaseVerificationService {
     // Get the best source (highest score)
     const bestEvaluation = sourceEvaluations[0]
 
-    // Return result with best source - let frontend decide on verification based on score
+    // Return result with best source - let frontend decide on matching based on score
     return {
       referenceId: reference.id,
       matchedSource: bestEvaluation.source,
-      verificationDetails: {
+      matchingDetails: {
         sourcesFound: sources,
         matchDetails: bestEvaluation.matchDetails,
         allSourceEvaluations: sourceEvaluations,

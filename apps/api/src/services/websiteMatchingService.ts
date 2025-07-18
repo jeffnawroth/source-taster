@@ -4,13 +4,13 @@ import type {
   FieldWeights,
   MatchDetails,
   Reference,
+  WebsiteMatchingResult,
   WebsiteMetadata,
-  WebsiteVerificationResult,
 } from '@source-taster/types'
 import * as cheerio from 'cheerio'
-import { BaseVerificationService } from './baseVerificationService'
+import { BaseMatchingService } from './baseMatchingService'
 
-export interface WebsiteVerificationOptions {
+export interface WebsiteMatchingOptions {
   /** Maximum time to wait for website response in milliseconds */
   timeout?: number
   /** Whether to check Wayback Machine if URL is unavailable */
@@ -20,11 +20,11 @@ export interface WebsiteVerificationOptions {
 }
 
 /**
- * Service for verifying references against website content
+ * Service for matching references against website content
  * Handles URL accessibility, metadata extraction, and content matching
  */
-export class WebsiteVerificationService extends BaseVerificationService {
-  private readonly defaultOptions: Required<WebsiteVerificationOptions> = {
+export class WebsiteMatchingService extends BaseMatchingService {
+  private readonly defaultOptions: Required<WebsiteMatchingOptions> = {
     timeout: 10000, // 10 seconds
     enableWaybackMachine: true,
     userAgent: 'Source-Taster-Bot/1.0 (https://source-taster.app)',
@@ -35,14 +35,14 @@ export class WebsiteVerificationService extends BaseVerificationService {
   }
 
   /**
-   * Verify a reference against a website URL
+   * Match a reference against a website URL
    */
-  async verifyWebsiteReference(
+  async matchWebsiteReference(
     reference: Reference,
     url: string,
     fieldWeights: FieldWeights,
-    options?: WebsiteVerificationOptions,
-  ): Promise<WebsiteVerificationResult> {
+    options?: WebsiteMatchingOptions,
+  ): Promise<WebsiteMatchingResult> {
     const opts = { ...this.defaultOptions, ...options }
 
     try {
@@ -52,10 +52,10 @@ export class WebsiteVerificationService extends BaseVerificationService {
       if (websiteMetadata) {
         console.warn(`Extracted metadata for ${url}:`, JSON.stringify(websiteMetadata, null, 2))
 
-        // Use a specialized website verification method
-        const matchResult = await this.verifyWebsiteWithAI(reference, websiteMetadata, fieldWeights)
+        // Use a specialized website matching method
+        const matchResult = await this.matchWebsiteWithAI(reference, websiteMetadata, fieldWeights)
 
-        console.warn(`AI verification result:`, JSON.stringify(matchResult, null, 2))
+        console.warn(`AI matching result:`, JSON.stringify(matchResult, null, 2))
         return {
           referenceId: reference.id,
           url,
@@ -78,7 +78,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
       try {
         const archivedVersion = await this.getArchivedVersion(url)
         if (archivedVersion && archivedVersion.metadata) {
-          const matchResult = await this.verifyWebsiteWithAI(reference, archivedVersion.metadata, fieldWeights)
+          const matchResult = await this.matchWebsiteWithAI(reference, archivedVersion.metadata, fieldWeights)
           return {
             referenceId: reference.id,
             url,
@@ -112,7 +112,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
    */
   private async extractWebsiteMetadata(
     url: string,
-    options: Required<WebsiteVerificationOptions>,
+    options: Required<WebsiteMatchingOptions>,
   ): Promise<WebsiteMetadata | null> {
     try {
       const controller = new AbortController()
@@ -666,7 +666,7 @@ export class WebsiteVerificationService extends BaseVerificationService {
   }
 
   /**
-   * Convert WebsiteMetadata to ExternalSource format so we can use the base verification logic
+   * Convert WebsiteMetadata to ExternalSource format so we can use the base matching logic
    */
   private convertWebsiteMetadataToExternalSource(websiteMetadata: WebsiteMetadata): ExternalSource {
     return {
@@ -695,9 +695,9 @@ export class WebsiteVerificationService extends BaseVerificationService {
   }
 
   /**
-   * Verify reference against website metadata using the base AI verification
+   * Match reference against website metadata using the base AI matching logic
    */
-  private async verifyWebsiteWithAI(
+  private async matchWebsiteWithAI(
     reference: Reference,
     websiteMetadata: WebsiteMetadata,
     fieldWeights: FieldWeights,
@@ -705,8 +705,8 @@ export class WebsiteVerificationService extends BaseVerificationService {
     // Convert WebsiteMetadata to ExternalSource format
     const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)
 
-    // Use the base verification logic with provided field weights
-    const result = await this.verifyWithAI(reference, externalSource, fieldWeights)
+    // Use the base matching logic with provided field weights
+    const result = await this.matchWithAI(reference, externalSource, fieldWeights)
 
     return {
       details: result.details,

@@ -7,10 +7,8 @@ import type {
 } from '@source-taster/types'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
-export abstract class BaseVerificationService {
-  constructor() {
-
-  }
+export abstract class BaseMatchingService {
+  constructor() {}
 
   /**
    * Get the fields that should be evaluated for matching
@@ -75,10 +73,10 @@ export abstract class BaseVerificationService {
   }
 
   /**
-   * Verify a reference against a source using AI
+   * Match a reference against a source using AI
    * Field weights must be provided by the caller
    */
-  protected async verifyWithAI(
+  protected async matchWithAI(
     reference: Reference,
     source: ExternalSource,
     fieldWeights: FieldWeights,
@@ -90,7 +88,7 @@ export abstract class BaseVerificationService {
 
     const prompt = `
 
-Available fields for verification:
+Available fields for matching:
 ${availableFields.join(', ')}
 
 Reference:
@@ -99,7 +97,7 @@ ${JSON.stringify(reference.metadata, null, 2)}
 Source:
 ${JSON.stringify(source.metadata, null, 2)}`
 
-    const response = await ai.verifyMatch(prompt)
+    const response = await ai.matchFields(prompt)
 
     try {
       // Calculate the overall score directly from AI response
