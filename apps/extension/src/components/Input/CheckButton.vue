@@ -9,11 +9,11 @@ const { inputText, isProcessing, file } = storeToRefs(referencesStore)
 const disabled = computed(() => (!inputText.value.trim() && !file.value) || isProcessing.value)
 
 // HANDLE CLICK
-const { extractAndVerifyReferences } = referencesStore
+const { extractAndMatchReferences } = referencesStore
 async function handleClick() {
   if (!disabled.value) {
     try {
-      await extractAndVerifyReferences()
+      await extractAndMatchReferences()
     }
     catch (error) {
       console.error('Error processing references:', error)

@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@source-taster/types'
+import type { ProcessedReference } from '@/extension/types/reference'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
-const { reference, isCurrentlyVerifying = false } = defineProps<{
+const { reference, isCurrentlyMatching = false } = defineProps<{
   reference: ProcessedReference
-  isCurrentlyVerifying?: boolean
+  isCurrentlyMatching?: boolean
 }>()
 
 // TRANSLATION
 const { t } = useI18n()
 
-// CARD COLOR based on verification score
+// CARD COLOR based on matching score
 const color = computed(() => {
-  // If currently verifying, show special color
-  if (isCurrentlyVerifying) {
+  // If currently matching, show special color
+  if (isCurrentlyMatching) {
     return 'primary'
   }
 
@@ -29,8 +29,8 @@ const color = computed(() => {
     return undefined
   }
 
-  // Get the overall score from verification details
-  const score = reference.verificationResult?.verificationDetails?.matchDetails?.overallScore
+  // Get the overall score from matching details
+  const score = reference.matchingResult?.matchingDetails?.matchDetails?.overallScore
 
   if (score === undefined) {
     return 'warning' // No score available
@@ -43,16 +43,16 @@ const color = computed(() => {
 // TITLE
 const title = computed(() => reference.metadata.title || t('no-title'))
 
-// VERIFICATION SCORE
-const verificationScore = computed(() =>
-  reference.verificationResult?.verificationDetails?.matchDetails?.overallScore,
+// MATCHING SCORE
+const matchingScore = computed(() =>
+  reference.matchingResult?.matchingDetails?.matchDetails?.overallScore,
 )
 
 // SCORE DISPLAY TEXT
 const scoreText = computed(() => {
-  if (verificationScore.value === undefined)
+  if (matchingScore.value === undefined)
     return null
-  return `${Math.round(verificationScore.value)} %`
+  return `${Math.round(matchingScore.value)} %`
 })
 
 // SHOW DETAILS - managed by ReferenceActions component
@@ -64,7 +64,7 @@ const showDetails = ref(false)
     density="compact"
     variant="outlined"
     class="mb-2"
-    :class="{ 'currently-verifying': isCurrentlyVerifying }"
+    :class="{ 'currently-matching': isCurrentlyMatching }"
     :title
     :color
   >
@@ -96,12 +96,12 @@ const showDetails = ref(false)
 </template>
 
 <style scoped>
-.currently-verifying {
+.currently-matching {
   position: relative;
   overflow: hidden;
 }
 
-.currently-verifying::before {
+.currently-matching::before {
   content: '';
   position: absolute;
   top: 0;

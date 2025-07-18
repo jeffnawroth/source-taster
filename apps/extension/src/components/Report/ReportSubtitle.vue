@@ -43,7 +43,7 @@ const { statusCounts } = storeToRefs(useReferencesStore())
         </v-tooltip>
       </v-col>
 
-      <!-- Verified -->
+      <!-- Matched -->
       <v-col cols="auto">
         <v-tooltip :text="$t('verified-references-tooltip')">
           <template #activator="{ props }">
@@ -56,15 +56,15 @@ const { statusCounts } = storeToRefs(useReferencesStore())
               color="success"
               class="mx-1"
             >
-              {{ statusCounts.verified }} {{ $t('verified') }}
+              {{ statusCounts.matched }} {{ $t('verified') }}
             </v-chip>
           </template>
         </v-tooltip>
       </v-col>
 
-      <!-- Unverified -->
+      <!-- Not Matched -->
       <v-col
-        v-if="statusCounts.notVerified > 0"
+        v-if="statusCounts.notMatched > 0"
         cols="auto"
       >
         <v-tooltip :text="$t('unverified-references-tooltip')">
@@ -78,7 +78,7 @@ const { statusCounts } = storeToRefs(useReferencesStore())
               color="warning"
               class="mx-1"
             >
-              {{ statusCounts.notVerified }} {{ $t('unverified') }}
+              {{ statusCounts.notMatched }} {{ $t('unverified') }}
             </v-chip>
           </template>
         </v-tooltip>

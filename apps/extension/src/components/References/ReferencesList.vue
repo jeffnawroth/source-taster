@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@source-taster/types'
 import type { FuseResult } from 'fuse.js'
+import type { ProcessedReference } from '@/extension/types/reference'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const { results } = defineProps<{
   results: FuseResult<ProcessedReference>[]
 }>()
 
-const { currentlyVerifyingReference } = storeToRefs(useReferencesStore())
+const { currentlyMatchingReference } = storeToRefs(useReferencesStore())
 </script>
 
 <template>
@@ -22,7 +22,7 @@ const { currentlyVerifyingReference } = storeToRefs(useReferencesStore())
         v-for="(processedReference) in results"
         :key="processedReference.item.id"
         :reference="processedReference.item"
-        :is-currently-verifying="currentlyVerifyingReference?.id === processedReference.item.id"
+        :is-currently-matching="currentlyMatchingReference?.id === processedReference.item.id"
       />
     </v-slide-y-transition>
   </v-list>

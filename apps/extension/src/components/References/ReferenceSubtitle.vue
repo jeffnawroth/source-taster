@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@source-taster/types'
+import type { ProcessedReference } from '@/extension/types/reference'
 
 const { reference } = defineProps<{
   reference: ProcessedReference

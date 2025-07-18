@@ -1,13 +1,13 @@
-import type { Reference, VerificationResult } from '@source-taster/types'
+import type { MatchingResult, Reference } from '@source-taster/types'
 
 /**
- * Reference with verification status and results
+ * Reference with matching status and results
  */
 export interface ProcessedReference extends Reference {
-  /** Current verification status */
-  status: 'pending' | 'verified' | 'not-verified' | 'error'
-  /** Detailed verification results (if completed) */
-  verificationResult?: VerificationResult
-  /** Error message if verification failed */
+  /** Current matching status */
+  status: 'pending' | 'matched' | 'not-matched' | 'error'
+  /** Detailed matching results (if completed) */
+  matchingResult?: MatchingResult
+  /** Error message if matching failed */
   error?: string
 }

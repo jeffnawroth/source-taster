@@ -32,8 +32,8 @@ const { t } = useI18n()
 
       <!-- All Source Evaluations for Transparency -->
       <EvaluationList
-        v-if="reference.verificationResult?.verificationDetails?.allSourceEvaluations?.length"
-        :source-evaluations="reference.verificationResult.verificationDetails.allSourceEvaluations"
+        v-if="reference.matchingResult?.matchingDetails?.allSourceEvaluations?.length"
+        :source-evaluations="reference.matchingResult.matchingDetails.allSourceEvaluations"
       />
     </div>
   </v-expand-transition>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@source-taster/types'
+import type { ProcessedReference } from '@/extension/types/reference'
 import { mdiOpenInNew } from '@mdi/js'
 
 const { reference } = defineProps<{

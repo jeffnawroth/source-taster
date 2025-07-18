@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@source-taster/types'
+import type { ProcessedReference } from '@/extension/types/reference'
 import { mdiClose, mdiRestart } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const { t } = useI18n()
 
-const { currentPhase, processedCount, totalCount, isProcessing, currentlyVerifyingReference, currentlyVerifyingIndex } = storeToRefs(useReferencesStore())
-const { cancelProcessing, extractAndVerifyReferences } = useReferencesStore()
-// Progress feedback for verification
+const { currentPhase, processedCount, totalCount, isProcessing, currentlyMatchingReference, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
+const { cancelProcessing, extractAndMatchReferences } = useReferencesStore()
+// Progress feedback for matching
 const showProgressFeedback = computed(() => {
-  // Show during main processing (extract + verify all)
-  const isMainProcessing = isProcessing.value && (currentPhase.value === 'extracting' || currentPhase.value === 'verifying')
+  // Show during main processing (extract + match all)
+  const isMainProcessing = isProcessing.value && (currentPhase.value === 'extracting' || currentPhase.value === 'matching')
 
-  // Show during individual re-verification (when currentlyVerifyingIndex is set but not main processing)
-  const isReVerifying = !isProcessing.value && currentlyVerifyingIndex.value >= 0
+  // Show during individual re-matching (when currentlyMatchingIndex is set but not main processing)
+  const isReMatching = !isProcessing.value && currentlyMatchingIndex.value >= 0
 
-  return isMainProcessing || isReVerifying
+  return isMainProcessing || isReMatching
 })
 
 const progressText = computed(() => {
@@ -23,10 +23,10 @@ const progressText = computed(() => {
     return t('extracting-references')
   }
 
-  if (currentPhase.value === 'verifying' && totalCount.value > 0) {
-    // Calculate current position: if currentlyVerifyingIndex is set, use it + 1, otherwise use processedCount
-    const currentPosition = currentlyVerifyingReference.value
-      ? (currentlyVerifyingIndex.value + 1)
+  if (currentPhase.value === 'matching' && totalCount.value > 0) {
+    // Calculate current position: if currentlyMatchingIndex is set, use it + 1, otherwise use processedCount
+    const currentPosition = currentlyMatchingReference.value
+      ? (currentlyMatchingIndex.value + 1)
       : processedCount.value
     const total = totalCount.value
 
@@ -37,8 +37,8 @@ const progressText = computed(() => {
     })
 
     // Add current reference info if available
-    if (currentlyVerifyingReference.value) {
-      const currentRefText = getCurrentReferenceDisplayText(currentlyVerifyingReference.value)
+    if (currentlyMatchingReference.value) {
+      const currentRefText = getCurrentReferenceDisplayText(currentlyMatchingReference.value)
       const currentRefInfo = t('verifying-reference-current', { reference: currentRefText })
       return `${baseProgress} - ${currentRefInfo}`
     }
@@ -46,9 +46,9 @@ const progressText = computed(() => {
     return baseProgress
   }
 
-  // Handle re-verification (when not in main processing but currentlyVerifyingIndex is set)
-  if (!isProcessing.value && currentlyVerifyingIndex.value >= 0 && currentlyVerifyingReference.value) {
-    const currentRefText = getCurrentReferenceDisplayText(currentlyVerifyingReference.value)
+  // Handle re-matching (when not in main processing but currentlyMatchingIndex is set)
+  if (!isProcessing.value && currentlyMatchingIndex.value >= 0 && currentlyMatchingReference.value) {
+    const currentRefText = getCurrentReferenceDisplayText(currentlyMatchingReference.value)
     return t('re-verifying-reference', { reference: currentRefText })
   }
 
@@ -98,11 +98,11 @@ function handleCancel() {
 }
 
 function handleRestart() {
-  extractAndVerifyReferences()
+  extractAndMatchReferences()
 }
 
 const progressPercentage = computed(() => {
-  if (currentPhase.value === 'verifying' && totalCount.value > 0) {
+  if (currentPhase.value === 'matching' && totalCount.value > 0) {
     return Math.round((processedCount.value / totalCount.value) * 100)
   }
   return 0
@@ -127,14 +127,14 @@ const progressPercentage = computed(() => {
           class="me-2"
         />
         <v-progress-circular
-          v-else-if="currentPhase === 'verifying'"
+          v-else-if="currentPhase === 'matching'"
           :model-value="progressPercentage"
           size="16"
           width="2"
           class="me-2"
         />
         <v-progress-circular
-          v-else-if="!isProcessing && currentlyVerifyingIndex >= 0"
+          v-else-if="!isProcessing && currentlyMatchingIndex >= 0"
           indeterminate
           size="16"
           width="2"

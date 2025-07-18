@@ -15,7 +15,7 @@ const components = [
 // KEYBOARD SHORTCUT FOR CHECK REFERENCES
 const referencesStore = useReferencesStore()
 const { inputText, isProcessing, file } = storeToRefs(referencesStore)
-const { extractAndVerifyReferences } = referencesStore
+const { extractAndMatchReferences } = referencesStore
 
 // Check if button should be disabled (same logic as in CheckReferencesButton)
 const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isProcessing.value)
@@ -29,7 +29,7 @@ const ctrlEnter = keys['Ctrl+Enter']
 async function triggerCheckReferences() {
   if (!isDisabled.value) {
     try {
-      await extractAndVerifyReferences()
+      await extractAndMatchReferences()
     }
     catch (error) {
       console.error('Error processing references via keyboard shortcut:', error)

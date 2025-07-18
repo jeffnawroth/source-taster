@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@source-taster/types'
+import type { ProcessedReference } from '@/extension/types/reference'
 import CopyIdentifierBtn from './CopyIdentifierBtn.vue'
 import DetailsToggleBtn from './DetailsToggleBtn.vue'
 import OpenSrcBtn from './OpenSrcBtn.vue'
-import ReVerifyBtn from './ReVerifyBtn.vue'
+import ReMatchBtn from './ReMatchBtn.vue'
 
 // PROPS
 const { reference } = defineProps<{
@@ -14,8 +14,8 @@ const { reference } = defineProps<{
 const showDetails = defineModel<boolean>('showDetails', { default: false })
 
 // VERIFICATION SCORE
-const verificationScore = computed(() =>
-  reference.verificationResult?.verificationDetails?.matchDetails?.overallScore,
+const matchingScore = computed(() =>
+  reference.matchingResult?.matchingDetails?.matchDetails?.overallScore,
 )
 
 // ACTION BUTTONS CONFIGURATION
@@ -29,8 +29,8 @@ const otherActionButtons = [
     props: { reference },
   },
   {
-    component: ReVerifyBtn,
-    props: { reference, verificationScore: verificationScore.value },
+    component: ReMatchBtn,
+    props: { reference, matchingScore: matchingScore.value },
   },
 ]
 </script>

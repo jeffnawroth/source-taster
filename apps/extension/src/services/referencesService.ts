@@ -1,4 +1,4 @@
-import type { Reference, VerificationResult, WebsiteVerificationResult } from '@source-taster/types'
+import type { MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
 import { extractionSettings, fieldWeights } from '@/extension/logic/storage'
 
@@ -33,10 +33,10 @@ export class ReferencesService {
   }
 
   /**
-   * Verify references against databases
+   * Match references against databases
    */
-  static async verifyReferences(references: Reference[], signal?: AbortSignal): Promise<VerificationResult[]> {
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.verify}`, {
+  static async matchReferences(references: Reference[], signal?: AbortSignal): Promise<MatchingResult[]> {
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -49,27 +49,27 @@ export class ReferencesService {
     })
 
     if (!response.ok) {
-      throw new Error(`Verification failed: ${response.statusText}`)
+      throw new Error(`Matching failed: ${response.statusText}`)
     }
 
     const data = await response.json()
 
     if (!data.success) {
-      throw new Error(data.error || 'Verification failed')
+      throw new Error(data.error || 'Matching failed')
     }
 
     return data.data.results || []
   }
 
   /**
-   * Verify a reference against a website URL
+   * Match a reference against a website URL
    */
-  static async verifyWebsiteReference(
+  static async matchWebsiteReference(
     reference: Reference,
     url: string,
     signal?: AbortSignal,
-  ): Promise<WebsiteVerificationResult> {
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.verify}/website`, {
+  ): Promise<WebsiteMatchingResult> {
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}/website`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -87,33 +87,33 @@ export class ReferencesService {
     })
 
     if (!response.ok) {
-      throw new Error(`Website verification failed: ${response.statusText}`)
+      throw new Error(`Website matching failed: ${response.statusText}`)
     }
 
     const data = await response.json()
 
     if (!data.success) {
-      throw new Error(data.error || 'Website verification failed')
+      throw new Error(data.error || 'Website matching failed')
     }
 
     return data.data
   }
 
   /**
-   * Extract and verify references in one call
+   * Extract and match references in one call
    */
-  static async extractAndVerify(text: string, signal?: AbortSignal): Promise<{
+  static async extractAndMatch(text: string, signal?: AbortSignal): Promise<{
     references: Reference[]
-    verificationResults: VerificationResult[]
+    matchingResults: MatchingResult[]
   }> {
     const references = await this.extractReferences(text, signal)
 
     if (references.length === 0) {
-      return { references: [], verificationResults: [] }
+      return { references: [], matchingResults: [] }
     }
 
-    const verificationResults = await this.verifyReferences(references, signal)
+    const matchingResults = await this.matchReferences(references, signal)
 
-    return { references, verificationResults }
+    return { references, matchingResults }
   }
 }
