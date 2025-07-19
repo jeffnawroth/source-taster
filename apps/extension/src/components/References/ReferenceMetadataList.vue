@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ExternalSource, Reference } from '@source-taster/types'
+import type { ExternalSource, FieldModification, Reference } from '@source-taster/types'
 import {
   mdiAccountGroup,
   mdiAccountTie,
@@ -37,6 +37,33 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+
+// Helper function to get all modifications for a specific field
+function getModificationsForField(fieldPath: string): FieldModification[] {
+  if (!('modifications' in props.reference) || !props.reference.modifications) {
+    return []
+  }
+
+  // Find modifications that match the exact fieldPath or are sub-fields of it
+  return props.reference.modifications.filter((mod) => {
+    // Exact match
+    if (mod.fieldPath === fieldPath) {
+      return true
+    }
+
+    // For arrays like authors, also match individual indices
+    if (fieldPath === 'metadata.authors' && mod.fieldPath.startsWith('metadata.authors[')) {
+      return true
+    }
+
+    // For date fields, match any sub-field of date
+    if (fieldPath === 'metadata.date' && mod.fieldPath.startsWith('metadata.date.')) {
+      return true
+    }
+
+    return false
+  })
+}
 
 // State for collapsible sections
 const showAdditionalFields = ref(false)
@@ -155,6 +182,7 @@ const formattedDate = computed(() => {
       :icon="mdiFileDocumentOutline"
       :title="t('title')"
       :text="props.reference.metadata.title"
+      :modifications="getModificationsForField('metadata.title')"
     />
 
     <!-- AUTHORS -->
@@ -167,6 +195,7 @@ const formattedDate = computed(() => {
         const name = `${author.firstName || ''} ${author.lastName || ''}`.trim()
         return author.role ? `${name} (${author.role})` : name
       }).join(', ')"
+      :modifications="getModificationsForField('metadata.authors')"
     />
 
     <!-- JOURNAL/CONTAINER TITLE -->
@@ -175,6 +204,7 @@ const formattedDate = computed(() => {
       :icon="mdiEarth"
       :title="t('containerTitle')"
       :text="props.reference.metadata.source.containerTitle"
+      :modifications="getModificationsForField('metadata.source.containerTitle')"
     />
 
     <!-- PUBLICATION DATE (combined day, month, year) -->
@@ -183,6 +213,7 @@ const formattedDate = computed(() => {
       :icon="mdiCalendarOutline"
       :title="t('publication-date')"
       :text="formattedDate"
+      :modifications="getModificationsForField('metadata.date')"
     />
 
     <!-- VOLUME -->
@@ -191,6 +222,7 @@ const formattedDate = computed(() => {
       :icon="mdiBookOpenBlankVariantOutline"
       :title="t('volume')"
       :text="props.reference.metadata.source.volume"
+      :modifications="getModificationsForField('metadata.source.volume')"
     />
 
     <!-- ISSUE -->
@@ -199,6 +231,7 @@ const formattedDate = computed(() => {
       :icon="mdiCalendarRange"
       :title="t('issue')"
       :text="props.reference.metadata.source.issue"
+      :modifications="getModificationsForField('metadata.source.issue')"
     />
 
     <!-- PAGES -->
@@ -207,6 +240,7 @@ const formattedDate = computed(() => {
       :icon="mdiNotebookOutline"
       :title="t('pages')"
       :text="props.reference.metadata.source.pages"
+      :modifications="getModificationsForField('metadata.source.pages')"
     />
 
     <!-- SOURCE TYPE -->
@@ -215,6 +249,7 @@ const formattedDate = computed(() => {
       :icon="mdiTag"
       :title="t('source-type')"
       :text="props.reference.metadata.source.sourceType"
+      :modifications="getModificationsForField('metadata.source.sourceType')"
     />
 
     <!-- PUBLISHER -->
@@ -223,6 +258,7 @@ const formattedDate = computed(() => {
       :icon="mdiDomain"
       :title="t('publisher')"
       :text="props.reference.metadata.source.publisher"
+      :modifications="getModificationsForField('metadata.source.publisher')"
     />
 
     <!-- PUBLICATION PLACE -->
@@ -231,6 +267,7 @@ const formattedDate = computed(() => {
       :icon="mdiMapMarker"
       :title="t('publication-place')"
       :text="props.reference.metadata.source.publicationPlace"
+      :modifications="getModificationsForField('metadata.source.publicationPlace')"
     />
 
     <!-- EDITION -->
@@ -239,6 +276,7 @@ const formattedDate = computed(() => {
       :icon="mdiBookmark"
       :title="t('edition')"
       :text="props.reference.metadata.source.edition"
+      :modifications="getModificationsForField('metadata.source.edition')"
     />
 
     <!-- SERIES -->
@@ -247,6 +285,7 @@ const formattedDate = computed(() => {
       :icon="mdiLibrary"
       :title="t('series')"
       :text="props.reference.metadata.source.series"
+      :modifications="getModificationsForField('metadata.source.series')"
     />
 
     <!-- INSTITUTION -->
@@ -255,6 +294,7 @@ const formattedDate = computed(() => {
       :icon="mdiSchool"
       :title="t('institution')"
       :text="props.reference.metadata.source.institution"
+      :modifications="getModificationsForField('metadata.source.institution')"
     />
 
     <!-- IDENTIFIERS SECTION (Important) -->
@@ -276,6 +316,7 @@ const formattedDate = computed(() => {
         :icon="mdiIdentifier"
         title="DOI"
         :text="props.reference.metadata.identifiers.doi"
+        :modifications="getModificationsForField('metadata.identifiers.doi')"
         link
       />
 
@@ -362,6 +403,7 @@ const formattedDate = computed(() => {
             :icon="mdiFileDocumentOutline"
             :title="t('subtitle')"
             :text="props.reference.metadata.source.subtitle"
+            :modifications="getModificationsForField('metadata.source.subtitle')"
           />
 
           <!-- LOCATION -->
@@ -370,6 +412,7 @@ const formattedDate = computed(() => {
             :icon="mdiMapMarker"
             :title="t('location')"
             :text="props.reference.metadata.source.location"
+            :modifications="getModificationsForField('metadata.source.location')"
           />
 
           <!-- RETRIEVAL DATE -->
@@ -390,6 +433,7 @@ const formattedDate = computed(() => {
               const name = `${contributor.firstName || ''} ${contributor.lastName || ''}`.trim()
               return contributor.role ? `${name} (${contributor.role})` : name
             }).join(', ')"
+            :modifications="getModificationsForField('metadata.source.contributors')"
           />
 
           <!-- PAGE TYPE -->
@@ -438,6 +482,7 @@ const formattedDate = computed(() => {
             :icon="mdiNumeric"
             :title="t('article-number')"
             :text="props.reference.metadata.source.articleNumber"
+            :modifications="getModificationsForField('metadata.source.articleNumber')"
           />
 
           <!-- CONFERENCE -->
@@ -446,6 +491,7 @@ const formattedDate = computed(() => {
             :icon="mdiMicrophone"
             :title="t('conference')"
             :text="props.reference.metadata.source.conference"
+            :modifications="getModificationsForField('metadata.source.conference')"
           />
 
           <!-- SERIES NUMBER -->
@@ -462,6 +508,7 @@ const formattedDate = computed(() => {
             :icon="mdiFileDocumentOutline"
             :title="t('chapter-title')"
             :text="props.reference.metadata.source.chapterTitle"
+            :modifications="getModificationsForField('metadata.source.chapterTitle')"
           />
 
           <!-- MEDIUM -->
@@ -478,6 +525,7 @@ const formattedDate = computed(() => {
             :icon="mdiTranslate"
             :title="t('original-title')"
             :text="props.reference.metadata.source.originalTitle"
+            :modifications="getModificationsForField('metadata.source.originalTitle')"
           />
 
           <!-- ORIGINAL LANGUAGE -->
@@ -486,6 +534,7 @@ const formattedDate = computed(() => {
             :icon="mdiTranslate"
             :title="t('original-language')"
             :text="props.reference.metadata.source.originalLanguage"
+            :modifications="getModificationsForField('metadata.source.originalLanguage')"
           />
 
           <!-- DEGREE -->

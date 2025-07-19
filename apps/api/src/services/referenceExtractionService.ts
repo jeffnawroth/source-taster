@@ -21,6 +21,7 @@ export class ReferenceExtractionService {
         id: crypto.randomUUID(),
         originalText: ref.originalText,
         metadata: ref.metadata,
+        modifications: ref.modifications,
       }))
     }
     catch (error) {

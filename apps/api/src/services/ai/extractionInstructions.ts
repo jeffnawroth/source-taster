@@ -79,7 +79,7 @@ export function getExtractionInstructions(mode: ExtractionMode, customSettings?:
 /**
  * Generate mode instructions using the same logic as custom mode
  */
-function generateModeInstructions(settings: CustomExtractionSettings, modeTitle: string, modeGoal: string): string {
+function generateModeInstructions(settings: CustomExtractionSettings, modeTitle: string, _modeGoal: string): string {
   const allowedActions: string[] = []
   const forbiddenActions: string[] = []
 
@@ -212,7 +212,7 @@ function generateModeInstructions(settings: CustomExtractionSettings, modeTitle:
   allowedActions.unshift('• Trim excessive whitespace at beginning/end')
 
   return `${modeTitle}
-Goal: ${modeGoal}
+Goal: ${_modeGoal}
 
 What you MAY do:
 ${allowedActions.length > 0 ? allowedActions.join('\n') : '• Extract exactly as written without modifications'}
@@ -222,7 +222,12 @@ ${forbiddenActions.length > 0 ? forbiddenActions.join('\n') : '• Follow standa
 • Never hallucinate or invent completely missing data fields
 • Never speculate without clear context
 
-IMPORTANT: ${modeTitle === 'STRICT MODE' ? 'This mode is for scientific accuracy - the original form must be preserved exactly.' : modeTitle === 'BALANCED MODE' ? 'Balance between accuracy and usability.' : 'Maximizes extraction from problematic sources while maintaining reference fidelity.'}`
+CRITICAL - MODIFICATION TRACKING:
+${modeTitle === 'STRICT MODE'
+  ? '• In STRICT MODE, extract exactly as written. The modifications array should be empty.'
+  : '• For EVERY field that you change/correct/modify from the original text, you MUST add a modification entry\n• For EVERY field that you derive or add (including sourceType recognition), you MUST add a modification entry\n• The modifications array is REQUIRED when you make any changes - do not leave it empty!\n• Include: fieldPath (e.g., "metadata.title", "metadata.source.containerTitle"), originalValue, extractedValue, modificationType\n• Available modification types: typo-correction, capitalization, abbreviation-expansion, punctuation-standardization, format-standardization, derivation, interpretation, author-name-formatting, date-formatting, identifier-standardization, unicode-fixing, ocr-error-correction, title-case-conversion, duplicate-removal, field-derivation, information-reconstruction, formatting-correction\n\nSPECIAL CASES REQUIRING MODIFICATION TRACKING:\n- When recognizing source types (e.g., determining "Journal article" from context): Use field-derivation\n- When adding missing information not explicitly stated: Use field-derivation\n- When interpreting incomplete information: Use interpretation\n- When standardizing formats: Use format-standardization\n\nEXAMPLES:\n- Original: "Viral dynamics in mild and sesvere cases" → Fixed: "Viral Dynamics in Mild and Severe Cases"\n  Must include TWO modifications: [typo-correction, title-case-conversion]\n- Original: "656–657" → Fixed: "656-657"\n  Must include ONE modification: [unicode-fixing]\n- Original text contains no explicit source type → Recognized as "Journal article" from journal name\n  Must include ONE modification: [field-derivation] with originalValue: "" and extractedValue: "Journal article"\n- Original text unchanged → modifications array should be empty: []'}
+
+IMPORTANT: ${modeTitle === 'STRICT MODE' ? 'This mode preserves the original form exactly - no modifications should be tracked.' : 'You MUST track every single change you make. Missing modification tracking is a critical error!'}`
 }
 
 /**
@@ -378,5 +383,27 @@ ${forbiddenActions.length > 0 ? forbiddenActions.join('\n') : '• Follow standa
 • Never hallucinate or invent completely missing data fields
 • Never speculate without clear context
 
-IMPORTANT: Follow the user's custom configuration exactly as specified.`
+CRITICAL - MODIFICATION TRACKING:
+• For EVERY field that you change/correct/modify from the original text, you MUST add a modification entry
+• For EVERY field that you derive or add (including sourceType recognition), you MUST add a modification entry
+• The modifications array is REQUIRED when you make any changes - do not leave it empty!
+• Include: fieldPath (e.g., "metadata.title", "metadata.source.containerTitle"), originalValue, extractedValue, modificationType
+• Available modification types: typo-correction, capitalization, abbreviation-expansion, punctuation-standardization, format-standardization, derivation, interpretation, author-name-formatting, date-formatting, identifier-standardization, unicode-fixing, ocr-error-correction, title-case-conversion, duplicate-removal, field-derivation, information-reconstruction, formatting-correction
+
+SPECIAL CASES REQUIRING MODIFICATION TRACKING:
+- When recognizing source types (e.g., determining "Journal article" from context): Use field-derivation
+- When adding missing information not explicitly stated: Use field-derivation
+- When interpreting incomplete information: Use interpretation
+- When standardizing formats: Use format-standardization
+
+EXAMPLES:
+- Original: "Viral dynamics in mild and sesvere cases" → Fixed: "Viral Dynamics in Mild and Severe Cases"
+  Must include TWO modifications: [typo-correction, title-case-conversion]
+- Original: "656–657" → Fixed: "656-657"
+  Must include ONE modification: [unicode-fixing]
+- Original text contains no explicit source type → Recognized as "Journal article" from journal name
+  Must include ONE modification: [field-derivation] with originalValue: "" and extractedValue: "Journal article"
+- Original text unchanged → modifications array should be empty: []
+
+IMPORTANT: Follow the user's custom configuration exactly as specified and track all changes you make. You MUST track every single change you make. Missing modification tracking is a critical error!`
 }

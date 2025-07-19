@@ -4,6 +4,31 @@ import { zodToJsonSchema } from 'zod-to-json-schema'
 import { getExtractionInstructions } from '../extractionInstructions'
 
 // Zod schemas for reference extraction
+export const FieldModificationSchema = z.object({
+  fieldPath: z.string().describe('The field path that was modified (e.g., "metadata.title", "metadata.source.containerTitle")'),
+  originalValue: z.string().describe('The original value before extraction'),
+  extractedValue: z.string().describe('The extracted/corrected value'),
+  modificationType: z.enum([
+    'typo-correction',
+    'capitalization',
+    'abbreviation-expansion',
+    'punctuation-standardization',
+    'format-standardization',
+    'derivation',
+    'interpretation',
+    'author-name-formatting',
+    'date-formatting',
+    'identifier-standardization',
+    'unicode-fixing',
+    'ocr-error-correction',
+    'title-case-conversion',
+    'duplicate-removal',
+    'field-derivation',
+    'information-reconstruction',
+    'formatting-correction',
+  ]).describe('Type of modification applied'),
+})
+
 export const AuthorSchema = z.object({
   firstName: z.string().optional().describe('First name of the author'),
   lastName: z.string().describe('Last name of the author'),
@@ -77,6 +102,7 @@ export const ReferenceMetadataSchema = z.object({
 export const ReferenceSchema = z.object({
   originalText: z.string().describe('Complete reference as it appears in the text'),
   metadata: ReferenceMetadataSchema.describe('Parsed bibliographic information'),
+  modifications: z.array(FieldModificationSchema).optional().describe('Array of modifications made during extraction'),
 })
 
 export const ExtractionResponseSchema = z.object({

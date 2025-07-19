@@ -2,9 +2,6 @@
  * AI service interfaces and configuration types
  */
 
-import type { FieldMatchDetail } from './matching'
-import type { ReferenceMetadata } from './reference'
-
 /**
  * Extraction mode types for AI processing
  */
@@ -25,7 +22,7 @@ export enum ExtractionMode {
  */
 export interface AIMatchingResponse {
   /** Array of field match details */
-  fieldDetails: FieldMatchDetail[]
+  fieldDetails: import('./matching').FieldMatchDetail[]
 }
 
 /**
@@ -36,7 +33,9 @@ export interface AIExtractedReference {
   /** The raw reference text as it appeared in the source document */
   originalText: string
   /** Parsed/extracted bibliographic information */
-  metadata: ReferenceMetadata
+  metadata: import('./reference').ReferenceMetadata
+  /** Information about modifications made during extraction */
+  modifications?: import('./reference').FieldModification[]
 }
 
 /**

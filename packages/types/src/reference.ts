@@ -3,6 +3,43 @@
  */
 
 /**
+ * Types of modifications that can be applied during extraction
+ */
+export enum ModificationType {
+  TYPO_CORRECTION = 'typo-correction',
+  CAPITALIZATION = 'capitalization',
+  ABBREVIATION_EXPANSION = 'abbreviation-expansion',
+  PUNCTUATION_STANDARDIZATION = 'punctuation-standardization',
+  FORMAT_STANDARDIZATION = 'format-standardization',
+  DERIVATION = 'derivation',
+  INTERPRETATION = 'interpretation',
+  AUTHOR_NAME_FORMATTING = 'author-name-formatting',
+  DATE_FORMATTING = 'date-formatting',
+  IDENTIFIER_STANDARDIZATION = 'identifier-standardization',
+  UNICODE_FIXING = 'unicode-fixing',
+  OCR_ERROR_CORRECTION = 'ocr-error-correction',
+  TITLE_CASE_CONVERSION = 'title-case-conversion',
+  DUPLICATE_REMOVAL = 'duplicate-removal',
+  FIELD_DERIVATION = 'field-derivation',
+  INFORMATION_RECONSTRUCTION = 'information-reconstruction',
+  FORMATTING_CORRECTION = 'formatting-correction',
+}
+
+/**
+ * Information about changes made during extraction
+ */
+export interface FieldModification {
+  /** The field path that was modified (e.g., "metadata.title", "metadata.source.containerTitle") */
+  fieldPath: string
+  /** The original value before extraction */
+  originalValue: string
+  /** The extracted/corrected value */
+  extractedValue: string
+  /** Type of modification applied */
+  modificationType: ModificationType
+}
+
+/**
  * Represents a single bibliographic reference
  */
 export interface Reference {
@@ -12,6 +49,8 @@ export interface Reference {
   originalText: string
   /** Parsed/extracted bibliographic information */
   metadata: ReferenceMetadata
+  /** Information about modifications made during extraction */
+  modifications?: FieldModification[]
 }
 
 /**
