@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@source-taster/eslint-config": "workspace:^",
-    "eslint": "^9.30.0",
+    "eslint": "^9.31.0",
     "vitepress": "^1.6.3"
   },
   "lint-staged": {
