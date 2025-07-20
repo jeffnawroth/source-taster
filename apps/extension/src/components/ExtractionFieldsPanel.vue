@@ -3,6 +3,7 @@ import { mdiBookOpen, mdiCalendar, mdiCheckboxMultipleMarked, mdiFileDocument, m
 import { computed } from 'vue'
 import { extractionSettings } from '../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
+import SettingsPanel from './SettingsPanel.vue'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -131,123 +132,109 @@ function selectEssentials() {
 </script>
 
 <template>
-  <v-expansion-panel>
-    <v-expansion-panel-title>
-      <div class="d-flex align-center">
-        <v-icon
-          :icon="mdiCheckboxMultipleMarked"
-          class="me-3"
-        />
-        <div>
-          <div class="text-h6">
-            {{ $t('extractionSettings.description') }}
-          </div>
-          <div class="text-caption text-medium-emphasis">
-            {{ $t('extractionSettings.fieldSelectionDescription') }}
-          </div>
-        </div>
-      </div>
-    </v-expansion-panel-title>
-    <v-expansion-panel-text>
-      <!-- Quick Actions -->
-      <div class="mb-4">
-        <v-btn
-          size="small"
-          color="primary"
-          class="mr-2"
-          variant="tonal"
-          @click="selectAll"
-        >
-          {{ t('select-all') }}
-        </v-btn>
-        <v-btn
-          size="small"
-          variant="tonal"
-          class="mr-2"
-          color="primary"
-          @click="selectEssentials"
-        >
-          {{ t('select-essentials') }}
-        </v-btn>
-        <v-btn
-          size="small"
-          variant="tonal"
-          color="primary"
-          @click="deselectAll"
-        >
-          {{ t('deselect-all') }}
-        </v-btn>
-      </div>
-
-      <v-expansion-panels
-        elevation="0"
+  <SettingsPanel
+    :icon="mdiCheckboxMultipleMarked"
+    :title="t('extractionSettings.description')"
+    :description="t('extractionSettings.fieldSelectionDescription')"
+  >
+    <!-- Quick Actions -->
+    <div class="mb-4">
+      <v-btn
+        size="small"
+        color="primary"
+        class="mr-2"
+        variant="tonal"
+        @click="selectAll"
       >
-        <!-- Core Fields Section -->
-        <ExtractionFieldSection
-          v-model="extractionSettings"
-          :title="t('core-metadata')"
-          :icon="mdiBookOpen"
-          :fields="coreFields"
-          :count="getCoreFieldsCount"
-          :total-fields="3"
-          :color="getCoreFieldsColor"
-        />
+        {{ t('select-all') }}
+      </v-btn>
+      <v-btn
+        size="small"
+        variant="tonal"
+        class="mr-2"
+        color="primary"
+        @click="selectEssentials"
+      >
+        {{ t('select-essentials') }}
+      </v-btn>
+      <v-btn
+        size="small"
+        variant="tonal"
+        color="primary"
+        @click="deselectAll"
+      >
+        {{ t('deselect-all') }}
+      </v-btn>
+    </div>
 
-        <!-- Date Information Section -->
-        <ExtractionFieldSection
-          v-model="extractionSettings"
-          :title="t('date-information')"
-          :icon="mdiCalendar"
-          :fields="dateFields"
-          :count="getDateFieldsCount"
-          :total-fields="9"
-          :color="getDateFieldsColor"
-        />
+    <v-expansion-panels
+      elevation="0"
+    >
+      <!-- Core Fields Section -->
+      <ExtractionFieldSection
+        v-model="extractionSettings"
+        :title="t('core-metadata')"
+        :icon="mdiBookOpen"
+        :fields="coreFields"
+        :count="getCoreFieldsCount"
+        :total-fields="3"
+        :color="getCoreFieldsColor"
+      />
 
-        <!-- Identifiers Section -->
-        <ExtractionFieldSection
-          v-model="extractionSettings"
-          :title="t('identifiers')"
-          :icon="mdiIdentifier"
-          :fields="identifierFields"
-          :count="getIdentifiersCount"
-          :total-fields="6"
-          :color="getIdentifiersColor"
-        />
+      <!-- Date Information Section -->
+      <ExtractionFieldSection
+        v-model="extractionSettings"
+        :title="t('date-information')"
+        :icon="mdiCalendar"
+        :fields="dateFields"
+        :count="getDateFieldsCount"
+        :total-fields="9"
+        :color="getDateFieldsColor"
+      />
 
-        <!-- Publication Details Section -->
-        <ExtractionFieldSection
-          v-model="extractionSettings"
-          :title="t('publication-details')"
-          :icon="mdiFileDocument"
-          :fields="publicationFields"
-          :count="getPublicationCount"
-          :total-fields="17"
-          :color="getPublicationColor"
-        />
+      <!-- Identifiers Section -->
+      <ExtractionFieldSection
+        v-model="extractionSettings"
+        :title="t('identifiers')"
+        :icon="mdiIdentifier"
+        :fields="identifierFields"
+        :count="getIdentifiersCount"
+        :total-fields="6"
+        :color="getIdentifiersColor"
+      />
 
-        <!-- Academic & Institutional Section -->
-        <ExtractionFieldSection
-          v-model="extractionSettings"
-          :title="t('academic-institutional')"
-          :icon="mdiSchool"
-          :fields="academicFields"
-          :count="getAcademicCount"
-          :total-fields="7"
-          :color="getAcademicColor"
-        />
+      <!-- Publication Details Section -->
+      <ExtractionFieldSection
+        v-model="extractionSettings"
+        :title="t('publication-details')"
+        :icon="mdiFileDocument"
+        :fields="publicationFields"
+        :count="getPublicationCount"
+        :total-fields="17"
+        :color="getPublicationColor"
+      />
 
-        <!-- Technical Details Section -->
-        <ExtractionFieldSection
-          v-model="extractionSettings"
-          :title="t('technical-details')"
-          :icon="mdiWrench"
-          :fields="technicalFields"
-          :count="getTechnicalCount"
-          :total-fields="7"
-          :color="getTechnicalColor"
-        />
-      </v-expansion-panels>
-    </v-expansion-panel-text>
-  </v-expansion-panel>
+      <!-- Academic & Institutional Section -->
+      <ExtractionFieldSection
+        v-model="extractionSettings"
+        :title="t('academic-institutional')"
+        :icon="mdiSchool"
+        :fields="academicFields"
+        :count="getAcademicCount"
+        :total-fields="7"
+        :color="getAcademicColor"
+      />
+
+      <!-- Technical Details Section -->
+      <ExtractionFieldSection
+        v-model="extractionSettings"
+        :title="t('technical-details')"
+        :icon="mdiWrench"
+        :fields="technicalFields"
+        :count="getTechnicalCount"
+        :total-fields="7"
+        :color="getTechnicalColor"
+      />
+    </v-expansion-panels>
+  </SettingsPanel>
 </template>
