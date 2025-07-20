@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import type { CustomMatchingSettings } from '@source-taster/types'
-import { mdiHelpCircleOutline } from '@mdi/js'
 import { MatchingMode } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
+import ModeSelector from './ModeSelector.vue'
 
 // TRANSLATION
 const { t } = useI18n()
-
-// Show custom settings when CUSTOM mode is selected
-const showCustomSettings = computed(() => matchingSettings.value.matchingMode === MatchingMode.CUSTOM)
 
 // Safe access to custom settings with initialization
 const customSettings = computed({
@@ -23,21 +20,185 @@ const customSettings = computed({
   },
 })
 
+// Mode options configuration
+const modeOptions = computed(() => [
+  {
+    value: MatchingMode.STRICT,
+    emoji: '🔒',
+    label: t('matching-mode-strict'),
+    description: t('matching-mode-strict-description'),
+    tooltipTitle: t('matching-mode-strict-tooltip-title'),
+    tooltipDescription: t('matching-mode-strict-tooltip-description'),
+  },
+  {
+    value: MatchingMode.BALANCED,
+    emoji: '⚖️',
+    label: t('matching-mode-balanced'),
+    description: t('matching-mode-balanced-description'),
+    tooltipTitle: t('matching-mode-balanced-tooltip-title'),
+    tooltipDescription: t('matching-mode-balanced-tooltip-description'),
+  },
+  {
+    value: MatchingMode.TOLERANT,
+    emoji: '🎯',
+    label: t('matching-mode-tolerant'),
+    description: t('matching-mode-tolerant-description'),
+    tooltipTitle: t('matching-mode-tolerant-tooltip-title'),
+    tooltipDescription: t('matching-mode-tolerant-tooltip-description'),
+  },
+  {
+    value: MatchingMode.CUSTOM,
+    emoji: '🔧',
+    label: t('matching-mode-custom'),
+    description: t('matching-mode-custom-description'),
+    tooltipTitle: t('matching-mode-custom-tooltip-title'),
+    tooltipDescription: t('matching-mode-custom-tooltip-description'),
+  },
+])
+
+// Setting groups configuration
+const settingGroups = computed(() => [
+  {
+    key: 'text-matching',
+    title: t('text-matching-options'),
+    description: t('text-matching-options-description'),
+    emoji: '📝',
+    settings: [
+      {
+        key: 'ignoreCaseForText' as keyof CustomMatchingSettings,
+        label: t('ignore-case'),
+        description: t('ignore-case-description'),
+        example: t('ignore-case-example'),
+      },
+      {
+        key: 'ignorePunctuation' as keyof CustomMatchingSettings,
+        label: t('ignore-punctuation'),
+        description: t('ignore-punctuation-description'),
+        example: t('ignore-punctuation-example'),
+      },
+      {
+        key: 'ignoreWhitespace' as keyof CustomMatchingSettings,
+        label: t('ignore-whitespace'),
+        description: t('ignore-whitespace-description'),
+        example: t('ignore-whitespace-example'),
+      },
+      {
+        key: 'normalizeCharacters' as keyof CustomMatchingSettings,
+        label: t('normalize-characters'),
+        description: t('normalize-characters-description'),
+        example: t('normalize-characters-example'),
+      },
+    ],
+  },
+  {
+    key: 'format-variations',
+    title: t('format-variations'),
+    description: t('format-variations-description'),
+    emoji: '🎨',
+    settings: [
+      {
+        key: 'allowAuthorFormatVariations' as keyof CustomMatchingSettings,
+        label: t('allow-author-format-variations'),
+        description: t('allow-author-format-variations-description'),
+        example: t('allow-author-format-variations-example'),
+      },
+      {
+        key: 'allowJournalAbbreviations' as keyof CustomMatchingSettings,
+        label: t('allow-journal-abbreviations'),
+        description: t('allow-journal-abbreviations-description'),
+        example: t('allow-journal-abbreviations-example'),
+      },
+      {
+        key: 'allowPageFormatVariations' as keyof CustomMatchingSettings,
+        label: t('allow-page-format-variations'),
+        description: t('allow-page-format-variations-description'),
+        example: t('allow-page-format-variations-example'),
+      },
+      {
+        key: 'allowDateFormatVariations' as keyof CustomMatchingSettings,
+        label: t('allow-date-format-variations'),
+        description: t('allow-date-format-variations-description'),
+        example: t('allow-date-format-variations-example'),
+      },
+    ],
+  },
+  {
+    key: 'thresholds',
+    title: t('matching-thresholds'),
+    description: t('matching-thresholds-description'),
+    emoji: '🔧',
+    settings: [
+      {
+        key: 'minimumMatchThreshold' as keyof CustomMatchingSettings,
+        label: t('minimum-match-threshold'),
+        description: t('minimum-match-threshold-description'),
+        example: t('minimum-match-threshold-example'),
+        type: 'slider' as const,
+        min: 50,
+        max: 100,
+        step: 5,
+        suffix: '%',
+      },
+      {
+        key: 'enableFuzzyMatching' as keyof CustomMatchingSettings,
+        label: t('enable-fuzzy-matching'),
+        description: t('enable-fuzzy-matching-description'),
+        example: t('enable-fuzzy-matching-example'),
+        type: 'checkbox' as const,
+      },
+      {
+        key: 'fuzzyMatchingThreshold' as keyof CustomMatchingSettings,
+        label: t('fuzzy-matching-threshold'),
+        description: t('fuzzy-matching-threshold-description'),
+        example: t('fuzzy-matching-threshold-example'),
+        type: 'slider' as const,
+        min: 0.5,
+        max: 1.0,
+        step: 0.05,
+        suffix: '',
+        dependsOn: 'enableFuzzyMatching' as keyof CustomMatchingSettings,
+      },
+    ],
+  },
+])
+
+// Preset buttons configuration
+const presetButtons = computed(() => [
+  {
+    label: t('load-strict'),
+    emoji: '🔒',
+    onClick: loadStrictPreset,
+  },
+  {
+    label: t('load-balanced'),
+    emoji: '⚖️',
+    onClick: loadBalancedPreset,
+  },
+  {
+    label: t('load-tolerant'),
+    emoji: '🎯',
+    onClick: loadTolerantPreset,
+  },
+  {
+    label: t('clear-all'),
+    emoji: '🗑️',
+    onClick: clearAll,
+  },
+  {
+    label: t('select-all'),
+    emoji: '✅',
+    onClick: selectAll,
+  },
+])
+
 // Preset functions
 function loadStrictPreset() {
-  // Ensure we're in CUSTOM mode
-  if (matchingSettings.value.matchingMode !== MatchingMode.CUSTOM) {
-    matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-  }
-
-  // Initialize if needed
+  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
   if (!matchingSettings.value.customSettings) {
     matchingSettings.value.customSettings = {} as CustomMatchingSettings
   }
 
   const newSettings = { ...matchingSettings.value.customSettings }
-
-  // Strict settings: exact matching only
   newSettings.ignoreCaseForText = false
   newSettings.ignorePunctuation = false
   newSettings.allowAuthorFormatVariations = false
@@ -54,19 +215,12 @@ function loadStrictPreset() {
 }
 
 function loadBalancedPreset() {
-  // Ensure we're in CUSTOM mode
-  if (matchingSettings.value.matchingMode !== MatchingMode.CUSTOM) {
-    matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-  }
-
-  // Initialize if needed
+  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
   if (!matchingSettings.value.customSettings) {
     matchingSettings.value.customSettings = {} as CustomMatchingSettings
   }
 
   const newSettings = { ...matchingSettings.value.customSettings }
-
-  // Balanced settings: reasonable flexibility
   newSettings.ignoreCaseForText = true
   newSettings.ignorePunctuation = true
   newSettings.allowAuthorFormatVariations = true
@@ -83,19 +237,12 @@ function loadBalancedPreset() {
 }
 
 function loadTolerantPreset() {
-  // Ensure we're in CUSTOM mode
-  if (matchingSettings.value.matchingMode !== MatchingMode.CUSTOM) {
-    matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-  }
-
-  // Initialize if needed
+  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
   if (!matchingSettings.value.customSettings) {
     matchingSettings.value.customSettings = {} as CustomMatchingSettings
   }
 
   const newSettings = { ...matchingSettings.value.customSettings }
-
-  // Tolerant settings: maximum flexibility
   newSettings.ignoreCaseForText = true
   newSettings.ignorePunctuation = true
   newSettings.allowAuthorFormatVariations = true
@@ -110,344 +257,61 @@ function loadTolerantPreset() {
 
   matchingSettings.value.customSettings = newSettings
 }
+
+function clearAll() {
+  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
+  if (!matchingSettings.value.customSettings) {
+    matchingSettings.value.customSettings = {} as CustomMatchingSettings
+  }
+
+  const newSettings = { ...matchingSettings.value.customSettings }
+  newSettings.ignoreCaseForText = false
+  newSettings.ignorePunctuation = false
+  newSettings.allowAuthorFormatVariations = false
+  newSettings.allowJournalAbbreviations = false
+  newSettings.allowPageFormatVariations = false
+  newSettings.allowDateFormatVariations = false
+  newSettings.ignoreWhitespace = false
+  newSettings.normalizeCharacters = false
+  newSettings.minimumMatchThreshold = 50
+  newSettings.enableFuzzyMatching = false
+  newSettings.fuzzyMatchingThreshold = 0.5
+
+  matchingSettings.value.customSettings = newSettings
+}
+
+function selectAll() {
+  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
+  if (!matchingSettings.value.customSettings) {
+    matchingSettings.value.customSettings = {} as CustomMatchingSettings
+  }
+
+  const newSettings = { ...matchingSettings.value.customSettings }
+  newSettings.ignoreCaseForText = true
+  newSettings.ignorePunctuation = true
+  newSettings.allowAuthorFormatVariations = true
+  newSettings.allowJournalAbbreviations = true
+  newSettings.allowPageFormatVariations = true
+  newSettings.allowDateFormatVariations = true
+  newSettings.ignoreWhitespace = true
+  newSettings.normalizeCharacters = true
+  newSettings.minimumMatchThreshold = 100
+  newSettings.enableFuzzyMatching = true
+  newSettings.fuzzyMatchingThreshold = 1.0
+
+  matchingSettings.value.customSettings = newSettings
+}
 </script>
 
 <template>
-  <v-radio-group
+  <ModeSelector
     v-model="matchingSettings.matchingMode"
-    class="mb-0"
-  >
-    <div class="d-flex align-center justify-space-between mb-2">
-      <v-radio
-        :value="MatchingMode.STRICT"
-        class="flex-grow-1"
-      >
-        <template #label>
-          <div>
-            <div class="font-weight-medium">
-              🔒 {{ t('matching-mode-strict') }}
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ t('matching-mode-strict-description') }}
-            </div>
-          </div>
-        </template>
-      </v-radio>
-      <v-tooltip
-        location="left"
-        max-width="400"
-      >
-        <template #activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiHelpCircleOutline"
-            size="small"
-            class="text-medium-emphasis ml-2"
-          />
-        </template>
-        <div class="pa-2">
-          <div class="font-weight-bold mb-2">
-            {{ t('matching-mode-strict-tooltip-title') }}
-          </div>
-          <div class="mb-2">
-            {{ t('matching-mode-strict-tooltip-description') }}
-          </div>
-        </div>
-      </v-tooltip>
-    </div>
-
-    <div class="d-flex align-center justify-space-between mb-2">
-      <v-radio
-        :value="MatchingMode.BALANCED"
-        class="flex-grow-1"
-      >
-        <template #label>
-          <div>
-            <div class="font-weight-medium">
-              ⚖️ {{ t('matching-mode-balanced') }}
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ t('matching-mode-balanced-description') }}
-            </div>
-          </div>
-        </template>
-      </v-radio>
-      <v-tooltip
-        location="left"
-        max-width="400"
-      >
-        <template #activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiHelpCircleOutline"
-            size="small"
-            class="text-medium-emphasis ml-2"
-          />
-        </template>
-        <div class="pa-2">
-          <div class="font-weight-bold mb-2">
-            {{ t('matching-mode-balanced-tooltip-title') }}
-          </div>
-          <div class="mb-2">
-            {{ t('matching-mode-balanced-tooltip-description') }}
-          </div>
-        </div>
-      </v-tooltip>
-    </div>
-
-    <div class="d-flex align-center justify-space-between mb-2">
-      <v-radio
-        :value="MatchingMode.TOLERANT"
-        class="flex-grow-1"
-      >
-        <template #label>
-          <div>
-            <div class="font-weight-medium">
-              🎯 {{ t('matching-mode-tolerant') }}
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ t('matching-mode-tolerant-description') }}
-            </div>
-          </div>
-        </template>
-      </v-radio>
-      <v-tooltip
-        location="left"
-        max-width="400"
-      >
-        <template #activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiHelpCircleOutline"
-            size="small"
-            class="text-medium-emphasis ml-2"
-          />
-        </template>
-        <div class="pa-2">
-          <div class="font-weight-bold mb-2">
-            {{ t('matching-mode-tolerant-tooltip-title') }}
-          </div>
-          <div class="mb-2">
-            {{ t('matching-mode-tolerant-tooltip-description') }}
-          </div>
-        </div>
-      </v-tooltip>
-    </div>
-
-    <div class="d-flex align-center justify-space-between mb-2">
-      <v-radio
-        :value="MatchingMode.CUSTOM"
-        class="flex-grow-1"
-      >
-        <template #label>
-          <div>
-            <div class="font-weight-medium">
-              🔧 {{ t('matching-mode-custom') }}
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ t('matching-mode-custom-description') }}
-            </div>
-          </div>
-        </template>
-      </v-radio>
-      <v-tooltip
-        location="left"
-        max-width="400"
-      >
-        <template #activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiHelpCircleOutline"
-            size="small"
-            class="text-medium-emphasis ml-2"
-          />
-        </template>
-        <div class="pa-2">
-          <div class="font-weight-bold mb-2">
-            {{ t('matching-mode-custom-tooltip-title') }}
-          </div>
-          <div class="mb-2">
-            {{ t('matching-mode-custom-tooltip-description') }}
-          </div>
-        </div>
-      </v-tooltip>
-    </div>
-  </v-radio-group>
-
-  <!-- Custom Settings Panel -->
-  <v-expand-transition>
-    <div
-      v-if="showCustomSettings"
-      class="mt-4"
-    >
-      <v-divider class="mb-4" />
-
-      <!-- Preset Buttons -->
-      <div class="d-flex flex-wrap gap-2 mb-4">
-        <v-btn
-          size="small"
-          variant="outlined"
-          color="error"
-          @click="loadStrictPreset"
-        >
-          🔒 {{ t('load-strict-preset') }}
-        </v-btn>
-        <v-btn
-          size="small"
-          variant="outlined"
-          color="success"
-          @click="loadBalancedPreset"
-        >
-          ⚖️ {{ t('load-balanced-preset') }}
-        </v-btn>
-        <v-btn
-          size="small"
-          variant="outlined"
-          color="info"
-          @click="loadTolerantPreset"
-        >
-          🎯 {{ t('load-tolerant-preset') }}
-        </v-btn>
-      </div>
-
-      <!-- Text Matching Options -->
-      <v-card
-        variant="outlined"
-        class="mb-4"
-      >
-        <v-card-title class="text-h6">
-          {{ t('matching-text-options-title') }}
-        </v-card-title>
-        <v-card-text>
-          <div class="d-flex flex-column gap-3">
-            <v-switch
-              v-model="customSettings.ignoreCaseForText"
-              color="primary"
-              :label="t('matching-ignore-case')"
-              hide-details
-            />
-            <v-switch
-              v-model="customSettings.ignorePunctuation"
-              color="primary"
-              :label="t('matching-ignore-punctuation')"
-              hide-details
-            />
-            <v-switch
-              v-model="customSettings.ignoreWhitespace"
-              color="primary"
-              :label="t('matching-ignore-whitespace')"
-              hide-details
-            />
-            <v-switch
-              v-model="customSettings.normalizeCharacters"
-              color="primary"
-              :label="t('matching-normalize-characters')"
-              hide-details
-            />
-          </div>
-        </v-card-text>
-      </v-card>
-
-      <!-- Format Variations -->
-      <v-card
-        variant="outlined"
-        class="mb-4"
-      >
-        <v-card-title class="text-h6">
-          {{ t('matching-format-variations-title') }}
-        </v-card-title>
-        <v-card-text>
-          <div class="d-flex flex-column gap-3">
-            <v-switch
-              v-model="customSettings.allowAuthorFormatVariations"
-              color="primary"
-              :label="t('matching-allow-author-variations')"
-              hide-details
-            />
-            <v-switch
-              v-model="customSettings.allowJournalAbbreviations"
-              color="primary"
-              :label="t('matching-allow-journal-abbreviations')"
-              hide-details
-            />
-            <v-switch
-              v-model="customSettings.allowPageFormatVariations"
-              color="primary"
-              :label="t('matching-allow-page-variations')"
-              hide-details
-            />
-            <v-switch
-              v-model="customSettings.allowDateFormatVariations"
-              color="primary"
-              :label="t('matching-allow-date-variations')"
-              hide-details
-            />
-          </div>
-        </v-card-text>
-      </v-card>
-
-      <!-- Threshold Settings -->
-      <v-card
-        variant="outlined"
-        class="mb-4"
-      >
-        <v-card-title class="text-h6">
-          {{ t('matching-threshold-settings') }}
-        </v-card-title>
-        <v-card-text>
-          <v-slider
-            v-model="customSettings.minimumMatchThreshold"
-            :label="t('matching-minimum-threshold')"
-            :min="0"
-            :max="100"
-            :step="5"
-            thumb-label
-            show-ticks="always"
-            color="primary"
-            class="mb-4"
-          >
-            <template #append>
-              <span class="text-body-2 font-weight-bold">{{ customSettings.minimumMatchThreshold }}%</span>
-            </template>
-          </v-slider>
-
-          <v-switch
-            v-model="customSettings.enableFuzzyMatching"
-            color="primary"
-            :label="t('matching-enable-fuzzy')"
-            hide-details
-            class="mb-3"
-          />
-
-          <v-expand-transition>
-            <div v-if="customSettings.enableFuzzyMatching">
-              <v-slider
-                v-model="customSettings.fuzzyMatchingThreshold"
-                :label="t('matching-fuzzy-threshold')"
-                :min="0.1"
-                :max="1.0"
-                :step="0.1"
-                thumb-label
-                color="primary"
-              >
-                <template #append>
-                  <span class="text-body-2 font-weight-bold">{{ customSettings.fuzzyMatchingThreshold.toFixed(1) }}</span>
-                </template>
-              </v-slider>
-            </div>
-          </v-expand-transition>
-        </v-card-text>
-      </v-card>
-    </div>
-  </v-expand-transition>
+    v-model:custom-settings="customSettings"
+    :custom-value="MatchingMode.CUSTOM"
+    :mode-options
+    :setting-groups
+    :preset-buttons
+    :custom-settings-title="t('custom-matching-settings')"
+    :custom-settings-description="t('custom-matching-settings-description')"
+  />
 </template>
-
-<style scoped>
-.v-radio :deep(.v-label) {
-  opacity: 1;
-}
-
-.v-card--variant-outlined {
-  border: 1px solid rgba(var(--v-border-color), 0.12);
-}
-</style>
