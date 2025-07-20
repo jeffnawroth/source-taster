@@ -37,7 +37,7 @@ applyTo: '**'
 
 - **Extraction Modes:** Unified as `strict`, `balanced`, `tolerant`, `custom` (see `ExtractionMode` in `@source-taster/types`).
 - **Settings Storage:** Use `useWebExtensionStorage` for all persistent user settings in the extension.
-- **Localization:** All user-facing strings must use `vue-i18n` with keys in `src/locales/`.
+- **Localization:** All user-facing strings must use `vue-i18n` with nested keys in `src/locales/`.
 - **Type Safety:** All API payloads and settings are strongly typed and shared via `@source-taster/types`.
 - **AI Integration:** All AI calls go through `OpenAIService` (backend), configured via environment variables.
 - **Component Structure:** Prefer composition API, organize logic in `src/logic/`, UI in `src/components/`.
