@@ -99,29 +99,6 @@ ${text}`
         })) || [],
       }
 
-      // Debug logging for modification tracking
-      console.warn('🔍 DEBUG: OpenAI Response Analysis')
-      transformedResponse.references.forEach((ref: any, index: number) => {
-        const hasModifications = ref.modifications && ref.modifications.length > 0
-        const titleChanged = ref.metadata.title && ref.originalText
-          && ref.metadata.title.toLowerCase() !== ref.originalText.toLowerCase()
-
-        console.warn(`📋 Reference ${index + 1}:`, {
-          hasModifications,
-          modificationCount: ref.modifications?.length || 0,
-          titleChanged,
-          originalLength: ref.originalText?.length || 0,
-          extractedTitle: ref.metadata.title ? `"${ref.metadata.title.substring(0, 50)}..."` : 'null',
-          suspiciousEmpty: !hasModifications && titleChanged,
-        })
-
-        if (!hasModifications && titleChanged) {
-          console.warn('⚠️ SUSPICIOUS: Title changed but no modifications reported!')
-          console.warn('   Original:', ref.originalText?.substring(0, 100))
-          console.warn('   Extracted:', ref.metadata.title?.substring(0, 100))
-        }
-      })
-
       return transformedResponse
     }
     catch (error: any) {
