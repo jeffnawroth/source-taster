@@ -1,8 +1,8 @@
 import type {
   ArchivedVersion,
   ExternalSource,
-  FieldWeights,
   MatchDetails,
+  MatchingSettings,
   Reference,
   WebsiteMatchingResult,
   WebsiteMetadata,
@@ -40,7 +40,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
   async matchWebsiteReference(
     reference: Reference,
     url: string,
-    fieldWeights: FieldWeights,
+    matchingSettings: MatchingSettings,
     options?: WebsiteMatchingOptions,
   ): Promise<WebsiteMatchingResult> {
     const opts = { ...this.defaultOptions, ...options }
@@ -53,7 +53,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
         console.warn(`Extracted metadata for ${url}:`, JSON.stringify(websiteMetadata, null, 2))
 
         // Use a specialized website matching method
-        const matchResult = await this.matchWebsiteWithAI(reference, websiteMetadata, fieldWeights)
+        const matchResult = await this.matchWebsiteWithAI(reference, websiteMetadata, matchingSettings)
 
         console.warn(`AI matching result:`, JSON.stringify(matchResult, null, 2))
         return {
@@ -78,7 +78,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
       try {
         const archivedVersion = await this.getArchivedVersion(url)
         if (archivedVersion && archivedVersion.metadata) {
-          const matchResult = await this.matchWebsiteWithAI(reference, archivedVersion.metadata, fieldWeights)
+          const matchResult = await this.matchWebsiteWithAI(reference, archivedVersion.metadata, matchingSettings)
           return {
             referenceId: reference.id,
             url,
@@ -700,13 +700,13 @@ export class WebsiteMatchingService extends BaseMatchingService {
   private async matchWebsiteWithAI(
     reference: Reference,
     websiteMetadata: WebsiteMetadata,
-    fieldWeights: FieldWeights,
+    matchingSettings: MatchingSettings,
   ): Promise<{ details: MatchDetails }> {
     // Convert WebsiteMetadata to ExternalSource format
     const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)
 
-    // Use the base matching logic with provided field weights
-    const result = await this.matchWithAI(reference, externalSource, fieldWeights)
+    // Use the base matching logic with provided matching settings
+    const result = await this.matchWithAI(reference, externalSource, matchingSettings)
 
     return {
       details: result.details,

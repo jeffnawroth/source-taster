@@ -5,6 +5,60 @@ import type {
 import type { ArchivedVersion, WebsiteMetadata } from './website'
 
 /**
+ * Matching mode types for controlling verification strictness
+ */
+export enum MatchingMode {
+  /** Strict mode: Exact matches only - every character, capitalization, and format must match precisely */
+  STRICT = 'strict',
+  /** Balanced mode: Case-insensitive with minor format differences allowed */
+  BALANCED = 'balanced',
+  /** Tolerant mode: Semantic matching with significant format/style variations allowed */
+  TOLERANT = 'tolerant',
+  /** Custom mode: User-defined matching rules and tolerance levels */
+  CUSTOM = 'custom',
+}
+
+/**
+ * Custom matching settings for fine-grained control
+ */
+export interface CustomMatchingSettings {
+  /** Allow case-insensitive matching */
+  ignoreCaseForText: boolean
+  /** Allow minor punctuation differences (commas, periods, etc.) */
+  ignorePunctuation: boolean
+  /** Allow author name format variations (First Last vs Last, First) */
+  allowAuthorFormatVariations: boolean
+  /** Allow journal name abbreviations vs full names */
+  allowJournalAbbreviations: boolean
+  /** Allow page format variations (123-145 vs 123-45 vs pp. 123-145) */
+  allowPageFormatVariations: boolean
+  /** Allow minor date format differences */
+  allowDateFormatVariations: boolean
+  /** Treat whitespace differences as insignificant */
+  ignoreWhitespace: boolean
+  /** Allow character normalization (umlauts, accents, etc.) */
+  normalizeCharacters: boolean
+  /** Minimum score threshold for considering a match valid (0-100) */
+  minimumMatchThreshold: number
+  /** Enable fuzzy string matching for text fields */
+  enableFuzzyMatching: boolean
+  /** Fuzzy matching sensitivity (0.0-1.0, higher = more strict) */
+  fuzzyMatchingThreshold: number
+}
+
+/**
+ * Matching settings combining mode and custom configuration
+ */
+export interface MatchingSettings {
+  /** Matching mode controlling overall behavior */
+  matchingMode: MatchingMode
+  /** Custom matching configuration (only used when matchingMode is CUSTOM) */
+  customSettings?: CustomMatchingSettings
+  /** Field weights for scoring */
+  fieldWeights: FieldWeights
+}
+
+/**
  * Response containing multiple matching results
  */
 export interface MatchingResponse {
@@ -19,8 +73,8 @@ export interface MatchingResponse {
 export interface MatchingRequest {
   /** References to match */
   references: Reference[]
-  /** Field weights for matching (provided by frontend) */
-  fieldWeights: FieldWeights
+  /** Matching settings including mode and field weights */
+  matchingSettings: MatchingSettings
 }
 
 /**

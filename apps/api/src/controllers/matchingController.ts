@@ -22,18 +22,18 @@ export class MatchingController {
    * Validate common request fields and field weights
    */
   private validateRequest(request: any): { isValid: boolean, errorResponse?: ApiResponse } {
-    if (!request.fieldWeights) {
+    if (!request.matchingSettings) {
       return {
         isValid: false,
         errorResponse: {
           success: false,
-          error: 'Field weights are required',
+          error: 'Matching settings are required',
         },
       }
     }
 
     // Validate field weights sum to 100%
-    const totalWeight = Object.values(request.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
+    const totalWeight = Object.values(request.matchingSettings.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
     if (totalWeight !== 100) {
       return {
         isValid: false,
@@ -79,7 +79,7 @@ export class MatchingController {
             const websiteResult = await this.websiteMatchingService.matchWebsiteReference(
               reference,
               reference.metadata.source.url!,
-              request.fieldWeights,
+              request.matchingSettings,
             )
 
             // Convert website matching result to standard matching result format
@@ -97,13 +97,13 @@ export class MatchingController {
           catch (error) {
             // If website matching fails, fall back to database matching
             console.warn(`Website matching failed for reference ${reference.id}, falling back to database:`, error)
-            const dbResult = await this.matchingService.matchReference(reference, request.fieldWeights)
+            const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings)
             results.push(dbResult)
           }
         }
         else {
           // Use database matching for academic references
-          const dbResult = await this.matchingService.matchReference(reference, request.fieldWeights)
+          const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings)
           results.push(dbResult)
         }
       }

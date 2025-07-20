@@ -1,7 +1,7 @@
 import type {
   ExternalSource,
-  FieldWeights,
   MatchingResult,
+  MatchingSettings,
   Reference,
   SourceEvaluation,
 } from '@source-taster/types'
@@ -27,7 +27,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
 
   async matchReference(
     reference: Reference,
-    fieldWeights: FieldWeights,
+    matchingSettings: MatchingSettings,
   ): Promise<MatchingResult> {
     // Search in all databases in parallel for better performance
     const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
@@ -77,7 +77,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
 
     // Evaluate each source with AI
     for (const source of sources) {
-      const matchResult = await this.matchWithAI(reference, source, fieldWeights)
+      const matchResult = await this.matchWithAI(reference, source, matchingSettings)
       sourceEvaluations.push({
         source,
         matchDetails: matchResult.details,

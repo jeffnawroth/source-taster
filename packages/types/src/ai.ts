@@ -52,7 +52,7 @@ export interface AIExtractionResponse {
  */
 export interface AIService {
   extractReferences: (text: string, extractionSettings?: ExtractionSettings) => Promise<AIExtractionResponse>
-  matchFields: (prompt: string) => Promise<AIMatchingResponse>
+  matchFields: (prompt: string, matchingSettings?: import('./matching').MatchingSettings) => Promise<AIMatchingResponse>
 }
 
 /**
