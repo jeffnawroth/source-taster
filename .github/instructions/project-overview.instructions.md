@@ -1,3 +1,7 @@
+---
+applyTo: '**'
+---
+
 # Copilot Instructions for Source Taster
 
 ## Project Overview
@@ -33,11 +37,7 @@
 
 - **Extraction Modes:** Unified as `strict`, `balanced`, `tolerant`, `custom` (see `ExtractionMode` in `@source-taster/types`).
 - **Settings Storage:** Use `useWebExtensionStorage` for all persistent user settings in the extension.
-- **Localization:**
-  - All user-facing strings must use `vue-i18n` with keys in `src/locales/`.
-  - **IMPORTANT:** All user-facing text (UI, tooltips, labels, etc.) should continue to use the terms "verifizieren", "verification", "verified", etc. for consistency and clarity for users.
-  - All internal code, types, API endpoints, and logic must use the terms "match", "matching", "matched", etc. for technical and architectural consistency.
-  - Never expose the internal "matching" terminology to the user in the UI or localization.
+- **Localization:** All user-facing strings must use `vue-i18n` with keys in `src/locales/`.
 - **Type Safety:** All API payloads and settings are strongly typed and shared via `@source-taster/types`.
 - **AI Integration:** All AI calls go through `OpenAIService` (backend), configured via environment variables.
 - **Component Structure:** Prefer composition API, organize logic in `src/logic/`, UI in `src/components/`.
