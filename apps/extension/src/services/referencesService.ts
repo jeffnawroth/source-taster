@@ -1,6 +1,6 @@
 import type { MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
-import { extractionSettings, fieldWeights } from '@/extension/logic/storage'
+import { extractionSettings, matchingSettings } from '@/extension/logic/storage'
 
 export class ReferencesService {
   /**
@@ -43,7 +43,7 @@ export class ReferencesService {
       },
       body: JSON.stringify({
         references,
-        fieldWeights: fieldWeights.value,
+        matchingSettings: matchingSettings.value,
       }),
       signal,
     })
@@ -77,7 +77,7 @@ export class ReferencesService {
       body: JSON.stringify({
         reference,
         url,
-        fieldWeights: fieldWeights.value,
+        matchingSettings: matchingSettings.value,
         options: {
           timeout: 10000,
           enableWaybackMachine: true,

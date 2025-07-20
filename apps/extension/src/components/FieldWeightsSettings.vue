@@ -10,10 +10,21 @@ import {
 import FieldWeightControl from '@/extension/components/FieldWeightControl.vue'
 import FieldWeightSection from '@/extension/components/FieldWeightSection.vue'
 import FieldWeightsTooltip from '@/extension/components/FieldWeightsTooltip.vue'
-import { fieldWeights } from '@/extension/logic'
+import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
+
+// Computed property to access field weights from matching settings
+const fieldWeights = computed({
+  get: () => matchingSettings.value.fieldWeights,
+  set: (value: FieldWeights) => {
+    matchingSettings.value = {
+      ...matchingSettings.value,
+      fieldWeights: value,
+    }
+  },
+})
 
 // Default field weights (only available fields)
 const defaultFieldWeights: FieldWeights = {
@@ -54,7 +65,7 @@ function resetToDefaults() {
 
 // Calculate total weight for validation
 const totalWeight = computed(() => {
-  return Object.values(fieldWeights.value).reduce((sum, weight) => sum + (weight || 0), 0)
+  return Object.values(fieldWeights.value).reduce((sum: number, weight) => sum + (weight || 0), 0)
 })
 
 // Validation

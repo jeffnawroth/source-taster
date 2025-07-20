@@ -1,23 +1,8 @@
-import type { ExtractionMode, ExtractionSettings, FieldWeights } from '@source-taster/types'
+import type { ExtractionMode, ExtractionSettings, MatchingMode, MatchingSettings } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
-export const fieldWeights = useWebExtensionStorage('field-weights', {
-  title: 25,
-  authors: 20,
-  year: 5,
-  doi: 15,
-  containerTitle: 10,
-  volume: 5,
-  issue: 3,
-  pages: 2,
-  arxivId: 8,
-  pmid: 3,
-  pmcid: 2,
-  isbn: 1,
-  issn: 1,
-} as FieldWeights)
 
 const defaultExtractionSettings: ExtractionSettings = {
   extractionMode: 'balanced' as ExtractionMode,
@@ -105,6 +90,40 @@ const defaultExtractionSettings: ExtractionSettings = {
 }
 
 export const extractionSettings = useWebExtensionStorage('extraction-settings', defaultExtractionSettings)
+
+const defaultMatchingSettings: MatchingSettings = {
+  matchingMode: 'balanced' as MatchingMode,
+  fieldWeights: {
+    title: 25,
+    authors: 20,
+    year: 5,
+    doi: 15,
+    containerTitle: 10,
+    volume: 5,
+    issue: 3,
+    pages: 2,
+    arxivId: 8,
+    pmid: 3,
+    pmcid: 2,
+    isbn: 1,
+    issn: 1,
+  },
+  customSettings: {
+    ignoreCaseForText: true,
+    ignorePunctuation: true,
+    allowAuthorFormatVariations: true,
+    allowJournalAbbreviations: true,
+    allowPageFormatVariations: true,
+    allowDateFormatVariations: true,
+    ignoreWhitespace: true,
+    normalizeCharacters: true,
+    minimumMatchThreshold: 70,
+    enableFuzzyMatching: false,
+    fuzzyMatchingThreshold: 0.8,
+  },
+}
+
+export const matchingSettings = useWebExtensionStorage('matching-settings', defaultMatchingSettings)
 
 declare let chrome: any
 

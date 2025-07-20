@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { mdiTune } from '@mdi/js'
-import FieldWeightsSettings from '@/extension/components/FieldWeightsSettings.vue'
+import ExtractionSettings from '@/extension/components/ExtractionSettings.vue'
+import MatchingSettings from '@/extension/components/MatchingSettings.vue'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -28,6 +29,6 @@ const { t } = useI18n()
 
     <v-divider class="my-4" />
 
-    <FieldWeightsSettings />
+    <MatchingSettings />
   </v-container>
 </template>
