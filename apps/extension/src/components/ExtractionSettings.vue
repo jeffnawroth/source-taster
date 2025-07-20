@@ -1,25 +1,21 @@
 <script setup lang="ts">
 import ExtractionFieldsPanel from './ExtractionFieldsPanel.vue'
 import ExtractionModePanel from './ExtractionModePanel.vue'
+import SettingsCard from './SettingsCard.vue'
+
+// TRANSLATION
+const { t } = useI18n()
 </script>
 
 <template>
-  <v-card
-    flat
-    :title="$t('extractionSettings.title')"
-    :subtitle="$t('extraction-settings-description')"
+  <SettingsCard
+    :title="t('extractionSettings.title')"
+    :subtitle="t('extraction-settings-description')"
   >
-    <v-card-text>
-      <v-expansion-panels
-        elevation="0"
-        multiple
-      >
-        <!-- Extraction Mode Panel -->
-        <ExtractionModePanel />
+    <!-- Extraction Mode Panel -->
+    <ExtractionModePanel />
 
-        <!-- Field Selection Panel -->
-        <ExtractionFieldsPanel />
-      </v-expansion-panels>
-    </v-card-text>
-  </v-card>
+    <!-- Field Selection Panel -->
+    <ExtractionFieldsPanel />
+  </SettingsCard>
 </template>
