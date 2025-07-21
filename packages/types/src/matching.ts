@@ -251,3 +251,37 @@ export interface FieldWeights {
   /** Weight for subtitle matching (important for German citation styles) */
   subtitle?: number
 }
+
+// Preset configurations with explicit settings
+export const STRICT_MATCHING_SETTINGS: CustomMatchingSettings = {
+  ignoreCaseForText: false,
+  ignorePunctuation: false,
+  allowAuthorFormatVariations: false,
+  allowJournalAbbreviations: false,
+  allowPageFormatVariations: false,
+  allowDateFormatVariations: false,
+  ignoreWhitespace: false,
+  normalizeCharacters: false,
+}
+
+export const BALANCED_MATCHING_SETTINGS: CustomMatchingSettings = {
+  ignoreCaseForText: true,
+  ignorePunctuation: true,
+  allowAuthorFormatVariations: true,
+  allowJournalAbbreviations: true,
+  allowPageFormatVariations: true,
+  allowDateFormatVariations: true,
+  ignoreWhitespace: true,
+  normalizeCharacters: true,
+}
+
+export const TOLERANT_MATCHING_SETTINGS: CustomMatchingSettings = {
+  ignoreCaseForText: true,
+  ignorePunctuation: true,
+  allowAuthorFormatVariations: true,
+  allowJournalAbbreviations: true,
+  allowPageFormatVariations: true,
+  allowDateFormatVariations: true,
+  ignoreWhitespace: true,
+  normalizeCharacters: true,
+}

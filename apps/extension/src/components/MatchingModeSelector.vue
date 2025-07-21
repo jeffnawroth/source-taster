@@ -10,7 +10,7 @@ import {
   mdiSelectAll,
   mdiTarget,
 } from '@mdi/js'
-import { MatchingMode } from '@source-taster/types'
+import { BALANCED_MATCHING_SETTINGS, MatchingMode, STRICT_MATCHING_SETTINGS, TOLERANT_MATCHING_SETTINGS } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
 import ModeSelector from './ModeSelector.vue'
 
@@ -163,40 +163,6 @@ const presetButtons = computed(() => [
   },
 ])
 
-// Preset configurations with explicit settings
-const STRICT_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
-  ignoreCaseForText: false,
-  ignorePunctuation: false,
-  allowAuthorFormatVariations: false,
-  allowJournalAbbreviations: false,
-  allowPageFormatVariations: false,
-  allowDateFormatVariations: false,
-  ignoreWhitespace: false,
-  normalizeCharacters: false,
-}
-
-const BALANCED_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
-  ignoreCaseForText: true,
-  ignorePunctuation: true,
-  allowAuthorFormatVariations: true,
-  allowJournalAbbreviations: true,
-  allowPageFormatVariations: true,
-  allowDateFormatVariations: true,
-  ignoreWhitespace: true,
-  normalizeCharacters: true,
-}
-
-const TOLERANT_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
-  ignoreCaseForText: true,
-  ignorePunctuation: true,
-  allowAuthorFormatVariations: true,
-  allowJournalAbbreviations: true,
-  allowPageFormatVariations: true,
-  allowDateFormatVariations: true,
-  ignoreWhitespace: true,
-  normalizeCharacters: true,
-}
-
 // Base function to ensure custom mode and settings initialization
 function ensureCustomModeSettings(): CustomMatchingSettings {
   matchingSettings.value.matchingMode = MatchingMode.CUSTOM
@@ -217,22 +183,22 @@ function applyPreset(presetConfig: Partial<CustomMatchingSettings>) {
 
 // Preset functions using predefined configurations
 function loadStrictPreset() {
-  applyPreset(STRICT_MATCHING_CONFIG)
+  applyPreset(STRICT_MATCHING_SETTINGS)
 }
 
 function loadBalancedPreset() {
-  applyPreset(BALANCED_MATCHING_CONFIG)
+  applyPreset(BALANCED_MATCHING_SETTINGS)
 }
 
 function loadTolerantPreset() {
-  applyPreset(TOLERANT_MATCHING_CONFIG)
+  applyPreset(TOLERANT_MATCHING_SETTINGS)
 }
 
 function clearAll() {
   const newSettings = ensureCustomModeSettings()
 
   // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_MATCHING_CONFIG) as Array<keyof CustomMatchingSettings>
+  const templateKeys = Object.keys(STRICT_MATCHING_SETTINGS) as Array<keyof CustomMatchingSettings>
   templateKeys.forEach((key) => {
     newSettings[key] = false as any
   })
@@ -244,7 +210,7 @@ function selectAll() {
   const newSettings = ensureCustomModeSettings()
 
   // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_MATCHING_CONFIG) as Array<keyof CustomMatchingSettings>
+  const templateKeys = Object.keys(STRICT_MATCHING_SETTINGS) as Array<keyof CustomMatchingSettings>
   templateKeys.forEach((key) => {
     newSettings[key] = true as any
   })
