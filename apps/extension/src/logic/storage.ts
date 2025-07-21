@@ -1,4 +1,4 @@
-import type { ExtractionMode, ExtractionSettings, MatchingMode, MatchingSettings } from '@source-taster/types'
+import { DEFAULT_MATCH_QUALITY_SETTINGS, type ExtractionMode, type ExtractionSettings, type MatchingMode, type MatchingSettings } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
@@ -156,3 +156,8 @@ export function setDisplayOption(newValue: string): Promise<void> {
     })
   })
 }
+
+/**
+ * Match quality settings storage
+ */
+export const matchQualitySettings = useWebExtensionStorage('match-quality-settings', { ...DEFAULT_MATCH_QUALITY_SETTINGS })
