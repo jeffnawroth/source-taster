@@ -19,6 +19,11 @@ export enum MatchingMode {
 }
 
 /**
+ * Default matching mode
+ */
+export const DEFAULT_MATCHING_MODE: MatchingMode = MatchingMode.BALANCED
+
+/**
  * Match quality classes for visual representation
  */
 export enum MatchQuality {
@@ -93,6 +98,44 @@ export interface MatchingSettings {
   customSettings?: CustomMatchingSettings
   /** Field weights for scoring */
   fieldWeights: FieldWeights
+}
+
+// Default field weights (only available fields)
+export const DEFAULT_FIELD_WEIGHTS: FieldWeights = {
+  // Core fields (enabled by default)
+  title: 25,
+  authors: 20,
+  year: 5,
+
+  // Identifier fields (most important ones enabled)
+  doi: 15,
+  arxivId: 8,
+  pmid: 3,
+  pmcid: 2,
+  isbn: 1,
+  issn: 1,
+
+  // Source fields (basic ones enabled)
+  containerTitle: 10,
+  volume: 5,
+  issue: 3,
+  pages: 2,
+
+  // Additional fields (disabled by default, available for expert users)
+  publisher: 0,
+  url: 0,
+  sourceType: 0,
+  conference: 0,
+  institution: 0,
+  edition: 0,
+  articleNumber: 0,
+  subtitle: 0,
+}
+
+export const DEFAULT_MATCHING_SETTINGS: MatchingSettings = {
+  matchingMode: DEFAULT_MATCHING_MODE,
+  customSettings: undefined,
+  fieldWeights: { ...DEFAULT_FIELD_WEIGHTS },
 }
 
 /**

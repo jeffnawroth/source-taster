@@ -1,129 +1,30 @@
-import { DEFAULT_MATCH_QUALITY_SETTINGS, type ExtractionMode, type ExtractionSettings, type MatchingMode, type MatchingSettings } from '@source-taster/types'
+import { DEFAULT_EXTRACTION_SETTINGS, DEFAULT_MATCH_QUALITY_SETTINGS, DEFAULT_MATCHING_SETTINGS } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
+/**
+ * Theme option storage
+ */
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
+
+/**
+ * Locale option storage
+ */
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
 
-const defaultExtractionSettings: ExtractionSettings = {
-  extractionMode: 'balanced' as ExtractionMode,
-  customSettings: {
-    correctTypos: false,
-    normalizeCapitalization: false,
-    standardizeAbbreviations: false,
-    standardizePunctuation: false,
-    formatAuthorNames: false,
-    removeDuplicateAuthors: false,
-    standardizeDateFormatting: false,
-    standardizeIdentifiers: false,
-    addDerivableFields: false,
-    interpretIncompleteInfo: false,
-    recognizeSourceTypes: false,
-    convertToTitleCase: false,
-    fixUnicodeIssues: false,
-    handleOcrErrors: false,
-    reconstructSeparatedInfo: false,
-    completeIncompleteData: false,
-    fixFormattingProblems: false,
-  },
-  enabledFields: {
-    // Core fields
-    title: true,
-    authors: true,
-    year: true,
+/**
+ * Extraction settings storage
+ */
+export const extractionSettings = useWebExtensionStorage('extraction-settings', { ...DEFAULT_EXTRACTION_SETTINGS })
 
-    // Date fields
-    month: false,
-    day: false,
-    yearSuffix: false,
-    dateRange: false,
-    noDate: false,
-    inPress: false,
-    approximateDate: false,
-    season: false,
+/**
+ * Matching settings storage
+ */
+export const matchingSettings = useWebExtensionStorage('matching-settings', { ...DEFAULT_MATCHING_SETTINGS })
 
-    // Identifiers
-    doi: true,
-    isbn: false,
-    issn: false,
-    pmid: false,
-    pmcid: false,
-    arxivId: false,
-
-    // Publication details
-    containerTitle: true,
-    subtitle: false,
-    volume: false,
-    issue: false,
-    pages: true,
-    publisher: false,
-    publicationPlace: false,
-    url: false,
-    sourceType: false,
-    location: false,
-    retrievalDate: false,
-    edition: false,
-    medium: false,
-    originalTitle: false,
-    originalLanguage: false,
-    chapterTitle: false,
-
-    // Academic/Institutional
-    conference: false,
-    institution: false,
-    series: false,
-    seriesNumber: false,
-    degree: false,
-    advisor: false,
-    department: false,
-
-    // Technical details
-    pageType: false,
-    paragraphNumber: false,
-    volumePrefix: false,
-    issuePrefix: false,
-    supplementInfo: false,
-    articleNumber: false,
-    contributors: false,
-    isStandAlone: false,
-    yearEnd: false,
-  },
-}
-
-export const extractionSettings = useWebExtensionStorage('extraction-settings', defaultExtractionSettings)
-
-const defaultMatchingSettings: MatchingSettings = {
-  matchingMode: 'balanced' as MatchingMode,
-  fieldWeights: {
-    title: 25,
-    authors: 20,
-    year: 5,
-    doi: 15,
-    containerTitle: 10,
-    volume: 5,
-    issue: 3,
-    pages: 2,
-    arxivId: 8,
-    pmid: 3,
-    pmcid: 2,
-    isbn: 1,
-    issn: 1,
-  },
-  customSettings: {
-    ignoreCaseForText: true,
-    ignorePunctuation: true,
-    allowAuthorFormatVariations: true,
-    allowJournalAbbreviations: true,
-    allowPageFormatVariations: true,
-    allowDateFormatVariations: true,
-    ignoreWhitespace: true,
-    normalizeCharacters: true,
-    minimumMatchThreshold: 70,
-    enableFuzzyMatching: false,
-    fuzzyMatchingThreshold: 0.8,
-  },
-}
-
-export const matchingSettings = useWebExtensionStorage('matching-settings', defaultMatchingSettings)
+/**
+ * Match quality settings storage
+ */
+export const matchQualitySettings = useWebExtensionStorage('match-quality-settings', { ...DEFAULT_MATCH_QUALITY_SETTINGS })
 
 declare let chrome: any
 
@@ -156,8 +57,3 @@ export function setDisplayOption(newValue: string): Promise<void> {
     })
   })
 }
-
-/**
- * Match quality settings storage
- */
-export const matchQualitySettings = useWebExtensionStorage('match-quality-settings', { ...DEFAULT_MATCH_QUALITY_SETTINGS })

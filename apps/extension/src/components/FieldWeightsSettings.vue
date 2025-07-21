@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { FieldWeights } from '@source-taster/types'
 import {
   mdiBookOpenVariant,
   mdiCardAccountDetailsOutline,
   mdiStarFourPoints,
   mdiWrench,
 } from '@mdi/js'
+import { DEFAULT_FIELD_WEIGHTS, type FieldWeights } from '@source-taster/types'
 import FieldWeightControl from '@/extension/components/FieldWeightControl.vue'
 import FieldWeightSection from '@/extension/components/FieldWeightSection.vue'
 import FieldWeightsTooltip from '@/extension/components/FieldWeightsTooltip.vue'
@@ -26,41 +26,9 @@ const fieldWeights = computed({
   },
 })
 
-// Default field weights (only available fields)
-const defaultFieldWeights: FieldWeights = {
-  // Core fields (enabled by default)
-  title: 25,
-  authors: 20,
-  year: 5,
-
-  // Identifier fields (most important ones enabled)
-  doi: 15,
-  arxivId: 8,
-  pmid: 3,
-  pmcid: 2,
-  isbn: 1,
-  issn: 1,
-
-  // Source fields (basic ones enabled)
-  containerTitle: 10,
-  volume: 5,
-  issue: 3,
-  pages: 2,
-
-  // Additional fields (disabled by default, available for expert users)
-  publisher: 0,
-  url: 0,
-  sourceType: 0,
-  conference: 0,
-  institution: 0,
-  edition: 0,
-  articleNumber: 0,
-  subtitle: 0,
-}
-
 // Reset to defaults
 function resetToDefaults() {
-  fieldWeights.value = { ...defaultFieldWeights }
+  fieldWeights.value = { ...DEFAULT_FIELD_WEIGHTS }
 }
 
 // Calculate total weight for validation
