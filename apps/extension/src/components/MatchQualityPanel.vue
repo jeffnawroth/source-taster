@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { mdiPalette, mdiRestart } from '@mdi/js'
+import { mdiAlertCircle, mdiCheckCircle, mdiPalette, mdiRestart } from '@mdi/js'
 import { DEFAULT_MATCH_QUALITY_SETTINGS } from '@source-taster/types'
 import { matchQualitySettings } from '@/extension/logic/storage'
 import SettingsPanel from './SettingsPanel.vue'
+import ThresholdSlider from './ThresholdSlider.vue'
 
 const { t } = useI18n()
 
@@ -28,58 +29,26 @@ function resetToDefaults() {
       </p>
 
       <!-- Exact Match Threshold -->
-      <div class="mb-6">
-        <div class="d-flex align-center justify-space-between mb-2">
-          <label class="font-weight-medium">
-            {{ t('exact-match-threshold') }}
-          </label>
-          <v-chip
-            color="success"
-            variant="flat"
-            size="small"
-          >
-            {{ matchQualitySettings.thresholds.exactMatchThreshold }}%
-          </v-chip>
-        </div>
-        <v-slider
-          v-model="matchQualitySettings.thresholds.exactMatchThreshold"
-          :min="90"
-          :max="100"
-          :step="1"
-          :thumb-label="true"
-          color="success"
-        />
-        <p class="text-caption text-medium-emphasis">
-          {{ t('exact-match-threshold-description') }}
-        </p>
-      </div>
+      <ThresholdSlider
+        v-model="matchQualitySettings.thresholds.exactMatchThreshold"
+        :label="t('exact-match-threshold')"
+        :min="90"
+        :max="100"
+        color="success"
+        :description="t('exact-match-threshold-description')"
+        :icon="mdiCheckCircle"
+      />
 
       <!-- High Match Threshold -->
-      <div class="mb-6">
-        <div class="d-flex align-center justify-space-between mb-2">
-          <label class="font-weight-medium">
-            {{ t('high-match-threshold') }}
-          </label>
-          <v-chip
-            color="warning"
-            variant="flat"
-            size="small"
-          >
-            {{ matchQualitySettings.thresholds.highMatchThreshold }}%
-          </v-chip>
-        </div>
-        <v-slider
-          v-model="matchQualitySettings.thresholds.highMatchThreshold"
-          :min="50"
-          :max="95"
-          :step="1"
-          :thumb-label="true"
-          color="warning"
-        />
-        <p class="text-caption text-medium-emphasis">
-          {{ t('high-match-threshold-description') }}
-        </p>
-      </div>
+      <ThresholdSlider
+        v-model="matchQualitySettings.thresholds.highMatchThreshold"
+        :label="t('high-match-threshold')"
+        :min="50"
+        :max="95"
+        color="warning"
+        :description="t('high-match-threshold-description')"
+        :icon="mdiAlertCircle"
+      />
     </div>
 
     <!-- Actions -->
