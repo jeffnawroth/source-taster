@@ -8,6 +8,7 @@ applyTo: '**'
 
 - Use the **Composition API** and `<script setup lang="ts">` syntax in `.vue` files.
 - Always write **strongly typed** TypeScript.
+- Always use **defineModel** for props and emits.
 - Avoid the use of `any`; prefer generics or `unknown`.
 - Use **Pinia** for global state management.
 - Use **Vue Router 4** for routing.
