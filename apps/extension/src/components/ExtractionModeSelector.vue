@@ -11,7 +11,12 @@ import {
   mdiTarget,
   mdiWrench,
 } from '@mdi/js'
-import { ExtractionMode } from '@source-taster/types'
+import {
+  BALANCED_EXTRACTION_SETTINGS,
+  ExtractionMode,
+  STRICT_EXTRACTION_SETTINGS,
+  TOLERANT_EXTRACTION_SETTINGS,
+} from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 import ModeSelector from './ModeSelector.vue'
 
@@ -208,80 +213,58 @@ const presetButtons = computed(() => [
   },
 ])
 
-// Preset functions
-function loadStrictPreset() {
+// Base function to ensure custom mode and settings initialization
+function ensureCustomModeSettings(): CustomExtractionSettings {
   extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
+
   if (!extractionSettings.value.customSettings) {
     extractionSettings.value.customSettings = {} as CustomExtractionSettings
   }
 
-  const newSettings = { ...extractionSettings.value.customSettings }
-  Object.keys(newSettings).forEach((key) => {
-    newSettings[key as keyof CustomExtractionSettings] = false
-  })
+  return { ...extractionSettings.value.customSettings }
+}
+
+// Base function to apply preset settings
+function applyPreset(presetConfig: Partial<CustomExtractionSettings>) {
+  const newSettings = ensureCustomModeSettings()
+  Object.assign(newSettings, presetConfig)
   extractionSettings.value.customSettings = newSettings
+}
+
+// Preset functions using predefined constants
+function loadStrictPreset() {
+  applyPreset(STRICT_EXTRACTION_SETTINGS)
 }
 
 function loadBalancedPreset() {
-  extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
-  if (!extractionSettings.value.customSettings) {
-    extractionSettings.value.customSettings = {} as CustomExtractionSettings
-  }
-
-  const newSettings = { ...extractionSettings.value.customSettings }
-  Object.keys(newSettings).forEach((key) => {
-    newSettings[key as keyof CustomExtractionSettings] = false
-  })
-
-  // Enable balanced settings
-  newSettings.correctTypos = true
-  newSettings.normalizeCapitalization = true
-  newSettings.standardizeAbbreviations = true
-  newSettings.standardizePunctuation = true
-  newSettings.formatAuthorNames = true
-  newSettings.removeDuplicateAuthors = true
-  newSettings.standardizeDateFormatting = true
-  newSettings.standardizeIdentifiers = true
-
-  extractionSettings.value.customSettings = newSettings
+  applyPreset(BALANCED_EXTRACTION_SETTINGS)
 }
 
 function loadTolerantPreset() {
-  extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
-  if (!extractionSettings.value.customSettings) {
-    extractionSettings.value.customSettings = {} as CustomExtractionSettings
-  }
-
-  const newSettings = { ...extractionSettings.value.customSettings }
-  Object.keys(newSettings).forEach((key) => {
-    newSettings[key as keyof CustomExtractionSettings] = true
-  })
-  extractionSettings.value.customSettings = newSettings
+  applyPreset(TOLERANT_EXTRACTION_SETTINGS)
 }
 
 function clearAll() {
-  extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
-  if (!extractionSettings.value.customSettings) {
-    extractionSettings.value.customSettings = {} as CustomExtractionSettings
-  }
+  const newSettings = ensureCustomModeSettings()
 
-  const newSettings = { ...extractionSettings.value.customSettings }
-  Object.keys(newSettings).forEach((key) => {
-    newSettings[key as keyof CustomExtractionSettings] = false
+  // Use template keys to ensure we have all available properties
+  const templateKeys = Object.keys(STRICT_EXTRACTION_SETTINGS) as Array<keyof CustomExtractionSettings>
+  templateKeys.forEach((key) => {
+    newSettings[key] = false
   })
+
   extractionSettings.value.customSettings = newSettings
 }
 
 function selectAll() {
-  extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
-  if (!extractionSettings.value.customSettings) {
-    extractionSettings.value.customSettings = {} as CustomExtractionSettings
-  }
+  const newSettings = ensureCustomModeSettings()
 
-  const newSettings = { ...extractionSettings.value.customSettings }
-  Object.keys(newSettings).forEach((key) => {
-    newSettings[key as keyof CustomExtractionSettings] = true
+  // Use template keys to ensure we have all available properties
+  const templateKeys = Object.keys(STRICT_EXTRACTION_SETTINGS) as Array<keyof CustomExtractionSettings>
+  templateKeys.forEach((key) => {
+    newSettings[key] = true
   })
+
   extractionSettings.value.customSettings = newSettings
 }
 </script>

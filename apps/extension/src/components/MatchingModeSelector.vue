@@ -202,113 +202,116 @@ const presetButtons = computed(() => [
   },
 ])
 
-// Preset functions
-function loadStrictPreset() {
+// Preset configurations with explicit settings
+const STRICT_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
+  ignoreCaseForText: false,
+  ignorePunctuation: false,
+  allowAuthorFormatVariations: false,
+  allowJournalAbbreviations: false,
+  allowPageFormatVariations: false,
+  allowDateFormatVariations: false,
+  ignoreWhitespace: false,
+  normalizeCharacters: false,
+  minimumMatchThreshold: 95,
+  enableFuzzyMatching: false,
+  fuzzyMatchingThreshold: 0.9,
+}
+
+const BALANCED_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
+  ignoreCaseForText: true,
+  ignorePunctuation: true,
+  allowAuthorFormatVariations: true,
+  allowJournalAbbreviations: true,
+  allowPageFormatVariations: true,
+  allowDateFormatVariations: true,
+  ignoreWhitespace: true,
+  normalizeCharacters: true,
+  minimumMatchThreshold: 75,
+  enableFuzzyMatching: false,
+  fuzzyMatchingThreshold: 0.8,
+}
+
+const TOLERANT_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
+  ignoreCaseForText: true,
+  ignorePunctuation: true,
+  allowAuthorFormatVariations: true,
+  allowJournalAbbreviations: true,
+  allowPageFormatVariations: true,
+  allowDateFormatVariations: true,
+  ignoreWhitespace: true,
+  normalizeCharacters: true,
+  minimumMatchThreshold: 60,
+  enableFuzzyMatching: true,
+  fuzzyMatchingThreshold: 0.7,
+}
+
+// Base function to ensure custom mode and settings initialization
+function ensureCustomModeSettings(): CustomMatchingSettings {
   matchingSettings.value.matchingMode = MatchingMode.CUSTOM
+
   if (!matchingSettings.value.customSettings) {
     matchingSettings.value.customSettings = {} as CustomMatchingSettings
   }
 
-  const newSettings = { ...matchingSettings.value.customSettings }
-  newSettings.ignoreCaseForText = false
-  newSettings.ignorePunctuation = false
-  newSettings.allowAuthorFormatVariations = false
-  newSettings.allowJournalAbbreviations = false
-  newSettings.allowPageFormatVariations = false
-  newSettings.allowDateFormatVariations = false
-  newSettings.ignoreWhitespace = false
-  newSettings.normalizeCharacters = false
-  newSettings.minimumMatchThreshold = 95
-  newSettings.enableFuzzyMatching = false
-  newSettings.fuzzyMatchingThreshold = 0.9
+  return { ...matchingSettings.value.customSettings }
+}
 
+// Base function to apply preset settings
+function applyPreset(presetConfig: Partial<CustomMatchingSettings>) {
+  const newSettings = ensureCustomModeSettings()
+  Object.assign(newSettings, presetConfig)
   matchingSettings.value.customSettings = newSettings
+}
+
+// Preset functions using predefined configurations
+function loadStrictPreset() {
+  applyPreset(STRICT_MATCHING_CONFIG)
 }
 
 function loadBalancedPreset() {
-  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-  if (!matchingSettings.value.customSettings) {
-    matchingSettings.value.customSettings = {} as CustomMatchingSettings
-  }
-
-  const newSettings = { ...matchingSettings.value.customSettings }
-  newSettings.ignoreCaseForText = true
-  newSettings.ignorePunctuation = true
-  newSettings.allowAuthorFormatVariations = true
-  newSettings.allowJournalAbbreviations = true
-  newSettings.allowPageFormatVariations = true
-  newSettings.allowDateFormatVariations = true
-  newSettings.ignoreWhitespace = true
-  newSettings.normalizeCharacters = true
-  newSettings.minimumMatchThreshold = 75
-  newSettings.enableFuzzyMatching = false
-  newSettings.fuzzyMatchingThreshold = 0.8
-
-  matchingSettings.value.customSettings = newSettings
+  applyPreset(BALANCED_MATCHING_CONFIG)
 }
 
 function loadTolerantPreset() {
-  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-  if (!matchingSettings.value.customSettings) {
-    matchingSettings.value.customSettings = {} as CustomMatchingSettings
-  }
-
-  const newSettings = { ...matchingSettings.value.customSettings }
-  newSettings.ignoreCaseForText = true
-  newSettings.ignorePunctuation = true
-  newSettings.allowAuthorFormatVariations = true
-  newSettings.allowJournalAbbreviations = true
-  newSettings.allowPageFormatVariations = true
-  newSettings.allowDateFormatVariations = true
-  newSettings.ignoreWhitespace = true
-  newSettings.normalizeCharacters = true
-  newSettings.minimumMatchThreshold = 60
-  newSettings.enableFuzzyMatching = true
-  newSettings.fuzzyMatchingThreshold = 0.7
-
-  matchingSettings.value.customSettings = newSettings
+  applyPreset(TOLERANT_MATCHING_CONFIG)
 }
 
 function clearAll() {
-  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-  if (!matchingSettings.value.customSettings) {
-    matchingSettings.value.customSettings = {} as CustomMatchingSettings
-  }
+  const newSettings = ensureCustomModeSettings()
 
-  const newSettings = { ...matchingSettings.value.customSettings }
-  newSettings.ignoreCaseForText = false
-  newSettings.ignorePunctuation = false
-  newSettings.allowAuthorFormatVariations = false
-  newSettings.allowJournalAbbreviations = false
-  newSettings.allowPageFormatVariations = false
-  newSettings.allowDateFormatVariations = false
-  newSettings.ignoreWhitespace = false
-  newSettings.normalizeCharacters = false
-  newSettings.minimumMatchThreshold = 50
-  newSettings.enableFuzzyMatching = false
-  newSettings.fuzzyMatchingThreshold = 0.5
+  // Use template keys to ensure we have all available properties
+  const templateKeys = Object.keys(STRICT_MATCHING_CONFIG) as Array<keyof CustomMatchingSettings>
+  templateKeys.forEach((key) => {
+    if (key === 'minimumMatchThreshold') {
+      newSettings[key] = 0
+    }
+    else if (key === 'fuzzyMatchingThreshold') {
+      newSettings[key] = 0.0
+    }
+    else {
+      newSettings[key] = false as any
+    }
+  })
 
   matchingSettings.value.customSettings = newSettings
 }
 
 function selectAll() {
-  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-  if (!matchingSettings.value.customSettings) {
-    matchingSettings.value.customSettings = {} as CustomMatchingSettings
-  }
+  const newSettings = ensureCustomModeSettings()
 
-  const newSettings = { ...matchingSettings.value.customSettings }
-  newSettings.ignoreCaseForText = true
-  newSettings.ignorePunctuation = true
-  newSettings.allowAuthorFormatVariations = true
-  newSettings.allowJournalAbbreviations = true
-  newSettings.allowPageFormatVariations = true
-  newSettings.allowDateFormatVariations = true
-  newSettings.ignoreWhitespace = true
-  newSettings.normalizeCharacters = true
-  newSettings.minimumMatchThreshold = 100
-  newSettings.enableFuzzyMatching = true
-  newSettings.fuzzyMatchingThreshold = 1.0
+  // Use template keys to ensure we have all available properties
+  const templateKeys = Object.keys(STRICT_MATCHING_CONFIG) as Array<keyof CustomMatchingSettings>
+  templateKeys.forEach((key) => {
+    if (key === 'minimumMatchThreshold') {
+      newSettings[key] = 100
+    }
+    else if (key === 'fuzzyMatchingThreshold') {
+      newSettings[key] = 1.0
+    }
+    else {
+      newSettings[key] = true as any
+    }
+  })
 
   matchingSettings.value.customSettings = newSettings
 }
