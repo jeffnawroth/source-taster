@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import type { CustomExtractionSettings } from '@source-taster/types'
+import {
+  mdiCogOutline,
+  mdiDeleteOutline,
+  mdiFormTextbox,
+  mdiLock,
+  mdiPalette,
+  mdiScale,
+  mdiSelectAll,
+  mdiTarget,
+  mdiWrench,
+} from '@mdi/js'
 import { ExtractionMode } from '@source-taster/types'
-import { extractionSettings } from '../logic'
+import { extractionSettings } from '@/extension/logic'
 import ModeSelector from './ModeSelector.vue'
 
 // TRANSLATION
@@ -24,7 +35,7 @@ const customSettings = computed({
 const modeOptions = computed(() => [
   {
     value: ExtractionMode.STRICT,
-    emoji: '🔒',
+    icon: mdiLock,
     label: t('extraction-mode-strict'),
     description: t('extraction-mode-strict-description'),
     tooltipTitle: t('extraction-mode-strict-tooltip-title'),
@@ -32,7 +43,7 @@ const modeOptions = computed(() => [
   },
   {
     value: ExtractionMode.BALANCED,
-    emoji: '⚖️',
+    icon: mdiScale,
     label: t('extraction-mode-balanced'),
     description: t('extraction-mode-balanced-description'),
     tooltipTitle: t('extraction-mode-balanced-tooltip-title'),
@@ -40,7 +51,7 @@ const modeOptions = computed(() => [
   },
   {
     value: ExtractionMode.TOLERANT,
-    emoji: '🎯',
+    icon: mdiTarget,
     label: t('extraction-mode-tolerant'),
     description: t('extraction-mode-tolerant-description'),
     tooltipTitle: t('extraction-mode-tolerant-tooltip-title'),
@@ -48,7 +59,7 @@ const modeOptions = computed(() => [
   },
   {
     value: ExtractionMode.CUSTOM,
-    emoji: '🔧',
+    icon: mdiCogOutline,
     label: t('extraction-mode-custom'),
     description: t('extraction-mode-custom-description'),
     tooltipTitle: t('extraction-mode-custom-tooltip-title'),
@@ -62,7 +73,7 @@ const settingGroups = computed(() => [
     key: 'text-processing',
     title: t('text-processing-settings'),
     description: t('text-processing-settings-description'),
-    emoji: '📝',
+    icon: mdiFormTextbox,
     settings: [
       {
         key: 'correctTypos' as keyof CustomExtractionSettings,
@@ -94,7 +105,7 @@ const settingGroups = computed(() => [
     key: 'content-formatting',
     title: t('content-formatting-settings'),
     description: t('content-formatting-settings-description'),
-    emoji: '🎨',
+    icon: mdiPalette,
     settings: [
       {
         key: 'formatAuthorNames' as keyof CustomExtractionSettings,
@@ -132,7 +143,7 @@ const settingGroups = computed(() => [
     key: 'technical-processing',
     title: t('technical-processing-settings'),
     description: t('technical-processing-settings-description'),
-    emoji: '🔧',
+    icon: mdiWrench,
     settings: [
       {
         key: 'fixUnicodeIssues' as keyof CustomExtractionSettings,
@@ -172,27 +183,27 @@ const settingGroups = computed(() => [
 const presetButtons = computed(() => [
   {
     label: t('load-strict'),
-    emoji: '🔒',
+    icon: mdiLock,
     onClick: loadStrictPreset,
   },
   {
     label: t('load-balanced'),
-    emoji: '⚖️',
+    icon: mdiScale,
     onClick: loadBalancedPreset,
   },
   {
     label: t('load-tolerant'),
-    emoji: '🎯',
+    icon: mdiTarget,
     onClick: loadTolerantPreset,
   },
   {
     label: t('clear-all'),
-    emoji: '🗑️',
+    icon: mdiDeleteOutline,
     onClick: clearAll,
   },
   {
     label: t('select-all'),
-    emoji: '✅',
+    icon: mdiSelectAll,
     onClick: selectAll,
   },
 ])

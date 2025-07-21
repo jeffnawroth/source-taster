@@ -3,7 +3,7 @@ import { mdiHelpCircleOutline } from '@mdi/js'
 
 interface ModeOption {
   value: TMode
-  emoji: string
+  icon: string
   label: string
   description: string
   tooltipTitle: string
@@ -14,7 +14,7 @@ interface SettingGroup {
   key: string
   title: string
   description: string
-  emoji: string
+  icon: string
   settings: Array<{
     key: keyof TSettings
     label: string
@@ -31,7 +31,7 @@ interface SettingGroup {
 
 interface PresetButton {
   label: string
-  emoji: string
+  icon: string
   onClick: () => void
 }
 
@@ -74,8 +74,13 @@ const showCustomSettings = computed(() => modelValue.value === props.customValue
       >
         <template #label>
           <div>
-            <div class="font-weight-medium">
-              {{ option.emoji }} {{ option.label }}
+            <div class="font-weight-medium d-flex align-center">
+              <v-icon
+                :icon="option.icon"
+                size="small"
+                class="me-2"
+              />
+              {{ option.label }}
             </div>
             <div class="text-caption text-medium-emphasis">
               {{ option.description }}
@@ -132,9 +137,18 @@ const showCustomSettings = computed(() => modelValue.value === props.customValue
         <v-expansion-panel
           v-for="group in settingGroups"
           :key="group.key"
-          :title="`${group.emoji} ${group.title}`"
           :text="group.description"
         >
+          <template #title>
+            <div class="d-flex align-center">
+              <v-icon
+                :icon="group.icon"
+                size="small"
+                class="me-2"
+              />
+              {{ group.title }}
+            </div>
+          </template>
           <template #text>
             <div class="pa-4">
               <v-row>
@@ -244,7 +258,12 @@ const showCustomSettings = computed(() => modelValue.value === props.customValue
           size="small"
           @click="preset.onClick"
         >
-          {{ preset.emoji }} {{ preset.label }}
+          <v-icon
+            :icon="preset.icon"
+            size="small"
+            start
+          />
+          {{ preset.label }}
         </v-btn>
       </div>
     </div>

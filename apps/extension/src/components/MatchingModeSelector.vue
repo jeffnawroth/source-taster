@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import type { CustomMatchingSettings } from '@source-taster/types'
+import {
+  mdiCogOutline,
+  mdiDeleteOutline,
+  mdiFormTextbox,
+  mdiLock,
+  mdiPalette,
+  mdiScale,
+  mdiSelectAll,
+  mdiTarget,
+  mdiWrench,
+} from '@mdi/js'
 import { MatchingMode } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
 import ModeSelector from './ModeSelector.vue'
@@ -24,7 +35,7 @@ const customSettings = computed({
 const modeOptions = computed(() => [
   {
     value: MatchingMode.STRICT,
-    emoji: '🔒',
+    icon: mdiLock,
     label: t('matching-mode-strict'),
     description: t('matching-mode-strict-description'),
     tooltipTitle: t('matching-mode-strict-tooltip-title'),
@@ -32,7 +43,7 @@ const modeOptions = computed(() => [
   },
   {
     value: MatchingMode.BALANCED,
-    emoji: '⚖️',
+    icon: mdiScale,
     label: t('matching-mode-balanced'),
     description: t('matching-mode-balanced-description'),
     tooltipTitle: t('matching-mode-balanced-tooltip-title'),
@@ -40,7 +51,7 @@ const modeOptions = computed(() => [
   },
   {
     value: MatchingMode.TOLERANT,
-    emoji: '🎯',
+    icon: mdiTarget,
     label: t('matching-mode-tolerant'),
     description: t('matching-mode-tolerant-description'),
     tooltipTitle: t('matching-mode-tolerant-tooltip-title'),
@@ -48,7 +59,7 @@ const modeOptions = computed(() => [
   },
   {
     value: MatchingMode.CUSTOM,
-    emoji: '🔧',
+    icon: mdiCogOutline,
     label: t('matching-mode-custom'),
     description: t('matching-mode-custom-description'),
     tooltipTitle: t('matching-mode-custom-tooltip-title'),
@@ -62,7 +73,7 @@ const settingGroups = computed(() => [
     key: 'text-matching',
     title: t('text-matching-options'),
     description: t('text-matching-options-description'),
-    emoji: '📝',
+    icon: mdiFormTextbox,
     settings: [
       {
         key: 'ignoreCaseForText' as keyof CustomMatchingSettings,
@@ -94,7 +105,7 @@ const settingGroups = computed(() => [
     key: 'format-variations',
     title: t('format-variations'),
     description: t('format-variations-description'),
-    emoji: '🎨',
+    icon: mdiPalette,
     settings: [
       {
         key: 'allowAuthorFormatVariations' as keyof CustomMatchingSettings,
@@ -126,7 +137,7 @@ const settingGroups = computed(() => [
     key: 'thresholds',
     title: t('matching-thresholds'),
     description: t('matching-thresholds-description'),
-    emoji: '🔧',
+    icon: mdiWrench,
     settings: [
       {
         key: 'minimumMatchThreshold' as keyof CustomMatchingSettings,
@@ -166,27 +177,27 @@ const settingGroups = computed(() => [
 const presetButtons = computed(() => [
   {
     label: t('load-strict'),
-    emoji: '🔒',
+    icon: mdiLock,
     onClick: loadStrictPreset,
   },
   {
     label: t('load-balanced'),
-    emoji: '⚖️',
+    icon: mdiScale,
     onClick: loadBalancedPreset,
   },
   {
     label: t('load-tolerant'),
-    emoji: '🎯',
+    icon: mdiTarget,
     onClick: loadTolerantPreset,
   },
   {
     label: t('clear-all'),
-    emoji: '🗑️',
+    icon: mdiDeleteOutline,
     onClick: clearAll,
   },
   {
     label: t('select-all'),
-    emoji: '✅',
+    icon: mdiSelectAll,
     onClick: selectAll,
   },
 ])
