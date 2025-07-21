@@ -3,13 +3,13 @@ import type { FieldWeights } from '@source-taster/types'
 import {
   mdiBookOpenVariant,
   mdiCardAccountDetailsOutline,
-  mdiRestore,
   mdiStarFourPoints,
   mdiWrench,
 } from '@mdi/js'
 import FieldWeightControl from '@/extension/components/FieldWeightControl.vue'
 import FieldWeightSection from '@/extension/components/FieldWeightSection.vue'
 import FieldWeightsTooltip from '@/extension/components/FieldWeightsTooltip.vue'
+import ResetButton from '@/extension/components/ResetButton.vue'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION
@@ -120,17 +120,6 @@ const additionalFieldsWeight = computed(() => {
           </span>
         </div>
       </v-alert>
-
-      <v-btn
-        :prepend-icon="mdiRestore"
-        size="small"
-        variant="tonal"
-        color="primary"
-        class="mb-4"
-        @click="resetToDefaults"
-      >
-        {{ t('reset-to-defaults') }}
-      </v-btn>
 
       <v-expansion-panels
         elevation="0"
@@ -331,6 +320,8 @@ const additionalFieldsWeight = computed(() => {
       </v-expansion-panels>
     </v-card-text>
 
-    <v-card-actions />
+    <v-card-actions>
+      <ResetButton @click="resetToDefaults" />
+    </v-card-actions>
   </v-card>
 </template>
