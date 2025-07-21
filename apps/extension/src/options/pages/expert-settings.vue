@@ -2,33 +2,22 @@
 import { mdiTune } from '@mdi/js'
 import ExtractionSettings from '@/extension/components/ExtractionSettings.vue'
 import MatchingSettings from '@/extension/components/MatchingSettings.vue'
+import SettingsPageLayout from '@/extension/components/SettingsPageLayout.vue'
 
 // TRANSLATION
 const { t } = useI18n()
 </script>
 
 <template>
-  <v-container>
-    <div class="d-flex align-center mb-4">
-      <v-icon
-        :icon="mdiTune"
-        class="mr-2"
-      />
-      <p class="text-h5 font-weight-bold mb-0">
-        {{ t('expert-settings') }}
-      </p>
-    </div>
-
-    <p class="text-body-2 text-medium-emphasis mb-4">
-      {{ t('expert-settings-description') }}
-    </p>
-
-    <v-divider class="my-4" />
-
+  <SettingsPageLayout
+    :icon="mdiTune"
+    :title="t('expert-settings')"
+    :description="t('expert-settings-description')"
+  >
     <ExtractionSettings />
 
     <v-divider class="my-4" />
 
     <MatchingSettings />
-  </v-container>
+  </SettingsPageLayout>
 </template>

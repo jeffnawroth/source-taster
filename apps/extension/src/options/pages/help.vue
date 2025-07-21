@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { mdiEmailOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
+import { mdiEmailOutline, mdiHelpCircleOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
+import SettingsPageLayout from '@/extension/components/SettingsPageLayout.vue'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -26,21 +27,15 @@ const items = ref([
 </script>
 
 <template>
-  <v-container>
-    <p class="text-h5 font-weight-bold mb-3">
-      {{ t('help') }}
-    </p>
-
-    <p class="text-body-2 text-medium-emphasis">
-      {{ t('help-description') }}
-    </p>
-
-    <v-divider class="my-4" />
-
+  <SettingsPageLayout
+    :icon="mdiHelpCircleOutline"
+    :title="t('help')"
+    :description="t('help-description')"
+  >
     <OptionListItem v-bind="items[0]" />
 
     <v-divider class="my-4" />
 
     <OptionListItem v-bind="items[1]" />
-  </v-container>
+  </SettingsPageLayout>
 </template>
