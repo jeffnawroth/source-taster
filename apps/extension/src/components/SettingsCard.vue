@@ -12,6 +12,7 @@ defineProps<Props>()
     flat
     :title
     :subtitle
+    variant="text"
   >
     <v-card-text>
       <v-expansion-panels
