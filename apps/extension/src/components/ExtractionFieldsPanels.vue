@@ -105,74 +105,67 @@ const getTechnicalColor = computed(() => {
     return 'warning'
   return 'default'
 })
+
+const extractionFieldSections = computed(() => [
+  {
+    title: t('core-metadata'),
+    icon: mdiBookOpen,
+    fields: coreFields,
+    totalFields: coreFields.length,
+    count: getCoreFieldsCount.value,
+    color: getCoreFieldsColor.value,
+
+  },
+  {
+    title: t('date-information'),
+    icon: mdiCalendar,
+    fields: dateFields,
+    totalFields: dateFields.length,
+    count: getDateFieldsCount.value,
+    color: getDateFieldsColor.value,
+  },
+  {
+    title: t('identifiers'),
+    icon: mdiIdentifier,
+    fields: identifierFields,
+    totalFields: identifierFields.length,
+    count: getIdentifiersCount.value,
+    color: getIdentifiersColor.value,
+  },
+  {
+    title: t('publication-details'),
+    icon: mdiFileDocument,
+    fields: publicationFields,
+    totalFields: publicationFields.length,
+    count: getPublicationCount.value,
+    color: getPublicationColor.value,
+  },
+  {
+    title: t('academic-institutional'),
+    icon: mdiSchool,
+    fields: academicFields,
+    totalFields: academicFields.length,
+    count: getAcademicCount.value,
+    color: getAcademicColor.value,
+  },
+  {
+    title: t('technical-details'),
+    icon: mdiWrench,
+    fields: technicalFields,
+    totalFields: technicalFields.length,
+    count: getTechnicalCount.value,
+    color: getTechnicalColor.value,
+  },
+])
 </script>
 
 <template>
   <v-expansion-panels elevation="0">
-    <!-- Core Fields Section -->
     <ExtractionFieldSection
+      v-for="section in extractionFieldSections"
+      :key="section.title"
       v-model="extractionSettingsWrapper"
-      :title="t('core-metadata')"
-      :icon="mdiBookOpen"
-      :fields="coreFields"
-      :count="getCoreFieldsCount"
-      :total-fields="3"
-      :color="getCoreFieldsColor"
-    />
-
-    <!-- Date Information Section -->
-    <ExtractionFieldSection
-      v-model="extractionSettingsWrapper"
-      :title="t('date-information')"
-      :icon="mdiCalendar"
-      :fields="dateFields"
-      :count="getDateFieldsCount"
-      :total-fields="9"
-      :color="getDateFieldsColor"
-    />
-
-    <!-- Identifiers Section -->
-    <ExtractionFieldSection
-      v-model="extractionSettingsWrapper"
-      :title="t('identifiers')"
-      :icon="mdiIdentifier"
-      :fields="identifierFields"
-      :count="getIdentifiersCount"
-      :total-fields="6"
-      :color="getIdentifiersColor"
-    />
-
-    <!-- Publication Details Section -->
-    <ExtractionFieldSection
-      v-model="extractionSettingsWrapper"
-      :title="t('publication-details')"
-      :icon="mdiFileDocument"
-      :fields="publicationFields"
-      :count="getPublicationCount"
-      :total-fields="17"
-      :color="getPublicationColor"
-    />
-
-    <!-- Academic & Institutional Section -->
-    <ExtractionFieldSection
-      v-model="extractionSettingsWrapper"
-      :title="t('academic-institutional')"
-      :icon="mdiSchool"
-      :fields="academicFields"
-      :count="getAcademicCount"
-      :total-fields="7"
-      :color="getAcademicColor"
-    />
-
-    <!-- Technical Details Section -->
-    <ExtractionFieldSection
-      v-model="extractionSettingsWrapper"
-      :title="t('technical-details')"
-      :icon="mdiWrench"
-      :fields="technicalFields"
-      :count="getTechnicalCount"
-      :total-fields="7"
-      :color="getTechnicalColor"
+      v-bind="section"
     />
   </v-expansion-panels>
 </template>
