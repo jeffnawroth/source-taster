@@ -81,12 +81,6 @@ export interface CustomMatchingSettings {
   ignoreWhitespace: boolean
   /** Allow character normalization (umlauts, accents, etc.) */
   normalizeCharacters: boolean
-  /** Minimum score threshold for considering a match valid (0-100) */
-  minimumMatchThreshold: number
-  /** Enable fuzzy string matching for text fields */
-  enableFuzzyMatching: boolean
-  /** Fuzzy matching sensitivity (0.0-1.0, higher = more strict) */
-  fuzzyMatchingThreshold: number
 }
 
 /**

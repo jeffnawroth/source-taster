@@ -9,7 +9,6 @@ import {
   mdiScale,
   mdiSelectAll,
   mdiTarget,
-  mdiWrench,
 } from '@mdi/js'
 import { MatchingMode } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
@@ -133,44 +132,6 @@ const settingGroups = computed(() => [
       },
     ],
   },
-  {
-    key: 'thresholds',
-    title: t('matching-thresholds'),
-    description: t('matching-thresholds-description'),
-    icon: mdiWrench,
-    settings: [
-      {
-        key: 'minimumMatchThreshold' as keyof CustomMatchingSettings,
-        label: t('minimum-match-threshold'),
-        description: t('minimum-match-threshold-description'),
-        example: t('minimum-match-threshold-example'),
-        type: 'slider' as const,
-        min: 50,
-        max: 100,
-        step: 5,
-        suffix: '%',
-      },
-      {
-        key: 'enableFuzzyMatching' as keyof CustomMatchingSettings,
-        label: t('enable-fuzzy-matching'),
-        description: t('enable-fuzzy-matching-description'),
-        example: t('enable-fuzzy-matching-example'),
-        type: 'checkbox' as const,
-      },
-      {
-        key: 'fuzzyMatchingThreshold' as keyof CustomMatchingSettings,
-        label: t('fuzzy-matching-threshold'),
-        description: t('fuzzy-matching-threshold-description'),
-        example: t('fuzzy-matching-threshold-example'),
-        type: 'slider' as const,
-        min: 0.5,
-        max: 1.0,
-        step: 0.05,
-        suffix: '',
-        dependsOn: 'enableFuzzyMatching' as keyof CustomMatchingSettings,
-      },
-    ],
-  },
 ])
 
 // Preset buttons configuration
@@ -212,9 +173,6 @@ const STRICT_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
   allowDateFormatVariations: false,
   ignoreWhitespace: false,
   normalizeCharacters: false,
-  minimumMatchThreshold: 95,
-  enableFuzzyMatching: false,
-  fuzzyMatchingThreshold: 0.9,
 }
 
 const BALANCED_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
@@ -226,9 +184,6 @@ const BALANCED_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
   allowDateFormatVariations: true,
   ignoreWhitespace: true,
   normalizeCharacters: true,
-  minimumMatchThreshold: 75,
-  enableFuzzyMatching: false,
-  fuzzyMatchingThreshold: 0.8,
 }
 
 const TOLERANT_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
@@ -240,9 +195,6 @@ const TOLERANT_MATCHING_CONFIG: Partial<CustomMatchingSettings> = {
   allowDateFormatVariations: true,
   ignoreWhitespace: true,
   normalizeCharacters: true,
-  minimumMatchThreshold: 60,
-  enableFuzzyMatching: true,
-  fuzzyMatchingThreshold: 0.7,
 }
 
 // Base function to ensure custom mode and settings initialization
@@ -282,15 +234,7 @@ function clearAll() {
   // Use template keys to ensure we have all available properties
   const templateKeys = Object.keys(STRICT_MATCHING_CONFIG) as Array<keyof CustomMatchingSettings>
   templateKeys.forEach((key) => {
-    if (key === 'minimumMatchThreshold') {
-      newSettings[key] = 0
-    }
-    else if (key === 'fuzzyMatchingThreshold') {
-      newSettings[key] = 0.0
-    }
-    else {
-      newSettings[key] = false as any
-    }
+    newSettings[key] = false as any
   })
 
   matchingSettings.value.customSettings = newSettings
@@ -302,15 +246,7 @@ function selectAll() {
   // Use template keys to ensure we have all available properties
   const templateKeys = Object.keys(STRICT_MATCHING_CONFIG) as Array<keyof CustomMatchingSettings>
   templateKeys.forEach((key) => {
-    if (key === 'minimumMatchThreshold') {
-      newSettings[key] = 100
-    }
-    else if (key === 'fuzzyMatchingThreshold') {
-      newSettings[key] = 1.0
-    }
-    else {
-      newSettings[key] = true as any
-    }
+    newSettings[key] = true as any
   })
 
   matchingSettings.value.customSettings = newSettings

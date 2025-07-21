@@ -11,11 +11,6 @@ export interface SettingGroup<TSettings extends Record<string, any> = Record<str
     label: string
     description: string
     example: string
-    type?: 'checkbox' | 'slider'
-    min?: number
-    max?: number
-    step?: number
-    suffix?: string
     dependsOn?: keyof TSettings
   }>
 }
@@ -85,7 +80,7 @@ const { t } = useI18n()
                   >
                     <!-- Checkbox Settings -->
                     <v-checkbox
-                      v-if="(!setting.type || setting.type === 'checkbox') && customSettings"
+                      v-if="customSettings"
                       v-model="customSettings[setting.key]"
                       :label="setting.label"
                       class="flex-grow-1"
@@ -103,40 +98,6 @@ const { t } = useI18n()
                         </div>
                       </template>
                     </v-checkbox>
-
-                    <!-- Slider Settings -->
-                    <div
-                      v-else-if="setting.type === 'slider' && customSettings"
-                      class="flex-grow-1"
-                    >
-                      <div class="font-weight-medium mb-1">
-                        {{ setting.label }}
-                      </div>
-                      <div class="text-caption text-medium-emphasis mb-2">
-                        {{ setting.description }}
-                      </div>
-                      <v-slider
-                        v-model="customSettings[setting.key]"
-                        :min="setting.min"
-                        :max="setting.max"
-                        :step="setting.step"
-                        thumb-label
-                        density="comfortable"
-                        hide-details
-                      >
-                        <template #append>
-                          <span class="text-body-2 font-weight-bold">
-                            {{
-                              setting.suffix === '%'
-                                ? `${customSettings?.[setting.key]}%`
-                                : typeof customSettings?.[setting.key] === 'number'
-                                  ? (customSettings?.[setting.key] as number).toFixed(2)
-                                  : customSettings?.[setting.key]
-                            }}
-                          </span>
-                        </template>
-                      </v-slider>
-                    </div>
 
                     <v-tooltip
                       location="left"
