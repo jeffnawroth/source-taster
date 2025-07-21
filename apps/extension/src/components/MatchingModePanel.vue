@@ -12,6 +12,7 @@ const { t } = useI18n()
     :icon="mdiTargetVariant"
     :title="t('matching-mode-title')"
     :description="t('matching-mode-description')"
+    :subtitle="t('matching-mode-description')"
   >
     <MatchingModeSelector />
   </SettingsPanel>

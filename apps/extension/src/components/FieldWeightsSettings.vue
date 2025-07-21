@@ -96,9 +96,8 @@ const additionalFieldsWeight = computed(() => {
 
 <template>
   <v-card
-    :title="t('field-weights')"
-    :subtitle="t('field-weights-description')"
     flat
+    :subtitle="t('field-weights-description')"
   >
     <template #append>
       <FieldWeightsTooltip />

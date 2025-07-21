@@ -12,6 +12,7 @@ const { t } = useI18n()
     :icon="mdiCog"
     :title="t('extractionSettings.mode.title')"
     :description="t('extractionSettings.mode.description')"
+    :subtitle="t('extractionSettings.mode.description')"
   >
     <ExtractionModeSelector />
   </SettingsPanel>

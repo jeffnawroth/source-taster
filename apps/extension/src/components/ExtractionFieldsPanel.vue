@@ -136,37 +136,8 @@ function selectEssentials() {
     :icon="mdiCheckboxMultipleMarked"
     :title="t('extractionSettings.description')"
     :description="t('extractionSettings.fieldSelectionDescription')"
+    :subtitle="t('extractionSettings.fieldSelectionDescription')"
   >
-    <!-- Quick Actions -->
-    <div class="mb-4">
-      <v-btn
-        size="small"
-        color="primary"
-        class="mr-2"
-        variant="tonal"
-        @click="selectAll"
-      >
-        {{ t('select-all') }}
-      </v-btn>
-      <v-btn
-        size="small"
-        variant="tonal"
-        class="mr-2"
-        color="primary"
-        @click="selectEssentials"
-      >
-        {{ t('select-essentials') }}
-      </v-btn>
-      <v-btn
-        size="small"
-        variant="tonal"
-        color="primary"
-        @click="deselectAll"
-      >
-        {{ t('deselect-all') }}
-      </v-btn>
-    </div>
-
     <v-expansion-panels
       elevation="0"
     >
@@ -236,5 +207,33 @@ function selectEssentials() {
         :color="getTechnicalColor"
       />
     </v-expansion-panels>
+
+    <!-- Quick Actions -->
+
+    <template #actions>
+      <v-btn
+        color="primary"
+        class="mr-2"
+        variant="tonal"
+        @click="selectAll"
+      >
+        {{ t('select-all') }}
+      </v-btn>
+      <v-btn
+        variant="tonal"
+        class="mr-2"
+        color="primary"
+        @click="selectEssentials"
+      >
+        {{ t('select-essentials') }}
+      </v-btn>
+      <v-btn
+        variant="tonal"
+        color="primary"
+        @click="deselectAll"
+      >
+        {{ t('deselect-all') }}
+      </v-btn>
+    </template>
   </SettingsPanel>
 </template>
