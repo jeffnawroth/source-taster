@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { CustomExtractionSettings } from '@source-taster/types'
 import {
   mdiCogOutline,
   mdiDeleteOutline,
@@ -11,12 +10,7 @@ import {
   mdiTarget,
   mdiWrench,
 } from '@mdi/js'
-import {
-  BALANCED_EXTRACTION_SETTINGS,
-  ExtractionMode,
-  STRICT_EXTRACTION_SETTINGS,
-  TOLERANT_EXTRACTION_SETTINGS,
-} from '@source-taster/types'
+import { BALANCED_EXTRACTION_SETTINGS, type CustomExtractionSettings, ExtractionMode, STRICT_EXTRACTION_SETTINGS, TOLERANT_EXTRACTION_SETTINGS } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 import ModeSelector from './ModeSelector.vue'
 
