@@ -13,7 +13,6 @@ function resetToDefaults() {
 // Threshold slider items
 const thresholdSliderItems = [
   {
-    modelValue: matchQualitySettings.value.thresholds.exactMatchThreshold,
     label: t('exact-match-threshold'),
     min: 90,
     max: 100,
@@ -22,7 +21,6 @@ const thresholdSliderItems = [
     icon: mdiCheckCircle,
   },
   {
-    modelValue: matchQualitySettings.value.thresholds.highMatchThreshold,
     label: t('high-match-threshold'),
     min: 50,
     max: 95,
@@ -47,9 +45,13 @@ const thresholdSliderItems = [
       <v-card-text>
         <!-- Exact Match Threshold -->
         <ThresholdSlider
-          v-for="item in thresholdSliderItems"
-          :key="item.label"
-          v-bind="item"
+          v-model="matchQualitySettings.thresholds.exactMatchThreshold"
+          v-bind="thresholdSliderItems[0]"
+        />
+
+        <ThresholdSlider
+          v-model="matchQualitySettings.thresholds.highMatchThreshold"
+          v-bind="thresholdSliderItems[1]"
         />
       </v-card-text>
       <v-card-actions>
