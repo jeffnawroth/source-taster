@@ -4,23 +4,29 @@
  */
 
 import type { ExtractionFields } from './fields'
-import type { CustomExtractionSettings, ExtractionMode } from './modes'
+import type { ModificationMode, ModificationOptions } from './modes'
 import { DEFAULT_EXTRACTION_FIELDS } from './fields'
-import { DEFAULT_EXTRACTION_MODE } from './modes'
+import { BALANCED_MODIFICATIONS, DEFAULT_MODIFICATION_MODE } from './modes'
 
 /**
  * User-configurable extraction settings
  * Controls both AI behavior and which metadata fields should be extracted
  */
 export interface ExtractionSettings {
-  /** Extraction mode controlling AI behavior and accuracy vs tolerance */
-  extractionMode: ExtractionMode
-
-  /** Custom extraction configuration (only used when extractionMode is CUSTOM) */
-  customSettings?: CustomExtractionSettings
+  modificationSettings: ModificationSettings // Instead of extractionMode + customSettings
 
   /** Which metadata fields to extract */
   enabledFields: ExtractionFields
+}
+
+export interface ModificationSettings {
+  mode: ModificationMode // ← Enum/Union Type
+  options: ModificationOptions // ← Die spezifischen Regeln
+}
+
+export const DEFAULT_MODIFICATION_SETTINGS: ModificationSettings = {
+  mode: DEFAULT_MODIFICATION_MODE,
+  options: BALANCED_MODIFICATIONS,
 }
 
 /**
@@ -28,7 +34,6 @@ export interface ExtractionSettings {
  * Uses balanced mode with standard field selection
  */
 export const DEFAULT_EXTRACTION_SETTINGS: ExtractionSettings = {
-  extractionMode: DEFAULT_EXTRACTION_MODE,
-  customSettings: undefined,
+  modificationSettings: DEFAULT_MODIFICATION_SETTINGS,
   enabledFields: DEFAULT_EXTRACTION_FIELDS,
 }

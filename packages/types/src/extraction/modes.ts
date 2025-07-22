@@ -5,7 +5,7 @@
 /**
  * Extraction mode types for AI processing
  */
-export enum ExtractionMode {
+export enum ModificationMode {
   /** Strict mode: 1:1 extraction without any corrections or interpretations */
   STRICT = 'strict',
   /** Balanced mode: Fix formatting/typos but maintain content accuracy */
@@ -17,15 +17,15 @@ export enum ExtractionMode {
 }
 
 /**
- * Default extraction mode
+ * Default modification mode
  */
-export const DEFAULT_EXTRACTION_MODE: ExtractionMode = ExtractionMode.BALANCED
+export const DEFAULT_MODIFICATION_MODE: ModificationMode = ModificationMode.BALANCED
 
 /**
- * Custom extraction configuration for user-defined extraction rules
+ * Custom modification configuration for user-defined extraction rules
  * Allows users to build their own extraction behavior by selecting specific options
  */
-export interface CustomExtractionSettings {
+export interface ModificationOptions {
   /** Enable typo correction (e.g., "Jouranl" → "Journal") */
   correctTypos: boolean
   /** Normalize capitalization for standards */
@@ -65,7 +65,7 @@ export interface CustomExtractionSettings {
 /**
  * Default settings for strict extraction mode
  */
-export const STRICT_EXTRACTION_SETTINGS: CustomExtractionSettings = {
+export const STRICT_MODIFICATIONS: ModificationOptions = {
   correctTypos: false,
   normalizeCapitalization: false,
   standardizeAbbreviations: false,
@@ -88,7 +88,7 @@ export const STRICT_EXTRACTION_SETTINGS: CustomExtractionSettings = {
 /**
  * Default settings for balanced extraction mode
  */
-export const BALANCED_EXTRACTION_SETTINGS: CustomExtractionSettings = {
+export const BALANCED_MODIFICATIONS: ModificationOptions = {
   correctTypos: true,
   normalizeCapitalization: true,
   standardizeAbbreviations: true,
@@ -111,7 +111,7 @@ export const BALANCED_EXTRACTION_SETTINGS: CustomExtractionSettings = {
 /**
  * Default settings for tolerant extraction mode
  */
-export const TOLERANT_EXTRACTION_SETTINGS: CustomExtractionSettings = {
+export const TOLERANT_MODIFICATIONS: ModificationOptions = {
   correctTypos: true,
   normalizeCapitalization: true,
   standardizeAbbreviations: true,
@@ -130,23 +130,6 @@ export const TOLERANT_EXTRACTION_SETTINGS: CustomExtractionSettings = {
   completeIncompleteData: true,
   fixFormattingProblems: true,
 }
-
-// /**
-//  * Default settings for custom extraction mode (user's starting point)
-//  */
-// export const DEFAULT_CUSTOM_EXTRACTION_SETTINGS: CustomExtractionSettings = {
-//   ...STRICT_EXTRACTION_SETTINGS, // Strict als Startpunkt für Custom
-// }
-
-// /**
-//  * Mapping of extraction modes to their default settings
-//  */
-// export const EXTRACTION_MODE_DEFAULTS: Record<ExtractionMode, CustomExtractionSettings> = {
-//   [ExtractionMode.STRICT]: STRICT_EXTRACTION_SETTINGS,
-//   [ExtractionMode.BALANCED]: BALANCED_EXTRACTION_SETTINGS,
-//   [ExtractionMode.TOLERANT]: TOLERANT_EXTRACTION_SETTINGS,
-//   [ExtractionMode.CUSTOM]: DEFAULT_CUSTOM_EXTRACTION_SETTINGS,
-// }
 
 /**
  * Types of modifications that can be applied during extraction
