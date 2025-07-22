@@ -131,19 +131,56 @@ export const TOLERANT_EXTRACTION_SETTINGS: CustomExtractionSettings = {
   fixFormattingProblems: true,
 }
 
+// /**
+//  * Default settings for custom extraction mode (user's starting point)
+//  */
+// export const DEFAULT_CUSTOM_EXTRACTION_SETTINGS: CustomExtractionSettings = {
+//   ...STRICT_EXTRACTION_SETTINGS, // Strict als Startpunkt für Custom
+// }
+
+// /**
+//  * Mapping of extraction modes to their default settings
+//  */
+// export const EXTRACTION_MODE_DEFAULTS: Record<ExtractionMode, CustomExtractionSettings> = {
+//   [ExtractionMode.STRICT]: STRICT_EXTRACTION_SETTINGS,
+//   [ExtractionMode.BALANCED]: BALANCED_EXTRACTION_SETTINGS,
+//   [ExtractionMode.TOLERANT]: TOLERANT_EXTRACTION_SETTINGS,
+//   [ExtractionMode.CUSTOM]: DEFAULT_CUSTOM_EXTRACTION_SETTINGS,
+// }
+
 /**
- * Default settings for custom extraction mode (user's starting point)
+ * Types of modifications that can be applied during extraction
  */
-export const DEFAULT_CUSTOM_EXTRACTION_SETTINGS: CustomExtractionSettings = {
-  ...STRICT_EXTRACTION_SETTINGS, // Strict als Startpunkt für Custom
+export enum ModificationType {
+  TYPO_CORRECTION = 'typo-correction',
+  CAPITALIZATION = 'capitalization',
+  ABBREVIATION_EXPANSION = 'abbreviation-expansion',
+  PUNCTUATION_STANDARDIZATION = 'punctuation-standardization',
+  FORMAT_STANDARDIZATION = 'format-standardization',
+  DERIVATION = 'derivation',
+  INTERPRETATION = 'interpretation',
+  AUTHOR_NAME_FORMATTING = 'author-name-formatting',
+  DATE_FORMATTING = 'date-formatting',
+  IDENTIFIER_STANDARDIZATION = 'identifier-standardization',
+  UNICODE_FIXING = 'unicode-fixing',
+  OCR_ERROR_CORRECTION = 'ocr-error-correction',
+  TITLE_CASE_CONVERSION = 'title-case-conversion',
+  DUPLICATE_REMOVAL = 'duplicate-removal',
+  FIELD_DERIVATION = 'field-derivation',
+  INFORMATION_RECONSTRUCTION = 'information-reconstruction',
+  FORMATTING_CORRECTION = 'formatting-correction',
 }
 
 /**
- * Mapping of extraction modes to their default settings
+ * Information about changes made during extraction
  */
-export const EXTRACTION_MODE_DEFAULTS: Record<ExtractionMode, CustomExtractionSettings> = {
-  [ExtractionMode.STRICT]: STRICT_EXTRACTION_SETTINGS,
-  [ExtractionMode.BALANCED]: BALANCED_EXTRACTION_SETTINGS,
-  [ExtractionMode.TOLERANT]: TOLERANT_EXTRACTION_SETTINGS,
-  [ExtractionMode.CUSTOM]: DEFAULT_CUSTOM_EXTRACTION_SETTINGS,
+export interface FieldModification {
+  /** The field path that was modified (e.g., "metadata.title", "metadata.source.containerTitle") */
+  fieldPath: string
+  /** The original value before extraction */
+  originalValue: string
+  /** The extracted/corrected value */
+  extractedValue: string
+  /** Type of modification applied */
+  modificationType: ModificationType
 }

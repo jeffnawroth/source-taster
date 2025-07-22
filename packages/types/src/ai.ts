@@ -2,7 +2,9 @@
  * AI service interfaces and configuration types
  */
 
-import type { ExtractionSettings } from './extraction'
+import type { ExtractionSettings, FieldModification } from './extraction'
+import type { FieldMatchDetail, MatchingSettings } from './matching'
+import type { ReferenceMetadata } from './reference'
 
 /**
  * Response from AI matching service
@@ -10,7 +12,7 @@ import type { ExtractionSettings } from './extraction'
  */
 export interface AIMatchingResponse {
   /** Array of field match details */
-  fieldDetails: import('./matching').FieldMatchDetail[]
+  fieldDetails: FieldMatchDetail[]
 }
 
 /**
@@ -21,9 +23,9 @@ export interface AIExtractedReference {
   /** The raw reference text as it appeared in the source document */
   originalText: string
   /** Parsed/extracted bibliographic information */
-  metadata: import('./reference').ReferenceMetadata
+  metadata: ReferenceMetadata
   /** Information about modifications made during extraction */
-  modifications?: import('./reference').FieldModification[]
+  modifications?: FieldModification[]
 }
 
 /**
@@ -40,7 +42,7 @@ export interface AIExtractionResponse {
  */
 export interface AIService {
   extractReferences: (text: string, extractionSettings?: ExtractionSettings) => Promise<AIExtractionResponse>
-  matchFields: (prompt: string, matchingSettings?: import('./matching').MatchingSettings) => Promise<AIMatchingResponse>
+  matchFields: (prompt: string, matchingSettings?: MatchingSettings) => Promise<AIMatchingResponse>
 }
 
 /**

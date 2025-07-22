@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod'
-import { ModificationType } from './reference'
+import { ModificationType } from './extraction'
 
 /**
  * Schema for field modifications during extraction
