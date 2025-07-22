@@ -1,19 +1,20 @@
 <script setup lang="ts">
+import type { ExtractionFields } from '@source-taster/types'
 import { mdiBookOpen, mdiCalendar, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
+import {
+  ACADEMIC_FIELDS,
+  CORE_FIELDS,
+  DATE_FIELDS,
+  IDENTIFIER_FIELDS,
+  PUBLICATION_FIELDS,
+  TECHNICAL_FIELDS,
+} from '@source-taster/types'
 import { computed } from 'vue'
 import { extractionSettings } from '../../../../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
 
 // TRANSLATION
 const { t } = useI18n()
-
-// FIELD DEFINITIONS
-const coreFields = ['title', 'authors', 'year']
-const dateFields = ['month', 'day', 'yearSuffix', 'dateRange', 'yearEnd', 'noDate', 'inPress', 'approximateDate', 'season']
-const identifierFields = ['doi', 'isbn', 'issn', 'pmid', 'pmcid', 'arxivId']
-const publicationFields = ['containerTitle', 'subtitle', 'volume', 'issue', 'pages', 'publisher', 'publicationPlace', 'url', 'sourceType', 'location', 'retrievalDate', 'edition', 'medium', 'originalTitle', 'originalLanguage', 'chapterTitle', 'contributors']
-const academicFields = ['conference', 'institution', 'series', 'seriesNumber', 'degree', 'advisor', 'department']
-const technicalFields = ['pageType', 'paragraphNumber', 'volumePrefix', 'issuePrefix', 'supplementInfo', 'articleNumber', 'isStandAlone']
 
 // COMPUTED - Wrapper for ExtractionFieldSection compatibility
 const extractionSettingsWrapper = computed({
@@ -24,7 +25,7 @@ const extractionSettingsWrapper = computed({
 })
 const getCoreFieldsCount = computed(() => {
   const fields = extractionSettings.value.enabledFields
-  return coreFields.filter(field => fields[field as keyof typeof fields]).length
+  return CORE_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
 })
 
 const getCoreFieldsColor = computed(() => {
@@ -38,7 +39,7 @@ const getCoreFieldsColor = computed(() => {
 
 const getDateFieldsCount = computed(() => {
   const fields = extractionSettings.value.enabledFields
-  return dateFields.filter(field => fields[field as keyof typeof fields]).length
+  return DATE_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
 })
 
 const getDateFieldsColor = computed(() => {
@@ -52,7 +53,7 @@ const getDateFieldsColor = computed(() => {
 
 const getIdentifiersCount = computed(() => {
   const fields = extractionSettings.value.enabledFields
-  return identifierFields.filter(field => fields[field as keyof typeof fields]).length
+  return IDENTIFIER_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
 })
 
 const getIdentifiersColor = computed(() => {
@@ -66,7 +67,7 @@ const getIdentifiersColor = computed(() => {
 
 const getPublicationCount = computed(() => {
   const fields = extractionSettings.value.enabledFields
-  return publicationFields.filter(field => fields[field as keyof typeof fields]).length
+  return PUBLICATION_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
 })
 
 const getPublicationColor = computed(() => {
@@ -80,7 +81,7 @@ const getPublicationColor = computed(() => {
 
 const getAcademicCount = computed(() => {
   const fields = extractionSettings.value.enabledFields
-  return academicFields.filter(field => fields[field as keyof typeof fields]).length
+  return ACADEMIC_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
 })
 
 const getAcademicColor = computed(() => {
@@ -94,7 +95,7 @@ const getAcademicColor = computed(() => {
 
 const getTechnicalCount = computed(() => {
   const fields = extractionSettings.value.enabledFields
-  return technicalFields.filter(field => fields[field as keyof typeof fields]).length
+  return TECHNICAL_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
 })
 
 const getTechnicalColor = computed(() => {
@@ -110,8 +111,8 @@ const extractionFieldSections = computed(() => [
   {
     title: t('core-metadata'),
     icon: mdiBookOpen,
-    fields: coreFields,
-    totalFields: coreFields.length,
+    fields: CORE_FIELDS,
+    totalFields: CORE_FIELDS.length,
     count: getCoreFieldsCount.value,
     color: getCoreFieldsColor.value,
 
@@ -119,40 +120,40 @@ const extractionFieldSections = computed(() => [
   {
     title: t('date-information'),
     icon: mdiCalendar,
-    fields: dateFields,
-    totalFields: dateFields.length,
+    fields: DATE_FIELDS,
+    totalFields: DATE_FIELDS.length,
     count: getDateFieldsCount.value,
     color: getDateFieldsColor.value,
   },
   {
     title: t('identifiers'),
     icon: mdiIdentifier,
-    fields: identifierFields,
-    totalFields: identifierFields.length,
+    fields: IDENTIFIER_FIELDS,
+    totalFields: IDENTIFIER_FIELDS.length,
     count: getIdentifiersCount.value,
     color: getIdentifiersColor.value,
   },
   {
     title: t('publication-details'),
     icon: mdiFileDocument,
-    fields: publicationFields,
-    totalFields: publicationFields.length,
+    fields: PUBLICATION_FIELDS,
+    totalFields: PUBLICATION_FIELDS.length,
     count: getPublicationCount.value,
     color: getPublicationColor.value,
   },
   {
     title: t('academic-institutional'),
     icon: mdiSchool,
-    fields: academicFields,
-    totalFields: academicFields.length,
+    fields: ACADEMIC_FIELDS,
+    totalFields: ACADEMIC_FIELDS.length,
     count: getAcademicCount.value,
     color: getAcademicColor.value,
   },
   {
     title: t('technical-details'),
     icon: mdiWrench,
-    fields: technicalFields,
-    totalFields: technicalFields.length,
+    fields: TECHNICAL_FIELDS,
+    totalFields: TECHNICAL_FIELDS.length,
     count: getTechnicalCount.value,
     color: getTechnicalColor.value,
   },

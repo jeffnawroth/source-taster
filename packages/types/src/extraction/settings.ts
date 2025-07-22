@@ -3,9 +3,8 @@
  * Combines extraction modes, custom options, and field selections
  */
 
-import type { ExtractionFields } from './fields'
 import type { ModificationMode, ModificationOptions } from './modification'
-import { DEFAULT_EXTRACTION_FIELDS } from './fields'
+import { ESSENTIAL_EXTRACTION_FIELDS, type ExtractionFields } from './fields'
 import { BALANCED_MODIFICATIONS, DEFAULT_MODIFICATION_MODE } from './modification'
 
 /**
@@ -35,5 +34,5 @@ export const DEFAULT_MODIFICATION_SETTINGS: ModificationSettings = {
  */
 export const DEFAULT_EXTRACTION_SETTINGS: ExtractionSettings = {
   modificationSettings: DEFAULT_MODIFICATION_SETTINGS,
-  enabledFields: DEFAULT_EXTRACTION_FIELDS,
+  enabledFields: ESSENTIAL_EXTRACTION_FIELDS,
 }
