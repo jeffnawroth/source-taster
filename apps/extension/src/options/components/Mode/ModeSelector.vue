@@ -73,13 +73,3 @@ const showCustomSettings = computed(() => modelValue.value === props.customValue
     />
   </v-expand-transition>
 </template>
-
-<style scoped>
-.v-radio :deep(.v-label) {
-  opacity: 1;
-}
-
-.v-card--variant-outlined {
-  border: 1px solid rgba(var(--v-border-color), 0.12);
-}
-</style>
