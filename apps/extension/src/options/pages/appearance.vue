@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { mdiDesktopTowerMonitor, mdiPageLayoutSidebarRight, mdiPalette, mdiWeatherNight, mdiWhiteBalanceSunny, mdiWindowMaximize } from '@mdi/js'
-import SettingsPageLayout from '@/extension/components/SettingsPageLayout.vue'
 import { getDisplayOption, setDisplayOption, themeOption } from '@/extension/logic'
 
 // TRANSLATION

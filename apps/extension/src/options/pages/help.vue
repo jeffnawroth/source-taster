@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { mdiEmailOutline, mdiHelpCircleOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
-import SettingsPageLayout from '@/extension/components/SettingsPageLayout.vue'
 
 // TRANSLATION
 const { t } = useI18n()

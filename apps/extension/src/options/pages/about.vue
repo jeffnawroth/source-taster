@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { mdiGithub, mdiHomeOutline, mdiInformationOutline } from '@mdi/js'
-import SettingsPageLayout from '@/extension/components/SettingsPageLayout.vue'
 import icon128 from '/assets/icon128.png'
 
 // TRANSLATION
