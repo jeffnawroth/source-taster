@@ -9,9 +9,9 @@ const drawer = defineModel<boolean>()
 
 // Data
 const items = ref([
-  { prependIcon: mdiPalette, title: computed(() => t('appearance')), to: '/' },
+  { prependIcon: mdiTune, title: computed(() => t('expert-settings')), to: '/' },
   { prependIcon: mdiEarth, title: computed(() => t('language')), to: '/language' },
-  { prependIcon: mdiTune, title: computed(() => t('expert-settings')), to: '/expert-settings' },
+  { prependIcon: mdiPalette, title: computed(() => t('appearance')), to: '/appearance' },
   { prependIcon: mdiInformationOutline, title: computed(() => t('about')), to: '/about' },
   { prependIcon: mdiHelpCircleOutline, title: computed(() => t('help')), to: '/help' },
 ])
