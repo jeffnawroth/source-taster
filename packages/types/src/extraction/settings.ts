@@ -4,9 +4,9 @@
  */
 
 import type { ExtractionFields } from './fields'
-import type { ModificationMode, ModificationOptions } from './modes'
+import type { ModificationMode, ModificationOptions } from './modification'
 import { DEFAULT_EXTRACTION_FIELDS } from './fields'
-import { BALANCED_MODIFICATIONS, DEFAULT_MODIFICATION_MODE } from './modes'
+import { BALANCED_MODIFICATIONS, DEFAULT_MODIFICATION_MODE } from './modification'
 
 /**
  * User-configurable extraction settings
