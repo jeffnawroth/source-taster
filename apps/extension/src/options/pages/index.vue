@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { mdiTune } from '@mdi/js'
-import ExtractionSettings from '@/extension/components/ExtractionSettings.vue'
-import MatchingSettings from '@/extension/components/MatchingSettings.vue'
-import SettingsPageLayout from '@/extension/components/SettingsPageLayout.vue'
 
 // TRANSLATION
 const { t } = useI18n()

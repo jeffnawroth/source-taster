@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { DEFAULT_FIELD_WEIGHTS, type FieldWeights } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
-import FieldWeightsPanels from './FieldWeightsPanels.vue'
-import FieldWeightsValidationAlert from './FieldWeightsValidationAlert.vue'
-import ResetButton from './ResetButton.vue'
 
 // Computed property to access field weights from matching settings
 const fieldWeights = computed({

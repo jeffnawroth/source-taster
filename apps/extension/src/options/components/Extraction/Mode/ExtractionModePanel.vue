@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { mdiCog } from '@mdi/js'
-import ExtractionModeSelector from './ExtractionModeSelector.vue'
-import SettingsPanel from './SettingsPanel.vue'
 
 // TRANSLATION
 const { t } = useI18n()

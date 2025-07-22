@@ -2,9 +2,6 @@
 import { mdiAlertCircle, mdiCheckCircle, mdiPalette } from '@mdi/js'
 import { DEFAULT_MATCH_QUALITY_SETTINGS } from '@source-taster/types'
 import { matchQualitySettings } from '@/extension/logic/storage'
-import ResetButton from './ResetButton.vue'
-import SettingsPanel from './SettingsPanel.vue'
-import ThresholdSlider from './ThresholdSlider.vue'
 
 const { t } = useI18n()
 

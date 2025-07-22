@@ -12,7 +12,6 @@ import {
 } from '@mdi/js'
 import { BALANCED_MATCHING_SETTINGS, MatchingMode, STRICT_MATCHING_SETTINGS, TOLERANT_MATCHING_SETTINGS } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
-import ModeSelector from './ModeSelector.vue'
 
 // TRANSLATION
 const { t } = useI18n()

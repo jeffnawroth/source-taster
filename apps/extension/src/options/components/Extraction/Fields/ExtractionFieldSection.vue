@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import FieldCheckbox from './FieldCheckbox.vue'
-
 // PROPS
 defineProps<{
   title: string

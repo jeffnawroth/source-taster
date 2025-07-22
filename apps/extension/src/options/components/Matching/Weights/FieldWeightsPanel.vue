@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { mdiStarFourPoints } from '@mdi/js'
-import FieldWeightsSettings from './FieldWeightsSettings.vue'
-import SettingsPanel from './SettingsPanel.vue'
 
 // TRANSLATION
 const { t } = useI18n()

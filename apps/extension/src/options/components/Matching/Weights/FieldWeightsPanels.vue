@@ -6,8 +6,6 @@ import {
   mdiStarFourPoints,
   mdiWrench,
 } from '@mdi/js'
-import FieldWeightControl from './FieldWeightControl.vue'
-import FieldWeightSection from './FieldWeightSection.vue'
 
 interface FieldDefinition {
   key: keyof FieldWeights

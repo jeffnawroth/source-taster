@@ -2,7 +2,6 @@
 import { mdiTranslate } from '@mdi/js'
 import { useLocale } from 'vuetify'
 import { sendMessage } from 'webext-bridge/options'
-import SettingsPageLayout from '@/extension/components/SettingsPageLayout.vue'
 import { localeOption } from '@/extension/logic/storage'
 
 // LOCALE

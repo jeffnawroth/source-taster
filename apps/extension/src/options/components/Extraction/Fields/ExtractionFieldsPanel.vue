@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { mdiCheckboxMultipleMarked } from '@mdi/js'
-import { extractionSettings } from '../logic'
-import ExtractionFieldsPanels from './ExtractionFieldsPanels.vue'
-import SettingsPanel from './SettingsPanel.vue'
+import { extractionSettings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()

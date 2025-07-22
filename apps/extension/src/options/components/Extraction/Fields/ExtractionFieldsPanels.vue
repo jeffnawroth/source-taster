@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mdiBookOpen, mdiCalendar, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
 import { computed } from 'vue'
-import { extractionSettings } from '../logic'
+import { extractionSettings } from '../../../../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
 
 // TRANSLATION

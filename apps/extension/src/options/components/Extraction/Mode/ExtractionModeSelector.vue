@@ -13,7 +13,6 @@ import {
 } from '@mdi/js'
 import { BALANCED_MODIFICATIONS, ModificationMode, STRICT_MODIFICATIONS, TOLERANT_MODIFICATIONS } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
-import ModeSelector from './ModeSelector.vue'
 
 // TRANSLATION
 const { t } = useI18n()
