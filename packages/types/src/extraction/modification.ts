@@ -132,6 +132,29 @@ export const TOLERANT_MODIFICATIONS: ModificationOptions = {
 }
 
 /**
+ * Default settings for custom extraction mode
+ */
+export const CUSTOM_MODIFICATION: ModificationOptions = {
+  correctTypos: false,
+  normalizeCapitalization: false,
+  standardizeAbbreviations: false,
+  standardizePunctuation: false,
+  formatAuthorNames: false,
+  removeDuplicateAuthors: false,
+  standardizeDateFormatting: false,
+  standardizeIdentifiers: false,
+  addDerivableFields: false,
+  interpretIncompleteInfo: false,
+  recognizeSourceTypes: false,
+  convertToTitleCase: false,
+  fixUnicodeIssues: false,
+  handleOcrErrors: false,
+  reconstructSeparatedInfo: false,
+  completeIncompleteData: false,
+  fixFormattingProblems: false,
+}
+
+/**
  * Types of modifications that can be applied during extraction
  */
 export enum ModificationType {
@@ -166,4 +189,14 @@ export interface FieldModification {
   extractedValue: string
   /** Type of modification applied */
   modificationType: ModificationType
+}
+
+/**
+ * Mapping of extraction modes to their default settings
+ */
+export const MODIFICATION_MODE_DEFAULTS: Record<ModificationMode, ModificationOptions> = {
+  [ModificationMode.STRICT]: STRICT_MODIFICATIONS,
+  [ModificationMode.BALANCED]: BALANCED_MODIFICATIONS,
+  [ModificationMode.TOLERANT]: TOLERANT_MODIFICATIONS,
+  [ModificationMode.CUSTOM]: CUSTOM_MODIFICATION,
 }
