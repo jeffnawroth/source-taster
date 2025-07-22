@@ -1,4 +1,5 @@
-import type { ExtractionMode, ExtractionSettings } from '@source-taster/types'
+import type { ExtractionSettings } from '@source-taster/types'
+import { DEFAULT_MODIFICATION_SETTINGS } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import { getExtractionInstructions } from '../extractionInstructions'
@@ -122,7 +123,7 @@ export function createDynamicExtractionSchema(extractionSettings?: ExtractionSet
   if (!extractionSettings) {
     // Return default schema with balanced mode instructions for fallback
     const defaultSchema = { ...extractionJsonSchema }
-    const instructions = getExtractionInstructions('balanced' as ExtractionMode)
+    const instructions = getExtractionInstructions(DEFAULT_MODIFICATION_SETTINGS)
     if (defaultSchema.schema && typeof defaultSchema.schema === 'object' && 'description' in defaultSchema.schema) {
       defaultSchema.schema.description = `${instructions}\n\n${defaultSchema.schema.description || ''}`
     }
@@ -445,7 +446,7 @@ export function createDynamicValidationSchema(extractionSettings?: ExtractionSet
   })
 
   // Add extraction mode instructions to schema description
-  const extractionInstructions = getExtractionInstructions(extractionSettings.extractionMode)
+  const extractionInstructions = getExtractionInstructions(extractionSettings.modificationSettings)
   if (jsonSchema && typeof jsonSchema === 'object' && 'description' in jsonSchema) {
     jsonSchema.description = `${extractionInstructions}\n\n${jsonSchema.description || ''}`
   }

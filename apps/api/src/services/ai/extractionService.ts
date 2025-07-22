@@ -27,13 +27,10 @@ When you extract references, you MUST track every change you make in the "modifi
 - Missing modification tracking is considered a critical error`
 
     // Add extraction mode instructions if provided
-    if (extractionSettings?.extractionMode) {
-      const modeInstructions = getExtractionInstructions(
-        extractionSettings.extractionMode,
-        extractionSettings.customSettings,
-      )
+    if (extractionSettings?.modificationSettings) {
+      const modeInstructions = getExtractionInstructions(extractionSettings.modificationSettings)
       systemMessage += `\n\n${modeInstructions}`
-      console.warn(`[Extraction Mode: ${extractionSettings.extractionMode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
+      console.warn(`[Extraction Mode: ${extractionSettings.modificationSettings.mode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
     }
 
     // Add extraction settings instructions if provided
