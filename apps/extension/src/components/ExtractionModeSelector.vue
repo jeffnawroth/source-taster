@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ModificationOptions } from '@source-taster/types'
 import {
   mdiCogOutline,
   mdiDeleteOutline,
@@ -10,30 +11,17 @@ import {
   mdiTarget,
   mdiWrench,
 } from '@mdi/js'
-import { BALANCED_EXTRACTION_SETTINGS, type CustomExtractionSettings, ExtractionMode, STRICT_EXTRACTION_SETTINGS, TOLERANT_EXTRACTION_SETTINGS } from '@source-taster/types'
+import { BALANCED_MODIFICATIONS, ModificationMode, STRICT_MODIFICATIONS, TOLERANT_MODIFICATIONS } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 import ModeSelector from './ModeSelector.vue'
 
 // TRANSLATION
 const { t } = useI18n()
 
-// Safe access to custom settings with initialization
-const customSettings = computed({
-  get: () => {
-    if (!extractionSettings.value.customSettings) {
-      extractionSettings.value.customSettings = {} as CustomExtractionSettings
-    }
-    return extractionSettings.value.customSettings
-  },
-  set: (value) => {
-    extractionSettings.value.customSettings = value
-  },
-})
-
 // Mode options configuration
 const modeOptions = computed(() => [
   {
-    value: ExtractionMode.STRICT,
+    value: ModificationMode.STRICT,
     icon: mdiLock,
     label: t('extraction-mode-strict'),
     description: t('extraction-mode-strict-description'),
@@ -41,7 +29,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('extraction-mode-strict-tooltip-description'),
   },
   {
-    value: ExtractionMode.BALANCED,
+    value: ModificationMode.BALANCED,
     icon: mdiScale,
     label: t('extraction-mode-balanced'),
     description: t('extraction-mode-balanced-description'),
@@ -49,7 +37,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('extraction-mode-balanced-tooltip-description'),
   },
   {
-    value: ExtractionMode.TOLERANT,
+    value: ModificationMode.TOLERANT,
     icon: mdiTarget,
     label: t('extraction-mode-tolerant'),
     description: t('extraction-mode-tolerant-description'),
@@ -57,7 +45,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('extraction-mode-tolerant-tooltip-description'),
   },
   {
-    value: ExtractionMode.CUSTOM,
+    value: ModificationMode.CUSTOM,
     icon: mdiCogOutline,
     label: t('extraction-mode-custom'),
     description: t('extraction-mode-custom-description'),
@@ -75,25 +63,25 @@ const settingGroups = computed(() => [
     icon: mdiFormTextbox,
     settings: [
       {
-        key: 'correctTypos' as keyof CustomExtractionSettings,
+        key: 'correctTypos' as keyof ModificationOptions,
         label: t('setting-typo-correction'),
         description: t('setting-typo-correction-description'),
         example: t('setting-typo-correction-example'),
       },
       {
-        key: 'normalizeCapitalization' as keyof CustomExtractionSettings,
+        key: 'normalizeCapitalization' as keyof ModificationOptions,
         label: t('setting-normalize-capitalization'),
         description: t('setting-normalize-capitalization-description'),
         example: t('setting-normalize-capitalization-example'),
       },
       {
-        key: 'standardizeAbbreviations' as keyof CustomExtractionSettings,
+        key: 'standardizeAbbreviations' as keyof ModificationOptions,
         label: t('setting-standardize-abbreviations'),
         description: t('setting-standardize-abbreviations-description'),
         example: t('setting-standardize-abbreviations-example'),
       },
       {
-        key: 'standardizePunctuation' as keyof CustomExtractionSettings,
+        key: 'standardizePunctuation' as keyof ModificationOptions,
         label: t('setting-standardize-punctuation'),
         description: t('setting-standardize-punctuation-description'),
         example: t('setting-standardize-punctuation-example'),
@@ -107,31 +95,31 @@ const settingGroups = computed(() => [
     icon: mdiPalette,
     settings: [
       {
-        key: 'formatAuthorNames' as keyof CustomExtractionSettings,
+        key: 'formatAuthorNames' as keyof ModificationOptions,
         label: t('setting-format-author-names'),
         description: t('setting-format-author-names-description'),
         example: t('setting-format-author-names-example'),
       },
       {
-        key: 'removeDuplicateAuthors' as keyof CustomExtractionSettings,
+        key: 'removeDuplicateAuthors' as keyof ModificationOptions,
         label: t('setting-remove-duplicate-authors'),
         description: t('setting-remove-duplicate-authors-description'),
         example: t('setting-remove-duplicate-authors-example'),
       },
       {
-        key: 'standardizeDateFormatting' as keyof CustomExtractionSettings,
+        key: 'standardizeDateFormatting' as keyof ModificationOptions,
         label: t('setting-standardize-date-formatting'),
         description: t('setting-standardize-date-formatting-description'),
         example: t('setting-standardize-date-formatting-example'),
       },
       {
-        key: 'standardizeIdentifiers' as keyof CustomExtractionSettings,
+        key: 'standardizeIdentifiers' as keyof ModificationOptions,
         label: t('setting-standardize-identifiers'),
         description: t('setting-standardize-identifiers-description'),
         example: t('setting-standardize-identifiers-example'),
       },
       {
-        key: 'convertToTitleCase' as keyof CustomExtractionSettings,
+        key: 'convertToTitleCase' as keyof ModificationOptions,
         label: t('setting-convert-to-title-case'),
         description: t('setting-convert-to-title-case-description'),
         example: t('setting-convert-to-title-case-example'),
@@ -145,31 +133,31 @@ const settingGroups = computed(() => [
     icon: mdiWrench,
     settings: [
       {
-        key: 'fixUnicodeIssues' as keyof CustomExtractionSettings,
+        key: 'fixUnicodeIssues' as keyof ModificationOptions,
         label: t('setting-fix-unicode-issues'),
         description: t('setting-fix-unicode-issues-description'),
         example: t('setting-fix-unicode-issues-example'),
       },
       {
-        key: 'handleOcrErrors' as keyof CustomExtractionSettings,
+        key: 'handleOcrErrors' as keyof ModificationOptions,
         label: t('setting-handle-ocr-errors'),
         description: t('setting-handle-ocr-errors-description'),
         example: t('setting-handle-ocr-errors-example'),
       },
       {
-        key: 'reconstructSeparatedInfo' as keyof CustomExtractionSettings,
+        key: 'reconstructSeparatedInfo' as keyof ModificationOptions,
         label: t('setting-reconstruct-separated-info'),
         description: t('setting-reconstruct-separated-info-description'),
         example: t('setting-reconstruct-separated-info-example'),
       },
       {
-        key: 'completeIncompleteData' as keyof CustomExtractionSettings,
+        key: 'completeIncompleteData' as keyof ModificationOptions,
         label: t('setting-complete-incomplete-data'),
         description: t('setting-complete-incomplete-data-description'),
         example: t('setting-complete-incomplete-data-example'),
       },
       {
-        key: 'fixFormattingProblems' as keyof CustomExtractionSettings,
+        key: 'fixFormattingProblems' as keyof ModificationOptions,
         label: t('setting-fix-formatting-problems'),
         description: t('setting-fix-formatting-problems-description'),
         example: t('setting-fix-formatting-problems-example'),
@@ -208,66 +196,66 @@ const presetButtons = computed(() => [
 ])
 
 // Base function to ensure custom mode and settings initialization
-function ensureCustomModeSettings(): CustomExtractionSettings {
-  extractionSettings.value.extractionMode = ExtractionMode.CUSTOM
+function ensureCustomModeSettings(): ModificationOptions {
+  extractionSettings.value.modificationSettings.mode = ModificationMode.CUSTOM
 
-  if (!extractionSettings.value.customSettings) {
-    extractionSettings.value.customSettings = {} as CustomExtractionSettings
+  if (!extractionSettings.value.modificationSettings.options) {
+    extractionSettings.value.modificationSettings.options = {} as ModificationOptions
   }
 
-  return { ...extractionSettings.value.customSettings }
+  return { ...extractionSettings.value.modificationSettings.options }
 }
 
 // Base function to apply preset settings
-function applyPreset(presetConfig: Partial<CustomExtractionSettings>) {
+function applyPreset(presetConfig: Partial<ModificationOptions>) {
   const newSettings = ensureCustomModeSettings()
   Object.assign(newSettings, presetConfig)
-  extractionSettings.value.customSettings = newSettings
+  extractionSettings.value.modificationSettings.options = newSettings
 }
 
 // Preset functions using predefined constants
 function loadStrictPreset() {
-  applyPreset(STRICT_EXTRACTION_SETTINGS)
+  applyPreset(STRICT_MODIFICATIONS)
 }
 
 function loadBalancedPreset() {
-  applyPreset(BALANCED_EXTRACTION_SETTINGS)
+  applyPreset(BALANCED_MODIFICATIONS)
 }
 
 function loadTolerantPreset() {
-  applyPreset(TOLERANT_EXTRACTION_SETTINGS)
+  applyPreset(TOLERANT_MODIFICATIONS)
 }
 
 function clearAll() {
   const newSettings = ensureCustomModeSettings()
 
   // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_EXTRACTION_SETTINGS) as Array<keyof CustomExtractionSettings>
+  const templateKeys = Object.keys(STRICT_MODIFICATIONS) as Array<keyof ModificationOptions>
   templateKeys.forEach((key) => {
     newSettings[key] = false
   })
 
-  extractionSettings.value.customSettings = newSettings
+  extractionSettings.value.modificationSettings.options = newSettings
 }
 
 function selectAll() {
   const newSettings = ensureCustomModeSettings()
 
   // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_EXTRACTION_SETTINGS) as Array<keyof CustomExtractionSettings>
+  const templateKeys = Object.keys(STRICT_MODIFICATIONS) as Array<keyof ModificationOptions>
   templateKeys.forEach((key) => {
     newSettings[key] = true
   })
 
-  extractionSettings.value.customSettings = newSettings
+  extractionSettings.value.modificationSettings.options = newSettings
 }
 </script>
 
 <template>
   <ModeSelector
-    v-model="extractionSettings.extractionMode"
-    v-model:custom-settings="customSettings"
-    :custom-value="ExtractionMode.CUSTOM"
+    v-model="extractionSettings.modificationSettings.mode"
+    v-model:custom-settings="extractionSettings.modificationSettings.options"
+    :custom-value="ModificationMode.CUSTOM "
     :mode-options
     :setting-groups
     :preset-buttons
