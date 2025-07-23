@@ -16,7 +16,7 @@ export class ExtractionService {
     })
   }
 
-  async extractReferences(text: string, extractionSettings?: ExtractionSettings): Promise<AIExtractionResponse> {
+  async extractReferences(text: string, extractionSettings: ExtractionSettings): Promise<AIExtractionResponse> {
     let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.
 
 CRITICAL REQUIREMENT - MODIFICATION TRACKING:
@@ -26,24 +26,20 @@ When you extract references, you MUST track every change you make in the "modifi
 - If you make NO changes to a field, the modifications array should be empty
 - Missing modification tracking is considered a critical error`
 
-    // Add extraction mode instructions if provided
-    if (extractionSettings?.modificationSettings) {
-      const modeInstructions = getExtractionInstructions(extractionSettings.modificationSettings)
-      systemMessage += `\n\n${modeInstructions}`
-      console.warn(`[Extraction Mode: ${extractionSettings.modificationSettings.mode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
-    }
+    // Add extraction mode instructions
+    const modeInstructions = getExtractionInstructions(extractionSettings.modificationSettings)
+    systemMessage += `\n\n${modeInstructions}`
+    console.warn(`[Extraction Mode: ${extractionSettings.modificationSettings.mode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
 
-    // Add extraction settings instructions if provided
-    if (extractionSettings) {
-      const enabledFields = Object.entries(extractionSettings.enabledFields)
-        .filter(([_, enabled]) => enabled)
-        .map(([field, _]) => field)
+    // Add extraction field settings instructions
+    const enabledFields = Object.entries(extractionSettings.enabledFields)
+      .filter(([_, enabled]) => enabled)
+      .map(([field, _]) => field)
 
-      console.warn('Enabled fields:', enabledFields)
+    console.warn('Enabled fields:', enabledFields)
 
-      if (enabledFields.length > 0) {
-        systemMessage += `\n\nFocus ONLY on extracting the following fields: ${enabledFields.join(', ')}. Do not extract any other fields.`
-      }
+    if (enabledFields.length > 0) {
+      systemMessage += `\n\nFocus ONLY on extracting the following fields: ${enabledFields.join(', ')}. Do not extract any other fields.`
     }
 
     const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:

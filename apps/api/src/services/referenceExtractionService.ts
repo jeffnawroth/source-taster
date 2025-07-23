@@ -9,7 +9,7 @@ import { AIServiceFactory } from './ai/aiServiceFactory'
 export class ReferenceExtractionService {
   async extractReferences(
     text: string,
-    extractionSettings?: ExtractionSettings,
+    extractionSettings: ExtractionSettings,
   ): Promise<Reference[]> {
     const ai = AIServiceFactory.createOpenAIService()
 

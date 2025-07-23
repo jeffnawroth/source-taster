@@ -11,7 +11,7 @@ export class OpenAIService implements AIService {
     this.matchingService = new MatchingService(config)
   }
 
-  async extractReferences(text: string, extractionSettings?: ExtractionSettings): Promise<AIExtractionResponse> {
+  async extractReferences(text: string, extractionSettings: ExtractionSettings): Promise<AIExtractionResponse> {
     return this.extractionService.extractReferences(text, extractionSettings)
   }
 

@@ -30,6 +30,14 @@ export class ExtractionController {
         return c.json(errorResponse, 400)
       }
 
+      if (!request.extractionSettings) {
+        const errorResponse: ApiResponse = {
+          success: false,
+          error: 'Extraction settings are required',
+        }
+        return c.json(errorResponse, 400)
+      }
+
       // Extract references
       const references = await this.extractionService.extractReferences(
         request.text,
