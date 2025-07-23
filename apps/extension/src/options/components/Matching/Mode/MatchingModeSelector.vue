@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CustomMatchingSettings } from '@source-taster/types'
+import type { MatchingToleranceOptions } from '@source-taster/types'
 import {
   mdiCogOutline,
   mdiDeleteOutline,
@@ -10,29 +10,48 @@ import {
   mdiSelectAll,
   mdiTarget,
 } from '@mdi/js'
-import { BALANCED_MATCHING_SETTINGS, MatchingMode, STRICT_MATCHING_SETTINGS, TOLERANT_MATCHING_SETTINGS } from '@source-taster/types'
+import {
+  BALANCED_MATCHING_TOLERANCE_OPTIONS,
+  MatchingToleranceMode,
+  STRICT_MATCHING_TOLERANCE_OPTIONS,
+  TOLERANT_MATCHING_TOLERANCE_OPTIONS,
+} from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
 
-// Safe access to custom settings with initialization
-const customSettings = computed({
+// Safe access to tolerance options with initialization
+const toleranceOptions = computed({
   get: () => {
-    if (!matchingSettings.value.customSettings) {
-      matchingSettings.value.customSettings = {} as CustomMatchingSettings
+    if (!matchingSettings.value.toleranceSettings?.options) {
+      if (!matchingSettings.value.toleranceSettings) {
+        matchingSettings.value.toleranceSettings = {
+          mode: MatchingToleranceMode.BALANCED,
+          options: {} as MatchingToleranceOptions,
+        }
+      }
+      matchingSettings.value.toleranceSettings.options = {} as MatchingToleranceOptions
     }
-    return matchingSettings.value.customSettings
+    return matchingSettings.value.toleranceSettings.options
   },
   set: (value) => {
-    matchingSettings.value.customSettings = value
+    if (!matchingSettings.value.toleranceSettings) {
+      matchingSettings.value.toleranceSettings = {
+        mode: MatchingToleranceMode.CUSTOM,
+        options: value,
+      }
+    }
+    else {
+      matchingSettings.value.toleranceSettings.options = value
+    }
   },
 })
 
 // Mode options configuration
 const modeOptions = computed(() => [
   {
-    value: MatchingMode.STRICT,
+    value: MatchingToleranceMode.STRICT,
     icon: mdiLock,
     label: t('matching-mode-strict'),
     description: t('matching-mode-strict-description'),
@@ -40,7 +59,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('matching-mode-strict-tooltip-description'),
   },
   {
-    value: MatchingMode.BALANCED,
+    value: MatchingToleranceMode.BALANCED,
     icon: mdiScale,
     label: t('matching-mode-balanced'),
     description: t('matching-mode-balanced-description'),
@@ -48,7 +67,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('matching-mode-balanced-tooltip-description'),
   },
   {
-    value: MatchingMode.TOLERANT,
+    value: MatchingToleranceMode.TOLERANT,
     icon: mdiTarget,
     label: t('matching-mode-tolerant'),
     description: t('matching-mode-tolerant-description'),
@@ -56,7 +75,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('matching-mode-tolerant-tooltip-description'),
   },
   {
-    value: MatchingMode.CUSTOM,
+    value: MatchingToleranceMode.CUSTOM,
     icon: mdiCogOutline,
     label: t('matching-mode-custom'),
     description: t('matching-mode-custom-description'),
@@ -74,25 +93,25 @@ const settingGroups = computed(() => [
     icon: mdiFormTextbox,
     settings: [
       {
-        key: 'ignoreCaseForText' as keyof CustomMatchingSettings,
+        key: 'ignoreCaseForText' as keyof MatchingToleranceOptions,
         label: t('ignore-case'),
         description: t('ignore-case-description'),
         example: t('ignore-case-example'),
       },
       {
-        key: 'ignorePunctuation' as keyof CustomMatchingSettings,
+        key: 'ignorePunctuation' as keyof MatchingToleranceOptions,
         label: t('ignore-punctuation'),
         description: t('ignore-punctuation-description'),
         example: t('ignore-punctuation-example'),
       },
       {
-        key: 'ignoreWhitespace' as keyof CustomMatchingSettings,
+        key: 'ignoreWhitespace' as keyof MatchingToleranceOptions,
         label: t('ignore-whitespace'),
         description: t('ignore-whitespace-description'),
         example: t('ignore-whitespace-example'),
       },
       {
-        key: 'normalizeCharacters' as keyof CustomMatchingSettings,
+        key: 'normalizeCharacters' as keyof MatchingToleranceOptions,
         label: t('normalize-characters'),
         description: t('normalize-characters-description'),
         example: t('normalize-characters-example'),
@@ -106,25 +125,25 @@ const settingGroups = computed(() => [
     icon: mdiPalette,
     settings: [
       {
-        key: 'allowAuthorFormatVariations' as keyof CustomMatchingSettings,
+        key: 'allowAuthorFormatVariations' as keyof MatchingToleranceOptions,
         label: t('allow-author-format-variations'),
         description: t('allow-author-format-variations-description'),
         example: t('allow-author-format-variations-example'),
       },
       {
-        key: 'allowJournalAbbreviations' as keyof CustomMatchingSettings,
+        key: 'allowJournalAbbreviations' as keyof MatchingToleranceOptions,
         label: t('allow-journal-abbreviations'),
         description: t('allow-journal-abbreviations-description'),
         example: t('allow-journal-abbreviations-example'),
       },
       {
-        key: 'allowPageFormatVariations' as keyof CustomMatchingSettings,
+        key: 'allowPageFormatVariations' as keyof MatchingToleranceOptions,
         label: t('allow-page-format-variations'),
         description: t('allow-page-format-variations-description'),
         example: t('allow-page-format-variations-example'),
       },
       {
-        key: 'allowDateFormatVariations' as keyof CustomMatchingSettings,
+        key: 'allowDateFormatVariations' as keyof MatchingToleranceOptions,
         label: t('allow-date-format-variations'),
         description: t('allow-date-format-variations-description'),
         example: t('allow-date-format-variations-example'),
@@ -162,67 +181,75 @@ const presetButtons = computed(() => [
   },
 ])
 
-// Base function to ensure custom mode and settings initialization
-function ensureCustomModeSettings(): CustomMatchingSettings {
-  matchingSettings.value.matchingMode = MatchingMode.CUSTOM
-
-  if (!matchingSettings.value.customSettings) {
-    matchingSettings.value.customSettings = {} as CustomMatchingSettings
+// Base function to ensure custom mode and tolerance options initialization
+function ensureCustomModeSettings(): MatchingToleranceOptions {
+  if (!matchingSettings.value.toleranceSettings) {
+    matchingSettings.value.toleranceSettings = {
+      mode: MatchingToleranceMode.CUSTOM,
+      options: {} as MatchingToleranceOptions,
+    }
+  }
+  else {
+    matchingSettings.value.toleranceSettings.mode = MatchingToleranceMode.CUSTOM
   }
 
-  return { ...matchingSettings.value.customSettings }
+  if (!matchingSettings.value.toleranceSettings.options) {
+    matchingSettings.value.toleranceSettings.options = {} as MatchingToleranceOptions
+  }
+
+  return { ...matchingSettings.value.toleranceSettings.options }
 }
 
 // Base function to apply preset settings
-function applyPreset(presetConfig: Partial<CustomMatchingSettings>) {
+function applyPreset(presetConfig: Partial<MatchingToleranceOptions>) {
   const newSettings = ensureCustomModeSettings()
   Object.assign(newSettings, presetConfig)
-  matchingSettings.value.customSettings = newSettings
+  matchingSettings.value.toleranceSettings!.options = newSettings
 }
 
 // Preset functions using predefined configurations
 function loadStrictPreset() {
-  applyPreset(STRICT_MATCHING_SETTINGS)
+  applyPreset(STRICT_MATCHING_TOLERANCE_OPTIONS)
 }
 
 function loadBalancedPreset() {
-  applyPreset(BALANCED_MATCHING_SETTINGS)
+  applyPreset(BALANCED_MATCHING_TOLERANCE_OPTIONS)
 }
 
 function loadTolerantPreset() {
-  applyPreset(TOLERANT_MATCHING_SETTINGS)
+  applyPreset(TOLERANT_MATCHING_TOLERANCE_OPTIONS)
 }
 
 function clearAll() {
   const newSettings = ensureCustomModeSettings()
 
   // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_MATCHING_SETTINGS) as Array<keyof CustomMatchingSettings>
+  const templateKeys = Object.keys(STRICT_MATCHING_TOLERANCE_OPTIONS) as Array<keyof MatchingToleranceOptions>
   templateKeys.forEach((key) => {
     newSettings[key] = false as any
   })
 
-  matchingSettings.value.customSettings = newSettings
+  matchingSettings.value.toleranceSettings!.options = newSettings
 }
 
 function selectAll() {
   const newSettings = ensureCustomModeSettings()
 
   // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_MATCHING_SETTINGS) as Array<keyof CustomMatchingSettings>
+  const templateKeys = Object.keys(STRICT_MATCHING_TOLERANCE_OPTIONS) as Array<keyof MatchingToleranceOptions>
   templateKeys.forEach((key) => {
     newSettings[key] = true as any
   })
 
-  matchingSettings.value.customSettings = newSettings
+  matchingSettings.value.toleranceSettings!.options = newSettings
 }
 </script>
 
 <template>
   <ModeSelector
-    v-model="matchingSettings.matchingMode"
-    v-model:custom-settings="customSettings"
-    :custom-value="MatchingMode.CUSTOM"
+    v-model="matchingSettings.toleranceSettings.mode"
+    v-model:custom-settings="toleranceOptions"
+    :custom-value="MatchingToleranceMode.CUSTOM"
     :mode-options
     :setting-groups
     :preset-buttons

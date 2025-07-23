@@ -1,5 +1,5 @@
 import type { AIMatchingResponse, MatchingSettings, OpenAIConfig } from '@source-taster/types'
-import { MatchingMode } from '@source-taster/types'
+import { MatchingToleranceMode } from '@source-taster/types'
 import { OpenAI } from 'openai'
 import { matchingJsonSchema, MatchingResponseSchema } from './schemas/matching'
 
@@ -17,7 +17,7 @@ export class MatchingService {
   }
 
   async matchFields(prompt: string, matchingSettings?: MatchingSettings): Promise<AIMatchingResponse> {
-    const systemMessage = this.generateSystemMessage(matchingSettings?.matchingMode || MatchingMode.BALANCED)
+    const systemMessage = this.generateSystemMessage(matchingSettings?.toleranceSettings.mode || MatchingToleranceMode.BALANCED)
 
     try {
       const response = await this.client.chat.completions.create({
@@ -68,7 +68,7 @@ export class MatchingService {
   /**
    * Generate system message based on matching mode
    */
-  private generateSystemMessage(mode: MatchingMode): string {
+  private generateSystemMessage(mode: MatchingToleranceMode): string {
     const baseInstructions = `You are an expert bibliographic matching assistant. Your task is to provide field-by-field matching scores.
     
 CRITICAL INSTRUCTIONS:
@@ -78,7 +78,7 @@ CRITICAL INSTRUCTIONS:
 - This prevents unfair penalties when source databases have incomplete metadata`
 
     switch (mode) {
-      case MatchingMode.STRICT:
+      case MatchingToleranceMode.STRICT:
         return `${baseInstructions}
 
 STRICT MATCHING MODE - Exact matches only:
@@ -99,7 +99,7 @@ Scoring Guidelines for each field (0 or 100 only):
 • Volume/Issue/Pages: 100=exact match, 0=any difference
 • All other fields: 100=exactly identical, 0=any difference`
 
-      case MatchingMode.TOLERANT:
+      case MatchingToleranceMode.TOLERANT:
         return `${baseInstructions}
 
 TOLERANT MATCHING MODE - Semantic matching allowed:
@@ -121,7 +121,7 @@ Scoring Guidelines for each field (0-100):
 • Publisher: 100=identical, 95=same publisher different format, 85=subsidiary/parent company, 75=related publishers, 0=different
 • Conference/Institution: Similar semantic matching as above`
 
-      case MatchingMode.BALANCED:
+      case MatchingToleranceMode.BALANCED:
       default:
         return `${baseInstructions}
 
