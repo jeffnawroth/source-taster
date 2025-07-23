@@ -21,33 +21,6 @@ import { matchingSettings } from '@/extension/logic'
 // TRANSLATION
 const { t } = useI18n()
 
-// Safe access to tolerance options with initialization
-const toleranceOptions = computed({
-  get: () => {
-    if (!matchingSettings.value.toleranceSettings?.options) {
-      if (!matchingSettings.value.toleranceSettings) {
-        matchingSettings.value.toleranceSettings = {
-          mode: MatchingToleranceMode.BALANCED,
-          options: {} as MatchingToleranceOptions,
-        }
-      }
-      matchingSettings.value.toleranceSettings.options = {} as MatchingToleranceOptions
-    }
-    return matchingSettings.value.toleranceSettings.options
-  },
-  set: (value) => {
-    if (!matchingSettings.value.toleranceSettings) {
-      matchingSettings.value.toleranceSettings = {
-        mode: MatchingToleranceMode.CUSTOM,
-        options: value,
-      }
-    }
-    else {
-      matchingSettings.value.toleranceSettings.options = value
-    }
-  },
-})
-
 // Mode options configuration
 const modeOptions = computed(() => [
   {
@@ -248,7 +221,7 @@ function selectAll() {
 <template>
   <ModeSelector
     v-model="matchingSettings.toleranceSettings.mode"
-    v-model:custom-settings="toleranceOptions"
+    v-model:custom-settings="matchingSettings.toleranceSettings.options"
     :custom-value="MatchingToleranceMode.CUSTOM"
     :mode-options
     :setting-groups
