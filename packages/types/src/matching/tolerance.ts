@@ -1,7 +1,7 @@
 /**
  * Matching mode types for controlling verification strictness
  */
-export enum MatchingMode {
+export enum MatchingToleranceMode {
   /** Strict mode: Exact matches only - every character, capitalization, and format must match precisely */
   STRICT = 'strict',
   /** Balanced mode: Case-insensitive with minor format differences allowed */
@@ -13,14 +13,9 @@ export enum MatchingMode {
 }
 
 /**
- * Default matching mode
- */
-export const DEFAULT_MATCHING_MODE: MatchingMode = MatchingMode.BALANCED
-
-/**
  * Custom matching settings for fine-grained control
  */
-export interface CustomMatchingSettings {
+export interface MatchingToleranceOptions {
   /** Allow case-insensitive matching */
   ignoreCaseForText: boolean
   /** Allow minor punctuation differences (commas, periods, etc.) */
@@ -39,8 +34,13 @@ export interface CustomMatchingSettings {
   normalizeCharacters: boolean
 }
 
+/**
+ * Default matching mode
+ */
+export const DEFAULT_MATCHING_MODE: MatchingToleranceMode = MatchingToleranceMode.BALANCED
+
 // Preset configurations with explicit settings
-export const STRICT_MATCHING_SETTINGS: CustomMatchingSettings = {
+export const STRICT_MATCHING_TOLERANCE_OPTIONS: MatchingToleranceOptions = {
   ignoreCaseForText: false,
   ignorePunctuation: false,
   allowAuthorFormatVariations: false,
@@ -51,7 +51,7 @@ export const STRICT_MATCHING_SETTINGS: CustomMatchingSettings = {
   normalizeCharacters: false,
 }
 
-export const BALANCED_MATCHING_SETTINGS: CustomMatchingSettings = {
+export const BALANCED_MATCHING_TOLERANCE_OPTIONS: MatchingToleranceOptions = {
   ignoreCaseForText: true,
   ignorePunctuation: true,
   allowAuthorFormatVariations: true,
@@ -62,7 +62,7 @@ export const BALANCED_MATCHING_SETTINGS: CustomMatchingSettings = {
   normalizeCharacters: true,
 }
 
-export const TOLERANT_MATCHING_SETTINGS: CustomMatchingSettings = {
+export const TOLERANT_MATCHING_TOLERANCE_OPTIONS: MatchingToleranceOptions = {
   ignoreCaseForText: true,
   ignorePunctuation: true,
   allowAuthorFormatVariations: true,
