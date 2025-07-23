@@ -41,8 +41,8 @@ export interface AIExtractionResponse {
  * Defines the contract that all AI services must implement
  */
 export interface AIService {
-  extractReferences: (text: string, extractionSettings?: ExtractionSettings) => Promise<AIExtractionResponse>
-  matchFields: (prompt: string, matchingSettings?: MatchingSettings) => Promise<AIMatchingResponse>
+  extractReferences: (text: string, extractionSettings: ExtractionSettings) => Promise<AIExtractionResponse>
+  matchFields: (prompt: string, matchingSettings: MatchingSettings) => Promise<AIMatchingResponse>
 }
 
 /**
