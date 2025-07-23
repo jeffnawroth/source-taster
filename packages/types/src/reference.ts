@@ -2,7 +2,7 @@
  * Core reference and metadata types
  */
 
-import type { FieldModification } from './extraction'
+import type { FieldProcessingResult } from './extraction'
 
 /**
  * Represents a single bibliographic reference
@@ -14,8 +14,8 @@ export interface Reference {
   originalText: string
   /** Parsed/extracted bibliographic information */
   metadata: ReferenceMetadata
-  /** Information about modifications made during extraction */
-  modifications?: FieldModification[]
+  /** Information about processing actions applied during extraction */
+  processingResults?: FieldProcessingResult[]
 }
 
 /**

@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod'
-import { ModificationType } from './extraction'
+import { ProcessingActionType } from './extraction'
 
 /**
  * Schema for field modifications during extraction
@@ -16,7 +16,7 @@ export const FieldModificationSchema = z.object({
   fieldPath: z.string().describe('The field path that was modified (e.g., "metadata.title", "metadata.source.containerTitle")'),
   originalValue: z.string().describe('The original value before extraction'),
   extractedValue: z.string().describe('The extracted/corrected value'),
-  modificationType: z.nativeEnum(ModificationType).describe('Type of modification applied'),
+  modificationType: z.nativeEnum(ProcessingActionType).describe('Type of modification applied'),
 })
 
 /**

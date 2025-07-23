@@ -3,7 +3,7 @@
  */
 
 import type { Reference } from '../reference'
-import type { ExtractionSettings } from './settings'
+import type { ExtractionSettings } from './extraction-settings.types'
 
 /**
  * Request to extract references from text using AI
