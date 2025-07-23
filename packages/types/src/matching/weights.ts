@@ -4,11 +4,11 @@
 export interface FieldWeights {
   // Core bibliographic fields (primary matching)
   /** Weight for title matching (typically highest) */
-  title: number
+  title?: number
   /** Weight for author matching (typically high) */
-  authors: number
+  authors?: number
   /** Weight for publication year matching */
-  year: number
+  year?: number
 
   // External identifiers (exact matches, very high confidence)
   /** Weight for DOI matching (exact match, when available) */

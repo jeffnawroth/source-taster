@@ -8,9 +8,9 @@ const { t } = useI18n()
 <template>
   <SettingsPanel
     :icon="mdiTargetVariant"
-    :title="t('matching-mode-title')"
-    :description="t('matching-mode-description')"
-    :subtitle="t('matching-mode-description')"
+    :title="t('matching-tolerance-mode-title')"
+    :description="t('matching-tolerance-mode-description')"
+    :subtitle="t('matching-tolerance-mode-subtitle')"
   >
     <MatchingModeSelector />
   </SettingsPanel>
