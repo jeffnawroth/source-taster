@@ -1,11 +1,11 @@
-import type { ModificationOptions, ModificationSettings } from '@source-taster/types'
-import { DEFAULT_MODIFICATION_SETTINGS } from '@source-taster/types'
+import type { ProcessingRules, ProcessingStrategy } from '@source-taster/types'
+import { DEFAULT_PROCESSING_STRATEGY } from '@source-taster/types'
 
 /**
  * Generate detailed extraction instructions based on modification settings
  */
-export function getExtractionInstructions(modificationSettings: ModificationSettings): string {
-  switch (modificationSettings.mode) {
+export function getExtractionInstructions(processingStrategy: ProcessingStrategy): string {
+  switch (processingStrategy.mode) {
     case 'strict':
       return generateModeInstructions({
         correctTypos: false,
@@ -70,17 +70,17 @@ export function getExtractionInstructions(modificationSettings: ModificationSett
       }, 'TOLERANT MODE', 'Error-tolerant, AI-intelligent extraction for maximum success with problematic sources.')
 
     case 'custom':
-      return generateCustomModeInstructions(modificationSettings.options)
+      return generateCustomModeInstructions(processingStrategy.rules)
 
     default:
-      return getExtractionInstructions(DEFAULT_MODIFICATION_SETTINGS)
+      return getExtractionInstructions(DEFAULT_PROCESSING_STRATEGY)
   }
 }
 
 /**
  * Generate mode instructions using the same logic as custom mode
  */
-function generateModeInstructions(settings: ModificationOptions, modeTitle: string, _modeGoal: string): string {
+function generateModeInstructions(settings: ProcessingRules, modeTitle: string, _modeGoal: string): string {
   const allowedActions: string[] = []
   const forbiddenActions: string[] = []
 
@@ -234,13 +234,13 @@ IMPORTANT: ${modeTitle === 'STRICT MODE' ? 'This mode preserves the original for
 /**
  * Generate custom mode instructions based on user configuration
  */
-function generateCustomModeInstructions(settings?: ModificationOptions): string {
+function generateCustomModeInstructions(settings?: ProcessingRules): string {
   // Debug: Log the custom settings being processed
   console.warn('Backend: generateCustomModeInstructions called with:', settings)
 
   if (!settings) {
     console.warn('Backend: No custom settings provided, falling back to balanced mode')
-    return getExtractionInstructions(DEFAULT_MODIFICATION_SETTINGS)
+    return getExtractionInstructions(DEFAULT_PROCESSING_STRATEGY)
   }
 
   const allowedActions: string[] = []

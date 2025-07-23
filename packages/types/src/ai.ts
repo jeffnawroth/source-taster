@@ -2,7 +2,8 @@
  * AI service interfaces and configuration types
  */
 
-import type { ExtractionSettings, FieldModification } from './extraction'
+import type { FieldProcessingResult } from './extraction'
+import type { ExtractionSettings } from './extraction/extraction-settings.types'
 import type { FieldMatchDetail, MatchingSettings } from './matching'
 import type { ReferenceMetadata } from './reference'
 
@@ -25,7 +26,7 @@ export interface AIExtractedReference {
   /** Parsed/extracted bibliographic information */
   metadata: ReferenceMetadata
   /** Information about modifications made during extraction */
-  modifications?: FieldModification[]
+  processingResults?: FieldProcessingResult[]
 }
 
 /**

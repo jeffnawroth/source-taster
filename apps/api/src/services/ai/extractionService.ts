@@ -27,12 +27,12 @@ When you extract references, you MUST track every change you make in the "modifi
 - Missing modification tracking is considered a critical error`
 
     // Add extraction mode instructions
-    const modeInstructions = getExtractionInstructions(extractionSettings.modificationSettings)
+    const modeInstructions = getExtractionInstructions(extractionSettings.processingStrategy)
     systemMessage += `\n\n${modeInstructions}`
-    console.warn(`[Extraction Mode: ${extractionSettings.modificationSettings.mode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
+    console.warn(`[Extraction Mode: ${extractionSettings.processingStrategy.mode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
 
     // Add extraction field settings instructions
-    const enabledFields = Object.entries(extractionSettings.enabledFields)
+    const enabledFields = Object.entries(extractionSettings.extractionConfig)
       .filter(([_, enabled]) => enabled)
       .map(([field, _]) => field)
 
