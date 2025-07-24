@@ -36,29 +36,20 @@ export interface ProcessingRuleDefinition {
 
 export enum ProcessingRuleCategory {
   TEXT_PROCESSING = 'text-processing',
+  CONTENT_FORMATTING = 'content-formatting',
+  TECHNICAL_PROCESSING = 'technical-processing',
+
 }
 
-/**
- * Types of processing actions applied during extraction
- * Represents specific transformations/enhancements performed on extracted data
- */
 export enum ProcessingActionType {
   TYPO_CORRECTION = 'typo-correction',
-  CAPITALIZATION_STANDARDIZATION = 'capitalization-standardization',
-  ABBREVIATION_EXPANSION = 'abbreviation-expansion',
-  PUNCTUATION_STANDARDIZATION = 'punctuation-standardization',
-  FORMAT_STANDARDIZATION = 'format-standardization',
-  FIELD_DERIVATION = 'field-derivation',
-  CONTEXTUAL_INTERPRETATION = 'contextual-interpretation',
-  AUTHOR_NAME_FORMATTING = 'author-name-formatting',
-  DATE_FORMATTING = 'date-formatting',
-  IDENTIFIER_STANDARDIZATION = 'identifier-standardization',
-  UNICODE_NORMALIZATION = 'unicode-normalization',
-  OCR_ERROR_CORRECTION = 'ocr-error-correction',
-  TITLE_CASE_CONVERSION = 'title-case-conversion',
-  DUPLICATE_REMOVAL = 'duplicate-removal',
-  INFORMATION_RECONSTRUCTION = 'information-reconstruction',
-  FORMATTING_CORRECTION = 'formatting-correction',
-  DATA_COMPLETION = 'data-completion',
-  SOURCE_TYPE_INFERENCE = 'source-type-inference',
+  NORMALIZE_TITLE_CASE = 'normalize-title-case',
+  EXPAND_ABBREVIATIONS = 'expand-abbreviations',
+  STANDARDIZE_PUNCTUATION = 'standardize-punctuation',
+  FORMAT_AUTHOR_NAMES = 'format-author-names',
+  STANDARDIZE_DATE_FORMAT = 'standardize-date-format',
+  STANDARDIZE_IDENTIFIERS = 'standardize-identifiers',
+  FIX_ENCODING_ISSUES = 'fix-encoding-issues',
+  REPAIR_LINE_BREAKS = 'repair-line-breaks',
+  REMOVE_ARTIFACTS = 'remove-artifacts',
 }
