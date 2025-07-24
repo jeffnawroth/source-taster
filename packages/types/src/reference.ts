@@ -3,6 +3,7 @@
  */
 
 import type { FieldProcessingResult } from './extraction'
+import z from 'zod'
 
 /**
  * Represents a single bibliographic reference
@@ -42,17 +43,13 @@ export interface ReferenceMetadata {
   identifiers?: ExternalIdentifiers
 }
 
-/**
- * Author information
- */
-export interface Author {
-  /** First name(s) of the author (e.g., "John", "Mary Jane") */
-  firstName?: string
-  /** Last name/surname of the author (e.g., "Smith") */
-  lastName: string
-  /** Optional role of the author (e.g., "editor", "translator") */
-  role?: 'author' | 'editor' | 'translator' | 'compiler' | 'director' | 'producer' | string
-}
+export const AuthorSchema = z.object({
+  firstName: z.string().optional().describe('First name(s) of the author (e.g., "John", "Mary Jane")'),
+  lastName: z.string().describe('Last name/surname of the author (e.g., "Smith")'),
+  role: z.string().optional().describe('Optional role of the author (e.g., "editor", "translator")'),
+})
+
+export type Author = z.infer<typeof AuthorSchema>
 
 /**
  * External database identifiers
