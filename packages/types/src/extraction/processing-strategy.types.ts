@@ -26,12 +26,16 @@ export interface ProcessingStrategy {
 export interface ProcessingRuleDefinition {
   id: string
   actionType: ProcessingActionType
-  category: string
+  category: ProcessingRuleCategory
   supportedModes: ProcessingMode[]
   aiInstruction: {
     prompt: string
     example: string
   }
+}
+
+export enum ProcessingRuleCategory {
+  TEXT_PROCESSING = 'text-processing',
 }
 
 /**

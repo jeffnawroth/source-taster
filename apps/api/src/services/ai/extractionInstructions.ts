@@ -1,14 +1,11 @@
 import type { ProcessingStrategy } from '@source-taster/types'
-import { PROCESSING_RULES } from '@source-taster/types'
 
 /**
  * Generate extraction instructions based on processing strategy
  */
 export function getExtractionInstructions(processingStrategy: ProcessingStrategy): string {
-  // Get rules that are supported by the current mode
-  const activeRules = PROCESSING_RULES.filter(rule =>
-    rule.supportedModes.includes(processingStrategy.mode),
-  )
+  // Use the rules that are already filtered by the frontend
+  const activeRules = processingStrategy.rules
 
   // If no rules are active, return empty instructions (AI should do nothing)
   if (activeRules.length === 0) {

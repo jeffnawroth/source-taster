@@ -8,7 +8,7 @@ import {
   mdiTarget,
   mdiWrench,
 } from '@mdi/js'
-import { PROCESSING_RULES, ProcessingMode } from '@source-taster/types'
+import { getDefaultRulesForMode, PROCESSING_RULES, ProcessingMode } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 
 // TRANSLATION
@@ -96,9 +96,29 @@ const presetButtons = computed(() => [
 
 // Simple function to set processing mode
 function setProcessingMode(mode: ProcessingMode) {
-  extractionSettings.value.processingStrategy.mode = mode
-  // Rules are handled centrally, no need to manage individual settings
+  // Use helper function to get rules for the selected mode
+  const activeRules = getDefaultRulesForMode(mode)
+
+  extractionSettings.value.processingStrategy = {
+    mode,
+    rules: activeRules,
+  }
 }
+
+// Watch for mode changes and update rules automatically
+watch(
+  () => extractionSettings.value.processingStrategy.mode,
+  (newMode) => {
+    setProcessingMode(newMode)
+  },
+  { immediate: true }, // Run immediately to set initial rules
+)
+
+// Ensure rules are set correctly on component mount
+onMounted(() => {
+  const currentMode = extractionSettings.value.processingStrategy.mode
+  setProcessingMode(currentMode)
+})
 </script>
 
 <template>
