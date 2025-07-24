@@ -17,14 +17,8 @@ export class ExtractionService {
   }
 
   async extractReferences(text: string, extractionSettings: ExtractionSettings): Promise<AIExtractionResponse> {
-    let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.
-
-CRITICAL REQUIREMENT - MODIFICATION TRACKING:
-When you extract references, you MUST track every change you make in the "processingResults" array. This is not optional!
-- If you correct typos, fix capitalization, standardize formatting, or make ANY changes, add them to processingResults
-- Each processing needs: fieldPath, originalValue, extractedValue, actionTypes
-- If you make NO changes to a field, the processingResults array should be empty
-- Missing processing tracking is considered a critical error`
+    let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text. 
+    When you extract references, you MUST track every change you make in the "processingResults" array.`
 
     // Add extraction mode instructions
     const modeInstructions = getExtractionInstructions(extractionSettings.processingStrategy)
