@@ -2,6 +2,8 @@
  * Extraction modes and custom settings configuration
  */
 
+import z from 'zod'
+
 /**
  * Extraction mode types for AI processing
  */
@@ -63,16 +65,11 @@ export enum ProcessingActionType {
   SOURCE_TYPE_INFERENCE = 'source-type-inference',
 }
 
-/**
- * Record of a processing action applied to a specific field
- */
-export interface FieldProcessingResult {
-  /** The field path that was processed (e.g., "metadata.title", "metadata.source.containerTitle") */
-  fieldPath: string
-  /** The original value before processing */
-  originalValue: string
-  /** The value after processing */
-  processedValue: string
-  /** Type of processing action applied */
-  actionType: ProcessingActionType
-}
+export const FieldProcessingResultSchema = z.object({
+  fieldPath: z.string().describe('The field path that was processed (e.g., "metadata.title", "metadata.source.containerTitle")'),
+  originalValue: z.string().describe('The original value before processing'),
+  processedValue: z.string().describe('The value after processing'),
+  actionTypes: z.array(z.nativeEnum(ProcessingActionType)).describe('Type of processing actions applied'),
+})
+
+export type FieldProcessingResult = z.infer<typeof FieldProcessingResultSchema>

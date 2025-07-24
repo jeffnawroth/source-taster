@@ -20,27 +20,15 @@ export class ExtractionService {
     let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.
 
 CRITICAL REQUIREMENT - MODIFICATION TRACKING:
-When you extract references, you MUST track every change you make in the "modifications" array. This is not optional!
-- If you correct typos, fix capitalization, standardize formatting, or make ANY changes, add them to modifications
-- Each modification needs: fieldPath, originalValue, extractedValue, modificationType
-- If you make NO changes to a field, the modifications array should be empty
-- Missing modification tracking is considered a critical error`
+When you extract references, you MUST track every change you make in the "processingResults" array. This is not optional!
+- If you correct typos, fix capitalization, standardize formatting, or make ANY changes, add them to processingResults
+- Each processing needs: fieldPath, originalValue, extractedValue, actionTypes
+- If you make NO changes to a field, the processingResults array should be empty
+- Missing processing tracking is considered a critical error`
 
     // Add extraction mode instructions
     const modeInstructions = getExtractionInstructions(extractionSettings.processingStrategy)
     systemMessage += `\n\n${modeInstructions}`
-    console.warn(`[Extraction Mode: ${extractionSettings.processingStrategy.mode}] Added instructions:`, `${modeInstructions.substring(0, 100)}...`)
-
-    // Add extraction field settings instructions
-    const enabledFields = Object.entries(extractionSettings.extractionConfig)
-      .filter(([_, enabled]) => enabled)
-      .map(([field, _]) => field)
-
-    console.warn('Enabled fields:', enabledFields)
-
-    if (enabledFields.length > 0) {
-      systemMessage += `\n\nFocus ONLY on extracting the following fields: ${enabledFields.join(', ')}. Do not extract any other fields.`
-    }
 
     const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:
 

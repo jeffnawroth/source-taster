@@ -1,4 +1,4 @@
-import { AuthorSchema, type ExtractionSettings } from '@source-taster/types'
+import { AuthorSchema, type ExtractionSettings, FieldProcessingResultSchema } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
@@ -143,6 +143,7 @@ export function createDynamicExtractionSchema(extractionSettings: ExtractionSett
   const DynamicReferenceSchema = z.object({
     originalText: z.string().describe('Complete reference as it appears in the text'),
     metadata: DynamicReferenceMetadataSchema.describe('Parsed bibliographic information'),
+    processingResults: z.array(FieldProcessingResultSchema).optional().describe('Results of field processing, if available'),
   })
 
   const DynamicExtractionResponseSchema = z.object({
@@ -152,7 +153,7 @@ export function createDynamicExtractionSchema(extractionSettings: ExtractionSett
   return {
     name: 'reference_extraction',
     schema: zodToJsonSchema(DynamicExtractionResponseSchema, {
-      $refStrategy: 'none', // Inline all schemas for OpenAI compatibility
+      $refStrategy: 'none',
     }),
   }
 }
