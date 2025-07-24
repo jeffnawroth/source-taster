@@ -47,11 +47,11 @@ export function createDynamicExtractionSchema(extractionSettings: ExtractionSett
   const hasIdentifierFields = enabledFields.some(field => Object.keys(ExternalIdentifiersSchema.shape).includes(field))
 
   if (hasDateFields) {
-    metadataShape.date = DynamicDateInfoSchema.describe('Date information')
+    metadataShape.date = DynamicDateInfoSchema.optional().describe('Date information')
   }
 
   if (hasSourceFields) {
-    metadataShape.source = DynamicSourceInfoSchema.describe('Source information')
+    metadataShape.source = DynamicSourceInfoSchema.optional().describe('Source information')
   }
 
   if (hasIdentifierFields) {

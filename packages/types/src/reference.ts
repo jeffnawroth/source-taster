@@ -98,8 +98,8 @@ export type SourceInfo = z.infer<typeof SourceInfoSchema>
 export const ReferenceMetadataSchema = z.object({
   title: z.string().optional().describe('Title of the work'),
   authors: z.array(z.union([z.string(), AuthorSchema])).optional().describe('List of author names or author objects'),
-  date: DateInfoSchema.describe('Date information'),
-  source: SourceInfoSchema.describe('Source information'),
+  date: DateInfoSchema.optional().describe('Date information'),
+  source: SourceInfoSchema.optional().describe('Source information'),
   identifiers: ExternalIdentifiersSchema.optional().describe('External database identifiers'),
 })
 
