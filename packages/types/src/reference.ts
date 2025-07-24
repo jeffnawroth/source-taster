@@ -2,21 +2,15 @@
  * Core reference and metadata types
  */
 
-import type { FieldProcessingResult } from './extraction'
+import type { AIExtractedReference } from './ai'
 import z from 'zod'
 
 /**
  * Represents a single bibliographic reference
  */
-export interface Reference {
+export interface Reference extends AIExtractedReference {
   /** Unique identifier for this reference */
   id: string
-  /** The raw reference text as it appeared in the source document */
-  originalText: string
-  /** Parsed/extracted bibliographic information */
-  metadata: ReferenceMetadata
-  /** Information about processing actions applied during extraction */
-  processingResults?: FieldProcessingResult[]
 }
 
 /**
@@ -30,18 +24,6 @@ export interface Reference {
  * Some fields may not be supported by all databases but are retained for
  * citation style completeness and future database expansion.
  */
-export interface ReferenceMetadata {
-  /** Authors of the work (can be strings or Author objects) */
-  authors?: (Author | string)[]
-  /** Date information */
-  date: DateInfo
-  /** Title information */
-  title?: string
-  /** Source information */
-  source: SourceInfo
-  /** External database identifiers */
-  identifiers?: ExternalIdentifiers
-}
 
 export const AuthorSchema = z.object({
   firstName: z.string().optional().describe('First name(s) of the author (e.g., "John", "Mary Jane")'),
@@ -51,114 +33,74 @@ export const AuthorSchema = z.object({
 
 export type Author = z.infer<typeof AuthorSchema>
 
-/**
- * External database identifiers
- */
-export interface ExternalIdentifiers {
-  /** Digital Object Identifier */
-  doi?: string
-  /** International Standard Book Number */
-  isbn?: string
-  /** International Standard Serial Number */
-  issn?: string
-  /** PubMed ID for medical literature */
-  pmid?: string
-  /** PubMed Central ID for medical literature */
-  pmcid?: string
-  /** arXiv identifier (e.g., "2301.12345") */
-  arxivId?: string
-}
+export const ExternalIdentifiersSchema = z.object({
+  doi: z.string().optional().describe('Digital Object Identifier'),
+  isbn: z.string().optional().describe('International Standard Book Number'),
+  issn: z.string().optional().describe('International Standard Serial Number'),
+  pmid: z.string().optional().describe('PubMed ID for medical literature'),
+  pmcid: z.string().optional().describe('PubMed Central ID for medical literature'),
+  arxivId: z.string().optional().describe('arXiv identifier (e.g., "2301.12345")'),
+})
 
-/**
- * Date and temporal information
- */
-export interface DateInfo {
-  /** The publication year */
-  year?: number
-  /** The month of publication (e.g., "January", "February") */
-  month?: string
-  /** The day of publication */
-  day?: number
-  /** Indicates if the reference spans a date range (e.g., "2019–2020") */
-  dateRange?: boolean
-  /** If dateRange is true, specifies the end year */
-  yearEnd?: number
-  /** Letter suffix for the year (e.g., "a", "b" in "2020a") */
-  yearSuffix?: string
-  /** Indicates if the reference has no date (n.d.) */
-  noDate?: boolean
-  /** Indicates if the work is marked as "in press" */
-  inPress?: boolean
-  /** Indicates if the date is approximate (ca., circa, etc.) */
-  approximateDate?: boolean
-  /** Season information (e.g., "Spring", "Summer") if applicable */
-  season?: string
-}
+export type ExternalIdentifiers = z.infer<typeof ExternalIdentifiersSchema>
 
-/**
- * Source and publication information
- */
-export interface SourceInfo {
-  /** Title of the containing work (e.g., journal name, book title) */
-  containerTitle?: string
-  /** Subtitle of the work (important for German citation styles) */
-  subtitle?: string
-  /** Volume number (typically for journals) */
-  volume?: string
-  /** Issue number (typically for journals) */
-  issue?: string
-  /** Page range (e.g., "123-145") */
-  pages?: string
-  /** Publisher name */
-  publisher?: string
-  /** Place of publication (important for German citation styles) */
-  publicationPlace?: string
-  /** URL where the work can be accessed */
-  url?: string
-  /** Type of source (e.g., "Journal article", "Book", "Webpage") */
-  sourceType?: string
-  /** Physical location information (e.g., museum location) */
-  location?: string
-  /** When the source was retrieved (for online sources) */
-  retrievalDate?: string
-  /** Edition information (e.g., "2nd ed.") */
-  edition?: string
-  /** Additional contributors beyond the main authors */
-  contributors?: Author[]
-  /** Type of page reference (e.g., "p." or "pp.") */
-  pageType?: string
-  /** Paragraph number for sources without page numbers */
-  paragraphNumber?: string
-  /** Prefix for volume (e.g., "Vol.", "Vols.") */
-  volumePrefix?: string
-  /** Prefix for issue (e.g., "No.") */
-  issuePrefix?: string
-  /** Supplement information (e.g., "Suppl. 2") */
-  supplementInfo?: string
-  /** Article number for electronic journals without page numbers */
-  articleNumber?: string
-  /** Indicates if the source is a standalone work */
-  isStandAlone?: boolean
-  /** Conference name (for conference papers) */
-  conference?: string
-  /** Institution (for theses, reports) */
-  institution?: string
-  /** Series name (important for German citation styles) */
-  series?: string
-  /** Series number within a series */
-  seriesNumber?: string
-  /** Chapter title (for book chapters) */
-  chapterTitle?: string
-  /** Medium of publication (print, web, CD-ROM, etc.) - important for MLA */
-  medium?: string
-  /** Original title (for translated works) - important for German citation styles */
-  originalTitle?: string
-  /** Original language of the work (for translations) */
-  originalLanguage?: string
-  /** Academic degree (for theses/dissertations) */
-  degree?: string
-  /** Thesis advisor/supervisor */
-  advisor?: string
-  /** Academic department */
-  department?: string
-}
+export const DateInfoSchema = z.object({
+  year: z.number().int().optional().describe('Publication year'),
+  month: z.string().optional().describe('Publication month'),
+  day: z.number().int().optional().describe('Publication day'),
+  dateRange: z.boolean().optional().describe('Indicates if this is a date range'),
+  yearEnd: z.number().int().optional().describe('End year for date ranges'),
+  yearSuffix: z.string().optional().describe('Year suffix like "a" or "b"'),
+  noDate: z.boolean().optional().describe('Indicates if no date is available'),
+  inPress: z.boolean().optional().describe('Indicates if work is in press'),
+  approximateDate: z.boolean().optional().describe('Indicates if date is approximate'),
+  season: z.string().optional().describe('Season of publication'),
+})
+
+export type DateInfo = z.infer<typeof DateInfoSchema>
+
+export const SourceInfoSchema = z.object({
+  containerTitle: z.string().optional().describe('Journal or book title'),
+  subtitle: z.string().optional().describe('Subtitle of the work'),
+  volume: z.string().optional().describe('Volume number'),
+  issue: z.string().optional().describe('Issue number'),
+  pages: z.string().optional().describe('Page range'),
+  publisher: z.string().optional().describe('Publisher name'),
+  publicationPlace: z.string().optional().describe('Place of publication'),
+  url: z.string().optional().describe('URL of the source'),
+  sourceType: z.string().optional().describe('Type of source'),
+  location: z.string().optional().describe('Physical location'),
+  retrievalDate: z.string().optional().describe('Date the source was retrieved'),
+  edition: z.string().optional().describe('Edition information'),
+  contributors: z.array(AuthorSchema).optional().describe('Additional contributors beyond the main authors'),
+  pageType: z.string().optional().describe('Type of page reference (e.g., "p.", "pp.")'),
+  paragraphNumber: z.string().optional().describe('Paragraph number for sources without page numbers'),
+  volumePrefix: z.string().optional().describe('Prefix for volume (e.g., "Vol.", "Vols.")'),
+  issuePrefix: z.string().optional().describe('Prefix for issue (e.g., "No.")'),
+  supplementInfo: z.string().optional().describe('Supplement information (e.g., "Suppl. 2")'),
+  articleNumber: z.string().optional().describe('Article number for electronic journals without page numbers'),
+  isStandAlone: z.boolean().optional().describe('Indicates if the source is a standalone work'),
+  conference: z.string().optional().describe('Conference name'),
+  institution: z.string().optional().describe('Institution name'),
+  series: z.string().optional().describe('Series name'),
+  seriesNumber: z.string().optional().describe('Series number'),
+  chapterTitle: z.string().optional().describe('Chapter title'),
+  medium: z.string().optional().describe('Medium of publication'),
+  originalTitle: z.string().optional().describe('Original title'),
+  originalLanguage: z.string().optional().describe('Original language'),
+  degree: z.string().optional().describe('Academic degree'),
+  advisor: z.string().optional().describe('Thesis advisor/supervisor'),
+  department: z.string().optional().describe('Academic department'),
+})
+
+export type SourceInfo = z.infer<typeof SourceInfoSchema>
+
+export const ReferenceMetadataSchema = z.object({
+  title: z.string().optional().describe('Title of the work'),
+  authors: z.array(z.union([z.string(), AuthorSchema])).optional().describe('List of author names or author objects'),
+  date: DateInfoSchema.describe('Date information'),
+  source: SourceInfoSchema.describe('Source information'),
+  identifiers: ExternalIdentifiersSchema.optional().describe('External database identifiers'),
+})
+
+export type ReferenceMetadata = z.infer<typeof ReferenceMetadataSchema>

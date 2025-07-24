@@ -2,8 +2,6 @@
  * Extraction modes and custom settings configuration
  */
 
-import z from 'zod'
-
 /**
  * Extraction mode types for AI processing
  */
@@ -64,12 +62,3 @@ export enum ProcessingActionType {
   DATA_COMPLETION = 'data-completion',
   SOURCE_TYPE_INFERENCE = 'source-type-inference',
 }
-
-export const FieldProcessingResultSchema = z.object({
-  fieldPath: z.string().describe('The field path that was processed (e.g., "metadata.title", "metadata.source.containerTitle")'),
-  originalValue: z.string().describe('The original value before processing'),
-  processedValue: z.string().describe('The value after processing'),
-  actionTypes: z.array(z.nativeEnum(ProcessingActionType)).describe('Type of processing actions applied'),
-})
-
-export type FieldProcessingResult = z.infer<typeof FieldProcessingResultSchema>
