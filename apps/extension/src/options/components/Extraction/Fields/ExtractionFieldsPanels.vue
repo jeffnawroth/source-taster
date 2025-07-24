@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ExtractionFields } from '@source-taster/types'
+import type { ExtractableField } from '@source-taster/types'
 import { mdiBookOpen, mdiCalendar, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
 import {
   ACADEMIC_FIELDS,
@@ -9,104 +9,73 @@ import {
   PUBLICATION_FIELDS,
   TECHNICAL_FIELDS,
 } from '@source-taster/types'
-import { computed } from 'vue'
 import { extractionSettings } from '../../../../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
 
 // TRANSLATION
 const { t } = useI18n()
 
-// COMPUTED - Wrapper for ExtractionFieldSection compatibility
-const extractionSettingsWrapper = computed({
-  get: () => ({ enabledFields: extractionSettings.value.enabledFields as unknown as Record<string, boolean> }),
-  set: (value) => {
-    Object.assign(extractionSettings.value.enabledFields, value.enabledFields)
-  },
-})
-const getCoreFieldsCount = computed(() => {
-  const fields = extractionSettings.value.enabledFields
-  return CORE_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
-})
+function isFieldEnabled(field: ExtractableField): boolean {
+  return extractionSettings.value.extractionConfig.includes(field)
+}
 
+function countEnabledFields(fields: ExtractableField[]): number {
+  return fields.filter(field => isFieldEnabled(field)).length
+}
+
+function getColorForCount(count: number, excellent: number, good: number): string {
+  if (count >= excellent)
+    return 'success'
+  if (count >= good)
+    return 'warning'
+  return 'default'
+}
+
+// Core fields computeds
+const getCoreFieldsCount = computed(() => countEnabledFields(CORE_FIELDS))
 const getCoreFieldsColor = computed(() => {
   const count = getCoreFieldsCount.value
-  if (count === 3)
+  if (count === CORE_FIELDS.length)
     return 'success'
   if (count >= 2)
     return 'warning'
   return 'error'
 })
 
-const getDateFieldsCount = computed(() => {
-  const fields = extractionSettings.value.enabledFields
-  return DATE_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
-})
+// Date fields computeds
+const getDateFieldsCount = computed(() => countEnabledFields(DATE_FIELDS))
+const getDateFieldsColor = computed(() =>
+  getColorForCount(getDateFieldsCount.value, 4, 2),
+)
 
-const getDateFieldsColor = computed(() => {
-  const count = getDateFieldsCount.value
-  if (count >= 4)
-    return 'success'
-  if (count >= 2)
-    return 'warning'
-  return 'default'
-})
+// Identifier fields computeds
+const getIdentifiersCount = computed(() => countEnabledFields(IDENTIFIER_FIELDS))
+const getIdentifiersColor = computed(() =>
+  getColorForCount(getIdentifiersCount.value, 3, 1),
+)
 
-const getIdentifiersCount = computed(() => {
-  const fields = extractionSettings.value.enabledFields
-  return IDENTIFIER_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
-})
+// Publication fields computeds
+const getPublicationCount = computed(() => countEnabledFields(PUBLICATION_FIELDS))
+const getPublicationColor = computed(() =>
+  getColorForCount(getPublicationCount.value, 8, 4),
+)
 
-const getIdentifiersColor = computed(() => {
-  const count = getIdentifiersCount.value
-  if (count >= 3)
-    return 'success'
-  if (count >= 1)
-    return 'warning'
-  return 'default'
-})
+// Academic fields computeds
+const getAcademicCount = computed(() => countEnabledFields(ACADEMIC_FIELDS))
+const getAcademicColor = computed(() =>
+  getColorForCount(getAcademicCount.value, 4, 2),
+)
 
-const getPublicationCount = computed(() => {
-  const fields = extractionSettings.value.enabledFields
-  return PUBLICATION_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
-})
+// Technical fields computeds
+const getTechnicalCount = computed(() => countEnabledFields(TECHNICAL_FIELDS))
+const getTechnicalColor = computed(() =>
+  getColorForCount(getTechnicalCount.value, 3, 1),
+)
 
-const getPublicationColor = computed(() => {
-  const count = getPublicationCount.value
-  if (count >= 8)
-    return 'success'
-  if (count >= 4)
-    return 'warning'
-  return 'default'
-})
-
-const getAcademicCount = computed(() => {
-  const fields = extractionSettings.value.enabledFields
-  return ACADEMIC_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
-})
-
-const getAcademicColor = computed(() => {
-  const count = getAcademicCount.value
-  if (count >= 4)
-    return 'success'
-  if (count >= 2)
-    return 'warning'
-  return 'default'
-})
-
-const getTechnicalCount = computed(() => {
-  const fields = extractionSettings.value.enabledFields
-  return TECHNICAL_FIELDS.filter((field: keyof ExtractionFields) => fields[field]).length
-})
-
-const getTechnicalColor = computed(() => {
-  const count = getTechnicalCount.value
-  if (count >= 3)
-    return 'success'
-  if (count >= 1)
-    return 'warning'
-  return 'default'
-})
-
+/**
+ * Create extraction field sections configuration
+ * Single responsibility: Section configuration
+ */
 const extractionFieldSections = computed(() => [
   {
     title: t('core-metadata'),
@@ -115,7 +84,6 @@ const extractionFieldSections = computed(() => [
     totalFields: CORE_FIELDS.length,
     count: getCoreFieldsCount.value,
     color: getCoreFieldsColor.value,
-
   },
   {
     title: t('date-information'),
@@ -142,7 +110,7 @@ const extractionFieldSections = computed(() => [
     color: getPublicationColor.value,
   },
   {
-    title: t('academic-institutional'),
+    title: t('academic-details'),
     icon: mdiSchool,
     fields: ACADEMIC_FIELDS,
     totalFields: ACADEMIC_FIELDS.length,
@@ -161,12 +129,19 @@ const extractionFieldSections = computed(() => [
 </script>
 
 <template>
-  <v-expansion-panels elevation="0">
+  <v-expansion-panels
+    multiple
+    variant="accordion"
+  >
     <ExtractionFieldSection
       v-for="section in extractionFieldSections"
       :key="section.title"
-      v-model="extractionSettingsWrapper"
-      v-bind="section"
+      :title="section.title"
+      :icon="section.icon"
+      :fields="section.fields"
+      :total-fields="section.totalFields"
+      :count="section.count"
+      :color="section.color"
     />
   </v-expansion-panels>
 </template>

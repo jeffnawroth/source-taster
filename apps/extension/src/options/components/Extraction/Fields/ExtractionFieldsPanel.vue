@@ -1,37 +1,40 @@
 <script setup lang="ts">
+import type { ExtractableField } from '@source-taster/types'
 import { mdiCheckboxMultipleMarked } from '@mdi/js'
+import {
+  ACADEMIC_FIELDS,
+  CORE_FIELDS,
+  DATE_FIELDS,
+  ESSENTIAL_EXTRACTION_CONFIG,
+  IDENTIFIER_FIELDS,
+  PUBLICATION_FIELDS,
+  TECHNICAL_FIELDS,
+} from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
 
-// FUNCTIONS
 function deselectAll() {
-  const fields = extractionSettings.value.enabledFields
-  Object.keys(fields).forEach((key) => {
-    fields[key as keyof typeof fields] = false
-  })
+  extractionSettings.value.extractionConfig = []
 }
 
 function selectAll() {
-  const fields = extractionSettings.value.enabledFields
-  Object.keys(fields).forEach((key) => {
-    fields[key as keyof typeof fields] = true
-  })
+  const allFields: ExtractableField[] = [
+    ...CORE_FIELDS,
+    ...DATE_FIELDS,
+    ...IDENTIFIER_FIELDS,
+    ...PUBLICATION_FIELDS,
+    ...ACADEMIC_FIELDS,
+    ...TECHNICAL_FIELDS,
+  ]
+
+  // Remove duplicates using Set
+  extractionSettings.value.extractionConfig = [...new Set(allFields)]
 }
 
 function selectEssentials() {
-  // First deselect all
-  deselectAll()
-
-  // Then select essential fields
-  const fields = extractionSettings.value.enabledFields
-  fields.title = true
-  fields.authors = true
-  fields.year = true
-  fields.doi = true
-  fields.containerTitle = true
-  fields.pages = true
+  extractionSettings.value.extractionConfig = [...ESSENTIAL_EXTRACTION_CONFIG]
 }
 </script>
 

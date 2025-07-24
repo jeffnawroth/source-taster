@@ -1,18 +1,16 @@
 <script setup lang="ts">
+import type { ExtractableField } from '@source-taster/types'
+import { extractionSettings } from '@/extension/logic'
+
 // PROPS
 defineProps<{
   title: string
   icon: string
-  fields: string[]
+  fields: ExtractableField[]
   count: number
   totalFields: number
   color: string
 }>()
-
-// MODEL
-const extractionSettings = defineModel<{
-  enabledFields: Record<string, boolean>
-}>({ required: true })
 </script>
 
 <template>
@@ -34,18 +32,34 @@ const extractionSettings = defineModel<{
       </div>
     </v-expansion-panel-title>
     <v-expansion-panel-text>
-      <v-row>
-        <v-col
-          v-for="field in fields"
-          :key="field"
-          cols="auto"
+      <v-selection-control-group
+        v-model="extractionSettings.extractionConfig"
+      >
+        <v-row
+          dense
+          no-gutters
         >
-          <FieldCheckbox
-            v-model="extractionSettings.enabledFields[field]"
-            :field
-          />
-        </v-col>
-      </v-row>
+          <v-col
+            v-for="field in fields"
+            :key="field"
+            :cols="4"
+          >
+            <v-tooltip
+              location="top"
+            >
+              <template #activator="{ props }">
+                <v-checkbox
+
+                  v-bind="props"
+                  :label="$t(`field-${field}`)"
+                  :value="field"
+                />
+              </template>
+              {{ $t(`tooltip-${field}`) }}
+            </v-tooltip>
+          </v-col>
+        </v-row>
+      </v-selection-control-group>
     </v-expansion-panel-text>
   </v-expansion-panel>
 </template>
