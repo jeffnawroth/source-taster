@@ -1,7 +1,7 @@
 import type { AIMatchingResponse, MatchingSettings, OpenAIConfig } from '@source-taster/types'
 import { MatchingToleranceMode } from '@source-taster/types'
 import { OpenAI } from 'openai'
-import { matchingJsonSchema, MatchingResponseSchema } from './schemas/matching'
+import { matchingJsonSchema, MatchingResponseSchema } from '../../types/matching'
 
 export class MatchingService {
   private client: OpenAI

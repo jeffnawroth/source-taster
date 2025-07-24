@@ -1,7 +1,7 @@
 import type { AIExtractionResponse, ExtractionRequest, OpenAIConfig } from '@source-taster/types'
 import { OpenAI } from 'openai'
+import { createDynamicExtractionSchema } from '@/api/types/reference'
 import { getExtractionInstructions } from './extractionInstructions'
-import { createDynamicExtractionSchema } from './schemas/reference'
 
 export class ExtractionService {
   private client: OpenAI
