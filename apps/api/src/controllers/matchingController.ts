@@ -76,9 +76,14 @@ export class MatchingController {
         if (this.hasWebURL(reference)) {
           // Use website matching for references with URLs
           try {
+            const url = reference.metadata.source?.url
+            if (!url) {
+              throw new Error('URL is required for website matching')
+            }
+
             const websiteResult = await this.websiteMatchingService.matchWebsiteReference(
               reference,
-              reference.metadata.source.url!,
+              url,
               request.matchingSettings,
             )
 

@@ -45,7 +45,7 @@ export class CrossrefService {
   }
 
   private hasBibliographicData(metadata: ReferenceMetadata): boolean {
-    return !!(metadata.title && metadata.authors?.length && metadata.date.year)
+    return !!(metadata.title && metadata.authors?.length && metadata.date?.year)
   }
 
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
@@ -108,7 +108,7 @@ export class CrossrefService {
       params.append('query.bibliographic', bibQuery)
 
       // Add filters for better matching
-      if (metadata.date.year) {
+      if (metadata.date?.year) {
         params.append('filter', `from-pub-date:${metadata.date.year},until-pub-date:${metadata.date.year}`)
       }
 
@@ -209,16 +209,16 @@ export class CrossrefService {
       }
     }
 
-    if (metadata.date.year) {
+    if (metadata.date?.year) {
       parts.push(metadata.date.year.toString())
     }
 
-    if (metadata.source.containerTitle) {
+    if (metadata.source?.containerTitle) {
       parts.push(metadata.source.containerTitle)
     }
 
     // Add volume if available for better matching
-    if (metadata.source.volume) {
+    if (metadata.source?.volume) {
       parts.push(`vol ${metadata.source.volume}`)
     }
 
@@ -233,7 +233,7 @@ export class CrossrefService {
     }
 
     // Add publisher for books and reports
-    if (metadata.source.publisher && ['Book', 'Report', 'Thesis'].includes(metadata.source.sourceType || '')) {
+    if (metadata.source?.publisher && ['Book', 'Report', 'Thesis'].includes(metadata.source?.sourceType || '')) {
       parts.push(metadata.source.publisher)
     }
 
@@ -304,7 +304,7 @@ export class CrossrefService {
       }
     }
 
-    if (metadata.source.containerTitle) {
+    if (metadata.source?.containerTitle) {
       queryParts.push(metadata.source.containerTitle)
     }
 
@@ -383,8 +383,8 @@ export class CrossrefService {
     return {
       title,
       authors,
-      date: dateInfo,
-      source: sourceInfo,
+      date: dateInfo!,
+      source: sourceInfo!,
       identifiers,
     }
   }

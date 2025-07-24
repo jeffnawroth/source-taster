@@ -358,21 +358,21 @@ export class EuropePmcService {
     }
 
     // 3. Journal search - use JOURNAL field for precise journal matching
-    if (metadata.source.containerTitle) {
+    if (metadata.source?.containerTitle) {
       queryParts.push(`JOURNAL:"${this.escapeSearchTerm(metadata.source.containerTitle)}"`)
     }
 
     // 4. Publication year - use PUB_YEAR field
-    if (metadata.date.year) {
+    if (metadata.date?.year) {
       queryParts.push(`PUB_YEAR:${metadata.date.year}`)
     }
 
     // 5. Volume and issue for more precise matching
-    if (metadata.source.volume) {
+    if (metadata.source?.volume) {
       queryParts.push(`VOLUME:"${this.escapeSearchTerm(metadata.source.volume)}"`)
     }
 
-    if (metadata.source.issue) {
+    if (metadata.source?.issue) {
       queryParts.push(`ISSUE:"${this.escapeSearchTerm(metadata.source.issue)}"`)
     }
 
@@ -477,14 +477,14 @@ export class EuropePmcService {
 
     // Source/Journal information
     if (work.journalTitle) {
-      metadata.source.containerTitle = work.journalTitle
+      metadata.source!.containerTitle = work.journalTitle
     }
 
     // Publication dates
     if (work.pubYear) {
       const year = Number.parseInt(work.pubYear, 10)
       if (!Number.isNaN(year)) {
-        metadata.date.year = year
+        metadata.date!.year = year
       }
     }
 
@@ -494,27 +494,27 @@ export class EuropePmcService {
       if (dateString) {
         const date = new Date(dateString)
         if (!Number.isNaN(date.getTime())) {
-          if (!metadata.date.year) {
-            metadata.date.year = date.getFullYear()
+          if (!metadata.date!.year) {
+            metadata.date!.year = date.getFullYear()
           }
-          metadata.date.month = date.toLocaleString('en-US', { month: 'long' })
-          metadata.date.day = date.getDate()
+          metadata.date!.month = date.toLocaleString('en-US', { month: 'long' })
+          metadata.date!.day = date.getDate()
         }
       }
     }
 
     // Volume and issue
     if (work.journalVolume) {
-      metadata.source.volume = work.journalVolume
+      metadata.source!.volume = work.journalVolume
     }
 
     if (work.issue) {
-      metadata.source.issue = work.issue
+      metadata.source!.issue = work.issue
     }
 
     // Page information
     if (work.pageInfo) {
-      metadata.source.pages = work.pageInfo
+      metadata.source!.pages = work.pageInfo
     }
 
     // External identifiers
@@ -546,12 +546,12 @@ export class EuropePmcService {
     // Abstract (if available)
     if (work.abstractText) {
       // Store abstract in source type field for now (could be extended in future)
-      metadata.source.sourceType = 'Journal article'
+      metadata.source!.sourceType = 'Journal article'
     }
 
     // Publisher information
     if (work.journalInfo?.journal?.publisherName) {
-      metadata.source.publisher = work.journalInfo.journal.publisherName
+      metadata.source!.publisher = work.journalInfo.journal.publisherName
     }
 
     // Additional identifiers from Europe PMC
@@ -591,20 +591,20 @@ export class EuropePmcService {
 
       const primaryType = pubTypes[0]
       if (primaryType && typeMapping[primaryType]) {
-        metadata.source.sourceType = typeMapping[primaryType]
+        metadata.source!.sourceType = typeMapping[primaryType]
       }
       else if (primaryType) {
-        metadata.source.sourceType = primaryType
+        metadata.source!.sourceType = primaryType
       }
     }
 
     // Handle preprints
     if (work.source === 'PPR') {
-      metadata.source.sourceType = 'Preprint'
+      metadata.source!.sourceType = 'Preprint'
 
       // For preprints, the journal info might actually be the preprint server
-      if (work.journalTitle && !metadata.source.containerTitle) {
-        metadata.source.containerTitle = work.journalTitle
+      if (work.journalTitle && !metadata.source!.containerTitle) {
+        metadata.source!.containerTitle = work.journalTitle
       }
     }
 

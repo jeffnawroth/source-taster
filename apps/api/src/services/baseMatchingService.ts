@@ -26,7 +26,7 @@ export abstract class BaseMatchingService {
       && source.metadata.authors && source.metadata.authors.length > 0 && (matchingSettings.fieldWeights.authors || 0) > 0) {
       fields.push('authors')
     }
-    if (reference.metadata.date.year && source.metadata.date.year && (matchingSettings.fieldWeights.year || 0) > 0)
+    if (reference.metadata.date?.year && source.metadata.date?.year && (matchingSettings.fieldWeights.year || 0) > 0)
       fields.push('year')
 
     // Identifier fields
@@ -44,29 +44,29 @@ export abstract class BaseMatchingService {
       fields.push('issn')
 
     // Source fields
-    if (reference.metadata.source.containerTitle && source.metadata.source.containerTitle && (matchingSettings.fieldWeights.containerTitle || 0) > 0)
+    if (reference.metadata.source?.containerTitle && source.metadata.source?.containerTitle && (matchingSettings.fieldWeights.containerTitle || 0) > 0)
       fields.push('containerTitle')
-    if (reference.metadata.source.volume && source.metadata.source.volume && (matchingSettings.fieldWeights.volume || 0) > 0)
+    if (reference.metadata.source?.volume && source.metadata.source?.volume && (matchingSettings.fieldWeights.volume || 0) > 0)
       fields.push('volume')
-    if (reference.metadata.source.issue && source.metadata.source.issue && (matchingSettings.fieldWeights.issue || 0) > 0)
+    if (reference.metadata.source?.issue && source.metadata.source?.issue && (matchingSettings.fieldWeights.issue || 0) > 0)
       fields.push('issue')
-    if (reference.metadata.source.pages && source.metadata.source.pages && (matchingSettings.fieldWeights.pages || 0) > 0)
+    if (reference.metadata.source?.pages && source.metadata.source?.pages && (matchingSettings.fieldWeights.pages || 0) > 0)
       fields.push('pages')
-    if (reference.metadata.source.publisher && source.metadata.source.publisher && (matchingSettings.fieldWeights.publisher || 0) > 0)
+    if (reference.metadata.source?.publisher && source.metadata.source?.publisher && (matchingSettings.fieldWeights.publisher || 0) > 0)
       fields.push('publisher')
-    if (reference.metadata.source.url && source.metadata.source.url && (matchingSettings.fieldWeights.url || 0) > 0)
+    if (reference.metadata.source?.url && source.metadata.source?.url && (matchingSettings.fieldWeights.url || 0) > 0)
       fields.push('url')
-    if (reference.metadata.source.sourceType && source.metadata.source.sourceType && (matchingSettings.fieldWeights.sourceType || 0) > 0)
+    if (reference.metadata.source?.sourceType && source.metadata.source?.sourceType && (matchingSettings.fieldWeights.sourceType || 0) > 0)
       fields.push('sourceType')
-    if (reference.metadata.source.conference && source.metadata.source.conference && (matchingSettings.fieldWeights.conference || 0) > 0)
+    if (reference.metadata.source?.conference && source.metadata.source?.conference && (matchingSettings.fieldWeights.conference || 0) > 0)
       fields.push('conference')
-    if (reference.metadata.source.institution && source.metadata.source.institution && (matchingSettings.fieldWeights.institution || 0) > 0)
+    if (reference.metadata.source?.institution && source.metadata.source?.institution && (matchingSettings.fieldWeights.institution || 0) > 0)
       fields.push('institution')
-    if (reference.metadata.source.edition && source.metadata.source.edition && (matchingSettings.fieldWeights.edition || 0) > 0)
+    if (reference.metadata.source?.edition && source.metadata.source?.edition && (matchingSettings.fieldWeights.edition || 0) > 0)
       fields.push('edition')
-    if (reference.metadata.source.articleNumber && source.metadata.source.articleNumber && (matchingSettings.fieldWeights.articleNumber || 0) > 0)
+    if (reference.metadata.source?.articleNumber && source.metadata.source?.articleNumber && (matchingSettings.fieldWeights.articleNumber || 0) > 0)
       fields.push('articleNumber')
-    if (reference.metadata.source.subtitle && source.metadata.source.subtitle && (matchingSettings.fieldWeights.subtitle || 0) > 0)
+    if (reference.metadata.source?.subtitle && source.metadata.source?.subtitle && (matchingSettings.fieldWeights.subtitle || 0) > 0)
       fields.push('subtitle')
 
     return fields

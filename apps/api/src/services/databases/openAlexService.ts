@@ -127,7 +127,7 @@ export class OpenAlexService {
     }
 
     // Year filter is very reliable and helps narrow down results significantly
-    if (metadata.date.year) {
+    if (metadata.date?.year) {
       filters.push(`publication_year:${metadata.date.year}`)
     }
 
@@ -140,7 +140,7 @@ export class OpenAlexService {
       const searchTerms: string[] = []
       if (metadata.title)
         searchTerms.push(metadata.title)
-      if (metadata.source.containerTitle)
+      if (metadata.source?.containerTitle)
         searchTerms.push(metadata.source.containerTitle)
 
       if (searchTerms.length > 0) {
@@ -224,12 +224,12 @@ export class OpenAlexService {
     if (work.primary_location?.source) {
       const source = work.primary_location.source
       if (source.display_name) {
-        metadata.source.containerTitle = source.display_name
+        metadata.source!.containerTitle = source.display_name
       }
 
       // Source type mapping - prioritize document type over venue type
       if (work.type_crossref || work.type) {
-        metadata.source.sourceType = this.mapOpenAlexTypeToSourceType((work.type_crossref || work.type)!)
+        metadata.source!.sourceType = this.mapOpenAlexTypeToSourceType((work.type_crossref || work.type)!)
       }
 
       // ISSN from source
@@ -241,16 +241,16 @@ export class OpenAlexService {
 
     // Date information - more comprehensive parsing
     if (work.publication_year) {
-      metadata.date.year = work.publication_year
+      metadata.date!.year = work.publication_year
     }
 
     // Parse more detailed date if available
     if (work.publication_date) {
       try {
         const pubDate = new Date(work.publication_date)
-        metadata.date.year = pubDate.getFullYear()
-        metadata.date.month = pubDate.toLocaleString('en-US', { month: 'long' })
-        metadata.date.day = pubDate.getDate()
+        metadata.date!.year = pubDate.getFullYear()
+        metadata.date!.month = pubDate.toLocaleString('en-US', { month: 'long' })
+        metadata.date!.day = pubDate.getDate()
       }
       catch {
         // Ignore date parsing errors
@@ -278,20 +278,20 @@ export class OpenAlexService {
     // Bibliographic information
     if (work.biblio) {
       if (work.biblio.volume) {
-        metadata.source.volume = work.biblio.volume
+        metadata.source!.volume = work.biblio.volume
       }
 
       if (work.biblio.issue) {
-        metadata.source.issue = work.biblio.issue
+        metadata.source!.issue = work.biblio.issue
       }
 
       // Construct pages from first_page and last_page
       if (work.biblio.first_page) {
         if (work.biblio.last_page && work.biblio.first_page !== work.biblio.last_page) {
-          metadata.source.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
+          metadata.source!.pages = `${work.biblio.first_page}-${work.biblio.last_page}`
         }
         else {
-          metadata.source.pages = work.biblio.first_page
+          metadata.source!.pages = work.biblio.first_page
         }
       }
     }

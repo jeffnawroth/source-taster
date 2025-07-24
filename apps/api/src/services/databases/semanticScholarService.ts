@@ -221,7 +221,7 @@ export class SemanticScholarService {
       }
 
       // Strategy 1: Most specific - Full title + first author + year (highest precision)
-      if (metadata.title && metadata.authors?.[0] && metadata.date.year) {
+      if (metadata.title && metadata.authors?.[0] && metadata.date?.year) {
         const authorLastName = this.extractAuthorLastName(metadata.authors[0])
         if (authorLastName) {
           searchQueries.push(`"${metadata.title}" ${authorLastName} ${metadata.date.year}`)
@@ -229,7 +229,7 @@ export class SemanticScholarService {
       }
 
       // Strategy 2: Author + Year + Key title terms (high precision)
-      if (metadata.authors?.[0] && metadata.date.year && metadata.title) {
+      if (metadata.authors?.[0] && metadata.date?.year && metadata.title) {
         const authorLastName = this.extractAuthorLastName(metadata.authors[0])
         if (authorLastName) {
           const keyTerms = metadata.title.toLowerCase()
@@ -243,7 +243,7 @@ export class SemanticScholarService {
       }
 
       // Strategy 3: Exact title + year for unique identification
-      if (metadata.title && metadata.date.year) {
+      if (metadata.title && metadata.date?.year) {
         searchQueries.push(`"${metadata.title}" ${metadata.date.year}`)
       }
 
@@ -361,7 +361,7 @@ export class SemanticScholarService {
           const bestMatch = data.data[0]
 
           // Basic sanity check: if we have a year, make sure it's reasonably close
-          if (metadata.date.year && bestMatch.year) {
+          if (metadata.date?.year && bestMatch.year) {
             const yearDiff = Math.abs(bestMatch.year - metadata.date.year)
             if (yearDiff > 5) {
               // Try next result if year is way off
