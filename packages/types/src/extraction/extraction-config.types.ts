@@ -5,20 +5,24 @@
 
 import type { DateInfo, ExternalIdentifiers, ReferenceMetadata, SourceInfo } from '../reference'
 
-type ExtractionFieldType<T> = { [K in keyof T]?: boolean }
+// Nur die gewünschten Top-Level-Felder (ohne date, source, identifiers)
+type AllowedTopLevelFields = Extract<keyof ReferenceMetadata, 'authors' | 'title'>
 
-export type DateInfoExtractionConfig = ExtractionFieldType<DateInfo>
-export type SourceInfoExtractionConfig = ExtractionFieldType<SourceInfo>
-export type ExternalIdentifiersExtractionConfig = ExtractionFieldType<ExternalIdentifiers>
+// Typ für alle verfügbaren DateInfo-Felder
+type DateFields = keyof DateInfo
 
-/**
- * Configuration for which metadata fields to extract
- * Includes ALL fields from ReferenceMetadata structure
- */
-export type ExtractionConfig = {
-  [K in keyof ReferenceMetadata]?:
-  K extends 'date' ? DateInfoExtractionConfig :
-    K extends 'source' ? SourceInfoExtractionConfig :
-      K extends 'identifiers' ? ExternalIdentifiersExtractionConfig :
-        boolean
-}
+// Typ für alle verfügbaren SourceInfo-Felder
+type SourceFields = keyof SourceInfo
+
+// Typ für alle verfügbaren ExternalIdentifiers-Felder
+type IdentifierFields = keyof ExternalIdentifiers
+
+// Union-Typ für alle extrahierbaren Felder (ohne Container-Objekte)
+export type ExtractableField =
+  | AllowedTopLevelFields
+  | DateFields
+  | SourceFields
+  | IdentifierFields
+
+// Typ für das Extraktions-Array
+export type ExtractionConfig = ExtractableField[]

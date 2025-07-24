@@ -1,91 +1,80 @@
 import type { ExtractionConfig } from './extraction-config.types'
 
-/**
- * Default field extraction configuration
- * Enables commonly needed fields while keeping the extraction focused
- */
-export const ESSENTIAL_EXTRACTION_CONFIG: ExtractionConfig = {
-  // Core bibliographic fields - Always needed
-  title: true,
-  authors: true,
-  date: {
-    year: true,
-  },
-  identifiers: {
-    doi: true,
-  },
-  source: {
-    containerTitle: true,
-    volume: true,
-    issue: true,
-    pages: true,
-    url: true,
-  },
-}
+export const ESSENTIAL_EXTRACTION_CONFIG: ExtractionConfig = [
+  'title',
+  'authors',
+  'year',
+  'doi',
+  'containerTitle',
+  'volume',
+  'issue',
+  'pages',
+  'url',
+]
 
-// export const CORE_FIELDS: (keyof ExtractionFields)[] = [
-//   'title',
-//   'authors',
-//   'year',
-// ]
+export const CORE_FIELDS: ExtractionConfig = [
+  'title',
+  'authors',
+  'year',
+]
 
-// export const IDENTIFIER_FIELDS: (keyof ExtractionFields)[] = [
-//   'doi',
-//   'isbn',
-//   'issn',
-//   'pmid',
-//   'pmcid',
-//   'arxivId',
-// ]
+export const IDENTIFIER_FIELDS: ExtractionConfig = [
+  'doi',
+  'isbn',
+  'issn',
+  'pmid',
+  'pmcid',
+  'arxivId',
+]
 
-// export const DATE_FIELDS: (keyof ExtractionFields)[] = [
-//   'month',
-//   'day',
-//   'yearSuffix',
-//   'dateRange',
-//   'yearEnd',
-//   'noDate',
-//   'inPress',
-//   'approximateDate',
-//   'season',
-// ]
+export const DATE_FIELDS: ExtractionConfig = [
+  'month',
+  'day',
+  'yearSuffix',
+  'dateRange',
+  'yearEnd',
+  'noDate',
+  'inPress',
+  'approximateDate',
+  'season',
+]
 
-// export const PUBLICATION_FIELDS: (keyof ExtractionFields)[] = [
-//   'containerTitle',
-//   'subtitle',
-//   'volume',
-//   'issue',
-//   'pages',
-//   'publisher',
-//   'publicationPlace',
-//   'url',
-//   'sourceType',
-//   'location',
-//   'retrievalDate',
-//   'edition',
-//   'medium',
-//   'originalTitle',
-//   'originalLanguage',
-//   'chapterTitle',
-//   'contributors',
-// ]
+export const PUBLICATION_FIELDS: ExtractionConfig = [
+  'containerTitle',
+  'subtitle',
+  'volume',
+  'issue',
+  'pages',
+  'publisher',
+  'publicationPlace',
+  'url',
+  'sourceType',
+  'location',
+  'retrievalDate',
+  'edition',
+  'medium',
+  'originalTitle',
+  'originalLanguage',
+  'chapterTitle',
+  'contributors',
+]
 
-// export const ACADEMIC_FIELDS: (keyof ExtractionFields)[] = [
-//   'conference',
-//   'institution',
-//   'series',
-//   'seriesNumber',
-//   'degree',
-//   'advisor',
-//   'department',
-// ]
+export const ACADEMIC_FIELDS: ExtractionConfig = [
+  'conference',
+  'institution',
+  'series',
+  'seriesNumber',
+  'degree',
+  'advisor',
+  'department',
+]
 
-// export const TECHNICAL_FIELDS: (keyof ExtractionFields)[] = [
-//   'pageType',
-//   'paragraphNumber',
-//   'volumePrefix',
-//   'issuePrefix',
-//   'supplementInfo',
-//   'articleNumber',
-//   'isStandAlone',
-// ]
+export const TECHNICAL_FIELDS: ExtractionConfig = [
+  'pageType',
+  'paragraphNumber',
+  'volumePrefix',
+  'issuePrefix',
+  'supplementInfo',
+  'articleNumber',
+  'isStandAlone',
+]
