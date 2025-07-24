@@ -56,7 +56,7 @@ ${text}`
         throw new Error('No content in OpenAI response')
       }
 
-      let parsedResponse
+      let parsedResponse: AIExtractionResponse
       try {
         parsedResponse = JSON.parse(content)
       }
@@ -66,7 +66,7 @@ ${text}`
       }
 
       // Transform the response to match the expected structure
-      const transformedResponse = {
+      const transformedResponse: AIExtractionResponse = {
         references: parsedResponse.references?.map((ref: any) => ({
           originalText: ref.originalText,
           metadata: {
@@ -76,7 +76,7 @@ ${text}`
             source: ref.metadata?.source || {},
             identifiers: ref.metadata?.identifiers,
           },
-          modifications: ref.modifications,
+          processingResults: ref.processingResults || [],
         })) || [],
       }
 
