@@ -12,6 +12,6 @@ const { t } = useI18n()
     <ExtractionModePanel />
 
     <!-- Field Selection Panel -->
-    <ExtractionFieldsPanel />
+    <!-- <ExtractionFieldsPanel /> -->
   </SettingsCard>
 </template>

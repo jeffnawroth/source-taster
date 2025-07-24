@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import type { ModificationOptions } from '@source-taster/types'
+import type { ProcessingRuleDefinition } from '@source-taster/types'
 import {
   mdiCogOutline,
-  mdiDeleteOutline,
   mdiFormTextbox,
   mdiLock,
-  mdiPalette,
   mdiScale,
-  mdiSelectAll,
   mdiTarget,
   mdiWrench,
 } from '@mdi/js'
-import { BALANCED_MODIFICATIONS, ModificationMode, STRICT_MODIFICATIONS, TOLERANT_MODIFICATIONS } from '@source-taster/types'
+import { PROCESSING_RULES, ProcessingMode } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 
 // TRANSLATION
@@ -20,7 +17,7 @@ const { t } = useI18n()
 // Mode options configuration
 const modeOptions = computed(() => [
   {
-    value: ModificationMode.STRICT,
+    value: ProcessingMode.STRICT,
     icon: mdiLock,
     label: t('extraction-mode-strict'),
     description: t('extraction-mode-strict-description'),
@@ -28,7 +25,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('extraction-mode-strict-tooltip-description'),
   },
   {
-    value: ModificationMode.BALANCED,
+    value: ProcessingMode.BALANCED,
     icon: mdiScale,
     label: t('extraction-mode-balanced'),
     description: t('extraction-mode-balanced-description'),
@@ -36,7 +33,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('extraction-mode-balanced-tooltip-description'),
   },
   {
-    value: ModificationMode.TOLERANT,
+    value: ProcessingMode.TOLERANT,
     icon: mdiTarget,
     label: t('extraction-mode-tolerant'),
     description: t('extraction-mode-tolerant-description'),
@@ -44,7 +41,7 @@ const modeOptions = computed(() => [
     tooltipDescription: t('extraction-mode-tolerant-tooltip-description'),
   },
   {
-    value: ModificationMode.CUSTOM,
+    value: ProcessingMode.CUSTOM,
     icon: mdiCogOutline,
     label: t('extraction-mode-custom'),
     description: t('extraction-mode-custom-description'),
@@ -53,208 +50,61 @@ const modeOptions = computed(() => [
   },
 ])
 
-// Setting groups configuration
-const settingGroups = computed(() => [
-  {
-    key: 'text-processing',
-    title: t('text-processing-settings'),
-    description: t('text-processing-settings-description'),
-    icon: mdiFormTextbox,
-    settings: [
-      {
-        key: 'correctTypos' as keyof ModificationOptions,
-        label: t('setting-typo-correction'),
-        description: t('setting-typo-correction-description'),
-        example: t('setting-typo-correction-example'),
-      },
-      {
-        key: 'normalizeCapitalization' as keyof ModificationOptions,
-        label: t('setting-normalize-capitalization'),
-        description: t('setting-normalize-capitalization-description'),
-        example: t('setting-normalize-capitalization-example'),
-      },
-      {
-        key: 'standardizeAbbreviations' as keyof ModificationOptions,
-        label: t('setting-standardize-abbreviations'),
-        description: t('setting-standardize-abbreviations-description'),
-        example: t('setting-standardize-abbreviations-example'),
-      },
-      {
-        key: 'standardizePunctuation' as keyof ModificationOptions,
-        label: t('setting-standardize-punctuation'),
-        description: t('setting-standardize-punctuation-description'),
-        example: t('setting-standardize-punctuation-example'),
-      },
-    ],
-  },
-  {
-    key: 'content-formatting',
-    title: t('content-formatting-settings'),
-    description: t('content-formatting-settings-description'),
-    icon: mdiPalette,
-    settings: [
-      {
-        key: 'formatAuthorNames' as keyof ModificationOptions,
-        label: t('setting-format-author-names'),
-        description: t('setting-format-author-names-description'),
-        example: t('setting-format-author-names-example'),
-      },
-      {
-        key: 'removeDuplicateAuthors' as keyof ModificationOptions,
-        label: t('setting-remove-duplicate-authors'),
-        description: t('setting-remove-duplicate-authors-description'),
-        example: t('setting-remove-duplicate-authors-example'),
-      },
-      {
-        key: 'standardizeDateFormatting' as keyof ModificationOptions,
-        label: t('setting-standardize-date-formatting'),
-        description: t('setting-standardize-date-formatting-description'),
-        example: t('setting-standardize-date-formatting-example'),
-      },
-      {
-        key: 'standardizeIdentifiers' as keyof ModificationOptions,
-        label: t('setting-standardize-identifiers'),
-        description: t('setting-standardize-identifiers-description'),
-        example: t('setting-standardize-identifiers-example'),
-      },
-      {
-        key: 'convertToTitleCase' as keyof ModificationOptions,
-        label: t('setting-convert-to-title-case'),
-        description: t('setting-convert-to-title-case-description'),
-        example: t('setting-convert-to-title-case-example'),
-      },
-    ],
-  },
-  {
-    key: 'technical-processing',
-    title: t('technical-processing-settings'),
-    description: t('technical-processing-settings-description'),
-    icon: mdiWrench,
-    settings: [
-      {
-        key: 'fixUnicodeIssues' as keyof ModificationOptions,
-        label: t('setting-fix-unicode-issues'),
-        description: t('setting-fix-unicode-issues-description'),
-        example: t('setting-fix-unicode-issues-example'),
-      },
-      {
-        key: 'handleOcrErrors' as keyof ModificationOptions,
-        label: t('setting-handle-ocr-errors'),
-        description: t('setting-handle-ocr-errors-description'),
-        example: t('setting-handle-ocr-errors-example'),
-      },
-      {
-        key: 'reconstructSeparatedInfo' as keyof ModificationOptions,
-        label: t('setting-reconstruct-separated-info'),
-        description: t('setting-reconstruct-separated-info-description'),
-        example: t('setting-reconstruct-separated-info-example'),
-      },
-      {
-        key: 'completeIncompleteData' as keyof ModificationOptions,
-        label: t('setting-complete-incomplete-data'),
-        description: t('setting-complete-incomplete-data-description'),
-        example: t('setting-complete-incomplete-data-example'),
-      },
-      {
-        key: 'fixFormattingProblems' as keyof ModificationOptions,
-        label: t('setting-fix-formatting-problems'),
-        description: t('setting-fix-formatting-problems-description'),
-        example: t('setting-fix-formatting-problems-example'),
-      },
-    ],
-  },
-])
+// Setting groups configuration - now based on central rules
+const settingGroups = computed(() => {
+  // Group rules by category
+  const groupedRules = PROCESSING_RULES.reduce((acc, rule) => {
+    if (!acc[rule.category]) {
+      acc[rule.category] = []
+    }
+    acc[rule.category].push(rule)
+    return acc
+  }, {} as Record<string, ProcessingRuleDefinition[]>)
 
-// Preset buttons configuration
+  return Object.entries(groupedRules).map(([category, rules]) => ({
+    key: category,
+    title: t(`${category}-settings`),
+    description: t(`${category}-settings-description`),
+    icon: category === 'text-processing' ? mdiFormTextbox : mdiWrench,
+    settings: rules.map(rule => ({
+      key: rule.id,
+      label: t(`setting-${rule.id}`),
+      description: t(`setting-${rule.id}-description`),
+      example: rule.aiInstruction.example || '',
+    })),
+  }))
+})
+
+// Preset buttons configuration - simplified for new rule system
 const presetButtons = computed(() => [
   {
     label: t('load-strict'),
     icon: mdiLock,
-    onClick: loadStrictPreset,
+    onClick: () => setProcessingMode(ProcessingMode.STRICT),
   },
   {
     label: t('load-balanced'),
     icon: mdiScale,
-    onClick: loadBalancedPreset,
+    onClick: () => setProcessingMode(ProcessingMode.BALANCED),
   },
   {
     label: t('load-tolerant'),
     icon: mdiTarget,
-    onClick: loadTolerantPreset,
-  },
-  {
-    label: t('clear-all'),
-    icon: mdiDeleteOutline,
-    onClick: clearAll,
-  },
-  {
-    label: t('select-all'),
-    icon: mdiSelectAll,
-    onClick: selectAll,
+    onClick: () => setProcessingMode(ProcessingMode.TOLERANT),
   },
 ])
 
-// Base function to ensure custom mode and settings initialization
-function ensureCustomModeSettings(): ModificationOptions {
-  extractionSettings.value.modificationSettings.mode = ModificationMode.CUSTOM
-
-  if (!extractionSettings.value.modificationSettings.options) {
-    extractionSettings.value.modificationSettings.options = {} as ModificationOptions
-  }
-
-  return { ...extractionSettings.value.modificationSettings.options }
-}
-
-// Base function to apply preset settings
-function applyPreset(presetConfig: Partial<ModificationOptions>) {
-  const newSettings = ensureCustomModeSettings()
-  Object.assign(newSettings, presetConfig)
-  extractionSettings.value.modificationSettings.options = newSettings
-}
-
-// Preset functions using predefined constants
-function loadStrictPreset() {
-  applyPreset(STRICT_MODIFICATIONS)
-}
-
-function loadBalancedPreset() {
-  applyPreset(BALANCED_MODIFICATIONS)
-}
-
-function loadTolerantPreset() {
-  applyPreset(TOLERANT_MODIFICATIONS)
-}
-
-function clearAll() {
-  const newSettings = ensureCustomModeSettings()
-
-  // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_MODIFICATIONS) as Array<keyof ModificationOptions>
-  templateKeys.forEach((key) => {
-    newSettings[key] = false
-  })
-
-  extractionSettings.value.modificationSettings.options = newSettings
-}
-
-function selectAll() {
-  const newSettings = ensureCustomModeSettings()
-
-  // Use template keys to ensure we have all available properties
-  const templateKeys = Object.keys(STRICT_MODIFICATIONS) as Array<keyof ModificationOptions>
-  templateKeys.forEach((key) => {
-    newSettings[key] = true
-  })
-
-  extractionSettings.value.modificationSettings.options = newSettings
+// Simple function to set processing mode
+function setProcessingMode(mode: ProcessingMode) {
+  extractionSettings.value.processingStrategy.mode = mode
+  // Rules are handled centrally, no need to manage individual settings
 }
 </script>
 
 <template>
   <ModeSelector
-    v-model="extractionSettings.modificationSettings.mode"
-    v-model:custom-settings="extractionSettings.modificationSettings.options"
-    :custom-value="ModificationMode.CUSTOM "
+    v-model="extractionSettings.processingStrategy.mode"
+    :custom-value="ProcessingMode.CUSTOM"
     :mode-options
     :setting-groups
     :preset-buttons
