@@ -1,10 +1,10 @@
 import {
   AIExtractedReferenceSchema,
   AIExtractionResponseSchema,
-  AuthorSchema,
   DateInfoSchema,
   ExternalIdentifiersSchema,
   type ExtractionSettings,
+  ReferenceMetadataSchema,
   SourceInfoSchema,
 } from '@source-taster/types'
 import { z } from 'zod'
@@ -36,18 +36,12 @@ export function createDynamicExtractionSchema(extractionSettings: ExtractionSett
   const DynamicSourceInfoSchema = createConditionalSchema(enabledFields, SourceInfoSchema)
   const DynamicDateInfoSchema = createConditionalSchema(enabledFields, DateInfoSchema)
 
-  // Create dynamic metadata schema
-  const metadataShape: Record<string, z.ZodTypeAny> = {}
+  // Create dynamic metadata schema by applying conditional logic to the base schema
+  const baseMetadataConditional = createConditionalSchema(enabledFields, ReferenceMetadataSchema)
 
-  if (enabledFields.includes('title')) {
-    metadataShape.title = z.string().optional().describe('Title of the work')
-  }
+  // Override nested objects with their dynamic versions if any of their fields are enabled
+  const metadataShape: Record<string, z.ZodTypeAny> = { ...baseMetadataConditional.shape }
 
-  if (enabledFields.includes('authors')) {
-    metadataShape.authors = z.array(z.union([z.string(), AuthorSchema])).optional().describe('List of author names or author objects')
-  }
-
-  // Only include nested objects if any of their fields are enabled
   const hasDateFields = enabledFields.some(field => Object.keys(DateInfoSchema.shape).includes(field))
   const hasSourceFields = enabledFields.some(field => Object.keys(SourceInfoSchema.shape).includes(field))
   const hasIdentifierFields = enabledFields.some(field => Object.keys(ExternalIdentifiersSchema.shape).includes(field))
