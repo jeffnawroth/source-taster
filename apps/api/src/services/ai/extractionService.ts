@@ -1,4 +1,4 @@
-import type { AIExtractionResponse, ExtractionSettings, OpenAIConfig } from '@source-taster/types'
+import type { AIExtractionResponse, ExtractionRequest, OpenAIConfig } from '@source-taster/types'
 import { OpenAI } from 'openai'
 import { getExtractionInstructions } from './extractionInstructions'
 import { createDynamicExtractionSchema } from './schemas/reference'
@@ -16,20 +16,20 @@ export class ExtractionService {
     })
   }
 
-  async extractReferences(text: string, extractionSettings: ExtractionSettings): Promise<AIExtractionResponse> {
+  async extractReferences(extractionRequest: ExtractionRequest): Promise<AIExtractionResponse> {
     let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text. 
     When you extract references, you MUST track every change you make in the "processingResults" array.`
 
     // Add extraction mode instructions
-    const modeInstructions = getExtractionInstructions(extractionSettings.processingStrategy)
+    const modeInstructions = getExtractionInstructions(extractionRequest.extractionSettings.processingStrategy)
     systemMessage += `\n\n${modeInstructions}`
 
     const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:
 
-${text}`
+${extractionRequest.text}`
 
     // Use dynamic schema based on extraction settings
-    const schema = createDynamicExtractionSchema(extractionSettings)
+    const schema = createDynamicExtractionSchema(extractionRequest.extractionSettings)
 
     try {
       const response = await this.client.chat.completions.create({

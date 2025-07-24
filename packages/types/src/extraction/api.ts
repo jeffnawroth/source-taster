@@ -12,7 +12,7 @@ export interface ExtractionRequest {
   /** The text to extract references from */
   text: string
   /** User-configurable extraction settings */
-  extractionSettings?: ExtractionSettings
+  extractionSettings: ExtractionSettings
 }
 
 /**

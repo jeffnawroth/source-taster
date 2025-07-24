@@ -1,6 +1,6 @@
 import type {
   AIExtractedReference,
-  ExtractionSettings,
+  ExtractionRequest,
   Reference,
 } from '@source-taster/types'
 import crypto from 'node:crypto'
@@ -8,25 +8,50 @@ import { AIServiceFactory } from './ai/aiServiceFactory'
 
 export class ReferenceExtractionService {
   async extractReferences(
-    text: string,
-    extractionSettings: ExtractionSettings,
+    extractionRequest: ExtractionRequest,
   ): Promise<Reference[]> {
-    const ai = AIServiceFactory.createOpenAIService()
-
     try {
-      const result = await ai.extractReferences(text, extractionSettings)
-
-      // Convert the AI response to our Reference format with unique IDs
-      return result.references.map((ref: AIExtractedReference) => ({
-        id: crypto.randomUUID(),
-        originalText: ref.originalText,
-        metadata: ref.metadata,
-        processingResults: ref.processingResults || [],
-      }))
+      return await this.performAIExtraction(
+        extractionRequest,
+      )
     }
     catch (error) {
-      console.error('Failed to extract references:', error)
-      return []
+      return this.handleExtractionFailure(error)
     }
+  }
+
+  private async performAIExtraction(
+    extractionRequest: ExtractionRequest,
+  ): Promise<Reference[]> {
+    const ai = this.createAIService()
+    const result = await ai.extractReferences(extractionRequest)
+
+    return this.convertToReferences(result.references)
+  }
+
+  private createAIService() {
+    return AIServiceFactory.createOpenAIService()
+  }
+
+  private convertToReferences(aiReferences: AIExtractedReference[]): Reference[] {
+    return aiReferences.map((ref: AIExtractedReference) => this.createReference(ref))
+  }
+
+  private createReference(aiRef: AIExtractedReference): Reference {
+    return {
+      id: this.generateUniqueId(),
+      originalText: aiRef.originalText,
+      metadata: aiRef.metadata,
+      processingResults: aiRef.processingResults || [],
+    }
+  }
+
+  private generateUniqueId(): string {
+    return crypto.randomUUID()
+  }
+
+  private handleExtractionFailure(error: unknown): Reference[] {
+    console.error('Failed to extract references:', error)
+    return []
   }
 }

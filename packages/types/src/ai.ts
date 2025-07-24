@@ -2,7 +2,7 @@
  * AI service interfaces and configuration types
  */
 
-import type { ExtractionSettings } from './extraction/extraction-settings.types'
+import type { ExtractionRequest } from './extraction'
 import type { FieldMatchDetail, MatchingSettings } from './matching'
 import z from 'zod'
 import { ProcessingActionType } from './extraction'
@@ -49,7 +49,7 @@ export type AIExtractionResponse = z.infer<typeof AIExtractionResponseSchema>
  * Defines the contract that all AI services must implement
  */
 export interface AIService {
-  extractReferences: (text: string, extractionSettings: ExtractionSettings) => Promise<AIExtractionResponse>
+  extractReferences: (extractionRequest: ExtractionRequest) => Promise<AIExtractionResponse>
   matchFields: (prompt: string, matchingSettings: MatchingSettings) => Promise<AIMatchingResponse>
 }
 

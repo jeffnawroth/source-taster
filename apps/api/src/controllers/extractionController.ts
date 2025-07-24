@@ -49,10 +49,9 @@ export class ExtractionController {
     }
   }
 
-  private async performExtraction(request: ExtractionRequest) {
+  private async performExtraction(extractionRequest: ExtractionRequest) {
     return await this.extractionService.extractReferences(
-      request.text!,
-      request.extractionSettings!,
+      extractionRequest,
     )
   }
 
