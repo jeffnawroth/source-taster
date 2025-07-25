@@ -1,5 +1,5 @@
 import type { ProcessingRuleDefinition, ProcessingStrategy } from './processing-strategy.types'
-import { ProcessingActionType, ProcessingMode } from './processing-strategy.types'
+import { ProcessingActionType, ProcessingMode, ProcessingRuleCategory } from './processing-strategy.types'
 /**
  * Default processing mode
  */
@@ -118,4 +118,28 @@ export function getActionTypesFromRules(rules: ProcessingRuleDefinition[]): Proc
 export const DEFAULT_PROCESSING_STRATEGY: ProcessingStrategy = {
   mode: DEFAULT_PROCESSING_MODE,
   rules: getRulesForActionTypes(MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
+}
+
+export const categoryMapping: Record<ProcessingRuleCategory, ProcessingActionType[]> = {
+  [ProcessingRuleCategory.TEXT_PROCESSING]: [
+    ProcessingActionType.TYPO_CORRECTION,
+    ProcessingActionType.NORMALIZE_TITLE_CASE,
+    ProcessingActionType.EXPAND_ABBREVIATIONS,
+    ProcessingActionType.STANDARDIZE_PUNCTUATION,
+  ],
+  [ProcessingRuleCategory.CONTENT_FORMATTING]: [
+    ProcessingActionType.FORMAT_AUTHOR_NAMES,
+    ProcessingActionType.STANDARDIZE_DATE_FORMAT,
+    ProcessingActionType.STANDARDIZE_IDENTIFIERS,
+  ],
+  [ProcessingRuleCategory.TECHNICAL_PROCESSING]: [
+    ProcessingActionType.FIX_ENCODING_ISSUES,
+    ProcessingActionType.REPAIR_LINE_BREAKS,
+    ProcessingActionType.REMOVE_ARTIFACTS,
+  ],
+}
+
+// Helper function to get action types by category
+export function getActionTypesByCategory(category: ProcessingRuleCategory): ProcessingActionType[] {
+  return categoryMapping[category] || []
 }
