@@ -1,36 +1,29 @@
-<script setup lang="ts" generic="TSettings extends Record<string, any>">
+<script setup lang="ts" generic="TSettings extends Record<string, any>, TActions">
+import type { PresetButton } from './CustomSettingsActions.vue'
 import { mdiHelpCircleOutline } from '@mdi/js'
+import CustomSettingsActions from './CustomSettingsActions.vue'
 
 export interface SettingGroup<TSettings extends Record<string, any> = Record<string, any>> {
   key: string
   title: string
-  description: string
   icon: string
   settings: Array<{
     key: keyof TSettings
     label: string
     description: string
     example: string
-    dependsOn?: keyof TSettings
   }>
-}
-
-export interface PresetButton {
-  label: string
-  icon: string
-  onClick: () => void
 }
 
 interface Props {
   settingGroups: SettingGroup<TSettings>[]
   presetButtons: PresetButton[]
-  title: string
   description: string
 }
 
 defineProps<Props>()
 
-const customSettings = defineModel<TSettings>()
+const modelValue = defineModel<TActions>({ required: true })
 
 // TRANSLATION
 const { t } = useI18n()
@@ -40,20 +33,18 @@ const { t } = useI18n()
   <v-divider />
 
   <v-card
-    flat
     :subtitle="description"
+    flat
   >
     <v-card-text>
       <v-expansion-panels
         multiple
         variant="accordion"
-        class="mb-4"
         elevation="0"
       >
         <v-expansion-panel
           v-for="group in settingGroups"
           :key="group.key"
-          :text="group.description"
         >
           <template #title>
             <div class="d-flex align-center">
@@ -66,23 +57,22 @@ const { t } = useI18n()
             </div>
           </template>
           <template #text>
-            <div class="pa-4">
+            <v-selection-control-group
+              v-model="modelValue"
+              multiple
+            >
               <v-row>
                 <v-col
                   v-for="setting in group.settings"
                   :key="String(setting.key)"
-                  cols="12"
-                  :md="setting.dependsOn && !customSettings?.[setting.dependsOn] ? 0 : 6"
+                  cols="6"
                 >
                   <div
-                    v-if="!setting.dependsOn || customSettings?.[setting.dependsOn]"
                     class="d-flex align-center justify-space-between"
                   >
-                    <!-- Checkbox Settings -->
                     <v-checkbox
-                      v-if="customSettings"
-                      v-model="customSettings[setting.key]"
                       :label="setting.label"
+                      :value="setting.key"
                       class="flex-grow-1"
                       density="comfortable"
                       hide-details
@@ -126,29 +116,15 @@ const { t } = useI18n()
                   </div>
                 </v-col>
               </v-row>
-            </div>
+            </v-selection-control-group>
           </template>
         </v-expansion-panel>
       </v-expansion-panels>
     </v-card-text>
     <!-- Preset Buttons -->
-    <v-card-actions>
-      <v-btn
-        v-for="preset in presetButtons"
-        :key="preset.label"
-        variant="tonal"
-        color="primary"
-        size="small"
-        @click="preset.onClick"
-      >
-        <v-icon
-          :icon="preset.icon"
-          size="small"
-          start
-        />
-        {{ preset.label }}
-      </v-btn>
-    </v-card-actions>
+    <CustomSettingsActions
+      :preset-buttons
+    />
   </v-card>
 </template>
 

@@ -1,74 +1,40 @@
-<script setup lang="ts" generic="TMode extends string, TSettings extends Record<string, any>">
+<script setup lang="ts" generic="TMode extends string, TActions">
+import type { SettingGroup } from './CustomSettings.vue'
+import type { PresetButton } from './CustomSettingsActions.vue'
+import type { ModeOption } from './ModeSelection.vue'
 import CustomSettings from './CustomSettings.vue'
 import ModeSelection from './ModeSelection.vue'
-
-interface ModeOption {
-  value: TMode
-  icon: string
-  label: string
-  description: string
-  tooltipTitle: string
-  tooltipDescription: string
-}
-
-interface SettingGroup {
-  key: string
-  title: string
-  description: string
-  icon: string
-  settings: Array<{
-    key: keyof TSettings
-    label: string
-    description: string
-    example: string
-    type?: 'checkbox' | 'slider'
-    min?: number
-    max?: number
-    step?: number
-    suffix?: string
-    dependsOn?: keyof TSettings
-  }>
-}
-
-interface PresetButton {
-  label: string
-  icon: string
-  onClick: () => void
-}
 
 interface Props {
   customValue: TMode
   modeOptions: ModeOption[]
   settingGroups: SettingGroup[]
   presetButtons: PresetButton[]
-  customSettingsTitle: string
   customSettingsDescription: string
 }
 
 const props = defineProps<Props>()
 
-const modelValue = defineModel<TMode>()
-const customSettings = defineModel<TSettings>('customSettings')
+const mode = defineModel<TMode>('mode', { required: true })
+const selectedActions = defineModel<TActions>('selectedActions', { required: true })
 
 // Check if custom mode is selected
-const showCustomSettings = computed(() => modelValue.value === props.customValue)
+const showCustomSettings = computed(() => mode.value === props.customValue)
 </script>
 
 <template>
   <!-- Mode Selection Component -->
   <ModeSelection
-    v-model="modelValue"
+    v-model="mode"
     :mode-options
   />
-
   <!-- Custom Settings (shown when Custom mode is selected) -->
   <v-expand-transition>
     <CustomSettings
       v-if="showCustomSettings"
-      v-model="customSettings"
+      v-model="selectedActions"
       :setting-groups
       :preset-buttons
-      :title="customSettingsTitle"
       :description="customSettingsDescription"
     />
   </v-expand-transition>
