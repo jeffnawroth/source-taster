@@ -1,5 +1,6 @@
 {
   "name": "@source-taster/types",
+  "type": "module",
   "version": "1.0.0",
   "description": "Shared TypeScript types for Source Taster",
   "exports": {
