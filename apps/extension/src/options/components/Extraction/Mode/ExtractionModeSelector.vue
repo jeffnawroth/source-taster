@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { ProcessingActionType, ProcessingRuleDefinition } from '@source-taster/types'
 import {
   mdiCogOutline,
   mdiDeleteOutline,
+  mdiFormTextbox,
   mdiLock,
+  mdiPalette,
   mdiScale,
   mdiSelectAll,
   mdiTarget,
@@ -14,7 +15,9 @@ import {
   getRulesForActionTypes,
   MODE_PRESETS,
   PROCESSING_RULES,
+  ProcessingActionType,
   ProcessingMode,
+  ProcessingRuleCategory,
 } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 
@@ -57,21 +60,63 @@ const modeOptions = computed(() => [
   },
 ])
 
-// Setting groups - simplified to show all rules in one group
-const settingGroups = computed(() => [
-  {
-    key: 'processing-rules',
-    title: t('processing-rules'),
-    description: t('processing-rules-description'),
-    icon: mdiWrench,
-    settings: PROCESSING_RULES.map((rule: ProcessingRuleDefinition) => ({
-      key: rule.actionType,
-      label: t(`rule-${rule.actionType}`),
-      description: t(`rule-${rule.actionType}-description`),
-      example: t(`rule-${rule.actionType}-example`),
+// Helper function to get action types by category
+function getActionTypesByCategory(category: ProcessingRuleCategory): ProcessingActionType[] {
+  const categoryMapping = {
+    [ProcessingRuleCategory.TEXT_PROCESSING]: [
+      ProcessingActionType.TYPO_CORRECTION,
+      ProcessingActionType.NORMALIZE_TITLE_CASE,
+      ProcessingActionType.EXPAND_ABBREVIATIONS,
+      ProcessingActionType.STANDARDIZE_PUNCTUATION,
+    ],
+    [ProcessingRuleCategory.CONTENT_FORMATTING]: [
+      ProcessingActionType.FORMAT_AUTHOR_NAMES,
+      ProcessingActionType.STANDARDIZE_DATE_FORMAT,
+      ProcessingActionType.STANDARDIZE_IDENTIFIERS,
+    ],
+    [ProcessingRuleCategory.TECHNICAL_PROCESSING]: [
+      ProcessingActionType.FIX_ENCODING_ISSUES,
+      ProcessingActionType.REPAIR_LINE_BREAKS,
+      ProcessingActionType.REMOVE_ARTIFACTS,
+    ],
+  }
+
+  return categoryMapping[category] || []
+}
+
+// Setting groups based on rule categories
+const settingGroups = computed(() => {
+  const categoryConfig = {
+    [ProcessingRuleCategory.TEXT_PROCESSING]: {
+      title: t('text-processing-settings'),
+      description: t('text-processing-settings-description'),
+      icon: mdiFormTextbox,
+    },
+    [ProcessingRuleCategory.CONTENT_FORMATTING]: {
+      title: t('content-formatting-settings'),
+      description: t('content-formatting-settings-description'),
+      icon: mdiPalette,
+    },
+    [ProcessingRuleCategory.TECHNICAL_PROCESSING]: {
+      title: t('technical-processing-settings'),
+      description: t('technical-processing-settings-description'),
+      icon: mdiWrench,
+    },
+  }
+
+  return Object.entries(categoryConfig).map(([category, config]) => ({
+    key: category,
+    title: config.title,
+    description: config.description,
+    icon: config.icon,
+    settings: getActionTypesByCategory(category as ProcessingRuleCategory).map((actionType: ProcessingActionType) => ({
+      key: actionType,
+      label: t(`rule-${actionType}`),
+      description: t(`rule-${actionType}-description`),
+      example: t(`rule-${actionType}-example`),
     })),
-  },
-])
+  }))
+})
 
 // Preset buttons configuration
 const presetButtons = computed(() => [
