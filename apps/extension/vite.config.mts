@@ -56,10 +56,12 @@ export const sharedConfig: UserConfig = {
           'webextension-polyfill': [
             ['=', 'browser'],
           ],
+          '@mdi/js': Object.keys(await import('@mdi/js')).filter(key => key.startsWith('mdi')),
         },
         'vue-i18n',
         'pinia',
         VueRouterAutoImports,
+
       ],
       dts: r('src/auto-imports.d.ts'),
 
