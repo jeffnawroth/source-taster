@@ -30,8 +30,6 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <v-divider />
-
   <v-card
     :subtitle="description"
     flat

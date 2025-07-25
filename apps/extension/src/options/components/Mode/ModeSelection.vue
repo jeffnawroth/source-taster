@@ -23,7 +23,6 @@ const modelValue = defineModel<TMode>()
 <template>
   <v-radio-group
     v-model="modelValue"
-    class="mb-0"
   >
     <div
       v-for="(option, index) in modeOptions"

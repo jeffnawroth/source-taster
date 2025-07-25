@@ -28,14 +28,17 @@ const showCustomSettings = computed(() => mode.value === props.customValue)
     v-model="mode"
     :mode-options
   />
-  <!-- Custom Settings (shown when Custom mode is selected) -->
+
+  <!-- Custom Settings with proper expand transition -->
   <v-expand-transition>
-    <CustomSettings
-      v-if="showCustomSettings"
-      v-model="selectedActions"
-      :setting-groups
-      :preset-buttons
-      :description="customSettingsDescription"
-    />
+    <div v-if="showCustomSettings">
+      <v-divider />
+      <CustomSettings
+        v-model="selectedActions"
+        :setting-groups
+        :preset-buttons
+        :description="customSettingsDescription"
+      />
+    </div>
   </v-expand-transition>
 </template>

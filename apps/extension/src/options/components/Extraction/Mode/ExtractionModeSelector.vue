@@ -33,40 +33,26 @@ function deselectAll() {
 
 const { t } = useI18n()
 
-const modeOptions = computed(() => [
-  {
-    value: ProcessingMode.STRICT,
-    icon: mdiLock,
-    label: t('extraction-mode-strict'),
-    description: t('extraction-mode-strict-description'),
-    tooltipTitle: t('extraction-mode-strict-tooltip-title'),
-    tooltipDescription: t('extraction-mode-strict-tooltip-description'),
-  },
-  {
-    value: ProcessingMode.BALANCED,
-    icon: mdiScale,
-    label: t('extraction-mode-balanced'),
-    description: t('extraction-mode-balanced-description'),
-    tooltipTitle: t('extraction-mode-balanced-tooltip-title'),
-    tooltipDescription: t('extraction-mode-balanced-tooltip-description'),
-  },
-  {
-    value: ProcessingMode.TOLERANT,
-    icon: mdiTarget,
-    label: t('extraction-mode-tolerant'),
-    description: t('extraction-mode-tolerant-description'),
-    tooltipTitle: t('extraction-mode-tolerant-tooltip-title'),
-    tooltipDescription: t('extraction-mode-tolerant-tooltip-description'),
-  },
-  {
-    value: ProcessingMode.CUSTOM,
-    icon: mdiCogOutline,
-    label: t('extraction-mode-custom'),
-    description: t('extraction-mode-custom-description'),
-    tooltipTitle: t('extraction-mode-custom-tooltip-title'),
-    tooltipDescription: t('extraction-mode-custom-tooltip-description'),
-  },
-])
+const modeOptions = computed(() =>
+  Object.entries(MODE_PRESETS).map(([mode]) => {
+    const iconMap = {
+      [ProcessingMode.STRICT]: mdiLock,
+      [ProcessingMode.BALANCED]: mdiScale,
+      [ProcessingMode.TOLERANT]: mdiTarget,
+      [ProcessingMode.CUSTOM]: mdiCogOutline,
+    }
+
+    const modeKey = mode.toLowerCase()
+    return {
+      value: mode,
+      icon: iconMap[mode as ProcessingMode],
+      label: t(`extraction-mode-${modeKey}`),
+      description: t(`extraction-mode-${modeKey}-description`),
+      tooltipTitle: t(`extraction-mode-${modeKey}-tooltip-title`),
+      tooltipDescription: t(`extraction-mode-${modeKey}-tooltip-description`),
+    }
+  }),
+)
 
 const categoryConfig = {
   [ProcessingRuleCategory.TEXT_PROCESSING]: {
