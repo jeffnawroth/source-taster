@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ProcessedReference } from '@/extension/types/reference'
-import CopyIdentifierBtn from './CopyIdentifierBtn.vue'
 import DetailsToggleBtn from './DetailsToggleBtn.vue'
 import OpenSrcBtn from './OpenSrcBtn.vue'
 import ReMatchBtn from './ReMatchBtn.vue'
@@ -20,10 +19,6 @@ const matchingScore = computed(() =>
 
 // ACTION BUTTONS CONFIGURATION
 const otherActionButtons = [
-  {
-    component: CopyIdentifierBtn,
-    props: { reference },
-  },
   {
     component: OpenSrcBtn,
     props: { reference },

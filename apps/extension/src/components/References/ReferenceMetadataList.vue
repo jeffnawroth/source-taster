@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ExternalSource, FieldModification, Reference } from '@source-taster/types'
+import type { ExternalSource, FieldProcessingResult, Reference } from '@source-taster/types'
 import {
   mdiAccountGroup,
   mdiAccountTie,
@@ -39,13 +39,13 @@ const props = defineProps<{
 const { t } = useI18n()
 
 // Helper function to get all modifications for a specific field
-function getModificationsForField(fieldPath: string): FieldModification[] {
-  if (!('modifications' in props.reference) || !props.reference.modifications) {
+function getModificationsForField(fieldPath: string): FieldProcessingResult[] {
+  if (!('processingResults' in props.reference) || !props.reference.processingResults) {
     return []
   }
 
   // Find modifications that match the exact fieldPath or are sub-fields of it
-  return props.reference.modifications.filter((mod) => {
+  return props.reference.processingResults.filter((mod) => {
     // Exact match
     if (mod.fieldPath === fieldPath) {
       return true
@@ -72,6 +72,9 @@ const showDateFields = ref(false)
 // Computed property for formatted date display
 const formattedDate = computed(() => {
   const date = props.reference.metadata.date
+
+  if (!date)
+    return null
 
   // Handle special date cases first
   if (date.noDate) {
@@ -156,10 +159,10 @@ const mainFields = computed(() => [
   },
   {
     id: 'container-title',
-    condition: () => props.reference.metadata.source.containerTitle,
+    condition: () => props.reference.metadata.source?.containerTitle,
     icon: mdiEarth,
     title: t('containerTitle'),
-    text: () => props.reference.metadata.source.containerTitle,
+    text: () => props.reference.metadata.source?.containerTitle || '',
     fieldPath: 'metadata.source.containerTitle',
   },
   {
@@ -172,74 +175,74 @@ const mainFields = computed(() => [
   },
   {
     id: 'volume',
-    condition: () => props.reference.metadata.source.volume,
+    condition: () => props.reference.metadata.source?.volume,
     icon: mdiBookOpenBlankVariantOutline,
     title: t('volume'),
-    text: () => props.reference.metadata.source.volume,
+    text: () => props.reference.metadata.source?.volume || '',
     fieldPath: 'metadata.source.volume',
   },
   {
     id: 'issue',
-    condition: () => props.reference.metadata.source.issue,
+    condition: () => props.reference.metadata.source?.issue,
     icon: mdiCalendarRange,
     title: t('issue'),
-    text: () => props.reference.metadata.source.issue,
+    text: () => props.reference.metadata.source?.issue || '',
     fieldPath: 'metadata.source.issue',
   },
   {
     id: 'pages',
-    condition: () => props.reference.metadata.source.pages,
+    condition: () => props.reference.metadata.source?.pages,
     icon: mdiNotebookOutline,
     title: t('pages'),
-    text: () => props.reference.metadata.source.pages,
+    text: () => props.reference.metadata.source?.pages || '',
     fieldPath: 'metadata.source.pages',
   },
   {
     id: 'source-type',
-    condition: () => props.reference.metadata.source.sourceType,
+    condition: () => props.reference.metadata.source?.sourceType,
     icon: mdiTag,
     title: t('source-type'),
-    text: () => props.reference.metadata.source.sourceType,
+    text: () => props.reference.metadata.source?.sourceType || '',
     fieldPath: 'metadata.source.sourceType',
   },
   {
     id: 'publisher',
-    condition: () => props.reference.metadata.source.publisher,
+    condition: () => props.reference.metadata.source?.publisher,
     icon: mdiDomain,
     title: t('publisher'),
-    text: () => props.reference.metadata.source.publisher,
+    text: () => props.reference.metadata.source?.publisher || '',
     fieldPath: 'metadata.source.publisher',
   },
   {
     id: 'publication-place',
-    condition: () => props.reference.metadata.source.publicationPlace,
+    condition: () => props.reference.metadata.source?.publicationPlace,
     icon: mdiMapMarker,
     title: t('publication-place'),
-    text: () => props.reference.metadata.source.publicationPlace,
+    text: () => props.reference.metadata.source?.publicationPlace || '',
     fieldPath: 'metadata.source.publicationPlace',
   },
   {
     id: 'edition',
-    condition: () => props.reference.metadata.source.edition,
+    condition: () => props.reference.metadata.source?.edition,
     icon: mdiBookmark,
     title: t('edition'),
-    text: () => props.reference.metadata.source.edition,
+    text: () => props.reference.metadata.source?.edition || '',
     fieldPath: 'metadata.source.edition',
   },
   {
     id: 'series',
-    condition: () => props.reference.metadata.source.series,
+    condition: () => props.reference.metadata.source?.series,
     icon: mdiLibrary,
     title: t('series'),
-    text: () => props.reference.metadata.source.series,
+    text: () => props.reference.metadata.source?.series || '',
     fieldPath: 'metadata.source.series',
   },
   {
     id: 'institution',
-    condition: () => props.reference.metadata.source.institution,
+    condition: () => props.reference.metadata.source?.institution,
     icon: mdiSchool,
     title: t('institution'),
-    text: () => props.reference.metadata.source.institution,
+    text: () => props.reference.metadata.source?.institution || '',
     fieldPath: 'metadata.source.institution',
   },
 ].filter(field => field.condition()))
@@ -309,16 +312,16 @@ const urlFields = computed(() => [
     condition: () => 'url' in props.reference && props.reference.url,
     icon: mdiLink,
     title: 'URL',
-    text: () => 'url' in props.reference ? props.reference.url : '',
+    text: () => 'url' in props.reference ? props.reference.url || '' : '',
     fieldPath: 'metadata.url',
     link: true,
   },
   {
     id: 'source-url',
-    condition: () => props.reference.metadata.source.url,
+    condition: () => props.reference.metadata.source?.url,
     icon: mdiLink,
     title: t('source-url'),
-    text: () => props.reference.metadata.source.url,
+    text: () => props.reference.metadata.source?.url || '',
     fieldPath: 'metadata.source.url',
     link: true,
   },
@@ -328,34 +331,34 @@ const urlFields = computed(() => [
 const additionalFields = computed(() => [
   {
     id: 'subtitle',
-    condition: () => props.reference.metadata.source.subtitle,
+    condition: () => props.reference.metadata.source?.subtitle,
     icon: mdiFileDocumentOutline,
     title: t('subtitle'),
-    text: () => props.reference.metadata.source.subtitle,
+    text: () => props.reference.metadata.source?.subtitle || '',
     fieldPath: 'metadata.source.subtitle',
   },
   {
     id: 'location',
-    condition: () => props.reference.metadata.source.location,
+    condition: () => props.reference.metadata.source?.location,
     icon: mdiMapMarker,
     title: t('location'),
-    text: () => props.reference.metadata.source.location,
+    text: () => props.reference.metadata.source?.location || '',
     fieldPath: 'metadata.source.location',
   },
   {
     id: 'retrieval-date',
-    condition: () => props.reference.metadata.source.retrievalDate,
+    condition: () => props.reference.metadata.source?.retrievalDate,
     icon: mdiCalendarClock,
     title: t('retrieval-date'),
-    text: () => props.reference.metadata.source.retrievalDate,
+    text: () => props.reference.metadata.source?.retrievalDate || '',
     fieldPath: 'metadata.source.retrievalDate',
   },
   {
     id: 'contributors',
-    condition: () => props.reference.metadata.source.contributors?.length,
+    condition: () => props.reference.metadata.source?.contributors?.length,
     icon: mdiAccountTie,
     title: t('contributors'),
-    text: () => props.reference.metadata.source.contributors?.map((contributor) => {
+    text: () => props.reference.metadata.source?.contributors?.map((contributor) => {
       if (typeof contributor === 'string')
         return contributor
       const name = `${contributor.firstName || ''} ${contributor.lastName || ''}`.trim()
@@ -365,130 +368,130 @@ const additionalFields = computed(() => [
   },
   {
     id: 'page-type',
-    condition: () => props.reference.metadata.source.pageType,
+    condition: () => props.reference.metadata.source?.pageType,
     icon: mdiNotebookOutline,
     title: t('page-type'),
-    text: () => props.reference.metadata.source.pageType,
+    text: () => props.reference.metadata.source?.pageType || '',
     fieldPath: 'metadata.source.pageType',
   },
   {
     id: 'paragraph-number',
-    condition: () => props.reference.metadata.source.paragraphNumber,
+    condition: () => props.reference.metadata.source?.paragraphNumber,
     icon: mdiNumeric,
     title: t('paragraph-number'),
-    text: () => props.reference.metadata.source.paragraphNumber,
+    text: () => props.reference.metadata.source?.paragraphNumber || '',
     fieldPath: 'metadata.source.paragraphNumber',
   },
   {
     id: 'volume-prefix',
-    condition: () => props.reference.metadata.source.volumePrefix,
+    condition: () => props.reference.metadata.source?.volumePrefix,
     icon: mdiBookOpenBlankVariantOutline,
     title: t('volume-prefix'),
-    text: () => props.reference.metadata.source.volumePrefix,
+    text: () => props.reference.metadata.source?.volumePrefix || '',
     fieldPath: 'metadata.source.volumePrefix',
   },
   {
     id: 'issue-prefix',
-    condition: () => props.reference.metadata.source.issuePrefix,
+    condition: () => props.reference.metadata.source?.issuePrefix,
     icon: mdiCalendarRange,
     title: t('issue-prefix'),
-    text: () => props.reference.metadata.source.issuePrefix,
+    text: () => props.reference.metadata.source?.issuePrefix || '',
     fieldPath: 'metadata.source.issuePrefix',
   },
   {
     id: 'supplement-info',
-    condition: () => props.reference.metadata.source.supplementInfo,
+    condition: () => props.reference.metadata.source?.supplementInfo,
     icon: mdiFileMultiple,
     title: t('supplement-info'),
-    text: () => props.reference.metadata.source.supplementInfo,
+    text: () => props.reference.metadata.source?.supplementInfo || '',
     fieldPath: 'metadata.source.supplementInfo',
   },
   {
     id: 'article-number',
-    condition: () => props.reference.metadata.source.articleNumber,
+    condition: () => props.reference.metadata.source?.articleNumber,
     icon: mdiNumeric,
     title: t('article-number'),
-    text: () => props.reference.metadata.source.articleNumber,
+    text: () => props.reference.metadata.source?.articleNumber || '',
     fieldPath: 'metadata.source.articleNumber',
   },
   {
     id: 'conference',
-    condition: () => props.reference.metadata.source.conference,
+    condition: () => props.reference.metadata.source?.conference,
     icon: mdiMicrophone,
     title: t('conference'),
-    text: () => props.reference.metadata.source.conference,
+    text: () => props.reference.metadata.source?.conference || '',
     fieldPath: 'metadata.source.conference',
   },
   {
     id: 'series-number',
-    condition: () => props.reference.metadata.source.seriesNumber,
+    condition: () => props.reference.metadata.source?.seriesNumber,
     icon: mdiLibrary,
     title: t('series-number'),
-    text: () => props.reference.metadata.source.seriesNumber,
+    text: () => props.reference.metadata.source?.seriesNumber || '',
     fieldPath: 'metadata.source.seriesNumber',
   },
   {
     id: 'chapter-title',
-    condition: () => props.reference.metadata.source.chapterTitle,
+    condition: () => props.reference.metadata.source?.chapterTitle,
     icon: mdiFileDocumentOutline,
     title: t('chapter-title'),
-    text: () => props.reference.metadata.source.chapterTitle,
+    text: () => props.reference.metadata.source?.chapterTitle || '',
     fieldPath: 'metadata.source.chapterTitle',
   },
   {
     id: 'medium',
-    condition: () => props.reference.metadata.source.medium,
+    condition: () => props.reference.metadata.source?.medium,
     icon: mdiTelevision,
     title: t('medium'),
-    text: () => props.reference.metadata.source.medium,
+    text: () => props.reference.metadata.source?.medium || '',
     fieldPath: 'metadata.source.medium',
   },
   {
     id: 'original-title',
-    condition: () => props.reference.metadata.source.originalTitle,
+    condition: () => props.reference.metadata.source?.originalTitle,
     icon: mdiTranslate,
     title: t('original-title'),
-    text: () => props.reference.metadata.source.originalTitle,
+    text: () => props.reference.metadata.source?.originalTitle || '',
     fieldPath: 'metadata.source.originalTitle',
   },
   {
     id: 'original-language',
-    condition: () => props.reference.metadata.source.originalLanguage,
+    condition: () => props.reference.metadata.source?.originalLanguage,
     icon: mdiTranslate,
     title: t('original-language'),
-    text: () => props.reference.metadata.source.originalLanguage,
+    text: () => props.reference.metadata.source?.originalLanguage || '',
     fieldPath: 'metadata.source.originalLanguage',
   },
   {
     id: 'degree',
-    condition: () => props.reference.metadata.source.degree,
+    condition: () => props.reference.metadata.source?.degree,
     icon: mdiGavel,
     title: t('degree'),
-    text: () => props.reference.metadata.source.degree,
+    text: () => props.reference.metadata.source?.degree || '',
     fieldPath: 'metadata.source.degree',
   },
   {
     id: 'advisor',
-    condition: () => props.reference.metadata.source.advisor,
+    condition: () => props.reference.metadata.source?.advisor,
     icon: mdiAccountTie,
     title: t('advisor'),
-    text: () => props.reference.metadata.source.advisor,
+    text: () => props.reference.metadata.source?.advisor || '',
     fieldPath: 'metadata.source.advisor',
   },
   {
     id: 'department',
-    condition: () => props.reference.metadata.source.department,
+    condition: () => props.reference.metadata.source?.department,
     icon: mdiSchool,
     title: t('department'),
-    text: () => props.reference.metadata.source.department,
+    text: () => props.reference.metadata.source?.department || '',
     fieldPath: 'metadata.source.department',
   },
   {
     id: 'is-standalone',
-    condition: () => props.reference.metadata.source.isStandAlone !== undefined,
+    condition: () => props.reference.metadata.source?.isStandAlone !== undefined,
     icon: mdiBookOpenBlankVariantOutline,
     title: t('is-standalone'),
-    text: () => props.reference.metadata.source.isStandAlone ? t('yes') : t('no'),
+    text: () => props.reference.metadata.source?.isStandAlone ? t('yes') : t('no'),
     fieldPath: 'metadata.source.isStandAlone',
   },
 ].filter(field => field.condition()))
@@ -497,18 +500,18 @@ const additionalFields = computed(() => [
 const extendedDateFields = computed(() => [
   {
     id: 'season',
-    condition: () => props.reference.metadata.date.season,
+    condition: () => props.reference.metadata.date?.season,
     icon: mdiCalendarOutline,
     title: t('season'),
-    text: () => props.reference.metadata.date.season,
+    text: () => props.reference.metadata.date?.season || '',
     fieldPath: 'metadata.date.season',
   },
   {
     id: 'date-range',
-    condition: () => props.reference.metadata.date.dateRange && props.reference.metadata.date.yearEnd,
+    condition: () => props.reference.metadata.date?.dateRange && props.reference.metadata.date?.yearEnd,
     icon: mdiCalendarRange,
     title: t('date-range'),
-    text: () => `${props.reference.metadata.date.year}–${props.reference.metadata.date.yearEnd}`,
+    text: () => `${props.reference.metadata.date?.year}–${props.reference.metadata.date?.yearEnd}`,
     fieldPath: 'metadata.date.dateRange',
   },
 ].filter(field => field.condition()))
