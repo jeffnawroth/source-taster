@@ -24,10 +24,7 @@ export interface ProcessingStrategy {
 }
 
 export interface ProcessingRuleDefinition {
-  id: string
   actionType: ProcessingActionType
-  category: ProcessingRuleCategory
-  supportedModes: ProcessingMode[]
   aiInstruction: {
     prompt: string
     example: string
