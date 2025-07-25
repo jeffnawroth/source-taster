@@ -22,8 +22,8 @@ export const PROCESSING_RULES: ProcessingRuleDefinition[] = [
   {
     actionType: ProcessingActionType.NORMALIZE_TITLE_CASE,
     aiInstruction: {
-      prompt: 'ONLY normalize capitalization of titles and names. Change letter casing ONLY. Do NOT fix spelling errors, grammar, or change any words.',
-      example: '"the quick brown fox" → "The Quick Brown Fox", "john smith" → "John Smith", "a study on AI" → "A Study on AI". Keep original spelling: "seevere" stays "Seevere", not "Severe"',
+      prompt: 'Normalize capitalization of titles, names, and other text to standard formats (Title Case).',
+      example: '"the quick brown fox" → "The Quick Brown Fox", "john smith" → "John Smith", "a study on AI" → "A Study on AI"',
     },
   },
   {

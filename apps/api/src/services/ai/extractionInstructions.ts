@@ -14,7 +14,7 @@ export function getExtractionInstructions(processingStrategy: ProcessingStrategy
 
   // Build instructions from active rules
   const instructions: string[] = [
-    'IMPORTANT: Only perform the following specific modifications. Do NOT make any other changes, corrections, or improvements beyond what is explicitly listed below:',
+    'IMPORTANT: Only perform the following specific modifications. Do NOT make any other changes beyond what is explicitly listed below:',
   ]
 
   for (const rule of activeRules) {
