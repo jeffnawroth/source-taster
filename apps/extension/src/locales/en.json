@@ -533,6 +533,8 @@
   "re-verifying-reference": "Re-verifying: {reference}",
   "recommended": "Recommended",
   "reference-metadata": "Reference Metadata",
+  "reference-score-title": "Best Match Score",
+  "reference-score-description": "Shows how well this reference matches the best-matching source found in academic databases (Crossref, PubMed, etc.).",
   "references-count": "{count} references",
   "registered": "Registered",
   "reload-page-auto-import": "Reload the page to automatically find and import references",
