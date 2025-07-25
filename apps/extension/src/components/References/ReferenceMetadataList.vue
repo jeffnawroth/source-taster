@@ -1,35 +1,6 @@
 <script setup lang="ts">
 import type { ExternalSource, FieldProcessingResult, Reference } from '@source-taster/types'
-import {
-  mdiAccountGroup,
-  mdiAccountTie,
-  mdiBookmark,
-  mdiBookOpenBlankVariantOutline,
-  mdiCalendarClock,
-  mdiCalendarOutline,
-  mdiCalendarRange,
-  mdiChevronDown,
-  mdiChevronUp,
-  mdiDomain,
-  mdiEarth,
-  mdiFileDocumentOutline,
-  mdiFileMultiple,
-  mdiGavel,
-  mdiIdentifier,
-  mdiLibrary,
-  mdiLink,
-  mdiMapMarker,
-  mdiMedicalBag,
-  mdiMicrophone,
-  mdiNewspaper,
-  mdiNotebookOutline,
-  mdiNumeric,
-  mdiSchool,
-  mdiTag,
-  mdiTelevision,
-  mdiText,
-  mdiTranslate,
-} from '@mdi/js'
+import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
 
 const props = defineProps<{
   reference: Reference | ExternalSource

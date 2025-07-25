@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldModification } from '@source-taster/types'
+import type { FieldProcessingResult } from '@source-taster/types'
 import { mdiCheck, mdiContentCopy, mdiInformationOutline } from '@mdi/js'
 import { useClipboard } from '@vueuse/core'
 
@@ -9,8 +9,8 @@ const props = defineProps<{
   text?: string | number
   color?: string
   link?: boolean
-  modification?: FieldModification
-  modifications?: FieldModification[] // Support for multiple modifications
+  modification?: FieldProcessingResult
+  modifications?: FieldProcessingResult[] // Support for multiple modifications
 }>()
 
 const { t } = useI18n()
@@ -54,10 +54,10 @@ const extractedValue = computed(() => {
     return String(props.text || '')
   }
 
-  // All modifications should have the same extractedValue as they're for the same field
-  const value = allModifications.value[0]?.extractedValue
+  // All modifications should have the same processedValue as they're for the same field
+  const value = allModifications.value[0]?.processedValue
 
-  // If the extracted value is an object (like for individual author modifications), format it as a readable string
+  // If the processed value is an object (like for individual author modifications), format it as a readable string
   if (typeof value === 'object' && value !== null) {
     // Check if it's an author object with firstName and lastName
     if ('firstName' in value && 'lastName' in value) {
@@ -75,7 +75,9 @@ const extractedValue = computed(() => {
 
 // Get all modification types for this field (deduplicated with counts)
 const modificationTypes = computed(() => {
-  const types = allModifications.value.map(mod => t(`modification-type-${mod.modificationType}`))
+  const types = allModifications.value.flatMap(mod =>
+    mod.actionTypes.map(actionType => t(`modification-type-${actionType}`)),
+  )
 
   // Count occurrences of each type
   const typeCounts = new Map<string, number>()
