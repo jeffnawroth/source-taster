@@ -1,80 +1,78 @@
-import type { ExtractionConfig } from './extraction-config.types'
+import { type ExtractableField, type ExtractionConfig, FieldCategory } from './extraction-config.types'
 
-export const ESSENTIAL_EXTRACTION_CONFIG: ExtractionConfig = [
-  'title',
-  'authors',
-  'year',
-  'doi',
-  'containerTitle',
-  'volume',
-  'issue',
-  'pages',
-  'url',
-]
+const FIELD_CATEGORY_ASSIGNMENTS: Record<ExtractableField, readonly FieldCategory[]> = {
+  // Core bibliographic information
+  title: [FieldCategory.ESSENTIAL, FieldCategory.CORE],
+  authors: [FieldCategory.ESSENTIAL, FieldCategory.CORE],
+  year: [FieldCategory.ESSENTIAL, FieldCategory.CORE],
 
-export const CORE_FIELDS: ExtractionConfig = [
-  'title',
-  'authors',
-  'year',
-]
+  // Publication details
+  containerTitle: [FieldCategory.ESSENTIAL, FieldCategory.PUBLICATION],
+  subtitle: [FieldCategory.PUBLICATION],
+  volume: [FieldCategory.ESSENTIAL, FieldCategory.PUBLICATION],
+  issue: [FieldCategory.ESSENTIAL, FieldCategory.PUBLICATION],
+  pages: [FieldCategory.ESSENTIAL, FieldCategory.PUBLICATION],
+  publisher: [FieldCategory.PUBLICATION],
+  publicationPlace: [FieldCategory.PUBLICATION],
+  url: [FieldCategory.ESSENTIAL, FieldCategory.PUBLICATION],
+  sourceType: [FieldCategory.PUBLICATION],
+  location: [FieldCategory.PUBLICATION],
+  retrievalDate: [FieldCategory.PUBLICATION],
+  edition: [FieldCategory.PUBLICATION],
+  medium: [FieldCategory.PUBLICATION],
+  originalTitle: [FieldCategory.PUBLICATION],
+  originalLanguage: [FieldCategory.PUBLICATION],
+  chapterTitle: [FieldCategory.PUBLICATION],
+  contributors: [FieldCategory.PUBLICATION],
 
-export const IDENTIFIER_FIELDS: ExtractionConfig = [
-  'doi',
-  'isbn',
-  'issn',
-  'pmid',
-  'pmcid',
-  'arxivId',
-]
+  // Identifiers
+  doi: [FieldCategory.ESSENTIAL, FieldCategory.IDENTIFIER],
+  isbn: [FieldCategory.IDENTIFIER],
+  issn: [FieldCategory.IDENTIFIER],
+  pmid: [FieldCategory.IDENTIFIER],
+  pmcid: [FieldCategory.IDENTIFIER],
+  arxivId: [FieldCategory.IDENTIFIER],
 
-export const DATE_FIELDS: ExtractionConfig = [
-  'month',
-  'day',
-  'yearSuffix',
-  'dateRange',
-  'yearEnd',
-  'noDate',
-  'inPress',
-  'approximateDate',
-  'season',
-]
+  // Date information
+  month: [FieldCategory.DATE],
+  day: [FieldCategory.DATE],
+  yearSuffix: [FieldCategory.DATE],
+  dateRange: [FieldCategory.DATE],
+  yearEnd: [FieldCategory.DATE],
+  noDate: [FieldCategory.DATE],
+  inPress: [FieldCategory.DATE],
+  approximateDate: [FieldCategory.DATE],
+  season: [FieldCategory.DATE],
 
-export const PUBLICATION_FIELDS: ExtractionConfig = [
-  'containerTitle',
-  'subtitle',
-  'volume',
-  'issue',
-  'pages',
-  'publisher',
-  'publicationPlace',
-  'url',
-  'sourceType',
-  'location',
-  'retrievalDate',
-  'edition',
-  'medium',
-  'originalTitle',
-  'originalLanguage',
-  'chapterTitle',
-  'contributors',
-]
+  // Academic context
+  conference: [FieldCategory.ACADEMIC],
+  institution: [FieldCategory.ACADEMIC],
+  series: [FieldCategory.ACADEMIC],
+  seriesNumber: [FieldCategory.ACADEMIC],
+  degree: [FieldCategory.ACADEMIC],
+  advisor: [FieldCategory.ACADEMIC],
+  department: [FieldCategory.ACADEMIC],
 
-export const ACADEMIC_FIELDS: ExtractionConfig = [
-  'conference',
-  'institution',
-  'series',
-  'seriesNumber',
-  'degree',
-  'advisor',
-  'department',
-]
+  // Technical metadata
+  pageType: [FieldCategory.TECHNICAL],
+  paragraphNumber: [FieldCategory.TECHNICAL],
+  volumePrefix: [FieldCategory.TECHNICAL],
+  issuePrefix: [FieldCategory.TECHNICAL],
+  supplementInfo: [FieldCategory.TECHNICAL],
+  articleNumber: [FieldCategory.TECHNICAL],
+  isStandAlone: [FieldCategory.TECHNICAL],
+} as const
 
-export const TECHNICAL_FIELDS: ExtractionConfig = [
-  'pageType',
-  'paragraphNumber',
-  'volumePrefix',
-  'issuePrefix',
-  'supplementInfo',
-  'articleNumber',
-  'isStandAlone',
-]
+export const ESSENTIAL_EXTRACTION_CONFIG: ExtractionConfig = {
+  fields: getFieldsByCategory(FieldCategory.ESSENTIAL),
+}
+
+export function getFieldsByCategory(category: FieldCategory): ExtractableField[] {
+  return (Object.entries(FIELD_CATEGORY_ASSIGNMENTS) as [ExtractableField, readonly FieldCategory[]][])
+    .filter(([, categories]) => categories.includes(category))
+    .map(([field]) => field)
+}
+
+export function getCategoriesForField(field: ExtractableField): readonly FieldCategory[] {
+  return FIELD_CATEGORY_ASSIGNMENTS[field] || []
+}

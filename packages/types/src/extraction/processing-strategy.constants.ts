@@ -100,20 +100,12 @@ export const MODE_PRESETS: Record<ProcessingMode, ProcessingActionType[]> = {
   custom: [],
 } as const
 
-export function getRulesForActionTypes(actionTypes: ProcessingActionType[]): ProcessingRuleDefinition[] {
-  return PROCESSING_RULES.filter(rule => actionTypes.includes(rule.actionType))
-}
-
-export function getActionTypesFromRules(rules: ProcessingRuleDefinition[]): ProcessingActionType[] {
-  return rules.map(rule => rule.actionType)
-}
-
 export const DEFAULT_PROCESSING_STRATEGY: ProcessingStrategy = {
   mode: DEFAULT_PROCESSING_MODE,
   rules: getRulesForActionTypes(MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
 }
 
-export const categoryMapping: Record<ProcessingRuleCategory, ProcessingActionType[]> = {
+export const RULE_CATEGORY_MAPPING: Record<ProcessingRuleCategory, ProcessingActionType[]> = {
   [ProcessingRuleCategory.CONTENT_NORMALIZATION]: [
     ProcessingActionType.NORMALIZE_SPELLING,
     ProcessingActionType.NORMALIZE_TITLE_CASE,
@@ -133,5 +125,13 @@ export const categoryMapping: Record<ProcessingRuleCategory, ProcessingActionTyp
 
 // Helper function to get action types by category
 export function getActionTypesByCategory(category: ProcessingRuleCategory): ProcessingActionType[] {
-  return categoryMapping[category] || []
+  return RULE_CATEGORY_MAPPING[category] || []
+}
+
+export function getRulesForActionTypes(actionTypes: ProcessingActionType[]): ProcessingRuleDefinition[] {
+  return PROCESSING_RULES.filter(rule => actionTypes.includes(rule.actionType))
+}
+
+export function getActionTypesFromRules(rules: ProcessingRuleDefinition[]): ProcessingActionType[] {
+  return rules.map(rule => rule.actionType)
 }

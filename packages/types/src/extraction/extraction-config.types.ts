@@ -24,5 +24,17 @@ export type ExtractableField =
   | SourceFields
   | IdentifierFields
 
-// Typ für das Extraktions-Array
-export type ExtractionConfig = ExtractableField[]
+export interface ExtractionConfig {
+  /** Array of fields that should be extracted from the source text */
+  fields: ExtractableField[]
+}
+
+export enum FieldCategory {
+  ESSENTIAL = 'essential',
+  CORE = 'core',
+  IDENTIFIER = 'identifier',
+  DATE = 'date',
+  PUBLICATION = 'publication',
+  ACADEMIC = 'academic',
+  TECHNICAL = 'technical',
+}

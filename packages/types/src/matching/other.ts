@@ -1,6 +1,6 @@
 import type { ReferenceMetadata } from '../reference'
 import type { ArchivedVersion, WebsiteMetadata } from '../website'
-import type { FieldWeights } from './weights'
+import type { FieldWeights } from './matching-config.types'
 
 /**
  * Result of website matching
