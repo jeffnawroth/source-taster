@@ -1,12 +1,5 @@
-import {
-  AIExtractedReferenceSchema,
-  AIExtractionResponseSchema,
-  DateInfoSchema,
-  ExternalIdentifiersSchema,
-  type ExtractionSettings,
-  ReferenceMetadataSchema,
-  SourceInfoSchema,
-} from '@source-taster/types'
+import type { ExtractableField, ExtractionSettings } from '@source-taster/types'
+import { AIExtractedReferenceSchema, AIExtractionResponseSchema, DateInfoSchema, ExternalIdentifiersSchema, ReferenceMetadataSchema, SourceInfoSchema } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
@@ -33,22 +26,22 @@ function hasAnyFieldsEnabled(enabledFields: string[], schema: z.ZodObject<any>):
 }
 
 // Create dynamic nested schemas for date, source, and identifiers
-function createDynamicNestedSchemas(enabledFields: string[]) {
+function createDynamicNestedSchemas(fields: ExtractableField[]) {
   return {
-    DynamicExternalIdentifiersSchema: createConditionalSchema(enabledFields, ExternalIdentifiersSchema),
-    DynamicSourceInfoSchema: createConditionalSchema(enabledFields, SourceInfoSchema),
-    DynamicDateInfoSchema: createConditionalSchema(enabledFields, DateInfoSchema),
+    DynamicExternalIdentifiersSchema: createConditionalSchema(fields, ExternalIdentifiersSchema),
+    DynamicSourceInfoSchema: createConditionalSchema(fields, SourceInfoSchema),
+    DynamicDateInfoSchema: createConditionalSchema(fields, DateInfoSchema),
   }
 }
 
 // Build the metadata shape with conditional nested objects
-function buildMetadataShape(enabledFields: string[], dynamicSchemas: ReturnType<typeof createDynamicNestedSchemas>) {
-  const baseMetadataConditional = createConditionalSchema(enabledFields, ReferenceMetadataSchema)
+function buildMetadataShape(fields: ExtractableField[], dynamicSchemas: ReturnType<typeof createDynamicNestedSchemas>) {
+  const baseMetadataConditional = createConditionalSchema(fields, ReferenceMetadataSchema)
   const metadataShape: Record<string, z.ZodTypeAny> = { ...baseMetadataConditional.shape }
 
-  const hasDateFields = hasAnyFieldsEnabled(enabledFields, DateInfoSchema)
-  const hasSourceFields = hasAnyFieldsEnabled(enabledFields, SourceInfoSchema)
-  const hasIdentifierFields = hasAnyFieldsEnabled(enabledFields, ExternalIdentifiersSchema)
+  const hasDateFields = hasAnyFieldsEnabled(fields, DateInfoSchema)
+  const hasSourceFields = hasAnyFieldsEnabled(fields, SourceInfoSchema)
+  const hasIdentifierFields = hasAnyFieldsEnabled(fields, ExternalIdentifiersSchema)
 
   if (hasDateFields) {
     metadataShape.date = dynamicSchemas.DynamicDateInfoSchema.optional().describe('Date information')
@@ -67,10 +60,30 @@ function buildMetadataShape(enabledFields: string[], dynamicSchemas: ReturnType<
 
 // Create dynamic schema based on extraction settings
 export function createDynamicExtractionSchema(extractionSettings: ExtractionSettings) {
-  const enabledFields = extractionSettings.extractionConfig
+  const { fields } = extractionSettings.extractionConfig
 
-  const dynamicSchemas = createDynamicNestedSchemas(enabledFields)
-  const DynamicReferenceMetadataSchema = buildMetadataShape(enabledFields, dynamicSchemas)
+  // If no fields are enabled, return a schema that only allows empty metadata
+  // if (enabledFields.length === 0) {
+  //   const EmptyMetadataSchema = z.object({}).strict().describe('No fields requested for extraction')
+
+  //   const EmptyReferenceSchema = AIExtractedReferenceSchema.extend({
+  //     metadata: EmptyMetadataSchema.describe('Empty metadata - no fields requested'),
+  //   })
+
+  //   const EmptyExtractionResponseSchema = AIExtractionResponseSchema.extend({
+  //     references: z.array(EmptyReferenceSchema).describe('Array of references with empty metadata'),
+  //   })
+
+  //   return {
+  //     name: 'reference_extraction',
+  //     schema: zodToJsonSchema(EmptyExtractionResponseSchema, {
+  //       $refStrategy: 'none',
+  //     }),
+  //   }
+  // }
+
+  const dynamicSchemas = createDynamicNestedSchemas(fields)
+  const DynamicReferenceMetadataSchema = buildMetadataShape(fields, dynamicSchemas)
 
   // Create dynamic reference schema by overriding the metadata part of AIExtractedReferenceSchema
   const DynamicReferenceSchema = AIExtractedReferenceSchema.extend({
