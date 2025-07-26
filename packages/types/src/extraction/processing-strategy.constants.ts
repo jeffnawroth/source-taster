@@ -1,10 +1,11 @@
 import type { ProcessingMode, ProcessingRuleDefinition, ProcessingStrategy } from './processing-strategy.types'
+import { getActionTypesByCategory, getActionTypesFromRules, getRulesForActionTypes } from '../common'
 import { createModePresets, Mode } from '../common/mode'
 import { ProcessingActionType, ProcessingRuleCategory } from './processing-strategy.types'
 /**
  * Default processing mode
  */
-export const DEFAULT_PROCESSING_MODE: ProcessingMode = Mode.BALANCED
+export const DEFAULT_PROCESSING_MODE: ProcessingMode = Mode.BALANCED as const
 
 /**
  * Default processing rules for each extraction mode
@@ -100,7 +101,7 @@ export const PROCESSING_MODE_PRESETS = createModePresets<ProcessingActionType>(
 
 export const DEFAULT_PROCESSING_STRATEGY: ProcessingStrategy = {
   mode: DEFAULT_PROCESSING_MODE,
-  rules: getRulesForActionTypes(PROCESSING_MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
+  rules: getProcessingRulesForActionTypes(PROCESSING_MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
 }
 
 export const RULE_CATEGORY_MAPPING: Record<ProcessingRuleCategory, ProcessingActionType[]> = {
@@ -122,14 +123,14 @@ export const RULE_CATEGORY_MAPPING: Record<ProcessingRuleCategory, ProcessingAct
 } as const
 
 // Helper function to get action types by category
-export function getActionTypesByCategory(category: ProcessingRuleCategory): ProcessingActionType[] {
-  return RULE_CATEGORY_MAPPING[category] || []
+export function getProcessingActionTypesByCategory(category: ProcessingRuleCategory): ProcessingActionType[] {
+  return getActionTypesByCategory(RULE_CATEGORY_MAPPING, category)
 }
 
-export function getRulesForActionTypes(actionTypes: ProcessingActionType[]): ProcessingRuleDefinition[] {
-  return PROCESSING_RULES.filter(rule => actionTypes.includes(rule.actionType))
+export function getProcessingRulesForActionTypes(actionTypes: ProcessingActionType[]): ProcessingRuleDefinition[] {
+  return getRulesForActionTypes(PROCESSING_RULES, actionTypes)
 }
 
-export function getActionTypesFromRules(rules: ProcessingRuleDefinition[]): ProcessingActionType[] {
-  return rules.map(rule => rule.actionType)
+export function getProcessingActionTypesFromRules(rules: ProcessingRuleDefinition[]): ProcessingActionType[] {
+  return getActionTypesFromRules(rules)
 }

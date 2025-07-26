@@ -1,4 +1,5 @@
 import type { MatchingMode, MatchingRuleDefinition, MatchingStrategy } from './matching-strategy.types'
+import { getActionTypesByCategory, getActionTypesFromRules, getRulesForActionTypes } from '../common'
 import { createModePresets, Mode } from '../common/mode'
 import { MatchingActionType, MatchingRuleCategory } from './matching-strategy.types'
 
@@ -96,7 +97,7 @@ export const MATCHING_MODE_PRESETS = createModePresets<MatchingActionType>(
 )
 export const DEFAULT_MATCHING_STRATEGY: MatchingStrategy = {
   mode: DEFAULT_MATCHING_MODE,
-  rules: getRulesForActionTypes(MATCHING_MODE_PRESETS[DEFAULT_MATCHING_MODE]),
+  rules: getMatchingRulesForActionTypes(MATCHING_MODE_PRESETS[DEFAULT_MATCHING_MODE]),
 } as const
 
 export const categoryMapping: Record<MatchingRuleCategory, MatchingActionType[]> = {
@@ -117,14 +118,14 @@ export const categoryMapping: Record<MatchingRuleCategory, MatchingActionType[]>
 
 // Helper functions
 
-export function getRulesForActionTypes(actionTypes: MatchingActionType[]): MatchingRuleDefinition[] {
-  return MATCHING_RULES.filter(rule => actionTypes.includes(rule.actionType))
+export function getMatchingRulesForActionTypes(actionTypes: MatchingActionType[]): MatchingRuleDefinition[] {
+  return getRulesForActionTypes(MATCHING_RULES, actionTypes)
 }
 
-export function getActionTypesFromRules(rules: MatchingRuleDefinition[]): MatchingActionType[] {
-  return rules.map(rule => rule.actionType)
+export function getMatchingActionTypesFromRules(rules: MatchingRuleDefinition[]): MatchingActionType[] {
+  return getActionTypesFromRules(rules)
 }
 
-export function getActionTypesByCategory(category: MatchingRuleCategory): MatchingActionType[] {
-  return categoryMapping[category] || []
+export function getMatchingActionTypesByCategory(category: MatchingRuleCategory): MatchingActionType[] {
+  return getActionTypesByCategory(categoryMapping, category)
 }

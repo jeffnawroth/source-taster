@@ -11,6 +11,9 @@ export * from './ai'
 // API Types
 export * from './api'
 
+// Common Types
+export * from './common'
+
 // Extraction Types
 export * from './extraction'
 
