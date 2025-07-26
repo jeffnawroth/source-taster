@@ -91,7 +91,6 @@ export class MatchingController {
             const websiteSourceEvaluation = this.createWebsiteSourceEvaluation(websiteResult)
 
             results.push({
-              referenceId: reference.id,
               matchingDetails: {
                 sourcesFound: [], // Website matching doesn't use database sources
                 matchDetails: websiteResult.matchDetails,

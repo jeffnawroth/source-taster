@@ -64,7 +64,6 @@ export class DatabaseMatchingService extends BaseMatchingService {
     // If no sources found, return unmatched
     if (sources.length === 0) {
       return {
-        referenceId: reference.id,
         matchingDetails: {
           sourcesFound: [],
         },
@@ -92,7 +91,6 @@ export class DatabaseMatchingService extends BaseMatchingService {
 
     // Return result with best source - let frontend decide on matching based on score
     return {
-      referenceId: reference.id,
       matchedSource: bestEvaluation.source,
       matchingDetails: {
         sourcesFound: sources,

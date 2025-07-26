@@ -1,3 +1,5 @@
+import type { MatchDetails } from './matching'
+
 /**
  * Website metadata extracted from HTML
  */
@@ -34,4 +36,24 @@ export interface ArchivedVersion {
   timestamp: Date
   /** Metadata extracted from the archived page */
   metadata: WebsiteMetadata
+}
+
+/**
+ * Result of website matching
+ */
+export interface WebsiteMatchingResult {
+  /** Original URL being checked */
+  url: string
+  /** Whether the URL is currently accessible */
+  isAccessible: boolean
+  /** HTTP status code */
+  statusCode?: number
+  /** Extracted website metadata (if accessible or archived) */
+  websiteMetadata?: WebsiteMetadata
+  /** Detailed matching information */
+  matchDetails: MatchDetails
+  /** Information about archived version if used */
+  archivedVersion?: ArchivedVersion
+  /** Error message if matching failed */
+  error?: string
 }

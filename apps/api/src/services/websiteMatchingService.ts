@@ -57,7 +57,6 @@ export class WebsiteMatchingService extends BaseMatchingService {
 
         console.warn(`AI matching result:`, JSON.stringify(matchResult, null, 2))
         return {
-          referenceId: reference.id,
           url,
           isAccessible: true,
           websiteMetadata,
@@ -80,7 +79,6 @@ export class WebsiteMatchingService extends BaseMatchingService {
         if (archivedVersion && archivedVersion.metadata) {
           const matchResult = await this.matchWebsiteWithAI(reference, archivedVersion.metadata, matchingSettings)
           return {
-            referenceId: reference.id,
             url,
             isAccessible: false,
             websiteMetadata: archivedVersion.metadata,
@@ -96,7 +94,6 @@ export class WebsiteMatchingService extends BaseMatchingService {
 
     // If both current and archived versions fail
     return {
-      referenceId: reference.id,
       url,
       isAccessible: false,
       websiteMetadata: undefined,

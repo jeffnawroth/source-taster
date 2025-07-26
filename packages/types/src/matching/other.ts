@@ -1,28 +1,5 @@
 import type { ReferenceMetadata } from '../reference'
-import type { ArchivedVersion, WebsiteMetadata } from '../website'
 import type { FieldWeights } from './matching-config.types'
-
-/**
- * Result of website matching
- */
-export interface WebsiteMatchingResult {
-  /** Reference ID being matched */
-  referenceId: string
-  /** Original URL being checked */
-  url: string
-  /** Whether the URL is currently accessible */
-  isAccessible: boolean
-  /** HTTP status code */
-  statusCode?: number
-  /** Extracted website metadata (if accessible or archived) */
-  websiteMetadata?: WebsiteMetadata
-  /** Detailed matching information */
-  matchDetails: MatchDetails
-  /** Information about archived version if used */
-  archivedVersion?: ArchivedVersion
-  /** Error message if matching failed */
-  error?: string
-}
 
 /**
  * Represents a reference found in an external database
@@ -40,8 +17,6 @@ export interface ExternalSource {
 
 // Forward declarations for types that depend on each other
 export interface MatchingResult {
-  /** ID of the reference that was matched */
-  referenceId: string
   /** The best matching source (if found) */
   matchedSource?: ExternalSource
   /** Detailed matching information */
