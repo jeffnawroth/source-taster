@@ -17,8 +17,6 @@ export interface ExternalSource {
 
 // Forward declarations for types that depend on each other
 export interface MatchingResult {
-  /** The best matching source (if found) */
-  matchedSource?: ExternalSource
   /** Detailed matching information */
   matchingDetails?: MatchingDetails
 }

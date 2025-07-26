@@ -91,7 +91,6 @@ export class DatabaseMatchingService extends BaseMatchingService {
 
     // Return result with best source - let frontend decide on matching based on score
     return {
-      matchedSource: bestEvaluation.source,
       matchingDetails: {
         sourcesFound: sources,
         matchDetails: bestEvaluation.matchDetails,
