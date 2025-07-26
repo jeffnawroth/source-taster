@@ -1,22 +1,21 @@
-import type { DateInfo, ExternalIdentifiers, ReferenceMetadata, SourceInfo } from '../reference'
+import type { ReferenceMetadataDateFields, ReferenceMetadataIdentifierFields, ReferenceMetadataSourceFields, ReferenceMetadataTopLevelFields } from '../reference'
 
 export interface MatchingConfig {
   fieldWeights: FieldWeights
   matchThresholds: MatchQualityThresholds
 }
 
-  type FieldWeightType<T> = { [K in keyof T]?: number }
-
-export type DateInfoFieldWeights = FieldWeightType<DateInfo>
-export type SourceInfoFieldWeights = FieldWeightType<SourceInfo>
-export type ExternalIdentifiersFieldWeights = FieldWeightType<ExternalIdentifiers>
-
+/**
+ * Flattened field weights for all metadata fields
+ */
 export type FieldWeights = {
-  [K in keyof ReferenceMetadata]?:
-  K extends 'date' ? DateInfoFieldWeights :
-    K extends 'source' ? SourceInfoFieldWeights :
-      K extends 'identifiers' ? ExternalIdentifiersFieldWeights :
-        number
+  [K in ReferenceMetadataTopLevelFields]?: number
+} & {
+  [K in ReferenceMetadataDateFields]?: number
+} & {
+  [K in ReferenceMetadataSourceFields]?: number
+} & {
+  [K in ReferenceMetadataIdentifierFields]?: number
 }
 
 /**
