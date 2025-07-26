@@ -1,3 +1,10 @@
+import type { MatchQualityThresholds } from './quality'
+
+export interface MatchingConfig {
+  fieldWeights: FieldWeights
+  matchThresholds: MatchQualityThresholds
+}
+
 /**
  * Weights for different fields in match score calculation
  */

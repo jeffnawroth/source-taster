@@ -2,51 +2,28 @@
  * Extraction modes and custom settings configuration
  */
 
-/**
- * Extraction mode types for AI processing
- */
-export enum ProcessingMode {
-  /** Strict mode: 1:1 extraction without any corrections or interpretations */
-  STRICT = 'strict',
-  /** Balanced mode: Fix formatting/typos but maintain content accuracy */
-  BALANCED = 'balanced',
-  /** Tolerant mode: Extract even from incomplete/erroneous sources with intelligent inference */
-  TOLERANT = 'tolerant',
-  /** Custom mode: User-defined extraction rules and preferences */
-  CUSTOM = 'custom',
-}
-/**
- * Defines how extracted metadata should be processed
- */
-export interface ProcessingStrategy {
-  mode: ProcessingMode
-  rules: ProcessingRuleDefinition[]
-}
+import type { Mode } from '../common/mode'
+import type { RuleDefinition } from '../common/rule-definition'
+import type { Strategy } from '../common/strategy'
 
-export interface ProcessingRuleDefinition {
-  actionType: ProcessingActionType
-  aiInstruction: {
-    prompt: string
-    example: string
-  }
-}
+export type ProcessingMode = Mode
+export type ProcessingStrategy = Strategy<ProcessingMode, ProcessingRuleDefinition>
+export type ProcessingRuleDefinition = RuleDefinition<ProcessingActionType>
 
 export enum ProcessingRuleCategory {
-  TEXT_PROCESSING = 'text-processing',
-  CONTENT_FORMATTING = 'content-formatting',
+  CONTENT_NORMALIZATION = 'content-normalization',
+  STYLE_FORMATTING = 'style-formatting',
   TECHNICAL_PROCESSING = 'technical-processing',
-
 }
 
 export enum ProcessingActionType {
-  TYPO_CORRECTION = 'typo-correction',
+  NORMALIZE_SPELLING = 'normalize-spelling',
+  NORMALIZE_TYPOGRAPHY = 'normalize-typography',
   NORMALIZE_TITLE_CASE = 'normalize-title-case',
-  EXPAND_ABBREVIATIONS = 'expand-abbreviations',
-  STANDARDIZE_PUNCTUATION = 'standardize-punctuation',
-  FORMAT_AUTHOR_NAMES = 'format-author-names',
-  STANDARDIZE_DATE_FORMAT = 'standardize-date-format',
-  STANDARDIZE_IDENTIFIERS = 'standardize-identifiers',
-  FIX_ENCODING_ISSUES = 'fix-encoding-issues',
-  REPAIR_LINE_BREAKS = 'repair-line-breaks',
-  REMOVE_ARTIFACTS = 'remove-artifacts',
+  NORMALIZE_ABBREVIATIONS = 'normalize-abbreviations',
+  NORMALIZE_AUTHOR_NAMES = 'normalize-author-names',
+  NORMALIZE_DATE_FORMAT = 'normalize-date-format',
+  NORMALIZE_IDENTIFIERS = 'normalize-identifiers',
+  NORMALIZE_CHARACTERS = 'normalize-characters',
+  NORMALIZE_WHITESPACE = 'normalize-whitespace',
 }

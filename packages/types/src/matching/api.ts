@@ -1,6 +1,6 @@
 import type { MatchingResult } from '../matching'
 import type { Reference } from '../reference'
-import type { MatchingSettings } from './settings'
+import type { MatchingSettings } from './matching-settings.types'
 
 /**
  * Response containing multiple matching results
