@@ -1,5 +1,3 @@
-import type { MatchQualityThresholds } from './quality'
-
 export interface MatchingConfig {
   fieldWeights: FieldWeights
   matchThresholds: MatchQualityThresholds
@@ -60,34 +58,25 @@ export interface FieldWeights {
   subtitle?: number
 }
 
-// Default field weights (only available fields)
-export const DEFAULT_FIELD_WEIGHTS: FieldWeights = {
-  // Core fields (enabled by default)
-  title: 25,
-  authors: 20,
-  year: 5,
+/**
+ * Match quality classes for visual representation
+ */
+export enum MatchQuality {
+  /** Excellent match (95-100%) - Green */
+  EXACT = 'exact',
+  /** Good match (70-94%) - Orange */
+  HIGH = 'high',
+  /** Poor or no match (0-69%) - Red */
+  NONE = 'none',
+}
 
-  // Identifier fields (most important ones enabled)
-  doi: 15,
-  arxivId: 8,
-  pmid: 3,
-  pmcid: 2,
-  isbn: 1,
-  issn: 1,
-
-  // Source fields (basic ones enabled)
-  containerTitle: 10,
-  volume: 5,
-  issue: 3,
-  pages: 2,
-
-  // Additional fields (disabled by default, available for expert users)
-  publisher: 0,
-  url: 0,
-  sourceType: 0,
-  conference: 0,
-  institution: 0,
-  edition: 0,
-  articleNumber: 0,
-  subtitle: 0,
+/**
+ * Thresholds for match quality classification
+ */
+export interface MatchQualityThresholds {
+  /** Minimum score for exact match (default: 95) */
+  exactMatchThreshold: number
+  /** Minimum score for high quality match (default: 70) */
+  highMatchThreshold: number
+  /** Scores below this are considered no match (implicit: 0) */
 }
