@@ -1,5 +1,5 @@
 import type { ProcessingMode, ProcessingRuleDefinition, ProcessingStrategy } from './processing-strategy.types'
-import { Mode } from '../common/mode'
+import { createModePresets, Mode } from '../common/mode'
 import { ProcessingActionType, ProcessingRuleCategory } from './processing-strategy.types'
 /**
  * Default processing mode
@@ -77,7 +77,7 @@ export const PROCESSING_RULES: ProcessingRuleDefinition[] = [
   },
 ] as const
 
-const BALANCED_ACTIONS = [
+const BALANCED_ACTIONS: ProcessingActionType[] = [
   ProcessingActionType.NORMALIZE_SPELLING,
   ProcessingActionType.NORMALIZE_TYPOGRAPHY,
   ProcessingActionType.NORMALIZE_TITLE_CASE,
@@ -89,20 +89,18 @@ const BALANCED_ACTIONS = [
   ProcessingActionType.NORMALIZE_WHITESPACE,
 ] as const
 
-const TOLERANT_ACTIONS = [
+const TOLERANT_ACTIONS: ProcessingActionType[] = [
 
 ] as const
 
-export const MODE_PRESETS: Record<ProcessingMode, ProcessingActionType[]> = {
-  strict: [],
-  balanced: [...BALANCED_ACTIONS],
-  tolerant: [...BALANCED_ACTIONS, ...TOLERANT_ACTIONS],
-  custom: [],
-} as const
+export const PROCESSING_MODE_PRESETS = createModePresets<ProcessingActionType>(
+  BALANCED_ACTIONS,
+  TOLERANT_ACTIONS,
+)
 
 export const DEFAULT_PROCESSING_STRATEGY: ProcessingStrategy = {
   mode: DEFAULT_PROCESSING_MODE,
-  rules: getRulesForActionTypes(MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
+  rules: getRulesForActionTypes(PROCESSING_MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
 }
 
 export const RULE_CATEGORY_MAPPING: Record<ProcessingRuleCategory, ProcessingActionType[]> = {

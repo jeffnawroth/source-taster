@@ -1,4 +1,7 @@
 export * from './api'
+export * from './matching-config.constants'
+export * from './matching-config.types'
 export * from './matching-settings.types'
+export * from './matching-strategy.constants'
 export * from './matching-strategy.types'
 export * from './other'

@@ -8,3 +8,15 @@ export enum Mode {
   TOLERANT = 'tolerant',
   CUSTOM = 'custom',
 }
+
+export function createModePresets<ActionType>(
+  balancedActions: ActionType[],
+  tolerantActions: ActionType[],
+): Record<Mode, ActionType[]> {
+  return {
+    [Mode.STRICT]: [],
+    [Mode.BALANCED]: [...balancedActions],
+    [Mode.TOLERANT]: [...balancedActions, ...tolerantActions],
+    [Mode.CUSTOM]: [],
+  }
+}

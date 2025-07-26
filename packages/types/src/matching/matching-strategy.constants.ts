@@ -1,5 +1,5 @@
 import type { MatchingMode, MatchingRuleDefinition, MatchingStrategy } from './matching-strategy.types'
-import { Mode } from '../common/mode'
+import { createModePresets, Mode } from '../common/mode'
 import { MatchingActionType, MatchingRuleCategory } from './matching-strategy.types'
 
 export const DEFAULT_MATCHING_MODE: MatchingMode = Mode.BALANCED as const
@@ -74,7 +74,7 @@ export const MATCHING_RULES: MatchingRuleDefinition[] = [
 
 ] as const
 
-const BALANCED_ACTIONS = [
+const BALANCED_ACTIONS: MatchingActionType[] = [
   MatchingActionType.IGNORE_SPELLING_VARIATION,
   MatchingActionType.IGNORE_TYPOGRAPHIC_VARIATION,
   MatchingActionType.IGNORE_CASE_FORMAT,
@@ -86,20 +86,17 @@ const BALANCED_ACTIONS = [
   MatchingActionType.IGNORE_WHITESPACE,
 ] as const
 
-const TOLERANT_ACTIONS = [
+const TOLERANT_ACTIONS: MatchingActionType[] = [
 
 ] as const
 
-export const MODE_PRESETS: Record<MatchingMode, MatchingActionType[]> = {
-  strict: [],
-  balanced: [...BALANCED_ACTIONS],
-  tolerant: [...BALANCED_ACTIONS, ...TOLERANT_ACTIONS],
-  custom: [],
-} as const
-
+export const MATCHING_MODE_PRESETS = createModePresets<MatchingActionType>(
+  BALANCED_ACTIONS,
+  TOLERANT_ACTIONS,
+)
 export const DEFAULT_MATCHING_STRATEGY: MatchingStrategy = {
   mode: DEFAULT_MATCHING_MODE,
-  rules: getRulesForActionTypes(MODE_PRESETS[DEFAULT_MATCHING_MODE]),
+  rules: getRulesForActionTypes(MATCHING_MODE_PRESETS[DEFAULT_MATCHING_MODE]),
 } as const
 
 export const categoryMapping: Record<MatchingRuleCategory, MatchingActionType[]> = {
