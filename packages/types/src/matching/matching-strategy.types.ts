@@ -3,7 +3,7 @@ import type { RuleDefinition } from '../common/rule-definition'
 import type { Strategy } from '../common/strategy'
 
 export type MatchingMode = Mode
-export type MatchingStrategy = Strategy<MatchingMode, MatchingRuleDefinition[]>
+export type MatchingStrategy = Strategy<MatchingMode, MatchingActionType>
 export type MatchingRuleDefinition = RuleDefinition<MatchingActionType>
 
 export enum MatchingRuleCategory {

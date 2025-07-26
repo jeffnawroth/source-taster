@@ -7,7 +7,7 @@ import type { RuleDefinition } from '../common/rule-definition'
 import type { Strategy } from '../common/strategy'
 
 export type ProcessingMode = Mode
-export type ProcessingStrategy = Strategy<ProcessingMode, ProcessingRuleDefinition>
+export type ProcessingStrategy = Strategy<ProcessingMode, ProcessingActionType>
 export type ProcessingRuleDefinition = RuleDefinition<ProcessingActionType>
 
 export enum ProcessingRuleCategory {

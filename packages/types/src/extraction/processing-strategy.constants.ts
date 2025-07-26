@@ -1,22 +1,29 @@
-import type { ProcessingRuleDefinition, ProcessingStrategy } from './processing-strategy.types'
-import { ProcessingActionType, ProcessingMode, ProcessingRuleCategory } from './processing-strategy.types'
+import type { ProcessingMode, ProcessingRuleDefinition, ProcessingStrategy } from './processing-strategy.types'
+import { Mode } from '../common/mode'
+import { ProcessingActionType, ProcessingRuleCategory } from './processing-strategy.types'
 /**
  * Default processing mode
  */
-export const DEFAULT_PROCESSING_MODE: ProcessingMode = ProcessingMode.BALANCED
+export const DEFAULT_PROCESSING_MODE: ProcessingMode = Mode.BALANCED
 
 /**
  * Default processing rules for each extraction mode
  * These rules define how the AI should handle various aspects of metadata extraction
  */
 
-// Zentrale Regeldefinition
 export const PROCESSING_RULES: ProcessingRuleDefinition[] = [
   {
-    actionType: ProcessingActionType.TYPO_CORRECTION,
+    actionType: ProcessingActionType.NORMALIZE_SPELLING,
     aiInstruction: {
       prompt: 'Correct obvious typos and misspellings, including common spelling errors, transposed letters, and missing letters.',
       example: '"Jouranl" → "Journal", "artficial" → "artificial", "inteligence" → "intelligence", "medecine" → "medicine"',
+    },
+  },
+  {
+    actionType: ProcessingActionType.NORMALIZE_TYPOGRAPHY,
+    aiInstruction: {
+      prompt: 'Fix common encoding issues such as smart quotes, em dashes, and other non-standard characters.',
+      example: '"“Smart quotes”" → "Smart quotes", "—em dash" → "-", "…ellipsis" → "...", "â€" → "–"',
     },
   },
   {
@@ -27,77 +34,63 @@ export const PROCESSING_RULES: ProcessingRuleDefinition[] = [
     },
   },
   {
-    actionType: ProcessingActionType.EXPAND_ABBREVIATIONS,
+    actionType: ProcessingActionType.NORMALIZE_ABBREVIATIONS,
     aiInstruction: {
       prompt: 'Expand common abbreviations.',
       example: '"J." → "Journal", "Vol." → "Volume"',
     },
   },
   {
-    actionType: ProcessingActionType.STANDARDIZE_PUNCTUATION,
-    aiInstruction: {
-      prompt: 'Standardize punctuation usage, including spaces around punctuation, consistent use of commas and periods, and removal of unnecessary punctuation.',
-      example: '"Title: A Study, on AI." → "Title: A Study on AI", "Author: John Smith, Ph.D." → "Author: John Smith, PhD"',
-    },
-  },
-  {
-    actionType: ProcessingActionType.FORMAT_AUTHOR_NAMES,
+    actionType: ProcessingActionType.NORMALIZE_AUTHOR_NAMES,
     aiInstruction: {
       prompt: 'Format author names to a consistent style',
       example: '"John Smith" → "Smith, John", "Mary Jane Doe" → "Doe, Mary Jane"',
     },
   },
   {
-    actionType: ProcessingActionType.STANDARDIZE_DATE_FORMAT,
+    actionType: ProcessingActionType.NORMALIZE_DATE_FORMAT,
     aiInstruction: {
       prompt: 'Standardize date formats to ISO 8601 (YYYY-MM-DD) or similar formats',
       example: '"January 1, 2020" → "2020-01-01", "2020/01/01" → "2020-01-01", "1st Jan 2020" → "2020-01-01"',
     },
   },
   {
-    actionType: ProcessingActionType.STANDARDIZE_IDENTIFIERS,
+    actionType: ProcessingActionType.NORMALIZE_IDENTIFIERS,
     aiInstruction: {
       prompt: 'Standardize external identifiers (DOI, ISBN, ISSN, PMID, PMCID, ARXIV) to a consistent format',
-      example: '"https://doi.org/10.1000/xyz123" → "10.1000/xyz123", "978-3-16-148410-0" → "9783161484100", "ISSN 1234-5678" → "12345678", "PMID 123456" → "123456", "PMCID PMC123456" → "PMC123456", "ARXIV 1234.5678" → "1234.5678"',
+      example: '"https://doi.org/10.1000/xyz123" → "10.1000/xyz123"',
     },
   },
   {
-    actionType: ProcessingActionType.FIX_ENCODING_ISSUES,
+    actionType: ProcessingActionType.NORMALIZE_CHARACTERS,
     aiInstruction: {
-      prompt: 'Fix common encoding issues such as smart quotes, em dashes, and other non-standard characters.',
-      example: '"“Smart quotes”" → "Smart quotes", "—em dash" → "-", "…ellipsis" → "...", "â€" → "–"',
+      prompt: 'Normalize corrupted or misencoded characters caused by encoding issues (e.g., UTF-8 artifacts). Replace them with their intended character equivalents.',
+      example: '"GrÃ¼n" → "Grün"',
     },
   },
   {
-    actionType: ProcessingActionType.REPAIR_LINE_BREAKS,
+    actionType: ProcessingActionType.NORMALIZE_WHITESPACE,
     aiInstruction: {
-      prompt: 'Repair line breaks and paragraph formatting to ensure proper text flow.',
-      example: '"This is a line.\n\nThis is another line." → "This is a line. This is another line."',
-    },
-  },
-  {
-    actionType: ProcessingActionType.REMOVE_ARTIFACTS,
-    aiInstruction: {
-      prompt: 'Remove artifacts such as HTML tags, XML tags, and other non-text elements.',
-      example: '"<p>This is a paragraph.</p>" → "This is a paragraph.", [1] → ""',
+      prompt: 'Normalize whitespace by removing duplicated spaces, leading/trailing spaces, unnecessary tabs, and soft line breaks within inline text. Preserve paragraph breaks',
+      example: '"This is a line.\n\nThis is another line." → "This is a line. This is another line.", "This    is a  test." → "This is a test."',
     },
   },
 ] as const
 
 const BALANCED_ACTIONS = [
-  ProcessingActionType.TYPO_CORRECTION,
-  ProcessingActionType.FIX_ENCODING_ISSUES,
-  ProcessingActionType.REMOVE_ARTIFACTS,
-  ProcessingActionType.STANDARDIZE_IDENTIFIERS,
+  ProcessingActionType.NORMALIZE_SPELLING,
+  ProcessingActionType.NORMALIZE_TYPOGRAPHY,
+  ProcessingActionType.NORMALIZE_TITLE_CASE,
+  ProcessingActionType.NORMALIZE_ABBREVIATIONS,
+  ProcessingActionType.NORMALIZE_AUTHOR_NAMES,
+  ProcessingActionType.NORMALIZE_DATE_FORMAT,
+  ProcessingActionType.NORMALIZE_IDENTIFIERS,
+  ProcessingActionType.NORMALIZE_CHARACTERS,
+  ProcessingActionType.NORMALIZE_WHITESPACE,
 ] as const
 
 const TOLERANT_ACTIONS = [
-  ProcessingActionType.NORMALIZE_TITLE_CASE,
-  ProcessingActionType.EXPAND_ABBREVIATIONS,
-  ProcessingActionType.STANDARDIZE_PUNCTUATION,
-  ProcessingActionType.FORMAT_AUTHOR_NAMES,
-  ProcessingActionType.STANDARDIZE_DATE_FORMAT,
-  ProcessingActionType.REPAIR_LINE_BREAKS,
+
 ] as const
 
 export const MODE_PRESETS: Record<ProcessingMode, ProcessingActionType[]> = {
@@ -121,23 +114,22 @@ export const DEFAULT_PROCESSING_STRATEGY: ProcessingStrategy = {
 }
 
 export const categoryMapping: Record<ProcessingRuleCategory, ProcessingActionType[]> = {
-  [ProcessingRuleCategory.TEXT_PROCESSING]: [
-    ProcessingActionType.TYPO_CORRECTION,
+  [ProcessingRuleCategory.CONTENT_NORMALIZATION]: [
+    ProcessingActionType.NORMALIZE_SPELLING,
     ProcessingActionType.NORMALIZE_TITLE_CASE,
-    ProcessingActionType.EXPAND_ABBREVIATIONS,
-    ProcessingActionType.STANDARDIZE_PUNCTUATION,
+    ProcessingActionType.NORMALIZE_ABBREVIATIONS,
+    ProcessingActionType.NORMALIZE_TYPOGRAPHY,
   ],
-  [ProcessingRuleCategory.CONTENT_FORMATTING]: [
-    ProcessingActionType.FORMAT_AUTHOR_NAMES,
-    ProcessingActionType.STANDARDIZE_DATE_FORMAT,
-    ProcessingActionType.STANDARDIZE_IDENTIFIERS,
+  [ProcessingRuleCategory.STYLE_FORMATTING]: [
+    ProcessingActionType.NORMALIZE_AUTHOR_NAMES,
+    ProcessingActionType.NORMALIZE_DATE_FORMAT,
+    ProcessingActionType.NORMALIZE_IDENTIFIERS,
   ],
   [ProcessingRuleCategory.TECHNICAL_PROCESSING]: [
-    ProcessingActionType.FIX_ENCODING_ISSUES,
-    ProcessingActionType.REPAIR_LINE_BREAKS,
-    ProcessingActionType.REMOVE_ARTIFACTS,
+    ProcessingActionType.NORMALIZE_CHARACTERS,
+    ProcessingActionType.NORMALIZE_WHITESPACE,
   ],
-}
+} as const
 
 // Helper function to get action types by category
 export function getActionTypesByCategory(category: ProcessingRuleCategory): ProcessingActionType[] {
