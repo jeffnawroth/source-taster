@@ -1,6 +1,6 @@
 import type { MatchingConfig } from './matching-config.types'
 import type { MatchingStrategy } from './matching-strategy.types'
-import { DEFAULT_FIELD_WEIGHTS, DEFAULT_MATCH_QUALITY_THRESHOLDS } from './matching-config.constants'
+import { DEFAULT_FIELDS_CONFIG, DEFAULT_MATCH_QUALITY_THRESHOLDS } from './matching-config.constants'
 import { DEFAULT_MATCHING_STRATEGY } from './matching-strategy.constants'
 
 /**
@@ -19,7 +19,7 @@ export interface MatchingSettings {
 export const DEFAULT_MATCHING_SETTINGS: MatchingSettings = {
   matchingStrategy: DEFAULT_MATCHING_STRATEGY,
   matchingConfig: {
-    fieldWeights: DEFAULT_FIELD_WEIGHTS,
+    fieldConfigurations: DEFAULT_FIELDS_CONFIG,
     matchThresholds: DEFAULT_MATCH_QUALITY_THRESHOLDS,
   },
 }

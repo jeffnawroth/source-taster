@@ -6,11 +6,10 @@ import type { AIExtractedReference } from './ai'
 import z from 'zod'
 
 export type ReferenceMetadataTopLevelFields = Extract<keyof ReferenceMetadata, 'authors' | 'title'>
-export type ReferenceMetadataFields = keyof ReferenceMetadata
 export type ReferenceMetadataDateFields = keyof DateInfo
 export type ReferenceMetadataSourceFields = keyof SourceInfo
 export type ReferenceMetadataIdentifierFields = keyof ExternalIdentifiers
-
+export type ReferenceMetadataFields = ReferenceMetadataTopLevelFields | ReferenceMetadataDateFields | ReferenceMetadataSourceFields | ReferenceMetadataIdentifierFields
 /**
  * Represents a single bibliographic reference
  */

@@ -1,21 +1,23 @@
-import type { ReferenceMetadataDateFields, ReferenceMetadataIdentifierFields, ReferenceMetadataSourceFields, ReferenceMetadataTopLevelFields } from '../reference'
+import type { ReferenceMetadataFields } from '../reference'
 
 export interface MatchingConfig {
-  fieldWeights: FieldWeights
+  fieldConfigurations: FieldConfigurations
   matchThresholds: MatchQualityThresholds
 }
 
 /**
- * Flattened field weights for all metadata fields
+ * Configuration for a single field in matching
  */
-export type FieldWeights = {
-  [K in ReferenceMetadataTopLevelFields]?: number
-} & {
-  [K in ReferenceMetadataDateFields]?: number
-} & {
-  [K in ReferenceMetadataSourceFields]?: number
-} & {
-  [K in ReferenceMetadataIdentifierFields]?: number
+export interface FieldConfig {
+  enabled: boolean
+  weight: number
+}
+
+/**
+ * Dynamic field configuration based on available metadata fields
+ */
+export type FieldConfigurations = {
+  [K in ReferenceMetadataFields]?: FieldConfig
 }
 
 /**
