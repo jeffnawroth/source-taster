@@ -8,7 +8,7 @@ import {
   mdiScale,
   mdiTarget,
 } from '@mdi/js'
-import { getMatchingActionTypesByCategory, getMatchingActionTypesFromRules, MATCHING_MODE_PRESETS, MATCHING_RULES, MatchingRuleCategory, Mode } from '@source-taster/types'
+import { getMatchingActionTypesByCategory, getMatchingActionTypesFromRules, getMatchingRulesForActionTypes, MATCHING_MODE_PRESETS, MATCHING_RULES, MatchingRuleCategory, Mode } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION
@@ -23,6 +23,10 @@ watch(() => matchingSettings.value.matchingStrategy.mode, (newMode) => {
   else {
     selectedActionTypes.value = MATCHING_MODE_PRESETS[newMode]
   }
+})
+
+watch(selectedActionTypes, (newActionTypes) => {
+  matchingSettings.value.matchingStrategy.rules = getMatchingRulesForActionTypes(newActionTypes)
 })
 
 // === Hilfsfunktionen ===
