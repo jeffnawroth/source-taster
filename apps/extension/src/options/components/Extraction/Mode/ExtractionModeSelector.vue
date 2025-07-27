@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { ExtractionActionType, getProcessingActionTypesByCategory, getProcessingActionTypesFromRules, getProcessingRulesForActionTypes, type Mode, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingRuleCategory } from '@source-taster/types'
+import type { ExtractionActionType, Mode } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
+import { getProcessingActionTypesByCategory, getProcessingActionTypesFromRules, getProcessingRulesForActionTypes, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingRuleCategory } from '@source-taster/types'
 import { ref, watch } from 'vue'
 import { extractionSettings } from '@/extension/logic'
 
