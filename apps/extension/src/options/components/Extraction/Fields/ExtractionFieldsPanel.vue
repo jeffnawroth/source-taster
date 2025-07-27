@@ -5,7 +5,7 @@ import {
   ACADEMIC_FIELDS,
   CORE_FIELDS,
   DATE_FIELDS,
-  ESSENTIAL_EXTRACTION_CONFIG,
+  ESSENTIAL_FIELDS,
   IDENTIFIER_FIELDS,
   PUBLICATION_FIELDS,
   TECHNICAL_FIELDS,
@@ -16,7 +16,7 @@ import { extractionSettings } from '@/extension/logic'
 const { t } = useI18n()
 
 function deselectAll() {
-  extractionSettings.value.extractionConfig = []
+  extractionSettings.value.extractionConfig.fields = []
 }
 
 function selectAll() {
@@ -30,11 +30,11 @@ function selectAll() {
   ]
 
   // Remove duplicates using Set
-  extractionSettings.value.extractionConfig = [...new Set(allFields)]
+  extractionSettings.value.extractionConfig.fields = [...new Set(allFields)]
 }
 
 function selectEssentials() {
-  extractionSettings.value.extractionConfig = [...ESSENTIAL_EXTRACTION_CONFIG]
+  extractionSettings.value.extractionConfig.fields = [...ESSENTIAL_FIELDS]
 }
 </script>
 

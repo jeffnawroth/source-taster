@@ -63,6 +63,14 @@ const FIELD_CATEGORY_ASSIGNMENTS: Record<ExtractableField, readonly FieldCategor
   isStandAlone: [FieldCategory.TECHNICAL],
 } as const
 
+export const CORE_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.CORE)
+export const ACADEMIC_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.ACADEMIC)
+export const TECHNICAL_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.TECHNICAL)
+export const DATE_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.DATE)
+export const IDENTIFIER_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.IDENTIFIER)
+export const PUBLICATION_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.PUBLICATION)
+export const ESSENTIAL_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.ESSENTIAL)
+
 export const ESSENTIAL_EXTRACTION_CONFIG: ExtractionConfig = {
   fields: getFieldsByCategory(FieldCategory.ESSENTIAL),
 }

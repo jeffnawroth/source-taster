@@ -1,14 +1,6 @@
 <script setup lang="ts">
-import type { ExtractableField } from '@source-taster/types'
 import { mdiBookOpen, mdiCalendar, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
-import {
-  ACADEMIC_FIELDS,
-  CORE_FIELDS,
-  DATE_FIELDS,
-  IDENTIFIER_FIELDS,
-  PUBLICATION_FIELDS,
-  TECHNICAL_FIELDS,
-} from '@source-taster/types'
+import { ACADEMIC_FIELDS, CORE_FIELDS, DATE_FIELDS, type ExtractableField, IDENTIFIER_FIELDS, PUBLICATION_FIELDS, TECHNICAL_FIELDS } from '@source-taster/types'
 import { extractionSettings } from '../../../../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
 
@@ -16,7 +8,7 @@ import ExtractionFieldSection from './ExtractionFieldSection.vue'
 const { t } = useI18n()
 
 function isFieldEnabled(field: ExtractableField): boolean {
-  return extractionSettings.value.extractionConfig.includes(field)
+  return extractionSettings.value.extractionConfig.fields.includes(field)
 }
 
 function countEnabledFields(fields: ExtractableField[]): number {

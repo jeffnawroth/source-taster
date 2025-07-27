@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { mdiAlertCircle, mdiCheckCircle, mdiPalette } from '@mdi/js'
-import { DEFAULT_MATCH_QUALITY_SETTINGS } from '@source-taster/types'
-import { matchQualitySettings } from '@/extension/logic/storage'
+import { DEFAULT_MATCH_QUALITY_THRESHOLDS } from '@source-taster/types'
+import { matchingSettings } from '@/extension/logic'
 
 const { t } = useI18n()
 
 // Reset to defaults
 function resetToDefaults() {
-  matchQualitySettings.value = { ...DEFAULT_MATCH_QUALITY_SETTINGS }
+  matchingSettings.value.matchingConfig.matchThresholds = { ...DEFAULT_MATCH_QUALITY_THRESHOLDS }
 }
 
 // Threshold slider items
@@ -45,12 +45,12 @@ const thresholdSliderItems = [
       <v-card-text>
         <!-- Exact Match Threshold -->
         <ThresholdSlider
-          v-model="matchQualitySettings.thresholds.exactMatchThreshold"
+          v-model="matchingSettings.matchingConfig.matchThresholds.exactMatchThreshold"
           v-bind="thresholdSliderItems[0]"
         />
 
         <ThresholdSlider
-          v-model="matchQualitySettings.thresholds.highMatchThreshold"
+          v-model="matchingSettings.matchingConfig.matchThresholds.highMatchThreshold"
           v-bind="thresholdSliderItems[1]"
         />
       </v-card-text>

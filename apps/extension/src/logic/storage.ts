@@ -1,4 +1,4 @@
-import { DEFAULT_EXTRACTION_SETTINGS, DEFAULT_MATCH_QUALITY_SETTINGS, DEFAULT_MATCHING_SETTINGS } from '@source-taster/types'
+import { DEFAULT_EXTRACTION_SETTINGS, DEFAULT_MATCHING_SETTINGS } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
 /**
@@ -20,11 +20,6 @@ export const extractionSettings = useWebExtensionStorage('extraction-settings', 
  * Matching settings storage
  */
 export const matchingSettings = useWebExtensionStorage('matching-settings', { ...DEFAULT_MATCHING_SETTINGS })
-
-/**
- * Match quality settings storage
- */
-export const matchQualitySettings = useWebExtensionStorage('match-quality-settings', { ...DEFAULT_MATCH_QUALITY_SETTINGS })
 
 declare let chrome: any
 

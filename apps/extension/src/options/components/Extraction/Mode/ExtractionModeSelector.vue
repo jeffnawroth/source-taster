@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import type { ProcessingActionType } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
-import { getActionTypesByCategory, getActionTypesFromRules, getRulesForActionTypes, MODE_PRESETS, PROCESSING_RULES, ProcessingMode, ProcessingRuleCategory } from '@source-taster/types'
+import { getActionTypesFromRules, getProcessingActionTypesByCategory, getProcessingRulesForActionTypes, Mode, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingMode, ProcessingRuleCategory } from '@source-taster/types'
 import { ref, watch } from 'vue'
 import { extractionSettings } from '@/extension/logic'
 
-const selectedActionTypes = ref(getActionTypesFromRules(extractionSettings.value.processingStrategy.rules))
+const selectedActionTypes = ref<ProcessingActionType[]>(getActionTypesFromRules(extractionSettings.value.processingStrategy.rules))
 
 watch(() => extractionSettings.value.processingStrategy.mode, (newMode) => {
   if (newMode === 'custom') {
     deselectAll()
   }
   else {
-    selectedActionTypes.value = MODE_PRESETS[newMode]
+    selectedActionTypes.value = PROCESSING_MODE_PRESETS[newMode]
   }
 })
 
 watch(selectedActionTypes, (newActionTypes) => {
-  extractionSettings.value.processingStrategy.rules = getRulesForActionTypes(newActionTypes)
+  extractionSettings.value.processingStrategy.rules = getProcessingRulesForActionTypes(newActionTypes)
 })
 
 // === Hilfsfunktionen ===
 function loadRuleSet(preset: ProcessingMode) {
-  selectedActionTypes.value = MODE_PRESETS[preset]
+  selectedActionTypes.value = PROCESSING_MODE_PRESETS[preset]
 }
 function selectAll() {
   selectedActionTypes.value = getActionTypesFromRules(PROCESSING_RULES)
@@ -34,12 +34,12 @@ function deselectAll() {
 const { t } = useI18n()
 
 const modeOptions = computed(() =>
-  Object.entries(MODE_PRESETS).map(([mode]) => {
+  Object.entries(PROCESSING_MODE_PRESETS).map(([mode]) => {
     const iconMap = {
-      [ProcessingMode.STRICT]: mdiLock,
-      [ProcessingMode.BALANCED]: mdiScale,
-      [ProcessingMode.TOLERANT]: mdiTarget,
-      [ProcessingMode.CUSTOM]: mdiCogOutline,
+      [Mode.STRICT]: mdiLock,
+      [Mode.BALANCED]: mdiScale,
+      [Mode.TOLERANT]: mdiTarget,
+      [Mode.CUSTOM]: mdiCogOutline,
     }
 
     const modeKey = mode.toLowerCase()
@@ -55,12 +55,12 @@ const modeOptions = computed(() =>
 )
 
 const categoryConfig = {
-  [ProcessingRuleCategory.TEXT_PROCESSING]: {
+  [ProcessingRuleCategory.CONTENT_NORMALIZATION]: {
     title: t('text-processing-settings'),
     description: t('text-processing-settings-description'),
     icon: mdiFormTextbox,
   },
-  [ProcessingRuleCategory.CONTENT_FORMATTING]: {
+  [ProcessingRuleCategory.STYLE_FORMATTING]: {
     title: t('content-formatting-settings'),
     description: t('content-formatting-settings-description'),
     icon: mdiPalette,
@@ -78,7 +78,7 @@ const settingGroups = computed(() => {
     key: category,
     title: config.title,
     icon: config.icon,
-    settings: getActionTypesByCategory(category as ProcessingRuleCategory).map((actionType: ProcessingActionType) => ({
+    settings: getProcessingActionTypesByCategory(category as ProcessingRuleCategory).map((actionType: ProcessingActionType) => ({
       key: actionType,
       label: t(`setting-${actionType}`),
       description: t(`setting-${actionType}-description`),
@@ -91,17 +91,17 @@ const presetButtons = computed(() => [
   {
     label: t('load-strict'),
     icon: mdiLock,
-    onClick: () => loadRuleSet(ProcessingMode.STRICT),
+    onClick: () => loadRuleSet(Mode.STRICT),
   },
   {
     label: t('load-balanced'),
     icon: mdiScale,
-    onClick: () => loadRuleSet(ProcessingMode.BALANCED),
+    onClick: () => loadRuleSet(Mode.BALANCED),
   },
   {
     label: t('load-tolerant'),
     icon: mdiTarget,
-    onClick: () => loadRuleSet(ProcessingMode.TOLERANT),
+    onClick: () => loadRuleSet(Mode.TOLERANT),
   },
   {
     label: t('select-all'),
