@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "pnpm run -r --parallel --aggregate-output dev",
     "build": "pnpm run -r build",
+    "build:api": "pnpm --filter @source-taster/api build",
+    "build:extension": "pnpm --filter @source-taster/extension build",
+    "build:types": "pnpm --filter @source-taster/types build",
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
     "deploy": "pnpm build && pnpm run -r deploy",
