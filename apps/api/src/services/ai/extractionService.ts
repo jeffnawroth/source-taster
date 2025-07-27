@@ -1,7 +1,6 @@
 import type { AIExtractionResponse, ExtractionRequest, OpenAIConfig, ProcessingStrategy } from '@source-taster/types'
 import { OpenAI } from 'openai'
 import { createDynamicExtractionSchema } from '@/api/types/reference'
-import { getExtractionInstructions } from './extractionInstructions'
 
 export class ExtractionService {
   private client: OpenAI
@@ -21,7 +20,7 @@ export class ExtractionService {
     When you extract references, you MUST track every change you make in the "processingResults" array.`
 
     // Add extraction mode instructions
-    const modeInstructions = getExtractionInstructions(extractionRequest.extractionSettings.processingStrategy)
+    const modeInstructions = this.getExtractionInstructions(extractionRequest.extractionSettings.processingStrategy)
     systemMessage += `\n\n${modeInstructions}`
 
     const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:
