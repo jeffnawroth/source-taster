@@ -15,7 +15,7 @@ export class OpenAIService implements AIService {
     return this.extractionService.extractReferences(extractionRequest)
   }
 
-  async matchFields(prompt: string, matchingSettings: MatchingSettings): Promise<AIMatchingResponse> {
-    return this.matchingService.matchFields(prompt, matchingSettings)
+  async matchFields(prompt: string, matchingSettings: MatchingSettings, availableFields: string[]): Promise<AIMatchingResponse> {
+    return this.matchingService.matchFields(prompt, matchingSettings, availableFields)
   }
 }

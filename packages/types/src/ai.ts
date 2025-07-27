@@ -50,7 +50,7 @@ export type AIExtractionResponse = z.infer<typeof AIExtractionResponseSchema>
  */
 export interface AIService {
   extractReferences: (extractionRequest: ExtractionRequest) => Promise<AIExtractionResponse>
-  matchFields: (prompt: string, matchingSettings: MatchingSettings) => Promise<AIMatchingResponse>
+  matchFields: (prompt: string, matchingSettings: MatchingSettings, availableFields: string[]) => Promise<AIMatchingResponse>
 }
 
 /**
