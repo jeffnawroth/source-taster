@@ -33,7 +33,18 @@ export class MatchingController {
     }
 
     // Validate field weights sum to 100%
-    const totalWeight = Object.values(request.matchingSettings.fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
+    const fieldWeights = request.matchingSettings.matchingConfig?.fieldWeights || request.matchingSettings.fieldWeights
+    if (!fieldWeights) {
+      return {
+        isValid: false,
+        errorResponse: {
+          success: false,
+          error: 'Field weights are required',
+        },
+      }
+    }
+
+    const totalWeight = Object.values(fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
     if (totalWeight !== 100) {
       return {
         isValid: false,
