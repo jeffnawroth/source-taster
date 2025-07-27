@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ProcessingActionType } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
-import { getActionTypesFromRules, getProcessingActionTypesByCategory, getProcessingRulesForActionTypes, Mode, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingMode, ProcessingRuleCategory } from '@source-taster/types'
+import { getProcessingActionTypesByCategory, getProcessingActionTypesFromRules, getProcessingRulesForActionTypes, Mode, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingRuleCategory } from '@source-taster/types'
 import { ref, watch } from 'vue'
 import { extractionSettings } from '@/extension/logic'
 
-const selectedActionTypes = ref<ProcessingActionType[]>(getActionTypesFromRules(extractionSettings.value.processingStrategy.rules))
+const selectedActionTypes = ref<ProcessingActionType[]>(getProcessingActionTypesFromRules(extractionSettings.value.processingStrategy.rules))
 
 watch(() => extractionSettings.value.processingStrategy.mode, (newMode) => {
   if (newMode === 'custom') {
@@ -21,11 +21,11 @@ watch(selectedActionTypes, (newActionTypes) => {
 })
 
 // === Hilfsfunktionen ===
-function loadRuleSet(preset: ProcessingMode) {
+function loadRuleSet(preset: Mode) {
   selectedActionTypes.value = PROCESSING_MODE_PRESETS[preset]
 }
 function selectAll() {
-  selectedActionTypes.value = getActionTypesFromRules(PROCESSING_RULES)
+  selectedActionTypes.value = getProcessingActionTypesFromRules(PROCESSING_RULES)
 }
 function deselectAll() {
   selectedActionTypes.value = []
@@ -45,7 +45,7 @@ const modeOptions = computed(() =>
     const modeKey = mode.toLowerCase()
     return {
       value: mode,
-      icon: iconMap[mode as ProcessingMode],
+      icon: iconMap[mode as Mode],
       label: t(`extraction-mode-${modeKey}`),
       description: t(`extraction-mode-${modeKey}-description`),
       tooltipTitle: t(`extraction-mode-${modeKey}-tooltip-title`),
@@ -121,7 +121,7 @@ const presetButtons = computed(() => [
     v-model:mode="extractionSettings.processingStrategy.mode"
     v-model:selected-actions="selectedActionTypes"
     :mode-options
-    :custom-value="ProcessingMode.CUSTOM"
+    :custom-value="Mode.CUSTOM"
     :setting-groups
     :custom-settings-description="t('custom-extraction-settings-description')"
     :preset-buttons
