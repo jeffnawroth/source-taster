@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MatchingActionType } from '@source-taster/types'
+import type { MatchingActionType, Mode } from '@source-taster/types'
 import {
   mdiCogOutline,
   mdiFormTextbox,
@@ -8,7 +8,7 @@ import {
   mdiScale,
   mdiTarget,
 } from '@mdi/js'
-import { getMatchingActionTypesByCategory, getMatchingActionTypesFromRules, getMatchingRulesForActionTypes, MATCHING_MODE_PRESETS, MATCHING_RULES, MatchingRuleCategory, Mode } from '@source-taster/types'
+import { getMatchingActionTypesByCategory, getMatchingActionTypesFromRules, getMatchingRulesForActionTypes, MATCHING_MODE_PRESETS, MATCHING_RULES, MatchingRuleCategory } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION
@@ -42,11 +42,11 @@ function deselectAll() {
 
 const modeOptions = computed(() =>
   Object.entries(MATCHING_MODE_PRESETS).map(([mode]) => {
-    const iconMap = {
-      [Mode.STRICT]: mdiLock,
-      [Mode.BALANCED]: mdiScale,
-      [Mode.TOLERANT]: mdiTarget,
-      [Mode.CUSTOM]: mdiCogOutline,
+    const iconMap: Record<Mode, string> = {
+      strict: mdiLock,
+      balanced: mdiScale,
+      tolerant: mdiTarget,
+      custom: mdiCogOutline,
     }
 
     const modeKey = mode.toLowerCase()
@@ -98,17 +98,17 @@ const presetButtons = computed(() => [
   {
     label: t('load-strict'),
     icon: mdiLock,
-    onClick: () => loadRuleSet(Mode.STRICT),
+    onClick: () => loadRuleSet('strict'),
   },
   {
     label: t('load-balanced'),
     icon: mdiScale,
-    onClick: () => loadRuleSet(Mode.BALANCED),
+    onClick: () => loadRuleSet('balanced'),
   },
   {
     label: t('load-tolerant'),
     icon: mdiTarget,
-    onClick: () => loadRuleSet(Mode.TOLERANT),
+    onClick: () => loadRuleSet('tolerant'),
   },
   {
     label: t('select-all'),
@@ -128,7 +128,7 @@ const presetButtons = computed(() => [
     v-model:mode="matchingSettings.matchingStrategy.mode"
     v-model:selected-actions="selectedActionTypes"
     :mode-options
-    :custom-value="Mode.CUSTOM"
+    custom-value="'custom'"
     :setting-groups
     :custom-settings-description="t('custom-extraction-settings-description')"
     :preset-buttons

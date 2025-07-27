@@ -1,26 +1,15 @@
 <script setup lang="ts">
-import { DEFAULT_FIELD_WEIGHTS, type FieldWeights } from '@source-taster/types'
+import { DEFAULT_FIELDS_CONFIG } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
-
-// Computed property to access field weights from matching settings
-const fieldWeights = computed({
-  get: () => matchingSettings.value.fieldWeights,
-  set: (value: FieldWeights) => {
-    matchingSettings.value = {
-      ...matchingSettings.value,
-      fieldWeights: value,
-    }
-  },
-})
 
 // Reset to defaults
 function resetToDefaults() {
-  fieldWeights.value = { ...DEFAULT_FIELD_WEIGHTS }
+  matchingSettings.value.matchingConfig.fieldConfigurations = { ...DEFAULT_FIELDS_CONFIG }
 }
 
 // Calculate total weight for validation
 const totalWeight = computed(() => {
-  return Object.values(fieldWeights.value).reduce((sum: number, weight) => sum + (weight || 0), 0)
+  return Object.values(matchingSettings.value.matchingConfig.fieldConfigurations).reduce((sum: number, config) => sum + (config.weight || 0), 0)
 })
 
 // Validation
@@ -30,22 +19,22 @@ const isValidConfiguration = computed(() => {
 
 // Core fields weight
 const coreFieldsWeight = computed(() => {
-  return fieldWeights.value.title + fieldWeights.value.authors + fieldWeights.value.year
+  return (matchingSettings.value.matchingConfig.fieldConfigurations.title?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.authors?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.year?.weight || 0)
 })
 
 // Identifier fields weight
 const identifierFieldsWeight = computed(() => {
-  return (fieldWeights.value.doi || 0) + (fieldWeights.value.arxivId || 0) + (fieldWeights.value.pmid || 0) + (fieldWeights.value.pmcid || 0) + (fieldWeights.value.isbn || 0) + (fieldWeights.value.issn || 0)
+  return (matchingSettings.value.matchingConfig.fieldConfigurations.doi?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.arxivId?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.pmid?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.pmcid?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.isbn?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.issn?.weight || 0)
 })
 
 // Source fields weight
 const sourceFieldsWeight = computed(() => {
-  return (fieldWeights.value.containerTitle || 0) + (fieldWeights.value.volume || 0) + (fieldWeights.value.issue || 0) + (fieldWeights.value.pages || 0) + (fieldWeights.value.publisher || 0) + (fieldWeights.value.url || 0)
+  return (matchingSettings.value.matchingConfig.fieldConfigurations.containerTitle?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.volume?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.issue?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.pages?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.publisher?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.url?.weight || 0)
 })
 
 // Additional fields weight (specialized/advanced fields)
 const additionalFieldsWeight = computed(() => {
-  return (fieldWeights.value.sourceType || 0) + (fieldWeights.value.conference || 0) + (fieldWeights.value.institution || 0) + (fieldWeights.value.edition || 0) + (fieldWeights.value.articleNumber || 0) + (fieldWeights.value.subtitle || 0)
+  return (matchingSettings.value.matchingConfig.fieldConfigurations.sourceType?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.conference?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.institution?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.edition?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.articleNumber?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.subtitle?.weight || 0)
 })
 </script>
 
@@ -60,7 +49,7 @@ const additionalFieldsWeight = computed(() => {
   />
 
   <FieldWeightsPanels
-    v-model="fieldWeights"
+    v-model="matchingSettings.matchingConfig.fieldConfigurations"
     :core-fields-weight
     :identifier-fields-weight
     :source-fields-weight

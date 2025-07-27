@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import type { ProcessingActionType } from '@source-taster/types'
+import type { ExtractionActionType, getProcessingActionTypesByCategory, getProcessingActionTypesFromRules, getProcessingRulesForActionTypes, type Mode, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingRuleCategory } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
-import { getProcessingActionTypesByCategory, getProcessingActionTypesFromRules, getProcessingRulesForActionTypes, Mode, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingRuleCategory } from '@source-taster/types'
 import { ref, watch } from 'vue'
 import { extractionSettings } from '@/extension/logic'
 
-const selectedActionTypes = ref<ProcessingActionType[]>(getProcessingActionTypesFromRules(extractionSettings.value.processingStrategy.rules))
+const selectedActionTypes = ref<ExtractionActionType[]>(getProcessingActionTypesFromRules(extractionSettings.value.extractionStrategy.rules))
 
-watch(() => extractionSettings.value.processingStrategy.mode, (newMode) => {
+watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
   if (newMode === 'custom') {
     deselectAll()
   }
@@ -17,7 +16,7 @@ watch(() => extractionSettings.value.processingStrategy.mode, (newMode) => {
 })
 
 watch(selectedActionTypes, (newActionTypes) => {
-  extractionSettings.value.processingStrategy.rules = getProcessingRulesForActionTypes(newActionTypes)
+  extractionSettings.value.extractionStrategy.rules = getProcessingRulesForActionTypes(newActionTypes)
 })
 
 // === Hilfsfunktionen ===
@@ -35,11 +34,11 @@ const { t } = useI18n()
 
 const modeOptions = computed(() =>
   Object.entries(PROCESSING_MODE_PRESETS).map(([mode]) => {
-    const iconMap = {
-      [Mode.STRICT]: mdiLock,
-      [Mode.BALANCED]: mdiScale,
-      [Mode.TOLERANT]: mdiTarget,
-      [Mode.CUSTOM]: mdiCogOutline,
+    const iconMap: Record<Mode, string> = {
+      strict: mdiLock,
+      balanced: mdiScale,
+      tolerant: mdiTarget,
+      custom: mdiCogOutline,
     }
 
     const modeKey = mode.toLowerCase()
@@ -78,7 +77,7 @@ const settingGroups = computed(() => {
     key: category,
     title: config.title,
     icon: config.icon,
-    settings: getProcessingActionTypesByCategory(category as ProcessingRuleCategory).map((actionType: ProcessingActionType) => ({
+    settings: getProcessingActionTypesByCategory(category as ProcessingRuleCategory).map((actionType: ExtractionActionType) => ({
       key: actionType,
       label: t(`setting-${actionType}`),
       description: t(`setting-${actionType}-description`),
@@ -91,17 +90,17 @@ const presetButtons = computed(() => [
   {
     label: t('load-strict'),
     icon: mdiLock,
-    onClick: () => loadRuleSet(Mode.STRICT),
+    onClick: () => loadRuleSet('strict'),
   },
   {
     label: t('load-balanced'),
     icon: mdiScale,
-    onClick: () => loadRuleSet(Mode.BALANCED),
+    onClick: () => loadRuleSet('balanced'),
   },
   {
     label: t('load-tolerant'),
     icon: mdiTarget,
-    onClick: () => loadRuleSet(Mode.TOLERANT),
+    onClick: () => loadRuleSet('tolerant'),
   },
   {
     label: t('select-all'),
@@ -118,10 +117,10 @@ const presetButtons = computed(() => [
 
 <template>
   <ModeSelector
-    v-model:mode="extractionSettings.processingStrategy.mode"
+    v-model:mode="extractionSettings.extractionStrategy.mode"
     v-model:selected-actions="selectedActionTypes"
     :mode-options
-    :custom-value="Mode.CUSTOM"
+    custom-value="custom"
     :setting-groups
     :custom-settings-description="t('custom-extraction-settings-description')"
     :preset-buttons
