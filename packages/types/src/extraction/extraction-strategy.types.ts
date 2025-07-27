@@ -2,9 +2,8 @@
  * Extraction modes and custom settings configuration
  */
 
-import type { Strategy } from '../common/strategy'
 import z from 'zod'
-import { type Mode, ModeSchema } from '../common/mode'
+import { ModeSchema } from '../common/mode'
 
 export enum ProcessingRuleCategory {
   CONTENT_NORMALIZATION = 'content-normalization',
@@ -39,5 +38,5 @@ export const ExtractionStrategySchema = z.object({
 
 export type ExtractionActionType = z.infer<typeof ExtractionActionTypeSchema>
 export type ExtractionRuleDefinition = z.infer<typeof ExtractionRuleDefinitionSchema>
-export type ExtractionStrategy = Strategy<Mode, ExtractionActionType>
+export type ExtractionStrategy = z.infer<typeof ExtractionStrategySchema>
 // export type ProcessingRuleDefinition = RuleDefinition<ExtractionActionType>

@@ -1,4 +1,5 @@
 import type { MatchDetails } from './matching'
+import z from 'zod'
 
 /**
  * Website metadata extracted from HTML
@@ -57,3 +58,11 @@ export interface WebsiteMatchingResult {
   /** Error message if matching failed */
   error?: string
 }
+
+export const WebsiteMatchingOptionsSchema = z.object({
+  timeout: z.number().int().positive().optional().describe('Maximum time to wait for website response in milliseconds'),
+  enableWaybackMachine: z.boolean().optional().describe('Whether to check Wayback Machine if URL is unavailable'),
+  userAgent: z.string().optional().describe('User agent string for HTTP requests'),
+})
+
+export type WebsiteMatchingOptions = z.infer<typeof WebsiteMatchingOptionsSchema>

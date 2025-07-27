@@ -1,34 +1,35 @@
-import type { MatchingMode, MatchingRuleDefinition, MatchingStrategy } from './matching-strategy.types'
+import type { Mode } from '../common/mode'
+import type { MatchingActionType, MatchingRuleDefinition, MatchingStrategy } from './matching-strategy.types'
 import { getActionTypesByCategory, getActionTypesFromRules, getRulesForActionTypes } from '../common'
-import { createModePresets, Mode } from '../common/mode'
-import { MatchingActionType, MatchingRuleCategory } from './matching-strategy.types'
+import { createModePresets } from '../common/mode'
+import { MatchingRuleCategory } from './matching-strategy.types'
 
-export const DEFAULT_MATCHING_MODE: MatchingMode = Mode.BALANCED as const
+export const DEFAULT_MATCHING_MODE: Mode = 'balanced'
 
 export const MATCHING_RULES: MatchingRuleDefinition[] = [
   {
-    actionType: MatchingActionType.IGNORE_SPELLING_VARIATION,
+    actionType: 'ignore-spelling-variation',
     aiInstruction: {
       prompt: 'Ignore minor spelling variations in the text.',
       example: '"color" = "colour"',
     },
   },
   {
-    actionType: MatchingActionType.IGNORE_TYPOGRAPHIC_VARIATION,
+    actionType: 'ignore-typographic-variation',
     aiInstruction: {
       prompt: 'Ignore typographic variations such as different quotation marks or dashes.',
       example: '“smart quotes” = "straight quotes", “John’s idea – brilliant!” = “John’s idea - brilliant!',
     },
   },
   {
-    actionType: MatchingActionType.IGNORE_CASE_FORMAT,
+    actionType: 'ignore-case-format',
     aiInstruction: {
       prompt: 'Ignore case differences in text. Treat capitalized and lowercased words as equivalent.',
       example: '"example" = "Example", "Machine Learning Methods" = "machine learning methods"',
     },
   },
   {
-    actionType: MatchingActionType.IGNORE_ABBREVIATION_VARIANTS,
+    actionType: 'ignore-abbreviation-variants',
     aiInstruction: {
       prompt: 'Ignore variations in abbreviations.',
       example: '"Dr." = "Doctor", "Proc.” = “Proceedings"',
@@ -36,7 +37,7 @@ export const MATCHING_RULES: MatchingRuleDefinition[] = [
   },
 
   {
-    actionType: MatchingActionType.IGNORE_AUTHOR_NAME_FORMAT,
+    actionType: 'ignore-author-name-format',
     aiInstruction: {
       prompt: 'Ignore variations in author name formatting.',
       example: '"John Smith" = "Smith, John", "Doe, J." = "John Doe"',
@@ -44,14 +45,14 @@ export const MATCHING_RULES: MatchingRuleDefinition[] = [
   },
 
   {
-    actionType: MatchingActionType.IGNORE_DATE_FORMAT,
+    actionType: 'ignore-date-format',
     aiInstruction: {
       prompt: 'Ignore variations in date formats.',
       example: '"2023-01-01" = "01/01/2023", "January 1, 2023" = "2023-01-01"',
     },
   },
   {
-    actionType: MatchingActionType.IGNORE_IDENTIFIER_FORMAT,
+    actionType: 'ignore-identifier-variation',
     aiInstruction: {
       prompt: 'Ignore variations in identifier formats such as DOIs or ISBNs.',
       example:
@@ -59,14 +60,14 @@ export const MATCHING_RULES: MatchingRuleDefinition[] = [
     },
   },
   {
-    actionType: MatchingActionType.IGNORE_CHARACTER_VARIATION,
+    actionType: 'ignore-character-variation',
     aiInstruction: {
       prompt: 'Ignore variations in characters that do not affect meaning.',
       example: '"café" = "cafe", "fiancé" = "fiance"',
     },
   },
   {
-    actionType: MatchingActionType.IGNORE_WHITESPACE,
+    actionType: 'ignore-whitespace',
     aiInstruction: {
       prompt: 'Ignore extra whitespace in the text.',
       example: '"Hello   World" = "Hello World", "This is   a test." = "This is a test.", "DeepLearning" = "Deep Learning"',
@@ -76,15 +77,15 @@ export const MATCHING_RULES: MatchingRuleDefinition[] = [
 ] as const
 
 const BALANCED_ACTIONS: MatchingActionType[] = [
-  MatchingActionType.IGNORE_SPELLING_VARIATION,
-  MatchingActionType.IGNORE_TYPOGRAPHIC_VARIATION,
-  MatchingActionType.IGNORE_CASE_FORMAT,
-  MatchingActionType.IGNORE_ABBREVIATION_VARIANTS,
-  MatchingActionType.IGNORE_AUTHOR_NAME_FORMAT,
-  MatchingActionType.IGNORE_DATE_FORMAT,
-  MatchingActionType.IGNORE_IDENTIFIER_FORMAT,
-  MatchingActionType.IGNORE_CHARACTER_VARIATION,
-  MatchingActionType.IGNORE_WHITESPACE,
+  'ignore-spelling-variation',
+  'ignore-typographic-variation',
+  'ignore-case-format',
+  'ignore-abbreviation-variants',
+  'ignore-author-name-format',
+  'ignore-date-format',
+  'ignore-identifier-variation',
+  'ignore-character-variation',
+  'ignore-whitespace',
 ] as const
 
 const TOLERANT_ACTIONS: MatchingActionType[] = [
@@ -102,15 +103,15 @@ export const DEFAULT_MATCHING_STRATEGY: MatchingStrategy = {
 
 export const categoryMapping: Record<MatchingRuleCategory, MatchingActionType[]> = {
   [MatchingRuleCategory.CONTENT_EQUIVALENCE]: [
-    MatchingActionType.IGNORE_ABBREVIATION_VARIANTS,
-    MatchingActionType.IGNORE_AUTHOR_NAME_FORMAT,
-    MatchingActionType.IGNORE_DATE_FORMAT,
-    MatchingActionType.IGNORE_IDENTIFIER_FORMAT,
+    'ignore-abbreviation-variants',
+    'ignore-author-name-format',
+    'ignore-date-format',
+    'ignore-identifier-variation',
   ],
   [MatchingRuleCategory.STYLE_INSENSITIVITY]: [
-    MatchingActionType.IGNORE_SPELLING_VARIATION,
-    MatchingActionType.IGNORE_CASE_FORMAT,
-    MatchingActionType.IGNORE_CHARACTER_VARIATION,
+    'ignore-spelling-variation',
+    'ignore-case-format',
+    'ignore-character-variation',
   ],
   [MatchingRuleCategory.TOLERANCE]: [
   ],

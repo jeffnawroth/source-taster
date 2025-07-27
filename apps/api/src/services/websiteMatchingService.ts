@@ -4,20 +4,12 @@ import type {
   MatchDetails,
   MatchingSettings,
   Reference,
+  WebsiteMatchingOptions,
   WebsiteMatchingResult,
   WebsiteMetadata,
 } from '@source-taster/types'
 import * as cheerio from 'cheerio'
 import { BaseMatchingService } from './baseMatchingService'
-
-export interface WebsiteMatchingOptions {
-  /** Maximum time to wait for website response in milliseconds */
-  timeout?: number
-  /** Whether to check Wayback Machine if URL is unavailable */
-  enableWaybackMachine?: boolean
-  /** User agent string for HTTP requests */
-  userAgent?: string
-}
 
 /**
  * Service for matching references against website content

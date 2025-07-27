@@ -19,66 +19,13 @@ export class MatchingController {
   }
 
   /**
-   * Validate common request fields and field weights
-   */
-  private validateRequest(request: any): { isValid: boolean, errorResponse?: ApiResponse } {
-    if (!request.matchingSettings) {
-      return {
-        isValid: false,
-        errorResponse: {
-          success: false,
-          error: 'Matching settings are required',
-        },
-      }
-    }
-
-    // Validate field weights sum to 100%
-    const fieldWeights = request.matchingSettings.matchingConfig?.fieldWeights || request.matchingSettings.fieldWeights
-    if (!fieldWeights) {
-      return {
-        isValid: false,
-        errorResponse: {
-          success: false,
-          error: 'Field weights are required',
-        },
-      }
-    }
-
-    const totalWeight = Object.values(fieldWeights).reduce((sum: number, weight: any) => sum + (weight || 0), 0)
-    if (totalWeight !== 100) {
-      return {
-        isValid: false,
-        errorResponse: {
-          success: false,
-          error: `Invalid field weights: ${totalWeight}% (expected 100%)`,
-        },
-      }
-    }
-
-    return { isValid: true }
-  }
-
-  /**
    * Intelligently match references - automatically chooses database or website matching based on source type
    * POST /api/match
    */
   async matchReferences(c: Context) {
     try {
-      const request = await c.req.json() as MatchingRequest
-
-      // Validation
-      if (!request.references || !Array.isArray(request.references)) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: 'References array is required',
-        }
-        return c.json(errorResponse, 400)
-      }
-
-      const validation = this.validateRequest(request)
-      if (!validation.isValid) {
-        return c.json(validation.errorResponse, 400)
-      }
+      // @ts-expect-error Hono types don't infer properly for separate controller methods
+      const request = c.req.valid('json') as MatchingRequest
 
       // Intelligent routing: detect references with URLs and process them accordingly
       const results = []
@@ -228,40 +175,14 @@ export class MatchingController {
    */
   async matchWebsiteReference(c: Context) {
     try {
-      const request = await c.req.json() as {
-        reference: any
-        url: string
-        fieldWeights: any
-        options?: any
-      }
-
-      // Validation
-      if (!request.reference) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: 'Reference is required',
-        }
-        return c.json(errorResponse, 400)
-      }
-
-      if (!request.url) {
-        const errorResponse: ApiResponse = {
-          success: false,
-          error: 'URL is required',
-        }
-        return c.json(errorResponse, 400)
-      }
-
-      const validation = this.validateRequest(request)
-      if (!validation.isValid) {
-        return c.json(validation.errorResponse, 400)
-      }
+      // @ts-expect-error Hono types don't infer properly for separate controller methods
+      const request = c.req.valid('json') as any // WebsiteMatchingRequest type not properly exported
 
       // Match website reference
       const result = await this.websiteMatchingService.matchWebsiteReference(
         request.reference,
         request.url,
-        request.fieldWeights,
+        request.matchingSettings,
         request.options,
       )
 

@@ -1,44 +1,46 @@
 import type { ReferenceMetadataFields } from '../reference'
+import z from 'zod'
 
-export interface MatchingConfig {
-  fieldConfigurations: FieldConfigurations
-  matchThresholds: MatchQualityThresholds
+// Field Configuration Schemas
+export const FieldConfigSchema = z.object({
+  enabled: z.boolean().describe('Whether this field is enabled for matching'),
+  weight: z.number().min(0).max(100).describe('Weight percentage for this field (0-100)'),
+})
+
+export const FieldConfigurationsSchema = z.record(
+  z.string() as z.ZodSchema<ReferenceMetadataFields>,
+  FieldConfigSchema.optional(),
+).describe('Configuration for each metadata field')
+
+export const MatchQualitySchema = z.enum(['exact', 'high', 'none']).describe('Match quality classification')
+
+export const MatchQualityThresholdsSchema = z.object({
+  exactMatchThreshold: z.number().min(0).max(100).describe('Minimum score for exact match'),
+  highMatchThreshold: z.number().min(0).max(100).describe('Minimum score for high quality match'),
+})
+
+export const MatchingConfigSchema = z.object({
+  fieldConfigurations: FieldConfigurationsSchema.describe('Field enable/weight configurations'),
+  matchThresholds: MatchQualityThresholdsSchema.describe('Match quality thresholds'),
+})
+
+// Custom validation schema that includes weight sum validation
+export const ValidatedMatchingConfigSchema = MatchingConfigSchema.refine(
+  data => validateFieldWeights(data.fieldConfigurations),
+  {
+    message: 'Enabled field weights must sum to exactly 100%',
+    path: ['fieldConfigurations'],
+  },
+)
+
+export function validateFieldWeights(fieldConfigurations: Record<string, { enabled: boolean, weight: number } | undefined>): boolean {
+  const enabledFields = Object.values(fieldConfigurations).filter(config => config?.enabled)
+  const totalWeight = enabledFields.reduce((sum, config) => sum + (config?.weight || 0), 0)
+  return totalWeight === 100
 }
 
-/**
- * Configuration for a single field in matching
- */
-export interface FieldConfig {
-  enabled: boolean
-  weight: number
-}
-
-/**
- * Dynamic field configuration based on available metadata fields
- */
-export type FieldConfigurations = {
-  [K in ReferenceMetadataFields]?: FieldConfig
-}
-
-/**
- * Match quality classes for visual representation
- */
-export enum MatchQuality {
-  /** Excellent match (95-100%) - Green */
-  EXACT = 'exact',
-  /** Good match (70-94%) - Orange */
-  HIGH = 'high',
-  /** Poor or no match (0-69%) - Red */
-  NONE = 'none',
-}
-
-/**
- * Thresholds for match quality classification
- */
-export interface MatchQualityThresholds {
-  /** Minimum score for exact match (default: 95) */
-  exactMatchThreshold: number
-  /** Minimum score for high quality match (default: 70) */
-  highMatchThreshold: number
-  /** Scores below this are considered no match (implicit: 0) */
-}
+export type FieldConfig = z.infer<typeof FieldConfigSchema>
+export type FieldConfigurations = z.infer<typeof FieldConfigurationsSchema>
+export type MatchQuality = z.infer<typeof MatchQualitySchema>
+export type MatchQualityThresholds = z.infer<typeof MatchQualityThresholdsSchema>
+export type MatchingConfig = z.infer<typeof MatchingConfigSchema>

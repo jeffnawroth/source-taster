@@ -1,16 +1,13 @@
-import type { MatchingConfig } from './matching-config.types'
-import type { MatchingStrategy } from './matching-strategy.types'
+import z from 'zod'
 import { DEFAULT_FIELDS_CONFIG, DEFAULT_MATCH_QUALITY_THRESHOLDS } from './matching-config.constants'
+import { MatchingConfigSchema } from './matching-config.types'
 import { DEFAULT_MATCHING_STRATEGY } from './matching-strategy.constants'
+import { MatchingStrategySchema } from './matching-strategy.types'
 
-/**
- * Matching settings combining mode and custom configuration
- */
-export interface MatchingSettings {
-  matchingStrategy: MatchingStrategy
-  /** Field weights for scoring */
-  matchingConfig: MatchingConfig
-}
+export const MatchingSettingsSchema = z.object({
+  matchingStrategy: MatchingStrategySchema.describe('Strategy for matching behavior'),
+  matchingConfig: MatchingConfigSchema.describe('Configuration for matching behavior'),
+})
 
 /**
  * Complete default extraction settings
@@ -23,3 +20,5 @@ export const DEFAULT_MATCHING_SETTINGS: MatchingSettings = {
     matchThresholds: DEFAULT_MATCH_QUALITY_THRESHOLDS,
   },
 }
+
+export type MatchingSettings = z.infer<typeof MatchingSettingsSchema>

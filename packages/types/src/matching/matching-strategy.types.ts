@@ -1,10 +1,5 @@
-import type { Mode } from '../common/mode'
-import type { RuleDefinition } from '../common/rule-definition'
-import type { Strategy } from '../common/strategy'
-
-export type MatchingMode = Mode
-export type MatchingStrategy = Strategy<MatchingMode, MatchingActionType>
-export type MatchingRuleDefinition = RuleDefinition<MatchingActionType>
+import z from 'zod'
+import { ModeSchema } from '../common/mode'
 
 export enum MatchingRuleCategory {
   CONTENT_EQUIVALENCE = 'content-equivalence',
@@ -12,14 +7,31 @@ export enum MatchingRuleCategory {
   TOLERANCE = 'tolerance',
 }
 
-export enum MatchingActionType {
-  IGNORE_SPELLING_VARIATION = 'ignore-spelling-variation',
-  IGNORE_TYPOGRAPHIC_VARIATION = 'ignore-typographic-variation',
-  IGNORE_CASE_FORMAT = 'ignore-case-format',
-  IGNORE_ABBREVIATION_VARIANTS = 'ignore-abbreviation-variants',
-  IGNORE_AUTHOR_NAME_FORMAT = 'ignore-author-name-format',
-  IGNORE_DATE_FORMAT = 'ignore-date-format',
-  IGNORE_IDENTIFIER_FORMAT = 'ignore-identifier-variation',
-  IGNORE_CHARACTER_VARIATION = 'ignore-character-variation',
-  IGNORE_WHITESPACE = 'ignore-whitespace',
-}
+export const MatchingActionTypeSchema = z.enum([
+  'ignore-spelling-variation',
+  'ignore-typographic-variation',
+  'ignore-case-format',
+  'ignore-abbreviation-variants',
+  'ignore-author-name-format',
+  'ignore-date-format',
+  'ignore-identifier-variation',
+  'ignore-character-variation',
+  'ignore-whitespace',
+]).describe('Matching rule action type')
+
+export const MatchingRuleDefinitionSchema = z.object({
+  actionType: MatchingActionTypeSchema,
+  aiInstruction: z.object({
+    prompt: z.string().describe('Instruction for AI on how to apply this rule'),
+    example: z.string().optional().describe('Optional example to clarify the rule'),
+  }),
+}).describe('Definition of a matching rule for AI processing')
+
+export const MatchingStrategySchema = z.object({
+  mode: ModeSchema.describe('Strategy mode to control behavior'),
+  rules: z.array(MatchingRuleDefinitionSchema).describe('Custom rules for fine-tuning behavior'),
+}).describe('Matching strategy schema for AI processing')
+
+export type MatchingActionType = z.infer<typeof MatchingActionTypeSchema>
+export type MatchingRuleDefinition = z.infer<typeof MatchingRuleDefinitionSchema>
+export type MatchingStrategy = z.infer<typeof MatchingStrategySchema>
