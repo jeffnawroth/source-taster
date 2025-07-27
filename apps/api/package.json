@@ -9,10 +9,10 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "@hono/node-server": "^1.17.0",
+    "@hono/node-server": "^1.17.1",
     "@hono/zod-validator": "^0.7.2",
-    "cheerio": "^1.1.0",
-    "hono": "^4.8.5",
+    "cheerio": "^1.1.2",
+    "hono": "^4.8.9",
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.24.6"
   },
@@ -23,7 +23,7 @@
     "@types/lodash": "^4.17.20",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20.19.9",
-    "eslint": "^9.31.0",
+    "eslint": "^9.32.0",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "openai": "^4.104.0",
