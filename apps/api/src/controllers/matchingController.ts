@@ -92,7 +92,6 @@ export class MatchingController {
 
             results.push({
               matchingDetails: {
-                sourcesFound: [], // Website matching doesn't use database sources
                 matchDetails: websiteResult.matchDetails,
                 allSourceEvaluations: [websiteSourceEvaluation],
               },

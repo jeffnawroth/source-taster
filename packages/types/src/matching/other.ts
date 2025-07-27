@@ -21,12 +21,13 @@ export interface MatchingResult {
   matchingDetails?: MatchingDetails
 }
 
+/**
+ * Container for all matching-related information
+ */
 export interface MatchingDetails {
-  /** All sources found in databases */
-  sourcesFound: ExternalSource[]
   /** Match details for the best source */
   matchDetails?: MatchDetails
-  /** Evaluation results for all sources */
+  /** Evaluation results for all sources (contains both source info and match details) */
   allSourceEvaluations?: SourceEvaluation[]
 }
 
