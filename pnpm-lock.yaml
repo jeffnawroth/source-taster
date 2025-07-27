@@ -23,6 +23,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.17.0
         version: 1.17.0(hono@4.8.5)
+      '@hono/zod-validator':
+        specifier: ^0.7.2
+        version: 0.7.2(hono@4.8.5)(zod@3.25.76)
       cheerio:
         specifier: ^1.1.0
         version: 1.1.0
@@ -881,6 +884,12 @@ packages:
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
+
+  '@hono/zod-validator@0.7.2':
+    resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      zod: ^3.25.0 || ^4.0.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -5651,6 +5660,11 @@ snapshots:
   '@hono/node-server@1.17.0(hono@4.8.5)':
     dependencies:
       hono: 4.8.5
+
+  '@hono/zod-validator@0.7.2(hono@4.8.5)(zod@3.25.76)':
+    dependencies:
+      hono: 4.8.5
+      zod: 3.25.76
 
   '@humanfs/core@0.19.1': {}
 
