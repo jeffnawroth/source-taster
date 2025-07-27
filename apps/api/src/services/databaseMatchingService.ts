@@ -64,8 +64,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
     // If no sources found, return unmatched
     if (sources.length === 0) {
       return {
-        matchingDetails: {
-        },
+        sourceEvaluations: [],
       }
     }
 
@@ -87,9 +86,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
 
     // Return result with evaluations sorted by score (best first)
     return {
-      matchingDetails: {
-        allSourceEvaluations: sourceEvaluations,
-      },
+      sourceEvaluations,
     }
   }
 }

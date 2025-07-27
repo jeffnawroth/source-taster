@@ -91,9 +91,7 @@ export class MatchingController {
             const websiteSourceEvaluation = this.createWebsiteSourceEvaluation(websiteResult)
 
             results.push({
-              matchingDetails: {
-                allSourceEvaluations: [websiteSourceEvaluation],
-              },
+              sourceEvaluations: [websiteSourceEvaluation],
             })
           }
           catch (error) {

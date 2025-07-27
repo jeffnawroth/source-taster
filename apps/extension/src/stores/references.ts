@@ -41,10 +41,10 @@ export const useReferencesStore = defineStore('references', () => {
 
   // Helper function to get the best matching score from matching result
   function getBestMatchingScore(result: MatchingResult): number {
-    if (!result.matchingDetails?.allSourceEvaluations?.length) {
+    if (!result.sourceEvaluations?.length) {
       return 0
     }
-    return result.matchingDetails.allSourceEvaluations[0]?.matchDetails?.overallScore ?? 0
+    return result.sourceEvaluations[0]?.matchDetails?.overallScore ?? 0
   }
 
   // Helper functions

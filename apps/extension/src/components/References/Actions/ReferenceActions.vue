@@ -14,7 +14,7 @@ const showDetails = defineModel<boolean>('showDetails', { default: false })
 
 // VERIFICATION SCORE
 const matchingScore = computed(() =>
-  reference.matchingResult?.matchingDetails?.allSourceEvaluations?.[0]?.matchDetails?.overallScore,
+  reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore,
 )
 
 // ACTION BUTTONS CONFIGURATION

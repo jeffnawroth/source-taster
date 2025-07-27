@@ -15,18 +15,12 @@ export interface ExternalSource {
   url?: string
 }
 
-// Forward declarations for types that depend on each other
-export interface MatchingResult {
-  /** Detailed matching information */
-  matchingDetails?: MatchingDetails
-}
-
 /**
  * Container for all matching-related information
  */
-export interface MatchingDetails {
+export interface MatchingResult {
   /** Evaluation results for all sources (sorted by score, best first) */
-  allSourceEvaluations?: SourceEvaluation[]
+  sourceEvaluations?: SourceEvaluation[]
 }
 
 export interface SourceEvaluation {
