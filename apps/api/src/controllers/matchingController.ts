@@ -92,7 +92,6 @@ export class MatchingController {
 
             results.push({
               matchingDetails: {
-                matchDetails: websiteResult.matchDetails,
                 allSourceEvaluations: [websiteSourceEvaluation],
               },
             })

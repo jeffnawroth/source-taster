@@ -1,4 +1,4 @@
-import type { Reference, WebsiteMatchingResult } from '@source-taster/types'
+import type { MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import type { ProcessedReference } from '../types/reference'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -38,6 +38,14 @@ export const useReferencesStore = defineStore('references', () => {
     }
     return null
   })
+
+  // Helper function to get the best matching score from matching result
+  function getBestMatchingScore(result: MatchingResult): number {
+    if (!result.matchingDetails?.allSourceEvaluations?.length) {
+      return 0
+    }
+    return result.matchingDetails.allSourceEvaluations[0]?.matchDetails?.overallScore ?? 0
+  }
 
   // Helper functions
   function handleProcessingError(error: unknown) {
@@ -116,7 +124,7 @@ export const useReferencesStore = defineStore('references', () => {
       // Update the specific reference
       if (result) {
         // Use score-based matching instead of isMatched field
-        const matchingScore = result.matchingDetails?.matchDetails?.overallScore || 0
+        const matchingScore = getBestMatchingScore(result)
         const isMatched = matchingScore >= 70 // 70% threshold for matching
 
         references.value[index] = {
@@ -283,7 +291,7 @@ export const useReferencesStore = defineStore('references', () => {
       // Update the specific reference
       if (result) {
         // Use score-based matching instead of isMatched field
-        const matchingScore = result.matchingDetails?.matchDetails?.overallScore || 0
+        const matchingScore = getBestMatchingScore(result)
         const isMatched = matchingScore >= 70 // 70% threshold for matching
 
         references.value[index] = {

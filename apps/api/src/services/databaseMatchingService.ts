@@ -85,13 +85,9 @@ export class DatabaseMatchingService extends BaseMatchingService {
     // Sort by overall score (highest first)
     sourceEvaluations.sort((a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore)
 
-    // Get the best source (highest score)
-    const bestEvaluation = sourceEvaluations[0]
-
-    // Return result with best source - let frontend decide on matching based on score
+    // Return result with evaluations sorted by score (best first)
     return {
       matchingDetails: {
-        matchDetails: bestEvaluation.matchDetails,
         allSourceEvaluations: sourceEvaluations,
       },
     }

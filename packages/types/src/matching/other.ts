@@ -25,9 +25,7 @@ export interface MatchingResult {
  * Container for all matching-related information
  */
 export interface MatchingDetails {
-  /** Match details for the best source */
-  matchDetails?: MatchDetails
-  /** Evaluation results for all sources (contains both source info and match details) */
+  /** Evaluation results for all sources (sorted by score, best first) */
   allSourceEvaluations?: SourceEvaluation[]
 }
 

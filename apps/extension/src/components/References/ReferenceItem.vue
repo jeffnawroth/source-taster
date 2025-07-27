@@ -30,7 +30,7 @@ const color = computed(() => {
   }
 
   // Get the overall score from matching details
-  const score = reference.matchingResult?.matchingDetails?.matchDetails?.overallScore
+  const score = reference.matchingResult?.matchingDetails?.allSourceEvaluations?.[0]?.matchDetails?.overallScore
 
   if (score === undefined) {
     return 'warning' // No score available
@@ -45,7 +45,7 @@ const title = computed(() => reference.metadata.title || t('no-title'))
 
 // MATCHING SCORE
 const matchingScore = computed(() =>
-  reference.matchingResult?.matchingDetails?.matchDetails?.overallScore,
+  reference.matchingResult?.matchingDetails?.allSourceEvaluations?.[0]?.matchDetails?.overallScore,
 )
 
 // SCORE DISPLAY TEXT
