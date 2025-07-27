@@ -3,16 +3,13 @@
  * Combines extraction modes, custom options, and field selections
  */
 
-import type { ExtractionConfig } from './extraction-config.types'
-import type { ProcessingStrategy } from './processing-strategy.types'
+import z from 'zod'
+import { ExtractionConfigSchema } from './extraction-config.types'
+import { ExtractionStrategySchema } from './extraction-strategy.types'
 
-/**
- * User-configurable extraction settings
- * Controls both AI behavior and which metadata fields should be extracted
- */
-export interface ExtractionSettings {
-  processingStrategy: ProcessingStrategy
+export const ExtractionSettingsSchema = z.object({
+  extractionStrategy: ExtractionStrategySchema.describe('Strategy for processing text'),
+  extractionConfig: ExtractionConfigSchema.describe('Configuration for field extraction'),
+})
 
-  /** Which metadata fields to extract */
-  extractionConfig: ExtractionConfig
-}
+export type ExtractionSettings = z.infer<typeof ExtractionSettingsSchema>

@@ -1,4 +1,4 @@
-import type { ExtractableField, ExtractionSettings } from '@source-taster/types'
+import type { ExtractionSettings, ReferenceMetadataFields } from '@source-taster/types'
 import { AIExtractedReferenceSchema, AIExtractionResponseSchema, DateInfoSchema, ExternalIdentifiersSchema, ReferenceMetadataSchema, SourceInfoSchema } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
@@ -26,7 +26,7 @@ function hasAnyFieldsEnabled(enabledFields: string[], schema: z.ZodObject<any>):
 }
 
 // Create dynamic nested schemas for date, source, and identifiers
-function createDynamicNestedSchemas(fields: ExtractableField[]) {
+function createDynamicNestedSchemas(fields: ReferenceMetadataFields[]) {
   return {
     DynamicExternalIdentifiersSchema: createConditionalSchema(fields, ExternalIdentifiersSchema),
     DynamicSourceInfoSchema: createConditionalSchema(fields, SourceInfoSchema),
@@ -35,7 +35,7 @@ function createDynamicNestedSchemas(fields: ExtractableField[]) {
 }
 
 // Build the metadata shape with conditional nested objects
-function buildMetadataShape(fields: ExtractableField[], dynamicSchemas: ReturnType<typeof createDynamicNestedSchemas>) {
+function buildMetadataShape(fields: ReferenceMetadataFields[], dynamicSchemas: ReturnType<typeof createDynamicNestedSchemas>) {
   const baseMetadataConditional = createConditionalSchema(fields, ReferenceMetadataSchema)
   const metadataShape: Record<string, z.ZodTypeAny> = { ...baseMetadataConditional.shape }
 

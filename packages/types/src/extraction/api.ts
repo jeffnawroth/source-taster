@@ -2,23 +2,19 @@
  * API types for extraction requests and responses
  */
 
-import type { Reference } from '../reference'
-import type { ExtractionSettings } from './extraction-settings.types'
+import z from 'zod'
+import { ReferenceSchema } from '../reference'
+import { ExtractionSettingsSchema } from './extraction-settings.types'
 
-/**
- * Request to extract references from text using AI
- */
-export interface ExtractionRequest {
-  /** The text to extract references from */
-  text: string
-  /** User-configurable extraction settings */
-  extractionSettings: ExtractionSettings
-}
+export const ExtractionRequestSchema = z.object({
+  text: z.string().min(1).describe('The text to extract references from'),
+  extractionSettings: ExtractionSettingsSchema.describe('User-configurable extraction settings'),
+})
 
-/**
- * Response containing extracted references
- */
-export interface ExtractionResponse {
-  /** List of extracted references */
-  references: Reference[]
-}
+// Extraction Response Schema
+export const ExtractionResponseSchema = z.object({
+  references: z.array(ReferenceSchema).describe('List of extracted references'),
+})
+
+export type ExtractionResponse = z.infer<typeof ExtractionResponseSchema>
+export type ExtractionRequest = z.infer<typeof ExtractionRequestSchema>

@@ -2,41 +2,18 @@
  * Core reference and metadata types
  */
 
-import type { AIExtractedReference } from './ai'
 import z from 'zod'
+import { AIExtractedReferenceSchema } from './ai'
 
-export type ReferenceMetadataTopLevelFields = Extract<keyof ReferenceMetadata, 'authors' | 'title'>
-export type ReferenceMetadataDateFields = keyof DateInfo
-export type ReferenceMetadataSourceFields = keyof SourceInfo
-export type ReferenceMetadataIdentifierFields = keyof ExternalIdentifiers
-export type ReferenceMetadataFields = ReferenceMetadataTopLevelFields | ReferenceMetadataDateFields | ReferenceMetadataSourceFields | ReferenceMetadataIdentifierFields
-/**
- * Represents a single bibliographic reference
- */
-export interface Reference extends AIExtractedReference {
-  /** Unique identifier for this reference */
-  id: string
-}
-
-/**
- * Bibliographic metadata for a reference
- *
- * This interface includes fields that are:
- * 1. Supported by at least one external database (for verification/matching)
- * 2. Required for complete citation style rendering (APA, Harvard, MLA, German)
- * 3. Commonly found in real-world bibliographic references
- *
- * Some fields may not be supported by all databases but are retained for
- * citation style completeness and future database expansion.
- */
+export const ReferenceSchema = AIExtractedReferenceSchema.extend({
+  id: z.string().describe('Unique identifier for this reference'),
+})
 
 export const AuthorSchema = z.object({
   firstName: z.string().optional().describe('First name(s) of the author (e.g., "John", "Mary Jane")'),
   lastName: z.string().describe('Last name/surname of the author (e.g., "Smith")'),
   role: z.string().optional().describe('Optional role of the author (e.g., "editor", "translator")'),
 })
-
-export type Author = z.infer<typeof AuthorSchema>
 
 export const ExternalIdentifiersSchema = z.object({
   doi: z.string().optional().describe('Digital Object Identifier'),
@@ -46,8 +23,6 @@ export const ExternalIdentifiersSchema = z.object({
   pmcid: z.string().optional().describe('PubMed Central ID for medical literature'),
   arxivId: z.string().optional().describe('arXiv identifier (e.g., "2301.12345")'),
 })
-
-export type ExternalIdentifiers = z.infer<typeof ExternalIdentifiersSchema>
 
 export const DateInfoSchema = z.object({
   year: z.number().int().optional().describe('Publication year'),
@@ -61,8 +36,6 @@ export const DateInfoSchema = z.object({
   approximateDate: z.boolean().optional().describe('Indicates if date is approximate'),
   season: z.string().optional().describe('Season of publication'),
 })
-
-export type DateInfo = z.infer<typeof DateInfoSchema>
 
 export const SourceInfoSchema = z.object({
   containerTitle: z.string().optional().describe('Journal or book title'),
@@ -98,8 +71,6 @@ export const SourceInfoSchema = z.object({
   department: z.string().optional().describe('Academic department'),
 })
 
-export type SourceInfo = z.infer<typeof SourceInfoSchema>
-
 export const ReferenceMetadataSchema = z.object({
   title: z.string().optional().describe('Title of the work'),
   authors: z.array(z.union([z.string(), AuthorSchema])).optional().describe('List of author names or author objects'),
@@ -108,4 +79,30 @@ export const ReferenceMetadataSchema = z.object({
   identifiers: ExternalIdentifiersSchema.optional().describe('External database identifiers'),
 })
 
+// Helper function to extract all field names from Zod schemas
+function extractFieldNames() {
+  // Get top-level fields from ReferenceMetadataSchema
+  const topLevelFields = ['title', 'authors'] as const
+
+  // Get date fields from DateInfoSchema
+  const dateFields = Object.keys(DateInfoSchema.shape) as (keyof typeof DateInfoSchema.shape)[]
+
+  // Get source fields from SourceInfoSchema
+  const sourceFields = Object.keys(SourceInfoSchema.shape) as (keyof typeof SourceInfoSchema.shape)[]
+
+  // Get identifier fields from ExternalIdentifiersSchema
+  const identifierFields = Object.keys(ExternalIdentifiersSchema.shape) as (keyof typeof ExternalIdentifiersSchema.shape)[]
+
+  // Combine all fields into a single array
+  return [...topLevelFields, ...dateFields, ...sourceFields, ...identifierFields] as const
+}
+
+export const ReferenceMetadataFieldsSchema = z.enum(extractFieldNames())
+
+export type ReferenceMetadataFields = z.infer<typeof ReferenceMetadataFieldsSchema>
+export type Reference = z.infer<typeof ReferenceSchema>
 export type ReferenceMetadata = z.infer<typeof ReferenceMetadataSchema>
+export type SourceInfo = z.infer<typeof SourceInfoSchema>
+export type DateInfo = z.infer<typeof DateInfoSchema>
+export type ExternalIdentifiers = z.infer<typeof ExternalIdentifiersSchema>
+export type Author = z.infer<typeof AuthorSchema>

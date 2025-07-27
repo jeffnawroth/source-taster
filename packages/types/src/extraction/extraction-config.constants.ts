@@ -1,6 +1,8 @@
-import { type ExtractableField, type ExtractionConfig, FieldCategory } from './extraction-config.types'
+import type { ReferenceMetadataFields } from '../reference'
+import type { ExtractionConfig } from './extraction-config.types'
+import { FieldCategory } from './extraction-config.types'
 
-const FIELD_CATEGORY_ASSIGNMENTS: Record<ExtractableField, readonly FieldCategory[]> = {
+const FIELD_CATEGORY_ASSIGNMENTS: Record<ReferenceMetadataFields, readonly FieldCategory[]> = {
   // Core bibliographic information
   title: [FieldCategory.ESSENTIAL, FieldCategory.CORE],
   authors: [FieldCategory.ESSENTIAL, FieldCategory.CORE],
@@ -63,24 +65,24 @@ const FIELD_CATEGORY_ASSIGNMENTS: Record<ExtractableField, readonly FieldCategor
   isStandAlone: [FieldCategory.TECHNICAL],
 } as const
 
-export const CORE_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.CORE)
-export const ACADEMIC_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.ACADEMIC)
-export const TECHNICAL_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.TECHNICAL)
-export const DATE_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.DATE)
-export const IDENTIFIER_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.IDENTIFIER)
-export const PUBLICATION_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.PUBLICATION)
-export const ESSENTIAL_FIELDS: ExtractableField[] = getFieldsByCategory(FieldCategory.ESSENTIAL)
+export const CORE_FIELDS = getFieldsByCategory(FieldCategory.CORE)
+export const ACADEMIC_FIELDS = getFieldsByCategory(FieldCategory.ACADEMIC)
+export const TECHNICAL_FIELDS = getFieldsByCategory(FieldCategory.TECHNICAL)
+export const DATE_FIELDS = getFieldsByCategory(FieldCategory.DATE)
+export const IDENTIFIER_FIELDS = getFieldsByCategory(FieldCategory.IDENTIFIER)
+export const PUBLICATION_FIELDS = getFieldsByCategory(FieldCategory.PUBLICATION)
+export const ESSENTIAL_FIELDS = getFieldsByCategory(FieldCategory.ESSENTIAL)
 
 export const ESSENTIAL_EXTRACTION_CONFIG: ExtractionConfig = {
   fields: getFieldsByCategory(FieldCategory.ESSENTIAL),
 }
 
-export function getFieldsByCategory(category: FieldCategory): ExtractableField[] {
-  return (Object.entries(FIELD_CATEGORY_ASSIGNMENTS) as [ExtractableField, readonly FieldCategory[]][])
+export function getFieldsByCategory(category: FieldCategory): ReferenceMetadataFields[] {
+  return (Object.entries(FIELD_CATEGORY_ASSIGNMENTS) as [ReferenceMetadataFields, readonly FieldCategory[]][])
     .filter(([, categories]) => categories.includes(category))
     .map(([field]) => field)
 }
 
-export function getCategoriesForField(field: ExtractableField): readonly FieldCategory[] {
+export function getCategoriesForField(field: ReferenceMetadataFields): readonly FieldCategory[] {
   return FIELD_CATEGORY_ASSIGNMENTS[field] || []
 }

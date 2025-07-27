@@ -4,8 +4,9 @@
 
 import type { ExtractionRequest } from './extraction'
 import type { FieldMatchDetail, MatchingSettings } from './matching'
+import type { ReferenceMetadataFields } from './reference'
 import z from 'zod'
-import { ProcessingActionType } from './extraction'
+import { ExtractionActionTypeSchema } from './extraction'
 import { ReferenceMetadataSchema } from './reference'
 
 /**
@@ -21,7 +22,7 @@ export const FieldProcessingResultSchema = z.object({
   fieldPath: z.string().describe('The field path that was processed (e.g., "metadata.title", "metadata.source.containerTitle")'),
   originalValue: z.string().describe('The original value before processing'),
   processedValue: z.string().describe('The value after processing'),
-  actionTypes: z.array(z.nativeEnum(ProcessingActionType)).describe('Type of processing actions applied'),
+  actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of processing actions applied'),
 })
 
 export type FieldProcessingResult = z.infer<typeof FieldProcessingResultSchema>
@@ -50,7 +51,7 @@ export type AIExtractionResponse = z.infer<typeof AIExtractionResponseSchema>
  */
 export interface AIService {
   extractReferences: (extractionRequest: ExtractionRequest) => Promise<AIExtractionResponse>
-  matchFields: (prompt: string, matchingSettings: MatchingSettings, availableFields: string[]) => Promise<AIMatchingResponse>
+  matchFields: (prompt: string, matchingSettings: MatchingSettings, availableFields: ReferenceMetadataFields[]) => Promise<AIMatchingResponse>
 }
 
 /**
