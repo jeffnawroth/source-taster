@@ -1,5 +1,5 @@
 import z from 'zod'
-import { DEFAULT_FIELDS_CONFIG, DEFAULT_MATCH_QUALITY_THRESHOLDS } from './matching-config.constants'
+import { DEFAULT_EARLY_TERMINATION_CONFIG, DEFAULT_FIELDS_CONFIG, DEFAULT_MATCH_QUALITY_THRESHOLDS } from './matching-config.constants'
 import { MatchingConfigSchema } from './matching-config.types'
 import { DEFAULT_MATCHING_STRATEGY } from './matching-strategy.constants'
 import { MatchingStrategySchema } from './matching-strategy.types'
@@ -18,6 +18,7 @@ export const DEFAULT_MATCHING_SETTINGS: MatchingSettings = {
   matchingConfig: {
     fieldConfigurations: DEFAULT_FIELDS_CONFIG,
     matchThresholds: DEFAULT_MATCH_QUALITY_THRESHOLDS,
+    earlyTermination: DEFAULT_EARLY_TERMINATION_CONFIG,
   },
 }
 

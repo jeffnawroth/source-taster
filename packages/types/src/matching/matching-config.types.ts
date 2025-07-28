@@ -19,9 +19,15 @@ export const MatchQualityThresholdsSchema = z.object({
   highMatchThreshold: z.number().min(0).max(100).describe('Minimum score for high quality match'),
 })
 
+export const EarlyTerminationConfigSchema = z.object({
+  enabled: z.boolean().describe('Whether early termination is enabled'),
+  threshold: z.number().min(0).max(100).describe('Score threshold for early termination (0-100)'),
+})
+
 export const MatchingConfigSchema = z.object({
   fieldConfigurations: FieldConfigurationsSchema.describe('Field enable/weight configurations'),
   matchThresholds: MatchQualityThresholdsSchema.describe('Match quality thresholds'),
+  earlyTermination: EarlyTerminationConfigSchema.describe('Early termination configuration'),
 })
 
 // Custom validation schema that includes weight sum validation
@@ -43,4 +49,5 @@ export type FieldConfig = z.infer<typeof FieldConfigSchema>
 export type FieldConfigurations = z.infer<typeof FieldConfigurationsSchema>
 export type MatchQuality = z.infer<typeof MatchQualitySchema>
 export type MatchQualityThresholds = z.infer<typeof MatchQualityThresholdsSchema>
+export type EarlyTerminationConfig = z.infer<typeof EarlyTerminationConfigSchema>
 export type MatchingConfig = z.infer<typeof MatchingConfigSchema>

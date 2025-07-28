@@ -1,4 +1,4 @@
-import type { FieldConfigurations, MatchQualityThresholds } from './matching-config.types'
+import type { EarlyTerminationConfig, FieldConfigurations, MatchQualityThresholds } from './matching-config.types'
 
 // Default field configurations
 export const DEFAULT_FIELDS_CONFIG: FieldConfigurations = {
@@ -23,4 +23,13 @@ export const DEFAULT_FIELDS_CONFIG: FieldConfigurations = {
 export const DEFAULT_MATCH_QUALITY_THRESHOLDS: MatchQualityThresholds = {
   exactMatchThreshold: 95,
   highMatchThreshold: 70,
+}
+
+/**
+ * Default early termination configuration
+ * Disabled by default with a conservative threshold
+ */
+export const DEFAULT_EARLY_TERMINATION_CONFIG: EarlyTerminationConfig = {
+  enabled: false,
+  threshold: 85, // Conservative threshold - only terminate on very good matches
 }

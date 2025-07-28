@@ -16,5 +16,8 @@ const { t } = useI18n()
 
     <!-- Match Quality Panel -->
     <MatchQualityPanel />
+
+    <!-- Early Termination Panel -->
+    <EarlyTerminationPanel />
   </SettingsCard>
 </template>

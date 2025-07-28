@@ -29,64 +29,106 @@ export class DatabaseMatchingService extends BaseMatchingService {
     reference: Reference,
     matchingSettings: MatchingSettings,
   ): Promise<MatchingResult> {
-    // Search in all databases in parallel for better performance
-    const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
-      this.openAlex.search(reference.metadata),
-      this.crossref.search(reference.metadata),
-      this.europePmc.search(reference.metadata),
-      this.semanticScholar.search(reference.metadata),
-      this.arxiv.search(reference.metadata),
-    ])
+    const { earlyTermination } = matchingSettings.matchingConfig
+    const sourceEvaluations: SourceEvaluation[] = []
 
-    // Extract successful results
-    const sources: ExternalSource[] = []
+    if (earlyTermination.enabled) {
+      // Early termination enabled: search databases one by one until threshold is met
+      const databaseServices = [
+        { name: 'OpenAlex', service: this.openAlex },
+        { name: 'Crossref', service: this.crossref },
+        { name: 'EuropePMC', service: this.europePmc },
+        { name: 'Semantic Scholar', service: this.semanticScholar },
+        { name: 'ArXiv', service: this.arxiv },
+      ]
 
-    if (openAlexResult.status === 'fulfilled' && openAlexResult.value) {
-      sources.push(openAlexResult.value)
+      for (const { service } of databaseServices) {
+        try {
+          const source = await service.search(reference.metadata)
+          if (source) {
+            // Immediately evaluate with AI
+            const matchResult = await this.matchWithAI(reference, source, matchingSettings)
+            sourceEvaluations.push({
+              source,
+              matchDetails: matchResult.details,
+            })
+
+            // Check if we've found a match above the threshold
+            if (matchResult.details.overallScore >= earlyTermination.threshold) {
+              // Early termination triggered - stop searching further databases
+              break
+            }
+          }
+        }
+        catch {
+          // Continue with next database if one fails
+          continue
+        }
+      }
     }
+    else {
+      // Early termination disabled: search all databases in parallel for better performance
+      const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
+        this.openAlex.search(reference.metadata),
+        this.crossref.search(reference.metadata),
+        this.europePmc.search(reference.metadata),
+        this.semanticScholar.search(reference.metadata),
+        this.arxiv.search(reference.metadata),
+      ])
 
-    if (crossrefResult.status === 'fulfilled' && crossrefResult.value) {
-      sources.push(crossrefResult.value)
-    }
+      // Extract successful results
+      const sources: ExternalSource[] = []
 
-    if (europePmcResult.status === 'fulfilled' && europePmcResult.value) {
-      sources.push(europePmcResult.value)
-    }
+      if (openAlexResult.status === 'fulfilled' && openAlexResult.value) {
+        sources.push(openAlexResult.value)
+      }
 
-    if (semanticScholarResult.status === 'fulfilled' && semanticScholarResult.value) {
-      sources.push(semanticScholarResult.value)
-    }
+      if (crossrefResult.status === 'fulfilled' && crossrefResult.value) {
+        sources.push(crossrefResult.value)
+      }
 
-    if (arxivResult.status === 'fulfilled' && arxivResult.value) {
-      sources.push(arxivResult.value)
-    }
+      if (europePmcResult.status === 'fulfilled' && europePmcResult.value) {
+        sources.push(europePmcResult.value)
+      }
 
-    // If no sources found, return unmatched
-    if (sources.length === 0) {
-      return {
-        sourceEvaluations: [],
+      if (semanticScholarResult.status === 'fulfilled' && semanticScholarResult.value) {
+        sources.push(semanticScholarResult.value)
+      }
+
+      if (arxivResult.status === 'fulfilled' && arxivResult.value) {
+        sources.push(arxivResult.value)
+      }
+
+      // If no sources found, return unmatched
+      if (sources.length === 0) {
+        return {
+          sourceEvaluations: [],
+        }
+      }
+
+      // Evaluate all sources with AI in parallel
+      const aiEvaluations = await Promise.allSettled(
+        sources.map(async (source) => {
+          const matchResult = await this.matchWithAI(reference, source, matchingSettings)
+          return {
+            source,
+            matchDetails: matchResult.details,
+          }
+        }),
+      )
+
+      // Extract successful AI evaluations
+      for (const result of aiEvaluations) {
+        if (result.status === 'fulfilled') {
+          sourceEvaluations.push(result.value)
+        }
       }
     }
 
-    // Match with AI using the best available sources
-    // Evaluate all sources with AI in parallel for better performance
-    const sourceEvaluations: SourceEvaluation[] = []
-
-    // Evaluate all sources with AI in parallel instead of sequentially
-    const aiEvaluations = await Promise.allSettled(
-      sources.map(async (source) => {
-        const matchResult = await this.matchWithAI(reference, source, matchingSettings)
-        return {
-          source,
-          matchDetails: matchResult.details,
-        }
-      }),
-    )
-
-    // Extract successful AI evaluations
-    for (const result of aiEvaluations) {
-      if (result.status === 'fulfilled') {
-        sourceEvaluations.push(result.value)
+    // If no sources found, return unmatched
+    if (sourceEvaluations.length === 0) {
+      return {
+        sourceEvaluations: [],
       }
     }
 
