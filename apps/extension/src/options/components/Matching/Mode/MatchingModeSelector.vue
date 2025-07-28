@@ -11,7 +11,8 @@ import {
   mdiTarget,
   mdiWrench,
 } from '@mdi/js'
-import { getMatchingActionTypesByCategory, MATCHING_MODE_PRESETS, MatchingRuleCategory } from '@source-taster/types'
+import { MATCHING_MODE_PRESETS, MatchingRuleCategory } from '@source-taster/types'
+import { getMatchingActionTypesByCategory } from '@/extension/constants/matchingCategories'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION
