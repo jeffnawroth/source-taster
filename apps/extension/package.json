@@ -44,7 +44,7 @@
     "@vue/compiler-sfc": "^3.5.18",
     "@vue/test-utils": "^2.4.6",
     "@vueuse/core": "^12.8.2",
-    "@vueuse/integrations": "^13.5.0",
+    "@vueuse/integrations": "^13.6.0",
     "@vueuse/shared": "^12.8.2",
     "bumpp": "^9.11.1",
     "chokidar": "^4.0.3",
