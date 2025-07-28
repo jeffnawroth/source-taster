@@ -79,7 +79,12 @@ export const ReferenceMetadataSchema = z.object({
 export const FieldExtractionResultSchema = z.object({
   fieldPath: z.string().describe('The field path that was extracted (e.g., "metadata.title", "metadata.source.containerTitle")'),
   originalValue: z.string().describe('The original value before extraction'),
-  extractedValue: z.string().describe('The value after extraction'),
+  extractedValue: z.union([
+    z.string().describe('Simple string value'),
+    AuthorSchema.describe('Single author object for author fields'),
+    z.array(z.string()).describe('Array of strings'),
+    z.array(AuthorSchema).describe('Array of author objects'),
+  ]).describe('The value after extraction - can be string, author object, array of strings, or array of author objects'),
   actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of extraction actions applied'),
 })
 
