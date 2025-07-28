@@ -81,6 +81,7 @@ export const FieldExtractionResultSchema = z.object({
   originalValue: z.string().describe('The original value before extraction'),
   extractedValue: z.union([
     z.string().describe('Simple string value'),
+    z.number().describe('Numeric value for fields like year, volume, etc.'),
     AuthorSchema.describe('Single author object for author fields'),
     z.array(z.string()).describe('Array of strings'),
     z.array(AuthorSchema).describe('Array of author objects'),
