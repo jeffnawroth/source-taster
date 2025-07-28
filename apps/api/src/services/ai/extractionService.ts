@@ -1,4 +1,6 @@
 import type { AIExtractionResponse, ExtractionRequest, ExtractionStrategy, OpenAIConfig } from '@source-taster/types'
+import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
+import type { ZodSchema } from 'zod'
 import { OpenAI } from 'openai'
 import { createDynamicExtractionSchema } from '@/api/types/reference'
 import { EXTRACTION_RULES_MAP } from '../../constants/extractionRules'
@@ -23,8 +25,8 @@ export class ExtractionService {
     const schema = createDynamicExtractionSchema(extractionRequest.extractionSettings)
 
     try {
-      const response = await this.callOpenAI(systemMessage, userMessage, schema)
-      return this.parseOpenAIResponse(response)
+      const response = await this.callOpenAI(systemMessage, userMessage, schema.jsonSchema)
+      return this.parseOpenAIResponse(response, schema.DynamicExtractionResponseSchema)
     }
     catch (error: any) {
       return this.handleExtractionError(error)
@@ -45,7 +47,7 @@ export class ExtractionService {
 ${text}`
   }
 
-  private async callOpenAI(systemMessage: string, userMessage: string, schema: any) {
+  private async callOpenAI(systemMessage: string, userMessage: string, schema: ResponseFormatJSONSchema.JSONSchema) {
     return await this.client.chat.completions.create({
       model: this.config.model,
       temperature: this.config.temperature,
@@ -60,19 +62,23 @@ ${text}`
     })
   }
 
-  private parseOpenAIResponse(response: any): AIExtractionResponse {
+  private parseOpenAIResponse(response: OpenAI.Chat.Completions.ChatCompletion, DynamicExtractionResponseSchema: ZodSchema): AIExtractionResponse {
     const content = response.choices[0]?.message?.content
     if (!content) {
       throw new Error('No content in OpenAI response')
     }
 
+    let parsedResponse
     try {
-      return JSON.parse(content)
+      parsedResponse = JSON.parse(content)
     }
     catch {
       console.error('Failed to parse OpenAI response as JSON:', content)
       throw new Error('Invalid JSON response from OpenAI')
     }
+
+    const validatedResponse = DynamicExtractionResponseSchema.parse(parsedResponse) as AIExtractionResponse
+    return validatedResponse
   }
 
   private handleExtractionError(error: any): AIExtractionResponse {

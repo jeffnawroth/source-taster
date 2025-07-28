@@ -1,4 +1,5 @@
 import type { ExtractionSettings, ReferenceMetadataFields } from '@source-taster/types'
+import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { AIExtractedReferenceSchema, AIExtractionResponseSchema, DateInfoSchema, ExternalIdentifiersSchema, ReferenceMetadataSchema, SourceInfoSchema } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
@@ -96,9 +97,12 @@ export function createDynamicExtractionSchema(extractionSettings: ExtractionSett
   })
 
   return {
-    name: 'reference_extraction',
-    schema: zodToJsonSchema(DynamicExtractionResponseSchema, {
-      $refStrategy: 'none',
-    }),
+    DynamicExtractionResponseSchema,
+    jsonSchema: {
+      name: 'reference_extraction',
+      schema: zodToJsonSchema(DynamicExtractionResponseSchema, {
+        $refStrategy: 'none',
+      }),
+    } as ResponseFormatJSONSchema.JSONSchema,
   }
 }

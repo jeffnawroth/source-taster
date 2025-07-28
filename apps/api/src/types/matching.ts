@@ -1,4 +1,5 @@
 import type { ReferenceMetadataFields } from '@source-taster/types'
+import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
@@ -26,6 +27,6 @@ export function createMatchingSchema(availableFields: ReferenceMetadataFields[])
       schema: zodToJsonSchema(MatchingResponseSchema, {
         $refStrategy: 'none',
       }),
-    },
+    } as ResponseFormatJSONSchema.JSONSchema,
   }
 }

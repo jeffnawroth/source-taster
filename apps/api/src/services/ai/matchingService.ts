@@ -1,5 +1,7 @@
 import type { AIMatchingResponse, APIMatchingSettings, MatchingActionType, OpenAIConfig } from '@source-taster/types'
 import type { ReferenceMetadataFields } from 'node_modules/@source-taster/types/dist/reference/reference.constants'
+import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
+import type { ZodSchema } from 'zod'
 import { OpenAI } from 'openai'
 import { MATCHING_RULES_MAP } from '../../constants/matchingRules'
 import { createMatchingSchema } from '../../types/matching'
@@ -54,7 +56,7 @@ CRITICAL INSTRUCTIONS:
     return `${baseMessage}\n\n${modeInstructions}`
   }
 
-  private async callOpenAI(systemMessage: string, userMessage: string, schema: any) {
+  private async callOpenAI(systemMessage: string, userMessage: string, schema: ResponseFormatJSONSchema.JSONSchema) {
     return await this.client.chat.completions.create({
       model: this.config.model,
       temperature: this.config.temperature,
@@ -69,7 +71,7 @@ CRITICAL INSTRUCTIONS:
     })
   }
 
-  private parseOpenAIResponse(response: any, DynamicMatchingResponseSchema: any): AIMatchingResponse {
+  private parseOpenAIResponse(response: OpenAI.Chat.Completions.ChatCompletion, DynamicMatchingResponseSchema: ZodSchema): AIMatchingResponse {
     const content = response.choices[0]?.message?.content
     if (!content) {
       throw new Error('No content in OpenAI response')
@@ -86,14 +88,7 @@ CRITICAL INSTRUCTIONS:
 
     // Validate response with dynamic Zod schema
     const validatedResponse = DynamicMatchingResponseSchema.parse(parsedResponse) as AIMatchingResponse
-
-    // Convert to AIMatchingResponse format
-    return {
-      fieldDetails: validatedResponse.fieldDetails.map(field => ({
-        field: field.field as any, // Cast to proper FieldMatchDetail field type
-        match_score: field.match_score,
-      })),
-    }
+    return validatedResponse
   }
 
   private handleMatchingError(error: any): AIMatchingResponse {
