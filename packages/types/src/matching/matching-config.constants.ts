@@ -30,6 +30,6 @@ export const DEFAULT_MATCH_QUALITY_THRESHOLDS: MatchQualityThresholds = {
  * Disabled by default with a conservative threshold
  */
 export const DEFAULT_EARLY_TERMINATION_CONFIG: EarlyTerminationConfig = {
-  enabled: false,
+  enabled: true,
   threshold: 85, // Conservative threshold - only terminate on very good matches
 }

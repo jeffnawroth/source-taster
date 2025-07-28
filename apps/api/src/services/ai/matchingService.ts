@@ -1,7 +1,7 @@
 import type { AIMatchingResponse, APIMatchingSettings, MatchingActionType, OpenAIConfig } from '@source-taster/types'
 import type { ReferenceMetadataFields } from 'node_modules/@source-taster/types/dist/reference/reference.constants'
-import { getMatchingRulesForActionTypes } from '@source-taster/types'
 import { OpenAI } from 'openai'
+import { getInstructionsForActionTypes } from '../../constants/matchingRules'
 import { createMatchingSchema } from '../../types/matching'
 
 export class MatchingService {
@@ -88,25 +88,15 @@ CRITICAL INSTRUCTIONS:
   }
 
   private getMatchingInstructions(actionTypes: MatchingActionType[]): string {
-    // Convert actionTypes to rules using the helper function
-    const activeRules = getMatchingRulesForActionTypes(actionTypes)
+    const instructionLines = getInstructionsForActionTypes(actionTypes)
 
-    // If no rules are active, return empty instructions (AI should do nothing)
-    if (activeRules.length === 0) {
+    if (instructionLines.length === 0) {
       return 'Compare fields as they are without modifications.'
     }
 
-    // Build instructions from active rules
-    const instructions: string[] = [
+    return [
       'IMPORTANT: Apply the following rules when comparing fields. Do NOT apply any other rules beyond what is explicitly listed below. The field score should be given after applying the rules:',
-    ]
-
-    for (const rule of activeRules) {
-      instructions.push(`• ${rule.aiInstruction.prompt}`)
-      if (rule.aiInstruction.example) {
-        instructions.push(`  Example: ${rule.aiInstruction.example}`)
-      }
-    }
-    return instructions.join('\n')
+      ...instructionLines,
+    ].join('\n')
   }
 }
