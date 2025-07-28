@@ -69,16 +69,25 @@ export class DatabaseMatchingService extends BaseMatchingService {
     }
 
     // Match with AI using the best available sources
-    // Evaluate all sources and find the best one based on AI scoring
+    // Evaluate all sources with AI in parallel for better performance
     const sourceEvaluations: SourceEvaluation[] = []
 
-    // Evaluate each source with AI
-    for (const source of sources) {
-      const matchResult = await this.matchWithAI(reference, source, matchingSettings)
-      sourceEvaluations.push({
-        source,
-        matchDetails: matchResult.details,
-      })
+    // Evaluate all sources with AI in parallel instead of sequentially
+    const aiEvaluations = await Promise.allSettled(
+      sources.map(async (source) => {
+        const matchResult = await this.matchWithAI(reference, source, matchingSettings)
+        return {
+          source,
+          matchDetails: matchResult.details,
+        }
+      }),
+    )
+
+    // Extract successful AI evaluations
+    for (const result of aiEvaluations) {
+      if (result.status === 'fulfilled') {
+        sourceEvaluations.push(result.value)
+      }
     }
 
     // Sort by overall score (highest first)
