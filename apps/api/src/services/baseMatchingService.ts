@@ -29,11 +29,17 @@ export abstract class BaseMatchingService {
 
     const prompt = `
 
+Available fields for matching:
+${availableFields.join(', ')}
+
+
 Reference:
 ${JSON.stringify(reference.metadata, null, 2)}
 
 Source:
-${JSON.stringify(source.metadata, null, 2)}`
+${JSON.stringify(source.metadata, null, 2)}
+
+IMPORTANT: Return matching scores for ALL available fields that exist in both reference and source. Do not skip any fields from the list: ${availableFields.join(', ')}`
 
     const response = await ai.matchFields(prompt, matchingSettings, availableFields)
 
