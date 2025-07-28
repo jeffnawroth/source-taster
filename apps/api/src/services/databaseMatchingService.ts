@@ -14,14 +14,15 @@ import { OpenAlexService } from './databases/openAlexService'
 import { SemanticScholarService } from './databases/semanticScholarService'
 
 export class DatabaseMatchingService extends BaseMatchingService {
-  private openAlex = new OpenAlexService()
-  private crossref = new CrossrefService()
-  private europePmc = new EuropePmcService()
-  private semanticScholar = new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY)
-  private arxiv = new ArxivService()
+  private readonly databaseServices = [
+    { name: 'OpenAlex', service: new OpenAlexService() },
+    { name: 'Crossref', service: new CrossrefService() },
+    { name: 'EuropePMC', service: new EuropePmcService() },
+    { name: 'Semantic Scholar', service: new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY) },
+    { name: 'ArXiv', service: new ArxivService() },
+  ]
 
   constructor() {
-    // Use default field weights for database matching
     super()
   }
 
@@ -30,114 +31,166 @@ export class DatabaseMatchingService extends BaseMatchingService {
     matchingSettings: MatchingSettings,
   ): Promise<MatchingResult> {
     const { earlyTermination } = matchingSettings.matchingConfig
+
+    const sourceEvaluations = earlyTermination.enabled
+      ? await this.matchWithEarlyTermination(reference, matchingSettings)
+      : await this.matchAllSources(reference, matchingSettings)
+
+    return this.buildMatchingResult(sourceEvaluations)
+  }
+
+  private async matchWithEarlyTermination(
+    reference: Reference,
+    matchingSettings: MatchingSettings,
+  ): Promise<SourceEvaluation[]> {
+    const { threshold } = matchingSettings.matchingConfig.earlyTermination
     const sourceEvaluations: SourceEvaluation[] = []
 
-    if (earlyTermination.enabled) {
-      // Early termination enabled: search databases one by one until threshold is met
-      const databaseServices = [
-        { name: 'OpenAlex', service: this.openAlex },
-        { name: 'Crossref', service: this.crossref },
-        { name: 'EuropePMC', service: this.europePmc },
-        { name: 'Semantic Scholar', service: this.semanticScholar },
-        { name: 'ArXiv', service: this.arxiv },
-      ]
+    for (const { service } of this.databaseServices) {
+      const evaluation = await this.tryEvaluateDatabase(reference, service, matchingSettings)
 
-      for (const { service } of databaseServices) {
-        try {
-          const source = await service.search(reference.metadata)
-          if (source) {
-            // Immediately evaluate with AI
-            const matchResult = await this.matchWithAI(reference, source, matchingSettings)
-            sourceEvaluations.push({
-              source,
-              matchDetails: matchResult.details,
-            })
+      if (!evaluation) {
+        continue // Skip failed database
+      }
 
-            // Check if we've found a match above the threshold
-            if (matchResult.details.overallScore >= earlyTermination.threshold) {
-              // Early termination triggered - stop searching further databases
-              break
-            }
-          }
-        }
-        catch {
-          // Continue with next database if one fails
-          continue
-        }
+      sourceEvaluations.push(evaluation)
+
+      if (this.shouldTerminateEarly(evaluation, threshold)) {
+        break
       }
     }
-    else {
-      // Early termination disabled: search all databases in parallel for better performance
-      const [openAlexResult, crossrefResult, europePmcResult, semanticScholarResult, arxivResult] = await Promise.allSettled([
-        this.openAlex.search(reference.metadata),
-        this.crossref.search(reference.metadata),
-        this.europePmc.search(reference.metadata),
-        this.semanticScholar.search(reference.metadata),
-        this.arxiv.search(reference.metadata),
-      ])
 
-      // Extract successful results
-      const sources: ExternalSource[] = []
+    return sourceEvaluations
+  }
 
-      if (openAlexResult.status === 'fulfilled' && openAlexResult.value) {
-        sources.push(openAlexResult.value)
-      }
+  private async tryEvaluateDatabase(
+    reference: Reference,
+    service: any,
+    matchingSettings: MatchingSettings,
+  ): Promise<SourceEvaluation | null> {
+    try {
+      return await this.evaluateDatabase(reference, service, matchingSettings)
+    }
+    catch {
+      return null // Database failed, return null to continue with next
+    }
+  }
 
-      if (crossrefResult.status === 'fulfilled' && crossrefResult.value) {
-        sources.push(crossrefResult.value)
-      }
+  private async evaluateDatabase(
+    reference: Reference,
+    service: any,
+    matchingSettings: MatchingSettings,
+  ): Promise<SourceEvaluation | null> {
+    const source = await service.search(reference.metadata)
 
-      if (europePmcResult.status === 'fulfilled' && europePmcResult.value) {
-        sources.push(europePmcResult.value)
-      }
+    if (!source) {
+      return null
+    }
 
-      if (semanticScholarResult.status === 'fulfilled' && semanticScholarResult.value) {
-        sources.push(semanticScholarResult.value)
-      }
+    return await this.evaluateSource(reference, source, matchingSettings)
+  }
 
-      if (arxivResult.status === 'fulfilled' && arxivResult.value) {
-        sources.push(arxivResult.value)
-      }
+  private shouldTerminateEarly(evaluation: SourceEvaluation, threshold: number): boolean {
+    return evaluation.matchDetails.overallScore >= threshold
+  }
 
-      // If no sources found, return unmatched
-      if (sources.length === 0) {
-        return {
-          sourceEvaluations: [],
-        }
-      }
+  private async matchAllSources(
+    reference: Reference,
+    matchingSettings: MatchingSettings,
+  ): Promise<SourceEvaluation[]> {
+    const sources = await this.searchAllDatabases(reference)
 
-      // Evaluate all sources with AI in parallel
-      const aiEvaluations = await Promise.allSettled(
-        sources.map(async (source) => {
-          const matchResult = await this.matchWithAI(reference, source, matchingSettings)
-          return {
-            source,
-            matchDetails: matchResult.details,
-          }
-        }),
+    if (sources.length === 0) {
+      return []
+    }
+
+    return await this.evaluateAllSources(reference, sources, matchingSettings)
+  }
+
+  private async searchAllDatabases(reference: Reference): Promise<ExternalSource[]> {
+    const searchPromises = this.databaseServices.map(({ service }) =>
+      this.trySearchDatabase(service, reference.metadata),
+    )
+
+    const results = await Promise.allSettled(searchPromises)
+
+    return this.extractSuccessfulSources(results)
+  }
+
+  private async trySearchDatabase(service: any, metadata: any): Promise<ExternalSource | null> {
+    try {
+      return await service.search(metadata)
+    }
+    catch {
+      return null
+    }
+  }
+
+  private extractSuccessfulSources(results: PromiseSettledResult<ExternalSource | null>[]): ExternalSource[] {
+    return results
+      .filter((result): result is PromiseFulfilledResult<ExternalSource> =>
+        result.status === 'fulfilled' && !!result.value,
       )
+      .map(result => result.value)
+  }
 
-      // Extract successful AI evaluations
-      for (const result of aiEvaluations) {
-        if (result.status === 'fulfilled') {
-          sourceEvaluations.push(result.value)
-        }
-      }
+  private async evaluateAllSources(
+    reference: Reference,
+    sources: ExternalSource[],
+    matchingSettings: MatchingSettings,
+  ): Promise<SourceEvaluation[]> {
+    const evaluationPromises = sources.map(source =>
+      this.tryEvaluateSource(reference, source, matchingSettings),
+    )
+
+    const results = await Promise.allSettled(evaluationPromises)
+
+    return this.extractSuccessfulEvaluations(results)
+  }
+
+  private async tryEvaluateSource(
+    reference: Reference,
+    source: ExternalSource,
+    matchingSettings: MatchingSettings,
+  ): Promise<SourceEvaluation | null> {
+    try {
+      return await this.evaluateSource(reference, source, matchingSettings)
     }
+    catch {
+      return null
+    }
+  }
 
-    // If no sources found, return unmatched
+  private extractSuccessfulEvaluations(results: PromiseSettledResult<SourceEvaluation | null>[]): SourceEvaluation[] {
+    return results
+      .filter((result): result is PromiseFulfilledResult<SourceEvaluation> =>
+        result.status === 'fulfilled' && !!result.value,
+      )
+      .map(result => result.value)
+  }
+
+  private async evaluateSource(
+    reference: Reference,
+    source: ExternalSource,
+    matchingSettings: MatchingSettings,
+  ): Promise<SourceEvaluation> {
+    const matchResult = await this.matchWithAI(reference, source, matchingSettings)
+    return {
+      source,
+      matchDetails: matchResult.details,
+    }
+  }
+
+  private buildMatchingResult(sourceEvaluations: SourceEvaluation[]): MatchingResult {
     if (sourceEvaluations.length === 0) {
-      return {
-        sourceEvaluations: [],
-      }
+      return { sourceEvaluations: [] }
     }
 
     // Sort by overall score (highest first)
-    sourceEvaluations.sort((a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore)
+    const sortedEvaluations = [...sourceEvaluations].sort(
+      (a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore,
+    )
 
-    // Return result with evaluations sorted by score (best first)
-    return {
-      sourceEvaluations,
-    }
+    return { sourceEvaluations: sortedEvaluations }
   }
 }
