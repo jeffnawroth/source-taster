@@ -23,11 +23,15 @@ export class MetadataComparator {
     }
 
     const paths1 = getAllPaths(obj1)
-    return paths1.filter(path =>
-      _.has(obj2, path)
-      && !_.isEmpty(_.get(obj1, path))
-      && !_.isEmpty(_.get(obj2, path)),
-    )
+    return paths1.filter((path) => {
+      const value1 = _.get(obj1, path)
+      const value2 = _.get(obj2, path)
+
+      // Both values must exist and not be null/undefined/empty string
+      return _.has(obj2, path)
+        && value1 != null && value2 != null
+        && value1 !== '' && value2 !== ''
+    })
   }
 
   /**
