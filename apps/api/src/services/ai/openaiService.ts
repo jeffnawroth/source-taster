@@ -1,4 +1,6 @@
-import type { AIExtractionResponse, AIMatchingResponse, AIService, ExtractionRequest, MatchingSettings, OpenAIConfig, ReferenceMetadataFields } from '@source-taster/types'
+import type { AIExtractionResponse, AIMatchingResponse, AIService, ExtractionRequest, MatchingSettings, OpenAIConfig, ReferenceMetadataFields,
+
+} from '@source-taster/types'
 import { ExtractionService } from './extractionService'
 import { MatchingService } from './matchingService'
 

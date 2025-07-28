@@ -3,7 +3,7 @@
  * Controls which metadata fields should be extracted by the AI
  */
 import z from 'zod'
-import { ReferenceMetadataFieldsSchema } from '../reference'
+import { ReferenceMetadataFieldsSchema } from '../reference/reference.constants'
 
 export const ExtractionConfigSchema = z.object({
   fields: z.array(ReferenceMetadataFieldsSchema).describe('Metadata fields to extract'),

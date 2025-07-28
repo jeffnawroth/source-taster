@@ -1,4 +1,5 @@
-import type { ReferenceMetadata, ReferenceMetadataFields } from '../reference'
+import type { ReferenceMetadata } from '../reference'
+import type { ReferenceMetadataFields } from '../reference/reference.constants'
 
 /**
  * Represents a reference found in an external database

@@ -1,4 +1,4 @@
-import type { ReferenceMetadataFields } from '../reference'
+import type { ReferenceMetadataFields } from '../reference/reference.constants'
 import z from 'zod'
 
 // Field Configuration Schemas

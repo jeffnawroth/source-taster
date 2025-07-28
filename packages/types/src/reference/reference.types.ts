@@ -3,11 +3,7 @@
  */
 
 import z from 'zod'
-import { AIExtractedReferenceSchema } from './ai'
-
-export const ReferenceSchema = AIExtractedReferenceSchema.extend({
-  id: z.string().describe('Unique identifier for this reference'),
-})
+import { ExtractionActionTypeSchema } from '../extraction/extraction-strategy.types'
 
 export const AuthorSchema = z.object({
   firstName: z.string().optional().describe('First name(s) of the author (e.g., "John", "Mary Jane")'),
@@ -79,30 +75,29 @@ export const ReferenceMetadataSchema = z.object({
   identifiers: ExternalIdentifiersSchema.optional().describe('External database identifiers'),
 })
 
-// Helper function to extract all field names from Zod schemas
-function extractFieldNames() {
-  // Get top-level fields from ReferenceMetadataSchema
-  const topLevelFields = ['title', 'authors'] as const
+// AI-related schemas (moved from ai.ts)
+export const FieldProcessingResultSchema = z.object({
+  fieldPath: z.string().describe('The field path that was processed (e.g., "metadata.title", "metadata.source.containerTitle")'),
+  originalValue: z.string().describe('The original value before processing'),
+  processedValue: z.string().describe('The value after processing'),
+  actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of processing actions applied'),
+})
 
-  // Get date fields from DateInfoSchema
-  const dateFields = Object.keys(DateInfoSchema.shape) as (keyof typeof DateInfoSchema.shape)[]
+export const AIExtractedReferenceSchema = z.object({
+  originalText: z.string().describe('The raw reference text as it appeared in the source document'),
+  metadata: ReferenceMetadataSchema.describe('Parsed/extracted bibliographic information'),
+  processingResults: z.array(FieldProcessingResultSchema).optional().describe('Information about modifications made'),
+})
 
-  // Get source fields from SourceInfoSchema
-  const sourceFields = Object.keys(SourceInfoSchema.shape) as (keyof typeof SourceInfoSchema.shape)[]
+export const ReferenceSchema = AIExtractedReferenceSchema.extend({
+  id: z.string().describe('Unique identifier for this reference'),
+})
 
-  // Get identifier fields from ExternalIdentifiersSchema
-  const identifierFields = Object.keys(ExternalIdentifiersSchema.shape) as (keyof typeof ExternalIdentifiersSchema.shape)[]
-
-  // Combine all fields into a single array
-  return [...topLevelFields, ...dateFields, ...sourceFields, ...identifierFields] as const
-}
-
-export const ReferenceMetadataFieldsSchema = z.enum(extractFieldNames())
-
-export type ReferenceMetadataFields = z.infer<typeof ReferenceMetadataFieldsSchema>
 export type Reference = z.infer<typeof ReferenceSchema>
 export type ReferenceMetadata = z.infer<typeof ReferenceMetadataSchema>
 export type SourceInfo = z.infer<typeof SourceInfoSchema>
 export type DateInfo = z.infer<typeof DateInfoSchema>
 export type ExternalIdentifiers = z.infer<typeof ExternalIdentifiersSchema>
 export type Author = z.infer<typeof AuthorSchema>
+export type FieldProcessingResult = z.infer<typeof FieldProcessingResultSchema>
+export type AIExtractedReference = z.infer<typeof AIExtractedReferenceSchema>

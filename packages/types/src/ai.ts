@@ -4,10 +4,9 @@
 
 import type { ExtractionRequest } from './extraction'
 import type { FieldMatchDetail, MatchingSettings } from './matching'
-import type { ReferenceMetadataFields } from './reference'
+import type { ReferenceMetadataFields } from './reference/reference.constants'
 import z from 'zod'
-import { ExtractionActionTypeSchema } from './extraction'
-import { ReferenceMetadataSchema } from './reference'
+import { AIExtractedReferenceSchema } from './reference'
 
 /**
  * Response from AI matching service
@@ -17,23 +16,6 @@ export interface AIMatchingResponse {
   /** Array of field match details */
   fieldDetails: FieldMatchDetail[]
 }
-
-export const FieldProcessingResultSchema = z.object({
-  fieldPath: z.string().describe('The field path that was processed (e.g., "metadata.title", "metadata.source.containerTitle")'),
-  originalValue: z.string().describe('The original value before processing'),
-  processedValue: z.string().describe('The value after processing'),
-  actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of processing actions applied'),
-})
-
-export type FieldProcessingResult = z.infer<typeof FieldProcessingResultSchema>
-
-export const AIExtractedReferenceSchema = z.object({
-  originalText: z.string().describe('The raw reference text as it appeared in the source document'),
-  metadata: ReferenceMetadataSchema.describe('Parsed/extracted bibliographic information'),
-  processingResults: z.array(FieldProcessingResultSchema).optional().describe('Information about modifications made'),
-})
-
-export type AIExtractedReference = z.infer<typeof AIExtractedReferenceSchema>
 
 /**
  * Response from AI service containing extracted references (without IDs)

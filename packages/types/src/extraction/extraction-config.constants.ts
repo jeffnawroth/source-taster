@@ -1,4 +1,4 @@
-import type { ReferenceMetadataFields } from '../reference'
+import type { ReferenceMetadataFields } from '../reference/reference.constants'
 import type { ExtractionConfig } from './extraction-config.types'
 import { FieldCategory } from './extraction-config.types'
 
