@@ -4,7 +4,7 @@ import { useFuse } from '@vueuse/integrations/useFuse'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const { t } = useI18n()
-const { references, isProcessing } = storeToRefs(useReferencesStore())
+const { references, isExtraction } = storeToRefs(useReferencesStore())
 
 const search = ref('')
 
@@ -53,15 +53,15 @@ const { results } = useFuse(search, references, {
       <div
         style="max-height: calc(100vh - 528px); overflow-y: auto;"
       >
-        <!-- LIST - Show immediately after extraction, even during processing -->
+        <!-- LIST - Show immediately after extraction, even during extraction -->
         <ReferencesList
           v-if="references.length > 0"
           :results
         />
       </div>
 
-      <!-- STATES - Only show when no references available AND not processing -->
-      <IdleState v-if="references.length === 0 && !isProcessing" />
+      <!-- STATES - Only show when no references available AND not extraction -->
+      <IdleState v-if="references.length === 0 && !isExtraction" />
     </v-card-text>
   </v-card>
 </template>

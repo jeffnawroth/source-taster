@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ExtractionActionType, Mode } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
-import { getProcessingActionTypesByCategory, getProcessingActionTypesFromRules, getProcessingRulesForActionTypes, PROCESSING_MODE_PRESETS, PROCESSING_RULES, ProcessingRuleCategory } from '@source-taster/types'
+import { ExtractionRuleCategory, getExtractionActionTypesByCategory, getExtractionActionTypesFromRules, getExtractionRulesForActionTypes, PROCESSING_MODE_PRESETS, PROCESSING_RULES } from '@source-taster/types'
 import { ref, watch } from 'vue'
 import { extractionSettings } from '@/extension/logic'
 
-const selectedActionTypes = ref<ExtractionActionType[]>(getProcessingActionTypesFromRules(extractionSettings.value.extractionStrategy.rules))
+const selectedActionTypes = ref<ExtractionActionType[]>(getExtractionActionTypesFromRules(extractionSettings.value.extractionStrategy.rules))
 
 watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
   if (newMode === 'custom') {
@@ -17,7 +17,7 @@ watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
 })
 
 watch(selectedActionTypes, (newActionTypes) => {
-  extractionSettings.value.extractionStrategy.rules = getProcessingRulesForActionTypes(newActionTypes)
+  extractionSettings.value.extractionStrategy.rules = getExtractionRulesForActionTypes(newActionTypes)
 })
 
 // === Hilfsfunktionen ===
@@ -25,7 +25,7 @@ function loadRuleSet(preset: Mode) {
   selectedActionTypes.value = PROCESSING_MODE_PRESETS[preset]
 }
 function selectAll() {
-  selectedActionTypes.value = getProcessingActionTypesFromRules(PROCESSING_RULES)
+  selectedActionTypes.value = getExtractionActionTypesFromRules(PROCESSING_RULES)
 }
 function deselectAll() {
   selectedActionTypes.value = []
@@ -55,19 +55,19 @@ const modeOptions = computed(() =>
 )
 
 const categoryConfig = {
-  [ProcessingRuleCategory.CONTENT_NORMALIZATION]: {
-    title: t('text-processing-settings'),
-    description: t('text-processing-settings-description'),
+  [ExtractionRuleCategory.CONTENT_NORMALIZATION]: {
+    title: t('text-extraction-settings'),
+    description: t('text-extraction-settings-description'),
     icon: mdiFormTextbox,
   },
-  [ProcessingRuleCategory.STYLE_FORMATTING]: {
+  [ExtractionRuleCategory.STYLE_FORMATTING]: {
     title: t('content-formatting-settings'),
     description: t('content-formatting-settings-description'),
     icon: mdiPalette,
   },
-  [ProcessingRuleCategory.TECHNICAL_PROCESSING]: {
-    title: t('technical-processing-settings'),
-    description: t('technical-processing-settings-description'),
+  [ExtractionRuleCategory.TECHNICAL_PROCESSING]: {
+    title: t('technical-extraction-settings'),
+    description: t('technical-extraction-settings-description'),
     icon: mdiWrench,
   },
 }
@@ -78,7 +78,7 @@ const settingGroups = computed(() => {
     key: category,
     title: config.title,
     icon: config.icon,
-    settings: getProcessingActionTypesByCategory(category as ProcessingRuleCategory).map((actionType: ExtractionActionType) => ({
+    settings: getExtractionActionTypesByCategory(category as ExtractionRuleCategory).map((actionType: ExtractionActionType) => ({
       key: actionType,
       label: t(`setting-${actionType}`),
       description: t(`setting-${actionType}-description`),

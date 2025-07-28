@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@/extension/types/reference'
+import type { ExtractedReference } from '@/extension/types/reference'
 import { mdiClose, mdiRestart } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const { t } = useI18n()
 
-const { currentPhase, processedCount, totalCount, isProcessing, currentlyMatchingReference, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
-const { cancelProcessing, extractAndMatchReferences } = useReferencesStore()
+const { currentPhase, extractedCount, totalCount, isExtraction, currentlyMatchingReference, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
+const { cancelExtraction, extractAndMatchReferences } = useReferencesStore()
 // Progress feedback for matching
 const showProgressFeedback = computed(() => {
-  // Show during main processing (extract + match all)
-  const isMainProcessing = isProcessing.value && (currentPhase.value === 'extracting' || currentPhase.value === 'matching')
+  // Show during main extraction (extract + match all)
+  const isMainExtraction = isExtraction.value && (currentPhase.value === 'extracting' || currentPhase.value === 'matching')
 
-  // Show during individual re-matching (when currentlyMatchingIndex is set but not main processing)
-  const isReMatching = !isProcessing.value && currentlyMatchingIndex.value >= 0
+  // Show during individual re-matching (when currentlyMatchingIndex is set but not main extraction)
+  const isReMatching = !isExtraction.value && currentlyMatchingIndex.value >= 0
 
-  return isMainProcessing || isReMatching
+  return isMainExtraction || isReMatching
 })
 
 const progressText = computed(() => {
@@ -24,10 +24,10 @@ const progressText = computed(() => {
   }
 
   if (currentPhase.value === 'matching' && totalCount.value > 0) {
-    // Calculate current position: if currentlyMatchingIndex is set, use it + 1, otherwise use processedCount
+    // Calculate current position: if currentlyMatchingIndex is set, use it + 1, otherwise use extractedCount
     const currentPosition = currentlyMatchingReference.value
       ? (currentlyMatchingIndex.value + 1)
-      : processedCount.value
+      : extractedCount.value
     const total = totalCount.value
 
     // Base progress: "Verifying references (2/5)"
@@ -46,8 +46,8 @@ const progressText = computed(() => {
     return baseProgress
   }
 
-  // Handle re-matching (when not in main processing but currentlyMatchingIndex is set)
-  if (!isProcessing.value && currentlyMatchingIndex.value >= 0 && currentlyMatchingReference.value) {
+  // Handle re-matching (when not in main extraction but currentlyMatchingIndex is set)
+  if (!isExtraction.value && currentlyMatchingIndex.value >= 0 && currentlyMatchingReference.value) {
     const currentRefText = getCurrentReferenceDisplayText(currentlyMatchingReference.value)
     return t('re-verifying-reference', { reference: currentRefText })
   }
@@ -56,7 +56,7 @@ const progressText = computed(() => {
 })
 
 // Helper function to get a short display text for the current reference
-function getCurrentReferenceDisplayText(ref: ProcessedReference): string {
+function getCurrentReferenceDisplayText(ref: ExtractedReference): string {
   // Try to get a meaningful short text from the reference
   if (ref.metadata?.title) {
     // Truncate title if too long
@@ -94,7 +94,7 @@ function getCurrentReferenceDisplayText(ref: ProcessedReference): string {
 
 // Action handlers
 function handleCancel() {
-  cancelProcessing()
+  cancelExtraction()
 }
 
 function handleRestart() {
@@ -103,7 +103,7 @@ function handleRestart() {
 
 const progressPercentage = computed(() => {
   if (currentPhase.value === 'matching' && totalCount.value > 0) {
-    return Math.round((processedCount.value / totalCount.value) * 100)
+    return Math.round((extractedCount.value / totalCount.value) * 100)
   }
   return 0
 })
@@ -134,7 +134,7 @@ const progressPercentage = computed(() => {
           class="me-2"
         />
         <v-progress-circular
-          v-else-if="!isProcessing && currentlyMatchingIndex >= 0"
+          v-else-if="!isExtraction && currentlyMatchingIndex >= 0"
           indeterminate
           size="16"
           width="2"

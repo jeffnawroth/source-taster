@@ -1,13 +1,13 @@
 import { getActionTypesByCategory, getActionTypesFromRules, getRulesForActionTypes } from '../common'
 import { createModePresets, type Mode } from '../common/mode'
-import { type ExtractionActionType, type ExtractionRuleDefinition, type ExtractionStrategy, ProcessingRuleCategory } from './extraction-strategy.types'
+import { type ExtractionActionType, ExtractionRuleCategory, type ExtractionRuleDefinition, type ExtractionStrategy } from './extraction-strategy.types'
 /**
- * Default processing mode
+ * Default extraction mode
  */
 export const DEFAULT_PROCESSING_MODE: Mode = 'balanced'
 
 /**
- * Default processing rules for each extraction mode
+ * Default extraction rules for each extraction mode
  * These rules define how the AI should handle various aspects of metadata extraction
  */
 
@@ -100,36 +100,36 @@ export const PROCESSING_MODE_PRESETS = createModePresets<ExtractionActionType>(
 
 export const DEFAULT_PROCESSING_STRATEGY: ExtractionStrategy = {
   mode: DEFAULT_PROCESSING_MODE,
-  rules: getProcessingRulesForActionTypes(PROCESSING_MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
+  rules: getExtractionRulesForActionTypes(PROCESSING_MODE_PRESETS[DEFAULT_PROCESSING_MODE]),
 }
 
-export const RULE_CATEGORY_MAPPING: Record<ProcessingRuleCategory, ExtractionActionType[]> = {
-  [ProcessingRuleCategory.CONTENT_NORMALIZATION]: [
+export const RULE_CATEGORY_MAPPING: Record<ExtractionRuleCategory, ExtractionActionType[]> = {
+  [ExtractionRuleCategory.CONTENT_NORMALIZATION]: [
     'normalize-spelling',
     'normalize-title-case',
     'normalize-abbreviations',
     'normalize-typography',
   ],
-  [ProcessingRuleCategory.STYLE_FORMATTING]: [
+  [ExtractionRuleCategory.STYLE_FORMATTING]: [
     'normalize-author-names',
     'normalize-date-format',
     'normalize-identifiers',
   ],
-  [ProcessingRuleCategory.TECHNICAL_PROCESSING]: [
+  [ExtractionRuleCategory.TECHNICAL_PROCESSING]: [
     'normalize-characters',
     'normalize-whitespace',
   ],
 } as const
 
 // Helper function to get action types by category
-export function getProcessingActionTypesByCategory(category: ProcessingRuleCategory): ExtractionActionType[] {
+export function getExtractionActionTypesByCategory(category: ExtractionRuleCategory): ExtractionActionType[] {
   return getActionTypesByCategory(RULE_CATEGORY_MAPPING, category)
 }
 
-export function getProcessingRulesForActionTypes(actionTypes: ExtractionActionType[]): ExtractionRuleDefinition[] {
+export function getExtractionRulesForActionTypes(actionTypes: ExtractionActionType[]): ExtractionRuleDefinition[] {
   return getRulesForActionTypes(PROCESSING_RULES, actionTypes)
 }
 
-export function getProcessingActionTypesFromRules(rules: ExtractionRuleDefinition[]): ExtractionActionType[] {
+export function getExtractionActionTypesFromRules(rules: ExtractionRuleDefinition[]): ExtractionActionType[] {
   return getActionTypesFromRules(rules)
 }

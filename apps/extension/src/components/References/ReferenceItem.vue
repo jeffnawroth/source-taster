@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@/extension/types/reference'
+import type { ExtractedReference } from '@/extension/types/reference'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
 const { reference, isCurrentlyMatching = false } = defineProps<{
-  reference: ProcessedReference
+  reference: ExtractedReference
   isCurrentlyMatching?: boolean
 }>()
 

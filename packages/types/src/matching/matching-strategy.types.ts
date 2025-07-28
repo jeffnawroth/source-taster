@@ -25,12 +25,12 @@ export const MatchingRuleDefinitionSchema = z.object({
     prompt: z.string().describe('Instruction for AI on how to apply this rule'),
     example: z.string().optional().describe('Optional example to clarify the rule'),
   }),
-}).describe('Definition of a matching rule for AI processing')
+}).describe('Definition of a matching rule for AI extraction')
 
 export const MatchingStrategySchema = z.object({
   mode: ModeSchema.describe('Strategy mode to control behavior'),
   rules: z.array(MatchingRuleDefinitionSchema).describe('Custom rules for fine-tuning behavior'),
-}).describe('Matching strategy schema for AI processing')
+}).describe('Matching strategy schema for AI extraction')
 
 export type MatchingActionType = z.infer<typeof MatchingActionTypeSchema>
 export type MatchingRuleDefinition = z.infer<typeof MatchingRuleDefinitionSchema>

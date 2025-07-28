@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@/extension/types/reference'
+import type { ExtractedReference } from '@/extension/types/reference'
 import { mdiAlertCircle } from '@mdi/js'
 
 const { reference } = defineProps<{
-  reference: ProcessedReference
+  reference: ExtractedReference
 }>()
 
 const { t } = useI18n()

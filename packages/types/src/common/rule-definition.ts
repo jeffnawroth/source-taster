@@ -1,5 +1,5 @@
 /**
- * Generic rule definition for AI-based processing
+ * Generic rule definition for AI-based extraction
  * Used across extraction and matching domains
  */
 export interface RuleDefinition<TActionType> {

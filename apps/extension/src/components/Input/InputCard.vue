@@ -14,11 +14,11 @@ const components = [
 
 // KEYBOARD SHORTCUT FOR CHECK REFERENCES
 const referencesStore = useReferencesStore()
-const { inputText, isProcessing, file } = storeToRefs(referencesStore)
+const { inputText, isExtraction, file } = storeToRefs(referencesStore)
 const { extractAndMatchReferences } = referencesStore
 
 // Check if button should be disabled (same logic as in CheckReferencesButton)
-const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isProcessing.value)
+const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isExtraction.value)
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
 const keys = useMagicKeys()
@@ -32,7 +32,7 @@ async function triggerCheckReferences() {
       await extractAndMatchReferences()
     }
     catch (error) {
-      console.error('Error processing references via keyboard shortcut:', error)
+      console.error('Error extraction references via keyboard shortcut:', error)
     }
   }
 }

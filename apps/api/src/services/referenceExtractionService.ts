@@ -42,7 +42,7 @@ export class ReferenceExtractionService {
       id: this.generateUniqueId(),
       originalText: aiRef.originalText,
       metadata: aiRef.metadata,
-      processingResults: aiRef.processingResults || [],
+      extractionResults: aiRef.extractionResults || [],
     }
   }
 

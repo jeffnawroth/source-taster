@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@/extension/types/reference'
+import type { ExtractedReference } from '@/extension/types/reference'
 
 const { reference } = defineProps<{
-  reference: ProcessedReference
+  reference: ExtractedReference
 }>()
 
 // AUTHORS

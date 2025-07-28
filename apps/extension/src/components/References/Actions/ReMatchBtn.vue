@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@/extension/types/reference'
+import type { ExtractedReference } from '@/extension/types/reference'
 import { mdiRefresh } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 import { shouldShowReMatch } from '@/extension/utils/scoreUtils'
 
 const { reference } = defineProps<{
-  reference: ProcessedReference
+  reference: ExtractedReference
   matchingScore?: number
 }>()
 
 const referencesStore = useReferencesStore()
-const { isProcessing, currentlyMatchingIndex } = storeToRefs(referencesStore)
+const { isExtraction, currentlyMatchingIndex } = storeToRefs(referencesStore)
 const { reMatchReference } = referencesStore
 
 // Check if any matching is currently running (prevents concurrent operations)
 const isAnyMatchingRunning = computed(() =>
-  isProcessing.value || currentlyMatchingIndex.value >= 0,
+  isExtraction.value || currentlyMatchingIndex.value >= 0,
 )
 
 // RE-MATCH function

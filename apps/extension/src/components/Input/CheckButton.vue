@@ -5,8 +5,8 @@ import { useReferencesStore } from '@/extension/stores/references'
 const referencesStore = useReferencesStore()
 
 // DISABLE BUTTON IF NO TEXT AND FILE OR LOADING
-const { inputText, isProcessing, file } = storeToRefs(referencesStore)
-const disabled = computed(() => (!inputText.value.trim() && !file.value) || isProcessing.value)
+const { inputText, isExtraction, file } = storeToRefs(referencesStore)
+const disabled = computed(() => (!inputText.value.trim() && !file.value) || isExtraction.value)
 
 // HANDLE CLICK
 const { extractAndMatchReferences } = referencesStore
@@ -16,7 +16,7 @@ async function handleClick() {
       await extractAndMatchReferences()
     }
     catch (error) {
-      console.error('Error processing references:', error)
+      console.error('Error extraction references:', error)
     }
   }
 }

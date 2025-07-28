@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ExternalSource, FieldProcessingResult, Reference } from '@source-taster/types'
+import type { ExternalSource, FieldExtractionResult, Reference } from '@source-taster/types'
 import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
 
 const props = defineProps<{
@@ -10,13 +10,13 @@ const props = defineProps<{
 const { t } = useI18n()
 
 // Helper function to get all modifications for a specific field
-function getModificationsForField(fieldPath: string): FieldProcessingResult[] {
-  if (!('processingResults' in props.reference) || !props.reference.processingResults) {
+function getModificationsForField(fieldPath: string): FieldExtractionResult[] {
+  if (!('extractionResults' in props.reference) || !props.reference.extractionResults) {
     return []
   }
 
   // Find modifications that match the exact fieldPath or are sub-fields of it
-  return props.reference.processingResults.filter((mod) => {
+  return props.reference.extractionResults.filter((mod) => {
     // Exact match
     if (mod.fieldPath === fieldPath) {
       return true

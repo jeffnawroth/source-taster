@@ -76,17 +76,17 @@ export const ReferenceMetadataSchema = z.object({
 })
 
 // AI-related schemas (moved from ai.ts)
-export const FieldProcessingResultSchema = z.object({
-  fieldPath: z.string().describe('The field path that was processed (e.g., "metadata.title", "metadata.source.containerTitle")'),
-  originalValue: z.string().describe('The original value before processing'),
-  processedValue: z.string().describe('The value after processing'),
-  actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of processing actions applied'),
+export const FieldExtractionResultSchema = z.object({
+  fieldPath: z.string().describe('The field path that was extracted (e.g., "metadata.title", "metadata.source.containerTitle")'),
+  originalValue: z.string().describe('The original value before extraction'),
+  extractedValue: z.string().describe('The value after extraction'),
+  actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of extraction actions applied'),
 })
 
 export const AIExtractedReferenceSchema = z.object({
   originalText: z.string().describe('The raw reference text as it appeared in the source document'),
   metadata: ReferenceMetadataSchema.describe('Parsed/extracted bibliographic information'),
-  processingResults: z.array(FieldProcessingResultSchema).optional().describe('Information about modifications made'),
+  extractionResults: z.array(FieldExtractionResultSchema).optional().describe('Information about modifications made'),
 })
 
 export const ReferenceSchema = AIExtractedReferenceSchema.extend({
@@ -99,5 +99,5 @@ export type SourceInfo = z.infer<typeof SourceInfoSchema>
 export type DateInfo = z.infer<typeof DateInfoSchema>
 export type ExternalIdentifiers = z.infer<typeof ExternalIdentifiersSchema>
 export type Author = z.infer<typeof AuthorSchema>
-export type FieldProcessingResult = z.infer<typeof FieldProcessingResultSchema>
+export type FieldExtractionResult = z.infer<typeof FieldExtractionResultSchema>
 export type AIExtractedReference = z.infer<typeof AIExtractedReferenceSchema>

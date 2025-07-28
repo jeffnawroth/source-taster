@@ -3,7 +3,7 @@ import type { MatchingResult, Reference } from '@source-taster/types'
 /**
  * Reference with matching status and results
  */
-export interface ProcessedReference extends Reference {
+export interface ExtractedReference extends Reference {
   /** Current matching status */
   status: 'pending' | 'matched' | 'not-matched' | 'error'
   /** Detailed matching results (if completed) */

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { FuseResult } from 'fuse.js'
-import type { ProcessedReference } from '@/extension/types/reference'
+import type { ExtractedReference } from '@/extension/types/reference'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const { results } = defineProps<{
-  results: FuseResult<ProcessedReference>[]
+  results: FuseResult<ExtractedReference>[]
 }>()
 
 const { currentlyMatchingReference } = storeToRefs(useReferencesStore())
@@ -19,10 +19,10 @@ const { currentlyMatchingReference } = storeToRefs(useReferencesStore())
   >
     <v-slide-y-transition group>
       <ReferenceItem
-        v-for="(processedReference) in results"
-        :key="processedReference.item.id"
-        :reference="processedReference.item"
-        :is-currently-matching="currentlyMatchingReference?.id === processedReference.item.id"
+        v-for="(extractedReference) in results"
+        :key="extractedReference.item.id"
+        :reference="extractedReference.item"
+        :is-currently-matching="currentlyMatchingReference?.id === extractedReference.item.id"
       />
     </v-slide-y-transition>
   </v-list>

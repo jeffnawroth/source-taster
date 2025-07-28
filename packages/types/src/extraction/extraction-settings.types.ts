@@ -8,7 +8,7 @@ import { ExtractionConfigSchema } from './extraction-config.types'
 import { ExtractionStrategySchema } from './extraction-strategy.types'
 
 export const ExtractionSettingsSchema = z.object({
-  extractionStrategy: ExtractionStrategySchema.describe('Strategy for processing text'),
+  extractionStrategy: ExtractionStrategySchema.describe('Strategy for extraction text'),
   extractionConfig: ExtractionConfigSchema.describe('Configuration for field extraction'),
 })
 

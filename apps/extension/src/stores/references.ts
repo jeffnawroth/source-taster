@@ -1,5 +1,5 @@
 import type { MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
-import type { ProcessedReference } from '../types/reference'
+import type { ExtractedReference } from '../types/reference'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { ReferencesService } from '@/extension/services/referencesService'
@@ -8,10 +8,10 @@ export const useReferencesStore = defineStore('references', () => {
   // State
   const inputText = ref('')
   const file = ref<File | null>(null)
-  const references = ref<ProcessedReference[]>([])
-  const isProcessing = ref(false)
+  const references = ref<ExtractedReference[]>([])
+  const isExtraction = ref(false)
   const currentPhase = ref<'idle' | 'extracting' | 'matching'>('idle')
-  const processedCount = ref(0)
+  const extractedCount = ref(0)
   const totalCount = ref(0)
   const currentlyMatchingIndex = ref(-1)
 
@@ -22,7 +22,7 @@ export const useReferencesStore = defineStore('references', () => {
   const progress = computed(() => {
     if (totalCount.value === 0)
       return 0
-    return Math.round((processedCount.value / totalCount.value) * 100)
+    return Math.round((extractedCount.value / totalCount.value) * 100)
   })
 
   const statusCounts = computed(() => ({
@@ -48,8 +48,8 @@ export const useReferencesStore = defineStore('references', () => {
   }
 
   // Helper functions
-  function handleProcessingError(error: unknown) {
-    console.error('Error processing references:', error)
+  function handleExtractionError(error: unknown) {
+    console.error('Error extraction references:', error)
 
     // Mark all references as error if they exist
     if (references.value.length > 0) {
@@ -61,28 +61,28 @@ export const useReferencesStore = defineStore('references', () => {
     }
   }
 
-  function initializeProcessing() {
+  function initializeExtraction() {
     // Create new abort controller for this operation
     abortController = new AbortController()
-    isProcessing.value = true
+    isExtraction.value = true
     currentPhase.value = 'extracting'
     references.value = []
-    processedCount.value = 0
+    extractedCount.value = 0
     totalCount.value = 0
   }
 
-  function finalizeProcessing() {
-    isProcessing.value = false
+  function finalizeExtraction() {
+    isExtraction.value = false
     currentPhase.value = 'idle'
     currentlyMatchingIndex.value = -1
     abortController = null
   }
 
-  function cancelProcessing() {
+  function cancelExtraction() {
     if (abortController) {
       abortController.abort()
     }
-    finalizeProcessing()
+    finalizeExtraction()
   }
 
   async function extractReferences(): Promise<Reference[]> {
@@ -155,8 +155,8 @@ export const useReferencesStore = defineStore('references', () => {
       }
     }
     finally {
-      // Always update processed count and clear current index after matching
-      processedCount.value = index + 1
+      // Always update extracted count and clear current index after matching
+      extractedCount.value = index + 1
       currentlyMatchingIndex.value = -1
     }
   }
@@ -183,7 +183,7 @@ export const useReferencesStore = defineStore('references', () => {
       return
 
     try {
-      initializeProcessing()
+      initializeExtraction()
 
       const extractedRefs = await extractReferences()
 
@@ -203,17 +203,17 @@ export const useReferencesStore = defineStore('references', () => {
       if (abortController?.signal.aborted || (error instanceof Error && error.name === 'AbortError')) {
         return
       }
-      handleProcessingError(error)
+      handleExtractionError(error)
     }
     finally {
-      finalizeProcessing()
+      finalizeExtraction()
     }
   }
 
   function clearReferences() {
     references.value = []
     inputText.value = ''
-    processedCount.value = 0
+    extractedCount.value = 0
     totalCount.value = 0
     currentPhase.value = 'idle'
     currentlyMatchingIndex.value = -1
@@ -232,9 +232,9 @@ export const useReferencesStore = defineStore('references', () => {
       return
     }
 
-    // Prevent starting re-match during main processing
-    if (isProcessing.value) {
-      console.warn('Cannot start re-matching: main processing is in progress')
+    // Prevent starting re-match during main extraction
+    if (isExtraction.value) {
+      console.warn('Cannot start re-matching: main extraction is in progress')
       return
     }
 
@@ -399,9 +399,9 @@ export const useReferencesStore = defineStore('references', () => {
     // State
     inputText,
     references,
-    isProcessing,
+    isExtraction,
     currentPhase,
-    processedCount,
+    extractedCount,
     totalCount,
     file,
     currentlyMatchingIndex,
@@ -414,7 +414,7 @@ export const useReferencesStore = defineStore('references', () => {
     // Actions
     extractAndMatchReferences,
     clearReferences,
-    cancelProcessing,
+    cancelExtraction,
     reMatchReference,
     matchReferenceWebsite,
   }

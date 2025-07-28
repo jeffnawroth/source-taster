@@ -34,8 +34,8 @@ function handleClear() {
 }
 
 // DISABLED STATE
-const { isProcessing, file } = storeToRefs(referencesStore)
-const disabled = computed(() => !!file.value || isProcessing.value)
+const { isExtraction, file } = storeToRefs(referencesStore)
+const disabled = computed(() => !!file.value || isExtraction.value)
 </script>
 
 <template>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ProcessedReference } from '@/extension/types/reference'
+import type { ExtractedReference } from '@/extension/types/reference'
 import DetailsToggleBtn from './DetailsToggleBtn.vue'
 import OpenSrcBtn from './OpenSrcBtn.vue'
 import ReMatchBtn from './ReMatchBtn.vue'
 
 // PROPS
 const { reference } = defineProps<{
-  reference: ProcessedReference
+  reference: ExtractedReference
 }>()
 
 // SHOW DETAILS - using defineModel for parent communication

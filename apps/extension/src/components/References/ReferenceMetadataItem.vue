@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldProcessingResult } from '@source-taster/types'
+import type { FieldExtractionResult } from '@source-taster/types'
 import { mdiCheck, mdiContentCopy, mdiInformationOutline } from '@mdi/js'
 import { useClipboard } from '@vueuse/core'
 
@@ -9,8 +9,8 @@ const props = defineProps<{
   text?: string | number
   color?: string
   link?: boolean
-  modification?: FieldProcessingResult
-  modifications?: FieldProcessingResult[] // Support for multiple modifications
+  modification?: FieldExtractionResult
+  modifications?: FieldExtractionResult[] // Support for multiple modifications
 }>()
 
 const { t } = useI18n()
@@ -54,10 +54,10 @@ const extractedValue = computed(() => {
     return String(props.text || '')
   }
 
-  // All modifications should have the same processedValue as they're for the same field
-  const value = allModifications.value[0]?.processedValue
+  // All modifications should have the same extractedValue as they're for the same field
+  const value = allModifications.value[0]?.extractedValue
 
-  // If the processed value is an object (like for individual author modifications), format it as a readable string
+  // If the extracted value is an object (like for individual author modifications), format it as a readable string
   if (typeof value === 'object' && value !== null) {
     // Check if it's an author object with firstName and lastName
     if ('firstName' in value && 'lastName' in value) {

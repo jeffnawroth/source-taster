@@ -1,7 +1,7 @@
 import type { RuleDefinition } from './rule-definition'
 
 /**
- * Generic strategy pattern for AI-based processing
+ * Generic strategy pattern for AI-based extraction
  * Used across extraction and matching domains
  */
 export interface Strategy<TMode, TActionType> {

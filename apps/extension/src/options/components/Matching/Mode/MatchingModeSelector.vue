@@ -63,8 +63,8 @@ const modeOptions = computed(() =>
 
 const categoryConfig = {
   [MatchingRuleCategory.CONTENT_EQUIVALENCE]: {
-    title: t('text-processing-settings'),
-    description: t('text-processing-settings-description'),
+    title: t('text-extraction-settings'),
+    description: t('text-extraction-settings-description'),
     icon: mdiFormTextbox,
   },
   [MatchingRuleCategory.STYLE_INSENSITIVITY]: {
@@ -73,8 +73,8 @@ const categoryConfig = {
     icon: mdiPalette,
   },
   [MatchingRuleCategory.TOLERANCE]: {
-    title: t('technical-processing-settings'),
-    description: t('technical-processing-settings-description'),
+    title: t('technical-extraction-settings'),
+    description: t('technical-extraction-settings-description'),
     icon: mdiWrench,
   },
 }

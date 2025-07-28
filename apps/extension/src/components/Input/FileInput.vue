@@ -12,8 +12,8 @@ const { file } = storeToRefs(referencesStore)
 // PDF TEXT
 const { inputText } = storeToRefs(referencesStore)
 
-// Loading state for PDF processing
-const isProcessingPdf = ref(false)
+// Loading state for PDF extraction
+const isExtractionPdf = ref(false)
 
 watch(file, async (newValue) => {
   if (!newValue) {
@@ -22,7 +22,7 @@ watch(file, async (newValue) => {
   }
 
   try {
-    isProcessingPdf.value = true
+    isExtractionPdf.value = true
 
     // Extract text from PDF file
     const pdfText = await extractTextFromPdfFile(newValue)
@@ -37,11 +37,11 @@ watch(file, async (newValue) => {
     }
   }
   catch (error) {
-    console.error('Error processing PDF file:', error)
+    console.error('Error extraction PDF file:', error)
     inputText.value = ''
   }
   finally {
-    isProcessingPdf.value = false
+    isExtractionPdf.value = false
   }
 })
 
@@ -66,8 +66,8 @@ function handleClear() {
     prepend-icon=""
     clearable
     hide-details="auto"
-    :loading="isProcessingPdf"
-    :disabled="isProcessingPdf"
+    :loading="isExtractionPdf"
+    :disabled="isExtractionPdf"
     @click:clear="handleClear"
   />
 </template>

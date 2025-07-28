@@ -17,7 +17,7 @@ export class ExtractionService {
 
   async extractReferences(extractionRequest: ExtractionRequest): Promise<AIExtractionResponse> {
     let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text. 
-    When you extract references, you MUST track every change you make in the "processingResults" array.`
+    When you extract references, you MUST track every change you make in the "extractionResults" array.`
 
     // Add extraction mode instructions
     const modeInstructions = this.getExtractionInstructions(extractionRequest.extractionSettings.extractionStrategy)
@@ -69,7 +69,7 @@ ${extractionRequest.text}`
             source: ref.metadata?.source || {},
             identifiers: ref.metadata?.identifiers,
           },
-          processingResults: ref.processingResults || [],
+          extractionResults: ref.extractionResults || [],
         })) || [],
       }
 
@@ -88,9 +88,9 @@ ${extractionRequest.text}`
     }
   }
 
-  getExtractionInstructions(processingStrategy: ExtractionStrategy): string {
+  getExtractionInstructions(extractionStrategy: ExtractionStrategy): string {
     // Use the rules that are already filtered by the frontend
-    const activeRules = processingStrategy.rules
+    const activeRules = extractionStrategy.rules
 
     // If no rules are active, return empty instructions (AI should do nothing)
     if (activeRules.length === 0) {
