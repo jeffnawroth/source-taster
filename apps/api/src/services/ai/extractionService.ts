@@ -18,80 +18,75 @@ export class ExtractionService {
   }
 
   async extractReferences(extractionRequest: ExtractionRequest): Promise<AIExtractionResponse> {
-    let systemMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text. 
-    When you extract references, you MUST track every change you make in the "extractionResults" array.`
-
-    // Add extraction mode instructions
-    const modeInstructions = this.getExtractionInstructions(extractionRequest.extractionSettings.extractionStrategy)
-
-    systemMessage += `\n\n${modeInstructions}`
-
-    const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:
-
-${extractionRequest.text}`
-
-    // Use dynamic schema based on extraction settings
+    const systemMessage = this.buildSystemMessage(extractionRequest.extractionSettings.extractionStrategy)
+    const userMessage = this.buildUserMessage(extractionRequest.text)
     const schema = createDynamicExtractionSchema(extractionRequest.extractionSettings)
 
     try {
-      const response = await this.client.chat.completions.create({
-        model: this.config.model,
-        temperature: this.config.temperature,
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: userMessage },
-        ],
-        response_format: {
-          type: 'json_schema',
-          json_schema: schema,
-        },
-      })
-
-      const content = response.choices[0]?.message?.content
-      if (!content) {
-        throw new Error('No content in OpenAI response')
-      }
-
-      let parsedResponse: AIExtractionResponse
-      try {
-        parsedResponse = JSON.parse(content)
-      }
-      catch {
-        console.error('Failed to parse OpenAI response as JSON:', content)
-        throw new Error('Invalid JSON response from OpenAI')
-      }
-
-      // Transform the response to match the expected structure
-      const transformedResponse: AIExtractionResponse = {
-        references: parsedResponse.references?.map((ref: any) => ({
-          originalText: ref.originalText,
-          metadata: {
-            title: ref.metadata?.title,
-            authors: ref.metadata?.authors,
-            date: ref.metadata?.date || {},
-            source: ref.metadata?.source || {},
-            identifiers: ref.metadata?.identifiers,
-          },
-          extractionResults: ref.extractionResults || [],
-        })) || [],
-      }
-
-      return transformedResponse
+      const response = await this.callOpenAI(systemMessage, userMessage, schema)
+      return this.parseOpenAIResponse(response)
     }
     catch (error: any) {
-      if (error.name === 'ZodError') {
-        console.error('Validation error:', error.errors)
-        // Return empty references array as fallback
-        console.warn('Returning empty references array due to validation error')
-        return { references: [] }
-      }
-
-      console.error('OpenAI extraction error:', error)
-      throw new Error(`Failed to extract references: ${error.message}`)
+      return this.handleExtractionError(error)
     }
   }
 
-  getExtractionInstructions(extractionStrategy: ExtractionStrategy): string {
+  private buildSystemMessage(extractionStrategy: ExtractionStrategy): string {
+    const baseMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text. 
+    When you extract references, you MUST track every change you make in the "extractionResults" array.`
+
+    const modeInstructions = this.getExtractionInstructions(extractionStrategy)
+    return `${baseMessage}\n\n${modeInstructions}`
+  }
+
+  private buildUserMessage(text: string): string {
+    return `Extract all bibliographic references from the following text. Return structured data according to the schema:
+
+${text}`
+  }
+
+  private async callOpenAI(systemMessage: string, userMessage: string, schema: any) {
+    return await this.client.chat.completions.create({
+      model: this.config.model,
+      temperature: this.config.temperature,
+      messages: [
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: userMessage },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: schema,
+      },
+    })
+  }
+
+  private parseOpenAIResponse(response: any): AIExtractionResponse {
+    const content = response.choices[0]?.message?.content
+    if (!content) {
+      throw new Error('No content in OpenAI response')
+    }
+
+    try {
+      return JSON.parse(content)
+    }
+    catch {
+      console.error('Failed to parse OpenAI response as JSON:', content)
+      throw new Error('Invalid JSON response from OpenAI')
+    }
+  }
+
+  private handleExtractionError(error: any): AIExtractionResponse {
+    if (error.name === 'ZodError') {
+      console.error('Validation error:', error.errors)
+      console.warn('Returning empty references array due to validation error')
+      return { references: [] }
+    }
+
+    console.error('OpenAI extraction error:', error)
+    throw new Error(`Failed to extract references: ${error.message}`)
+  }
+
+  private getExtractionInstructions(extractionStrategy: ExtractionStrategy): string {
     return buildInstructionsFromActionTypes(
       extractionStrategy.actionTypes,
       EXTRACTION_RULES_MAP,
