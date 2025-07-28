@@ -20,8 +20,8 @@ export class MatchingService {
     let systemMessage = `You are an expert bibliographic matching assistant. Your task is to provide field-by-field matching scores.
 
 CRITICAL INSTRUCTIONS:
-- You MUST evaluate ALL of the following ${availableFields.length} fields: ${availableFields.join(', ')}
-- Return EXACTLY ${availableFields.length} field evaluations - one for each field listed above
+- You MUST evaluate ALL of the ${availableFields.length} available fields provided in the prompt
+- Return EXACTLY ${availableFields.length} field evaluations - one for each field listed in the prompt
 - Evaluate each field independently, even if other fields don't match
 - A DOI match does NOT mean you can skip evaluating title, authors, etc.
 - Each field gets its own individual score from 0-100 based on how well that specific field matches

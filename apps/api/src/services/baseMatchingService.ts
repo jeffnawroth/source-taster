@@ -27,19 +27,8 @@ export abstract class BaseMatchingService {
     // Get the fields that should be evaluated (only those with weight > 0)
     const availableFields = MetadataComparator.getAvailableFieldNames(reference.metadata, source.metadata, matchingSettings.matchingConfig.fieldConfigurations) as ReferenceMetadataFields[]
 
-    const prompt = `
-
-Available fields for matching:
-${availableFields.join(', ')}
-
-
-Reference:
-${JSON.stringify(reference.metadata, null, 2)}
-
-Source:
-${JSON.stringify(source.metadata, null, 2)}
-
-IMPORTANT: Return matching scores for ALL available fields that exist in both reference and source. Do not skip any fields from the list: ${availableFields.join(', ')}`
+    // Create clean prompt for the AI
+    const prompt = this.createMatchingPrompt(reference, source, availableFields)
 
     const response = await ai.matchFields(prompt, matchingSettings, availableFields)
 
@@ -68,6 +57,22 @@ IMPORTANT: Return matching scores for ALL available fields that exist in both re
         details: fallbackMatchDetails,
       }
     }
+  }
+
+  /**
+   * Create a clean prompt for AI matching
+   */
+  private createMatchingPrompt(reference: Reference, source: ExternalSource, availableFields: ReferenceMetadataFields[]): string {
+    return `Available fields for matching:
+${availableFields.join(', ')}
+
+Reference:
+${JSON.stringify(reference.metadata, null, 2)}
+
+Source:
+${JSON.stringify(source.metadata, null, 2)}
+
+IMPORTANT: Return matching scores for ALL available fields that exist in both reference and source. Do not skip any fields from the list: ${availableFields.join(', ')}`
   }
 
   /**
