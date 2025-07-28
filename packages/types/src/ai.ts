@@ -3,7 +3,7 @@
  */
 
 import type { ExtractionRequest } from './extraction'
-import type { FieldMatchDetail, MatchingSettings } from './matching'
+import type { APIMatchingSettings, FieldMatchDetail } from './matching'
 import type { ReferenceMetadataFields } from './reference/reference.constants'
 import z from 'zod'
 import { AIExtractedReferenceSchema } from './reference'
@@ -33,7 +33,7 @@ export type AIExtractionResponse = z.infer<typeof AIExtractionResponseSchema>
  */
 export interface AIService {
   extractReferences: (extractionRequest: ExtractionRequest) => Promise<AIExtractionResponse>
-  matchFields: (prompt: string, matchingSettings: MatchingSettings, availableFields: ReferenceMetadataFields[]) => Promise<AIMatchingResponse>
+  matchFields: (prompt: string, matchingSettings: APIMatchingSettings, availableFields: ReferenceMetadataFields[]) => Promise<AIMatchingResponse>
 }
 
 /**

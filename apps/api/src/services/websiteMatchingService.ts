@@ -1,9 +1,9 @@
 import type {
+  APIMatchingSettings,
   ArchivedVersion,
   ExternalSource,
   MatchDetails,
   MatchingReference,
-  MatchingSettings,
   WebsiteMatchingOptions,
   WebsiteMatchingResult,
   WebsiteMetadata,
@@ -32,7 +32,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
   async matchWebsiteReference(
     reference: MatchingReference,
     url: string,
-    matchingSettings: MatchingSettings,
+    matchingSettings: APIMatchingSettings,
     options?: WebsiteMatchingOptions,
   ): Promise<WebsiteMatchingResult> {
     const opts = { ...this.defaultOptions, ...options }
@@ -689,7 +689,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
   private async matchWebsiteWithAI(
     reference: MatchingReference,
     websiteMetadata: WebsiteMetadata,
-    matchingSettings: MatchingSettings,
+    matchingSettings: APIMatchingSettings,
   ): Promise<{ details: MatchDetails }> {
     // Convert WebsiteMetadata to ExternalSource format
     const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)

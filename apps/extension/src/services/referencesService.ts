@@ -1,4 +1,4 @@
-import type { MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
+import type { APIMatchingSettings, MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
 import { extractionSettings, matchingSettings } from '@/extension/logic/storage'
 
@@ -42,6 +42,15 @@ export class ReferencesService {
       metadata: ref.metadata,
     }))
 
+    // Convert to optimized API settings (exclude frontend-only matchThresholds)
+    const apiMatchingSettings: APIMatchingSettings = {
+      matchingStrategy: matchingSettings.value.matchingStrategy,
+      matchingConfig: {
+        fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,
+        earlyTermination: matchingSettings.value.matchingConfig.earlyTermination,
+      },
+    }
+
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}`, {
       method: 'POST',
       headers: {
@@ -49,7 +58,7 @@ export class ReferencesService {
       },
       body: JSON.stringify({
         references: matchingReferences,
-        matchingSettings: matchingSettings.value,
+        matchingSettings: apiMatchingSettings,
       }),
       signal,
     })
@@ -81,6 +90,15 @@ export class ReferencesService {
       metadata: reference.metadata,
     }
 
+    // Convert to optimized API settings (exclude frontend-only matchThresholds)
+    const apiMatchingSettings: APIMatchingSettings = {
+      matchingStrategy: matchingSettings.value.matchingStrategy,
+      matchingConfig: {
+        fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,
+        earlyTermination: matchingSettings.value.matchingConfig.earlyTermination,
+      },
+    }
+
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}/website`, {
       method: 'POST',
       headers: {
@@ -89,7 +107,7 @@ export class ReferencesService {
       body: JSON.stringify({
         reference: matchingReference,
         url,
-        matchingSettings: matchingSettings.value,
+        matchingSettings: apiMatchingSettings,
         options: {
           timeout: 10000,
           enableWaybackMachine: true,

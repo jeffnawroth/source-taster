@@ -1,10 +1,10 @@
 import type {
+  APIMatchingSettings,
   ExternalSource,
   FieldConfigurations,
   FieldMatchDetail,
   MatchDetails,
   MatchingReference,
-  MatchingSettings,
   ReferenceMetadataFields,
 } from '@source-taster/types'
 import { MetadataComparator } from '../utils/metadataComparator'
@@ -20,7 +20,7 @@ export abstract class BaseMatchingService {
   protected async matchWithAI(
     reference: MatchingReference,
     source: ExternalSource,
-    matchingSettings: MatchingSettings,
+    matchingSettings: APIMatchingSettings,
   ): Promise<{ details: MatchDetails }> {
     const ai = AIServiceFactory.createOpenAIService()
 

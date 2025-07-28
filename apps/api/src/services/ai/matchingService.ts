@@ -1,4 +1,4 @@
-import type { AIMatchingResponse, MatchingSettings, MatchingStrategy, OpenAIConfig } from '@source-taster/types'
+import type { AIMatchingResponse, APIMatchingSettings, MatchingStrategy, OpenAIConfig } from '@source-taster/types'
 import type { ReferenceMetadataFields } from 'node_modules/@source-taster/types/dist/reference/reference.constants'
 import { OpenAI } from 'openai'
 import { createMatchingSchema } from '../../types/matching'
@@ -16,7 +16,7 @@ export class MatchingService {
     })
   }
 
-  async matchFields(prompt: string, matchingSettings: MatchingSettings, availableFields: ReferenceMetadataFields[]): Promise<AIMatchingResponse> {
+  async matchFields(prompt: string, matchingSettings: APIMatchingSettings, availableFields: ReferenceMetadataFields[]): Promise<AIMatchingResponse> {
     let systemMessage = `You are an expert bibliographic matching assistant. Your task is to provide field-by-field matching scores.
 
 CRITICAL INSTRUCTIONS:

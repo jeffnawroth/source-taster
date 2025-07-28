@@ -1,4 +1,4 @@
-import type { AIExtractionResponse, AIMatchingResponse, AIService, ExtractionRequest, MatchingSettings, OpenAIConfig, ReferenceMetadataFields,
+import type { AIExtractionResponse, AIMatchingResponse, AIService, APIMatchingSettings, ExtractionRequest, OpenAIConfig, ReferenceMetadataFields,
 
 } from '@source-taster/types'
 import { ExtractionService } from './extractionService'
@@ -17,7 +17,7 @@ export class OpenAIService implements AIService {
     return this.extractionService.extractReferences(extractionRequest)
   }
 
-  async matchFields(prompt: string, matchingSettings: MatchingSettings, availableFields: ReferenceMetadataFields[]): Promise<AIMatchingResponse> {
+  async matchFields(prompt: string, matchingSettings: APIMatchingSettings, availableFields: ReferenceMetadataFields[]): Promise<AIMatchingResponse> {
     return this.matchingService.matchFields(prompt, matchingSettings, availableFields)
   }
 }
