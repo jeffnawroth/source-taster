@@ -1,8 +1,9 @@
 import type { AIMatchingResponse, APIMatchingSettings, MatchingActionType, OpenAIConfig } from '@source-taster/types'
 import type { ReferenceMetadataFields } from 'node_modules/@source-taster/types/dist/reference/reference.constants'
 import { OpenAI } from 'openai'
-import { getInstructionsForActionTypes } from '../../constants/matchingRules'
+import { MATCHING_RULES_MAP } from '../../constants/matchingRules'
 import { createMatchingSchema } from '../../types/matching'
+import { buildInstructionsFromActionTypes } from '../../utils/instructionGenerator'
 
 export class MatchingService {
   private client: OpenAI
@@ -88,15 +89,11 @@ CRITICAL INSTRUCTIONS:
   }
 
   private getMatchingInstructions(actionTypes: MatchingActionType[]): string {
-    const instructionLines = getInstructionsForActionTypes(actionTypes)
-
-    if (instructionLines.length === 0) {
-      return 'Compare fields as they are without modifications.'
-    }
-
-    return [
+    return buildInstructionsFromActionTypes(
+      actionTypes,
+      MATCHING_RULES_MAP,
       'IMPORTANT: Apply the following rules when comparing fields. Do NOT apply any other rules beyond what is explicitly listed below. The field score should be given after applying the rules:',
-      ...instructionLines,
-    ].join('\n')
+      'Compare fields as they are without modifications.',
+    )
   }
 }

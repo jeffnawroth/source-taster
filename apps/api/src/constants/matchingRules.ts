@@ -42,19 +42,3 @@ export const MATCHING_RULES_MAP: Record<MatchingActionType, { prompt: string, ex
     example: '"Hello   World" = "Hello World", "This is   a test." = "This is a test.", "DeepLearning" = "Deep Learning"',
   },
 } as const
-
-export function getInstructionsForActionTypes(actionTypes: MatchingActionType[]): string[] {
-  const instructions: string[] = []
-
-  for (const actionType of actionTypes) {
-    const rule = MATCHING_RULES_MAP[actionType]
-    if (rule) {
-      instructions.push(`• ${rule.prompt}`)
-      if (rule.example) {
-        instructions.push(`  Example: ${rule.example}`)
-      }
-    }
-  }
-
-  return instructions
-}

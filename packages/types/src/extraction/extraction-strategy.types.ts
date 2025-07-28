@@ -33,10 +33,9 @@ export const ExtractionRuleDefinitionSchema = z.object({
 
 export const ExtractionStrategySchema = z.object({
   mode: ModeSchema.describe('Extraction mode for extraction'),
-  rules: z.array(ExtractionRuleDefinitionSchema).describe('Custom extraction rules'),
+  actionTypes: z.array(ExtractionActionTypeSchema).describe('Extraction action types to apply'),
 })
 
 export type ExtractionActionType = z.infer<typeof ExtractionActionTypeSchema>
 export type ExtractionRuleDefinition = z.infer<typeof ExtractionRuleDefinitionSchema>
 export type ExtractionStrategy = z.infer<typeof ExtractionStrategySchema>
-// export type ExtractionRuleDefinition = RuleDefinition<ExtractionActionType>

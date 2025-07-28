@@ -1,6 +1,8 @@
 import type { AIExtractionResponse, ExtractionRequest, ExtractionStrategy, OpenAIConfig } from '@source-taster/types'
 import { OpenAI } from 'openai'
 import { createDynamicExtractionSchema } from '@/api/types/reference'
+import { EXTRACTION_RULES_MAP } from '../../constants/extractionRules'
+import { buildInstructionsFromActionTypes } from '../../utils/instructionGenerator'
 
 export class ExtractionService {
   private client: OpenAI
@@ -21,6 +23,7 @@ export class ExtractionService {
 
     // Add extraction mode instructions
     const modeInstructions = this.getExtractionInstructions(extractionRequest.extractionSettings.extractionStrategy)
+
     systemMessage += `\n\n${modeInstructions}`
 
     const userMessage = `Extract all bibliographic references from the following text. Return structured data according to the schema:
@@ -89,25 +92,11 @@ ${extractionRequest.text}`
   }
 
   getExtractionInstructions(extractionStrategy: ExtractionStrategy): string {
-    // Use the rules that are already filtered by the frontend
-    const activeRules = extractionStrategy.rules
-
-    // If no rules are active, return empty instructions (AI should do nothing)
-    if (activeRules.length === 0) {
-      return 'Extract exactly as written in the source without any modifications.'
-    }
-
-    // Build instructions from active rules
-    const instructions: string[] = [
+    return buildInstructionsFromActionTypes(
+      extractionStrategy.actionTypes,
+      EXTRACTION_RULES_MAP,
       'IMPORTANT: Only perform the following specific modifications. Do NOT make any other changes beyond what is explicitly listed below:',
-    ]
-
-    for (const rule of activeRules) {
-      instructions.push(`• ${rule.aiInstruction.prompt}`)
-      if (rule.aiInstruction.example) {
-        instructions.push(`  Example: ${rule.aiInstruction.example}`)
-      }
-    }
-    return instructions.join('\n')
+      'Extract exactly as written in the source without any modifications.',
+    )
   }
 }

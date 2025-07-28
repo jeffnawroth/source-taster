@@ -1,37 +1,37 @@
 <script setup lang="ts">
 import type { ExtractionActionType, Mode } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
-import { ExtractionRuleCategory, getExtractionActionTypesByCategory, getExtractionActionTypesFromRules, getExtractionRulesForActionTypes, PROCESSING_MODE_PRESETS, PROCESSING_RULES } from '@source-taster/types'
-import { ref, watch } from 'vue'
+import { ExtractionRuleCategory, PROCESSING_MODE_PRESETS } from '@source-taster/types'
+import { getExtractionActionTypesByCategory } from '@/extension/constants/extractionCategories'
 import { extractionSettings } from '@/extension/logic'
 
-const selectedActionTypes = ref<ExtractionActionType[]>(getExtractionActionTypesFromRules(extractionSettings.value.extractionStrategy.rules))
+// TRANSLATION
+const { t } = useI18n()
 
 watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
   if (newMode === 'custom') {
     deselectAll()
   }
   else {
-    selectedActionTypes.value = PROCESSING_MODE_PRESETS[newMode]
+    extractionSettings.value.extractionStrategy.actionTypes = PROCESSING_MODE_PRESETS[newMode]
   }
-})
-
-watch(selectedActionTypes, (newActionTypes) => {
-  extractionSettings.value.extractionStrategy.rules = getExtractionRulesForActionTypes(newActionTypes)
 })
 
 // === Hilfsfunktionen ===
 function loadRuleSet(preset: Mode) {
-  selectedActionTypes.value = PROCESSING_MODE_PRESETS[preset]
+  extractionSettings.value.extractionStrategy.actionTypes = PROCESSING_MODE_PRESETS[preset]
 }
 function selectAll() {
-  selectedActionTypes.value = getExtractionActionTypesFromRules(PROCESSING_RULES)
+  // Get all available action types from all categories
+  extractionSettings.value.extractionStrategy.actionTypes = [
+    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.CONTENT_NORMALIZATION),
+    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.STYLE_FORMATTING),
+    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.TECHNICAL_PROCESSING),
+  ]
 }
 function deselectAll() {
-  selectedActionTypes.value = []
+  extractionSettings.value.extractionStrategy.actionTypes = []
 }
-
-const { t } = useI18n()
 
 const modeOptions = computed(() =>
   Object.entries(PROCESSING_MODE_PRESETS).map(([mode]) => {
@@ -119,7 +119,7 @@ const presetButtons = computed(() => [
 <template>
   <ModeSelector
     v-model:mode="extractionSettings.extractionStrategy.mode"
-    v-model:selected-actions="selectedActionTypes"
+    v-model:selected-actions="extractionSettings.extractionStrategy.actionTypes"
     :mode-options
     custom-value="custom"
     :setting-groups
