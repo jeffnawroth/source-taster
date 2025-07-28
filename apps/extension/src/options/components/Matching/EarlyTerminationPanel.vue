@@ -80,13 +80,7 @@ function resetToDefaults() {
 
     <!-- Reset Button -->
     <template #actions>
-      <v-btn
-        variant="outlined"
-        color="warning"
-        @click="resetToDefaults"
-      >
-        {{ t('reset-to-defaults') }}
-      </v-btn>
+      <ResetButton @click="resetToDefaults" />
     </template>
   </SettingsPanel>
 </template>
