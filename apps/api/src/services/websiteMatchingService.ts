@@ -2,8 +2,8 @@ import type {
   ArchivedVersion,
   ExternalSource,
   MatchDetails,
+  MatchingReference,
   MatchingSettings,
-  Reference,
   WebsiteMatchingOptions,
   WebsiteMatchingResult,
   WebsiteMetadata,
@@ -30,7 +30,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
    * Match a reference against a website URL
    */
   async matchWebsiteReference(
-    reference: Reference,
+    reference: MatchingReference,
     url: string,
     matchingSettings: MatchingSettings,
     options?: WebsiteMatchingOptions,
@@ -687,7 +687,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
    * Match reference against website metadata using the base AI matching logic
    */
   private async matchWebsiteWithAI(
-    reference: Reference,
+    reference: MatchingReference,
     websiteMetadata: WebsiteMetadata,
     matchingSettings: MatchingSettings,
   ): Promise<{ details: MatchDetails }> {

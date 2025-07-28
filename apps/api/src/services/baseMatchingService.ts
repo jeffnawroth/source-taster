@@ -3,8 +3,8 @@ import type {
   FieldConfigurations,
   FieldMatchDetail,
   MatchDetails,
+  MatchingReference,
   MatchingSettings,
-  Reference,
   ReferenceMetadataFields,
 } from '@source-taster/types'
 import { MetadataComparator } from '../utils/metadataComparator'
@@ -18,7 +18,7 @@ export abstract class BaseMatchingService {
    * Matching settings must be provided by the caller
    */
   protected async matchWithAI(
-    reference: Reference,
+    reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: MatchingSettings,
   ): Promise<{ details: MatchDetails }> {
@@ -62,7 +62,7 @@ export abstract class BaseMatchingService {
   /**
    * Create a clean prompt for AI matching
    */
-  private createMatchingPrompt(reference: Reference, source: ExternalSource, availableFields: ReferenceMetadataFields[]): string {
+  private createMatchingPrompt(reference: MatchingReference, source: ExternalSource, availableFields: ReferenceMetadataFields[]): string {
     return `Available fields for matching:
 ${availableFields.join(', ')}
 

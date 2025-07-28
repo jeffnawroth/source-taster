@@ -1,8 +1,8 @@
 import type {
   ExternalSource,
+  MatchingReference,
   MatchingResult,
   MatchingSettings,
-  Reference,
   SourceEvaluation,
 } from '@source-taster/types'
 import process from 'node:process'
@@ -27,7 +27,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   async matchReference(
-    reference: Reference,
+    reference: MatchingReference,
     matchingSettings: MatchingSettings,
   ): Promise<MatchingResult> {
     const { earlyTermination } = matchingSettings.matchingConfig
@@ -40,7 +40,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   private async matchWithEarlyTermination(
-    reference: Reference,
+    reference: MatchingReference,
     matchingSettings: MatchingSettings,
   ): Promise<SourceEvaluation[]> {
     const { threshold } = matchingSettings.matchingConfig.earlyTermination
@@ -64,7 +64,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   private async tryEvaluateDatabase(
-    reference: Reference,
+    reference: MatchingReference,
     service: any,
     matchingSettings: MatchingSettings,
   ): Promise<SourceEvaluation | null> {
@@ -77,7 +77,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   private async evaluateDatabase(
-    reference: Reference,
+    reference: MatchingReference,
     service: any,
     matchingSettings: MatchingSettings,
   ): Promise<SourceEvaluation | null> {
@@ -95,7 +95,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   private async matchAllSources(
-    reference: Reference,
+    reference: MatchingReference,
     matchingSettings: MatchingSettings,
   ): Promise<SourceEvaluation[]> {
     const sources = await this.searchAllDatabases(reference)
@@ -107,7 +107,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
     return await this.evaluateAllSources(reference, sources, matchingSettings)
   }
 
-  private async searchAllDatabases(reference: Reference): Promise<ExternalSource[]> {
+  private async searchAllDatabases(reference: MatchingReference): Promise<ExternalSource[]> {
     const searchPromises = this.databaseServices.map(({ service }) =>
       this.trySearchDatabase(service, reference.metadata),
     )
@@ -135,7 +135,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   private async evaluateAllSources(
-    reference: Reference,
+    reference: MatchingReference,
     sources: ExternalSource[],
     matchingSettings: MatchingSettings,
   ): Promise<SourceEvaluation[]> {
@@ -149,7 +149,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   private async tryEvaluateSource(
-    reference: Reference,
+    reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: MatchingSettings,
   ): Promise<SourceEvaluation | null> {
@@ -170,7 +170,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   }
 
   private async evaluateSource(
-    reference: Reference,
+    reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: MatchingSettings,
   ): Promise<SourceEvaluation> {

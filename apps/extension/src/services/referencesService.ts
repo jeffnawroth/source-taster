@@ -1,4 +1,4 @@
-import type { MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
+import type { MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
 import { extractionSettings, matchingSettings } from '@/extension/logic/storage'
 
@@ -36,13 +36,19 @@ export class ReferencesService {
    * Match references against databases
    */
   static async matchReferences(references: Reference[], signal?: AbortSignal): Promise<MatchingResult[]> {
+    // Convert to optimized MatchingReference format (only id + metadata)
+    const matchingReferences: MatchingReference[] = references.map(ref => ({
+      id: ref.id,
+      metadata: ref.metadata,
+    }))
+
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        references,
+        references: matchingReferences,
         matchingSettings: matchingSettings.value,
       }),
       signal,
@@ -69,13 +75,19 @@ export class ReferencesService {
     url: string,
     signal?: AbortSignal,
   ): Promise<WebsiteMatchingResult> {
+    // Convert to optimized MatchingReference format (only id + metadata)
+    const matchingReference: MatchingReference = {
+      id: reference.id,
+      metadata: reference.metadata,
+    }
+
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}/website`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        reference,
+        reference: matchingReference,
         url,
         matchingSettings: matchingSettings.value,
         options: {
