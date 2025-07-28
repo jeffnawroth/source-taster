@@ -18,8 +18,28 @@ export class MatchingService {
     })
   }
 
-  async matchFields(prompt: string, matchingSettings: APIMatchingSettings, availableFields: ReferenceMetadataFields[]): Promise<AIMatchingResponse> {
-    let systemMessage = `You are an expert bibliographic matching assistant. Your task is to provide field-by-field matching scores.
+  async matchFields(
+    prompt: string,
+    matchingSettings: APIMatchingSettings,
+    availableFields: ReferenceMetadataFields[],
+  ): Promise<AIMatchingResponse> {
+    const systemMessage = this.buildSystemMessage(matchingSettings, availableFields)
+    const schema = createMatchingSchema(availableFields)
+
+    try {
+      const response = await this.callOpenAI(systemMessage, prompt, schema.jsonSchema)
+      return this.parseOpenAIResponse(response, schema.MatchingResponseSchema)
+    }
+    catch (error: any) {
+      return this.handleMatchingError(error)
+    }
+  }
+
+  private buildSystemMessage(
+    matchingSettings: APIMatchingSettings,
+    availableFields: ReferenceMetadataFields[],
+  ): string {
+    const baseMessage = `You are an expert bibliographic matching assistant. Your task is to provide field-by-field matching scores.
 
 CRITICAL INSTRUCTIONS:
 - You MUST evaluate ALL of the ${availableFields.length} available fields provided in the prompt
@@ -31,61 +51,60 @@ CRITICAL INSTRUCTIONS:
 - Do NOT skip any of the ${availableFields.length} required fields in your response`
 
     const modeInstructions = this.getMatchingInstructions(matchingSettings.matchingStrategy.actionTypes)
-    systemMessage += `\n\n${modeInstructions}`
+    return `${baseMessage}\n\n${modeInstructions}`
+  }
 
-    // Create dynamic schema based on available fields
-    const { MatchingResponseSchema: DynamicMatchingResponseSchema, jsonSchema } = createMatchingSchema(availableFields)
+  private async callOpenAI(systemMessage: string, userMessage: string, schema: any) {
+    return await this.client.chat.completions.create({
+      model: this.config.model,
+      temperature: this.config.temperature,
+      messages: [
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: userMessage },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: schema,
+      },
+    })
+  }
 
+  private parseOpenAIResponse(response: any, DynamicMatchingResponseSchema: any): AIMatchingResponse {
+    const content = response.choices[0]?.message?.content
+    if (!content) {
+      throw new Error('No content in OpenAI response')
+    }
+
+    let parsedResponse
     try {
-      const response = await this.client.chat.completions.create({
-        model: this.config.model,
-        temperature: this.config.temperature,
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: prompt },
-        ],
-        response_format: {
-          type: 'json_schema',
-          json_schema: jsonSchema,
-        },
-      })
-
-      const content = response.choices[0]?.message?.content
-      if (!content) {
-        throw new Error('No content in OpenAI response')
-      }
-
-      let parsedResponse
-      try {
-        parsedResponse = JSON.parse(content)
-      }
-      catch {
-        console.error('Failed to parse OpenAI matching response as JSON:', content)
-        throw new Error('Invalid JSON response from OpenAI matching')
-      }
-
-      // Validate response with dynamic Zod schema
-      const validatedResponse = DynamicMatchingResponseSchema.parse(parsedResponse) as AIMatchingResponse
-
-      // Convert to AIMatchingResponse format
-      return {
-        fieldDetails: validatedResponse.fieldDetails.map(field => ({
-          field: field.field as any, // Cast to proper FieldMatchDetail field type
-          match_score: field.match_score,
-        })),
-      }
+      parsedResponse = JSON.parse(content)
     }
-    catch (error: any) {
-      if (error.name === 'ZodError') {
-        console.error('Matching validation error:', error.errors)
-        // Return empty fieldDetails array as fallback
-        console.warn('Returning empty fieldDetails array due to validation error')
-        return { fieldDetails: [] }
-      }
-
-      console.error('OpenAI matchFields error:', error)
-      throw new Error(`Failed to match fields: ${error.message}`)
+    catch {
+      console.error('Failed to parse OpenAI matching response as JSON:', content)
+      throw new Error('Invalid JSON response from OpenAI matching')
     }
+
+    // Validate response with dynamic Zod schema
+    const validatedResponse = DynamicMatchingResponseSchema.parse(parsedResponse) as AIMatchingResponse
+
+    // Convert to AIMatchingResponse format
+    return {
+      fieldDetails: validatedResponse.fieldDetails.map(field => ({
+        field: field.field as any, // Cast to proper FieldMatchDetail field type
+        match_score: field.match_score,
+      })),
+    }
+  }
+
+  private handleMatchingError(error: any): AIMatchingResponse {
+    if (error.name === 'ZodError') {
+      console.error('Matching validation error:', error.errors)
+      console.warn('Returning empty fieldDetails array due to validation error')
+      return { fieldDetails: [] }
+    }
+
+    console.error('OpenAI matchFields error:', error)
+    throw new Error(`Failed to match fields: ${error.message}`)
   }
 
   private getMatchingInstructions(actionTypes: MatchingActionType[]): string {
