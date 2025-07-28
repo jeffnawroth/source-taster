@@ -29,7 +29,7 @@ export const MatchingRuleDefinitionSchema = z.object({
 
 export const MatchingStrategySchema = z.object({
   mode: ModeSchema.describe('Strategy mode to control behavior'),
-  rules: z.array(MatchingRuleDefinitionSchema).describe('Custom rules for fine-tuning behavior'),
+  actionTypes: z.array(MatchingActionTypeSchema).describe('Selected action types for matching behavior'),
 }).describe('Matching strategy schema for AI extraction')
 
 export type MatchingActionType = z.infer<typeof MatchingActionTypeSchema>

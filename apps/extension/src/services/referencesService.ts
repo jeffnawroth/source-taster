@@ -42,9 +42,11 @@ export class ReferencesService {
       metadata: ref.metadata,
     }))
 
-    // Convert to optimized API settings (exclude frontend-only matchThresholds)
+    // Convert to optimized API settings (exclude frontend-only matchThresholds and use actionTypes directly)
     const apiMatchingSettings: APIMatchingSettings = {
-      matchingStrategy: matchingSettings.value.matchingStrategy,
+      matchingStrategy: {
+        actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
+      },
       matchingConfig: {
         fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,
         earlyTermination: matchingSettings.value.matchingConfig.earlyTermination,
@@ -90,9 +92,11 @@ export class ReferencesService {
       metadata: reference.metadata,
     }
 
-    // Convert to optimized API settings (exclude frontend-only matchThresholds)
+    // Convert to optimized API settings (exclude frontend-only matchThresholds and use actionTypes directly)
     const apiMatchingSettings: APIMatchingSettings = {
-      matchingStrategy: matchingSettings.value.matchingStrategy,
+      matchingStrategy: {
+        actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
+      },
       matchingConfig: {
         fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,
         earlyTermination: matchingSettings.value.matchingConfig.earlyTermination,

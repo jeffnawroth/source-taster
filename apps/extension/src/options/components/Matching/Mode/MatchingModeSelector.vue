@@ -1,43 +1,45 @@
 <script setup lang="ts">
 import type { MatchingActionType, Mode } from '@source-taster/types'
 import {
+  mdiCheckCircleOutline,
+  mdiCloseCircleOutline,
   mdiCogOutline,
   mdiFormTextbox,
   mdiLock,
   mdiPalette,
   mdiScale,
   mdiTarget,
+  mdiWrench,
 } from '@mdi/js'
-import { getMatchingActionTypesByCategory, getMatchingActionTypesFromRules, getMatchingRulesForActionTypes, MATCHING_MODE_PRESETS, MATCHING_RULES, MatchingRuleCategory } from '@source-taster/types'
+import { getMatchingActionTypesByCategory, MATCHING_MODE_PRESETS, MatchingRuleCategory } from '@source-taster/types'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
-
-const selectedActionTypes = ref<MatchingActionType[]>(getMatchingActionTypesFromRules(matchingSettings.value.matchingStrategy.rules))
 
 watch(() => matchingSettings.value.matchingStrategy.mode, (newMode) => {
   if (newMode === 'custom') {
     deselectAll()
   }
   else {
-    selectedActionTypes.value = MATCHING_MODE_PRESETS[newMode]
+    matchingSettings.value.matchingStrategy.actionTypes = MATCHING_MODE_PRESETS[newMode]
   }
-})
-
-watch(selectedActionTypes, (newActionTypes) => {
-  matchingSettings.value.matchingStrategy.rules = getMatchingRulesForActionTypes(newActionTypes)
 })
 
 // === Hilfsfunktionen ===
 function loadRuleSet(preset: Mode) {
-  selectedActionTypes.value = MATCHING_MODE_PRESETS[preset]
+  matchingSettings.value.matchingStrategy.actionTypes = MATCHING_MODE_PRESETS[preset]
 }
 function selectAll() {
-  selectedActionTypes.value = getMatchingActionTypesFromRules(MATCHING_RULES)
+  // Get all available action types from all categories
+  matchingSettings.value.matchingStrategy.actionTypes = [
+    ...getMatchingActionTypesByCategory(MatchingRuleCategory.CONTENT_EQUIVALENCE),
+    ...getMatchingActionTypesByCategory(MatchingRuleCategory.STYLE_INSENSITIVITY),
+    ...getMatchingActionTypesByCategory(MatchingRuleCategory.TOLERANCE),
+  ]
 }
 function deselectAll() {
-  selectedActionTypes.value = []
+  matchingSettings.value.matchingStrategy.actionTypes = []
 }
 
 const modeOptions = computed(() =>
@@ -126,7 +128,7 @@ const presetButtons = computed(() => [
 <template>
   <ModeSelector
     v-model:mode="matchingSettings.matchingStrategy.mode"
-    v-model:selected-actions="selectedActionTypes"
+    v-model:selected-actions="matchingSettings.matchingStrategy.actionTypes"
     :mode-options
     custom-value="'custom'"
     :setting-groups

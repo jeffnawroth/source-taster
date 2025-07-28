@@ -4,7 +4,7 @@ import { ReferenceMetadataSchema } from '../reference'
 
 import { WebsiteMatchingOptionsSchema } from '../website'
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
-import { MatchingStrategySchema } from './matching-strategy.types'
+import { MatchingActionTypeSchema } from './matching-strategy.types'
 
 /**
  * Lightweight reference type for matching - only contains metadata
@@ -34,10 +34,17 @@ export const ValidatedAPIMatchingConfigSchema = APIMatchingConfigSchema.refine(
 )
 
 /**
+ * Optimized matching strategy for API requests - only sends actionTypes
+ */
+export const APIMatchingStrategySchema = z.object({
+  actionTypes: z.array(MatchingActionTypeSchema).describe('Selected action types for matching behavior'),
+})
+
+/**
  * Optimized matching settings for API requests - excludes frontend-only matchThresholds
  */
 export const APIMatchingSettingsSchema = z.object({
-  matchingStrategy: MatchingStrategySchema.describe('Strategy for matching behavior'),
+  matchingStrategy: APIMatchingStrategySchema.describe('Optimized strategy with only actionTypes'),
   matchingConfig: APIMatchingConfigSchema.describe('Configuration for matching behavior'),
 })
 
@@ -56,7 +63,7 @@ export const MatchingRequestSchema = z.object({
 
 export const ValidatedMatchingRequestSchema = MatchingRequestSchema.extend({
   matchingSettings: z.object({
-    matchingStrategy: MatchingStrategySchema,
+    matchingStrategy: APIMatchingStrategySchema,
     matchingConfig: ValidatedAPIMatchingConfigSchema,
   }),
 })
@@ -71,6 +78,7 @@ export const WebsiteMatchingRequestSchema = z.object({
 // Export types
 export type MatchingReference = z.infer<typeof MatchingReferenceSchema>
 export type APIMatchingConfig = z.infer<typeof APIMatchingConfigSchema>
+export type APIMatchingStrategy = z.infer<typeof APIMatchingStrategySchema>
 export type APIMatchingSettings = z.infer<typeof APIMatchingSettingsSchema>
 export type MatchingRequest = z.infer<typeof MatchingRequestSchema>
 export type ValidatedMatchingRequest = z.infer<typeof ValidatedMatchingRequestSchema>

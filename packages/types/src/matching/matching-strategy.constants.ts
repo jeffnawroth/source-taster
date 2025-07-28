@@ -98,7 +98,7 @@ export const MATCHING_MODE_PRESETS = createModePresets<MatchingActionType>(
 )
 export const DEFAULT_MATCHING_STRATEGY: MatchingStrategy = {
   mode: DEFAULT_MATCHING_MODE,
-  rules: getMatchingRulesForActionTypes(MATCHING_MODE_PRESETS[DEFAULT_MATCHING_MODE]),
+  actionTypes: MATCHING_MODE_PRESETS.balanced,
 } as const
 
 export const categoryMapping: Record<MatchingRuleCategory, MatchingActionType[]> = {

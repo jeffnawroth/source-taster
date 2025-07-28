@@ -1,5 +1,6 @@
-import type { AIMatchingResponse, APIMatchingSettings, MatchingStrategy, OpenAIConfig } from '@source-taster/types'
+import type { AIMatchingResponse, APIMatchingSettings, MatchingActionType, OpenAIConfig } from '@source-taster/types'
 import type { ReferenceMetadataFields } from 'node_modules/@source-taster/types/dist/reference/reference.constants'
+import { getMatchingRulesForActionTypes } from '@source-taster/types'
 import { OpenAI } from 'openai'
 import { createMatchingSchema } from '../../types/matching'
 
@@ -28,7 +29,7 @@ CRITICAL INSTRUCTIONS:
 - If a field is missing in either reference or source, give it a score of 0
 - Do NOT skip any of the ${availableFields.length} required fields in your response`
 
-    const modeInstructions = this.getMatchingInstructions(matchingSettings.matchingStrategy)
+    const modeInstructions = this.getMatchingInstructions(matchingSettings.matchingStrategy.actionTypes)
     systemMessage += `\n\n${modeInstructions}`
 
     // Create dynamic schema based on available fields
@@ -86,9 +87,9 @@ CRITICAL INSTRUCTIONS:
     }
   }
 
-  private getMatchingInstructions(matchingStrategy: MatchingStrategy): string {
-  // Use the rules that are already filtered by the frontend
-    const activeRules = matchingStrategy.rules
+  private getMatchingInstructions(actionTypes: MatchingActionType[]): string {
+    // Convert actionTypes to rules using the helper function
+    const activeRules = getMatchingRulesForActionTypes(actionTypes)
 
     // If no rules are active, return empty instructions (AI should do nothing)
     if (activeRules.length === 0) {
