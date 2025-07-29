@@ -17,18 +17,18 @@ export const EXTRACTION_RULES_MAP: Record<ExtractionActionType, { prompt: string
     prompt: 'Normalize capitalization of titles, names, and other text to standard formats (Title Case).',
     example: '"the quick brown fox" → "The Quick Brown Fox", "john smith" → "John Smith", "a study on AI" → "A Study on AI"',
   },
-  'normalize-abbreviations': {
-    prompt: 'Expand common abbreviations.',
-    example: '"J." → "Journal", "Vol." → "Volume"',
-  },
-  'normalize-author-names': {
-    prompt: 'Format author names to a consistent style',
-    example: '"John Smith" → "Smith, John", "Mary Jane Doe" → "Doe, Mary Jane"',
-  },
-  'normalize-date-format': {
-    prompt: 'Standardize date formats to ISO 8601 (YYYY-MM-DD) or similar formats',
-    example: '"January 1, 2020" → "2020-01-01", "2020/01/01" → "2020-01-01", "1st Jan 2020" → "2020-01-01"',
-  },
+  // 'normalize-abbreviations': {
+  //   prompt: 'Expand common abbreviations.',
+  //   example: '"J." → "Journal", "Vol." → "Volume"',
+  // },
+  // 'normalize-author-names': {
+  //   prompt: 'Format author names to a consistent style',
+  //   example: '"John Smith" → "Smith, John", "Mary Jane Doe" → "Doe, Mary Jane"',
+  // },
+  // 'normalize-date-format': {
+  //   prompt: 'Standardize date formats to ISO 8601 (YYYY-MM-DD) or similar formats',
+  //   example: '"January 1, 2020" → "2020-01-01", "2020/01/01" → "2020-01-01", "1st Jan 2020" → "2020-01-01"',
+  // },
   'normalize-identifiers': {
     prompt: 'Standardize external identifiers (DOI, ISBN, ISSN, PMID, PMCID, ARXIV) to a consistent format',
     example: '"https://doi.org/10.1000/xyz123" → "10.1000/xyz123"',

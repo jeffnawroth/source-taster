@@ -9,12 +9,12 @@ export const EXTRACTION_UI_CATEGORIES: Record<ExtractionRuleCategory, Extraction
   [ExtractionRuleCategory.CONTENT_NORMALIZATION]: [
     'normalize-spelling',
     'normalize-title-case',
-    'normalize-abbreviations',
+    // 'normalize-abbreviations',
     'normalize-typography',
   ],
   [ExtractionRuleCategory.STYLE_FORMATTING]: [
-    'normalize-author-names',
-    'normalize-date-format',
+    // 'normalize-author-names',
+    // 'normalize-date-format',
     'normalize-identifiers',
   ],
   [ExtractionRuleCategory.TECHNICAL_EXTRACTION]: [
