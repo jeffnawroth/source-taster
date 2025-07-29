@@ -2,6 +2,7 @@ import type {
   AIExtractedReference,
   ExtractionRequest,
   Reference,
+  UserAISettings,
 } from '@source-taster/types'
 import crypto from 'node:crypto'
 import { AIServiceFactory } from './ai/aiServiceFactory'
@@ -23,14 +24,22 @@ export class ReferenceExtractionService {
   private async performAIExtraction(
     extractionRequest: ExtractionRequest,
   ): Promise<Reference[]> {
-    const ai = this.createAIService()
+    if (!extractionRequest.aiSettings) {
+      throw new Error('AI settings are required for reference extraction')
+    }
+
+    const ai = this.createAIService(extractionRequest.aiSettings)
     const result = await ai.extractReferences(extractionRequest)
 
     return this.convertToReferences(result.references)
   }
 
-  private createAIService() {
-    return AIServiceFactory.createOpenAIService()
+  private createAIService(userAISettings: UserAISettings) {
+    if (!userAISettings?.apiKey) {
+      throw new Error('API key required: Please provide your own OpenAI API key in the extension settings to use AI-powered features.')
+    }
+
+    return AIServiceFactory.createOpenAIService(userAISettings)
   }
 
   private convertToReferences(aiReferences: AIExtractedReference[]): Reference[] {

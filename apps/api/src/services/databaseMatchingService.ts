@@ -4,6 +4,7 @@ import type {
   MatchingReference,
   MatchingResult,
   SourceEvaluation,
+  UserAISettings,
 } from '@source-taster/types'
 import process from 'node:process'
 import { BaseMatchingService } from './baseMatchingService'
@@ -29,12 +30,13 @@ export class DatabaseMatchingService extends BaseMatchingService {
   async matchReference(
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<MatchingResult> {
     const { earlyTermination } = matchingSettings.matchingConfig
 
     const sourceEvaluations = earlyTermination.enabled
-      ? await this.matchWithEarlyTermination(reference, matchingSettings)
-      : await this.matchAllSources(reference, matchingSettings)
+      ? await this.matchWithEarlyTermination(reference, matchingSettings, aiSettings)
+      : await this.matchAllSources(reference, matchingSettings, aiSettings)
 
     return this.buildMatchingResult(sourceEvaluations)
   }
@@ -42,12 +44,13 @@ export class DatabaseMatchingService extends BaseMatchingService {
   private async matchWithEarlyTermination(
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<SourceEvaluation[]> {
     const { threshold } = matchingSettings.matchingConfig.earlyTermination
     const sourceEvaluations: SourceEvaluation[] = []
 
     for (const { service } of this.databaseServices) {
-      const evaluation = await this.tryEvaluateDatabase(reference, service, matchingSettings)
+      const evaluation = await this.tryEvaluateDatabase(reference, service, matchingSettings, aiSettings)
 
       if (!evaluation) {
         continue // Skip failed database
@@ -67,9 +70,10 @@ export class DatabaseMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     service: any,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<SourceEvaluation | null> {
     try {
-      return await this.evaluateDatabase(reference, service, matchingSettings)
+      return await this.evaluateDatabase(reference, service, matchingSettings, aiSettings)
     }
     catch {
       return null // Database failed, return null to continue with next
@@ -80,6 +84,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     service: any,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<SourceEvaluation | null> {
     const source = await service.search(reference.metadata)
 
@@ -87,7 +92,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
       return null
     }
 
-    return await this.evaluateSource(reference, source, matchingSettings)
+    return await this.evaluateSource(reference, source, matchingSettings, aiSettings)
   }
 
   private shouldTerminateEarly(evaluation: SourceEvaluation, threshold: number): boolean {
@@ -97,6 +102,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
   private async matchAllSources(
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<SourceEvaluation[]> {
     const sources = await this.searchAllDatabases(reference)
 
@@ -104,7 +110,7 @@ export class DatabaseMatchingService extends BaseMatchingService {
       return []
     }
 
-    return await this.evaluateAllSources(reference, sources, matchingSettings)
+    return await this.evaluateAllSources(reference, sources, matchingSettings, aiSettings)
   }
 
   private async searchAllDatabases(reference: MatchingReference): Promise<ExternalSource[]> {
@@ -138,9 +144,10 @@ export class DatabaseMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     sources: ExternalSource[],
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<SourceEvaluation[]> {
     const evaluationPromises = sources.map(source =>
-      this.tryEvaluateSource(reference, source, matchingSettings),
+      this.tryEvaluateSource(reference, source, matchingSettings, aiSettings),
     )
 
     const results = await Promise.allSettled(evaluationPromises)
@@ -152,9 +159,10 @@ export class DatabaseMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<SourceEvaluation | null> {
     try {
-      return await this.evaluateSource(reference, source, matchingSettings)
+      return await this.evaluateSource(reference, source, matchingSettings, aiSettings)
     }
     catch {
       return null
@@ -173,8 +181,9 @@ export class DatabaseMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<SourceEvaluation> {
-    const matchResult = await this.matchWithAI(reference, source, matchingSettings)
+    const matchResult = await this.matchWithAI(reference, source, matchingSettings, aiSettings)
     return {
       source,
       matchDetails: matchResult.details,

@@ -1,8 +1,9 @@
 import type {
   ApiResponse,
-  MatchingRequest,
   MatchingResponse,
   SourceEvaluation,
+  ValidatedMatchingRequest,
+  WebsiteMatchingRequest,
   WebsiteMatchingResult,
 } from '@source-taster/types'
 import type { Context } from 'hono'
@@ -25,7 +26,7 @@ export class MatchingController {
   async matchReferences(c: Context) {
     try {
       // @ts-expect-error Hono types don't infer properly for separate controller methods
-      const request = c.req.valid('json') as MatchingRequest
+      const request = c.req.valid('json') as ValidatedMatchingRequest
 
       // Intelligent routing: detect references with URLs and process them accordingly
       const results = []
@@ -43,6 +44,7 @@ export class MatchingController {
               reference,
               url,
               request.matchingSettings,
+              request.aiSettings,
             )
 
             // Convert website matching result to standard matching result format
@@ -55,13 +57,13 @@ export class MatchingController {
           catch (error) {
             // If website matching fails, fall back to database matching
             console.warn(`Website matching failed for reference ${reference.id}, falling back to database:`, error)
-            const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings)
+            const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings, request.aiSettings!) // Validated by zValidator
             results.push(dbResult)
           }
         }
         else {
           // Use database matching for academic references
-          const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings)
+          const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings, request.aiSettings!) // Validated by zValidator
           results.push(dbResult)
         }
       }
@@ -176,13 +178,14 @@ export class MatchingController {
   async matchWebsiteReference(c: Context) {
     try {
       // @ts-expect-error Hono types don't infer properly for separate controller methods
-      const request = c.req.valid('json') as any // WebsiteMatchingRequest type not properly exported
+      const request = c.req.valid('json') as WebsiteMatchingRequest
 
       // Match website reference
       const result = await this.websiteMatchingService.matchWebsiteReference(
         request.reference,
         request.url,
         request.matchingSettings,
+        request.aiSettings,
         request.options,
       )
 

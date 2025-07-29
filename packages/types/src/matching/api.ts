@@ -1,5 +1,6 @@
 import type { MatchingResult } from './matching-result'
 import z from 'zod'
+import { UserAISettingsSchema } from '../common/ai-settings.schema'
 import { ReferenceMetadataSchema } from '../reference'
 
 import { WebsiteMatchingOptionsSchema } from '../website'
@@ -59,6 +60,7 @@ export interface MatchingResponse {
 export const MatchingRequestSchema = z.object({
   references: z.array(MatchingReferenceSchema).min(1).describe('Array of reference metadata to match'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
+  aiSettings: UserAISettingsSchema.describe('User AI configuration'),
 })
 
 export const ValidatedMatchingRequestSchema = MatchingRequestSchema.extend({
@@ -73,6 +75,7 @@ export const WebsiteMatchingRequestSchema = z.object({
   url: z.string().url().describe('Website URL to match against'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
   options: WebsiteMatchingOptionsSchema.optional().describe('Optional website matching configuration'),
+  aiSettings: UserAISettingsSchema.describe('User AI configuration'),
 })
 
 // Export types

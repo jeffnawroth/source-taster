@@ -37,6 +37,26 @@ export interface AIService {
 }
 
 /**
+ * Available OpenAI models for the application
+ */
+export const OPENAI_MODELS = {
+  'gpt-4o': 'GPT-4o (Premium)',
+  'gpt-4o-mini': 'GPT-4o Mini (Balanced)',
+} as const
+
+export const OPENAI_MODELS_SCHEMA = z.enum(['gpt-4o', 'gpt-4o-mini']).describe('Available OpenAI models for the application')
+export type OpenAIModel = keyof typeof OPENAI_MODELS
+/**
+ * User AI settings for the extension
+ */
+export interface UserAISettings {
+  /** User's OpenAI API key (required) */
+  apiKey: string
+  /** Selected OpenAI model */
+  model: OpenAIModel
+}
+
+/**
  * Configuration interface for OpenAI service
  * Defines all required and optional configuration parameters
  */

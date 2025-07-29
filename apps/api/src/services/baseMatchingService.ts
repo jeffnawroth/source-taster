@@ -6,6 +6,7 @@ import type {
   MatchDetails,
   MatchingReference,
   ReferenceMetadataFields,
+  UserAISettings,
 } from '@source-taster/types'
 import { MetadataComparator } from '../utils/metadataComparator'
 import { AIServiceFactory } from './ai/aiServiceFactory'
@@ -21,8 +22,9 @@ export abstract class BaseMatchingService {
     reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: APIMatchingSettings,
+    aiSettings: UserAISettings,
   ): Promise<{ details: MatchDetails }> {
-    const ai = AIServiceFactory.createOpenAIService()
+    const ai = this.createAIService(aiSettings)
 
     // Get the fields that should be evaluated (only those with weight > 0)
     const availableFields = MetadataComparator.getAvailableFieldNames(reference.metadata, source.metadata, matchingSettings.matchingConfig.fieldConfigurations) as ReferenceMetadataFields[]
@@ -57,6 +59,17 @@ export abstract class BaseMatchingService {
         details: fallbackMatchDetails,
       }
     }
+  }
+
+  /**
+   * Create AI service with user settings
+   */
+  private createAIService(userAISettings: UserAISettings) {
+    if (!userAISettings?.apiKey) {
+      throw new Error('API key required: Please provide your own OpenAI API key in the extension settings to use AI-powered features.')
+    }
+
+    return AIServiceFactory.createOpenAIService(userAISettings)
   }
 
   /**

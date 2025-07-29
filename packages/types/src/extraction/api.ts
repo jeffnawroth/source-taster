@@ -3,12 +3,14 @@
  */
 
 import z from 'zod'
+import { UserAISettingsSchema } from '../common/ai-settings.schema'
 import { ReferenceSchema } from '../reference'
 import { ExtractionSettingsSchema } from './extraction-settings.types'
 
 export const ExtractionRequestSchema = z.object({
   text: z.string().min(1).describe('The text to extract references from'),
   extractionSettings: ExtractionSettingsSchema.describe('User-configurable extraction settings'),
+  aiSettings: UserAISettingsSchema.describe('User AI configuration'),
 })
 
 // Extraction Response Schema

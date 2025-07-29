@@ -1,17 +1,18 @@
-import type { AIService, OpenAIConfig } from '@source-taster/types'
-import process from 'node:process'
+import type { AIService, OpenAIConfig, UserAISettings } from '@source-taster/types'
 import { OpenAIService } from './openaiService'
 
 export class AIServiceFactory {
-  static createOpenAIService(): AIService {
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is required')
+  /**
+   * Create OpenAI service with user-provided settings
+   */
+  static createOpenAIService(userAISettings: UserAISettings): AIService {
+    if (!userAISettings?.apiKey) {
+      throw new Error('API key required: Please provide your own OpenAI API key in the extension settings to use AI-powered features.')
     }
 
     const config: OpenAIConfig = {
-      apiKey,
-      model: process.env.OPENAI_MODEL || 'gpt-4o',
+      apiKey: userAISettings.apiKey,
+      model: userAISettings.model,
       maxRetries: 3,
       timeout: 60000, // 60 seconds
       temperature: 0.1, // Low temperature for consistent extraction
@@ -20,6 +21,3 @@ export class AIServiceFactory {
     return new OpenAIService(config)
   }
 }
-
-// Export the default service instance
-export const aiService = AIServiceFactory.createOpenAIService()

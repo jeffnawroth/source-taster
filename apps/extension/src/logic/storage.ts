@@ -1,4 +1,5 @@
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
+import { DEFAULT_AI_SETTINGS } from '../constants/defaults/defaultAISettings'
 import { DEFAULT_EXTRACTION_SETTINGS } from '../constants/defaults/defaultExtractionSettings'
 import { DEFAULT_MATCHING_SETTINGS } from '../constants/defaults/defaultMatchingSettings'
 
@@ -11,6 +12,11 @@ export const themeOption = useWebExtensionStorage('theme-option', 'system')
  * Locale option storage
  */
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
+
+/**
+ * AI settings storage
+ */
+export const aiSettings = useWebExtensionStorage('ai-settings', { ...DEFAULT_AI_SETTINGS })
 
 /**
  * Extraction settings storage

@@ -1,6 +1,6 @@
 import type { APIMatchingSettings, MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { API_CONFIG } from '@/extension/env'
-import { extractionSettings, matchingSettings } from '@/extension/logic/storage'
+import { aiSettings, extractionSettings, matchingSettings } from '@/extension/logic/storage'
 
 export class ReferencesService {
   /**
@@ -15,6 +15,7 @@ export class ReferencesService {
       body: JSON.stringify({
         text,
         extractionSettings: extractionSettings.value,
+        aiSettings: aiSettings.value,
       }),
       signal,
     })
@@ -61,6 +62,7 @@ export class ReferencesService {
       body: JSON.stringify({
         references: matchingReferences,
         matchingSettings: apiMatchingSettings,
+        aiSettings: aiSettings.value,
       }),
       signal,
     })
@@ -112,6 +114,7 @@ export class ReferencesService {
         reference: matchingReference,
         url,
         matchingSettings: apiMatchingSettings,
+        aiSettings: aiSettings.value,
         options: {
           timeout: 10000,
           enableWaybackMachine: true,
