@@ -1,12 +1,7 @@
-import type { ExtractionActionType, ExtractionStrategy } from './extraction-strategy.types'
-import { createModePresets, type Mode } from '../common/mode'
-
-/**
- * Default extraction mode
- */
-export const DEFAULT_EXTRACTION_MODE: Mode = 'balanced'
-
 // Mode presets - only actionTypes needed for frontend
+
+import type { ExtractionActionType } from '@source-taster/types'
+import { createModePresets } from '@source-taster/types'
 
 const BALANCED_ACTIONS: ExtractionActionType[] = [
   'normalize-spelling',
@@ -26,8 +21,3 @@ export const EXTRACTION_MODE_PRESETS = createModePresets<ExtractionActionType>(
   BALANCED_ACTIONS,
   TOLERANT_ACTIONS,
 )
-
-export const DEFAULT_EXTRACTION_STRATEGY: ExtractionStrategy = {
-  mode: DEFAULT_EXTRACTION_MODE,
-  actionTypes: EXTRACTION_MODE_PRESETS[DEFAULT_EXTRACTION_MODE],
-}

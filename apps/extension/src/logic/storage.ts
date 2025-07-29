@@ -1,5 +1,6 @@
-import { DEFAULT_EXTRACTION_SETTINGS, DEFAULT_MATCHING_SETTINGS } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
+import { DEFAULT_EXTRACTION_SETTINGS } from '../constants/defaults/defaultExtractionSettings'
+import { DEFAULT_MATCHING_SETTINGS } from '../constants/defaults/defaultMatchingSettings'
 
 /**
  * Theme option storage
