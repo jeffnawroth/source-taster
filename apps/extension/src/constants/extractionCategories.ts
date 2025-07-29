@@ -17,7 +17,7 @@ export const EXTRACTION_UI_CATEGORIES: Record<ExtractionRuleCategory, Extraction
     'normalize-date-format',
     'normalize-identifiers',
   ],
-  [ExtractionRuleCategory.TECHNICAL_PROCESSING]: [
+  [ExtractionRuleCategory.TECHNICAL_EXTRACTION]: [
     'normalize-characters',
     'normalize-whitespace',
   ],

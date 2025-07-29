@@ -4,7 +4,7 @@ import { createModePresets, type Mode } from '../common/mode'
 /**
  * Default extraction mode
  */
-export const DEFAULT_PROCESSING_MODE: Mode = 'balanced'
+export const DEFAULT_EXTRACTION_MODE: Mode = 'balanced'
 
 // Mode presets - only actionTypes needed for frontend
 
@@ -20,16 +20,14 @@ const BALANCED_ACTIONS: ExtractionActionType[] = [
   'normalize-whitespace',
 ] as const
 
-const TOLERANT_ACTIONS: ExtractionActionType[] = [
+const TOLERANT_ACTIONS: ExtractionActionType[] = [] as const
 
-] as const
-
-export const PROCESSING_MODE_PRESETS = createModePresets<ExtractionActionType>(
+export const EXTRACTION_MODE_PRESETS = createModePresets<ExtractionActionType>(
   BALANCED_ACTIONS,
   TOLERANT_ACTIONS,
 )
 
-export const DEFAULT_PROCESSING_STRATEGY: ExtractionStrategy = {
-  mode: DEFAULT_PROCESSING_MODE,
-  actionTypes: PROCESSING_MODE_PRESETS[DEFAULT_PROCESSING_MODE],
+export const DEFAULT_EXTRACTION_STRATEGY: ExtractionStrategy = {
+  mode: DEFAULT_EXTRACTION_MODE,
+  actionTypes: EXTRACTION_MODE_PRESETS[DEFAULT_EXTRACTION_MODE],
 }

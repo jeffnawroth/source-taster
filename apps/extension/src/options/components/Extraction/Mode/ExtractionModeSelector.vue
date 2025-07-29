@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ExtractionActionType, Mode } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
-import { ExtractionRuleCategory, PROCESSING_MODE_PRESETS } from '@source-taster/types'
+import { EXTRACTION_MODE_PRESETS, ExtractionRuleCategory } from '@source-taster/types'
 import { getExtractionActionTypesByCategory } from '@/extension/constants/extractionCategories'
 import { extractionSettings } from '@/extension/logic'
 
@@ -18,14 +18,14 @@ watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
 })
 
 function loadRuleSet(preset: Mode) {
-  extractionSettings.value.extractionStrategy.actionTypes = PROCESSING_MODE_PRESETS[preset]
+  extractionSettings.value.extractionStrategy.actionTypes = EXTRACTION_MODE_PRESETS[preset]
 }
 function selectAll() {
   // Get all available action types from all categories
   extractionSettings.value.extractionStrategy.actionTypes = [
     ...getExtractionActionTypesByCategory(ExtractionRuleCategory.CONTENT_NORMALIZATION),
     ...getExtractionActionTypesByCategory(ExtractionRuleCategory.STYLE_FORMATTING),
-    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.TECHNICAL_PROCESSING),
+    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.TECHNICAL_EXTRACTION),
   ]
 }
 function deselectAll() {
@@ -33,7 +33,7 @@ function deselectAll() {
 }
 
 const modeOptions = computed(() =>
-  Object.entries(PROCESSING_MODE_PRESETS).map(([mode]) => {
+  Object.entries(EXTRACTION_MODE_PRESETS).map(([mode]) => {
     const iconMap: Record<Mode, string> = {
       strict: mdiLock,
       balanced: mdiScale,
@@ -64,7 +64,7 @@ const categoryConfig = {
     description: t('content-formatting-settings-description'),
     icon: mdiPalette,
   },
-  [ExtractionRuleCategory.TECHNICAL_PROCESSING]: {
+  [ExtractionRuleCategory.TECHNICAL_EXTRACTION]: {
     title: t('technical-extraction-settings'),
     description: t('technical-extraction-settings-description'),
     icon: mdiWrench,

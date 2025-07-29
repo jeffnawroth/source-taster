@@ -8,7 +8,7 @@ import { ModeSchema } from '../common/mode'
 export enum ExtractionRuleCategory {
   CONTENT_NORMALIZATION = 'content-normalization',
   STYLE_FORMATTING = 'style-formatting',
-  TECHNICAL_PROCESSING = 'technical-extraction',
+  TECHNICAL_EXTRACTION = 'technical-extraction',
 }
 
 export const ExtractionActionTypeSchema = z.enum([
