@@ -23,19 +23,10 @@ export const ExtractionActionTypeSchema = z.enum([
   'normalize-whitespace',
 ]).describe('Extraction rule action type')
 
-export const ExtractionRuleDefinitionSchema = z.object({
-  actionType: ExtractionActionTypeSchema,
-  aiInstruction: z.object({
-    prompt: z.string().describe('AI prompt for this action type'),
-    example: z.string().describe('Example input for this action type'),
-  }).describe('AI instruction for the action type'),
-}).describe('Definition of an extraction rule with AI instructions')
-
 export const ExtractionStrategySchema = z.object({
   mode: ModeSchema.describe('Extraction mode for extraction'),
   actionTypes: z.array(ExtractionActionTypeSchema).describe('Extraction action types to apply'),
 })
 
 export type ExtractionActionType = z.infer<typeof ExtractionActionTypeSchema>
-export type ExtractionRuleDefinition = z.infer<typeof ExtractionRuleDefinitionSchema>
 export type ExtractionStrategy = z.infer<typeof ExtractionStrategySchema>
