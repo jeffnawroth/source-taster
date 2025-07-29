@@ -53,7 +53,7 @@ export type AIProvider = keyof typeof AI_PROVIDERS
 export const PROVIDER_MODELS = {
   openai: ['o3', 'gpt-4o', 'o3-mini'],
   anthropic: ['claude-4-opus', 'claude-4-sonnet', 'claude-3-5-haiku'],
-  google: ['gemini-2-5-pro', 'gemini-2-5-flash', 'gemini-2-5-flash-lite'],
+  google: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'],
 } as const
 
 // Union type of all possible models across all providers
@@ -87,8 +87,8 @@ export const PROVIDER_CONFIG = {
     name: 'Anthropic',
   },
   google: {
-    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    name: 'Google AI',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+    name: 'Google AI (Gemini)',
   },
 } as const
 
