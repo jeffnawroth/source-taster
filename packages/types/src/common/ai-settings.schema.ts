@@ -2,13 +2,9 @@
  * Shared AI settings schemas for API requests
  */
 
-import z from 'zod'
-import { OPENAI_MODELS_SCHEMA } from '../ai'
+import type { z } from 'zod'
 
-// Schema for user AI settings in requests
-export const UserAISettingsSchema = z.object({
-  apiKey: z.string().min(1).describe('User\'s OpenAI API key (required)'),
-  model: OPENAI_MODELS_SCHEMA.describe('Selected OpenAI model'),
-})
+// Re-export the schema for backward compatibility
+export { UserAISettingsSchema } from '../ai'
 
-export type UserAISettingsSchemaType = z.infer<typeof UserAISettingsSchema>
+export type UserAISettingsSchemaType = z.infer<typeof import('../ai').UserAISettingsSchema>

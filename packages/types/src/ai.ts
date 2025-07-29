@@ -37,32 +37,94 @@ export interface AIService {
 }
 
 /**
- * Available OpenAI models for the application
+ * AI Provider types
  */
-export const OPENAI_MODELS = {
-  'gpt-4o': 'GPT-4o (Premium)',
-  'gpt-4o-mini': 'GPT-4o Mini (Balanced)',
+export const AI_PROVIDERS = {
+  openai: 'OpenAI',
+  anthropic: 'Anthropic (Claude)',
+  google: 'Google (Gemini)',
 } as const
 
-export const OPENAI_MODELS_SCHEMA = z.enum(['gpt-4o', 'gpt-4o-mini']).describe('Available OpenAI models for the application')
-export type OpenAIModel = keyof typeof OPENAI_MODELS
+export type AIProvider = keyof typeof AI_PROVIDERS
+
+/**
+ * Available models per provider (keys only - descriptions come from i18n)
+ */
+export const PROVIDER_MODELS = {
+  openai: ['o3', 'gpt-4o', 'o3-mini'],
+  anthropic: ['claude-4-opus', 'claude-4-sonnet', 'claude-3-5-haiku'],
+  google: ['gemini-2-5-pro', 'gemini-2-5-flash', 'gemini-2-5-flash-lite'],
+} as const
+
+// Union type of all possible models across all providers
+export type AIModel =
+  | typeof PROVIDER_MODELS['openai'][number]
+  | typeof PROVIDER_MODELS['anthropic'][number]
+  | typeof PROVIDER_MODELS['google'][number]
+
 /**
  * User AI settings for the extension
  */
 export interface UserAISettings {
-  /** User's OpenAI API key (required) */
+  /** Selected AI provider */
+  provider: AIProvider
+  /** User's API key for the selected provider */
   apiKey: string
-  /** Selected OpenAI model */
-  model: OpenAIModel
+  /** Selected model for the provider */
+  model: AIModel
 }
 
 /**
- * Configuration interface for OpenAI service
- * Defines all required and optional configuration parameters
+ * Provider endpoints and configuration
+ */
+export const PROVIDER_CONFIG = {
+  openai: {
+    baseUrl: 'https://api.openai.com/v1',
+    name: 'OpenAI',
+  },
+  anthropic: {
+    baseUrl: 'https://api.anthropic.com/v1',
+    name: 'Anthropic',
+  },
+  google: {
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    name: 'Google AI',
+  },
+} as const
+
+/**
+ * Zod schemas for validation
+ */
+export const AI_PROVIDER_SCHEMA = z.enum(['openai', 'anthropic', 'google'])
+
+export const OPENAI_MODELS_SCHEMA = z.enum(PROVIDER_MODELS.openai)
+export const ANTHROPIC_MODELS_SCHEMA = z.enum(PROVIDER_MODELS.anthropic)
+export const GOOGLE_MODELS_SCHEMA = z.enum(PROVIDER_MODELS.google)
+
+// Union schema for all models
+export const AI_MODEL_SCHEMA = z.union([
+  OPENAI_MODELS_SCHEMA,
+  ANTHROPIC_MODELS_SCHEMA,
+  GOOGLE_MODELS_SCHEMA,
+])
+
+/**
+ * User AI settings schema
+ */
+export const UserAISettingsSchema = z.object({
+  provider: AI_PROVIDER_SCHEMA,
+  apiKey: z.string().min(1),
+  model: AI_MODEL_SCHEMA, // Type-safe model validation
+})
+
+/**
+ * Configuration interface for OpenAI-compatible service
+ * Now supports multiple providers through baseUrl
  */
 export interface OpenAIConfig {
   apiKey: string
   model: string
+  baseUrl?: string // For provider compatibility
   maxRetries: number
   timeout: number
   temperature: number

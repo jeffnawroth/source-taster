@@ -15,6 +15,7 @@ export class MatchingService {
     this.config = config
     this.client = new OpenAI({
       apiKey: config.apiKey,
+      baseURL: config.baseUrl, // Support for different providers
       maxRetries: config.maxRetries,
       timeout: config.timeout,
     })
