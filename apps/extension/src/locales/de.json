@@ -1,6 +1,7 @@
 {
   "about": "Über uns",
   "about-description": "Erfahre mehr über die Extension",
+  "academic-details": "Akademische Details",
   "academic-institutional": "Akademisch & Institutionell",
   "advanced-fields": "Erweiterte Felder",
   "advanced-fields-description": "Diese Felder sind optional und können zusätzliche Matching-Präzision für spezialisierte Inhaltstypen bieten. Aktivieren Sie nur die für Ihren Anwendungsfall relevanten Felder.",
@@ -291,6 +292,7 @@
   "field-originalLanguage": "Originalsprache",
   "field-originalTitle": "Originaltitel",
   "field-page-type": "Seitentyp",
+  "field-pageType": "Seitentyp",
   "field-pages": "Seiten",
   "field-paragraphNumber": "Absatznummer",
   "field-peerReviewed": "Peer-Review",
@@ -305,6 +307,7 @@
   "field-retrievalDate": "Abrufdatum",
   "field-season": "Jahreszeit",
   "field-series": "Serie",
+  "field-series-number": "Seriennummer",
   "field-seriesNumber": "Seriennummer",
   "field-sourceType": "Quellentyp",
   "field-subjects": "Fachbereiche",

@@ -1,17 +1,18 @@
 <script setup lang="ts">
+import type { ReferenceMetadataFields } from '@source-taster/types'
 import { mdiBookOpen, mdiCalendar, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
-import { ACADEMIC_FIELDS, CORE_FIELDS, DATE_FIELDS, type ExtractableField, IDENTIFIER_FIELDS, PUBLICATION_FIELDS, TECHNICAL_FIELDS } from '@source-taster/types'
+import { ACADEMIC_FIELDS, CORE_FIELDS, DATE_FIELDS, IDENTIFIER_FIELDS, PUBLICATION_FIELDS, TECHNICAL_FIELDS } from '@source-taster/types'
 import { extractionSettings } from '../../../../logic'
 import ExtractionFieldSection from './ExtractionFieldSection.vue'
 
 // TRANSLATION
 const { t } = useI18n()
 
-function isFieldEnabled(field: ExtractableField): boolean {
+function isFieldEnabled(field: ReferenceMetadataFields): boolean {
   return extractionSettings.value.extractionConfig.fields.includes(field)
 }
 
-function countEnabledFields(fields: ExtractableField[]): number {
+function countEnabledFields(fields: ReferenceMetadataFields[]): number {
   return fields.filter(field => isFieldEnabled(field)).length
 }
 

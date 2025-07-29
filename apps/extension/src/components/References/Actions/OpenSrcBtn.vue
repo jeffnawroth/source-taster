@@ -21,7 +21,7 @@ const primaryUrl = computed(() => {
   if (reference.metadata.identifiers?.pmid) {
     return `https://pubmed.ncbi.nlm.nih.gov/${reference.metadata.identifiers.pmid}`
   }
-  if (reference.metadata.source.url) {
+  if (reference.metadata.source?.url) {
     return reference.metadata.source.url
   }
   return undefined

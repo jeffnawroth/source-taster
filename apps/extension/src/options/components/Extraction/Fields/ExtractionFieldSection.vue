@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ExtractableField } from '@source-taster/types'
+import type { ReferenceMetadataFields } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 
 // PROPS
 defineProps<{
   title: string
   icon: string
-  fields: ExtractableField[]
+  fields: ReferenceMetadataFields[]
   count: number
   totalFields: number
   color: string
@@ -14,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-  <v-expansion-panel>
+  <v-expansion-panel elevation="0">
     <v-expansion-panel-title>
       <div class="d-flex align-center">
         <v-icon
@@ -33,7 +33,7 @@ defineProps<{
     </v-expansion-panel-title>
     <v-expansion-panel-text>
       <v-selection-control-group
-        v-model="extractionSettings.extractionConfig"
+        v-model="extractionSettings.extractionConfig.fields"
       >
         <v-row
           dense
@@ -49,7 +49,6 @@ defineProps<{
             >
               <template #activator="{ props }">
                 <v-checkbox
-
                   v-bind="props"
                   :label="$t(`field-${field}`)"
                   :value="field"

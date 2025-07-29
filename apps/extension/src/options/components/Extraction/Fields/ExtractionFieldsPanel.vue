@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { ExtractableField } from '@source-taster/types'
+import type {
+  ReferenceMetadataFields,
+} from '@source-taster/types'
 import { mdiCheckboxMultipleMarked } from '@mdi/js'
 import {
   ACADEMIC_FIELDS,
@@ -20,7 +22,7 @@ function deselectAll() {
 }
 
 function selectAll() {
-  const allFields: ExtractableField[] = [
+  const allFields: ReferenceMetadataFields[] = [
     ...CORE_FIELDS,
     ...DATE_FIELDS,
     ...IDENTIFIER_FIELDS,

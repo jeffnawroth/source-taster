@@ -1,6 +1,7 @@
 {
   "about": "About",
   "about-description": "Learn more about the extension",
+  "academic-details": "Academic Details",
   "academic-institutional": "Academic & Institutional",
   "advanced-fields": "Advanced Fields",
   "advanced-fields-description": "These fields are optional and can provide additional matching precision for specialized content types. Enable only the fields relevant to your use case.",
@@ -290,6 +291,7 @@
   "field-originalLanguage": "Original Language",
   "field-originalTitle": "Original Title",
   "field-page-type": "Page Type",
+  "field-pageType": "Page Type",
   "field-pages": "Pages",
   "field-paragraphNumber": "Paragraph Number",
   "field-peerReviewed": "Peer Reviewed",
@@ -305,6 +307,7 @@
   "field-season": "Season",
   "field-series": "Series",
   "field-series-number": "Series Number",
+  "field-seriesNumber": "Series Number",
   "field-sourceType": "Source Type",
   "field-subjects": "Subjects",
   "field-submitted": "Submission Date",
