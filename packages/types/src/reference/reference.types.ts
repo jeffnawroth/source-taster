@@ -69,7 +69,7 @@ export const SourceInfoSchema = z.object({
 
 export const ReferenceMetadataSchema = z.object({
   title: z.string().optional().describe('Title of the work'),
-  authors: z.array(z.union([z.string(), AuthorSchema])).optional().describe('List of author names or author objects'),
+  authors: z.array(AuthorSchema).optional().describe('List of author names or author objects'),
   date: DateInfoSchema.optional().describe('Date information'),
   source: SourceInfoSchema.optional().describe('Source information'),
   identifiers: ExternalIdentifiersSchema.optional().describe('External database identifiers'),
@@ -83,7 +83,6 @@ export const FieldExtractionResultSchema = z.object({
     z.string().describe('Simple string value'),
     z.number().describe('Numeric value for fields like year, volume, etc.'),
     AuthorSchema.describe('Single author object for author fields'),
-    z.array(z.string()).describe('Array of strings'),
     z.array(AuthorSchema).describe('Array of author objects'),
   ]).describe('The value after extraction - can be string, author object, array of strings, or array of author objects'),
   actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of extraction actions applied'),

@@ -23,11 +23,11 @@ const authors = computed(() => {
 // Combine year, authors, and journal into a single subtitle string
 const subtitle = computed(() => {
   const parts = []
-  if (reference.metadata.date.year)
+  if (reference.metadata.date?.year)
     parts.push(reference.metadata.date.year)
   if (authors.value)
     parts.push(authors.value)
-  if (reference.metadata.source.containerTitle)
+  if (reference.metadata.source?.containerTitle)
     parts.push(reference.metadata.source.containerTitle)
   return parts.join(' · ')
 })
