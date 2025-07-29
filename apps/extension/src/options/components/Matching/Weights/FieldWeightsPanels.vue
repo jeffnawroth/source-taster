@@ -6,14 +6,7 @@ import {
   mdiStarFourPoints,
   mdiWrench,
 } from '@mdi/js'
-
-interface FieldDefinition {
-  key: string
-  label?: string
-  labelKey?: string
-  descriptionKey: string
-  defaultValue: number
-}
+import { FIELD_DEFINITIONS, type FieldDefinition } from '@/extension/constants/fieldWeightConstants'
 
 interface SectionDefinition {
   titleKey: string
@@ -21,8 +14,8 @@ interface SectionDefinition {
   weight: number
   showAlert?: boolean
   alertTextKey?: string
-  fields: FieldDefinition[]
-  advancedFields?: FieldDefinition[]
+  fields: readonly FieldDefinition[]
+  advancedFields?: readonly FieldDefinition[]
 }
 
 interface Props {
@@ -45,112 +38,19 @@ const fieldSections = computed((): SectionDefinition[] => [
     titleKey: 'core-fields',
     icon: mdiStarFourPoints,
     weight: props.coreFieldsWeight,
-    fields: [
-      {
-        key: 'title',
-        labelKey: 'title',
-        descriptionKey: 'field-description-title',
-        defaultValue: 25,
-      },
-      {
-        key: 'authors',
-        labelKey: 'authors',
-        descriptionKey: 'field-description-authors',
-        defaultValue: 20,
-      },
-      {
-        key: 'year',
-        labelKey: 'year',
-        descriptionKey: 'field-description-year',
-        defaultValue: 5,
-      },
-    ],
+    fields: FIELD_DEFINITIONS.core,
   },
   {
     titleKey: 'identifier-fields',
     icon: mdiCardAccountDetailsOutline,
     weight: props.identifierFieldsWeight,
-    fields: [
-      {
-        key: 'doi',
-        label: 'DOI',
-        descriptionKey: 'field-description-doi',
-        defaultValue: 15,
-      },
-      {
-        key: 'arxivId',
-        label: 'ArXiv ID',
-        descriptionKey: 'field-description-arxivId',
-        defaultValue: 8,
-      },
-      {
-        key: 'pmid',
-        label: 'PMID',
-        descriptionKey: 'field-description-pmid',
-        defaultValue: 3,
-      },
-      {
-        key: 'pmcid',
-        label: 'PMC ID',
-        descriptionKey: 'field-description-pmcid',
-        defaultValue: 2,
-      },
-      {
-        key: 'isbn',
-        label: 'ISBN',
-        descriptionKey: 'field-description-isbn',
-        defaultValue: 1,
-      },
-      {
-        key: 'issn',
-        label: 'ISSN',
-        descriptionKey: 'field-description-issn',
-        defaultValue: 1,
-      },
-    ],
+    fields: FIELD_DEFINITIONS.identifier,
   },
   {
     titleKey: 'source-fields',
     icon: mdiBookOpenVariant,
     weight: props.sourceFieldsWeight,
-    fields: [
-      {
-        key: 'containerTitle',
-        labelKey: 'container-title',
-        descriptionKey: 'field-description-containerTitle',
-        defaultValue: 10,
-      },
-      {
-        key: 'volume',
-        labelKey: 'volume',
-        descriptionKey: 'field-description-volume',
-        defaultValue: 5,
-      },
-      {
-        key: 'issue',
-        labelKey: 'issue',
-        descriptionKey: 'field-description-issue',
-        defaultValue: 3,
-      },
-      {
-        key: 'pages',
-        labelKey: 'pages',
-        descriptionKey: 'field-description-pages',
-        defaultValue: 2,
-      },
-      {
-        key: 'publisher',
-        labelKey: 'publisher',
-        descriptionKey: 'field-description-publisher',
-        defaultValue: 3,
-      },
-      {
-        key: 'url',
-        label: 'URL',
-        descriptionKey: 'field-description-url',
-        defaultValue: 2,
-      },
-    ],
+    fields: FIELD_DEFINITIONS.source,
   },
   {
     titleKey: 'advanced-fields',
@@ -158,46 +58,8 @@ const fieldSections = computed((): SectionDefinition[] => [
     weight: props.additionalFieldsWeight,
     showAlert: true,
     alertTextKey: 'advanced-fields-description',
-    fields: [
-      {
-        key: 'sourceType',
-        labelKey: 'source-type',
-        descriptionKey: 'field-description-sourceType',
-        defaultValue: 2,
-      },
-      {
-        key: 'conference',
-        labelKey: 'conference',
-        descriptionKey: 'field-description-conference',
-        defaultValue: 5,
-      },
-      {
-        key: 'subtitle',
-        labelKey: 'subtitle',
-        descriptionKey: 'field-description-subtitle',
-        defaultValue: 3,
-      },
-    ],
-    advancedFields: [
-      {
-        key: 'institution',
-        labelKey: 'institution',
-        descriptionKey: 'field-description-institution',
-        defaultValue: 3,
-      },
-      {
-        key: 'edition',
-        labelKey: 'edition',
-        descriptionKey: 'field-description-edition',
-        defaultValue: 2,
-      },
-      {
-        key: 'articleNumber',
-        labelKey: 'article-number',
-        descriptionKey: 'field-description-articleNumber',
-        defaultValue: 1,
-      },
-    ],
+    fields: FIELD_DEFINITIONS.additional.main,
+    advancedFields: FIELD_DEFINITIONS.additional.advanced,
   },
 ])
 </script>
