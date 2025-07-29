@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { MatchingActionType, Mode } from '@source-taster/types'
 import {
   mdiCheckCircleOutline,
   mdiCloseCircleOutline,
@@ -11,8 +10,9 @@ import {
   mdiTarget,
   mdiWrench,
 } from '@mdi/js'
-import { MATCHING_MODE_PRESETS, MatchingRuleCategory } from '@source-taster/types'
+import { type MatchingActionType, MatchingRuleCategory, type Mode } from '@source-taster/types'
 import { getMatchingActionTypesByCategory } from '@/extension/constants/matchingCategories'
+import { MATCHING_MODE_PRESETS } from '@/extension/constants/matchingModePresets'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION

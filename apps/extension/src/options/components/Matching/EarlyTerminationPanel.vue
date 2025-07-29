@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiFlash } from '@mdi/js'
-import { DEFAULT_EARLY_TERMINATION_CONFIG } from '@source-taster/types'
+import { DEFAULT_EARLY_TERMINATION_CONFIG } from '@/extension/constants/defaults/defaultMatchingSettings'
 import { matchingSettings } from '@/extension/logic'
 
 // TRANSLATION

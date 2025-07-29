@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiAlertCircle, mdiCheckCircle, mdiPalette } from '@mdi/js'
-import { DEFAULT_MATCH_QUALITY_THRESHOLDS } from '@source-taster/types'
+import { DEFAULT_MATCH_QUALITY_THRESHOLDS } from '@/extension/constants/defaults/defaultMatchingSettings'
 import { matchingSettings } from '@/extension/logic'
 
 const { t } = useI18n()
