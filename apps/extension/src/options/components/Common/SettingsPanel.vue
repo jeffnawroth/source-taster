@@ -30,9 +30,11 @@ defineProps<Props>()
 
     <v-expansion-panel-text>
       <v-card
-        :subtitle
         flat
       >
+        <v-card-subtitle class="text-wrap">
+          {{ subtitle }}
+        </v-card-subtitle>
         <v-card-text>
           <slot />
         </v-card-text>

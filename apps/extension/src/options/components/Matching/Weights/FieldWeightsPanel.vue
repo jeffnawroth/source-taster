@@ -8,8 +8,9 @@ const { t } = useI18n()
 <template>
   <SettingsPanel
     :icon="mdiStarFourPoints"
-    :title="t('field-weights')"
-    :description="t('field-weights-description')"
+    :title="t('field-matching-configuration')"
+    :description="t('field-matching-configuration-description')"
+    :subtitle="t('field-matching-configuration-subtitle')"
   >
     <FieldWeightsSettings />
   </SettingsPanel>
