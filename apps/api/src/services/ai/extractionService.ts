@@ -34,16 +34,27 @@ export class ExtractionService {
   }
 
   private buildSystemMessage(extractionStrategy: ExtractionStrategy): string {
-    const baseMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text. 
-    When you extract references, you MUST track every change you make in the "extractionResults" array.`
+    const baseMessage = `You are an expert bibliographic reference extraction assistant. Your task is to identify and parse academic references from text.
+
+CRITICAL REFERENCE IDENTIFICATION RULES:
+• A bibliographic reference consists of ALL related bibliographic information that belongs together, including:
+  - Author names
+  - Title
+  - Source details
+  - Date details
+  - Identifiers (DOI, PMID, etc.) that appear on the same line or immediately following lines
+• DO NOT split a single reference into multiple references
+• DOI lines, URLs, or other identifiers that appear immediately after bibliographic information belong to the SAME reference
+• Only create separate references when there are clearly distinct works being cited`
 
     const modeInstructions = this.getExtractionInstructions(extractionStrategy)
     return `${baseMessage}\n\n${modeInstructions}`
   }
 
   private buildUserMessage(text: string): string {
-    return `Extract all bibliographic references from the following text. Return structured data according to the schema:
+    return `Extract all bibliographic references from the following text. Return structured data according to the schema.
 
+Text to process:
 ${text}`
   }
 
@@ -96,8 +107,18 @@ ${text}`
     return buildInstructionsFromActionTypes(
       extractionStrategy.actionTypes,
       EXTRACTION_RULES_MAP,
-      'IMPORTANT: Only perform the following specific modifications. Do NOT make any other changes beyond what is explicitly listed below:',
-      'Extract exactly as written in the source without any modifications.',
+      `Apply only the specific modifications listed below to the source text.
+If a modification rule leads to a change in a value that will be extracted, you must create an entry in the extractionResults array. Each entry must include:
+• the fieldPath of the affected value (e.g., "metadata.title"),
+• the originalValue before the modification,
+• the extractedValue after the modification,
+• and the list of applied actionTypes.
+
+Do not add an entry to extractionResults if a rule was applied but resulted in no change to the value.
+After applying all relevant modifications, perform the extraction on the modified version of the text.
+Do not apply any changes beyond what is explicitly defined.
+`,
+      'Extract the content exactly as written in the source text. Do NOT apply any modifications, and do NOT track any changes in the "extractionResults" array. The extraction must be based strictly on the original, unmodified text.',
     )
   }
 }
