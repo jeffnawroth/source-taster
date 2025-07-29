@@ -52,7 +52,7 @@ export type AIProvider = keyof typeof AI_PROVIDERS
  */
 export const PROVIDER_MODELS = {
   openai: ['o3', 'gpt-4o', 'o3-mini'],
-  anthropic: ['claude-4-opus', 'claude-4-sonnet', 'claude-3-5-haiku'],
+  anthropic: ['claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-5-haiku-20241022'],
   google: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'],
 } as const
 
@@ -83,7 +83,7 @@ export const PROVIDER_CONFIG = {
     name: 'OpenAI',
   },
   anthropic: {
-    baseUrl: 'https://api.anthropic.com/v1',
+    baseUrl: 'https://api.anthropic.com/v1/',
     name: 'Anthropic',
   },
   google: {

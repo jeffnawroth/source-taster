@@ -14,9 +14,9 @@
   "ai-model": "KI-Modell",
   "ai-model-description": "Wählen Sie das KI-Modell für die Extraktion verwendet werden soll.",
   "ai-models": {
-    "claude-3-5-haiku": "Claude 3.5 Haiku (Schnell & Kosteneffizient)",
-    "claude-4-opus": "Claude Opus 4 (Höchste Intelligenz)",
-    "claude-4-sonnet": "Claude Sonnet 4 (Balance & Geschwindigkeit)",
+    "claude-3-5-haiku-20241022": "Claude 3.5 Haiku (Schnell & Kosteneffizient)",
+    "claude-opus-4-20250514": "Claude Opus 4 (Höchste Intelligenz)",
+    "claude-sonnet-4-20250514": "Claude Sonnet 4 (Balance & Geschwindigkeit)",
     "gemini-2-5-flash": "Gemini 2.5 Flash (Adaptives Denken)",
     "gemini-2-5-flash-lite": "Gemini 2.5 Flash-Lite (Kosteneffizienteste)",
     "gemini-2-5-pro": "Gemini 2.5 Pro (Erweiterte Argumentation)",
