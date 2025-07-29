@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ExtractionActionType, Mode } from '@source-taster/types'
-import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiTarget, mdiWrench } from '@mdi/js'
+import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiWrench } from '@mdi/js'
 import { EXTRACTION_MODE_PRESETS, ExtractionRuleCategory } from '@source-taster/types'
 import { getExtractionActionTypesByCategory } from '@/extension/constants/extractionCategories'
 import { extractionSettings } from '@/extension/logic'
@@ -33,24 +33,26 @@ function deselectAll() {
 }
 
 const modeOptions = computed(() =>
-  Object.entries(EXTRACTION_MODE_PRESETS).map(([mode]) => {
-    const iconMap: Record<Mode, string> = {
-      strict: mdiLock,
-      balanced: mdiScale,
-      tolerant: mdiTarget,
-      custom: mdiCogOutline,
-    }
+  Object.entries(EXTRACTION_MODE_PRESETS)
+    .filter(([mode]) => mode !== 'tolerant') // Filter out tolerant mode
+    .map(([mode]) => {
+      const iconMap: Record<string, string> = {
+        strict: mdiLock,
+        balanced: mdiScale,
+        // tolerant: mdiTarget, // Commented out
+        custom: mdiCogOutline,
+      }
 
-    const modeKey = mode.toLowerCase()
-    return {
-      value: mode,
-      icon: iconMap[mode as Mode],
-      label: t(`extraction-mode-${modeKey}`),
-      description: t(`extraction-mode-${modeKey}-description`),
-      tooltipTitle: t(`extraction-mode-${modeKey}-tooltip-title`),
-      tooltipDescription: t(`extraction-mode-${modeKey}-tooltip-description`),
-    }
-  }),
+      const modeKey = mode.toLowerCase()
+      return {
+        value: mode,
+        icon: iconMap[mode as Mode],
+        label: t(`extraction-mode-${modeKey}`),
+        description: t(`extraction-mode-${modeKey}-description`),
+        tooltipTitle: t(`extraction-mode-${modeKey}-tooltip-title`),
+        tooltipDescription: t(`extraction-mode-${modeKey}-tooltip-description`),
+      }
+    }),
 )
 
 const categoryConfig = {
@@ -98,11 +100,11 @@ const presetButtons = computed(() => [
     icon: mdiScale,
     onClick: () => loadRuleSet('balanced'),
   },
-  {
-    label: t('load-tolerant'),
-    icon: mdiTarget,
-    onClick: () => loadRuleSet('tolerant'),
-  },
+  // {
+  //   label: t('load-tolerant'),
+  //   icon: mdiTarget,
+  //   onClick: () => loadRuleSet('tolerant'),
+  // },
   {
     label: t('select-all'),
     icon: mdiCheckCircleOutline,
