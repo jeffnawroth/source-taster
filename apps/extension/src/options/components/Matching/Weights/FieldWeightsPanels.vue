@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldWeights } from '@source-taster/types'
+import type { FieldConfigurations } from '@source-taster/types'
 import {
   mdiBookOpenVariant,
   mdiCardAccountDetailsOutline,
@@ -8,7 +8,7 @@ import {
 } from '@mdi/js'
 
 interface FieldDefinition {
-  key: keyof FieldWeights
+  key: string
   label?: string
   labelKey?: string
   descriptionKey: string
@@ -34,7 +34,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const fieldWeights = defineModel<FieldWeights>({ required: true })
+const fieldConfigurations = defineModel<FieldConfigurations>({ required: true })
 
 // TRANSLATION
 const { t } = useI18n()
@@ -47,19 +47,19 @@ const fieldSections = computed((): SectionDefinition[] => [
     weight: props.coreFieldsWeight,
     fields: [
       {
-        key: 'title' as keyof FieldWeights,
+        key: 'title',
         labelKey: 'title',
         descriptionKey: 'field-description-title',
         defaultValue: 25,
       },
       {
-        key: 'authors' as keyof FieldWeights,
+        key: 'authors',
         labelKey: 'authors',
         descriptionKey: 'field-description-authors',
         defaultValue: 20,
       },
       {
-        key: 'year' as keyof FieldWeights,
+        key: 'year',
         labelKey: 'year',
         descriptionKey: 'field-description-year',
         defaultValue: 5,
@@ -72,37 +72,37 @@ const fieldSections = computed((): SectionDefinition[] => [
     weight: props.identifierFieldsWeight,
     fields: [
       {
-        key: 'doi' as keyof FieldWeights,
+        key: 'doi',
         label: 'DOI',
         descriptionKey: 'field-description-doi',
         defaultValue: 15,
       },
       {
-        key: 'arxivId' as keyof FieldWeights,
+        key: 'arxivId',
         label: 'ArXiv ID',
         descriptionKey: 'field-description-arxivId',
         defaultValue: 8,
       },
       {
-        key: 'pmid' as keyof FieldWeights,
+        key: 'pmid',
         label: 'PMID',
         descriptionKey: 'field-description-pmid',
         defaultValue: 3,
       },
       {
-        key: 'pmcid' as keyof FieldWeights,
+        key: 'pmcid',
         label: 'PMC ID',
         descriptionKey: 'field-description-pmcid',
         defaultValue: 2,
       },
       {
-        key: 'isbn' as keyof FieldWeights,
+        key: 'isbn',
         label: 'ISBN',
         descriptionKey: 'field-description-isbn',
         defaultValue: 1,
       },
       {
-        key: 'issn' as keyof FieldWeights,
+        key: 'issn',
         label: 'ISSN',
         descriptionKey: 'field-description-issn',
         defaultValue: 1,
@@ -115,37 +115,37 @@ const fieldSections = computed((): SectionDefinition[] => [
     weight: props.sourceFieldsWeight,
     fields: [
       {
-        key: 'containerTitle' as keyof FieldWeights,
+        key: 'containerTitle',
         labelKey: 'container-title',
         descriptionKey: 'field-description-containerTitle',
         defaultValue: 10,
       },
       {
-        key: 'volume' as keyof FieldWeights,
+        key: 'volume',
         labelKey: 'volume',
         descriptionKey: 'field-description-volume',
         defaultValue: 5,
       },
       {
-        key: 'issue' as keyof FieldWeights,
+        key: 'issue',
         labelKey: 'issue',
         descriptionKey: 'field-description-issue',
         defaultValue: 3,
       },
       {
-        key: 'pages' as keyof FieldWeights,
+        key: 'pages',
         labelKey: 'pages',
         descriptionKey: 'field-description-pages',
         defaultValue: 2,
       },
       {
-        key: 'publisher' as keyof FieldWeights,
+        key: 'publisher',
         labelKey: 'publisher',
         descriptionKey: 'field-description-publisher',
         defaultValue: 3,
       },
       {
-        key: 'url' as keyof FieldWeights,
+        key: 'url',
         label: 'URL',
         descriptionKey: 'field-description-url',
         defaultValue: 2,
@@ -160,19 +160,19 @@ const fieldSections = computed((): SectionDefinition[] => [
     alertTextKey: 'advanced-fields-description',
     fields: [
       {
-        key: 'sourceType' as keyof FieldWeights,
+        key: 'sourceType',
         labelKey: 'source-type',
         descriptionKey: 'field-description-sourceType',
         defaultValue: 2,
       },
       {
-        key: 'conference' as keyof FieldWeights,
+        key: 'conference',
         labelKey: 'conference',
         descriptionKey: 'field-description-conference',
         defaultValue: 5,
       },
       {
-        key: 'subtitle' as keyof FieldWeights,
+        key: 'subtitle',
         labelKey: 'subtitle',
         descriptionKey: 'field-description-subtitle',
         defaultValue: 3,
@@ -180,19 +180,19 @@ const fieldSections = computed((): SectionDefinition[] => [
     ],
     advancedFields: [
       {
-        key: 'institution' as keyof FieldWeights,
+        key: 'institution',
         labelKey: 'institution',
         descriptionKey: 'field-description-institution',
         defaultValue: 3,
       },
       {
-        key: 'edition' as keyof FieldWeights,
+        key: 'edition',
         labelKey: 'edition',
         descriptionKey: 'field-description-edition',
         defaultValue: 2,
       },
       {
-        key: 'articleNumber' as keyof FieldWeights,
+        key: 'articleNumber',
         labelKey: 'article-number',
         descriptionKey: 'field-description-articleNumber',
         defaultValue: 1,
@@ -218,7 +218,7 @@ const fieldSections = computed((): SectionDefinition[] => [
       <FieldWeightControl
         v-for="field in section.fields"
         :key="field.key"
-        v-model="fieldWeights[field.key]"
+        v-model="fieldConfigurations[field.key as keyof FieldConfigurations]"
         :label="field.label || t(field.labelKey || '')"
         :description="t(field.descriptionKey)"
         :default-value="field.defaultValue"
@@ -243,7 +243,7 @@ const fieldSections = computed((): SectionDefinition[] => [
             <FieldWeightControl
               v-for="field in section.advancedFields"
               :key="field.key"
-              v-model="fieldWeights[field.key]"
+              v-model="fieldConfigurations[field.key as keyof FieldConfigurations]"
               :label="field.label || t(field.labelKey || '')"
               :description="t(field.descriptionKey)"
               :default-value="field.defaultValue"

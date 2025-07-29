@@ -7,9 +7,11 @@ function resetToDefaults() {
   matchingSettings.value.matchingConfig.fieldConfigurations = { ...DEFAULT_FIELDS_CONFIG }
 }
 
-// Calculate total weight for validation
+// Calculate total weight for validation - only enabled fields
 const totalWeight = computed(() => {
-  return Object.values(matchingSettings.value.matchingConfig.fieldConfigurations).reduce((sum: number, config) => sum + (config.weight || 0), 0)
+  return Object.values(matchingSettings.value.matchingConfig.fieldConfigurations).reduce((sum: number, config) => {
+    return sum + (config?.enabled ? (config.weight || 0) : 0)
+  }, 0)
 })
 
 // Validation
@@ -19,22 +21,64 @@ const isValidConfiguration = computed(() => {
 
 // Core fields weight
 const coreFieldsWeight = computed(() => {
-  return (matchingSettings.value.matchingConfig.fieldConfigurations.title?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.authors?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.year?.weight || 0)
+  const titleConfig = matchingSettings.value.matchingConfig.fieldConfigurations.title
+  const authorsConfig = matchingSettings.value.matchingConfig.fieldConfigurations.authors
+  const yearConfig = matchingSettings.value.matchingConfig.fieldConfigurations.year
+
+  return (titleConfig?.enabled ? (titleConfig.weight || 0) : 0)
+    + (authorsConfig?.enabled ? (authorsConfig.weight || 0) : 0)
+    + (yearConfig?.enabled ? (yearConfig.weight || 0) : 0)
 })
 
 // Identifier fields weight
 const identifierFieldsWeight = computed(() => {
-  return (matchingSettings.value.matchingConfig.fieldConfigurations.doi?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.arxivId?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.pmid?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.pmcid?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.isbn?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.issn?.weight || 0)
+  const doiConfig = matchingSettings.value.matchingConfig.fieldConfigurations.doi
+  const arxivConfig = matchingSettings.value.matchingConfig.fieldConfigurations.arxivId
+  const pmidConfig = matchingSettings.value.matchingConfig.fieldConfigurations.pmid
+  const pmcidConfig = matchingSettings.value.matchingConfig.fieldConfigurations.pmcid
+  const isbnConfig = matchingSettings.value.matchingConfig.fieldConfigurations.isbn
+  const issnConfig = matchingSettings.value.matchingConfig.fieldConfigurations.issn
+
+  return (doiConfig?.enabled ? (doiConfig.weight || 0) : 0)
+    + (arxivConfig?.enabled ? (arxivConfig.weight || 0) : 0)
+    + (pmidConfig?.enabled ? (pmidConfig.weight || 0) : 0)
+    + (pmcidConfig?.enabled ? (pmcidConfig.weight || 0) : 0)
+    + (isbnConfig?.enabled ? (isbnConfig.weight || 0) : 0)
+    + (issnConfig?.enabled ? (issnConfig.weight || 0) : 0)
 })
 
 // Source fields weight
 const sourceFieldsWeight = computed(() => {
-  return (matchingSettings.value.matchingConfig.fieldConfigurations.containerTitle?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.volume?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.issue?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.pages?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.publisher?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.url?.weight || 0)
+  const containerConfig = matchingSettings.value.matchingConfig.fieldConfigurations.containerTitle
+  const volumeConfig = matchingSettings.value.matchingConfig.fieldConfigurations.volume
+  const issueConfig = matchingSettings.value.matchingConfig.fieldConfigurations.issue
+  const pagesConfig = matchingSettings.value.matchingConfig.fieldConfigurations.pages
+  const publisherConfig = matchingSettings.value.matchingConfig.fieldConfigurations.publisher
+  const urlConfig = matchingSettings.value.matchingConfig.fieldConfigurations.url
+
+  return (containerConfig?.enabled ? (containerConfig.weight || 0) : 0)
+    + (volumeConfig?.enabled ? (volumeConfig.weight || 0) : 0)
+    + (issueConfig?.enabled ? (issueConfig.weight || 0) : 0)
+    + (pagesConfig?.enabled ? (pagesConfig.weight || 0) : 0)
+    + (publisherConfig?.enabled ? (publisherConfig.weight || 0) : 0)
+    + (urlConfig?.enabled ? (urlConfig.weight || 0) : 0)
 })
 
 // Additional fields weight (specialized/advanced fields)
 const additionalFieldsWeight = computed(() => {
-  return (matchingSettings.value.matchingConfig.fieldConfigurations.sourceType?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.conference?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.institution?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.edition?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.articleNumber?.weight || 0) + (matchingSettings.value.matchingConfig.fieldConfigurations.subtitle?.weight || 0)
+  const sourceTypeConfig = matchingSettings.value.matchingConfig.fieldConfigurations.sourceType
+  const conferenceConfig = matchingSettings.value.matchingConfig.fieldConfigurations.conference
+  const institutionConfig = matchingSettings.value.matchingConfig.fieldConfigurations.institution
+  const editionConfig = matchingSettings.value.matchingConfig.fieldConfigurations.edition
+  const articleNumberConfig = matchingSettings.value.matchingConfig.fieldConfigurations.articleNumber
+  const subtitleConfig = matchingSettings.value.matchingConfig.fieldConfigurations.subtitle
+
+  return (sourceTypeConfig?.enabled ? (sourceTypeConfig.weight || 0) : 0)
+    + (conferenceConfig?.enabled ? (conferenceConfig.weight || 0) : 0)
+    + (institutionConfig?.enabled ? (institutionConfig.weight || 0) : 0)
+    + (editionConfig?.enabled ? (editionConfig.weight || 0) : 0)
+    + (articleNumberConfig?.enabled ? (articleNumberConfig.weight || 0) : 0)
+    + (subtitleConfig?.enabled ? (subtitleConfig.weight || 0) : 0)
 })
 </script>
 

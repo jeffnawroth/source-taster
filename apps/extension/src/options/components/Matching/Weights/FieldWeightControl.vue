@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { FieldConfig } from '@source-taster/types'
+
 interface Props {
   label: string
   description: string
@@ -9,12 +11,30 @@ const props = withDefaults(defineProps<Props>(), {
   defaultValue: 5,
 })
 
-const value = defineModel<number>({ default: 0 })
-
-const isEnabled = computed(() => (value.value || 0) > 0)
+const fieldConfig = defineModel<FieldConfig>({
+  default: () => ({ enabled: false, weight: 0 }),
+})
 
 function toggleField(enabled: boolean | null) {
-  value.value = enabled ? props.defaultValue : 0
+  if (enabled) {
+    fieldConfig.value = {
+      enabled: true,
+      weight: fieldConfig.value?.weight || props.defaultValue,
+    }
+  }
+  else {
+    fieldConfig.value = {
+      enabled: false,
+      weight: fieldConfig.value?.weight || 0,
+    }
+  }
+}
+
+function updateWeight(newWeight: number) {
+  fieldConfig.value = {
+    enabled: fieldConfig.value?.enabled || false,
+    weight: newWeight,
+  }
 }
 </script>
 
@@ -23,7 +43,7 @@ function toggleField(enabled: boolean | null) {
     <div class="d-flex justify-space-between align-center mb-2">
       <div class="d-flex align-center">
         <v-switch
-          :model-value="isEnabled"
+          :model-value="fieldConfig?.enabled || false"
           density="compact"
           color="primary"
           hide-details
@@ -34,20 +54,21 @@ function toggleField(enabled: boolean | null) {
       </div>
       <v-chip
         size="small"
-        :color="isEnabled ? 'primary' : 'default'"
+        :color="fieldConfig?.enabled ? 'primary' : 'default'"
       >
-        {{ value || 0 }}%
+        {{ fieldConfig?.weight || 0 }}%
       </v-chip>
     </div>
     <v-slider
-      v-model="value"
-      :disabled="!isEnabled"
+      :model-value="fieldConfig?.weight || 0"
+      :disabled="!fieldConfig?.enabled"
       :min="0"
       :max="100"
       :step="1"
       color="primary"
       show-ticks="always"
       thumb-label
+      @update:model-value="updateWeight"
     />
     <p class="text-caption text-medium-emphasis">
       {{ description }}
