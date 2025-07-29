@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import type { AIModel, AIProvider, UserAISettings } from '@source-taster/types'
-import { mdiCloud, mdiEye, mdiEyeOff, mdiInformation, mdiKey, mdiRobot } from '@mdi/js'
+import { mdiCloud, mdiEye, mdiEyeOff, mdiInformation, mdiKey, mdiRobot, mdiTestTube } from '@mdi/js'
 import { AI_PROVIDERS, PROVIDER_MODELS } from '@source-taster/types'
+import { aiSettings } from '@/extension/logic/storage'
+import { ReferencesService } from '@/extension/services/referencesService'
 
 // Modern v-model with defineModel
 const settings = defineModel<UserAISettings>({ required: true })
 
 // Show/hide API key
 const showApiKey = ref(false)
+
+// API Key testing state
+const isTestingApiKey = ref(false)
+const apiKeyTestResult = ref<{ success: boolean, message: string } | null>(null)
 
 // TRANSLATION
 const { t } = useI18n()
@@ -27,7 +33,9 @@ const modelOptions = computed(() => {
     return []
 
   return PROVIDER_MODELS[provider].map((key) => {
-    const translationKey = `ai-models.${key}`
+    // Convert dots to dashes for i18n key compatibility
+    const i18nKey = key.replace(/\./g, '-')
+    const translationKey = `ai-models.${i18nKey}`
     // Check if translation exists, fallback to key if not
     const translatedTitle = t(translationKey)
     const title = translatedTitle !== translationKey ? translatedTitle : key
@@ -106,6 +114,59 @@ const apiKeyError = computed(() => {
   }
   return null
 })
+
+// Test API key function
+async function testApiKey() {
+  if (!settings.value.apiKey || apiKeyError.value) {
+    return
+  }
+
+  isTestingApiKey.value = true
+  apiKeyTestResult.value = null
+
+  try {
+    // Temporarily set the AI settings for testing
+    const originalAiSettings = aiSettings.value
+    aiSettings.value = {
+      provider: settings.value.provider,
+      apiKey: settings.value.apiKey,
+      model: settings.value.model,
+    }
+
+    // Use the ReferencesService to test the API key with a simple extraction
+    const testText = 'Test citation: Smith, J. (2024). A test paper. Journal of Testing, 1(1), 1-5.'
+    const references = await ReferencesService.extractReferences(testText)
+
+    // Restore original AI settings
+    aiSettings.value = originalAiSettings
+
+    if (references && references.length > 0) {
+      apiKeyTestResult.value = {
+        success: true,
+        message: t('api-key-test-success'),
+      }
+    }
+    else {
+      apiKeyTestResult.value = {
+        success: false,
+        message: t('api-key-test-failed'),
+      }
+    }
+  }
+  catch (error) {
+    // Restore original AI settings in case of error
+    const originalAiSettings = aiSettings.value
+    aiSettings.value = originalAiSettings
+
+    apiKeyTestResult.value = {
+      success: false,
+      message: error instanceof Error ? error.message : t('api-key-test-error'),
+    }
+  }
+  finally {
+    isTestingApiKey.value = false
+  }
+}
 </script>
 
 <template>
@@ -139,7 +200,8 @@ const apiKeyError = computed(() => {
         :error-messages="apiKeyError"
         required
         persistent-hint
-        class="mb-4"
+        class="mb-2"
+        clearable
       >
         <template #prepend-inner>
           <v-icon :icon="mdiKey" />
@@ -153,6 +215,37 @@ const apiKeyError = computed(() => {
           />
         </template>
       </v-text-field>
+
+      <!-- API Key Test Button -->
+      <div class="d-flex align-center mb-4">
+        <v-btn
+          :loading="isTestingApiKey"
+          :disabled="!settings.apiKey || !!apiKeyError"
+          color="primary"
+          variant="outlined"
+          size="small"
+          @click="testApiKey"
+        >
+          <template #prepend>
+            <v-icon :icon="mdiTestTube" />
+          </template>
+          {{ t('test-api-key') }}
+        </v-btn>
+
+        <!-- Test Result -->
+        <div
+          v-if="apiKeyTestResult"
+          class="ml-3"
+        >
+          <v-chip
+            :color="apiKeyTestResult.success ? 'success' : 'error'"
+            size="small"
+            variant="flat"
+          >
+            {{ apiKeyTestResult.message }}
+          </v-chip>
+        </div>
+      </div>
 
       <!-- API Key Help -->
       <v-alert
