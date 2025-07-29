@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DEFAULT_FIELDS_CONFIG } from '@source-taster/types'
+import { DEFAULT_FIELDS_CONFIG } from '@/extension/constants/defaults/defaultFieldConfig'
 import { FIELD_GROUPS } from '@/extension/constants/fieldWeightConstants'
 import { matchingSettings } from '@/extension/logic'
 

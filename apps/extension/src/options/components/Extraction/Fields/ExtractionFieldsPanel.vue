@@ -3,15 +3,7 @@ import type {
   ReferenceMetadataFields,
 } from '@source-taster/types'
 import { mdiCheckboxMultipleMarked } from '@mdi/js'
-import {
-  ACADEMIC_FIELDS,
-  CORE_FIELDS,
-  DATE_FIELDS,
-  ESSENTIAL_FIELDS,
-  IDENTIFIER_FIELDS,
-  PUBLICATION_FIELDS,
-  TECHNICAL_FIELDS,
-} from '@source-taster/types'
+import { ACADEMIC_FIELDS, CORE_FIELDS, DATE_FIELDS, ESSENTIAL_FIELDS, IDENTIFIER_FIELDS, PUBLICATION_FIELDS, TECHNICAL_FIELDS } from '@/extension/constants/fieldCategoryAssignments'
 import { extractionSettings } from '@/extension/logic'
 
 // TRANSLATION

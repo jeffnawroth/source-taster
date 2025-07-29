@@ -165,19 +165,8 @@ export class CrossrefService {
       const firstAuthor = metadata.authors[0]
       let surname: string | undefined
 
-      if (typeof firstAuthor === 'string') {
-        // Parse string format to extract surname
-        const nameParts = (firstAuthor as string).split(/[,\s]+/).filter(Boolean)
-        // Try to get last word as surname, or first word if comma-separated
-        if (firstAuthor.includes(',')) {
-          surname = nameParts[0] // "Smith, John" -> "Smith"
-        }
-        else {
-          surname = nameParts[nameParts.length - 1] // "John Smith" -> "Smith"
-        }
-      }
-      else {
-        // Handle Author object structure
+      // authors array should contain Author objects according to schema
+      if (firstAuthor && typeof firstAuthor === 'object' && 'lastName' in firstAuthor) {
         surname = firstAuthor.lastName
       }
 
@@ -190,16 +179,7 @@ export class CrossrefService {
         const secondAuthor = metadata.authors[1]
         let secondSurname: string | undefined
 
-        if (typeof secondAuthor === 'string') {
-          const nameParts = (secondAuthor as string).split(/[,\s]+/).filter(Boolean)
-          if (secondAuthor.includes(',')) {
-            secondSurname = nameParts[0]
-          }
-          else {
-            secondSurname = nameParts[nameParts.length - 1]
-          }
-        }
-        else {
+        if (secondAuthor && typeof secondAuthor === 'object' && 'lastName' in secondAuthor) {
           secondSurname = secondAuthor.lastName
         }
 
@@ -447,7 +427,7 @@ export class CrossrefService {
   /**
    * Parse authors from Crossref work - return raw structure
    */
-  private parseCrossrefAuthors(authorArray: components['schemas']['Author'][]): (Author | string)[] {
+  private parseCrossrefAuthors(authorArray: components['schemas']['Author'][]): Author[] {
     return authorArray.map((author) => {
       if (author.given && author.family) {
         // Return as Author object with raw values
@@ -464,7 +444,7 @@ export class CrossrefService {
         }
       }
 
-      // Fallback to string format for incomplete data
+      // Fallback for incomplete data - create Author object with parsed name
       const parts: string[] = []
       if (author.given)
         parts.push(author.given)
@@ -472,10 +452,22 @@ export class CrossrefService {
         parts.push(author.family)
 
       if (parts.length === 0) {
-        return author.name || ''
+        // Use author.name if available, otherwise unknown
+        const fullName = author.name || 'Unknown Author'
+        const nameParts = fullName.trim().split(/\s+/)
+        return {
+          firstName: nameParts.slice(0, -1).join(' ') || undefined,
+          lastName: nameParts[nameParts.length - 1] || 'Unknown',
+        }
       }
 
-      return parts.join(' ')
+      // Parse the joined parts into firstName/lastName
+      const fullName = parts.join(' ')
+      const nameParts = fullName.trim().split(/\s+/)
+      return {
+        firstName: nameParts.slice(0, -1).join(' ') || undefined,
+        lastName: nameParts[nameParts.length - 1] || 'Unknown',
+      }
     }).filter(Boolean)
   }
 

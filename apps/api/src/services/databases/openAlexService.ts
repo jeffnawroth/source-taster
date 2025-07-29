@@ -215,8 +215,25 @@ export class OpenAlexService {
       }
       else {
         metadata.authors = work.authorships
-          .map(a => a.author?.display_name)
-          .filter(Boolean) as string[]
+          .map((a) => {
+            if (a.author?.display_name) {
+              // Parse display_name into firstName/lastName
+              const nameParts = a.author.display_name.trim().split(/\s+/)
+              if (nameParts.length > 1) {
+                return {
+                  firstName: nameParts.slice(0, -1).join(' '),
+                  lastName: nameParts[nameParts.length - 1],
+                }
+              }
+              else {
+                return {
+                  lastName: a.author.display_name,
+                }
+              }
+            }
+            return null
+          })
+          .filter((author): author is { firstName?: string, lastName: string } => Boolean(author))
       }
     }
 

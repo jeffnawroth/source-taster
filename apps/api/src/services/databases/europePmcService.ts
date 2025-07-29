@@ -253,15 +253,11 @@ export class EuropePmcService {
 
       if (metadata.authors && metadata.authors.length > 0) {
         const firstAuthor = metadata.authors[0]
-        if (typeof firstAuthor === 'string') {
-          const authorParts = firstAuthor.trim().split(/\s+/)
-          if (authorParts.length > 0) {
-            const lastName = authorParts[authorParts.length - 1]
+        if (firstAuthor && typeof firstAuthor === 'object' && 'lastName' in firstAuthor) {
+          const lastName = firstAuthor.lastName
+          if (lastName) {
             queryParts.push(`AUTH:"${this.escapeSearchTerm(lastName)}"`)
           }
-        }
-        else if (firstAuthor.lastName) {
-          queryParts.push(`AUTH:"${this.escapeSearchTerm(firstAuthor.lastName)}"`)
         }
       }
 
@@ -329,15 +325,7 @@ export class EuropePmcService {
       const authorQueries: string[] = []
 
       for (const author of metadata.authors.slice(0, 3)) { // Limit to first 3 authors to avoid overly restrictive searches
-        if (typeof author === 'string') {
-          // Simple string author - try to extract last name
-          const authorParts = author.trim().split(/\s+/)
-          if (authorParts.length > 0) {
-            const lastName = authorParts[authorParts.length - 1]
-            authorQueries.push(`AUTH:"${this.escapeSearchTerm(lastName)}"`)
-          }
-        }
-        else {
+        if (author && typeof author === 'object' && 'lastName' in author) {
           // Author object - use last name and optionally first initial
           if (author.lastName) {
             if (author.firstName) {
@@ -443,7 +431,22 @@ export class EuropePmcService {
     if (work.authorString) {
       const authors = work.authorString
         .split(',')
-        .map((author: string) => author.trim().replace(/\.$/, '')) // Remove trailing dot
+        .map((author: string) => {
+          const cleanAuthor = author.trim().replace(/\.$/, '') // Remove trailing dot
+          // Parse name into firstName/lastName
+          const nameParts = cleanAuthor.split(/\s+/)
+          if (nameParts.length > 1) {
+            return {
+              firstName: nameParts.slice(0, -1).join(' '),
+              lastName: nameParts[nameParts.length - 1],
+            }
+          }
+          else {
+            return {
+              lastName: cleanAuthor || 'Unknown',
+            }
+          }
+        })
         .filter(Boolean)
       if (authors.length > 0) {
         metadata.authors = authors
@@ -459,7 +462,19 @@ export class EuropePmcService {
           }
         }
         else if (author.fullName) {
-          return author.fullName
+          // Parse fullName into firstName/lastName
+          const nameParts = author.fullName.trim().split(/\s+/)
+          if (nameParts.length > 1) {
+            return {
+              firstName: nameParts.slice(0, -1).join(' '),
+              lastName: nameParts[nameParts.length - 1],
+            }
+          }
+          else {
+            return {
+              lastName: author.fullName || 'Unknown',
+            }
+          }
         }
         else if (author.lastName) {
           return {
@@ -467,8 +482,10 @@ export class EuropePmcService {
             firstName: author.initials || author.firstName,
           }
         }
-        return null
-      }).filter(Boolean)
+        return {
+          lastName: 'Unknown',
+        }
+      }).filter((author): author is { firstName?: string, lastName: string } => Boolean(author))
 
       if (authors.length > 0) {
         metadata.authors = authors

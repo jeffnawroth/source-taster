@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { ExtractionActionType, Mode } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiWrench } from '@mdi/js'
-import { EXTRACTION_MODE_PRESETS, ExtractionRuleCategory } from '@source-taster/types'
+import { ExtractionRuleCategory } from '@source-taster/types'
 import { getExtractionActionTypesByCategory } from '@/extension/constants/extractionCategories'
+import { EXTRACTION_MODE_PRESETS } from '@/extension/constants/extractionModePresets'
 import { extractionSettings } from '@/extension/logic'
 
 // TRANSLATION
