@@ -11,6 +11,7 @@ export interface SettingGroup<TSettings extends Record<string, any> = Record<str
     key: keyof TSettings
     label: string
     description: string
+    detailedDescription: string
     example: string
   }>
 }
@@ -104,7 +105,7 @@ const { t } = useI18n()
                           {{ setting.label }}
                         </div>
                         <div class="mb-2">
-                          {{ setting.description }}
+                          {{ setting.detailedDescription }}  <!-- GEÄNDERT von setting.description -->
                         </div>
                         <div class="text-caption">
                           <strong>{{ t('example') }}:</strong> {{ setting.example }}

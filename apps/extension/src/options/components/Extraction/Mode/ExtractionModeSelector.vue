@@ -13,11 +13,10 @@ watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
     deselectAll()
   }
   else {
-    extractionSettings.value.extractionStrategy.actionTypes = PROCESSING_MODE_PRESETS[newMode]
+    loadRuleSet(newMode)
   }
 })
 
-// === Hilfsfunktionen ===
 function loadRuleSet(preset: Mode) {
   extractionSettings.value.extractionStrategy.actionTypes = PROCESSING_MODE_PRESETS[preset]
 }
@@ -81,7 +80,8 @@ const settingGroups = computed(() => {
     settings: getExtractionActionTypesByCategory(category as ExtractionRuleCategory).map((actionType: ExtractionActionType) => ({
       key: actionType,
       label: t(`setting-${actionType}`),
-      description: t(`setting-${actionType}-description`),
+      description: t(`setting-${actionType}-short-description`), // GEÄNDERT: Kurze Beschreibung
+      detailedDescription: t(`setting-${actionType}-description`), // NEU: Detaillierte Beschreibung
       example: t(`setting-${actionType}-example`),
     })),
   }))
