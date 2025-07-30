@@ -55,6 +55,8 @@ export abstract class BaseAIService {
       messages: [
         { role: 'system', content: systemMessage },
         { role: 'user', content: userMessage },
+        { role: 'assistant', content: JSON.stringify(schema) }, // Show expected structure
+
       ],
       response_format: {
         type: 'json_schema',
@@ -81,6 +83,7 @@ export abstract class BaseAIService {
       messages: [
         { role: 'system', content: enhancedSystemMessage },
         { role: 'user', content: userMessage },
+        { role: 'assistant', content: JSON.stringify(schema) }, // Show expected structure
       ],
       response_format: { type: 'json_object' },
     })
@@ -103,10 +106,12 @@ export abstract class BaseAIService {
   ): string {
     return `${systemMessage}
 
-IMPORTANT: You must respond with valid JSON that exactly matches this schema:
+CRITICAL: You MUST respond with ONLY a valid JSON object that exactly matches this schema:
 ${JSON.stringify(schema, null, 2)}
 
-Return only the JSON object, no additional text or formatting.`
+DO NOT include any explanatory text, markdown formatting, or code blocks.
+DO NOT add any preamble or conclusion.
+Your response should be ONLY the JSON object starting with { and ending with }.`
   }
 
   /**
@@ -137,11 +142,19 @@ Return only the JSON object, no additional text or formatting.`
    */
   private parseJSONContent(content: string): any {
     try {
+      // First try direct parsing
       return JSON.parse(content)
     }
     catch {
-      console.error('Failed to parse AI response as JSON:', content)
-      throw new Error('Invalid JSON response from AI service')
+      // If direct parsing fails, try extracting JSON from markdown or explanatory text
+      try {
+        const extractedJSON = this.extractJSONFromMarkdown(content)
+        return JSON.parse(extractedJSON)
+      }
+      catch {
+        console.error('Failed to parse AI response as JSON:', content)
+        throw new Error('Invalid JSON response from AI service')
+      }
     }
   }
 
@@ -225,5 +238,27 @@ Return only the JSON object, no additional text or formatting.`
     catch (error: any) {
       return this.handleAIError(error, emptyResult, operationType)
     }
+  }
+
+  /**
+   * Extract JSON from markdown code blocks or mixed text
+   */
+  private extractJSONFromMarkdown(content: string): string {
+    // Try to extract from ```json code blocks first
+    const jsonBlockMatch = content.match(/```(?:json)?\n?([\s\S]*?)\n?```/)
+    if (jsonBlockMatch) {
+      return jsonBlockMatch[1].trim()
+    }
+
+    // Try to find JSON object boundaries in the text
+    const firstBrace = content.indexOf('{')
+    const lastBrace = content.lastIndexOf('}')
+
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      return content.substring(firstBrace, lastBrace + 1)
+    }
+
+    // If no clear boundaries found, return the content as-is
+    return content.trim()
   }
 }
