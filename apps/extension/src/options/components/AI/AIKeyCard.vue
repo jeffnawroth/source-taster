@@ -148,6 +148,7 @@ async function testApiKey() {
         flat
         clearable
         class="mb-3"
+        @click:clear="apiKey = ''"
       >
         <template #append-inner>
           <v-btn
