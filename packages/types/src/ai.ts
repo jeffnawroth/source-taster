@@ -43,6 +43,7 @@ export const AI_PROVIDERS = {
   openai: 'OpenAI',
   anthropic: 'Anthropic (Claude)',
   google: 'Google (Gemini)',
+  deepseek: 'DeepSeek',
 } as const
 
 export type AIProvider = keyof typeof AI_PROVIDERS
@@ -54,6 +55,7 @@ export const PROVIDER_MODELS = {
   openai: ['o3', 'gpt-4o', 'o3-mini'],
   anthropic: ['claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-5-haiku-20241022'],
   google: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'],
+  deepseek: ['deepseek-chat', 'deepseek-reasoner'],
 } as const
 
 // Union type of all possible models across all providers
@@ -61,6 +63,7 @@ export type AIModel =
   | typeof PROVIDER_MODELS['openai'][number]
   | typeof PROVIDER_MODELS['anthropic'][number]
   | typeof PROVIDER_MODELS['google'][number]
+  | typeof PROVIDER_MODELS['deepseek'][number]
 
 /**
  * User AI settings for the extension
@@ -90,22 +93,28 @@ export const PROVIDER_CONFIG = {
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/',
     name: 'Google AI (Gemini)',
   },
+  deepseek: {
+    baseUrl: 'https://api.deepseek.com/v1',
+    name: 'DeepSeek',
+  },
 } as const
 
 /**
  * Zod schemas for validation
  */
-export const AI_PROVIDER_SCHEMA = z.enum(['openai', 'anthropic', 'google'])
+export const AI_PROVIDER_SCHEMA = z.enum(['openai', 'anthropic', 'google', 'deepseek'])
 
 export const OPENAI_MODELS_SCHEMA = z.enum(PROVIDER_MODELS.openai)
 export const ANTHROPIC_MODELS_SCHEMA = z.enum(PROVIDER_MODELS.anthropic)
 export const GOOGLE_MODELS_SCHEMA = z.enum(PROVIDER_MODELS.google)
+export const DEEPSEEK_MODELS_SCHEMA = z.enum(PROVIDER_MODELS.deepseek)
 
 // Union schema for all models
 export const AI_MODEL_SCHEMA = z.union([
   OPENAI_MODELS_SCHEMA,
   ANTHROPIC_MODELS_SCHEMA,
   GOOGLE_MODELS_SCHEMA,
+  DEEPSEEK_MODELS_SCHEMA,
 ])
 
 /**
