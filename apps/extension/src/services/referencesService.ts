@@ -1,21 +1,31 @@
 import type { APIMatchingSettings, MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
+import { runtime } from 'webextension-polyfill'
 import { API_CONFIG } from '@/extension/env'
 import { aiSettings, extractionSettings, matchingSettings } from '@/extension/logic/storage'
+import { encryptApiKey } from '@/extension/utils/crypto'
 
 export class ReferencesService {
   /**
    * Extract references from text using AI
    */
   static async extractReferences(text: string, signal?: AbortSignal): Promise<Reference[]> {
+    // Encrypt API key for secure transmission
+    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.extract}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Extension-ID': runtime.id,
+        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
         text,
         extractionSettings: extractionSettings.value,
-        aiSettings: aiSettings.value,
+        aiSettings: {
+          provider: aiSettings.value.provider,
+          model: aiSettings.value.model,
+        },
       }),
       signal,
     })
@@ -37,13 +47,13 @@ export class ReferencesService {
    * Match references against databases
    */
   static async matchReferences(references: Reference[], signal?: AbortSignal): Promise<MatchingResult[]> {
-    // Convert to optimized MatchingReference format (only id + metadata)
+    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+
     const matchingReferences: MatchingReference[] = references.map(ref => ({
       id: ref.id,
       metadata: ref.metadata,
     }))
 
-    // Convert to optimized API settings (exclude frontend-only matchThresholds and use actionTypes directly)
     const apiMatchingSettings: APIMatchingSettings = {
       matchingStrategy: {
         actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
@@ -58,11 +68,16 @@ export class ReferencesService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Extension-ID': runtime.id,
+        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
         references: matchingReferences,
         matchingSettings: apiMatchingSettings,
-        aiSettings: aiSettings.value,
+        aiSettings: {
+          provider: aiSettings.value.provider,
+          model: aiSettings.value.model,
+        },
       }),
       signal,
     })
@@ -83,18 +98,18 @@ export class ReferencesService {
   /**
    * Match a reference against a website URL
    */
-  static async matchWebsiteReference(
+  static async matchReferenceToWebsite(
     reference: Reference,
     url: string,
     signal?: AbortSignal,
   ): Promise<WebsiteMatchingResult> {
-    // Convert to optimized MatchingReference format (only id + metadata)
+    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+
     const matchingReference: MatchingReference = {
       id: reference.id,
       metadata: reference.metadata,
     }
 
-    // Convert to optimized API settings (exclude frontend-only matchThresholds and use actionTypes directly)
     const apiMatchingSettings: APIMatchingSettings = {
       matchingStrategy: {
         actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
@@ -109,15 +124,20 @@ export class ReferencesService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Extension-ID': runtime.id,
+        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
         reference: matchingReference,
         url,
         matchingSettings: apiMatchingSettings,
-        aiSettings: aiSettings.value,
+        aiSettings: {
+          provider: aiSettings.value.provider,
+          model: aiSettings.value.model,
+          // apiKey moved to X-API-Key header
+        },
         options: {
           timeout: 10000,
-          enableWaybackMachine: true,
         },
       }),
       signal,

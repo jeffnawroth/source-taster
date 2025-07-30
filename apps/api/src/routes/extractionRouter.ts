@@ -1,7 +1,6 @@
-import { zValidator } from '@hono/zod-validator'
-import { ExtractionRequestSchema } from '@source-taster/types'
 import { Hono } from 'hono'
 import { ExtractionController } from '../controllers/extractionController'
+import { decryptApiKeyMiddleware } from '../middleware/decryption'
 
 const router = new Hono()
 const controller = new ExtractionController()
@@ -10,9 +9,6 @@ const controller = new ExtractionController()
  * @route POST /api/extract
  * @desc Extract references from text using AI
  */
-router.post('/', zValidator(
-  'json',
-  ExtractionRequestSchema,
-), c => controller.extractReferences(c))
+router.post('/', decryptApiKeyMiddleware, c => controller.extractReferences(c))
 
 export default router

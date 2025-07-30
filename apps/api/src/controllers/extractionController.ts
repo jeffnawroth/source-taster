@@ -1,9 +1,10 @@
 import type {
   ApiResponse,
-  ExtractionRequest,
   ExtractionResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
+import { ExtractionRequestSchema } from '@source-taster/types'
+
 import { ReferenceExtractionService } from '../services/referenceExtractionService'
 
 export class ExtractionController {
@@ -19,8 +20,20 @@ export class ExtractionController {
    */
   async extractReferences(c: Context) {
     try {
-      // @ts-expect-error Hono types don't infer properly for separate controller methods
-      const request = c.req.valid('json') as ExtractionRequest
+      // Get decrypted body from middleware or fall back to regular parsing
+      const rawBody = c.get('decryptedBody') || await c.req.json()
+
+      // Validate the request body (now with decrypted API key)
+      const parseResult = ExtractionRequestSchema.safeParse(rawBody)
+
+      if (!parseResult.success) {
+        return c.json({
+          success: false,
+          error: parseResult.error,
+        }, 400)
+      }
+
+      const request = parseResult.data
 
       // Perform extraction
       const references = await this.extractionService.extractReferences(request)

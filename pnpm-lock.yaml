@@ -48,6 +48,9 @@ importers:
       '@types/cheerio':
         specifier: ^1.0.0
         version: 1.0.0
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/lodash':
         specifier: ^4.17.20
         version: 4.17.20
@@ -57,6 +60,9 @@ importers:
       '@types/node':
         specifier: ^20.19.9
         version: 20.19.9
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       eslint:
         specifier: ^9.32.0
         version: 9.32.0(jiti@2.5.1)
@@ -112,6 +118,9 @@ importers:
       '@source-taster/types':
         specifier: workspace:^
         version: link:../../packages/types
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -154,6 +163,9 @@ importers:
       crx:
         specifier: ^5.0.1
         version: 5.0.1
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       eslint:
         specifier: ^9.32.0
         version: 9.32.0(jiti@2.5.1)
@@ -247,6 +259,12 @@ importers:
 
   packages/types:
     devDependencies:
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -1190,6 +1208,9 @@ packages:
     resolution: {integrity: sha512-zAaImHWoh5RY2CLgU2mvg3bl2k3F65B0N5yphuII3ythFLPmJhL7sj1RDu6gSxcgqHlETbr/lhA2OBY+WF1fXQ==}
     deprecated: This is a stub types definition. cheerio provides its own type definitions, so you do not need this installed.
 
+  '@types/crypto-js@4.2.2':
+    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
+
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -2074,6 +2095,9 @@ packages:
     resolution: {integrity: sha512-n/PzBx/fR1+xZCiJBats9y5zw/a+YBcoJ0ABnUaY56xb1RpXuFhsiCMpNY6WjVtylLzhUUXSWsbitesVg7v2vg==}
     engines: {node: '>=10'}
     hasBin: true
+
+  crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   css-select@5.2.2:
     resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
@@ -5934,6 +5958,8 @@ snapshots:
     dependencies:
       cheerio: 1.1.2
 
+  '@types/crypto-js@4.2.2': {}
+
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 2.1.0
@@ -6890,6 +6916,8 @@ snapshots:
       commander: 2.20.3
       node-rsa: 1.1.1
       pbf: 3.3.0
+
+  crypto-js@4.2.0: {}
 
   css-select@5.2.2:
     dependencies:

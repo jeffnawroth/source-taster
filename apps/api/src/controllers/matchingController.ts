@@ -2,11 +2,10 @@ import type {
   ApiResponse,
   MatchingResponse,
   SourceEvaluation,
-  ValidatedMatchingRequest,
-  WebsiteMatchingRequest,
   WebsiteMatchingResult,
 } from '@source-taster/types'
 import type { Context } from 'hono'
+import { ValidatedMatchingRequestSchema, WebsiteMatchingRequestSchema } from '@source-taster/types'
 import { DatabaseMatchingService } from '../services/databaseMatchingService'
 import { WebsiteMatchingService } from '../services/websiteMatchingService'
 
@@ -25,8 +24,20 @@ export class MatchingController {
    */
   async matchReferences(c: Context) {
     try {
-      // @ts-expect-error Hono types don't infer properly for separate controller methods
-      const request = c.req.valid('json') as ValidatedMatchingRequest
+      // Get decrypted body from middleware or fall back to regular parsing
+      const rawBody = c.get('decryptedBody') || await c.req.json()
+
+      // Validate the request body (now with decrypted API key)
+      const parseResult = ValidatedMatchingRequestSchema.safeParse(rawBody)
+
+      if (!parseResult.success) {
+        return c.json({
+          success: false,
+          error: parseResult.error,
+        }, 400)
+      }
+
+      const request = parseResult.data
 
       // Intelligent routing: detect references with URLs and process them accordingly
       const results = []
@@ -177,8 +188,20 @@ export class MatchingController {
    */
   async matchWebsiteReference(c: Context) {
     try {
-      // @ts-expect-error Hono types don't infer properly for separate controller methods
-      const request = c.req.valid('json') as WebsiteMatchingRequest
+      // Get decrypted body from middleware or fall back to regular parsing
+      const rawBody = c.get('decryptedBody') || await c.req.json()
+
+      // Validate the request body (now with decrypted API key)
+      const parseResult = WebsiteMatchingRequestSchema.safeParse(rawBody)
+
+      if (!parseResult.success) {
+        return c.json({
+          success: false,
+          error: parseResult.error,
+        }, 400)
+      }
+
+      const request = parseResult.data
 
       // Match website reference
       const result = await this.websiteMatchingService.matchWebsiteReference(
