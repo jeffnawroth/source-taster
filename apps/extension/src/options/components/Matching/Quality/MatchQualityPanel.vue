@@ -10,11 +10,30 @@ function resetToDefaults() {
   matchingSettings.value.matchingConfig.matchThresholds = { ...DEFAULT_MATCH_QUALITY_THRESHOLDS }
 }
 
-// Threshold slider items
-const thresholdSliderItems = [
+// Computed values for dynamic min/max constraints
+const exactMatchThreshold = computed({
+  get: () => matchingSettings.value.matchingConfig.matchThresholds.exactMatchThreshold,
+  set: (value) => {
+    // Ensure exact match is at least 1 point higher than high match
+    const minValue = Math.max(value, matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold + 1)
+    matchingSettings.value.matchingConfig.matchThresholds.exactMatchThreshold = minValue
+  },
+})
+
+const highMatchThreshold = computed({
+  get: () => matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold,
+  set: (value) => {
+    // Ensure high match is at least 1 point lower than exact match
+    const maxValue = Math.min(value, matchingSettings.value.matchingConfig.matchThresholds.exactMatchThreshold - 1)
+    matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold = maxValue
+  },
+})
+
+// Threshold slider items with dynamic constraints
+const thresholdSliderItems = computed(() => [
   {
     label: t('exact-match-threshold'),
-    min: 90,
+    min: Math.max(91, highMatchThreshold.value + 1), // Never below 91 and always at least 1 higher than high match
     max: 100,
     color: 'success',
     description: t('exact-match-threshold-description'),
@@ -23,12 +42,12 @@ const thresholdSliderItems = [
   {
     label: t('high-match-threshold'),
     min: 50,
-    max: 95,
+    max: Math.min(99, exactMatchThreshold.value - 1), // Never above 99 and always at least 1 lower than exact match
     color: 'warning',
     description: t('high-match-threshold-description'),
     icon: mdiAlertCircle,
   },
-]
+])
 </script>
 
 <template>
@@ -45,12 +64,12 @@ const thresholdSliderItems = [
       <v-card-text>
         <!-- Exact Match Threshold -->
         <ThresholdSlider
-          v-model="matchingSettings.matchingConfig.matchThresholds.exactMatchThreshold"
+          v-model="exactMatchThreshold"
           v-bind="thresholdSliderItems[0]"
         />
 
         <ThresholdSlider
-          v-model="matchingSettings.matchingConfig.matchThresholds.highMatchThreshold"
+          v-model="highMatchThreshold"
           v-bind="thresholdSliderItems[1]"
         />
       </v-card-text>
