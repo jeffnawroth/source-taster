@@ -138,6 +138,9 @@ async function testApiKey() {
     </v-card-subtitle>
     <v-card-text>
       <!-- API Key Input -->
+      <p class="font-weight-bold mb-2">
+        {{ t('ai-settings-api-key-label') }}
+      </p>
       <v-text-field
         v-model="apiKey"
         :placeholder="t('ai-settings-api-key-placeholder')"
