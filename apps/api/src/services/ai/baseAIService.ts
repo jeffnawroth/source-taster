@@ -83,7 +83,6 @@ export abstract class BaseAIService {
       messages: [
         { role: 'system', content: enhancedSystemMessage },
         { role: 'user', content: userMessage },
-        { role: 'assistant', content: JSON.stringify(schema) }, // Show expected structure
       ],
       response_format: { type: 'json_object' },
     })

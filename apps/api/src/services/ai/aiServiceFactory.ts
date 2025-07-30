@@ -53,8 +53,8 @@ export class AIServiceFactory {
       apiKey,
       model: model as any, // Type assertion for environment model
       baseUrl,
-      maxRetries: 3,
-      timeout: 60000, // 60 seconds
+      maxRetries: 2,
+      timeout: 30000, // 60 seconds
       temperature: 0.1, // Low temperature for consistent extraction
     }
 
