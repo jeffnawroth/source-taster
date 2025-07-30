@@ -17,6 +17,8 @@
     "claude-3-5-haiku-20241022": "Claude 3.5 Haiku (Fast & Cost-Efficient)",
     "claude-opus-4-20250514": "Claude Opus 4 (Highest Intelligence)",
     "claude-sonnet-4-20250514": "Claude Sonnet 4 (Balance & Speed)",
+    "deepseek-chat": "DeepSeek Chat (General Purpose)",
+    "deepseek-reasoner": "DeepSeek Reasoner (Advanced Problem Solving)",
     "gemini-2-5-flash": "Gemini 2.5 Flash (Adaptive Thinking)",
     "gemini-2-5-flash-lite": "Gemini 2.5 Flash-Lite (Most Cost-Efficient)",
     "gemini-2-5-pro": "Gemini 2.5 Pro (Enhanced Reasoning)",
