@@ -1,24 +1,13 @@
 import type { AIMatchingResponse, APIMatchingSettings, MatchingActionType, OpenAIConfig } from '@source-taster/types'
 import type { ReferenceMetadataFields } from 'node_modules/@source-taster/types/dist/reference/reference.constants'
-import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
-import type { ZodSchema } from 'zod'
-import { OpenAI } from 'openai'
 import { MATCHING_RULES_MAP } from '../../constants/matchingRules'
 import { createMatchingSchema } from '../../types/matching'
 import { buildInstructionsFromActionTypes } from '../../utils/instructionGenerator'
+import { BaseAIService } from './baseAIService'
 
-export class MatchingService {
-  private client: OpenAI
-  private config: OpenAIConfig
-
+export class MatchingService extends BaseAIService {
   constructor(config: OpenAIConfig) {
-    this.config = config
-    this.client = new OpenAI({
-      apiKey: config.apiKey,
-      baseURL: config.baseUrl, // Support for different providers
-      maxRetries: config.maxRetries,
-      timeout: config.timeout,
-    })
+    super(config)
   }
 
   async matchFields(
@@ -31,7 +20,7 @@ export class MatchingService {
 
     try {
       const response = await this.callOpenAI(systemMessage, prompt, schema.jsonSchema)
-      return this.parseOpenAIResponse(response, schema.MatchingResponseSchema)
+      return this.parseOpenAIResponse(response, schema.MatchingResponseSchema) as AIMatchingResponse
     }
     catch (error: any) {
       return this.handleMatchingError(error)
@@ -57,41 +46,6 @@ CRITICAL INSTRUCTIONS:
     return `${baseMessage}\n\n${modeInstructions}`
   }
 
-  private async callOpenAI(systemMessage: string, userMessage: string, schema: ResponseFormatJSONSchema.JSONSchema) {
-    return await this.client.chat.completions.create({
-      model: this.config.model,
-      temperature: this.config.temperature,
-      messages: [
-        { role: 'system', content: systemMessage },
-        { role: 'user', content: userMessage },
-      ],
-      response_format: {
-        type: 'json_schema',
-        json_schema: schema,
-      },
-    })
-  }
-
-  private parseOpenAIResponse(response: OpenAI.Chat.Completions.ChatCompletion, DynamicMatchingResponseSchema: ZodSchema): AIMatchingResponse {
-    const content = response.choices[0]?.message?.content
-    if (!content) {
-      throw new Error('No content in OpenAI response')
-    }
-
-    let parsedResponse
-    try {
-      parsedResponse = JSON.parse(content)
-    }
-    catch {
-      console.error('Failed to parse OpenAI matching response as JSON:', content)
-      throw new Error('Invalid JSON response from OpenAI matching')
-    }
-
-    // Validate response with dynamic Zod schema
-    const validatedResponse = DynamicMatchingResponseSchema.parse(parsedResponse) as AIMatchingResponse
-    return validatedResponse
-  }
-
   private handleMatchingError(error: any): AIMatchingResponse {
     if (error.name === 'ZodError') {
       console.error('Matching validation error:', error.errors)
@@ -99,7 +53,7 @@ CRITICAL INSTRUCTIONS:
       return { fieldDetails: [] }
     }
 
-    console.error('OpenAI matchFields error:', error)
+    console.error('AI matchFields error:', error)
     throw new Error(`Failed to match fields: ${error.message}`)
   }
 
