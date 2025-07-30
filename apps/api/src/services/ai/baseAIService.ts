@@ -31,48 +31,82 @@ export abstract class BaseAIService {
     schema: ResponseFormatJSONSchema.JSONSchema,
   ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
     try {
-      // Try with structured JSON schema first (OpenAI, Anthropic, Google)
-      return await this.client.chat.completions.create({
-        model: this.config.model,
-        temperature: this.config.temperature,
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: userMessage },
-        ],
-        response_format: {
-          type: 'json_schema',
-          json_schema: schema,
-        },
-      })
+      return await this.makeStructuredAPICall(systemMessage, userMessage, schema)
     }
     catch (error: any) {
-      // Fallback for providers that don't support json_schema (DeepSeek, etc.)
-      if (error?.error?.type === 'invalid_request_error'
-        && error?.error?.message?.includes('response_format')) {
-        console.warn(`Provider ${this.config.model} doesn't support json_schema, falling back to json_object with schema instructions`)
+      if (this.isJsonSchemaUnsupportedError(error)) {
+        return await this.makeUnstructuredAPICall(systemMessage, userMessage, schema)
+      }
+      throw error
+    }
+  }
 
-        // Add JSON schema instruction to system message
-        const enhancedSystemMessage = `${systemMessage}
+  /**
+   * Make structured API call with json_schema support
+   */
+  private async makeStructuredAPICall(
+    systemMessage: string,
+    userMessage: string,
+    schema: ResponseFormatJSONSchema.JSONSchema,
+  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+    return await this.client.chat.completions.create({
+      model: this.config.model,
+      temperature: this.config.temperature,
+      messages: [
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: userMessage },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: schema,
+      },
+    })
+  }
+
+  /**
+   * Make unstructured API call with json_object fallback
+   */
+  private async makeUnstructuredAPICall(
+    systemMessage: string,
+    userMessage: string,
+    schema: ResponseFormatJSONSchema.JSONSchema,
+  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+    console.warn(`Provider ${this.config.model} doesn't support json_schema, falling back to json_object with schema instructions`)
+
+    const enhancedSystemMessage = this.enhanceSystemMessageWithSchema(systemMessage, schema)
+
+    return await this.client.chat.completions.create({
+      model: this.config.model,
+      temperature: this.config.temperature,
+      messages: [
+        { role: 'system', content: enhancedSystemMessage },
+        { role: 'user', content: userMessage },
+      ],
+      response_format: { type: 'json_object' },
+    })
+  }
+
+  /**
+   * Check if error indicates json_schema is unsupported
+   */
+  private isJsonSchemaUnsupportedError(error: any): boolean {
+    return error?.error?.type === 'invalid_request_error'
+      && error?.error?.message?.includes('response_format')
+  }
+
+  /**
+   * Enhance system message with schema instructions for fallback
+   */
+  private enhanceSystemMessageWithSchema(
+    systemMessage: string,
+    schema: ResponseFormatJSONSchema.JSONSchema,
+  ): string {
+    return `${systemMessage}
 
 IMPORTANT: You must respond with valid JSON that exactly matches this schema:
 ${JSON.stringify(schema, null, 2)}
 
 Return only the JSON object, no additional text or formatting.`
-
-        return await this.client.chat.completions.create({
-          model: this.config.model,
-          temperature: this.config.temperature,
-          messages: [
-            { role: 'system', content: enhancedSystemMessage },
-            { role: 'user', content: userMessage },
-          ],
-          response_format: { type: 'json_object' }, // Basic JSON format
-        })
-      }
-
-      // Re-throw other errors
-      throw error
-    }
   }
 
   /**
@@ -82,22 +116,40 @@ Return only the JSON object, no additional text or formatting.`
     response: OpenAI.Chat.Completions.ChatCompletion,
     schema: any,
   ): T {
+    const content = this.extractResponseContent(response)
+    const parsedResponse = this.parseJSONContent(content)
+    return this.validateResponse<T>(parsedResponse, schema)
+  }
+
+  /**
+   * Extract content from OpenAI response
+   */
+  private extractResponseContent(response: OpenAI.Chat.Completions.ChatCompletion): string {
     const content = response.choices[0]?.message?.content
     if (!content) {
       throw new Error('No content in AI response')
     }
+    return content
+  }
 
-    let parsedResponse
+  /**
+   * Parse JSON content with error handling
+   */
+  private parseJSONContent(content: string): any {
     try {
-      parsedResponse = JSON.parse(content)
+      return JSON.parse(content)
     }
     catch {
       console.error('Failed to parse AI response as JSON:', content)
       throw new Error('Invalid JSON response from AI service')
     }
+  }
 
-    const validatedResponse = schema.parse(parsedResponse) as T
-    return validatedResponse
+  /**
+   * Validate parsed response against schema
+   */
+  private validateResponse<T>(parsedResponse: any, schema: any): T {
+    return schema.parse(parsedResponse) as T
   }
 
   /**
@@ -146,7 +198,19 @@ Return only the JSON object, no additional text or formatting.`
   }
 
   /**
-   * Generic AI operation template method
+   * Execute AI operation without error handling - pure business logic
+   */
+  protected async executeAIOperation<T>(
+    systemMessage: string,
+    userMessage: string,
+    schema: { jsonSchema: ResponseFormatJSONSchema.JSONSchema, responseSchema: any },
+  ): Promise<T> {
+    const response = await this.callOpenAI(systemMessage, userMessage, schema.jsonSchema)
+    return this.parseOpenAIResponse(response, schema.responseSchema) as T
+  }
+
+  /**
+   * Template method for AI operations with error handling
    */
   protected async performAIOperation<T>(
     systemMessage: string,
@@ -156,8 +220,7 @@ Return only the JSON object, no additional text or formatting.`
     operationType: string,
   ): Promise<T> {
     try {
-      const response = await this.callOpenAI(systemMessage, userMessage, schema.jsonSchema)
-      return this.parseOpenAIResponse(response, schema.responseSchema) as T
+      return await this.executeAIOperation(systemMessage, userMessage, schema)
     }
     catch (error: any) {
       return this.handleAIError(error, emptyResult, operationType)

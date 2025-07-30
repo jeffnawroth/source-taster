@@ -15,18 +15,23 @@ export class MatchingService extends BaseAIService {
     availableFields: ReferenceMetadataFields[],
   ): Promise<AIMatchingResponse> {
     const systemMessage = this.buildMatchingSystemMessage(matchingSettings, availableFields)
-    const schema = createMatchingSchema(availableFields)
+    const schema = this.createMatchingSchema(availableFields)
 
     return this.performAIOperation(
       systemMessage,
       prompt,
-      {
-        jsonSchema: schema.jsonSchema,
-        responseSchema: schema.MatchingResponseSchema,
-      },
+      schema,
       { fieldDetails: [] }, // empty result
       'matching',
     )
+  }
+
+  private createMatchingSchema(availableFields: ReferenceMetadataFields[]) {
+    const schema = createMatchingSchema(availableFields)
+    return {
+      jsonSchema: schema.jsonSchema,
+      responseSchema: schema.MatchingResponseSchema,
+    }
   }
 
   private buildMatchingSystemMessage(

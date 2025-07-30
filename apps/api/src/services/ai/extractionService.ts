@@ -11,18 +11,23 @@ export class ExtractionService extends BaseAIService {
   async extractReferences(extractionRequest: ExtractionRequest): Promise<AIExtractionResponse> {
     const systemMessage = this.buildExtractionSystemMessage(extractionRequest.extractionSettings.extractionStrategy)
     const userMessage = this.buildUserMessage(extractionRequest.text)
-    const schema = createDynamicExtractionSchema(extractionRequest.extractionSettings)
+    const schema = this.createExtractionSchema(extractionRequest.extractionSettings)
 
     return this.performAIOperation(
       systemMessage,
       userMessage,
-      {
-        jsonSchema: schema.jsonSchema,
-        responseSchema: schema.DynamicExtractionResponseSchema,
-      },
+      schema,
       { references: [] }, // empty result
       'extraction',
     )
+  }
+
+  private createExtractionSchema(extractionSettings: any) {
+    const schema = createDynamicExtractionSchema(extractionSettings)
+    return {
+      jsonSchema: schema.jsonSchema,
+      responseSchema: schema.DynamicExtractionResponseSchema,
+    }
   }
 
   private buildExtractionSystemMessage(extractionStrategy: ExtractionStrategy): string {
