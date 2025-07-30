@@ -12,9 +12,13 @@ defineProps<Props>()
   <v-container>
     <v-card
       variant="text"
-      :prepend-icon="icon"
       :subtitle="description"
     >
+      <template #prepend>
+        <v-icon size="x-large">
+          {{ icon }}
+        </v-icon>
+      </template>
       <template #title>
         <v-card-title class="text-h5 font-weight-bold">
           {{ title }}
@@ -23,7 +27,12 @@ defineProps<Props>()
 
       <v-card-text>
         <v-divider class="my-4" />
-        <slot />
+        <div
+          class="mx-auto"
+          style="max-width: 600px;"
+        >
+          <slot />
+        </div>
       </v-card-text>
     </v-card>
   </v-container>

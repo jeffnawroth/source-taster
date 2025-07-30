@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiEarth, mdiHelpCircleOutline, mdiInformationOutline, mdiPalette, mdiTune } from '@mdi/js'
+import { mdiBrain, mdiEarth, mdiHelpCircleOutline, mdiInformationOutline, mdiPalette, mdiTune } from '@mdi/js'
 
 // I18n
 const { t } = useI18n()
@@ -10,6 +10,7 @@ const drawer = defineModel<boolean>()
 // Data
 const items = ref([
   { prependIcon: mdiTune, title: computed(() => t('expert-settings')), to: '/' },
+  { prependIcon: mdiBrain, title: computed(() => t('ai-settings-title')), to: '/ai' },
   { prependIcon: mdiEarth, title: computed(() => t('language')), to: '/language' },
   { prependIcon: mdiPalette, title: computed(() => t('appearance')), to: '/appearance' },
   { prependIcon: mdiInformationOutline, title: computed(() => t('about')), to: '/about' },
