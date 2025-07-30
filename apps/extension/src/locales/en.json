@@ -393,7 +393,7 @@
   "hr": "hr",
   "identifier-fields": "Identifier Fields",
   "identifiers": "Identifiers",
-  "idle-state-text": "You have not entered any input yet or have not started the verification. Please enter text or upload a PDF file and click on 'Verify'",
+  "idle-state-text": "You have not entered any input yet or have not started the verification. Please enter text or import a PDF file and click on 'Verify'",
   "idle-state-title": "Input or verification pending",
   "ignore-case": "Ignore Case",
   "ignore-case-description": "Match text regardless of uppercase or lowercase letters",
@@ -405,7 +405,7 @@
   "ignore-whitespace-description": "Match text ignoring spaces, tabs, and line breaks",
   "ignore-whitespace-example": "\"Cell Biology\" matches \"CellBiology\" and \"Cell  Biology\"",
   "impact": "Impact",
-  "import-pdf-or-add-references": "Upload a PDF file or paste references into the text field to start verification.",
+  "import-pdf-or-add-references": "Import a PDF file or paste references into the text field to start verification.",
   "in-press": "In Press",
   "in-press-indicator": "in press",
   "input-required": "Input required",
@@ -542,7 +542,7 @@
   "no-matching-source-found": " No matching source found or verification failed",
   "no-references-detected": "No references detected",
   "no-references-found": "No references found",
-  "no-references-found-text": "Please check the entered text or upload a document with properly formatted references. Make sure that citation details are complete and correct.",
+  "no-references-found-text": "Please check the entered text or import a document with properly formatted references. Make sure that citation details are complete and correct.",
   "no-references-found-title": "Unfortunately, no references could be found",
   "no-references-to-check": "No references to check yet",
   "no-references-verified": "0/{total} references verified",
@@ -555,6 +555,41 @@
   "not-verified": "Not verified",
   "note": "Note",
   "o3-mini-description": "Fast, flexible, intelligent reasoning model",
+  "onboarding": {
+    "actions": {
+      "back": "Back",
+      "complete": "Get Started",
+      "next": "Next"
+    },
+    "apiKey": {
+      "description": "To use The Source Taster, you need to provide an API key from a supported AI provider. Your key is only used for reference processing.",
+      "hint": "Enter your API key from your chosen provider",
+      "info": "Your API key is encrypted and stored locally in your browser. It is never shared with third parties.",
+      "learnMore": "Learn how to get an API key",
+      "learnMoreUrl": "https://platform.openai.com/api-keys",
+      "title": "Configure Your AI Provider",
+      "validation": {
+        "minLength": "API key must be at least 10 characters",
+        "required": "API key is required"
+      }
+    },
+    "features": {
+      "extraction": "Extract references from text using AI",
+      "matching": "Match references against academic databases",
+      "verification": "Verify source authenticity"
+    },
+    "progress": "Step {current} of {total}",
+    "ready": {
+      "description": "The Source Taster is now configured and ready to use. You can start extracting and verifying references from any text.",
+      "nextSteps": "You can now paste text or import PDFs to extract and verify references.",
+      "success": "Configuration completed successfully!",
+      "title": "You're All Set!"
+    },
+    "welcome": {
+      "description": "The Source Taster helps you to extract and verify academic references using AI. Let's get you set up!",
+      "title": "Welcome to The Source Taster"
+    }
+  },
   "open-source": "Open source",
   "open-source-tooltip": "Open the original source in a new tab",
   "original": "Original",
@@ -862,40 +897,5 @@
   "year": "Year",
   "year-match": "Year Match",
   "year-suffix": "Year Suffix",
-  "yes": "Yes",
-  "onboarding": {
-    "progress": "Step {current} of {total}",
-    "welcome": {
-      "title": "Welcome to Source Taster",
-      "description": "Source Taster helps you extract, validate, and match academic references using AI. Let's get you set up!"
-    },
-    "apiKey": {
-      "title": "Configure Your AI Provider",
-      "description": "To use Source Taster, you need to provide an API key from a supported AI provider. Your key is stored securely and only used for reference processing.",
-      "info": "Your API key is encrypted and stored locally in your browser. It is never shared with third parties.",
-      "hint": "Enter your API key from your chosen provider",
-      "learnMore": "Learn how to get an API key",
-      "learnMoreUrl": "https://platform.openai.com/api-keys",
-      "validation": {
-        "required": "API key is required",
-        "minLength": "API key must be at least 10 characters"
-      }
-    },
-    "ready": {
-      "title": "You're All Set!",
-      "description": "Source Taster is now configured and ready to use. You can start extracting references from any text.",
-      "success": "Configuration completed successfully!",
-      "nextSteps": "You can now paste text to extract references, or visit any webpage to analyze its citations."
-    },
-    "features": {
-      "extraction": "Extract references from text using AI",
-      "matching": "Match references against academic databases",
-      "validation": "Validate and verify source authenticity"
-    },
-    "actions": {
-      "next": "Next",
-      "back": "Back",
-      "complete": "Get Started"
-    }
-  }
+  "yes": "Yes"
 }
