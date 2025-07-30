@@ -1,6 +1,7 @@
 import type { OpenAIConfig } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { OpenAI } from 'openai'
+import { buildInstructionsFromActionTypes } from '../../utils/instructionGenerator'
 
 /**
  * Base AI service with common functionality for all AI providers
@@ -97,5 +98,69 @@ Return only the JSON object, no additional text or formatting.`
 
     const validatedResponse = schema.parse(parsedResponse) as T
     return validatedResponse
+  }
+
+  /**
+   * Build system message with base instructions and specific mode instructions
+   */
+  protected buildSystemMessage(
+    baseMessage: string,
+    actionTypes: any[],
+    rulesMap: Record<string, any>,
+    modePrefix: string,
+    fallbackMessage: string,
+  ): string {
+    const modeInstructions = this.buildInstructions(actionTypes, rulesMap, modePrefix, fallbackMessage)
+    return `${baseMessage}\n\n${modeInstructions}`
+  }
+
+  /**
+   * Build instructions from action types using the instruction generator
+   */
+  protected buildInstructions(
+    actionTypes: any[],
+    rulesMap: Record<string, any>,
+    modePrefix: string,
+    fallbackMessage: string,
+  ): string {
+    return buildInstructionsFromActionTypes(
+      actionTypes,
+      rulesMap,
+      modePrefix,
+      fallbackMessage,
+    )
+  }
+
+  /**
+   * Generic error handler for AI operations
+   */
+  protected handleAIError<T>(error: any, emptyResult: T, operationType: string): T {
+    if (error.name === 'ZodError') {
+      console.error(`${operationType} validation error:`, error.errors)
+      console.warn(`Returning empty result due to validation error`)
+      return emptyResult
+    }
+
+    console.error(`AI ${operationType} error:`, error)
+    throw new Error(`Failed to ${operationType}: ${error.message}`)
+  }
+
+  /**
+   * Generic AI operation template method
+   */
+  protected async performAIOperation<T>(
+    systemMessage: string,
+    userMessage: string,
+    schema: { jsonSchema: ResponseFormatJSONSchema.JSONSchema, responseSchema: any },
+    emptyResult: T,
+    operationType: string,
+  ): Promise<T> {
+    try {
+      const response = await this.callOpenAI(systemMessage, userMessage, schema.jsonSchema)
+      return this.parseOpenAIResponse(response, schema.responseSchema) as T
+    }
+    catch (error: any) {
+      return this.handleAIError(error, emptyResult, operationType)
+    }
   }
 }

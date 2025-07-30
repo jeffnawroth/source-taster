@@ -1,8 +1,7 @@
-import type { AIMatchingResponse, APIMatchingSettings, MatchingActionType, OpenAIConfig } from '@source-taster/types'
+import type { AIMatchingResponse, APIMatchingSettings, OpenAIConfig } from '@source-taster/types'
 import type { ReferenceMetadataFields } from 'node_modules/@source-taster/types/dist/reference/reference.constants'
 import { MATCHING_RULES_MAP } from '../../constants/matchingRules'
 import { createMatchingSchema } from '../../types/matching'
-import { buildInstructionsFromActionTypes } from '../../utils/instructionGenerator'
 import { BaseAIService } from './baseAIService'
 
 export class MatchingService extends BaseAIService {
@@ -15,19 +14,22 @@ export class MatchingService extends BaseAIService {
     matchingSettings: APIMatchingSettings,
     availableFields: ReferenceMetadataFields[],
   ): Promise<AIMatchingResponse> {
-    const systemMessage = this.buildSystemMessage(matchingSettings, availableFields)
+    const systemMessage = this.buildMatchingSystemMessage(matchingSettings, availableFields)
     const schema = createMatchingSchema(availableFields)
 
-    try {
-      const response = await this.callOpenAI(systemMessage, prompt, schema.jsonSchema)
-      return this.parseOpenAIResponse(response, schema.MatchingResponseSchema) as AIMatchingResponse
-    }
-    catch (error: any) {
-      return this.handleMatchingError(error)
-    }
+    return this.performAIOperation(
+      systemMessage,
+      prompt,
+      {
+        jsonSchema: schema.jsonSchema,
+        responseSchema: schema.MatchingResponseSchema,
+      },
+      { fieldDetails: [] }, // empty result
+      'matching',
+    )
   }
 
-  private buildSystemMessage(
+  private buildMatchingSystemMessage(
     matchingSettings: APIMatchingSettings,
     availableFields: ReferenceMetadataFields[],
   ): string {
@@ -42,24 +44,9 @@ CRITICAL INSTRUCTIONS:
 - If a field is missing in either reference or source, give it a score of 0
 - Do NOT skip any of the ${availableFields.length} required fields in your response`
 
-    const modeInstructions = this.getMatchingInstructions(matchingSettings.matchingStrategy.actionTypes)
-    return `${baseMessage}\n\n${modeInstructions}`
-  }
-
-  private handleMatchingError(error: any): AIMatchingResponse {
-    if (error.name === 'ZodError') {
-      console.error('Matching validation error:', error.errors)
-      console.warn('Returning empty fieldDetails array due to validation error')
-      return { fieldDetails: [] }
-    }
-
-    console.error('AI matchFields error:', error)
-    throw new Error(`Failed to match fields: ${error.message}`)
-  }
-
-  private getMatchingInstructions(actionTypes: MatchingActionType[]): string {
-    return buildInstructionsFromActionTypes(
-      actionTypes,
+    return this.buildSystemMessage(
+      baseMessage,
+      matchingSettings.matchingStrategy.actionTypes,
       MATCHING_RULES_MAP,
       'IMPORTANT: Apply the following rules when comparing fields. Do NOT apply any other rules beyond what is explicitly listed below. The field score should be given after applying the rules:',
       'Compare fields as they are without modifications.',
