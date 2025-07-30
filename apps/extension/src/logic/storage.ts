@@ -28,6 +28,18 @@ export const extractionSettings = useWebExtensionStorage('extraction-settings', 
  */
 export const matchingSettings = useWebExtensionStorage('matching-settings', { ...DEFAULT_MATCHING_SETTINGS })
 
+/**
+ * Onboarding completion status
+ */
+export const hasCompletedOnboarding = useWebExtensionStorage('onboarding-completed', false)
+
+/**
+ * Reset onboarding status (useful for re-running setup)
+ */
+export function resetOnboarding() {
+  hasCompletedOnboarding.value = false
+}
+
 declare let chrome: any
 
 // Utility to handle storing and retrieving data in chrome.storage

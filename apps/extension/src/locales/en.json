@@ -862,5 +862,40 @@
   "year": "Year",
   "year-match": "Year Match",
   "year-suffix": "Year Suffix",
-  "yes": "Yes"
+  "yes": "Yes",
+  "onboarding": {
+    "progress": "Step {current} of {total}",
+    "welcome": {
+      "title": "Welcome to Source Taster",
+      "description": "Source Taster helps you extract, validate, and match academic references using AI. Let's get you set up!"
+    },
+    "apiKey": {
+      "title": "Configure Your AI Provider",
+      "description": "To use Source Taster, you need to provide an API key from a supported AI provider. Your key is stored securely and only used for reference processing.",
+      "info": "Your API key is encrypted and stored locally in your browser. It is never shared with third parties.",
+      "hint": "Enter your API key from your chosen provider",
+      "learnMore": "Learn how to get an API key",
+      "learnMoreUrl": "https://platform.openai.com/api-keys",
+      "validation": {
+        "required": "API key is required",
+        "minLength": "API key must be at least 10 characters"
+      }
+    },
+    "ready": {
+      "title": "You're All Set!",
+      "description": "Source Taster is now configured and ready to use. You can start extracting references from any text.",
+      "success": "Configuration completed successfully!",
+      "nextSteps": "You can now paste text to extract references, or visit any webpage to analyze its citations."
+    },
+    "features": {
+      "extraction": "Extract references from text using AI",
+      "matching": "Match references against academic databases",
+      "validation": "Validate and verify source authenticity"
+    },
+    "actions": {
+      "next": "Next",
+      "back": "Back",
+      "complete": "Get Started"
+    }
+  }
 }

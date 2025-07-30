@@ -862,5 +862,40 @@
   "year": "Jahr",
   "year-match": "Jahr-Übereinstimmung",
   "year-suffix": "Jahr-Suffix",
-  "yes": "Ja"
+  "yes": "Ja",
+  "onboarding": {
+    "progress": "Schritt {current} von {total}",
+    "welcome": {
+      "title": "Willkommen bei Source Taster",
+      "description": "Source Taster hilft Ihnen dabei, akademische Referenzen mit KI zu extrahieren, zu validieren und abzugleichen. Lassen Sie uns loslegen!"
+    },
+    "apiKey": {
+      "title": "KI-Anbieter konfigurieren",
+      "description": "Um Source Taster zu verwenden, benötigen Sie einen API-Schlüssel von einem unterstützten KI-Anbieter. Ihr Schlüssel wird sicher gespeichert und nur für die Referenzverarbeitung verwendet.",
+      "info": "Ihr API-Schlüssel wird verschlüsselt und lokal in Ihrem Browser gespeichert. Er wird niemals an Dritte weitergegeben.",
+      "hint": "Geben Sie Ihren API-Schlüssel vom gewählten Anbieter ein",
+      "learnMore": "Erfahren Sie, wie Sie einen API-Schlüssel erhalten",
+      "learnMoreUrl": "https://platform.openai.com/api-keys",
+      "validation": {
+        "required": "API-Schlüssel ist erforderlich",
+        "minLength": "API-Schlüssel muss mindestens 10 Zeichen lang sein"
+      }
+    },
+    "ready": {
+      "title": "Alles bereit!",
+      "description": "Source Taster ist jetzt konfiguriert und einsatzbereit. Sie können mit der Extraktion von Referenzen aus beliebigen Texten beginnen.",
+      "success": "Konfiguration erfolgreich abgeschlossen!",
+      "nextSteps": "Sie können jetzt Text einfügen, um Referenzen zu extrahieren, oder eine beliebige Webseite besuchen, um deren Zitate zu analysieren."
+    },
+    "features": {
+      "extraction": "Referenzen aus Text mit KI extrahieren",
+      "matching": "Referenzen gegen akademische Datenbanken abgleichen",
+      "validation": "Authentizität von Quellen validieren und überprüfen"
+    },
+    "actions": {
+      "next": "Weiter",
+      "back": "Zurück",
+      "complete": "Loslegen"
+    }
+  }
 }
