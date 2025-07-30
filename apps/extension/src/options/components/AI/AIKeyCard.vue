@@ -162,8 +162,8 @@ async function testApiKey() {
       <!-- API Key Test Section -->
       <v-btn
         :disabled="!apiKey || !!apiKeyError"
-        variant="outlined"
-        rounded="lg"
+        variant="tonal"
+        color="primary"
         class="mb-3"
         @click="testApiKey"
       >
