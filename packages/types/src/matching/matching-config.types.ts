@@ -15,8 +15,8 @@ export const FieldConfigurationsSchema = z.record(
 export const MatchQualitySchema = z.enum(['exact', 'high', 'none']).describe('Match quality classification')
 
 export const MatchQualityThresholdsSchema = z.object({
-  exactMatchThreshold: z.number().min(0).max(100).describe('Minimum score for exact match'),
-  highMatchThreshold: z.number().min(0).max(100).describe('Minimum score for high quality match'),
+  highMatchThreshold: z.number().min(0).max(100).describe('Minimum score for high match'),
+  partialMatchThreshold: z.number().min(0).max(100).describe('Minimum score for partial match'),
 })
 
 export const EarlyTerminationConfigSchema = z.object({

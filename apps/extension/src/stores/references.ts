@@ -3,6 +3,7 @@ import type { ExtractedReference } from '../types/reference'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { ReferencesService } from '@/extension/services/referencesService'
+import { isScoreMatched } from '@/extension/utils/scoreUtils'
 
 export const useReferencesStore = defineStore('references', () => {
   // State
@@ -123,9 +124,9 @@ export const useReferencesStore = defineStore('references', () => {
 
       // Update the specific reference
       if (result) {
-        // Use score-based matching instead of isMatched field
+        // Use score-based matching with user-defined thresholds
         const matchingScore = getBestMatchingScore(result)
-        const isMatched = matchingScore >= 70 // 70% threshold for matching
+        const isMatched = isScoreMatched(matchingScore) // Use utility function with user-defined thresholds
 
         references.value[index] = {
           ...references.value[index],
@@ -290,9 +291,9 @@ export const useReferencesStore = defineStore('references', () => {
 
       // Update the specific reference
       if (result) {
-        // Use score-based matching instead of isMatched field
+        // Use score-based matching with user-defined thresholds
         const matchingScore = getBestMatchingScore(result)
-        const isMatched = matchingScore >= 70 // 70% threshold for matching
+        const isMatched = isScoreMatched(matchingScore) // Use utility function with user-defined thresholds
 
         references.value[index] = {
           ...references.value[index],

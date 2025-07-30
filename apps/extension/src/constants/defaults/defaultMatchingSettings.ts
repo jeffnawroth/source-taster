@@ -13,8 +13,8 @@ export const DEFAULT_MATCHING_MODE: Mode = 'balanced'
  * Default match quality thresholds
  */
 export const DEFAULT_MATCH_QUALITY_THRESHOLDS: MatchQualityThresholds = {
-  exactMatchThreshold: 95,
-  highMatchThreshold: 70,
+  highMatchThreshold: 80,
+  partialMatchThreshold: 50,
 }
 
 /**

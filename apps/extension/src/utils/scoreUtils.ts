@@ -2,40 +2,46 @@
  * Utility functions for handling matching scores and colors
  */
 
+import { matchingSettings } from '@/extension/logic'
+
 /**
- * Get color based on matching score
- * Aligned with API threshold of 75% for matching
+ * Get color based on matching score using user-defined thresholds
  */
 export function getScoreColor(score: number): string {
-  // 75+ = matched (success) - matches API threshold
-  if (score >= 75)
+  const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+
+  // Exact match threshold = success (green) - uses highMatchThreshold from types (this is the higher value)
+  if (score >= thresholds.highMatchThreshold)
     return 'success'
 
-  // 50-74 = medium confidence (warning)
-  if (score >= 50)
+  // High match threshold = warning (orange/yellow) - uses partialMatchThreshold from types (this is the lower value)
+  if (score >= thresholds.partialMatchThreshold)
     return 'warning'
 
-  // <50 = low confidence (error)
+  // Below partial match threshold = error (red)
   return 'error'
 }
 
-// /**
-//  * Get human-readable score description
-//  */
-// export function getScoreDescription(score: number): string {
-//   if (score >= 75)
-//     return 'High confidence match'
-//   if (score >= 50)
-//     return 'Medium confidence match'
-//   return 'Low confidence match'
-// }
+/**
+ * Get human-readable score description based on user-defined thresholds
+ */
+export function getScoreDescription(score: number): string {
+  const thresholds = matchingSettings.value.matchingConfig.matchThresholds
 
-// /**
-//  * Check if score is considered matched (matches API logic)
-//  */
-// export function isScoreMatched(score: number): boolean {
-//   return score >= 75
-// }
+  if (score >= thresholds.highMatchThreshold)
+    return 'High match'
+  if (score >= thresholds.partialMatchThreshold)
+    return 'Partial match'
+  return 'Low match'
+}
+
+/**
+ * Check if score is considered matched (high or exact match)
+ */
+export function isScoreMatched(score: number): boolean {
+  const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+  return score >= thresholds.highMatchThreshold
+}
 
 /**
  * Check if a reference should show re-match option
@@ -44,7 +50,9 @@ export function getScoreColor(score: number): string {
 export function shouldShowReMatch(status: string, score?: number): boolean {
   if (status === 'error')
     return true
-  if (score !== undefined && score < 50)
-    return true // Below medium confidence
+  if (score !== undefined) {
+    const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+    return score < thresholds.highMatchThreshold // Below high confidence
+  }
   return false
 }
