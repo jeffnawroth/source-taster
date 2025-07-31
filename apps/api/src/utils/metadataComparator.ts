@@ -27,10 +27,12 @@ export class MetadataComparator {
       const value1 = _.get(obj1, path)
       const value2 = _.get(obj2, path)
 
-      // Both values must exist and not be null/undefined/empty string
+      // Both values must exist and not be null/undefined/empty string/empty array
       return _.has(obj2, path)
         && value1 != null && value2 != null
         && value1 !== '' && value2 !== ''
+        && !(Array.isArray(value1) && value1.length === 0)
+        && !(Array.isArray(value2) && value2.length === 0)
     })
   }
 
