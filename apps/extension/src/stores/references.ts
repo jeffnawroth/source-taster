@@ -1,4 +1,4 @@
-import type { MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
+import type { MatchingResult, Reference } from '@source-taster/types'
 import type { ExtractedReference } from '../types/reference'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -333,69 +333,6 @@ export const useReferencesStore = defineStore('references', () => {
     }
   }
 
-  // Match a reference against a website URL
-  async function matchReferenceWebsite(index: number, url: string): Promise<WebsiteMatchingResult | null> {
-    if (index < 0 || index >= references.value.length) {
-      console.error('Invalid reference index for website matching:', index)
-      return null
-    }
-
-    // Prevent concurrent operations
-    if (currentlyMatchingIndex.value >= 0) {
-      console.warn('Cannot start website matching: another matching is already in progress')
-      return null
-    }
-
-    const reference = references.value[index]
-
-    // Create new abort controller for this website matching
-    const websiteMatchController = new AbortController()
-    const previousController = abortController
-    abortController = websiteMatchController
-
-    try {
-      // Set currently matching index
-      currentlyMatchingIndex.value = index
-
-      // Create a fresh reference object for matching
-      const refToMatch: Reference = {
-        id: reference.id,
-        originalText: reference.originalText,
-        metadata: reference.metadata,
-      }
-
-      // Match the reference against the website
-      const result = await ReferencesService.matchWebsiteReference(
-        refToMatch,
-        url,
-        websiteMatchController.signal,
-      )
-
-      // Check if operation was cancelled
-      if (websiteMatchController.signal.aborted) {
-        return null
-      }
-
-      return result
-    }
-    catch (error) {
-      // Don't handle as error if it was just cancelled
-      if (websiteMatchController.signal.aborted || (error instanceof Error && error.name === 'AbortError')) {
-        return null
-      }
-
-      console.error('Website matching failed:', error)
-      throw error
-    }
-    finally {
-      // Clear currently matching index
-      currentlyMatchingIndex.value = -1
-
-      // Restore previous abort controller
-      abortController = previousController
-    }
-  }
-
   return {
     // State
     inputText,
@@ -417,6 +354,6 @@ export const useReferencesStore = defineStore('references', () => {
     clearReferences,
     cancelExtraction,
     reMatchReference,
-    matchReferenceWebsite,
+    // matchReferenceWebsite,
   }
 })
