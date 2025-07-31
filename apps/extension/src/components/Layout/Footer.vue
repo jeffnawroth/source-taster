@@ -1,23 +1,31 @@
 <script setup lang="ts">
+import { useReferencesStore } from '@/extension/stores/references'
+
 // DATE
 const fullYear = computed(() => new Date().getFullYear())
+const { t } = useI18n()
+
+const { references } = storeToRefs(useReferencesStore())
+
+const hasReferences = computed(() => references.value.length > 0)
 </script>
 
 <template>
   <v-footer
-    app
     tile
+    class="text-center d-flex flex-column"
+    :class="{ 'ga-2 py-4': hasReferences }"
+    app
   >
-    <v-row
-      justify="center"
-      no-gutters
+    <div
+      v-show="hasReferences"
+      class="text-caption font-weight-regular opacity-60"
     >
-      <v-col
-        class="text-center"
-        cols="12"
-      >
-        {{ fullYear }} — <strong>{{ $t('app-title') }}</strong>
-      </v-col>
-    </v-row>
+      {{ t('ai-disclaimer-detailed') }}
+    </div>
+
+    <div>
+      {{ fullYear }} — <strong>{{ t('app-title') }}</strong>
+    </div>
   </v-footer>
 </template>
