@@ -1,54 +1,25 @@
 <script setup lang="ts">
 import type { AIProvider } from '@source-taster/types'
-import { mdiCheckboxMarkedCircleOutline, mdiEye, mdiEyeOff, mdiInformation, mdiKeyOutline } from '@mdi/js'
-import { ReferencesService } from '@/extension/services/referencesService'
+import { mdiKeyOutline } from '@mdi/js'
 
-// Props
-interface Props {
+const props = defineProps<{
   provider: AIProvider
-}
+}>()
 
-const props = defineProps<Props>()
+const { t } = useI18n()
 
 // Modern v-model with defineModel
 const apiKey = defineModel<string>({ required: true })
 
-// Local state
-const showApiKey = ref(false)
-const isTestingApiKey = ref(false)
-const apiKeyTestResult = ref<{ success: boolean, message: string } | null>(null)
-
-// TRANSLATION
-const { t } = useI18n()
-
-// Helper to get the correct API key link for each provider
-const apiKeyLink = computed(() => {
-  switch (props.provider) {
-    case 'openai':
-      return 'https://platform.openai.com/api-keys'
-    case 'anthropic':
-      return 'https://console.anthropic.com/settings/keys'
-    case 'google':
-      return 'https://aistudio.google.com/app/apikey'
-    case 'deepseek':
-      return 'https://platform.deepseek.com/api_keys'
-    default:
-      return 'https://platform.openai.com/api-keys'
+// API key validation - now required
+const apiKeyError = computed(() => {
+  if (!apiKey.value) {
+    return t('ai-settings-api-key-required')
   }
-})
-
-// Helper to get the correct API key help text for each provider
-const apiKeyHelpText = computed(() => {
-  switch (props.provider) {
-    case 'openai':
-      return t('ai-settings-api-key-help-openai')
-    case 'anthropic':
-      return t('ai-settings-api-key-help-anthropic')
-    case 'google':
-      return t('ai-settings-api-key-help-google')
-    default:
-      return t('ai-settings-api-key-help')
+  if (!isValidApiKeyFormat(apiKey.value, props.provider)) {
+    return t('ai-settings-invalid-api-key-format')
   }
+  return null
 })
 
 function isValidApiKeyFormat(key: string, provider: AIProvider): boolean {
@@ -66,54 +37,8 @@ function isValidApiKeyFormat(key: string, provider: AIProvider): boolean {
   }
 }
 
-// API key validation - now required
-const apiKeyError = computed(() => {
-  if (!apiKey.value) {
-    return t('ai-settings-api-key-required')
-  }
-  if (!isValidApiKeyFormat(apiKey.value, props.provider)) {
-    return t('ai-settings-invalid-api-key-format')
-  }
-  return null
-})
-
-// Test API key function
-async function testApiKey() {
-  if (!apiKey.value || apiKeyError.value) {
-    return
-  }
-
-  isTestingApiKey.value = true
-  apiKeyTestResult.value = null
-
-  try {
-    // Use the ReferencesService to test the API key with a simple extraction
-    const testText = 'Test citation: Smith, J. (2024). A test paper. Journal of Testing, 1(1), 1-5.'
-    const references = await ReferencesService.extractReferences(testText)
-
-    if (references && references.length > 0) {
-      apiKeyTestResult.value = {
-        success: true,
-        message: t('api-key-test-success'),
-      }
-    }
-    else {
-      apiKeyTestResult.value = {
-        success: false,
-        message: t('api-key-test-failed'),
-      }
-    }
-  }
-  catch (error) {
-    apiKeyTestResult.value = {
-      success: false,
-      message: error instanceof Error ? error.message : t('api-key-test-error'),
-    }
-  }
-  finally {
-    isTestingApiKey.value = false
-  }
-}
+// Local state
+const apiKeyTestResult = ref<{ success: boolean, message: string } | null>(null)
 </script>
 
 <template>
@@ -141,50 +66,18 @@ async function testApiKey() {
       <p class="font-weight-bold mb-2">
         {{ t('ai-settings-api-key-label') }}
       </p>
-      <v-text-field
+      <APIKeyInput
         v-model="apiKey"
-        :placeholder="t('ai-settings-api-key-placeholder')"
-        :type="showApiKey ? 'text' : 'password'"
-        :error-messages="apiKeyError"
-        density="compact"
-        variant="solo-filled"
-        flat
-        clearable
-        class="mb-3"
-        @click:clear="apiKey = ''"
-      >
-        <template #append-inner>
-          <v-btn
-            :icon="showApiKey ? mdiEyeOff : mdiEye"
-            variant="text"
-            size="small"
-            @click="showApiKey = !showApiKey"
-          />
-        </template>
-      </v-text-field>
+        :provider
+        :api-key-error
+      />
 
-      <!-- API Key Test Section -->
-      <v-btn
-        :disabled="!apiKey || !!apiKeyError"
-        variant="tonal"
-        color="primary"
-        class="mb-3"
-        @click="testApiKey"
-      >
-        <template #prepend>
-          <v-progress-circular
-            v-if="isTestingApiKey"
-            size="20"
-            width="2"
-            indeterminate
-          />
-          <v-icon
-            v-else
-            :icon="mdiCheckboxMarkedCircleOutline"
-          />
-        </template>
-        {{ t('test-api-key') }}
-      </v-btn>
+      <APIKeyTestBtn
+        v-model="
+          apiKeyTestResult"
+        :api-key
+        :api-key-error
+      />
 
       <!-- Test Result Alert -->
       <v-alert
@@ -197,26 +90,9 @@ async function testApiKey() {
         {{ apiKeyTestResult.message }}
       </v-alert>
 
-      <!-- API Key Help Information -->
-      <v-alert
-        type="info"
-        variant="tonal"
-        density="compact"
-      >
-        <template #prepend>
-          <v-icon :icon="mdiInformation" />
-        </template>
-        <div class="text-body-2">
-          {{ apiKeyHelpText }}
-          <a
-            :href="apiKeyLink"
-            target="_blank"
-            class="text-decoration-none"
-          >
-            {{ t('ai-settings-get-api-key') }}
-          </a>
-        </div>
-      </v-alert>
+      <APIKeyLink
+        :provider="props.provider"
+      />
     </v-card-text>
   </v-card>
 </template>
