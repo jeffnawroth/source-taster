@@ -7,16 +7,6 @@ const { t } = useI18n()
 
 const { currentPhase, extractedCount, totalCount, isExtraction, currentlyMatchingReference, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
 const { cancelExtraction, extractAndMatchReferences } = useReferencesStore()
-// Progress feedback for matching
-const showProgressFeedback = computed(() => {
-  // Show during main extraction (extract + match all)
-  const isMainExtraction = isExtraction.value && (currentPhase.value === 'extracting' || currentPhase.value === 'matching')
-
-  // Show during individual re-matching (when currentlyMatchingIndex is set but not main extraction)
-  const isReMatching = !isExtraction.value && currentlyMatchingIndex.value >= 0
-
-  return isMainExtraction || isReMatching
-})
 
 const progressText = computed(() => {
   if (currentPhase.value === 'extracting') {
@@ -111,7 +101,6 @@ const progressPercentage = computed(() => {
 
 <template>
   <v-alert
-    v-if="showProgressFeedback"
     density="compact"
     variant="tonal"
     color="primary"
