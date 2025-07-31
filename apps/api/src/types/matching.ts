@@ -14,7 +14,7 @@ export function createMatchingSchema(availableFields: ReferenceMetadataFields[])
 
   const MatchingResponseSchema = z.object({
     fieldDetails: z.array(AIMatchFieldDetailSchema)
-      .min(availableFields.length)
+      // .min(availableFields.length)
       .max(availableFields.length)
       .describe(`Array of exactly ${availableFields.length} field match scores - one for each available field`),
   })
