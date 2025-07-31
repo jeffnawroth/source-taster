@@ -49,20 +49,38 @@ export abstract class BaseAIService {
     userMessage: string,
     schema: ResponseFormatJSONSchema.JSONSchema,
   ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+      { role: 'system', content: systemMessage },
+      { role: 'user', content: userMessage },
+    ]
+
+    // Only add assistant message for Anthropic/Claude models
+    if (this.isAnthropicProvider()) {
+      messages.push({ role: 'assistant', content: JSON.stringify(schema) })
+    }
+
     return await this.client.chat.completions.create({
       model: this.config.model,
       temperature: this.config.temperature,
-      messages: [
-        { role: 'system', content: systemMessage },
-        { role: 'user', content: userMessage },
-        { role: 'assistant', content: JSON.stringify(schema) }, // Show expected structure
-
-      ],
+      messages,
       response_format: {
         type: 'json_schema',
         json_schema: schema,
       },
     })
+  }
+
+  /**
+   * Check if the current provider is Anthropic/Claude
+   */
+  private isAnthropicProvider(): boolean {
+    // Check if baseURL contains anthropic or if model starts with claude
+    const baseUrl = this.config.baseUrl?.toLowerCase() || ''
+    const model = this.config.model.toLowerCase()
+
+    return baseUrl.includes('anthropic')
+      || baseUrl.includes('claude')
+      || model.startsWith('claude')
   }
 
   /**
