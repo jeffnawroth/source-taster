@@ -11,7 +11,9 @@
   "dependencies": {
     "@hono/node-server": "^1.17.1",
     "@hono/zod-validator": "^0.7.2",
+    "@types/damerau-levenshtein": "^1.0.2",
     "cheerio": "^1.1.2",
+    "damerau-levenshtein": "^1.0.8",
     "hono": "^4.8.10",
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.24.6"
