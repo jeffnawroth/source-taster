@@ -55,7 +55,6 @@ export class MatchingController {
               reference,
               url,
               request.matchingSettings,
-              request.aiSettings,
             )
 
             // Convert website matching result to standard matching result format
@@ -208,7 +207,6 @@ export class MatchingController {
         request.reference,
         request.url,
         request.matchingSettings,
-        request.aiSettings,
         request.options,
       )
 
