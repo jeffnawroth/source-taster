@@ -1,6 +1,9 @@
 /**
  * API-related types and interfaces
  */
+import type { ExternalSource } from './matching/matching-result'
+import { z } from 'zod'
+import { MatchingReferenceSchema } from './matching'
 
 /**
  * Standard API response wrapper for all endpoints
@@ -16,3 +19,31 @@ export interface ApiResponse<T = any> {
   /** Additional human-readable message */
   message?: string
 }
+
+/**
+ * Validation schema for SearchRequest
+ */
+export const SearchRequestSchema = z.object({
+  references: z.array(MatchingReferenceSchema).min(1).describe('Array of reference metadata to search for'),
+})
+
+/**
+ * Search result for a single reference
+ */
+export interface SearchResult {
+  /** ID of the reference that was searched */
+  referenceId: string
+  /** Candidates found in external databases */
+  candidates: ExternalSource[]
+}
+
+/**
+ * Response containing search results from external databases
+ */
+export interface SearchResponse {
+  /** Individual search results per reference */
+  results: SearchResult[]
+}
+
+// Export the inferred type from the schema
+export type SearchRequest = z.infer<typeof SearchRequestSchema>
