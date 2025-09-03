@@ -24,67 +24,64 @@ export class DatabaseMatchingService {
     const { earlyTermination } = matchingSettings.matchingConfig
 
     // Choose search strategy based on early termination settings
-    const candidates = earlyTermination.enabled
-      ? await this.searchWithEarlyTermination(reference, matchingSettings)
-      : await this.searchService.searchAllDatabases(reference)
-
-    // Match candidates against the reference
     const sourceEvaluations = earlyTermination.enabled
-      ? await this.matchCandidatesWithEarlyTermination(candidates, reference, matchingSettings)
-      : await this.matchAllCandidates(candidates, reference, matchingSettings)
+      ? await this.matchWithEarlyTermination(reference, matchingSettings)
+      : await this.matchWithFullSearch(reference, matchingSettings)
 
     return this.buildMatchingResult(sourceEvaluations)
   }
 
   /**
-   * Search with early termination - stop searching when we find a good enough candidate
+   * Match with full search - search all databases then evaluate all candidates
    */
-  private async searchWithEarlyTermination(
+  private async matchWithFullSearch(
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
-  ): Promise<ExternalSource[]> {
-    const { threshold } = matchingSettings.matchingConfig.earlyTermination
-
-    // Create evaluation function for early termination
-    const evaluateCandidate = async (candidate: ExternalSource): Promise<boolean> => {
-      try {
-        const matchDetails = await this.deterministicMatchingService.matchReference(
-          reference,
-          candidate,
-          matchingSettings,
-        )
-        return matchDetails.overallScore >= threshold
-      }
-      catch {
-        return false // Continue searching if evaluation fails
-      }
-    }
-
-    return await this.searchService.searchWithEarlyTermination(reference, evaluateCandidate)
+  ): Promise<SourceEvaluation[]> {
+    const candidates = await this.searchService.searchAllDatabases(reference)
+    return await this.matchAllCandidates(candidates, reference, matchingSettings)
   }
 
-  private async matchCandidatesWithEarlyTermination(
-    candidates: ExternalSource[],
+  /**
+   * Match with early termination - search databases sequentially and stop when good match found
+   */
+  private async matchWithEarlyTermination(
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
   ): Promise<SourceEvaluation[]> {
     const { threshold } = matchingSettings.matchingConfig.earlyTermination
     const sourceEvaluations: SourceEvaluation[] = []
+    const databases = this.searchService.getDatabasesByPriority()
 
-    for (const candidate of candidates) {
-      const evaluation = await this.evaluateSource(reference, candidate, matchingSettings)
+    for (const databaseInfo of databases) {
+      try {
+        // Search in single database
+        const candidate = await this.searchService.searchSingleDatabase(reference, databaseInfo)
 
-      if (!evaluation) {
-        continue // Skip failed evaluation
+        if (candidate) {
+          console.warn(`DatabaseMatchingService: Found candidate in ${databaseInfo.name}:`, candidate.id)
+
+          // Immediately evaluate the candidate
+          const evaluation = await this.evaluateSource(reference, candidate, matchingSettings)
+          sourceEvaluations.push(evaluation)
+
+          // Check if this candidate is good enough to stop searching
+          if (evaluation.matchDetails.overallScore >= threshold) {
+            console.warn(`DatabaseMatchingService: Early termination after ${databaseInfo.name} - score ${evaluation.matchDetails.overallScore} >= ${threshold}`)
+            break
+          }
+        }
+        else {
+          console.warn(`DatabaseMatchingService: No candidate found in ${databaseInfo.name}`)
+        }
       }
-
-      sourceEvaluations.push(evaluation)
-
-      if (this.shouldTerminateEarly(evaluation, threshold)) {
-        break
+      catch (error) {
+        console.error(`DatabaseMatchingService: Error searching in ${databaseInfo.name}:`, error)
+        // Continue with next database even if one fails
       }
     }
 
+    console.warn(`DatabaseMatchingService: Early termination completed with ${sourceEvaluations.length} evaluations for reference ${reference.id}`)
     return sourceEvaluations
   }
 
@@ -98,10 +95,6 @@ export class DatabaseMatchingService {
     }
 
     return await this.evaluateAllSources(reference, candidates, matchingSettings)
-  }
-
-  private shouldTerminateEarly(evaluation: SourceEvaluation, threshold: number): boolean {
-    return evaluation.matchDetails.overallScore >= threshold
   }
 
   private async evaluateAllSources(

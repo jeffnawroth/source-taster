@@ -70,47 +70,41 @@ export class DatabaseSearchService {
   }
 
   /**
-   * Search for a reference sequentially with early termination capability
-   * @param reference The reference to search for
-   * @param evaluateCandidate Function to evaluate if a candidate is good enough to stop searching
-   * @returns Array of external sources found, potentially terminated early
+   * Get databases in priority order for custom search logic
+   * @returns Array of database services sorted by priority
    */
-  async searchWithEarlyTermination(
+  getDatabasesByPriority() {
+    return [...this.databaseServices].sort((a, b) => a.priority - b.priority)
+  }
+
+  /**
+   * Search for a reference in a single specific database
+   * @param reference The reference to search for
+   * @param databaseInfo The database info object (name, service, priority)
+   * @returns External source if found, null otherwise
+   */
+  async searchSingleDatabase(
     reference: MatchingReference,
-    evaluateCandidate: (candidate: ExternalSource) => Promise<boolean>,
-  ): Promise<ExternalSource[]> {
-    const candidates: ExternalSource[] = []
+    databaseInfo: { name: string, service: any, priority: number },
+  ): Promise<ExternalSource | null> {
+    const { name, service } = databaseInfo
 
-    // Sort databases by priority (lower number = higher priority)
-    const sortedDatabases = [...this.databaseServices].sort((a, b) => a.priority - b.priority)
+    try {
+      console.warn(`DatabaseSearchService: Searching in ${name} for reference ${reference.id}`)
+      const result = await service.search(reference.metadata)
 
-    for (const { name, service } of sortedDatabases) {
-      try {
-        console.warn(`DatabaseSearchService: Sequential search in ${name} for reference ${reference.id}`)
-        const result = await service.search(reference.metadata)
-
-        if (result) {
-          console.warn(`DatabaseSearchService: Found result in ${name}:`, result.id)
-          candidates.push(result)
-
-          // Check if this candidate is good enough to stop searching
-          const shouldTerminate = await evaluateCandidate(result)
-          if (shouldTerminate) {
-            console.warn(`DatabaseSearchService: Early termination after ${name} - good candidate found`)
-            break
-          }
-        }
-        else {
-          console.warn(`DatabaseSearchService: No result found in ${name}`)
-        }
+      if (result) {
+        console.warn(`DatabaseSearchService: Found result in ${name}:`, result.id)
+        return result
       }
-      catch (error) {
-        console.error(`DatabaseSearchService: Error searching in ${name}:`, error)
-        // Continue with next database even if one fails
+      else {
+        console.warn(`DatabaseSearchService: No result found in ${name}`)
+        return null
       }
     }
-
-    console.warn(`DatabaseSearchService: Sequential search completed with ${candidates.length} candidates for reference ${reference.id}`)
-    return candidates
+    catch (error) {
+      console.error(`DatabaseSearchService: Error searching in ${name}:`, error)
+      return null
+    }
   }
 }
