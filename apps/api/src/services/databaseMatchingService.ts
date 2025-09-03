@@ -54,35 +54,64 @@ export class DatabaseMatchingService {
     const databases = this.searchService.getDatabasesByPriority()
 
     for (const databaseInfo of databases) {
-      try {
-        // Search in single database
-        const candidate = await this.searchService.searchSingleDatabase(reference, databaseInfo)
+      const evaluation = await this.searchAndEvaluateDatabase(reference, databaseInfo, matchingSettings)
 
-        if (candidate) {
-          console.warn(`DatabaseMatchingService: Found candidate in ${databaseInfo.name}:`, candidate.id)
+      if (evaluation) {
+        sourceEvaluations.push(evaluation)
 
-          // Immediately evaluate the candidate
-          const evaluation = await this.evaluateSource(reference, candidate, matchingSettings)
-          sourceEvaluations.push(evaluation)
-
-          // Check if this candidate is good enough to stop searching
-          if (evaluation.matchDetails.overallScore >= threshold) {
-            console.warn(`DatabaseMatchingService: Early termination after ${databaseInfo.name} - score ${evaluation.matchDetails.overallScore} >= ${threshold}`)
-            break
-          }
+        if (this.shouldStopSearching(evaluation, threshold, databaseInfo.name)) {
+          break
         }
-        else {
-          console.warn(`DatabaseMatchingService: No candidate found in ${databaseInfo.name}`)
-        }
-      }
-      catch (error) {
-        console.error(`DatabaseMatchingService: Error searching in ${databaseInfo.name}:`, error)
-        // Continue with next database even if one fails
       }
     }
 
-    console.warn(`DatabaseMatchingService: Early termination completed with ${sourceEvaluations.length} evaluations for reference ${reference.id}`)
+    this.logEarlyTerminationCompletion(sourceEvaluations.length, reference.id)
     return sourceEvaluations
+  }
+
+  /**
+   * Search and evaluate a single database, handling errors gracefully
+   */
+  private async searchAndEvaluateDatabase(
+    reference: MatchingReference,
+    databaseInfo: { name: string, service: any, priority: number },
+    matchingSettings: APIMatchingSettings,
+  ): Promise<SourceEvaluation | null> {
+    try {
+      const candidate = await this.searchService.searchSingleDatabase(reference, databaseInfo)
+
+      if (!candidate) {
+        console.warn(`DatabaseMatchingService: No candidate found in ${databaseInfo.name}`)
+        return null
+      }
+
+      console.warn(`DatabaseMatchingService: Found candidate in ${databaseInfo.name}:`, candidate.id)
+      return await this.evaluateSource(reference, candidate, matchingSettings)
+    }
+    catch (error) {
+      console.error(`DatabaseMatchingService: Error searching in ${databaseInfo.name}:`, error)
+      return null
+    }
+  }
+
+  /**
+   * Check if we should stop searching based on the evaluation score
+   */
+  private shouldStopSearching(evaluation: SourceEvaluation, threshold: number, databaseName: string): boolean {
+    const shouldStop = evaluation.matchDetails.overallScore >= threshold
+
+    if (shouldStop) {
+      console.warn(`DatabaseMatchingService: Early termination after ${databaseName} - score ${evaluation.matchDetails.overallScore} >= ${threshold}`)
+    }
+
+    return shouldStop
+  }
+
+  /**
+   * Log completion of early termination search
+   */
+  private logEarlyTerminationCompletion(evaluationsCount: number, referenceId: string): void {
+    console.warn(`DatabaseMatchingService: Early termination completed with ${evaluationsCount} evaluations for reference ${referenceId}`)
   }
 
   private async matchAllCandidates(
