@@ -13,7 +13,7 @@ const matchingService = new DatabaseMatchingService()
 /**
  * Search for candidates and match them against a single reference
  */
-export async function processSearchAndMatch(
+export async function searchAndMatch(
   reference: MatchingReference,
   matchingSettings: APIMatchingSettings,
 ): Promise<MatchingResult> {
@@ -28,4 +28,24 @@ export async function processSearchAndMatch(
   console.warn(`SearchAndMatchService: Evaluated ${result.sourceEvaluations?.length || 0} candidates for reference ${reference.id}`)
 
   return result
+}
+
+/**
+ * Search for candidates and match them against multiple references (batch processing)
+ */
+export async function processSearchAndMatch(
+  references: MatchingReference[],
+  matchingSettings: APIMatchingSettings,
+): Promise<MatchingResult[]> {
+  console.warn(`SearchAndMatchService: Processing batch of ${references.length} references`)
+
+  const results: MatchingResult[] = []
+
+  for (const reference of references) {
+    const result = await searchAndMatch(reference, matchingSettings)
+    results.push(result)
+  }
+
+  console.warn(`SearchAndMatchService: Batch processing completed for ${results.length} references`)
+  return results
 }

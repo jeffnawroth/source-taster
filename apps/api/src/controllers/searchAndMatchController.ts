@@ -1,4 +1,4 @@
-import type { ApiResponse, MatchingResponse, MatchingResult, ValidatedSearchAndMatchRequest } from '@source-taster/types'
+import type { ApiResponse, MatchingResult, SearchAndMatchResponse, ValidatedSearchAndMatchRequest } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ValidatedSearchAndMatchRequestSchema } from '@source-taster/types'
 import * as searchAndMatchService from '../services/searchAndMatchService'
@@ -10,8 +10,8 @@ import * as searchAndMatchService from '../services/searchAndMatchService'
 export async function searchAndMatch(c: Context) {
   try {
     const request = await parseAndValidateRequest(c)
-    const result = await searchAndMatchService.processSearchAndMatch(request.reference, request.matchingSettings)
-    return createSuccessResponse(c, result)
+    const results = await searchAndMatchService.processSearchAndMatch(request.references, request.matchingSettings)
+    return createSuccessResponse(c, results)
   }
   catch (error) {
     return handleError(c, error)
@@ -29,14 +29,15 @@ async function parseAndValidateRequest(c: Context): Promise<ValidatedSearchAndMa
     throw new ValidationError('Request validation failed', parseResult.error)
   }
 
+  console.warn(`SearchAndMatchController: Processing search-and-match for ${parseResult.data.references.length} references`)
   return parseResult.data
 }
 
 /**
  * Create a successful response
  */
-function createSuccessResponse(c: Context, result: MatchingResult) {
-  const response: MatchingResponse = { result }
+function createSuccessResponse(c: Context, results: MatchingResult[]) {
+  const response: SearchAndMatchResponse = { results }
   return c.json({
     success: true,
     data: response,

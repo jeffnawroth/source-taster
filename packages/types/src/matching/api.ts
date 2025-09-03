@@ -50,6 +50,14 @@ export const APIMatchingSettingsSchema = z.object({
 })
 
 /**
+ * Response containing matching results for multiple references
+ */
+export interface SearchAndMatchResponse {
+  /** Array of matching results, one per reference */
+  results: MatchingResult[]
+}
+
+/**
  * Response containing a single matching result
  */
 export interface MatchingResponse {
@@ -81,7 +89,7 @@ export const WebsiteMatchingRequestSchema = z.object({
  * Search and match request - searches for candidates and then matches them
  */
 export const SearchAndMatchRequestSchema = z.object({
-  reference: MatchingReferenceSchema.describe('Reference metadata to search and match'),
+  references: z.array(MatchingReferenceSchema).min(1).describe('Array of references to search and match'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
 })
 
