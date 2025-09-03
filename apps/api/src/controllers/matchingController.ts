@@ -67,13 +67,13 @@ export class MatchingController {
           catch (error) {
             // If website matching fails, fall back to database matching
             console.warn(`Website matching failed for reference ${reference.id}, falling back to database:`, error)
-            const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings, request.aiSettings!) // Validated by zValidator
+            const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings)
             results.push(dbResult)
           }
         }
         else {
           // Use database matching for academic references
-          const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings, request.aiSettings!) // Validated by zValidator
+          const dbResult = await this.matchingService.matchReference(reference, request.matchingSettings)
           results.push(dbResult)
         }
       }
