@@ -25,12 +25,12 @@ export class DatabaseMatchingService {
    * @param matchingSettings Matching configuration
    * @returns Matching result with evaluated candidates
    */
-  async evaluateAllCandidates(
+  evaluateAllCandidates(
     reference: MatchingReference,
     candidates: ExternalSource[],
     matchingSettings: APIMatchingSettings,
-  ): Promise<MatchingResult> {
-    const sourceEvaluations = await this.matchAllCandidates(candidates, reference, matchingSettings)
+  ): MatchingResult {
+    const sourceEvaluations = this.matchAllCandidates(candidates, reference, matchingSettings)
     return this.buildMatchingResult(sourceEvaluations)
   }
 
@@ -39,78 +39,47 @@ export class DatabaseMatchingService {
    * @param reference The reference to match against
    * @param candidate Single candidate to evaluate
    * @param matchingSettings Matching configuration
-   * @returns Source evaluation or null if evaluation fails
+   * @returns Source evaluation
    */
-  async evaluateSingleCandidate(
+  evaluateSingleCandidate(
     reference: MatchingReference,
     candidate: ExternalSource,
     matchingSettings: APIMatchingSettings,
-  ): Promise<SourceEvaluation | null> {
-    try {
-      return await this.evaluateSource(reference, candidate, matchingSettings)
-    }
-    catch (error) {
-      console.error(`DatabaseMatchingService: Error evaluating candidate:`, error)
-      return null
-    }
+  ): SourceEvaluation {
+    return this.evaluateSource(reference, candidate, matchingSettings)
   }
 
   /**
    * Match all candidates against a reference (internal method)
    */
-  private async matchAllCandidates(
+  private matchAllCandidates(
     candidates: ExternalSource[],
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
-  ): Promise<SourceEvaluation[]> {
+  ): SourceEvaluation[] {
     if (candidates.length === 0) {
       return []
     }
 
-    return await this.evaluateAllSources(reference, candidates, matchingSettings)
+    return this.evaluateAllSources(reference, candidates, matchingSettings)
   }
 
-  private async evaluateAllSources(
+  private evaluateAllSources(
     reference: MatchingReference,
     sources: ExternalSource[],
     matchingSettings: APIMatchingSettings,
-  ): Promise<SourceEvaluation[]> {
-    const evaluationPromises = sources.map(source =>
-      this.tryEvaluateSource(reference, source, matchingSettings),
+  ): SourceEvaluation[] {
+    return sources.map(source =>
+      this.evaluateSource(reference, source, matchingSettings),
     )
-
-    const results = await Promise.allSettled(evaluationPromises)
-
-    return this.extractSuccessfulEvaluations(results)
   }
 
-  private async tryEvaluateSource(
+  private evaluateSource(
     reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: APIMatchingSettings,
-  ): Promise<SourceEvaluation | null> {
-    try {
-      return await this.evaluateSource(reference, source, matchingSettings)
-    }
-    catch {
-      return null
-    }
-  }
-
-  private extractSuccessfulEvaluations(results: PromiseSettledResult<SourceEvaluation | null>[]): SourceEvaluation[] {
-    return results
-      .filter((result): result is PromiseFulfilledResult<SourceEvaluation> =>
-        result.status === 'fulfilled' && !!result.value,
-      )
-      .map(result => result.value)
-  }
-
-  private async evaluateSource(
-    reference: MatchingReference,
-    source: ExternalSource,
-    matchingSettings: APIMatchingSettings,
-  ): Promise<SourceEvaluation> {
-    const matchDetails = await this.deterministicMatchingService.matchReference(reference, source, matchingSettings)
+  ): SourceEvaluation {
+    const matchDetails = this.deterministicMatchingService.matchReference(reference, source, matchingSettings)
     return {
       source,
       matchDetails,

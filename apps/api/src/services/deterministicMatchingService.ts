@@ -15,11 +15,11 @@ export class DeterministicMatchingService {
   /**
    * Matches a reference against an external source using deterministic similarity algorithms
    */
-  async matchReference(
+  matchReference(
     reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: APIMatchingSettings,
-  ): Promise<MatchDetails> {
+  ): MatchDetails {
     const fieldConfigurations = matchingSettings.matchingConfig.fieldConfigurations
     const fieldDetails = this.calculateFieldScores(reference.metadata, source.metadata, fieldConfigurations)
     const overallScore = this.calculateOverallScore(fieldDetails, fieldConfigurations)

@@ -20,7 +20,7 @@ export class MatchingController {
   async matchReferences(c: Context) {
     try {
       const request = await this.parseAndValidateRequest(c)
-      const result = await this.matchReferenceAgainstCandidates(request)
+      const result = this.matchReferenceAgainstCandidates(request)
       return this.createSuccessResponse(c, result)
     }
     catch (error) {
@@ -45,8 +45,8 @@ export class MatchingController {
   /**
    * Match the single reference against all candidates
    */
-  private async matchReferenceAgainstCandidates(request: ValidatedMatchingRequest) {
-    return await this.matchingService.evaluateAllCandidates(
+  private matchReferenceAgainstCandidates(request: ValidatedMatchingRequest) {
+    return this.matchingService.evaluateAllCandidates(
       request.reference,
       request.candidates,
       request.matchingSettings,
