@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 import {
   type MatchingResponse,
+  type ValidatedMatchingRequest,
   ValidatedMatchingRequestSchema,
 } from '@source-taster/types'
 import { DatabaseMatchingService } from '../services/databaseMatchingService'
@@ -18,48 +19,59 @@ export class MatchingController {
    */
   async matchReferences(c: Context) {
     try {
-      const rawBody = await c.req.json()
-
-      // Use the new pure matching schema that accepts candidates
-      const parseResult = ValidatedMatchingRequestSchema.safeParse(rawBody)
-
-      if (!parseResult.success) {
-        return c.json({
-          success: false,
-          error: parseResult.error,
-        }, 400)
-      }
-
-      const request = parseResult.data
-
-      // Pure matching: evaluate candidates against references
-      const results = []
-
-      for (const reference of request.references) {
-        // Use the provided candidates for matching
-        const result = await this.matchingService.evaluateAllCandidates(
-          reference,
-          request.candidates,
-          request.matchingSettings,
-        )
-        results.push(result)
-      }
-
-      const response: MatchingResponse = {
-        results,
-      }
-
-      return c.json({
-        success: true,
-        data: response,
-      })
+      const request = await this.parseAndValidateRequest(c)
+      const result = await this.matchReferenceAgainstCandidates(request)
+      return this.createSuccessResponse(c, result)
     }
     catch (error) {
-      console.error('Error in matchReferences:', error)
-      return c.json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      }, 500)
+      return this.handleError(c, error)
     }
+  }
+
+  /**
+   * Parse and validate the incoming request
+   */
+  private async parseAndValidateRequest(c: Context): Promise<ValidatedMatchingRequest> {
+    const rawBody = await c.req.json()
+    const parseResult = ValidatedMatchingRequestSchema.safeParse(rawBody)
+
+    if (!parseResult.success) {
+      throw new Error(`Validation failed: ${JSON.stringify(parseResult.error)}`)
+    }
+
+    return parseResult.data
+  }
+
+  /**
+   * Match the single reference against all candidates
+   */
+  private async matchReferenceAgainstCandidates(request: ValidatedMatchingRequest) {
+    return await this.matchingService.evaluateAllCandidates(
+      request.reference,
+      request.candidates,
+      request.matchingSettings,
+    )
+  }
+
+  /**
+   * Create a successful response
+   */
+  private createSuccessResponse(c: Context, result: any) {
+    const response: MatchingResponse = { result }
+    return c.json({
+      success: true,
+      data: response,
+    })
+  }
+
+  /**
+   * Handle errors and create error response
+   */
+  private handleError(c: Context, error: unknown) {
+    console.error('Error in matchReferences:', error)
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }, 500)
   }
 }

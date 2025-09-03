@@ -50,16 +50,16 @@ export const APIMatchingSettingsSchema = z.object({
 })
 
 /**
- * Response containing multiple matching results
+ * Response containing a single matching result
  */
 export interface MatchingResponse {
-  /** Individual matching results */
-  results: MatchingResult[]
+  /** Single matching result for the reference against all candidates */
+  result: MatchingResult
 }
 
 export const MatchingRequestSchema = z.object({
-  references: z.array(MatchingReferenceSchema).min(1).describe('Array of reference metadata to match'),
-  candidates: z.array(ExternalSourceSchema).describe('Array of candidate sources to evaluate against references'),
+  reference: MatchingReferenceSchema.describe('Single reference metadata to match against candidates'),
+  candidates: z.array(ExternalSourceSchema).describe('Array of candidate sources to evaluate against the reference'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
 })
 
