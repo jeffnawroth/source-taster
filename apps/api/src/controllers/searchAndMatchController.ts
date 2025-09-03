@@ -1,10 +1,10 @@
-import type { ApiResponse, MatchingResponse, ValidatedSearchAndMatchRequest } from '@source-taster/types'
+import type { MatchingResponse, MatchingResult, ValidatedSearchAndMatchRequest } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ValidatedSearchAndMatchRequestSchema } from '@source-taster/types'
 import * as searchAndMatchService from '../services/searchAndMatchService'
 
 /**
- * Search for candidates and then match them against a single reference
+ * Search for candidates and then match them against references
  * POST /api/search-and-match
  */
 export async function searchAndMatch(c: Context) {
@@ -26,17 +26,16 @@ async function parseAndValidateRequest(c: Context): Promise<ValidatedSearchAndMa
   const parseResult = ValidatedSearchAndMatchRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
-    console.warn('SearchAndMatchController: Validation failed:', parseResult.error)
-    throw new ValidationError('Request validation failed', parseResult.error)
+    throw new Error(`Validation failed: ${JSON.stringify(parseResult.error)}`)
   }
 
-  console.warn(`SearchAndMatchController: Processing search-and-match for reference: ${parseResult.data.reference.id}`)
   return parseResult.data
 }
+
 /**
  * Create a successful response
  */
-function createSuccessResponse(c: Context, result: any) {
+function createSuccessResponse(c: Context, result: MatchingResult) {
   const response: MatchingResponse = { result }
   return c.json({
     success: true,
@@ -48,22 +47,9 @@ function createSuccessResponse(c: Context, result: any) {
  * Handle errors and create error response
  */
 function handleError(c: Context, error: unknown) {
-  console.error('SearchAndMatchController: Error occurred:', error)
-
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-  const errorResponse: ApiResponse = {
+  console.error('Error in searchAndMatch:', error)
+  return c.json({
     success: false,
-    error: errorMessage,
-  }
-  return c.json(errorResponse, 500)
-}
-
-/**
- * Custom error class for validation errors
- */
-class ValidationError extends Error {
-  constructor(message: string, public validationError: any) {
-    super(message)
-    this.name = 'ValidationError'
-  }
+    error: error instanceof Error ? error.message : 'Unknown error occurred',
+  }, 500)
 }

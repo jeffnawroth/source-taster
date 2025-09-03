@@ -77,6 +77,21 @@ export const WebsiteMatchingRequestSchema = z.object({
   options: WebsiteMatchingOptionsSchema.optional().describe('Optional website matching configuration'),
 })
 
+/**
+ * Search and match request - searches for candidates and then matches them
+ */
+export const SearchAndMatchRequestSchema = z.object({
+  reference: MatchingReferenceSchema.describe('Reference metadata to search and match'),
+  matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
+})
+
+export const ValidatedSearchAndMatchRequestSchema = SearchAndMatchRequestSchema.extend({
+  matchingSettings: z.object({
+    matchingStrategy: APIMatchingStrategySchema,
+    matchingConfig: ValidatedAPIMatchingConfigSchema,
+  }),
+})
+
 // Export types
 export type MatchingReference = z.infer<typeof MatchingReferenceSchema>
 export type APIMatchingConfig = z.infer<typeof APIMatchingConfigSchema>
@@ -85,3 +100,5 @@ export type APIMatchingSettings = z.infer<typeof APIMatchingSettingsSchema>
 export type MatchingRequest = z.infer<typeof MatchingRequestSchema>
 export type ValidatedMatchingRequest = z.infer<typeof ValidatedMatchingRequestSchema>
 export type WebsiteMatchingRequest = z.infer<typeof WebsiteMatchingRequestSchema>
+export type SearchAndMatchRequest = z.infer<typeof SearchAndMatchRequestSchema>
+export type ValidatedSearchAndMatchRequest = z.infer<typeof ValidatedSearchAndMatchRequestSchema>
