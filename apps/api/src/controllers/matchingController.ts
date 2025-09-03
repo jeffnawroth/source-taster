@@ -1,13 +1,10 @@
+import type { ApiResponse, MatchingResponse, ValidatedMatchingRequest } from '@source-taster/types'
 import type { Context } from 'hono'
-import {
-  type MatchingResponse,
-  type ValidatedMatchingRequest,
-  ValidatedMatchingRequestSchema,
-} from '@source-taster/types'
+import { ValidatedMatchingRequestSchema } from '@source-taster/types'
 import * as matchingService from '../services/matchingService'
 
 /**
- * Pure matching - evaluates provided candidates against a reference
+ * Evaluates provided candidates against a reference
  * POST /api/match
  */
 export async function matchReferences(c: Context) {
@@ -29,7 +26,7 @@ async function parseAndValidateRequest(c: Context): Promise<ValidatedMatchingReq
   const parseResult = ValidatedMatchingRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
-    throw new Error(`Validation failed: ${JSON.stringify(parseResult.error)}`)
+    throw new ValidationError('Validation failed', parseResult.error)
   }
 
   return parseResult.data
@@ -45,14 +42,34 @@ function createSuccessResponse(c: Context, result: any) {
     data: response,
   })
 }
-
 /**
  * Handle errors and create error response
  */
 function handleError(c: Context, error: unknown) {
   console.error('Error in matchReferences:', error)
-  return c.json({
+
+  if (error instanceof ValidationError) {
+    return c.json({
+      success: false,
+      error: error.validationError,
+    }, 400)
+  }
+
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+
+  const errorResponse: ApiResponse = {
     success: false,
-    error: error instanceof Error ? error.message : 'Unknown error occurred',
-  }, 500)
+    error: errorMessage,
+  }
+  return c.json(errorResponse, 500)
+}
+
+/**
+ * Custom error class for validation errors
+ */
+class ValidationError extends Error {
+  constructor(message: string, public validationError: any) {
+    super(message)
+    this.name = 'ValidationError'
+  }
 }
