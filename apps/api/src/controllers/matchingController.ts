@@ -1,16 +1,19 @@
-import type { ApiResponse, MatchingResponse, ValidatedSearchAndMatchRequest } from '@source-taster/types'
 import type { Context } from 'hono'
-import { ValidatedSearchAndMatchRequestSchema } from '@source-taster/types'
-import * as searchAndMatchService from '../services/searchAndMatchService'
+import {
+  type MatchingResponse,
+  type ValidatedMatchingRequest,
+  ValidatedMatchingRequestSchema,
+} from '@source-taster/types'
+import * as matchingService from '../services/matchingService'
 
 /**
- * Search for candidates and then match them against a single reference
- * POST /api/search-and-match
+ * Pure matching - evaluates provided candidates against a reference
+ * POST /api/match
  */
-export async function searchAndMatch(c: Context) {
+export async function matchReferences(c: Context) {
   try {
     const request = await parseAndValidateRequest(c)
-    const result = await searchAndMatchService.processSearchAndMatch(request.reference, request.matchingSettings)
+    const result = matchingService.matchReferenceAgainstCandidates(request)
     return createSuccessResponse(c, result)
   }
   catch (error) {
@@ -21,18 +24,17 @@ export async function searchAndMatch(c: Context) {
 /**
  * Parse and validate the incoming request
  */
-async function parseAndValidateRequest(c: Context): Promise<ValidatedSearchAndMatchRequest> {
+async function parseAndValidateRequest(c: Context): Promise<ValidatedMatchingRequest> {
   const rawBody = await c.req.json()
-  const parseResult = ValidatedSearchAndMatchRequestSchema.safeParse(rawBody)
+  const parseResult = ValidatedMatchingRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
-    console.warn('SearchAndMatchController: Validation failed:', parseResult.error)
-    throw new ValidationError('Request validation failed', parseResult.error)
+    throw new Error(`Validation failed: ${JSON.stringify(parseResult.error)}`)
   }
 
-  console.warn(`SearchAndMatchController: Processing search-and-match for reference: ${parseResult.data.reference.id}`)
   return parseResult.data
 }
+
 /**
  * Create a successful response
  */
@@ -48,22 +50,9 @@ function createSuccessResponse(c: Context, result: any) {
  * Handle errors and create error response
  */
 function handleError(c: Context, error: unknown) {
-  console.error('SearchAndMatchController: Error occurred:', error)
-
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-  const errorResponse: ApiResponse = {
+  console.error('Error in matchReferences:', error)
+  return c.json({
     success: false,
-    error: errorMessage,
-  }
-  return c.json(errorResponse, 500)
-}
-
-/**
- * Custom error class for validation errors
- */
-class ValidationError extends Error {
-  constructor(message: string, public validationError: any) {
-    super(message)
-    this.name = 'ValidationError'
-  }
+    error: error instanceof Error ? error.message : 'Unknown error occurred',
+  }, 500)
 }
