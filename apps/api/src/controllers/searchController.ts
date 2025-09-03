@@ -6,99 +6,105 @@ import type {
 } from '@source-taster/types'
 import type { Context } from 'hono'
 import { SearchRequestSchema } from '@source-taster/types'
-import { DatabaseSearchService } from '../services/databaseSearchService'
+import * as searchService from '../services/searchService'
 
-export class SearchController {
-  private searchService: DatabaseSearchService
-
-  constructor() {
-    this.searchService = new DatabaseSearchService()
+/**
+ * Search for a single reference in all external databases
+ * POST /api/search
+ */
+export async function searchAllDatabases(c: Context) {
+  try {
+    const request = await parseAndValidateRequest(c)
+    const result = await searchService.searchAllDatabases(request.reference)
+    return createSuccessResponse(c, result)
   }
-
-  /**
-   * Search for references in external databases without matching
-   * POST /api/search
-   */
-  async searchDatabases(c: Context) {
-    try {
-      const request = await this.validateRequest(c)
-      const results = await this.performSearch(request)
-      return this.createSuccessResponse(c, results)
-    }
-    catch (error) {
-      return this.handleError(c, error)
-    }
+  catch (error) {
+    return handleError(c, error)
   }
+}
 
-  /**
-   * Validate and parse the incoming request
-   */
-  private async validateRequest(c: Context) {
-    const rawBody = await c.req.json()
-    const parseResult = SearchRequestSchema.safeParse(rawBody)
-
-    if (!parseResult.success) {
-      console.warn('SearchController: Validation failed:', parseResult.error)
-      throw new ValidationError('Request validation failed', parseResult.error)
-    }
-
-    console.warn(`SearchController: Processing search request for ${parseResult.data.references.length} references`)
-    return parseResult.data
-  }
-
-  /**
-   * Perform the actual search for all references
-   */
-  private async performSearch(request: SearchRequest): Promise<SearchResult[]> {
-    const results: SearchResult[] = []
-
-    for (const reference of request.references) {
-      console.warn(`SearchController: Searching for reference ${reference.id}`)
-      const candidates = await this.searchService.searchAllDatabases(reference)
-
-      results.push({
-        referenceId: reference.id,
-        candidates,
-      })
-    }
-
-    console.warn(`SearchController: Search completed, returning ${results.length} results`)
-    return results
-  }
-
-  /**
-   * Create a successful API response
-   */
-  private createSuccessResponse(c: Context, results: SearchResult[]) {
-    const response: ApiResponse<SearchResponse> = {
+/**
+ * Get list of available databases
+ * GET /api/search/databases
+ */
+export async function getDatabases(c: Context) {
+  try {
+    const databases = await searchService.getDatabases()
+    return c.json({
       success: true,
-      data: {
-        results,
-      },
-    }
-    return c.json(response)
+      data: databases,
+    })
+  }
+  catch (error) {
+    return handleError(c, error)
+  }
+}
+
+/**
+ * Search for a single reference in a specific database
+ * POST /api/search/:database
+ */
+export async function searchSingleDatabase(c: Context) {
+  try {
+    const database = c.req.param('database')
+    const request = await parseAndValidateRequest(c)
+
+    const result = await searchService.searchSingleDatabase(request.reference, database)
+    return createSuccessResponse(c, result)
+  }
+  catch (error) {
+    return handleError(c, error)
+  }
+}
+
+/**
+ * Parse and validate the incoming request
+ */
+async function parseAndValidateRequest(c: Context): Promise<SearchRequest> {
+  const rawBody = await c.req.json()
+  const parseResult = SearchRequestSchema.safeParse(rawBody)
+
+  if (!parseResult.success) {
+    console.warn('SearchController: Validation failed:', parseResult.error)
+    throw new ValidationError('Request validation failed', parseResult.error)
   }
 
-  /**
-   * Handle errors and create appropriate error responses
-   */
-  private handleError(c: Context, error: unknown) {
-    console.error('SearchController: Error during search:', error)
+  console.warn(`SearchController: Processing search request for reference: ${parseResult.data.reference.id}`)
+  return parseResult.data
+}
 
-    if (error instanceof ValidationError) {
-      return c.json({
-        success: false,
-        error: error.validationError,
-      }, 400)
-    }
+/**
+ * Create a successful API response
+ */
+function createSuccessResponse(c: Context, result: SearchResult) {
+  const response: ApiResponse<SearchResponse> = {
+    success: true,
+    data: {
+      results: [result],
+    },
+  }
+  return c.json(response)
+}
 
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    const errorResponse: ApiResponse = {
+/**
+ * Handle errors and create appropriate error responses
+ */
+function handleError(c: Context, error: unknown) {
+  console.error('SearchController: Error during search:', error)
+
+  if (error instanceof ValidationError) {
+    return c.json({
       success: false,
-      error: errorMessage,
-    }
-    return c.json(errorResponse, 500)
+      error: error.validationError,
+    }, 400)
   }
+
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+  const errorResponse: ApiResponse = {
+    success: false,
+    error: errorMessage,
+  }
+  return c.json(errorResponse, 500)
 }
 
 /**

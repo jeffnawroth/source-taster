@@ -24,7 +24,7 @@ export interface ApiResponse<T = any> {
  * Validation schema for SearchRequest
  */
 export const SearchRequestSchema = z.object({
-  references: z.array(MatchingReferenceSchema).min(1).describe('Array of reference metadata to search for'),
+  reference: MatchingReferenceSchema.describe('Reference metadata to search for'),
 })
 
 /**

@@ -9,17 +9,23 @@ import { EuropePmcService } from './databases/europePmcService'
 import { OpenAlexService } from './databases/openAlexService'
 import { SemanticScholarService } from './databases/semanticScholarService'
 
+interface DatabaseInfo {
+  name: string
+  service: any
+  priority: number
+}
+
 /**
  * Service responsible for searching references in external databases
  * This service only handles the search phase, not the matching/evaluation
  */
 export class DatabaseSearchService {
-  private readonly databaseServices = [
-    { name: 'OpenAlex', service: new OpenAlexService(), priority: 1 },
-    { name: 'Crossref', service: new CrossrefService(), priority: 2 },
-    { name: 'Semantic Scholar', service: new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY), priority: 3 },
-    { name: 'EuropePMC', service: new EuropePmcService(), priority: 4 },
-    { name: 'ArXiv', service: new ArxivService(), priority: 5 },
+  private readonly databaseServices: DatabaseInfo[] = [
+    { name: 'openalex', service: new OpenAlexService(), priority: 1 },
+    { name: 'crossref', service: new CrossrefService(), priority: 2 },
+    { name: 'semanticscholar', service: new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY), priority: 3 },
+    { name: 'europepmc', service: new EuropePmcService(), priority: 4 },
+    { name: 'arxiv', service: new ArxivService(), priority: 5 },
   ]
 
   constructor() {
@@ -79,13 +85,13 @@ export class DatabaseSearchService {
 
   /**
    * Search for a reference in a single specific database
-   * @param reference The reference to search for
-   * @param databaseInfo The database info object (name, service, priority)
+   * @param reference The reference to search for (can be Reference or MatchingReference)
+   * @param databaseInfo The database info object (name, displayName, service, priority)
    * @returns External source if found, null otherwise
    */
   async searchSingleDatabase(
-    reference: MatchingReference,
-    databaseInfo: { name: string, service: any, priority: number },
+    reference: MatchingReference | { id: string, metadata: any },
+    databaseInfo: DatabaseInfo,
   ): Promise<ExternalSource | null> {
     const { name, service } = databaseInfo
 
