@@ -8,24 +8,32 @@ import { DatabaseSearchService } from './databaseSearchService'
 const databaseSearchService = new DatabaseSearchService()
 
 /**
- * Search a single reference in all databases
+ * Search multiple references in all databases
  */
-export async function searchAllDatabases(reference: MatchingReference): Promise<SearchResult> {
-  const candidates = await databaseSearchService.searchAllDatabases(reference)
+export async function searchAllDatabases(references: MatchingReference[]): Promise<SearchResult[]> {
+  const results: SearchResult[] = []
 
-  return {
-    referenceId: reference.id,
-    candidates,
+  for (const reference of references) {
+    console.warn(`SearchService: Searching for reference ${reference.id}`)
+    const candidates = await databaseSearchService.searchAllDatabases(reference)
+
+    results.push({
+      referenceId: reference.id,
+      candidates,
+    })
   }
+
+  console.warn(`SearchService: Search completed, returning ${results.length} results`)
+  return results
 }
 
 /**
- * Search a single reference in a specific database
+ * Search multiple references in a specific database
  */
 export async function searchSingleDatabase(
-  reference: MatchingReference,
+  references: MatchingReference[],
   databaseName: string,
-): Promise<SearchResult> {
+): Promise<SearchResult[]> {
   const databases = databaseSearchService.getDatabasesByPriority()
   const databaseInfo = databases.find(db =>
     db.name.toLowerCase() === databaseName.toLowerCase(),
@@ -35,13 +43,20 @@ export async function searchSingleDatabase(
     throw new Error(`Database '${databaseName}' not found. Available databases: ${databases.map(db => db.name).join(', ')}`)
   }
 
-  console.warn(`SearchService: Searching for reference ${reference.id} in ${databaseInfo.name}`)
-  const candidate = await databaseSearchService.searchSingleDatabase(reference, databaseInfo)
+  const results: SearchResult[] = []
 
-  return {
-    referenceId: reference.id,
-    candidates: candidate ? [candidate] : [],
+  for (const reference of references) {
+    console.warn(`SearchService: Searching for reference ${reference.id} in ${databaseInfo.name}`)
+    const candidate = await databaseSearchService.searchSingleDatabase(reference, databaseInfo)
+
+    results.push({
+      referenceId: reference.id,
+      candidates: candidate ? [candidate] : [],
+    })
   }
+
+  console.warn(`SearchService: Single database search completed for ${results.length} references in ${databaseInfo.name}`)
+  return results
 }
 
 /**

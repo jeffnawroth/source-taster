@@ -21,11 +21,16 @@ export interface ApiResponse<T = any> {
 }
 
 /**
- * Validation schema for SearchRequest
+ * Validation schema for SearchRequest - supports array of references
  */
 export const SearchRequestSchema = z.object({
-  reference: MatchingReferenceSchema.describe('Reference metadata to search for'),
+  references: z.array(MatchingReferenceSchema).min(1).describe('Array of references to search for'),
 })
+
+/**
+ * Inferred type for SearchRequest
+ */
+export type SearchRequest = z.infer<typeof SearchRequestSchema>
 
 /**
  * Search result for a single reference
@@ -44,6 +49,3 @@ export interface SearchResponse {
   /** Individual search results per reference */
   results: SearchResult[]
 }
-
-// Export the inferred type from the schema
-export type SearchRequest = z.infer<typeof SearchRequestSchema>

@@ -9,14 +9,14 @@ import { SearchRequestSchema } from '@source-taster/types'
 import * as searchService from '../services/searchService'
 
 /**
- * Search for a single reference in all external databases
+ * Search for references in all external databases
  * POST /api/search
  */
 export async function searchAllDatabases(c: Context) {
   try {
     const request = await parseAndValidateRequest(c)
-    const result = await searchService.searchAllDatabases(request.reference)
-    return createSuccessResponse(c, result)
+    const results = await searchService.searchAllDatabases(request.references)
+    return createSuccessResponse(c, results)
   }
   catch (error) {
     return handleError(c, error)
@@ -41,7 +41,7 @@ export async function getDatabases(c: Context) {
 }
 
 /**
- * Search for a single reference in a specific database
+ * Search for references in a specific database
  * POST /api/search/:database
  */
 export async function searchSingleDatabase(c: Context) {
@@ -49,8 +49,9 @@ export async function searchSingleDatabase(c: Context) {
     const database = c.req.param('database')
     const request = await parseAndValidateRequest(c)
 
-    const result = await searchService.searchSingleDatabase(request.reference, database)
-    return createSuccessResponse(c, result)
+    // Process all references in the specified database
+    const results = await searchService.searchSingleDatabase(request.references, database)
+    return createSuccessResponse(c, results)
   }
   catch (error) {
     return handleError(c, error)
@@ -69,18 +70,18 @@ async function parseAndValidateRequest(c: Context): Promise<SearchRequest> {
     throw new ValidationError('Request validation failed', parseResult.error)
   }
 
-  console.warn(`SearchController: Processing search request for reference: ${parseResult.data.reference.id}`)
+  console.warn(`SearchController: Processing search request for ${parseResult.data.references.length} references`)
   return parseResult.data
 }
 
 /**
  * Create a successful API response
  */
-function createSuccessResponse(c: Context, result: SearchResult) {
+function createSuccessResponse(c: Context, results: SearchResult[]) {
   const response: ApiResponse<SearchResponse> = {
     success: true,
     data: {
-      results: [result],
+      results,
     },
   }
   return c.json(response)
