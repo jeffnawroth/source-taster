@@ -10,7 +10,7 @@ import * as searchAndMatchService from '../services/searchAndMatchService'
 export async function searchAndMatch(c: Context) {
   try {
     const request = await parseAndValidateRequest(c)
-    const results = await searchAndMatchService.processSearchAndMatch(request.references, request.matchingSettings)
+    const results = await searchAndMatchService.processSearchAndMatchBatch(request.references, request.matchingSettings)
     return createSuccessResponse(c, results)
   }
   catch (error) {

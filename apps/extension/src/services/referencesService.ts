@@ -62,7 +62,7 @@ export class ReferencesService {
       },
     }
 
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}`, {
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/search-and-match`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

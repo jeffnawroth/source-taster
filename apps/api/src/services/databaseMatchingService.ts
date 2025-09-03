@@ -69,9 +69,23 @@ export class DatabaseMatchingService {
     sources: ExternalSource[],
     matchingSettings: APIMatchingSettings,
   ): SourceEvaluation[] {
-    return sources.map(source =>
-      this.evaluateSource(reference, source, matchingSettings),
-    )
+    const evaluations: SourceEvaluation[] = []
+    const isEarlyTerminationEnabled = matchingSettings.matchingConfig.earlyTermination.enabled
+    const threshold = matchingSettings.matchingConfig.earlyTermination.threshold
+
+    for (const source of sources) {
+      const evaluation = this.evaluateSource(reference, source, matchingSettings)
+      evaluations.push(evaluation)
+
+      // Early Termination Check: Stop if we found a high confidence match
+      if (isEarlyTerminationEnabled && evaluation.matchDetails.overallScore >= threshold) {
+        console.warn(`DatabaseMatching: Early termination for reference ${reference.id} - found ${evaluation.matchDetails.overallScore}% match in ${source.source} (threshold: ${threshold}%)`)
+        console.warn(`DatabaseMatching: Evaluated ${evaluations.length} of ${sources.length} sources before stopping`)
+        break
+      }
+    }
+
+    return evaluations
   }
 
   private evaluateSource(
