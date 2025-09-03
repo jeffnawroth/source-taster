@@ -15,11 +15,11 @@ import { SemanticScholarService } from './databases/semanticScholarService'
  */
 export class DatabaseSearchService {
   private readonly databaseServices = [
-    { name: 'OpenAlex', service: new OpenAlexService() },
-    { name: 'Crossref', service: new CrossrefService() },
-    { name: 'EuropePMC', service: new EuropePmcService() },
-    { name: 'Semantic Scholar', service: new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY) },
-    { name: 'ArXiv', service: new ArxivService() },
+    { name: 'OpenAlex', service: new OpenAlexService(), priority: 1 },
+    { name: 'Crossref', service: new CrossrefService(), priority: 2 },
+    { name: 'Semantic Scholar', service: new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY), priority: 3 },
+    { name: 'EuropePMC', service: new EuropePmcService(), priority: 4 },
+    { name: 'ArXiv', service: new ArxivService(), priority: 5 },
   ]
 
   constructor() {
@@ -66,6 +66,51 @@ export class DatabaseSearchService {
     }
 
     console.warn(`DatabaseSearchService: Found ${candidates.length} total candidates for reference ${reference.id}`)
+    return candidates
+  }
+
+  /**
+   * Search for a reference sequentially with early termination capability
+   * @param reference The reference to search for
+   * @param evaluateCandidate Function to evaluate if a candidate is good enough to stop searching
+   * @returns Array of external sources found, potentially terminated early
+   */
+  async searchWithEarlyTermination(
+    reference: MatchingReference,
+    evaluateCandidate: (candidate: ExternalSource) => Promise<boolean>,
+  ): Promise<ExternalSource[]> {
+    const candidates: ExternalSource[] = []
+
+    // Sort databases by priority (lower number = higher priority)
+    const sortedDatabases = [...this.databaseServices].sort((a, b) => a.priority - b.priority)
+
+    for (const { name, service } of sortedDatabases) {
+      try {
+        console.warn(`DatabaseSearchService: Sequential search in ${name} for reference ${reference.id}`)
+        const result = await service.search(reference.metadata)
+
+        if (result) {
+          console.warn(`DatabaseSearchService: Found result in ${name}:`, result.id)
+          candidates.push(result)
+
+          // Check if this candidate is good enough to stop searching
+          const shouldTerminate = await evaluateCandidate(result)
+          if (shouldTerminate) {
+            console.warn(`DatabaseSearchService: Early termination after ${name} - good candidate found`)
+            break
+          }
+        }
+        else {
+          console.warn(`DatabaseSearchService: No result found in ${name}`)
+        }
+      }
+      catch (error) {
+        console.error(`DatabaseSearchService: Error searching in ${name}:`, error)
+        // Continue with next database even if one fails
+      }
+    }
+
+    console.warn(`DatabaseSearchService: Sequential search completed with ${candidates.length} candidates for reference ${reference.id}`)
     return candidates
   }
 }

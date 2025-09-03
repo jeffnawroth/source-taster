@@ -21,17 +21,46 @@ export class DatabaseMatchingService {
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
   ): Promise<MatchingResult> {
-    // Step 1: Search for candidates using the new DatabaseSearchService
-    const candidates = await this.searchService.searchAllDatabases(reference)
-
-    // Step 2: Match candidates against the reference
     const { earlyTermination } = matchingSettings.matchingConfig
 
+    // Choose search strategy based on early termination settings
+    const candidates = earlyTermination.enabled
+      ? await this.searchWithEarlyTermination(reference, matchingSettings)
+      : await this.searchService.searchAllDatabases(reference)
+
+    // Match candidates against the reference
     const sourceEvaluations = earlyTermination.enabled
       ? await this.matchCandidatesWithEarlyTermination(candidates, reference, matchingSettings)
       : await this.matchAllCandidates(candidates, reference, matchingSettings)
 
     return this.buildMatchingResult(sourceEvaluations)
+  }
+
+  /**
+   * Search with early termination - stop searching when we find a good enough candidate
+   */
+  private async searchWithEarlyTermination(
+    reference: MatchingReference,
+    matchingSettings: APIMatchingSettings,
+  ): Promise<ExternalSource[]> {
+    const { threshold } = matchingSettings.matchingConfig.earlyTermination
+
+    // Create evaluation function for early termination
+    const evaluateCandidate = async (candidate: ExternalSource): Promise<boolean> => {
+      try {
+        const matchDetails = await this.deterministicMatchingService.matchReference(
+          reference,
+          candidate,
+          matchingSettings,
+        )
+        return matchDetails.overallScore >= threshold
+      }
+      catch {
+        return false // Continue searching if evaluation fails
+      }
+    }
+
+    return await this.searchService.searchWithEarlyTermination(reference, evaluateCandidate)
   }
 
   private async matchCandidatesWithEarlyTermination(
