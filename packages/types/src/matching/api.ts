@@ -1,9 +1,10 @@
 import type { MatchingResult } from './matching-result'
 import z from 'zod'
 import { ReferenceMetadataSchema } from '../reference'
-
 import { WebsiteMatchingOptionsSchema } from '../website'
+
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
+import { ExternalSourceSchema } from './matching-result'
 import { MatchingActionTypeSchema } from './matching-strategy.types'
 
 /**
@@ -58,6 +59,7 @@ export interface MatchingResponse {
 
 export const MatchingRequestSchema = z.object({
   references: z.array(MatchingReferenceSchema).min(1).describe('Array of reference metadata to match'),
+  candidates: z.array(ExternalSourceSchema).describe('Array of candidate sources to evaluate against references'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
 })
 
