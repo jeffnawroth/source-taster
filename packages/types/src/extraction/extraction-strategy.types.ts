@@ -5,19 +5,10 @@
 import z from 'zod'
 import { ModeSchema } from '../common/mode'
 
-export enum ExtractionRuleCategory {
-  CONTENT_NORMALIZATION = 'content-normalization',
-  STYLE_FORMATTING = 'style-formatting',
-  TECHNICAL_EXTRACTION = 'technical-extraction',
-}
-
 export const ExtractionActionTypeSchema = z.enum([
   'normalize-spelling',
   'normalize-typography',
   'normalize-title-case',
-  // 'normalize-abbreviations',
-  // 'normalize-author-names',
-  // 'normalize-date-format',
   'normalize-identifiers',
   'normalize-characters',
   'normalize-whitespace',
