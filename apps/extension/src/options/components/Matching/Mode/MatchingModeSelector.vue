@@ -83,6 +83,7 @@ const settingGroups = computed(() => {
       key: actionType,
       label: t(`setting-${actionType}`),
       description: t(`setting-${actionType}-description`),
+      detailedDescription: t(`setting-${actionType}-detailed-description`),
       example: t(`setting-${actionType}-example`),
     })),
   }))

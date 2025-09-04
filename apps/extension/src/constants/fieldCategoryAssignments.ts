@@ -123,7 +123,7 @@ const FIELD_CATEGORY_ASSIGNMENTS: Record<CSLVariable, readonly FieldCategory[]> 
   'categories': [FieldCategory.TECHNICAL],
   'language': [FieldCategory.TECHNICAL],
   'custom': [FieldCategory.TECHNICAL],
-} as const
+} satisfies Record<CSLVariable, readonly FieldCategory[]>
 
 export const CORE_FIELDS = getFieldsByCategory(FieldCategory.CORE)
 export const ACADEMIC_FIELDS = getFieldsByCategory(FieldCategory.ACADEMIC)
