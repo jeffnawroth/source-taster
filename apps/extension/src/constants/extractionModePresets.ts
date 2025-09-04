@@ -15,9 +15,6 @@ const BALANCED_ACTIONS: ExtractionActionType[] = [
   'normalize-whitespace',
 ] as const
 
-const TOLERANT_ACTIONS: ExtractionActionType[] = [] as const
-
 export const EXTRACTION_MODE_PRESETS = createModePresets<ExtractionActionType>(
   BALANCED_ACTIONS,
-  TOLERANT_ACTIONS,
 )

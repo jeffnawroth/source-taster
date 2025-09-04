@@ -4,7 +4,6 @@ import { ModeSchema } from '../common/mode'
 export enum MatchingRuleCategory {
   CONTENT_EQUIVALENCE = 'content-equivalence',
   STYLE_INSENSITIVITY = 'style-insensitivity',
-  TOLERANCE = 'tolerance',
 }
 
 export const MatchingActionTypeSchema = z.enum([

@@ -35,12 +35,10 @@ function deselectAll() {
 
 const modeOptions = computed(() =>
   Object.entries(EXTRACTION_MODE_PRESETS)
-    .filter(([mode]) => mode !== 'tolerant') // Filter out tolerant mode
     .map(([mode]) => {
       const iconMap: Record<string, string> = {
         strict: mdiLock,
         balanced: mdiScale,
-        // tolerant: mdiTarget, // Commented out
         custom: mdiCogOutline,
       }
 
@@ -101,11 +99,6 @@ const presetButtons = computed(() => [
     icon: mdiScale,
     onClick: () => loadRuleSet('balanced'),
   },
-  // {
-  //   label: t('load-tolerant'),
-  //   icon: mdiTarget,
-  //   onClick: () => loadRuleSet('tolerant'),
-  // },
   {
     label: t('select-all'),
     icon: mdiCheckCircleOutline,

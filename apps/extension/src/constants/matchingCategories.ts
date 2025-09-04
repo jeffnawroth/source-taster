@@ -17,9 +17,6 @@ export const MATCHING_UI_CATEGORIES: Record<MatchingRuleCategory, MatchingAction
     'ignore-case-format',
     'ignore-character-variation',
   ],
-  [MatchingRuleCategory.TOLERANCE]: [
-    // Currently empty - can be extended with tolerance-specific action types
-  ],
 }
 
 /**

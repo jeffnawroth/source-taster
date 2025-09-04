@@ -7,8 +7,6 @@ import {
   mdiLock,
   mdiPalette,
   mdiScale,
-  mdiTarget,
-  mdiWrench,
 } from '@mdi/js'
 import { type MatchingActionType, MatchingRuleCategory, type Mode } from '@source-taster/types'
 import { getMatchingActionTypesByCategory } from '@/extension/constants/matchingCategories'
@@ -36,7 +34,6 @@ function selectAll() {
   matchingSettings.value.matchingStrategy.actionTypes = [
     ...getMatchingActionTypesByCategory(MatchingRuleCategory.CONTENT_EQUIVALENCE),
     ...getMatchingActionTypesByCategory(MatchingRuleCategory.STYLE_INSENSITIVITY),
-    ...getMatchingActionTypesByCategory(MatchingRuleCategory.TOLERANCE),
   ]
 }
 function deselectAll() {
@@ -48,7 +45,6 @@ const modeOptions = computed(() =>
     const iconMap: Record<Mode, string> = {
       strict: mdiLock,
       balanced: mdiScale,
-      tolerant: mdiTarget,
       custom: mdiCogOutline,
     }
 
@@ -74,11 +70,6 @@ const categoryConfig = {
     title: t('content-formatting-settings'),
     description: t('content-formatting-settings-description'),
     icon: mdiPalette,
-  },
-  [MatchingRuleCategory.TOLERANCE]: {
-    title: t('technical-extraction-settings'),
-    description: t('technical-extraction-settings-description'),
-    icon: mdiWrench,
   },
 }
 
@@ -107,11 +98,6 @@ const presetButtons = computed(() => [
     label: t('load-balanced'),
     icon: mdiScale,
     onClick: () => loadRuleSet('balanced'),
-  },
-  {
-    label: t('load-tolerant'),
-    icon: mdiTarget,
-    onClick: () => loadRuleSet('tolerant'),
   },
   {
     label: t('select-all'),

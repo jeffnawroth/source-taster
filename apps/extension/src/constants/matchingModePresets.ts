@@ -13,11 +13,6 @@ const BALANCED_ACTIONS: MatchingActionType[] = [
   'ignore-whitespace',
 ] as const
 
-const TOLERANT_ACTIONS: MatchingActionType[] = [
-
-] as const
-
 export const MATCHING_MODE_PRESETS = createModePresets<MatchingActionType>(
   BALANCED_ACTIONS,
-  TOLERANT_ACTIONS,
 )
