@@ -86,8 +86,9 @@ const CSLDateValue = z.union([CSLDateSchema, z.string()])
 export const CSLItemSchema = z
   .object({
     // required
-    'type': CSLItemTypeSchema,
     'id': z.union([z.string(), z.number()]),
+
+    'type': CSLItemTypeSchema.optional(), // Changed type to optional
 
     // optional common metadata
     'citation-key': z.string().optional(),
