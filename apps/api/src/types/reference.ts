@@ -10,7 +10,7 @@ function createConditionalCSLSchema(enabledFields: string[]): z.ZodType<any> {
   const conditionalShape: Record<string, z.ZodTypeAny> = {}
 
   // Always include required CSL fields
-  conditionalShape.id = cslShape.id
+  // Don't include the 'id' variable
   conditionalShape.type = cslShape.type
 
   // Add optional fields based on user selection
