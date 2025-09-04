@@ -12,9 +12,9 @@ export const ModeSchema = z.enum([
 
 export type Mode = z.infer<typeof ModeSchema>
 
-export function createModePresets<ActionType>(
-  balancedActions: ActionType[],
-): Record<Mode, ActionType[]> {
+export function createModePresets<NormalizationRule>(
+  balancedActions: NormalizationRule[],
+): Record<Mode, NormalizationRule[]> {
   return {
     strict: [],
     balanced: [...balancedActions],

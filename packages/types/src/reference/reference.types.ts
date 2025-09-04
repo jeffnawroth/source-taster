@@ -3,7 +3,7 @@
  */
 
 import z from 'zod'
-import { ExtractionActionTypeSchema } from '../extraction'
+import { NormalizationRuleSchema } from '../normalization'
 import { CSLItemSchema } from './csl-json.zod'
 
 // AI-related schemas (moved from ai.ts)
@@ -16,7 +16,7 @@ export const FieldExtractionResultSchema = z.object({
     // AuthorSchema.describe('Single author object for author fields'),
     // z.array(AuthorSchema).describe('Array of author objects'),
   ]).describe('The value after extraction - can be string, author object, array of strings, or array of author objects'),
-  actionTypes: z.array(ExtractionActionTypeSchema).describe('Type of extraction actions applied'),
+  normalizationRules: z.array(NormalizationRuleSchema).describe('Type of normalization rules applied'),
 })
 
 export const AIExtractedReferenceSchema = z.object({

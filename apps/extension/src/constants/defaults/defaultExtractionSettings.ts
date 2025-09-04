@@ -8,7 +8,7 @@ export const DEFAULT_EXTRACTION_MODE: Mode = 'balanced'
 
 export const DEFAULT_EXTRACTION_STRATEGY: ExtractionStrategy = {
   mode: DEFAULT_EXTRACTION_MODE,
-  actionTypes: EXTRACTION_MODE_PRESETS[DEFAULT_EXTRACTION_MODE],
+  normalizationRules: EXTRACTION_MODE_PRESETS[DEFAULT_EXTRACTION_MODE],
 }
 
 // Essential extraction configuration for basic metadata extraction

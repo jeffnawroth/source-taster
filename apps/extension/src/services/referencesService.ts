@@ -54,7 +54,7 @@ export class ReferencesService {
 
     const apiMatchingSettings: APIMatchingSettings = {
       matchingStrategy: {
-        actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
+        normalizationRules: matchingSettings.value.matchingStrategy.normalizationRules,
       },
       matchingConfig: {
         fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,
@@ -103,7 +103,7 @@ export class ReferencesService {
 
     const apiMatchingSettings: APIMatchingSettings = {
       matchingStrategy: {
-        actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
+        normalizationRules: matchingSettings.value.matchingStrategy.normalizationRules,
       },
       matchingConfig: {
         fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,

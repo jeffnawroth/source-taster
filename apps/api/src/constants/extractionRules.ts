@@ -1,10 +1,10 @@
-import type { ExtractionActionType } from '@source-taster/types'
+import type { NormalizationRule } from '@source-taster/types'
 
 /**
  * Backend-only extraction rules mapping for AI prompt generation
  * Maps each extraction action type to its corresponding AI instructions
  */
-export const EXTRACTION_RULES_MAP: Record<ExtractionActionType, { prompt: string, example?: string }> = {
+export const EXTRACTION_RULES_MAP: Record<NormalizationRule, { prompt: string, example?: string }> = {
   'normalize-spelling': {
     prompt: 'Correct obvious typos and misspellings, including common spelling errors, transposed letters, and missing letters.',
     example: '"Jouranl" → "Journal", "artficial" → "artificial", "inteligence" → "intelligence", "medecine" → "medicine"',

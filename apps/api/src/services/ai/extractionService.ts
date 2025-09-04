@@ -46,14 +46,14 @@ CRITICAL REFERENCE IDENTIFICATION RULES:
 
     return this.buildSystemMessage(
       baseMessage,
-      extractionStrategy.actionTypes,
+      extractionStrategy.normalizationRules,
       EXTRACTION_RULES_MAP,
       `Apply only the specific modifications listed below to the source text.
 If a modification rule leads to a change in a value that will be extracted, you must create an entry in the extractionResults array. Each entry must include:
 • the fieldPath of the affected value (e.g., "metadata.title"),
 • the originalValue before the modification,
 • the extractedValue after the modification,
-• and the list of applied actionTypes.
+• and the list of applied normalization rules.
 
 Do not add an entry to extractionResults if a rule was applied but resulted in no change to the value.
 After applying all relevant modifications, perform the extraction on the modified version of the text.

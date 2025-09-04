@@ -76,7 +76,7 @@ const extractedValue = computed(() => {
 // Get all modification types for this field (deduplicated with counts)
 const modificationTypes = computed(() => {
   const types = allModifications.value.flatMap(mod =>
-    mod.actionTypes.map(actionType => t(`modification-type-${actionType}`)),
+    mod.normalizationRules.map(normalizationRule => t(`modification-type-${normalizationRule}`)),
   )
 
   // Count occurrences of each type

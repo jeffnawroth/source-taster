@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import type { ExtractionActionType, Mode } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiLock, mdiScale } from '@mdi/js'
+import { type Mode, type NormalizationRule, NormalizationRuleSchema } from '@source-taster/types'
 
-import { ExtractionActionTypeSchema } from '@source-taster/types'
 import { EXTRACTION_MODE_PRESETS } from '@/extension/constants/extractionModePresets'
 import { extractionSettings } from '@/extension/logic'
 
-// Get all available extraction action types from the schema
-const ALL_EXTRACTION_ACTION_TYPES: ExtractionActionType[] = ExtractionActionTypeSchema.options
+// Get all available normalization rules from the schema
+const ALL_NORMALIZATION_RULES: NormalizationRule[] = NormalizationRuleSchema.options
 
 // TRANSLATION
 const { t } = useI18n()
@@ -22,14 +21,14 @@ watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
 })
 
 function loadRuleSet(preset: Mode) {
-  extractionSettings.value.extractionStrategy.actionTypes = EXTRACTION_MODE_PRESETS[preset]
+  extractionSettings.value.extractionStrategy.normalizationRules = EXTRACTION_MODE_PRESETS[preset]
 }
 function selectAll() {
-  // Get all available action types
-  extractionSettings.value.extractionStrategy.actionTypes = [...ALL_EXTRACTION_ACTION_TYPES]
+  // Get all available normalization rules
+  extractionSettings.value.extractionStrategy.normalizationRules = [...ALL_NORMALIZATION_RULES]
 }
 function deselectAll() {
-  extractionSettings.value.extractionStrategy.actionTypes = []
+  extractionSettings.value.extractionStrategy.normalizationRules = []
 }
 
 const modeOptions = computed(() =>
@@ -55,12 +54,12 @@ const modeOptions = computed(() =>
 
 // Simplified settings - direct array instead of groups
 const settings = computed(() => {
-  return ALL_EXTRACTION_ACTION_TYPES.map((actionType: ExtractionActionType) => ({
-    key: actionType,
-    label: t(`setting-${actionType}`),
-    description: t(`setting-${actionType}-short-description`),
-    detailedDescription: t(`setting-${actionType}-description`),
-    example: t(`setting-${actionType}-example`),
+  return ALL_NORMALIZATION_RULES.map((rule: NormalizationRule) => ({
+    key: rule,
+    label: t(`setting-${rule}`),
+    description: t(`setting-${rule}-short-description`),
+    detailedDescription: t(`setting-${rule}-description`),
+    example: t(`setting-${rule}-example`),
   }))
 })
 
@@ -91,7 +90,7 @@ const presetButtons = computed(() => [
 <template>
   <ModeSelector
     v-model:mode="extractionSettings.extractionStrategy.mode"
-    v-model:selected-actions="extractionSettings.extractionStrategy.actionTypes"
+    v-model:selected-actions="extractionSettings.extractionStrategy.normalizationRules"
     :mode-options
     custom-value="custom"
     :settings

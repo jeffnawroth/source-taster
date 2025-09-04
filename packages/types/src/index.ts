@@ -20,6 +20,9 @@ export * from './extraction'
 // Matching Types
 export * from './matching'
 
+// Normalization Types
+export * from './normalization'
+
 // Core Reference Types
 export * from './reference'
 

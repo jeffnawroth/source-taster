@@ -1,17 +1,17 @@
 /**
- * Generate AI instructions from action types and their corresponding rules map
- * @param actionTypes - Array of action types to generate instructions for
+ * Generate AI instructions from normalization rules and their corresponding rules map
+ * @param normalizationRules - Array of normalization rules to generate instructions for
  * @param rulesMap - Rules mapping object
  * @returns Array of instruction strings for AI prompts
  */
-export function generateInstructionsFromActionTypes<T extends string>(
-  actionTypes: T[],
+export function generateInstructionsFromNormalizationRules<T extends string>(
+  normalizationRules: T[],
   rulesMap: Record<T, { prompt: string, example?: string }>,
 ): string[] {
-  return actionTypes.map((actionType) => {
-    const rule = rulesMap[actionType]
+  return normalizationRules.map((normalizationRule) => {
+    const rule = rulesMap[normalizationRule]
     if (!rule) {
-      console.warn(`No rule found for action type: ${actionType}`)
+      console.warn(`No rule found for normalization rule: ${normalizationRule}`)
       return ''
     }
     return rule.example
@@ -42,19 +42,19 @@ export function buildInstructionText(
 }
 
 /**
- * Universal instruction builder - combines action type processing with text formatting
- * @param actionTypes - Array of action types
+ * Universal instruction builder - combines normalization rule processing with text formatting
+ * @param normalizationRules - Array of normalization rules
  * @param rulesMap - Rules mapping object
  * @param header - Header text for instructions
  * @param fallback - Fallback text when no instructions
  * @returns Complete formatted instruction text
  */
-export function buildInstructionsFromActionTypes<T extends string>(
-  actionTypes: T[],
+export function buildInstructionsFromNormalizationRules<T extends string>(
+  normalizationRules: T[],
   rulesMap: Record<T, { prompt: string, example?: string }>,
   header: string,
   fallback: string,
 ): string {
-  const instructionLines = generateInstructionsFromActionTypes(actionTypes, rulesMap)
+  const instructionLines = generateInstructionsFromNormalizationRules(normalizationRules, rulesMap)
   return buildInstructionText(instructionLines, header, fallback)
 }

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { MatchingActionType, Mode } from '@source-taster/types'
 import {
   mdiCheckCircleOutline,
   mdiCloseCircleOutline,
@@ -7,13 +6,13 @@ import {
   mdiLock,
   mdiScale,
 } from '@mdi/js'
+import { type Mode, type NormalizationRule, NormalizationRuleSchema } from '@source-taster/types'
 
-import { MatchingActionTypeSchema } from '@source-taster/types'
 import { MATCHING_MODE_PRESETS } from '@/extension/constants/matchingModePresets'
 import { matchingSettings } from '@/extension/logic'
 
 // Get all available matching action types from the schema
-const ALL_MATCHING_ACTION_TYPES: MatchingActionType[] = MatchingActionTypeSchema.options
+const ALL_NORMALIZATION_RULES: NormalizationRule[] = NormalizationRuleSchema.options
 
 // TRANSLATION
 const { t } = useI18n()
@@ -28,14 +27,14 @@ watch(() => matchingSettings.value.matchingStrategy.mode, (newMode) => {
 })
 
 function loadRuleSet(preset: Mode) {
-  matchingSettings.value.matchingStrategy.actionTypes = MATCHING_MODE_PRESETS[preset]
+  matchingSettings.value.matchingStrategy.normalizationRules = MATCHING_MODE_PRESETS[preset]
 }
 function selectAll() {
-  // Get all available action types
-  matchingSettings.value.matchingStrategy.actionTypes = [...ALL_MATCHING_ACTION_TYPES]
+  // Get all available normalization rules
+  matchingSettings.value.matchingStrategy.normalizationRules = [...ALL_NORMALIZATION_RULES]
 }
 function deselectAll() {
-  matchingSettings.value.matchingStrategy.actionTypes = []
+  matchingSettings.value.matchingStrategy.normalizationRules = []
 }
 
 const modeOptions = computed(() =>
@@ -60,12 +59,12 @@ const modeOptions = computed(() =>
 
 // Simplified settings - direct array instead of groups
 const settings = computed(() => {
-  return ALL_MATCHING_ACTION_TYPES.map((actionType: MatchingActionType) => ({
-    key: actionType,
-    label: t(`setting-${actionType}`),
-    description: t(`setting-${actionType}-short-description`),
-    detailedDescription: t(`setting-${actionType}-description`),
-    example: t(`setting-${actionType}-example`),
+  return ALL_NORMALIZATION_RULES.map((rule: NormalizationRule) => ({
+    key: rule,
+    label: t(`setting-${rule}`),
+    description: t(`setting-${rule}-short-description`),
+    detailedDescription: t(`setting-${rule}-description`),
+    example: t(`setting-${rule}-example`),
   }))
 })
 
@@ -96,7 +95,7 @@ const presetButtons = computed(() => [
 <template>
   <ModeSelector
     v-model:mode="matchingSettings.matchingStrategy.mode"
-    v-model:selected-actions="matchingSettings.matchingStrategy.actionTypes"
+    v-model:selected-actions="matchingSettings.matchingStrategy.normalizationRules"
     :mode-options
     custom-value="custom"
     :settings

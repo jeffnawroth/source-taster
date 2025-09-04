@@ -1,11 +1,11 @@
 import type { MatchingResult } from './matching-result'
 import z from 'zod'
-import { CSLItemSchema } from '../reference'
+import { NormalizationRuleSchema } from '../normalization'
 
+import { CSLItemSchema } from '../reference'
 import { WebsiteMatchingOptionsSchema } from '../website'
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
 import { ExternalSourceSchema } from './matching-result'
-import { MatchingActionTypeSchema } from './matching-strategy.types'
 
 /**
  * Lightweight reference type for matching - only contains metadata
@@ -35,17 +35,17 @@ export const ValidatedAPIMatchingConfigSchema = APIMatchingConfigSchema.refine(
 )
 
 /**
- * Optimized matching strategy for API requests - only sends actionTypes
+ * Optimized matching strategy for API requests - only sends normalizationRules
  */
 export const APIMatchingStrategySchema = z.object({
-  actionTypes: z.array(MatchingActionTypeSchema).describe('Selected action types for matching behavior'),
+  normalizationRules: z.array(NormalizationRuleSchema).describe('Selected normalization rules for matching behavior'),
 })
 
 /**
  * Optimized matching settings for API requests - excludes frontend-only matchThresholds
  */
 export const APIMatchingSettingsSchema = z.object({
-  matchingStrategy: APIMatchingStrategySchema.describe('Optimized strategy with only actionTypes'),
+  matchingStrategy: APIMatchingStrategySchema.describe('Optimized strategy with only normalizationRules'),
   matchingConfig: APIMatchingConfigSchema.describe('Configuration for matching behavior'),
 })
 
