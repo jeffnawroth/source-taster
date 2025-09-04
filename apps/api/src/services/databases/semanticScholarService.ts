@@ -1,4 +1,4 @@
-import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import type { CSLItem, ExternalSource } from '@source-taster/types'
 import type { components } from '../../types/semanticScholar'
 
 type SemanticScholarPaper = components['schemas']['FullPaper']
@@ -13,20 +13,19 @@ export class SemanticScholarService {
     this.apiKey = apiKey
   }
 
-  async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+  async search(metadata: CSLItem): Promise<ExternalSource | null> {
     try {
       // Priority order for search strategies based on Semantic Scholar API best practices:
 
       // 1. Direct identifier searches (most reliable)
-      if (metadata.identifiers?.doi) {
-        const directResult = await this.searchByDOI(metadata.identifiers.doi)
+      if (metadata.DOI) {
+        const directResult = await this.searchByDOI(metadata.DOI)
         if (directResult)
           return directResult
       }
 
-      // 2. ArXiv ID search for preprints (if available)
-      if (metadata.identifiers?.arxivId) {
-        const arxivResult = await this.searchByArxivId(metadata.identifiers.arxivId)
+      if (metadata.arxivId) {
+        const arxivResult = await this.searchByArxivId(metadata.arxivId)
         if (arxivResult)
           return arxivResult
       }
@@ -210,7 +209,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private async searchByQuery(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+  private async searchByQuery(metadata: CSLItem): Promise<ExternalSource | null> {
     try {
       // Try multiple search strategies, starting with the simplest and most effective
       const searchQueries = []
@@ -221,35 +220,38 @@ export class SemanticScholarService {
       }
 
       // Strategy 1: Most specific - Full title + first author + year (highest precision)
-      if (metadata.title && metadata.authors?.[0] && metadata.date?.year) {
-        const authorLastName = this.extractAuthorLastName(metadata.authors[0])
+      if (metadata.title && metadata.author?.[0] && metadata.issued && typeof metadata.issued === 'object' && metadata.issued['date-parts'] && metadata.issued['date-parts'][0] && metadata.issued['date-parts'][0][0]) {
+        const year = metadata.issued['date-parts'][0][0]
+        const authorLastName = this.extractAuthorLastNameFromCSLAuthor(metadata.author[0])
         if (authorLastName) {
-          searchQueries.push(`"${metadata.title}" ${authorLastName} ${metadata.date.year}`)
+          searchQueries.push(`"${metadata.title}" ${authorLastName} ${year}`)
         }
       }
 
       // Strategy 2: Author + Year + Key title terms (high precision)
-      if (metadata.authors?.[0] && metadata.date?.year && metadata.title) {
-        const authorLastName = this.extractAuthorLastName(metadata.authors[0])
+      if (metadata.author?.[0] && metadata.issued && typeof metadata.issued === 'object' && metadata.issued['date-parts'] && metadata.issued['date-parts'][0] && metadata.issued['date-parts'][0][0] && metadata.title) {
+        const year = metadata.issued['date-parts'][0][0]
+        const authorLastName = this.extractAuthorLastNameFromCSLAuthor(metadata.author[0])
         if (authorLastName) {
           const keyTerms = metadata.title.toLowerCase()
             .split(' ')
-            .filter(word => word.length > 3 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an', 'and', 'or', 'from', 'using', 'text'].includes(word))
+            .filter((word: string) => word.length > 3 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an', 'and', 'or', 'from', 'using', 'text'].includes(word))
             .slice(0, 4) // Take first 4 distinctive terms
 
-          const queryParts = [authorLastName, metadata.date.year.toString(), ...keyTerms]
+          const queryParts = [authorLastName, year.toString(), ...keyTerms]
           searchQueries.push(queryParts.join(' '))
         }
       }
 
       // Strategy 3: Exact title + year for unique identification
-      if (metadata.title && metadata.date?.year) {
-        searchQueries.push(`"${metadata.title}" ${metadata.date.year}`)
+      if (metadata.title && metadata.issued && typeof metadata.issued === 'object' && metadata.issued['date-parts'] && metadata.issued['date-parts'][0] && metadata.issued['date-parts'][0][0]) {
+        const year = metadata.issued['date-parts'][0][0]
+        searchQueries.push(`"${metadata.title}" ${year}`)
       }
 
       // Strategy 4: Author + Title for cases without year
-      if (metadata.authors?.[0] && metadata.title) {
-        const authorLastName = this.extractAuthorLastName(metadata.authors[0])
+      if (metadata.author?.[0] && metadata.title) {
+        const authorLastName = this.extractAuthorLastNameFromCSLAuthor(metadata.author[0])
         if (authorLastName) {
           searchQueries.push(`${authorLastName} "${metadata.title}"`)
         }
@@ -269,16 +271,16 @@ export class SemanticScholarService {
       if (metadata.title) {
         const keyTerms = metadata.title.toLowerCase()
           .split(' ')
-          .filter(word => word.length > 2 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an'].includes(word))
+          .filter((word: string) => word.length > 2 && !['the', 'of', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'a', 'an'].includes(word))
         if (keyTerms.length > 0) {
           searchQueries.push(keyTerms.slice(0, 5).join(' ')) // Use up to 5 key terms
         }
       }
 
       // Strategy 8: Author last names + key title words (handles format variations)
-      if (metadata.authors && metadata.authors.length > 0 && metadata.title) {
-        const authorLastNames = metadata.authors
-          .map(author => this.extractAuthorLastName(author))
+      if (metadata.author && metadata.author.length > 0 && metadata.title) {
+        const authorLastNames = metadata.author
+          .map((author: any) => this.extractAuthorLastNameFromCSLAuthor(author))
           .filter(Boolean)
           .slice(0, 2) // Use first 2 authors
 
@@ -291,8 +293,8 @@ export class SemanticScholarService {
       }
 
       // Strategy 9: Split author name formats - handle "Lastname, F." -> "F. Lastname"
-      if (metadata.authors && metadata.authors.length > 0 && metadata.title) {
-        const normalizedAuthors = metadata.authors.map(author => this.normalizeAuthorName(author)).filter(Boolean)
+      if (metadata.author && metadata.author.length > 0 && metadata.title) {
+        const normalizedAuthors = metadata.author.map((author: any) => this.normalizeCSLAuthorName(author)).filter(Boolean)
         if (normalizedAuthors.length > 0) {
           searchQueries.push(`${normalizedAuthors[0]} ${metadata.title}`)
         }
@@ -317,7 +319,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private async performRelevanceSearch(query: string, metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+  private async performRelevanceSearch(query: string, metadata: CSLItem): Promise<ExternalSource | null> {
     try {
       const params = new URLSearchParams()
       params.append('query', query)
@@ -361,13 +363,17 @@ export class SemanticScholarService {
           const bestMatch = data.data[0]
 
           // Basic sanity check: if we have a year, make sure it's reasonably close
-          if (metadata.date?.year && bestMatch.year) {
-            const yearDiff = Math.abs(bestMatch.year - metadata.date.year)
+          const year = metadata.issued && typeof metadata.issued === 'object' && metadata.issued['date-parts'] && metadata.issued['date-parts'][0] && metadata.issued['date-parts'][0][0]
+            ? Number(metadata.issued['date-parts'][0][0])
+            : null
+
+          if (year && bestMatch.year) {
+            const yearDiff = Math.abs(bestMatch.year - year)
             if (yearDiff > 5) {
               // Try next result if year is way off
               for (let i = 1; i < Math.min(data.data.length, 3); i++) {
                 const candidate = data.data[i]
-                if (candidate.year && Math.abs(candidate.year - metadata.date.year) <= 2) {
+                if (candidate.year && Math.abs(candidate.year - year) <= 2) {
                   return {
                     id: candidate.paperId!,
                     source: 'semanticscholar',
@@ -396,15 +402,53 @@ export class SemanticScholarService {
     return null
   }
 
-  private parseSemanticScholarWork(work: SemanticScholarPaper): ReferenceMetadata {
+  private parseSemanticScholarWork(work: SemanticScholarPaper): CSLItem {
+    const metadata: CSLItem = {
+      type: 'article-journal', // Default type, will be updated if needed
+      id: work.paperId || `semanticscholar-${Date.now()}`,
+    }
+
+    // Title
+    if (work.title) {
+      metadata.title = work.title
+    }
+
     // Parse authors with enhanced handling for both string and object formats
     const authors = work.authors?.map((author: any) => {
       if (typeof author === 'string') {
-        return author
+        // Parse string format like "John Doe" into given/family
+        const nameParts = author.trim().split(/\s+/)
+        if (nameParts.length > 1) {
+          return {
+            given: nameParts.slice(0, -1).join(' '),
+            family: nameParts[nameParts.length - 1],
+          }
+        }
+        else {
+          return {
+            family: author,
+          }
+        }
       }
       // Handle Semantic Scholar author object format
-      return author.name || `${author.firstName || ''} ${author.lastName || ''}`.trim()
+      const fullName = author.name || `${author.firstName || ''} ${author.lastName || ''}`.trim()
+      const nameParts = fullName.split(/\s+/)
+      if (nameParts.length > 1) {
+        return {
+          given: nameParts.slice(0, -1).join(' '),
+          family: nameParts[nameParts.length - 1],
+        }
+      }
+      else {
+        return {
+          family: fullName,
+        }
+      }
     }).filter(Boolean) || []
+
+    if (authors.length > 0) {
+      metadata.author = authors
+    }
 
     // Parse year from multiple possible sources with priority
     let year: number | undefined
@@ -428,46 +472,62 @@ export class SemanticScholarService {
       }
     }
 
-    // Parse identifiers from external IDs with comprehensive mapping
-    const identifiers: any = {}
+    // Set publication date
+    if (year) {
+      metadata.issued = { 'date-parts': [[year]] }
+    }
+
+    // Parse complete publication date if available
+    if (work.publicationDate) {
+      try {
+        const date = new Date(work.publicationDate)
+        if (!Number.isNaN(date.getTime())) {
+          const pubYear = date.getFullYear()
+          const pubMonth = date.getMonth() + 1
+          const pubDay = date.getDate()
+          metadata.issued = { 'date-parts': [[pubYear, pubMonth, pubDay]] }
+        }
+      }
+      catch {
+        // Fall back to year only if we have it
+        if (year) {
+          metadata.issued = { 'date-parts': [[year]] }
+        }
+      }
+    }
+
+    // Parse identifiers from external IDs
     if (work.externalIds) {
       const extIds = work.externalIds as any
-      // DOI
+
       if (extIds.DOI) {
-        identifiers.doi = extIds.DOI
+        metadata.DOI = extIds.DOI
       }
 
       // ArXiv ID
       if (extIds.ArXiv) {
-        identifiers.arxivId = extIds.ArXiv
+        metadata.arxivId = extIds.ArXiv
       }
 
       // PubMed ID
       if (extIds.PubMed) {
-        identifiers.pmid = extIds.PubMed
+        metadata.PMID = extIds.PubMed
       }
-
-      // PMC ID
       if (extIds.PubMedCentral) {
-        identifiers.pmcid = extIds.PubMedCentral
+        metadata.PMCID = extIds.PubMedCentral
       }
-
-      // ISSN
       if (extIds.ISSN) {
-        identifiers.issn = extIds.ISSN
+        metadata.ISSN = extIds.ISSN
       }
-
-      // ISBN
       if (extIds.ISBN) {
-        identifiers.isbn = extIds.ISBN
+        metadata.ISBN = extIds.ISBN
       }
     }
 
-    // Parse journal/venue with enhanced logic and priority
+    // Parse journal/venue information
     let journal: string | undefined
     let issn: string | undefined
 
-    // Priority: journal object > publicationVenue > venue
     if (work.journal && 'name' in work.journal) {
       const journalObj = work.journal as any
       journal = journalObj.name
@@ -486,156 +546,82 @@ export class SemanticScholarService {
       journal = work.venue
     }
 
-    // Update identifiers with ISSN if found and not already present
-    if (issn && !identifiers.issn) {
-      identifiers.issn = issn
+    if (journal) {
+      metadata['container-title'] = journal
+    }
+    if (issn && !metadata.ISSN) {
+      metadata.ISSN = issn
     }
 
-    // Parse volume, issue, and pages from journal object or publicationVenue
-    let volume: string | undefined
-    let issue: string | undefined
-    let pages: string | undefined
-
+    // Parse volume, issue, and pages
     if (work.journal) {
       const journalObj = work.journal as any
-      volume = journalObj.volume
-      issue = journalObj.issue
-      pages = journalObj.pages
+      if (journalObj.volume)
+        metadata.volume = journalObj.volume
+      if (journalObj.issue)
+        metadata.issue = journalObj.issue
+      if (journalObj.pages)
+        metadata.page = journalObj.pages
     }
     else if (work.publicationVenue) {
       const venueObj = work.publicationVenue as any
-      volume = venueObj.volume
-      issue = venueObj.issue
-      pages = venueObj.pages
+      if (venueObj.volume)
+        metadata.volume = venueObj.volume
+      if (venueObj.issue)
+        metadata.issue = venueObj.issue
+      if (venueObj.pages)
+        metadata.page = venueObj.pages
     }
 
     // Parse publication type for enhanced metadata
-    let sourceType: string | undefined
     if (work.publicationTypes && work.publicationTypes.length > 0) {
-      sourceType = work.publicationTypes[0] // Take the first publication type
-    }
-
-    // Parse complete publication date if available
-    let dateValue: any = { year }
-    if (work.publicationDate) {
-      try {
-        const date = new Date(work.publicationDate)
-        if (!Number.isNaN(date.getTime())) {
-          dateValue = {
-            year: date.getFullYear(),
-            month: date.getMonth() + 1,
-            day: date.getDate(),
-          }
-        }
+      const pubType = work.publicationTypes[0]
+      // Map to CSL types
+      const typeMapping: Record<string, CSLItem['type']> = {
+        JournalArticle: 'article-journal',
+        ConferencePaper: 'paper-conference',
+        BookSection: 'chapter',
+        Book: 'book',
+        Report: 'report',
+        Thesis: 'thesis',
+        Patent: 'patent',
+        Dataset: 'dataset',
+        Review: 'review',
       }
-      catch {
-        // Fall back to year only
-        dateValue = { year }
-      }
-    }
-
-    // Create comprehensive metadata object
-    const metadata: ReferenceMetadata = {
-      title: work.title,
-      authors,
-      date: dateValue,
-      source: {
-        containerTitle: journal,
-        volume,
-        issue,
-        pages,
-        sourceType,
-      },
-      identifiers: Object.keys(identifiers).length > 0 ? identifiers : undefined,
-    }
-
-    // Remove undefined values to clean up the metadata
-    Object.keys(metadata).forEach((key) => {
-      if (metadata[key as keyof ReferenceMetadata] === undefined) {
-        delete metadata[key as keyof ReferenceMetadata]
-      }
-    })
-
-    if (metadata.source) {
-      Object.keys(metadata.source).forEach((key) => {
-        if (metadata.source![key as keyof typeof metadata.source] === undefined) {
-          delete metadata.source![key as keyof typeof metadata.source]
-        }
-      })
+      metadata.type = typeMapping[pubType] || 'article-journal'
     }
 
     return metadata
   }
 
   /**
-   * Enhanced author name extraction to handle various formats:
-   * - "Akbik, A." -> "Akbik"
-   * - "John Smith" -> "Smith"
-   * - "Smith" -> "Smith"
-   * - {firstName: "John", lastName: "Smith"} -> "Smith"
+   * Extract author last name from CSL author format
    */
-  private extractAuthorLastName(author: string | { firstName?: string, lastName?: string }): string | undefined {
-    if (typeof author === 'string') {
-      const authorStr = author.trim()
-
-      // Handle "LastName, FirstInitial" format (e.g., "Akbik, A.")
-      if (authorStr.includes(',')) {
-        const parts = authorStr.split(',')
-        if (parts.length >= 2) {
-          return parts[0].trim() // Return the part before the comma
-        }
-      }
-
-      // Handle "FirstName LastName" format
-      const nameParts = authorStr.split(/\s+/)
-      if (nameParts.length >= 2) {
-        return nameParts[nameParts.length - 1] // Return the last part
-      }
-
-      // Single name - could be either first or last name
-      if (nameParts.length === 1) {
-        // If it looks like an initial (single letter or letter with dot), skip it
-        if (authorStr.match(/^[A-Z]\.?$/)) {
-          return undefined
-        }
-        return authorStr
-      }
+  private extractAuthorLastNameFromCSLAuthor(author: any): string | undefined {
+    if (author.family) {
+      return author.family
     }
-    else if (author && typeof author === 'object') {
-      // Handle author object format
-      return author.lastName || author.firstName
+    if (author.literal) {
+      // Try to extract last name from literal format
+      const parts = author.literal.split(' ')
+      return parts[parts.length - 1]
     }
-
     return undefined
   }
 
   /**
-   * Normalize author names to handle different formats
-   * "Akbik, A." -> "A. Akbik"
-   * "John Smith" -> "John Smith"
+   * Normalize CSL author name format
    */
-  private normalizeAuthorName(author: string | { firstName?: string, lastName?: string }): string | undefined {
-    if (typeof author === 'string') {
-      const authorStr = author.trim()
-
-      // Handle "LastName, FirstInitial" format (e.g., "Akbik, A.")
-      if (authorStr.includes(',')) {
-        const parts = authorStr.split(',').map(p => p.trim())
-        if (parts.length >= 2 && parts[1]) {
-          return `${parts[1]} ${parts[0]}` // "A. Akbik"
-        }
-      }
-
-      // Return as-is for other formats
-      return authorStr
+  private normalizeCSLAuthorName(author: any): string | undefined {
+    if (author.family && author.given) {
+      return `${author.given} ${author.family}`
     }
-    else if (author && typeof author === 'object') {
-      // Handle author object format
-      const firstName = author.firstName || ''
-      const lastName = author.lastName || ''
-      return `${firstName} ${lastName}`.trim()
+    if (author.family) {
+      return author.family
     }
-
+    if (author.literal) {
+      return author.literal
+    }
     return undefined
   }
 
