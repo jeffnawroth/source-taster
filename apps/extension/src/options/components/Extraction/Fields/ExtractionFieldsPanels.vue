@@ -89,7 +89,7 @@ function remove(item: CSLVariable) {
       >
         <template #prepend-item>
           <v-list-item
-            :title="t('select-all')"
+            :title="allVariablesSelected ? t('deselect-all') : t('select-all')"
             @click="toggleSelectAll"
           >
             <template #prepend>
@@ -101,7 +101,7 @@ function remove(item: CSLVariable) {
           </v-list-item>
 
           <v-list-item
-            :title="t('select-common')"
+            :title="commonSelected ? t('deselect-common') : t('select-common')"
             @click="toggleSelectCommon"
           >
             <template #prepend>
