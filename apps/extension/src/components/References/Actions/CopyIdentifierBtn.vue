@@ -14,23 +14,23 @@ async function copyIdentifier() {
   let identifier = ''
 
   // Priority: DOI > PMCID > PMID > arXiv > ISBN > ISSN
-  if (reference.metadata.identifiers?.doi) {
-    identifier = reference.metadata.identifiers.doi
+  if (reference.metadata.DOI) {
+    identifier = reference.metadata.DOI
   }
-  else if (reference.metadata.identifiers?.pmcid) {
-    identifier = reference.metadata.identifiers.pmcid
+  else if (reference.metadata.PMCID) {
+    identifier = reference.metadata.PMCID
   }
-  else if (reference.metadata.identifiers?.pmid) {
-    identifier = reference.metadata.identifiers.pmid
+  else if (reference.metadata.PMID) {
+    identifier = reference.metadata.PMID
   }
-  else if (reference.metadata.identifiers?.arxivId) {
-    identifier = reference.metadata.identifiers.arxivId
+  else if (reference.metadata.arxivId) {
+    identifier = reference.metadata.arxivId
   }
-  else if (reference.metadata.identifiers?.isbn) {
-    identifier = reference.metadata.identifiers.isbn
+  else if (reference.metadata.ISBN) {
+    identifier = reference.metadata.ISBN
   }
-  else if (reference.metadata.identifiers?.issn) {
-    identifier = reference.metadata.identifiers.issn
+  else if (reference.metadata.ISSN) {
+    identifier = reference.metadata.ISSN
   }
 
   if (identifier) {
@@ -54,7 +54,7 @@ async function copyIdentifier() {
 
 <template>
   <v-tooltip
-    v-if="reference.metadata.identifiers?.doi || reference.metadata.identifiers?.pmid || reference.metadata.identifiers?.pmcid"
+    v-if="reference.metadata.DOI || reference.metadata.PMID || reference.metadata.PMCID"
     location="top"
   >
     <template #activator="{ props }">
