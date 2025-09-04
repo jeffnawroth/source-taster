@@ -1,6 +1,7 @@
 import type { NormalizationRule, OpenAIConfig } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { OpenAI } from 'openai'
+import { buildInstructionsFromNormalizationRules } from '@/api/utils/instructionGenerator'
 
 /**
  * Base AI service with common functionality for all AI providers
