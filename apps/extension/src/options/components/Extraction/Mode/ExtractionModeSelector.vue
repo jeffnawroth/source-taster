@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import type { ExtractionActionType, Mode } from '@source-taster/types'
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiLock, mdiScale } from '@mdi/js'
+
+import { ExtractionActionTypeSchema } from '@source-taster/types'
 import { EXTRACTION_MODE_PRESETS } from '@/extension/constants/extractionModePresets'
 import { extractionSettings } from '@/extension/logic'
 
-// Get all available extraction action types
-const ALL_EXTRACTION_ACTION_TYPES: ExtractionActionType[] = [
-  'normalize-spelling',
-  'normalize-typography',
-  'normalize-title-case',
-  'normalize-identifiers',
-  'normalize-characters',
-  'normalize-whitespace',
-]
+// Get all available extraction action types from the schema
+const ALL_EXTRACTION_ACTION_TYPES: ExtractionActionType[] = ExtractionActionTypeSchema.options
 
 // TRANSLATION
 const { t } = useI18n()
