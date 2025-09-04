@@ -87,7 +87,7 @@ export const CSLItemSchema = z
   .object({
     // required
     'type': CSLItemTypeSchema,
-    // 'id': z.union([z.string(), z.number()]),
+    'id': z.union([z.string(), z.number()]),
 
     // optional common metadata
     'citation-key': z.string().optional(),
