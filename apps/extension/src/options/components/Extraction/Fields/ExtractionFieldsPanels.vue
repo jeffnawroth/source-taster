@@ -82,7 +82,7 @@ function remove(item: CSLVariable) {
             v-if="index === 5"
             class="text-grey text-caption align-self-center"
           >
-            (+{{ extractionSettings.extractionConfig.variables.length - 5 }} others)
+            (+{{ extractionSettings.extractionConfig.variables.length - 5 }} {{ t('more-fields') }})
           </span>
         </template>
       </v-autocomplete>
