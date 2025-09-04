@@ -1,17 +1,19 @@
 <script setup lang="ts">
+import type { MatchingActionType, Mode } from '@source-taster/types'
 import {
   mdiCheckCircleOutline,
   mdiCloseCircleOutline,
   mdiCogOutline,
-  mdiFormTextbox,
   mdiLock,
-  mdiPalette,
   mdiScale,
 } from '@mdi/js'
-import { type MatchingActionType, MatchingRuleCategory, type Mode } from '@source-taster/types'
-import { getMatchingActionTypesByCategory } from '@/extension/constants/matchingCategories'
+
+import { MatchingActionTypeSchema } from '@source-taster/types'
 import { MATCHING_MODE_PRESETS } from '@/extension/constants/matchingModePresets'
 import { matchingSettings } from '@/extension/logic'
+
+// Get all available matching action types from the schema
+const ALL_MATCHING_ACTION_TYPES: MatchingActionType[] = MatchingActionTypeSchema.options
 
 // TRANSLATION
 const { t } = useI18n()
@@ -21,20 +23,16 @@ watch(() => matchingSettings.value.matchingStrategy.mode, (newMode) => {
     deselectAll()
   }
   else {
-    matchingSettings.value.matchingStrategy.actionTypes = MATCHING_MODE_PRESETS[newMode]
+    loadRuleSet(newMode)
   }
 })
 
-// === Hilfsfunktionen ===
 function loadRuleSet(preset: Mode) {
   matchingSettings.value.matchingStrategy.actionTypes = MATCHING_MODE_PRESETS[preset]
 }
 function selectAll() {
-  // Get all available action types from all categories
-  matchingSettings.value.matchingStrategy.actionTypes = [
-    ...getMatchingActionTypesByCategory(MatchingRuleCategory.CONTENT_EQUIVALENCE),
-    ...getMatchingActionTypesByCategory(MatchingRuleCategory.STYLE_INSENSITIVITY),
-  ]
+  // Get all available action types
+  matchingSettings.value.matchingStrategy.actionTypes = [...ALL_MATCHING_ACTION_TYPES]
 }
 function deselectAll() {
   matchingSettings.value.matchingStrategy.actionTypes = []
@@ -60,32 +58,14 @@ const modeOptions = computed(() =>
   }),
 )
 
-const categoryConfig = {
-  [MatchingRuleCategory.CONTENT_EQUIVALENCE]: {
-    title: t('text-extraction-settings'),
-    description: t('text-extraction-settings-description'),
-    icon: mdiFormTextbox,
-  },
-  [MatchingRuleCategory.STYLE_INSENSITIVITY]: {
-    title: t('content-formatting-settings'),
-    description: t('content-formatting-settings-description'),
-    icon: mdiPalette,
-  },
-}
-
-// Setting groups based on rule categories
-const settingGroups = computed(() => {
-  return Object.entries(categoryConfig).map(([category, config]) => ({
-    key: category,
-    title: config.title,
-    icon: config.icon,
-    settings: getMatchingActionTypesByCategory(category as MatchingRuleCategory).map((actionType: MatchingActionType) => ({
-      key: actionType,
-      label: t(`setting-${actionType}`),
-      description: t(`setting-${actionType}-description`),
-      detailedDescription: t(`setting-${actionType}-detailed-description`),
-      example: t(`setting-${actionType}-example`),
-    })),
+// Simplified settings - direct array instead of groups
+const settings = computed(() => {
+  return ALL_MATCHING_ACTION_TYPES.map((actionType: MatchingActionType) => ({
+    key: actionType,
+    label: t(`setting-${actionType}`),
+    description: t(`setting-${actionType}-short-description`),
+    detailedDescription: t(`setting-${actionType}-description`),
+    example: t(`setting-${actionType}-example`),
   }))
 })
 
@@ -118,9 +98,9 @@ const presetButtons = computed(() => [
     v-model:mode="matchingSettings.matchingStrategy.mode"
     v-model:selected-actions="matchingSettings.matchingStrategy.actionTypes"
     :mode-options
-    custom-value="'custom'"
-    :setting-groups
-    :custom-settings-description="t('custom-extraction-settings-description')"
+    custom-value="custom"
+    :settings
+    :custom-settings-description="t('custom-matching-settings-description')"
     :preset-buttons
   />
 </template>
