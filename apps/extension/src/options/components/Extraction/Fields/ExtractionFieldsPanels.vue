@@ -9,6 +9,21 @@ const ALL_CSL_VARIABLES: CSLVariable[] = CSLVariableSchema.options
   .filter((variable: CSLVariable) => variable !== 'id') // Remove id
   .sort()
 
+// Essential CSL variables that are commonly used
+const COMMON_CSL_VARIABLES: CSLVariable[] = [
+  'title',
+  'author',
+  'issued',
+  'container-title',
+  'volume',
+  'issue',
+  'page',
+  'DOI',
+  'URL',
+  'publisher',
+  'type',
+]
+
 // TRANSLATION
 const { t } = useI18n()
 
@@ -21,6 +36,11 @@ const someVariablesSelected = computed(() =>
   extractionSettings.value.extractionConfig.variables.length > 0,
 )
 
+const commonSelected = computed(() => {
+  const selected = extractionSettings.value.extractionConfig.variables
+  return COMMON_CSL_VARIABLES.every(common => selected.includes(common))
+})
+
 function toggleSelectAll() {
   if (allVariablesSelected.value) {
     // Deselect all
@@ -29,6 +49,20 @@ function toggleSelectAll() {
   else {
     // Select all
     extractionSettings.value.extractionConfig.variables = [...ALL_CSL_VARIABLES]
+  }
+}
+
+function toggleSelectCommon() {
+  if (commonSelected.value) {
+    // Deselect common (remove them from current selection)
+    extractionSettings.value.extractionConfig.variables = extractionSettings.value.extractionConfig.variables
+      .filter(variable => !COMMON_CSL_VARIABLES.includes(variable))
+  }
+  else {
+    // Select common (add missing common to current selection)
+    const currentVariables = extractionSettings.value.extractionConfig.variables
+    const missingCommon = COMMON_CSL_VARIABLES.filter(common => !currentVariables.includes(common))
+    extractionSettings.value.extractionConfig.variables = [...currentVariables, ...missingCommon]
   }
 }
 
@@ -62,6 +96,17 @@ function remove(item: CSLVariable) {
               <v-checkbox-btn
                 :indeterminate="someVariablesSelected && !allVariablesSelected"
                 :model-value="allVariablesSelected"
+              />
+            </template>
+          </v-list-item>
+
+          <v-list-item
+            :title="t('select-common')"
+            @click="toggleSelectCommon"
+          >
+            <template #prepend>
+              <v-checkbox-btn
+                :model-value="commonSelected"
               />
             </template>
           </v-list-item>
