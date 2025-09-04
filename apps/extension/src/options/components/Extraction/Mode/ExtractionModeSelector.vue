@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import type { ExtractionActionType, Mode } from '@source-taster/types'
-import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiWrench } from '@mdi/js'
-import { ExtractionRuleCategory } from '@source-taster/types'
-import { getExtractionActionTypesByCategory } from '@/extension/constants/extractionCategories'
+import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiLock, mdiScale } from '@mdi/js'
 import { EXTRACTION_MODE_PRESETS } from '@/extension/constants/extractionModePresets'
 import { extractionSettings } from '@/extension/logic'
+
+// Get all available extraction action types
+const ALL_EXTRACTION_ACTION_TYPES: ExtractionActionType[] = [
+  'normalize-spelling',
+  'normalize-typography',
+  'normalize-title-case',
+  'normalize-identifiers',
+  'normalize-characters',
+  'normalize-whitespace',
+]
 
 // TRANSLATION
 const { t } = useI18n()
@@ -22,12 +30,8 @@ function loadRuleSet(preset: Mode) {
   extractionSettings.value.extractionStrategy.actionTypes = EXTRACTION_MODE_PRESETS[preset]
 }
 function selectAll() {
-  // Get all available action types from all categories
-  extractionSettings.value.extractionStrategy.actionTypes = [
-    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.CONTENT_NORMALIZATION),
-    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.STYLE_FORMATTING),
-    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.TECHNICAL_EXTRACTION),
-  ]
+  // Get all available action types
+  extractionSettings.value.extractionStrategy.actionTypes = [...ALL_EXTRACTION_ACTION_TYPES]
 }
 function deselectAll() {
   extractionSettings.value.extractionStrategy.actionTypes = []
@@ -54,37 +58,14 @@ const modeOptions = computed(() =>
     }),
 )
 
-const categoryConfig = {
-  [ExtractionRuleCategory.CONTENT_NORMALIZATION]: {
-    title: t('text-extraction-settings'),
-    description: t('text-extraction-settings-description'),
-    icon: mdiFormTextbox,
-  },
-  [ExtractionRuleCategory.STYLE_FORMATTING]: {
-    title: t('content-formatting-settings'),
-    description: t('content-formatting-settings-description'),
-    icon: mdiPalette,
-  },
-  [ExtractionRuleCategory.TECHNICAL_EXTRACTION]: {
-    title: t('technical-extraction-settings'),
-    description: t('technical-extraction-settings-description'),
-    icon: mdiWrench,
-  },
-}
-
-// Setting groups based on rule categories
-const settingGroups = computed(() => {
-  return Object.entries(categoryConfig).map(([category, config]) => ({
-    key: category,
-    title: config.title,
-    icon: config.icon,
-    settings: getExtractionActionTypesByCategory(category as ExtractionRuleCategory).map((actionType: ExtractionActionType) => ({
-      key: actionType,
-      label: t(`setting-${actionType}`),
-      description: t(`setting-${actionType}-short-description`), // GEÄNDERT: Kurze Beschreibung
-      detailedDescription: t(`setting-${actionType}-description`), // NEU: Detaillierte Beschreibung
-      example: t(`setting-${actionType}-example`),
-    })),
+// Simplified settings - direct array instead of groups
+const settings = computed(() => {
+  return ALL_EXTRACTION_ACTION_TYPES.map((actionType: ExtractionActionType) => ({
+    key: actionType,
+    label: t(`setting-${actionType}`),
+    description: t(`setting-${actionType}-short-description`),
+    detailedDescription: t(`setting-${actionType}-description`),
+    example: t(`setting-${actionType}-example`),
   }))
 })
 
@@ -118,7 +99,7 @@ const presetButtons = computed(() => [
     v-model:selected-actions="extractionSettings.extractionStrategy.actionTypes"
     :mode-options
     custom-value="custom"
-    :setting-groups
+    :settings
     :custom-settings-description="t('custom-extraction-settings-description')"
     :preset-buttons
   />
