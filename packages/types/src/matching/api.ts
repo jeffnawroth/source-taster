@@ -1,8 +1,8 @@
 import type { MatchingResult } from './matching-result'
 import z from 'zod'
-import { ReferenceMetadataSchema } from '../reference'
-import { WebsiteMatchingOptionsSchema } from '../website'
+import { CSLItemSchema } from '../reference'
 
+import { WebsiteMatchingOptionsSchema } from '../website'
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
 import { ExternalSourceSchema } from './matching-result'
 import { MatchingActionTypeSchema } from './matching-strategy.types'
@@ -12,7 +12,7 @@ import { MatchingActionTypeSchema } from './matching-strategy.types'
  */
 export const MatchingReferenceSchema = z.object({
   id: z.string().describe('Unique identifier for this reference'),
-  metadata: ReferenceMetadataSchema.describe('Bibliographic metadata for matching'),
+  metadata: CSLItemSchema.describe('Bibliographic metadata for matching'),
 })
 
 /**

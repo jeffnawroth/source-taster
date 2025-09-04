@@ -1,11 +1,11 @@
-import type { ReferenceMetadataFields } from '../reference/reference.constants'
+import type { CSLVariable } from '../reference'
 import z from 'zod'
-import { ReferenceMetadataSchema } from '../reference'
+import { CSLItemSchema } from '../reference'
 
 export const ExternalSourceSchema = z.object({
   id: z.string().describe('Unique identifier in the external database'),
   source: z.enum(['openalex', 'crossref', 'europepmc', 'semanticscholar', 'arxiv', 'website']).describe('Which database this source comes from'),
-  metadata: ReferenceMetadataSchema.describe('Bibliographic metadata from the database'),
+  metadata: CSLItemSchema.describe('Bibliographic metadata from the database'),
   url: z.string().optional().describe('Canonical URL to access this source in the database'),
 })
 
@@ -32,7 +32,7 @@ export interface SourceEvaluation {
  */
 export interface FieldMatchDetail {
   /** Name of the field being compared (e.g., 'title', 'authors') */
-  field: ReferenceMetadataFields
+  field: CSLVariable
   /** Match score for this specific field (0-100) */
   match_score: number
 }

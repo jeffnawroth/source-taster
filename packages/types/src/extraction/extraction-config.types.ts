@@ -3,10 +3,10 @@
  * Controls which metadata fields should be extracted by the AI
  */
 import z from 'zod'
-import { ReferenceMetadataFieldsSchema } from '../reference/reference.constants'
+import { CSLVariableSchema } from '../reference'
 
 export const ExtractionConfigSchema = z.object({
-  fields: z.array(ReferenceMetadataFieldsSchema).describe('Metadata fields to extract'),
+  variables: z.array(CSLVariableSchema).describe('CSL variables to extract'),
 })
 
 export type ExtractionConfig = z.infer<typeof ExtractionConfigSchema>
