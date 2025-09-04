@@ -1,118 +1,87 @@
 <script setup lang="ts">
 import type { FieldConfigurations } from '@source-taster/types'
-import {
-  mdiBookOpenVariant,
-  mdiCardAccountDetailsOutline,
-  mdiStarFourPoints,
-  mdiWrench,
-} from '@mdi/js'
-import { FIELD_DEFINITIONS, type FieldDefinition } from '@/extension/constants/fieldWeightConstants'
-
-interface SectionDefinition {
-  titleKey: string
-  icon: string
-  weight: number
-  showAlert?: boolean
-  alertTextKey?: string
-  fields: readonly FieldDefinition[]
-  advancedFields?: readonly FieldDefinition[]
-}
-
-interface Props {
-  coreFieldsWeight: number
-  identifierFieldsWeight: number
-  sourceFieldsWeight: number
-  additionalFieldsWeight: number
-}
-
-const props = defineProps<Props>()
+import { mdiMagnify } from '@mdi/js'
+import { FIELD_DEFINITIONS } from '@/extension/constants/fieldWeightConstants'
 
 const fieldConfigurations = defineModel<FieldConfigurations>({ required: true })
 
 // TRANSLATION
 const { t } = useI18n()
 
-// FIELD DEFINITIONS
-const fieldSections = computed((): SectionDefinition[] => [
-  {
-    titleKey: 'core-fields',
-    icon: mdiStarFourPoints,
-    weight: props.coreFieldsWeight,
-    fields: FIELD_DEFINITIONS.core,
-  },
-  {
-    titleKey: 'identifier-fields',
-    icon: mdiCardAccountDetailsOutline,
-    weight: props.identifierFieldsWeight,
-    fields: FIELD_DEFINITIONS.identifier,
-  },
-  {
-    titleKey: 'source-fields',
-    icon: mdiBookOpenVariant,
-    weight: props.sourceFieldsWeight,
-    fields: FIELD_DEFINITIONS.source,
-  },
-  {
-    titleKey: 'advanced-fields',
-    icon: mdiWrench,
-    weight: props.additionalFieldsWeight,
-    showAlert: true,
-    alertTextKey: 'advanced-fields-description',
-    fields: FIELD_DEFINITIONS.additional.main,
-    advancedFields: FIELD_DEFINITIONS.additional.advanced,
-  },
-])
+// Search functionality
+const searchQuery = ref('')
+
+// Sort fields by weight (highest first) and then filter by search
+const sortedAndFilteredFields = computed(() => {
+  let fields = [...FIELD_DEFINITIONS]
+
+  // Sort by: 1) enabled fields first by weight, 2) disabled fields alphabetically
+  fields.sort((a, b) => {
+    const configA = fieldConfigurations.value[a.key as keyof FieldConfigurations]
+    const configB = fieldConfigurations.value[b.key as keyof FieldConfigurations]
+
+    const enabledA = configA?.enabled || false
+    const enabledB = configB?.enabled || false
+
+    // Enabled fields first
+    if (enabledA && !enabledB)
+      return -1
+    if (!enabledA && enabledB)
+      return 1
+
+    // If both enabled, sort by actual weight (highest first)
+    if (enabledA && enabledB) {
+      const weightA = configA?.weight || 0
+      const weightB = configB?.weight || 0
+      return weightB - weightA
+    }
+
+    // If both disabled, sort alphabetically by translated label
+    return t(a.labelKey).localeCompare(t(b.labelKey))
+  })
+
+  // Filter by search query
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    fields = fields.filter((field) => {
+      const label = t(field.labelKey).toLowerCase()
+      const description = t(field.descriptionKey).toLowerCase()
+      return label.includes(query) || description.includes(query) || field.key.toLowerCase().includes(query)
+    })
+  }
+
+  return fields
+})
 </script>
 
 <template>
-  <v-expansion-panels
-    elevation="0"
-  >
-    <FieldWeightSection
-      v-for="section in fieldSections"
-      :key="section.titleKey"
-      :title="t(section.titleKey)"
-      :icon="section.icon"
-      :weight="section.weight"
-      :show-alert="section.showAlert"
-      :alert-text="section.alertTextKey ? t(section.alertTextKey) : undefined"
-    >
-      <FieldWeightControl
-        v-for="field in section.fields"
-        :key="field.key"
-        v-model="fieldConfigurations[field.key as keyof FieldConfigurations]"
-        :label="field.label || t(field.labelKey || '')"
-        :description="t(field.descriptionKey)"
-        :default-value="field.defaultValue"
+  <v-card flat>
+    <v-card-text>
+      <!-- Search Field -->
+      <v-text-field
+        v-model="searchQuery"
+        :label="t('search-fields')"
+        :prepend-inner-icon="mdiMagnify"
+        clearable
+        variant="outlined"
+        density="compact"
+        class="mb-4"
       />
 
-      <!-- More Advanced Fields (only for advanced section) -->
-      <v-expansion-panels
-        v-if="section.advancedFields"
-        variant="accordion"
-        class="mt-4"
-        elevation="0"
+      <!-- Virtual Scroll List -->
+      <v-virtual-scroll
+        :items="sortedAndFilteredFields"
+        :item-height="120"
+        height="400"
       >
-        <v-expansion-panel>
-          <v-expansion-panel-title class="text-body-2">
-            {{ t('more-advanced-fields') }}
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <div class="text-caption text-medium-emphasis mb-4">
-              {{ t('more-advanced-fields-description') }}
-            </div>
-
-            <FieldWeightControl
-              v-for="field in section.advancedFields"
-              :key="field.key"
-              v-model="fieldConfigurations[field.key as keyof FieldConfigurations]"
-              :label="field.label || t(field.labelKey || '')"
-              :description="t(field.descriptionKey)"
-              :default-value="field.defaultValue"
-            />
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
-    </FieldWeightSection>
-  </v-expansion-panels>
+        <template #default="{ item }">
+          <FieldWeightControl
+            v-model="fieldConfigurations[item.key as keyof FieldConfigurations]"
+            :label="t(item.labelKey)"
+            :default-value="item.defaultValue"
+          />
+        </template>
+      </v-virtual-scroll>
+    </v-card-text>
+  </v-card>
 </template>

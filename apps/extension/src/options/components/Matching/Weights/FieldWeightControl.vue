@@ -3,7 +3,6 @@ import type { FieldConfig } from '@source-taster/types'
 
 interface Props {
   label: string
-  description: string
   defaultValue?: number
 }
 
@@ -39,39 +38,36 @@ function updateWeight(newWeight: number) {
 </script>
 
 <template>
-  <div class="mb-4">
-    <div class="d-flex justify-space-between align-center mb-2">
-      <div class="d-flex align-center">
-        <v-switch
-          :model-value="fieldConfig?.enabled || false"
-          density="compact"
-          color="primary"
-          hide-details
-          class="mr-3"
-          @update:model-value="toggleField"
-        />
-        <label class="font-weight-medium">{{ label }}</label>
-      </div>
-      <v-chip
-        size="small"
-        :color="fieldConfig?.enabled ? 'primary' : 'default'"
-      >
-        {{ fieldConfig?.weight || 0 }}%
-      </v-chip>
+  <div class="d-flex justify-space-between align-center mb-2">
+    <div class="d-flex align-center">
+      <v-switch
+        :model-value="fieldConfig?.enabled || false"
+        density="compact"
+        color="primary"
+        hide-details
+        class="mr-3 ml-3"
+        @update:model-value="toggleField"
+      />
+      <label class="font-weight-medium">{{ label }}</label>
     </div>
-    <v-slider
-      :model-value="fieldConfig?.weight || 0"
-      :disabled="!fieldConfig?.enabled"
-      :min="0"
-      :max="100"
-      :step="1"
-      color="primary"
-      show-ticks="always"
-      thumb-label
-      @update:model-value="updateWeight"
-    />
-    <p class="text-caption text-medium-emphasis">
-      {{ description }}
-    </p>
+    <v-chip
+      size="small"
+      :color="fieldConfig?.enabled ? 'primary' : 'default'"
+      class="mr-2"
+    >
+      {{ fieldConfig?.weight || 0 }}%
+    </v-chip>
   </div>
+  <v-slider
+    :model-value="fieldConfig?.weight || 0"
+    :disabled="!fieldConfig?.enabled"
+    :min="0"
+    :max="100"
+    :step="1"
+    color="primary"
+    show-ticks="always"
+    thumb-label
+    class="ml-4"
+    @update:model-value="updateWeight"
+  />
 </template>
