@@ -1,4 +1,4 @@
-import type { Author, DateInfo, ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import type { CSLItem, CSLName, ExternalSource } from '@source-taster/types'
 
 export class ArxivService {
   private baseUrl = 'http://export.arxiv.org/api/query'
@@ -6,28 +6,27 @@ export class ArxivService {
   private lastRequestTime = 0
   private requestDelay = 3000 // 3 second delay as recommended by arXiv
 
-  async search(metadata: ReferenceMetadata): Promise<ExternalSource | null> {
+  async search(metadata: CSLItem): Promise<ExternalSource | null> {
     try {
       // Implement polite delay between requests
       await this.enforceRateLimit()
 
-      // If arXiv ID is directly available, search by it (most reliable)
-      if (metadata.identifiers?.arxivId) {
-        const directResult = await this.searchByArxivId(metadata.identifiers.arxivId)
-        if (directResult)
-          return directResult
-      }
+      // TODO: ArXiv ID handling needs to be redesigned for CSL schema
+      // if (metadata.identifiers?.arxivId) {
+      //   const directResult = await this.searchByArxivId(metadata.identifiers.arxivId)
+      //   if (directResult)
+      //     return directResult
+      // }
 
-      // If DOI is available, search directly by DOI (also reliable)
-      if (metadata.identifiers?.doi) {
-        const directResult = await this.searchByDOI(metadata.identifiers.doi)
+      if (metadata.DOI) {
+        const directResult = await this.searchByDOI(metadata.DOI)
         if (directResult)
           return directResult
       }
 
       // If we have authors, we can try a more targeted search
-      if (metadata.title && metadata.authors && metadata.authors.length > 0) {
-        const authorBasedResult = await this.searchByTitleAndAuthor(metadata.title, metadata.authors)
+      if (metadata.title && metadata.author && metadata.author.length > 0) {
+        const authorBasedResult = await this.searchByTitleAndAuthor(metadata.title, metadata.author)
         if (authorBasedResult) {
           return authorBasedResult
         }
@@ -60,20 +59,11 @@ export class ArxivService {
     this.lastRequestTime = Date.now()
   }
 
-  private async searchByTitleAndAuthor(title: string, authors: (Author | string)[]): Promise<ExternalSource | null> {
+  private async searchByTitleAndAuthor(title: string, authors: CSLName[]): Promise<ExternalSource | null> {
     try {
       // Extract the last name of the first author for search
       const firstAuthor = authors[0]
-      let authorLastName = ''
-
-      if (typeof firstAuthor === 'string') {
-        // Parse string author
-        const authorObj = this.parseAuthorName(firstAuthor)
-        authorLastName = authorObj.lastName
-      }
-      else {
-        authorLastName = firstAuthor.lastName
-      }
+      const authorLastName = firstAuthor.family || ''
 
       if (!authorLastName) {
         return null // Can't search without author name
@@ -474,7 +464,7 @@ export class ArxivService {
       }
 
       // Extract authors with better handling and convert to Author objects
-      const authors: Author[] = []
+      const authors: CSLName[] = []
       const authorRegex = /<author[^>]*>\s*<name[^>]*>(.*?)<\/name>/g
       let authorMatch = authorRegex.exec(entryXml)
       while (authorMatch !== null) {
@@ -550,55 +540,32 @@ export class ArxivService {
   }
 
   /**
-   * Parse published date string into DateInfo object
+   * Parse published date string into CSL date format
    */
-  private parsePublishedDate(publishedStr: string): DateInfo {
-    const dateInfo: DateInfo = {}
-
+  private parsePublishedDate(publishedStr: string): { 'date-parts'?: number[][] } {
     // Parse ISO 8601 format: 2023-01-25T18:30:45Z
     const isoMatch = publishedStr.match(/^(\d{4})-(\d{2})-(\d{2})T/)
     if (isoMatch) {
-      dateInfo.year = Number.parseInt(isoMatch[1], 10)
-      const monthNum = Number.parseInt(isoMatch[2], 10)
-      dateInfo.month = this.getMonthName(monthNum)
-      dateInfo.day = Number.parseInt(isoMatch[3], 10)
-      return dateInfo
+      const year = Number.parseInt(isoMatch[1], 10)
+      const month = Number.parseInt(isoMatch[2], 10)
+      const day = Number.parseInt(isoMatch[3], 10)
+      return { 'date-parts': [[year, month, day]] }
     }
 
     // Fallback: extract just the year
     const yearMatch = publishedStr.match(/(\d{4})/)
     if (yearMatch) {
-      dateInfo.year = Number.parseInt(yearMatch[1], 10)
+      const year = Number.parseInt(yearMatch[1], 10)
+      return { 'date-parts': [[year]] }
     }
 
-    return dateInfo
+    return {}
   }
 
   /**
-   * Convert month number to month name
+   * Parse author name string into CSLName object
    */
-  private getMonthName(monthNum: number): string {
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ]
-    return monthNames[monthNum - 1] || ''
-  }
-
-  /**
-   * Parse author name string into Author object
-   */
-  private parseAuthorName(fullName: string): Author {
+  private parseAuthorName(fullName: string): CSLName {
     // Handle common formats: "Last, First" or "First Last" or "First Middle Last"
     const trimmedName = fullName.trim()
 
@@ -606,8 +573,8 @@ export class ArxivService {
       // "Last, First" format
       const [lastName, firstName] = trimmedName.split(',', 2)
       return {
-        firstName: firstName?.trim() || undefined,
-        lastName: lastName.trim(),
+        given: firstName?.trim() || undefined,
+        family: lastName.trim(),
       }
     }
     else {
@@ -615,15 +582,15 @@ export class ArxivService {
       const nameParts = trimmedName.split(/\s+/)
       if (nameParts.length === 1) {
         return {
-          lastName: nameParts[0],
+          family: nameParts[0],
         }
       }
       else {
         const lastName = nameParts[nameParts.length - 1]
         const firstName = nameParts.slice(0, -1).join(' ')
         return {
-          firstName: firstName || undefined,
-          lastName,
+          given: firstName || undefined,
+          family: lastName,
         }
       }
     }
@@ -645,25 +612,24 @@ export class ArxivService {
   }
 
   private mapToExternalSource(entry: any): ExternalSource {
-    const metadata: ReferenceMetadata = {
-      title: entry.title || '',
-      authors: entry.authors || [],
-      date: entry.dateInfo || { year: entry.year },
-      source: {
-        containerTitle: this.parseContainerTitle(entry),
-        sourceType: 'Preprint',
-        // Parse additional source info from journal reference
-        ...this.parseJournalReference(entry.journalRef),
-      },
-      identifiers: {
-        doi: entry.doi,
+    const metadata: CSLItem = {
+      'type': 'article', // ArXiv articles are typically preprints
+      'title': entry.title || '',
+      'author': entry.authors || [],
+      'issued': entry.dateInfo || (entry.year ? { 'date-parts': [[entry.year]] } : undefined),
+      'container-title': this.parseContainerTitle(entry),
+      'DOI': entry.doi,
+      'URL': entry.link,
+      ...this.parseJournalReference(entry.journalRef),
+      'custom': {
         arxivId: entry.arxivId,
+        sourceType: 'Preprint',
       },
     }
 
     // Add categories as additional metadata if available
     if (entry.categories && entry.categories.length > 0) {
-      metadata.source!.series = entry.categories.join(', ')
+      metadata.note = `Categories: ${entry.categories.join(', ')}`
     }
 
     return {
@@ -691,11 +657,11 @@ export class ArxivService {
   /**
    * Parse additional source information from journal reference
    */
-  private parseJournalReference(journalRef?: string): Partial<ReferenceMetadata['source']> {
+  private parseJournalReference(journalRef?: string): Partial<CSLItem> {
     if (!journalRef)
       return {}
 
-    const sourceInfo: Partial<ReferenceMetadata['source']> = {}
+    const sourceInfo: Partial<CSLItem> = {}
 
     // Try to extract volume, issue, pages from various formats
     // Examples: "Phys. Rev. D 98, 123456 (2018)" or "Nature 586, 378-383 (2020)"
@@ -710,7 +676,7 @@ export class ArxivService {
     const volPagesMatch = journalRef.match(/\s(\d{1,4}),\s*(\d{1,10}(?:-\d{1,10})?)\s*\(/)
     if (volPagesMatch) {
       sourceInfo.volume = volPagesMatch[1]
-      sourceInfo.pages = volPagesMatch[2]
+      sourceInfo.page = volPagesMatch[2]
     }
 
     // Extract DOI if present in journal ref
