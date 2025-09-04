@@ -612,6 +612,7 @@ export class ArxivService {
 
   private mapToExternalSource(entry: any): ExternalSource {
     const metadata: CSLItem = {
+      'id': entry.arxivId || entry.id || 'unknown',
       'type': 'article', // ArXiv articles are typically preprints
       'title': entry.title || '',
       'author': entry.authors || [],
@@ -620,8 +621,8 @@ export class ArxivService {
       'DOI': entry.doi,
       'URL': entry.link,
       ...this.parseJournalReference(entry.journalRef),
+      'arxivId': entry.arxivId,
       'custom': {
-        arxivId: entry.arxivId,
         sourceType: 'Preprint',
       },
     }
