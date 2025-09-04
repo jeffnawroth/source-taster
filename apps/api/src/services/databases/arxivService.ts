@@ -11,12 +11,11 @@ export class ArxivService {
       // Implement polite delay between requests
       await this.enforceRateLimit()
 
-      // TODO: ArXiv ID handling needs to be redesigned for CSL schema
-      // if (metadata.identifiers?.arxivId) {
-      //   const directResult = await this.searchByArxivId(metadata.identifiers.arxivId)
-      //   if (directResult)
-      //     return directResult
-      // }
+      if (metadata?.arxivId) {
+        const directResult = await this.searchByArxivId(metadata.arxivId)
+        if (directResult)
+          return directResult
+      }
 
       if (metadata.DOI) {
         const directResult = await this.searchByDOI(metadata.DOI)

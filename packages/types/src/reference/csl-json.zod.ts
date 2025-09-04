@@ -177,6 +177,7 @@ export const CSLItemSchema = z
     'part-title': z.string().optional(),
     'PMCID': z.string().optional(),
     'PMID': z.string().optional(),
+    'arxivId': z.string().optional(), // Added arxivId to CSLItem
     'printing': z.union([z.string(), z.number()]).optional(),
     'publisher': z.string().optional(),
     'publisher-place': z.string().optional(),
