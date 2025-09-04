@@ -419,6 +419,7 @@ export class EuropePmcService {
    */
   private parseEuropePmcWork(work: EuropePmcWork): CSLItem {
     const metadata: CSLItem = {
+      id: work.id || work.pmid || work.pmcid || work.doi || 'unknown',
       type: 'article-journal', // Default type, will be updated if needed
     }
 
