@@ -2,7 +2,7 @@
  * Type definitions for field categorization and metadata
  */
 
-import type { ReferenceMetadataFields } from '@source-taster/types'
+import type { CSLVariable } from '@source-taster/types'
 
 // Field categories for organizing metadata fields
 export enum FieldCategory {
@@ -18,7 +18,7 @@ export enum FieldCategory {
 // Central category definition for consistent use across components
 export interface FieldCategoryDefinition {
   readonly key: FieldCategory
-  readonly fields: readonly ReferenceMetadataFields[]
+  readonly fields: readonly CSLVariable[]
   readonly labelKey: string
   readonly descriptionKey: string
   readonly icon: string
@@ -26,7 +26,7 @@ export interface FieldCategoryDefinition {
 
 // Field metadata for UI display and configuration
 export interface FieldMetadata {
-  readonly field: ReferenceMetadataFields
+  readonly field: CSLVariable
   readonly categories: readonly FieldCategory[]
   readonly labelKey: string
   readonly descriptionKey: string
