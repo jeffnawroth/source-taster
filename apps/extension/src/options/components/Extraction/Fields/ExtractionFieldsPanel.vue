@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type {
-  ReferenceMetadataFields,
-} from '@source-taster/types'
+import type { CSLVariable } from '@source-taster/types'
 import { mdiCheckboxMultipleMarked } from '@mdi/js'
 import { ACADEMIC_FIELDS, CORE_FIELDS, DATE_FIELDS, ESSENTIAL_FIELDS, IDENTIFIER_FIELDS, PUBLICATION_FIELDS, TECHNICAL_FIELDS } from '@/extension/constants/fieldCategoryAssignments'
 import { extractionSettings } from '@/extension/logic'
@@ -10,11 +8,11 @@ import { extractionSettings } from '@/extension/logic'
 const { t } = useI18n()
 
 function deselectAll() {
-  extractionSettings.value.extractionConfig.fields = []
+  extractionSettings.value.extractionConfig.variables = []
 }
 
 function selectAll() {
-  const allFields: ReferenceMetadataFields[] = [
+  const allFields: CSLVariable[] = [
     ...CORE_FIELDS,
     ...DATE_FIELDS,
     ...IDENTIFIER_FIELDS,
@@ -24,11 +22,11 @@ function selectAll() {
   ]
 
   // Remove duplicates using Set
-  extractionSettings.value.extractionConfig.fields = [...new Set(allFields)]
+  extractionSettings.value.extractionConfig.variables = [...new Set(allFields)]
 }
 
 function selectEssentials() {
-  extractionSettings.value.extractionConfig.fields = [...ESSENTIAL_FIELDS]
+  extractionSettings.value.extractionConfig.variables = [...ESSENTIAL_FIELDS]
 }
 </script>
 

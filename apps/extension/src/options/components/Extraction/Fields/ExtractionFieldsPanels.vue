@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ReferenceMetadataFields } from '@source-taster/types'
+import type { CSLVariable } from '@source-taster/types'
 import { mdiBookOpen, mdiCalendar, mdiFileDocument, mdiIdentifier, mdiSchool, mdiWrench } from '@mdi/js'
 import { ACADEMIC_FIELDS, CORE_FIELDS, DATE_FIELDS, IDENTIFIER_FIELDS, PUBLICATION_FIELDS, TECHNICAL_FIELDS } from '@/extension/constants/fieldCategoryAssignments'
 import { extractionSettings } from '../../../../logic'
@@ -8,11 +8,11 @@ import ExtractionFieldSection from './ExtractionFieldSection.vue'
 // TRANSLATION
 const { t } = useI18n()
 
-function isFieldEnabled(field: ReferenceMetadataFields): boolean {
-  return extractionSettings.value.extractionConfig.fields.includes(field)
+function isFieldEnabled(field: CSLVariable): boolean {
+  return extractionSettings.value.extractionConfig.variables.includes(field)
 }
 
-function countEnabledFields(fields: ReferenceMetadataFields[]): number {
+function countEnabledFields(fields: CSLVariable[]): number {
   return fields.filter(field => isFieldEnabled(field)).length
 }
 
