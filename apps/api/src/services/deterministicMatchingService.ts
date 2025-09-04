@@ -1,11 +1,11 @@
 import type {
   APIMatchingSettings,
+  CSLItem,
   ExternalSource,
   FieldConfigurations,
   FieldMatchDetail,
   MatchDetails,
   MatchingReference,
-  ReferenceMetadata,
 } from '@source-taster/types'
 import _ from 'lodash'
 import { MetadataComparator } from '../utils/metadataComparator'
@@ -31,8 +31,8 @@ export class DeterministicMatchingService {
   }
 
   private calculateFieldScores(
-    referenceMetadata: ReferenceMetadata,
-    sourceMetadata: ReferenceMetadata,
+    referenceMetadata: CSLItem,
+    sourceMetadata: CSLItem,
     fieldConfigurations: FieldConfigurations,
   ): FieldMatchDetail[] {
     const fieldScores: FieldMatchDetail[] = []
