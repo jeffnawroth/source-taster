@@ -950,5 +950,12 @@
   "type": "Typ",
   "version": "Version",
   "volume-title": "Bandtitel",
-  "volume-title-short": "Bandtitel (Kurz)"
+  "volume-title-short": "Bandtitel (Kurz)",
+  "author": "Autoren",
+  "issued": "Veröffentlichungsdatum",
+  "editor": "Herausgeber",
+  "journalAbbreviation": "Zeitschriftenkürzel",
+  "abstract": "Zusammenfassung",
+  "archive_collection": "Archivsammlung",
+  "archive_location": "Archivstandort"
 }

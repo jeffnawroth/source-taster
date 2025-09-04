@@ -50,7 +50,7 @@ defineProps<{
               <template #activator="{ props }">
                 <v-checkbox
                   v-bind="props"
-                  :label="$t(`field-${field}`)"
+                  :label="$t(field)"
                   :value="field"
                 />
               </template>

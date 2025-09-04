@@ -950,5 +950,12 @@
   "type": "Type",
   "version": "Version",
   "volume-title": "Volume Title",
-  "volume-title-short": "Volume Title (Short)"
+  "volume-title-short": "Volume Title (Short)",
+  "author": "Authors",
+  "issued": "Date Published",
+  "editor": "Editors",
+  "journalAbbreviation": "Journal Abbreviation",
+  "abstract": "Abstract",
+  "archive_collection": "Archive Collection",
+  "archive_location": "Archive Location"
 }
