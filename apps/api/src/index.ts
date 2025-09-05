@@ -5,6 +5,7 @@ import { corsMiddleware } from './middleware/cors'
 import { errorHandler } from './middleware/errorHandler'
 import extractionRouter from './routes/extractionRouter'
 import matchingRouter from './routes/matchingRouter'
+import parsingRouter from './routes/parsingRouter'
 import searchAndMatchRouter from './routes/searchAndMatchRouter'
 import searchRouter from './routes/searchRouter'
 
@@ -20,6 +21,7 @@ app.route('/api/extract', extractionRouter)
 app.route('/api/match', matchingRouter)
 app.route('/api/search', searchRouter)
 app.route('/api/search-and-match', searchAndMatchRouter)
+app.route('/api/parse', parsingRouter)
 
 // Root endpoint
 app.get('/', (c) => {
@@ -30,6 +32,7 @@ app.get('/', (c) => {
       search: '/api/search',
       match: '/api/match',
       searchAndMatch: '/api/search-and-match',
+      parse: '/api/parse',
     },
   })
 })

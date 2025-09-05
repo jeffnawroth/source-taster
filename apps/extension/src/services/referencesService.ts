@@ -1,33 +1,44 @@
 import type { APIMatchingSettings, MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { runtime } from 'webextension-polyfill'
 import { API_CONFIG } from '@/extension/env'
-import { aiSettings, extractionSettings, matchingSettings } from '@/extension/logic/storage'
-import { encryptApiKey } from '@/extension/utils/crypto'
+import { aiSettings, matchingSettings } from '@/extension/logic/storage'
+import { encryptApiKey } from '../utils/crypto'
 
 export class ReferencesService {
   /**
    * Extract references from text using AI
    */
-  static async extractReferences(text: string, signal?: AbortSignal): Promise<Reference[]> {
+  static async extractReferences(text: string, _signal?: AbortSignal): Promise<Reference[]> {
     // Encrypt API key for secure transmission
-    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+    const _encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
 
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.extract}`, {
+    // const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.extract}`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'X-Extension-ID': runtime.id,
+    //     'X-API-Key': encryptedApiKey,
+    //   },
+    //   body: JSON.stringify({
+    //     text,
+    //     extractionSettings: extractionSettings.value,
+    //     aiSettings: {
+    //       provider: aiSettings.value.provider,
+    //       model: aiSettings.value.model,
+    //     },
+    //   }),
+    //   signal,
+    // })
+
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.parse}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Extension-ID': runtime.id,
-        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
-        text,
-        extractionSettings: extractionSettings.value,
-        aiSettings: {
-          provider: aiSettings.value.provider,
-          model: aiSettings.value.model,
-        },
+        references: [text],
       }),
-      signal,
     })
 
     if (!response.ok) {

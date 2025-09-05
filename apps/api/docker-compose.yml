@@ -1,0 +1,10 @@
+services:
+  anystyle-api:
+    image: anystyle-api:latest
+    build: .
+    ports:
+      - '4567:4567'
+    container_name: anystyle-parser
+    restart: unless-stopped
+    volumes:
+      - ./:/app
