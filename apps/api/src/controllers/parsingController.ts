@@ -1,51 +1,56 @@
-import type { CSLItem, ExtractionResponse } from '@source-taster/types'
+import type { Reference } from '@source-taster/types'
 import type { Context } from 'hono'
 
+interface ParseResponse {
+  csl?: Reference[]
+  tokens?: Array<{
+    tokens: string[]
+    labels: string[]
+    original_text: string
+  }>
+}
+
 /**
- * Evaluates provided candidates against a reference
+ * Parses references using AnyStyle
  * POST /api/parse
  */
 export async function parseReferences(c: Context) {
-  const rawBody = await c.req.json()
-  const { references } = rawBody
-
-  if (!references)
-    return c.json({ error: 'No references provided' }, 400)
-
   try {
-    const response = await fetch('http://localhost:4567/parse', {
-      method: 'POST',
-      body: JSON.stringify({ references }),
-    })
+    const { references, includeTokens = false } = await c.req.json()
 
-    const result = await response.json() as CSLItem[]
-
-    const parsedReferences: ExtractionResponse = {
-      references: result.map((cslItem, index) => {
-        // Ensure the CSL item has an ID (required by our schema)
-        if (!cslItem.id) {
-          cslItem.id = `anystyle-${Date.now()}-${index}`
-        }
-
-        return {
-          id: `parsed-${index + 1}`,
-          originalText: references[index] || references[0], // Use corresponding input or fallback to first
-          metadata: cslItem,
-        }
-      }),
+    if (!references || (Array.isArray(references) && references.length === 0)) {
+      return c.json({ error: 'No references provided' }, 400)
     }
 
-    return c.json({
-      success: true,
-      data: {
-        references: parsedReferences.references,
+    const response = await fetch('http://localhost:4567/parse', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        references,
+        include_tokens: includeTokens,
+      }),
     })
+
+    if (!response.ok) {
+      throw new Error(`AnyStyle server error: ${response.statusText}`)
+    }
+
+    const result = await response.json() as ParseResponse
+
+    if (includeTokens) {
+      return c.json({
+        references: result.csl || [],
+        tokens: result.tokens || [],
+      })
+    }
+
+    // Backward compatibility - return only CSL references
+    return c.json({ references: result as Reference[] })
   }
   catch (error) {
-    return c.json({
-      error: 'AnyStyle service unavailable',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    }, 503)
+    console.error('Error parsing references:', error)
+    return c.json({ error: 'Failed to parse references' }, 500)
   }
 }

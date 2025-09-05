@@ -15,6 +15,7 @@ post '/parse' do
   body    = request.body.read
   payload = body.empty? ? {} : JSON.parse(body) rescue {}
   refs    = payload['references']
+  return_tokens = payload['include_tokens'] || false
 
   input =
     case refs
@@ -26,12 +27,26 @@ post '/parse' do
 
   halt 400, { error: 'No references provided' }.to_json unless input&.strip&.length&.positive?
 
-  # analog zu anystyle.io:
   parser  = AnyStyle.parser
-  # erst nur die Labels bestimmen (Wapiti-Sequenz)
+  # Parse and get Wapiti dataset (tokens with labels)
   dataset = parser.parse(input, format: :wapiti)
-  # dann ins CSL-Format überführen, Normalisierer laufen lassen
-  result  = parser.format_csl(dataset, date_format: 'citeproc')
+  # Convert to CSL format
+  csl_result = parser.format_csl(dataset, date_format: 'citeproc')
 
-  result.to_json
+  if return_tokens
+    # Return both CSL and token data for relabeling
+    {
+      csl: csl_result,
+      tokens: dataset.to_a.map do |sequence|
+        {
+          tokens: sequence.map { |item| item.split(' ').first },
+          labels: sequence.map { |item| item.split(' ').last },
+          original_text: sequence.map { |item| item.split(' ').first }.join(' ')
+        }
+      end
+    }.to_json
+  else
+    # Return only CSL for backward compatibility
+    csl_result.to_json
+  end
 end

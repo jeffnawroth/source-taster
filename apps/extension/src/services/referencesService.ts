@@ -1,8 +1,19 @@
 import type { APIMatchingSettings, MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { runtime } from 'webextension-polyfill'
 import { API_CONFIG } from '@/extension/env'
-import { aiSettings, matchingSettings } from '@/extension/logic/storage'
-import { encryptApiKey } from '../utils/crypto'
+import { matchingSettings } from '@/extension/logic/storage'
+
+// Types for parsing with tokens
+interface ParsedToken {
+  tokens: string[]
+  labels: string[]
+  original_text: string
+}
+
+interface ParseWithTokensResponse {
+  references: Reference[]
+  tokens: ParsedToken[]
+}
 
 export class ReferencesService {
   /**
@@ -52,6 +63,35 @@ export class ReferencesService {
     }
 
     return data.data.references || []
+  }
+
+  /**
+   * Extract references with token data for relabeling
+   */
+  static async extractReferencesWithTokens(text: string, signal?: AbortSignal): Promise<ParseWithTokensResponse> {
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.parse}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Extension-ID': runtime.id,
+      },
+      body: JSON.stringify({
+        references: [text],
+        includeTokens: true,
+      }),
+      signal,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Extraction failed: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    return {
+      references: data.references || [],
+      tokens: data.tokens || [],
+    }
   }
 
   /**
