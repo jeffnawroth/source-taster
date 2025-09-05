@@ -25,6 +25,7 @@ export const NormalizationRuleSchema = z.enum([
   'normalize-umlauts',
   'normalize-punctuation',
   'normalize-unicode',
+  'normalize-urls',
 ]).describe('Normalization rule action type')
 
 export type NormalizationRule = z.infer<typeof NormalizationRuleSchema>

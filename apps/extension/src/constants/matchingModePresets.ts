@@ -11,6 +11,7 @@ const BALANCED_ACTIONS: NormalizationRule[] = [
   'normalize-umlauts',
   'normalize-punctuation',
   'normalize-unicode',
+  'normalize-urls',
 ] as const
 
 export const MATCHING_MODE_PRESETS = createModePresets<NormalizationRule>(

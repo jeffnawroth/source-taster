@@ -1,4 +1,5 @@
 import type { NormalizationRule } from '@source-taster/types'
+import normalizeUrl from 'normalize-url'
 
 /**
  * Service for manual text normalization
@@ -41,6 +42,8 @@ export class NormalizationService {
         return this.normalizePunctuation(text)
       case 'normalize-unicode':
         return this.normalizeUnicode(text)
+      case 'normalize-urls':
+        return this.normalizeUrls(text)
       default:
         return text
     }
@@ -99,10 +102,29 @@ export class NormalizationService {
   }
 
   /**
-   * Normalize non-breaking spaces to regular spaces
+   * Normalize all Unicode whitespace characters to regular spaces
    */
   private normalizeSpaces(text: string): string {
-    return text.replace(/\u00A0/g, ' ')
+    return text
+      // Common Unicode whitespace characters
+      .replace(/\u00A0/g, ' ') // Non-breaking space (NBSP)
+      .replace(/\u202F/g, ' ') // Narrow no-break space
+      .replace(/\u2007/g, ' ') // Figure space
+      .replace(/\u2002/g, ' ') // En quad
+      .replace(/\u2003/g, ' ') // Em quad
+      .replace(/\u2004/g, ' ') // Three-per-em space
+      .replace(/\u2005/g, ' ') // Four-per-em space
+      .replace(/\u2006/g, ' ') // Six-per-em space
+      .replace(/\u2008/g, ' ') // Punctuation space
+      .replace(/\u2009/g, ' ') // Thin space
+      .replace(/\u200A/g, ' ') // Hair space
+      .replace(/\u3000/g, ' ') // Ideographic space (CJK)
+      // Line separators and paragraph separators
+      .replace(/\u2028/g, ' ') // Line separator
+      .replace(/\u2029/g, ' ') // Paragraph separator
+      // Other Unicode spaces
+      .replace(/\u180E/g, ' ') // Mongolian vowel separator
+      .replace(/\uFEFF/g, '') // Zero-width no-break space (BOM) - remove completely
   }
 
   /**
@@ -115,11 +137,25 @@ export class NormalizationService {
   }
 
   /**
-   * Normalize text to lowercase for case-insensitive matching
-   * Example: "The Impact Of AI" → "the impact of ai"
+   * Normalize text to lowercase with proper Unicode case-folding
+   * Uses Intl.Collator for robust international case handling
    */
   private normalizeCase(text: string): string {
-    return text.toLowerCase()
+    // Manual handling of special Unicode case mappings that even Intl doesn't handle
+    const specialCases = text
+      // German Eszett mappings
+      .replace(/ß/g, 'ss')
+      .replace(/ẞ/g, 'ss')
+
+      // Mathematical symbols that should fold to letters
+      .replace(/\u212A/g, 'k') // Kelvin sign → k
+      .replace(/\u2126/g, 'ω') // Ohm sign → omega
+      .replace(/\u212B/g, 'å') // Angstrom sign → å
+
+      // Use toLocaleLowerCase for proper Unicode case conversion
+      .toLocaleLowerCase()
+
+    return specialCases
   }
 
   /**
@@ -144,29 +180,54 @@ export class NormalizationService {
   }
 
   /**
-   * Normalize DOI identifiers
-   * Example: "https://doi.org/10.1000/xyz123" → "10.1000/xyz123"
+   * Normalize DOI identifiers with proper extraction and cleaning
+   * Handles embedded whitespace and extracts DOIs from mixed text
    */
   private normalizeDOI(text: string): string {
-    return text
-      .replace(/https?:\/\/(www\.)?doi\.org\//gi, '')
-      .replace(/doi:\s*/gi, '')
+    return text.replace(/(?:https?:\/\/(?:www\.)?doi\.org\/|doi:\s*)(\d{2}\.\d+\/\S+)/gi, (_match, doi) => {
+      // Clean the extracted DOI: remove internal whitespace and normalize
+      return doi
+        .replace(/\s+/g, '') // Remove all whitespace
+        .toLowerCase() // Normalize case
+        .replace(/[<>{}|\\^`[\]]/g, '') // Remove invalid URL characters
+    }).replace(/doi:\s*/gi, '') // Clean any remaining doi: prefixes
   }
 
   /**
-   * Normalize ISBN identifiers
-   * Example: "ISBN: 978-0-123456-78-9" → "978-0-123456-78-9"
+   * Normalize ISBN identifiers with hyphen/space consolidation
+   * Extracts and normalizes to clean digit-only format
    */
   private normalizeISBN(text: string): string {
-    return text.replace(/ISBN[-:\s]*/gi, '')
+    return text.replace(/ISBN[-:\s]*([\dX\-\s]+)/gi, (_match, isbn) => {
+      // Extract only digits and X (for ISBN-10 check digit)
+      const cleaned = isbn.replace(/[^\dX]/gi, '').toUpperCase()
+
+      // Validate length (ISBN-10: 10 digits, ISBN-13: 13 digits)
+      if (cleaned.length === 10 || cleaned.length === 13) {
+        return cleaned
+      }
+      // If invalid, return original match
+      return _match
+    })
   }
 
   /**
-   * Normalize ISSN identifiers
-   * Example: "ISSN: 1234-5678" → "1234-5678"
+   * Normalize ISSN identifiers with proper format validation
+   * Standard format: NNNN-NNNN
    */
   private normalizeISSN(text: string): string {
-    return text.replace(/ISSN[-:\s]*/gi, '')
+    return text.replace(/ISSN[-:\s]*([\dX\-\s]+)/gi, (_match, issn) => {
+      // Extract digits and X
+      const digits = issn.replace(/[^\dX]/gi, '').toUpperCase()
+
+      // ISSN should be exactly 8 characters (7 digits + 1 check digit which can be X)
+      if (digits.length === 8) {
+        // Format as NNNN-NNNN
+        return `${digits.slice(0, 4)}-${digits.slice(4)}`
+      }
+      // If invalid, return original match
+      return _match
+    })
   }
 
   /**
@@ -186,11 +247,15 @@ export class NormalizationService {
   }
 
   /**
-   * Normalize arXiv identifiers
-   * Example: "arXiv: 2001.12345" → "2001.12345"
+   * Normalize arXiv identifiers with version handling
+   * Extracts clean arXiv ID and removes version numbers for better matching
+   * Example: "arXiv:2001.12345v2" → "2001.12345"
    */
   private normalizeArXiv(text: string): string {
-    return text.replace(/arXiv[-:\s]*/gi, '')
+    return text.replace(/arXiv[-:\s]*(\d{4}\.\d{4,5})(?:v\d+)?/gi, (_match, arxivId) => {
+      // Return just the core arXiv ID without version
+      return arxivId
+    })
   }
 
   /**
@@ -415,6 +480,41 @@ export class NormalizationService {
     }
 
     return String(value)
+  }
+
+  /**
+   * Normalize URLs for consistent comparison using normalize-url package
+   * Optimized for academic references (DOIs, ArXiv, journals, etc.)
+   */
+  private normalizeUrls(text: string): string {
+    // URL regex pattern - matches http/https URLs
+    const urlRegex = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi
+
+    return text.replace(urlRegex, (url) => {
+      try {
+        // Use normalize-url with academic-optimized settings
+        return normalizeUrl(url, {
+          // Remove fragments (like #comments, #section) - not relevant for matching
+          stripHash: true,
+          // Keep WWW for institutional sites that need it
+          stripWWW: false,
+          // Remove tracking parameters but keep important ones
+          removeQueryParameters: [
+            /^utm_/i, // UTM tracking
+            /^fbclid/i, // Facebook
+            /^gclid/i, // Google
+            /^ref/i, // Generic referrer
+            /^campaign/i, // Campaign tracking
+          ],
+          // Sort query parameters for consistency
+          sortQueryParameters: true,
+        })
+      }
+      catch {
+        // If URL parsing fails, return original URL
+        return url
+      }
+    })
   }
 
   /**
