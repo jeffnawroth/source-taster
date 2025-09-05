@@ -118,7 +118,6 @@ function remove(item: CSLVariable) {
           <v-chip
             v-if="index < 5"
             :text="item.title"
-            density="compact"
             closable
             @click:close="remove(item.value)"
           />
