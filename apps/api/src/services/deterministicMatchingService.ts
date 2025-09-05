@@ -129,11 +129,34 @@ export class DeterministicMatchingService {
     }
 
     if (typeof value === 'object') {
-      // For author objects, combine lastName and firstName
-      if ('lastName' in value) {
-        const author = value as { lastName?: string, firstName?: string }
-        return [author.firstName, author.lastName].filter(Boolean).join(' ')
+      // For CSL name objects, combine given and family names
+      if ('family' in value || 'given' in value) {
+        const author = value as { family?: string, given?: string, literal?: string }
+
+        // If there's a literal name, use that
+        if (author.literal) {
+          return author.literal
+        }
+
+        // Otherwise combine given and family names
+        return [author.given, author.family].filter(Boolean).join(' ')
       }
+
+      // For CSL date objects
+      if ('date-parts' in value) {
+        const date = value as { 'date-parts'?: number[][], 'literal'?: string }
+
+        // If there's a literal date, use that
+        if (date.literal) {
+          return date.literal
+        }
+
+        // Otherwise format date-parts
+        if (date['date-parts'] && date['date-parts'][0]) {
+          return date['date-parts'][0].join('-')
+        }
+      }
+
       return JSON.stringify(value)
     }
 
