@@ -1,4 +1,4 @@
-import type { NormalizationRule } from '@source-taster/types'
+import type { CSLDate, CSLName, NormalizationRule } from '@source-taster/types'
 import normalizeUrl from 'normalize-url'
 
 /**
@@ -465,24 +465,71 @@ export class NormalizationService {
     if (typeof value === 'object') {
       // For CSL name objects, combine given and family names
       if ('family' in value || 'given' in value) {
-        const author = value as { family?: string, given?: string, literal?: string }
+        const author = value as CSLName
 
-        // If there's a literal name, use that
+        // If there's a literal name, use that first (highest priority)
         if (author.literal) {
           return author.literal
         }
 
-        // Otherwise combine given and family names
-        return [author.given, author.family].filter(Boolean).join(' ')
+        // Build name parts in order
+        const nameParts: string[] = []
+
+        // Add given name
+        if (author.given) {
+          nameParts.push(author.given)
+        }
+
+        // Add non-dropping particle (stays with family name)
+        if (author['non-dropping-particle']) {
+          nameParts.push(author['non-dropping-particle'])
+        }
+
+        // Add family name
+        if (author.family) {
+          nameParts.push(author.family)
+        }
+
+        // Add dropping particle (usually "de", "van", etc.)
+        if (author['dropping-particle']) {
+          nameParts.push(author['dropping-particle'])
+        }
+
+        // Add suffix
+        if (author.suffix) {
+          nameParts.push(author.suffix)
+        }
+
+        return nameParts.filter(Boolean).join(' ')
       }
 
       // For CSL date objects
       if ('date-parts' in value) {
-        const date = value as { 'date-parts'?: number[][], 'literal'?: string }
+        const date = value as CSLDate
+
+        // If there's a raw date, use that first (unparsed date string)
+        if (date.raw) {
+          return date.raw
+        }
 
         // If there's a literal date, use that
         if (date.literal) {
           return date.literal
+        }
+
+        // Handle season
+        if (date.season) {
+          return String(date.season)
+        }
+
+        // Handle circa
+        if (date.circa) {
+          const circaPrefix = date.circa === true ? 'ca. ' : `${String(date.circa)} `
+          // If we have date-parts, prepend circa to formatted date
+          if (date['date-parts'] && date['date-parts'][0]) {
+            return circaPrefix + date['date-parts'][0].join('-')
+          }
+          return circaPrefix.trim()
         }
 
         // Otherwise format date-parts
