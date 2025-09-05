@@ -10,10 +10,8 @@ import type {
 } from '@source-taster/types'
 import { MetadataComparator } from '../utils/metadataComparator'
 import { similarity } from '../utils/similarity'
-import { NormalizationService } from './normalizationService'
 
 export class DeterministicMatchingService {
-  private normalizationService = new NormalizationService()
   /**
    * Matches a reference against an external source using deterministic similarity algorithms
    */
@@ -78,27 +76,12 @@ export class DeterministicMatchingService {
     sourceValue: unknown,
     normalizationRules: NormalizationRule[],
   ): number {
-    // Convert CSL values to strings and apply normalization
-    const refStr = this.normalizationService.normalizeValue(referenceValue, normalizationRules)
-    const srcStr = this.normalizationService.normalizeValue(sourceValue, normalizationRules)
-
-    // If both values are empty, return neutral score
-    if (!refStr && !srcStr) {
-      return 0.5
-    }
-
-    // If one value is empty, return low score
-    if (!refStr || !srcStr) {
-      return 0.1
-    }
-
     // Special handling for arrays (like authors)
     if (Array.isArray(referenceValue) && Array.isArray(sourceValue)) {
       return this.compareArrays(referenceValue, sourceValue, normalizationRules)
     }
 
-    // Use similarity function for string comparison
-    return similarity(refStr, srcStr, normalizationRules)
+    return similarity(referenceValue, sourceValue, normalizationRules)
   }
 
   private compareArrays(arr1: unknown[], arr2: unknown[], normalizationRules: NormalizationRule[]): number {
@@ -116,9 +99,7 @@ export class DeterministicMatchingService {
     for (const item1 of arr1) {
       let bestScore = 0
       for (const item2 of arr2) {
-        const str1 = this.normalizationService.normalizeValue(item1, normalizationRules)
-        const str2 = this.normalizationService.normalizeValue(item2, normalizationRules)
-        const score = similarity(str1, str2, normalizationRules)
+        const score = similarity(item1, item2, normalizationRules)
         bestScore = Math.max(bestScore, score)
       }
       scores.push(bestScore)

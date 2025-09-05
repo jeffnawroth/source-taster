@@ -7,6 +7,10 @@ const BALANCED_ACTIONS: NormalizationRule[] = [
   'normalize-identifiers',
   'normalize-characters',
   'normalize-whitespace',
+  'normalize-accents',
+  'normalize-umlauts',
+  'normalize-punctuation',
+  'normalize-unicode',
 ] as const
 
 export const MATCHING_MODE_PRESETS = createModePresets<NormalizationRule>(
