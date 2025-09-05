@@ -4,15 +4,9 @@ import { API_CONFIG } from '@/extension/env'
 import { matchingSettings } from '@/extension/logic/storage'
 
 // Types for parsing with tokens
-interface ParsedToken {
-  tokens: string[]
-  labels: string[]
-  original_text: string
-}
-
 interface ParseWithTokensResponse {
   references: Reference[]
-  tokens: ParsedToken[]
+  tokens: Array<Array<[string, string]>>
 }
 
 export class ReferencesService {

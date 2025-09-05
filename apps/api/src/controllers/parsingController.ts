@@ -3,11 +3,7 @@ import type { Context } from 'hono'
 
 interface ParseResponse {
   csl?: Reference[]
-  tokens?: Array<{
-    tokens: string[]
-    labels: string[]
-    original_text: string
-  }>
+  tokens?: Array<Array<[string, string]>> // AnyStyle raw format: [["label", "token"], ...]
 }
 
 /**

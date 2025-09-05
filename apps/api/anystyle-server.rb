@@ -34,16 +34,17 @@ post '/parse' do
   csl_result = parser.format_csl(dataset, date_format: 'citeproc')
 
   if return_tokens
-    # Return both CSL and token data for relabeling
+    # Return both CSL and raw token data for relabeling
+    # Convert Wapiti dataset to proper [["label", "token"], ...] format
+    token_data = dataset.map do |sequence|
+      sequence.map do |token|
+        [token.label.to_s, token.value.to_s]
+      end
+    end
+    
     {
       csl: csl_result,
-      tokens: dataset.to_a.map do |sequence|
-        {
-          tokens: sequence.map { |item| item.split(' ').first },
-          labels: sequence.map { |item| item.split(' ').last },
-          original_text: sequence.map { |item| item.split(' ').first }.join(' ')
-        }
-      end
+      tokens: token_data
     }.to_json
   else
     # Return only CSL for backward compatibility
