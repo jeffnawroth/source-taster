@@ -21,6 +21,10 @@ export const NormalizationRuleSchema = z.enum([
   'normalize-identifiers',
   'normalize-characters',
   'normalize-whitespace',
+  'normalize-accents',
+  'normalize-umlauts',
+  'normalize-punctuation',
+  'normalize-unicode',
 ]).describe('Normalization rule action type')
 
 export type NormalizationRule = z.infer<typeof NormalizationRuleSchema>

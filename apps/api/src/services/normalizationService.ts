@@ -33,6 +33,14 @@ export class NormalizationService {
         return this.normalizeCharacters(text)
       case 'normalize-whitespace':
         return this.normalizeWhitespace(text)
+      case 'normalize-accents':
+        return this.normalizeAccents(text)
+      case 'normalize-umlauts':
+        return this.normalizeUmlauts(text)
+      case 'normalize-punctuation':
+        return this.normalizePunctuation(text)
+      case 'normalize-unicode':
+        return this.normalizeUnicode(text)
       default:
         return text
     }
@@ -291,5 +299,130 @@ export class NormalizationService {
    */
   private normalizeMultipleLineBreaks(text: string): string {
     return text.replace(/\n{3,}/g, '\n\n')
+  }
+
+  /**
+   * Remove diacritical marks and accents for better matching
+   * Example: "naïve café résumé" → "naive cafe resume"
+   */
+  private normalizeAccents(text: string): string {
+    // Decompose to NFD (separate base chars from combining marks), remove combining marks, recompose to NFC
+    return text.normalize('NFD').replace(/[\u0300-\u036F]/g, '').normalize('NFC')
+  }
+
+  /**
+   * Convert German/European umlauts and special characters to ASCII equivalents
+   * Example: "Müller Schrödinger über Björk" → "Mueller Schroedinger ueber Bjoerk"
+   */
+  private normalizeUmlauts(text: string): string {
+    return text
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      .replace(/Ä/g, 'Ae')
+      .replace(/Ö/g, 'Oe')
+      .replace(/Ü/g, 'Ue')
+      .replace(/ß/g, 'ss')
+      // Nordic characters
+      .replace(/å/g, 'aa')
+      .replace(/æ/g, 'ae')
+      .replace(/ø/g, 'oe')
+      .replace(/Å/g, 'Aa')
+      .replace(/Æ/g, 'Ae')
+      .replace(/Ø/g, 'Oe')
+  }
+
+  /**
+   * Normalize punctuation for better text matching
+   * Example: "COVID-19: Study, Results & Analysis!" → "COVID-19 Study Results Analysis"
+   */
+  private normalizePunctuation(text: string): string {
+    return text
+      // Remove most punctuation but keep letters, numbers, spaces, dashes, and quotes
+      // This matches the behavior of normalize.ts stripPunctuation with keepDigits=true
+      .replace(/[^\p{L}\p{N}\s\-"]/gu, ' ')
+      // Clean up multiple spaces
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+
+  /**
+   * Apply Unicode normalization for consistent character representation
+   * Example: Different Unicode representations of same visual character → consistent form
+   */
+  private normalizeUnicode(text: string): string {
+    return text
+      // NFKC: Canonical decomposition, then canonical composition + compatibility equivalence
+      .normalize('NFKC')
+      // Remove zero-width characters that might interfere with matching
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // ZWSP, ZWNJ, ZWJ, BOM
+      // Remove other invisible/formatting characters
+      .replace(/[\u00AD\u2060]/g, '') // Soft hyphen, word joiner
+  }
+
+  /**
+   * Convert CSL values to strings for comparison, handling CSL-specific data types
+   * This method handles structure conversion without normalization
+   */
+  public stringifyValue(value: unknown): string {
+    if (value === null || value === undefined) {
+      return ''
+    }
+
+    if (typeof value === 'string') {
+      return value
+    }
+
+    if (typeof value === 'number') {
+      return value.toString()
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(item => this.stringifyValue(item)).join(' ')
+    }
+
+    if (typeof value === 'object') {
+      // For CSL name objects, combine given and family names
+      if ('family' in value || 'given' in value) {
+        const author = value as { family?: string, given?: string, literal?: string }
+
+        // If there's a literal name, use that
+        if (author.literal) {
+          return author.literal
+        }
+
+        // Otherwise combine given and family names
+        return [author.given, author.family].filter(Boolean).join(' ')
+      }
+
+      // For CSL date objects
+      if ('date-parts' in value) {
+        const date = value as { 'date-parts'?: number[][], 'literal'?: string }
+
+        // If there's a literal date, use that
+        if (date.literal) {
+          return date.literal
+        }
+
+        // Otherwise format date-parts
+        if (date['date-parts'] && date['date-parts'][0]) {
+          return date['date-parts'][0].join('-')
+        }
+      }
+
+      return JSON.stringify(value)
+    }
+
+    return String(value)
+  }
+
+  /**
+   * Convert value to string and apply normalization rules in one step
+   * This is the main method for normalized value comparison
+   */
+  public normalizeValue(value: unknown, rules: NormalizationRule[]): string {
+    const stringValue = this.stringifyValue(value)
+    return this.normalize(stringValue, rules)
   }
 }
