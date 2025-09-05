@@ -1,5 +1,6 @@
 import type {
   ApiResponse,
+  ExtractionRequest,
   ExtractionResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
@@ -13,40 +14,69 @@ import * as extractionService from '../services/extractionService'
  */
 export async function extractReferences(c: Context) {
   try {
-    // Get decrypted body from middleware or fall back to regular parsing
-    const rawBody = c.get('decryptedBody') || await c.req.json()
-
-    // Validate the request body (now with decrypted API key)
-    const parseResult = ExtractionRequestSchema.safeParse(rawBody)
-
-    if (!parseResult.success) {
-      return c.json({
-        success: false,
-        error: parseResult.error,
-      }, 400)
-    }
-
-    const request = parseResult.data
-
-    // Perform extraction
+    const request = await parseAndValidateRequest(c)
     const references = await extractionService.extractReferences(request)
-
-    // Create success response
-    const response: ApiResponse<ExtractionResponse> = {
-      success: true,
-      data: {
-        references,
-      },
-    }
-
-    return c.json(response)
+    return createSuccessResponse(c, references)
   }
   catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    const errorResponse: ApiResponse = {
+    return handleError(c, error)
+  }
+}
+
+/**
+ * Parse and validate the incoming request
+ */
+async function parseAndValidateRequest(c: Context): Promise<ExtractionRequest> {
+  // Get decrypted body from middleware or fall back to regular parsing
+  const rawBody = c.get('decryptedBody') || await c.req.json()
+  const parseResult = ExtractionRequestSchema.safeParse(rawBody)
+
+  if (!parseResult.success) {
+    throw new ValidationError('Validation failed', parseResult.error)
+  }
+
+  return parseResult.data
+}
+
+/**
+ * Create a successful response
+ */
+function createSuccessResponse(c: Context, references: any) {
+  const response: ExtractionResponse = { references }
+  return c.json({
+    success: true,
+    data: response,
+  })
+}
+
+/**
+ * Handle errors and create error response
+ */
+function handleError(c: Context, error: unknown) {
+  console.error('Error in extractReferences:', error)
+
+  if (error instanceof ValidationError) {
+    return c.json({
       success: false,
-      error: errorMessage,
-    }
-    return c.json(errorResponse, 500)
+      error: error.validationError,
+    }, 400)
+  }
+
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+
+  const errorResponse: ApiResponse = {
+    success: false,
+    error: errorMessage,
+  }
+  return c.json(errorResponse, 500)
+}
+
+/**
+ * Custom error class for validation errors
+ */
+class ValidationError extends Error {
+  constructor(message: string, public validationError: any) {
+    super(message)
+    this.name = 'ValidationError'
   }
 }
