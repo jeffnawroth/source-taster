@@ -2,6 +2,7 @@ import type {
   ApiResponse,
   ExtractionRequest,
   ExtractionResponse,
+  Reference,
 } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ExtractionRequestSchema } from '@source-taster/types'
@@ -41,7 +42,7 @@ async function parseAndValidateRequest(c: Context): Promise<ExtractionRequest> {
 /**
  * Create a successful response
  */
-function createSuccessResponse(c: Context, references: any) {
+function createSuccessResponse(c: Context, references: Reference[]) {
   const response: ExtractionResponse = { references }
   return c.json({
     success: true,
