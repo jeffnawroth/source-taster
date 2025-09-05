@@ -7,7 +7,6 @@ import type {
   MatchDetails,
   MatchingReference,
 } from '@source-taster/types'
-import _ from 'lodash'
 import { MetadataComparator } from '../utils/metadataComparator'
 import { similarity } from '../utils/similarity'
 
@@ -37,19 +36,19 @@ export class DeterministicMatchingService {
   ): FieldMatchDetail[] {
     const fieldScores: FieldMatchDetail[] = []
 
-    // Get available fields with their paths (that exist in both objects and are enabled)
-    const availableFieldsWithPaths = MetadataComparator.getAvailableFieldsWithPaths(
+    // Get enabled fields that exist in both objects with meaningful values
+    const enabledFields = MetadataComparator.getEnabledFields(
       referenceMetadata,
       sourceMetadata,
       fieldConfigurations,
     )
 
-    // Compare only available fields using their paths
-    for (const { path, fieldName } of availableFieldsWithPaths) {
+    // Compare only enabled fields directly (no path traversal needed for flat CSL structure)
+    for (const fieldName of enabledFields) {
       const config = fieldConfigurations[fieldName as keyof FieldConfigurations]
-      if (config?.enabled && config.weight > 0) {
-        const referenceValue = _.get(referenceMetadata, path)
-        const sourceValue = _.get(sourceMetadata, path)
+      if (config?.weight && config.weight > 0) {
+        const referenceValue = referenceMetadata[fieldName]
+        const sourceValue = sourceMetadata[fieldName]
 
         const score = this.compareValues(referenceValue, sourceValue)
         const weightedScore = score * 100 // Convert to percentage (0-100)

@@ -1,78 +1,67 @@
-// utils/MetadataComparator.ts
-import _ from 'lodash'
+import type { CSLItem, CSLVariable, FieldConfigurations } from '@source-taster/types'
 
+/**
+ * Simplified metadata comparator optimized for flat CSL-JSON structure
+ */
 export class MetadataComparator {
   /**
-   * Find all paths that exist and have meaningful values in both objects
+   * Get CSL fields that have meaningful values in both objects
+   * Optimized for flat CSL structure - no complex path traversal needed
    */
-  static getCommonMeaningfulKeys<T extends Record<string, any>>(
-    obj1: T,
-    obj2: T,
-  ): string[] {
-    const getAllPaths = (obj: any, prefix = ''): string[] => {
-      return Object.entries(obj).flatMap(([key, value]) => {
-        const currentPath = prefix ? `${prefix}.${key}` : key
-        const paths = [currentPath]
+  static getCommonMeaningfulFields(
+    obj1: CSLItem,
+    obj2: CSLItem,
+  ): CSLVariable[] {
+    const fields: CSLVariable[] = []
 
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          paths.push(...getAllPaths(value, currentPath))
-        }
+    // Get all possible CSL field keys from both objects
+    const allKeys = new Set([...Object.keys(obj1), ...Object.keys(obj2)]) as Set<CSLVariable>
 
-        return paths
-      })
+    for (const field of allKeys) {
+      const value1 = obj1[field]
+      const value2 = obj2[field]
+
+      // Both values must exist and be meaningful
+      if (this.isMeaningfulValue(value1) && this.isMeaningfulValue(value2)) {
+        fields.push(field)
+      }
     }
 
-    const paths1 = getAllPaths(obj1)
-    return paths1.filter((path) => {
-      const value1 = _.get(obj1, path)
-      const value2 = _.get(obj2, path)
+    return fields
+  }
 
-      // Both values must exist and not be null/undefined/empty string/empty array
-      return _.has(obj2, path)
-        && value1 != null && value2 != null
-        && value1 !== '' && value2 !== ''
-        && !(Array.isArray(value1) && value1.length === 0)
-        && !(Array.isArray(value2) && value2.length === 0)
+  /**
+   * Get enabled CSL fields that are available in both objects
+   */
+  static getEnabledFields(
+    obj1: CSLItem,
+    obj2: CSLItem,
+    fieldConfig: FieldConfigurations,
+  ): CSLVariable[] {
+    const commonFields = this.getCommonMeaningfulFields(obj1, obj2)
+
+    return commonFields.filter((field) => {
+      const config = fieldConfig[field]
+      return config?.enabled === true
     })
   }
 
   /**
-   * Get field names (without paths) that are available in both objects and enabled in configuration
+   * Check if a value is meaningful (not null, undefined, empty string, or empty array)
    */
-  static getAvailableFieldNames<T extends Record<string, any>>(
-    obj1: T,
-    obj2: T,
-    fieldConfigurations: Record<string, { enabled?: boolean }>,
-  ): string[] {
-    const commonPaths = this.getCommonMeaningfulKeys(obj1, obj2)
+  private static isMeaningfulValue(value: any): boolean {
+    if (value == null)
+      return false
+    if (value === '')
+      return false
+    if (Array.isArray(value) && value.length === 0)
+      return false
 
-    return commonPaths
-      .map(path => path.split('.').pop() || path) // Extract field name from path
-      .filter((fieldName, index, array) => array.indexOf(fieldName) === index) // Remove duplicates
-      .filter(fieldName =>
-        fieldName in fieldConfigurations
-        && fieldConfigurations[fieldName]?.enabled,
-      )
-  }
+    // For objects (like CSLName, CSLDate), check if they have meaningful content
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      return Object.keys(value).length > 0
+    }
 
-  /**
-   * Get both paths and field names for advanced use cases
-   */
-  static getAvailableFieldsWithPaths<T extends Record<string, any>>(
-    obj1: T,
-    obj2: T,
-    fieldConfigurations: Record<string, { enabled?: boolean }>,
-  ): Array<{ path: string, fieldName: string }> {
-    const commonPaths = this.getCommonMeaningfulKeys(obj1, obj2)
-
-    return commonPaths
-      .map(path => ({
-        path,
-        fieldName: path.split('.').pop() || path,
-      }))
-      .filter(({ fieldName }) =>
-        fieldName in fieldConfigurations
-        && fieldConfigurations[fieldName]?.enabled,
-      )
+    return true
   }
 }
