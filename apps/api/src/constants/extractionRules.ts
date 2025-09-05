@@ -5,10 +5,6 @@ import type { NormalizationRule } from '@source-taster/types'
  * Maps each extraction action type to its corresponding AI instructions
  */
 export const EXTRACTION_RULES_MAP: Record<NormalizationRule, { prompt: string, example?: string }> = {
-  'normalize-spelling': {
-    prompt: 'Correct obvious typos and misspellings, including common spelling errors, transposed letters, and missing letters.',
-    example: '"Jouranl" → "Journal", "artficial" → "artificial", "inteligence" → "intelligence", "medecine" → "medicine"',
-  },
   'normalize-typography': {
     prompt: 'Fix common encoding issues such as smart quotes, em dashes, and other non-standard characters.',
     example: '""Smart quotes"" → "Smart quotes", "—em dash" → "-", "…ellipsis" → "...", "â€" → "–"',

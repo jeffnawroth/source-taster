@@ -16,7 +16,6 @@ import z from 'zod'
 // }
 
 export const NormalizationRuleSchema = z.enum([
-  'normalize-spelling',
   'normalize-typography',
   'normalize-title-case',
   'normalize-identifiers',
