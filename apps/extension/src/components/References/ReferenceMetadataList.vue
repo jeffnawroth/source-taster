@@ -10,6 +10,91 @@ const props = defineProps<{
 const { t } = useI18n()
 
 /**
+ * Format a CSL Date object to display string with all date parts
+ * Matches the backend normalization logic for consistency
+ */
+function formatCSLDate(dateValue: any): string | null {
+  if (!dateValue) {
+    return null
+  }
+
+  // Handle string dates (EDTF format)
+  if (typeof dateValue === 'string') {
+    return dateValue
+  }
+
+  // Handle CSL date structure
+  if (dateValue['date-parts'] && dateValue['date-parts'][0]) {
+    const dateParts = dateValue['date-parts'][0]
+    const year = dateParts[0]
+    const month = dateParts[1]
+    const day = dateParts[2]
+
+    const parts: string[] = []
+
+    // Add day if available
+    if (day) {
+      parts.push(day.toString())
+    }
+
+    // Add month if available (convert number to name if needed)
+    if (month) {
+      if (typeof month === 'number') {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        parts.push(monthNames[month - 1] || month.toString())
+      }
+      else {
+        parts.push(month.toString())
+      }
+    }
+
+    // Add year if available
+    if (year) {
+      parts.push(year.toString())
+    }
+
+    const dateString = parts.join(' ') || ''
+
+    // Handle circa prefix if present
+    if (dateValue.circa) {
+      const circaPrefix = dateValue.circa === true ? 'ca. ' : `${dateValue.circa.toString()} `
+      return circaPrefix + dateString
+    }
+
+    return dateString || null
+  }
+
+  // Handle raw dates (unparsed date strings)
+  if (dateValue.raw) {
+    return dateValue.raw
+  }
+
+  // Handle literal dates
+  if (dateValue.literal) {
+    return dateValue.literal
+  }
+
+  // Handle season
+  if (dateValue.season) {
+    const seasonString = dateValue.season.toString()
+    // Handle circa with season
+    if (dateValue.circa) {
+      const circaPrefix = dateValue.circa === true ? 'ca. ' : `${dateValue.circa.toString()} `
+      return circaPrefix + seasonString
+    }
+    return seasonString
+  }
+
+  // Handle circa alone
+  if (dateValue.circa) {
+    const circaPrefix = dateValue.circa === true ? 'ca. ' : `${dateValue.circa.toString()} `
+    return circaPrefix.trim()
+  }
+
+  return null
+}
+
+/**
  * Format a CSL Name object to display string with all name parts
  * Matches the backend normalization logic for consistency
  */
@@ -85,106 +170,6 @@ function getModificationsForField(fieldPath: string): FieldExtractionResult[] {
 const showAdditionalFields = ref(false)
 const showAllCSLFields = ref(false)
 
-// Computed property for formatted date display
-const formattedDate = computed(() => {
-  const issued = props.reference.metadata.issued
-
-  if (!issued)
-    return null
-
-  // Handle string dates (EDTF format)
-  if (typeof issued === 'string') {
-    return issued
-  }
-
-  // Handle CSL date structure
-  if (issued['date-parts'] && issued['date-parts'][0]) {
-    const dateParts = issued['date-parts'][0]
-    const year = dateParts[0]
-    const month = dateParts[1]
-    const day = dateParts[2]
-
-    const parts: string[] = []
-
-    // Add day if available
-    if (day) {
-      parts.push(day.toString())
-    }
-
-    // Add month if available (convert number to name if needed)
-    if (month) {
-      if (typeof month === 'number') {
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        parts.push(monthNames[month - 1] || month.toString())
-      }
-      else {
-        parts.push(month.toString())
-      }
-    }
-
-    // Add year if available
-    if (year) {
-      parts.push(year.toString())
-    }
-
-    return parts.join(' ') || null
-  }
-
-  // Handle raw dates (unparsed date strings)
-  if (issued.raw) {
-    return issued.raw
-  }
-
-  // Handle literal dates
-  if (issued.literal) {
-    return issued.literal
-  }
-
-  // Handle season
-  if (issued.season) {
-    return issued.season.toString()
-  }
-
-  // Handle circa
-  if (issued.circa) {
-    const circaPrefix = issued.circa === true ? 'ca. ' : `${issued.circa.toString()} `
-    // If we have date-parts, prepend circa to formatted date
-    if (issued['date-parts'] && issued['date-parts'][0]) {
-      const year = issued['date-parts'][0][0]
-      const month = issued['date-parts'][0][1]
-      const day = issued['date-parts'][0][2]
-
-      const parts: string[] = []
-
-      // Add day if available
-      if (day) {
-        parts.push(day.toString())
-      }
-
-      // Add month if available (convert number to name if needed)
-      if (month) {
-        if (typeof month === 'number') {
-          const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-          parts.push(monthNames[month - 1] || month.toString())
-        }
-        else {
-          parts.push(month.toString())
-        }
-      }
-
-      // Add year if available
-      if (year) {
-        parts.push(year.toString())
-      }
-
-      return circaPrefix + parts.join(' ')
-    }
-    return circaPrefix.trim()
-  }
-
-  return null
-})
-
 // Main metadata fields configuration
 const mainFields = computed(() => [
   {
@@ -222,11 +207,11 @@ const mainFields = computed(() => [
     fieldPath: 'metadata.container-title',
   },
   {
-    id: 'publication-date',
-    condition: () => formattedDate.value,
+    id: 'issued',
+    condition: () => props.reference.metadata.issued,
     icon: mdiCalendarOutline,
-    title: t('publication-date'),
-    text: () => formattedDate.value || '',
+    title: t('issued'),
+    text: () => formatCSLDate(props.reference.metadata.issued) || '',
     fieldPath: 'metadata.issued',
   },
   {
@@ -751,17 +736,7 @@ const allCSLFields = computed(() => [
     condition: () => props.reference.metadata.accessed,
     icon: mdiCalendarClock,
     title: t('accessed'),
-    text: () => {
-      const accessed = props.reference.metadata.accessed
-      if (typeof accessed === 'string')
-        return accessed
-      // Handle CSL date structure similar to issued
-      if (accessed?.['date-parts']?.[0]) {
-        const dateParts = accessed['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return accessed?.literal || ''
-    },
+    text: () => formatCSLDate(props.reference.metadata.accessed) || '',
     fieldPath: 'metadata.accessed',
     category: 'dates',
   },
@@ -770,16 +745,7 @@ const allCSLFields = computed(() => [
     condition: () => props.reference.metadata.submitted,
     icon: mdiCalendarClock,
     title: t('submitted'),
-    text: () => {
-      const submitted = props.reference.metadata.submitted
-      if (typeof submitted === 'string')
-        return submitted
-      if (submitted?.['date-parts']?.[0]) {
-        const dateParts = submitted['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return submitted?.literal || ''
-    },
+    text: () => formatCSLDate(props.reference.metadata.submitted) || '',
     fieldPath: 'metadata.submitted',
     category: 'dates',
   },
@@ -788,16 +754,7 @@ const allCSLFields = computed(() => [
     condition: () => props.reference.metadata['available-date'],
     icon: mdiCalendarClock,
     title: t('available-date'),
-    text: () => {
-      const date = props.reference.metadata['available-date']
-      if (typeof date === 'string')
-        return date
-      if (date?.['date-parts']?.[0]) {
-        const dateParts = date['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return date?.literal || date?.raw || ''
-    },
+    text: () => formatCSLDate(props.reference.metadata['available-date']) || '',
     fieldPath: 'metadata.available-date',
     category: 'dates',
   },
@@ -806,16 +763,7 @@ const allCSLFields = computed(() => [
     condition: () => props.reference.metadata['event-date'],
     icon: mdiCalendarClock,
     title: t('event-date'),
-    text: () => {
-      const date = props.reference.metadata['event-date']
-      if (typeof date === 'string')
-        return date
-      if (date?.['date-parts']?.[0]) {
-        const dateParts = date['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return date?.literal || date?.raw || ''
-    },
+    text: () => formatCSLDate(props.reference.metadata['event-date']) || '',
     fieldPath: 'metadata.event-date',
     category: 'dates',
   },
@@ -824,16 +772,7 @@ const allCSLFields = computed(() => [
     condition: () => props.reference.metadata['original-date'],
     icon: mdiCalendarClock,
     title: t('original-date'),
-    text: () => {
-      const date = props.reference.metadata['original-date']
-      if (typeof date === 'string')
-        return date
-      if (date?.['date-parts']?.[0]) {
-        const dateParts = date['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return date?.literal || date?.raw || ''
-    },
+    text: () => formatCSLDate(props.reference.metadata['original-date']) || '',
     fieldPath: 'metadata.original-date',
     category: 'dates',
   },
