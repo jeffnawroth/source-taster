@@ -85,6 +85,11 @@ const formattedDate = computed(() => {
     return parts.join(' ') || null
   }
 
+  // Handle raw dates (unparsed date strings)
+  if (issued.raw) {
+    return issued.raw
+  }
+
   // Handle literal dates
   if (issued.literal) {
     return issued.literal
@@ -93,6 +98,43 @@ const formattedDate = computed(() => {
   // Handle season
   if (issued.season) {
     return issued.season.toString()
+  }
+
+  // Handle circa
+  if (issued.circa) {
+    const circaPrefix = issued.circa === true ? 'ca. ' : `${issued.circa.toString()} `
+    // If we have date-parts, prepend circa to formatted date
+    if (issued['date-parts'] && issued['date-parts'][0]) {
+      const year = issued['date-parts'][0][0]
+      const month = issued['date-parts'][0][1]
+      const day = issued['date-parts'][0][2]
+
+      const parts: string[] = []
+
+      // Add day if available
+      if (day) {
+        parts.push(day.toString())
+      }
+
+      // Add month if available (convert number to name if needed)
+      if (month) {
+        if (typeof month === 'number') {
+          const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+          parts.push(monthNames[month - 1] || month.toString())
+        }
+        else {
+          parts.push(month.toString())
+        }
+      }
+
+      // Add year if available
+      if (year) {
+        parts.push(year.toString())
+      }
+
+      return circaPrefix + parts.join(' ')
+    }
+    return circaPrefix.trim()
   }
 
   return null
