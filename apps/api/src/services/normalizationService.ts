@@ -26,7 +26,7 @@ export class NormalizationService {
       case 'normalize-typography':
         return this.normalizeTypography(text)
       case 'normalize-title-case':
-        return this.normalizeTitleCase(text)
+        return this.normalizeCase(text)
       case 'normalize-identifiers':
         return this.normalizeIdentifiers(text)
       case 'normalize-characters':
@@ -107,46 +107,11 @@ export class NormalizationService {
   }
 
   /**
-   * Normalize capitalization to Title Case
-   * Example: "the quick brown fox" → "The Quick Brown Fox"
+   * Normalize text to lowercase for case-insensitive matching
+   * Example: "The Impact Of AI" → "the impact of ai"
    */
-  private normalizeTitleCase(text: string): string {
-    // Articles, conjunctions, and prepositions to keep lowercase (unless first/last word)
-    const lowercaseWords = new Set([
-      'a',
-      'an',
-      'and',
-      'as',
-      'at',
-      'but',
-      'by',
-      'for',
-      'if',
-      'in',
-      'into',
-      'nor',
-      'of',
-      'on',
-      'or',
-      'per',
-      'the',
-      'to',
-      'up',
-      'via',
-      'with',
-      'yet',
-    ])
-
-    return text.replace(/\b\w+/g, (word, index) => {
-      const lowerWord = word.toLowerCase()
-
-      // Always capitalize first word or if it's not a small word
-      if (index === 0 || !lowercaseWords.has(lowerWord)) {
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      }
-
-      return lowerWord
-    })
+  private normalizeCase(text: string): string {
+    return text.toLowerCase()
   }
 
   /**
