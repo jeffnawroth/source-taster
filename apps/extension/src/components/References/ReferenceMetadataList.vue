@@ -9,6 +9,51 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
+/**
+ * Format a CSL Name object to display string with all name parts
+ * Matches the backend normalization logic for consistency
+ */
+function formatCSLName(author: any): string {
+  if (typeof author === 'string') {
+    return author
+  }
+
+  // If there's a literal name, use that first (highest priority)
+  if (author.literal) {
+    return author.literal
+  }
+
+  // Build name parts in order
+  const nameParts: string[] = []
+
+  // Add given name
+  if (author.given) {
+    nameParts.push(author.given)
+  }
+
+  // Add non-dropping particle (stays with family name)
+  if (author['non-dropping-particle']) {
+    nameParts.push(author['non-dropping-particle'])
+  }
+
+  // Add family name
+  if (author.family) {
+    nameParts.push(author.family)
+  }
+
+  // Add dropping particle (usually "de", "van", etc.)
+  if (author['dropping-particle']) {
+    nameParts.push(author['dropping-particle'])
+  }
+
+  // Add suffix
+  if (author.suffix) {
+    nameParts.push(author.suffix)
+  }
+
+  return nameParts.filter(Boolean).join(' ')
+}
+
 // Helper function to get all modifications for a specific field
 function getModificationsForField(fieldPath: string): FieldExtractionResult[] {
   if (!('extractionResults' in props.reference) || !props.reference.extractionResults) {
@@ -164,10 +209,7 @@ const mainFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('authors'),
     text: () => props.reference.metadata.author?.map((author) => {
-      if (typeof author === 'string')
-        return author
-      const name = `${author.given || ''} ${author.family || ''}`.trim()
-      return name
+      return formatCSLName(author)
     }).join(', ') || '',
     fieldPath: 'metadata.author',
   },
@@ -434,10 +476,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('editor'),
     text: () => props.reference.metadata.editor?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.editor',
     category: 'contributors',
@@ -448,10 +487,7 @@ const allCSLFields = computed(() => [
     icon: mdiTranslate,
     title: t('translator'),
     text: () => props.reference.metadata.translator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.translator',
     category: 'contributors',
@@ -462,10 +498,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('director'),
     text: () => props.reference.metadata.director?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.director',
     category: 'contributors',
@@ -476,10 +509,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('chair'),
     text: () => props.reference.metadata.chair?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.chair',
     category: 'contributors',
@@ -490,10 +520,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('collection-editor'),
     text: () => props.reference.metadata['collection-editor']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.collection-editor',
     category: 'contributors',
@@ -504,10 +531,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('compiler'),
     text: () => props.reference.metadata.compiler?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.compiler',
     category: 'contributors',
@@ -518,10 +542,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('composer'),
     text: () => props.reference.metadata.composer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.composer',
     category: 'contributors',
@@ -532,10 +553,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('container-author'),
     text: () => props.reference.metadata['container-author']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.container-author',
     category: 'contributors',
@@ -546,10 +564,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('contributor'),
     text: () => props.reference.metadata.contributor?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.contributor',
     category: 'contributors',
@@ -560,10 +575,7 @@ const allCSLFields = computed(() => [
     icon: mdiLibrary,
     title: t('curator'),
     text: () => props.reference.metadata.curator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.curator',
     category: 'contributors',
@@ -574,10 +586,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('editorial-director'),
     text: () => props.reference.metadata['editorial-director']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.editorial-director',
     category: 'contributors',
@@ -588,10 +597,7 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('executive-producer'),
     text: () => props.reference.metadata['executive-producer']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.executive-producer',
     category: 'contributors',
@@ -602,10 +608,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('guest'),
     text: () => props.reference.metadata.guest?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.guest',
     category: 'contributors',
@@ -616,10 +619,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('host'),
     text: () => props.reference.metadata.host?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.host',
     category: 'contributors',
@@ -630,10 +630,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('interviewer'),
     text: () => props.reference.metadata.interviewer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.interviewer',
     category: 'contributors',
@@ -644,10 +641,7 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('illustrator'),
     text: () => props.reference.metadata.illustrator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.illustrator',
     category: 'contributors',
@@ -658,10 +652,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('narrator'),
     text: () => props.reference.metadata.narrator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.narrator',
     category: 'contributors',
@@ -672,10 +663,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('organizer'),
     text: () => props.reference.metadata.organizer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.organizer',
     category: 'contributors',
@@ -686,10 +674,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('original-author'),
     text: () => props.reference.metadata['original-author']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.original-author',
     category: 'contributors',
@@ -700,10 +685,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('performer'),
     text: () => props.reference.metadata.performer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.performer',
     category: 'contributors',
@@ -714,10 +696,7 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('producer'),
     text: () => props.reference.metadata.producer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.producer',
     category: 'contributors',
@@ -728,10 +707,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('recipient'),
     text: () => props.reference.metadata.recipient?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.recipient',
     category: 'contributors',
@@ -742,10 +718,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('reviewed-author'),
     text: () => props.reference.metadata['reviewed-author']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.reviewed-author',
     category: 'contributors',
@@ -756,10 +729,7 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('script-writer'),
     text: () => props.reference.metadata['script-writer']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.script-writer',
     category: 'contributors',
@@ -770,10 +740,7 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('series-creator'),
     text: () => props.reference.metadata['series-creator']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return formatCSLName(person)
     }).join(', ') || '',
     fieldPath: 'metadata.series-creator',
     category: 'contributors',
