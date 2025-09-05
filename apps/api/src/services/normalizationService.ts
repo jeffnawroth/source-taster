@@ -7,13 +7,32 @@ import normalizeUrl from 'normalize-url'
  */
 export class NormalizationService {
   /**
-   * Apply selected normalization rules to text
+   * Apply selected normalization rules to text in a consistent order
+   * Rules that conflict (like umlauts vs accents) are applied in a deterministic sequence
    */
   public normalize(text: string, rules: NormalizationRule[]): string {
+    // Define the canonical order for applying rules to avoid conflicts
+    // This ensures consistent results regardless of input rule order
+    const ruleOrder: NormalizationRule[] = [
+      'normalize-typography', // First: Fix encoding issues
+      'normalize-characters', // Second: Fix corrupted characters
+      'normalize-urls', // Third: Normalize URLs
+      'normalize-identifiers', // Fourth: Clean identifiers
+      'normalize-umlauts', // Fifth: Umlauts before accents (preserves semantic meaning)
+      'normalize-accents', // Sixth: Remove remaining accents
+      'normalize-unicode', // Seventh: Unicode normalization
+      'normalize-punctuation', // Eighth: Punctuation cleanup
+      'normalize-whitespace', // Ninth: Whitespace normalization
+      'normalize-lowercase', // Last: Case normalization (affects everything)
+    ]
+
     let normalizedText = text
 
-    for (const rule of rules) {
-      normalizedText = this.applyRule(normalizedText, rule)
+    // Apply rules in canonical order, but only if they're requested
+    for (const rule of ruleOrder) {
+      if (rules.includes(rule)) {
+        normalizedText = this.applyRule(normalizedText, rule)
+      }
     }
 
     return normalizedText
@@ -26,8 +45,8 @@ export class NormalizationService {
     switch (rule) {
       case 'normalize-typography':
         return this.normalizeTypography(text)
-      case 'normalize-title-case':
-        return this.normalizeCase(text)
+      case 'normalize-lowercase':
+        return this.normalizeLowercase(text)
       case 'normalize-identifiers':
         return this.normalizeIdentifiers(text)
       case 'normalize-characters':
@@ -57,10 +76,9 @@ export class NormalizationService {
     let normalizedText = text
 
     // Apply all typography normalization functions
-    normalizedText = this.normalizeSmartQuotes(normalizedText)
+    normalizedText = this.normalizeQuotesAndApostrophes(normalizedText)
     normalizedText = this.normalizeDashes(normalizedText)
     normalizedText = this.normalizeEllipsis(normalizedText)
-    normalizedText = this.normalizeApostrophes(normalizedText)
     normalizedText = this.normalizeSpaces(normalizedText)
     normalizedText = this.normalizeOtherTypography(normalizedText)
 
@@ -68,13 +86,17 @@ export class NormalizationService {
   }
 
   /**
-   * Normalize smart quotes to regular quotes
-   * Example: ""Smart quotes"" → "Smart quotes"
+   * Normalize smart quotes, apostrophes, and accent characters to regular ASCII equivalents
+   * Combines functionality for all quote-like characters for better maintainability
+   * Example: ""Smart quotes"" → "Smart quotes", "´accent" → "'"
    */
-  private normalizeSmartQuotes(text: string): string {
+  private normalizeQuotesAndApostrophes(text: string): string {
     return text
-      .replace(/[\u201C\u201D]/g, '"') // left and right double quotes
-      .replace(/[\u2018\u2019]/g, '\'') // left and right single quotes
+      // Smart quotes (typographic quotes)
+      .replace(/[\u201C\u201D]/g, '"') // left and right double quotes → "
+      .replace(/[\u2018\u2019]/g, '\'') // left and right single quotes → '
+      // Accent characters often misused as apostrophes
+      .replace(/[\u00B4\u0060]/g, '\'') // acute accent (´) and grave accent (`) → '
   }
 
   /**
@@ -91,14 +113,6 @@ export class NormalizationService {
    */
   private normalizeEllipsis(text: string): string {
     return text.replace(/\u2026/g, '...')
-  }
-
-  /**
-   * Normalize various apostrophes to regular apostrophes
-   * Example: "´accent" → "'", "`grave" → "'"
-   */
-  private normalizeApostrophes(text: string): string {
-    return text.replace(/[\u00B4\u0060]/g, '\'')
   }
 
   /**
@@ -140,7 +154,7 @@ export class NormalizationService {
    * Normalize text to lowercase with proper Unicode case-folding
    * Uses Intl.Collator for robust international case handling
    */
-  private normalizeCase(text: string): string {
+  private normalizeLowercase(text: string): string {
     // Manual handling of special Unicode case mappings that even Intl doesn't handle
     const specialCases = text
       // German Eszett mappings
@@ -298,16 +312,17 @@ export class NormalizationService {
   }
 
   /**
-   * Fix smart typography encoding artifacts
+   * Fix smart typography encoding artifacts with direct ASCII mappings
+   * Avoids ping-pong normalization by mapping directly to final ASCII forms
    * Example: "â€™" → "'", "â€œ" → '"'
    */
   private normalizeSmartTypography(text: string): string {
     const smartTypographyFixes: Record<string, string> = {
-      'â€™': '\'', // smart quote
-      'â€œ': '"', // left double quote
-      'â€\u009D': '"', // right double quote
-      'â€"': '–', // en dash
-      'â€¦': '...', // ellipsis
+      'â€™': '\'', // Corrupted smart quote → ASCII apostrophe (skip Unicode intermediate)
+      'â€œ': '"', // Corrupted left double quote → ASCII quote
+      'â€\u009D': '"', // Corrupted right double quote → ASCII quote
+      'â€"': '-', // Corrupted en dash → ASCII dash (skip Unicode en-dash intermediate)
+      'â€¦': '...', // Corrupted ellipsis → ASCII periods
     }
 
     let fixedText = text
@@ -335,11 +350,12 @@ export class NormalizationService {
   }
 
   /**
-   * Replace multiple spaces with single space
+   * Replace multiple spaces with single space (preserves line breaks)
    * Example: "This    is  a  test" → "This is a test"
+   * Note: Uses [ \t]+ instead of \s+ to preserve \n for paragraph handling
    */
   private normalizeMultipleSpaces(text: string): string {
-    return text.replace(/\s+/g, ' ')
+    return text.replace(/[ \t]+/g, ' ')
   }
 
   /**
@@ -388,7 +404,6 @@ export class NormalizationService {
       .replace(/Ä/g, 'Ae')
       .replace(/Ö/g, 'Oe')
       .replace(/Ü/g, 'Ue')
-      .replace(/ß/g, 'ss')
       // Nordic characters
       .replace(/å/g, 'aa')
       .replace(/æ/g, 'ae')

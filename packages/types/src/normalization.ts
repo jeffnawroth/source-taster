@@ -17,7 +17,7 @@ import z from 'zod'
 
 export const NormalizationRuleSchema = z.enum([
   'normalize-typography',
-  'normalize-title-case',
+  'normalize-lowercase',
   'normalize-identifiers',
   'normalize-characters',
   'normalize-whitespace',
