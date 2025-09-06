@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { Reference } from '@source-taster/types'
+import type { AnystyleTokenSequence, Reference } from '@source-taster/types'
 import { mdiBrain, mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
+import { AnystyleService } from '../../services/anystyleService'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
 // Types
 interface ParsedData {
   references: Reference[]
-  tokens: Array<Array<[string, string]>>
+  tokens: AnystyleTokenSequence[]
 }
 
 // Composables
@@ -31,31 +32,16 @@ async function parseReference() {
   error.value = ''
 
   try {
-    // Split input by lines and filter out empty lines
-    const references = inputText.value
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
+    // Parse input text into references array
+    const references = AnystyleService.parseInputText(inputText.value)
 
-    const response = await fetch('http://localhost:8000/api/anystyle/parse', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        input: references,
-      }),
-    })
+    // Call AnyStyle service to parse references
+    const result = await AnystyleService.parseReferences(references)
 
-    if (!response.ok)
-      throw new Error(`HTTP error! status: ${response.status}`)
-
-    const result = await response.json()
-
-    // New API format: { tokens: [...] }
+    // Update parsed data - extract data from ApiResponse
     parsedData.value = {
       references: [], // Not provided by /parse endpoint
-      tokens: result.tokens || [],
+      tokens: result.data?.tokens || [],
     }
     showEditor.value = true
   }
@@ -69,7 +55,7 @@ async function parseReference() {
 }
 
 // Update tokens from editor
-function updateCurrentSequenceTokens(newTokens: Array<Array<[string, string]>>) {
+function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
   if (parsedData.value && newTokens[0]) {
     // Update the current sequence
     parsedData.value.tokens[currentReferenceIndex.value] = newTokens[0]

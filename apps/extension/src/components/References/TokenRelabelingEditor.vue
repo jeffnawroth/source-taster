@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AnystyleTokenLabel, AnystyleTokenSequence } from '@source-taster/types'
 import { mdiAccount, mdiAccountEdit, mdiAccountStar, mdiArchive, mdiBarcode, mdiBookOpenVariant, mdiCalendar, mdiCounter, mdiDisc, mdiDomain, mdiFileDocument, mdiFolderMultiple, mdiFormatTitle, mdiHelp, mdiIdentifier, mdiLibrary, mdiLink, mdiMapMarker, mdiMovieOpen, mdiNoteText, mdiNumeric1Box, mdiSourceBranch, mdiTagEdit, mdiTagMultiple, mdiTranslate } from '@mdi/js'
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -7,12 +8,12 @@ import { useI18n } from 'vue-i18n'
 interface SelectedToken {
   sequenceIndex: number
   tokenIndex: number
-  label: string
+  label: AnystyleTokenLabel
   token: string
 }
 
 interface LabelOption {
-  value: string
+  value: AnystyleTokenLabel
   name: string
   color: string
   icon: string
@@ -20,21 +21,21 @@ interface LabelOption {
 
 // Props
 interface Props {
-  tokens: Array<Array<[string, string]>>
+  tokens: AnystyleTokenSequence[]
 }
 
 const props = defineProps<Props>()
 
 // Emits
 const emit = defineEmits<{
-  'update:tokens': [tokens: Array<Array<[string, string]>>]
+  'update:tokens': [tokens: AnystyleTokenSequence[]]
 }>()
 
 // Composables
 const { t } = useI18n()
 
 // State
-const tokenSequences = ref<Array<Array<[string, string]>>>([])
+const tokenSequences = ref<AnystyleTokenSequence[]>([])
 const selectedToken = ref<SelectedToken | null>(null)
 const hoveredToken = ref<{ sequenceIndex: number, tokenIndex: number } | null>(null)
 
@@ -69,12 +70,12 @@ const availableLabels: LabelOption[] = [
 // Computed - removed hasChanges since we don't need save functionality
 
 // Methods
-function getLabelColor(label: string): string {
+function getLabelColor(label: AnystyleTokenLabel): string {
   const labelOption = availableLabels.find(l => l.value === label)
   return labelOption?.color || 'grey'
 }
 
-function getLabelDisplayName(label: string): string {
+function getLabelDisplayName(label: AnystyleTokenLabel): string {
   const labelOption = availableLabels.find(l => l.value === label)
   return labelOption?.name || label
 }
@@ -111,7 +112,7 @@ function clearHoveredToken() {
   hoveredToken.value = null
 }
 
-function changeTokenLabel(newLabel: string | null | undefined) {
+function changeTokenLabel(newLabel: AnystyleTokenLabel | null | undefined) {
   if (!selectedToken.value || !newLabel)
     return
 

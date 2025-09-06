@@ -42,7 +42,6 @@ post '/parse' do
     end
 
     {
-      success: true,
       model_used: File.exist?(custom_model_file) ? 'custom.mod' : 'default',
       tokens: token_data
     }.to_json
@@ -83,7 +82,6 @@ post '/convert-to-csl' do
     csl_results = parser.format_csl(dataset, date_format: 'citeproc')
 
     {
-      success: true,
       csl: csl_results
     }.to_json
 
@@ -189,7 +187,6 @@ post '/train-model' do
         model_size = File.size(model_file)
         
         {
-          success: true,
           model_path: model_file,
           model_size_bytes: model_size,
           training_sequences: tokens.length,
