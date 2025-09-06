@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiAccount, mdiTagEdit } from '@mdi/js'
+import { mdiAccount, mdiBookOpenVariant, mdiFormatTitle, mdiTagEdit } from '@mdi/js'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -42,8 +42,8 @@ const selectedToken = ref<SelectedToken | null>(null)
 // Available labels with colors and icons
 const availableLabels: LabelOption[] = [
   { value: 'author', name: 'Author', color: 'blue', icon: mdiAccount },
-  { value: 'title', name: 'Title', color: 'green', icon: 'mdi-format-title' },
-  { value: 'journal', name: 'Journal', color: 'purple', icon: 'mdi-book-open-variant' },
+  { value: 'title', name: 'Title', color: 'green', icon: mdiFormatTitle },
+  { value: 'journal', name: 'Journal', color: 'purple', icon: mdiBookOpenVariant },
   { value: 'date', name: 'Date', color: 'orange', icon: 'mdi-calendar' },
   { value: 'volume', name: 'Volume', color: 'teal', icon: 'mdi-library' },
   { value: 'pages', name: 'Pages', color: 'indigo', icon: 'mdi-file-document' },
@@ -92,17 +92,19 @@ function isTokenSelected(sequenceIndex: number, tokenIndex: number): boolean {
     && selectedToken.value?.tokenIndex === tokenIndex
 }
 
-function changeTokenLabel(newLabel: string) {
-  if (!selectedToken.value)
+function changeTokenLabel(newLabel: string | null | undefined) {
+  if (!selectedToken.value || !newLabel)
     return
 
   const { sequenceIndex, tokenIndex } = selectedToken.value
   const sequence = tokenSequences.value[sequenceIndex]
   if (sequence && sequence[tokenIndex]) {
     sequence[tokenIndex] = [newLabel, sequence[tokenIndex][1]]
+    // Update the selected token's label to reflect the change
+    selectedToken.value.label = newLabel
     emit('update:tokens', tokenSequences.value)
   }
-  selectedToken.value = null
+  // Don't set selectedToken.value = null to keep the panel open
 }
 
 function deleteToken() {
@@ -202,58 +204,65 @@ watch(() => props.tokens, (newTokens) => {
           </v-chip>
         </div>
 
-        <!-- Label Selection Panel -->
         <v-expand-transition>
-          <v-card
+          <v-card-text
+
             v-if="selectedToken"
-            variant="outlined"
-            class="mt-4 label-selector"
           >
-            <v-card-title class="text-h6">
-              <v-icon start>
-                mdi-tag
-              </v-icon>
-              {{ t('tokenRelabeling.changeLabelFor') }}: "{{ selectedToken.token }}"
-            </v-card-title>
-            <v-card-text>
-              <div class="label-buttons">
-                <v-btn
-                  v-for="label in availableLabels"
-                  :key="label.value"
-                  :color="label.color"
-                  :variant="selectedToken.label === label.value ? 'elevated' : 'outlined'"
-                  class="ma-1"
-                  @click="changeTokenLabel(label.value)"
+            <!-- Autocomplete for label selection -->
+            <v-autocomplete
+              :items="availableLabels"
+              item-title="name"
+              item-value="value"
+              :model-value="selectedToken.label"
+              label="Select new label"
+              placeholder="Type to search labels..."
+              variant="outlined"
+              density="comfortable"
+              auto-select-first
+              clearable
+              @update:model-value="changeTokenLabel"
+            >
+              <template #selection="{ item }">
+                <v-chip
+                  :color="item.raw.color"
+                  size="small"
                 >
-                  <v-icon start>
-                    {{ label.icon }}
+                  <v-icon
+                    start
+                    size="small"
+                  >
+                    {{ item.raw.icon }}
                   </v-icon>
-                  {{ label.name }}
-                </v-btn>
-              </div>
+                  {{ item.raw.name }}
+                </v-chip>
+              </template>
 
-              <v-divider class="my-4" />
+              <template #item="{ props: itemProps, item }">
+                <v-list-item v-bind="itemProps">
+                  <template #prepend>
+                    <v-icon :color="item.raw.color">
+                      {{ item.raw.icon }}
+                    </v-icon>
+                  </template>
+                  <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
 
-              <div class="d-flex gap-2">
-                <v-btn
-                  variant="text"
-                  @click="selectedToken = null"
-                >
-                  {{ t('common.cancel') }}
-                </v-btn>
-                <v-btn
-                  color="error"
-                  variant="outlined"
-                  @click="deleteToken"
-                >
-                  <v-icon start>
-                    mdi-delete
-                  </v-icon>
-                  {{ t('tokenRelabeling.deleteToken') }}
-                </v-btn>
-              </div>
-            </v-card-text>
-          </v-card>
+            <div class="d-flex gap-2">
+              <v-btn
+                color="error"
+                variant="outlined"
+                @click="deleteToken"
+              >
+                <v-icon start>
+                  mdi-delete
+                </v-icon>
+                {{ t('tokenRelabeling.deleteToken') }}
+              </v-btn>
+            </div>
+          </v-card-text>
         </v-expand-transition>
       </div>
     </v-card-text>
