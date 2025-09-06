@@ -38,6 +38,7 @@ const { t } = useI18n()
 const tokenSequences = ref<Array<Array<[string, string]>>>([])
 const originalTokens = ref<Array<Array<[string, string]>>>([])
 const selectedToken = ref<SelectedToken | null>(null)
+const hoveredToken = ref<{ sequenceIndex: number, tokenIndex: number } | null>(null)
 
 // Available labels with colors and icons
 const availableLabels: LabelOption[] = [
@@ -92,6 +93,19 @@ function isTokenSelected(sequenceIndex: number, tokenIndex: number): boolean {
     && selectedToken.value?.tokenIndex === tokenIndex
 }
 
+function isTokenHovered(sequenceIndex: number, tokenIndex: number): boolean {
+  return hoveredToken.value?.sequenceIndex === sequenceIndex
+    && hoveredToken.value?.tokenIndex === tokenIndex
+}
+
+function setHoveredToken(sequenceIndex: number, tokenIndex: number) {
+  hoveredToken.value = { sequenceIndex, tokenIndex }
+}
+
+function clearHoveredToken() {
+  hoveredToken.value = null
+}
+
 function changeTokenLabel(newLabel: string | null | undefined) {
   if (!selectedToken.value || !newLabel)
     return
@@ -107,17 +121,16 @@ function changeTokenLabel(newLabel: string | null | undefined) {
   // Don't set selectedToken.value = null to keep the panel open
 }
 
-function deleteToken() {
-  if (!selectedToken.value)
-    return
-
-  const { sequenceIndex, tokenIndex } = selectedToken.value
+function deleteToken(sequenceIndex: number, tokenIndex: number) {
   const sequence = tokenSequences.value[sequenceIndex]
   if (sequence) {
     sequence.splice(tokenIndex, 1)
     emit('update:tokens', tokenSequences.value)
   }
-  selectedToken.value = null
+  // Clear selection if we deleted the selected token
+  if (selectedToken.value?.sequenceIndex === sequenceIndex && selectedToken.value?.tokenIndex === tokenIndex) {
+    selectedToken.value = null
+  }
 }
 
 function saveChanges() {
@@ -189,16 +202,22 @@ watch(() => props.tokens, (newTokens) => {
             :variant="isTokenSelected(sequenceIndex, tokenIndex) ? 'elevated' : 'outlined'"
             class="token-chip ma-1"
             :class="{ 'token-selected': isTokenSelected(sequenceIndex, tokenIndex) }"
+            :closable="isTokenHovered(sequenceIndex, tokenIndex)"
             @click="selectToken(sequenceIndex, tokenIndex)"
+            @click:close="deleteToken(sequenceIndex, tokenIndex)"
+            @mouseenter="setHoveredToken(sequenceIndex, tokenIndex)"
+            @mouseleave="clearHoveredToken"
           >
             <span class="token-text">{{ token[1] }}</span>
+
             <v-tooltip
               activator="parent"
               location="top"
             >
               <div>
                 <strong>{{ t('tokenRelabeling.currentLabel') }}:</strong> {{ getLabelDisplayName(token[0]) }}<br>
-                <strong>{{ t('tokenRelabeling.token') }}:</strong> {{ token[1] }}
+                <strong>{{ t('tokenRelabeling.token') }}:</strong> {{ token[1] }}<br>
+                <small class="text-grey">{{ t('tokenRelabeling.clickToEdit') }}</small>
               </div>
             </v-tooltip>
           </v-chip>
@@ -249,22 +268,19 @@ watch(() => props.tokens, (newTokens) => {
                 </v-list-item>
               </template>
             </v-autocomplete>
-
-            <div class="d-flex gap-2">
-              <v-btn
-                color="error"
-                variant="outlined"
-                @click="deleteToken"
-              >
-                <v-icon start>
-                  mdi-delete
-                </v-icon>
-                {{ t('tokenRelabeling.deleteToken') }}
-              </v-btn>
-            </div>
           </v-card-text>
         </v-expand-transition>
       </div>
     </v-card-text>
   </v-card>
 </template>
+
+<style scoped>
+.token-chip {
+  cursor: pointer;
+}
+
+.token-selected {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+</style>
