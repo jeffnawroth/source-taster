@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Reference } from '@source-taster/types'
-import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
+import { mdiBrain, mdiChevronLeft, mdiChevronRight, mdiDownload } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
@@ -129,9 +129,10 @@ function convertTokensToXML(tokens: Array<Array<[string, string]>>): string {
             variant="elevated"
             @click="parseReference"
           >
-            <v-icon start>
-              mdi-brain
-            </v-icon>
+            <v-icon
+              start
+              :icon="mdiBrain"
+            />
             {{ t('trainingData.parseButton') }}
           </v-btn>
 
@@ -142,9 +143,10 @@ function convertTokensToXML(tokens: Array<Array<[string, string]>>): string {
             variant="outlined"
             @click="exportAsXML"
           >
-            <v-icon start>
-              mdi-download
-            </v-icon>
+            <v-icon
+              start
+              :icon="mdiDownload"
+            />
             {{ t('trainingData.exportButton') }}
           </v-btn>
         </div>

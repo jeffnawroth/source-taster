@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiAccount, mdiAccountEdit, mdiAccountStar, mdiArchive, mdiBarcode, mdiBookOpenVariant, mdiCalendar, mdiCounter, mdiDisc, mdiDomain, mdiFileDocument, mdiFolderMultiple, mdiFormatTitle, mdiHelp, mdiIdentifier, mdiLibrary, mdiLink, mdiMapMarker, mdiMovieOpen, mdiNoteText, mdiNumeric1Box, mdiSourceBranch, mdiTagEdit, mdiTagMultiple, mdiTranslate } from '@mdi/js'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // Types
@@ -28,7 +28,6 @@ const props = defineProps<Props>()
 // Emits
 const emit = defineEmits<{
   'update:tokens': [tokens: Array<Array<[string, string]>>]
-  'save': [tokens: Array<Array<[string, string]>>]
 }>()
 
 // Composables
@@ -36,7 +35,6 @@ const { t } = useI18n()
 
 // State
 const tokenSequences = ref<Array<Array<[string, string]>>>([])
-const originalTokens = ref<Array<Array<[string, string]>>>([])
 const selectedToken = ref<SelectedToken | null>(null)
 const hoveredToken = ref<{ sequenceIndex: number, tokenIndex: number } | null>(null)
 
@@ -68,10 +66,7 @@ const availableLabels: LabelOption[] = [
   { value: 'volume-issue', name: 'Volume / Issue', color: 'teal', icon: mdiLibrary },
 ]
 
-// Computed
-const hasChanges = computed(() => {
-  return JSON.stringify(tokenSequences.value) !== JSON.stringify(originalTokens.value)
-})
+// Computed - removed hasChanges since we don't need save functionality
 
 // Methods
 function getLabelColor(label: string): string {
@@ -143,14 +138,9 @@ function deleteToken(sequenceIndex: number, tokenIndex: number) {
   }
 }
 
-function saveChanges() {
-  emit('save', tokenSequences.value)
-}
-
 // Watch for prop changes
 watch(() => props.tokens, (newTokens) => {
   tokenSequences.value = JSON.parse(JSON.stringify(newTokens))
-  originalTokens.value = JSON.parse(JSON.stringify(newTokens))
   selectedToken.value = null
 }, { immediate: true, deep: true })
 </script>
@@ -168,19 +158,6 @@ watch(() => props.tokens, (newTokens) => {
         {{ mdiTagEdit }}
       </v-icon>
       {{ t('tokenRelabeling.title') }}
-      <v-spacer />
-      <v-btn
-        variant="outlined"
-        color="success"
-        size="small"
-        :disabled="!hasChanges"
-        @click="saveChanges"
-      >
-        <v-icon start>
-          mdi-content-save
-        </v-icon>
-        {{ t('tokenRelabeling.save') }}
-      </v-btn>
     </v-card-title>
 
     <v-card-text>
@@ -224,11 +201,7 @@ watch(() => props.tokens, (newTokens) => {
               activator="parent"
               location="top"
             >
-              <div>
-                <strong>{{ t('tokenRelabeling.currentLabel') }}:</strong> {{ getLabelDisplayName(token[0]) }}<br>
-                <strong>{{ t('tokenRelabeling.token') }}:</strong> {{ token[1] }}<br>
-                <small class="text-grey">{{ t('tokenRelabeling.clickToEdit') }}</small>
-              </div>
+              {{ getLabelDisplayName(token[0]) }}
             </v-tooltip>
           </v-chip>
         </div>
