@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { AnystyleTokenSequence, Reference } from '@source-taster/types'
-import { mdiBrain, mdiChevronLeft, mdiChevronRight } from '@mdi/js'
+import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
-import { AnystyleService } from '../../services/anystyleService'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
 // Types
@@ -12,53 +11,36 @@ interface ParsedData {
 }
 
 // Composables
-const { t } = useI18n()
 const referencesStore = useReferencesStore()
-const { inputText } = storeToRefs(referencesStore)
+const { parsedTokens, showTokenEditor } = storeToRefs(referencesStore)
 
 // State
 const parsedData = ref<ParsedData | null>(null)
-const loading = ref(false)
 const error = ref('')
-const showEditor = ref(false)
 const currentReferenceIndex = ref(0)
 
-// Functions
-async function parseReference() {
-  if (!inputText.value.trim())
-    return
-
-  loading.value = true
-  error.value = ''
-
-  try {
-    // Parse input text into references array
-    const references = AnystyleService.parseInputText(inputText.value)
-
-    // Call AnyStyle service to parse references
-    const result = await AnystyleService.parseReferences(references)
-
-    // Update parsed data - extract data from ApiResponse
+// Watch for changes in store data
+watch([parsedTokens, showTokenEditor], ([tokens, show]) => {
+  if (show && tokens.length > 0) {
     parsedData.value = {
       references: [], // Not provided by /parse endpoint
-      tokens: result.data?.tokens || [],
+      tokens,
     }
-    showEditor.value = true
+    currentReferenceIndex.value = 0
   }
-  catch (err) {
-    error.value = err instanceof Error ? err.message : String(err)
-    console.error('Parsing error:', err)
+  else {
+    parsedData.value = null
   }
-  finally {
-    loading.value = false
-  }
-}
+}, { immediate: true })
 
 // Update tokens from editor
 function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
   if (parsedData.value && newTokens[0]) {
-    // Update the current sequence
+    // Update the current sequence in local data
     parsedData.value.tokens[currentReferenceIndex.value] = newTokens[0]
+
+    // Update the store data as well - modify array in place
+    parsedTokens.value[currentReferenceIndex.value] = newTokens[0]
   }
 }
 </script>
@@ -67,26 +49,12 @@ function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
   <v-card flat>
     <v-card-text>
       <!-- Action Buttons -->
-      <div class="d-flex flex-column gap-4">
-        <div class="d-flex gap-2">
-          <v-btn
-            :disabled="!inputText.trim() || loading"
-            :loading
-            color="primary"
-            variant="elevated"
-            @click="parseReference"
-          >
-            <v-icon
-              start
-              :icon="mdiBrain"
-            />
-            {{ t('trainingData.parseButton') }}
-          </v-btn>
-        </div>
-
+      <div
+        v-if="error"
+        class="d-flex flex-column gap-4"
+      >
         <!-- Error Display -->
         <v-alert
-          v-if="error"
           type="error"
           variant="tonal"
           closable
@@ -95,13 +63,10 @@ function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
           {{ error }}
         </v-alert>
       </div>
-    </v-card-text>
 
-    <!-- Token Editor with Navigation -->
-    <v-expand-transition>
-      <div v-if="showEditor && parsedData">
-        <v-divider />
-        <v-card-text>
+      <!-- Token Editor with Navigation -->
+      <v-expand-transition>
+        <div v-if="showTokenEditor && parsedData">
           <!-- Current Token Sequence Editor -->
           <v-card flat>
             <v-card-text>
@@ -145,8 +110,8 @@ function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
               <v-icon :icon="mdiChevronRight" />
             </v-btn>
           </div>
-        </v-card-text>
-      </div>
-    </v-expand-transition>
+        </div>
+      </v-expand-transition>
+    </v-card-text>
   </v-card>
 </template>

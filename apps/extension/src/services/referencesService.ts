@@ -1,7 +1,8 @@
 import type { APIMatchingSettings, MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
 import { runtime } from 'webextension-polyfill'
 import { API_CONFIG } from '@/extension/env'
-import { matchingSettings } from '@/extension/logic/storage'
+import { aiSettings, extractionSettings, matchingSettings } from '@/extension/logic/storage'
+import { encryptApiKey } from '../utils/crypto'
 
 // Types for parsing with tokens
 interface ParseWithTokensResponse {
@@ -13,37 +14,26 @@ export class ReferencesService {
   /**
    * Extract references from text using AI
    */
-  static async extractReferences(text: string, _signal?: AbortSignal): Promise<Reference[]> {
+  static async extractReferences(text: string, signal?: AbortSignal): Promise<Reference[]> {
     // Encrypt API key for secure transmission
-    const _encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
 
-    // const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.extract}`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'X-Extension-ID': runtime.id,
-    //     'X-API-Key': encryptedApiKey,
-    //   },
-    //   body: JSON.stringify({
-    //     text,
-    //     extractionSettings: extractionSettings.value,
-    //     aiSettings: {
-    //       provider: aiSettings.value.provider,
-    //       model: aiSettings.value.model,
-    //     },
-    //   }),
-    //   signal,
-    // })
-
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.parse}`, {
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.extract}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Extension-ID': runtime.id,
+        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
-        references: [text],
+        text,
+        extractionSettings: extractionSettings.value,
+        aiSettings: {
+          provider: aiSettings.value.provider,
+          model: aiSettings.value.model,
+        },
       }),
+      signal,
     })
 
     if (!response.ok) {

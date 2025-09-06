@@ -1,4 +1,4 @@
-import type { MatchingResult, Reference } from '@source-taster/types'
+import type { AnystyleTokenSequence, MatchingResult, Reference } from '@source-taster/types'
 import type { ExtractedReference } from '../types/reference'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -15,6 +15,10 @@ export const useReferencesStore = defineStore('references', () => {
   const extractedCount = ref(0)
   const totalCount = ref(0)
   const currentlyMatchingIndex = ref(-1)
+
+  // AnyStyle parsed data
+  const parsedTokens = ref<AnystyleTokenSequence[]>([])
+  const showTokenEditor = ref(false)
 
   // Abort controller for cancellation
   let abortController: AbortController | null = null
@@ -343,6 +347,10 @@ export const useReferencesStore = defineStore('references', () => {
     totalCount,
     file,
     currentlyMatchingIndex,
+
+    // AnyStyle data
+    parsedTokens,
+    showTokenEditor,
 
     // Computed
     progress,

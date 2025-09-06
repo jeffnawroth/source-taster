@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { AnystyleTokenLabel, AnystyleTokenSequence } from '@source-taster/types'
-import { mdiAccount, mdiAccountEdit, mdiAccountStar, mdiArchive, mdiBarcode, mdiBookOpenVariant, mdiCalendar, mdiCounter, mdiDisc, mdiDomain, mdiFileDocument, mdiFolderMultiple, mdiFormatTitle, mdiHelp, mdiIdentifier, mdiLibrary, mdiLink, mdiMapMarker, mdiMovieOpen, mdiNoteText, mdiNumeric1Box, mdiSourceBranch, mdiTagEdit, mdiTagMultiple, mdiTranslate } from '@mdi/js'
+import { mdiAccount, mdiAccountEdit, mdiAccountStar, mdiArchive, mdiBarcode, mdiBookOpenVariant, mdiCalendar, mdiCounter, mdiDisc, mdiDomain, mdiFileDocument, mdiFolderMultiple, mdiFormatTitle, mdiHelp, mdiIdentifier, mdiLibrary, mdiLink, mdiMapMarker, mdiMovieOpen, mdiNoteText, mdiNumeric1Box, mdiSourceBranch, mdiTagMultiple, mdiTranslate } from '@mdi/js'
 import { ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 // Types
 interface SelectedToken {
@@ -30,9 +29,6 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'update:tokens': [tokens: AnystyleTokenSequence[]]
 }>()
-
-// Composables
-const { t } = useI18n()
 
 // State
 const tokenSequences = ref<AnystyleTokenSequence[]>([])
@@ -147,108 +143,74 @@ watch(() => props.tokens, (newTokens) => {
 </script>
 
 <template>
-  <v-card
-    flat
-    elevation="0"
+  <div
+    v-for="(sequence, sequenceIndex) in tokenSequences"
+    :key="sequenceIndex"
+    class="token-sequence mb-6"
   >
-    <v-card-title class="d-flex align-center">
-      <v-icon
-        color="primary"
-        class="me-2"
-      >
-        {{ mdiTagEdit }}
-      </v-icon>
-      {{ t('tokenRelabeling.title') }}
-    </v-card-title>
+    <v-chip
+      v-for="(token, tokenIndex) in sequence"
+      :key="`${sequenceIndex}-${tokenIndex}`"
+      :color="getLabelColor(token[0])"
+      :variant="isTokenSelected(sequenceIndex, tokenIndex) ? 'elevated' : 'outlined'"
+      class="token-chip ma-1"
+      :class="{ 'token-selected': isTokenSelected(sequenceIndex, tokenIndex) }"
+      :closable="isTokenHovered(sequenceIndex, tokenIndex)"
+      @click="selectToken(sequenceIndex, tokenIndex)"
+      @click:close="deleteToken(sequenceIndex, tokenIndex)"
+      @mouseenter="setHoveredToken(sequenceIndex, tokenIndex)"
+      @mouseleave="clearHoveredToken"
+    >
+      <span class="token-text">{{ token[1] }}</span>
 
-    <v-card-text>
-      <div
-        v-if="tokenSequences.length === 0"
-        class="text-center py-8"
+      <v-tooltip
+        activator="parent"
+        location="top"
       >
-        <v-icon
-          size="64"
-          color="grey"
-        >
-          mdi-tag-off
-        </v-icon>
-        <p class="text-h6 mt-4">
-          {{ t('tokenRelabeling.noTokens') }}
-        </p>
-      </div>
+        {{ getLabelDisplayName(token[0]) }}
+      </v-tooltip>
+    </v-chip>
+  </div>
 
-      <div v-else>
-        <div
-          v-for="(sequence, sequenceIndex) in tokenSequences"
-          :key="sequenceIndex"
-          class="token-sequence mb-6"
-        >
+  <v-expand-transition>
+    <div
+
+      v-if="selectedToken"
+    >
+      <!-- Autocomplete for label selection -->
+      <v-autocomplete
+        :items="availableLabels"
+        item-title="name"
+        item-value="value"
+        :model-value="selectedToken.label"
+        label="Select new label"
+        placeholder="Type to search labels..."
+        variant="outlined"
+        density="comfortable"
+        auto-select-first
+        @update:model-value="changeTokenLabel"
+      >
+        <template #selection="{ item }">
           <v-chip
-            v-for="(token, tokenIndex) in sequence"
-            :key="`${sequenceIndex}-${tokenIndex}`"
-            :color="getLabelColor(token[0])"
-            :variant="isTokenSelected(sequenceIndex, tokenIndex) ? 'elevated' : 'outlined'"
-            class="token-chip ma-1"
-            :class="{ 'token-selected': isTokenSelected(sequenceIndex, tokenIndex) }"
-            :closable="isTokenHovered(sequenceIndex, tokenIndex)"
-            @click="selectToken(sequenceIndex, tokenIndex)"
-            @click:close="deleteToken(sequenceIndex, tokenIndex)"
-            @mouseenter="setHoveredToken(sequenceIndex, tokenIndex)"
-            @mouseleave="clearHoveredToken"
+            :color="item.raw.color"
+            :prepend-icon="item.raw.icon"
           >
-            <span class="token-text">{{ token[1] }}</span>
-
-            <v-tooltip
-              activator="parent"
-              location="top"
-            >
-              {{ getLabelDisplayName(token[0]) }}
-            </v-tooltip>
+            {{ item.raw.name }}
           </v-chip>
-        </div>
+        </template>
 
-        <v-expand-transition>
-          <v-card-text
-
-            v-if="selectedToken"
-          >
-            <!-- Autocomplete for label selection -->
-            <v-autocomplete
-              :items="availableLabels"
-              item-title="name"
-              item-value="value"
-              :model-value="selectedToken.label"
-              label="Select new label"
-              placeholder="Type to search labels..."
-              variant="outlined"
-              density="comfortable"
-              auto-select-first
-              @update:model-value="changeTokenLabel"
-            >
-              <template #selection="{ item }">
-                <v-chip
-                  :color="item.raw.color"
-                  :prepend-icon="item.raw.icon"
-                >
-                  {{ item.raw.name }}
-                </v-chip>
-              </template>
-
-              <template #item="{ props: itemProps, item }">
-                <v-list-item v-bind="itemProps">
-                  <template #prepend>
-                    <v-icon :color="item.raw.color">
-                      {{ item.raw.icon }}
-                    </v-icon>
-                  </template>
-                </v-list-item>
-              </template>
-            </v-autocomplete>
-          </v-card-text>
-        </v-expand-transition>
-      </div>
-    </v-card-text>
-  </v-card>
+        <template #item="{ props: itemProps, item }">
+          <v-list-item v-bind="itemProps">
+            <template #prepend>
+              <v-icon :color="item.raw.color">
+                {{ item.raw.icon }}
+              </v-icon>
+            </template>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
+    </div>
+  </v-expand-transition>
 </template>
 
 <style scoped>
