@@ -9,67 +9,90 @@ set :port, 4567
 
 # AnyStyle::Parser.defaults[:model] = File.expand_path('custom.mod', __dir__)
 
-# Parse references and return tokens with labels for training/relabeling
+# Parse references and return tokens with labels using custom model (if available)
 post '/parse' do
   content_type :json
 
-  body    = request.body.read
+  body = request.body.read
   payload = body.empty? ? {} : JSON.parse(body) rescue {}
-  refs    = payload['references']
+  input_refs = payload['input']
 
-  input =
-    case refs
-    when Array
-      refs.join("\n")
-    when String
-      refs
+  halt 400, { error: 'No input provided' }.to_json unless input_refs&.is_a?(Array) && !input_refs.empty?
+
+  begin
+    # Try to use custom model if available, otherwise fall back to default
+    custom_model_file = File.join('/app', 'custom.mod')
+    
+    parser = if File.exist?(custom_model_file)
+               AnyStyle::Parser.new(model: custom_model_file)
+             else
+               AnyStyle.parser
+             end
+
+    # Parse each reference and get tokens
+    token_data = input_refs.map do |ref|
+      # Parse and get Wapiti dataset (tokens with labels)
+      dataset = parser.parse([ref], format: :wapiti)
+      
+      # Convert first sequence to [["label", "token"], ...] format
+      sequence = dataset.first
+      next [] unless sequence
+      
+      sequence.map do |token|
+        [token.label.to_s, token.value.to_s]
+      end
     end
 
-  halt 400, { error: 'No references provided' }.to_json unless input&.strip&.length&.positive?
+    {
+      success: true,
+      model_used: File.exist?(custom_model_file) ? 'custom.mod' : 'default',
+      tokens: token_data
+    }.to_json
 
-  parser  = AnyStyle.parser
-  # Parse and get Wapiti dataset (tokens with labels)
-  dataset = parser.parse(input, format: :wapiti)
-  
-  # Convert Wapiti dataset to [["label", "token"], ...] format
-  token_data = dataset.map do |sequence|
-    sequence.map do |token|
-      [token.label.to_s, token.value.to_s]
-    end
+  rescue => e
+    halt 500, {
+      error: "Parsing failed: #{e.message}",
+      backtrace: e.backtrace.first(5)
+    }.to_json
   end
-  
-  {
-    tokens: token_data
-  }.to_json
 end
 
-# Convert references to CSL format for bibliography use
+# Convert token arrays to CSL format
 post '/convert-to-csl' do
   content_type :json
 
-  body    = request.body.read
+  body = request.body.read
   payload = body.empty? ? {} : JSON.parse(body) rescue {}
-  refs    = payload['references']
+  token_arrays = payload['tokens']
 
-  input =
-    case refs
-    when Array
-      refs.join("\n")
-    when String
-      refs
+  halt 400, { error: 'No tokens provided' }.to_json unless token_arrays&.is_a?(Array)
+
+  begin
+    # Convert token arrays back to reference strings and parse with AnyStyle
+    csl_results = token_arrays.map do |token_sequence|
+      next nil if token_sequence.empty?
+
+      # Reconstruct reference string from tokens
+      reference_text = token_sequence.map { |label, token| token }.join(' ')
+      
+      # Parse with AnyStyle to get CSL format
+      parser = AnyStyle.parser
+      parsed = parser.parse([reference_text])
+      
+      parsed.first # Return first (and only) result
     end
 
-  halt 400, { error: 'No references provided' }.to_json unless input&.strip&.length&.positive?
+    {
+      success: true,
+      csl: csl_results.compact
+    }.to_json
 
-  parser  = AnyStyle.parser
-  # Parse and get Wapiti dataset
-  dataset = parser.parse(input, format: :wapiti)
-  # Convert to CSL format
-  csl_result = parser.format_csl(dataset, date_format: 'citeproc')
-  
-  {
-    csl: csl_result
-  }.to_json
+  rescue => e
+    halt 500, {
+      error: "CSL conversion failed: #{e.message}",
+      backtrace: e.backtrace.first(5)
+    }.to_json
+  end
 end
 
 # Convert edited tokens back to CSL format
@@ -351,49 +374,6 @@ post '/train-model' do
     halt 500, { 
       error: "Model training failed: #{e.message}",
       backtrace: e.backtrace.first(10)
-    }.to_json
-  end
-end
-
-# Parse with the trained custom model
-post '/parse-custom' do
-  content_type :json
-  
-  body = request.body.read
-  payload = body.empty? ? {} : JSON.parse(body) rescue {}
-  reference_text = payload['reference']
-  
-  halt 400, { error: 'No reference text provided' }.to_json if reference_text.nil? || reference_text.strip.empty?
-  
-  begin
-    model_file = File.join('/app', 'custom.mod')
-    
-    # Check if custom model exists
-    unless File.exist?(model_file)
-      halt 404, { 
-        error: 'Custom model not found. Please train a model first using /train-model',
-        suggestion: 'POST /train-model with training data'
-      }.to_json
-    end
-    
-    # Create parser with custom model
-    parser = AnyStyle::Parser.new(model: model_file)
-    
-    # Parse the reference
-    parsed = parser.parse([reference_text])
-    parsed_result = parsed.first
-    
-    {
-      success: true,
-      model_used: 'custom.mod',
-      model_path: model_file,
-      input: reference_text,
-      parsed: parsed_result
-    }.to_json
-    
-  rescue => e
-    halt 500, { 
-      error: "Parsing failed: #{e.message}"
     }.to_json
   end
 end
