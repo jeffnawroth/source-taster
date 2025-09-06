@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Reference } from '@source-taster/types'
-import { mdiBrain, mdiChevronLeft, mdiChevronRight, mdiDownload } from '@mdi/js'
+import { mdiBrain, mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
@@ -37,7 +37,7 @@ async function parseReference() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        references: inputText.value,
+        input: [inputText.value],
       }),
     })
 
@@ -69,44 +69,6 @@ function updateCurrentSequenceTokens(newTokens: Array<Array<[string, string]>>) 
     parsedData.value.tokens[currentReferenceIndex.value] = newTokens[0]
   }
 }
-
-// Export as XML using API
-async function exportAsXML() {
-  if (!parsedData.value)
-    return
-
-  try {
-    const response = await fetch('http://localhost:4567/tokens-to-xml', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        tokens: parsedData.value.tokens,
-      }),
-    })
-
-    if (!response.ok)
-      throw new Error(`HTTP error! status: ${response.status}`)
-
-    // Get the XML content as blob
-    const xmlBlob = await response.blob()
-
-    // Create download link
-    const url = URL.createObjectURL(xmlBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `training-data-${Date.now()}.xml`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
-  catch (err) {
-    error.value = err instanceof Error ? err.message : String(err)
-    console.error('XML export error:', err)
-  }
-}
 </script>
 
 <template>
@@ -127,20 +89,6 @@ async function exportAsXML() {
               :icon="mdiBrain"
             />
             {{ t('trainingData.parseButton') }}
-          </v-btn>
-
-          <v-btn
-            v-if="parsedData"
-            :disabled="!parsedData"
-            color="success"
-            variant="outlined"
-            @click="exportAsXML"
-          >
-            <v-icon
-              start
-              :icon="mdiDownload"
-            />
-            {{ t('trainingData.exportButton') }}
           </v-btn>
         </div>
 
