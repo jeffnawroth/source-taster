@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Reference } from '@source-taster/types'
+import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 import { useReferencesStore } from '@/extension/stores/references'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
@@ -19,6 +20,7 @@ const parsedData = ref<ParsedData | null>(null)
 const loading = ref(false)
 const error = ref('')
 const showEditor = ref(false)
+const currentReferenceIndex = ref(0)
 
 // Functions
 async function parseReference() {
@@ -63,9 +65,10 @@ async function parseReference() {
 }
 
 // Update tokens from editor
-function updateTokens(newTokens: Array<Array<[string, string]>>) {
-  if (parsedData.value) {
-    parsedData.value.tokens = newTokens
+function updateCurrentSequenceTokens(newTokens: Array<Array<[string, string]>>) {
+  if (parsedData.value && newTokens[0]) {
+    // Update the current sequence
+    parsedData.value.tokens[currentReferenceIndex.value] = newTokens[0]
   }
 }
 
@@ -115,8 +118,8 @@ function convertTokensToXML(tokens: Array<Array<[string, string]>>): string {
 
 <template>
   <v-card flat>
-    <!-- Parse Action -->
     <v-card-text>
+      <!-- Action Buttons -->
       <div class="d-flex flex-column gap-4">
         <div class="d-flex gap-2">
           <v-btn
@@ -159,20 +162,54 @@ function convertTokensToXML(tokens: Array<Array<[string, string]>>): string {
       </div>
     </v-card-text>
 
-    <!-- Token Editor -->
+    <!-- Token Editor with Navigation -->
     <v-expand-transition>
       <div v-if="showEditor && parsedData">
         <v-divider />
         <v-card-text>
+          <!-- Current Token Sequence Editor -->
           <v-card flat>
             <v-card-text>
               <TokenRelabelingEditor
-                v-if="parsedData.tokens"
-                :tokens="parsedData.tokens"
-                @update:tokens="updateTokens"
+                v-if="parsedData.tokens[currentReferenceIndex]"
+                :tokens="[parsedData.tokens[currentReferenceIndex]]"
+                @update:tokens="updateCurrentSequenceTokens"
               />
             </v-card-text>
           </v-card>
+
+          <!-- Navigation Controls - moved below editor -->
+          <div
+            v-if="parsedData.tokens.length > 1"
+            class="d-flex align-center justify-space-between"
+          >
+            <v-btn
+              :disabled="currentReferenceIndex <= 0"
+              icon
+              variant="outlined"
+              size="small"
+              @click="currentReferenceIndex--"
+            >
+              <v-icon :icon="mdiChevronLeft" />
+            </v-btn>
+
+            <v-chip
+              color="primary"
+              variant="outlined"
+            >
+              {{ currentReferenceIndex + 1 }} / {{ parsedData.tokens.length }}
+            </v-chip>
+
+            <v-btn
+              :disabled="currentReferenceIndex >= parsedData.tokens.length - 1"
+              icon
+              variant="outlined"
+              size="small"
+              @click="currentReferenceIndex++"
+            >
+              <v-icon :icon="mdiChevronRight" />
+            </v-btn>
+          </div>
         </v-card-text>
       </div>
     </v-expand-transition>
