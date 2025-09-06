@@ -8,6 +8,9 @@
 .idea/usage.statistics.xml
 .idea/shelf
 
+# AnyStyle custom models (generated at runtime)
+*.mod
+
 # deps
 node_modules/
 
