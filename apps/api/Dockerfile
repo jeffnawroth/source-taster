@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Gems installieren (inkl. CLI)
-RUN gem install anystyle anystyle-cli sinatra citeproc rackup puma
+RUN gem install anystyle anystyle-cli sinatra citeproc rackup puma nokogiri
 
 WORKDIR /app
 
