@@ -137,6 +137,7 @@ post '/train-model' do
       File.write(xml_file, builder.to_xml)
       
       # Enhanced training: combine with core dataset (like anystyle.io)
+      # Enhanced training: combine with core dataset (like anystyle.io)
       begin
         require 'wapiti'
         
@@ -146,13 +147,19 @@ post '/train-model' do
         # Load core dataset
         core_dataset = Wapiti::Dataset.open(AnyStyle::Parser.defaults[:training_data])
         
+        # Load good dataset (additional high-quality training data)
+        good_dataset_path = File.join(Gem.loaded_specs['anystyle'].full_gem_path, 'res', 'parser', 'good.xml')
+        good_dataset = Wapiti::Dataset.parse(
+          REXML::Document.new(File.read(good_dataset_path))
+        )
+        
         # Parse our custom XML data
         custom_dataset = Wapiti::Dataset.parse(
           REXML::Document.new(File.read(xml_file))
         )
         
-        # Combine datasets: core | custom (union operation)
-        combined_dataset = core_dataset | custom_dataset
+        # Combine all three datasets: core | good | custom (union operations)
+        combined_dataset = core_dataset | good_dataset | custom_dataset
         
         # Train with combined data
         parser.train(combined_dataset, truncate: true)
@@ -160,7 +167,7 @@ post '/train-model' do
         # Save the trained model
         parser.model.save(model_file)
         
-        training_method = "AnyStyle Ruby API with core dataset"
+        training_method = "AnyStyle Ruby API with core + good datasets"
         
       rescue => e
         # Fallback to CLI method if Ruby API fails
