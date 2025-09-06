@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import type { Reference } from '@source-taster/types'
-import { onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { ReferencesService } from '@/extension/services/referencesService'
 import { useReferencesStore } from '@/extension/stores/references'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
@@ -10,12 +7,6 @@ import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 interface ParsedData {
   references: Reference[]
   tokens: Array<Array<[string, string]>>
-}
-
-interface TrainingDataItem {
-  originalText: string
-  tokens: Array<Array<[string, string]>>
-  timestamp: string
 }
 
 // Composables
@@ -27,11 +18,9 @@ const { inputText } = storeToRefs(referencesStore)
 const parsedData = ref<ParsedData | null>(null)
 const loading = ref(false)
 const error = ref('')
-const showHistoryDialog = ref(false)
 const showEditor = ref(false)
-const trainingDataHistory = ref<TrainingDataItem[]>([])
 
-// Methods
+// Functions
 async function parseReference() {
   if (!inputText.value.trim())
     return
@@ -40,14 +29,32 @@ async function parseReference() {
   error.value = ''
 
   try {
-    const result = await ReferencesService.extractReferencesWithTokens(inputText.value.trim())
+    const response = await fetch('http://localhost:4567/parse', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        references: inputText.value,
+        include_tokens: true,
+      }),
+    })
+
+    if (!response.ok)
+      throw new Error(`HTTP error! status: ${response.status}`)
+
+    const result = await response.json()
+
+    // Transform server response format { csl: [...], tokens: [...] }
+    // to our expected format { references: [...], tokens: [...] }
     parsedData.value = {
-      references: result.references.map(ref => ({ ...ref, metadata: ref.metadata || {} })),
-      tokens: result.tokens,
+      references: result.csl || [],
+      tokens: result.tokens || [],
     }
+    showEditor.value = true
   }
   catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to parse reference'
+    error.value = err instanceof Error ? err.message : String(err)
     console.error('Parsing error:', err)
   }
   finally {
@@ -55,437 +62,135 @@ async function parseReference() {
   }
 }
 
-function updateTokens(updatedTokens: Array<Array<[string, string]>>) {
+// Update tokens from editor
+function updateTokens(newTokens: Array<Array<[string, string]>>) {
   if (parsedData.value) {
-    parsedData.value.tokens = updatedTokens
+    parsedData.value.tokens = newTokens
   }
 }
 
-function exportTrainingData() {
+// Export as XML
+function exportAsXML() {
   if (!parsedData.value)
     return
 
-  // Convert tokens to XML format for AnyStyle training
-  const xmlData = convertTokensToXML(parsedData.value.tokens)
-
-  // Create and download file
-  const blob = new Blob([xmlData], { type: 'application/xml' })
+  const xml = convertTokensToXML(parsedData.value.tokens)
+  const blob = new Blob([xml], { type: 'application/xml' })
   const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `training-data-${Date.now()}.xml`
-  a.click()
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `training-data-${Date.now()}.xml`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
   URL.revokeObjectURL(url)
 }
 
+// Helper function to convert tokens to XML
 function convertTokensToXML(tokens: Array<Array<[string, string]>>): string {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<dataset>\n'
 
-  tokens.forEach((sequence, index) => {
-    xml += `  <reference id="${index + 1}">\n`
+  for (let i = 0; i < tokens.length; i++) {
+    xml += `  <sequence id="${i + 1}">\n`
 
-    let currentLabel = ''
-    let currentContent = ''
+    for (const [label, token] of tokens[i]) {
+      const escapedToken = token
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;')
 
-    sequence.forEach((token, tokenIndex) => {
-      const [label, text] = token
+      xml += `    <token label="${label}">${escapedToken}</token>\n`
+    }
 
-      if (label !== currentLabel) {
-        // Close previous tag if exists
-        if (currentLabel && currentContent) {
-          xml += `    <${currentLabel}>${currentContent.trim()}</${currentLabel}>\n`
-        }
-        // Start new tag
-        currentLabel = label
-        currentContent = text
-      }
-      else {
-        // Continue current tag
-        currentContent += ` ${text}`
-      }
-
-      // Close tag if this is the last token
-      if (tokenIndex === sequence.length - 1 && currentLabel && currentContent) {
-        xml += `    <${currentLabel}>${currentContent.trim()}</${currentLabel}>\n`
-      }
-    })
-
-    xml += '  </reference>\n'
-  })
+    xml += '  </sequence>\n'
+  }
 
   xml += '</dataset>'
   return xml
 }
-
-function getLabelColor(label: string): string {
-  const colorMap: Record<string, string> = {
-    'author': 'blue',
-    'title': 'green',
-    'journal': 'purple',
-    'date': 'orange',
-    'volume': 'teal',
-    'pages': 'indigo',
-    'doi': 'red',
-    'url': 'cyan',
-    'issue': 'lime',
-    'publisher': 'brown',
-    'location': 'pink',
-    'citation-number': 'grey',
-    'editor': 'deep-orange',
-  }
-  return colorMap[label] || 'amber'
-}
-
-function formatDate(dateValue: any): string {
-  if (!dateValue)
-    return ''
-  if (typeof dateValue === 'string')
-    return dateValue
-  if (dateValue.raw)
-    return dateValue.raw
-  if (dateValue['date-parts'] && dateValue['date-parts'][0]) {
-    return dateValue['date-parts'][0].join('-')
-  }
-  return ''
-}
-
-function clearHistory() {
-  trainingDataHistory.value = []
-  saveHistoryToStorage()
-  showHistoryDialog.value = false
-}
-
-function saveHistoryToStorage() {
-  localStorage.setItem('source-taster-training-history', JSON.stringify(trainingDataHistory.value))
-}
-
-function loadHistoryFromStorage() {
-  const stored = localStorage.getItem('source-taster-training-history')
-  if (stored) {
-    try {
-      trainingDataHistory.value = JSON.parse(stored)
-    }
-    catch (err) {
-      console.warn('Failed to load training history:', err)
-    }
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  loadHistoryFromStorage()
-})
 </script>
 
 <template>
-  <v-container
-    fluid
-    class="training-data-manager"
-  >
-    <v-row>
-      <v-col cols="12">
-        <v-card>
-          <v-card-title class="d-flex align-center">
-            <v-icon
+  <div class="training-data-manager">
+    <v-card elevation="0">
+      <!-- Parse Action -->
+      <v-card-text>
+        <div class="d-flex flex-column gap-4">
+          <div class="d-flex gap-2">
+            <v-btn
+              :disabled="!inputText.trim() || loading"
+              :loading
               color="primary"
-              class="me-2"
+              variant="elevated"
+              @click="parseReference"
             >
-              mdi-brain
-            </v-icon>
-            {{ t('trainingData.title') }}
-            <v-spacer />
-            <v-chip
-              color="info"
-              variant="outlined"
-            >
-              {{ t('trainingData.modelTraining') }}
-            </v-chip>
-          </v-card-title>
+              <v-icon start>
+                mdi-brain
+              </v-icon>
+              {{ t('trainingData.parseButton') }}
+            </v-btn>
 
+            <v-btn
+              v-if="parsedData"
+              :disabled="!parsedData"
+              color="success"
+              variant="outlined"
+              @click="exportAsXML"
+            >
+              <v-icon start>
+                mdi-download
+              </v-icon>
+              {{ t('trainingData.exportButton') }}
+            </v-btn>
+          </div>
+
+          <!-- Error Display -->
+          <v-alert
+            v-if="error"
+            type="error"
+            variant="tonal"
+            closable
+            @click:close="error = ''"
+          >
+            {{ error }}
+          </v-alert>
+        </div>
+      </v-card-text>
+
+      <!-- Token Editor -->
+      <v-expand-transition>
+        <div v-if="showEditor && parsedData">
+          <v-divider />
           <v-card-text>
-            <v-alert
-              type="info"
-              variant="outlined"
-              class="mb-4"
-            >
-              {{ t('trainingData.description') }}
-            </v-alert>
-
-            <div class="d-flex gap-2 mb-4">
-              <v-btn
-                color="primary"
-                :loading
-                :disabled="!inputText.trim()"
-                @click="parseReference"
-              >
-                <v-icon start>
-                  mdi-cog
-                </v-icon>
-                {{ t('trainingData.parseButton') }}
-              </v-btn>
-
-              <v-btn
-                v-if="parsedData"
-                color="success"
-                variant="outlined"
-                @click="exportTrainingData"
-              >
-                <v-icon start>
-                  mdi-download
-                </v-icon>
-                {{ t('trainingData.exportButton') }}
-              </v-btn>
-
-              <v-btn
-                v-if="trainingDataHistory.length > 0"
-                color="info"
-                variant="outlined"
-                @click="showHistoryDialog = true"
-              >
-                <v-icon start>
-                  mdi-history
-                </v-icon>
-                {{ t('trainingData.historyButton') }} ({{ trainingDataHistory.length }})
-              </v-btn>
-            </div>
-
-            <!-- Error Display -->
-            <v-alert
-              v-if="error"
-              type="error"
-              variant="outlined"
-              class="mb-4"
-            >
-              {{ error }}
-            </v-alert>
-
-            <!-- Parsed CSL Reference Preview -->
-            <v-card
-              v-if="parsedData?.references && parsedData.references.length > 0"
-              variant="outlined"
-              class="mb-4"
-            >
-              <v-card-title class="text-h6">
-                <v-icon start>
-                  mdi-file-document-outline
-                </v-icon>
-                {{ t('trainingData.parsedReference') }}
-              </v-card-title>
+            <v-card variant="outlined">
               <v-card-text>
-                <div class="reference-preview">
-                  <div
-                    v-if="parsedData.references[0].metadata.author"
-                    class="mb-2"
-                  >
-                    <strong>Authors:</strong>
-                    <span
-                      v-for="(author, index) in parsedData.references[0].metadata.author"
-                      :key="index"
-                    >
-                      {{ typeof author === 'string' ? author : `${author.given || ''} ${author.family || ''}`.trim() }}
-                      <span v-if="index < parsedData.references[0].metadata.author.length - 1">, </span>
-                    </span>
-                  </div>
-                  <div
-                    v-if="parsedData.references[0].metadata.title"
-                    class="mb-2"
-                  >
-                    <strong>Title:</strong> {{ parsedData.references[0].metadata.title }}
-                  </div>
-                  <div
-                    v-if="parsedData.references[0].metadata['container-title']"
-                    class="mb-2"
-                  >
-                    <strong>Journal:</strong> {{ parsedData.references[0].metadata['container-title'] }}
-                  </div>
-                  <div
-                    v-if="parsedData.references[0].metadata.issued"
-                    class="mb-2"
-                  >
-                    <strong>Date:</strong> {{ formatDate(parsedData.references[0].metadata.issued) }}
-                  </div>
-                  <div
-                    v-if="parsedData.references[0].metadata.volume"
-                    class="mb-2"
-                  >
-                    <strong>Volume:</strong> {{ parsedData.references[0].metadata.volume }}
-                  </div>
-                  <div
-                    v-if="parsedData.references[0].metadata.page"
-                    class="mb-2"
-                  >
-                    <strong>Pages:</strong> {{ parsedData.references[0].metadata.page }}
-                  </div>
-                </div>
+                <TokenRelabelingEditor
+                  v-if="parsedData.tokens"
+                  :tokens="parsedData.tokens"
+                  @update:tokens="updateTokens"
+                />
               </v-card-text>
-            </v-card>
-
-            <!-- Optional Token Editor Section -->
-            <v-card
-              v-if="parsedData?.tokens && parsedData.tokens.length > 0"
-              variant="outlined"
-              class="mt-4"
-            >
-              <v-card-title
-                class="d-flex align-center cursor-pointer"
-                @click="showEditor = !showEditor"
-              >
-                <v-icon
-                  color="primary"
-                  class="me-2"
-                >
-                  mdi-tag-edit
-                </v-icon>
-                {{ t('trainingData.editorTitle') }}
-                <v-spacer />
-                <v-chip
-                  color="info"
-                  variant="outlined"
-                  size="small"
-                  class="me-2"
-                >
-                  {{ parsedData.tokens.reduce((total, seq) => total + seq.length, 0) }} tokens
-                </v-chip>
-                <v-icon>
-                  {{ showEditor ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-                </v-icon>
-              </v-card-title>
-
-              <v-expand-transition>
-                <div v-show="showEditor">
-                  <v-divider />
-                  <v-card-text class="pt-4">
-                    <TokenRelabelingEditor
-                      :tokens="parsedData.tokens"
-                      @update:tokens="updateTokens"
-                    />
-                  </v-card-text>
-                </div>
-              </v-expand-transition>
             </v-card>
           </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Training Data History Dialog -->
-    <v-dialog
-      v-model="showHistoryDialog"
-      max-width="800px"
-      scrollable
-    >
-      <v-card>
-        <v-card-title class="d-flex align-center">
-          <v-icon start>
-            mdi-history
-          </v-icon>
-          {{ t('trainingData.historyTitle') }}
-          <v-spacer />
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            @click="showHistoryDialog = false"
-          />
-        </v-card-title>
-
-        <v-card-text>
-          <div
-            v-for="(item, index) in trainingDataHistory"
-            :key="index"
-            class="training-history-item mb-4"
-          >
-            <v-card variant="outlined">
-              <v-card-title class="text-subtitle-1">
-                {{ item.timestamp }}
-                <v-spacer />
-                <v-chip
-                  size="small"
-                  color="info"
-                >
-                  {{ item.tokens.length }} {{ t('trainingData.sequences') }}
-                </v-chip>
-              </v-card-title>
-              <v-card-text>
-                <div class="text-body-2 mb-2">
-                  <strong>{{ t('trainingData.originalText') }}:</strong>
-                </div>
-                <div class="text-caption mb-3 pa-2 bg-grey-lighten-4 rounded">
-                  {{ item.originalText }}
-                </div>
-
-                <div class="token-preview">
-                  <v-chip
-                    v-for="(token, tokenIndex) in item.tokens[0]"
-                    :key="tokenIndex"
-                    :color="getLabelColor(token[0])"
-                    size="small"
-                    class="ma-1"
-                  >
-                    {{ token[1] }}
-                  </v-chip>
-                </div>
-              </v-card-text>
-            </v-card>
-          </div>
-
-          <div
-            v-if="trainingDataHistory.length === 0"
-            class="text-center py-8"
-          >
-            <v-icon
-              size="64"
-              color="grey"
-            >
-              mdi-history
-            </v-icon>
-            <p class="text-h6 mt-4">
-              {{ t('trainingData.noHistory') }}
-            </p>
-          </div>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            v-if="trainingDataHistory.length > 0"
-            color="warning"
-            variant="outlined"
-            @click="clearHistory"
-          >
-            <v-icon start>
-              mdi-delete-sweep
-            </v-icon>
-            {{ t('trainingData.clearHistory') }}
-          </v-btn>
-          <v-btn @click="showHistoryDialog = false">
-            {{ t('common.close') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+        </div>
+      </v-expand-transition>
+    </v-card>
+  </div>
 </template>
 
 <style scoped>
 .training-data-manager {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
 }
 
-.training-history-item {
-  transition: all 0.2s ease;
-}
-
-.training-history-item:hover {
-  transform: translateY(-2px);
-}
-
-.token-preview {
-  max-height: 100px;
-  overflow-y: auto;
-}
-
-.cursor-pointer {
-  cursor: pointer;
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
 }
 </style>

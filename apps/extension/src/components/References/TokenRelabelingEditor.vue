@@ -58,29 +58,8 @@ const availableLabels: LabelOption[] = [
 ]
 
 // Computed
-const totalTokens = computed(() => {
-  return tokenSequences.value.reduce((total, sequence) => total + sequence.length, 0)
-})
-
 const hasChanges = computed(() => {
   return JSON.stringify(tokenSequences.value) !== JSON.stringify(originalTokens.value)
-})
-
-const changesCount = computed(() => {
-  let count = 0
-  for (let i = 0; i < tokenSequences.value.length; i++) {
-    const current = tokenSequences.value[i]
-    const original = originalTokens.value[i]
-    if (!original)
-      continue
-
-    for (let j = 0; j < current.length; j++) {
-      if (!original[j] || current[j][0] !== original[j][0] || current[j][1] !== original[j][1]) {
-        count++
-      }
-    }
-  }
-  return count
 })
 
 // Methods
@@ -141,12 +120,6 @@ function deleteToken() {
 
 function saveChanges() {
   emit('save', tokenSequences.value)
-}
-
-function resetChanges() {
-  tokenSequences.value = JSON.parse(JSON.stringify(originalTokens.value))
-  selectedToken.value = null
-  emit('update:tokens', tokenSequences.value)
 }
 
 // Watch for prop changes
@@ -279,43 +252,6 @@ watch(() => props.tokens, (newTokens) => {
             </v-card-text>
           </v-card>
         </v-expand-transition>
-
-        <!-- Statistics -->
-        <v-card
-          variant="outlined"
-          class="mt-4"
-        >
-          <v-card-text>
-            <div class="d-flex justify-space-between align-center">
-              <div>
-                <v-chip
-                  color="info"
-                  variant="outlined"
-                >
-                  {{ t('tokenRelabeling.totalTokens') }}: {{ totalTokens }}
-                </v-chip>
-                <v-chip
-                  color="warning"
-                  variant="outlined"
-                  class="ml-2"
-                >
-                  {{ t('tokenRelabeling.changesCount') }}: {{ changesCount }}
-                </v-chip>
-              </div>
-              <v-btn
-                v-if="hasChanges"
-                color="orange"
-                variant="outlined"
-                @click="resetChanges"
-              >
-                <v-icon start>
-                  mdi-undo
-                </v-icon>
-                {{ t('tokenRelabeling.reset') }}
-              </v-btn>
-            </div>
-          </v-card-text>
-        </v-card>
       </div>
     </v-card-text>
   </v-card>
