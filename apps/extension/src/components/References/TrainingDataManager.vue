@@ -114,83 +114,67 @@ function convertTokensToXML(tokens: Array<Array<[string, string]>>): string {
 </script>
 
 <template>
-  <div class="training-data-manager">
-    <v-card elevation="0">
-      <!-- Parse Action -->
-      <v-card-text>
-        <div class="d-flex flex-column gap-4">
-          <div class="d-flex gap-2">
-            <v-btn
-              :disabled="!inputText.trim() || loading"
-              :loading
-              color="primary"
-              variant="elevated"
-              @click="parseReference"
-            >
-              <v-icon start>
-                mdi-brain
-              </v-icon>
-              {{ t('trainingData.parseButton') }}
-            </v-btn>
-
-            <v-btn
-              v-if="parsedData"
-              :disabled="!parsedData"
-              color="success"
-              variant="outlined"
-              @click="exportAsXML"
-            >
-              <v-icon start>
-                mdi-download
-              </v-icon>
-              {{ t('trainingData.exportButton') }}
-            </v-btn>
-          </div>
-
-          <!-- Error Display -->
-          <v-alert
-            v-if="error"
-            type="error"
-            variant="tonal"
-            closable
-            @click:close="error = ''"
+  <v-card flat>
+    <!-- Parse Action -->
+    <v-card-text>
+      <div class="d-flex flex-column gap-4">
+        <div class="d-flex gap-2">
+          <v-btn
+            :disabled="!inputText.trim() || loading"
+            :loading
+            color="primary"
+            variant="elevated"
+            @click="parseReference"
           >
-            {{ error }}
-          </v-alert>
-        </div>
-      </v-card-text>
+            <v-icon start>
+              mdi-brain
+            </v-icon>
+            {{ t('trainingData.parseButton') }}
+          </v-btn>
 
-      <!-- Token Editor -->
-      <v-expand-transition>
-        <div v-if="showEditor && parsedData">
-          <v-divider />
-          <v-card-text>
-            <v-card variant="outlined">
-              <v-card-text>
-                <TokenRelabelingEditor
-                  v-if="parsedData.tokens"
-                  :tokens="parsedData.tokens"
-                  @update:tokens="updateTokens"
-                />
-              </v-card-text>
-            </v-card>
-          </v-card-text>
+          <v-btn
+            v-if="parsedData"
+            :disabled="!parsedData"
+            color="success"
+            variant="outlined"
+            @click="exportAsXML"
+          >
+            <v-icon start>
+              mdi-download
+            </v-icon>
+            {{ t('trainingData.exportButton') }}
+          </v-btn>
         </div>
-      </v-expand-transition>
-    </v-card>
-  </div>
+
+        <!-- Error Display -->
+        <v-alert
+          v-if="error"
+          type="error"
+          variant="tonal"
+          closable
+          @click:close="error = ''"
+        >
+          {{ error }}
+        </v-alert>
+      </div>
+    </v-card-text>
+
+    <!-- Token Editor -->
+    <v-expand-transition>
+      <div v-if="showEditor && parsedData">
+        <v-divider />
+        <v-card-text>
+          <v-card flat>
+            <v-card-text>
+              <TokenRelabelingEditor
+                v-if="parsedData.tokens"
+                :tokens="parsedData.tokens"
+                @update:tokens="updateTokens"
+              />
+            </v-card-text>
+          </v-card>
+        </v-card-text>
+      </div>
+    </v-expand-transition>
+  </v-card>
 </template>
-
-<style scoped>
-.training-data-manager {
-  width: 100%;
-}
-
-pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-</style>

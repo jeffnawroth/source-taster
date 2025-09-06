@@ -131,7 +131,10 @@ watch(() => props.tokens, (newTokens) => {
 </script>
 
 <template>
-  <v-card class="token-relabeling-editor">
+  <v-card
+    flat
+    elevation="0"
+  >
     <v-card-title class="d-flex align-center">
       <v-icon
         color="primary"
@@ -256,46 +259,3 @@ watch(() => props.tokens, (newTokens) => {
     </v-card-text>
   </v-card>
 </template>
-
-<style scoped>
-.token-chip {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Courier New', monospace;
-}
-
-.token-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.token-selected {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.token-text {
-  font-weight: 500;
-}
-
-.token-sequence {
-  padding: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.02);
-  min-height: 60px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-}
-
-.label-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.label-selector {
-  border: 2px solid var(--v-theme-primary);
-}
-</style>
