@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiAccount, mdiBookOpenVariant, mdiFormatTitle, mdiTagEdit } from '@mdi/js'
+import { mdiAccount, mdiAccountEdit, mdiAccountStar, mdiArchive, mdiBarcode, mdiBookOpenVariant, mdiCalendar, mdiCounter, mdiDisc, mdiDomain, mdiFileDocument, mdiFolderMultiple, mdiFormatTitle, mdiHelp, mdiIdentifier, mdiLibrary, mdiLink, mdiMapMarker, mdiMovieOpen, mdiNoteText, mdiNumeric1Box, mdiSourceBranch, mdiTagEdit, mdiTagMultiple, mdiTranslate } from '@mdi/js'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -40,22 +40,32 @@ const originalTokens = ref<Array<Array<[string, string]>>>([])
 const selectedToken = ref<SelectedToken | null>(null)
 const hoveredToken = ref<{ sequenceIndex: number, tokenIndex: number } | null>(null)
 
-// Available labels with colors and icons
+// Available labels with colors and icons (sorted alphabetically)
 const availableLabels: LabelOption[] = [
   { value: 'author', name: 'Author', color: 'blue', icon: mdiAccount },
-  { value: 'title', name: 'Title', color: 'green', icon: mdiFormatTitle },
+  { value: 'citation-number', name: 'Citation Number', color: 'grey', icon: mdiCounter },
+  { value: 'collection-title', name: 'Collection Title', color: 'deep-purple', icon: mdiFolderMultiple },
+  { value: 'container-title', name: 'Container Title', color: 'blue-grey', icon: mdiArchive },
+  { value: 'date', name: 'Date', color: 'orange', icon: mdiCalendar },
+  { value: 'director', name: 'Director', color: 'red-darken-1', icon: mdiMovieOpen },
+  { value: 'doi', name: 'DOI', color: 'red', icon: mdiIdentifier },
+  { value: 'edition', name: 'Edition', color: 'indigo-darken-2', icon: mdiNumeric1Box },
+  { value: 'editor', name: 'Editor', color: 'deep-orange', icon: mdiAccountEdit },
+  { value: 'genre', name: 'Genre', color: 'purple-accent-4', icon: mdiTagMultiple },
+  { value: 'isbn', name: 'ISBN', color: 'brown-darken-2', icon: mdiBarcode },
   { value: 'journal', name: 'Journal', color: 'purple', icon: mdiBookOpenVariant },
-  { value: 'date', name: 'Date', color: 'orange', icon: 'mdi-calendar' },
-  { value: 'volume', name: 'Volume', color: 'teal', icon: 'mdi-library' },
-  { value: 'pages', name: 'Pages', color: 'indigo', icon: 'mdi-file-document' },
-  { value: 'doi', name: 'DOI', color: 'red', icon: 'mdi-identifier' },
-  { value: 'url', name: 'URL', color: 'cyan', icon: 'mdi-link' },
-  { value: 'issue', name: 'Issue', color: 'lime', icon: 'mdi-numeric' },
-  { value: 'publisher', name: 'Publisher', color: 'brown', icon: 'mdi-domain' },
-  { value: 'location', name: 'Location', color: 'pink', icon: 'mdi-map-marker' },
-  { value: 'citation-number', name: 'Citation Number', color: 'grey', icon: 'mdi-counter' },
-  { value: 'editor', name: 'Editor', color: 'deep-orange', icon: 'mdi-account-edit' },
-  { value: 'other', name: 'Other', color: 'amber', icon: 'mdi-help' },
+  { value: 'location', name: 'Location', color: 'pink', icon: mdiMapMarker },
+  { value: 'medium', name: 'Medium', color: 'teal-accent-3', icon: mdiDisc },
+  { value: 'note', name: 'Note', color: 'yellow-darken-2', icon: mdiNoteText },
+  { value: 'other', name: 'Other', color: 'amber', icon: mdiHelp },
+  { value: 'pages', name: 'Pages', color: 'indigo', icon: mdiFileDocument },
+  { value: 'producer', name: 'Producer', color: 'green-darken-2', icon: mdiAccountStar },
+  { value: 'publisher', name: 'Publisher', color: 'brown', icon: mdiDomain },
+  { value: 'source', name: 'Source', color: 'cyan-darken-2', icon: mdiSourceBranch },
+  { value: 'title', name: 'Title', color: 'green', icon: mdiFormatTitle },
+  { value: 'translator', name: 'Translator', color: 'light-blue-darken-1', icon: mdiTranslate },
+  { value: 'url', name: 'URL', color: 'cyan', icon: mdiLink },
+  { value: 'volume-issue', name: 'Volume / Issue', color: 'teal', icon: mdiLibrary },
 ]
 
 // Computed
@@ -239,20 +249,13 @@ watch(() => props.tokens, (newTokens) => {
               variant="outlined"
               density="comfortable"
               auto-select-first
-              clearable
               @update:model-value="changeTokenLabel"
             >
               <template #selection="{ item }">
                 <v-chip
                   :color="item.raw.color"
-                  size="small"
+                  :prepend-icon="item.raw.icon"
                 >
-                  <v-icon
-                    start
-                    size="small"
-                  >
-                    {{ item.raw.icon }}
-                  </v-icon>
                   {{ item.raw.name }}
                 </v-chip>
               </template>
@@ -264,7 +267,6 @@ watch(() => props.tokens, (newTokens) => {
                       {{ item.raw.icon }}
                     </v-icon>
                   </template>
-                  <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
                 </v-list-item>
               </template>
             </v-autocomplete>
