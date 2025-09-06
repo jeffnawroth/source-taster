@@ -38,7 +38,6 @@ async function parseReference() {
       },
       body: JSON.stringify({
         references: inputText.value,
-        include_tokens: true,
       }),
     })
 
@@ -47,10 +46,9 @@ async function parseReference() {
 
     const result = await response.json()
 
-    // Transform server response format { csl: [...], tokens: [...] }
-    // to our expected format { references: [...], tokens: [...] }
+    // New API format: { tokens: [...] }
     parsedData.value = {
-      references: result.csl || [],
+      references: [], // Not provided by /parse endpoint
       tokens: result.tokens || [],
     }
     showEditor.value = true
@@ -72,47 +70,42 @@ function updateCurrentSequenceTokens(newTokens: Array<Array<[string, string]>>) 
   }
 }
 
-// Export as XML
-function exportAsXML() {
+// Export as XML using API
+async function exportAsXML() {
   if (!parsedData.value)
     return
 
-  const xml = convertTokensToXML(parsedData.value.tokens)
-  const blob = new Blob([xml], { type: 'application/xml' })
-  const url = URL.createObjectURL(blob)
+  try {
+    const response = await fetch('http://localhost:4567/tokens-to-xml', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tokens: parsedData.value.tokens,
+      }),
+    })
 
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `training-data-${Date.now()}.xml`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-}
+    if (!response.ok)
+      throw new Error(`HTTP error! status: ${response.status}`)
 
-// Helper function to convert tokens to XML
-function convertTokensToXML(tokens: Array<Array<[string, string]>>): string {
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<dataset>\n'
+    // Get the XML content as blob
+    const xmlBlob = await response.blob()
 
-  for (let i = 0; i < tokens.length; i++) {
-    xml += `  <sequence id="${i + 1}">\n`
-
-    for (const [label, token] of tokens[i]) {
-      const escapedToken = token
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&apos;')
-
-      xml += `    <token label="${label}">${escapedToken}</token>\n`
-    }
-
-    xml += '  </sequence>\n'
+    // Create download link
+    const url = URL.createObjectURL(xmlBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `training-data-${Date.now()}.xml`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
-
-  xml += '</dataset>'
-  return xml
+  catch (err) {
+    error.value = err instanceof Error ? err.message : String(err)
+    console.error('XML export error:', err)
+  }
 }
 </script>
 
