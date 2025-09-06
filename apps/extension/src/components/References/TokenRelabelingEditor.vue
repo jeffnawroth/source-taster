@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiAccount, mdiTagEdit } from '@mdi/js'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -40,7 +41,7 @@ const selectedToken = ref<SelectedToken | null>(null)
 
 // Available labels with colors and icons
 const availableLabels: LabelOption[] = [
-  { value: 'author', name: 'Author', color: 'blue', icon: 'mdi-account' },
+  { value: 'author', name: 'Author', color: 'blue', icon: mdiAccount },
   { value: 'title', name: 'Title', color: 'green', icon: 'mdi-format-title' },
   { value: 'journal', name: 'Journal', color: 'purple', icon: 'mdi-book-open-variant' },
   { value: 'date', name: 'Date', color: 'orange', icon: 'mdi-calendar' },
@@ -163,7 +164,7 @@ watch(() => props.tokens, (newTokens) => {
         color="primary"
         class="me-2"
       >
-        mdi-tag-edit
+        {{ mdiTagEdit }}
       </v-icon>
       {{ t('tokenRelabeling.title') }}
       <v-spacer />

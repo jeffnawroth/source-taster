@@ -878,6 +878,7 @@
     "exportButton": "XML-Trainingsdaten exportieren",
     "historyButton": "Trainings-Verlauf",
     "parsedReference": "Geparste Referenz (CSL-Format)",
+    "editorTitle": "Token-Label Editor (Optional)",
     "historyTitle": "Trainingsdaten-Verlauf",
     "sequences": "Sequenzen",
     "originalText": "Original-Text",

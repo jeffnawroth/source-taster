@@ -3,6 +3,7 @@ import type { Reference } from '@source-taster/types'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ReferencesService } from '@/extension/services/referencesService'
+import { useReferencesStore } from '@/extension/stores/references'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
 // Types
@@ -19,25 +20,27 @@ interface TrainingDataItem {
 
 // Composables
 const { t } = useI18n()
+const referencesStore = useReferencesStore()
+const { inputText } = storeToRefs(referencesStore)
 
 // State
-const referenceText = ref('')
 const parsedData = ref<ParsedData | null>(null)
 const loading = ref(false)
 const error = ref('')
 const showHistoryDialog = ref(false)
+const showEditor = ref(false)
 const trainingDataHistory = ref<TrainingDataItem[]>([])
 
 // Methods
 async function parseReference() {
-  if (!referenceText.value.trim())
+  if (!inputText.value.trim())
     return
 
   loading.value = true
   error.value = ''
 
   try {
-    const result = await ReferencesService.extractReferencesWithTokens(referenceText.value.trim())
+    const result = await ReferencesService.extractReferencesWithTokens(inputText.value.trim())
     parsedData.value = {
       references: result.references.map(ref => ({ ...ref, metadata: ref.metadata || {} })),
       tokens: result.tokens,
@@ -56,19 +59,6 @@ function updateTokens(updatedTokens: Array<Array<[string, string]>>) {
   if (parsedData.value) {
     parsedData.value.tokens = updatedTokens
   }
-}
-
-function saveTrainingData(tokens: Array<Array<[string, string]>>) {
-  const trainingItem: TrainingDataItem = {
-    originalText: referenceText.value.trim(),
-    tokens,
-    timestamp: new Date().toLocaleString(),
-  }
-
-  trainingDataHistory.value.unshift(trainingItem)
-  saveHistoryToStorage()
-
-  // Success notification (could be enhanced with toast/snackbar)
 }
 
 function exportTrainingData() {
@@ -221,21 +211,11 @@ onMounted(() => {
               {{ t('trainingData.description') }}
             </v-alert>
 
-            <!-- Reference Input -->
-            <v-textarea
-              v-model="referenceText"
-              :label="t('trainingData.inputLabel')"
-              :placeholder="t('trainingData.inputPlaceholder')"
-              variant="outlined"
-              rows="3"
-              class="mb-4"
-            />
-
             <div class="d-flex gap-2 mb-4">
               <v-btn
                 color="primary"
                 :loading
-                :disabled="!referenceText.trim()"
+                :disabled="!inputText.trim()"
                 @click="parseReference"
               >
                 <v-icon start>
@@ -340,13 +320,49 @@ onMounted(() => {
               </v-card-text>
             </v-card>
 
-            <!-- Token Relabeling Editor -->
-            <TokenRelabelingEditor
+            <!-- Optional Token Editor Section -->
+            <v-card
               v-if="parsedData?.tokens && parsedData.tokens.length > 0"
-              :tokens="parsedData.tokens"
-              @update:tokens="updateTokens"
-              @save="saveTrainingData"
-            />
+              variant="outlined"
+              class="mt-4"
+            >
+              <v-card-title
+                class="d-flex align-center cursor-pointer"
+                @click="showEditor = !showEditor"
+              >
+                <v-icon
+                  color="primary"
+                  class="me-2"
+                >
+                  mdi-tag-edit
+                </v-icon>
+                {{ t('trainingData.editorTitle') }}
+                <v-spacer />
+                <v-chip
+                  color="info"
+                  variant="outlined"
+                  size="small"
+                  class="me-2"
+                >
+                  {{ parsedData.tokens.reduce((total, seq) => total + seq.length, 0) }} tokens
+                </v-chip>
+                <v-icon>
+                  {{ showEditor ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                </v-icon>
+              </v-card-title>
+
+              <v-expand-transition>
+                <div v-show="showEditor">
+                  <v-divider />
+                  <v-card-text class="pt-4">
+                    <TokenRelabelingEditor
+                      :tokens="parsedData.tokens"
+                      @update:tokens="updateTokens"
+                    />
+                  </v-card-text>
+                </div>
+              </v-expand-transition>
+            </v-card>
           </v-card-text>
         </v-card>
       </v-col>
@@ -467,5 +483,9 @@ onMounted(() => {
 .token-preview {
   max-height: 100px;
   overflow-y: auto;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

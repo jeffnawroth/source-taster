@@ -878,6 +878,7 @@
     "exportButton": "Export XML Training Data",
     "historyButton": "Training History",
     "parsedReference": "Parsed Reference (CSL Format)",
+    "editorTitle": "Token Label Editor (Optional)",
     "historyTitle": "Training Data History",
     "sequences": "sequences",
     "originalText": "Original Text",
