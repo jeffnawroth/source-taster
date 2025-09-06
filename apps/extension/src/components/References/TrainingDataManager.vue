@@ -31,13 +31,19 @@ async function parseReference() {
   error.value = ''
 
   try {
+    // Split input by lines and filter out empty lines
+    const references = inputText.value
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+
     const response = await fetch('http://localhost:4567/parse', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        input: [inputText.value],
+        input: references,
       }),
     })
 
