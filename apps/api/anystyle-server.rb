@@ -247,19 +247,18 @@ post '/train-model' do
   body = request.body.read
   payload = body.empty? ? {} : JSON.parse(body) rescue {}
   tokens = payload['tokens']
-  model_name = payload['model_name'] || "custom-#{Time.now.to_i}"
   
   halt 400, { error: 'No tokens provided' }.to_json unless tokens&.is_a?(Array)
-  halt 400, { error: 'Model name cannot be empty' }.to_json unless model_name&.strip&.length&.positive?
   
   begin
     require 'tmpdir'
     require 'nokogiri'
+    require 'rexml/document'
     
     # Create temporary directory for training
     Dir.mktmpdir do |tmpdir|
       xml_file = File.join(tmpdir, 'training.xml')
-      model_file = File.join('/app', "#{model_name}.mod")
+      model_file = File.join('/app', 'custom.mod')  # Fixed model name
       
       # Convert tokens to XML format (as expected by AnyStyle)
       builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
@@ -282,22 +281,60 @@ post '/train-model' do
       # Write XML training data
       File.write(xml_file, builder.to_xml)
       
-      # Train using AnyStyle command line (the official way)
-      training_cmd = "anystyle train #{xml_file} #{model_file}"
-      training_result = system(training_cmd)
+      # Enhanced training: combine with core dataset (like anystyle.io)
+      # This improves model quality by building on existing knowledge
+      begin
+        require 'wapiti'
+        
+        # Create parser and combine datasets
+        parser = AnyStyle::Parser.new
+        
+        # Load core dataset
+        core_dataset = Wapiti::Dataset.open(AnyStyle::Parser.defaults[:training_data])
+        
+        # Parse our custom XML data
+        custom_dataset = Wapiti::Dataset.parse(
+          REXML::Document.new(File.read(xml_file))
+        )
+        
+        # Combine datasets: core | custom (union operation)
+        combined_dataset = core_dataset | custom_dataset
+        
+        # Train with combined data
+        parser.train(combined_dataset, truncate: true)
+        
+        # Save the trained model
+        parser.model.save(model_file)
+        
+        training_method = "AnyStyle Ruby API with core dataset"
+        
+      rescue => e
+        # Fallback to CLI method if Ruby API fails
+        training_cmd = "anystyle train #{xml_file} #{model_file}"
+        training_result = system(training_cmd)
+        training_method = "AnyStyle CLI (fallback)"
+        
+        unless training_result
+          halt 500, {
+            error: 'Both training methods failed',
+            ruby_api_error: e.message,
+            cli_result: training_result
+          }.to_json
+        end
+      end
       
       # Check if model file was created
-      if training_result && File.exist?(model_file)
+      if File.exist?(model_file)
         model_size = File.size(model_file)
         
         {
           success: true,
-          model_name: model_name,
           model_path: model_file,
           model_size_bytes: model_size,
           training_sequences: tokens.length,
           training_tokens: tokens.sum(&:length),
-          message: "Model trained successfully with AnyStyle CLI",
+          training_method: training_method,
+          message: "Custom model trained successfully, combined with core dataset",
           timestamp: Time.now.iso8601
         }.to_json
       else
@@ -305,8 +342,7 @@ post '/train-model' do
         {
           error: 'Model training failed',
           xml_preview: File.read(xml_file).lines.first(10).join(''),
-          command_used: training_cmd,
-          training_result: training_result
+          training_method: training_method
         }.to_json
       end
     end
@@ -315,6 +351,49 @@ post '/train-model' do
     halt 500, { 
       error: "Model training failed: #{e.message}",
       backtrace: e.backtrace.first(10)
+    }.to_json
+  end
+end
+
+# Parse with the trained custom model
+post '/parse-custom' do
+  content_type :json
+  
+  body = request.body.read
+  payload = body.empty? ? {} : JSON.parse(body) rescue {}
+  reference_text = payload['reference']
+  
+  halt 400, { error: 'No reference text provided' }.to_json if reference_text.nil? || reference_text.strip.empty?
+  
+  begin
+    model_file = File.join('/app', 'custom.mod')
+    
+    # Check if custom model exists
+    unless File.exist?(model_file)
+      halt 404, { 
+        error: 'Custom model not found. Please train a model first using /train-model',
+        suggestion: 'POST /train-model with training data'
+      }.to_json
+    end
+    
+    # Create parser with custom model
+    parser = AnyStyle::Parser.new(model: model_file)
+    
+    # Parse the reference
+    parsed = parser.parse([reference_text])
+    parsed_result = parsed.first
+    
+    {
+      success: true,
+      model_used: 'custom.mod',
+      model_path: model_file,
+      input: reference_text,
+      parsed: parsed_result
+    }.to_json
+    
+  rescue => e
+    halt 500, { 
+      error: "Parsing failed: #{e.message}"
     }.to_json
   end
 end
