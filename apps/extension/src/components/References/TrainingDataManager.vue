@@ -37,7 +37,7 @@ async function parseReference() {
       .map(line => line.trim())
       .filter(line => line.length > 0)
 
-    const response = await fetch('http://localhost:4567/parse', {
+    const response = await fetch('http://localhost:8000/api/anystyle/parse', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

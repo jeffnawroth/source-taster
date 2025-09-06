@@ -3,6 +3,7 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { corsMiddleware } from './middleware/cors'
 import { errorHandler } from './middleware/errorHandler'
+import { anystyleRouter } from './routes/anystyleRouter'
 import extractionRouter from './routes/extractionRouter'
 import matchingRouter from './routes/matchingRouter'
 import parsingRouter from './routes/parsingRouter'
@@ -17,6 +18,7 @@ app.use('*', corsMiddleware)
 app.use('*', errorHandler)
 
 // Mount API routes
+app.route('/api/anystyle', anystyleRouter)
 app.route('/api/extract', extractionRouter)
 app.route('/api/match', matchingRouter)
 app.route('/api/search', searchRouter)
@@ -28,6 +30,7 @@ app.get('/', (c) => {
   return c.json({
     name: 'Source Taster API',
     endpoints: {
+      anystyle: '/api/anystyle',
       extract: '/api/extract',
       search: '/api/search',
       match: '/api/match',
