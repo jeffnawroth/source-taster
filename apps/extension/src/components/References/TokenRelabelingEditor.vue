@@ -60,7 +60,7 @@ const availableLabels: LabelOption[] = [
   { value: 'title', name: 'Title', color: 'green', icon: mdiFormatTitle },
   { value: 'translator', name: 'Translator', color: 'light-blue-darken-1', icon: mdiTranslate },
   { value: 'url', name: 'URL', color: 'cyan', icon: mdiLink },
-  { value: 'volume-issue', name: 'Volume / Issue', color: 'teal', icon: mdiLibrary },
+  { value: 'volume', name: 'Volume / Issue', color: 'teal', icon: mdiLibrary },
 ]
 
 // Computed - removed hasChanges since we don't need save functionality

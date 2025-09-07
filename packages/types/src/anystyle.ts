@@ -30,7 +30,7 @@ export type AnystyleTokenLabel =
   | 'title'
   | 'translator'
   | 'url'
-  | 'volume-issue'
+  | 'volume'
 
 /**
  * A single AnyStyle token as [label, tokenValue] tuple
