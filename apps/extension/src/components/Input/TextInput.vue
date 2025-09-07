@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import { useMatchingStore } from '@/extension/stores/matching'
+import { useUIStore } from '@/extension/stores/ui'
 
 // TRANSLATION
 const { t } = useI18n()
 
-// REFERENCES STORE
-const referencesStore = useReferencesStore()
-const { inputText } = storeToRefs(referencesStore)
+// STORES
+const uiStore = useUIStore()
+const extractionStore = useExtractionStore()
+const matchingStore = useMatchingStore()
+
+const { inputText, file } = storeToRefs(uiStore)
+const { isExtracting } = storeToRefs(extractionStore)
+const { isMatching } = storeToRefs(matchingStore)
 
 // TEXTAREA PLACEHOLDER
 const placeholder = `${t('example')}:
@@ -16,34 +23,26 @@ Smith, J. (2020). Example article. Journal of Examples, 15(3), 123-145.
 
 Doe, J., & Brown, A. (2019). Another reference. Science Publishing, New York.`
 
-// SYNC TEXT
-const currentText = ref('')
-
-watch(currentText, async (newVal) => {
-  if (newVal !== inputText.value) {
-    inputText.value = newVal
-  }
-})
-
+// Handle incoming selected text from content script
 onMessage('selectedText', async ({ data }) => {
-  currentText.value = data.text
+  inputText.value = data.text
 })
 
 // CLEAR HANDLER
-const { clearReferences } = referencesStore
 function handleClear() {
-  clearReferences()
-  currentText.value = ''
+  // Clear input text and display references
+  uiStore.clearAll()
+  // Also clear extracted references
+  extractionStore.clearExtractedReferences()
 }
 
-// DISABLED STATE
-const { isExtraction, file } = storeToRefs(referencesStore)
-const disabled = computed(() => !!file.value || isExtraction.value)
+// DISABLED STATE - disabled when file is loaded or any process is running
+const disabled = computed(() => !!file.value || isExtracting.value || isMatching.value)
 </script>
 
 <template>
   <v-textarea
-    v-model.trim="currentText"
+    v-model.trim="inputText"
     :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"

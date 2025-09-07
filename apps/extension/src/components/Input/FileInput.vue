@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { mdiFilePdfBox } from '@mdi/js'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useUIStore } from '@/extension/stores/ui'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
-// REFERENCES STORE
-const referencesStore = useReferencesStore()
-
-// FILE
-const { file } = storeToRefs(referencesStore)
-
-// PDF TEXT
-const { inputText } = storeToRefs(referencesStore)
+// UI STORE
+const uiStore = useUIStore()
+const { file, inputText } = storeToRefs(uiStore)
 
 // Loading state for PDF extraction
 const isExtractionPdf = ref(false)
@@ -46,12 +41,8 @@ watch(file, async (newValue) => {
 })
 
 // CLEAR HANDLER
-const { clearReferences } = referencesStore
-
 function handleClear() {
-  clearReferences()
-  file.value = null
-  inputText.value = ''
+  uiStore.clearAll()
 }
 </script>
 
