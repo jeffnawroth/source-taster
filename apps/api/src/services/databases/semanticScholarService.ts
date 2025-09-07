@@ -1,4 +1,4 @@
-import type { APISearchCandidate, CSLItem } from '@source-taster/types'
+import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { components } from '../../types/semanticScholar'
 
 type SemanticScholarPaper = components['schemas']['FullPaper']
@@ -13,7 +13,7 @@ export class SemanticScholarService {
     this.apiKey = apiKey
   }
 
-  async search(metadata: CSLItem): Promise<APISearchCandidate | null> {
+  async search(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       // Priority order for search strategies based on Semantic Scholar API best practices:
 
@@ -48,7 +48,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private async searchByDOI(doi: string): Promise<APISearchCandidate | null> {
+  private async searchByDOI(doi: string): Promise<ApiSearchCandidate | null> {
     try {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
       // Only request fields we actually need (performance optimization per API tutorial)
@@ -101,7 +101,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private async searchByArxivId(arxivId: string): Promise<APISearchCandidate | null> {
+  private async searchByArxivId(arxivId: string): Promise<ApiSearchCandidate | null> {
     try {
       const cleanArxivId = arxivId.replace(/^arxiv:/i, '').replace(/^https?:\/\/arxiv\.org\/(abs|pdf)\//, '')
       // Only request fields we actually need (performance optimization per API tutorial)
@@ -154,7 +154,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private async searchByTitleMatch(title: string): Promise<APISearchCandidate | null> {
+  private async searchByTitleMatch(title: string): Promise<ApiSearchCandidate | null> {
     try {
       // Only request fields we actually need (performance optimization per API tutorial)
       const fields = [
@@ -209,7 +209,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private async searchByQuery(metadata: CSLItem): Promise<APISearchCandidate | null> {
+  private async searchByQuery(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       // Try multiple search strategies, starting with the simplest and most effective
       const searchQueries = []
@@ -319,7 +319,7 @@ export class SemanticScholarService {
     return null
   }
 
-  private async performRelevanceSearch(query: string, metadata: CSLItem): Promise<APISearchCandidate | null> {
+  private async performRelevanceSearch(query: string, metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       const params = new URLSearchParams()
       params.append('query', query)

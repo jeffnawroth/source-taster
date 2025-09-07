@@ -1,5 +1,5 @@
 import type {
-  APISearchCandidate,
+  ApiSearchCandidate,
   MatchingReference,
 } from '@source-taster/types'
 import process from 'node:process'
@@ -37,8 +37,8 @@ export class DatabaseSearchService {
    * @param reference The reference to search for
    * @returns Array of external sources found across all databases
    */
-  async searchAllDatabases(reference: MatchingReference): Promise<APISearchCandidate[]> {
-    const candidates: APISearchCandidate[] = []
+  async searchAllDatabases(reference: MatchingReference): Promise<ApiSearchCandidate[]> {
+    const candidates: ApiSearchCandidate[] = []
 
     // Search in all databases in parallel for better performance
     const searchPromises = this.databaseServices.map(async ({ name, service }) => {
@@ -92,7 +92,7 @@ export class DatabaseSearchService {
   async searchSingleDatabase(
     reference: MatchingReference | { id: string, metadata: any },
     databaseInfo: DatabaseInfo,
-  ): Promise<APISearchCandidate | null> {
+  ): Promise<ApiSearchCandidate | null> {
     const { name, service } = databaseInfo
 
     try {

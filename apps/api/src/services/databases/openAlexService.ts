@@ -1,4 +1,4 @@
-import type { APISearchCandidate, CSLItem } from '@source-taster/types'
+import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { components } from '../../types/openAlex'
 import process from 'node:process'
 
@@ -15,7 +15,7 @@ export class OpenAlexService {
     this.mailto = mailto || process.env.OPENALEX_MAILTO
   }
 
-  async search(metadata: CSLItem): Promise<APISearchCandidate | null> {
+  async search(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       // If DOI is available, search directly by DOI (most reliable)
       if (metadata.DOI) {
@@ -34,7 +34,7 @@ export class OpenAlexService {
     return null
   }
 
-  private async searchByDOI(doi: string): Promise<APISearchCandidate | null> {
+  private async searchByDOI(doi: string): Promise<ApiSearchCandidate | null> {
     try {
       // Clean DOI and construct direct URL
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
@@ -76,7 +76,7 @@ export class OpenAlexService {
     return null
   }
 
-  private async searchByQuery(metadata: CSLItem): Promise<APISearchCandidate | null> {
+  private async searchByQuery(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       const queryParams = this.buildSearchQuery(metadata)
       const url = `${this.baseUrl}/works?${queryParams}`

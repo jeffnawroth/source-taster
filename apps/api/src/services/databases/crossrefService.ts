@@ -1,4 +1,4 @@
-import type { APISearchCandidate, CSLItem, CSLName } from '@source-taster/types'
+import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
 import type { components } from '../../types/crossref'
 import process from 'node:process'
 
@@ -18,7 +18,7 @@ export class CrossrefService {
     }
   }
 
-  async search(metadata: CSLItem): Promise<APISearchCandidate | null> {
+  async search(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       // If DOI is available, search directly by DOI (most reliable)
       if (metadata.DOI) {
@@ -48,7 +48,7 @@ export class CrossrefService {
     return !!(metadata.title && metadata.author?.length && metadata.issued && typeof metadata.issued === 'object' && metadata.issued['date-parts'] && metadata.issued['date-parts'][0] && metadata.issued['date-parts'][0][0])
   }
 
-  private async searchByDOI(doi: string): Promise<APISearchCandidate | null> {
+  private async searchByDOI(doi: string): Promise<ApiSearchCandidate | null> {
     try {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
       const url = `${this.baseUrl}/works/${encodeURIComponent(cleanDoi)}`
@@ -99,7 +99,7 @@ export class CrossrefService {
    * Search using bibliographic query - most accurate for citation lookup
    * Uses query.bibliographic which includes titles, authors, ISSNs and publication years
    */
-  private async searchByBibliographic(metadata: CSLItem): Promise<APISearchCandidate | null> {
+  private async searchByBibliographic(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       const params = new URLSearchParams()
 
@@ -222,7 +222,7 @@ export class CrossrefService {
     return parts.join(' ')
   }
 
-  private async searchByQuery(metadata: CSLItem): Promise<APISearchCandidate | null> {
+  private async searchByQuery(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
     try {
       // Build search query using field-specific queries for better accuracy
       const params = this.buildAdvancedSearchQuery(metadata)
