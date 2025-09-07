@@ -217,6 +217,7 @@
   "executive-producer": "Executive Producer",
   "expert-settings": "Expert Settings",
   "expert-settings-description": "Configure advanced verification settings and field weights for metadata matching",
+  "extract-references": "Extract references",
   "extracted": "Extracted",
   "extracting-dois": "Extracting DOIs",
   "extracting-dois-description": "Extracting DOIs from the Text. Please wait...",

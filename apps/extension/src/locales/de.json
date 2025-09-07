@@ -217,6 +217,7 @@
   "executive-producer": "Ausführender Produzent",
   "expert-settings": "Experteneinstellungen",
   "expert-settings-description": "Erweiterte Verifizierungseinstellungen und Feldgewichtungen für Metadaten-Abgleich konfigurieren",
+  "extract-references": "Referenzen extrahieren",
   "extracted": "Extrahiert",
   "extracting-dois": "Extrahiere DOIs",
   "extracting-dois-description": "Extrahiere DOIs aus dem Text. Bitte warten...",

@@ -2,15 +2,9 @@
 import { useMagicKeys } from '@vueuse/core'
 import { useReferencesStore } from '@/extension/stores/references'
 import CheckButton from './CheckButton.vue'
+import ExtractButton from './ExtractButton.vue'
 import FileInput from './FileInput.vue'
 import TextInput from './TextInput.vue'
-
-// COMPONENTS
-const components = [
-  FileInput,
-  TextInput,
-  CheckButton,
-]
 
 // KEYBOARD SHORTCUT FOR CHECK REFERENCES
 const referencesStore = useReferencesStore()
@@ -61,12 +55,27 @@ watch(ctrlEnter, (pressed) => {
       class="pa-0"
     >
       <v-row dense>
-        <v-col
-          v-for="(component, index) in components"
-          :key="index"
-          cols="12"
-        >
-          <component :is="component" />
+        <!-- File Input -->
+        <v-col cols="12">
+          <FileInput />
+        </v-col>
+
+        <!-- Text Input -->
+        <v-col cols="12">
+          <TextInput />
+        </v-col>
+
+        <!-- Extract Button -->
+        <v-col cols="12">
+          <ExtractButton
+            :input-text
+            :disabled="isDisabled"
+          />
+        </v-col>
+
+        <!-- Check Button -->
+        <v-col cols="12">
+          <CheckButton />
         </v-col>
       </v-row>
     </v-card-text>
