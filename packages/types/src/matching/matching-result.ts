@@ -1,15 +1,4 @@
 import type { CSLVariable } from '../reference'
-import z from 'zod'
-import { CSLItemSchema } from '../reference'
-
-export const ExternalSourceSchema = z.object({
-  id: z.string().describe('Unique identifier in the external database'),
-  source: z.enum(['openalex', 'crossref', 'europepmc', 'semanticscholar', 'arxiv', 'website']).describe('Which database this source comes from'),
-  metadata: CSLItemSchema.describe('Bibliographic metadata from the database'),
-  url: z.string().optional().describe('Canonical URL to access this source in the database'),
-})
-
-export type ExternalSource = z.infer<typeof ExternalSourceSchema>
 
 /**
  * Container for all matching-related information

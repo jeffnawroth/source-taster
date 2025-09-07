@@ -1,10 +1,10 @@
 /**
  * Service for searching references in external databases
  */
-import type {
-  ApiResponse,
-  SearchRequest,
-  SearchResponse,
+import {
+  type ApiSearchRequest,
+  ApiSearchRequestSchema,
+  type APISearchResponse,
 } from '@source-taster/types'
 import { API_CONFIG } from '../env'
 
@@ -16,16 +16,19 @@ export class SearchService {
    * @param request - The search request containing references to find candidates for
    * @returns Search results with candidates from external databases
    */
-  static async searchCandidates(request: SearchRequest): Promise<ApiResponse<SearchResponse>> {
+  static async searchCandidates(request: ApiSearchRequest): Promise<APISearchResponse> {
+    const req = ApiSearchRequestSchema.parse(request)
+
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
-      body: JSON.stringify(request),
+      body: JSON.stringify(req),
     })
 
-    const result = await response.json() as ApiResponse<SearchResponse>
+    const result = await response.json() as APISearchResponse
 
     if (!response.ok || !result.success) {
       throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)

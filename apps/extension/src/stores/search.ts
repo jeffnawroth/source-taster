@@ -1,14 +1,14 @@
+import type { APISearchCandidate, ApiSearchRequest } from '@source-taster/types'
 /**
  * Pinia store for managing search functionality and candidates
  */
-import type { ExternalSource, SearchRequest } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { SearchService } from '@/extension/services/searchService'
 
 export const useSearchStore = defineStore('search', () => {
   // State
-  const candidates = ref<Map<string, ExternalSource>>(new Map())
+  const candidates = ref<Map<string, APISearchCandidate>>(new Map())
   const searchResults = ref<Map<string, string[]>>(new Map()) // referenceId -> candidateIds[]
   const isSearching = ref(false)
   const searchError = ref<string | null>(null)
@@ -17,14 +17,14 @@ export const useSearchStore = defineStore('search', () => {
   const totalCandidates = computed(() => candidates.value.size)
 
   const getCandidatesByReference = computed(() => {
-    return (referenceId: string): ExternalSource[] => {
+    return (referenceId: string): APISearchCandidate[] => {
       const candidateIds = searchResults.value.get(referenceId) || []
-      return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as ExternalSource[]
+      return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as APISearchCandidate[]
     }
   })
 
   // Actions
-  async function searchCandidates(request: SearchRequest) {
+  async function searchCandidates(request: ApiSearchRequest) {
     isSearching.value = true
     searchError.value = null
 
@@ -57,13 +57,13 @@ export const useSearchStore = defineStore('search', () => {
     }
   }
 
-  function getCandidateById(candidateId: string): ExternalSource | undefined {
+  function getCandidateById(candidateId: string): APISearchCandidate | undefined {
     return candidates.value.get(candidateId)
   }
 
-  function getCandidatesByReferenceId(referenceId: string): ExternalSource[] {
+  function getCandidatesByReferenceId(referenceId: string): APISearchCandidate[] {
     const candidateIds = searchResults.value.get(referenceId) || []
-    return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as ExternalSource[]
+    return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as APISearchCandidate[]
   }
 
   function clearSearchResults() {

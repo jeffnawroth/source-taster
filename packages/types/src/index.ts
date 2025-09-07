@@ -29,5 +29,7 @@ export * from './normalization'
 // Core Reference Types
 export * from './reference'
 
+export * from './search'
+
 // Website Types
 export * from './website'

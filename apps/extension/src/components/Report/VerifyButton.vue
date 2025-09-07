@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AnystyleToken, AnystyleTokenSequence, CSLItem, MatchingReference } from '@source-taster/types'
+import type { AnystyleToken, AnystyleTokenSequence, ApiSearchRequest, CSLItem, MatchingReference } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
 import { matchingSettings } from '@/extension/logic/storage'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
@@ -39,15 +39,11 @@ async function convertTokensToCSL(): Promise<CSLItem[]> {
 
 // Step 2: Search for candidates for all references
 async function searchForCandidates(cslReferences: CSLItem[]) {
-  const searchRequest = {
+  const searchRequest: ApiSearchRequest = {
     references: cslReferences.map((ref: CSLItem, index: number) => ({
-      id: `ref-${index}`,
-      metadata: {
-        ...ref,
-        // Ensure id is always present as string or number
-        id: ref.id || `ref-${index}`,
-      },
-    })),
+      id: String(ref.id || `ref-${index}`),
+      metadata: ref,
+    })) as ApiSearchRequest['references'],
   }
 
   const searchResponse = await searchStore.searchCandidates(searchRequest)

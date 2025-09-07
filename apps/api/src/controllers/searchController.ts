@@ -1,11 +1,6 @@
-import type {
-  ApiResponse,
-  SearchRequest,
-  SearchResponse,
-  SearchResult,
-} from '@source-taster/types'
+import type { ApiResponse, ApiSearchRequest, APISearchResponse, APISearchResult } from '@source-taster/types'
 import type { Context } from 'hono'
-import { SearchRequestSchema } from '@source-taster/types'
+import { ApiSearchRequestSchema } from '@source-taster/types'
 import * as searchService from '../services/searchService'
 
 /**
@@ -61,9 +56,9 @@ export async function searchSingleDatabase(c: Context) {
 /**
  * Parse and validate the incoming request
  */
-async function parseAndValidateRequest(c: Context): Promise<SearchRequest> {
+async function parseAndValidateRequest(c: Context): Promise<ApiSearchRequest> {
   const rawBody = await c.req.json()
-  const parseResult = SearchRequestSchema.safeParse(rawBody)
+  const parseResult = ApiSearchRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
     console.warn('SearchController: Validation failed:', parseResult.error)
@@ -77,8 +72,8 @@ async function parseAndValidateRequest(c: Context): Promise<SearchRequest> {
 /**
  * Create a successful API response
  */
-function createSuccessResponse(c: Context, results: SearchResult[]) {
-  const response: ApiResponse<SearchResponse> = {
+function createSuccessResponse(c: Context, results: APISearchResult[]) {
+  const response: APISearchResponse = {
     success: true,
     data: {
       results,
