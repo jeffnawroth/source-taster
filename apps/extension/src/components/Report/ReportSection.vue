@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useUIStore } from '@/extension/stores/ui'
 
-const { references, isExtraction, currentPhase, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
+// Get state from new specialized stores
+const uiStore = useUIStore()
+const { displayReferences } = storeToRefs(uiStore)
+
+// Use display references for the UI (these contain the combined data)
+const references = displayReferences
 
 // Check for AnyStyle parsed tokens
 const anystyleStore = useAnystyleStore()
@@ -17,29 +22,12 @@ const { results } = useFuse(search, references, {
     keys: [
       'originalText',
       'metadata.title',
-      'metadata.authors',
-      'metadata.source.containerTitle',
-      'metadata.date.year',
+      'metadata.author',
+      'metadata.container-title',
     ],
     threshold: 0.3,
   },
   matchAllWhenSearchEmpty: true,
-})
-
-// Calculate if progress feedback is showing (same logic as in ProgressFeedback component)
-const showProgressFeedback = computed(() => {
-  // Show during main extraction (extract + match all)
-  const isMainExtraction = isExtraction.value && (currentPhase.value === 'extracting' || currentPhase.value === 'matching')
-
-  // Show during individual re-matching (when currentlyMatchingIndex is set but not main extraction)
-  const isReMatching = !isExtraction.value && currentlyMatchingIndex.value >= 0
-
-  return isMainExtraction || isReMatching
-})
-
-const maxHeight = computed(() => {
-  // Calculate max height based on presence of alert
-  return showProgressFeedback.value ? 'calc(100vh - 665px)' : 'calc(100vh - 610px)'
 })
 </script>
 
@@ -61,31 +49,23 @@ const maxHeight = computed(() => {
         class="mb-2"
       />
 
-      <!-- VERIFY BUTTON - Only show when we have parsed tokens from AnyStyle -->
+      <!-- VERIFY BUTTON - Always show but disabled when no parsed tokens -->
       <VerifyButton
-        v-if="hasAnystyleParsedTokens"
+        :disabled="!hasAnystyleParsedTokens"
         class="mb-3"
       />
 
-      <!-- PROGRESS FEEDBACK -->
-      <ProgressFeedback v-show="showProgressFeedback" />
-
-      <!-- Calculate max height based on presence of progress feedback alert -->
-      <!-- 670px with alert, 600px without alert -->
-
+      <!-- References Container with fixed height -->
       <div
         class="references-container"
-        :style="{ 'max-height': maxHeight }"
+        style="max-height: calc(100vh - 610px)"
       >
-        <!-- LIST - Show immediately after extraction, even during extraction -->
+        <!-- LIST - Show when we have references -->
         <ReferencesList
           v-if="references.length > 0"
           :results
         />
       </div>
-
-      <!-- STATES - Only show when no references available AND not extraction -->
-      <IdleState v-if="references.length === 0 && !isExtraction" />
     </v-card-text>
   </v-card>
 </template>

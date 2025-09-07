@@ -1,12 +1,52 @@
 <script setup lang="ts">
-import type { ExtractedReference } from '@/extension/types/reference'
+import type { DisplayReference } from '@/extension/stores/ui'
 import { mdiClose, mdiRestart } from '@mdi/js'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import { useMatchingStore } from '@/extension/stores/matching'
+import { useUIStore } from '@/extension/stores/ui'
 
 const { t } = useI18n()
 
-const { currentPhase, extractedCount, totalCount, isExtraction, currentlyMatchingReference, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
-const { cancelExtraction, extractAndMatchReferences } = useReferencesStore()
+// Get state from new specialized stores
+const extractionStore = useExtractionStore()
+const matchingStore = useMatchingStore()
+const uiStore = useUIStore()
+
+const { isExtracting } = storeToRefs(extractionStore)
+const { isMatching } = storeToRefs(matchingStore)
+const { displayReferences } = storeToRefs(uiStore)
+
+// Calculate current phase from store states
+const currentPhase = computed(() => {
+  if (isExtracting.value)
+    return 'extracting'
+  if (isMatching.value)
+    return 'matching'
+  return 'idle'
+})
+
+// Calculate counts
+const totalCount = computed(() => displayReferences.value.length)
+const extractedCount = computed(() => {
+  // Count how many references have been processed (not pending)
+  return displayReferences.value.filter(ref => ref.status !== 'pending').length
+})
+
+// For now, we don't have individual matching tracking
+const isExtraction = computed(() => isExtracting.value || isMatching.value)
+const currentlyMatchingIndex = ref(-1)
+const currentlyMatchingReference = ref<DisplayReference | null>(null)
+
+// Actions - these need to be implemented in the new store architecture
+function cancelExtraction() {
+  // TODO: Implement cancel functionality across new stores
+  console.warn('Cancel functionality not yet implemented in new store architecture')
+}
+
+function extractAndMatchReferences() {
+  // TODO: Implement restart functionality across new stores
+  console.warn('Restart functionality not yet implemented in new store architecture')
+}
 
 const progressText = computed(() => {
   if (currentPhase.value === 'extracting') {
@@ -46,7 +86,7 @@ const progressText = computed(() => {
 })
 
 // Helper function to get a short display text for the current reference
-function getCurrentReferenceDisplayText(ref: ExtractedReference): string {
+function getCurrentReferenceDisplayText(ref: DisplayReference): string {
   // Try to get a meaningful short text from the reference
   if (ref.metadata?.title) {
     // Truncate title if too long

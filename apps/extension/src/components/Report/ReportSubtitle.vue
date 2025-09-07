@@ -1,20 +1,36 @@
 <script setup lang="ts">
 import { mdiAlertCircleOutline, mdiCheckCircleOutline, mdiCloseCircleOutline, mdiMagnify } from '@mdi/js'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useUIStore } from '@/extension/stores/ui'
 
-const { statusCounts } = storeToRefs(useReferencesStore())
+const uiStore = useUIStore()
+const { displayReferences } = storeToRefs(uiStore)
 
-// Actions for better user interaction
-// const referencesStore = useReferencesStore()
+// Calculate status counts from display references
+const statusCounts = computed(() => {
+  const counts = {
+    total: displayReferences.value.length,
+    matched: 0,
+    notMatched: 0,
+    error: 0,
+  }
 
-// function handleVerificationAction() {
-//   // Re-verify all references
-//   referencesStore.extractAndVerifyReferences()
-// }
+  displayReferences.value.forEach((ref) => {
+    switch (ref.status) {
+      case 'matched':
+        counts.matched++
+        break
+      case 'not-matched':
+        counts.notMatched++
+        break
+      case 'error':
+        counts.error++
+        break
+      // 'pending' doesn't increment any specific counter
+    }
+  })
 
-// const showQuickActions = computed(() => {
-//   return statusCounts.value.notVerified > 0 || statusCounts.value.error > 0
-// })
+  return counts
+})
 </script>
 
 <template>
@@ -105,21 +121,7 @@ const { statusCounts } = storeToRefs(useReferencesStore())
           </template>
         </v-tooltip>
       </v-col>
-      <!-- <v-col
-        v-if="showQuickActions"
-      >
-        <v-btn
-          variant="outlined"
-          color="primary"
-          density="compact"
-          @click="handleVerificationAction"
-        >
-          {{ $t('retry-verification') }}
-        </v-btn>
-      </v-col> -->
     </v-row>
-
-    <!-- Quick Actions -->
   </div>
 </template>
 
