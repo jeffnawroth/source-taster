@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AnystyleToken, AnystyleTokenSequence, CSLItem, MatchingReference } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
 import { matchingSettings } from '@/extension/logic/storage'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
@@ -20,7 +21,61 @@ const canVerify = computed(() => {
   return hasParseResults.value && parsedTokens.value.length > 0
 })
 
-// Main verification workflow
+// Step 1: Convert parsed tokens to CSL format
+async function convertTokensToCSL(): Promise<CSLItem[]> {
+  // Create mutable copy of tokens
+  const mutableTokens: AnystyleTokenSequence[] = parsedTokens.value.map(tokenSequence =>
+    tokenSequence.map(token => [token[0], token[1]] as AnystyleToken),
+  )
+
+  const convertResponse = await anystyleStore.convertToCSL(mutableTokens)
+
+  if (!convertResponse.success || !convertResponse.data) {
+    throw new Error('Failed to convert tokens to CSL format')
+  }
+
+  return convertResponse.data.csl || []
+}
+
+// Step 2: Search for candidates for all references
+async function searchForCandidates(cslReferences: CSLItem[]) {
+  const searchRequest = {
+    references: cslReferences.map((ref: CSLItem, index: number) => ({
+      id: `ref-${index}`,
+      metadata: {
+        ...ref,
+        // Ensure id is always present as string or number
+        id: ref.id || `ref-${index}`,
+      },
+    })),
+  }
+
+  const searchResponse = await searchStore.searchCandidates(searchRequest)
+
+  if (!searchResponse.success) {
+    throw new Error(`Search failed: ${searchResponse.error}`)
+  }
+
+  return searchRequest.references
+}
+
+// Step 3: Match references with their candidates
+async function matchReferences(references: MatchingReference[]): Promise<void> {
+  for (const reference of references) {
+    // Get candidates for this reference from the search store
+    const candidates = searchStore.getCandidatesByReference(reference.id)
+
+    const matchRequest = {
+      reference,
+      candidates, // Use actual candidates from search results
+      matchingSettings: matchingSettings.value,
+    }
+
+    await matchingStore.matchReferences(matchRequest)
+  }
+}
+
+// Main verification workflow - orchestrates all steps
 async function handleVerify() {
   if (!canVerify.value)
     return
@@ -30,50 +85,13 @@ async function handleVerify() {
 
   try {
     // Step 1: Convert tokens to CSL
-    // Create mutable copy of tokens
-    const mutableTokens = parsedTokens.value.map(tokenSequence =>
-      tokenSequence.map(token => [token[0], token[1]] as [any, string]),
-    )
+    const cslReferences = await convertTokensToCSL()
 
-    const convertResponse = await anystyleStore.convertToCSL(mutableTokens as any)
+    // Step 2: Search for candidates
+    const references = await searchForCandidates(cslReferences)
 
-    if (!convertResponse.success || !convertResponse.data) {
-      throw new Error('Failed to convert tokens to CSL format')
-    }
-
-    const cslReferences = convertResponse.data.csl || []
-
-    // Step 2: Search for candidates for all references
-    const searchRequest = {
-      references: cslReferences.map((ref: any, index: number) => ({
-        id: `ref-${index}`,
-        metadata: {
-          id: ref.id || `ref-${index}`,
-          ...ref,
-        },
-      })),
-    }
-
-    const searchResponse = await searchStore.searchCandidates(searchRequest)
-
-    if (!searchResponse.success) {
-      throw new Error(`Search failed: ${searchResponse.error}`)
-    }
-
-    // Step 3: Match all references - get candidates from search store
-    // Match each reference individually (API expects single reference)
-    for (const reference of searchRequest.references) {
-      // Get candidates for this reference from the search store
-      const candidates = searchStore.getCandidatesByReference(reference.id)
-
-      const singleMatchRequest = {
-        reference,
-        candidates, // Use actual candidates from search results
-        matchingSettings: matchingSettings.value,
-      }
-
-      await matchingStore.matchReferences(singleMatchRequest)
-    }
+    // Step 3: Match references with candidates
+    await matchReferences(references)
 
     // Success - references are now processed
   }
