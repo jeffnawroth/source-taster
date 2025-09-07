@@ -11,7 +11,10 @@ const referencesStore = useReferencesStore()
 const { inputText } = storeToRefs(referencesStore)
 
 // TEXTAREA PLACEHOLDER
-const placeholder = computed(() => t('insert-references'))
+const placeholder = `${t('example')}:
+Smith, J. (2020). Example article. Journal of Examples, 15(3), 123-145.
+
+Doe, J., & Brown, A. (2019). Another reference. Science Publishing, New York.`
 
 // SYNC TEXT
 const currentText = ref('')
