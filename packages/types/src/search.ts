@@ -3,22 +3,22 @@ import { createApiResponseSchema } from './api'
 import { CSLItemSchema } from './reference'
 
 // ----- Request -----
-export const APISearchReferenceInputSchema = z.object({
+export const ApiSearchReferenceInputSchema = z.object({
   id: z.string().min(1).describe('Unique identifier for the reference'),
   metadata: CSLItemSchema.describe('Bibliographic metadata for the reference'),
 }).strict()
 
-export type APISearchReferenceInput = z.infer<typeof APISearchReferenceInputSchema>
+export type ApiSearchReferenceInput = z.infer<typeof ApiSearchReferenceInputSchema>
 
 export const ApiSearchRequestSchema = z.object({
-  references: z.array(APISearchReferenceInputSchema).min(1).describe('Array of references to search for'),
+  references: z.array(ApiSearchReferenceInputSchema).min(1).describe('Array of references to search for'),
 }).strict()
 
 export type ApiSearchRequest = z.infer<typeof ApiSearchRequestSchema>
 
 // ----- Response -----
 
-export const APISearchSourceSchema = z.enum([
+export const ApiSearchSourceSchema = z.enum([
   'openalex',
   'crossref',
   'semanticscholar',
@@ -26,29 +26,29 @@ export const APISearchSourceSchema = z.enum([
   'arxiv',
 ])
 
-export type APISearchSource = z.infer<typeof APISearchSourceSchema>
+export type ApiSearchSource = z.infer<typeof ApiSearchSourceSchema>
 
-export const APISearchCandidateSchema = z.object({
+export const ApiSearchCandidateSchema = z.object({
   id: z.string().min(1).describe('Unique identifier in the external database'),
-  source: APISearchSourceSchema.describe('Which database this source comes from'),
+  source: ApiSearchSourceSchema.describe('Which database this source comes from'),
   metadata: CSLItemSchema.describe('Bibliographic metadata from the database'),
   url: z.string().url().optional().describe('Canonical URL to access this source in the database'),
 }).strict()
 
-export type APISearchCandidate = z.infer<typeof APISearchCandidateSchema>
+export type ApiSearchCandidate = z.infer<typeof ApiSearchCandidateSchema>
 
-export const APISearchResultSchema = z.object({
+export const ApiSearchResultSchema = z.object({
   referenceId: z.string().min(1),
-  candidates: z.array(APISearchCandidateSchema),
+  candidates: z.array(ApiSearchCandidateSchema),
 }).strict()
 
-export type APISearchResult = z.infer<typeof APISearchResultSchema>
+export type ApiSearchResult = z.infer<typeof ApiSearchResultSchema>
 
-export const APISearchDataSchema = z.object({
-  results: z.array(APISearchResultSchema),
+export const ApiSearchDataSchema = z.object({
+  results: z.array(ApiSearchResultSchema),
 }).strict()
 
-export type APISearchData = z.infer<typeof APISearchDataSchema>
+export type ApiSearchData = z.infer<typeof ApiSearchDataSchema>
 
-export const APISearchResponseSchema = createApiResponseSchema(APISearchDataSchema)
-export type APISearchResponse = z.infer<typeof APISearchResponseSchema>
+export const ApiSearchResponseSchema = createApiResponseSchema(ApiSearchDataSchema)
+export type ApiSearchResponse = z.infer<typeof ApiSearchResponseSchema>

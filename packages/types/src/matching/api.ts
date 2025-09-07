@@ -3,7 +3,7 @@ import z from 'zod'
 import { NormalizationRuleSchema } from '../normalization'
 
 import { CSLItemSchema } from '../reference'
-import { APISearchCandidateSchema } from '../search'
+import { ApiSearchCandidateSchema } from '../search'
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
 
 /**
@@ -66,7 +66,7 @@ export interface MatchingResponse {
 
 export const MatchingRequestSchema = z.object({
   reference: MatchingReferenceSchema.describe('Single reference metadata to match against candidates'),
-  candidates: z.array(APISearchCandidateSchema).describe('Array of candidate sources to evaluate against the reference'),
+  candidates: z.array(ApiSearchCandidateSchema).describe('Array of candidate sources to evaluate against the reference'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
 })
 
