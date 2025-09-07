@@ -1015,5 +1015,8 @@
   "year": "Year",
   "year-match": "Year Match",
   "year-suffix": "Year Suffix",
-  "yes": "Yes"
+  "yes": "Yes",
+  "verifying": "Verifying",
+  "verify-references": "Verify References",
+  "converts-parsed-tokens-to-csl-searches-and-matches-references": "Converts parsed tokens to CSL format, searches databases, and matches references"
 }

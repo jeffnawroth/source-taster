@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { useFuse } from '@vueuse/integrations/useFuse'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useReferencesStore } from '@/extension/stores/references'
 
 const { references, isExtraction, currentPhase, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
+
+// Check for AnyStyle parsed tokens
+const anystyleStore = useAnystyleStore()
+const { hasParseResults } = storeToRefs(anystyleStore)
+const hasAnystyleParsedTokens = computed(() => hasParseResults.value)
 
 const search = ref('')
 
@@ -53,6 +59,12 @@ const maxHeight = computed(() => {
       <ReferencesSearchInput
         v-model="search"
         class="mb-2"
+      />
+
+      <!-- VERIFY BUTTON - Only show when we have parsed tokens from AnyStyle -->
+      <VerifyButton
+        v-if="hasAnystyleParsedTokens"
+        class="mb-3"
       />
 
       <!-- PROGRESS FEEDBACK -->

@@ -1015,5 +1015,8 @@
   "year": "Jahr",
   "year-match": "Jahr-Übereinstimmung",
   "year-suffix": "Jahr-Suffix",
-  "yes": "Ja"
+  "yes": "Ja",
+  "verifying": "Verifiziert",
+  "verify-references": "Referenzen verifizieren",
+  "converts-parsed-tokens-to-csl-searches-and-matches-references": "Konvertiert geparste Tokens zu CSL-Format, durchsucht Datenbanken und ordnet Referenzen zu"
 }
