@@ -6,7 +6,6 @@ import { useExtractionStore } from '@/extension/stores/extraction'
 // Props
 interface Props {
   inputText: string
-  disabled?: boolean
 }
 
 const props = defineProps<Props>()
@@ -39,7 +38,7 @@ async function handleExtractClick() {
   <v-btn
     variant="tonal"
     color="primary"
-    :disabled="disabled || !inputText.trim() || extractionStore.isExtracting"
+    :disabled="!inputText.trim() || extractionStore.isExtracting"
     :loading="extractionStore.isExtracting"
     block
     :text="t('extract-references')"

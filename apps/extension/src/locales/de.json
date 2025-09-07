@@ -647,6 +647,7 @@
   "pages-match": "Seiten-Übereinstimmung",
   "paragraph-number": "Absatznummer",
   "parse": "",
+  "parse-references": "Referenzen parsen",
   "part": "Teil",
   "part-title": "Teiltitel",
   "partial-verification": "{verified}/{total} verifiziert ({percentage} %)",

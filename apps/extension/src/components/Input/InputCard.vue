@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core'
 import { useReferencesStore } from '@/extension/stores/references'
-import CheckButton from './CheckButton.vue'
 import ExtractButton from './ExtractButton.vue'
 import FileInput from './FileInput.vue'
+import ParseButton from './ParseButton.vue'
 import TextInput from './TextInput.vue'
 
 // KEYBOARD SHORTCUT FOR CHECK REFERENCES
@@ -69,14 +69,20 @@ watch(ctrlEnter, (pressed) => {
         <v-col cols="12">
           <ExtractButton
             :input-text
-            :disabled="isDisabled"
+          />
+        </v-col>
+
+        <!-- Parse Button -->
+        <v-col cols="12">
+          <ParseButton
+            :input-text
           />
         </v-col>
 
         <!-- Check Button -->
-        <v-col cols="12">
+        <!-- <v-col cols="12">
           <CheckButton />
-        </v-col>
+        </v-col> -->
       </v-row>
     </v-card-text>
   </v-card>
