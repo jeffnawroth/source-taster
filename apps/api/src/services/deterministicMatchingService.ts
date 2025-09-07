@@ -1,7 +1,7 @@
 import type {
   APIMatchingSettings,
+  APISearchCandidate,
   CSLItem,
-  ExternalSource,
   FieldConfigurations,
   FieldMatchDetail,
   MatchDetails,
@@ -17,7 +17,7 @@ export class DeterministicMatchingService {
    */
   matchReference(
     reference: MatchingReference,
-    source: ExternalSource,
+    source: APISearchCandidate,
     matchingSettings: APIMatchingSettings,
   ): MatchDetails {
     const fieldConfigurations = matchingSettings.matchingConfig.fieldConfigurations

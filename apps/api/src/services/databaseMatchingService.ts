@@ -1,6 +1,6 @@
 import type {
   APIMatchingSettings,
-  ExternalSource,
+  APISearchCandidate,
   MatchingReference,
   MatchingResult,
   SourceEvaluation,
@@ -27,7 +27,7 @@ export class DatabaseMatchingService {
    */
   evaluateAllCandidates(
     reference: MatchingReference,
-    candidates: ExternalSource[],
+    candidates: APISearchCandidate[],
     matchingSettings: APIMatchingSettings,
   ): MatchingResult {
     const sourceEvaluations = this.matchAllCandidates(candidates, reference, matchingSettings)
@@ -43,7 +43,7 @@ export class DatabaseMatchingService {
    */
   evaluateSingleCandidate(
     reference: MatchingReference,
-    candidate: ExternalSource,
+    candidate: APISearchCandidate,
     matchingSettings: APIMatchingSettings,
   ): SourceEvaluation {
     return this.evaluateSource(reference, candidate, matchingSettings)
@@ -53,7 +53,7 @@ export class DatabaseMatchingService {
    * Match all candidates against a reference (internal method)
    */
   private matchAllCandidates(
-    candidates: ExternalSource[],
+    candidates: APISearchCandidate[],
     reference: MatchingReference,
     matchingSettings: APIMatchingSettings,
   ): SourceEvaluation[] {
@@ -66,7 +66,7 @@ export class DatabaseMatchingService {
 
   private evaluateAllSources(
     reference: MatchingReference,
-    sources: ExternalSource[],
+    sources: APISearchCandidate[],
     matchingSettings: APIMatchingSettings,
   ): SourceEvaluation[] {
     const evaluations: SourceEvaluation[] = []
@@ -90,7 +90,7 @@ export class DatabaseMatchingService {
 
   private evaluateSource(
     reference: MatchingReference,
-    source: ExternalSource,
+    source: APISearchCandidate,
     matchingSettings: APIMatchingSettings,
   ): SourceEvaluation {
     const matchDetails = this.deterministicMatchingService.matchReference(reference, source, matchingSettings)

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ExternalSource, Reference } from '@source-taster/types'
+import type { APISearchCandidate, Reference } from '@source-taster/types'
 import { mdiAccountGroup, mdiAccountTie, mdiBookmark, mdiBookOpenBlankVariantOutline, mdiCalendarClock, mdiCalendarOutline, mdiCalendarRange, mdiChevronDown, mdiChevronUp, mdiDomain, mdiEarth, mdiFileDocumentOutline, mdiGavel, mdiIdentifier, mdiInformation, mdiLibrary, mdiLink, mdiMapMarker, mdiMedicalBag, mdiMicrophone, mdiNewspaper, mdiNotebookOutline, mdiNoteText, mdiNumeric, mdiOfficeBuilding, mdiRuler, mdiTag, mdiTelevision, mdiText, mdiTranslate } from '@mdi/js'
 
 const props = defineProps<{
-  reference: Reference | ExternalSource
+  reference: Reference | APISearchCandidate
   subheader?: string
 }>()
 

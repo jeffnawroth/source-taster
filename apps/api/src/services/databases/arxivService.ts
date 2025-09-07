@@ -1,4 +1,4 @@
-import type { CSLItem, CSLName, ExternalSource } from '@source-taster/types'
+import type { APISearchCandidate, CSLItem, CSLName } from '@source-taster/types'
 
 export class ArxivService {
   private baseUrl = 'http://export.arxiv.org/api/query'
@@ -6,7 +6,7 @@ export class ArxivService {
   private lastRequestTime = 0
   private requestDelay = 3000 // 3 second delay as recommended by arXiv
 
-  async search(metadata: CSLItem): Promise<ExternalSource | null> {
+  async search(metadata: CSLItem): Promise<APISearchCandidate | null> {
     try {
       // Implement polite delay between requests
       await this.enforceRateLimit()
@@ -58,7 +58,7 @@ export class ArxivService {
     this.lastRequestTime = Date.now()
   }
 
-  private async searchByTitleAndAuthor(title: string, authors: CSLName[]): Promise<ExternalSource | null> {
+  private async searchByTitleAndAuthor(title: string, authors: CSLName[]): Promise<APISearchCandidate | null> {
     try {
       // Extract the last name of the first author for search
       const firstAuthor = authors[0]
@@ -114,7 +114,7 @@ export class ArxivService {
     }
   }
 
-  private async searchByArxivId(arxivId: string): Promise<ExternalSource | null> {
+  private async searchByArxivId(arxivId: string): Promise<APISearchCandidate | null> {
     try {
       // Clean the arXiv ID (remove any prefixes)
       const cleanId = arxivId
@@ -166,7 +166,7 @@ export class ArxivService {
     }
   }
 
-  private async searchByDOI(doi: string): Promise<ExternalSource | null> {
+  private async searchByDOI(doi: string): Promise<APISearchCandidate | null> {
     try {
       // Clean and extract arXiv ID from various DOI formats
       const arxivId = doi
@@ -251,7 +251,7 @@ export class ArxivService {
       || xmlText.includes('malformed id')
   }
 
-  private async searchByTitle(title: string): Promise<ExternalSource | null> {
+  private async searchByTitle(title: string): Promise<APISearchCandidate | null> {
     try {
       // Clean and prepare the title for search
       const cleanTitle = this.cleanTitleForSearch(title)
@@ -610,7 +610,7 @@ export class ArxivService {
       .trim()
   }
 
-  private mapToExternalSource(entry: any): ExternalSource {
+  private mapToExternalSource(entry: any): APISearchCandidate {
     const metadata: CSLItem = {
       'id': entry.arxivId || entry.id || 'unknown',
       'type': 'article', // ArXiv articles are typically preprints

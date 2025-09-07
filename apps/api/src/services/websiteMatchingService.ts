@@ -1,7 +1,7 @@
 import type {
   APIMatchingSettings,
+  APISearchCandidate,
   ArchivedVersion,
-  ExternalSource,
   MatchDetails,
   MatchingReference,
   WebsiteMatchingOptions,
@@ -658,9 +658,9 @@ export class WebsiteMatchingService {
   }
 
   /**
-   * Convert WebsiteMetadata to ExternalSource format so we can use the base matching logic
+   * Convert WebsiteMetadata to APISearchCandidate format so we can use the base matching logic
    */
-  private convertWebsiteMetadataToExternalSource(websiteMetadata: WebsiteMetadata): ExternalSource {
+  private convertWebsiteMetadataToExternalSource(websiteMetadata: WebsiteMetadata): APISearchCandidate {
     return {
       id: websiteMetadata.url,
       source: 'website',
@@ -695,7 +695,7 @@ export class WebsiteMatchingService {
     websiteMetadata: WebsiteMetadata,
     matchingSettings: APIMatchingSettings,
   ): Promise<{ details: MatchDetails }> {
-    // Convert WebsiteMetadata to ExternalSource format
+    // Convert WebsiteMetadata to APISearchCandidate format
     const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)
 
     const matchDetails = await this.deterministicMatchingService.matchReference(reference, externalSource, matchingSettings)

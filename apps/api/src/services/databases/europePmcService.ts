@@ -1,4 +1,4 @@
-import type { CSLItem, ExternalSource } from '@source-taster/types'
+import type { APISearchCandidate, CSLItem } from '@source-taster/types'
 import type { EuropePmcSearchResponse, EuropePmcWork } from '../../types/europePmc'
 import process from 'node:process'
 
@@ -10,7 +10,7 @@ export class EuropePmcService {
     this.email = email || process.env.EUROPEPMC_EMAIL
   }
 
-  async search(metadata: CSLItem): Promise<ExternalSource | null> {
+  async search(metadata: CSLItem): Promise<APISearchCandidate | null> {
     try {
       // Priority order for search strategies:
       // 1. Direct identifier searches (most reliable)
@@ -49,7 +49,7 @@ export class EuropePmcService {
     return null
   }
 
-  private async searchByDOI(doi: string): Promise<ExternalSource | null> {
+  private async searchByDOI(doi: string): Promise<APISearchCandidate | null> {
     try {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
 
@@ -97,7 +97,7 @@ export class EuropePmcService {
     return null
   }
 
-  private async searchByPMID(pmid: string): Promise<ExternalSource | null> {
+  private async searchByPMID(pmid: string): Promise<APISearchCandidate | null> {
     try {
       // Clean PMID to ensure it's just the number
       const cleanPmid = pmid.replace(/^pmid:?/i, '').trim()
@@ -145,7 +145,7 @@ export class EuropePmcService {
     return null
   }
 
-  private async searchByPMCID(pmcid: string): Promise<ExternalSource | null> {
+  private async searchByPMCID(pmcid: string): Promise<APISearchCandidate | null> {
     try {
       // Clean PMCID to ensure proper format
       const cleanPmcid = pmcid.replace(/^pmcid:?/i, '').trim()
@@ -195,7 +195,7 @@ export class EuropePmcService {
     return null
   }
 
-  private async searchByQuery(metadata: CSLItem): Promise<ExternalSource | null> {
+  private async searchByQuery(metadata: CSLItem): Promise<APISearchCandidate | null> {
     try {
       // Build search query using fielded search
       const queryParams = this.buildSearchQuery(metadata)
@@ -243,7 +243,7 @@ export class EuropePmcService {
   /**
    * Fallback search using only title and author for better recall
    */
-  private async searchByTitleAndAuthor(metadata: CSLItem): Promise<ExternalSource | null> {
+  private async searchByTitleAndAuthor(metadata: CSLItem): Promise<APISearchCandidate | null> {
     try {
       const queryParts: string[] = []
 
