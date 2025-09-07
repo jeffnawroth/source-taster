@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mdiCodeTags } from '@mdi/js'
+import { useMagicKeys } from '@vueuse/core'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 
 // Props
@@ -37,13 +38,34 @@ async function handleParseClick() {
     console.error('Parsing failed:', error)
   }
 }
+
+// Check if button should be disabled
+const isDisabled = computed(() => !props.inputText.trim() || anystyleStore.isParsing)
+
+// Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
+const keys = useMagicKeys()
+const cmdEnter = keys['Cmd+Enter']
+const ctrlEnter = keys['Ctrl+Enter']
+
+// Watch for keyboard shortcuts
+watch(cmdEnter, (pressed) => {
+  if (pressed && !isDisabled.value) {
+    handleParseClick()
+  }
+})
+
+watch(ctrlEnter, (pressed) => {
+  if (pressed && !isDisabled.value) {
+    handleParseClick()
+  }
+})
 </script>
 
 <template>
   <v-btn
     variant="tonal"
     color="secondary"
-    :disabled="!inputText.trim() || anystyleStore.isParsing"
+    :disabled="isDisabled"
     :loading="anystyleStore.isParsing"
     block
     @click="handleParseClick"
