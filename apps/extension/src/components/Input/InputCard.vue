@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { useUIStore } from '@/extension/stores/ui'
 import ExtractButton from './ExtractButton.vue'
 import FileInput from './FileInput.vue'
 import ParseButton from './ParseButton.vue'
 import TextInput from './TextInput.vue'
-
-const uiStore = useUIStore()
-
-// Get input text from UI store for passing to buttons
-const { inputText } = storeToRefs(uiStore)
 </script>
 
 <template>
@@ -33,16 +27,12 @@ const { inputText } = storeToRefs(uiStore)
 
         <!-- Extract Button -->
         <v-col cols="12">
-          <ExtractButton
-            :input-text
-          />
+          <ExtractButton />
         </v-col>
 
         <!-- Parse Button -->
         <v-col cols="12">
-          <ParseButton
-            :input-text
-          />
+          <ParseButton />
         </v-col>
 
         <!-- Check Button -->

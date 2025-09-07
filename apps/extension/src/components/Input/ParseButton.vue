@@ -2,29 +2,27 @@
 import { mdiCodeTags } from '@mdi/js'
 import { useMagicKeys } from '@vueuse/core'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
-
-// Props
-interface Props {
-  inputText: string
-}
-
-const props = defineProps<Props>()
+import { useUIStore } from '@/extension/stores/ui'
 
 // Stores
 const anystyleStore = useAnystyleStore()
+const uiStore = useUIStore()
+
+// Get input text directly from UI store
+const { inputText } = storeToRefs(uiStore)
 
 // Translation
 const { t } = useI18n()
 
 // Parse input text using AnyStyle
 async function handleParseClick() {
-  if (!props.inputText.trim())
+  if (!inputText.value.trim())
     return
 
   try {
     // Split input text into individual reference lines
     // Remove empty lines and trim whitespace
-    const referenceLines = props.inputText
+    const referenceLines = inputText.value
       .split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0)
@@ -40,7 +38,7 @@ async function handleParseClick() {
 }
 
 // Check if button should be disabled
-const isDisabled = computed(() => !props.inputText.trim() || anystyleStore.isParsing)
+const isDisabled = computed(() => !inputText.value.trim() || anystyleStore.isParsing)
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
 const keys = useMagicKeys()
