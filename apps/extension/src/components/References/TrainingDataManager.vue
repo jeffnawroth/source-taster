@@ -46,8 +46,12 @@ function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
 </script>
 
 <template>
-  <v-card flat>
-    <v-card-text>
+  <v-card
+    flat
+    :title="`2. ${$t('edit')}`"
+    :subtitle="$t('review-and-relabel-parsed-references-by-clicking-on-tokens')"
+  >
+    <v-card-text class="pa-0">
       <!-- Action Buttons -->
       <div
         v-if="error"

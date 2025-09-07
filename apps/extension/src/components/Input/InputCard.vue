@@ -54,6 +54,8 @@ watch(ctrlEnter, (pressed) => {
 <template>
   <v-card
     flat
+    :title="`1. ${$t('parse')}`"
+    :subtitle="$t('input-references-as-text-or-upload-a-file')"
   >
     <v-card-text
       class="pa-0"

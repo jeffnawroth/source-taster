@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { mdiFileDocumentOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { useReferencesStore } from '@/extension/stores/references'
 
-const { t } = useI18n()
 const { references, isExtraction, currentPhase, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
 
 const search = ref('')
@@ -42,15 +40,9 @@ const maxHeight = computed(() => {
 <template>
   <v-card
     flat
+    :title="`3. ${$t('verify')}`"
+    :subtitle="$t('verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases')"
   >
-    <!-- TITLE -->
-    <v-card-title class="px-0">
-      <v-icon size="x-small">
-        {{ mdiFileDocumentOutline }}
-      </v-icon>
-      {{ t('report') }}
-    </v-card-title>
-
     <!-- SUBTITLE -->
     <v-card-subtitle class="px-0">
       <ReportSubtitle />
