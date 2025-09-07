@@ -1,24 +1,18 @@
 <script setup lang="ts">
-import type { ExtractedReference } from '@/extension/types/reference'
+import type { DisplayReference } from '@/extension/stores/ui'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
-const { reference, isCurrentlyMatching = false } = defineProps<{
-  reference: ExtractedReference
-  isCurrentlyMatching?: boolean
+const { reference } = defineProps<{
+  reference: DisplayReference
 }>()
 
 // TRANSLATION
 const { t } = useI18n()
 
-// CARD COLOR based on matching score
+// CARD COLOR based on matching status
 const color = computed(() => {
-  // If currently matching, show special color
-  if (isCurrentlyMatching) {
-    return 'primary'
-  }
-
   // If there's an error, show error color
   if (reference.status === 'error') {
     return 'error'
@@ -64,7 +58,6 @@ const showDetails = ref(false)
     density="compact"
     variant="outlined"
     class="mb-2"
-    :class="{ 'currently-matching': isCurrentlyMatching }"
     :title
     :color
   >
@@ -96,29 +89,5 @@ const showDetails = ref(false)
 </template>
 
 <style scoped>
-.currently-matching {
-  position: relative;
-  overflow: hidden;
-}
-
-.currently-matching::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-primary), 0.1), transparent);
-  animation: shimmer 2s infinite;
-  z-index: 1;
-}
-
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
+/* Progress animation styles removed as we simplified the progress feedback */
 </style>

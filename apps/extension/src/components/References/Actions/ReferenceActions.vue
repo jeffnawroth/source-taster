@@ -2,7 +2,6 @@
 import type { ExtractedReference } from '@/extension/types/reference'
 import DetailsToggleBtn from './DetailsToggleBtn.vue'
 import OpenSrcBtn from './OpenSrcBtn.vue'
-import ReMatchBtn from './ReMatchBtn.vue'
 
 // PROPS
 const { reference } = defineProps<{
@@ -12,20 +11,11 @@ const { reference } = defineProps<{
 // SHOW DETAILS - using defineModel for parent communication
 const showDetails = defineModel<boolean>('showDetails', { default: false })
 
-// VERIFICATION SCORE
-const matchingScore = computed(() =>
-  reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore,
-)
-
 // ACTION BUTTONS CONFIGURATION
 const otherActionButtons = [
   {
     component: OpenSrcBtn,
     props: { reference },
-  },
-  {
-    component: ReMatchBtn,
-    props: { reference, matchingScore: matchingScore.value },
   },
 ]
 </script>
