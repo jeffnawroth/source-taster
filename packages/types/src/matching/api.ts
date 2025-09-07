@@ -4,7 +4,6 @@ import { NormalizationRuleSchema } from '../normalization'
 
 import { CSLItemSchema } from '../reference'
 import { APISearchCandidateSchema } from '../search'
-import { WebsiteMatchingOptionsSchema } from '../website'
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
 
 /**
@@ -78,13 +77,6 @@ export const ValidatedMatchingRequestSchema = MatchingRequestSchema.extend({
   }),
 })
 
-export const WebsiteMatchingRequestSchema = z.object({
-  reference: MatchingReferenceSchema.describe('Reference metadata to match against website'),
-  url: z.string().url().describe('Website URL to match against'),
-  matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
-  options: WebsiteMatchingOptionsSchema.optional().describe('Optional website matching configuration'),
-})
-
 /**
  * Search and match request - searches for candidates and then matches them
  */
@@ -107,6 +99,5 @@ export type APIMatchingStrategy = z.infer<typeof APIMatchingStrategySchema>
 export type APIMatchingSettings = z.infer<typeof APIMatchingSettingsSchema>
 export type MatchingRequest = z.infer<typeof MatchingRequestSchema>
 export type ValidatedMatchingRequest = z.infer<typeof ValidatedMatchingRequestSchema>
-export type WebsiteMatchingRequest = z.infer<typeof WebsiteMatchingRequestSchema>
 export type SearchAndMatchRequest = z.infer<typeof SearchAndMatchRequestSchema>
 export type ValidatedSearchAndMatchRequest = z.infer<typeof ValidatedSearchAndMatchRequestSchema>

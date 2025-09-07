@@ -30,6 +30,3 @@ export * from './normalization'
 export * from './reference'
 
 export * from './search'
-
-// Website Types
-export * from './website'
