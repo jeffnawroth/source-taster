@@ -60,6 +60,15 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     }
   }
 
+  function updateTokens(index: number, tokens: AnystyleTokenSequence) {
+    if (parsedTokens.value && parsedTokens.value[index]) {
+      // Create new array to trigger reactivity
+      const newTokens = [...parsedTokens.value]
+      newTokens[index] = tokens
+      parsedTokens.value = newTokens
+    }
+  }
+
   async function convertToCSL(tokens: AnystyleTokenSequence[]) {
     isConverting.value = true
     convertError.value = null
@@ -141,6 +150,7 @@ export const useAnystyleStore = defineStore('anystyle', () => {
 
     // Actions
     parseReferences,
+    updateTokens,
     convertToCSL,
     trainModel,
     updateParsedTokens,

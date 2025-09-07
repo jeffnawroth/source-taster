@@ -1,46 +1,40 @@
 <script setup lang="ts">
-import type { AnystyleTokenSequence, Reference } from '@source-taster/types'
+import type { AnystyleTokenLabel, AnystyleTokenSequence } from '@source-taster/types'
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
-// Types
-interface ParsedData {
-  references: Reference[]
-  tokens: AnystyleTokenSequence[]
-}
-
 // Composables
-const referencesStore = useReferencesStore()
-const { parsedTokens, showTokenEditor } = storeToRefs(referencesStore)
+const anystyleStore = useAnystyleStore()
+const { parsedTokens, showTokenEditor } = storeToRefs(anystyleStore)
 
-// State
-const parsedData = ref<ParsedData | null>(null)
+// State - Simplified: only tokens needed for editing
+const editableTokens = ref<AnystyleTokenSequence[]>([])
 const error = ref('')
 const currentReferenceIndex = ref(0)
 
 // Watch for changes in store data
 watch([parsedTokens, showTokenEditor], ([tokens, show]) => {
   if (show && tokens.length > 0) {
-    parsedData.value = {
-      references: [], // Not provided by /parse endpoint
-      tokens,
-    }
+    // Create deep mutable copy of tokens for editing
+    editableTokens.value = tokens.map(tokenSequence =>
+      tokenSequence.map(token => [token[0], token[1]] as [AnystyleTokenLabel, string]),
+    )
     currentReferenceIndex.value = 0
   }
   else {
-    parsedData.value = null
+    editableTokens.value = []
   }
 }, { immediate: true })
 
 // Update tokens from editor
 function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
-  if (parsedData.value && newTokens[0]) {
+  if (editableTokens.value.length > 0 && newTokens[0]) {
     // Update the current sequence in local data
-    parsedData.value.tokens[currentReferenceIndex.value] = newTokens[0]
+    editableTokens.value[currentReferenceIndex.value] = newTokens[0]
 
-    // Update the store data as well - modify array in place
-    parsedTokens.value[currentReferenceIndex.value] = newTokens[0]
+    // Update the store data as well
+    anystyleStore.updateTokens(currentReferenceIndex.value, newTokens[0])
   }
 }
 </script>
@@ -70,13 +64,13 @@ function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
 
       <!-- Token Editor with Navigation -->
       <v-expand-transition>
-        <div v-if="showTokenEditor && parsedData">
+        <div v-if="showTokenEditor && editableTokens.length > 0">
           <!-- Current Token Sequence Editor -->
           <v-card flat>
             <v-card-text>
               <TokenRelabelingEditor
-                v-if="parsedData.tokens[currentReferenceIndex]"
-                :tokens="[parsedData.tokens[currentReferenceIndex]]"
+                v-if="editableTokens[currentReferenceIndex]"
+                :tokens="[editableTokens[currentReferenceIndex]]"
                 @update:tokens="updateCurrentSequenceTokens"
               />
             </v-card-text>
@@ -84,7 +78,7 @@ function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
 
           <!-- Navigation Controls - moved below editor -->
           <div
-            v-if="parsedData.tokens.length > 1"
+            v-if="editableTokens.length > 1"
             class="d-flex align-center justify-space-between"
           >
             <v-btn
@@ -101,11 +95,11 @@ function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
               color="primary"
               variant="outlined"
             >
-              {{ currentReferenceIndex + 1 }} / {{ parsedData.tokens.length }}
+              {{ currentReferenceIndex + 1 }} / {{ editableTokens.length }}
             </v-chip>
 
             <v-btn
-              :disabled="currentReferenceIndex >= parsedData.tokens.length - 1"
+              :disabled="currentReferenceIndex >= editableTokens.length - 1"
               icon
               variant="outlined"
               size="small"
