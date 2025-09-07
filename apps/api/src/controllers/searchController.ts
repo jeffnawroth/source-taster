@@ -1,4 +1,4 @@
-import type { ApiResponse, ApiSearchRequest, APISearchResponse, APISearchResult } from '@source-taster/types'
+import type { ApiResponse, ApiSearchRequest, ApiSearchResponse, ApiSearchResult } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ApiSearchRequestSchema } from '@source-taster/types'
 import * as searchService from '../services/searchService'
@@ -72,8 +72,8 @@ async function parseAndValidateRequest(c: Context): Promise<ApiSearchRequest> {
 /**
  * Create a successful API response
  */
-function createSuccessResponse(c: Context, results: APISearchResult[]) {
-  const response: APISearchResponse = {
+function createSuccessResponse(c: Context, results: ApiSearchResult[]) {
+  const response: ApiSearchResponse = {
     success: true,
     data: {
       results,
