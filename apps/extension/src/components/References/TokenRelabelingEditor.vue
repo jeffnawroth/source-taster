@@ -146,7 +146,6 @@ watch(() => props.tokens, (newTokens) => {
   <div
     v-for="(sequence, sequenceIndex) in tokenSequences"
     :key="sequenceIndex"
-    class="token-sequence mb-6"
   >
     <v-chip
       v-for="(token, tokenIndex) in sequence"
@@ -161,7 +160,7 @@ watch(() => props.tokens, (newTokens) => {
       @mouseenter="setHoveredToken(sequenceIndex, tokenIndex)"
       @mouseleave="clearHoveredToken"
     >
-      <span class="token-text">{{ token[1] }}</span>
+      <span>{{ token[1] }}</span>
 
       <v-tooltip
         activator="parent"
