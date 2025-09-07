@@ -12,11 +12,11 @@ const API_BASE_URL = API_CONFIG.baseUrl + API_CONFIG.endpoints.search
 
 export class SearchService {
   /**
-   * Search for references in external databases
-   * @param request - The search request containing references to search for
-   * @returns Search results from external databases
+   * Search for candidates in external databases for given references
+   * @param request - The search request containing references to find candidates for
+   * @returns Search results with candidates from external databases
    */
-  static async searchReferences(request: SearchRequest): Promise<ApiResponse<SearchResponse>> {
+  static async searchCandidates(request: SearchRequest): Promise<ApiResponse<SearchResponse>> {
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {

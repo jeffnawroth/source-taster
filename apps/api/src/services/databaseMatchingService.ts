@@ -95,7 +95,8 @@ export class DatabaseMatchingService {
   ): SourceEvaluation {
     const matchDetails = this.deterministicMatchingService.matchReference(reference, source, matchingSettings)
     return {
-      source,
+      referenceId: reference.id,
+      candidateId: source.id,
       matchDetails,
     }
   }

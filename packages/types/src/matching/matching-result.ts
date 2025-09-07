@@ -20,8 +20,10 @@ export interface MatchingResult {
 }
 
 export interface SourceEvaluation {
-  /** The external source being evaluated */
-  source: ExternalSource
+  /** ID of the reference that was matched */
+  referenceId: string
+  /** ID of the external source candidate */
+  candidateId: string
   /** Detailed match scoring */
   matchDetails: MatchDetails
 }
