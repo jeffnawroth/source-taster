@@ -1,9 +1,10 @@
 /**
  * Pinia store for managing extraction functionality and results
  */
-import type { ExtractionRequest, Reference } from '@source-taster/types'
+import type { Reference } from '@source-taster/types'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, readonly, ref } from 'vue'
+import { aiSettings, extractionSettings } from '@/extension/logic/storage'
 import { ExtractionService } from '@/extension/services/extractionService'
 
 export const useExtractionStore = defineStore('extraction', () => {
@@ -12,7 +13,6 @@ export const useExtractionStore = defineStore('extraction', () => {
   const originalText = ref<string>('')
   const isExtracting = ref(false)
   const extractionError = ref<string | null>(null)
-  const lastExtractionSettings = ref<any>(null)
 
   // Computed
   const totalExtractedReferences = computed(() => extractedReferences.value.length)
@@ -36,20 +36,20 @@ export const useExtractionStore = defineStore('extraction', () => {
   })
 
   // Actions
-  async function extractReferences(request: ExtractionRequest) {
+  async function extractReferences(text: string) {
     isExtracting.value = true
     extractionError.value = null
 
     try {
-      const response = await ExtractionService.extractReferences(request)
+      const response = await ExtractionService.extractReferences({
+        text,
+        extractionSettings: extractionSettings.value,
+        aiSettings: aiSettings.value,
+      })
 
       if (response.success && response.data) {
         extractedReferences.value = response.data.references
-        originalText.value = request.text
-        lastExtractionSettings.value = {
-          extractionSettings: request.extractionSettings,
-          aiSettings: request.aiSettings,
-        }
+        originalText.value = text
       }
 
       return response
@@ -87,7 +87,6 @@ export const useExtractionStore = defineStore('extraction', () => {
   function clearExtractedReferences() {
     extractedReferences.value = []
     originalText.value = ''
-    lastExtractionSettings.value = null
     extractionError.value = null
   }
 
@@ -109,7 +108,6 @@ export const useExtractionStore = defineStore('extraction', () => {
     originalText: readonly(originalText),
     isExtracting: readonly(isExtracting),
     extractionError: readonly(extractionError),
-    lastExtractionSettings: readonly(lastExtractionSettings),
 
     // Computed
     totalExtractedReferences,

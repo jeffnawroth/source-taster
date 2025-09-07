@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { mdiAutoFix } from '@mdi/js'
-import { aiSettings, extractionSettings } from '@/extension/logic/storage'
 import { useExtractionStore } from '@/extension/stores/extraction'
 
 // Props
@@ -22,11 +21,7 @@ async function handleExtractClick() {
     return
 
   try {
-    await extractionStore.extractReferences({
-      text: props.inputText,
-      extractionSettings: extractionSettings.value,
-      aiSettings: aiSettings.value,
-    })
+    await extractionStore.extractReferences(props.inputText)
   }
   catch (error) {
     console.error('Extraction failed:', error)

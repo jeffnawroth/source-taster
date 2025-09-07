@@ -1,29 +1,33 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import { useUIStore } from '@/extension/stores/ui'
 import ExtractButton from './ExtractButton.vue'
 import FileInput from './FileInput.vue'
 import ParseButton from './ParseButton.vue'
 import TextInput from './TextInput.vue'
 
 // KEYBOARD SHORTCUT FOR CHECK REFERENCES
-const referencesStore = useReferencesStore()
-const { inputText, isExtraction, file } = storeToRefs(referencesStore)
-const { extractAndMatchReferences } = referencesStore
+const uiStore = useUIStore()
+const extractionStore = useExtractionStore()
 
-// Check if button should be disabled (same logic as in CheckReferencesButton)
-const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isExtraction.value)
+// Get state from new stores
+const { inputText, file } = storeToRefs(uiStore)
+const { isExtracting } = storeToRefs(extractionStore)
+
+// Check if button should be disabled
+const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isExtracting.value)
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
 const keys = useMagicKeys()
 const cmdEnter = keys['Cmd+Enter']
 const ctrlEnter = keys['Ctrl+Enter']
 
-// Trigger check references on keyboard shortcut
-async function triggerCheckReferences() {
-  if (!isDisabled.value) {
+// Trigger extraction on keyboard shortcut (using new extraction store)
+async function triggerExtraction() {
+  if (!isDisabled.value && inputText.value.trim()) {
     try {
-      await extractAndMatchReferences()
+      await extractionStore.extractReferences(inputText.value)
     }
     catch (error) {
       console.error('Error extraction references via keyboard shortcut:', error)
@@ -34,13 +38,13 @@ async function triggerCheckReferences() {
 // Watch for keyboard shortcuts
 watch(cmdEnter, (pressed) => {
   if (pressed) {
-    triggerCheckReferences()
+    triggerExtraction()
   }
 })
 
 watch(ctrlEnter, (pressed) => {
   if (pressed) {
-    triggerCheckReferences()
+    triggerExtraction()
   }
 })
 </script>
