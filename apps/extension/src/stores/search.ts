@@ -1,4 +1,4 @@
-import type { APISearchCandidate, ApiSearchRequest } from '@source-taster/types'
+import type { ApiSearchCandidate, ApiSearchRequest } from '@source-taster/types'
 /**
  * Pinia store for managing search functionality and candidates
  */
@@ -8,7 +8,7 @@ import { SearchService } from '@/extension/services/searchService'
 
 export const useSearchStore = defineStore('search', () => {
   // State
-  const candidates = ref<Map<string, APISearchCandidate>>(new Map())
+  const candidates = ref<Map<string, ApiSearchCandidate>>(new Map())
   const searchResults = ref<Map<string, string[]>>(new Map()) // referenceId -> candidateIds[]
   const isSearching = ref(false)
   const searchError = ref<string | null>(null)
@@ -17,9 +17,9 @@ export const useSearchStore = defineStore('search', () => {
   const totalCandidates = computed(() => candidates.value.size)
 
   const getCandidatesByReference = computed(() => {
-    return (referenceId: string): APISearchCandidate[] => {
+    return (referenceId: string): ApiSearchCandidate[] => {
       const candidateIds = searchResults.value.get(referenceId) || []
-      return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as APISearchCandidate[]
+      return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as ApiSearchCandidate[]
     }
   })
 
@@ -57,13 +57,13 @@ export const useSearchStore = defineStore('search', () => {
     }
   }
 
-  function getCandidateById(candidateId: string): APISearchCandidate | undefined {
+  function getCandidateById(candidateId: string): ApiSearchCandidate | undefined {
     return candidates.value.get(candidateId)
   }
 
-  function getCandidatesByReferenceId(referenceId: string): APISearchCandidate[] {
+  function getCandidatesByReferenceId(referenceId: string): ApiSearchCandidate[] {
     const candidateIds = searchResults.value.get(referenceId) || []
-    return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as APISearchCandidate[]
+    return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as ApiSearchCandidate[]
   }
 
   function clearSearchResults() {
