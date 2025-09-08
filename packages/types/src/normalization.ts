@@ -1,5 +1,3 @@
-import z from 'zod'
-
 // export type NormalizationRuleType =
 //   | 'spelling'
 //   | 'typography'
@@ -15,17 +13,17 @@ import z from 'zod'
 //   // z.B.: config: { preferredQuoteStyle: 'single' | 'double' };
 // }
 
-export const NormalizationRuleSchema = z.enum([
-  'normalize-typography',
-  'normalize-lowercase',
-  'normalize-identifiers',
-  'normalize-characters',
-  'normalize-whitespace',
-  'normalize-accents',
-  'normalize-umlauts',
-  'normalize-punctuation',
-  'normalize-unicode',
-  'normalize-urls',
-]).describe('Normalization rule action type')
+// export const NormalizationRuleSchema = z.enum([
+//   'normalize-typography',
+//   'normalize-lowercase',
+//   'normalize-identifiers',
+//   'normalize-characters',
+//   'normalize-whitespace',
+//   'normalize-accents',
+//   'normalize-umlauts',
+//   'normalize-punctuation',
+//   'normalize-unicode',
+//   'normalize-urls',
+// ]).describe('Normalization rule action type')
 
-export type NormalizationRule = z.infer<typeof NormalizationRuleSchema>
+// export type NormalizationRule = z.infer<typeof NormalizationRuleSchema>

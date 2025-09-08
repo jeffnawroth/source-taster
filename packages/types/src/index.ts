@@ -24,7 +24,7 @@ export * from './extract'
 export * from './llm'
 
 // Matching Types
-export * from './matching'
+export * from './match'
 
 // Normalization Types
 export * from './normalization'
