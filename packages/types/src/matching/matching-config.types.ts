@@ -1,5 +1,5 @@
 import z from 'zod'
-import { CSLVariableSchema } from '../reference'
+import { CSLVariableSchema } from '..'
 
 // Field Configuration Schemas
 export const FieldConfigSchema = z.object({

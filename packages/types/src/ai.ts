@@ -3,15 +3,16 @@
  */
 
 import type { ApiExtractRequest } from './extract'
+import type { LLMExtractPayload } from './llm'
 import z from 'zod'
-import { AIExtractedReferenceSchema } from './reference'
+import { LLMExtractReferenceSchema } from './llm'
 
 /**
  * Response from AI service containing extracted references (without IDs)
  * This is converted to the public ExtractionResponse before sending to frontend
  */
 export const AIExtractionResponseSchema = z.object({
-  references: z.array(AIExtractedReferenceSchema).describe('Array of extracted references'),
+  references: z.array(LLMExtractReferenceSchema).describe('Array of extracted references'),
 })
 
 export type AIExtractionResponse = z.infer<typeof AIExtractionResponseSchema>
@@ -21,7 +22,7 @@ export type AIExtractionResponse = z.infer<typeof AIExtractionResponseSchema>
  * Defines the contract that all AI services must implement
  */
 export interface AIService {
-  extractReferences: (extractionRequest: ApiExtractRequest) => Promise<AIExtractionResponse>
+  extractReferences: (extractionRequest: ApiExtractRequest) => Promise<LLMExtractPayload>
 }
 
 /**

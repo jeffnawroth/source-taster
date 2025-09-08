@@ -1,4 +1,4 @@
-import type { AIExtractionResponse, AIService, ExtractionRequest, OpenAIConfig,
+import type { AIService, ApiExtractRequest, LLMExtractPayload, OpenAIConfig,
 
 } from '@source-taster/types'
 import { ExtractionService } from './extractionService'
@@ -11,7 +11,7 @@ export class OpenAIService implements AIService {
     this.extractionService = new ExtractionService(config)
   }
 
-  async extractReferences(extractionRequest: ExtractionRequest): Promise<AIExtractionResponse> {
+  async extractReferences(extractionRequest: ApiExtractRequest): Promise<LLMExtractPayload> {
     return this.extractionService.extractReferences(extractionRequest)
   }
 }

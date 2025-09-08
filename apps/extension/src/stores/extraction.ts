@@ -1,7 +1,7 @@
 /**
  * Pinia store for managing extraction functionality and results
  */
-import type { Reference } from '@source-taster/types'
+import type { ApiExtractReference } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
 import { aiSettings, extractionSettings } from '@/extension/logic/storage'
@@ -9,7 +9,7 @@ import { ExtractionService } from '@/extension/services/extractionService'
 
 export const useExtractionStore = defineStore('extraction', () => {
   // State
-  const extractedReferences = ref<Reference[]>([])
+  const extractedReferences = ref<ApiExtractReference[]>([])
   const originalText = ref<string>('')
   const isExtracting = ref(false)
   const extractionError = ref<string | null>(null)
@@ -30,7 +30,7 @@ export const useExtractionStore = defineStore('extraction', () => {
   })
 
   const getReferenceById = computed(() => {
-    return (referenceId: string): Reference | undefined => {
+    return (referenceId: string): ApiExtractReference | undefined => {
       return extractedReferences.value.find(ref => ref.id === referenceId)
     }
   })
@@ -63,11 +63,11 @@ export const useExtractionStore = defineStore('extraction', () => {
     }
   }
 
-  function addReference(reference: Reference) {
+  function addReference(reference: ApiExtractReference) {
     extractedReferences.value.push(reference)
   }
 
-  function updateReference(referenceId: string, updatedReference: Partial<Reference>) {
+  function updateReference(referenceId: string, updatedReference: Partial<ApiExtractReference>) {
     const index = extractedReferences.value.findIndex(ref => ref.id === referenceId)
     if (index !== -1) {
       extractedReferences.value[index] = {

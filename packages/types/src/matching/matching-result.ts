@@ -1,4 +1,4 @@
-import type { CSLVariable } from '../reference'
+import type { CSLVariable } from '..'
 
 /**
  * Container for all matching-related information

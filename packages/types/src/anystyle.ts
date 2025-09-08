@@ -1,7 +1,7 @@
 /**
  * AnyStyle-related types and interfaces
  */
-import type { CSLItem } from './reference/csl-json.zod'
+import type { CSLItem } from './csl-json.zod'
 
 /**
  * Valid AnyStyle token labels (must match TokenRelabelingEditor options)

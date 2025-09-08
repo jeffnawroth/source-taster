@@ -212,6 +212,9 @@ export const CSLSchema = z.array(CSLItemSchema)
 // All keys of the CSL item as a Zod enum
 export const CSLVariableSchema = CSLItemSchema.keyof()
 
+export const CSLItemWithoutIdSchema = CSLItemSchema.omit({ id: true })
+export type CSLItemWithoutId = z.infer<typeof CSLItemWithoutIdSchema>
+
 export type CSLItemType = z.infer<typeof CSLItemTypeSchema>
 export type CSLName = z.infer<typeof CSLNameSchema>
 export type CSLDate = z.infer<typeof CSLDateSchema>

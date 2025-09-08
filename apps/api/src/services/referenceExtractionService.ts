@@ -1,7 +1,8 @@
 import type {
-  AIExtractedReference,
-  ExtractionRequest,
-  Reference,
+  ApiExtractReference,
+  ApiExtractRequest,
+  LLMExtractPayload,
+  LLMExtractReference,
   UserAISettings,
 } from '@source-taster/types'
 import crypto from 'node:crypto'
@@ -9,8 +10,8 @@ import { AIServiceFactory } from './ai/aiServiceFactory'
 
 export class ReferenceExtractionService {
   async extractReferences(
-    extractionRequest: ExtractionRequest,
-  ): Promise<Reference[]> {
+    extractionRequest: ApiExtractRequest,
+  ): Promise<ApiExtractReference[]> {
     try {
       return await this.performAIExtraction(
         extractionRequest,
@@ -22,8 +23,8 @@ export class ReferenceExtractionService {
   }
 
   private async performAIExtraction(
-    extractionRequest: ExtractionRequest,
-  ): Promise<Reference[]> {
+    extractionRequest: ApiExtractRequest,
+  ): Promise<ApiExtractReference[]> {
     if (!extractionRequest.aiSettings) {
       throw new Error('AI settings are required for reference extraction')
     }
@@ -31,7 +32,7 @@ export class ReferenceExtractionService {
     const ai = this.createAIService(extractionRequest.aiSettings)
     const result = await ai.extractReferences(extractionRequest)
 
-    return this.convertToReferences(result.references)
+    return this.convertToReferences(result)
   }
 
   private createAIService(userAISettings: UserAISettings) {
@@ -42,23 +43,19 @@ export class ReferenceExtractionService {
     return AIServiceFactory.createOpenAIService(userAISettings)
   }
 
-  private convertToReferences(aiReferences: AIExtractedReference[]): Reference[] {
-    return aiReferences.map((ref: AIExtractedReference) => this.createReference(ref))
+  private convertToReferences(aiReferences: LLMExtractPayload): ApiExtractReference[] {
+    return aiReferences.references.map((ref: LLMExtractReference) => this.createReference(ref))
   }
 
-  private createReference(aiRef: AIExtractedReference): Reference {
+  private createReference(aiRef: LLMExtractReference): ApiExtractReference {
     return {
-      id: this.generateUniqueId(),
+      id: crypto.randomUUID(),
       originalText: aiRef.originalText,
-      metadata: { ...aiRef.metadata, id: this.generateUniqueId() },
+      metadata: { ...aiRef.metadata, id: crypto.randomUUID() },
     }
   }
 
-  private generateUniqueId(): string {
-    return crypto.randomUUID()
-  }
-
-  private handleExtractionFailure(error: unknown): Reference[] {
+  private handleExtractionFailure(error: unknown): ApiExtractReference[] {
     console.error('Failed to extract references:', error)
     return []
   }

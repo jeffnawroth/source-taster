@@ -1,8 +1,8 @@
 import type { MatchingResult } from './matching-result'
 import z from 'zod'
-import { NormalizationRuleSchema } from '../normalization'
+import { CSLItemSchema } from '..'
 
-import { CSLItemSchema } from '../reference'
+import { NormalizationRuleSchema } from '../normalization'
 import { ApiSearchCandidateSchema } from '../search'
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
 

@@ -1,12 +1,7 @@
-import type {
-  ApiResponse,
-  ExtractionRequest,
-  ExtractionResponse,
-  Reference,
-} from '@source-taster/types'
-import type { Context } from 'hono'
-import { ExtractionRequestSchema } from '@source-taster/types'
+import type { ApiExtractData, ApiExtractReference, ApiExtractRequest, ApiResponse } from '@source-taster/types'
 
+import type { Context } from 'hono'
+import { ApiExtractRequestSchema } from '@source-taster/types'
 import * as extractionService from '../services/extractionService'
 
 /**
@@ -27,10 +22,10 @@ export async function extractReferences(c: Context) {
 /**
  * Parse and validate the incoming request
  */
-async function parseAndValidateRequest(c: Context): Promise<ExtractionRequest> {
+async function parseAndValidateRequest(c: Context): Promise<ApiExtractRequest> {
   // Get decrypted body from middleware or fall back to regular parsing
   const rawBody = c.get('decryptedBody') || await c.req.json()
-  const parseResult = ExtractionRequestSchema.safeParse(rawBody)
+  const parseResult = ApiExtractRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
     throw new ValidationError('Validation failed', parseResult.error)
@@ -42,8 +37,8 @@ async function parseAndValidateRequest(c: Context): Promise<ExtractionRequest> {
 /**
  * Create a successful response
  */
-function createSuccessResponse(c: Context, references: Reference[]) {
-  const response: ExtractionResponse = { references }
+function createSuccessResponse(c: Context, references: ApiExtractReference[]) {
+  const response = { references } as ApiExtractData
   return c.json({
     success: true,
     data: response,

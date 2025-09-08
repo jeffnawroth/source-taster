@@ -1,7 +1,7 @@
 import z from 'zod'
 import { UserAISettingsSchema } from './ai'
 import { createApiResponseSchema } from './api'
-import { CSLVariableSchema } from './reference'
+import { CSLItemSchema, CSLVariableSchema } from './csl-json.zod'
 
 // ----- Request -----
 
@@ -28,9 +28,9 @@ export type ApiExtractRequest = z.infer<typeof ApiExtractRequestSchema>
 // ----- Response -----
 
 export const ApiExtractReferenceSchema = z.object({
-  id: z.string().min(1).describe('Unique identifier for the reference'),
+  id: z.string().uuid().describe('Unique identifier for the extracted reference'),
   originalText: z.string().describe('The raw reference text as it appeared in the source'),
-  metadata: CSLVariableSchema.describe('Extracted bibliographic metadata'),
+  metadata: CSLItemSchema.describe('Extracted bibliographic metadata'),
 }).strict()
 
 export type ApiExtractReference = z.infer<typeof ApiExtractReferenceSchema>
@@ -41,5 +41,5 @@ export const ApiExtractDataSchema = z.object({
 
 export type ApiExtractData = z.infer<typeof ApiExtractDataSchema>
 
-export const APIExtractResponseSchema = createApiResponseSchema(ApiExtractDataSchema)
-export type APIExtractResponse = z.infer<typeof APIExtractResponseSchema>
+export const ApiExtractResponseSchema = createApiResponseSchema(ApiExtractDataSchema)
+export type ApiExtractResponse = z.infer<typeof ApiExtractResponseSchema>

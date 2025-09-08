@@ -1,17 +1,16 @@
-import type { ExtractionSettings } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
-import { AIExtractedReferenceSchema, AIExtractionResponseSchema, CSLItemSchema } from '@source-taster/types'
+import { AIExtractionResponseSchema, type ApiExtractExtractionSettings, CSLItemSchema, type CSLVariable, LLMExtractReferenceSchema } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
 // Helper function to create conditional schema fields based on enabled fields
-function createConditionalCSLSchema(enabledFields: string[]): z.ZodType<any> {
+function createConditionalCSLSchema(enabledFields: CSLVariable[]): z.ZodType<any> {
   const cslShape = CSLItemSchema.shape
   const conditionalShape: Record<string, z.ZodTypeAny> = {}
 
   // Add optional fields based on user selection
   for (const [fieldName, schema] of Object.entries(cslShape)) {
-    if (fieldName !== 'id' && enabledFields.includes(fieldName)) {
+    if (fieldName !== 'id' && enabledFields.includes(fieldName as CSLVariable)) {
       conditionalShape[fieldName] = schema
     }
   }
@@ -20,13 +19,13 @@ function createConditionalCSLSchema(enabledFields: string[]): z.ZodType<any> {
 }
 
 // Create dynamic schema based on extraction settings
-export function createDynamicExtractionSchema(extractionSettings: ExtractionSettings) {
+export function createDynamicExtractionSchema(extractionSettings: ApiExtractExtractionSettings) {
   const { variables } = extractionSettings.extractionConfig
 
   // Create dynamic CSL schema based on enabled variables/fields
   const DynamicCSLItemSchema = createConditionalCSLSchema(variables)
 
-  const DynamicCSLReferenceSchema = AIExtractedReferenceSchema.extend({
+  const DynamicCSLReferenceSchema = LLMExtractReferenceSchema.extend({
     metadata: DynamicCSLItemSchema.describe('Extracted reference metadata in CSL-JSON format with selected fields'),
   })
 
