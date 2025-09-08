@@ -9,7 +9,7 @@
 export * from './ai'
 
 // AnyStyle Types
-export * from './anystyle'
+export * from './anystyle/index'
 
 // API Types
 export * from './api'

@@ -1,20 +1,17 @@
 /**
  * Service for interacting with the AnyStyle API endpoints
  */
-import type {
-  AnystyleTokenSequence,
-  ApiResponse,
-  ConvertToCSLData,
-  ParseData,
-  TrainModelData,
+import {
+  ApiAnystyleConvertRequestSchema,
+  type ApiAnystyleConvertResponse,
+  ApiAnystyleParseRequestSchema,
+  type ApiAnystyleParseResponse,
+  type ApiAnystyleTokenSequence,
+  ApiAnystyleTrainRequestSchema,
+  type ApiAnystyleTrainResponse,
 } from '@source-taster/types'
 
 const API_BASE_URL = 'http://localhost:8000/api/anystyle'
-
-export interface APIError {
-  error: string
-  details?: string
-}
 
 export class AnystyleService {
   /**
@@ -22,18 +19,18 @@ export class AnystyleService {
    * @param references - Array of reference strings to parse
    * @returns Parsed tokens for each reference
    */
-  static async parseReferences(references: string[]): Promise<ApiResponse<ParseData>> {
+  static async parseReferences(references: string[]): Promise<ApiAnystyleParseResponse> {
+    const req = ApiAnystyleParseRequestSchema.parse({ input: references })
+
     const response = await fetch(`${API_BASE_URL}/parse`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        input: references,
-      }),
+      body: JSON.stringify(req),
     })
 
-    const result = await response.json() as ApiResponse<ParseData>
+    const result = await response.json() as ApiAnystyleParseResponse
 
     if (!response.ok || !result.success) {
       throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
@@ -47,18 +44,18 @@ export class AnystyleService {
    * @param tokens - Array of token sequences to convert
    * @returns CSL formatted references
    */
-  static async convertToCSL(tokens: AnystyleTokenSequence[]): Promise<ApiResponse<ConvertToCSLData>> {
+  static async convertToCSL(tokens: ApiAnystyleTokenSequence[]): Promise<ApiAnystyleConvertResponse> {
+    const req = ApiAnystyleConvertRequestSchema.parse({ tokens })
+
     const response = await fetch(`${API_BASE_URL}/convert-to-csl`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        tokens,
-      }),
+      body: JSON.stringify(req),
     })
 
-    const result = await response.json() as ApiResponse<ConvertToCSLData>
+    const result = await response.json() as ApiAnystyleConvertResponse
 
     if (!response.ok || !result.success) {
       throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
@@ -72,19 +69,18 @@ export class AnystyleService {
    * @param tokens - Training data as token sequences
    * @returns Training result information
    */
-  static async trainModel(tokens: AnystyleTokenSequence[]): Promise<ApiResponse<TrainModelData>> {
+  static async trainModel(tokens: ApiAnystyleTokenSequence[]): Promise<ApiAnystyleTrainResponse> {
+    const req = ApiAnystyleTrainRequestSchema.parse({ tokens })
+
     const response = await fetch(`${API_BASE_URL}/train-model`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        tokens,
-      }),
+      body: JSON.stringify(req),
     })
 
-    const result = await response.json() as ApiResponse<TrainModelData>
-
+    const result = await response.json() as ApiAnystyleTrainResponse
     if (!response.ok || !result.success) {
       throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
     }

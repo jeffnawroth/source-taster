@@ -1,4 +1,4 @@
-import type { ApiResponse, ConvertToCSLData, ParseData, TrainModelData } from '@source-taster/types'
+import type { ApiAnystyleConvertResponse, ApiAnystyleParseResponse, ApiAnystyleTrainResponse, ApiResponse } from '@source-taster/types'
 import type { Context } from 'hono'
 
 const ANYSTYLE_SERVER_URL = 'http://localhost:4567'
@@ -26,10 +26,10 @@ export class AnystyleController {
       const anystyleResult = await response.json() as any
 
       // Transform to unified ApiResponse format
-      const apiResponse: ApiResponse<ParseData> = {
+      const apiResponse: ApiAnystyleParseResponse = {
         success: true,
         data: {
-          model_used: anystyleResult.model_used || 'unknown',
+          modelUsed: anystyleResult.model_used || 'unknown',
           tokens: anystyleResult.tokens || [],
         },
         message: 'References parsed successfully',
@@ -70,7 +70,7 @@ export class AnystyleController {
       const anystyleResult = await response.json() as any
 
       // Transform to unified ApiResponse format
-      const apiResponse: ApiResponse<ConvertToCSLData> = {
+      const apiResponse: ApiAnystyleConvertResponse = {
         success: true,
         data: {
           csl: anystyleResult.csl || [],
@@ -113,14 +113,14 @@ export class AnystyleController {
       const anystyleResult = await response.json() as any
 
       // Transform to unified ApiResponse format
-      const apiResponse: ApiResponse<TrainModelData> = {
+      const apiResponse: ApiAnystyleTrainResponse = {
         success: true,
         data: {
-          model_path: anystyleResult.model_path || '',
-          model_size_bytes: anystyleResult.model_size_bytes || 0,
-          training_sequences: anystyleResult.training_sequences || 0,
-          training_tokens: anystyleResult.training_tokens || 0,
-          training_method: anystyleResult.training_method || '',
+          modelPath: anystyleResult.model_path || '',
+          modelSizeBytes: anystyleResult.model_size_bytes || 0,
+          trainingSequences: anystyleResult.training_sequences || 0,
+          trainingTokens: anystyleResult.training_tokens || 0,
+          trainingMethod: anystyleResult.training_method || '',
           message: anystyleResult.message || 'Model trained successfully',
           timestamp: anystyleResult.timestamp || new Date().toISOString(),
         },
