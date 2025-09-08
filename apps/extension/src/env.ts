@@ -18,7 +18,6 @@ export const API_CONFIG = {
     extract: '/api/extract',
     match: '/api/match',
     search: '/api/search',
-    searchAndMatch: '/api/search-and-match',
     parse: '/api/parse',
   },
 } as const
