@@ -1,10 +1,11 @@
 /**
  * Service for matching references against external databases
  */
-import type {
-  ApiResponse,
-  MatchingRequest,
-  MatchingResponse,
+import {
+  type ApiMatchRequest,
+  ApiMatchRequestSchema,
+
+  type ApiMatchResponse,
 } from '@source-taster/types'
 import { API_CONFIG } from '../env'
 
@@ -16,16 +17,18 @@ export class MatchingService {
    * @param request - The matching request containing references and settings
    * @returns Matching results
    */
-  static async matchReferences(request: MatchingRequest): Promise<ApiResponse<MatchingResponse>> {
+  static async matchReferences(request: ApiMatchRequest): Promise<ApiMatchResponse> {
+    const req = ApiMatchRequestSchema.parse(request)
+
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(request),
+      body: JSON.stringify(req),
     })
 
-    const result = await response.json() as ApiResponse<MatchingResponse>
+    const result = await response.json() as ApiMatchResponse
 
     if (!response.ok || !result.success) {
       throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
