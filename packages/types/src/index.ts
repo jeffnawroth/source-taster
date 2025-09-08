@@ -17,8 +17,7 @@ export * from './api'
 // Common Types
 export * from './common'
 
-// Extraction Types
-export * from './extraction'
+export * from './extract'
 
 // Matching Types
 export * from './matching'

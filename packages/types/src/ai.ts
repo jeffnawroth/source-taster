@@ -2,7 +2,7 @@
  * AI service interfaces and configuration types
  */
 
-import type { ExtractionRequest } from './extraction'
+import type { ApiExtractRequest } from './extract'
 import z from 'zod'
 import { AIExtractedReferenceSchema } from './reference'
 
@@ -21,7 +21,7 @@ export type AIExtractionResponse = z.infer<typeof AIExtractionResponseSchema>
  * Defines the contract that all AI services must implement
  */
 export interface AIService {
-  extractReferences: (extractionRequest: ExtractionRequest) => Promise<AIExtractionResponse>
+  extractReferences: (extractionRequest: ApiExtractRequest) => Promise<AIExtractionResponse>
 }
 
 /**
