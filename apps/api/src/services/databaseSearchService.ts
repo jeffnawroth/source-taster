@@ -1,6 +1,6 @@
 import type {
+  ApiMatchReference,
   ApiSearchCandidate,
-  MatchingReference,
 } from '@source-taster/types'
 import process from 'node:process'
 import { ArxivService } from './databases/arxivService'
@@ -37,7 +37,7 @@ export class DatabaseSearchService {
    * @param reference The reference to search for
    * @returns Array of external sources found across all databases
    */
-  async searchAllDatabases(reference: MatchingReference): Promise<ApiSearchCandidate[]> {
+  async searchAllDatabases(reference: ApiMatchReference): Promise<ApiSearchCandidate[]> {
     const candidates: ApiSearchCandidate[] = []
 
     // Search in all databases in parallel for better performance
@@ -90,7 +90,7 @@ export class DatabaseSearchService {
    * @returns External source if found, null otherwise
    */
   async searchSingleDatabase(
-    reference: MatchingReference | { id: string, metadata: any },
+    reference: ApiMatchReference,
     databaseInfo: DatabaseInfo,
   ): Promise<ApiSearchCandidate | null> {
     const { name, service } = databaseInfo

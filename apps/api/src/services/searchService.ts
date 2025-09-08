@@ -1,6 +1,6 @@
 import type {
+  ApiSearchReference,
   ApiSearchResult,
-  MatchingReference,
 } from '@source-taster/types'
 import { DatabaseSearchService } from './databaseSearchService'
 
@@ -10,7 +10,7 @@ const databaseSearchService = new DatabaseSearchService()
 /**
  * Search multiple references in all databases
  */
-export async function searchAllDatabases(references: MatchingReference[]): Promise<ApiSearchResult[]> {
+export async function searchAllDatabases(references: ApiSearchReference[]): Promise<ApiSearchResult[]> {
   const results: ApiSearchResult[] = []
 
   for (const reference of references) {
@@ -31,7 +31,7 @@ export async function searchAllDatabases(references: MatchingReference[]): Promi
  * Search multiple references in a specific database
  */
 export async function searchSingleDatabase(
-  references: MatchingReference[],
+  references: ApiSearchReference[],
   databaseName: string,
 ): Promise<ApiSearchResult[]> {
   const databases = databaseSearchService.getDatabasesByPriority()

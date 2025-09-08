@@ -8,7 +8,7 @@ export const ApiSearchReferenceSchema = z.object({
   metadata: CSLItemSchema.describe('Bibliographic metadata for the reference'),
 }).strict()
 
-export type ApiSearchReferenceInput = z.infer<typeof ApiSearchReferenceSchema>
+export type ApiSearchReference = z.infer<typeof ApiSearchReferenceSchema>
 
 export const ApiSearchRequestSchema = z.object({
   references: z.array(ApiSearchReferenceSchema).min(1).describe('Array of references to search for'),

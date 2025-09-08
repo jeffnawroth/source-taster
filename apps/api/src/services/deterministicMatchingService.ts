@@ -1,13 +1,4 @@
-import type {
-  APIMatchingSettings,
-  ApiSearchCandidate,
-  CSLItem,
-  FieldConfigurations,
-  FieldMatchDetail,
-  MatchDetails,
-  MatchingReference,
-  NormalizationRule,
-} from '@source-taster/types'
+import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem } from '@source-taster/types'
 import { MetadataComparator } from '../utils/metadataComparator'
 import { similarity } from '../utils/similarity'
 
@@ -16,10 +7,10 @@ export class DeterministicMatchingService {
    * Matches a reference against an external source using deterministic similarity algorithms
    */
   matchReference(
-    reference: MatchingReference,
-    source: ApiSearchCandidate,
-    matchingSettings: APIMatchingSettings,
-  ): MatchDetails {
+    reference: ApiMatchReference,
+    source: ApiMatchCandidate,
+    matchingSettings: ApiMatchMatchingSettings,
+  ): ApiMatchDetails {
     const fieldConfigurations = matchingSettings.matchingConfig.fieldConfigurations
     const normalizationRules = matchingSettings.matchingStrategy.normalizationRules
     const fieldDetails = this.calculateFieldScores(
@@ -39,10 +30,10 @@ export class DeterministicMatchingService {
   private calculateFieldScores(
     referenceMetadata: CSLItem,
     sourceMetadata: CSLItem,
-    fieldConfigurations: FieldConfigurations,
-    normalizationRules: NormalizationRule[],
-  ): FieldMatchDetail[] {
-    const fieldScores: FieldMatchDetail[] = []
+    fieldConfigurations: ApiMatchConfig['fieldConfigurations'],
+    normalizationRules: ApiMatchNormalizationRule[],
+  ): ApiMatchFieldDetail[] {
+    const fieldScores: ApiMatchFieldDetail[] = []
 
     // Get enabled fields that exist in both objects with meaningful values
     const enabledFields = MetadataComparator.getEnabledFields(
@@ -53,7 +44,7 @@ export class DeterministicMatchingService {
 
     // Compare only enabled fields directly (no path traversal needed for flat CSL structure)
     for (const fieldName of enabledFields) {
-      const config = fieldConfigurations[fieldName as keyof FieldConfigurations]
+      const config = fieldConfigurations[fieldName as keyof ApiMatchConfig['fieldConfigurations']]
       if (config?.weight && config.weight > 0) {
         const referenceValue = referenceMetadata[fieldName]
         const sourceValue = sourceMetadata[fieldName]
@@ -62,8 +53,8 @@ export class DeterministicMatchingService {
         const weightedScore = score * 100 // Convert to percentage (0-100)
 
         fieldScores.push({
-          field: fieldName as keyof FieldConfigurations,
-          match_score: Math.round(weightedScore),
+          field: fieldName as keyof ApiMatchConfig['fieldConfigurations'],
+          fieldScore: Math.round(weightedScore),
         })
       }
     }
@@ -74,7 +65,7 @@ export class DeterministicMatchingService {
   private compareValues(
     referenceValue: unknown,
     sourceValue: unknown,
-    normalizationRules: NormalizationRule[],
+    normalizationRules: ApiMatchNormalizationRule[],
   ): number {
     // Special handling for arrays (like authors)
     if (Array.isArray(referenceValue) && Array.isArray(sourceValue)) {
@@ -84,7 +75,7 @@ export class DeterministicMatchingService {
     return similarity(referenceValue, sourceValue, normalizationRules)
   }
 
-  private compareArrays(arr1: unknown[], arr2: unknown[], normalizationRules: NormalizationRule[]): number {
+  private compareArrays(arr1: unknown[], arr2: unknown[], normalizationRules: ApiMatchNormalizationRule[]): number {
     if (arr1.length === 0 && arr2.length === 0) {
       return 0.5
     }
@@ -109,7 +100,7 @@ export class DeterministicMatchingService {
     return scores.reduce((sum, score) => sum + score, 0) / scores.length
   }
 
-  private calculateOverallScore(fieldDetails: FieldMatchDetail[], fieldConfigurations: FieldConfigurations): number {
+  private calculateOverallScore(fieldDetails: ApiMatchFieldDetail[], fieldConfigurations: ApiMatchConfig['fieldConfigurations']): number {
     if (fieldDetails.length === 0) {
       return 0
     }
@@ -118,8 +109,8 @@ export class DeterministicMatchingService {
     let totalWeight = 0
 
     for (const detail of fieldDetails) {
-      const weight = fieldConfigurations[detail.field as keyof FieldConfigurations]?.weight || 0
-      totalWeightedScore += detail.match_score * weight
+      const weight = fieldConfigurations[detail.field as keyof ApiMatchConfig['fieldConfigurations']]?.weight || 0
+      totalWeightedScore += detail.fieldScore * weight
       totalWeight += weight
     }
 

@@ -1,4 +1,4 @@
-import type { CSLDate, CSLName, NormalizationRule } from '@source-taster/types'
+import type { ApiMatchNormalizationRule, CSLDate, CSLName } from '@source-taster/types'
 import normalizeUrl from 'normalize-url'
 
 /**
@@ -10,10 +10,10 @@ export class NormalizationService {
    * Apply selected normalization rules to text in a consistent order
    * Rules that conflict (like umlauts vs accents) are applied in a deterministic sequence
    */
-  public normalize(text: string, rules: NormalizationRule[]): string {
+  public normalize(text: string, rules: ApiMatchNormalizationRule[]): string {
     // Define the canonical order for applying rules to avoid conflicts
     // This ensures consistent results regardless of input rule order
-    const ruleOrder: NormalizationRule[] = [
+    const ruleOrder: ApiMatchNormalizationRule[] = [
       'normalize-typography', // First: Fix encoding issues
       'normalize-characters', // Second: Fix corrupted characters
       'normalize-urls', // Third: Normalize URLs
@@ -41,7 +41,7 @@ export class NormalizationService {
   /**
    * Apply a single normalization rule
    */
-  private applyRule(text: string, rule: NormalizationRule): string {
+  private applyRule(text: string, rule: ApiMatchNormalizationRule): string {
     switch (rule) {
       case 'normalize-typography':
         return this.normalizeTypography(text)
@@ -583,7 +583,7 @@ export class NormalizationService {
    * Convert value to string and apply normalization rules in one step
    * This is the main method for normalized value comparison
    */
-  public normalizeValue(value: unknown, rules: NormalizationRule[]): string {
+  public normalizeValue(value: unknown, rules: ApiMatchNormalizationRule[]): string {
     const stringValue = this.stringifyValue(value)
     return this.normalize(stringValue, rules)
   }

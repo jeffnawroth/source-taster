@@ -1,9 +1,10 @@
 import type {
-  APIMatchingSettings,
+  ApiMatchCandidate,
+  ApiMatchData,
+  ApiMatchEvaluation,
+  ApiMatchMatchingSettings,
+  ApiMatchReference,
   ApiSearchCandidate,
-  MatchingReference,
-  MatchingResult,
-  SourceEvaluation,
 } from '@source-taster/types'
 import { DeterministicMatchingService } from './deterministicMatchingService'
 
@@ -26,10 +27,10 @@ export class DatabaseMatchingService {
    * @returns Matching result with evaluated candidates
    */
   evaluateAllCandidates(
-    reference: MatchingReference,
-    candidates: ApiSearchCandidate[],
-    matchingSettings: APIMatchingSettings,
-  ): MatchingResult {
+    reference: ApiMatchReference,
+    candidates: ApiMatchCandidate[],
+    matchingSettings: ApiMatchMatchingSettings,
+  ): ApiMatchData {
     const sourceEvaluations = this.matchAllCandidates(candidates, reference, matchingSettings)
     return this.buildMatchingResult(sourceEvaluations)
   }
@@ -42,10 +43,10 @@ export class DatabaseMatchingService {
    * @returns Source evaluation
    */
   evaluateSingleCandidate(
-    reference: MatchingReference,
+    reference: ApiMatchReference,
     candidate: ApiSearchCandidate,
-    matchingSettings: APIMatchingSettings,
-  ): SourceEvaluation {
+    matchingSettings: ApiMatchMatchingSettings,
+  ): ApiMatchEvaluation {
     return this.evaluateSource(reference, candidate, matchingSettings)
   }
 
@@ -53,10 +54,10 @@ export class DatabaseMatchingService {
    * Match all candidates against a reference (internal method)
    */
   private matchAllCandidates(
-    candidates: ApiSearchCandidate[],
-    reference: MatchingReference,
-    matchingSettings: APIMatchingSettings,
-  ): SourceEvaluation[] {
+    candidates: ApiMatchCandidate[],
+    reference: ApiMatchReference,
+    matchingSettings: ApiMatchMatchingSettings,
+  ): ApiMatchEvaluation[] {
     if (candidates.length === 0) {
       return []
     }
@@ -65,34 +66,25 @@ export class DatabaseMatchingService {
   }
 
   private evaluateAllSources(
-    reference: MatchingReference,
-    sources: ApiSearchCandidate[],
-    matchingSettings: APIMatchingSettings,
-  ): SourceEvaluation[] {
-    const evaluations: SourceEvaluation[] = []
-    const isEarlyTerminationEnabled = matchingSettings.matchingConfig.earlyTermination.enabled
-    const threshold = matchingSettings.matchingConfig.earlyTermination.threshold
+    reference: ApiMatchReference,
+    sources: ApiMatchCandidate[],
+    matchingSettings: ApiMatchMatchingSettings,
+  ): ApiMatchEvaluation[] {
+    const evaluations: ApiMatchEvaluation[] = []
 
     for (const source of sources) {
       const evaluation = this.evaluateSource(reference, source, matchingSettings)
       evaluations.push(evaluation)
-
-      // Early Termination Check: Stop if we found a high confidence match
-      if (isEarlyTerminationEnabled && evaluation.matchDetails.overallScore >= threshold) {
-        console.warn(`DatabaseMatching: Early termination for reference ${reference.id} - found ${evaluation.matchDetails.overallScore}% match in ${source.source} (threshold: ${threshold}%)`)
-        console.warn(`DatabaseMatching: Evaluated ${evaluations.length} of ${sources.length} sources before stopping`)
-        break
-      }
     }
 
     return evaluations
   }
 
   private evaluateSource(
-    reference: MatchingReference,
-    source: ApiSearchCandidate,
-    matchingSettings: APIMatchingSettings,
-  ): SourceEvaluation {
+    reference: ApiMatchReference,
+    source: ApiMatchCandidate,
+    matchingSettings: ApiMatchMatchingSettings,
+  ): ApiMatchEvaluation {
     const matchDetails = this.deterministicMatchingService.matchReference(reference, source, matchingSettings)
     return {
       referenceId: reference.id,
@@ -101,9 +93,9 @@ export class DatabaseMatchingService {
     }
   }
 
-  private buildMatchingResult(sourceEvaluations: SourceEvaluation[]): MatchingResult {
+  private buildMatchingResult(sourceEvaluations: ApiMatchEvaluation[]): ApiMatchData {
     if (sourceEvaluations.length === 0) {
-      return { sourceEvaluations: [] }
+      return { evaluations: [] }
     }
 
     // Sort by overall score (highest first)
@@ -111,6 +103,6 @@ export class DatabaseMatchingService {
       (a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore,
     )
 
-    return { sourceEvaluations: sortedEvaluations }
+    return { evaluations: sortedEvaluations }
   }
 }

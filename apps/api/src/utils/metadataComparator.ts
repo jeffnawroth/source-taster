@@ -1,4 +1,4 @@
-import type { CSLItem, CSLVariable, FieldConfigurations } from '@source-taster/types'
+import type { ApiMatchConfig, CSLItem, CSLVariable } from '@source-taster/types'
 
 /**
  * Simplified metadata comparator optimized for flat CSL-JSON structure
@@ -36,7 +36,7 @@ export class MetadataComparator {
   static getEnabledFields(
     obj1: CSLItem,
     obj2: CSLItem,
-    fieldConfig: FieldConfigurations,
+    fieldConfig: ApiMatchConfig['fieldConfigurations'],
   ): CSLVariable[] {
     const commonFields = this.getCommonMeaningfulFields(obj1, obj2)
 

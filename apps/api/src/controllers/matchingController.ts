@@ -1,6 +1,6 @@
-import type { ApiResponse, MatchingResponse, ValidatedMatchingRequest } from '@source-taster/types'
+import type { ApiMatchData, ApiMatchRequest, ApiResponse } from '@source-taster/types'
 import type { Context } from 'hono'
-import { ValidatedMatchingRequestSchema } from '@source-taster/types'
+import { ApiMatchRequestSchema } from '@source-taster/types'
 import * as matchingService from '../services/matchingService'
 
 /**
@@ -21,9 +21,9 @@ export async function matchReferences(c: Context) {
 /**
  * Parse and validate the incoming request
  */
-async function parseAndValidateRequest(c: Context): Promise<ValidatedMatchingRequest> {
+async function parseAndValidateRequest(c: Context): Promise<ApiMatchRequest> {
   const rawBody = await c.req.json()
-  const parseResult = ValidatedMatchingRequestSchema.safeParse(rawBody)
+  const parseResult = ApiMatchRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
     throw new ValidationError('Validation failed', parseResult.error)
@@ -35,11 +35,10 @@ async function parseAndValidateRequest(c: Context): Promise<ValidatedMatchingReq
 /**
  * Create a successful response
  */
-function createSuccessResponse(c: Context, result: any) {
-  const response: MatchingResponse = { result }
+function createSuccessResponse(c: Context, result: ApiMatchData) {
   return c.json({
     success: true,
-    data: response,
+    data: result,
   })
 }
 /**
