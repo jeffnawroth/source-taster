@@ -17,8 +17,6 @@
     "dev": "tsc --watch"
   },
   "devDependencies": {
-    "@types/crypto-js": "^4.2.2",
-    "crypto-js": "^4.2.0",
     "typescript": "^5.9.2",
     "zod": "^3.25.76"
   }
