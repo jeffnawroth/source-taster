@@ -1,7 +1,16 @@
 import type { OpenAIConfig } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { OpenAI } from 'openai'
-import { AppError, BadRequest, TooManyRequests, Unauthorized, UpstreamError } from '../../errors/AppError'
+import {
+  httpBadRequest,
+  httpConflict,
+  httpForbidden,
+  httpRateLimited,
+  httpUnauthorized,
+  httpUnprocessable,
+  httpUpstream,
+} from '../../errors/http'
+
 /**
  * Base AI service with common functionality for all AI providers
  * Handles provider-specific API differences and fallback strategies
@@ -21,102 +30,148 @@ export abstract class BaseAIService {
   }
 
   /**
-   * Make an OpenAI-compatible API call with automatic fallback for providers
-   * that don't support structured json_schema responses
+   * High-level call that prefers structured json_schema and falls back to json_object
+   * if the provider doesn't support response_format=json_schema.
    */
   protected async callOpenAI(
     systemMessage: string,
     userMessage: string,
     schema: ResponseFormatJSONSchema.JSONSchema,
-  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+  ) {
     try {
       return await this.makeStructuredAPICall(systemMessage, userMessage, schema)
     }
-    catch (error: any) {
-      if (this.isJsonSchemaUnsupportedError(error)) {
+    catch (e: any) {
+      // Fallback nur, wenn wirklich response_format nicht unterstützt wird
+      if (this.isJsonSchemaUnsupportedError(e)) {
         return await this.makeUnstructuredAPICall(systemMessage, userMessage, schema)
       }
-      throw error
+      this.mapAIError(e)
     }
   }
 
   /**
    * Make structured API call with json_schema support
    */
-  private async makeStructuredAPICall(
+  protected async makeStructuredAPICall(
     systemMessage: string,
     userMessage: string,
     schema: ResponseFormatJSONSchema.JSONSchema,
-  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-      { role: 'system', content: systemMessage },
-      { role: 'user', content: userMessage },
-    ]
+  ) {
+    try {
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: userMessage },
+      ]
 
-    // Only add assistant message for Anthropic/Claude models
-    if (this.isAnthropicProvider()) {
-      messages.push({ role: 'assistant', content: JSON.stringify(schema) })
+      // Optional: Provider-spezifische Anpassungen (z. B. Anthropic via OpenAI-kompatible Gateways)
+      if (this.isAnthropicProvider()) {
+        messages.push({ role: 'assistant', content: JSON.stringify(schema) })
+      }
+
+      return await this.client.chat.completions.create({
+        model: this.config.model,
+        temperature: this.config.temperature,
+        messages,
+        response_format: { type: 'json_schema', json_schema: schema },
+      })
     }
-
-    return await this.client.chat.completions.create({
-      model: this.config.model,
-      temperature: this.config.temperature,
-      messages,
-      response_format: {
-        type: 'json_schema',
-        json_schema: schema,
-      },
-    })
-  }
-
-  /**
-   * Check if the current provider is Anthropic/Claude
-   */
-  private isAnthropicProvider(): boolean {
-    // Check if baseURL contains anthropic or if model starts with claude
-    const baseUrl = this.config.baseUrl?.toLowerCase() || ''
-    const model = this.config.model.toLowerCase()
-
-    return baseUrl.includes('anthropic')
-      || baseUrl.includes('claude')
-      || model.startsWith('claude')
+    catch (e: any) {
+      // structured nicht verfügbar? Caller kümmert sich um Fallback
+      if (this.isJsonSchemaUnsupportedError(e))
+        throw e
+      this.mapAIError(e)
+    }
   }
 
   /**
    * Make unstructured API call with json_object fallback
    */
-  private async makeUnstructuredAPICall(
+  protected async makeUnstructuredAPICall(
     systemMessage: string,
     userMessage: string,
     schema: ResponseFormatJSONSchema.JSONSchema,
-  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
-    console.warn(`Provider ${this.config.model} doesn't support json_schema, falling back to json_object with schema instructions`)
+  ) {
+    try {
+      console.warn(`Provider ${this.config.model} doesn't support json_schema, falling back to json_object with schema instructions`)
 
-    const enhancedSystemMessage = this.enhanceSystemMessageWithSchema(systemMessage, schema)
+      const enhancedSystemMessage = this.enhanceSystemMessageWithSchema(systemMessage, schema)
 
-    return await this.client.chat.completions.create({
-      model: this.config.model,
-      temperature: this.config.temperature,
-      messages: [
-        { role: 'system', content: enhancedSystemMessage },
-        { role: 'user', content: userMessage },
-      ],
-      response_format: { type: 'json_object' },
-    })
+      return await this.client.chat.completions.create({
+        model: this.config.model,
+        temperature: this.config.temperature,
+        messages: [
+          { role: 'system', content: enhancedSystemMessage },
+          { role: 'user', content: userMessage },
+        ],
+        response_format: { type: 'json_object' },
+      })
+    }
+    catch (e: any) {
+      this.mapAIError(e)
+    }
+  }
+
+  /**
+   * Centralized mapping of OpenAI/Upstream errors to HTTPException
+   */
+  protected mapAIError(e: any) {
+    const status: number | undefined
+      = e?.status ?? e?.response?.status ?? e?.error?.status
+
+    const code = e?.code ?? e?.error?.code
+    const msg: string
+      = e?.error?.message ?? e?.message ?? 'Upstream AI error'
+
+    // Häufige Fälle:
+    if (status === 400)
+      return httpBadRequest(msg, e)
+    if (status === 401 || code === 'invalid_api_key')
+      return httpUnauthorized('Invalid API key for provider', e)
+    if (status === 403)
+      return httpForbidden(msg || 'Forbidden', e)
+    if (status === 404)
+      return httpUpstream('Upstream endpoint not found', 502, e)
+    if (status === 409)
+      return httpConflict(msg || 'Conflict', e)
+    if (status === 422)
+      return httpUnprocessable(msg || 'Unprocessable', e)
+    if (status === 429)
+      return httpRateLimited(msg || 'Upstream rate limited', e)
+    if (status && status >= 500)
+      return httpUpstream('Upstream server error', 502, e)
+
+    // Spezieller Case: response_format nicht unterstützt — wird vom Caller als Fallback behandelt.
+    if (this.isJsonSchemaUnsupportedError(e)) {
+      throw e
+    }
+
+    // Default: behandle als Upstream-Fehler
+    return httpUpstream(msg, 502, e)
+  }
+
+  /**
+   * Check if the current provider is Anthropic/Claude
+   */
+  protected isAnthropicProvider(): boolean {
+    const baseUrl = this.config.baseUrl?.toLowerCase() || ''
+    const model = this.config.model.toLowerCase()
+    return baseUrl.includes('anthropic') || baseUrl.includes('claude') || model.startsWith('claude')
   }
 
   /**
    * Check if error indicates json_schema is unsupported
    */
-  private isJsonSchemaUnsupportedError(error: any): boolean {
+  protected isJsonSchemaUnsupportedError(error: any): boolean {
     return error?.error?.type === 'invalid_request_error'
-      && error?.error?.message?.includes('response_format')
+      && typeof error?.error?.message === 'string'
+      && error.error.message.includes('response_format')
   }
 
   /**
    * Enhance system message with schema instructions for fallback
    */
-  private enhanceSystemMessageWithSchema(
+  protected enhanceSystemMessageWithSchema(
     systemMessage: string,
     schema: ResponseFormatJSONSchema.JSONSchema,
   ): string {
@@ -142,69 +197,37 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     return this.validateResponse<T>(parsedResponse, schema)
   }
 
-  /**
-   * Extract content from OpenAI response
-   */
   private extractResponseContent(response: OpenAI.Chat.Completions.ChatCompletion): string {
     const content = response.choices[0]?.message?.content
     if (!content) {
-      throw new Error('No content in AI response')
+      throw httpUpstream('No content in AI response', 502)
     }
     return content
   }
 
-  /**
-   * Parse JSON content with error handling
-   */
   private parseJSONContent(content: string): any {
     try {
-      // First try direct parsing
       return JSON.parse(content)
     }
     catch {
-      // If direct parsing fails, try extracting JSON from markdown or explanatory text
       try {
         const extractedJSON = this.extractJSONFromMarkdown(content)
         return JSON.parse(extractedJSON)
       }
       catch {
         console.error('Failed to parse AI response as JSON:', content)
-        throw new Error('Invalid JSON response from AI service')
+        httpUpstream('Invalid JSON response from AI service', 502)
       }
     }
   }
 
-  /**
-   * Validate parsed response against schema
-   */
   private validateResponse<T>(parsedResponse: any, schema: any): T {
+    // Zod-Fehler werden weitergeworfen → app.onError macht 400/validation_error
     return schema.parse(parsedResponse) as T
   }
 
-  protected handleAIError<T>(error: any, _emptyResult: T, operationType: string): never {
-    if (error?.name === 'ZodError') {
-      console.error(`${operationType} validation error:`, error.errors)
-      throw BadRequest(`${operationType} validation failed`)
-    }
-
-    const status = error?.status ?? error?.response?.status
-    const code = error?.code ?? error?.error?.code
-    const message = String(error?.message || `${operationType} failed`)
-
-    if (status === 401 || code === 'invalid_api_key')
-      throw Unauthorized('Invalid API key for provider')
-    if (status === 429)
-      throw TooManyRequests('Rate limit exceeded at provider')
-    if (typeof status === 'number' && status >= 500)
-      // eslint-disable-next-line unicorn/throw-new-error
-      throw UpstreamError('Upstream provider error', status)
-
-    console.error(`AI ${operationType} error:`, error)
-    throw new AppError(`Failed to ${operationType}: ${message}`, typeof status === 'number' ? status : 400, code)
-  }
-
   /**
-   * Execute AI operation without error handling - pure business logic
+   * Template methods for AI operations (kein eigenes Swallowing mehr)
    */
   protected async executeAIOperation<T>(
     systemMessage: string,
@@ -215,43 +238,26 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     return this.parseOpenAIResponse(response, schema.responseSchema) as T
   }
 
-  /**
-   * Template method for AI operations with error handling
-   */
   protected async performAIOperation<T>(
     systemMessage: string,
     userMessage: string,
     schema: { jsonSchema: ResponseFormatJSONSchema.JSONSchema, responseSchema: any },
-    emptyResult: T,
-    operationType: string,
+    _emptyResult: T, // wird nicht mehr genutzt (wir werfen Exceptions)
+    _operationType: string, // bleibt fürs Logging falls nötig
   ): Promise<T> {
-    try {
-      return await this.executeAIOperation(systemMessage, userMessage, schema)
-    }
-    catch (error: any) {
-      return this.handleAIError(error, emptyResult, operationType)
-    }
+    return this.executeAIOperation(systemMessage, userMessage, schema)
   }
 
-  /**
-   * Extract JSON from markdown code blocks or mixed text
-   */
   private extractJSONFromMarkdown(content: string): string {
-    // Try to extract from ```json code blocks first
     const jsonBlockMatch = content.match(/```(?:json)?\n?([\s\S]*?)\n?```/)
-    if (jsonBlockMatch) {
+    if (jsonBlockMatch)
       return jsonBlockMatch[1].trim()
-    }
 
-    // Try to find JSON object boundaries in the text
     const firstBrace = content.indexOf('{')
     const lastBrace = content.lastIndexOf('}')
-
     if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
       return content.substring(firstBrace, lastBrace + 1)
     }
-
-    // If no clear boundaries found, return the content as-is
     return content.trim()
   }
 }

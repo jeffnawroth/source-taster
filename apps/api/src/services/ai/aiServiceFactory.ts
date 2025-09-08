@@ -1,7 +1,7 @@
 import type { AIService, ApiAISettings, OpenAIConfig } from '@source-taster/types'
 import process from 'node:process'
 import { PROVIDER_CONFIG } from '@source-taster/types'
-import { Unauthorized } from '@/api/errors/AppError'
+import { httpUnauthorized } from '@/api/errors/http'
 import { loadApiKey } from '../../secrets/keystore'
 import { OpenAIService } from './openaiService'
 
@@ -14,12 +14,12 @@ export class AIServiceFactory {
       if (process.env.NODE_ENV === 'development') {
         const envKey = process.env.OPENAI_API_KEY
         if (!envKey)
-          throw Unauthorized('No API key for this client (and no OPENAI_API_KEY set)')
+          throw httpUnauthorized('No API key for this client (and no OPENAI_API_KEY set)')
         console.warn('🔧 Dev fallback: using OPENAI_API_KEY from env')
         apiKey = envKey
       }
       else {
-        throw Unauthorized('API key missing for this client. Please save your key first.')
+        throw httpUnauthorized('API key missing for this client. Please save your key first.')
       }
     }
 
