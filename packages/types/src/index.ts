@@ -26,7 +26,6 @@ export * from './llm'
 // Matching Types
 export * from './match'
 
-// Normalization Types
-export * from './normalization'
-
 export * from './search'
+
+export * from './user'
