@@ -3,15 +3,15 @@ import { createApiResponseSchema } from './api'
 import { CSLItemSchema } from './csl-json.zod'
 
 // ----- Request -----
-export const ApiSearchReferenceInputSchema = z.object({
-  id: z.string().min(1).describe('Unique identifier for the reference'),
+export const ApiSearchReferenceSchema = z.object({
+  id: z.string().uuid().describe('Unique identifier for the reference'),
   metadata: CSLItemSchema.describe('Bibliographic metadata for the reference'),
 }).strict()
 
-export type ApiSearchReferenceInput = z.infer<typeof ApiSearchReferenceInputSchema>
+export type ApiSearchReferenceInput = z.infer<typeof ApiSearchReferenceSchema>
 
 export const ApiSearchRequestSchema = z.object({
-  references: z.array(ApiSearchReferenceInputSchema).min(1).describe('Array of references to search for'),
+  references: z.array(ApiSearchReferenceSchema).min(1).describe('Array of references to search for'),
 }).strict()
 
 export type ApiSearchRequest = z.infer<typeof ApiSearchRequestSchema>
@@ -29,7 +29,7 @@ export const ApiSearchSourceSchema = z.enum([
 export type ApiSearchSource = z.infer<typeof ApiSearchSourceSchema>
 
 export const ApiSearchCandidateSchema = z.object({
-  id: z.string().min(1).describe('Unique identifier in the external database'),
+  id: z.string().uuid().describe('Unique identifier in the external database'),
   source: ApiSearchSourceSchema.describe('Which database this source comes from'),
   metadata: CSLItemSchema.describe('Bibliographic metadata from the database'),
   url: z.string().url().optional().describe('Canonical URL to access this source in the database'),
@@ -38,7 +38,7 @@ export const ApiSearchCandidateSchema = z.object({
 export type ApiSearchCandidate = z.infer<typeof ApiSearchCandidateSchema>
 
 export const ApiSearchResultSchema = z.object({
-  referenceId: z.string().min(1),
+  referenceId: z.string().uuid().describe('The ID of the reference this result corresponds to'),
   candidates: z.array(ApiSearchCandidateSchema),
 }).strict()
 
