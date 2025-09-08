@@ -1,6 +1,5 @@
 import z from 'zod'
 import { createApiResponseSchema } from './api'
-import { ModeSchema } from './common'
 import { CSLItemSchema, CSLVariableSchema } from './csl-json.zod'
 
 // ----- Request -----
@@ -30,8 +29,16 @@ export const ApiMatchNormalizationRuleSchema = z.enum([
 ]).describe('Normalization rule action type')
 export type ApiMatchNormalizationRule = z.infer<typeof ApiMatchNormalizationRuleSchema>
 
+export const ApiMatchModeSchema = z.enum([
+  'strict',
+  'balanced',
+  'custom',
+]).describe('Mode for controlling behavior in matching')
+
+export type ApiMatchMode = z.infer<typeof ApiMatchModeSchema>
+
 export const ApiMatchMatchingStrategySchema = z.object({
-  mode: ModeSchema.describe('Strategy mode to control behavior'),
+  mode: ApiMatchModeSchema.default('balanced').describe('Strategy mode to control behavior'),
   normalizationRules: z.array(ApiMatchNormalizationRuleSchema).describe('Selected normalization rules for matching behavior'),
 }).strict()
 export type ApiMatchMatchingStrategy = z.infer<typeof ApiMatchMatchingStrategySchema>

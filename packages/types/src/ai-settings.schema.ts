@@ -5,6 +5,6 @@
 import type { z } from 'zod'
 
 // Re-export the schema for backward compatibility
-export { UserAISettingsSchema } from '../ai'
+export { UserAISettingsSchema } from './ai'
 
-export type UserAISettingsSchemaType = z.infer<typeof import('../ai').UserAISettingsSchema>
+export type UserAISettingsSchemaType = z.infer<typeof import('./ai').UserAISettingsSchema>
