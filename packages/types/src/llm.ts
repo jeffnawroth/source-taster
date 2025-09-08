@@ -1,5 +1,5 @@
 import z from 'zod'
-import { CSLItemWithoutIdSchema } from '.'
+import { CSLItemWithoutIdSchema } from './csl-json.zod'
 
 export const LLMExtractReferenceSchema = z.object({
   originalText: z.string().describe('The raw reference text as it appeared in the source'),
