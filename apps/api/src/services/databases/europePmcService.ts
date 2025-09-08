@@ -1,5 +1,5 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
-import type { EuropePmcSearchResponse, EuropePmcWork } from '../../types/europePmc'
+import type { EuropePmcSearchResponse, EuropePmcWork } from '@/api/types/europepmc'
 import process from 'node:process'
 
 export class EuropePmcService {
