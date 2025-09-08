@@ -3,6 +3,8 @@ import { DEFAULT_AI_SETTINGS } from '../constants/defaults/defaultAISettings'
 import { DEFAULT_EXTRACTION_SETTINGS } from '../constants/defaults/defaultExtractionSettings'
 import { DEFAULT_MATCHING_SETTINGS } from '../constants/defaults/defaultMatchingSettings'
 
+export const clientId = useWebExtensionStorage('clientId', '')
+
 /**
  * Theme option storage
  */

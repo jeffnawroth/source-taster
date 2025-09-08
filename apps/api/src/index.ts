@@ -7,6 +7,7 @@ import { anystyleRouter } from './routes/anystyleRouter'
 import extractionRouter from './routes/extractionRouter'
 import matchingRouter from './routes/matchingRouter'
 import searchRouter from './routes/searchRouter'
+import { userRouter } from './routes/userRouter'
 
 const app = new Hono()
 
@@ -20,6 +21,7 @@ app.route('/api/anystyle', anystyleRouter)
 app.route('/api/extract', extractionRouter)
 app.route('/api/match', matchingRouter)
 app.route('/api/search', searchRouter)
+app.route('/api/user', userRouter)
 
 // Root endpoint
 app.get('/', (c) => {
