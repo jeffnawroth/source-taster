@@ -1,8 +1,11 @@
+import type { ApiAIProvider } from '@source-taster/types'
 // src/secrets/keystore.ts
 import fs from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
+import { ApiAIProviderSchema } from '@source-taster/types'
+import { BadRequest } from '../errors/AppError'
 import { decrypt, encrypt } from './crypto'
 
 const require = createRequire(import.meta.url)
@@ -32,6 +35,11 @@ const TTL_MS = 60 * 60 * 1000 // 1h
 const keyOf = (userId: string, provider: string) => `${userId}:${provider}`
 
 export async function saveApiKey(userId: string, provider: string, apiKey: string) {
+  if (!userId)
+    throw BadRequest('saveApiKey: userId missing')
+  if (!ApiAIProviderSchema.options.includes(provider as ApiAIProvider)) {
+    throw BadRequest(`saveApiKey: invalid provider "${provider}"`)
+  }
   const id = keyOf(userId, provider)
   store[id] = { ciphertext: encrypt(apiKey), createdAt: new Date().toISOString() }
   cache.set(id, { key: apiKey, exp: Date.now() + TTL_MS })

@@ -1,30 +1,25 @@
 import type { AIService, ApiAISettings, OpenAIConfig } from '@source-taster/types'
 import process from 'node:process'
 import { PROVIDER_CONFIG } from '@source-taster/types'
+import { Unauthorized } from '@/api/errors/AppError'
 import { loadApiKey } from '../../secrets/keystore'
 import { OpenAIService } from './openaiService'
 
 export class AIServiceFactory {
   static async createOpenAIService(userId: string, userAISettings: ApiAISettings): Promise<AIService> {
     const { provider, model } = userAISettings
-    if (!provider || !model) {
-      throw new Error('AI provider and model are required')
-    }
-
-    // 1) aus Keystore laden
     let apiKey = await loadApiKey(userId, provider)
 
-    // 2) Dev-Fallback (optional)
     if (!apiKey) {
       if (process.env.NODE_ENV === 'development') {
         const envKey = process.env.OPENAI_API_KEY
         if (!envKey)
-          throw new Error('No API key found for this client in dev: set OPENAI_API_KEY or save a key via /api/user/ai-secrets')
-        console.warn('🔧 Dev fallback: using OPENAI_API_KEY from environment')
+          throw Unauthorized('No API key for this client (and no OPENAI_API_KEY set)')
+        console.warn('🔧 Dev fallback: using OPENAI_API_KEY from env')
         apiKey = envKey
       }
       else {
-        throw new Error('API key missing for this client. Please save your key first.')
+        throw Unauthorized('API key missing for this client. Please save your key first.')
       }
     }
 

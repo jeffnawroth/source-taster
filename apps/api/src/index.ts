@@ -11,10 +11,8 @@ import { userRouter } from './routes/userRouter'
 
 const app = new Hono()
 
-// Apply CORS middleware
-app.use('*', corsMiddleware)
-
 app.use('*', errorHandler)
+app.use('*', corsMiddleware)
 
 // Mount API routes
 app.route('/api/anystyle', anystyleRouter)

@@ -1,7 +1,7 @@
 import type { OpenAIConfig } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { OpenAI } from 'openai'
-
+import { AppError, BadRequest, TooManyRequests, Unauthorized, UpstreamError } from '../../errors/AppError'
 /**
  * Base AI service with common functionality for all AI providers
  * Handles provider-specific API differences and fallback strategies
@@ -181,18 +181,25 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     return schema.parse(parsedResponse) as T
   }
 
-  /**
-   * Generic error handler for AI operations
-   */
-  protected handleAIError<T>(error: any, emptyResult: T, operationType: string): T {
-    if (error.name === 'ZodError') {
+  protected handleAIError<T>(error: any, _emptyResult: T, operationType: string): never {
+    if (error?.name === 'ZodError') {
       console.error(`${operationType} validation error:`, error.errors)
-      console.warn(`Returning empty result due to validation error`)
-      return emptyResult
+      throw BadRequest(`${operationType} validation failed`)
     }
 
+    const status = error?.status ?? error?.response?.status
+    const code = error?.code ?? error?.error?.code
+    const message = String(error?.message || `${operationType} failed`)
+
+    if (status === 401 || code === 'invalid_api_key')
+      throw Unauthorized('Invalid API key for provider')
+    if (status === 429)
+      throw TooManyRequests('Rate limit exceeded at provider')
+    if (typeof status === 'number' && status >= 500)
+      throw new UpstreamError('Upstream provider error', status)
+
     console.error(`AI ${operationType} error:`, error)
-    throw new Error(`Failed to ${operationType}: ${error.message}`)
+    throw new AppError(`Failed to ${operationType}: ${message}`, typeof status === 'number' ? status : 400, code)
   }
 
   /**
