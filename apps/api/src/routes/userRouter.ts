@@ -1,12 +1,9 @@
 import type { AppEnv } from '../types/hono'
 import { ApiAIProviderSchema, ApiUserAISecretsSchema } from '@source-taster/types'
 import { Hono } from 'hono'
-import { withClientId } from '../middleware/clientId'
 import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore'
 
 const userRouter = new Hono<AppEnv>()
-
-userRouter.use('*', withClientId)
 
 // POST /api/user/ai-secrets  -> save/update encrypted key
 userRouter.post('/ai-secrets', async (c) => {

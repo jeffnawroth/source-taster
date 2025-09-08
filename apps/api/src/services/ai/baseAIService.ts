@@ -196,7 +196,8 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     if (status === 429)
       throw TooManyRequests('Rate limit exceeded at provider')
     if (typeof status === 'number' && status >= 500)
-      throw new UpstreamError('Upstream provider error', status)
+      // eslint-disable-next-line unicorn/throw-new-error
+      throw UpstreamError('Upstream provider error', status)
 
     console.error(`AI ${operationType} error:`, error)
     throw new AppError(`Failed to ${operationType}: ${message}`, typeof status === 'number' ? status : 400, code)
