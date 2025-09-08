@@ -41,8 +41,8 @@ async function convertTokensToCSL(): Promise<CSLItem[]> {
 async function searchForCandidates(cslReferences: CSLItem[]) {
   const searchRequest: ApiSearchRequest = {
     references: cslReferences.map((ref: CSLItem, index: number) => ({
+      metadata: { ...ref, id: ref.id || `ref-${index}` },
       id: String(ref.id || `ref-${index}`),
-      metadata: ref,
     })) as ApiSearchRequest['references'],
   }
 
