@@ -1,4 +1,4 @@
-import type { AIExtractionResponse, ApiExtractExtractionSettings, ApiExtractRequest, OpenAIConfig } from '@source-taster/types'
+import type { ApiExtractExtractionSettings, ApiExtractRequest, LLMExtractPayload, OpenAIConfig } from '@source-taster/types'
 import { systemMessage, userMessage } from '@/api/extraction-prompt'
 import { createDynamicExtractionSchema } from '@/api/types/reference'
 import { BaseAIService } from './baseAIService'
@@ -8,7 +8,7 @@ export class ExtractionService extends BaseAIService {
     super(config)
   }
 
-  async extractReferences(extractionRequest: ApiExtractRequest): Promise<AIExtractionResponse> {
+  async extractReferences(extractionRequest: ApiExtractRequest): Promise<LLMExtractPayload> {
     const schema = this.createExtractionSchema(extractionRequest.extractionSettings)
     const userMsg = userMessage(extractionRequest.text)
 

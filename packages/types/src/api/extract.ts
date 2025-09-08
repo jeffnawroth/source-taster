@@ -1,7 +1,7 @@
 import z from 'zod'
-import { UserAISettingsSchema } from './ai'
+import { CSLItemSchema, CSLVariableSchema } from '../app/csl-json.zod'
+import { ApiAISettingsSchema } from './ai'
 import { createApiResponseSchema } from './api'
-import { CSLItemSchema, CSLVariableSchema } from './csl-json.zod'
 
 // ----- Request -----
 
@@ -20,7 +20,7 @@ export type ApiExtractExtractionConfig = z.infer<typeof ApiExtractExtractionConf
 export const ApiExtractRequestSchema = z.object({
   text: z.string().min(1).describe('The text to extract references from'),
   extractionSettings: ApiExtractExtractionSettingsSchema.describe('User-configurable extraction settings'),
-  aiSettings: UserAISettingsSchema.describe('User AI configuration'),
+  aiSettings: ApiAISettingsSchema.describe('User AI configuration'),
 }).strict()
 
 export type ApiExtractRequest = z.infer<typeof ApiExtractRequestSchema>

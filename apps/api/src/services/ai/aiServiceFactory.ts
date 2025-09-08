@@ -1,4 +1,4 @@
-import type { AIService, OpenAIConfig, UserAISettings } from '@source-taster/types'
+import type { AIService, ApiAISettings, OpenAIConfig } from '@source-taster/types'
 import { PROVIDER_CONFIG } from '@source-taster/types'
 import { OpenAIService } from './openaiService'
 
@@ -8,7 +8,7 @@ export class AIServiceFactory {
    * Falls back to environment variables in development
    * Supports multiple providers through OpenAI-compatible APIs
    */
-  static createOpenAIService(userAISettings?: UserAISettings): AIService {
+  static createOpenAIService(userAISettings?: ApiAISettings): AIService {
     let apiKey: string
     let model: string
     let baseUrl: string | undefined

@@ -1,5 +1,6 @@
+import type { ApiExtractExtractionSettings, CSLVariable } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
-import { AIExtractionResponseSchema, type ApiExtractExtractionSettings, CSLItemSchema, type CSLVariable, LLMExtractReferenceSchema } from '@source-taster/types'
+import { CSLItemSchema, LLMExtractPayloadSchema, LLMExtractReferenceSchema } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
@@ -29,7 +30,7 @@ export function createDynamicExtractionSchema(extractionSettings: ApiExtractExtr
     metadata: DynamicCSLItemSchema.describe('Extracted reference metadata in CSL-JSON format with selected fields'),
   })
 
-  const DynamicCSLExtractionResponseSchema = AIExtractionResponseSchema.extend({
+  const DynamicCSLExtractionResponseSchema = LLMExtractPayloadSchema.extend({
     references: z.array(DynamicCSLReferenceSchema).describe('Array of extracted references with dynamic CSL metadata'),
   })
 

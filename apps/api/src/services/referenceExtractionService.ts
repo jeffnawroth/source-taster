@@ -1,9 +1,9 @@
 import type {
+  ApiAISettings,
   ApiExtractReference,
   ApiExtractRequest,
   LLMExtractPayload,
   LLMExtractReference,
-  UserAISettings,
 } from '@source-taster/types'
 import crypto from 'node:crypto'
 import { AIServiceFactory } from './ai/aiServiceFactory'
@@ -35,7 +35,7 @@ export class ReferenceExtractionService {
     return this.convertToReferences(result)
   }
 
-  private createAIService(userAISettings: UserAISettings) {
+  private createAIService(userAISettings: ApiAISettings) {
     if (!userAISettings?.apiKey) {
       throw new Error('API key required: Please provide your own OpenAI API key in the extension settings to use AI-powered features.')
     }

@@ -1,6 +1,4 @@
-import type { AIService, ApiExtractRequest, LLMExtractPayload, OpenAIConfig,
-
-} from '@source-taster/types'
+import type { AIService, ApiExtractRequest, LLMExtractPayload, OpenAIConfig } from '@source-taster/types'
 import { ExtractionService } from './extractionService'
 // import { MatchingService } from './matchingService'
 

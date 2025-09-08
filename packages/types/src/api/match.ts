@@ -1,6 +1,6 @@
 import z from 'zod'
+import { CSLItemSchema, CSLVariableSchema } from '../app/csl-json.zod'
 import { createApiResponseSchema } from './api'
-import { CSLItemSchema, CSLVariableSchema } from './csl-json.zod'
 
 // ----- Request -----
 export const ApiMatchReferenceSchema = z.object({

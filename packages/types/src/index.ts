@@ -6,23 +6,8 @@
  */
 
 // AI Service Types
-export * from './ai'
-
-// AnyStyle Types
-export * from './anystyle/index'
-
-// API Types
-export * from './api'
-
-export * from './csl-json.zod'
-
-export * from './extract'
-
-export * from './llm'
-
-// Matching Types
-export * from './match'
-
-export * from './search'
-
-export * from './user'
+export * from './api/index'
+export * from './app/index'
+export * from './backend/index'
+export * from './crypto'
+export * from './frontend/index'

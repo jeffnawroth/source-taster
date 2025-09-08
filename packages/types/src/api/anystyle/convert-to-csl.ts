@@ -1,6 +1,6 @@
 import z from 'zod'
+import { CSLItemSchema } from '../../app/csl-json.zod'
 import { createApiResponseSchema } from '../api'
-import { CSLItemSchema } from '../csl-json.zod'
 import { ApiAnystyleTokenSchema } from './parse'
 
 // ----- Request -----
