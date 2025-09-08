@@ -1,61 +1,47 @@
 import type { AIService, ApiAISettings, OpenAIConfig } from '@source-taster/types'
+import process from 'node:process'
 import { PROVIDER_CONFIG } from '@source-taster/types'
+import { loadApiKey } from '../../secrets/keystore'
 import { OpenAIService } from './openaiService'
 
 export class AIServiceFactory {
-  /**
-   * Create AI service with user-provided settings
-   * Falls back to environment variables in development
-   * Supports multiple providers through OpenAI-compatible APIs
-   */
-  static createOpenAIService(userAISettings?: ApiAISettings): AIService {
-    let apiKey: string
-    let model: string
-    let baseUrl: string | undefined
+  static async createOpenAIService(userId: string, userAISettings: ApiAISettings): Promise<AIService> {
+    const { provider, model } = userAISettings
+    if (!provider || !model) {
+      throw new Error('AI provider and model are required')
+    }
 
-    if (userAISettings?.apiKey) {
-      // Use user-provided settings
-      apiKey = userAISettings.apiKey
-      model = userAISettings.model
+    // 1) aus Keystore laden
+    let apiKey = await loadApiKey(userId, provider)
 
-      // Set baseUrl based on provider
-      const providerConfig = PROVIDER_CONFIG[userAISettings.provider]
-      if (providerConfig && userAISettings.provider !== 'openai') {
-        baseUrl = providerConfig.baseUrl
-        console.warn(`🔌 Using ${providerConfig.name} provider via OpenAI-compatible API`)
+    // 2) Dev-Fallback (optional)
+    if (!apiKey) {
+      if (process.env.NODE_ENV === 'development') {
+        const envKey = process.env.OPENAI_API_KEY
+        if (!envKey)
+          throw new Error('No API key found for this client in dev: set OPENAI_API_KEY or save a key via /api/user/ai-secrets')
+        console.warn('🔧 Dev fallback: using OPENAI_API_KEY from environment')
+        apiKey = envKey
+      }
+      else {
+        throw new Error('API key missing for this client. Please save your key first.')
       }
     }
-    else {
-      // Development fallback: use environment variables
-      // eslint-disable-next-line node/prefer-global/process
-      const envApiKey = process.env.OPENAI_API_KEY
-      // eslint-disable-next-line node/prefer-global/process
-      const envModel = process.env.OPENAI_MODEL || 'gpt-4o-mini'
-      // eslint-disable-next-line node/prefer-global/process
-      const envProvider = process.env.AI_PROVIDER || 'openai'
 
-      if (!envApiKey) {
-        throw new Error('API key required: Please provide your own API key in the extension settings, or set OPENAI_API_KEY environment variable for development.')
-      }
-
-      console.warn('🔧 Development mode: Using environment API key fallback')
-      apiKey = envApiKey
-      model = envModel
-
-      // Set baseUrl for non-OpenAI providers in development
-      if (envProvider !== 'openai' && envProvider in PROVIDER_CONFIG) {
-        baseUrl = PROVIDER_CONFIG[envProvider as keyof typeof PROVIDER_CONFIG].baseUrl
-        console.warn(`🔌 Development: Using ${envProvider} provider`)
-      }
+    let baseUrl: string | undefined
+    const providerCfg = PROVIDER_CONFIG[provider]
+    if (providerCfg && provider !== 'openai') {
+      baseUrl = providerCfg.baseUrl
+      console.warn(`🔌 Using ${providerCfg.name} via OpenAI-compatible API`)
     }
 
     const config: OpenAIConfig = {
       apiKey,
-      model: model as any, // Type assertion for environment model
+      model: model as any,
       baseUrl,
       maxRetries: 3,
-      timeout: 60000, // 60 seconds
-      temperature: 0.1, // Low temperature for consistent extraction
+      timeout: 60_000,
+      temperature: 0.1,
     }
 
     return new OpenAIService(config)

@@ -9,38 +9,30 @@ import crypto from 'node:crypto'
 import { AIServiceFactory } from './ai/aiServiceFactory'
 
 export class ReferenceExtractionService {
-  async extractReferences(
-    extractionRequest: ApiExtractRequest,
-  ): Promise<ApiExtractReference[]> {
+  constructor(private readonly userId: string) {}
+
+  async extractReferences(extractionRequest: ApiExtractRequest): Promise<ApiExtractReference[]> {
     try {
-      return await this.performAIExtraction(
-        extractionRequest,
-      )
+      return await this.performAIExtraction(extractionRequest)
     }
     catch (error) {
       return this.handleExtractionFailure(error)
     }
   }
 
-  private async performAIExtraction(
-    extractionRequest: ApiExtractRequest,
-  ): Promise<ApiExtractReference[]> {
-    if (!extractionRequest.aiSettings) {
+  private async performAIExtraction(extractionRequest: ApiExtractRequest): Promise<ApiExtractReference[]> {
+    const aiSettings = extractionRequest.aiSettings
+    if (!aiSettings) {
       throw new Error('AI settings are required for reference extraction')
     }
 
-    const ai = this.createAIService(extractionRequest.aiSettings)
+    const ai = await this.createAIService(aiSettings)
     const result = await ai.extractReferences(extractionRequest)
-
     return this.convertToReferences(result)
   }
 
-  private createAIService(userAISettings: ApiAISettings) {
-    if (!userAISettings?.apiKey) {
-      throw new Error('API key required: Please provide your own OpenAI API key in the extension settings to use AI-powered features.')
-    }
-
-    return AIServiceFactory.createOpenAIService(userAISettings)
+  private async createAIService(userAISettings: ApiAISettings) {
+    return AIServiceFactory.createOpenAIService(this.userId, userAISettings)
   }
 
   private convertToReferences(aiReferences: LLMExtractPayload): ApiExtractReference[] {

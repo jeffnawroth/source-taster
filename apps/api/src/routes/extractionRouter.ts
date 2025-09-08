@@ -1,7 +1,10 @@
 import { Hono } from 'hono'
 import * as extractionController from '../controllers/extractionController'
+import { withClientId } from '../middleware/clientId'
 
 const router = new Hono()
+
+router.use('*', withClientId) // 👈 auch hier
 
 /**
  * @route POST /api/extract

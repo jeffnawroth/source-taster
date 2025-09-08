@@ -11,7 +11,13 @@ import * as extractionService from '../services/extractionService'
 export async function extractReferences(c: Context) {
   try {
     const request = await parseAndValidateRequest(c)
-    const references = await extractionService.extractReferences(request)
+
+    const userId = c.get('userId') as string | undefined
+    if (!userId) {
+      return c.json({ success: false, message: 'Missing X-Client-Id' }, 401)
+    }
+
+    const references = await extractionService.extractReferences(userId, request)
     return createSuccessResponse(c, references)
   }
   catch (error) {
@@ -23,8 +29,7 @@ export async function extractReferences(c: Context) {
  * Parse and validate the incoming request
  */
 async function parseAndValidateRequest(c: Context): Promise<ApiExtractRequest> {
-  // Get decrypted body from middleware or fall back to regular parsing
-  const rawBody = c.get('decryptedBody') || await c.req.json()
+  const rawBody = await c.req.json()
   const parseResult = ApiExtractRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
