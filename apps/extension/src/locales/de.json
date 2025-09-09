@@ -1023,5 +1023,19 @@
   "ai-settings-saved": "KI-Einstellungen gespeichert",
   "ai-settings-save-error": "Fehler beim Speichern der KI-Einstellungen",
   "ai-settings-deleted": "KI-Einstellungen gelöscht",
-  "ai-settings-delete-error": "Fehler beim Löschen der KI-Einstellungen"
+  "ai-settings-delete-error": "Fehler beim Löschen der KI-Einstellungen",
+  "errors": {
+    "bad_request": "Die Anfrage war ungültig. Bitte Eingaben prüfen.",
+    "validation_error": "Ungültige Eingabe: {message}",
+    "unauthorized": "Dein API-Key ist ungültig oder fehlt. Bitte prüfe die Einstellungen.",
+    "forbidden": "Du hast keine Berechtigung, diese Aktion auszuführen.",
+    "not_found": "Die angeforderte Ressource wurde nicht gefunden.",
+    "conflict": "Es besteht ein Konflikt mit bestehenden Daten.",
+    "unprocessable": "Die Anfrage konnte nicht verarbeitet werden.",
+    "rate_limited": "Zu viele Anfragen. Bitte kurz warten und erneut versuchen.",
+    "internal": "Interner Serverfehler. Bitte später erneut versuchen.",
+    "upstream": "Der externe Dienst ist momentan nicht erreichbar. Bitte später noch einmal probieren.",
+    "handler": "Fehler im Fehler-Handler.",
+    "unknown": "Es ist ein unbekannter Fehler aufgetreten."
+  }
 }

@@ -1023,5 +1023,19 @@
   "ai-settings-saved": "AI settings saved",
   "ai-settings-save-error": "Error saving AI settings",
   "ai-settings-deleted": "AI settings deleted",
-  "ai-settings-delete-error": "Error deleting AI settings"
+  "ai-settings-delete-error": "Error deleting AI settings",
+  "errors": {
+    "bad_request": "The request was invalid. Please check your input.",
+    "validation_error": "Invalid input: {message}",
+    "unauthorized": "Your API key is missing or invalid. Please check your settings.",
+    "forbidden": "You do not have permission to perform this action.",
+    "not_found": "The requested resource was not found.",
+    "conflict": "There is a conflict with existing data.",
+    "unprocessable": "The request could not be processed.",
+    "rate_limited": "Too many requests. Please wait a moment and try again.",
+    "internal": "Internal server error. Please try again later.",
+    "upstream": "The external service is currently unavailable. Please try again later.",
+    "handler": "Error in the error handler.",
+    "unknown": "An unknown error has occurred."
+  }
 }

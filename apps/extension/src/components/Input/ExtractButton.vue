@@ -19,12 +19,7 @@ async function handleExtractClick() {
   if (!inputText.value.trim())
     return
 
-  try {
-    await extractionStore.extractReferences(inputText.value)
-  }
-  catch (error) {
-    console.error('Extraction failed:', error)
-  }
+  await extractionStore.extractReferences(inputText.value)
 }
 
 // Check if button should be disabled
@@ -68,7 +63,7 @@ watch(ctrlEnter, (pressed) => {
     variant="tonal"
     closable
     class="mt-2"
-    :text="extractionStore.extractionError"
+    :text="$t(extractionStore.extractionError)"
     @click:close="extractionStore.clearExtractionError()"
   />
 </template>
