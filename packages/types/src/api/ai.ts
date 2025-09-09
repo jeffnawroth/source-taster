@@ -6,7 +6,7 @@ import z from 'zod'
 export const ApiAIProviderSchema = z.enum(['openai', 'anthropic', 'google', 'deepseek'])
 export type ApiAIProvider = z.infer<typeof ApiAIProviderSchema>
 
-export const ApiOpenAIModelSchema = z.enum(['o3', 'gpt-4o', 'o3-mini'])
+export const ApiOpenAIModelSchema = z.enum(['gpt-4o'])
 export type ApiOpenAIModel = z.infer<typeof ApiOpenAIModelSchema>
 
 export const ApiAnthropicModelSchema = z.enum(['claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-5-haiku-20241022'])

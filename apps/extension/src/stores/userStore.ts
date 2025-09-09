@@ -8,6 +8,7 @@ import type {
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
 import { UserService } from '@/extension/services/userService'
+import { aiSettings } from '../logic'
 import { mapApiError } from '../utils/mapApiError'
 
 export const useUserSettingsStore = defineStore('userSettings', () => {
@@ -30,7 +31,7 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     isLoading.value = true
     loadError.value = null
 
-    const res = await UserService.getAISecretsInfo()
+    const res = await UserService.getAISecretsInfo(aiSettings.value.provider)
 
     isLoading.value = false
 
@@ -59,7 +60,6 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
       return
     }
 
-    // Nach erfolgreichem Speichern sofort neu laden
     await loadAISecretsInfo()
     return res.data // { saved: true }
   }
@@ -68,7 +68,7 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     isSaving.value = true
     saveError.value = null
 
-    const res = await UserService.deleteAISecrets()
+    const res = await UserService.deleteAISecrets(aiSettings.value.provider)
 
     isSaving.value = false
 
