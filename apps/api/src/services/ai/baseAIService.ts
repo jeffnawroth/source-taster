@@ -235,6 +235,9 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     schema: { jsonSchema: ResponseFormatJSONSchema.JSONSchema, responseSchema: any },
   ): Promise<T> {
     const response = await this.callOpenAI(systemMessage, userMessage, schema.jsonSchema)
+    if (!response) {
+      throw httpUpstream('No response from AI service', 502)
+    }
     return this.parseOpenAIResponse(response, schema.responseSchema) as T
   }
 
