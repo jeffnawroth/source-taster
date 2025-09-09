@@ -1,71 +1,66 @@
-import type { ApiAIProvider } from '@source-taster/types'
+import type { ApiAIProvider, ApiUserAISecretsInfoData } from '@source-taster/types'
 import { ApiAIProviderSchema } from '@source-taster/types'
-import { httpBadRequest } from '../errors/http'
+import { httpBadRequest, httpUpstream } from '../errors/http'
 import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore'
 
 export class UserService {
   /**
-   * Save API key for a user and provider
+   * Speichert den API-Key. Auf Fehlerseiten (FS/IO/Krypto) mappen wir auf Upstream (5xx),
+   * fachliche Fehler (z.B. invalid provider) kommen von validateProvider().
    */
   async saveUserAISecret(userId: string, provider: ApiAIProvider, apiKey: string): Promise<boolean> {
     try {
       await saveApiKey(userId, provider, apiKey)
       return true
     }
-    catch (error) {
-      throw new Error(`Failed to save API key for provider ${provider}: ${error}`)
+    catch (e) {
+      throw httpUpstream('Failed to persist API key', 502, e)
     }
   }
 
   /**
-   * Get information about user's AI secret for a specific provider
+   * Liefert Flag + Provider zurück.
    */
-  async getUserAISecretInfo(userId: string, provider: ApiAIProvider): Promise<{
-    hasApiKey: boolean
-    provider: ApiAIProvider
-  }> {
+  async getUserAISecretInfo(userId: string, provider: ApiAIProvider): Promise<ApiUserAISecretsInfoData> {
     try {
       const apiKey = await loadApiKey(userId, provider)
-      return {
-        hasApiKey: !!apiKey,
-        provider,
-      }
+      return { hasApiKey: !!apiKey, provider }
     }
-    catch (error) {
-      throw new Error(`Failed to check API key for provider ${provider}: ${error}`)
+    catch (e) {
+      throw httpUpstream('Failed to read API key state', 502, e)
     }
   }
 
   /**
-   * Delete API key for a user and provider
+   * Löscht den Key. Rückgabe = true, auch wenn Key nicht existierte (idempotent ok).
    */
   async deleteUserAISecret(userId: string, provider: ApiAIProvider): Promise<boolean> {
     try {
       await deleteApiKey(userId, provider)
       return true
     }
-    catch (error) {
-      throw new Error(`Failed to delete API key for provider ${provider}: ${error}`)
+    catch (e) {
+      throw httpUpstream('Failed to delete API key', 502, e)
     }
   }
 
   /**
-   * Validate and parse provider from query parameter
+   * Absichernde Query-Validierung mit freundlicher Fehlermeldung (400).
    */
   validateProvider(providerQuery: string | undefined): ApiAIProvider {
-    if (!providerQuery) {
+    if (!providerQuery)
       return httpBadRequest('Missing ?provider query parameter') as never
-    }
 
     try {
       return ApiAIProviderSchema.parse(providerQuery)
     }
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    catch (error) {
-      return httpBadRequest(`Invalid provider "${providerQuery}". Must be one of: openai, anthropic, google, deepseek`) as never
+    catch {
+      return httpBadRequest(
+        `Invalid provider "${providerQuery}". Must be one of: ${ApiAIProviderSchema.options.join(', ')}`,
+      ) as never
     }
   }
 }
 
-// Singleton instance for dependency injection
+// Singleton
 export const userService = new UserService()

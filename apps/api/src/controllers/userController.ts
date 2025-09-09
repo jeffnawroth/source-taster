@@ -10,7 +10,7 @@ import { userService } from '../services/userService'
 export class UserController {
   /**
    * POST /api/user/ai-secrets
-   * Save AI API key for user
+   * Body: { provider, apiKey }
    */
   static async saveAISecrets(c: Context): Promise<Response> {
     const userId = c.get('userId') as string
@@ -22,45 +22,38 @@ export class UserController {
       success: true,
       data: { saved },
     })
-
     return c.json(payload)
   }
 
   /**
    * GET /api/user/ai-secrets?provider=...
-   * Get information about user's AI secrets for a specific provider
    */
   static async getAISecretsInfo(c: Context): Promise<Response> {
     const userId = c.get('userId') as string
-    const providerQuery = c.req.query('provider')
+    const provider = userService.validateProvider(c.req.query('provider'))
 
-    const provider = userService.validateProvider(providerQuery)
     const data = await userService.getUserAISecretInfo(userId, provider)
 
     const payload = ApiUserAISecretsInfoResponseSchema.parse({
       success: true,
       data,
     })
-
     return c.json(payload)
   }
 
   /**
    * DELETE /api/user/ai-secrets?provider=...
-   * Delete AI API key for user and provider
    */
   static async deleteAISecrets(c: Context): Promise<Response> {
     const userId = c.get('userId') as string
-    const providerQuery = c.req.query('provider')
+    const provider = userService.validateProvider(c.req.query('provider'))
 
-    const provider = userService.validateProvider(providerQuery)
     const deleted = await userService.deleteUserAISecret(userId, provider)
 
     const payload = ApiUserAISecretsDeleteResponseSchema.parse({
       success: true,
       data: { deleted },
     })
-
     return c.json(payload)
   }
 }
