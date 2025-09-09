@@ -39,6 +39,7 @@ function handleTest(result: { ok: boolean, message: string }) {
 function reset() {
   apiKey.value = ''
   alert.value = null
+  user.clearErrors()
 }
 
 onMounted(() => {
