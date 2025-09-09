@@ -1,142 +1,104 @@
-import type { ApiAnystyleConvertResponse, ApiAnystyleParseResponse, ApiAnystyleTrainResponse, ApiResponse } from '@source-taster/types'
+import type {
+  ApiAnystyleConvertData,
+  ApiAnystyleConvertResponse,
+  ApiAnystyleParseData,
+  ApiAnystyleParseResponse,
+  ApiAnystyleTrainData,
+  ApiAnystyleTrainResponse,
+} from '@source-taster/types'
 import type { Context } from 'hono'
+import process from 'node:process'
+import {
+  ApiAnystyleConvertRequestSchema,
+  ApiAnystyleParseRequestSchema,
+  ApiAnystyleTrainRequestSchema,
+} from '@source-taster/types'
+import { httpBadRequest, httpUpstream } from '../errors/http'
 
-const ANYSTYLE_SERVER_URL = 'http://localhost:4567'
+const ANYSTYLE_SERVER_URL = process.env.ANYSTYLE_SERVER_URL ?? 'http://localhost:4567'
+
+// ---- helpers ---------------------------------------------------------------
+
+async function postJson<TReq, TRes>(path: string, body: TReq): Promise<TRes> {
+  const url = `${ANYSTYLE_SERVER_URL}${path}`
+
+  let res: Response | undefined
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  }
+  catch (e) {
+    // httpUpstream wirft → Funktion terminiert mit never
+    return httpUpstream('AnyStyle unreachable', 502, e) as never
+  }
+
+  if (!res) {
+    return httpUpstream('No response from AnyStyle', 502) as never
+  }
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    if (res.status >= 400 && res.status < 500) {
+      return httpBadRequest(`AnyStyle error ${res.status}: ${text || 'client error'}`) as never
+    }
+    const status = (res.status === 503 || res.status === 504) ? (res.status as 503 | 504) : 502
+    return httpUpstream(`AnyStyle error ${res.status}: ${text || 'server error'}`, status) as never
+  }
+
+  try {
+    return await res.json() as TRes
+  }
+  catch (e) {
+    return httpUpstream('AnyStyle returned non-JSON payload', 502, e) as never
+  }
+}
+
+// ---- controller ------------------------------------------------------------
 
 export class AnystyleController {
-  // Parse references using AnyStyle
+  /** POST /api/anystyle/parse */
   static async parse(c: Context): Promise<Response> {
-    try {
-      const body = await c.req.json()
+    // Zod-Validation; ZodError wird zentral von registerOnError() gehandhabt
+    const req = ApiAnystyleParseRequestSchema.parse(await c.req.json())
 
-      // Forward request to AnyStyle server
-      const response = await fetch(`${ANYSTYLE_SERVER_URL}/parse`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      })
+    const upstream = await postJson<typeof req, ApiAnystyleParseData>('/parse', req)
 
-      if (!response.ok) {
-        const error = await response.text()
-        throw new Error(`AnyStyle server error: ${response.status} - ${error}`)
-      }
-
-      const anystyleResult = await response.json() as any
-
-      // Transform to unified ApiResponse format
-      const apiResponse: ApiAnystyleParseResponse = {
-        success: true,
-        data: {
-          modelUsed: anystyleResult.model_used || 'unknown',
-          tokens: anystyleResult.tokens || [],
-        },
-        message: 'References parsed successfully',
-      }
-
-      return c.json(apiResponse)
+    const payload: ApiAnystyleParseResponse = {
+      success: true,
+      data: upstream,
+      message: 'References parsed successfully',
     }
-    catch (error) {
-      console.error('Parse error:', error)
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: 'Failed to parse references',
-        message: error instanceof Error ? error.message : String(error),
-      }
-      return c.json(errorResponse, 500)
-    }
+    return c.json(payload)
   }
 
-  // Convert tokens to CSL format
+  /** POST /api/anystyle/convert-to-csl */
   static async convertToCSL(c: Context): Promise<Response> {
-    try {
-      const body = await c.req.json()
+    const req = ApiAnystyleConvertRequestSchema.parse(await c.req.json())
 
-      // Forward request to AnyStyle server
-      const response = await fetch(`${ANYSTYLE_SERVER_URL}/convert-to-csl`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      })
+    const upstream = await postJson<typeof req, ApiAnystyleConvertData>('/convert-to-csl', req)
 
-      if (!response.ok) {
-        const error = await response.text()
-        throw new Error(`AnyStyle server error: ${response.status} - ${error}`)
-      }
-
-      const anystyleResult = await response.json() as any
-
-      // Transform to unified ApiResponse format
-      const apiResponse: ApiAnystyleConvertResponse = {
-        success: true,
-        data: {
-          csl: anystyleResult.csl || [],
-        },
-        message: 'Tokens converted to CSL successfully',
-      }
-
-      return c.json(apiResponse)
+    const payload: ApiAnystyleConvertResponse = {
+      success: true,
+      data: upstream,
+      message: 'Tokens converted to CSL successfully',
     }
-    catch (error) {
-      console.error('Convert to CSL error:', error)
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: 'Failed to convert to CSL',
-        message: error instanceof Error ? error.message : String(error),
-      }
-      return c.json(errorResponse, 500)
-    }
+    return c.json(payload)
   }
 
-  // Train custom model
+  /** POST /api/anystyle/train-model */
   static async trainModel(c: Context): Promise<Response> {
-    try {
-      const body = await c.req.json()
+    const req = ApiAnystyleTrainRequestSchema.parse(await c.req.json())
 
-      // Forward request to AnyStyle server
-      const response = await fetch(`${ANYSTYLE_SERVER_URL}/train-model`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      })
+    const upstream = await postJson<typeof req, ApiAnystyleTrainData>('/train-model', req)
 
-      if (!response.ok) {
-        const error = await response.text()
-        throw new Error(`AnyStyle server error: ${response.status} - ${error}`)
-      }
-
-      const anystyleResult = await response.json() as any
-
-      // Transform to unified ApiResponse format
-      const apiResponse: ApiAnystyleTrainResponse = {
-        success: true,
-        data: {
-          modelPath: anystyleResult.model_path || '',
-          modelSizeBytes: anystyleResult.model_size_bytes || 0,
-          trainingSequences: anystyleResult.training_sequences || 0,
-          trainingTokens: anystyleResult.training_tokens || 0,
-          trainingMethod: anystyleResult.training_method || '',
-          message: anystyleResult.message || 'Model trained successfully',
-          timestamp: anystyleResult.timestamp || new Date().toISOString(),
-        },
-        message: 'Model trained successfully',
-      }
-
-      return c.json(apiResponse)
+    const payload: ApiAnystyleTrainResponse = {
+      success: true,
+      data: upstream,
+      message: 'Model trained successfully',
     }
-    catch (error) {
-      console.error('Train model error:', error)
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: 'Failed to train model',
-        message: error instanceof Error ? error.message : String(error),
-      }
-      return c.json(errorResponse, 500)
-    }
+    return c.json(payload)
   }
 }

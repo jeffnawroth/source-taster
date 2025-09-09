@@ -4,58 +4,38 @@ import { useMagicKeys } from '@vueuse/core'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useUIStore } from '@/extension/stores/ui'
 
-// Stores
-const anystyleStore = useAnystyleStore()
-const uiStore = useUIStore()
+const anystyle = useAnystyleStore()
+const ui = useUIStore()
+const { inputText } = storeToRefs(ui)
 
-// Get input text directly from UI store
-const { inputText } = storeToRefs(uiStore)
-
-// Translation
 const { t } = useI18n()
 
-// Parse input text using AnyStyle
-async function handleParseClick() {
-  if (!inputText.value.trim())
-    return
-
-  try {
-    // Split input text into individual reference lines
-    // Remove empty lines and trim whitespace
-    const referenceLines = inputText.value
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-
-    if (referenceLines.length === 0)
-      return
-
-    await anystyleStore.parseReferences(referenceLines)
-  }
-  catch (error) {
-    console.error('Parsing failed:', error)
-  }
+function linesFromInput(text: string): string[] {
+  return text
+    .split('\n')
+    .map(s => s.trim())
+    .filter(Boolean)
 }
 
-// Check if button should be disabled
-const isDisabled = computed(() => !inputText.value.trim() || anystyleStore.isParsing)
+async function handleParseClick() {
+  anystyle.clearParseResults()
 
-// Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
+  const refs = linesFromInput(inputText.value)
+  if (refs.length === 0)
+    return
+
+  await anystyle.parseReferences(refs)
+}
+
+const isDisabled = computed(
+  () => !inputText.value.trim() || anystyle.isParsing,
+)
+
+// Keyboard Shortcuts: Cmd/Ctrl + Enter
 const keys = useMagicKeys()
-const cmdEnter = keys['Cmd+Enter']
-const ctrlEnter = keys['Ctrl+Enter']
-
-// Watch for keyboard shortcuts
-watch(cmdEnter, (pressed) => {
-  if (pressed && !isDisabled.value) {
+watch([keys['Cmd+Enter'], keys['Ctrl+Enter']], ([cmd, ctrl]) => {
+  if ((cmd || ctrl) && !isDisabled.value)
     handleParseClick()
-  }
-})
-
-watch(ctrlEnter, (pressed) => {
-  if (pressed && !isDisabled.value) {
-    handleParseClick()
-  }
 })
 </script>
 
@@ -64,25 +44,23 @@ watch(ctrlEnter, (pressed) => {
     variant="tonal"
     color="secondary"
     :disabled="isDisabled"
-    :loading="anystyleStore.isParsing"
+    :loading="anystyle.isParsing"
     block
     @click="handleParseClick"
   >
-    <v-icon start>
-      {{ mdiCodeTags }}
-    </v-icon>
+    <v-icon
+      :icon="mdiCodeTags"
+      start
+    />
     {{ t('parse-references') }}
   </v-btn>
 
-  <!-- Error display -->
   <v-alert
-    v-if="anystyleStore.parseError"
-    type="error"
-    variant="tonal"
-    closable
+    v-if="anystyle.parseError"
     class="mt-2"
-    @click:close="anystyleStore.clearParseResults()"
-  >
-    {{ anystyleStore.parseError }}
-  </v-alert>
+    type="error"
+    :text="$t(anystyle.parseError)"
+    closable
+    @click:close="anystyle.clearParseResults()"
+  />
 </template>

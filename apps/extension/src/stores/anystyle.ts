@@ -1,25 +1,32 @@
-/**
- * Pinia store for managing AnyStyle functionality and results
- */
-import type { AnystyleTokenSequence } from '@source-taster/types'
+// extension/stores/anystyle.ts
+import type {
+  ApiAnystyleConvertData,
+  ApiAnystyleParseData,
+  ApiAnystyleTokenSequence,
+  ApiAnystyleTrainData,
+  ApiHttpError,
+  ApiResult,
+} from '@source-taster/types'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, readonly, ref } from 'vue'
 import { AnystyleService } from '@/extension/services/anystyleService'
+import { mapApiError } from '@/extension/utils/mapApiError'
 
 export const useAnystyleStore = defineStore('anystyle', () => {
-  // State
-  const parsedTokens = ref<AnystyleTokenSequence[]>([])
+  // --- State ---
+  const parsedTokens = ref<ApiAnystyleTokenSequence[]>([])
   const showTokenEditor = ref(false)
+
   const isParsing = ref(false)
   const isConverting = ref(false)
   const isTraining = ref(false)
+
   const parseError = ref<string | null>(null)
   const convertError = ref<string | null>(null)
   const trainError = ref<string | null>(null)
 
-  // Computed
+  // --- Computed ---
   const totalParsedReferences = computed(() => parsedTokens.value.length)
-
   const hasParseResults = computed(() => parsedTokens.value.length > 0)
 
   const getParseStatus = computed(() => {
@@ -36,74 +43,66 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     isParsing.value || isConverting.value || isTraining.value,
   )
 
-  // Actions
-  async function parseReferences(references: string[]) {
+  // --- Actions ---
+  async function parseReferences(references: string[]): Promise<ApiResult<ApiAnystyleParseData>> {
     isParsing.value = true
     parseError.value = null
 
-    try {
-      const response = await AnystyleService.parseReferences(references)
+    const res = await AnystyleService.parseReferences(references)
 
-      if (response.success && response.data) {
-        parsedTokens.value = response.data.tokens
-        showTokenEditor.value = true // Automatically show editor after parsing
-      }
-
-      return response
-    }
-    catch (error) {
-      parseError.value = error instanceof Error ? error.message : 'Parsing failed'
-      throw error
-    }
-    finally {
+    if (!res.success) {
+      parseError.value = mapApiError(res as ApiHttpError)
       isParsing.value = false
+      return res
     }
+
+    parsedTokens.value = res.data.tokens
+    showTokenEditor.value = true
+    isParsing.value = false
+    return res
   }
 
-  function updateTokens(index: number, tokens: AnystyleTokenSequence) {
-    if (parsedTokens.value && parsedTokens.value[index]) {
-      // Create new array to trigger reactivity
-      const newTokens = [...parsedTokens.value]
-      newTokens[index] = tokens
-      parsedTokens.value = newTokens
-    }
+  function updateTokens(index: number, tokens: ApiAnystyleTokenSequence) {
+    if (!parsedTokens.value[index])
+      return
+    const next = parsedTokens.value.slice()
+    next[index] = tokens
+    parsedTokens.value = next
   }
 
-  async function convertToCSL(tokens: AnystyleTokenSequence[]) {
+  async function convertToCSL(tokens: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleConvertData>> {
     isConverting.value = true
     convertError.value = null
 
-    try {
-      const response = await AnystyleService.convertToCSL(tokens)
-      return response
-    }
-    catch (error) {
-      convertError.value = error instanceof Error ? error.message : 'CSL conversion failed'
-      throw error
-    }
-    finally {
+    const res = await AnystyleService.convertToCSL(tokens)
+
+    if (!res.success) {
+      convertError.value = mapApiError(res as ApiHttpError)
       isConverting.value = false
+      return res
     }
+
+    isConverting.value = false
+    return res
   }
 
-  async function trainModel(trainingData: AnystyleTokenSequence[]) {
+  async function trainModel(trainingData: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleTrainData>> {
     isTraining.value = true
     trainError.value = null
 
-    try {
-      const response = await AnystyleService.trainModel(trainingData)
-      return response
-    }
-    catch (error) {
-      trainError.value = error instanceof Error ? error.message : 'Model training failed'
-      throw error
-    }
-    finally {
+    const res = await AnystyleService.trainModel(trainingData)
+
+    if (!res.success) {
+      trainError.value = mapApiError(res as ApiHttpError)
       isTraining.value = false
+      return res
     }
+
+    isTraining.value = false
+    return res
   }
 
-  function updateParsedTokens(newTokens: AnystyleTokenSequence[]) {
+  function updateParsedTokens(newTokens: ApiAnystyleTokenSequence[]) {
     parsedTokens.value = newTokens
   }
 
@@ -131,8 +130,9 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     showTokenEditor.value = show
   }
 
+  // --- Expose ---
   return {
-    // State
+    // State (readonly)
     parsedTokens: readonly(parsedTokens),
     showTokenEditor: readonly(showTokenEditor),
     isParsing: readonly(isParsing),

@@ -1,102 +1,77 @@
-/**
- * Service for interacting with the AnyStyle API endpoints
- */
 import {
+  type ApiAnystyleConvertData,
+  // Convert
   ApiAnystyleConvertRequestSchema,
-  type ApiAnystyleConvertResponse,
+
+  type ApiAnystyleParseData,
+  // Parse
   ApiAnystyleParseRequestSchema,
-  type ApiAnystyleParseResponse,
+
+  // Gemeinsame Typen
   type ApiAnystyleTokenSequence,
+  type ApiAnystyleTrainData,
+
+  // Train
   ApiAnystyleTrainRequestSchema,
-  type ApiAnystyleTrainResponse,
+  type ApiResult,
 } from '@source-taster/types'
 
-const API_BASE_URL = 'http://localhost:8000/api/anystyle'
+import { API_CONFIG } from '../env'
+import { apiCall } from './http'
+
+const BASE = API_CONFIG.baseUrl
+const PATHS = API_CONFIG.endpoints.anystyle
 
 export class AnystyleService {
   /**
    * Parse references using AnyStyle and return tokens with labels
    * @param references - Array of reference strings to parse
-   * @returns Parsed tokens for each reference
+   * @returns ApiResult mit { modelUsed, tokens }
    */
-  static async parseReferences(references: string[]): Promise<ApiAnystyleParseResponse> {
+  static async parseReferences(references: string[]): Promise<ApiResult<ApiAnystyleParseData>> {
     const req = ApiAnystyleParseRequestSchema.parse({ input: references })
-
-    const response = await fetch(`${API_BASE_URL}/parse`, {
+    return apiCall<ApiAnystyleParseData>(`${BASE}${PATHS.parse}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
     })
-
-    const result = await response.json() as ApiAnystyleParseResponse
-
-    if (!response.ok || !result.success) {
-      throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
-    }
-
-    return result
   }
 
   /**
    * Convert token arrays to CSL (Citation Style Language) format
    * @param tokens - Array of token sequences to convert
-   * @returns CSL formatted references
+   * @returns ApiResult mit { csl }
    */
-  static async convertToCSL(tokens: ApiAnystyleTokenSequence[]): Promise<ApiAnystyleConvertResponse> {
+  static async convertToCSL(tokens: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleConvertData>> {
     const req = ApiAnystyleConvertRequestSchema.parse({ tokens })
-
-    const response = await fetch(`${API_BASE_URL}/convert-to-csl`, {
+    return apiCall<ApiAnystyleConvertData>(`${BASE}${PATHS.convertToCSL}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
     })
-
-    const result = await response.json() as ApiAnystyleConvertResponse
-
-    if (!response.ok || !result.success) {
-      throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
-    }
-
-    return result
   }
 
   /**
    * Train a custom AnyStyle model with provided training data
    * @param tokens - Training data as token sequences
-   * @returns Training result information
+   * @returns ApiResult mit Trainingsmetadaten
    */
-  static async trainModel(tokens: ApiAnystyleTokenSequence[]): Promise<ApiAnystyleTrainResponse> {
+  static async trainModel(tokens: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleTrainData>> {
     const req = ApiAnystyleTrainRequestSchema.parse({ tokens })
-
-    const response = await fetch(`${API_BASE_URL}/train-model`, {
+    return apiCall<ApiAnystyleTrainData>(`${BASE}${PATHS.train}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
     })
-
-    const result = await response.json() as ApiAnystyleTrainResponse
-    if (!response.ok || !result.success) {
-      throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
-    }
-
-    return result
   }
 
   /**
-   * Utility function to split input text into individual references
-   * @param inputText - Multi-line text with one reference per line
-   * @returns Array of cleaned reference strings
+   * Utility: split multiline input into individual references
    */
   static parseInputText(inputText: string): string[] {
     return inputText
       .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
+      .map(s => s.trim())
+      .filter(Boolean)
   }
 }
