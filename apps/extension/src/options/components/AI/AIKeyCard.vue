@@ -35,6 +35,21 @@ function handleTest(result: { ok: boolean, message: string }) {
     message: result.message,
   }
 }
+
+function reset() {
+  apiKey.value = ''
+  alert.value = null
+}
+
+onMounted(() => {
+  reset()
+  user.loadAISecretsInfo()
+})
+
+watch(() => aiSettings.value.provider, () => {
+  reset()
+  user.loadAISecretsInfo()
+})
 </script>
 
 <template>

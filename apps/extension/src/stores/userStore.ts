@@ -40,7 +40,6 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
       return
     }
 
-    // res.data ist bereits die innere Payload (InfoData)
     hasApiKey.value = !!res.data.hasApiKey
     provider.value = (res.data.provider as ApiAIProvider | undefined) ?? undefined
 
