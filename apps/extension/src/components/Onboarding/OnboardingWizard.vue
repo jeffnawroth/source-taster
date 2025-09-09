@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { mdiArrowLeft, mdiArrowRight, mdiCheckCircle, mdiKeyOutline, mdiOpenInNew, mdiRobot, mdiRocketLaunchOutline } from '@mdi/js'
-import { aiSettings, hasCompletedOnboarding } from '@/extension/logic/storage'
+import { mdiArrowLeft, mdiArrowRight, mdiCheckCircle, mdiRobot, mdiRocketLaunchOutline } from '@mdi/js'
+import { hasCompletedOnboarding } from '@/extension/logic/storage'
 
 const { t } = useI18n()
 
@@ -15,9 +15,9 @@ const steps = computed(() => [
   },
   {
     step: 2,
-    icon: mdiKeyOutline,
-    title: t('onboarding.apiKey.title'),
-    description: t('onboarding.apiKey.description'),
+    icon: mdiRobot,
+    title: t('onboarding.methods.title'),
+    description: t('onboarding.methods.description'),
   },
   {
     step: 3,
@@ -28,9 +28,7 @@ const steps = computed(() => [
 ])
 
 const canProceed = computed(() => {
-  if (currentStep.value === 2) {
-    return aiSettings.value.apiKey.trim().length > 0
-  }
+  // All steps are now optional - users can proceed without API key
   return true
 })
 
@@ -49,11 +47,6 @@ function previousStep() {
 function completeOnboarding() {
   hasCompletedOnboarding.value = true
 }
-
-const apiKeyRules = [
-  (v: string) => !!v || t('onboarding.apiKey.validation.required'),
-  (v: string) => v.length > 10 || t('onboarding.apiKey.validation.minLength'),
-]
 </script>
 
 <template>
@@ -132,7 +125,7 @@ const apiKeyRules = [
         </v-card>
       </template>
 
-      <!-- Step 2: API Key Setup -->
+      <!-- Step 2: Extraction Methods -->
       <template #[`item.2`]>
         <v-card
           flat
@@ -140,70 +133,96 @@ const apiKeyRules = [
         >
           <v-card-title class="text-center mb-4">
             <v-icon
-              :icon="mdiKeyOutline"
+              :icon="mdiRobot"
               size="64"
               color="primary"
               class="mb-4"
             />
             <h2 class="text-h4">
-              {{ t('onboarding.apiKey.title') }}
+              {{ t('onboarding.methods.title') }}
             </h2>
           </v-card-title>
 
           <v-card-text>
             <p class="text-h6 mb-6 text-center text-medium-emphasis">
-              {{ t('onboarding.apiKey.description') }}
+              {{ t('onboarding.methods.description') }}
             </p>
+
+            <v-row>
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <v-card
+                  variant="outlined"
+                  class="h-100"
+                >
+                  <v-card-title class="text-center">
+                    <v-icon
+                      :icon="mdiRobot"
+                      color="primary"
+                      size="large"
+                      class="mb-2"
+                    />
+                    <br>
+                    {{ t('onboarding.methods.ai.title') }}
+                  </v-card-title>
+                  <v-card-text>
+                    <p class="text-body-2 mb-3">
+                      {{ t('onboarding.methods.ai.description') }}
+                    </p>
+                    <v-chip
+                      color="success"
+                      size="small"
+                      variant="tonal"
+                    >
+                      {{ t('onboarding.methods.ai.accuracy') }}
+                    </v-chip>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <v-card
+                  variant="outlined"
+                  class="h-100"
+                >
+                  <v-card-title class="text-center">
+                    <v-icon
+                      :icon="mdiRocketLaunchOutline"
+                      color="secondary"
+                      size="large"
+                      class="mb-2"
+                    />
+                    <br>
+                    {{ t('onboarding.methods.anystyle.title') }}
+                  </v-card-title>
+                  <v-card-text>
+                    <p class="text-body-2 mb-3">
+                      {{ t('onboarding.methods.anystyle.description') }}
+                    </p>
+                    <v-chip
+                      color="info"
+                      size="small"
+                      variant="tonal"
+                    >
+                      {{ t('onboarding.methods.anystyle.free') }}
+                    </v-chip>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
 
             <v-alert
               type="info"
               variant="tonal"
-              class="mb-6"
+              class="mt-6"
             >
-              {{ t('onboarding.apiKey.info') }}
+              {{ t('onboarding.methods.info') }}
             </v-alert>
-
-            <v-select
-              v-model="aiSettings.provider"
-              :items="[
-                { value: 'openai', title: 'OpenAI' },
-                { value: 'anthropic', title: 'Anthropic (Claude)' },
-                { value: 'google', title: 'Google AI' },
-                { value: 'deepseek', title: 'DeepSeek' },
-              ]"
-              :label="t('ai-settings-provider-label')"
-              variant="outlined"
-              class="mb-4"
-              :prepend-inner-icon="mdiRobot"
-            />
-
-            <v-text-field
-              v-model="aiSettings.apiKey"
-              :label="t('ai-settings-api-key-label')"
-              :rules="apiKeyRules"
-              type="password"
-              variant="outlined"
-              :hint="t('onboarding.apiKey.hint')"
-              persistent-hint
-              :prepend-inner-icon="mdiKeyOutline"
-              class="mb-4"
-            />
-
-            <div class="text-center">
-              <v-btn
-                :href="t('onboarding.apiKey.learnMoreUrl')"
-                target="_blank"
-                variant="text"
-                size="small"
-                color="primary"
-              >
-                <v-icon
-                  start
-                  :icon="mdiOpenInNew"
-                />
-                {{ t('onboarding.apiKey.learnMore') }}
-              </v-btn>
-            </div>
           </v-card-text>
         </v-card>
       </template>
@@ -231,17 +250,17 @@ const apiKeyRules = [
               {{ t('onboarding.ready.description') }}
             </p>
 
-            <v-alert
+            <!-- <v-alert
               type="success"
               variant="tonal"
               class="mb-6"
             >
               {{ t('onboarding.ready.success') }}
-            </v-alert>
+            </v-alert> -->
 
-            <p class="text-body-1">
+            <!-- <p class="text-body-1">
               {{ t('onboarding.ready.nextSteps') }}
-            </p>
+            </p> -->
           </v-card-text>
         </v-card>
       </template>

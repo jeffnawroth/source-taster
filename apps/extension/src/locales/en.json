@@ -598,20 +598,23 @@
       "complete": "Get Started",
       "next": "Next"
     },
-    "apiKey": {
-      "description": "To use The Source Taster, you need to provide an API key from a supported AI provider. Your key is only used for reference processing.",
-      "hint": "Enter your API key from your chosen provider",
-      "info": "Your API key is encrypted and stored locally in your browser. It is never shared with third parties.",
-      "learnMore": "Learn how to get an API key",
-      "learnMoreUrl": "https://platform.openai.com/api-keys",
-      "title": "Configure Your AI Provider",
-      "validation": {
-        "minLength": "API key must be at least 10 characters",
-        "required": "API key is required"
-      }
+    "methods": {
+      "title": "Extraction Methods",
+      "description": "Choose between two powerful methods for reference extraction:",
+      "ai": {
+        "title": "Smart AI Extraction",
+        "description": "Uses modern AI models for highest accuracy and flexibility. Requires an API key.",
+        "accuracy": "Highest Accuracy"
+      },
+      "anystyle": {
+        "title": "Bibliography Parser",
+        "description": "Specialized parser for bibliographic references. Works without API costs or external registration.",
+        "free": "Free"
+      },
+      "info": "You can switch between methods anytime. For optimal results, we recommend Smart AI Extraction."
     },
     "features": {
-      "extraction": "Extract references from text using AI",
+      "extraction": "Extract references from text",
       "matching": "Match references against academic databases",
       "verification": "Verify source authenticity"
     },
@@ -623,7 +626,7 @@
       "title": "You're All Set!"
     },
     "welcome": {
-      "description": "The Source Taster helps you to extract and verify academic references using AI. Let's get you set up!",
+      "description": "The Source Taster helps you extract and verify academic references. Choose your preferred method!",
       "title": "Welcome to The Source Taster"
     }
   },

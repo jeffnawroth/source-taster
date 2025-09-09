@@ -598,20 +598,23 @@
       "complete": "Loslegen",
       "next": "Weiter"
     },
-    "apiKey": {
-      "description": "Um The Source Taster zu verwenden, benötigen Sie einen API-Schlüssel von einem unterstützten KI-Anbieter. Ihr Schlüssel wird nur für die Referenzverarbeitung verwendet.",
-      "hint": "Geben Sie Ihren API-Schlüssel vom gewählten Anbieter ein",
-      "info": "Ihr API-Schlüssel wird verschlüsselt und lokal in Ihrem Browser gespeichert. Er wird niemals an Dritte weitergegeben.",
-      "learnMore": "Erfahren Sie, wie Sie einen API-Schlüssel erhalten",
-      "learnMoreUrl": "https://platform.openai.com/api-keys",
-      "title": "KI-Anbieter konfigurieren",
-      "validation": {
-        "minLength": "API-Schlüssel muss mindestens 10 Zeichen lang sein",
-        "required": "API-Schlüssel ist erforderlich"
-      }
+    "methods": {
+      "title": "Extraktionsmethoden",
+      "description": "Wählen Sie zwischen zwei leistungsstarken Methoden zur Referenzextraktion:",
+      "ai": {
+        "title": "Smart AI Extraction",
+        "description": "Nutzt moderne KI-Modelle für höchste Genauigkeit und Flexibilität. Benötigt einen API-Schlüssel.",
+        "accuracy": "Höchste Genauigkeit"
+      },
+      "anystyle": {
+        "title": "Bibliography Parser",
+        "description": "Spezialisierter Parser für bibliografische Referenzen. Funktioniert ohne API-Kosten oder externe Anmeldung.",
+        "free": "Kostenlos"
+      },
+      "info": "Sie können jederzeit zwischen den Methoden wechseln. Für optimale Ergebnisse empfehlen wir die Smart AI Extraction."
     },
     "features": {
-      "extraction": "Referenzen aus Text mit KI extrahieren",
+      "extraction": "Referenzen aus Text extrahieren",
       "matching": "Referenzen gegen akademische Datenbanken abgleichen",
       "verification": "Authentizität von Quellen überprüfen"
     },
@@ -623,7 +626,7 @@
       "title": "Alles bereit!"
     },
     "welcome": {
-      "description": "The Source Taster hilft Ihnen dabei, akademische Referenzen mit KI zu extrahieren und zu verifizieren. Lassen Sie uns loslegen!",
+      "description": "The Source Taster hilft Ihnen dabei, akademische Referenzen zu extrahieren und zu verifizieren. Wählen Sie Ihre bevorzugte Methode!",
       "title": "Willkommen bei The Source Taster"
     }
   },

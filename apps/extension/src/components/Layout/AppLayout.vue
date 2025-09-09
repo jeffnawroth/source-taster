@@ -4,7 +4,7 @@ import { VDivider } from 'vuetify/lib/components/index.mjs'
 import OnboardingLayout from '@/extension/components/Onboarding/OnboardingLayout.vue'
 import TrainingDataManager from '@/extension/components/References/TrainingDataManager.vue'
 import ReportSection from '@/extension/components/Report/ReportSection.vue'
-import { aiSettings, hasCompletedOnboarding, localeOption } from '@/extension/logic/storage'
+import { hasCompletedOnboarding, localeOption } from '@/extension/logic/storage'
 import InputCard from '../Input/InputCard.vue'
 
 // LOCALE
@@ -16,9 +16,9 @@ watchEffect(() => {
   current.value = localeOption.value
 })
 
-// Check if onboarding should be shown
+// Check if onboarding should be shown - now optional since AnyStyle parsing is available
 const shouldShowOnboarding = computed(() => {
-  return !hasCompletedOnboarding.value || !aiSettings.value.apiKey.trim()
+  return !hasCompletedOnboarding.value
 })
 
 watchEffect(() => {
@@ -37,7 +37,7 @@ const components = [
 </script>
 
 <template>
-  <!-- Show onboarding if not completed or no API key -->
+  <!-- Show onboarding if not completed -->
   <OnboardingLayout v-if="shouldShowOnboarding" />
 
   <!-- Show main app if onboarding is completed -->
