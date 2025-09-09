@@ -1,60 +1,39 @@
 <script setup lang="ts">
-import type { AIModel, AIProvider } from '@source-taster/types'
 import { mdiCloudOutline } from '@mdi/js'
-import { AI_PROVIDERS, PROVIDER_MODELS } from '@source-taster/types'
+import { type ApiAIModel, type ApiAIProvider, PROVIDER_LABELS, PROVIDER_MODELS, PROVIDERS } from '@source-taster/types'
 
-// Modern v-model with defineModel
 const settings = defineModel<{
-  provider: AIProvider
-  model: AIModel
+  provider: ApiAIProvider
+  model: ApiAIModel
 }>({ required: true })
 
-// TRANSLATION
 const { t } = useI18n()
 
-// Provider options for select
-const providerOptions = computed(() =>
-  Object.entries(AI_PROVIDERS).map(([key, label]) => ({
-    value: key,
-    title: label,
+const providerOptions = computed<{ value: ApiAIProvider, title: string }[]>(() =>
+  PROVIDERS.map(p => ({
+    value: p,
+    title: PROVIDER_LABELS[p],
   })),
 )
 
-// Model options for select based on selected provider
-const modelOptions = computed(() => {
-  const provider = settings.value.provider as keyof typeof PROVIDER_MODELS
-  if (!provider || !PROVIDER_MODELS[provider])
+const modelOptions = computed<{ value: ApiAIModel, title: string }[]>(() => {
+  const provider = settings.value.provider as ApiAIProvider | undefined
+  if (!provider)
     return []
-
-  return PROVIDER_MODELS[provider].map((key) => {
-    // Convert dots to dashes for i18n key compatibility
-    const i18nKey = key.replace(/\./g, '-')
-    const translationKey = `ai-models.${i18nKey}`
-    // Check if translation exists, fallback to key if not
-    const translatedTitle = t(translationKey)
-    const title = translatedTitle !== translationKey ? translatedTitle : key
-
-    return {
-      value: key,
-      title,
-    }
-  })
+  return PROVIDER_MODELS[provider].map(m => ({
+    value: m,
+    title: (t(`ai-models.${m.replace(/\./g, '-')}`) !== `ai-models.${m.replace(/\./g, '-')}` ? t(`ai-models.${m.replace(/\./g, '-')}`) : m),
+  }))
 })
 
-// Watch for provider changes and auto-select first available model
 watch(
   () => settings.value.provider,
-  (_newProvider) => {
-    const availableModels = modelOptions.value
-    if (availableModels.length > 0) {
-      // Check if current model is still valid for new provider
-      const currentModelValid = availableModels.some(model => model.value === settings.value.model)
-      if (!currentModelValid) {
-        // Auto-select first model for new provider
-        settings.value = {
-          ...settings.value,
-          model: availableModels[0].value as AIModel,
-        }
+  () => {
+    const available = modelOptions.value
+    if (available.length > 0) {
+      const stillValid = available.some(m => m.value === settings.value.model)
+      if (!stillValid) {
+        settings.value = { ...settings.value, model: available[0].value as ApiAIModel }
       }
     }
   },
@@ -71,16 +50,10 @@ watch(
       <v-icon :icon="mdiCloudOutline" />
     </template>
     <template #title>
-      <p>
-        {{ t('ai-settings-provider-label') }}
-      </p>
+      <p>{{ t('ai-settings-provider-label') }}</p>
     </template>
+    <v-card-subtitle><p>{{ t('ai-settings-provider-hint') }}</p></v-card-subtitle>
 
-    <v-card-subtitle>
-      <p>
-        {{ t('ai-settings-provider-hint') }}
-      </p>
-    </v-card-subtitle>
     <v-card-text>
       <p class="font-weight-bold mb-2">
         {{ t('provider') }}
@@ -94,7 +67,6 @@ watch(
         hide-details
       />
 
-      <!-- Model Selection (only show if provider is selected) -->
       <div
         v-if="settings.provider && modelOptions.length > 0"
         class="mt-4"

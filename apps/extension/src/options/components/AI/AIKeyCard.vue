@@ -1,98 +1,97 @@
 <script setup lang="ts">
-import type { AIProvider } from '@source-taster/types'
 import { mdiKeyOutline } from '@mdi/js'
+import { aiSettings } from '@/extension/logic'
+import { useUserSettingsStore } from '@/extension/stores/userStore'
+import APIKeyInput from './APIKeyInput.vue'
+import APIKeyLink from './APIKeyLink.vue'
+import APIKeyTestBtn from './APIKeyTestBtn.vue'
 
-const props = defineProps<{
-  provider: AIProvider
-}>()
+const apiKey = ref<string>('')
 
+const user = useUserSettingsStore()
 const { t } = useI18n()
 
-// Modern v-model with defineModel
-const apiKey = defineModel<string>({ required: true })
+// Einheitlicher Alert-State
+const alert = ref<{ type: 'success' | 'error', message: string } | null>(null)
 
-// API key validation - now required
-const apiKeyError = computed(() => {
-  if (!apiKey.value) {
-    return t('ai-settings-api-key-required')
-  }
-  if (!isValidApiKeyFormat(apiKey.value, props.provider)) {
-    return t('ai-settings-invalid-api-key-format')
-  }
-  return null
-})
-
-function isValidApiKeyFormat(key: string, provider: AIProvider): boolean {
-  switch (provider) {
-    case 'openai':
-      return key.startsWith('sk-') && key.length > 20
-    case 'anthropic':
-      return key.startsWith('sk-ant-') && key.length > 20
-    case 'google':
-      return key.length > 20 // Google API keys have different format
-    case 'deepseek':
-      return key.startsWith('sk-') && key.length > 20
-    default:
-      return key.length > 10 // Generic validation
-  }
+// Methoden für Save/Delete aus dem Store
+async function handleSave() {
+  const res = await user.saveAISecrets({ provider: aiSettings.value.provider, apiKey: apiKey.value })
+  alert.value = res
+    ? { type: 'success', message: t('ai-settings-saved') }
+    : { type: 'error', message: user.saveError ?? t('ai-settings-save-error') }
 }
 
-// Local state
-const apiKeyTestResult = ref<{ success: boolean, message: string } | null>(null)
+async function handleDelete() {
+  const res = await user.deleteAISecrets()
+  alert.value = res
+    ? { type: 'success', message: t('ai-settings-deleted') }
+    : { type: 'error', message: user.saveError ?? t('ai-settings-delete-error') }
+}
+
+function handleTest(result: { ok: boolean, message: string }) {
+  alert.value = {
+    type: result.ok ? 'success' : 'error',
+    message: result.message,
+  }
+}
 </script>
 
 <template>
   <v-card
     variant="text"
-    rounded="xl"
     density="compact"
   >
     <template #prepend>
       <v-icon :icon="mdiKeyOutline" />
     </template>
     <template #title>
-      <p>
-        {{ t('ai-settings-api-key-label') }}
-      </p>
+      {{ t('ai-settings-api-key-label') }}
     </template>
 
-    <v-card-subtitle>
-      <p>
-        {{ t('ai-settings-api-key-hint') }}
-      </p>
-    </v-card-subtitle>
     <v-card-text>
-      <!-- API Key Input -->
-      <p class="font-weight-bold mb-2">
-        {{ t('ai-settings-api-key-label') }}
-      </p>
       <APIKeyInput
         v-model="apiKey"
-        :provider
-        :api-key-error
-      />
-
-      <APIKeyTestBtn
-        v-model="
-          apiKeyTestResult"
-        :api-key
-        :api-key-error
-      />
-
-      <!-- Test Result Alert -->
-      <v-alert
-        v-if="apiKeyTestResult"
-        :type="apiKeyTestResult.success ? 'success' : 'error'"
-        variant="tonal"
-        density="compact"
-        class="mb-3"
-      >
-        {{ apiKeyTestResult.message }}
-      </v-alert>
-
-      <APIKeyLink
-        :provider="props.provider"
+        :api-key-error="user.saveError"
       />
     </v-card-text>
+
+    <v-card-actions>
+      <v-btn
+        color="primary"
+        variant="tonal"
+        :loading="user.isSaving"
+        :disabled="apiKey.trim().length === 0 || user.isSaving"
+        @click="handleSave"
+      >
+        {{ t('save') }}
+      </v-btn>
+      <v-btn
+        color="error"
+        variant="tonal"
+        :loading="user.isSaving"
+        :disabled="!user.hasApiKey || user.isSaving"
+        @click="handleDelete"
+      >
+        {{ t('delete') }}
+      </v-btn>
+
+      <APIKeyTestBtn
+        :has-key="user.hasApiKey"
+        @tested="handleTest"
+      />
+    </v-card-actions>
+    <v-alert
+      v-if="alert"
+      :type="alert.type"
+      variant="tonal"
+      density="compact"
+      class="mb-3"
+      closable
+      @click:close="alert = null"
+    >
+      {{ alert.message }}
+    </v-alert>
+    <APIKeyLink />
   </v-card>
 </template>

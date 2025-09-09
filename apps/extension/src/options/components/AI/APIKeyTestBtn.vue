@@ -1,67 +1,37 @@
 <script setup lang="ts">
 import { mdiCheckboxMarkedCircleOutline } from '@mdi/js'
-import { ReferencesService } from '@/extension/services/referencesService'
+import { useExtractionStore } from '@/extension/stores/extraction'
 
-const props = defineProps<{
-  apiKey: string
-  apiKeyError: string | null
-}>()
+const props = defineProps<{ hasKey: boolean }>()
+const emit = defineEmits<{ (e: 'tested', result: { ok: boolean, message: string }): void }>()
 
-const { t } = useI18n()
+const extraction = useExtractionStore()
+const isTesting = ref(false)
 
-const modelValue = defineModel<{ success: boolean, message: string } | null>({ required: true })
-const isTestingApiKey = ref(false)
-
-// Test API key function
 async function testApiKey() {
-  if (!props.apiKey || props.apiKeyError) {
+  if (!props.hasKey || isTesting.value)
     return
-  }
-
-  isTestingApiKey.value = true
-  modelValue.value = null
-
+  isTesting.value = true
   try {
-    // Use the ReferencesService to test the API key with a simple extraction
-    const testText = 'Test citation: Smith, J. (2024). A test paper. Journal of Testing, 1(1), 1-5.'
-    const references = await ReferencesService.extractReferences(testText)
-
-    if (references && references.length > 0) {
-      modelValue.value = {
-        success: true,
-        message: t('api-key-test-success'),
-      }
-    }
-    else {
-      modelValue.value = {
-        success: false,
-        message: t('api-key-test-failed'),
-      }
-    }
-  }
-  catch (error) {
-    modelValue.value = {
-      success: false,
-      message: error instanceof Error ? error.message : t('api-key-test-error'),
-    }
+    const r = await extraction.testApiKeyWithExtraction()
+    emit('tested', r)
   }
   finally {
-    isTestingApiKey.value = false
+    isTesting.value = false
   }
 }
 </script>
 
 <template>
   <v-btn
-    :disabled="!apiKey || !!apiKeyError"
+    :disabled="!hasKey"
     variant="tonal"
     color="primary"
-    class="mb-3"
     @click="testApiKey"
   >
     <template #prepend>
       <v-progress-circular
-        v-if="isTestingApiKey"
+        v-if="isTesting"
         size="20"
         width="2"
         indeterminate
@@ -71,6 +41,6 @@ async function testApiKey() {
         :icon="mdiCheckboxMarkedCircleOutline"
       />
     </template>
-    {{ t('test-api-key') }}
+    {{ $t('test-api-key') }}
   </v-btn>
 </template>

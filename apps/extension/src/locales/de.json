@@ -138,6 +138,7 @@
   "content-formatting-settings-description": "Einstellungen für Formatierung und Standardisierung bibliographischer Inhalte",
   "contributor": "Mitwirkender",
   "contributors": "Mitwirkende",
+  "converts-parsed-tokens-to-csl-searches-and-matches-references": "Konvertiert geparste Tokens zu CSL-Format, durchsucht Datenbanken und ordnet Referenzen zu",
   "copy": "Kopieren",
   "copy-clicked": "Kopiert!",
   "copy-hover": "Klicken zum Kopieren",
@@ -697,6 +698,7 @@
   "reviewed-author": "Rezensierter Autor",
   "reviewed-genre": "Rezensiertes Genre",
   "reviewed-title": "Rezensierter Titel",
+  "save": "Speichern",
   "save-settings": "Einstellungen speichern",
   "scale": "Maßstab",
   "scenario": "Szenario",
@@ -996,7 +998,9 @@
   "verify": "Prüfen",
   "verify-against-website": "Gegen Website prüfen",
   "verify-reference-against-website-description": "Geben Sie eine Website-URL ein, um diese Referenz gegen den Website-Inhalt zu prüfen",
+  "verify-references": "Referenzen verifizieren",
   "verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases": "Verifizieren Sie Referenzen, indem Sie sie in wissenschaftlichen Datenbanken suchen und abgleichen",
+  "verifying": "Verifiziert",
   "verifying-reference-current": "Überprüfe: {reference}",
   "verifying-references-progress": "Überprüfe Referenzen ({current}/{total})",
   "version": "Version",
@@ -1016,7 +1020,8 @@
   "year-match": "Jahr-Übereinstimmung",
   "year-suffix": "Jahr-Suffix",
   "yes": "Ja",
-  "verifying": "Verifiziert",
-  "verify-references": "Referenzen verifizieren",
-  "converts-parsed-tokens-to-csl-searches-and-matches-references": "Konvertiert geparste Tokens zu CSL-Format, durchsucht Datenbanken und ordnet Referenzen zu"
+  "ai-settings-saved": "KI-Einstellungen gespeichert",
+  "ai-settings-save-error": "Fehler beim Speichern der KI-Einstellungen",
+  "ai-settings-deleted": "KI-Einstellungen gelöscht",
+  "ai-settings-delete-error": "Fehler beim Löschen der KI-Einstellungen"
 }

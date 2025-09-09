@@ -27,7 +27,6 @@ export const API_CONFIG = {
     user: {
       base: '/api/user',
       aiSecrets: '/api/user/ai-secrets',
-      aiSettings: '/api/user/ai-settings',
     },
   },
 } as const

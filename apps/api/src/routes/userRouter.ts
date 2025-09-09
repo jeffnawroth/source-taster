@@ -45,10 +45,6 @@ userRouter.delete('/ai-secrets', async (c) => {
   const provider = ApiAIProviderSchema.parse(c.req.query('provider') ?? 'openai')
   const userId = c.get('userId') as string
 
-  await deleteApiKey(userId, provider)
-
-  return c.json<ApiUserAISecretsDeleteResponse>({
-    success: true,
-    data: { deleted: true },
-  })
+  const actuallyDeleted = await deleteApiKey(userId, provider)
+  return c.json({ success: true, data: { deleted: actuallyDeleted } } as ApiUserAISecretsDeleteResponse)
 })

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { AIProvider } from '@source-taster/types'
+import type { ApiAIProvider } from '@source-taster/types'
 
 defineProps<{
-  providerOptions: AIProvider[]
+  providerOptions: ApiAIProvider[]
 }>()
 
-const modelValue = defineModel<AIProvider>({
+const modelValue = defineModel<ApiAIProvider>({
   required: true,
 })
 </script>

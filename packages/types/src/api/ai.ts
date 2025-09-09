@@ -18,45 +18,51 @@ export type ApiGoogleModel = z.infer<typeof ApiGoogleModelSchema>
 export const ApiDeepSeekModelSchema = z.enum(['deepseek-chat', 'deepseek-reasoner'])
 export type ApiDeepSeekModel = z.infer<typeof ApiDeepSeekModelSchema>
 
-export const ApiModelSchema = z.union([
+export const ApiAIModelSchema = z.union([
   ApiOpenAIModelSchema,
   ApiAnthropicModelSchema,
   ApiGoogleModelSchema,
   ApiDeepSeekModelSchema,
 ])
-export type ApiModel = z.infer<typeof ApiModelSchema>
+export type ApiAIModel = z.infer<typeof ApiAIModelSchema>
 
-const ApiAISettingsOpenAISchema = z.object({
-  provider: z.literal('openai'),
-  model: ApiOpenAIModelSchema,
+export const ApiAISettingsSchema = z.object({
+  provider: ApiAIProviderSchema,
+  model: ApiAIModelSchema,
 }).strict()
-export type ApiAISettingsOpenAI = z.infer<typeof ApiAISettingsOpenAISchema>
-
-const ApiAISettingsAnthropicSchema = z.object({
-  provider: z.literal('anthropic'),
-  model: ApiAnthropicModelSchema,
-}).strict()
-export type ApiAISettingsAnthropic = z.infer<typeof ApiAISettingsAnthropicSchema>
-
-const ApiAISettingsGoogleSchema = z.object({
-  provider: z.literal('google'),
-  model: ApiGoogleModelSchema,
-}).strict()
-export type ApiAISettingsGoogle = z.infer<typeof ApiAISettingsGoogleSchema>
-
-const ApiAISettingsDeepSeekSchema = z.object({
-  provider: z.literal('deepseek'),
-  model: ApiDeepSeekModelSchema,
-}).strict()
-export type ApiAISettingsDeepSeek = z.infer<typeof ApiAISettingsDeepSeekSchema>
-
-export const ApiAISettingsSchema = z.discriminatedUnion('provider', [
-  ApiAISettingsOpenAISchema,
-  ApiAISettingsAnthropicSchema,
-  ApiAISettingsGoogleSchema,
-  ApiAISettingsDeepSeekSchema,
-])
 export type ApiAISettings = z.infer<typeof ApiAISettingsSchema>
+
+// const ApiAISettingsOpenAISchema = z.object({
+//   provider: z.literal('openai'),
+//   model: ApiOpenAIModelSchema,
+// }).strict()
+// export type ApiAISettingsOpenAI = z.infer<typeof ApiAISettingsOpenAISchema>
+
+// const ApiAISettingsAnthropicSchema = z.object({
+//   provider: z.literal('anthropic'),
+//   model: ApiAnthropicModelSchema,
+// }).strict()
+// export type ApiAISettingsAnthropic = z.infer<typeof ApiAISettingsAnthropicSchema>
+
+// const ApiAISettingsGoogleSchema = z.object({
+//   provider: z.literal('google'),
+//   model: ApiGoogleModelSchema,
+// }).strict()
+// export type ApiAISettingsGoogle = z.infer<typeof ApiAISettingsGoogleSchema>
+
+// const ApiAISettingsDeepSeekSchema = z.object({
+//   provider: z.literal('deepseek'),
+//   model: ApiDeepSeekModelSchema,
+// }).strict()
+// export type ApiAISettingsDeepSeek = z.infer<typeof ApiAISettingsDeepSeekSchema>
+
+// export const ApiAISettingsSchema = z.discriminatedUnion('provider', [
+//   ApiAISettingsOpenAISchema,
+//   ApiAISettingsAnthropicSchema,
+//   ApiAISettingsGoogleSchema,
+//   ApiAISettingsDeepSeekSchema,
+// ])
+// export type ApiAISettings = z.infer<typeof ApiAISettingsSchema>
 
 // export const ApiAIModelSchema = z.union([
 //   ApiOpenAIModelSchema,
@@ -146,3 +152,21 @@ export type ApiAISettings = z.infer<typeof ApiAISettingsSchema>
 //   GOOGLE_MODELS_SCHEMA,
 //   DEEPSEEK_MODELS_SCHEMA,
 // ])
+
+export const PROVIDER_LABELS: Record<ApiAIProvider, string> = {
+  openai: 'OpenAI',
+  anthropic: 'Anthropic (Claude)',
+  google: 'Google (Gemini)',
+  deepseek: 'DeepSeek',
+} as const
+
+// 2) Modelle je Provider (aus den Zod-Enums abgeleitet)
+export const PROVIDER_MODELS = {
+  openai: ApiOpenAIModelSchema.options, // readonly tuple → string[]
+  anthropic: ApiAnthropicModelSchema.options,
+  google: ApiGoogleModelSchema.options,
+  deepseek: ApiDeepSeekModelSchema.options,
+} as const satisfies Record<ApiAIProvider, readonly ApiAIModel[]>
+
+// Optional hilfreich für UI:
+export const PROVIDERS: readonly ApiAIProvider[] = ApiAIProviderSchema.options

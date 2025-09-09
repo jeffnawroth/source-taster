@@ -52,6 +52,32 @@ export const useExtractionStore = defineStore('extraction', () => {
     }
   }
 
+  async function testApiKeyWithExtraction(): Promise<{ ok: boolean, message: string }> {
+    try {
+    // Minimaler Testtext (harmlos & kurz)
+      const testText = 'Smith, J. (2024). A test paper. Journal of Testing, 1(1), 1–5. https://doi.org/10.1000/test'
+
+      // Service direkt nutzen – KEINE State-Mutationen hier!
+      const res = await ExtractionService.extractReferences({
+        text: testText,
+        extractionSettings: extractionSettings.value,
+        aiSettings: aiSettings.value,
+      })
+
+      if (!res.success) {
+        return { ok: false, message: mapApiError(res) }
+      }
+
+      const count = res.data?.references?.length ?? 0
+      return count > 0
+        ? { ok: true, message: 'API-Key erfolgreich getestet.' }
+        : { ok: false, message: 'Test ausgeführt, aber keine Referenzen erkannt.' }
+    }
+    catch (e: any) {
+      return { ok: false, message: e?.message || 'Unbekannter Fehler beim Test.' }
+    }
+  }
+
   function addReference(reference: ApiExtractReference) {
     extractedReferences.value.push(reference)
   }
@@ -103,5 +129,6 @@ export const useExtractionStore = defineStore('extraction', () => {
     clearExtractedReferences,
     clearExtractionError,
     getReferencesForMatching,
+    testApiKeyWithExtraction,
   }
 })
