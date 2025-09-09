@@ -1,3 +1,4 @@
+// extension/services/userService.ts
 import type {
   ApiAIProvider,
   ApiUserAISecretsData,
@@ -6,7 +7,6 @@ import type {
   ApiUserAISecretsRequest,
 } from '@source-taster/types'
 import { clientId } from '@/extension/logic/storage'
-// extension/services/userService.ts
 import { API_CONFIG } from '../env'
 import { apiCall } from './http'
 
@@ -17,19 +17,24 @@ export class UserService {
   static saveAISecrets(payload: ApiUserAISecretsRequest) {
     return apiCall<ApiUserAISecretsData>(AI_SECRETS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value,
+      },
       body: JSON.stringify(payload),
     })
   }
 
   static getAISecretsInfo(provider: ApiAIProvider) {
-    return apiCall<ApiUserAISecretsInfoData>(`${AI_SECRETS_URL}?provider=${provider}`, {
+    const q = encodeURIComponent(provider)
+    return apiCall<ApiUserAISecretsInfoData>(`${AI_SECRETS_URL}?provider=${q}`, {
       headers: { 'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value },
     })
   }
 
   static deleteAISecrets(provider: ApiAIProvider) {
-    return apiCall<ApiUserAISecretsDeleteData>(`${AI_SECRETS_URL}?provider=${provider}`, {
+    const q = encodeURIComponent(provider)
+    return apiCall<ApiUserAISecretsDeleteData>(`${AI_SECRETS_URL}?provider=${q}`, {
       method: 'DELETE',
       headers: { 'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value },
     })

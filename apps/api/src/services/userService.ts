@@ -5,8 +5,8 @@ import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore'
 
 export class UserService {
   /**
-   * Speichert den API-Key. Auf Fehlerseiten (FS/IO/Krypto) mappen wir auf Upstream (5xx),
-   * fachliche Fehler (z.B. invalid provider) kommen von validateProvider().
+   * Saves the API key. On error sides (FS/IO/Crypto) we map to Upstream (5xx),
+   * business logic errors (e.g. invalid provider) come from validateProvider().
    */
   async saveUserAISecret(userId: string, provider: ApiAIProvider, apiKey: string): Promise<boolean> {
     try {
@@ -19,7 +19,7 @@ export class UserService {
   }
 
   /**
-   * Liefert Flag + Provider zurück.
+   * Returns flag + provider.
    */
   async getUserAISecretInfo(userId: string, provider: ApiAIProvider): Promise<ApiUserAISecretsInfoData> {
     try {
@@ -32,7 +32,7 @@ export class UserService {
   }
 
   /**
-   * Löscht den Key. Rückgabe = true, auch wenn Key nicht existierte (idempotent ok).
+   * Deletes the API key. Returns true even if the key didn't exist (idempotent operation).
    */
   async deleteUserAISecret(userId: string, provider: ApiAIProvider): Promise<boolean> {
     try {
