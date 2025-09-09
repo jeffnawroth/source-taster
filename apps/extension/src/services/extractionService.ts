@@ -2,8 +2,7 @@
 /**
  * Service for extracting references from text using AI
  */
-import type { ApiExtractRequest, ApiExtractResponse } from '@source-taster/types'
-import type { ApiResult } from './http'
+import type { ApiExtractRequest, ApiExtractResponse, ApiResult } from '@source-taster/types'
 import { ApiExtractRequestSchema } from '@source-taster/types'
 import { clientId } from '@/extension/logic/storage' // UUIDv4
 import { API_CONFIG } from '../env'

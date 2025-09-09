@@ -18,7 +18,17 @@ export const API_CONFIG = {
     extract: '/api/extract',
     match: '/api/match',
     search: '/api/search',
-    parse: '/api/parse',
+    anystyle: {
+      base: '/api/anystyle',
+      parse: '/api/anystyle/parse',
+      convertToCSL: '/api/anystyle/convert-to-csl',
+      train: '/api/anystyle/train-model',
+    },
+    user: {
+      base: '/api/user',
+      aiSecrets: '/api/user/ai-secrets',
+      aiSettings: '/api/user/ai-settings',
+    },
   },
 } as const
 

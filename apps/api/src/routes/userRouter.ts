@@ -1,33 +1,54 @@
 import type { AppEnv } from '../types/hono'
-import { ApiAIProviderSchema, ApiUserAISecretsSchema } from '@source-taster/types'
+import {
+  ApiAIProviderSchema,
+  type ApiUserAISecretsDeleteResponse,
+  type ApiUserAISecretsInfoResponse,
+  ApiUserAISecretsRequestSchema,
+  type ApiUserAISecretsResponse,
+} from '@source-taster/types'
+// src/routes/userRouter.ts
 import { Hono } from 'hono'
 import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore'
 
-const userRouter = new Hono<AppEnv>()
+export const userRouter = new Hono<AppEnv>()
 
-// POST /api/user/ai-secrets  -> save/update encrypted key
+// POST /api/user/ai-secrets  -> save/update key
 userRouter.post('/ai-secrets', async (c) => {
   const body = await c.req.json()
-  const { provider, apiKey } = ApiUserAISecretsSchema.parse(body)
+  const { provider, apiKey } = ApiUserAISecretsRequestSchema.parse(body)
   const userId = c.get('userId') as string
+
   await saveApiKey(userId, provider, apiKey)
-  return c.json({ success: true, message: 'Saved' })
+
+  return c.json<ApiUserAISecretsResponse>({
+    success: true,
+    data: { saved: true },
+  })
 })
 
-// GET /api/user/ai-settings?provider=openai  -> hasApiKey flag
-userRouter.get('/ai-settings', async (c) => {
+// GET /api/user/ai-secrets?provider=openai  -> info
+userRouter.get('/ai-secrets', async (c) => {
   const provider = ApiAIProviderSchema.parse(c.req.query('provider') ?? 'openai')
   const userId = c.get('userId') as string
-  const hasApiKey = !!(await loadApiKey(userId, provider))
-  return c.json({ success: true, provider, hasApiKey })
+
+  const key = await loadApiKey(userId, provider)
+  const hasApiKey = Boolean(key)
+
+  return c.json<ApiUserAISecretsInfoResponse>({
+    success: true,
+    data: { hasApiKey, provider },
+  })
 })
 
 // DELETE /api/user/ai-secrets?provider=openai
 userRouter.delete('/ai-secrets', async (c) => {
   const provider = ApiAIProviderSchema.parse(c.req.query('provider') ?? 'openai')
   const userId = c.get('userId') as string
-  await deleteApiKey(userId, provider)
-  return c.json({ success: true, message: 'Deleted' })
-})
 
-export { userRouter }
+  await deleteApiKey(userId, provider)
+
+  return c.json<ApiUserAISecretsDeleteResponse>({
+    success: true,
+    data: { deleted: true },
+  })
+})

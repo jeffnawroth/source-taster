@@ -1,8 +1,5 @@
 // extension/services/http.ts
-import type { ApiHttpError } from '@source-taster/types'
-
-interface ApiSuccess<T> { success: true, data: T }
-export type ApiResult<T> = ApiSuccess<T> | ApiHttpError
+import type { ApiErrorCode, ApiResult } from '@source-taster/types'
 
 async function safeJson(res: Response) {
   const text = await res.text()
@@ -11,39 +8,43 @@ async function safeJson(res: Response) {
   try {
     return JSON.parse(text)
   }
-  catch { return text }
+  catch {
+    return text // Nicht-JSON (z.B. Text) zurückgeben
+  }
 }
 
 export async function apiCall<T>(url: string, init?: RequestInit): Promise<ApiResult<T>> {
   try {
     const res = await fetch(url, init)
-    const body = await safeJson(res)
+    const body = await safeJson(res) as any
 
-    // JSON-API: hat 'success' Feld
+    // 1) Standard-API-Format erkannt (hat 'success')
     if (body && typeof body === 'object' && 'success' in body) {
-      // Erfolg
-      if ((body as any).success) {
-        return { success: true, data: (body as any).data as T }
+      if (body.success) {
+        // => Erfolg: direkt innere Payload als T zurückgeben
+        return { success: true, data: body.data as T }
       }
-      // Fehler (vom Backend formatiert)
-      const err = body as { success: false, error?: string, message?: string }
+
+      // => Fehler: vom Backend formatiert
+      const errorCode = (body.error as ApiErrorCode) ?? 'internal_error'
+      const message = (typeof body.message === 'string' && body.message) || `HTTP ${res.status}`
       return {
         success: false,
-        error: (err.error as any) ?? 'http_error',
-        message: err.message ?? `HTTP error ${res.status}`,
-      } as ApiHttpError
+        error: errorCode,
+        message,
+      }
     }
 
-    // Fallbacks (kein API-Format)
+    // 2) Kein API-Wrapper, aber HTTP-Fehler
     if (!res.ok) {
       return {
         success: false,
-        error: 'http_error' as any,
-        message: `HTTP error ${res.status}`,
+        error: 'internal_error', // Default, weil kein bekannter Code vorhanden
+        message: `HTTP ${res.status}${res.statusText ? ` - ${res.statusText}` : ''}`,
       }
     }
 
-    // Falls Erfolg ohne Standard-Wrapper (sollte bei dir nicht passieren)
+    // 3) Kein API-Wrapper, aber ok -> Unerwartetes Format
     return {
       success: false,
       error: 'server_error',
@@ -51,6 +52,7 @@ export async function apiCall<T>(url: string, init?: RequestInit): Promise<ApiRe
     }
   }
   catch (e: any) {
+    // 4) Netzwerk/Client-Fehler
     return {
       success: false,
       error: 'server_error',
