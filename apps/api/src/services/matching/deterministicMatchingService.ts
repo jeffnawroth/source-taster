@@ -1,6 +1,6 @@
 import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem } from '@source-taster/types'
-import { MetadataComparator } from '../utils/metadataComparator'
-import { similarity } from '../utils/similarity'
+import { MetadataComparator } from '@/api/utils/metadataComparator'
+import { similarity } from '@/api/utils/similarity'
 
 export class DeterministicMatchingService {
   /**

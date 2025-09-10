@@ -1,5 +1,5 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
-import type { components } from '../../types/crossref'
+import type { components } from '@/api/types/crossref'
 import process from 'node:process'
 
 // Type aliases for better readability

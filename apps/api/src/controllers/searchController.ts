@@ -1,7 +1,7 @@
 import type { ApiResponse, ApiSearchRequest, ApiSearchResponse, ApiSearchResult } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ApiSearchRequestSchema } from '@source-taster/types'
-import * as searchService from '../services/searchService'
+import * as searchService from '../services/search/searchCoordinator'
 
 /**
  * Search for references in all external databases

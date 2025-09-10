@@ -1,7 +1,7 @@
 import type { ApiMatchData, ApiMatchRequest, ApiResponse } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ApiMatchRequestSchema } from '@source-taster/types'
-import * as matchingService from '../services/matchingService'
+import * as matchingService from '../services/matching/matchingService'
 
 /**
  * Evaluates provided candidates against a reference

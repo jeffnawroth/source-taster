@@ -2,7 +2,7 @@ import type { ApiExtractData, ApiExtractReference, ApiExtractRequest } from '@so
 
 import type { Context } from 'hono'
 import { ApiExtractRequestSchema } from '@source-taster/types'
-import * as extractionService from '../services/extractionService'
+import * as extractionService from '../services/extraction/extractionCoordinator'
 
 /**
  * Extract references from text using AI

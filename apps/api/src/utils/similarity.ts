@@ -1,6 +1,6 @@
 import type { ApiMatchNormalizationRule } from '@source-taster/types'
 import levenshtein from 'damerau-levenshtein'
-import { NormalizationService } from '../services/normalizationService'
+import { NormalizationService } from '../services/matching/normalizationService'
 
 const normalizationService = new NormalizationService()
 

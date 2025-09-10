@@ -5,8 +5,8 @@ import type {
   LLMExtractReference,
 } from '@source-taster/types'
 import crypto from 'node:crypto'
-import { httpBadRequest } from '../errors/http' // ⬅️ neu
-import { AIServiceFactory } from './ai/aiServiceFactory'
+import { httpBadRequest } from '../../errors/http' // ⬅️ neu
+import { AIServiceFactory } from './aiServiceFactory'
 
 export class ReferenceExtractionService {
   constructor(private readonly userId: string) {}

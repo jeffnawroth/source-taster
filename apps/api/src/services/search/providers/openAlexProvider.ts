@@ -1,5 +1,5 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
-import type { components } from '../../types/openAlex'
+import type { components } from '@/api/types/openAlex'
 import process from 'node:process'
 
 // Type aliases for better readability

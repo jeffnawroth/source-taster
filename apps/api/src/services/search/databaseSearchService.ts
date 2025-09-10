@@ -3,11 +3,11 @@ import type {
   ApiSearchCandidate,
 } from '@source-taster/types'
 import process from 'node:process'
-import { ArxivService } from './databases/arxivService'
-import { CrossrefService } from './databases/crossrefService'
-import { EuropePmcService } from './databases/europePmcService'
-import { OpenAlexService } from './databases/openAlexService'
-import { SemanticScholarService } from './databases/semanticScholarService'
+import { ArxivService } from './providers/arxivProvider'
+import { CrossrefService } from './providers/crossrefProvider'
+import { EuropePmcService } from './providers/europePmcProvider'
+import { OpenAlexService } from './providers/openAlexProvider'
+import { SemanticScholarService } from './providers/semanticScholarProvider'
 
 interface DatabaseInfo {
   name: string

@@ -1,5 +1,5 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
-import type { components } from '../../types/semanticScholar'
+import type { components } from '@/api/types/semanticScholar'
 
 type SemanticScholarPaper = components['schemas']['FullPaper']
 type SemanticScholarSearchResponse = components['schemas']['PaperRelevanceSearchBatch']
