@@ -6,7 +6,7 @@ import process from 'node:process'
 type CrossrefWork = components['schemas']['Work']
 type CrossrefWorksMessage = components['schemas']['WorksMessage']
 
-export class CrossrefService {
+export class CrossrefProvider {
   private baseUrl = 'https://api.crossref.org'
   private readonly mailto = process.env.CROSSREF_MAILTO || 'your-email@domain.com' // For the "polite pool" - better performance
   private readonly userAgent = `source-taster/1.0 (https://github.com/your-repo/source-taster; mailto:${this.mailto}) CrossrefService/1.0`

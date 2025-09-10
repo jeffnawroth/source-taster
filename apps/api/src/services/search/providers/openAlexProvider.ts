@@ -6,7 +6,7 @@ import process from 'node:process'
 type Work = components['schemas']['workSchema']
 type WorksResponse = components['schemas']['worksResponse']
 
-export class OpenAlexService {
+export class OpenAlexProvider {
   private baseUrl = 'https://api.openalex.org'
   private mailto: string | undefined
   private userAgent = 'SourceTaster/1.0 (https://github.com/source-taster/source-taster)'

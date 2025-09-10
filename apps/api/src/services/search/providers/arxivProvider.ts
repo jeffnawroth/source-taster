@@ -1,6 +1,6 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
 
-export class ArxivService {
+export class ArxivProvider {
   private baseUrl = 'http://export.arxiv.org/api/query'
   private maxResults = 10 // Limit results to stay within API guidelines
   private lastRequestTime = 0

@@ -5,11 +5,11 @@ import type {
 } from '@source-taster/types'
 import process from 'node:process'
 import { httpBadRequest, httpNotFound } from '../../errors/http'
-import { ArxivService } from './providers/arxivProvider'
-import { CrossrefService } from './providers/crossrefProvider'
-import { EuropePmcService } from './providers/europePmcProvider'
-import { OpenAlexService } from './providers/openAlexProvider'
-import { SemanticScholarService } from './providers/semanticScholarProvider'
+import { ArxivProvider } from './providers/arxivProvider'
+import { CrossrefProvider } from './providers/crossrefProvider'
+import { EuropePmcProvider } from './providers/europePmcProvider'
+import { OpenAlexProvider } from './providers/openAlexProvider'
+import { SemanticScholarProvider } from './providers/semanticScholarProvider'
 
 interface DatabaseInfo {
   name: string
@@ -19,11 +19,11 @@ interface DatabaseInfo {
 
 export class SearchCoordinator {
   private readonly databaseServices: DatabaseInfo[] = [
-    { name: 'openalex', service: new OpenAlexService(), priority: 1 },
-    { name: 'crossref', service: new CrossrefService(), priority: 2 },
-    { name: 'semanticscholar', service: new SemanticScholarService(process.env.SEMANTIC_SCHOLAR_API_KEY), priority: 3 },
-    { name: 'europepmc', service: new EuropePmcService(), priority: 4 },
-    { name: 'arxiv', service: new ArxivService(), priority: 5 },
+    { name: 'openalex', service: new OpenAlexProvider(), priority: 1 },
+    { name: 'crossref', service: new CrossrefProvider(), priority: 2 },
+    { name: 'semanticscholar', service: new SemanticScholarProvider(process.env.SEMANTIC_SCHOLAR_API_KEY), priority: 3 },
+    { name: 'europepmc', service: new EuropePmcProvider(), priority: 4 },
+    { name: 'arxiv', service: new ArxivProvider(), priority: 5 },
   ]
 
   public async searchAllDatabases(references: ApiSearchReference[]): Promise<ApiSearchResult[]> {

@@ -2,7 +2,7 @@ import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { EuropePmcSearchResponse, EuropePmcWork } from '@/api/types/europepmc'
 import process from 'node:process'
 
-export class EuropePmcService {
+export class EuropePmcProvider {
   private baseUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest'
   private email: string | undefined
 

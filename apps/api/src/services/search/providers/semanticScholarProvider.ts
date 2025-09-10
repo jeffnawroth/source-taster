@@ -5,7 +5,7 @@ type SemanticScholarPaper = components['schemas']['FullPaper']
 type SemanticScholarSearchResponse = components['schemas']['PaperRelevanceSearchBatch']
 type SemanticScholarTitleMatchResponse = components['schemas']['PaperMatch']
 
-export class SemanticScholarService {
+export class SemanticScholarProvider {
   private baseUrl = 'https://api.semanticscholar.org/graph/v1'
   private apiKey: string | undefined
 
