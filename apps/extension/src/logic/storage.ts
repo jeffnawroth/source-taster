@@ -3,7 +3,7 @@ import { DEFAULT_AI_SETTINGS } from '../constants/defaults/defaultAISettings'
 import { DEFAULT_EXTRACTION_SETTINGS } from '../constants/defaults/defaultExtractionSettings'
 import { DEFAULT_MATCHING_SETTINGS } from '../constants/defaults/defaultMatchingSettings'
 
-export const clientId = useWebExtensionStorage('clientId', '')
+export const clientId = useWebExtensionStorage<string>('clientId', () => crypto.randomUUID())
 
 /**
  * Theme option storage

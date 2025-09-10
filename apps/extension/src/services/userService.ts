@@ -19,7 +19,7 @@ export class UserService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value,
+        'X-Client-Id': clientId.value,
       },
       body: JSON.stringify(payload),
     })
@@ -28,7 +28,7 @@ export class UserService {
   static getAISecretsInfo(provider: ApiAIProvider) {
     const q = encodeURIComponent(provider)
     return apiCall<ApiUserAISecretsInfoData>(`${AI_SECRETS_URL}?provider=${q}`, {
-      headers: { 'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value },
+      headers: { 'X-Client-Id': clientId.value },
     })
   }
 
@@ -36,7 +36,7 @@ export class UserService {
     const q = encodeURIComponent(provider)
     return apiCall<ApiUserAISecretsDeleteData>(`${AI_SECRETS_URL}?provider=${q}`, {
       method: 'DELETE',
-      headers: { 'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value },
+      headers: { 'X-Client-Id': clientId.value },
     })
   }
 }

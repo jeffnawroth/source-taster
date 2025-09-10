@@ -1,6 +1,6 @@
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import { isFirefox } from '@/extension/env'
-import { clientId, getDisplayOption } from '@/extension/logic/storage'
+import { getDisplayOption } from '@/extension/logic/storage'
 
 // only on dev mode
 if (import.meta.hot) {
@@ -15,10 +15,6 @@ const USE_SIDE_PANEL = true
 let cachedDisplayOption: string = 'sidepanel'
 let isSidePanelOpen = false // Track Sidepanel open status
 let currentLocale: string
-
-if (!clientId.value) {
-  clientId.value = crypto.randomUUID()
-}
 
 // to toggle the sidepanel with the action button in chromium:
 if (USE_SIDE_PANEL) {

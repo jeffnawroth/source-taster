@@ -4,7 +4,7 @@
  */
 import type { ApiExtractData, ApiExtractRequest, ApiResult } from '@source-taster/types'
 import { ApiExtractRequestSchema } from '@source-taster/types'
-import { clientId } from '@/extension/logic/storage' // UUIDv4
+import { clientId } from '@/extension/logic/storage'
 import { API_CONFIG } from '../env'
 import { apiCall } from './http'
 
@@ -18,7 +18,7 @@ export class ExtractionService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Client-Id': typeof clientId === 'string' ? clientId : clientId.value,
+        'X-Client-Id': clientId.value,
       },
       body: JSON.stringify(req),
     })
