@@ -1,19 +1,8 @@
+import type { ApiAnystyleConvertData, ApiAnystyleParseData, ApiAnystyleTokenSequence, ApiAnystyleTrainData, ApiResult } from '@source-taster/types'
 import {
-  type ApiAnystyleConvertData,
-  // Convert
   ApiAnystyleConvertRequestSchema,
-
-  type ApiAnystyleParseData,
-  // Parse
   ApiAnystyleParseRequestSchema,
-
-  // Gemeinsame Typen
-  type ApiAnystyleTokenSequence,
-  type ApiAnystyleTrainData,
-
-  // Train
   ApiAnystyleTrainRequestSchema,
-  type ApiResult,
 } from '@source-taster/types'
 
 import { API_CONFIG } from '../env'

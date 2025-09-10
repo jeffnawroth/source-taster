@@ -9,7 +9,7 @@ import type {
 import process from 'node:process'
 import { httpBadRequest, httpUpstream } from '../errors/http'
 
-export class AnystyleService {
+export class AnystyleProvider {
   private readonly serverUrl: string
 
   constructor(serverUrl?: string) {
@@ -83,4 +83,4 @@ export class AnystyleService {
   }
 }
 // Singleton instance for dependency injection
-export const anystyleService = new AnystyleService()
+export const anystyleProvider = new AnystyleProvider()

@@ -9,13 +9,13 @@ import {
   ApiAnystyleParseRequestSchema,
   ApiAnystyleTrainRequestSchema,
 } from '@source-taster/types'
-import { anystyleService } from '../services/anystyleService'
+import { anystyleProvider } from '../services/anystyleProvider'
 
 export class AnystyleController {
   static async parse(c: Context): Promise<Response> {
     const req = ApiAnystyleParseRequestSchema.parse(await c.req.json())
 
-    const data = await anystyleService.parseReferences(req.input)
+    const data = await anystyleProvider.parseReferences(req.input)
 
     const payload: ApiAnystyleParseResponse = {
       success: true,
@@ -29,7 +29,7 @@ export class AnystyleController {
   static async convertToCSL(c: Context): Promise<Response> {
     const req = ApiAnystyleConvertRequestSchema.parse(await c.req.json())
 
-    const data = await anystyleService.convertToCSL(req.tokens)
+    const data = await anystyleProvider.convertToCSL(req.tokens)
 
     const payload: ApiAnystyleConvertResponse = {
       success: true,
@@ -43,7 +43,7 @@ export class AnystyleController {
   static async trainModel(c: Context): Promise<Response> {
     const req = ApiAnystyleTrainRequestSchema.parse(await c.req.json())
 
-    const data = await anystyleService.trainModel(req.tokens)
+    const data = await anystyleProvider.trainModel(req.tokens)
 
     const payload: ApiAnystyleTrainResponse = {
       success: true,
