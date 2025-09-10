@@ -35,6 +35,7 @@ export class ReferenceExtractionCoordinator {
       id: generateUUID(),
       originalText: aiRef.originalText,
       metadata: { ...aiRef.metadata, id: generateUUID() },
+      tokens: aiRef.tokens || [],
     }
   }
 }

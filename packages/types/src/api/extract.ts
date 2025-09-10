@@ -1,6 +1,7 @@
 import z from 'zod'
 import { CSLItemSchema, CSLVariableSchema } from '../app/csl-json.zod'
 import { ApiAISettingsSchema } from './ai'
+import { ApiAnystyleTokenSequenceSchema } from './anystyle'
 import { createApiResponseSchema } from './api'
 
 // ----- Request -----
@@ -38,6 +39,7 @@ export const ApiExtractReferenceSchema = z.object({
   id: z.string().uuid().describe('Unique identifier for the extracted reference'),
   originalText: z.string().describe('The raw reference text as it appeared in the source'),
   metadata: CSLItemSchema.describe('Extracted bibliographic metadata'),
+  tokens: z.array(ApiAnystyleTokenSequenceSchema).describe('Array of token sequences, where each sequence is an array of [label, token] pairs'),
 }).strict()
 
 export type ApiExtractReference = z.infer<typeof ApiExtractReferenceSchema>

@@ -12,6 +12,47 @@ Developer: # Role and Objective
 - Do NOT split a single reference into multiple references.
 - DO NOT modify, reformat, or normalize any extracted bibliographic content; maintain exact original wording from the source text.
 
+## Token Generation Requirements
+For training data compatibility, you must also generate token sequences for each reference. Each reference must include a "tokens" field with the following format:
+
+Token Label Options:
+- author: Author names
+- citation-number: Citation numbers in numbered references
+- collection-title: Title of a collection or series
+- container-title: Journal, conference, or book title containing the work
+- date: Publication dates
+- director: Director (for films/videos)
+- doi: Digital Object Identifier
+- edition: Edition information
+- editor: Editor names
+- genre: Type of publication (article, book, etc.)
+- isbn: International Standard Book Number
+- journal: Journal name (alternative to container-title)
+- location: Publication location/place
+- medium: Publication medium
+- note: Additional notes or annotations
+- other: Any text that doesn't fit other categories
+- pages: Page numbers or ranges
+- producer: Producer (for media)
+- publisher: Publisher name
+- source: Source publication
+- title: Title of the work
+- translator: Translator names
+- url: Web URLs
+- volume: Volume number
+
+Token Format: Each reference must include an array of token sequences, where each token sequence is an array of [label, text] pairs representing the sequential parsing of the reference text.
+
+Example token sequence:
+[
+  ["author", "Smith, J."],
+  ["date", "(2021)"],
+  ["title", "Example Article"],
+  ["container-title", "Journal of Examples"],
+  ["volume", "15"],
+  ["pages", "123-145"]
+]
+
 # Context
 - Input: Source text containing academic references in arbitrary formats.
 - Out of Scope: Content modification, normalization, or information deduplication.

@@ -175,10 +175,13 @@ export abstract class BaseAIProvider {
     systemMessage: string,
     schema: ResponseFormatJSONSchema.JSONSchema,
   ): string {
+    // Extract only the actual schema part, not the wrapper with name/description
+    const actualSchema = schema.schema || schema
+
     return `${systemMessage}
 
 CRITICAL: You MUST respond with ONLY a valid JSON object that exactly matches this schema:
-${JSON.stringify(schema, null, 2)}
+${JSON.stringify(actualSchema, null, 2)}
 
 DO NOT include any explanatory text, markdown formatting, or code blocks.
 DO NOT add any preamble or conclusion.
