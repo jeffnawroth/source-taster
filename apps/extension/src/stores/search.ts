@@ -1,10 +1,13 @@
-import type { ApiSearchCandidate, ApiSearchRequest } from '@source-taster/types'
-/**
- * Pinia store for managing search functionality and candidates
- */
+// extension/stores/search.ts
+import type {
+  ApiHttpError,
+  ApiSearchCandidate,
+  ApiSearchRequest,
+} from '@source-taster/types'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, readonly, ref } from 'vue'
 import { SearchService } from '@/extension/services/searchService'
+import { mapApiError } from '@/extension/utils/mapApiError'
 
 export const useSearchStore = defineStore('search', () => {
   // State
@@ -19,7 +22,9 @@ export const useSearchStore = defineStore('search', () => {
   const getCandidatesByReference = computed(() => {
     return (referenceId: string): ApiSearchCandidate[] => {
       const candidateIds = searchResults.value.get(referenceId) || []
-      return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as ApiSearchCandidate[]
+      return candidateIds
+        .map(id => candidates.value.get(id))
+        .filter(Boolean) as ApiSearchCandidate[]
     }
   })
 
@@ -28,33 +33,26 @@ export const useSearchStore = defineStore('search', () => {
     isSearching.value = true
     searchError.value = null
 
-    try {
-      const response = await SearchService.searchCandidates(request)
+    const res = await SearchService.searchCandidates(request)
 
-      if (response.success && response.data) {
-        // Store all candidates with their IDs as keys
-        for (const result of response.data.results) {
-          const candidateIds: string[] = []
-
-          for (const candidate of result.candidates) {
-            candidates.value.set(candidate.id, candidate)
-            candidateIds.push(candidate.id)
-          }
-
-          // Store mapping of referenceId to candidateIds
-          searchResults.value.set(result.referenceId, candidateIds)
-        }
-      }
-
-      return response
-    }
-    catch (error) {
-      searchError.value = error instanceof Error ? error.message : 'Search failed'
-      throw error
-    }
-    finally {
+    if (!res.success) {
+      searchError.value = mapApiError(res as ApiHttpError)
       isSearching.value = false
+      return res
     }
+
+    const data = res.data
+    for (const result of data.results) {
+      const ids: string[] = []
+      for (const cand of result.candidates) {
+        candidates.value.set(cand.id, cand)
+        ids.push(cand.id)
+      }
+      searchResults.value.set(result.referenceId, ids)
+    }
+
+    isSearching.value = false
+    return res
   }
 
   function getCandidateById(candidateId: string): ApiSearchCandidate | undefined {
@@ -62,8 +60,8 @@ export const useSearchStore = defineStore('search', () => {
   }
 
   function getCandidatesByReferenceId(referenceId: string): ApiSearchCandidate[] {
-    const candidateIds = searchResults.value.get(referenceId) || []
-    return candidateIds.map(id => candidates.value.get(id)).filter(Boolean) as ApiSearchCandidate[]
+    const ids = searchResults.value.get(referenceId) || []
+    return ids.map(id => candidates.value.get(id)).filter(Boolean) as ApiSearchCandidate[]
   }
 
   function clearSearchResults() {
