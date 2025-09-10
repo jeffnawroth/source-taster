@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AnystyleTokenLabel, AnystyleTokenSequence } from '@source-taster/types'
+import type { ApiAnystyleTokenLabel, ApiAnystyleTokenSequence } from '@source-taster/types'
 import { mdiAccount, mdiAccountEdit, mdiAccountStar, mdiArchive, mdiBarcode, mdiBookOpenVariant, mdiCalendar, mdiCounter, mdiDisc, mdiDomain, mdiFileDocument, mdiFolderMultiple, mdiFormatTitle, mdiHelp, mdiIdentifier, mdiLibrary, mdiLink, mdiMapMarker, mdiMovieOpen, mdiNoteText, mdiNumeric1Box, mdiSourceBranch, mdiTagMultiple, mdiTranslate } from '@mdi/js'
 import { ref, watch } from 'vue'
 
@@ -7,12 +7,12 @@ import { ref, watch } from 'vue'
 interface SelectedToken {
   sequenceIndex: number
   tokenIndex: number
-  label: AnystyleTokenLabel
+  label: ApiAnystyleTokenLabel
   token: string
 }
 
 interface LabelOption {
-  value: AnystyleTokenLabel
+  value: ApiAnystyleTokenLabel
   name: string
   color: string
   icon: string
@@ -20,18 +20,18 @@ interface LabelOption {
 
 // Props
 interface Props {
-  tokens: AnystyleTokenSequence[]
+  tokens: ApiAnystyleTokenSequence[]
 }
 
 const props = defineProps<Props>()
 
 // Emits
 const emit = defineEmits<{
-  'update:tokens': [tokens: AnystyleTokenSequence[]]
+  'update:tokens': [tokens: ApiAnystyleTokenSequence[]]
 }>()
 
 // State
-const tokenSequences = ref<AnystyleTokenSequence[]>([])
+const tokenSequences = ref<ApiAnystyleTokenSequence[]>([])
 const selectedToken = ref<SelectedToken | null>(null)
 const hoveredToken = ref<{ sequenceIndex: number, tokenIndex: number } | null>(null)
 
@@ -66,12 +66,12 @@ const availableLabels: LabelOption[] = [
 // Computed - removed hasChanges since we don't need save functionality
 
 // Methods
-function getLabelColor(label: AnystyleTokenLabel): string {
+function getLabelColor(label: ApiAnystyleTokenLabel): string {
   const labelOption = availableLabels.find(l => l.value === label)
   return labelOption?.color || 'grey'
 }
 
-function getLabelDisplayName(label: AnystyleTokenLabel): string {
+function getLabelDisplayName(label: ApiAnystyleTokenLabel): string {
   const labelOption = availableLabels.find(l => l.value === label)
   return labelOption?.name || label
 }
@@ -108,7 +108,7 @@ function clearHoveredToken() {
   hoveredToken.value = null
 }
 
-function changeTokenLabel(newLabel: AnystyleTokenLabel | null | undefined) {
+function changeTokenLabel(newLabel: ApiAnystyleTokenLabel | null | undefined) {
   if (!selectedToken.value || !newLabel)
     return
 
@@ -173,7 +173,6 @@ watch(() => props.tokens, (newTokens) => {
 
   <v-expand-transition>
     <div
-
       v-if="selectedToken"
     >
       <!-- Autocomplete for label selection -->
@@ -187,6 +186,7 @@ watch(() => props.tokens, (newTokens) => {
         variant="outlined"
         density="comfortable"
         auto-select-first
+        class="mt-5"
         @update:model-value="changeTokenLabel"
       >
         <template #selection="{ item }">

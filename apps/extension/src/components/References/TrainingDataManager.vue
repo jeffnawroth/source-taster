@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AnystyleTokenLabel, AnystyleTokenSequence } from '@source-taster/types'
+import type { ApiAnystyleTokenLabel, ApiAnystyleTokenSequence } from '@source-taster/types'
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
@@ -9,7 +9,7 @@ const anystyleStore = useAnystyleStore()
 const { parsedTokens, showTokenEditor } = storeToRefs(anystyleStore)
 
 // State - Simplified: only tokens needed for editing
-const editableTokens = ref<AnystyleTokenSequence[]>([])
+const editableTokens = ref<ApiAnystyleTokenSequence[]>([])
 const error = ref('')
 const currentReferenceIndex = ref(0)
 
@@ -18,7 +18,7 @@ watch([parsedTokens, showTokenEditor], ([tokens, show]) => {
   if (show && tokens.length > 0) {
     // Create deep mutable copy of tokens for editing
     editableTokens.value = tokens.map(tokenSequence =>
-      tokenSequence.map(token => [token[0], token[1]] as [AnystyleTokenLabel, string]),
+      tokenSequence.map(token => [token[0], token[1]] as [ApiAnystyleTokenLabel, string]),
     )
     currentReferenceIndex.value = 0
   }
@@ -28,7 +28,7 @@ watch([parsedTokens, showTokenEditor], ([tokens, show]) => {
 }, { immediate: true })
 
 // Update tokens from editor
-function updateCurrentSequenceTokens(newTokens: AnystyleTokenSequence[]) {
+function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
   if (editableTokens.value.length > 0 && newTokens[0]) {
     // Update the current sequence in local data
     editableTokens.value[currentReferenceIndex.value] = newTokens[0]
