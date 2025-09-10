@@ -33,27 +33,39 @@ export const ApiMatchModeSchema = z.enum([
   'strict',
   'balanced',
   'custom',
-]).describe('Mode for controlling behavior in matching')
+]).default('balanced').describe('Mode for controlling behavior in matching')
 
 export type ApiMatchMode = z.infer<typeof ApiMatchModeSchema>
 
 export const ApiMatchMatchingStrategySchema = z.object({
   mode: ApiMatchModeSchema.default('balanced').describe('Strategy mode to control behavior'),
-  normalizationRules: z.array(ApiMatchNormalizationRuleSchema).describe('Selected normalization rules for matching behavior'),
+  normalizationRules: z.array(ApiMatchNormalizationRuleSchema).default([
+    ...ApiMatchNormalizationRuleSchema.options,
+  ]).describe('Selected normalization rules for matching behavior'),
 }).strict()
 export type ApiMatchMatchingStrategy = z.infer<typeof ApiMatchMatchingStrategySchema>
 
 export const ApiMatchFieldConfigSchema = z.object({
-  enabled: z.boolean().describe('Whether this field is enabled for matching'),
-  weight: z.number().min(0).max(100).describe('Weight percentage for this field (0-100)'),
+  enabled: z.boolean().default(false).describe('Whether this field is enabled for matching'),
+  weight: z.number().min(0).max(100).default(0).describe('Weight percentage for this field (0-100)'),
 }).strict()
 export type ApiMatchFieldConfig = z.infer<typeof ApiMatchFieldConfigSchema>
 
+// Create a schema for all possible CSL field configurations
+const AllFieldConfigurationsSchema = z.object(
+  Object.fromEntries(
+    CSLVariableSchema.options.map(field => [field, ApiMatchFieldConfigSchema]),
+  ),
+)
+
 export const ApiMatchConfigSchema = z.object({
-  fieldConfigurations: z.record(CSLVariableSchema, ApiMatchFieldConfigSchema).describe('Field enable/weight configurations'),
+  fieldConfigurations: AllFieldConfigurationsSchema
+    .partial()
+    .default(createDefaultFieldConfigurations())
+    .describe('Field enable/weight configurations'),
 }).strict().refine(
   (val) => {
-    const entries = Object.values(val.fieldConfigurations)
+    const entries = Object.values(val.fieldConfigurations) as ApiMatchFieldConfig[]
     const enabled = entries.filter(e => e.enabled === true)
     if (enabled.length === 0)
       return false
@@ -70,7 +82,15 @@ export type ApiMatchConfig = z.infer<typeof ApiMatchConfigSchema>
 export const ApiMatchMatchingSettingsSchema = z.object({
   matchingStrategy: ApiMatchMatchingStrategySchema.describe('Strategy for matching behavior'),
   matchingConfig: ApiMatchConfigSchema.describe('Configuration for matching behavior'),
-}).strict()
+}).strict().default({
+  matchingStrategy: {
+    mode: 'balanced',
+    normalizationRules: [...ApiMatchNormalizationRuleSchema.options],
+  },
+  matchingConfig: {
+    fieldConfigurations: createDefaultFieldConfigurations(),
+  },
+})
 export type ApiMatchMatchingSettings = z.infer<typeof ApiMatchMatchingSettingsSchema>
 
 export const ApiMatchRequestSchema = z.object({
@@ -108,8 +128,24 @@ export const ApiMatchResponseSchema = createApiResponseSchema(ApiMatchDataSchema
 export type ApiMatchResponse = z.infer<typeof ApiMatchResponseSchema>
 
 // ----- Helper Functions -----
-export function validateFieldWeights(fieldConfigurations: Record<string, { enabled: boolean, weight: number } | undefined>): boolean {
-  const enabledFields = Object.values(fieldConfigurations).filter(config => config?.enabled)
-  const totalWeight = enabledFields.reduce((sum, config) => sum + (config?.weight || 0), 0)
-  return totalWeight === 100
+// Default field configurations for matching
+function createDefaultFieldConfigurations(): Record<string, ApiMatchFieldConfig> {
+  const allFields = CSLVariableSchema.options
+  const defaultConfig: Record<string, ApiMatchFieldConfig> = {}
+
+  // Set all fields to disabled by default
+  allFields.forEach((field) => {
+    defaultConfig[field] = { enabled: false, weight: 0 }
+  })
+
+  // Enable and weight the most important fields for matching (total = 100%)
+  defaultConfig.title = { enabled: true, weight: 30 }
+  defaultConfig.author = { enabled: true, weight: 25 }
+  defaultConfig.issued = { enabled: true, weight: 15 }
+  defaultConfig['container-title'] = { enabled: true, weight: 15 }
+  defaultConfig.DOI = { enabled: true, weight: 10 }
+  defaultConfig.volume = { enabled: true, weight: 3 }
+  defaultConfig.page = { enabled: true, weight: 2 }
+
+  return defaultConfig
 }
