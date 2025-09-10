@@ -1,11 +1,9 @@
 import z from 'zod'
-import { ApiAnystyleTokenSequenceSchema } from '../api/anystyle/parse'
 import { CSLItemWithoutIdSchema } from '../app/csl-json.zod'
 
 export const LLMExtractReferenceSchema = z.object({
   originalText: z.string().describe('The raw reference text as it appeared in the source'),
   metadata: CSLItemWithoutIdSchema.describe('Extracted bibliographic metadata'),
-  tokens: z.array(ApiAnystyleTokenSequenceSchema).describe('Array of token sequences, where each sequence is an array of [label, token] pairs'),
 }).strict()
 
 export type LLMExtractReference = z.infer<typeof LLMExtractReferenceSchema>
