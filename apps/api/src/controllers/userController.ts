@@ -5,7 +5,7 @@ import {
   ApiUserAISecretsRequestSchema,
   ApiUserAISecretsResponseSchema,
 } from '@source-taster/types'
-import { userService } from '../services/userService'
+import { userSecretsService } from '../services/userSecretsService'
 
 export class UserController {
   /**
@@ -16,7 +16,7 @@ export class UserController {
     const userId = c.get('userId') as string
     const { provider, apiKey } = ApiUserAISecretsRequestSchema.parse(await c.req.json())
 
-    const saved = await userService.saveUserAISecret(userId, provider, apiKey)
+    const saved = await userSecretsService.saveUserAISecret(userId, provider, apiKey)
 
     const payload = ApiUserAISecretsResponseSchema.parse({
       success: true,
@@ -30,9 +30,9 @@ export class UserController {
    */
   static async getAISecretsInfo(c: Context): Promise<Response> {
     const userId = c.get('userId') as string
-    const provider = userService.validateProvider(c.req.query('provider'))
+    const provider = userSecretsService.validateProvider(c.req.query('provider'))
 
-    const data = await userService.getUserAISecretInfo(userId, provider)
+    const data = await userSecretsService.getUserAISecretInfo(userId, provider)
 
     const payload = ApiUserAISecretsInfoResponseSchema.parse({
       success: true,
@@ -46,9 +46,9 @@ export class UserController {
    */
   static async deleteAISecrets(c: Context): Promise<Response> {
     const userId = c.get('userId') as string
-    const provider = userService.validateProvider(c.req.query('provider'))
+    const provider = userSecretsService.validateProvider(c.req.query('provider'))
 
-    const deleted = await userService.deleteUserAISecret(userId, provider)
+    const deleted = await userSecretsService.deleteUserAISecret(userId, provider)
 
     const payload = ApiUserAISecretsDeleteResponseSchema.parse({
       success: true,

@@ -3,7 +3,7 @@ import { ApiAIProviderSchema } from '@source-taster/types'
 import { httpBadRequest, httpUpstream } from '../errors/http'
 import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore'
 
-export class UserService {
+export class UserSecretsService {
   /**
    * Saves the API key. On error sides (FS/IO/Crypto) we map to Upstream (5xx),
    * business logic errors (e.g. invalid provider) come from validateProvider().
@@ -62,5 +62,5 @@ export class UserService {
   }
 }
 
-// Singleton
-export const userService = new UserService()
+// Singleton instance
+export const userSecretsService = new UserSecretsService()
