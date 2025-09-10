@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
 import ExtractButton from './ExtractButton.vue'
 import FileInput from './FileInput.vue'
 import ParseButton from './ParseButton.vue'
 import TextInput from './TextInput.vue'
+
+const showInputCard = ref(true)
 </script>
 
 <template>
@@ -11,35 +14,41 @@ import TextInput from './TextInput.vue'
     :title="`1. ${$t('parse')}`"
     :subtitle="$t('input-references-as-text-or-upload-a-file')"
   >
-    <v-card-text
-      class="pa-0"
-    >
-      <v-row dense>
-        <!-- File Input -->
-        <v-col cols="12">
-          <FileInput />
-        </v-col>
+    <template #append>
+      <v-btn
+        variant="text"
+        :icon="showInputCard ? mdiChevronUp : mdiChevronDown"
+        @click="showInputCard = !showInputCard"
+      />
+    </template>
+    <v-expand-transition>
+      <div v-if="showInputCard">
+        <v-card-text
+          class="pa-0"
+        >
+          <v-row dense>
+            <!-- File Input -->
+            <v-col cols="12">
+              <FileInput />
+            </v-col>
 
-        <!-- Text Input -->
-        <v-col cols="12">
-          <TextInput />
-        </v-col>
+            <!-- Text Input -->
+            <v-col cols="12">
+              <TextInput />
+            </v-col>
 
-        <!-- Extract Button -->
-        <v-col cols="12">
-          <ExtractButton />
-        </v-col>
+            <!-- Extract Button -->
+            <v-col cols="12">
+              <ExtractButton />
+            </v-col>
 
-        <!-- Parse Button -->
-        <v-col cols="12">
-          <ParseButton />
-        </v-col>
-
-        <!-- Check Button -->
-        <!-- <v-col cols="12">
-          <CheckButton />
-        </v-col> -->
-      </v-row>
-    </v-card-text>
+            <!-- Parse Button -->
+            <v-col cols="12">
+              <ParseButton />
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </div>
+    </v-expand-transition>
   </v-card>
 </template>

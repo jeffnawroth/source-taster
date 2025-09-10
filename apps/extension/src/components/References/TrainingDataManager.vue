@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ApiAnystyleTokenLabel, ApiAnystyleTokenSequence } from '@source-taster/types'
-import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
+import { mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp } from '@mdi/js'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
@@ -44,7 +44,15 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
     flat
     :title="`2. ${$t('edit')}`"
     :subtitle="$t('review-and-relabel-parsed-references-by-clicking-on-tokens')"
+    :append-icon="mdiChevronDown"
   >
+    <template #append>
+      <v-btn
+        variant="text"
+        :icon="showTokenEditor ? mdiChevronUp : mdiChevronDown"
+        @click="anystyleStore.setShowTokenEditor(!showTokenEditor)"
+      />
+    </template>
     <v-card-text class="pa-0">
       <!-- Action Buttons -->
       <div

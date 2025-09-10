@@ -119,6 +119,7 @@ function remove(item: CSLVariable) {
             v-if="index < 5"
             :text="item.title"
             closable
+            size="small"
             @click:close="remove(item.value)"
           />
 

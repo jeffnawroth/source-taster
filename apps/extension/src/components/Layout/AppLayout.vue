@@ -46,7 +46,7 @@ const components = [
     flat
   >
     <v-card-text>
-      <v-row>
+      <v-row dense>
         <v-col
           v-for="component in components"
           :key="component.name"
