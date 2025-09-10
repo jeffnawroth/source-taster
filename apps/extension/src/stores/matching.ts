@@ -1,15 +1,21 @@
+// extension/stores/matching.ts
 /**
  * Pinia store for managing matching functionality and results
  */
-import type { MatchingRequest, MatchingResult, SourceEvaluation } from '@source-taster/types'
+import type {
+  ApiHttpError,
+  ApiMatchData,
+  ApiMatchRequest,
+} from '@source-taster/types'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, readonly, ref } from 'vue'
 import { MatchingService } from '@/extension/services/matchingService'
+import { mapApiError } from '../utils/mapApiError'
 import { useSearchStore } from './search'
 
 export const useMatchingStore = defineStore('matching', () => {
   // State
-  const matchingResults = ref<Map<string, MatchingResult>>(new Map()) // referenceId -> MatchingResult
+  const matchingResults = ref<Map<string, ApiMatchData>>(new Map()) // referenceId -> MatchingResult
   const isMatching = ref(false)
   const matchingError = ref<string | null>(null)
 
@@ -17,99 +23,71 @@ export const useMatchingStore = defineStore('matching', () => {
   const totalMatchedReferences = computed(() => matchingResults.value.size)
 
   const getMatchingResultByReference = computed(() => {
-    return (referenceId: string): MatchingResult | undefined => {
-      return matchingResults.value.get(referenceId)
-    }
+    return (referenceId: string): ApiMatchData | undefined => matchingResults.value.get(referenceId)
   })
 
-  const getBestMatchByReference = computed(() => {
-    return (referenceId: string): SourceEvaluation | undefined => {
-      const result = matchingResults.value.get(referenceId)
-      return result?.sourceEvaluations?.[0] // First is best (sorted by score)
-    }
+  const getBestMatchByReference = computed(() => (referenceId: string) => {
+    const evs = matchingResults.value.get(referenceId)?.evaluations ?? []
+    if (evs.length === 0)
+      return undefined
+    return [...evs].sort((a, b) => (b.matchDetails.overallScore ?? 0) - (a.matchDetails.overallScore ?? 0))[0]
   })
 
   const getMatchingScoreByReference = computed(() => {
     return (referenceId: string): number => {
-      const bestMatch = getBestMatchByReference.value(referenceId)
-      return bestMatch?.matchDetails.overallScore || 0
+      const best = getBestMatchByReference.value(referenceId)
+      return best?.matchDetails.overallScore ?? 0
     }
   })
 
   // Actions
-  async function matchReferences(request: MatchingRequest) {
+  async function matchReference(request: ApiMatchRequest) {
     isMatching.value = true
     matchingError.value = null
 
     try {
-      const response = await MatchingService.matchReferences(request)
+      const res = await MatchingService.matchReference(request)
 
-      if (response.success && response.data) {
-        // Store the matching result directly (single result for matching endpoint)
-        // Note: The /api/match endpoint returns { result: MatchingResult }
-        // We need to map this to individual reference results
-        const result = response.data.result
-        if (result && result.sourceEvaluations) {
-          // Group evaluations by referenceId (since evaluations now have referenceId)
-          for (const evaluation of result.sourceEvaluations) {
-            const referenceId = evaluation.referenceId
-
-            // Get existing result or create new one
-            let existingResult = matchingResults.value.get(referenceId)
-            if (!existingResult) {
-              existingResult = { sourceEvaluations: [] }
-              matchingResults.value.set(referenceId, existingResult)
-            }
-
-            // Add this evaluation
-            existingResult.sourceEvaluations = existingResult.sourceEvaluations || []
-            existingResult.sourceEvaluations.push(evaluation)
-          }
-        }
+      if (!res.success) {
+        matchingError.value = mapApiError(res as ApiHttpError)
+        return res
       }
 
-      return response
-    }
-    catch (error) {
-      matchingError.value = error instanceof Error ? error.message : 'Matching failed'
-      throw error
+      const data = res.data
+      const evaluations = data?.evaluations ?? []
+
+      const referenceId = request.reference.id
+
+      matchingResults.value.set(referenceId, { evaluations })
+
+      return res
     }
     finally {
       isMatching.value = false
     }
   }
 
-  function getSourceEvaluationWithCandidate(referenceId: string, evaluationIndex: number = 0) {
+  function getSourceEvaluationWithCandidate(referenceId: string, evaluationIndex = 0) {
     const searchStore = useSearchStore()
     const result = matchingResults.value.get(referenceId)
-    const evaluation = result?.sourceEvaluations?.[evaluationIndex]
-
+    const evaluation = result?.evaluations?.[evaluationIndex]
     if (!evaluation)
       return null
 
-    // Get the full candidate data from search store
+    // hole den vollständigen Kandidaten aus dem Search-Store
     const candidate = searchStore.getCandidateById(evaluation.candidateId)
-
-    return {
-      evaluation,
-      candidate,
-    }
+    return { evaluation, candidate }
   }
 
   function getAllEvaluationsWithCandidates(referenceId: string) {
     const searchStore = useSearchStore()
     const result = matchingResults.value.get(referenceId)
-
-    if (!result?.sourceEvaluations)
+    if (!result?.evaluations)
       return []
-
-    return result.sourceEvaluations.map((evaluation) => {
-      const candidate = searchStore.getCandidateById(evaluation.candidateId)
-      return {
-        evaluation,
-        candidate,
-      }
-    })
+    return result.evaluations.map(evaluation => ({
+      evaluation,
+      candidate: searchStore.getCandidateById(evaluation.candidateId),
+    }))
   }
 
   function clearMatchingResults() {
@@ -122,7 +100,7 @@ export const useMatchingStore = defineStore('matching', () => {
   }
 
   return {
-    // State
+    // State (readonly herausgeben)
     matchingResults: readonly(matchingResults),
     isMatching: readonly(isMatching),
     matchingError: readonly(matchingError),
@@ -134,7 +112,7 @@ export const useMatchingStore = defineStore('matching', () => {
     getMatchingScoreByReference,
 
     // Actions
-    matchReferences,
+    matchReference,
     getSourceEvaluationWithCandidate,
     getAllEvaluationsWithCandidates,
     clearMatchingResults,

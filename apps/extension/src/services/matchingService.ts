@@ -1,39 +1,30 @@
+// extension/services/matchingService.ts
 /**
  * Service for matching references against external databases
  */
-import {
-  type ApiMatchRequest,
-  ApiMatchRequestSchema,
-
-  type ApiMatchResponse,
-} from '@source-taster/types'
+import type { ApiMatchData, ApiMatchRequest } from '@source-taster/types'
+import { ApiMatchRequestSchema } from '@source-taster/types'
 import { API_CONFIG } from '../env'
+import { apiCall } from './http'
 
 const API_BASE_URL = API_CONFIG.baseUrl + API_CONFIG.endpoints.match
 
 export class MatchingService {
   /**
-   * Match references against external databases
+   * Match reference against candidates using specified matching settings
    * @param request - The matching request containing references and settings
-   * @returns Matching results
+   * @returns ApiResult<ApiMatchData>
    */
-  static async matchReferences(request: ApiMatchRequest): Promise<ApiMatchResponse> {
+  static async matchReference(request: ApiMatchRequest) {
     const req = ApiMatchRequestSchema.parse(request)
 
-    const response = await fetch(API_BASE_URL, {
+    return apiCall<ApiMatchData>(API_BASE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify(req),
     })
-
-    const result = await response.json() as ApiMatchResponse
-
-    if (!response.ok || !result.success) {
-      throw new Error(result.message || result.error || `HTTP error! status: ${response.status}`)
-    }
-
-    return result
   }
 }

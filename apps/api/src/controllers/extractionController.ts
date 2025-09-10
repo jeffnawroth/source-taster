@@ -1,9 +1,7 @@
 // src/controllers/extractionController.ts
 
 import type {
-  ApiExtractData,
-  ApiExtractReference,
-  ApiExtractRequest,
+  ApiExtractResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
 
@@ -16,20 +14,10 @@ import { ReferenceExtractionCoordinator } from '../services/extraction/reference
  */
 export async function extractReferences(c: Context) {
   const userId = c.get('userId') as string
-  const request = await parseAndValidateRequest(c)
+  const req = ApiExtractRequestSchema.parse(await c.req.json())
 
   const coordinator = new ReferenceExtractionCoordinator(userId)
-  const references = await coordinator.extractReferences(request)
+  const references = await coordinator.extractReferences(req)
 
-  return createSuccessResponse(c, references)
-}
-
-async function parseAndValidateRequest(c: Context): Promise<ApiExtractRequest> {
-  const rawBody = await c.req.json()
-  return ApiExtractRequestSchema.parse(rawBody)
-}
-
-function createSuccessResponse(c: Context, references: ApiExtractReference[]) {
-  const response: ApiExtractData = { references }
-  return c.json({ success: true, data: response })
+  return c.json({ success: true, data: { references } } as ApiExtractResponse)
 }

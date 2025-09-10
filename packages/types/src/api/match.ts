@@ -94,7 +94,6 @@ export const ApiMatchDetailsSchema = z.object({
 export type ApiMatchDetails = z.infer<typeof ApiMatchDetailsSchema>
 
 export const ApiMatchEvaluationSchema = z.object({
-  referenceId: z.string().uuid().describe('ID of the reference that was matched'),
   candidateId: z.string().uuid().describe('ID of the external source candidate'),
   matchDetails: ApiMatchDetailsSchema,
 }).strict()

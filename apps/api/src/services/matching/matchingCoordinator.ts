@@ -61,7 +61,6 @@ export class MatchingCoordinator {
   ): ApiMatchEvaluation {
     const matchDetails = this.deterministicEngine.matchReference(reference, source, matchingSettings)
     return {
-      referenceId: reference.id,
       candidateId: source.id,
       matchDetails,
     }
