@@ -59,6 +59,7 @@ watch([keys['Cmd+Enter'], keys['Ctrl+Enter']], ([cmd, ctrl]) => {
     v-if="anystyle.parseError"
     class="mt-2"
     type="error"
+    variant="tonal"
     :text="$t(anystyle.parseError)"
     closable
     @click:close="anystyle.clearParseResults()"
