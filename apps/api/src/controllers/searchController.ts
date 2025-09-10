@@ -1,110 +1,57 @@
-import type { ApiResponse, ApiSearchRequest, ApiSearchResponse, ApiSearchResult } from '@source-taster/types'
 import type { Context } from 'hono'
-import { ApiSearchRequestSchema } from '@source-taster/types'
+import {
+  type ApiSearchRequest,
+  ApiSearchRequestSchema,
+  ApiSearchResponseSchema,
+  type ApiSearchResult,
+} from '@source-taster/types'
+import { httpBadRequest } from '../errors/http'
 import searchCoordinator from '../services/search/searchCoordinator'
 
 /**
- * Search for references in all external databases
  * POST /api/search
+ * Sucht in allen Datenbanken
  */
 export async function searchAllDatabases(c: Context) {
-  try {
-    const request = await parseAndValidateRequest(c)
-    const results = await searchCoordinator.searchAllDatabases(request.references)
-    return createSuccessResponse(c, results)
-  }
-  catch (error) {
-    return handleError(c, error)
-  }
+  const req = await parseAndValidateRequest(c)
+  const results = await searchCoordinator.searchAllDatabases(req.references)
+  return createSuccessResponse(c, results)
 }
 
 /**
- * Get list of available databases
  * GET /api/search/databases
+ * Liste verfügbarer Datenbanken
  */
 export async function getDatabases(c: Context) {
-  try {
-    const databases = await searchCoordinator.getDatabases()
-    return c.json({
-      success: true,
-      data: databases,
-    })
-  }
-  catch (error) {
-    return handleError(c, error)
-  }
+  const databases = await searchCoordinator.getDatabases()
+  return c.json({ success: true, data: databases })
 }
 
 /**
- * Search for references in a specific database
  * POST /api/search/:database
+ * Sucht nur in einer konkreten Datenbank
  */
 export async function searchSingleDatabase(c: Context) {
-  try {
-    const database = c.req.param('database')
-    const request = await parseAndValidateRequest(c)
+  const database = c.req.param('database')
+  if (!database)
+    httpBadRequest('Missing :database param')
 
-    // Process all references in the specified database
-    const results = await searchCoordinator.searchSingleDatabase(request.references, database)
-    return createSuccessResponse(c, results)
-  }
-  catch (error) {
-    return handleError(c, error)
-  }
+  const req = await parseAndValidateRequest(c)
+  const results = await searchCoordinator.searchSingleDatabase(req.references, database!)
+  return createSuccessResponse(c, results)
 }
 
-/**
- * Parse and validate the incoming request
- */
+/** --- Helpers --- */
+
 async function parseAndValidateRequest(c: Context): Promise<ApiSearchRequest> {
-  const rawBody = await c.req.json()
-  const parseResult = ApiSearchRequestSchema.safeParse(rawBody)
-
-  if (!parseResult.success) {
-    throw new ValidationError('Request validation failed', parseResult.error)
-  }
-
-  return parseResult.data
+  const raw = await c.req.json()
+  return ApiSearchRequestSchema.parse(raw)
 }
 
-/**
- * Create a successful API response
- */
 function createSuccessResponse(c: Context, results: ApiSearchResult[]) {
-  const response: ApiSearchResponse = {
+  const payload = ApiSearchResponseSchema.parse({
     success: true,
-    data: {
-      results,
-    },
-  }
-  return c.json(response)
-}
-
-/**
- * Handle errors and create appropriate error responses
- */
-function handleError(c: Context, error: unknown) {
-  if (error instanceof ValidationError) {
-    return c.json({
-      success: false,
-      error: error.validationError,
-    }, 400)
-  }
-
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-  const errorResponse: ApiResponse = {
-    success: false,
-    error: errorMessage,
-  }
-  return c.json(errorResponse, 500)
-}
-
-/**
- * Custom error class for validation errors
- */
-class ValidationError extends Error {
-  constructor(message: string, public validationError: any) {
-    super(message)
-    this.name = 'ValidationError'
-  }
+    data: { results },
+  })
+  return c.json(payload)
 }

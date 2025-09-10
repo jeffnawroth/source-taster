@@ -1,13 +1,10 @@
-// src/services/search/SearchCoordinator.ts
-
 import type {
-  ApiSearchCandidate, // wird in der internen Logik benötigt
+  ApiSearchCandidate,
   ApiSearchReference,
   ApiSearchResult,
 } from '@source-taster/types'
 import process from 'node:process'
-
-import { HTTPException } from 'hono/http-exception'
+import { httpBadRequest, httpNotFound } from '../../errors/http'
 import { ArxivService } from './providers/arxivProvider'
 import { CrossrefService } from './providers/crossrefProvider'
 import { EuropePmcService } from './providers/europePmcProvider'
@@ -34,15 +31,11 @@ export class SearchCoordinator {
 
     for (const reference of references) {
       if (!reference?.metadata) {
-        throw new HTTPException(400, { message: `Missing metadata for reference ${reference?.id ?? '<unknown>'}` })
+        httpBadRequest(`Missing metadata for reference ${reference?.id ?? '<unknown>'}`)
       }
 
       const candidates = await this.searchAllDatabasesForSingle(reference)
-
-      results.push({
-        referenceId: reference.id,
-        candidates,
-      })
+      results.push({ referenceId: reference.id, candidates })
     }
 
     return results
@@ -53,28 +46,21 @@ export class SearchCoordinator {
     databaseName: string,
   ): Promise<ApiSearchResult[]> {
     const databases = this.getDatabasesByPriority()
-    const databaseInfo = databases.find(
-      db => db.name.toLowerCase() === databaseName.toLowerCase(),
-    )
+    const databaseInfo = databases.find(db => db.name.toLowerCase() === databaseName.toLowerCase())
 
     if (!databaseInfo) {
       const available = databases.map(db => db.name).join(', ')
-      throw new Error(`Database '${databaseName}' not found. Available databases: ${available}`)
+      httpNotFound(`Database '${databaseName}' not found. Available: ${available}`)
     }
 
     const results: ApiSearchResult[] = []
-
     for (const reference of references) {
       if (!reference?.metadata) {
-        throw new HTTPException(400, { message: `Missing metadata for reference ${reference?.id ?? '<unknown>'}` })
+        httpBadRequest(`Missing metadata for reference ${reference?.id ?? '<unknown>'}`)
       }
 
-      const candidate = await this.searchSingleDatabaseForSingle(reference, databaseInfo)
-
-      results.push({
-        referenceId: reference.id,
-        candidates: candidate ? [candidate] : [],
-      })
+      const candidate = await this.searchSingleDatabaseForSingle(reference, databaseInfo!)
+      results.push({ referenceId: reference.id, candidates: candidate ? [candidate] : [] })
     }
 
     return results
@@ -88,10 +74,7 @@ export class SearchCoordinator {
       endpoint: `/api/search/${db.name}`,
     }))
 
-    return {
-      databases: databaseList,
-      total: databaseList.length,
-    }
+    return { databases: databaseList, total: databaseList.length }
   }
 
   private getDatabasesByPriority(): DatabaseInfo[] {
@@ -99,53 +82,29 @@ export class SearchCoordinator {
   }
 
   private async searchAllDatabasesForSingle(reference: ApiSearchReference): Promise<ApiSearchCandidate[]> {
-    const candidates: ApiSearchCandidate[] = []
-
     const searchPromises = this.databaseServices.map(async ({ service }) => {
       try {
         const result = await service.search(reference.metadata)
-
-        if (result) {
-          return result
-        }
-        else {
-          return null
-        }
+        return result ?? null
       }
-      // eslint-disable-next-line unused-imports/no-unused-vars
-      catch (error) {
+      catch {
         return null
       }
     })
 
     const results = await Promise.all(searchPromises)
-
-    for (const result of results) {
-      if (result)
-        candidates.push(result)
-    }
-
-    return candidates
+    return results.filter((r): r is ApiSearchCandidate => !!r)
   }
 
   private async searchSingleDatabaseForSingle(
     reference: ApiSearchReference,
     databaseInfo: DatabaseInfo,
   ) {
-    const { service } = databaseInfo
-
     try {
-      const result = await service.search(reference.metadata)
-
-      if (result) {
-        return result
-      }
-      else {
-        return null
-      }
+      const result = await databaseInfo.service.search(reference.metadata)
+      return result ?? null
     }
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    catch (error) {
+    catch {
       return null
     }
   }
