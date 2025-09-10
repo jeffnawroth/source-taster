@@ -74,15 +74,11 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
       <v-expand-transition>
         <div v-if="showTokenEditor && editableTokens.length > 0">
           <!-- Current Token Sequence Editor -->
-          <v-card flat>
-            <v-card-text>
-              <TokenRelabelingEditor
-                v-if="editableTokens[currentReferenceIndex]"
-                :tokens="[editableTokens[currentReferenceIndex]]"
-                @update:tokens="updateCurrentSequenceTokens"
-              />
-            </v-card-text>
-          </v-card>
+          <TokenRelabelingEditor
+            v-if="editableTokens[currentReferenceIndex]"
+            :tokens="[editableTokens[currentReferenceIndex]]"
+            @update:tokens="updateCurrentSequenceTokens"
+          />
 
           <!-- Navigation Controls - moved below editor -->
           <div
