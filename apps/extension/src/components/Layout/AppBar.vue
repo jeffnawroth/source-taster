@@ -17,17 +17,17 @@ const theme = useTheme()
 
 watchEffect(() => {
   if (themeOption.value === 'system') {
-    theme.global.name.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    theme.change(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
   }
   else {
-    theme.global.name.value = themeOption.value
+    theme.change(themeOption.value)
   }
 })
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
   const newColorScheme = event.matches ? 'dark' : 'light'
 
-  theme.global.name.value = newColorScheme
+  theme.change(newColorScheme)
 })
 
 // OPTIONS PAGE
