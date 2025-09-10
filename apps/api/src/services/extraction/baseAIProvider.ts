@@ -15,7 +15,7 @@ import {
  * Base AI service with common functionality for all AI providers
  * Handles provider-specific API differences and fallback strategies
  */
-export abstract class BaseAIService {
+export abstract class BaseAIProvider {
   protected client: OpenAI
   protected config: OpenAIConfig
 
@@ -215,7 +215,6 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
         return JSON.parse(extractedJSON)
       }
       catch {
-        console.error('Failed to parse AI response as JSON:', content)
         httpUpstream('Invalid JSON response from AI service', 502)
       }
     }
@@ -245,8 +244,6 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     systemMessage: string,
     userMessage: string,
     schema: { jsonSchema: ResponseFormatJSONSchema.JSONSchema, responseSchema: any },
-    _emptyResult: T, // wird nicht mehr genutzt (wir werfen Exceptions)
-    _operationType: string, // bleibt fürs Logging falls nötig
   ): Promise<T> {
     return this.executeAIOperation(systemMessage, userMessage, schema)
   }

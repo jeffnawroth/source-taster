@@ -1,8 +1,14 @@
-import type { ApiExtractData, ApiExtractReference, ApiExtractRequest } from '@source-taster/types'
+// src/controllers/extractionController.ts
 
+import type {
+  ApiExtractData,
+  ApiExtractReference,
+  ApiExtractRequest,
+} from '@source-taster/types'
 import type { Context } from 'hono'
+
 import { ApiExtractRequestSchema } from '@source-taster/types'
-import * as extractionService from '../services/extraction/extractionCoordinator'
+import { ReferenceExtractionCoordinator } from '../services/extraction/referenceExtractionCoordinator'
 
 /**
  * Extract references from text using AI
@@ -10,25 +16,20 @@ import * as extractionService from '../services/extraction/extractionCoordinator
  */
 export async function extractReferences(c: Context) {
   const userId = c.get('userId') as string
-
   const request = await parseAndValidateRequest(c)
 
-  const references = await extractionService.extractReferences(userId, request)
+  const coordinator = new ReferenceExtractionCoordinator(userId)
+  const references = await coordinator.extractReferences(request)
+
   return createSuccessResponse(c, references)
 }
 
-// extractionController.ts (oder wo die Funktion ist)
 async function parseAndValidateRequest(c: Context): Promise<ApiExtractRequest> {
   const rawBody = await c.req.json()
   return ApiExtractRequestSchema.parse(rawBody)
 }
-/**
- * Create a successful response
- */
+
 function createSuccessResponse(c: Context, references: ApiExtractReference[]) {
-  const response = { references } as ApiExtractData
-  return c.json({
-    success: true,
-    data: response,
-  })
+  const response: ApiExtractData = { references }
+  return c.json({ success: true, data: response })
 }

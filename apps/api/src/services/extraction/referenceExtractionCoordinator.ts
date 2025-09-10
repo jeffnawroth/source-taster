@@ -1,3 +1,4 @@
+// src/services/extraction/ReferenceExtractionCoordinator.ts
 import type {
   ApiExtractReference,
   ApiExtractRequest,
@@ -5,14 +6,14 @@ import type {
   LLMExtractReference,
 } from '@source-taster/types'
 import crypto from 'node:crypto'
-import { httpBadRequest } from '../../errors/http' // ⬅️ neu
-import { AIServiceFactory } from './aiServiceFactory'
+import { httpBadRequest } from '../../errors/http'
+import { AIProviderFactory } from './aiProviderFactory'
 
-export class ReferenceExtractionService {
+export class ReferenceExtractionCoordinator {
   constructor(private readonly userId: string) {}
 
-  async extractReferences(extractionRequest: ApiExtractRequest): Promise<ApiExtractReference[]> {
-    return this.performAIExtraction(extractionRequest)
+  public async extractReferences(req: ApiExtractRequest): Promise<ApiExtractReference[]> {
+    return this.performAIExtraction(req)
   }
 
   private async performAIExtraction(req: ApiExtractRequest): Promise<ApiExtractReference[]> {
@@ -20,13 +21,13 @@ export class ReferenceExtractionService {
       httpBadRequest('AI settings are required for reference extraction')
     }
 
-    const ai = await AIServiceFactory.createOpenAIService(this.userId, req.aiSettings!)
+    const ai = await AIProviderFactory.createOpenAIService(this.userId, req.aiSettings!)
     const result = await ai.extractReferences(req)
     return this.convertToReferences(result)
   }
 
-  private convertToReferences(aiReferences: LLMExtractPayload): ApiExtractReference[] {
-    return aiReferences.references.map((ref: LLMExtractReference) => this.createReference(ref))
+  private convertToReferences(aiPayload: LLMExtractPayload): ApiExtractReference[] {
+    return aiPayload.references.map((ref: LLMExtractReference) => this.createReference(ref))
   }
 
   private createReference(aiRef: LLMExtractReference): ApiExtractReference {

@@ -3,9 +3,9 @@ import process from 'node:process'
 import { PROVIDER_CONFIG } from '@source-taster/types'
 import { httpUnauthorized } from '@/api/errors/http'
 import { loadApiKey } from '../../secrets/keystore'
-import { OpenAIService } from './openaiService'
+import { OpenAIExtractionProvider } from './openAIExtractionProvider'
 
-export class AIServiceFactory {
+export class AIProviderFactory {
   static async createOpenAIService(userId: string, userAISettings: ApiAISettings): Promise<AIService> {
     const { provider, model } = userAISettings
     let apiKey = await loadApiKey(userId, provider)
@@ -39,6 +39,6 @@ export class AIServiceFactory {
       temperature: 0.1,
     }
 
-    return new OpenAIService(config)
+    return new OpenAIExtractionProvider(config)
   }
 }

@@ -2,7 +2,7 @@ import type { AIService, ApiExtractRequest, LLMExtractPayload, OpenAIConfig } fr
 import { ExtractionService } from './extractionService'
 // import { MatchingService } from './matchingService'
 
-export class OpenAIService implements AIService {
+export class OpenAIExtractionProvider implements AIService {
   private extractionService: ExtractionService
 
   constructor(config: OpenAIConfig) {
