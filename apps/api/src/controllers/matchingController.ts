@@ -1,7 +1,7 @@
 import type { ApiMatchData, ApiMatchRequest, ApiResponse } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ApiMatchRequestSchema } from '@source-taster/types'
-import * as matchingService from '../services/matching/matchingService'
+import { MatchingCoordinator } from '../services/matching/matchingCoordinator'
 
 /**
  * Evaluates provided candidates against a reference
@@ -10,7 +10,12 @@ import * as matchingService from '../services/matching/matchingService'
 export async function matchReferences(c: Context) {
   try {
     const request = await parseAndValidateRequest(c)
-    const result = matchingService.matchReferenceAgainstCandidates(request)
+    const coordinator = new MatchingCoordinator()
+    const result = coordinator.evaluateAllCandidates(
+      request.reference,
+      request.candidates,
+      request.matchingSettings,
+    )
     return createSuccessResponse(c, result)
   }
   catch (error) {

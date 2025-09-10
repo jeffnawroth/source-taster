@@ -2,7 +2,7 @@ import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldD
 import { MetadataComparator } from '@/api/utils/metadataComparator'
 import { similarity } from '@/api/utils/similarity'
 
-export class DeterministicMatchingService {
+export class DeterministicEngine {
   /**
    * Matches a reference against an external source using deterministic similarity algorithms
    */

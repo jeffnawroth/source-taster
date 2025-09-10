@@ -1,3 +1,5 @@
+// src/services/matching/MatchingCoordinator.ts
+
 import type {
   ApiMatchCandidate,
   ApiMatchData,
@@ -6,27 +8,12 @@ import type {
   ApiMatchReference,
   ApiSearchCandidate,
 } from '@source-taster/types'
-import { DeterministicMatchingService } from './deterministicMatchingService'
+import { DeterministicEngine } from './engines/deterministicEngine'
 
-/**
- * Pure matching service - only evaluates candidates against references
- * No database search logic - candidates must be provided from outside
- */
-export class DatabaseMatchingService {
-  private readonly deterministicMatchingService = new DeterministicMatchingService()
+export class MatchingCoordinator {
+  private readonly deterministicEngine = new DeterministicEngine()
 
-  constructor() {
-    // Initialize service
-  }
-
-  /**
-   * Evaluate all provided candidates against a reference
-   * @param reference The reference to match against
-   * @param candidates Array of candidates to evaluate
-   * @param matchingSettings Matching configuration
-   * @returns Matching result with evaluated candidates
-   */
-  evaluateAllCandidates(
+  public evaluateAllCandidates(
     reference: ApiMatchReference,
     candidates: ApiMatchCandidate[],
     matchingSettings: ApiMatchMatchingSettings,
@@ -35,14 +22,7 @@ export class DatabaseMatchingService {
     return this.buildMatchingResult(sourceEvaluations)
   }
 
-  /**
-   * Evaluate a single candidate against a reference
-   * @param reference The reference to match against
-   * @param candidate Single candidate to evaluate
-   * @param matchingSettings Matching configuration
-   * @returns Source evaluation
-   */
-  evaluateSingleCandidate(
+  public evaluateSingleCandidate(
     reference: ApiMatchReference,
     candidate: ApiSearchCandidate,
     matchingSettings: ApiMatchMatchingSettings,
@@ -50,9 +30,6 @@ export class DatabaseMatchingService {
     return this.evaluateSource(reference, candidate, matchingSettings)
   }
 
-  /**
-   * Match all candidates against a reference (internal method)
-   */
   private matchAllCandidates(
     candidates: ApiMatchCandidate[],
     reference: ApiMatchReference,
@@ -61,7 +38,6 @@ export class DatabaseMatchingService {
     if (candidates.length === 0) {
       return []
     }
-
     return this.evaluateAllSources(reference, candidates, matchingSettings)
   }
 
@@ -71,12 +47,10 @@ export class DatabaseMatchingService {
     matchingSettings: ApiMatchMatchingSettings,
   ): ApiMatchEvaluation[] {
     const evaluations: ApiMatchEvaluation[] = []
-
     for (const source of sources) {
       const evaluation = this.evaluateSource(reference, source, matchingSettings)
       evaluations.push(evaluation)
     }
-
     return evaluations
   }
 
@@ -85,7 +59,7 @@ export class DatabaseMatchingService {
     source: ApiMatchCandidate,
     matchingSettings: ApiMatchMatchingSettings,
   ): ApiMatchEvaluation {
-    const matchDetails = this.deterministicMatchingService.matchReference(reference, source, matchingSettings)
+    const matchDetails = this.deterministicEngine.matchReference(reference, source, matchingSettings)
     return {
       referenceId: reference.id,
       candidateId: source.id,
@@ -97,12 +71,9 @@ export class DatabaseMatchingService {
     if (sourceEvaluations.length === 0) {
       return { evaluations: [] }
     }
-
-    // Sort by overall score (highest first)
     const sortedEvaluations = [...sourceEvaluations].sort(
       (a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore,
     )
-
     return { evaluations: sortedEvaluations }
   }
 }
