@@ -1,6 +1,7 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { components } from '@/api/types/openAlex'
 import process from 'node:process'
+import { generateUUID } from '@/api/utils/generateUUID'
 
 // Type aliases for better readability
 type Work = components['schemas']['workSchema']
@@ -62,7 +63,7 @@ export class OpenAlexProvider {
 
       if (work && work.id) {
         return {
-          id: work.id,
+          id: generateUUID(),
           source: 'openalex',
           metadata: this.parseOpenAlexWork(work),
           url: this.extractBestUrl(work),
@@ -100,7 +101,7 @@ export class OpenAlexProvider {
       if (data.results && data.results.length > 0) {
         const work = data.results[0]
         return {
-          id: work.id,
+          id: generateUUID(),
           source: 'openalex',
           metadata: this.parseOpenAlexWork(work),
           url: this.extractBestUrl(work),
@@ -173,7 +174,7 @@ export class OpenAlexProvider {
    */
   private parseOpenAlexWork(work: Work): CSLItem {
     const metadata: CSLItem = {
-      id: work.id || work.doi || 'unknown',
+      id: generateUUID(),
       type: 'article-journal', // Default type, will be updated if needed
     }
 

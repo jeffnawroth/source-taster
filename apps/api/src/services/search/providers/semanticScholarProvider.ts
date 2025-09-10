@@ -1,5 +1,6 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { components } from '@/api/types/semanticScholar'
+import { generateUUID } from '@/api/utils/generateUUID'
 
 type SemanticScholarPaper = components['schemas']['FullPaper']
 type SemanticScholarSearchResponse = components['schemas']['PaperRelevanceSearchBatch']
@@ -87,7 +88,7 @@ export class SemanticScholarProvider {
 
       if (work && work.paperId) {
         return {
-          id: work.paperId,
+          id: generateUUID(),
           source: 'semanticscholar',
           metadata: this.parseSemanticScholarWork(work),
           url: work.url || `https://www.semanticscholar.org/paper/${work.paperId}`,
@@ -140,7 +141,7 @@ export class SemanticScholarProvider {
 
       if (work && work.paperId) {
         return {
-          id: work.paperId,
+          id: generateUUID(),
           source: 'semanticscholar',
           metadata: this.parseSemanticScholarWork(work),
           url: work.url || `https://www.semanticscholar.org/paper/${work.paperId}`,
@@ -194,7 +195,7 @@ export class SemanticScholarProvider {
         if (data && data.data && data.data.length > 0) {
           const match = data.data[0]
           return {
-            id: match.paperId!,
+            id: generateUUID(),
             source: 'semanticscholar',
             metadata: this.parseSemanticScholarWork(match),
             url: match.url || `https://www.semanticscholar.org/paper/${match.paperId}`,
@@ -375,7 +376,7 @@ export class SemanticScholarProvider {
                 const candidate = data.data[i]
                 if (candidate.year && Math.abs(candidate.year - year) <= 2) {
                   return {
-                    id: candidate.paperId!,
+                    id: generateUUID(),
                     source: 'semanticscholar',
                     metadata: this.parseSemanticScholarWork(candidate),
                     url: candidate.url || `https://www.semanticscholar.org/paper/${candidate.paperId}`,
@@ -387,7 +388,7 @@ export class SemanticScholarProvider {
 
           // Return the best match (first result)
           return {
-            id: bestMatch.paperId!,
+            id: generateUUID(),
             source: 'semanticscholar',
             metadata: this.parseSemanticScholarWork(bestMatch),
             url: bestMatch.url || `https://www.semanticscholar.org/paper/${bestMatch.paperId}`,
@@ -405,7 +406,7 @@ export class SemanticScholarProvider {
   private parseSemanticScholarWork(work: SemanticScholarPaper): CSLItem {
     const metadata: CSLItem = {
       type: 'article-journal', // Default type, will be updated if needed
-      id: work.paperId || `semanticscholar-${Date.now()}`,
+      id: generateUUID(),
     }
 
     // Title

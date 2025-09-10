@@ -5,7 +5,7 @@ import type {
   LLMExtractPayload,
   LLMExtractReference,
 } from '@source-taster/types'
-import crypto from 'node:crypto'
+import { generateUUID } from '@/api/utils/generateUUID'
 import { httpBadRequest } from '../../errors/http'
 import { AIProviderFactory } from './aiProviderFactory'
 
@@ -32,9 +32,9 @@ export class ReferenceExtractionCoordinator {
 
   private createReference(aiRef: LLMExtractReference): ApiExtractReference {
     return {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       originalText: aiRef.originalText,
-      metadata: { ...aiRef.metadata, id: crypto.randomUUID() },
+      metadata: { ...aiRef.metadata, id: generateUUID() },
     }
   }
 }

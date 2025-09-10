@@ -1,6 +1,7 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { EuropePmcSearchResponse, EuropePmcWork } from '@/api/types/europepmc'
 import process from 'node:process'
+import { generateUUID } from '@/api/utils/generateUUID'
 
 export class EuropePmcProvider {
   private baseUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest'
@@ -83,7 +84,7 @@ export class EuropePmcProvider {
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
         return {
-          id: work.pmid || work.pmcid || work.doi || `europepmc-${Date.now()}`,
+          id: generateUUID(),
           source: 'europepmc',
           metadata: this.parseEuropePmcWork(work),
           url: this.buildWorkUrl(work),
@@ -131,7 +132,7 @@ export class EuropePmcProvider {
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
         return {
-          id: work.pmid || work.pmcid || work.doi || `europepmc-${Date.now()}`,
+          id: generateUUID(),
           source: 'europepmc',
           metadata: this.parseEuropePmcWork(work),
           url: this.buildWorkUrl(work),
@@ -181,7 +182,7 @@ export class EuropePmcProvider {
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
         return {
-          id: work.pmid || work.pmcid || work.doi || `europepmc-${Date.now()}`,
+          id: generateUUID(),
           source: 'europepmc',
           metadata: this.parseEuropePmcWork(work),
           url: this.buildWorkUrl(work),
@@ -221,7 +222,7 @@ export class EuropePmcProvider {
         const work = data.resultList.result[0]
 
         return {
-          id: work.pmid || work.pmcid || work.doi || `europepmc-${Date.now()}`,
+          id: generateUUID(),
           source: 'europepmc',
           metadata: this.parseEuropePmcWork(work),
           url: this.buildWorkUrl(work),
@@ -294,7 +295,7 @@ export class EuropePmcProvider {
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
         return {
-          id: work.pmid || work.pmcid || work.doi || `europepmc-${Date.now()}`,
+          id: generateUUID(),
           source: 'europepmc',
           metadata: this.parseEuropePmcWork(work),
           url: this.buildWorkUrl(work),
@@ -419,7 +420,7 @@ export class EuropePmcProvider {
    */
   private parseEuropePmcWork(work: EuropePmcWork): CSLItem {
     const metadata: CSLItem = {
-      id: work.id || work.pmid || work.pmcid || work.doi || 'unknown',
+      id: generateUUID(),
       type: 'article-journal', // Default type, will be updated if needed
     }
 

@@ -1,6 +1,7 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
 import type { components } from '@/api/types/crossref'
 import process from 'node:process'
+import { generateUUID } from '@/api/utils/generateUUID'
 
 // Type aliases for better readability
 type CrossrefWork = components['schemas']['Work']
@@ -81,7 +82,7 @@ export class CrossrefProvider {
       if (data.message) {
         const work = data.message
         return {
-          id: work.DOI || work.URL || `crossref-${Date.now()}`,
+          id: generateUUID(),
           source: 'crossref',
           metadata: this.parseCrossrefWork(work),
           url: work.URL || `https://doi.org/${work.DOI}`,
@@ -140,7 +141,7 @@ export class CrossrefProvider {
         // Take the first (best) result from Crossref's relevance ranking
         const work = data.message.items[0]
         return {
-          id: work.DOI || work.URL || `crossref-${Date.now()}`,
+          id: generateUUID(),
           source: 'crossref',
           metadata: this.parseCrossrefWork(work),
           url: work.URL || `https://doi.org/${work.DOI}`,
@@ -248,7 +249,7 @@ export class CrossrefProvider {
         // Take the first (best) result from Crossref's relevance ranking
         const work = data.message.items[0]
         return {
-          id: work.DOI || work.URL || `crossref-${Date.now()}`,
+          id: generateUUID(),
           source: 'crossref',
           metadata: this.parseCrossrefWork(work),
           url: work.URL || `https://doi.org/${work.DOI}`,
@@ -332,7 +333,7 @@ export class CrossrefProvider {
 
     // Build the CSL item
     const metadata: CSLItem = {
-      id: work.DOI || work.URL || 'unknown',
+      id: generateUUID(),
       type: this.mapCrossrefTypeToCSL(work.type),
       title,
     }

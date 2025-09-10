@@ -1,4 +1,5 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
+import { generateUUID } from '@/api/utils/generateUUID'
 
 export class ArxivProvider {
   private baseUrl = 'http://export.arxiv.org/api/query'
@@ -612,7 +613,7 @@ export class ArxivProvider {
 
   private mapToExternalSource(entry: any): ApiSearchCandidate {
     const metadata: CSLItem = {
-      'id': entry.arxivId || entry.id || 'unknown',
+      'id': generateUUID(),
       'type': 'article', // ArXiv articles are typically preprints
       'title': entry.title || '',
       'author': entry.authors || [],
@@ -633,7 +634,7 @@ export class ArxivProvider {
     }
 
     return {
-      id: entry.arxivId || entry.id || '',
+      id: generateUUID(),
       source: 'arxiv',
       metadata,
       url: entry.id || `https://arxiv.org/abs/${entry.arxivId}`,
