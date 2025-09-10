@@ -1,7 +1,7 @@
 import type { ApiResponse, ApiSearchRequest, ApiSearchResponse, ApiSearchResult } from '@source-taster/types'
 import type { Context } from 'hono'
 import { ApiSearchRequestSchema } from '@source-taster/types'
-import * as searchService from '../services/search/searchCoordinator'
+import searchCoordinator from '../services/search/searchCoordinator'
 
 /**
  * Search for references in all external databases
@@ -10,7 +10,7 @@ import * as searchService from '../services/search/searchCoordinator'
 export async function searchAllDatabases(c: Context) {
   try {
     const request = await parseAndValidateRequest(c)
-    const results = await searchService.searchAllDatabases(request.references)
+    const results = await searchCoordinator.searchAllDatabases(request.references)
     return createSuccessResponse(c, results)
   }
   catch (error) {
@@ -24,7 +24,7 @@ export async function searchAllDatabases(c: Context) {
  */
 export async function getDatabases(c: Context) {
   try {
-    const databases = await searchService.getDatabases()
+    const databases = await searchCoordinator.getDatabases()
     return c.json({
       success: true,
       data: databases,
@@ -45,7 +45,7 @@ export async function searchSingleDatabase(c: Context) {
     const request = await parseAndValidateRequest(c)
 
     // Process all references in the specified database
-    const results = await searchService.searchSingleDatabase(request.references, database)
+    const results = await searchCoordinator.searchSingleDatabase(request.references, database)
     return createSuccessResponse(c, results)
   }
   catch (error) {
@@ -61,11 +61,9 @@ async function parseAndValidateRequest(c: Context): Promise<ApiSearchRequest> {
   const parseResult = ApiSearchRequestSchema.safeParse(rawBody)
 
   if (!parseResult.success) {
-    console.warn('SearchController: Validation failed:', parseResult.error)
     throw new ValidationError('Request validation failed', parseResult.error)
   }
 
-  console.warn(`SearchController: Processing search request for ${parseResult.data.references.length} references`)
   return parseResult.data
 }
 
@@ -86,8 +84,6 @@ function createSuccessResponse(c: Context, results: ApiSearchResult[]) {
  * Handle errors and create appropriate error responses
  */
 function handleError(c: Context, error: unknown) {
-  console.error('SearchController: Error during search:', error)
-
   if (error instanceof ValidationError) {
     return c.json({
       success: false,
