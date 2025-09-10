@@ -44,7 +44,7 @@ export abstract class BaseAIProvider {
     catch (e: any) {
       // Fallback nur, wenn wirklich response_format nicht unterstützt wird
       if (this.isJsonSchemaUnsupportedError(e)) {
-        return await this.makeUnstructuredAPICall(systemMessage, userMessage, schema)
+        return await this.makeUnstructuredAPICall(systemMessage, userMessage)
       }
       this.mapAIError(e)
     }
@@ -90,18 +90,15 @@ export abstract class BaseAIProvider {
   protected async makeUnstructuredAPICall(
     systemMessage: string,
     userMessage: string,
-    schema: ResponseFormatJSONSchema.JSONSchema,
   ) {
     try {
       console.warn(`Provider ${this.config.model} doesn't support json_schema, falling back to json_object with schema instructions`)
-
-      const enhancedSystemMessage = this.enhanceSystemMessageWithSchema(systemMessage, schema)
 
       return await this.client.chat.completions.create({
         model: this.config.model,
         temperature: this.config.temperature,
         messages: [
-          { role: 'system', content: enhancedSystemMessage },
+          { role: 'system', content: systemMessage },
           { role: 'user', content: userMessage },
         ],
         response_format: { type: 'json_object' },
@@ -166,23 +163,6 @@ export abstract class BaseAIProvider {
     return error?.error?.type === 'invalid_request_error'
       && typeof error?.error?.message === 'string'
       && error.error.message.includes('response_format')
-  }
-
-  /**
-   * Enhance system message with schema instructions for fallback
-   */
-  protected enhanceSystemMessageWithSchema(
-    systemMessage: string,
-    schema: ResponseFormatJSONSchema.JSONSchema,
-  ): string {
-    return `${systemMessage}
-
-CRITICAL: You MUST respond with ONLY a valid JSON object that exactly matches this schema:
-${JSON.stringify(schema.schema, null, 2)}
-
-DO NOT include any explanatory text, markdown formatting, or code blocks.
-DO NOT add any preamble or conclusion.
-Your response should be ONLY the JSON object starting with { and ending with }.`
   }
 
   /**

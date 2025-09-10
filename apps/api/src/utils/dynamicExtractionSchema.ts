@@ -30,7 +30,7 @@ export function createDynamicExtractionSchema(extractionSettings: ApiExtractExtr
   })
 
   const DynamicCSLExtractionResponseSchema = LLMExtractPayloadSchema.extend({
-    references: z.array(DynamicCSLReferenceSchema).describe('Array of extracted references with dynamic CSL metadata'),
+    references: z.array(DynamicCSLReferenceSchema).describe('Array of extracted references with dynamic CSL metadata and tokens'),
   })
 
   return {

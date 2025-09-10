@@ -1,5 +1,10 @@
-export const systemMessage = `
-Developer: # Role and Objective
+import { ApiAnystyleTokenLabelSchema } from '@source-taster/types'
+
+const tokenLabels = ApiAnystyleTokenLabelSchema.options
+
+export function createSystemMessage(dynamicExtractionSchema: any) {
+  return `
+# Role and Objective
 - Act as an expert bibliographic reference extraction assistant, dedicated to identifying and parsing academic references from provided text.
 
 # Instructions
@@ -15,55 +20,64 @@ Developer: # Role and Objective
 ## Token Generation Requirements
 For training data compatibility, you must also generate token sequences for each reference. Each reference must include a "tokens" field with the following format:
 
-Token Label Options:
-- author: Author names
-- citation-number: Citation numbers in numbered references
-- collection-title: Title of a collection or series
-- container-title: Journal, conference, or book title containing the work
-- date: Publication dates
-- director: Director (for films/videos)
-- doi: Digital Object Identifier
-- edition: Edition information
-- editor: Editor names
-- genre: Type of publication (article, book, etc.)
-- isbn: International Standard Book Number
-- journal: Journal name (alternative to container-title)
-- location: Publication location/place
-- medium: Publication medium
-- note: Additional notes or annotations
-- other: Any text that doesn't fit other categories
-- pages: Page numbers or ranges
-- producer: Producer (for media)
-- publisher: Publisher name
-- source: Source publication
-- title: Title of the work
-- translator: Translator names
-- url: Web URLs
-- volume: Volume number
+IMPORTANT: Generate tokens for the ENTIRE reference text, regardless of which CSL metadata fields are requested. The tokens are used for training a parser model and must capture ALL bibliographic elements present in the text, not just the requested metadata fields.
 
-Token Format: Each reference must include an array of token sequences, where each token sequence is an array of [label, text] pairs representing the sequential parsing of the reference text.
+Available Token Labels (ONLY use these exact labels): ${tokenLabels.join(', ')}
 
-Example token sequence:
-[
-  ["author", "Smith, J."],
-  ["date", "(2021)"],
-  ["title", "Example Article"],
-  ["container-title", "Journal of Examples"],
-  ["volume", "15"],
-  ["pages", "123-145"]
+CRITICAL: Use ONLY the token labels listed above. Any other labels will cause validation errors.
+
+Token Format: Each reference must include a "tokens" field with ONE SINGLE ARRAY of [label, text] pairs that process the entire reference from left to right.
+
+IMPORTANT: The tokens array should contain exactly ONE array of token pairs (not multiple sub-arrays).
+
+Be granular with tokenization:
+- Split names: "Liu Y," becomes ["author", "Liu"], ["author", "Y,"]
+- Keep punctuation: Include commas, periods with the text
+- Process sequentially: Go through the reference text word by word
+
+Example (correct format):
+"tokens": [
+  [
+    ["author", "Liu"],
+    ["author", "Y,"],
+    ["author", "Yan"],
+    ["author", "LM,"],
+    ["title", "Viral"],
+    ["title", "dynamics"],
+    ["title", "in"],
+    ["title", "COVID-19."],
+    ["container-title", "The"],
+    ["container-title", "Lancet"],
+    ["date", "2020"],
+    ["volume", "20"],
+    ["pages", "656-657"],
+    ["doi", "10.1016/example"]
+  ]
 ]
 
-# Context
-- Input: Source text containing academic references in arbitrary formats.
-- Out of Scope: Content modification, normalization, or information deduplication.
+Remember: Parse every part of the reference text into tokens, even if those fields are not requested for the CSL metadata.
 
-# Checklist
-- Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level.
+## Why Granular Tokens Matter
+Fine-grained tokenization improves parser training by:
+- Teaching the model to recognize punctuation patterns (commas, periods, colons)
+- Learning word boundaries and name structures
+- Understanding formatting conventions in academic references
+- Creating more precise parsing models
 
-# Planning and Verification
-- Identify the full span of each reference based on the rules above.
-- Verify that associated identifiers (DOI, URLs) are included with their corresponding references.
-- After extraction, perform a brief validation to confirm each reference contains all necessary information according to the guidelines. If any references are incomplete, re-extract as needed.`
+Examples of good granular tokenization:
+- "Liu Y," → ["author", "Liu"], ["author", "Y,"] (separate surname, initial+comma)
+- "Vol. 15" → ["volume", "Vol."], ["volume", "15"] (separate abbreviation, number)
+- "pp. 123-145" → ["pages", "pp."], ["pages", "123-145"] (separate prefix, range)
+
+# Response Requirements
+You MUST respond with ONLY a valid JSON object that exactly matches this structure:
+
+${JSON.stringify(dynamicExtractionSchema, null, 2)}
+
+DO NOT include any explanatory text, markdown formatting, or code blocks.
+DO NOT add any preamble or conclusion.
+Your response should be ONLY the JSON object starting with { and ending with }.`
+}
 
 export function userMessage(text: string) {
   return `Extract all bibliographic references from the following text. Return structured data according to the schema.
