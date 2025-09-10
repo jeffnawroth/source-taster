@@ -9,7 +9,7 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.1",
+    "@hono/node-server": "^1.19.2",
     "@hono/zod-validator": "^0.7.2",
     "cheerio": "^1.1.2",
     "crypto-js": "^4.2.0",
@@ -17,9 +17,9 @@
     "hono": "^4.9.6",
     "key-file-storage": "^2.3.3",
     "lodash": "^4.17.21",
-    "normalize-url": "^8.0.2",
-    "openai": "^4.104.0",
-    "zod": "^3.25.76"
+    "normalize-url": "^8.1.0",
+    "openai": "^5.20.0",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@source-taster/eslint-config": "workspace:^",
@@ -28,8 +28,8 @@
     "@types/crypto-js": "^4.2.2",
     "@types/damerau-levenshtein": "^1.0.2",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^20.19.13",
-    "eslint": "^9.34.0",
+    "@types/node": "^24.3.1",
+    "eslint": "^9.35.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "zod-to-json-schema": "^3.24.6"
