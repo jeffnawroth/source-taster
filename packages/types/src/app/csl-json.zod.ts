@@ -199,7 +199,7 @@ export const CSLItemSchema = z
     'year-suffix': z.string().optional(),
 
     // custom free-form
-    'custom': z.record(z.unknown()).optional(),
+    'custom': z.record(z.string(), z.unknown()).optional(),
 
     // Added arxivId
     'arxivId': z.string().optional(),
