@@ -4,13 +4,13 @@ import { createApiResponseSchema } from './api'
 
 // ----- Request -----
 export const ApiMatchReferenceSchema = z.object({
-  id: z.string().uuid().describe('Unique identifier for the reference'),
+  id: z.uuid().describe('Unique identifier for the reference'),
   metadata: CSLItemSchema.describe('Bibliographic metadata for the reference'),
 }).strict()
 export type ApiMatchReference = z.infer<typeof ApiMatchReferenceSchema>
 
 export const ApiMatchCandidateSchema = z.object({
-  id: z.string().uuid().describe('Unique identifier in the external database'),
+  id: z.uuid().describe('Unique identifier in the external database'),
   metadata: CSLItemSchema, // candidate CSL item
 }).strict()
 export type ApiMatchCandidate = z.infer<typeof ApiMatchCandidateSchema>
@@ -94,7 +94,7 @@ export const ApiMatchDetailsSchema = z.object({
 export type ApiMatchDetails = z.infer<typeof ApiMatchDetailsSchema>
 
 export const ApiMatchEvaluationSchema = z.object({
-  candidateId: z.string().uuid().describe('ID of the external source candidate'),
+  candidateId: z.uuid().describe('ID of the external source candidate'),
   matchDetails: ApiMatchDetailsSchema,
 }).strict()
 export type ApiMatchEvaluation = z.infer<typeof ApiMatchEvaluationSchema>

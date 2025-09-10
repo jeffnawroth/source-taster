@@ -6,7 +6,7 @@ import { z } from 'zod'
 export interface AppEnv { Variables: { userId: string } }
 
 // UUID v4 Check via Zod
-const ClientIdSchema = z.string().uuid()
+const ClientIdSchema = z.uuid()
 
 export const withClientId: MiddlewareHandler<AppEnv> = async (c, next) => {
   // OPTIONS (Preflight) durchlassen

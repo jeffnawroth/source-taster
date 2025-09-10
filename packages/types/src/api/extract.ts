@@ -35,7 +35,7 @@ export type ApiExtractRequest = z.infer<typeof ApiExtractRequestSchema>
 // ----- Response -----
 
 export const ApiExtractReferenceSchema = z.object({
-  id: z.string().uuid().describe('Unique identifier for the extracted reference'),
+  id: z.uuid().describe('Unique identifier for the extracted reference'),
   originalText: z.string().describe('The raw reference text as it appeared in the source'),
   metadata: CSLItemSchema.describe('Extracted bibliographic metadata'),
 }).strict()
