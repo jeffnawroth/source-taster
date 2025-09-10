@@ -2,7 +2,6 @@ import type { ApiExtractExtractionSettings, CSLVariable } from '@source-taster/t
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { CSLItemSchema, LLMExtractPayloadSchema, LLMExtractReferenceSchema } from '@source-taster/types'
 import { z } from 'zod'
-import { zodToJsonSchema } from 'zod-to-json-schema'
 
 // Helper function to create conditional schema fields based on enabled fields
 function createConditionalCSLSchema(enabledFields: CSLVariable[]): z.ZodType<any> {
@@ -38,9 +37,7 @@ export function createDynamicExtractionSchema(extractionSettings: ApiExtractExtr
     DynamicExtractionResponseSchema: DynamicCSLExtractionResponseSchema,
     jsonSchema: {
       name: 'reference_extraction',
-      schema: zodToJsonSchema(DynamicCSLExtractionResponseSchema, {
-        $refStrategy: 'none',
-      }),
+      schema: z.toJSONSchema(DynamicCSLExtractionResponseSchema),
     } as ResponseFormatJSONSchema.JSONSchema,
   }
 }
