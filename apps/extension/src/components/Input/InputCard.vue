@@ -22,11 +22,11 @@ const anystyleStore = useAnystyleStore()
     :subtitle="$t('input-references-as-text-or-upload-a-file')"
   >
     <template #append>
-      <AIToggleSwitch
+      <!-- <AIToggleSwitch
         v-model="settings.extract.useAi"
         :show-alert="false"
         :show-description="false"
-      />
+      /> -->
 
       <!-- Info Icon with Tooltip -->
       <v-tooltip location="bottom">
@@ -34,6 +34,7 @@ const anystyleStore = useAnystyleStore()
           <v-btn
             :icon="mdiInformationOutline"
             variant="text"
+            size="small"
             v-bind="tooltipProps"
           />
         </template>

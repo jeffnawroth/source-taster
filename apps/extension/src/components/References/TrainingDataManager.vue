@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ApiAnystyleTokenLabel, ApiAnystyleTokenSequence } from '@source-taster/types'
-import { mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp } from '@mdi/js'
+import { mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
@@ -48,6 +48,25 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
     :append-icon="mdiChevronDown"
   >
     <template #append>
+      <!-- Info Icon with Tooltip -->
+      <v-tooltip location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            :icon="mdiInformationOutline"
+            variant="text"
+            size="small"
+            v-bind="tooltipProps"
+          />
+        </template>
+        <div
+          class="text-caption"
+          style="max-width: 400px;"
+        >
+          <strong>{{ $t('token-editor-help-title') }}</strong><br>
+          {{ $t('token-editor-help-description') }}
+        </div>
+      </v-tooltip>
+
       <v-btn
         variant="text"
         :icon="showTokenEditor ? mdiChevronUp : mdiChevronDown"
