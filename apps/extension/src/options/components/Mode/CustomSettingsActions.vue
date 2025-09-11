@@ -18,12 +18,12 @@ defineProps<{
       <v-col
         v-for="preset in presetButtons"
         :key="preset.label"
-        cols="auto"
+        cols="6"
       >
         <v-btn
           variant="tonal"
           color="primary"
-          size="small"
+          block
           @click="preset.onClick"
         >
           <v-icon

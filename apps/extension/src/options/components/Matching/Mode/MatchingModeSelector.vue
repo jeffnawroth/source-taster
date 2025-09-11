@@ -8,6 +8,7 @@ import {
   mdiScale,
 } from '@mdi/js'
 import { ApiMatchNormalizationRuleSchema } from '@source-taster/types'
+import { MATCHING_MODE_PRESETS } from '@/extension/constants/matchingModePresets'
 import { settings } from '@/extension/logic'
 // Get all available matching action types from the schema
 const ALL_NORMALIZATION_RULES: ApiMatchNormalizationRule[] = ApiMatchNormalizationRuleSchema.options
