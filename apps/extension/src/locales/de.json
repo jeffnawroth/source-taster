@@ -691,7 +691,7 @@
   "ai-extraction-mode-description": "Freitext-Eingabe und unstrukturierte Eingabe ist möglich, da die KI Referenzen automatisch aus jedem Textformat erkennen und extrahieren kann.",
   "file-input-disabled-parse-mode": "Datei-Upload ist nur im KI-Extraktions-Modus verfügbar. Wechseln Sie zum KI-Modus, um PDF-Dateien hochzuladen.",
   "token-editor-help-title": "So verwenden Sie den Token-Editor",
-  "token-editor-help-description": "Der Parser segmentiert Ihre Referenzen automatisch (Autor, Titel, etc.) mithilfe von maschinellem Lernen. Überprüfen Sie jedes Segment sorgfältig und korrigieren Sie Fehler, indem Sie auf Tokens klicken und das richtige Label aus der Dropdown-Liste auswählen. Kombinieren Sie verwandte Tokens - zum Beispiel gehört 'in' meist zu Editor oder Zeitschriftennamen. Für beste Ergebnisse muss jeder Token ein Label haben.",
+  "token-editor-help-description": "Der Parser segmentiert Ihre Referenzen automatisch (Autor, Titel, etc.) mithilfe von maschinellem Lernen. Überprüfen Sie jedes Segment sorgfältig und korrigieren Sie Fehler, indem Sie auf Tokens klicken und das richtige Label aus der Dropdown-Liste auswählen. Kombinieren Sie verwandte Tokens - zum Beispiel gehört 'in' meist zu Editor oder Zeitschriftennamen. Für beste Ergebnisse muss jeder Token ein Label haben. Ihre Korrekturen helfen dabei, das Parser-Modell für alle zu verbessern.",
   "part": "Teil",
   "part-title": "Teiltitel",
   "partial-verification": "{verified}/{total} verifiziert ({percentage} %)",
