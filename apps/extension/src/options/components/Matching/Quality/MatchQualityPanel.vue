@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { mdiAlertCircle, mdiCheckCircle, mdiPalette } from '@mdi/js'
-import { makeDefaultUISettings } from '@source-taster/types'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { settings } from '@/extension/logic'
 
 const { t } = useI18n()
 
 // Reset to defaults
 function resetToDefaults() {
-  settings.value.matching.matchingConfig.displayThresholds = { ...makeDefaultUISettings().matching.matchingConfig.displayThresholds }
+  settings.value.matching.matchingConfig.displayThresholds = { ...DEFAULT_UI_SETTINGS.matching.matchingConfig.displayThresholds }
 }
 
 // Computed values for dynamic min/max constraints

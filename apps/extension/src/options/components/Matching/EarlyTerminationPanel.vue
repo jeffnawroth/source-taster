@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiFlash } from '@mdi/js'
-import { makeDefaultUISettings } from '@source-taster/types'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { settings } from '@/extension/logic'
 
 // TRANSLATION
@@ -8,7 +8,7 @@ const { t } = useI18n()
 
 // Reset to defaults
 function resetToDefaults() {
-  settings.value.matching.matchingConfig.earlyTermination = { ...makeDefaultUISettings().matching.matchingConfig.earlyTermination }
+  settings.value.matching.matchingConfig.earlyTermination = { ...DEFAULT_UI_SETTINGS.matching.matchingConfig.earlyTermination }
 }
 </script>
 

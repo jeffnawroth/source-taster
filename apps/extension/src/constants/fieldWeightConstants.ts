@@ -4,9 +4,9 @@
  */
 
 import type { CSLVariableWithoutId } from '@source-taster/types'
-import { CSLVariableWithoutIdSchema, makeDefaultUISettings } from '@source-taster/types'
+import { CSLVariableWithoutIdSchema, DEFAULT_UI_SETTINGS } from '@source-taster/types'
 
-const DEFAULT_FIELDS_CONFIG = makeDefaultUISettings().matching.matchingConfig.fieldConfigurations
+const DEFAULT_FIELDS_CONFIG = DEFAULT_UI_SETTINGS.matching.matchingConfig.fieldConfigurations
 
 // Generate field definitions from CSL schema
 export const FIELD_DEFINITIONS: readonly FieldDefinition[] = CSLVariableWithoutIdSchema.options

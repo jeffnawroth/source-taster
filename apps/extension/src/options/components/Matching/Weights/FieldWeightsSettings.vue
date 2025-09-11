@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { makeDefaultUISettings } from '@source-taster/types'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { settings } from '@/extension/logic'
 
 // Reset to defaults
 function resetToDefaults() {
-  settings.value.matching.matchingConfig.fieldConfigurations = { ...makeDefaultUISettings().matching.matchingConfig.fieldConfigurations }
+  settings.value.matching.matchingConfig.fieldConfigurations = { ...DEFAULT_UI_SETTINGS.matching.matchingConfig.fieldConfigurations }
 }
 
 // Calculate total weight for validation - only enabled fields

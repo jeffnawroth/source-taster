@@ -35,7 +35,7 @@ export const UIMatchingConfigSchema = z.object({
 }).strict()
 
 export const UISettingsSchema = z.object({
-  theme: z.enum(['light', 'dark', 'system']).default('light').describe('UI theme preference'),
+  theme: z.enum(['light', 'dark', 'system']).default('system').describe('UI theme preference'),
   locale: z.enum(['en', 'de']).default('en').describe('UI language/locale'),
   extract: ApiExtractExtractionSettingsSchema.default({ extractionConfig: { variables: [...CommonCSLVariableSchema.options] } }).describe('Extraction settings for the user'),
   matching: z.object({
@@ -73,3 +73,5 @@ export type UISettings = z.infer<typeof UISettingsSchema>
 export function makeDefaultUISettings(): UISettings {
   return UISettingsSchema.parse({})
 }
+
+export const DEFAULT_UI_SETTINGS = makeDefaultUISettings()

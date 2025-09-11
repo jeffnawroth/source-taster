@@ -1,9 +1,9 @@
-import { makeDefaultUISettings } from '@source-taster/types'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
 export const clientId = useWebExtensionStorage<string>('clientId', () => crypto.randomUUID())
 
-export const settings = useWebExtensionStorage('settings', () => makeDefaultUISettings())
+export const settings = useWebExtensionStorage('settings', { ...DEFAULT_UI_SETTINGS })
 
 export const hasCompletedOnboarding = useWebExtensionStorage('onboarding-completed', false)
 
