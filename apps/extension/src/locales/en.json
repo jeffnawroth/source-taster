@@ -689,6 +689,7 @@
   "parse-mode-description": "Paste your bibliography or reference list into the text area below. For best results, place each citation on its own line. The parser will automatically skip empty lines and process structured references.",
   "ai-extraction-mode-title": "AI Extraction Mode",
   "ai-extraction-mode-description": "Free text input and unstructured input is possible as the AI can recognize and extract references automatically from any text format.",
+  "file-input-disabled-parse-mode": "File upload is only available in AI extraction mode. Switch to AI mode to upload PDF files.",
   "part": "Part",
   "part-title": "Part Title",
   "partial-verification": "{verified}/{total} verified ({percentage}%)",

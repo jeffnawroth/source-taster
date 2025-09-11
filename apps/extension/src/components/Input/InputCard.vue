@@ -69,7 +69,10 @@ const anystyleStore = useAnystyleStore()
           <v-row dense>
             <!-- File Input -->
             <v-col cols="12">
-              <FileInput />
+              <FileInput
+                :disabled="!settings.extract.useAi"
+                :messages="!settings.extract.useAi ? [$t('file-input-disabled-parse-mode')] : []"
+              />
             </v-col>
 
             <!-- Text Input -->
