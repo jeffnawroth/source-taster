@@ -1,7 +1,7 @@
 import z from 'zod'
-import { ApiExtractExtractionSettingsSchema, ApiMatchConfigSchema, ApiMatchMatchingStrategySchema, DEFAULT_MATCHING_CONFIG, DEFAULT_MATCHING_STRATEGY } from '../api'
-import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from '../api/ai'
-import { CommonCSLVariableSchema } from '../app'
+import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from '../api'
+import { ApiExtractExtractionSettingsSchema, DEFAULT_EXTRACTION_CONFIG } from '../api/extract'
+import { ApiMatchConfigSchema, ApiMatchMatchingStrategySchema, DEFAULT_MATCHING_CONFIG, DEFAULT_MATCHING_STRATEGY } from '../api/match'
 
 export const UIMatchingEarlyTerminationSchema = z.object({
   enabled: z.boolean().describe('Whether early termination is enabled'),
@@ -45,19 +45,24 @@ export const DEFAULT_UI_MATCHING_SETTINGS = {
   matchingConfig: DEFAULT_UI_MATCHING_CONFIG,
 }
 
+export const DEFAULT_UI_AI_EXTRACTION_USE = false
+
+export const DEFAULT_UI_EXTRACTION_SETTINGS = {
+  extractionConfig: { ...DEFAULT_EXTRACTION_CONFIG },
+  useAi: DEFAULT_UI_AI_EXTRACTION_USE,
+}
+
 export const UISettingsSchema = z.object({
   theme: UIThemeSchema.default(DEFAULT_UI_THEME).describe('UI theme preference'),
   locale: UILocaleSchema.default(DEFAULT_UI_LOCALE).describe('UI language/locale'),
-  extract: ApiExtractExtractionSettingsSchema
-    .default({ extractionConfig: { variables: [...CommonCSLVariableSchema.options] } })
-    .describe('Extraction settings for the user'),
-
+  extract: ApiExtractExtractionSettingsSchema.safeExtend({
+    useAi: z.boolean().describe('Whether to use AI for extraction'),
+  }).default(DEFAULT_UI_EXTRACTION_SETTINGS).describe('Extraction settings for the user'),
   matching: z.object({
     matchingStrategy: ApiMatchMatchingStrategySchema
       .default(DEFAULT_MATCHING_STRATEGY)
       .describe('Strategy for matching behavior'),
 
-    // Falls du kein eigenes safeExtend hast, nimm extend:
     matchingConfig: ApiMatchConfigSchema
       .safeExtend({
         earlyTermination: UIMatchingEarlyTerminationSchema,

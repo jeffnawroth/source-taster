@@ -34,7 +34,9 @@ export const useExtractionStore = defineStore('extraction', () => {
     try {
       const res = await ExtractionService.extractReferences({
         text,
-        extractionSettings: settings.value.extract,
+        extractionSettings: {
+          extractionConfig: settings.value.extract.extractionConfig,
+        },
         aiSettings: settings.value.ai,
       })
 
@@ -60,7 +62,9 @@ export const useExtractionStore = defineStore('extraction', () => {
       // Service direkt nutzen – KEINE State-Mutationen hier!
       const res = await ExtractionService.extractReferences({
         text: testText,
-        extractionSettings: settings.value.extract,
+        extractionSettings: {
+          extractionConfig: settings.value.extract.extractionConfig,
+        },
         aiSettings: settings.value.ai,
       })
 

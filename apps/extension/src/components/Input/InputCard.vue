@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
+import { settings } from '@/extension/logic'
 import ExtractButton from './ExtractButton.vue'
 import FileInput from './FileInput.vue'
 import ParseButton from './ParseButton.vue'
@@ -15,6 +16,11 @@ const showInputCard = ref(true)
     :subtitle="$t('input-references-as-text-or-upload-a-file')"
   >
     <template #append>
+      <AIToggleSwitch
+        v-model="settings.extract.useAi"
+        :show-alert="false"
+        :show-description="false"
+      />
       <v-btn
         variant="text"
         :icon="showInputCard ? mdiChevronUp : mdiChevronDown"
