@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldConfig } from '@source-taster/types'
+import type { ApiMatchFieldConfig } from '@source-taster/types'
 
 interface Props {
   label: string
@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<Props>(), {
   defaultValue: 5,
 })
 
-const fieldConfig = defineModel<FieldConfig>({
+const fieldConfig = defineModel<ApiMatchFieldConfig>({
   default: () => ({ enabled: false, weight: 0 }),
 })
 

@@ -27,7 +27,7 @@ const isValidConfiguration = computed(() => {
   />
 
   <FieldWeightsPanels
-    v-model="settings.matching.matchingConfig.fieldConfigurations"
+    v-model="settings.matching.matchingConfig"
   />
 
   <v-card-actions>
