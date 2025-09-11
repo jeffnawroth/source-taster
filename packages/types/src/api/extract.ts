@@ -1,5 +1,5 @@
 import z from 'zod'
-import { CSLItemSchema, CSLVariableSchema } from '../app/csl-json.zod'
+import { CSLItemSchema, CSLVariableWithoutIdSchema } from '../app/csl-json.zod'
 import { ApiAISettingsSchema } from './ai'
 import { createApiResponseSchema } from './api'
 
@@ -7,9 +7,10 @@ import { createApiResponseSchema } from './api'
 
 // Config (Array der Felder, Default = alle Enum-Optionen)
 export const ApiExtractExtractionConfigSchema = z.object({
-  variables: z.array(CSLVariableSchema)
+  variables: z.array(CSLVariableWithoutIdSchema)
     .nonempty()
-    .default([...CSLVariableSchema.options]) // Kopie aus dem Enum
+    .refine(v => !v.includes('id' as any), { message: '"id" is not selectable' })
+    .default([...CSLVariableWithoutIdSchema.options])
     .describe('CSL variables to extract'),
 }).strict()
 export type ApiExtractExtractionConfig = z.infer<typeof ApiExtractExtractionConfigSchema>
@@ -17,7 +18,7 @@ export type ApiExtractExtractionConfig = z.infer<typeof ApiExtractExtractionConf
 // Settings (Objekt, Default = { extractionConfig: { variables: all } })
 export const ApiExtractExtractionSettingsSchema = z.object({
   extractionConfig: ApiExtractExtractionConfigSchema
-    .default({ variables: [...CSLVariableSchema.options] })
+    .default({ variables: [...CSLVariableWithoutIdSchema.options] })
     .describe('Configuration for field extraction'),
 }).strict()
 export type ApiExtractExtractionSettings = z.infer<typeof ApiExtractExtractionSettingsSchema>
@@ -26,7 +27,7 @@ export type ApiExtractExtractionSettings = z.infer<typeof ApiExtractExtractionSe
 export const ApiExtractRequestSchema = z.object({
   text: z.string().min(1).describe('The text to extract references from'),
   extractionSettings: ApiExtractExtractionSettingsSchema
-    .default({ extractionConfig: { variables: [...CSLVariableSchema.options] } })
+    .default({ extractionConfig: { variables: [...CSLVariableWithoutIdSchema.options] } })
     .describe('User-configurable extraction settings'),
   aiSettings: ApiAISettingsSchema.describe('User AI configuration'),
 }).strict()

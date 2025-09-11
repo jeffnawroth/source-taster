@@ -211,7 +211,31 @@ export const CSLSchema = z.array(CSLItemSchema)
 
 // All keys of the CSL item as a Zod enum
 export const CSLVariableSchema = CSLItemSchema.keyof()
+export type CSLVariable = z.infer<typeof CSLVariableSchema>
 
+// Commonly used CSL variables for quick selection in the UI
+export const COMMON_CSL_VARIABLES = [
+  'title',
+  'author',
+  'issued',
+  'container-title',
+  'volume',
+  'issue',
+  'page',
+  'DOI',
+  'URL',
+] as const satisfies Readonly<CSLVariableWithoutId[]>
+
+export const CommonCSLVariableSchema = z.enum(COMMON_CSL_VARIABLES)
+export type CommonCSLVariable = z.infer<typeof CommonCSLVariableSchema>
+
+// CSL variables excluding 'id' (for extraction field selection, etc.)
+const cslVariablesWithoutId = CSLVariableSchema.options.filter(k => k !== 'id') as [Exclude<CSLVariable, 'id'>, ...Exclude<CSLVariable, 'id'>[]]
+
+export const CSLVariableWithoutIdSchema = z.enum(cslVariablesWithoutId)
+export type CSLVariableWithoutId = z.infer<typeof CSLVariableWithoutIdSchema>
+
+// CSLItem without the 'id' field (for extraction results, LLM output, etc.)
 export const CSLItemWithoutIdSchema = CSLItemSchema.omit({ id: true })
 export type CSLItemWithoutId = z.infer<typeof CSLItemWithoutIdSchema>
 
@@ -220,6 +244,3 @@ export type CSLName = z.infer<typeof CSLNameSchema>
 export type CSLDate = z.infer<typeof CSLDateSchema>
 export type CSLItem = z.infer<typeof CSLItemSchema>
 export type CSL = z.infer<typeof CSLSchema>
-
-// All keys of the CSL item as a Zod enum
-export type CSLVariable = z.infer<typeof CSLVariableSchema>
