@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiRobot, mdiRobotOff } from '@mdi/js'
-import { useUserSettingsStore } from '@/extension/stores/userStore'
+// import { useUserSettingsStore } from '@/extension/stores/userStore'
 
 interface Props {
   /** Show description text below the switch */
@@ -25,25 +25,24 @@ const props = withDefaults(defineProps<Props>(), {
 const modelValue = defineModel<boolean>({ required: true })
 
 const { t } = useI18n()
-const userStore = useUserSettingsStore()
-const { canUseAI } = storeToRefs(userStore)
+// const userStore = useUserSettingsStore()
 
 // Use custom label if provided, otherwise use default translation
 const switchLabel = computed(() => props.customLabel || t('extraction-ai-enabled'))
 
 // Tooltip text considering API key availability
 const tooltipText = computed(() => {
-  if (!userStore.canUseAI) {
-    return t('tooltip-ai-no-api-key')
-  }
+  // if (!userStore.canUseAI) {
+  //   return t('tooltip-ai-no-api-key')
+  // }
   return modelValue.value ? t('tooltip-ai-turn-off') : t('tooltip-ai-turn-on')
 })
 
 // Description text considering API key availability
 const descriptionText = computed(() => {
-  if (!userStore.canUseAI) {
-    return t('extraction-ai-no-api-key-description')
-  }
+  // if (!userStore.canUseAI) {
+  //   return t('extraction-ai-no-api-key-description')
+  // }
   return modelValue.value ? t('extraction-ai-enabled-description') : t('extraction-ai-disabled-description')
 })
 </script>
@@ -64,7 +63,6 @@ const descriptionText = computed(() => {
           hide-details
           :density="compact ? 'compact' : 'default'"
           inset
-          :disabled="canUseAI"
           v-bind="tooltipProps"
         />
       </template>

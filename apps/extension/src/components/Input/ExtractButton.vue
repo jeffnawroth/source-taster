@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { mdiAutoFix } from '@mdi/js'
 import { useMagicKeys } from '@vueuse/core'
+import { settings } from '@/extension/logic'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useUIStore } from '@/extension/stores/ui'
-
 // Stores
 const extractionStore = useExtractionStore()
 const uiStore = useUIStore()
@@ -23,7 +23,7 @@ async function handleExtractClick() {
 }
 
 // Check if button should be disabled
-const isDisabled = computed(() => !inputText.value.trim() || extractionStore.isExtracting)
+const isDisabled = computed(() => !inputText.value.trim() || extractionStore.isExtracting || !settings.value.extract.useAi)
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
 const keys = useMagicKeys()

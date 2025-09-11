@@ -46,7 +46,7 @@ const disabled = computed(() => !!file.value || isExtracting.value || isMatching
     :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"
-    rows="2"
+    rows="4"
     variant="solo-filled"
     clearable
     flat

@@ -43,15 +43,15 @@ const showInputCard = ref(true)
               <TextInput />
             </v-col>
 
+            <v-col cols="6">
+              <ParseButton />
+            </v-col>
             <!-- Extract Button -->
-            <v-col cols="12">
+            <v-col cols="6">
               <ExtractButton />
             </v-col>
 
             <!-- Parse Button -->
-            <v-col cols="12">
-              <ParseButton />
-            </v-col>
           </v-row>
         </v-card-text>
       </div>
