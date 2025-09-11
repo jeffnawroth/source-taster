@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
+import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
 import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
@@ -27,6 +27,34 @@ const anystyleStore = useAnystyleStore()
         :show-alert="false"
         :show-description="false"
       />
+
+      <!-- Info Icon with Tooltip -->
+      <v-tooltip location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            :icon="mdiInformationOutline"
+            variant="text"
+            v-bind="tooltipProps"
+          />
+        </template>
+        <div
+          class="text-caption"
+          style="max-width: 300px;"
+        >
+          <div
+            v-if="settings.extract.useAi"
+            class="mb-2"
+          >
+            <strong>{{ $t('ai-extraction-mode-title') }}</strong><br>
+            {{ $t('ai-extraction-mode-description') }}
+          </div>
+          <div v-else>
+            <strong>{{ $t('parse-mode-title') }}</strong><br>
+            {{ $t('parse-mode-description') }}
+          </div>
+        </div>
+      </v-tooltip>
+
       <v-btn
         variant="text"
         :icon="showInputCard ? mdiChevronUp : mdiChevronDown"
