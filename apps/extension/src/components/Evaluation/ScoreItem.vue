@@ -16,9 +16,9 @@ const scoreColor = computed(() => getScoreColor(props.score))
 const scoreIcon = computed(() => {
   const thresholds = settings.value.matching.matchingConfig.displayThresholds
 
-  if (props.score >= thresholds.highMatchThreshold) // High confidence
+  if (props.score >= thresholds.strongMatchThreshold) // High confidence
     return mdiCheckCircle
-  if (props.score >= thresholds.partialMatchThreshold) // Medium confidence
+  if (props.score >= thresholds.possibleMatchThreshold) // Medium confidence
     return mdiMinusCircle
   return mdiCloseCircle // Low confidence
 })

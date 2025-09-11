@@ -14,16 +14,16 @@ export const DEFAULT_EARLY_TERMINATION: UIMatchingEarlyTermination = {
 } as const
 
 export const UIMatchingDisplayThresholdsSchema = z.object({
-  highMatchThreshold: z.number().min(0).max(100).describe('Minimum score for high match'),
-  partialMatchThreshold: z.number().min(0).max(100).describe('Minimum score for partial match'),
-}).strict().refine(v => v.partialMatchThreshold <= v.highMatchThreshold, {
-  message: 'partialMatchThreshold must be ≤ highMatchThreshold',
-  path: ['partialMatchThreshold'],
+  strongMatchThreshold: z.number().min(0).max(100).describe('Minimum score for strong match'),
+  possibleMatchThreshold: z.number().min(0).max(100).describe('Minimum score for possible match'),
+}).strict().refine(v => v.possibleMatchThreshold <= v.strongMatchThreshold, {
+  message: 'possibleMatchThreshold must be ≤ strongMatchThreshold',
+  path: ['possibleMatchThreshold'],
 })
 export type UIMatchingDisplayThresholds = z.infer<typeof UIMatchingDisplayThresholdsSchema>
 export const DEFAULT_DISPLAY_THRESHOLDS: UIMatchingDisplayThresholds = {
-  highMatchThreshold: 80,
-  partialMatchThreshold: 50,
+  strongMatchThreshold: 85,
+  possibleMatchThreshold: 50,
 } as const
 
 export const UIThemeSchema = z.enum(['light', 'dark', 'system']).describe('UI theme preference')

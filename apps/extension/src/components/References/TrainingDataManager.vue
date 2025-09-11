@@ -44,6 +44,7 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
     flat
     :title="`2. ${$t('edit')}`"
     :subtitle="$t('review-and-relabel-parsed-references-by-clicking-on-tokens')"
+    :disabled="parsedTokens.length === 0"
     :append-icon="mdiChevronDown"
   >
     <template #append>

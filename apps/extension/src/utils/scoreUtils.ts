@@ -10,12 +10,12 @@ import { settings } from '../logic'
 export function getScoreColor(score: number): string {
   const thresholds = settings.value.matching.matchingConfig.displayThresholds
 
-  // Exact match threshold = success (green) - uses highMatchThreshold from types (this is the higher value)
-  if (score >= thresholds.highMatchThreshold)
+  // Exact match threshold = success (green) - uses strongMatchThreshold from types (this is the higher value)
+  if (score >= thresholds.strongMatchThreshold)
     return 'success'
 
-  // High match threshold = warning (orange/yellow) - uses partialMatchThreshold from types (this is the lower value)
-  if (score >= thresholds.partialMatchThreshold)
+  // High match threshold = warning (orange/yellow) - uses possibleMatchThreshold from types (this is the lower value)
+  if (score >= thresholds.possibleMatchThreshold)
     return 'warning'
 
   // Below partial match threshold = error (red)
@@ -28,9 +28,9 @@ export function getScoreColor(score: number): string {
 export function getScoreDescription(score: number): string {
   const thresholds = settings.value.matching.matchingConfig.displayThresholds
 
-  if (score >= thresholds.highMatchThreshold)
+  if (score >= thresholds.strongMatchThreshold)
     return 'High match'
-  if (score >= thresholds.partialMatchThreshold)
+  if (score >= thresholds.possibleMatchThreshold)
     return 'Partial match'
   return 'Low match'
 }
@@ -40,7 +40,7 @@ export function getScoreDescription(score: number): string {
  */
 export function isScoreMatched(score: number): boolean {
   const thresholds = settings.value.matching.matchingConfig.displayThresholds
-  return score >= thresholds.highMatchThreshold
+  return score >= thresholds.strongMatchThreshold
 }
 
 /**
@@ -52,7 +52,7 @@ export function shouldShowReMatch(status: string, score?: number): boolean {
     return true
   if (score !== undefined) {
     const thresholds = settings.value.matching.matchingConfig.displayThresholds
-    return score < thresholds.highMatchThreshold // Below high confidence
+    return score < thresholds.strongMatchThreshold // Below strong confidence
   }
   return false
 }
