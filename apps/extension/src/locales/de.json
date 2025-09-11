@@ -683,7 +683,7 @@
   "pages": "Seiten",
   "pages-match": "Seiten-Übereinstimmung",
   "paragraph-number": "Absatznummer",
-  "parse": "",
+  "parse": "Parsen",
   "parse-references": "Referenzen parsen",
   "parse-mode-title": "Parse-Modus",
   "parse-mode-description": "Fügen Sie Ihre Bibliographie oder Referenzliste in das Textfeld unten ein. Für beste Ergebnisse sollte jede Referenz in einer eigenen Zeile stehen. Der Parser überspringt automatisch leere Zeilen und verarbeitet strukturierte Zitate.",
