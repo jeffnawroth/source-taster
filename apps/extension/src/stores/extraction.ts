@@ -37,7 +37,10 @@ export const useExtractionStore = defineStore('extraction', () => {
         extractionSettings: {
           extractionConfig: settings.value.extract.extractionConfig,
         },
-        aiSettings: settings.value.ai,
+        aiSettings: {
+          model: settings.value.ai.model,
+          provider: settings.value.ai.provider,
+        },
       })
 
       if (!res.success) {
@@ -65,7 +68,10 @@ export const useExtractionStore = defineStore('extraction', () => {
         extractionSettings: {
           extractionConfig: settings.value.extract.extractionConfig,
         },
-        aiSettings: settings.value.ai,
+        aiSettings: {
+          model: settings.value.ai.model,
+          provider: settings.value.ai.provider,
+        },
       })
 
       if (!res.success) {

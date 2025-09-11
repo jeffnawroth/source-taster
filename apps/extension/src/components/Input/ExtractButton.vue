@@ -55,15 +55,4 @@ watch(ctrlEnter, (pressed) => {
     :prepend-icon="mdiAutoFix"
     @click="handleExtractClick"
   />
-
-  <!-- Error display -->
-  <v-alert
-    v-if="extractionStore.extractionError"
-    type="error"
-    variant="tonal"
-    closable
-    class="mt-2"
-    :text="$t(extractionStore.extractionError)"
-    @click:close="extractionStore.clearExtractionError()"
-  />
 </template>

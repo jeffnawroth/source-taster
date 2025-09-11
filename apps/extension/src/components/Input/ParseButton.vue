@@ -54,14 +54,4 @@ watch([keys['Cmd+Enter'], keys['Ctrl+Enter']], ([cmd, ctrl]) => {
     />
     {{ t('parse-references') }}
   </v-btn>
-
-  <v-alert
-    v-if="anystyle.parseError"
-    class="mt-2"
-    type="error"
-    variant="tonal"
-    :text="$t(anystyle.parseError)"
-    closable
-    @click:close="anystyle.clearParseResults()"
-  />
 </template>
