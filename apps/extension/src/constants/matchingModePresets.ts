@@ -1,6 +1,6 @@
 import type { ApiMatchMode, ApiMatchNormalizationRule } from '@source-taster/types'
 
-const BALANCED_ACTIONS: ApiMatchNormalizationRule[] = [
+export const BALANCED_NORMALIZATION_RULES: ApiMatchNormalizationRule[] = [
   'normalize-typography',
   'normalize-lowercase',
   'normalize-identifiers',
@@ -22,5 +22,5 @@ function createModePresets<T extends string>(actions: T[]): Record<ApiMatchMode,
 }
 
 export const MATCHING_MODE_PRESETS = createModePresets<ApiMatchNormalizationRule>(
-  BALANCED_ACTIONS,
+  BALANCED_NORMALIZATION_RULES,
 )

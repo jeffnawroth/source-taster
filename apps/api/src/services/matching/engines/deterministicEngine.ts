@@ -1,4 +1,4 @@
-import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem } from '@source-taster/types'
+import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem, CSLVariable } from '@source-taster/types'
 import { MetadataComparator } from '@/api/utils/metadataComparator'
 import { similarity } from '@/api/utils/similarity'
 
@@ -53,7 +53,7 @@ export class DeterministicEngine {
         const weightedScore = score * 100 // Convert to percentage (0-100)
 
         fieldScores.push({
-          field: fieldName as keyof ApiMatchConfig['fieldConfigurations'],
+          field: fieldName as CSLVariable,
           fieldScore: Math.round(weightedScore),
         })
       }
