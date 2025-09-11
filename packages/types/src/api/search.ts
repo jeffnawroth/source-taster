@@ -32,7 +32,7 @@ export const ApiSearchCandidateSchema = z.object({
   id: z.uuid().describe('Unique identifier in the external database'),
   source: ApiSearchSourceSchema.describe('Which database this source comes from'),
   metadata: CSLItemSchema.describe('Bibliographic metadata from the database'),
-  url: z.string().url().optional().describe('Canonical URL to access this source in the database'),
+  url: z.url().optional().describe('Canonical URL to access this source in the database'),
 }).strict()
 
 export type ApiSearchCandidate = z.infer<typeof ApiSearchCandidateSchema>

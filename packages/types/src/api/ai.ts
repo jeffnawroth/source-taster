@@ -31,6 +31,7 @@ export const ApiAISettingsSchema = z.object({
   model: ApiAIModelSchema.default('gpt-4o'),
 }).strict()
 export type ApiAISettings = z.infer<typeof ApiAISettingsSchema>
+export const DEFAULT_AI_SETTINGS: ApiAISettings = { provider: 'openai', model: 'gpt-4o' }
 
 // const ApiAISettingsOpenAISchema = z.object({
 //   provider: z.literal('openai'),

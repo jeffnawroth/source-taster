@@ -33,21 +33,27 @@ export const ApiMatchModeSchema = z.enum([
   'strict',
   'balanced',
   'custom',
-]).default('balanced').describe('Mode for controlling behavior in matching')
+]).describe('Mode for controlling behavior in matching')
 
 export type ApiMatchMode = z.infer<typeof ApiMatchModeSchema>
 
+export const DEFAULT_MATCHING_MODE: ApiMatchMode = 'balanced' as const
+
+export const DEFAULT_NORMALIZATION_RULES: ApiMatchNormalizationRule[] = [
+  ...ApiMatchNormalizationRuleSchema.options,
+]
+
 export const ApiMatchMatchingStrategySchema = z.object({
-  mode: ApiMatchModeSchema.default('balanced').describe('Strategy mode to control behavior'),
+  mode: ApiMatchModeSchema.default(DEFAULT_MATCHING_MODE).describe('Strategy mode to control behavior'),
   normalizationRules: z.array(ApiMatchNormalizationRuleSchema).default([
-    ...ApiMatchNormalizationRuleSchema.options,
+    ...DEFAULT_NORMALIZATION_RULES,
   ]).describe('Selected normalization rules for matching behavior'),
 }).strict()
 export type ApiMatchMatchingStrategy = z.infer<typeof ApiMatchMatchingStrategySchema>
 
 export const ApiMatchFieldConfigSchema = z.object({
-  enabled: z.boolean().default(false).describe('Whether this field is enabled for matching'),
-  weight: z.number().min(0).max(100).default(0).describe('Weight percentage for this field (0-100)'),
+  enabled: z.boolean().describe('Whether this field is enabled for matching'),
+  weight: z.number().min(0).max(100).describe('Weight percentage for this field (0-100)'),
 }).strict()
 export type ApiMatchFieldConfig = z.infer<typeof ApiMatchFieldConfigSchema>
 
@@ -58,10 +64,12 @@ const AllFieldConfigurationsSchema = z.object(
   ),
 )
 
+export const DEFAULT_FIELD_CONFIG = createDefaultFieldConfigurations() as Record<string, ApiMatchFieldConfig>
+
 export const ApiMatchConfigSchema = z.object({
   fieldConfigurations: AllFieldConfigurationsSchema
     .partial()
-    .default(createDefaultFieldConfigurations())
+    .default(DEFAULT_FIELD_CONFIG)
     .describe('Field enable/weight configurations'),
 }).strict().refine(
   (val) => {
@@ -77,25 +85,27 @@ export const ApiMatchConfigSchema = z.object({
     path: ['fieldConfigurations'],
   },
 )
+
 export type ApiMatchConfig = z.infer<typeof ApiMatchConfigSchema>
 
+export const DEFAULT_MATCHING_STRATEGY: ApiMatchMatchingStrategy = {
+  mode: DEFAULT_MATCHING_MODE,
+  normalizationRules: DEFAULT_NORMALIZATION_RULES,
+} as const as ApiMatchMatchingStrategy
+
+export const DEFAULT_MATCHING_CONFIG: ApiMatchConfig = {
+  fieldConfigurations: DEFAULT_FIELD_CONFIG,
+} as const as ApiMatchConfig
+
+export const DEFAULT_MATCHING_SETTINGS: ApiMatchMatchingSettings = {
+  matchingStrategy: DEFAULT_MATCHING_STRATEGY,
+  matchingConfig: DEFAULT_MATCHING_CONFIG,
+} as const as ApiMatchMatchingSettings
+
 export const ApiMatchMatchingSettingsSchema = z.object({
-  matchingStrategy: ApiMatchMatchingStrategySchema.default({
-    mode: 'balanced',
-    normalizationRules: [...ApiMatchNormalizationRuleSchema.options],
-  }).describe('Strategy for matching behavior'),
-  matchingConfig: ApiMatchConfigSchema.default({
-    fieldConfigurations: createDefaultFieldConfigurations(),
-  }).describe('Configuration for matching behavior'),
-}).strict().default({
-  matchingStrategy: {
-    mode: 'balanced',
-    normalizationRules: [...ApiMatchNormalizationRuleSchema.options],
-  },
-  matchingConfig: {
-    fieldConfigurations: createDefaultFieldConfigurations(),
-  },
-})
+  matchingStrategy: ApiMatchMatchingStrategySchema.default(DEFAULT_MATCHING_STRATEGY).describe('Strategy for matching behavior'),
+  matchingConfig: ApiMatchConfigSchema.default(DEFAULT_MATCHING_CONFIG).describe('Configuration for matching behavior'),
+}).strict()
 export type ApiMatchMatchingSettings = z.infer<typeof ApiMatchMatchingSettingsSchema>
 
 export const ApiMatchRequestSchema = z.object({
@@ -134,7 +144,7 @@ export type ApiMatchResponse = z.infer<typeof ApiMatchResponseSchema>
 
 // ----- Helper Functions -----
 // Default field configurations for matching
-function createDefaultFieldConfigurations(): Record<string, ApiMatchFieldConfig> {
+export function createDefaultFieldConfigurations(): Record<string, ApiMatchFieldConfig> {
   const allFields = CSLVariableSchema.options
   const defaultConfig: Record<string, ApiMatchFieldConfig> = {}
 

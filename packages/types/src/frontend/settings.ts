@@ -1,68 +1,77 @@
 import z from 'zod'
-import { ApiExtractExtractionSettingsSchema, ApiMatchMatchingStrategySchema, ApiMatchNormalizationRuleSchema } from '../api'
-import { ApiAISettingsSchema } from '../api/ai'
+import { ApiExtractExtractionSettingsSchema, ApiMatchConfigSchema, ApiMatchMatchingStrategySchema, DEFAULT_MATCHING_CONFIG, DEFAULT_MATCHING_STRATEGY } from '../api'
+import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from '../api/ai'
 import { CommonCSLVariableSchema } from '../app'
 
 export const UIMatchingEarlyTerminationSchema = z.object({
-  enabled: z.boolean().default(true).describe('Whether early termination is enabled'),
-  threshold: z.number().min(0).max(100).default(95).describe('Score threshold for early termination (0-100)'),
+  enabled: z.boolean().describe('Whether early termination is enabled'),
+  threshold: z.number().min(0).max(100).describe('Score threshold for early termination (0-100)'),
 }).strict()
 export type UIMatchingEarlyTermination = z.infer<typeof UIMatchingEarlyTerminationSchema>
+export const DEFAULT_EARLY_TERMINATION: UIMatchingEarlyTermination = {
+  enabled: true,
+  threshold: 95,
+} as const
 
 export const UIMatchingDisplayThresholdsSchema = z.object({
-  highMatchThreshold: z.number().min(0).max(100).default(80).describe('Minimum score for high match'),
-  partialMatchThreshold: z.number().min(0).max(100).default(50).describe('Minimum score for partial match'),
+  highMatchThreshold: z.number().min(0).max(100).describe('Minimum score for high match'),
+  partialMatchThreshold: z.number().min(0).max(100).describe('Minimum score for partial match'),
 }).strict().refine(v => v.partialMatchThreshold <= v.highMatchThreshold, {
   message: 'partialMatchThreshold must be ≤ highMatchThreshold',
   path: ['partialMatchThreshold'],
 })
 export type UIMatchingDisplayThresholds = z.infer<typeof UIMatchingDisplayThresholdsSchema>
+export const DEFAULT_DISPLAY_THRESHOLDS: UIMatchingDisplayThresholds = {
+  highMatchThreshold: 80,
+  partialMatchThreshold: 50,
+} as const
 
-// UI-specific matching config that includes additional UI fields without conflicting refinements
-export const UIMatchingConfigSchema = z.object({
-  // Core matching configuration from API
-  fieldConfigurations: z.record(z.string(), z.object({
-    enabled: z.boolean().default(false).describe('Whether field is enabled for matching'),
-    weight: z.number().min(0).max(100).default(0).describe('Weight percentage for field (0-100)'),
-  }).strict()).default({}).describe('Field enable/weight configurations'),
+export const UIThemeSchema = z.enum(['light', 'dark', 'system']).describe('UI theme preference')
+export type UITheme = z.infer<typeof UIThemeSchema>
+export const DEFAULT_UI_THEME: UITheme = 'system' as const
 
-  // UI-specific extensions
-  earlyTermination: UIMatchingEarlyTerminationSchema.default({ enabled: true, threshold: 95 }).describe('Early termination settings'),
-  displayThresholds: UIMatchingDisplayThresholdsSchema.default({
-    highMatchThreshold: 80,
-    partialMatchThreshold: 50,
-  }).describe('Thresholds for displaying match quality'),
-}).strict()
+export const UILocaleSchema = z.enum(['en', 'de']).describe('UI language/locale')
+export type UILocale = z.infer<typeof UILocaleSchema>
+export const DEFAULT_UI_LOCALE: UILocale = 'en' as const
+
+export const DEFAULT_UI_MATCHING_CONFIG = {
+  ...DEFAULT_MATCHING_CONFIG,
+  earlyTermination: { ...DEFAULT_EARLY_TERMINATION },
+  displayThresholds: { ...DEFAULT_DISPLAY_THRESHOLDS },
+}
+
+export const DEFAULT_UI_MATCHING_SETTINGS = {
+  matchingStrategy: DEFAULT_MATCHING_STRATEGY,
+  matchingConfig: DEFAULT_UI_MATCHING_CONFIG,
+}
 
 export const UISettingsSchema = z.object({
-  theme: z.enum(['light', 'dark', 'system']).default('system').describe('UI theme preference'),
-  locale: z.enum(['en', 'de']).default('en').describe('UI language/locale'),
-  extract: ApiExtractExtractionSettingsSchema.default({ extractionConfig: { variables: [...CommonCSLVariableSchema.options] } }).describe('Extraction settings for the user'),
+  theme: UIThemeSchema.default(DEFAULT_UI_THEME).describe('UI theme preference'),
+  locale: UILocaleSchema.default(DEFAULT_UI_LOCALE).describe('UI language/locale'),
+  extract: ApiExtractExtractionSettingsSchema
+    .default({ extractionConfig: { variables: [...CommonCSLVariableSchema.options] } })
+    .describe('Extraction settings for the user'),
+
   matching: z.object({
-    matchingStrategy: ApiMatchMatchingStrategySchema.default({
-      mode: 'balanced',
-      normalizationRules: [...ApiMatchNormalizationRuleSchema.options],
-    }).describe('Strategy for matching behavior'),
-    matchingConfig: UIMatchingConfigSchema.default({
-      fieldConfigurations: {},
-      earlyTermination: { enabled: true, threshold: 95 },
-      displayThresholds: { highMatchThreshold: 80, partialMatchThreshold: 50 },
-    }).describe('Configuration for matching behavior'),
-  }).strict().default({
-    matchingStrategy: {
-      mode: 'balanced',
-      normalizationRules: [...ApiMatchNormalizationRuleSchema.options],
-    },
-    matchingConfig: {
-      fieldConfigurations: {},
-      earlyTermination: { enabled: true, threshold: 95 },
-      displayThresholds: { highMatchThreshold: 80, partialMatchThreshold: 50 },
-    },
-  }),
-  ai: ApiAISettingsSchema.default({
-    provider: 'openai',
-    model: 'gpt-4o',
-  }).describe('AI settings for the user'),
+    matchingStrategy: ApiMatchMatchingStrategySchema
+      .default(DEFAULT_MATCHING_STRATEGY)
+      .describe('Strategy for matching behavior'),
+
+    // Falls du kein eigenes safeExtend hast, nimm extend:
+    matchingConfig: ApiMatchConfigSchema
+      .safeExtend({
+        earlyTermination: UIMatchingEarlyTerminationSchema,
+        displayThresholds: UIMatchingDisplayThresholdsSchema,
+      })
+      .default(DEFAULT_UI_MATCHING_CONFIG)
+      .describe('Configuration for matching behavior'),
+  })
+    .strict()
+    .default(DEFAULT_UI_MATCHING_SETTINGS),
+
+  ai: ApiAISettingsSchema
+    .default(DEFAULT_AI_SETTINGS)
+    .describe('AI settings for the user'),
 }).strict()
 export type UISettings = z.infer<typeof UISettingsSchema>
 

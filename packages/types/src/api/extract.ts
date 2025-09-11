@@ -1,6 +1,6 @@
 import z from 'zod'
 import { CSLItemSchema, CSLVariableWithoutIdSchema } from '../app/csl-json.zod'
-import { ApiAISettingsSchema } from './ai'
+import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from './ai'
 import { createApiResponseSchema } from './api'
 
 // ----- Request -----
@@ -14,25 +14,27 @@ export const ApiExtractExtractionConfigSchema = z.object({
     .describe('CSL variables to extract'),
 }).strict()
 export type ApiExtractExtractionConfig = z.infer<typeof ApiExtractExtractionConfigSchema>
-
+export const DEFAULT_EXTRACTION_CONFIG: ApiExtractExtractionConfig = {
+  variables: [...CSLVariableWithoutIdSchema.options],
+} as const as ApiExtractExtractionConfig
 // Settings (Objekt, Default = { extractionConfig: { variables: all } })
 export const ApiExtractExtractionSettingsSchema = z.object({
   extractionConfig: ApiExtractExtractionConfigSchema
-    .default({ variables: [...CSLVariableWithoutIdSchema.options] })
+    .default(DEFAULT_EXTRACTION_CONFIG)
     .describe('Configuration for field extraction'),
 }).strict()
 export type ApiExtractExtractionSettings = z.infer<typeof ApiExtractExtractionSettingsSchema>
+export const DEFAULT_EXTRACTION_SETTINGS: ApiExtractExtractionSettings = {
+  extractionConfig: { ...DEFAULT_EXTRACTION_CONFIG },
+} as const as ApiExtractExtractionSettings
 
 // Request (extractionSettings hat Default → Feld ist effektiv optional)
 export const ApiExtractRequestSchema = z.object({
   text: z.string().min(1).describe('The text to extract references from'),
   extractionSettings: ApiExtractExtractionSettingsSchema
-    .default({ extractionConfig: { variables: [...CSLVariableWithoutIdSchema.options] } })
+    .default(DEFAULT_EXTRACTION_SETTINGS)
     .describe('User-configurable extraction settings'),
-  aiSettings: ApiAISettingsSchema.default({
-    provider: 'openai',
-    model: 'gpt-4o',
-  }).describe('User AI configuration'),
+  aiSettings: ApiAISettingsSchema.default(DEFAULT_AI_SETTINGS).describe('User AI configuration'),
 }).strict()
 export type ApiExtractRequest = z.infer<typeof ApiExtractRequestSchema>
 
