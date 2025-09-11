@@ -53,6 +53,7 @@ function resetToDefaults() {
               color="primary"
               track-color="grey-lighten-1"
               class="mb-2"
+              hide-details
             >
               <template #thumb-label="{ modelValue }">
                 {{ modelValue }}%
