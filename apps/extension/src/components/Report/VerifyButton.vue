@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { AnystyleToken, AnystyleTokenSequence, ApiSearchRequest, CSLItem, MatchingReference } from '@source-taster/types'
+import type { ApiAnystyleToken, ApiAnystyleTokenSequence, ApiMatchReference, ApiSearchRequest, CSLItem } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
-import { matchingSettings } from '@/extension/logic/storage'
+import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useSearchStore } from '@/extension/stores/search'
@@ -24,8 +24,8 @@ const canVerify = computed(() => {
 // Step 1: Convert parsed tokens to CSL format
 async function convertTokensToCSL(): Promise<CSLItem[]> {
   // Create mutable copy of tokens
-  const mutableTokens: AnystyleTokenSequence[] = parsedTokens.value.map(tokenSequence =>
-    tokenSequence.map(token => [token[0], token[1]] as AnystyleToken),
+  const mutableTokens: ApiAnystyleTokenSequence[] = parsedTokens.value.map(tokenSequence =>
+    tokenSequence.map(token => [token[0], token[1]] as ApiAnystyleToken),
   )
 
   const convertResponse = await anystyleStore.convertToCSL(mutableTokens)
@@ -56,7 +56,7 @@ async function searchForCandidates(cslReferences: CSLItem[]) {
 }
 
 // Step 3: Match references with their candidates
-async function matchReferences(references: MatchingReference[]): Promise<void> {
+async function matchReferences(references: ApiMatchReference[]): Promise<void> {
   for (const reference of references) {
     // Get candidates for this reference from the search store
     const candidates = searchStore.getCandidatesByReference(reference.id)
@@ -64,10 +64,10 @@ async function matchReferences(references: MatchingReference[]): Promise<void> {
     const matchRequest = {
       reference,
       candidates, // Use actual candidates from search results
-      matchingSettings: matchingSettings.value,
+      matchingSettings: settings.value.matching,
     }
 
-    await matchingStore.matchReferences(matchRequest)
+    await matchingStore.matchReference(matchRequest)
   }
 }
 

@@ -29,7 +29,10 @@ export const ApiExtractRequestSchema = z.object({
   extractionSettings: ApiExtractExtractionSettingsSchema
     .default({ extractionConfig: { variables: [...CSLVariableWithoutIdSchema.options] } })
     .describe('User-configurable extraction settings'),
-  aiSettings: ApiAISettingsSchema.describe('User AI configuration'),
+  aiSettings: ApiAISettingsSchema.default({
+    provider: 'openai',
+    model: 'gpt-4o',
+  }).describe('User AI configuration'),
 }).strict()
 export type ApiExtractRequest = z.infer<typeof ApiExtractRequestSchema>
 

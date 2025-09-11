@@ -27,8 +27,8 @@ export const ApiAIModelSchema = z.union([
 export type ApiAIModel = z.infer<typeof ApiAIModelSchema>
 
 export const ApiAISettingsSchema = z.object({
-  provider: ApiAIProviderSchema,
-  model: ApiAIModelSchema,
+  provider: ApiAIProviderSchema.default('openai'),
+  model: ApiAIModelSchema.default('gpt-4o'),
 }).strict()
 export type ApiAISettings = z.infer<typeof ApiAISettingsSchema>
 

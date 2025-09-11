@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiDesktopTowerMonitor, mdiPageLayoutSidebarRight, mdiPalette, mdiWeatherNight, mdiWhiteBalanceSunny, mdiWindowMaximize } from '@mdi/js'
-import { getDisplayOption, setDisplayOption, themeOption } from '@/extension/logic'
+import { getDisplayOption, setDisplayOption, settings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -9,7 +9,7 @@ const { t } = useI18n()
 const themes = ref(['light', 'dark', 'system'])
 
 const themePrependIcon = computed(() => {
-  switch (themeOption.value) {
+  switch (settings.value.theme) {
     case 'light':
       return mdiWhiteBalanceSunny
     case 'dark':
@@ -100,7 +100,7 @@ onMounted(() => {
       :prepend-icon="themePrependIcon"
     >
       <v-select
-        v-model="themeOption"
+        v-model="settings.theme"
         :items="themes"
         :item-title="(option) => t(option)"
         :item-value="(option) => option"

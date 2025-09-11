@@ -8,7 +8,7 @@ import type {
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
 import { UserService } from '@/extension/services/userService'
-import { aiSettings } from '../logic'
+import { settings } from '../logic'
 import { mapApiError } from '../utils/mapApiError'
 
 export const useUserSettingsStore = defineStore('userSettings', () => {
@@ -31,7 +31,7 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     isLoading.value = true
     loadError.value = null
 
-    const res = await UserService.getAISecretsInfo(aiSettings.value.provider)
+    const res = await UserService.getAISecretsInfo(settings.value.ai.provider)
 
     isLoading.value = false
 
@@ -67,7 +67,7 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     isSaving.value = true
     saveError.value = null
 
-    const res = await UserService.deleteAISecrets(aiSettings.value.provider)
+    const res = await UserService.deleteAISecrets(settings.value.ai.provider)
 
     isSaving.value = false
 

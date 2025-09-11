@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { CSLVariable } from '@source-taster/types'
 import { CSLVariableSchema } from '@source-taster/types'
-
-import { extractionSettings } from '@/extension/logic'
+import { settings } from '@/extension/logic'
 
 // Get all available CSL variables directly from the schema, excluding technical fields
 const ALL_CSL_VARIABLES: CSLVariable[] = CSLVariableSchema.options
@@ -29,47 +28,47 @@ const { t } = useI18n()
 
 // Select All logic
 const allVariablesSelected = computed(() =>
-  extractionSettings.value.extractionConfig.variables.length === ALL_CSL_VARIABLES.length,
+  settings.value.extract.extractionConfig.variables.length === ALL_CSL_VARIABLES.length,
 )
 
 const someVariablesSelected = computed(() =>
-  extractionSettings.value.extractionConfig.variables.length > 0,
+  settings.value.extract.extractionConfig.variables.length > 0,
 )
 
 const commonSelected = computed(() => {
-  const selected = extractionSettings.value.extractionConfig.variables
+  const selected = settings.value.extract.extractionConfig.variables
   return COMMON_CSL_VARIABLES.every(common => selected.includes(common))
 })
 
 function toggleSelectAll() {
   if (allVariablesSelected.value) {
     // Deselect all
-    extractionSettings.value.extractionConfig.variables = []
+    settings.value.extract.extractionConfig.variables = []
   }
   else {
     // Select all
-    extractionSettings.value.extractionConfig.variables = [...ALL_CSL_VARIABLES]
+    settings.value.extract.extractionConfig.variables = [...ALL_CSL_VARIABLES]
   }
 }
 
 function toggleSelectCommon() {
   if (commonSelected.value) {
     // Deselect common (remove them from current selection)
-    extractionSettings.value.extractionConfig.variables = extractionSettings.value.extractionConfig.variables
+    settings.value.extract.extractionConfig.variables = settings.value.extract.extractionConfig.variables
       .filter(variable => !COMMON_CSL_VARIABLES.includes(variable))
   }
   else {
     // Select common (add missing common to current selection)
-    const currentVariables = extractionSettings.value.extractionConfig.variables
+    const currentVariables = settings.value.extract.extractionConfig.variables
     const missingCommon = COMMON_CSL_VARIABLES.filter(common => !currentVariables.includes(common))
-    extractionSettings.value.extractionConfig.variables = [...currentVariables, ...missingCommon]
+    settings.value.extract.extractionConfig.variables = [...currentVariables, ...missingCommon]
   }
 }
 
 function remove(item: CSLVariable) {
-  const index = extractionSettings.value.extractionConfig.variables.indexOf(item)
+  const index = settings.value.extract.extractionConfig.variables.indexOf(item)
   if (index > -1) {
-    extractionSettings.value.extractionConfig.variables.splice(index, 1)
+    settings.value.extract.extractionConfig.variables.splice(index, 1)
   }
 }
 </script>
@@ -78,7 +77,7 @@ function remove(item: CSLVariable) {
   <v-card flat>
     <v-card-text>
       <v-autocomplete
-        v-model="extractionSettings.extractionConfig.variables"
+        v-model="settings.extract.extractionConfig.variables"
         :items="ALL_CSL_VARIABLES"
         :label="t('fields')"
         multiple
@@ -127,7 +126,7 @@ function remove(item: CSLVariable) {
             v-if="index === 5"
             class="text-grey text-caption align-self-center"
           >
-            (+{{ extractionSettings.extractionConfig.variables.length - 5 }} {{ t('more-fields') }})
+            (+{{ settings.extract.extractionConfig.variables.length - 5 }} {{ t('more-fields') }})
           </span>
         </template>
       </v-autocomplete>

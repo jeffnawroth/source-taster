@@ -1,8 +1,8 @@
 import type { ApiExtractData, ApiExtractReference, ApiResult } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
-import { aiSettings, extractionSettings } from '@/extension/logic/storage'
 import { ExtractionService } from '@/extension/services/extractionService'
+import { settings } from '../logic'
 import { mapApiError } from '../utils/mapApiError'
 
 export const useExtractionStore = defineStore('extraction', () => {
@@ -34,8 +34,8 @@ export const useExtractionStore = defineStore('extraction', () => {
     try {
       const res = await ExtractionService.extractReferences({
         text,
-        extractionSettings: extractionSettings.value,
-        aiSettings: aiSettings.value,
+        extractionSettings: settings.value.extract,
+        aiSettings: settings.value.ai,
       })
 
       if (!res.success) {
@@ -60,8 +60,8 @@ export const useExtractionStore = defineStore('extraction', () => {
       // Service direkt nutzen – KEINE State-Mutationen hier!
       const res = await ExtractionService.extractReferences({
         text: testText,
-        extractionSettings: extractionSettings.value,
-        aiSettings: aiSettings.value,
+        extractionSettings: settings.value.extract,
+        aiSettings: settings.value.ai,
       })
 
       if (!res.success) {

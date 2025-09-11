@@ -1,31 +1,31 @@
 <script setup lang="ts">
 import { mdiAlertCircle, mdiCheckCircle, mdiPalette } from '@mdi/js'
-import { DEFAULT_MATCH_QUALITY_THRESHOLDS } from '@/extension/constants/defaults/defaultMatchingSettings'
-import { matchingSettings } from '@/extension/logic'
+import { makeDefaultUISettings } from '@source-taster/types'
+import { settings } from '@/extension/logic'
 
 const { t } = useI18n()
 
 // Reset to defaults
 function resetToDefaults() {
-  matchingSettings.value.matchingConfig.matchThresholds = { ...DEFAULT_MATCH_QUALITY_THRESHOLDS }
+  settings.value.matching.matchingConfig.displayThresholds = { ...makeDefaultUISettings().matching.matchingConfig.displayThresholds }
 }
 
 // Computed values for dynamic min/max constraints
 const exactMatchThreshold = computed({
-  get: () => matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold,
+  get: () => settings.value.matching.matchingConfig.displayThresholds.highMatchThreshold,
   set: (value) => {
     // Ensure exact match is at least 1 point higher than partial match
-    const minValue = Math.max(value, matchingSettings.value.matchingConfig.matchThresholds.partialMatchThreshold + 1)
-    matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold = minValue
+    const minValue = Math.max(value, settings.value.matching.matchingConfig.displayThresholds.partialMatchThreshold + 1)
+    settings.value.matching.matchingConfig.displayThresholds.highMatchThreshold = minValue
   },
 })
 
 const highMatchThreshold = computed({
-  get: () => matchingSettings.value.matchingConfig.matchThresholds.partialMatchThreshold,
+  get: () => settings.value.matching.matchingConfig.displayThresholds.partialMatchThreshold,
   set: (value) => {
     // Ensure partial match is at least 1 point lower than exact match
-    const maxValue = Math.min(value, matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold - 1)
-    matchingSettings.value.matchingConfig.matchThresholds.partialMatchThreshold = maxValue
+    const maxValue = Math.min(value, settings.value.matching.matchingConfig.displayThresholds.highMatchThreshold - 1)
+    settings.value.matching.matchingConfig.displayThresholds.partialMatchThreshold = maxValue
   },
 })
 

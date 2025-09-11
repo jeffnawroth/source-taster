@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
-import { themeOption } from '@/extension/logic/storage'
+import { settings } from '@/extension/logic'
 
 // PROPS
 defineProps<{
@@ -16,11 +16,11 @@ const drawer = defineModel()
 const theme = useTheme()
 
 watchEffect(() => {
-  if (themeOption.value === 'system') {
+  if (settings.value.theme === 'system') {
     theme.change(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
   }
   else {
-    theme.change(themeOption.value)
+    theme.change(settings.value.theme)
   }
 })
 

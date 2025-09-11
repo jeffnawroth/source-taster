@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiKeyOutline } from '@mdi/js'
-import { aiSettings } from '@/extension/logic'
+import { settings } from '@/extension/logic'
 import { useUserSettingsStore } from '@/extension/stores/userStore'
 import APIKeyInput from './APIKeyInput.vue'
 import APIKeyLink from './APIKeyLink.vue'
@@ -16,7 +16,7 @@ const alert = ref<{ type: 'success' | 'error', message: string } | null>(null)
 
 // Methoden für Save/Delete aus dem Store
 async function handleSave() {
-  const res = await user.saveAISecrets({ provider: aiSettings.value.provider, apiKey: apiKey.value })
+  const res = await user.saveAISecrets({ provider: settings.value.ai.provider, apiKey: apiKey.value })
   alert.value = res
     ? { type: 'success', message: t('ai-settings-saved') }
     : { type: 'error', message: user.saveError ?? t('ai-settings-save-error') }
@@ -47,7 +47,7 @@ onMounted(() => {
   user.loadAISecretsInfo()
 })
 
-watch(() => aiSettings.value.provider, () => {
+watch(() => settings.value.ai.provider, () => {
   reset()
   user.loadAISecretsInfo()
 })

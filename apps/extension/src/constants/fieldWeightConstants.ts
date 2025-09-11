@@ -3,15 +3,14 @@
  * Automatically derived from CSL Schema for consistency
  */
 
-import type { CSLVariable } from '@source-taster/types'
-import { CSLVariableSchema } from '@source-taster/types'
-import { DEFAULT_FIELDS_CONFIG } from './defaults/defaultFieldConfig'
+import type { CSLVariableWithoutId } from '@source-taster/types'
+import { CSLVariableWithoutIdSchema, makeDefaultUISettings } from '@source-taster/types'
+
+const DEFAULT_FIELDS_CONFIG = makeDefaultUISettings().matching.matchingConfig.fieldConfigurations
 
 // Generate field definitions from CSL schema
-export const FIELD_DEFINITIONS: readonly FieldDefinition[] = CSLVariableSchema.options
-  .filter((variable: CSLVariable) => variable !== 'id') // Exclude technical 'id' field
-  .sort() // Alphabetical order
-  .map((variable: CSLVariable): FieldDefinition => ({
+export const FIELD_DEFINITIONS: readonly FieldDefinition[] = CSLVariableWithoutIdSchema.options
+  .map((variable: CSLVariableWithoutId): FieldDefinition => ({
     key: variable,
     labelKey: variable,
     descriptionKey: `field-description-${variable}`,

@@ -80,8 +80,13 @@ export const ApiMatchConfigSchema = z.object({
 export type ApiMatchConfig = z.infer<typeof ApiMatchConfigSchema>
 
 export const ApiMatchMatchingSettingsSchema = z.object({
-  matchingStrategy: ApiMatchMatchingStrategySchema.describe('Strategy for matching behavior'),
-  matchingConfig: ApiMatchConfigSchema.describe('Configuration for matching behavior'),
+  matchingStrategy: ApiMatchMatchingStrategySchema.default({
+    mode: 'balanced',
+    normalizationRules: [...ApiMatchNormalizationRuleSchema.options],
+  }).describe('Strategy for matching behavior'),
+  matchingConfig: ApiMatchConfigSchema.default({
+    fieldConfigurations: createDefaultFieldConfigurations(),
+  }).describe('Configuration for matching behavior'),
 }).strict().default({
   matchingStrategy: {
     mode: 'balanced',

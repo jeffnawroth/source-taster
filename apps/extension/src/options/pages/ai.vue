@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiCogOutline } from '@mdi/js'
-import { aiSettings } from '@/extension/logic/storage'
+import { settings } from '@/extension/logic'
 import AIKeyCard from '@/extension/options/components/AI/AIKeyCard.vue'
 import AIProviderCard from '@/extension/options/components/AI/AIProviderCard.vue'
 
@@ -14,7 +14,7 @@ const { t } = useI18n()
     :description="t('ai-settings-subtitle')"
   >
     <!-- Provider & Model -->
-    <AIProviderCard v-model="aiSettings" />
+    <AIProviderCard v-model="settings.ai" />
 
     <v-divider class="my-4" />
 

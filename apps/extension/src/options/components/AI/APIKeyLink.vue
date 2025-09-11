@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { mdiInformation } from '@mdi/js'
-import { aiSettings } from '@/extension/logic'
+import { settings } from '@/extension/logic'
 
 const { t } = useI18n()
 
 // Helper to get the correct API key help text for each provider
 const apiKeyHelpText = computed(() => {
-  switch (aiSettings.value.provider) {
+  switch (settings.value.ai.provider) {
     case 'openai':
       return t('ai-settings-api-key-help-openai')
     case 'anthropic':
@@ -20,7 +20,7 @@ const apiKeyHelpText = computed(() => {
 
 // Helper to get the correct API key link for each provider
 const apiKeyLink = computed(() => {
-  switch (aiSettings.value.provider) {
+  switch (settings.value.ai.provider) {
     case 'openai':
       return 'https://platform.openai.com/api-keys'
     case 'anthropic':

@@ -4,7 +4,7 @@ import { VDivider } from 'vuetify/lib/components/index.mjs'
 import OnboardingLayout from '@/extension/components/Onboarding/OnboardingLayout.vue'
 import TrainingDataManager from '@/extension/components/References/TrainingDataManager.vue'
 import ReportSection from '@/extension/components/Report/ReportSection.vue'
-import { hasCompletedOnboarding, localeOption } from '@/extension/logic/storage'
+import { hasCompletedOnboarding, settings } from '@/extension/logic/storage'
 import InputCard from '../Input/InputCard.vue'
 
 // LOCALE
@@ -12,18 +12,13 @@ const { locale } = useI18n()
 const { current } = useLocale()
 
 watchEffect(() => {
-  locale.value = localeOption.value
-  current.value = localeOption.value
+  locale.value = settings.value.locale
+  current.value = settings.value.locale
 })
 
 // Check if onboarding should be shown - now optional since AnyStyle parsing is available
 const shouldShowOnboarding = computed(() => {
   return !hasCompletedOnboarding.value
-})
-
-watchEffect(() => {
-  locale.value = localeOption.value
-  current.value = localeOption.value
 })
 
 // COMPONENTS

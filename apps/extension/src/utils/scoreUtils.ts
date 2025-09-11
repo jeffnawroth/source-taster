@@ -2,13 +2,13 @@
  * Utility functions for handling matching scores and colors
  */
 
-import { matchingSettings } from '@/extension/logic'
+import { settings } from '../logic'
 
 /**
  * Get color based on matching score using user-defined thresholds
  */
 export function getScoreColor(score: number): string {
-  const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+  const thresholds = settings.value.matching.matchingConfig.displayThresholds
 
   // Exact match threshold = success (green) - uses highMatchThreshold from types (this is the higher value)
   if (score >= thresholds.highMatchThreshold)
@@ -26,7 +26,7 @@ export function getScoreColor(score: number): string {
  * Get human-readable score description based on user-defined thresholds
  */
 export function getScoreDescription(score: number): string {
-  const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+  const thresholds = settings.value.matching.matchingConfig.displayThresholds
 
   if (score >= thresholds.highMatchThreshold)
     return 'High match'
@@ -39,7 +39,7 @@ export function getScoreDescription(score: number): string {
  * Check if score is considered matched (high or exact match)
  */
 export function isScoreMatched(score: number): boolean {
-  const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+  const thresholds = settings.value.matching.matchingConfig.displayThresholds
   return score >= thresholds.highMatchThreshold
 }
 
@@ -51,7 +51,7 @@ export function shouldShowReMatch(status: string, score?: number): boolean {
   if (status === 'error')
     return true
   if (score !== undefined) {
-    const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+    const thresholds = settings.value.matching.matchingConfig.displayThresholds
     return score < thresholds.highMatchThreshold // Below high confidence
   }
   return false
