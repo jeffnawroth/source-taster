@@ -1,34 +1,14 @@
 <script setup lang="ts">
-import type { CSLVariable } from '@source-taster/types'
-import { CSLVariableSchema } from '@source-taster/types'
+import type { CommonCSLVariable, CSLVariableWithoutId } from '@source-taster/types'
+import { COMMON_CSL_VARIABLES, CSLVariableWithoutIdSchema } from '@source-taster/types'
 import { settings } from '@/extension/logic'
-
-// Get all available CSL variables directly from the schema, excluding technical fields
-const ALL_CSL_VARIABLES: CSLVariable[] = CSLVariableSchema.options
-  .filter((variable: CSLVariable) => variable !== 'id') // Remove id
-  .sort()
-
-// Essential CSL variables that are commonly used
-const COMMON_CSL_VARIABLES: CSLVariable[] = [
-  'title',
-  'author',
-  'issued',
-  'container-title',
-  'volume',
-  'issue',
-  'page',
-  'DOI',
-  'URL',
-  'publisher',
-  'type',
-]
 
 // TRANSLATION
 const { t } = useI18n()
 
 // Select All logic
 const allVariablesSelected = computed(() =>
-  settings.value.extract.extractionConfig.variables.length === ALL_CSL_VARIABLES.length,
+  settings.value.extract.extractionConfig.variables.length === CSLVariableWithoutIdSchema.options.length,
 )
 
 const someVariablesSelected = computed(() =>
@@ -47,7 +27,7 @@ function toggleSelectAll() {
   }
   else {
     // Select all
-    settings.value.extract.extractionConfig.variables = [...ALL_CSL_VARIABLES]
+    settings.value.extract.extractionConfig.variables = [...CSLVariableWithoutIdSchema.options]
   }
 }
 
@@ -55,7 +35,7 @@ function toggleSelectCommon() {
   if (commonSelected.value) {
     // Deselect common (remove them from current selection)
     settings.value.extract.extractionConfig.variables = settings.value.extract.extractionConfig.variables
-      .filter(variable => !COMMON_CSL_VARIABLES.includes(variable))
+      .filter(variable => !COMMON_CSL_VARIABLES.includes(variable as CommonCSLVariable))
   }
   else {
     // Select common (add missing common to current selection)
@@ -65,7 +45,7 @@ function toggleSelectCommon() {
   }
 }
 
-function remove(item: CSLVariable) {
+function remove(item: CSLVariableWithoutId) {
   const index = settings.value.extract.extractionConfig.variables.indexOf(item)
   if (index > -1) {
     settings.value.extract.extractionConfig.variables.splice(index, 1)
@@ -78,7 +58,7 @@ function remove(item: CSLVariable) {
     <v-card-text>
       <v-autocomplete
         v-model="settings.extract.extractionConfig.variables"
-        :items="ALL_CSL_VARIABLES"
+        :items="CSLVariableWithoutIdSchema.options"
         :label="t('fields')"
         multiple
         :item-title="(item) => t(item)"
