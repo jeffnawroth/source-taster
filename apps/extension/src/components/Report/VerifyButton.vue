@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import type { ApiAnystyleToken, ApiAnystyleTokenSequence, ApiMatchReference, ApiSearchRequest, CSLItem } from '@source-taster/types'
+import type {
+  ApiAnystyleToken,
+  ApiAnystyleTokenSequence,
+  ApiHttpError,
+  ApiMatchReference,
+  ApiSearchRequest,
+  CSLItem,
+} from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
-import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useSearchStore } from '@/extension/stores/search'
+import { mapApiError } from '@/extension/utils/mapApiError'
 
 // Stores
 const anystyleStore = useAnystyleStore()
@@ -16,62 +23,64 @@ const { parsedTokens, hasParseResults } = storeToRefs(anystyleStore)
 const isVerifying = ref(false)
 const verifyError = ref<string | null>(null)
 
-// Check if we have parsed tokens to verify
-const canVerify = computed(() => {
-  return hasParseResults.value && parsedTokens.value.length > 0
-})
+// Button enabled?
+const canVerify = computed(() => hasParseResults.value && parsedTokens.value.length > 0)
 
-// Step 1: Convert parsed tokens to CSL format
+// -- Step 1: Tokens -> CSL
 async function convertTokensToCSL(): Promise<CSLItem[]> {
-  // Create mutable copy of tokens
-  const mutableTokens: ApiAnystyleTokenSequence[] = parsedTokens.value.map(tokenSequence =>
-    tokenSequence.map(token => [token[0], token[1]] as ApiAnystyleToken),
+  // Mutable copy (ApiAnystyleTokenSequence = Array<[label, token]>)
+  const mutableTokens: ApiAnystyleTokenSequence[] = parsedTokens.value.map(seq =>
+    seq.map(t => [t[0], t[1]] as ApiAnystyleToken),
   )
 
-  const convertResponse = await anystyleStore.convertToCSL(mutableTokens)
-
-  if (!convertResponse.success || !convertResponse.data) {
-    throw new Error('Failed to convert tokens to CSL format')
+  const res = await anystyleStore.convertToCSL(mutableTokens)
+  if (!res.success) {
+    throw new Error(mapApiError(res as unknown as ApiHttpError))
   }
 
-  return convertResponse.data.csl || []
+  const csl = res.data?.csl ?? []
+
+  // Defensive: stelle sicher, dass jedes Item eine id hat
+  return csl.map((item, idx) => ({
+    ...item,
+    id: (item as any)?.id ?? `ref-${idx}`,
+  }))
 }
 
-// Step 2: Search for candidates for all references
-async function searchForCandidates(cslReferences: CSLItem[]) {
-  const searchRequest: ApiSearchRequest = {
-    references: cslReferences.map((ref: CSLItem, index: number) => ({
-      metadata: { ...ref, id: ref.id || `ref-${index}` },
-      id: String(ref.id || `ref-${index}`),
-    })) as ApiSearchRequest['references'],
-  }
-
-  const searchResponse = await searchStore.searchCandidates(searchRequest)
-
-  if (!searchResponse.success) {
-    throw new Error(`Search failed: ${searchResponse.error}`)
-  }
-
-  return searchRequest.references
-}
-
-// Step 3: Match references with their candidates
-async function matchReferences(references: ApiMatchReference[]): Promise<void> {
-  for (const reference of references) {
-    // Get candidates for this reference from the search store
-    const candidates = searchStore.getCandidatesByReference(reference.id)
-
-    const matchRequest = {
-      reference,
-      candidates, // Use actual candidates from search results
-      matchingSettings: settings.value.matching,
+// -- Step 2: Kandidaten suchen
+async function searchForCandidates(cslItems: CSLItem[]) {
+  const refs: ApiSearchRequest['references'] = cslItems.map((ref, _index) => {
+    const id = crypto.randomUUID()
+    return {
+      id,
+      metadata: { ...ref, id }, // unsere API erwartet CSL mit id
     }
+  })
+  const req: ApiSearchRequest = { references: refs }
+  const res = await searchStore.searchCandidates(req)
 
-    await matchingStore.matchReference(matchRequest)
+  if (!res.success) {
+    throw new Error(mapApiError(res as unknown as ApiHttpError))
+  }
+
+  return refs
+}
+
+// -- Step 3: Matchen (eine Referenz gegen ihre Kandidaten)
+async function matchOne(reference: ApiMatchReference) {
+  const candidates = searchStore.getCandidatesByReferenceId(reference.id)
+
+  const res = await matchingStore.matchReference({
+    reference,
+    candidates,
+  })
+
+  if (!res.success) {
+    throw new Error(mapApiError(res as unknown as ApiHttpError))
   }
 }
 
-// Main verification workflow - orchestrates all steps
+// Orchestrierung
 async function handleVerify() {
   if (!canVerify.value)
     return
@@ -80,20 +89,17 @@ async function handleVerify() {
   verifyError.value = null
 
   try {
-    // Step 1: Convert tokens to CSL
-    const cslReferences = await convertTokensToCSL()
+    const csl = await convertTokensToCSL()
+    const refs = await searchForCandidates(csl)
 
-    // Step 2: Search for candidates
-    const references = await searchForCandidates(cslReferences)
-
-    // Step 3: Match references with candidates
-    await matchReferences(references)
-
-    // Success - references are now processed
+    // sequenziell (bewusst – Rate Limits/Fehlerhandling)
+    for (const ref of refs) {
+      await matchOne(ref)
+    }
   }
-  catch (error) {
-    console.error('Verification failed:', error)
-    verifyError.value = error instanceof Error ? error.message : 'Verification failed'
+  catch (e: any) {
+    console.error('Verification failed:', e)
+    verifyError.value = typeof e?.message === 'string' ? e.message : 'Verification failed'
   }
   finally {
     isVerifying.value = false
@@ -103,7 +109,6 @@ async function handleVerify() {
 
 <template>
   <div>
-    <!-- Verify Button -->
     <v-btn
       :disabled="!canVerify || isVerifying"
       :loading="isVerifying"
@@ -116,15 +121,10 @@ async function handleVerify() {
         :icon="mdiMagnifyExpand"
         start
       />
-      <span v-if="isVerifying">
-        {{ $t('verifying') }}...
-      </span>
-      <span v-else>
-        {{ $t('verify-references') }}
-      </span>
+      <span v-if="isVerifying">{{ $t('verifying') }}...</span>
+      <span v-else>{{ $t('verify-references') }}</span>
     </v-btn>
 
-    <!-- Error Display -->
     <v-expand-transition>
       <v-alert
         v-if="verifyError"

@@ -1,5 +1,5 @@
 import z from 'zod'
-import { CSLItemSchema } from '../../app/csl-json.zod'
+import { CSLItemWithoutIdSchema } from '../../app/csl-json.zod'
 import { createApiResponseSchema } from '../api'
 import { ApiAnystyleTokenSchema } from './parse'
 
@@ -11,7 +11,7 @@ export type ApiAnystyleConvertRequest = z.infer<typeof ApiAnystyleConvertRequest
 
 // ----- Response -----
 export const ApiAnystyleConvertDataSchema = z.object({
-  csl: z.array(CSLItemSchema).describe('Array of bibliographic items in CSL format'),
+  csl: z.array(CSLItemWithoutIdSchema).describe('Array of bibliographic items in CSL format'),
 }).strict()
 export type ApiAnystyleConvertData = z.infer<typeof ApiAnystyleConvertDataSchema>
 

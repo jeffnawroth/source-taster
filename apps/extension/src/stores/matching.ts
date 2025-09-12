@@ -1,15 +1,8 @@
-// extension/stores/matching.ts
-/**
- * Pinia store for managing matching functionality and results
- */
-import type {
-  ApiHttpError,
-  ApiMatchData,
-  ApiMatchRequest,
-} from '@source-taster/types'
+import type { ApiHttpError, ApiMatchCandidate, ApiMatchData, ApiMatchMatchingSettings, ApiMatchRequest } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
 import { MatchingService } from '@/extension/services/matchingService'
+import { settings } from '../logic'
 import { mapApiError } from '../utils/mapApiError'
 import { useSearchStore } from './search'
 
@@ -41,12 +34,30 @@ export const useMatchingStore = defineStore('matching', () => {
   })
 
   // Actions
-  async function matchReference(request: ApiMatchRequest) {
+  async function matchReference(request: Omit<ApiMatchRequest, 'matchingSettings'> & { matchingSettings?: ApiMatchMatchingSettings }) {
     isMatching.value = true
     matchingError.value = null
 
     try {
-      const res = await MatchingService.matchReference(request)
+      const matchingSettings = {
+        matchingStrategy: settings.value.matching.matchingStrategy,
+        matchingConfig: {
+          fieldConfigurations: settings.value.matching.matchingConfig.fieldConfigurations,
+        },
+      }
+
+      const matchCandidates = request.candidates.map((cand) => {
+        return {
+          id: cand.id,
+          metadata: cand.metadata,
+        } as ApiMatchCandidate
+      })
+
+      const res = await MatchingService.matchReference({
+        reference: request.reference,
+        candidates: matchCandidates,
+        matchingSettings: request.matchingSettings ?? matchingSettings,
+      })
 
       if (!res.success) {
         matchingError.value = mapApiError(res as ApiHttpError)
@@ -55,9 +66,7 @@ export const useMatchingStore = defineStore('matching', () => {
 
       const data = res.data
       const evaluations = data?.evaluations ?? []
-
       const referenceId = request.reference.id
-
       matchingResults.value.set(referenceId, { evaluations })
 
       return res
