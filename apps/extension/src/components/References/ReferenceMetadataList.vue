@@ -2,6 +2,7 @@
 import type { ApiExtractReference, ApiSearchCandidate } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAccountGroup, mdiAccountTie, mdiBookmark, mdiBookOpenBlankVariantOutline, mdiCalendarClock, mdiCalendarOutline, mdiCalendarRange, mdiChevronDown, mdiChevronUp, mdiDomain, mdiEarth, mdiFileDocumentOutline, mdiGavel, mdiIdentifier, mdiInformation, mdiLibrary, mdiLink, mdiMapMarker, mdiMedicalBag, mdiMicrophone, mdiNewspaper, mdiNotebookOutline, mdiNoteText, mdiNumeric, mdiOfficeBuilding, mdiRuler, mdiTag, mdiTelevision, mdiText, mdiTranslate } from '@mdi/js'
+import { formatCSLDate, formatCSLName } from '@/extension/utils/cslFormatters'
 
 const props = defineProps<{
   reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference | ApiSearchCandidate>>
@@ -9,136 +10,6 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-
-/**
- * Format a CSL Date object to display string with all date parts
- * Matches the backend normalization logic for consistency
- */
-function formatCSLDate(dateValue: any): string | null {
-  if (!dateValue) {
-    return null
-  }
-
-  // Handle string dates (EDTF format)
-  if (typeof dateValue === 'string') {
-    return dateValue
-  }
-
-  // Handle CSL date structure
-  if (dateValue['date-parts'] && dateValue['date-parts'][0]) {
-    const dateParts = dateValue['date-parts'][0]
-    const year = dateParts[0]
-    const month = dateParts[1]
-    const day = dateParts[2]
-
-    const parts: string[] = []
-
-    // Add day if available
-    if (day) {
-      parts.push(day.toString())
-    }
-
-    // Add month if available (convert number to name if needed)
-    if (month) {
-      if (typeof month === 'number') {
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        parts.push(monthNames[month - 1] || month.toString())
-      }
-      else {
-        parts.push(month.toString())
-      }
-    }
-
-    // Add year if available
-    if (year) {
-      parts.push(year.toString())
-    }
-
-    const dateString = parts.join(' ') || ''
-
-    // Handle circa prefix if present
-    if (dateValue.circa) {
-      const circaPrefix = dateValue.circa === true ? 'ca. ' : `${dateValue.circa.toString()} `
-      return circaPrefix + dateString
-    }
-
-    return dateString || null
-  }
-
-  // Handle raw dates (unparsed date strings)
-  if (dateValue.raw) {
-    return dateValue.raw
-  }
-
-  // Handle literal dates
-  if (dateValue.literal) {
-    return dateValue.literal
-  }
-
-  // Handle season
-  if (dateValue.season) {
-    const seasonString = dateValue.season.toString()
-    // Handle circa with season
-    if (dateValue.circa) {
-      const circaPrefix = dateValue.circa === true ? 'ca. ' : `${dateValue.circa.toString()} `
-      return circaPrefix + seasonString
-    }
-    return seasonString
-  }
-
-  // Handle circa alone
-  if (dateValue.circa) {
-    const circaPrefix = dateValue.circa === true ? 'ca. ' : `${dateValue.circa.toString()} `
-    return circaPrefix.trim()
-  }
-
-  return null
-}
-
-/**
- * Format a CSL Name object to display string with all name parts
- * Matches the backend normalization logic for consistency
- */
-function formatCSLName(author: any): string {
-  if (typeof author === 'string') {
-    return author
-  }
-
-  // If there's a literal name, use that first (highest priority)
-  if (author.literal) {
-    return author.literal
-  }
-
-  // Build name parts in order
-  const nameParts: string[] = []
-
-  // Add given name
-  if (author.given) {
-    nameParts.push(author.given)
-  }
-
-  // Add non-dropping particle (stays with family name)
-  if (author['non-dropping-particle']) {
-    nameParts.push(author['non-dropping-particle'])
-  }
-
-  // Add family name
-  if (author.family) {
-    nameParts.push(author.family)
-  }
-
-  // Add dropping particle (usually "de", "van", etc.)
-  if (author['dropping-particle']) {
-    nameParts.push(author['dropping-particle'])
-  }
-
-  // Add suffix
-  if (author.suffix) {
-    nameParts.push(author.suffix)
-  }
-
-  return nameParts.filter(Boolean).join(' ')
-}
 
 // State for collapsible sections
 const showAdditionalFields = ref(false)
