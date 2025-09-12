@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
-import { settings } from '@/extension/logic'
 import { useMatchingStore } from '@/extension/stores/matching'
+import { getScoreColor } from '@/extension/utils/scoreUtils'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
@@ -25,20 +25,8 @@ const bestScore = computed<number | null>(() => {
   const s = getMatchingScoreByReference.value(reference.id)
   return Number.isFinite(s) && s > 0 ? s : null
 })
-const scoreColor = computed<string>(() => {
-  const s = bestScore.value
-  if (s == null)
-    return 'default'
-  const { strongMatchThreshold, possibleMatchThreshold }
-    = settings.value.matching.matchingConfig.displayThresholds
-  if (s === 100)
-    return '#1B5E20'
-  if (s >= strongMatchThreshold)
-    return 'success'
-  if (s >= possibleMatchThreshold)
-    return 'warning'
-  return 'error'
-})
+
+const scoreColor = computed<string>(() => getScoreColor(bestScore.value))
 
 const showDetails = ref(false)
 </script>

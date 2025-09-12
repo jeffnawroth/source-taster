@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { extractYearFromCSLDate, formatAuthorsCompact } from '@source-taster/types'
 
 const { reference } = defineProps<{
-  reference: ApiExtractReference
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
 // AUTHORS - using the compact formatter utility
 const authors = computed(() => {
   if (!reference.metadata.author)
     return null
-  return formatAuthorsCompact(reference.metadata.author)
+  return formatAuthorsCompact(JSON.parse(JSON.stringify(reference.metadata.author)))
 })
 
 // CARD SUBTITLE
@@ -19,7 +20,7 @@ const subtitle = computed(() => {
   const parts = []
 
   // Extract year using the utility function
-  const year = extractYearFromCSLDate(reference.metadata.issued)
+  const year = extractYearFromCSLDate(JSON.parse(JSON.stringify(reference.metadata.issued)))
   if (year)
     parts.push(year)
 
