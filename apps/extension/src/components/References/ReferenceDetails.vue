@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
+import { useMatchingStore } from '@/extension/stores/matching'
 
 const { reference } = defineProps<{
   reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
+
+const matchingStore = useMatchingStore()
+const { getMatchingResultByReference } = storeToRefs(matchingStore)
+
+const matchingResults = computed(() => getMatchingResultByReference.value(reference.id))
 
 // const { t } = useI18n()
 </script>
@@ -21,20 +27,12 @@ const { reference } = defineProps<{
 
       <v-divider class="my-2" />
 
-      <!-- ERROR -->
-      <!-- <ReferenceMetadataItem
-        v-if="reference.status === 'error' && reference.error"
-        :icon="mdiAlertCircle"
-        :title="t('error')"
-        color="error"
-        :text="reference.error || t('no-additional-error-info')"
-      /> -->
-
       <!-- All Source Evaluations for Transparency -->
-      <!-- <EvaluationList
-        v-if="reference.matchingResult?.sourceEvaluations?.length"
-        :source-evaluations="reference.matchingResult.sourceEvaluations"
-      /> -->
+      <EvaluationList
+        v-if="matchingResults?.evaluations"
+        :reference-id="reference.id"
+        :evaluations="matchingResults.evaluations"
+      />
     </div>
   </v-expand-transition>
 </template>

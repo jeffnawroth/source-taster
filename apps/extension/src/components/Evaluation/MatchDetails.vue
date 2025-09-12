@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { SourceEvaluation } from '@source-taster/types'
+import type { ApiMatchEvaluation } from '@source-taster/types'
 
 defineProps<{
-  evaluation: SourceEvaluation
+  evaluation: ApiMatchEvaluation
 }>()
 </script>
 
@@ -23,7 +23,7 @@ defineProps<{
         cols="6"
       >
         <ScoreItem
-          :score="fieldDetail.match_score"
+          :score="fieldDetail.fieldScore"
           :text="$t(`${fieldDetail.field}`)"
         />
       </v-col>
