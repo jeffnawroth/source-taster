@@ -23,7 +23,7 @@ const { t } = useI18n()
         variant="tonal"
         class="font-weight-bold"
       >
-        {{ score }}
+        {{ `${score} %` }}
       </v-chip>
     </template>
 

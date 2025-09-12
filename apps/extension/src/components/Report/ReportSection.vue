@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import { useFuse } from '@vueuse/integrations/useFuse'
-import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 
 const extractionStore = useExtractionStore()
 const { extractedReferences } = storeToRefs(extractionStore)
 
-// Check for AnyStyle parsed tokens
-const anystyleStore = useAnystyleStore()
-const { hasParseResults } = storeToRefs(anystyleStore)
-const hasAnystyleParsedTokens = computed(() => hasParseResults.value)
-
 const search = ref('')
 
-const { results } = useFuse(search, () => [...extractionStore.extractedReferences], {
+const { results } = useFuse(search, () => [...extractedReferences.value], {
   fuseOptions: {
     keys: [
       'originalText',
@@ -35,8 +29,6 @@ const { results } = useFuse(search, () => [...extractionStore.extractedReference
     :subtitle="$t('verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases')"
   >
     <VerifyButton
-      v-if="extractedReferences.length > 0"
-      :disabled="!hasAnystyleParsedTokens"
       class="mb-3"
     />
     <v-divider class="mb-3" />

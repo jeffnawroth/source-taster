@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
+import { settings } from '@/extension/logic'
+import { useMatchingStore } from '@/extension/stores/matching'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
@@ -11,45 +13,33 @@ const { reference } = defineProps<{
 // TRANSLATION
 const { t } = useI18n()
 
-// CARD COLOR based on matching status
-// const color = computed(() => {
-//   // If there's an error, show error color
-//   if (reference.status === 'error') {
-//     return 'error'
-//   }
-
-//   // If still pending, no color
-//   if (reference.status === 'pending') {
-//     return undefined
-//   }
-
-//   // Get the overall score from matching details
-//   const score = reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore
-
-//   if (score === undefined) {
-//     return 'warning' // No score available
-//   }
-
-//   // Use consistent score-based color mapping from scoreUtils
-//   return getScoreColor(score)
-// })
+// STORES
+const matchingStore = useMatchingStore()
+const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 
 // TITLE
 const title = computed(() => reference.metadata.title || t('no-title'))
 
-// MATCHING SCORE
-// const matchingScore = computed(() =>
-//   reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore,
-// )
+// statt eigener Berechnung:
+const bestScore = computed<number | null>(() => {
+  const s = getMatchingScoreByReference.value(reference.id)
+  return Number.isFinite(s) && s > 0 ? s : null
+})
+const scoreColor = computed<string>(() => {
+  const s = bestScore.value
+  if (s == null)
+    return 'default'
+  const { strongMatchThreshold, possibleMatchThreshold }
+    = settings.value.matching.matchingConfig.displayThresholds
+  if (s === 100)
+    return '#1B5E20'
+  if (s >= strongMatchThreshold)
+    return 'success'
+  if (s >= possibleMatchThreshold)
+    return 'warning'
+  return 'error'
+})
 
-// SCORE DISPLAY TEXT
-// const scoreText = computed(() => {
-//   if (matchingScore.value === undefined)
-//     return null
-//   return `${Math.round(matchingScore.value)} %`
-// })
-
-// SHOW DETAILS - managed by ReferenceActions component
 const showDetails = ref(false)
 </script>
 
@@ -58,15 +48,16 @@ const showDetails = ref(false)
     density="compact"
     variant="outlined"
     class="mb-2"
+    :color="scoreColor"
     :title
   >
-    <!-- :color -->
     <!-- STATUS ICON & SCORE -->
     <template #append>
-      <!-- <ReferenceScore
-        :score="scoreText"
-        :color
-      /> -->
+      <ReferenceScore
+        v-if="bestScore !== null"
+        :score="bestScore"
+        :color="scoreColor"
+      />
     </template>
 
     <!-- SUBTITLE -->
@@ -89,5 +80,4 @@ const showDetails = ref(false)
 </template>
 
 <style scoped>
-/* Progress animation styles removed as we simplified the progress feedback */
 </style>

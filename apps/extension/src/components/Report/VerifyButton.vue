@@ -4,98 +4,89 @@ import type {
   ApiAnystyleTokenSequence,
   ApiHttpError,
   ApiMatchReference,
-  ApiSearchRequest,
-  CSLItem,
+  ApiSearchReference,
 } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
+import { useCloned } from '@vueuse/core'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
+import { useExtractionStore } from '@/extension/stores/extraction' // ⟵ NEU
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useSearchStore } from '@/extension/stores/search'
 import { mapApiError } from '@/extension/utils/mapApiError'
 
-// Stores
 const anystyleStore = useAnystyleStore()
+const extractionStore = useExtractionStore() // ⟵ NEU
 const searchStore = useSearchStore()
 const matchingStore = useMatchingStore()
 
-// Reactive state
 const { parsedTokens, hasParseResults } = storeToRefs(anystyleStore)
+const { extractedReferences } = storeToRefs(extractionStore)
+
 const isVerifying = ref(false)
 const verifyError = ref<string | null>(null)
 
-// Button enabled?
-const canVerify = computed(() => hasParseResults.value && parsedTokens.value.length > 0)
+// Button enabled? → entweder Tokens ODER extrahierte Referenzen
+const canVerify = computed(() =>
+  hasParseResults.value || (extractedReferences.value.length > 0),
+)
 
-// -- Step 1: Tokens -> CSL
-async function convertTokensToCSL(): Promise<CSLItem[]> {
-  // Mutable copy (ApiAnystyleTokenSequence = Array<[label, token]>)
+// ---- A) Tokens -> CSL (AnyStyle-Flow)
+async function convertTokensToCSL(): Promise<ApiSearchReference[]> {
   const mutableTokens: ApiAnystyleTokenSequence[] = parsedTokens.value.map(seq =>
     seq.map(t => [t[0], t[1]] as ApiAnystyleToken),
   )
-
   const res = await anystyleStore.convertToCSL(mutableTokens)
-  if (!res.success) {
+  if (!res.success)
     throw new Error(mapApiError(res as unknown as ApiHttpError))
-  }
-
   const csl = res.data?.csl ?? []
-
-  // Defensive: stelle sicher, dass jedes Item eine id hat
-  return csl.map((item, idx) => ({
-    ...item,
-    id: (item as any)?.id ?? `ref-${idx}`,
-  }))
-}
-
-// -- Step 2: Kandidaten suchen
-async function searchForCandidates(cslItems: CSLItem[]) {
-  const refs: ApiSearchRequest['references'] = cslItems.map((ref, _index) => {
+  return csl.map((item, _idx) => {
     const id = crypto.randomUUID()
     return {
       id,
-      metadata: { ...ref, id }, // unsere API erwartet CSL mit id
+      metadata: { ...item, id },
     }
   })
-  const req: ApiSearchRequest = { references: refs }
-  const res = await searchStore.searchCandidates(req)
-
-  if (!res.success) {
-    throw new Error(mapApiError(res as unknown as ApiHttpError))
-  }
-
-  return refs
 }
 
-// -- Step 3: Matchen (eine Referenz gegen ihre Kandidaten)
+// ---- B) KI-Extrahierte Referenzen -> CSL (direkt)
+function getExtractedCSL(): ApiSearchReference[] {
+  return extractedReferences.value.map((r) => {
+    const { cloned } = useCloned(r.metadata)
+    return { metadata: cloned.value, id: r.id } as ApiSearchReference
+  })
+}
+
+// ---- Search Candidates (für beide Wege)
+async function searchForCandidates(cslItems: ApiSearchReference[]) {
+  const res = await searchStore.searchCandidates({ references: cslItems })
+  if (!res.success)
+    throw new Error(mapApiError(res as unknown as ApiHttpError))
+}
+
+// ---- Match one (Kandidaten werden im Store bereinigt)
 async function matchOne(reference: ApiMatchReference) {
   const candidates = searchStore.getCandidatesByReferenceId(reference.id)
-
-  const res = await matchingStore.matchReference({
-    reference,
-    candidates,
-  })
-
-  if (!res.success) {
+  if (!candidates.length)
+    return
+  const res = await matchingStore.matchReference({ reference, candidates })
+  if (!res.success)
     throw new Error(mapApiError(res as unknown as ApiHttpError))
-  }
 }
 
-// Orchestrierung
+// ---- Orchestrierung
 async function handleVerify() {
   if (!canVerify.value)
     return
-
   isVerifying.value = true
   verifyError.value = null
-
   try {
-    const csl = await convertTokensToCSL()
-    const refs = await searchForCandidates(csl)
+    // Branching: AnyStyle-Tokens vorhanden? Sonst KI-Extraktion
+    const csl: ApiSearchReference[] = hasParseResults.value
+      ? await convertTokensToCSL()
+      : getExtractedCSL()
 
-    // sequenziell (bewusst – Rate Limits/Fehlerhandling)
-    for (const ref of refs) {
-      await matchOne(ref)
-    }
+    await searchForCandidates(csl)
+    for (const ref of csl) await matchOne(ref)
   }
   catch (e: any) {
     console.error('Verification failed:', e)
