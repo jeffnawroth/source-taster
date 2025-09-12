@@ -2,7 +2,7 @@
 import type { ApiExtractReference, ApiSearchCandidate } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAccountGroup, mdiAccountTie, mdiBookmark, mdiBookOpenBlankVariantOutline, mdiCalendarClock, mdiCalendarOutline, mdiCalendarRange, mdiChevronDown, mdiChevronUp, mdiDomain, mdiEarth, mdiFileDocumentOutline, mdiGavel, mdiIdentifier, mdiInformation, mdiLibrary, mdiLink, mdiMapMarker, mdiMedicalBag, mdiMicrophone, mdiNewspaper, mdiNotebookOutline, mdiNoteText, mdiNumeric, mdiOfficeBuilding, mdiRuler, mdiTag, mdiTelevision, mdiText, mdiTranslate } from '@mdi/js'
-import { formatCSLDate, formatCSLName } from '@/extension/utils/cslFormatters'
+import { formatCSLDateForDisplay, stringifyCSLName } from '@source-taster/types'
 
 const props = defineProps<{
   reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference | ApiSearchCandidate>>
@@ -37,7 +37,7 @@ const mainFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('authors'),
     text: () => props.reference.metadata.author?.map((author) => {
-      return formatCSLName(author)
+      return stringifyCSLName(author)
     }).join(', ') || '',
   },
   {
@@ -52,7 +52,7 @@ const mainFields = computed(() => [
     condition: () => props.reference.metadata.issued,
     icon: mdiCalendarOutline,
     title: t('issued'),
-    text: () => formatCSLDate(props.reference.metadata.issued) || '',
+    text: () => formatCSLDateForDisplay(props.reference.metadata.issued) || '',
   },
   {
     id: 'volume',
@@ -266,7 +266,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('editor'),
     text: () => props.reference.metadata.editor?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -275,7 +275,7 @@ const allCSLFields = computed(() => [
     icon: mdiTranslate,
     title: t('translator'),
     text: () => props.reference.metadata.translator?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -284,7 +284,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('director'),
     text: () => props.reference.metadata.director?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -293,7 +293,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('chair'),
     text: () => props.reference.metadata.chair?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -302,7 +302,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('collection-editor'),
     text: () => props.reference.metadata['collection-editor']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -311,7 +311,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('compiler'),
     text: () => props.reference.metadata.compiler?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -320,7 +320,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('composer'),
     text: () => props.reference.metadata.composer?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -329,7 +329,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('container-author'),
     text: () => props.reference.metadata['container-author']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -338,7 +338,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('contributor'),
     text: () => props.reference.metadata.contributor?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -347,7 +347,7 @@ const allCSLFields = computed(() => [
     icon: mdiLibrary,
     title: t('curator'),
     text: () => props.reference.metadata.curator?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -356,7 +356,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('editorial-director'),
     text: () => props.reference.metadata['editorial-director']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -365,7 +365,7 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('executive-producer'),
     text: () => props.reference.metadata['executive-producer']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -374,7 +374,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('guest'),
     text: () => props.reference.metadata.guest?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -383,7 +383,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('host'),
     text: () => props.reference.metadata.host?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -392,7 +392,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('interviewer'),
     text: () => props.reference.metadata.interviewer?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -401,7 +401,7 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('illustrator'),
     text: () => props.reference.metadata.illustrator?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -410,7 +410,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('narrator'),
     text: () => props.reference.metadata.narrator?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -419,7 +419,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('organizer'),
     text: () => props.reference.metadata.organizer?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -428,7 +428,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('original-author'),
     text: () => props.reference.metadata['original-author']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -437,7 +437,7 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('performer'),
     text: () => props.reference.metadata.performer?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -446,7 +446,7 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('producer'),
     text: () => props.reference.metadata.producer?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -455,7 +455,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('recipient'),
     text: () => props.reference.metadata.recipient?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -464,7 +464,7 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('reviewed-author'),
     text: () => props.reference.metadata['reviewed-author']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -473,7 +473,7 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('script-writer'),
     text: () => props.reference.metadata['script-writer']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   {
@@ -482,7 +482,7 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('series-creator'),
     text: () => props.reference.metadata['series-creator']?.map((person) => {
-      return formatCSLName(person)
+      return stringifyCSLName(person)
     }).join(', ') || '',
   },
   // Dates
@@ -491,35 +491,35 @@ const allCSLFields = computed(() => [
     condition: () => props.reference.metadata.accessed,
     icon: mdiCalendarClock,
     title: t('accessed'),
-    text: () => formatCSLDate(props.reference.metadata.accessed) || '',
+    text: () => formatCSLDateForDisplay(props.reference.metadata.accessed) || '',
   },
   {
     id: 'submitted',
     condition: () => props.reference.metadata.submitted,
     icon: mdiCalendarClock,
     title: t('submitted'),
-    text: () => formatCSLDate(props.reference.metadata.submitted) || '',
+    text: () => formatCSLDateForDisplay(props.reference.metadata.submitted) || '',
   },
   {
     id: 'available-date',
     condition: () => props.reference.metadata['available-date'],
     icon: mdiCalendarClock,
     title: t('available-date'),
-    text: () => formatCSLDate(props.reference.metadata['available-date']) || '',
+    text: () => formatCSLDateForDisplay(props.reference.metadata['available-date']) || '',
   },
   {
     id: 'event-date',
     condition: () => props.reference.metadata['event-date'],
     icon: mdiCalendarClock,
     title: t('event-date'),
-    text: () => formatCSLDate(props.reference.metadata['event-date']) || '',
+    text: () => formatCSLDateForDisplay(props.reference.metadata['event-date']) || '',
   },
   {
     id: 'original-date',
     condition: () => props.reference.metadata['original-date'],
     icon: mdiCalendarClock,
     title: t('original-date'),
-    text: () => formatCSLDate(props.reference.metadata['original-date']) || '',
+    text: () => formatCSLDateForDisplay(props.reference.metadata['original-date']) || '',
   },
   // Bibliographic
   {

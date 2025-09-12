@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
-import { extractYear, formatAuthorsCompact } from '@/extension/utils/cslFormatters'
+import { extractYearFromCSLDate, formatAuthorsCompact } from '@source-taster/types'
 
 const { reference } = defineProps<{
   reference: ApiExtractReference
@@ -19,7 +19,7 @@ const subtitle = computed(() => {
   const parts = []
 
   // Extract year using the utility function
-  const year = extractYear(reference.metadata.issued)
+  const year = extractYearFromCSLDate(reference.metadata.issued)
   if (year)
     parts.push(year)
 

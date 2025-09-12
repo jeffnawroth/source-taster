@@ -1,4 +1,5 @@
-import type { ApiMatchNormalizationRule, CSLDate, CSLName } from '@source-taster/types'
+import type { ApiMatchNormalizationRule } from '@source-taster/types'
+import { stringifyCSLValue } from '@source-taster/types'
 import normalizeUrl from 'normalize-url'
 
 /**
@@ -442,109 +443,6 @@ export class NormalizationService {
   }
 
   /**
-   * Convert CSL values to strings for comparison, handling CSL-specific data types
-   * This method handles structure conversion without normalization
-   */
-  public stringifyValue(value: unknown): string {
-    if (value === null || value === undefined) {
-      return ''
-    }
-
-    if (typeof value === 'string') {
-      return value
-    }
-
-    if (typeof value === 'number') {
-      return value.toString()
-    }
-
-    if (Array.isArray(value)) {
-      return value.map(item => this.stringifyValue(item)).join(' ')
-    }
-
-    if (typeof value === 'object') {
-      // For CSL name objects, combine given and family names
-      if ('family' in value || 'given' in value) {
-        const author = value as CSLName
-
-        // If there's a literal name, use that first (highest priority)
-        if (author.literal) {
-          return author.literal
-        }
-
-        // Build name parts in order
-        const nameParts: string[] = []
-
-        // Add given name
-        if (author.given) {
-          nameParts.push(author.given)
-        }
-
-        // Add non-dropping particle (stays with family name)
-        if (author['non-dropping-particle']) {
-          nameParts.push(author['non-dropping-particle'])
-        }
-
-        // Add family name
-        if (author.family) {
-          nameParts.push(author.family)
-        }
-
-        // Add dropping particle (usually "de", "van", etc.)
-        if (author['dropping-particle']) {
-          nameParts.push(author['dropping-particle'])
-        }
-
-        // Add suffix
-        if (author.suffix) {
-          nameParts.push(author.suffix)
-        }
-
-        return nameParts.filter(Boolean).join(' ')
-      }
-
-      // For CSL date objects
-      if ('date-parts' in value) {
-        const date = value as CSLDate
-
-        // If there's a raw date, use that first (unparsed date string)
-        if (date.raw) {
-          return date.raw
-        }
-
-        // If there's a literal date, use that
-        if (date.literal) {
-          return date.literal
-        }
-
-        // Handle season
-        if (date.season) {
-          return String(date.season)
-        }
-
-        // Handle circa
-        if (date.circa) {
-          const circaPrefix = date.circa === true ? 'ca. ' : `${String(date.circa)} `
-          // If we have date-parts, prepend circa to formatted date
-          if (date['date-parts'] && date['date-parts'][0]) {
-            return circaPrefix + date['date-parts'][0].join('-')
-          }
-          return circaPrefix.trim()
-        }
-
-        // Otherwise format date-parts
-        if (date['date-parts'] && date['date-parts'][0]) {
-          return date['date-parts'][0].join('-')
-        }
-      }
-
-      return JSON.stringify(value)
-    }
-
-    return String(value)
-  }
-
-  /**
    * Normalize URLs for consistent comparison using normalize-url package
    * Optimized for academic references (DOIs, ArXiv, journals, etc.)
    */
@@ -584,7 +482,7 @@ export class NormalizationService {
    * This is the main method for normalized value comparison
    */
   public normalizeValue(value: unknown, rules: ApiMatchNormalizationRule[]): string {
-    const stringValue = this.stringifyValue(value)
+    const stringValue = stringifyCSLValue(value)
     return this.normalize(stringValue, rules)
   }
 }
