@@ -36,11 +36,13 @@ async function testApiKey() {
         width="2"
         indeterminate
       />
+
       <v-icon
         v-else
         :icon="mdiCheckboxMarkedCircleOutline"
       />
     </template>
-    {{ $t('test-api-key') }}
+
+    {{ isTesting ? `${$t('testing')}...` : $t('test-api-key') }}
   </v-btn>
 </template>

@@ -111,18 +111,27 @@ async function handleVerify() {
   <div>
     <v-btn
       :disabled="!canVerify || isVerifying"
-      :loading="isVerifying"
       color="success"
       variant="tonal"
       block
       @click="handleVerify"
     >
-      <v-icon
-        :icon="mdiMagnifyExpand"
-        start
-      />
-      <span v-if="isVerifying">{{ $t('verifying') }}...</span>
-      <span v-else>{{ $t('verify-references') }}</span>
+      <template #prepend>
+        <v-progress-circular
+          v-if="isVerifying"
+          size="20"
+          width="2"
+          indeterminate
+        />
+
+        <v-icon
+          v-else
+          :icon="mdiMagnifyExpand"
+          start
+        />
+      </template>
+
+      {{ isVerifying ? `${$t('verifying')}...` : $t('verify-references') }}
     </v-btn>
 
     <v-expand-transition>

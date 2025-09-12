@@ -49,10 +49,22 @@ watch(ctrlEnter, (pressed) => {
     variant="tonal"
     color="primary"
     :disabled="isDisabled"
-    :loading="extractionStore.isExtracting"
     block
-    :text="t('extract-references')"
-    :prepend-icon="mdiAutoFix"
     @click="handleExtractClick"
-  />
+  >
+    <template #prepend>
+      <v-progress-circular
+        v-if="extractionStore.isExtracting"
+        size="20"
+        width="2"
+        indeterminate
+      />
+      <v-icon
+        v-else
+        :icon="mdiAutoFix"
+      />
+    </template>
+
+    {{ extractionStore.isExtracting ? `${t('extracting')}...` : t('extract-references') }}
+  </v-btn>
 </template>

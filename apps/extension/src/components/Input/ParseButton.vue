@@ -44,14 +44,21 @@ watch([keys['Cmd+Enter'], keys['Ctrl+Enter']], ([cmd, ctrl]) => {
     variant="tonal"
     color="secondary"
     :disabled="isDisabled"
-    :loading="anystyle.isParsing"
     block
     @click="handleParseClick"
   >
-    <v-icon
-      :icon="mdiCodeTags"
-      start
-    />
-    {{ t('parse-references') }}
+    <template #prepend>
+      <v-progress-circular
+        v-if="anystyle.isParsing"
+        size="20"
+        width="2"
+        indeterminate
+      />
+      <v-icon
+        v-else
+        :icon="mdiCodeTags"
+      />
+    </template>
+    {{ anystyle.isParsing ? `${t('parsing')}...` : t('parse-references') }}
   </v-btn>
 </template>
