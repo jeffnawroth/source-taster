@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { ApiSearchCandidate, Reference } from '@source-taster/types'
+import type { ApiExtractReference, ApiSearchCandidate } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAccountGroup, mdiAccountTie, mdiBookmark, mdiBookOpenBlankVariantOutline, mdiCalendarClock, mdiCalendarOutline, mdiCalendarRange, mdiChevronDown, mdiChevronUp, mdiDomain, mdiEarth, mdiFileDocumentOutline, mdiGavel, mdiIdentifier, mdiInformation, mdiLibrary, mdiLink, mdiMapMarker, mdiMedicalBag, mdiMicrophone, mdiNewspaper, mdiNotebookOutline, mdiNoteText, mdiNumeric, mdiOfficeBuilding, mdiRuler, mdiTag, mdiTelevision, mdiText, mdiTranslate } from '@mdi/js'
 
 const props = defineProps<{
-  reference: Reference | ApiSearchCandidate
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference | ApiSearchCandidate>>
   subheader?: string
 }>()
 

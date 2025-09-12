@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Props
 defineProps<{
-  score: string | null
+  score: number | null
   color?: string
 }>()
 

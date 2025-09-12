@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { ExtractedReference } from '@/extension/types/reference'
+import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import DetailsToggleBtn from './DetailsToggleBtn.vue'
 import OpenSrcBtn from './OpenSrcBtn.vue'
 
 // PROPS
 const { reference } = defineProps<{
-  reference: ExtractedReference
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
 // SHOW DETAILS - using defineModel for parent communication

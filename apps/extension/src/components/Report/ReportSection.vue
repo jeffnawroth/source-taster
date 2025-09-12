@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
-import { useUIStore } from '@/extension/stores/ui'
+import { useExtractionStore } from '@/extension/stores/extraction'
 
-// Get state from new specialized stores
-const uiStore = useUIStore()
-const { displayReferences } = storeToRefs(uiStore)
-
-// Use display references for the UI (these contain the combined data)
-const references = displayReferences
+const extractionStore = useExtractionStore()
+const { extractedReferences } = storeToRefs(extractionStore)
 
 // Check for AnyStyle parsed tokens
 const anystyleStore = useAnystyleStore()
@@ -17,12 +13,13 @@ const hasAnystyleParsedTokens = computed(() => hasParseResults.value)
 
 const search = ref('')
 
-const { results } = useFuse(search, references, {
+const { results } = useFuse(search, () => [...extractionStore.extractedReferences], {
   fuseOptions: {
     keys: [
       'originalText',
       'metadata.title',
-      'metadata.author',
+      'metadata.author.family',
+      'metadata.author.given',
       'metadata.container-title',
     ],
     threshold: 0.3,
@@ -37,40 +34,41 @@ const { results } = useFuse(search, references, {
     :title="`3. ${$t('verify')}`"
     :subtitle="$t('verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases')"
   >
+    <VerifyButton
+      v-if="extractedReferences.length > 0"
+      :disabled="!hasAnystyleParsedTokens"
+      class="mb-3"
+    />
+    <v-divider class="mb-3" />
     <!-- SUBTITLE -->
     <v-card-subtitle class="px-0">
       <ReportSubtitle />
     </v-card-subtitle>
 
-    <v-card-text class="px-0">
+    <v-card-text class="px-0 pb-0">
+      <!-- VERIFY BUTTON - Always show but disabled when no parsed tokens -->
+
       <!-- SEARCH -->
       <ReferencesSearchInput
         v-model="search"
         class="mb-2"
       />
 
-      <!-- VERIFY BUTTON - Always show but disabled when no parsed tokens -->
-      <VerifyButton
-        :disabled="!hasAnystyleParsedTokens"
-        class="mb-3"
-      />
-
       <!-- References Container with fixed height -->
-      <div
+      <!-- <div
         class="references-container"
         style="max-height: calc(100vh - 610px)"
-      >
-        <!-- LIST - Show when we have references -->
-        <ReferencesList
-          v-if="references.length > 0"
-          :results
-        />
-      </div>
+      > -->
+      <!-- LIST - Show when we have references -->
+      <ReferencesList
+        :results
+      />
+      <!-- </div> -->
     </v-card-text>
   </v-card>
 </template>
 
-<style scoped>
+<!-- <style scoped>
 .references-container {
   overflow-y: auto;
   overflow-x: hidden;
@@ -96,4 +94,4 @@ const { results } = useFuse(search, references, {
 .references-container::-webkit-scrollbar-thumb:hover {
   background: rgba(64, 64, 64, 0.9);
 }
-</style>
+</style> -->

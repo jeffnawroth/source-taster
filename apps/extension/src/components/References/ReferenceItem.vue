@@ -1,53 +1,53 @@
 <script setup lang="ts">
-import type { DisplayReference } from '@/extension/stores/ui'
-import { getScoreColor } from '@/extension/utils/scoreUtils'
+import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
 const { reference } = defineProps<{
-  reference: DisplayReference
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
 // TRANSLATION
 const { t } = useI18n()
 
 // CARD COLOR based on matching status
-const color = computed(() => {
-  // If there's an error, show error color
-  if (reference.status === 'error') {
-    return 'error'
-  }
+// const color = computed(() => {
+//   // If there's an error, show error color
+//   if (reference.status === 'error') {
+//     return 'error'
+//   }
 
-  // If still pending, no color
-  if (reference.status === 'pending') {
-    return undefined
-  }
+//   // If still pending, no color
+//   if (reference.status === 'pending') {
+//     return undefined
+//   }
 
-  // Get the overall score from matching details
-  const score = reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore
+//   // Get the overall score from matching details
+//   const score = reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore
 
-  if (score === undefined) {
-    return 'warning' // No score available
-  }
+//   if (score === undefined) {
+//     return 'warning' // No score available
+//   }
 
-  // Use consistent score-based color mapping from scoreUtils
-  return getScoreColor(score)
-})
+//   // Use consistent score-based color mapping from scoreUtils
+//   return getScoreColor(score)
+// })
 
 // TITLE
 const title = computed(() => reference.metadata.title || t('no-title'))
 
 // MATCHING SCORE
-const matchingScore = computed(() =>
-  reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore,
-)
+// const matchingScore = computed(() =>
+//   reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore,
+// )
 
 // SCORE DISPLAY TEXT
-const scoreText = computed(() => {
-  if (matchingScore.value === undefined)
-    return null
-  return `${Math.round(matchingScore.value)} %`
-})
+// const scoreText = computed(() => {
+//   if (matchingScore.value === undefined)
+//     return null
+//   return `${Math.round(matchingScore.value)} %`
+// })
 
 // SHOW DETAILS - managed by ReferenceActions component
 const showDetails = ref(false)
@@ -59,14 +59,14 @@ const showDetails = ref(false)
     variant="outlined"
     class="mb-2"
     :title
-    :color
   >
+    <!-- :color -->
     <!-- STATUS ICON & SCORE -->
     <template #append>
-      <ReferenceScore
+      <!-- <ReferenceScore
         :score="scoreText"
         :color
-      />
+      /> -->
     </template>
 
     <!-- SUBTITLE -->

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import type { ApiExtractReference } from '@source-taster/types'
 import type { FuseResult } from 'fuse.js'
-import type { DisplayReference } from '@/extension/stores/ui'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 
 const { results } = defineProps<{
-  results: FuseResult<DisplayReference>[]
+  results: FuseResult<DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>>[]
 }>()
 </script>
 
@@ -16,11 +17,10 @@ const { results } = defineProps<{
   >
     <v-slide-y-transition group>
       <ReferenceItem
-        v-for="(displayReference) in results"
-        :key="displayReference.item.id"
-        :reference="displayReference.item"
+        v-for="(extractedReference) in results"
+        :key="extractedReference.item.id"
+        :reference="extractedReference.item"
       />
     </v-slide-y-transition>
   </v-list>
-  <!-- <NoResultsFoundState v-else /> -->
 </template>

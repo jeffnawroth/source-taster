@@ -4,7 +4,8 @@
   <v-app>
     <AppBar />
     <v-main>
-      <v-container style="max-height: calc(100vh - 95px); overflow: hidden;">
+      <!-- style="max-height: calc(100vh - 95px); overflow: hidden;" -->
+      <v-container>
         <AppLayout />
       </v-container>
     </v-main>
