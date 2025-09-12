@@ -6,7 +6,7 @@ import { settings } from '@/extension/logic'
 import { useMatchingStore } from '@/extension/stores/matching'
 
 const props = defineProps<{
-  references?: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>[]
+  references?: DeepReadonly<ApiExtractReference[]>
 }>()
 
 const matchingStore = useMatchingStore()
