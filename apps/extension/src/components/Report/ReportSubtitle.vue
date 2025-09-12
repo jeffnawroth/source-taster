@@ -1,35 +1,83 @@
 <script setup lang="ts">
-import { mdiAlertCircleOutline, mdiCheckCircleOutline, mdiCloseCircleOutline, mdiMagnify } from '@mdi/js'
-import { useUIStore } from '@/extension/stores/ui'
+import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
+import { mdiBullseye, mdiCloseCircleOutline, mdiHelpCircleOutline, mdiMagnify, mdiTarget, mdiTargetVariant } from '@mdi/js'
+import { settings } from '@/extension/logic'
+import { useMatchingStore } from '@/extension/stores/matching'
 
-const uiStore = useUIStore()
-const { displayReferences } = storeToRefs(uiStore)
+const props = defineProps<{
+  references?: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>[]
+}>()
 
-// Calculate status counts from display references
-const statusCounts = computed(() => {
+const matchingStore = useMatchingStore()
+const { getMatchingScoreByReference } = storeToRefs(matchingStore)
+
+// Helper function to categorize a single reference based on its match score
+function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error' {
+  try {
+    const score = getMatchingScoreByReference.value(reference.id)
+
+    if (!Number.isFinite(score) || score <= 0) {
+      return 'noMatch'
+    }
+
+    if (score === 100) {
+      return 'exactMatch'
+    }
+
+    const { strongMatchThreshold, possibleMatchThreshold }
+      = settings.value.matching.matchingConfig.displayThresholds
+
+    if (score >= strongMatchThreshold) {
+      return 'strongMatch'
+    }
+
+    if (score >= possibleMatchThreshold) {
+      return 'possibleMatch'
+    }
+
+    return 'noMatch'
+  }
+  catch {
+    return 'error'
+  }
+}
+
+// Computed for individual match counts
+const matchCounts = computed(() => {
+  const references = props.references || []
+
   const counts = {
-    total: displayReferences.value.length,
-    matched: 0,
-    notMatched: 0,
+    exactMatch: 0,
+    strongMatch: 0,
+    possibleMatch: 0,
+    noMatch: 0,
     error: 0,
   }
 
-  displayReferences.value.forEach((ref) => {
-    switch (ref.status) {
-      case 'matched':
-        counts.matched++
-        break
-      case 'not-matched':
-        counts.notMatched++
-        break
-      case 'error':
-        counts.error++
-        break
-      // 'pending' doesn't increment any specific counter
-    }
+  references.forEach((reference) => {
+    const category = categorizeReference(reference)
+    counts[category]++
   })
 
   return counts
+})
+
+// Computed for derived counts
+const statusCounts = computed(() => {
+  const total = props.references?.length || 0
+  const { exactMatch, strongMatch, possibleMatch, noMatch, error } = matchCounts.value
+
+  return {
+    total,
+    exactMatch,
+    strongMatch,
+    possibleMatch,
+    noMatch,
+    matched: exactMatch + strongMatch,
+    notMatched: possibleMatch + noMatch,
+    error,
+  }
 })
 </script>
 
@@ -41,7 +89,10 @@ const statusCounts = computed(() => {
       density="compact"
     >
       <!-- Total Found -->
-      <v-col cols="auto">
+      <v-col
+        v-if="statusCounts.total > 0"
+        cols="auto"
+      >
         <v-tooltip :text="$t('found-references-tooltip')">
           <template #activator="{ props }">
             <v-chip
@@ -59,42 +110,105 @@ const statusCounts = computed(() => {
         </v-tooltip>
       </v-col>
 
-      <!-- Matched -->
-      <v-col cols="auto">
-        <v-tooltip :text="$t('verified-references-tooltip')">
+      <!-- Exact Match -->
+      <v-col
+        v-if="statusCounts.exactMatch > 0"
+        cols="auto"
+      >
+        <v-tooltip :text="$t('exact-match-tooltip', { count: statusCounts.exactMatch })">
           <template #activator="{ props }">
             <v-chip
               label
-              :prepend-icon="mdiCheckCircleOutline"
+              :prepend-icon="mdiBullseye"
               v-bind="props"
               variant="tonal"
               density="compact"
-              color="success"
+              color="green-darken-2"
               class="mx-1"
             >
-              {{ statusCounts.matched }} {{ $t('verified') }}
+              {{ statusCounts.exactMatch }} {{ $t('exact-match-chip') }}
             </v-chip>
           </template>
         </v-tooltip>
       </v-col>
 
-      <!-- Not Matched -->
+      <!-- Strong Match -->
       <v-col
-        v-if="statusCounts.notMatched > 0"
+        v-if="statusCounts.strongMatch > 0"
         cols="auto"
       >
-        <v-tooltip :text="$t('unverified-references-tooltip')">
+        <v-tooltip
+          :text="$t('strong-match-tooltip', {
+            count: statusCounts.strongMatch,
+            strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold,
+          })"
+        >
           <template #activator="{ props }">
             <v-chip
               label
-              :prepend-icon="mdiAlertCircleOutline"
+              :prepend-icon="mdiTarget"
               v-bind="props"
               variant="tonal"
               density="compact"
-              color="warning"
+              color="green"
               class="mx-1"
             >
-              {{ statusCounts.notMatched }} {{ $t('unverified') }}
+              {{ statusCounts.strongMatch }} {{ $t('strong-match-chip') }}
+            </v-chip>
+          </template>
+        </v-tooltip>
+      </v-col>
+
+      <!-- Possible Match -->
+      <v-col
+        v-if="statusCounts.possibleMatch > 0"
+        cols="auto"
+      >
+        <v-tooltip
+          :text="$t('possible-match-tooltip', {
+            count: statusCounts.possibleMatch,
+            possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
+            strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold - 1,
+          })"
+        >
+          <template #activator="{ props }">
+            <v-chip
+              label
+              :prepend-icon="mdiTargetVariant"
+              v-bind="props"
+              variant="tonal"
+              density="compact"
+              color="orange"
+              class="mx-1"
+            >
+              {{ statusCounts.possibleMatch }} {{ $t('possible-match-chip') }}
+            </v-chip>
+          </template>
+        </v-tooltip>
+      </v-col>
+
+      <!-- No Match -->
+      <v-col
+        v-if="statusCounts.noMatch > 0"
+        cols="auto"
+      >
+        <v-tooltip
+          :text="$t('no-match-tooltip', {
+            count: statusCounts.noMatch,
+            possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
+          })"
+        >
+          <template #activator="{ props }">
+            <v-chip
+              label
+              :prepend-icon="mdiHelpCircleOutline"
+              v-bind="props"
+              variant="tonal"
+              density="compact"
+              color="grey"
+              class="mx-1"
+            >
+              {{ statusCounts.noMatch }} {{ $t('no-match-chip') }}
             </v-chip>
           </template>
         </v-tooltip>

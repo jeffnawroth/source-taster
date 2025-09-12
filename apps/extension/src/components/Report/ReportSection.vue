@@ -33,11 +33,16 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
     />
     <v-divider class="mb-3" />
     <!-- SUBTITLE -->
-    <v-card-subtitle class="px-0">
-      <ReportSubtitle />
+    <v-card-subtitle
+      class="px-0"
+    >
+      <ReportSubtitle :references="extractedReferences" />
     </v-card-subtitle>
 
-    <v-card-text class="px-0 pb-0">
+    <v-card-text
+      v-if="extractedReferences.length > 0"
+      class="px-0 pb-0"
+    >
       <!-- VERIFY BUTTON - Always show but disabled when no parsed tokens -->
 
       <!-- SEARCH -->
