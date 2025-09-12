@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useUIStore } from '@/extension/stores/ui'
+import { useExtractionStore } from '@/extension/stores/extraction'
 
 // DATE
 const fullYear = computed(() => new Date().getFullYear())
 const { t } = useI18n()
 
-const { displayReferences } = storeToRefs(useUIStore())
+const { extractedReferences } = storeToRefs(useExtractionStore())
 
-const hasReferences = computed(() => displayReferences.value.length > 0)
+const hasReferences = computed(() => extractedReferences.value.length > 0)
 </script>
 
 <template>
