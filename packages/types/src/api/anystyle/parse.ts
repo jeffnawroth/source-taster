@@ -37,14 +37,23 @@ export const ApiAnystyleTokenLabelSchema = z.enum([
 export type ApiAnystyleTokenLabel = z.infer<typeof ApiAnystyleTokenLabelSchema>
 
 export const ApiAnystyleTokenSchema = z.tuple([ApiAnystyleTokenLabelSchema, z.string()])
+  .describe('A single token with its label')
 export type ApiAnystyleToken = z.infer<typeof ApiAnystyleTokenSchema>
 
-export const ApiAnystyleTokenSequenceSchema = z.array(ApiAnystyleTokenSchema).describe('A sequence of tokens representing one parsed reference')
+export const ApiAnystyleTokenSequenceSchema = z.array(ApiAnystyleTokenSchema)
+  .describe('A sequence of tokens representing one parsed reference')
 export type ApiAnystyleTokenSequence = z.infer<typeof ApiAnystyleTokenSequenceSchema>
 
+export const ApiAnystyleParsedReferenceSchema = z.object({
+  originalText: z.string().min(1).describe('The original raw reference string'),
+  tokens: ApiAnystyleTokenSequenceSchema,
+})
+
+export type ApiAnystyleParsedReference = z.infer<typeof ApiAnystyleParsedReferenceSchema>
+
 export const ApiAnystyleParseDataSchema = z.object({
-  modelUsed: z.string().min(1),
-  tokens: z.array(ApiAnystyleTokenSequenceSchema).describe('Array of token sequences, where each sequence is an array of [label, token] pairs'),
+  modelUsed: z.string().min(1).describe('The AnyStyle model used for parsing'),
+  references: z.array(ApiAnystyleParsedReferenceSchema).describe('Array of parsed references with tokens'),
 }).strict()
 export type ApiAnystyleParseData = z.infer<typeof ApiAnystyleParseDataSchema>
 

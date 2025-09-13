@@ -7,49 +7,56 @@ require 'citeproc'
 set :bind, '0.0.0.0'
 set :port, 4567
 
-# Parse references and return tokens with labels using custom model (if available)
+# Parse references and return tokens with labels (plus originalText),
+# using custom model if available.
 post '/parse' do
   content_type :json
 
   body = request.body.read
-  payload = body.empty? ? {} : JSON.parse(body) rescue {}
-  input_refs = payload['input']
+  payload = body.empty? ? {} : (JSON.parse(body) rescue {})
 
-  halt 400, { error: 'No input provided' }.to_json unless input_refs&.is_a?(Array) && !input_refs.empty?
+  input_refs = payload['input']
+  unless input_refs.is_a?(Array) && !input_refs.empty?
+    halt 400, { error: 'No input provided' }.to_json
+  end
 
   begin
-    # Try to use custom model if available, otherwise fall back to default
     custom_model_file = File.join('/app', 'custom.mod')
-    
-    parser = if File.exist?(custom_model_file)
+    using_custom_model = File.exist?(custom_model_file)
+
+    parser = if using_custom_model
                AnyStyle::Parser.new(model: custom_model_file)
              else
                AnyStyle.parser
              end
 
-    # Parse each reference and get tokens
-    token_data = input_refs.map do |ref|
-      # Parse and get Wapiti dataset (tokens with labels)
-      dataset = parser.parse([ref], format: :wapiti)
-      
-      # Convert first sequence to [["label", "token"], ...] format
-      sequence = dataset.first
-      next [] unless sequence
-      
-      sequence.map do |token|
-        [token.label.to_s, token.value.to_s]
-      end
+    # Batch-Parse: Ein Aufruf für alle Referenzen ist effizienter.
+    dataset = parser.parse(input_refs, format: :wapiti)
+
+    references = input_refs.each_with_index.map do |ref, idx|
+      seq = dataset[idx]
+      tokens =
+        if seq && seq.respond_to?(:map)
+          seq.map { |token| [token.label.to_s, token.value.to_s] }
+        else
+          []
+        end
+
+      {
+        originalText: ref,
+        tokens: tokens,
+      }
     end
 
     {
-      model_used: File.exist?(custom_model_file) ? 'custom.mod' : 'default',
-      tokens: token_data
+      modelUsed: using_custom_model ? 'custom.mod' : 'default',
+      references: references,
     }.to_json
 
   rescue => e
     halt 500, {
       error: "Parsing failed: #{e.message}",
-      backtrace: e.backtrace.first(5)
+      backtrace: e.backtrace&.first(5),
     }.to_json
   end
 end
