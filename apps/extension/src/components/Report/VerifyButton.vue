@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ApiAnystyleToken, ApiHttpError, ApiMatchReference, ApiSearchReference, ApiSearchSource } from '@source-taster/types'
+import type { ApiHttpError, ApiMatchReference, ApiSearchReference, ApiSearchSource } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
 import {
 
@@ -30,11 +30,7 @@ const canVerify = computed(() =>
 
 // ---- A) Tokens -> CSL (AnyStyle-Flow)
 async function convertTokensToCSL(): Promise<ApiSearchReference[]> {
-  const tokens = parsed.value.map(ref =>
-    ref.tokens.map(t => [t[0], t[1]] as ApiAnystyleToken),
-  )
-
-  const res = await anystyleStore.convertToCSL(tokens)
+  const res = await anystyleStore.convertToCSL()
   if (!res.success)
     throw new Error(mapApiError(res as unknown as ApiHttpError))
 

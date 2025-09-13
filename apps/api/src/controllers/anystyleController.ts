@@ -1,4 +1,5 @@
 import type {
+  ApiAnystyleConvertData,
   ApiAnystyleConvertResponse,
   ApiAnystyleParseResponse,
   ApiAnystyleTrainResponse,
@@ -29,7 +30,7 @@ export class AnystyleController {
   static async convertToCSL(c: Context): Promise<Response> {
     const req = ApiAnystyleConvertRequestSchema.parse(await c.req.json())
 
-    const data = await anystyleProvider.convertToCSL(req.tokens)
+    const data: ApiAnystyleConvertData = await anystyleProvider.convertToCSL(req.references)
 
     const payload: ApiAnystyleConvertResponse = {
       success: true,

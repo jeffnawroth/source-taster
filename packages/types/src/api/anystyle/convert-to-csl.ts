@@ -4,8 +4,15 @@ import { createApiResponseSchema } from '../api'
 import { ApiAnystyleTokenSchema } from './parse'
 
 // ----- Request -----
+
+export const ApiAnystyleConvertReferenceSchema = z.object({
+  id: z.uuid().describe('Unique identifier for the reference'),
+  tokens: z.array(ApiAnystyleTokenSchema),
+}).strict()
+export type ApiAnystyleConvertReference = z.infer<typeof ApiAnystyleConvertReferenceSchema>
+
 export const ApiAnystyleConvertRequestSchema = z.object({
-  tokens: z.array(z.array(ApiAnystyleTokenSchema)).nonempty().describe('Array of token sequences to convert to CSL'),
+  references: z.array(ApiAnystyleConvertReferenceSchema).nonempty(),
 }).strict()
 export type ApiAnystyleConvertRequest = z.infer<typeof ApiAnystyleConvertRequestSchema>
 

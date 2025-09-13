@@ -65,10 +65,12 @@ export class AnystyleProvider {
   /**
    * Convert tokenized references to CSL format
    */
-  async convertToCSL(tokens: ApiAnystyleConvertRequest['tokens']): Promise<ApiAnystyleConvertData> {
+  async convertToCSL(
+    references: ApiAnystyleConvertRequest['references'],
+  ): Promise<ApiAnystyleConvertData> {
     return await this.postJson<ApiAnystyleConvertRequest, ApiAnystyleConvertData>(
       '/convert-to-csl',
-      { tokens },
+      { references },
     )
   }
 

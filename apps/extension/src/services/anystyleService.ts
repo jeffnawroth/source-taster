@@ -1,4 +1,4 @@
-import type { ApiAnystyleConvertData, ApiAnystyleParseData, ApiAnystyleTokenSequence, ApiAnystyleTrainData, ApiResult } from '@source-taster/types'
+import type { ApiAnystyleConvertData, ApiAnystyleConvertReference, ApiAnystyleParseData, ApiAnystyleTokenSequence, ApiAnystyleTrainData, ApiResult } from '@source-taster/types'
 import {
   ApiAnystyleConvertRequestSchema,
   ApiAnystyleParseRequestSchema,
@@ -31,8 +31,8 @@ export class AnystyleService {
    * @param tokens - Array of token sequences to convert
    * @returns ApiResult mit { csl }
    */
-  static async convertToCSL(tokens: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleConvertData>> {
-    const req = ApiAnystyleConvertRequestSchema.parse({ tokens })
+  static async convertToCSL(references: ApiAnystyleConvertReference[]): Promise<ApiResult<ApiAnystyleConvertData>> {
+    const req = ApiAnystyleConvertRequestSchema.parse({ references })
     return apiCall<ApiAnystyleConvertData>(`${BASE}${PATHS.convertToCSL}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -72,11 +72,17 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     parsed.value = next
   }
 
-  async function convertToCSL(tokens: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleConvertData>> {
+  // extension/stores/anystyle.ts
+  async function convertToCSL(): Promise<ApiResult<ApiAnystyleConvertData>> {
     isConverting.value = true
     convertError.value = null
 
-    const res = await AnystyleService.convertToCSL(tokens)
+    const references = parsed.value.map(ref => ({
+      id: ref.id,
+      tokens: ref.tokens,
+    }))
+
+    const res = await AnystyleService.convertToCSL(references)
 
     if (!res.success) {
       convertError.value = mapApiError(res as ApiHttpError)

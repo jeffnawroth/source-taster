@@ -45,6 +45,7 @@ export const ApiAnystyleTokenSequenceSchema = z.array(ApiAnystyleTokenSchema)
 export type ApiAnystyleTokenSequence = z.infer<typeof ApiAnystyleTokenSequenceSchema>
 
 export const ApiAnystyleParsedReferenceSchema = z.object({
+  id: z.uuid().describe('Unique identifier for the reference'),
   originalText: z.string().min(1).describe('The original raw reference string'),
   tokens: ApiAnystyleTokenSequenceSchema,
 })
