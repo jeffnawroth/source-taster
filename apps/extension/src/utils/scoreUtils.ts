@@ -16,7 +16,7 @@ export function getScoreColor(score: number | null): string {
 
   // Exact match (100%) gets special dark green color
   if (score === 100)
-    return '#1B5E20'
+    return 'success'
 
   // Strong match threshold = success (green)
   if (score >= thresholds.strongMatchThreshold)

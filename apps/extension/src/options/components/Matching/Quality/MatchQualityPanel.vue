@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiAlertCircle, mdiCheck, mdiCheckCircle, mdiCloseCircle, mdiPalette } from '@mdi/js'
+import { mdiAlertCircleOutline, mdiBullseye, mdiHelpCircleOutline, mdiPalette, mdiTarget } from '@mdi/js'
 import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { settings } from '@/extension/logic'
 
@@ -38,7 +38,7 @@ const thresholdSliderItems = computed(() => [
     max: 99,
     color: 'success',
     description: t('strong-match-threshold-description'),
-    icon: mdiCheck,
+    icon: mdiTarget,
   },
   {
     label: t('possible-match-threshold'),
@@ -46,7 +46,7 @@ const thresholdSliderItems = computed(() => [
     max: Math.min(98, strongMatchThreshold.value - 1),
     color: 'warning',
     description: t('possible-match-threshold-description'),
-    icon: mdiAlertCircle,
+    icon: mdiHelpCircleOutline,
   },
 ])
 </script>
@@ -67,15 +67,15 @@ const thresholdSliderItems = computed(() => [
           <div class="d-flex align-center justify-space-between mb-2">
             <label class="font-weight-medium d-flex align-center">
               <v-icon
-                :icon="mdiCheckCircle"
-                color="#1B5E20"
+                :icon="mdiBullseye"
+                color="success"
                 size="small"
                 class="me-2"
               />
               {{ t('exact-match-threshold') }}
             </label>
             <v-chip
-              color="#1B5E20"
+              color="success"
               variant="flat"
               size="small"
             >
@@ -91,7 +91,6 @@ const thresholdSliderItems = computed(() => [
         <ThresholdSlider
           v-model="strongMatchThreshold"
           v-bind="thresholdSliderItems[0]"
-          :icon="mdiCheckCircle"
         />
 
         <!-- Possible Match Threshold -->
@@ -104,7 +103,7 @@ const thresholdSliderItems = computed(() => [
           <div class="d-flex align-center justify-space-between mb-2">
             <label class="font-weight-medium d-flex align-center">
               <v-icon
-                :icon="mdiCloseCircle"
+                :icon="mdiAlertCircleOutline"
                 color="error"
                 size="small"
                 class="me-2"
