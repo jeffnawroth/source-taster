@@ -549,6 +549,7 @@
   "matching-fuzzy-settings": "Fuzzy Matching",
   "matching-fuzzy-threshold": "Fuzzy Matching Sensitivity",
   "matching-fuzzy-threshold-description": "Higher values = more strict fuzzy matching (0.1-1.0)",
+  "matching-fields-last-field-tooltip": "At least one matching field must remain enabled with 100% weight",
   "matching-ignore-case": "Ignore case differences",
   "matching-ignore-punctuation": "Ignore punctuation differences",
   "matching-ignore-whitespace": "Ignore whitespace differences",

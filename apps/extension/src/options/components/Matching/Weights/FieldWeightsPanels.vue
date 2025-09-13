@@ -45,6 +45,58 @@ const sortedAndFilteredFields = computed(() => {
 
   return fields
 })
+
+// Check how many fields are currently enabled
+const enabledFieldsCount = computed(() => {
+  return FIELD_DEFINITIONS.filter(field =>
+    matchConfig.value.fieldConfigurations[field.key]?.enabled,
+  ).length
+})
+
+// Function to handle field toggling with validation
+function handleFieldToggle(fieldKey: string, enabled: boolean) {
+  const fieldConfig = matchConfig.value.fieldConfigurations[fieldKey]
+
+  if (!enabled && enabledFieldsCount.value <= 1) {
+    // Don't allow disabling the last field
+    return
+  }
+
+  if (enabled) {
+    // When enabling a field, use default weight or current weight
+    const defaultField = FIELD_DEFINITIONS.find(f => f.key === fieldKey)
+    matchConfig.value.fieldConfigurations[fieldKey] = {
+      enabled: true,
+      weight: fieldConfig?.weight || defaultField?.defaultValue || 5,
+    }
+  }
+  else {
+    // When disabling a field
+    matchConfig.value.fieldConfigurations[fieldKey] = {
+      enabled: false,
+      weight: fieldConfig?.weight || 0,
+    }
+  }
+
+  // If only one field is enabled, ensure it has 100% weight
+  if (enabledFieldsCount.value === 1) {
+    const lastEnabledField = FIELD_DEFINITIONS.find(field =>
+      matchConfig.value.fieldConfigurations[field.key]?.enabled,
+    )
+    if (lastEnabledField) {
+      matchConfig.value.fieldConfigurations[lastEnabledField.key] = {
+        enabled: true,
+        weight: 100,
+      }
+    }
+  }
+}
+
+// Check if a field can be disabled
+function canDisableField(fieldKey: string): boolean {
+  const isEnabled = matchConfig.value.fieldConfigurations[fieldKey]?.enabled
+  return !isEnabled || enabledFieldsCount.value > 1
+}
 </script>
 
 <template>
@@ -72,6 +124,9 @@ const sortedAndFilteredFields = computed(() => {
             v-model="matchConfig.fieldConfigurations[item.key]"
             :label="t(item.labelKey)"
             :default-value="item.defaultValue"
+            :field-key="item.key"
+            :can-disable="canDisableField(item.key)"
+            @toggle-field="handleFieldToggle"
           />
         </template>
       </v-virtual-scroll>
