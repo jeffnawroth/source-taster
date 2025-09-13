@@ -105,7 +105,9 @@ export class NormalizationService {
    * Example: "—em dash" → "-", "–en dash" → "-"
    */
   private normalizeDashes(text: string): string {
-    return text.replace(/[\u2013\u2014]/g, '-')
+    return text
+      .replace(/[\u2013\u2014]/g, '-') // Convert em/en dashes to hyphens
+      .replace(/\s*-\s*/g, '-') // Remove spaces around hyphens (for page ranges like "656 - 657" → "656-657")
   }
 
   /**
