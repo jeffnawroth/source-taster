@@ -10,12 +10,6 @@ const router = new Hono()
 router.post('/', searchController.searchAllDatabases)
 
 /**
- * @route GET /api/search/databases
- * @desc Get list of available databases
- */
-router.get('/databases', searchController.getDatabases)
-
-/**
  * @route POST /api/search/:database
  * @desc Search for a reference in a specific database
  */

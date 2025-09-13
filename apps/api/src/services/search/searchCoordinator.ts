@@ -66,17 +66,6 @@ export class SearchCoordinator {
     return results
   }
 
-  public async getDatabases() {
-    const databases = this.getDatabasesByPriority()
-    const databaseList = databases.map(db => ({
-      name: db.name,
-      priority: db.priority,
-      endpoint: `/api/search/${db.name}`,
-    }))
-
-    return { databases: databaseList, total: databaseList.length }
-  }
-
   private getDatabasesByPriority(): DatabaseInfo[] {
     return [...this.databaseServices].sort((a, b) => a.priority - b.priority)
   }

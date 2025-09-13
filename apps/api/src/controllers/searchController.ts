@@ -1,9 +1,8 @@
+import type { ApiSearchRequest, ApiSearchResult } from '@source-taster/types'
 import type { Context } from 'hono'
 import {
-  type ApiSearchRequest,
   ApiSearchRequestSchema,
   ApiSearchResponseSchema,
-  type ApiSearchResult,
 } from '@source-taster/types'
 import { httpBadRequest } from '../errors/http'
 import searchCoordinator from '../services/search/searchCoordinator'
@@ -16,15 +15,6 @@ export async function searchAllDatabases(c: Context) {
   const req = await parseAndValidateRequest(c)
   const results = await searchCoordinator.searchAllDatabases(req.references)
   return createSuccessResponse(c, results)
-}
-
-/**
- * GET /api/search/databases
- * Liste verfügbarer Datenbanken
- */
-export async function getDatabases(c: Context) {
-  const databases = await searchCoordinator.getDatabases()
-  return c.json({ success: true, data: databases })
 }
 
 /**
