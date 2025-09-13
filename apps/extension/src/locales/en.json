@@ -249,6 +249,8 @@
   "exact-match-threshold-example": "95% = scores 95-100% show as green exact matches",
   "exact-match-tooltip": "Exact matches (100%)",
   "example": "Example",
+  "ai-placeholder-example": "Example (AI can extract from various formats)",
+  "parse-placeholder-example": "Example (structured references only)",
   "example-explanation": "In this example, verification will focus 50% on title similarity, 30% on DOI match, and 20% on author similarity. All other fields (year, journal, pages, etc.) are ignored.",
   "example-scenario": "You want to focus only on title and DOI matching, ignoring all other fields",
   "executive-producer": "Executive Producer",

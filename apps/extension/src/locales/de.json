@@ -239,6 +239,8 @@
   "exact-match-threshold-example": "95% = Bewertungen 95-100% werden als grüne exakte Übereinstimmungen angezeigt",
   "exact-match-tooltip": "Exakte Übereinstimmungen (100%)",
   "example": "Beispiel",
+  "ai-placeholder-example": "Beispiel (KI kann aus verschiedenen Formaten extrahieren)",
+  "parse-placeholder-example": "Beispiel (nur strukturierte Referenzen)",
   "example-explanation": "In diesem Beispiel konzentriert sich die Verifizierung zu 50 % auf Titel-Ähnlichkeit, zu 30 % auf DOI-Übereinstimmung und zu 20   % auf Autoren-Ähnlichkeit. Alle anderen Felder (Jahr, Zeitschrift, Seiten, etc.) werden ignoriert.",
   "example-scenario": "Sie möchten sich nur auf Titel- und DOI-Abgleich konzentrieren und alle anderen Felder ignorieren",
   "executive-producer": "Ausführender Produzent",
