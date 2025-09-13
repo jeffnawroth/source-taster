@@ -2,6 +2,8 @@
 import type {
   ApiHttpError,
   ApiSearchCandidate,
+  ApiSearchData,
+  ApiSearchDatabasesData,
   ApiSearchRequest,
 } from '@source-taster/types'
 import { defineStore } from 'pinia'
@@ -10,15 +12,21 @@ import { SearchService } from '@/extension/services/searchService'
 import { mapApiError } from '@/extension/utils/mapApiError'
 
 export const useSearchStore = defineStore('search', () => {
-  // State
+  // ---------- State ----------
   const candidates = ref<Map<string, ApiSearchCandidate>>(new Map())
   const searchResults = ref<Map<string, string[]>>(new Map()) // referenceId -> candidateIds[]
   const isSearching = ref(false)
   const searchError = ref<string | null>(null)
 
-  // Computed
-  const totalCandidates = computed(() => candidates.value.size)
+  const databases = ref<ApiSearchDatabasesData['databases']>([])
+  const isLoadingDatabases = ref(false)
+  const databasesError = ref<string | null>(null)
 
+  // ---------- Computed ----------
+  const totalCandidates = computed(() => candidates.value.size)
+  const databasesByPriority = computed(() =>
+    [...databases.value].sort((a, b) => a.priority - b.priority),
+  )
   const getCandidatesByReference = computed(() => {
     return (referenceId: string): ApiSearchCandidate[] => {
       const candidateIds = searchResults.value.get(referenceId) || []
@@ -28,33 +36,69 @@ export const useSearchStore = defineStore('search', () => {
     }
   })
 
-  // Actions
+  // ---------- Helpers ----------
+  function mergeResults(data: ApiSearchData) {
+    for (const result of data.results) {
+      const ids: string[] = searchResults.value.get(result.referenceId) ?? []
+      for (const cand of result.candidates) {
+        candidates.value.set(cand.id, cand)
+        if (!ids.includes(cand.id))
+          ids.push(cand.id)
+      }
+      searchResults.value.set(result.referenceId, ids)
+    }
+  }
+
+  // ---------- Actions ----------
   async function searchCandidates(request: ApiSearchRequest) {
     isSearching.value = true
     searchError.value = null
 
     const res = await SearchService.searchCandidates(request)
-
     if (!res.success) {
       searchError.value = mapApiError(res as ApiHttpError)
       isSearching.value = false
       return res
     }
 
-    const data = res.data
-    for (const result of data.results) {
-      const ids: string[] = []
-      for (const cand of result.candidates) {
-        candidates.value.set(cand.id, cand)
-        ids.push(cand.id)
-      }
-      searchResults.value.set(result.referenceId, ids)
-    }
-
+    mergeResults(res.data!)
     isSearching.value = false
     return res
   }
 
+  async function fetchDatabases() {
+    isLoadingDatabases.value = true
+    databasesError.value = null
+
+    const res = await SearchService.getDatabases()
+    if (!res.success) {
+      databasesError.value = mapApiError(res as ApiHttpError)
+      isLoadingDatabases.value = false
+      return res
+    }
+
+    databases.value = res.data!.databases
+    isLoadingDatabases.value = false
+    return res
+  }
+
+  async function searchInDatabase(database: string, request: ApiSearchRequest) {
+    isSearching.value = true
+    searchError.value = null
+
+    const res = await SearchService.searchInDatabase(database, request)
+    if (!res.success) {
+      searchError.value = mapApiError(res as ApiHttpError)
+      isSearching.value = false
+      return res
+    }
+
+    mergeResults(res.data!)
+    isSearching.value = false
+    return res
+  }
+
+  // Utilities
   function getCandidateById(candidateId: string): ApiSearchCandidate | undefined {
     return candidates.value.get(candidateId)
   }
@@ -74,22 +118,33 @@ export const useSearchStore = defineStore('search', () => {
     searchError.value = null
   }
 
+  function clearDatabasesError() {
+    databasesError.value = null
+  }
+
   return {
-    // State
+    // State (readonly)
     candidates: readonly(candidates),
     searchResults: readonly(searchResults),
     isSearching: readonly(isSearching),
     searchError: readonly(searchError),
+    databases: readonly(databases),
+    isLoadingDatabases: readonly(isLoadingDatabases),
+    databasesError: readonly(databasesError),
 
     // Computed
     totalCandidates,
+    databasesByPriority,
     getCandidatesByReference,
 
     // Actions
     searchCandidates,
+    fetchDatabases,
+    searchInDatabase,
     getCandidateById,
     getCandidatesByReferenceId,
     clearSearchResults,
     clearSearchError,
+    clearDatabasesError,
   }
 })
