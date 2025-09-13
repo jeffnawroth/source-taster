@@ -75,8 +75,12 @@ const sortedItems = computed(() => {
   const selected = allVars.filter(item => selectedVars.includes(item))
   const unselected = allVars.filter(item => !selectedVars.includes(item))
 
-  // Return selected first, then unselected
-  return [...selected, ...unselected]
+  // Sort both groups alphabetically by their translated titles
+  const sortAlphabetically = (items: CSLVariableWithoutId[]) =>
+    items.sort((a, b) => t(a).localeCompare(t(b)))
+
+  // Return selected first (sorted), then unselected (sorted)
+  return [...sortAlphabetically(selected), ...sortAlphabetically(unselected)]
 })
 </script>
 
