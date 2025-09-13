@@ -11,7 +11,15 @@ const { reference } = defineProps<{
 const authors = computed(() => {
   if (!reference.metadata.author)
     return null
-  return formatAuthorsCompact(JSON.parse(JSON.stringify(reference.metadata.author)))
+  try {
+    // Convert readonly type to mutable for the utility function
+    const authorsData = reference.metadata.author as any
+    return formatAuthorsCompact(authorsData)
+  }
+  catch (error) {
+    console.warn('Error formatting authors:', error)
+    return null
+  }
 })
 
 // CARD SUBTITLE
@@ -20,9 +28,17 @@ const subtitle = computed(() => {
   const parts = []
 
   // Extract year using the utility function
-  const year = extractYearFromCSLDate(JSON.parse(JSON.stringify(reference.metadata.issued)))
-  if (year)
-    parts.push(year)
+  try {
+    if (reference.metadata.issued) {
+      const issuedData = reference.metadata.issued as any
+      const year = extractYearFromCSLDate(issuedData)
+      if (year)
+        parts.push(year)
+    }
+  }
+  catch (error) {
+    console.warn('Error parsing issued date:', error)
+  }
 
   if (authors.value)
     parts.push(authors.value)
