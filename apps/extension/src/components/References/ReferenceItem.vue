@@ -23,10 +23,11 @@ const title = computed(() => reference.metadata.title || t('no-title'))
 // statt eigener Berechnung:
 const bestScore = computed<number | null>(() => {
   const s = getMatchingScoreByReference.value(reference.id)
-  return Number.isFinite(s) && s > 0 ? s : null
+  return Number.isFinite(s) ? s : null
 })
 
-const scoreColor = computed<string>(() => getScoreColor(bestScore.value))
+const scoreColor = computed<string>(() =>
+  bestScore.value !== null ? getScoreColor(bestScore.value) : 'default')
 
 const showDetails = ref(false)
 </script>

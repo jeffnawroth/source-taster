@@ -27,9 +27,13 @@ export const useMatchingStore = defineStore('matching', () => {
   })
 
   const getMatchingScoreByReference = computed(() => {
-    return (referenceId: string): number => {
+    return (referenceId: string): number | null => {
+      const result = matchingResults.value.get(referenceId)
+      if (!result || !result.evaluations || result.evaluations.length === 0) {
+        return null // No matching performed yet
+      }
       const best = getBestMatchByReference.value(referenceId)
-      return best?.matchDetails.overallScore ?? 0
+      return best?.matchDetails.overallScore ?? 0 // Score 0 means no match found
     }
   })
 

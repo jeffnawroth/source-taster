@@ -9,7 +9,7 @@ import { settings } from '../logic'
  */
 export function getScoreColor(score: number | null): string {
   // Handle null/invalid scores
-  if (score == null || !Number.isFinite(score) || score <= 0)
+  if (score == null || !Number.isFinite(score) || score < 0)
     return 'default'
 
   const thresholds = settings.value.matching.matchingConfig.displayThresholds
@@ -26,6 +26,6 @@ export function getScoreColor(score: number | null): string {
   if (score >= thresholds.possibleMatchThreshold)
     return 'warning'
 
-  // Below possible match threshold = error (red)
+  // Below possible match threshold (including 0) = error (red)
   return 'error'
 }

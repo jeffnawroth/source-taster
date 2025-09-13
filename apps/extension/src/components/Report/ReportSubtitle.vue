@@ -13,11 +13,16 @@ const matchingStore = useMatchingStore()
 const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 
 // Helper function to categorize a single reference based on its match score
-function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error' {
+function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'notTested' | 'error' {
   try {
     const score = getMatchingScoreByReference.value(reference.id)
 
-    if (!Number.isFinite(score) || score <= 0) {
+    // Distinguish between not tested (null) and no match found (0)
+    if (score === null || score === undefined || !Number.isFinite(score)) {
+      return 'notTested'
+    }
+
+    if (score === 0) {
       return 'noMatch'
     }
 
@@ -52,6 +57,7 @@ const matchCounts = computed(() => {
     strongMatch: 0,
     possibleMatch: 0,
     noMatch: 0,
+    notTested: 0,
     error: 0,
   }
 
@@ -66,7 +72,7 @@ const matchCounts = computed(() => {
 // Computed for derived counts
 const statusCounts = computed(() => {
   const total = props.references?.length || 0
-  const { exactMatch, strongMatch, possibleMatch, noMatch, error } = matchCounts.value
+  const { exactMatch, strongMatch, possibleMatch, noMatch, notTested, error } = matchCounts.value
 
   return {
     total,
@@ -74,8 +80,9 @@ const statusCounts = computed(() => {
     strongMatch,
     possibleMatch,
     noMatch,
+    notTested,
     matched: exactMatch + strongMatch,
-    notMatched: possibleMatch + noMatch,
+    notMatched: possibleMatch + noMatch, // notTested are not counted as notMatched
     error,
   }
 })

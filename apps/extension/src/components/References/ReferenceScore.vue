@@ -11,7 +11,7 @@ const { t } = useI18n()
 
 <template>
   <v-tooltip
-    v-if="score"
+    v-if="score !== null"
     location="top"
     width="200"
   >
