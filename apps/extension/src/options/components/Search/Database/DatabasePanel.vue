@@ -33,7 +33,21 @@ function resetToDefaults() {
 
 // Toggle database enabled state
 function toggleDatabase(database: UISearchDatabaseConfig) {
+  // If trying to disable this database, check if it's the last enabled one
+  if (database.enabled) {
+    const enabledCount = databases.value.filter(db => db.enabled).length
+    if (enabledCount <= 1)
+      return
+  }
   database.enabled = !database.enabled
+}
+
+// Check if database can be disabled (for UI state)
+function canDisableDatabase(database: UISearchDatabaseConfig): boolean {
+  if (!database.enabled)
+    return true // Can always enable
+  const enabledCount = databases.value.filter(db => db.enabled).length
+  return enabledCount > 1
 }
 
 // Get database display name
@@ -115,6 +129,7 @@ function getDatabaseColor(database: UISearchDatabaseConfig): string {
             :icon="database.enabled ? mdiEye : mdiEyeOff"
             variant="text"
             size="small"
+            :disabled="database.enabled && !canDisableDatabase(database)"
             @click="toggleDatabase(database)"
           />
         </template>
