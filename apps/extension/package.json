@@ -29,6 +29,9 @@
     "typecheck": "tsc --noEmit",
     "release": "bumpp"
   },
+  "dependencies": {
+    "sortablejs": "^1.15.6"
+  },
   "devDependencies": {
     "@ffflorian/jszip-cli": "^3.8.6",
     "@fontsource/roboto": "^5.2.6",
