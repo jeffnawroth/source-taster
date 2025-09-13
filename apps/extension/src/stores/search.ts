@@ -3,11 +3,11 @@ import type {
   ApiHttpError,
   ApiSearchCandidate,
   ApiSearchData,
-  ApiSearchDatabasesData,
   ApiSearchRequest,
 } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
+import { settings } from '@/extension/logic'
 import { SearchService } from '@/extension/services/searchService'
 import { mapApiError } from '@/extension/utils/mapApiError'
 
@@ -18,15 +18,15 @@ export const useSearchStore = defineStore('search', () => {
   const isSearching = ref(false)
   const searchError = ref<string | null>(null)
 
-  const databases = ref<ApiSearchDatabasesData['databases']>([])
-  const isLoadingDatabases = ref(false)
-  const databasesError = ref<string | null>(null)
-
   // ---------- Computed ----------
   const totalCandidates = computed(() => candidates.value.size)
-  const databasesByPriority = computed(() =>
-    [...databases.value].sort((a, b) => a.priority - b.priority),
-  )
+
+  // Use database settings from user preferences
+  const databasesByPriority = computed(() => {
+    return settings.value.databases
+      .filter(db => db.enabled)
+      .sort((a, b) => a.priority - b.priority)
+  })
   const getCandidatesByReference = computed(() => {
     return (referenceId: string): ApiSearchCandidate[] => {
       const candidateIds = searchResults.value.get(referenceId) || []
@@ -66,22 +66,6 @@ export const useSearchStore = defineStore('search', () => {
     return res
   }
 
-  async function fetchDatabases() {
-    isLoadingDatabases.value = true
-    databasesError.value = null
-
-    const res = await SearchService.getDatabases()
-    if (!res.success) {
-      databasesError.value = mapApiError(res as ApiHttpError)
-      isLoadingDatabases.value = false
-      return res
-    }
-
-    databases.value = res.data!.databases
-    isLoadingDatabases.value = false
-    return res
-  }
-
   async function searchInDatabase(database: string, request: ApiSearchRequest) {
     isSearching.value = true
     searchError.value = null
@@ -118,19 +102,12 @@ export const useSearchStore = defineStore('search', () => {
     searchError.value = null
   }
 
-  function clearDatabasesError() {
-    databasesError.value = null
-  }
-
   return {
     // State (readonly)
     candidates: readonly(candidates),
     searchResults: readonly(searchResults),
     isSearching: readonly(isSearching),
     searchError: readonly(searchError),
-    databases: readonly(databases),
-    isLoadingDatabases: readonly(isLoadingDatabases),
-    databasesError: readonly(databasesError),
 
     // Computed
     totalCandidates,
@@ -139,12 +116,10 @@ export const useSearchStore = defineStore('search', () => {
 
     // Actions
     searchCandidates,
-    fetchDatabases,
     searchInDatabase,
     getCandidateById,
     getCandidatesByReferenceId,
     clearSearchResults,
     clearSearchError,
-    clearDatabasesError,
   }
 })

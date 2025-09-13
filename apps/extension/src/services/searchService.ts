@@ -5,7 +5,6 @@
 import type {
   ApiResult,
   ApiSearchData,
-  ApiSearchDatabasesData,
   ApiSearchRequest,
 } from '@source-taster/types'
 import { ApiSearchRequestSchema } from '@source-taster/types'
@@ -27,16 +26,6 @@ export class SearchService {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
-    })
-  }
-
-  /**
-   * Get list of available databases (with priority)
-   */
-  static async getDatabases(): Promise<ApiResult<ApiSearchDatabasesData>> {
-    return apiCall<ApiSearchDatabasesData>(`${API_BASE_URL}/databases`, {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
     })
   }
 

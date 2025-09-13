@@ -71,11 +71,7 @@ async function prepareReferences(): Promise<ApiSearchReference[]> {
 }
 
 // ---- Get databases and early termination settings
-async function getVerificationSettings() {
-  const dbRes = await searchStore.fetchDatabases()
-  if (dbRes && !dbRes.success)
-    throw new Error(mapApiError(dbRes as unknown as ApiHttpError))
-
+function getVerificationSettings() {
   const databases = databasesByPriority.value ?? []
   const early = settings.value.matching.matchingConfig.earlyTermination
   const threshold = early?.threshold || DEFAULT_EARLY_TERMINATION.threshold
@@ -144,7 +140,7 @@ async function handleVerify() {
 
   try {
     const references = await prepareReferences()
-    const { databases, threshold, earlyEnabled } = await getVerificationSettings()
+    const { databases, threshold, earlyEnabled } = getVerificationSettings()
 
     await performVerificationWithEarlyTermination(references, databases, threshold, earlyEnabled)
   }
