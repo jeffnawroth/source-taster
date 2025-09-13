@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import type {
-  ApiAnystyleToken,
-  ApiAnystyleTokenSequence,
-  ApiHttpError,
-  ApiMatchReference,
-  ApiSearchReference,
-} from '@source-taster/types'
+import type { ApiAnystyleToken, ApiAnystyleTokenSequence, ApiHttpError, ApiMatchReference, ApiSearchReference } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
-import { useCloned } from '@vueuse/core'
+import {
+
+  DEFAULT_EARLY_TERMINATION,
+} from '@source-taster/types'
+import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
-import { useExtractionStore } from '@/extension/stores/extraction' // ⟵ NEU
+import { useExtractionStore } from '@/extension/stores/extraction'
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useSearchStore } from '@/extension/stores/search'
 import { mapApiError } from '@/extension/utils/mapApiError'
 
 const anystyleStore = useAnystyleStore()
-const extractionStore = useExtractionStore() // ⟵ NEU
+const extractionStore = useExtractionStore()
 const searchStore = useSearchStore()
+const { databasesByPriority } = storeToRefs(searchStore)
 const matchingStore = useMatchingStore()
 
 const { parsedTokens, hasParseResults } = storeToRefs(anystyleStore)
@@ -25,68 +24,105 @@ const { extractedReferences } = storeToRefs(extractionStore)
 const isVerifying = ref(false)
 const verifyError = ref<string | null>(null)
 
-// Button enabled? → entweder Tokens ODER extrahierte Referenzen
 const canVerify = computed(() =>
-  hasParseResults.value || (extractedReferences.value.length > 0),
+  hasParseResults.value || extractedReferences.value.length > 0,
 )
 
 // ---- A) Tokens -> CSL (AnyStyle-Flow)
 async function convertTokensToCSL(): Promise<ApiSearchReference[]> {
-  const mutableTokens: ApiAnystyleTokenSequence[] = parsedTokens.value.map(seq =>
+  const mutable: ApiAnystyleTokenSequence[] = parsedTokens.value.map(seq =>
     seq.map(t => [t[0], t[1]] as ApiAnystyleToken),
   )
-  const res = await anystyleStore.convertToCSL(mutableTokens)
+  const res = await anystyleStore.convertToCSL(mutable)
   if (!res.success)
     throw new Error(mapApiError(res as unknown as ApiHttpError))
+
   const csl = res.data?.csl ?? []
-  return csl.map((item, _idx) => {
+  return csl.map((_item) => {
     const id = crypto.randomUUID()
-    return {
-      id,
-      metadata: { ...item, id },
-    }
+    return { id, metadata: { ..._item, id } }
   })
 }
 
-// ---- B) KI-Extrahierte Referenzen -> CSL (direkt)
+// ---- B) KI-Extrahierte Referenzen -> CSL
 function getExtractedCSL(): ApiSearchReference[] {
   return extractedReferences.value.map((r) => {
-    const { cloned } = useCloned(r.metadata)
-    return { metadata: cloned.value, id: r.id } as ApiSearchReference
+    const cloned = JSON.parse(JSON.stringify(r.metadata))
+    return { id: r.id, metadata: { ...cloned, id: r.id } }
   })
 }
 
-// ---- Search Candidates (für beide Wege)
-async function searchForCandidates(cslItems: ApiSearchReference[]) {
-  const res = await searchStore.searchCandidates({ references: cslItems })
-  if (!res.success)
-    throw new Error(mapApiError(res as unknown as ApiHttpError))
-}
-
-// ---- Match one (Kandidaten werden im Store bereinigt)
+// ---- Match eine Referenz gegen aktuelle Kandidaten
 async function matchOne(reference: ApiMatchReference) {
   const candidates = searchStore.getCandidatesByReferenceId(reference.id)
   if (!candidates.length)
     return
+
   const res = await matchingStore.matchReference({ reference, candidates })
   if (!res.success)
     throw new Error(mapApiError(res as unknown as ApiHttpError))
 }
 
-// ---- Orchestrierung
+// ---- Orchestrierung mit Early Termination (pro Referenz)
 async function handleVerify() {
   if (!canVerify.value)
     return
+
   isVerifying.value = true
   verifyError.value = null
+
   try {
-    // Branching: AnyStyle-Tokens vorhanden? Sonst KI-Extraktion
-    const csl: ApiSearchReference[] = hasParseResults.value
+    // 1) Referenzen vorbereiten (Tokens->CSL ODER KI-Extraktion)
+    const refs: ApiSearchReference[] = hasParseResults.value
       ? await convertTokensToCSL()
       : getExtractedCSL()
 
-    await searchForCandidates(csl)
-    for (const ref of csl) await matchOne(ref)
+    // 2) DB-Liste holen (priorisiert)
+    const dbRes = await searchStore.fetchDatabases()
+    if (dbRes && !dbRes.success)
+      throw new Error(mapApiError(dbRes as unknown as ApiHttpError))
+    const databases = databasesByPriority.value ?? [] // [{name, priority, endpoint}]
+
+    // Set der „noch zu suchenden“ Referenzen
+    const remaining = new Set(refs.map(r => r.id))
+
+    // Early termination Settings (aus UI-Settings)
+    const early = settings.value.matching.matchingConfig.earlyTermination
+    const threshold = early?.threshold || DEFAULT_EARLY_TERMINATION.threshold
+    const earlyEnabled = !!early?.enabled
+
+    // 3) Datenbanken nacheinander abfragen
+    for (const db of databases) {
+      if (remaining.size === 0)
+        break
+
+      // pro Referenz (nur die, die noch offen sind)
+      for (const ref of refs) {
+        if (!remaining.has(ref.id))
+          continue
+
+        // 3a) Suche in genau dieser DB für diese eine Referenz
+        const sres = await searchStore.searchInDatabase(db.name, { references: [ref] })
+        if (sres && !sres.success)
+          throw new Error(mapApiError(sres as unknown as ApiHttpError))
+
+        // 3b) Matchen mit den (neuen) Kandidaten dieser Referenz
+        await matchOne(ref)
+
+        // 3c) Early termination Check
+        if (earlyEnabled) {
+          const score = matchingStore.getMatchingScoreByReference(ref.id)
+          if (score >= threshold) {
+            remaining.delete(ref.id)
+          }
+        }
+      }
+    }
+
+    // Optional: letzte Sicherungs-Matches, falls Early-Termination aus ist
+    if (!earlyEnabled) {
+      for (const ref of refs) await matchOne(ref)
+    }
   }
   catch (e: any) {
     console.error('Verification failed:', e)
@@ -114,14 +150,12 @@ async function handleVerify() {
           width="2"
           indeterminate
         />
-
         <v-icon
           v-else
           :icon="mdiMagnifyExpand"
           start
         />
       </template>
-
       {{ isVerifying ? `${$t('verifying')}...` : $t('verify-references') }}
     </v-btn>
 
