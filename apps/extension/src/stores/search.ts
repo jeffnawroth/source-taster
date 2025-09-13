@@ -24,7 +24,7 @@ export const useSearchStore = defineStore('search', () => {
 
   // Use database settings from user preferences
   const databasesByPriority = computed(() => {
-    return settings.value.databases
+    return settings.value.search.databases
       .filter(db => db.enabled)
       .sort((a, b) => a.priority - b.priority)
   })

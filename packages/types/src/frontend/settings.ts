@@ -28,6 +28,7 @@ export const DEFAULT_DISPLAY_THRESHOLDS: UIMatchingDisplayThresholds = {
 
 // Database Configuration
 export const UISearchDatabaseConfigSchema = z.object({
+  id: z.uuid().describe('Unique identifier for the database configuration'),
   name: z.string().describe('Database name'),
   enabled: z.boolean().describe('Whether this database is enabled for searches'),
   priority: z.number().min(1).describe('Search priority (lower number = higher priority)'),
@@ -38,11 +39,11 @@ export const UIDatabasesSettingsSchema = z.array(UISearchDatabaseConfigSchema).d
 export type UIDatabasesSettings = z.infer<typeof UIDatabasesSettingsSchema>
 
 export const DEFAULT_DATABASES_SETTINGS: UIDatabasesSettings = [
-  { name: 'openalex', enabled: true, priority: 1 },
-  { name: 'crossref', enabled: true, priority: 2 },
-  { name: 'semanticscholar', enabled: true, priority: 3 },
-  { name: 'europepmc', enabled: false, priority: 4 },
-  { name: 'arxiv', enabled: false, priority: 5 },
+  { id: crypto.randomUUID(), name: 'openalex', enabled: true, priority: 1 },
+  { id: crypto.randomUUID(), name: 'crossref', enabled: true, priority: 2 },
+  { id: crypto.randomUUID(), name: 'semanticscholar', enabled: true, priority: 3 },
+  { id: crypto.randomUUID(), name: 'europepmc', enabled: false, priority: 4 },
+  { id: crypto.randomUUID(), name: 'arxiv', enabled: false, priority: 5 },
 ] as const
 
 export const UISearchSettingsSchema = z.object({
