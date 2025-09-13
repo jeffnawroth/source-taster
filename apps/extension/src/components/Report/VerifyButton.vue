@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ApiAnystyleToken, ApiAnystyleTokenSequence, ApiHttpError, ApiMatchReference, ApiSearchReference } from '@source-taster/types'
+import type { ApiAnystyleToken, ApiAnystyleTokenSequence, ApiHttpError, ApiMatchReference, ApiSearchReference, ApiSearchSource } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
 import {
 
@@ -89,7 +89,7 @@ function shouldTerminateEarly(referenceId: string, threshold: number, earlyEnabl
 }
 
 // ---- Process single reference against database
-async function processReferenceInDatabase(reference: ApiSearchReference, databaseName: string) {
+async function processReferenceInDatabase(reference: ApiSearchReference, databaseName: ApiSearchSource) {
   const sres = await searchStore.searchInDatabase(databaseName, { references: [reference] })
   if (sres && !sres.success)
     throw new Error(mapApiError(sres as unknown as ApiHttpError))
