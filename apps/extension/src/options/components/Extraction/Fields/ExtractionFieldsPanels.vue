@@ -65,6 +65,19 @@ function remove(item: CSLVariableWithoutId) {
 function canRemoveField(): boolean {
   return settings.value.extract.extractionConfig.variables.length > 1
 }
+
+// Sort items to show selected ones at the top
+const sortedItems = computed(() => {
+  const selectedVars = settings.value.extract.extractionConfig.variables
+  const allVars = [...CSLVariableWithoutIdSchema.options]
+
+  // Separate selected and unselected
+  const selected = allVars.filter(item => selectedVars.includes(item))
+  const unselected = allVars.filter(item => !selectedVars.includes(item))
+
+  // Return selected first, then unselected
+  return [...selected, ...unselected]
+})
 </script>
 
 <template>
@@ -72,7 +85,7 @@ function canRemoveField(): boolean {
     <v-card-text>
       <v-autocomplete
         v-model="settings.extract.extractionConfig.variables"
-        :items="CSLVariableWithoutIdSchema.options"
+        :items="sortedItems"
         :label="t('fields')"
         multiple
         :item-title="(item) => t(item)"
