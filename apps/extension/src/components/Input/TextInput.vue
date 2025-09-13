@@ -2,6 +2,7 @@
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
 import { settings } from '@/extension/logic'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useUIStore } from '@/extension/stores/ui'
@@ -13,6 +14,7 @@ const { t } = useI18n()
 const uiStore = useUIStore()
 const extractionStore = useExtractionStore()
 const matchingStore = useMatchingStore()
+const anystyleStore = useAnystyleStore()
 
 const { inputText, file } = storeToRefs(uiStore)
 const { isExtracting } = storeToRefs(extractionStore)
@@ -47,6 +49,8 @@ function handleClear() {
   uiStore.clearAll()
   // Also clear extracted references
   extractionStore.clearExtractedReferences()
+
+  anystyleStore.clearParseResults()
 }
 
 // DISABLED STATE - disabled when file is loaded or any process is running
