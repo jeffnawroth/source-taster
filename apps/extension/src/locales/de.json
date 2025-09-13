@@ -270,6 +270,7 @@
   "extraction-core-metadata": "Kern-Metadaten",
   "extraction-date-information": "Datums-Informationen",
   "extraction-deselect-all": "Alle abwählen",
+  "extraction-fields-last-field-tooltip": "Mindestens ein Extraktionsfeld muss ausgewählt bleiben",
   "extraction-identifiers": "Identifikatoren",
   "extraction-mode": "Extraktions-Modus",
   "extraction-mode-balanced": "Ausgewogen",

@@ -271,6 +271,7 @@
   "extraction-core-metadata": "Core Metadata",
   "extraction-date-information": "Date Information",
   "extraction-deselect-all": "Deselect All",
+  "extraction-fields-last-field-tooltip": "At least one extraction field must remain selected",
   "extraction-identifiers": "Identifiers",
   "extraction-mode": "Extraction Mode",
   "extraction-mode-balanced": "Balanced",

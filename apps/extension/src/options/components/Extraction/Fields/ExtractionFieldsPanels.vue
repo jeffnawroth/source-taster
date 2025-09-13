@@ -22,8 +22,7 @@ const commonSelected = computed(() => {
 
 function toggleSelectAll() {
   if (allVariablesSelected.value) {
-    // Deselect all
-    settings.value.extract.extractionConfig.variables = []
+    settings.value.extract.extractionConfig.variables = [COMMON_CSL_VARIABLES[0]]
   }
   else {
     // Select all
@@ -34,8 +33,13 @@ function toggleSelectAll() {
 function toggleSelectCommon() {
   if (commonSelected.value) {
     // Deselect common (remove them from current selection)
-    settings.value.extract.extractionConfig.variables = settings.value.extract.extractionConfig.variables
+    const remainingVariables = settings.value.extract.extractionConfig.variables
       .filter(variable => !COMMON_CSL_VARIABLES.includes(variable as CommonCSLVariable))
+
+    // If no variables would remain, keep at least one common field
+    settings.value.extract.extractionConfig.variables = remainingVariables.length > 0
+      ? remainingVariables
+      : [COMMON_CSL_VARIABLES[0]]
   }
   else {
     // Select common (add missing common to current selection)
@@ -46,10 +50,20 @@ function toggleSelectCommon() {
 }
 
 function remove(item: CSLVariableWithoutId) {
+  // Don't allow removing the last field
+  if (settings.value.extract.extractionConfig.variables.length <= 1) {
+    return
+  }
+
   const index = settings.value.extract.extractionConfig.variables.indexOf(item)
   if (index > -1) {
     settings.value.extract.extractionConfig.variables.splice(index, 1)
   }
+}
+
+// Check if field can be removed (for UI state)
+function canRemoveField(): boolean {
+  return settings.value.extract.extractionConfig.variables.length > 1
 }
 </script>
 
@@ -94,10 +108,26 @@ function remove(item: CSLVariableWithoutId) {
         </template>
 
         <template #selection="{ item, index }">
+          <v-tooltip
+            v-if="index < 5 && !canRemoveField()"
+            location="top"
+          >
+            <template #activator="{ props }">
+              <v-chip
+                v-bind="props"
+                :text="item.title"
+                :closable="canRemoveField()"
+                size="small"
+                @click:close="remove(item.value)"
+              />
+            </template>
+            <span>{{ t('extraction-fields-last-field-tooltip') }}</span>
+          </v-tooltip>
+
           <v-chip
-            v-if="index < 5"
+            v-else-if="index < 5"
             :text="item.title"
-            closable
+            :closable="canRemoveField()"
             size="small"
             @click:close="remove(item.value)"
           />
