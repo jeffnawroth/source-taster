@@ -167,6 +167,15 @@
   "custom-matching-settings": "Custom Matching Settings",
   "custom-matching-settings-description": "Configure detailed matching behavior and tolerance levels for custom mode",
   "dark": "Dark",
+  "database-arxiv-description": "Open-access repository for preprints in physics, mathematics, computer science, and related fields",
+  "database-crossref-description": "Comprehensive database of academic publications with DOI registration",
+  "database-europepmc-description": "European database for biomedical and life sciences literature",
+  "database-openalex-description": "Open catalog of scholarly works, authors, venues, institutions, and concepts",
+  "database-semanticscholar-description": "AI-powered academic search engine with paper insights and recommendations",
+  "database-settings-description": "Configure which academic databases to search and their priority order",
+  "database-settings-help": "Drag to reorder priority. Higher positions are searched first. Toggle visibility to enable/disable databases.",
+  "database-settings-subtitle": "Manage search databases and priorities",
+  "database-settings-title": "Database Configuration",
   "date-information": "Date Information",
   "date-range": "Date Range",
   "day": "Day",
@@ -207,6 +216,7 @@
   "enable-fuzzy-matching": "Enable Fuzzy Matching",
   "enable-fuzzy-matching-description": "Allow approximate string matching for increased tolerance",
   "enable-fuzzy-matching-example": "\"Smith\" can match \"Smyth\" or \"Smithe\"",
+  "enabled-databases": "Enabled databases",
   "english": "English",
   "enter-dois": "Please enter DOIs, a text containing DOIs, or import a PDF containing DOIs to validate them",
   "enter-references": "Please enter a text or import a PDF containing references to verify them",
@@ -1083,5 +1093,6 @@
   "year": "Year",
   "year-match": "Year Match",
   "year-suffix": "Year Suffix",
-  "yes": "Yes"
+  "yes": "Yes",
+  "priority": "Priority"
 }

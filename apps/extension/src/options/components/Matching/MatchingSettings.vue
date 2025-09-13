@@ -8,6 +8,9 @@ const { t } = useI18n()
     :title="t('matching-settings-title')"
     :subtitle="t('matching-settings-description')"
   >
+    <!-- Database Panel -->
+    <DatabasePanel />
+
     <!-- Matching Mode Panel -->
     <MatchingModePanel />
 
