@@ -6,7 +6,7 @@ import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
 // Composables
 const anystyleStore = useAnystyleStore()
-const { parsedTokens, showTokenEditor } = storeToRefs(anystyleStore)
+const { parsed, showTokenEditor } = storeToRefs(anystyleStore)
 
 // State - Simplified: only tokens needed for editing
 const editableTokens = ref<ApiAnystyleTokenSequence[]>([])
@@ -14,11 +14,11 @@ const error = ref('')
 const currentReferenceIndex = ref(0)
 
 // Watch for changes in store data
-watch([parsedTokens, showTokenEditor], ([tokens, show]) => {
+watch([parsed, showTokenEditor], ([tokens, show]) => {
   if (show && tokens.length > 0) {
     // Create deep mutable copy of tokens for editing
-    editableTokens.value = tokens.map(tokenSequence =>
-      tokenSequence.map(token => [token[0], token[1]] as [ApiAnystyleTokenLabel, string]),
+    editableTokens.value = tokens.map(parsedRef =>
+      parsedRef.tokens.map(token => [token[0], token[1]] as [ApiAnystyleTokenLabel, string]),
     )
     currentReferenceIndex.value = 0
   }
@@ -44,7 +44,7 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
     flat
     :title="`2. ${$t('edit')}`"
     :subtitle="$t('review-and-relabel-parsed-references-by-clicking-on-tokens')"
-    :disabled="parsedTokens.length === 0"
+    :disabled="parsed.length === 0"
     :append-icon="mdiChevronDown"
   >
     <template #append>

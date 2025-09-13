@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ApiAnystyleToken, ApiAnystyleTokenSequence, ApiHttpError, ApiMatchReference, ApiSearchReference, ApiSearchSource } from '@source-taster/types'
+import type { ApiAnystyleToken, ApiHttpError, ApiMatchReference, ApiSearchReference, ApiSearchSource } from '@source-taster/types'
 import { mdiMagnifyExpand } from '@mdi/js'
 import {
 
@@ -18,7 +18,7 @@ const searchStore = useSearchStore()
 const { databasesByPriority } = storeToRefs(searchStore)
 const matchingStore = useMatchingStore()
 
-const { parsedTokens, hasParseResults } = storeToRefs(anystyleStore)
+const { parsed, hasParseResults } = storeToRefs(anystyleStore)
 const { extractedReferences } = storeToRefs(extractionStore)
 
 const isVerifying = ref(false)
@@ -30,29 +30,35 @@ const canVerify = computed(() =>
 
 // ---- A) Tokens -> CSL (AnyStyle-Flow)
 async function convertTokensToCSL(): Promise<ApiSearchReference[]> {
-  const mutable: ApiAnystyleTokenSequence[] = parsedTokens.value.map(seq =>
-    seq.map(t => [t[0], t[1]] as ApiAnystyleToken),
+  const tokens = parsed.value.map(ref =>
+    ref.tokens.map(t => [t[0], t[1]] as ApiAnystyleToken),
   )
-  const res = await anystyleStore.convertToCSL(mutable)
+
+  const res = await anystyleStore.convertToCSL(tokens)
   if (!res.success)
     throw new Error(mapApiError(res as unknown as ApiHttpError))
 
   const csl = res.data?.csl ?? []
 
+  // Robustheit: Längen abgleichen
+  if (csl.length !== parsed.value.length) {
+    console.warn('CSL length differs from parsed length. Will align by min length.')
+  }
+
   // Add IDs to CSL items
-  const cslItemsWithId = csl.map((item) => {
+  const searchRefs = csl.map((item) => {
     const id = crypto.randomUUID()
     return { id, metadata: { ...item, id } }
   })
 
   // Store extracted references with original text
-  const cslItemsWithOriginalText = cslItemsWithId.map((item, index) => {
-    const originalText = parsedTokens.value[index]?.map(t => t[1]).join(' ') || ''
+  const extractedRefs = searchRefs.map((item, index) => {
+    const originalText = parsed.value[index].originalText
     return { ...item, originalText }
   })
-  extractionStore.setExtractedReferences(cslItemsWithOriginalText)
+  extractionStore.setExtractedReferences(extractedRefs)
 
-  return cslItemsWithId
+  return searchRefs
 }
 
 // ---- B) KI-Extrahierte Referenzen -> CSL

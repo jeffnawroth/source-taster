@@ -2,6 +2,7 @@
 import type {
   ApiAnystyleConvertData,
   ApiAnystyleParseData,
+  ApiAnystyleParsedReference,
   ApiAnystyleTokenSequence,
   ApiAnystyleTrainData,
   ApiHttpError,
@@ -14,7 +15,7 @@ import { mapApiError } from '@/extension/utils/mapApiError'
 
 export const useAnystyleStore = defineStore('anystyle', () => {
   // --- State ---
-  const parsedTokens = ref<ApiAnystyleTokenSequence[]>([])
+  const parsed = ref<ApiAnystyleParsedReference[]>([])
   const showTokenEditor = ref(false)
 
   const isParsing = ref(false)
@@ -26,8 +27,8 @@ export const useAnystyleStore = defineStore('anystyle', () => {
   const trainError = ref<string | null>(null)
 
   // --- Computed ---
-  const totalParsedReferences = computed(() => parsedTokens.value.length)
-  const hasParseResults = computed(() => parsedTokens.value.length > 0)
+  const totalParsedReferences = computed(() => parsed.value.length)
+  const hasParseResults = computed(() => parsed.value.length > 0)
 
   const getParseStatus = computed(() => {
     if (isParsing.value)
@@ -56,18 +57,19 @@ export const useAnystyleStore = defineStore('anystyle', () => {
       return res
     }
 
-    parsedTokens.value = res.data.tokens
+    parsed.value = res.data?.references ?? []
+
     showTokenEditor.value = true
     isParsing.value = false
     return res
   }
 
   function updateTokens(index: number, tokens: ApiAnystyleTokenSequence) {
-    if (!parsedTokens.value[index])
+    if (!parsed.value[index])
       return
-    const next = parsedTokens.value.slice()
-    next[index] = tokens
-    parsedTokens.value = next
+    const next = parsed.value.slice()
+    next[index] = { ...next[index], tokens }
+    parsed.value = next
   }
 
   async function convertToCSL(tokens: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleConvertData>> {
@@ -102,12 +104,16 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     return res
   }
 
+  // Bulk-Update, falls Editor viele Sequenzen zurückgibt
   function updateParsedTokens(newTokens: ApiAnystyleTokenSequence[]) {
-    parsedTokens.value = newTokens
+    const next = parsed.value.slice()
+    for (let i = 0; i < Math.min(next.length, newTokens.length); i++)
+      next[i] = { ...next[i], tokens: newTokens[i] }
+    parsed.value = next
   }
 
   function clearParseResults() {
-    parsedTokens.value = []
+    parsed.value = []
     showTokenEditor.value = false
     parseError.value = null
   }
@@ -133,7 +139,7 @@ export const useAnystyleStore = defineStore('anystyle', () => {
   // --- Expose ---
   return {
     // State (readonly)
-    parsedTokens: readonly(parsedTokens),
+    parsed: readonly(parsed),
     showTokenEditor: readonly(showTokenEditor),
     isParsing: readonly(isParsing),
     isConverting: readonly(isConverting),
