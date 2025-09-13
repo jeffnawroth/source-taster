@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import type { UISearchDatabaseConfig } from '@source-taster/types'
-import { mdiDragVertical, mdiEye, mdiEyeOff } from '@mdi/js'
+import { mdiDatabase, mdiDragVertical, mdiEye, mdiEyeOff } from '@mdi/js'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
 import { settings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
 
-const el = useTemplateRef<HTMLElement>('el')
-
 const databases = computed({
   get: () => settings.value.search.databases,
   set: v => (settings.value.search.databases = v),
 })
 
-useSortable(el, databases, {
+useSortable('#el', databases, {
   animation: 150,
   onUpdate: (e: any) => {
     // do something
@@ -28,9 +27,9 @@ useSortable(el, databases, {
 })
 
 // Reset to defaults
-// function resetToDefaults() {
-//   databases.value = [...DEFAULT_UI_SETTINGS.search.databases]
-// }
+function resetToDefaults() {
+  databases.value = [...DEFAULT_UI_SETTINGS.search.databases]
+}
 
 // Toggle database enabled state
 function toggleDatabase(database: UISearchDatabaseConfig) {
@@ -68,7 +67,7 @@ function getDatabaseColor(database: UISearchDatabaseConfig): string {
 </script>
 
 <template>
-  <!-- <SettingsPanel
+  <SettingsPanel
     :title="t('database-settings-title')"
     :description="t('database-settings-description')"
     :subtitle="t('database-settings-subtitle')"
@@ -80,50 +79,50 @@ function getDatabaseColor(database: UISearchDatabaseConfig): string {
 
     <p class="text-body-2 text-medium-emphasis mb-4">
       {{ t('database-settings-help') }}
-    </p> -->
+    </p>
 
-  <!-- Sortable Database List -->
-  <v-list
-    ref="el"
-  >
-    <v-list-item
-      v-for="(database) in databases"
-      :key="database.id"
-      :title="getDatabaseDisplayName(database.name)"
-      :subtitle="getDatabaseDescription(database.name)"
-      lines="two"
-      class="cursor-grab ma-2"
-      :color="getDatabaseColor(database)"
-      :active="database.enabled"
+    <!-- Sortable Database List -->
+    <v-list
+      id="el"
     >
-      <template #prepend>
-        <v-icon
-          :icon="mdiDragVertical"
-          color="medium-emphasis"
-        />
-      </template>
-
-      <template #append>
-        <div class="d-flex align-center">
-          <!-- Priority Badge -->
-          <v-chip
-            variant="outlined"
-            size="small"
-            class="me-2"
-            :text="`${t('priority')}: ${database.priority}`"
+      <v-list-item
+        v-for="(database) in databases"
+        :key="database.id"
+        :title="getDatabaseDisplayName(database.name)"
+        :subtitle="getDatabaseDescription(database.name)"
+        lines="two"
+        class="cursor-grab my-2"
+        :color="getDatabaseColor(database)"
+        :active="database.enabled"
+      >
+        <template #prepend>
+          <v-icon
+            :icon="mdiDragVertical"
+            color="medium-emphasis"
           />
+        </template>
 
-          <v-btn
-            :icon="database.enabled ? mdiEye : mdiEyeOff"
-            variant="text"
-            size="small"
-            @click="toggleDatabase(database)"
-          />
-        </div>
-      </template>
-    </v-list-item>
-  </v-list>
-  <!-- </SettingsPanel> -->
+        <template #append>
+          <div class="d-flex align-center">
+            <!-- Priority Badge -->
+            <v-chip
+              variant="outlined"
+              size="small"
+              class="me-2"
+              :text="`${t('priority')}: ${database.priority}`"
+            />
+
+            <v-btn
+              :icon="database.enabled ? mdiEye : mdiEyeOff"
+              variant="text"
+              size="small"
+              @click="toggleDatabase(database)"
+            />
+          </div>
+        </template>
+      </v-list-item>
+    </v-list>
+  </SettingsPanel>
 </template>
 
 <style scoped>

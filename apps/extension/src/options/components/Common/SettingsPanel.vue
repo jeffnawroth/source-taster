@@ -28,7 +28,7 @@ defineProps<Props>()
       </div>
     </v-expansion-panel-title>
 
-    <v-expansion-panel-text>
+    <v-expansion-panel-text eager>
       <v-card
         flat
       >
