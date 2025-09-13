@@ -8,25 +8,43 @@ import FileInput from './FileInput.vue'
 import ParseButton from './ParseButton.vue'
 import TextInput from './TextInput.vue'
 
+// TRANSLATION
+const { t } = useI18n()
+
 const showInputCard = ref(true)
 
 // Stores für die Error-Anzeige
 const extractionStore = useExtractionStore()
 const anystyleStore = useAnystyleStore()
+
+// Dynamic title based on AI setting
+const cardTitle = computed(() => {
+  const baseNumber = '1. '
+  return settings.value.extract.useAi
+    ? `${baseNumber}${t('extract')}`
+    : `${baseNumber}${t('parse')}`
+})
+
+// Dynamic subtitle based on AI setting
+const cardSubtitle = computed(() => {
+  return settings.value.extract.useAi
+    ? t('input-references-for-ai-extraction-only')
+    : t('input-references-as-text-only')
+})
 </script>
 
 <template>
   <v-card
     flat
-    :title="`1. ${$t('parse')}`"
-    :subtitle="$t('input-references-as-text-or-upload-a-file')"
+    :title="cardTitle"
+    :subtitle="cardSubtitle"
   >
     <template #append>
-      <!-- <AIToggleSwitch
+      <AIToggleSwitch
         v-model="settings.extract.useAi"
         :show-alert="false"
         :show-description="false"
-      /> -->
+      />
 
       <!-- Info Icon with Tooltip -->
       <v-tooltip location="bottom">
