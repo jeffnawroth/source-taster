@@ -31,7 +31,10 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
     <VerifyButton
       class="mb-3"
     />
-    <v-divider class="mb-3" />
+    <v-divider
+      v-if="extractedReferences.length > 0"
+      class="mb-3"
+    />
     <!-- SUBTITLE -->
     <v-card-subtitle
       class="px-0"
