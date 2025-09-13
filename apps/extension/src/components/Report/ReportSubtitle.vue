@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
-import { mdiBullseye, mdiCloseCircleOutline, mdiHelpCircleOutline, mdiMagnify, mdiTarget, mdiTargetVariant } from '@mdi/js'
+import { mdiAlertCircleOutline, mdiBullseye, mdiCloseCircleOutline, mdiHelpCircleOutline, mdiMagnify, mdiTarget } from '@mdi/js'
 import { settings } from '@/extension/logic'
 import { useMatchingStore } from '@/extension/stores/matching'
 
@@ -174,7 +174,7 @@ const statusCounts = computed(() => {
           <template #activator="{ props }">
             <v-chip
               label
-              :prepend-icon="mdiTargetVariant"
+              :prepend-icon="mdiHelpCircleOutline"
               v-bind="props"
               variant="tonal"
               density="compact"
@@ -201,11 +201,11 @@ const statusCounts = computed(() => {
           <template #activator="{ props }">
             <v-chip
               label
-              :prepend-icon="mdiHelpCircleOutline"
+              :prepend-icon="mdiAlertCircleOutline"
               v-bind="props"
               variant="tonal"
               density="compact"
-              color="grey"
+              color="error"
               class="mx-1"
             >
               {{ statusCounts.noMatch }} {{ $t('no-match-chip') }}
@@ -227,7 +227,6 @@ const statusCounts = computed(() => {
               v-bind="props"
               variant="tonal"
               density="compact"
-              color="error"
               class="mx-1"
             >
               {{ statusCounts.error }} {{ $t('error') }}

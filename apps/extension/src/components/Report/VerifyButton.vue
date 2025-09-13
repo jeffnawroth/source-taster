@@ -63,7 +63,78 @@ async function matchOne(reference: ApiMatchReference) {
     throw new Error(mapApiError(res as unknown as ApiHttpError))
 }
 
-// ---- Orchestrierung mit Early Termination (pro Referenz)
+// ---- Prepare references for verification
+async function prepareReferences(): Promise<ApiSearchReference[]> {
+  return hasParseResults.value
+    ? await convertTokensToCSL()
+    : getExtractedCSL()
+}
+
+// ---- Get databases and early termination settings
+async function getVerificationSettings() {
+  const dbRes = await searchStore.fetchDatabases()
+  if (dbRes && !dbRes.success)
+    throw new Error(mapApiError(dbRes as unknown as ApiHttpError))
+
+  const databases = databasesByPriority.value ?? []
+  const early = settings.value.matching.matchingConfig.earlyTermination
+  const threshold = early?.threshold || DEFAULT_EARLY_TERMINATION.threshold
+  const earlyEnabled = !!early?.enabled
+
+  return { databases, threshold, earlyEnabled }
+}
+
+// ---- Check if reference should terminate early
+function shouldTerminateEarly(referenceId: string, threshold: number, earlyEnabled: boolean): boolean {
+  if (!earlyEnabled)
+    return false
+  const score = matchingStore.getMatchingScoreByReference(referenceId)
+  return score >= threshold
+}
+
+// ---- Process single reference against database
+async function processReferenceInDatabase(reference: ApiSearchReference, databaseName: string) {
+  const sres = await searchStore.searchInDatabase(databaseName, { references: [reference] })
+  if (sres && !sres.success)
+    throw new Error(mapApiError(sres as unknown as ApiHttpError))
+
+  await matchOne(reference)
+}
+
+// ---- Main verification with early termination per reference
+async function performVerificationWithEarlyTermination(
+  references: ApiSearchReference[],
+  databases: any[],
+  threshold: number,
+  earlyEnabled: boolean,
+) {
+  const remaining = new Set(references.map(r => r.id))
+
+  for (const db of databases) {
+    if (remaining.size === 0)
+      break
+
+    for (const ref of references) {
+      if (!remaining.has(ref.id))
+        continue
+
+      await processReferenceInDatabase(ref, db.name)
+
+      if (shouldTerminateEarly(ref.id, threshold, earlyEnabled)) {
+        remaining.delete(ref.id)
+      }
+    }
+  }
+
+  // Final matching for non-early termination mode
+  if (!earlyEnabled) {
+    for (const ref of references) {
+      await matchOne(ref)
+    }
+  }
+}
+
+// ---- Main orchestration function
 async function handleVerify() {
   if (!canVerify.value)
     return
@@ -72,57 +143,10 @@ async function handleVerify() {
   verifyError.value = null
 
   try {
-    // 1) Referenzen vorbereiten (Tokens->CSL ODER KI-Extraktion)
-    const refs: ApiSearchReference[] = hasParseResults.value
-      ? await convertTokensToCSL()
-      : getExtractedCSL()
+    const references = await prepareReferences()
+    const { databases, threshold, earlyEnabled } = await getVerificationSettings()
 
-    // 2) DB-Liste holen (priorisiert)
-    const dbRes = await searchStore.fetchDatabases()
-    if (dbRes && !dbRes.success)
-      throw new Error(mapApiError(dbRes as unknown as ApiHttpError))
-    const databases = databasesByPriority.value ?? [] // [{name, priority, endpoint}]
-
-    // Set der „noch zu suchenden“ Referenzen
-    const remaining = new Set(refs.map(r => r.id))
-
-    // Early termination Settings (aus UI-Settings)
-    const early = settings.value.matching.matchingConfig.earlyTermination
-    const threshold = early?.threshold || DEFAULT_EARLY_TERMINATION.threshold
-    const earlyEnabled = !!early?.enabled
-
-    // 3) Datenbanken nacheinander abfragen
-    for (const db of databases) {
-      if (remaining.size === 0)
-        break
-
-      // pro Referenz (nur die, die noch offen sind)
-      for (const ref of refs) {
-        if (!remaining.has(ref.id))
-          continue
-
-        // 3a) Suche in genau dieser DB für diese eine Referenz
-        const sres = await searchStore.searchInDatabase(db.name, { references: [ref] })
-        if (sres && !sres.success)
-          throw new Error(mapApiError(sres as unknown as ApiHttpError))
-
-        // 3b) Matchen mit den (neuen) Kandidaten dieser Referenz
-        await matchOne(ref)
-
-        // 3c) Early termination Check
-        if (earlyEnabled) {
-          const score = matchingStore.getMatchingScoreByReference(ref.id)
-          if (score >= threshold) {
-            remaining.delete(ref.id)
-          }
-        }
-      }
-    }
-
-    // Optional: letzte Sicherungs-Matches, falls Early-Termination aus ist
-    if (!earlyEnabled) {
-      for (const ref of refs) await matchOne(ref)
-    }
+    await performVerificationWithEarlyTermination(references, databases, threshold, earlyEnabled)
   }
   catch (e: any) {
     console.error('Verification failed:', e)
