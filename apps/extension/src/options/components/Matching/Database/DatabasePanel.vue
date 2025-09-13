@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UIDatabaseConfig } from '@source-taster/types'
+import type { UISearchDatabaseConfig } from '@source-taster/types'
 import { mdiDatabase, mdiDragVertical, mdiEye, mdiEyeOff } from '@mdi/js'
 import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { settings } from '@/extension/logic'
@@ -8,11 +8,11 @@ import { settings } from '@/extension/logic'
 const { t } = useI18n()
 
 // Reactive copy of database settings for drag & drop
-const databaseList = ref([...settings.value.databases])
+const databaseList = ref([...settings.value.search.databases])
 
 // Watch for changes and update settings
 watch(databaseList, (newList) => {
-  settings.value.databases = newList.map((db, index) => ({
+  settings.value.search.databases = newList.map((db, index) => ({
     ...db,
     priority: index + 1, // Update priorities based on order
   }))
@@ -20,11 +20,11 @@ watch(databaseList, (newList) => {
 
 // Reset to defaults
 function resetToDefaults() {
-  databaseList.value = [...DEFAULT_UI_SETTINGS.databases]
+  databaseList.value = [...DEFAULT_UI_SETTINGS.search.databases]
 }
 
 // Toggle database enabled state
-function toggleDatabase(database: UIDatabaseConfig) {
+function toggleDatabase(database: UISearchDatabaseConfig) {
   database.enabled = !database.enabled
 }
 
@@ -53,7 +53,7 @@ function getDatabaseDescription(dbName: string): string {
 }
 
 // Color for database status
-function getDatabaseColor(database: UIDatabaseConfig): string {
+function getDatabaseColor(database: UISearchDatabaseConfig): string {
   return database.enabled ? 'success' : 'default'
 }
 </script>
