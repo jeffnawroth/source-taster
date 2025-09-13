@@ -92,6 +92,10 @@ export const useExtractionStore = defineStore('extraction', () => {
     extractedReferences.value.push(reference)
   }
 
+  function setExtractedReferences(references: ApiExtractReference[]) {
+    extractedReferences.value = [...references]
+  }
+
   function updateReference(referenceId: string, updated: Partial<ApiExtractReference>) {
     const i = extractedReferences.value.findIndex(ref => ref.id === referenceId)
     if (i !== -1)
@@ -134,6 +138,7 @@ export const useExtractionStore = defineStore('extraction', () => {
     // Actions
     extractReferences,
     addReference,
+    setExtractedReferences,
     updateReference,
     removeReference,
     clearExtractedReferences,

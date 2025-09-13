@@ -103,7 +103,7 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
           <!-- Navigation Controls - moved below editor -->
           <div
             v-if="editableTokens.length > 1"
-            class="d-flex align-center justify-space-between"
+            class="d-flex align-center justify-space-between mt-3"
           >
             <v-btn
               :disabled="currentReferenceIndex <= 0"

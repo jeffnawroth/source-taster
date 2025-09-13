@@ -38,10 +38,21 @@ async function convertTokensToCSL(): Promise<ApiSearchReference[]> {
     throw new Error(mapApiError(res as unknown as ApiHttpError))
 
   const csl = res.data?.csl ?? []
-  return csl.map((_item) => {
+
+  // Add IDs to CSL items
+  const cslItemsWithId = csl.map((item) => {
     const id = crypto.randomUUID()
-    return { id, metadata: { ..._item, id } }
+    return { id, metadata: { ...item, id } }
   })
+
+  // Store extracted references with original text
+  const cslItemsWithOriginalText = cslItemsWithId.map((item, index) => {
+    const originalText = parsedTokens.value[index]?.map(t => t[1]).join(' ') || ''
+    return { ...item, originalText }
+  })
+  extractionStore.setExtractedReferences(cslItemsWithOriginalText)
+
+  return cslItemsWithId
 }
 
 // ---- B) KI-Extrahierte Referenzen -> CSL
