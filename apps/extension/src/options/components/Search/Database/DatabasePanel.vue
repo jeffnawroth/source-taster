@@ -103,22 +103,20 @@ function getDatabaseColor(database: UISearchDatabaseConfig): string {
         </template>
 
         <template #append>
-          <div class="d-flex align-center">
-            <!-- Priority Badge -->
-            <v-chip
-              variant="outlined"
-              size="small"
-              class="me-2"
-              :text="`${t('priority')}: ${database.priority}`"
-            />
+          <!-- Priority Badge -->
+          <v-chip
+            variant="outlined"
+            size="small"
+            class="me-2"
+            :text="`${t('priority')}: ${database.priority}`"
+          />
 
-            <v-btn
-              :icon="database.enabled ? mdiEye : mdiEyeOff"
-              variant="text"
-              size="small"
-              @click="toggleDatabase(database)"
-            />
-          </div>
+          <v-btn
+            :icon="database.enabled ? mdiEye : mdiEyeOff"
+            variant="text"
+            size="small"
+            @click="toggleDatabase(database)"
+          />
         </template>
       </v-list-item>
     </v-list>

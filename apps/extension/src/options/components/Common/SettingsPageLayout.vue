@@ -9,7 +9,9 @@ defineProps<Props>()
 </script>
 
 <template>
-  <v-container>
+  <v-container
+    style="max-width: 800px;"
+  >
     <v-card
       variant="text"
       :subtitle="description"
@@ -20,7 +22,9 @@ defineProps<Props>()
         </v-icon>
       </template>
       <template #title>
-        <v-card-title class="text-h5 font-weight-bold">
+        <v-card-title
+          class="text-h5 font-weight-bold"
+        >
           {{ title }}
         </v-card-title>
       </template>
@@ -29,7 +33,6 @@ defineProps<Props>()
         <v-divider class="my-4" />
         <div
           class="mx-auto"
-          style="max-width: 600px;"
         >
           <slot />
         </div>
