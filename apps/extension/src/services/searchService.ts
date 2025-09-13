@@ -6,6 +6,7 @@ import type {
   ApiResult,
   ApiSearchData,
   ApiSearchRequest,
+  ApiSearchSource,
 } from '@source-taster/types'
 import { ApiSearchRequestSchema } from '@source-taster/types'
 import { API_CONFIG } from '../env'
@@ -33,7 +34,7 @@ export class SearchService {
    * Search in a single database by name
    */
   static async searchInDatabase(
-    database: string,
+    database: ApiSearchSource,
     request: ApiSearchRequest,
   ): Promise<ApiResult<ApiSearchData>> {
     const req = ApiSearchRequestSchema.parse(request)

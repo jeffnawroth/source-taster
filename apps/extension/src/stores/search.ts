@@ -4,6 +4,7 @@ import type {
   ApiSearchCandidate,
   ApiSearchData,
   ApiSearchRequest,
+  ApiSearchSource,
 } from '@source-taster/types'
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
@@ -66,7 +67,7 @@ export const useSearchStore = defineStore('search', () => {
     return res
   }
 
-  async function searchInDatabase(database: string, request: ApiSearchRequest) {
+  async function searchInDatabase(database: ApiSearchSource, request: ApiSearchRequest) {
     isSearching.value = true
     searchError.value = null
 

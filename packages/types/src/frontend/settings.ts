@@ -27,14 +27,14 @@ export const DEFAULT_DISPLAY_THRESHOLDS: UIMatchingDisplayThresholds = {
 } as const
 
 // Database Configuration
-export const UIDatabaseConfigSchema = z.object({
+export const UISearchDatabaseConfigSchema = z.object({
   name: z.string().describe('Database name'),
   enabled: z.boolean().describe('Whether this database is enabled for searches'),
   priority: z.number().min(1).describe('Search priority (lower number = higher priority)'),
 }).strict()
-export type UIDatabaseConfig = z.infer<typeof UIDatabaseConfigSchema>
+export type UISearchDatabaseConfig = z.infer<typeof UISearchDatabaseConfigSchema>
 
-export const UIDatabasesSettingsSchema = z.array(UIDatabaseConfigSchema).describe('Database configurations')
+export const UIDatabasesSettingsSchema = z.array(UISearchDatabaseConfigSchema).describe('Database configurations')
 export type UIDatabasesSettings = z.infer<typeof UIDatabasesSettingsSchema>
 
 export const DEFAULT_DATABASES_SETTINGS: UIDatabasesSettings = [
@@ -44,6 +44,15 @@ export const DEFAULT_DATABASES_SETTINGS: UIDatabasesSettings = [
   { name: 'europepmc', enabled: false, priority: 4 },
   { name: 'arxiv', enabled: false, priority: 5 },
 ] as const
+
+export const UISearchSettingsSchema = z.object({
+  databases: UIDatabasesSettingsSchema.describe('Database configurations and priorities'),
+}).strict()
+
+export const DEFAULT_UI_SEARCH_SETTINGS: UISearchSettings = {
+  databases: DEFAULT_DATABASES_SETTINGS,
+} as const
+export type UISearchSettings = z.infer<typeof UISearchSettingsSchema>
 
 export const UIThemeSchema = z.enum(['light', 'dark', 'system']).describe('UI theme preference')
 export type UITheme = z.infer<typeof UIThemeSchema>
@@ -74,9 +83,9 @@ export const DEFAULT_UI_EXTRACTION_SETTINGS = {
 export const UISettingsSchema = z.object({
   theme: UIThemeSchema.default(DEFAULT_UI_THEME).describe('UI theme preference'),
   locale: UILocaleSchema.default(DEFAULT_UI_LOCALE).describe('UI language/locale'),
-  databases: UIDatabasesSettingsSchema
-    .default(DEFAULT_DATABASES_SETTINGS)
-    .describe('Database configurations and priorities'),
+  search: UISearchSettingsSchema
+    .default(DEFAULT_UI_SEARCH_SETTINGS)
+    .describe('Search settings for the user'),
   extract: ApiExtractExtractionSettingsSchema.safeExtend({
     useAi: z.boolean().describe('Whether to use AI for extraction'),
   }).default(DEFAULT_UI_EXTRACTION_SETTINGS).describe('Extraction settings for the user'),
