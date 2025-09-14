@@ -6,7 +6,7 @@ import type {
   ApiUserAISecretsRequest,
 } from '@source-taster/types'
 import { defineStore } from 'pinia'
-import { computed, readonly, ref } from 'vue'
+import { computed, readonly, ref, watchEffect } from 'vue'
 import { UserService } from '@/extension/services/userService'
 import { settings } from '../logic'
 import { mapApiError } from '../utils/mapApiError'
@@ -23,8 +23,12 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
   const saveError = ref<string | null>(null)
 
   // --- Computed ---
-  const canUseAI = computed(() => hasApiKey.value && !!provider.value)
   const providerLabel = computed(() => provider.value ?? '—')
+
+  // Update settings automatically when AI availability changes
+  watchEffect(() => {
+    settings.value.ai.canUseAI = hasApiKey.value && !!provider.value
+  })
 
   // --- Actions ---
   async function loadAISecretsInfo(): Promise<ApiUserAISecretsInfoData | undefined> {
@@ -99,7 +103,6 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     saveError: readonly(saveError),
 
     // computed
-    canUseAI,
     providerLabel,
 
     // actions

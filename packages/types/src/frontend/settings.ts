@@ -107,7 +107,10 @@ export const UISettingsSchema = z.object({
     .default(DEFAULT_UI_MATCHING_SETTINGS),
 
   ai: ApiAISettingsSchema
-    .default(DEFAULT_AI_SETTINGS)
+    .safeExtend({
+      canUseAI: z.boolean().describe('Whether AI can be used (has API key and provider configured)'),
+    })
+    .default({ ...DEFAULT_AI_SETTINGS, canUseAI: false })
     .describe('AI settings for the user'),
 }).strict()
 export type UISettings = z.infer<typeof UISettingsSchema>
