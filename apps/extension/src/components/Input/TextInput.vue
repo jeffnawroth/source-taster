@@ -16,7 +16,7 @@ const extractionStore = useExtractionStore()
 const matchingStore = useMatchingStore()
 const anystyleStore = useAnystyleStore()
 
-const { inputText, file } = storeToRefs(uiStore)
+const { inputText } = storeToRefs(uiStore)
 const { isExtracting } = storeToRefs(extractionStore)
 const { isMatching } = storeToRefs(matchingStore)
 
@@ -54,7 +54,7 @@ function handleClear() {
 }
 
 // DISABLED STATE - disabled when file is loaded or any process is running
-const disabled = computed(() => !!file.value || isExtracting.value || isMatching.value)
+const disabled = computed(() => isExtracting.value || isMatching.value)
 </script>
 
 <template>

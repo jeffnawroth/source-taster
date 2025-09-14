@@ -88,10 +88,7 @@ const cardSubtitle = computed(() => {
           <v-row dense>
             <!-- File Input -->
             <v-col cols="12">
-              <FileInput
-                :disabled="!settings.extract.useAi"
-                :messages="!settings.extract.useAi ? [$t('file-input-disabled-parse-mode')] : []"
-              />
+              <FileInput />
             </v-col>
 
             <!-- Text Input -->

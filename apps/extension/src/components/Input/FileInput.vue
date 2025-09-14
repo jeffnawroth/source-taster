@@ -3,18 +3,6 @@ import { mdiFilePdfBox } from '@mdi/js'
 import { useUIStore } from '@/extension/stores/ui'
 import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
-interface Props {
-  /** Disable the file input */
-  disabled?: boolean
-  /** Messages to display */
-  messages?: string | string[]
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  messages: () => [],
-})
-
 // UI STORE
 const uiStore = useUIStore()
 const { file, inputText } = storeToRefs(uiStore)
@@ -70,8 +58,7 @@ function handleClear() {
     clearable
     hide-details="auto"
     :loading="isExtractionPdf"
-    :disabled="isExtractionPdf || props.disabled"
-    :messages="props.messages"
+    :disabled="isExtractionPdf"
     @click:clear="handleClear"
   />
 </template>
