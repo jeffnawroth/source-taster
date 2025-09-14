@@ -11,9 +11,11 @@ defineProps<Props>()
   <v-card
     flat
     :title
-    :subtitle
     variant="text"
   >
+    <v-card-subtitle class="text-wrap">
+      {{ subtitle }}
+    </v-card-subtitle>
     <v-card-text>
       <v-expansion-panels
         elevation="0"
