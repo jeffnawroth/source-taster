@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { mdiMagnifyExpand } from '@mdi/js'
 import { useVerification } from '@/extension/composables/useVerification'
+import { settings } from '@/extension/logic'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
 
 const { canVerify, isVerifying, verifyError, verify } = useVerification()
+const { hasParseResults } = storeToRefs(useAnystyleStore())
 </script>
 
 <template>
-  <div>
+  <div v-if="!settings.extract.useAi || hasParseResults">
     <v-btn
       :disabled="!canVerify || isVerifying"
       color="success"

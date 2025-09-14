@@ -4,6 +4,7 @@ import { computed, readonly, ref } from 'vue'
 import { ExtractionService } from '@/extension/services/extractionService'
 import { settings } from '../logic'
 import { mapApiError } from '../utils/mapApiError'
+import { useAnystyleStore } from './anystyle'
 
 export const useExtractionStore = defineStore('extraction', () => {
   const extractedReferences = ref<ApiExtractReference[]>([])
@@ -31,6 +32,11 @@ export const useExtractionStore = defineStore('extraction', () => {
   async function extractReferences(text: string): Promise<ApiResult<ApiExtractData>> {
     isExtracting.value = true
     extractionError.value = null
+
+    // Clear AnyStyle parse results when doing AI extraction
+    const anystyleStore = useAnystyleStore()
+    anystyleStore.clearParseResults()
+
     try {
       const res = await ExtractionService.extractReferences({
         text,
