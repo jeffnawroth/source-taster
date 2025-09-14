@@ -24,9 +24,9 @@
   "ai-model": "AI Model",
   "ai-model-description": "Select the AI model to be used for the extraction.",
   "ai-models": {
-    "claude-3-5-haiku-20241022": "Claude 3.5 Haiku (Fast & Cost-Efficient)",
-    "claude-opus-4-20250514": "Claude Opus 4 (Highest Intelligence)",
-    "claude-sonnet-4-20250514": "Claude Sonnet 4 (Balance & Speed)",
+    "claude-3-5-haiku-latest": "Claude 3.5 Haiku (Fast & Cost-Efficient)",
+    "claude-opus-4-1": "Claude Opus 4 (Highest Intelligence)",
+    "claude-sonnet-4-0": "Claude Sonnet 4 (Balance & Speed)",
     "deepseek-chat": "DeepSeek Chat (General Purpose)",
     "deepseek-reasoner": "DeepSeek Reasoner (Advanced Problem Solving)",
     "gemini-2-5-flash": "Gemini 2.5 Flash (Adaptive Thinking)",
