@@ -2,7 +2,7 @@
 import { useLocale } from 'vuetify'
 import { VDivider } from 'vuetify/lib/components/index.mjs'
 import OnboardingLayout from '@/extension/components/Onboarding/OnboardingLayout.vue'
-import TrainingDataManager from '@/extension/components/References/TrainingDataManager.vue'
+import TokenEditor from '@/extension/components/References/TokenEditor.vue'
 import ReportSection from '@/extension/components/Report/ReportSection.vue'
 import { hasCompletedOnboarding, settings } from '@/extension/logic/storage'
 import InputCard from '../Input/InputCard.vue'
@@ -25,7 +25,7 @@ const shouldShowOnboarding = computed(() => {
 const components = [
   InputCard,
   VDivider,
-  TrainingDataManager,
+  TokenEditor,
   VDivider,
   ReportSection,
 ]
