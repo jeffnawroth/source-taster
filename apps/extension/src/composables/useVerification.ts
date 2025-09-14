@@ -1,5 +1,11 @@
 // src/composables/useVerification.ts
-import type { ApiHttpError, ApiMatchReference, ApiSearchReference, ApiSearchSource, UISearchDatabaseConfig } from '@source-taster/types'
+import type {
+  ApiHttpError,
+  ApiMatchReference,
+  ApiSearchReference,
+  ApiSearchSource,
+  UISearchDatabaseConfig,
+} from '@source-taster/types'
 import { DEFAULT_EARLY_TERMINATION } from '@source-taster/types'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
@@ -8,7 +14,9 @@ import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useSearchStore } from '@/extension/stores/search'
+
 import { mapApiError } from '@/extension/utils/mapApiError'
+import { useVerificationProgressStore } from './useVerificationProgress'
 
 export function useVerification() {
   // Stores
@@ -16,6 +24,7 @@ export function useVerification() {
   const extractionStore = useExtractionStore()
   const searchStore = useSearchStore()
   const matchingStore = useMatchingStore()
+  const progress = useVerificationProgressStore() // ⟵ NEU
 
   // Refs from stores
   const { parsed, hasParseResults } = storeToRefs(anystyleStore)
@@ -27,8 +36,8 @@ export function useVerification() {
   const verifyError = ref<string | null>(null)
 
   // Can verify? => Either tokens available OR extracted references
-  const canVerify = computed(() =>
-    hasParseResults.value || extractedReferences.value.length > 0,
+  const canVerify = computed(
+    () => hasParseResults.value || extractedReferences.value.length > 0,
   )
 
   // --- Helper functions ---
@@ -66,9 +75,7 @@ export function useVerification() {
   }
 
   async function prepareReferences(): Promise<ApiSearchReference[]> {
-    return hasParseResults.value
-      ? await convertTokensToCSL()
-      : getExtractedCSL()
+    return hasParseResults.value ? await convertTokensToCSL() : getExtractedCSL()
   }
 
   function getVerificationSettings() {
@@ -79,7 +86,11 @@ export function useVerification() {
     return { databases, threshold, earlyEnabled }
   }
 
-  function shouldTerminateEarly(referenceId: string, threshold: number, earlyEnabled: boolean): boolean {
+  function shouldTerminateEarly(
+    referenceId: string,
+    threshold: number,
+    earlyEnabled: boolean,
+  ): boolean {
     if (!earlyEnabled)
       return false
     const score = matchingStore.getMatchingScoreByReference(referenceId)
@@ -87,6 +98,9 @@ export function useVerification() {
   }
 
   async function matchOne(reference: ApiMatchReference) {
+    // Progress: matching
+    progress.setMatching(reference.id)
+
     const candidates = searchStore.getCandidatesByReferenceId(reference.id)
     if (!candidates.length)
       return
@@ -96,11 +110,27 @@ export function useVerification() {
       throw new Error(mapApiError(res as unknown as ApiHttpError))
   }
 
-  async function processReferenceInDatabase(reference: ApiSearchReference, databaseName: ApiSearchSource) {
-    const sres = await searchStore.searchInDatabase(databaseName, { references: [reference] })
-    if (sres && !sres.success)
-      throw new Error(mapApiError(sres as unknown as ApiHttpError))
+  async function processReferenceInDatabase(
+    reference: ApiSearchReference,
+    databaseName: ApiSearchSource,
+  ) {
+    // Progress: searching in DB
+    progress.setSearching(reference.id, databaseName)
+
+    const sres = await searchStore.searchInDatabase(databaseName, {
+      references: [reference],
+    })
+
+    if (sres && !sres.success) {
+      const msg = mapApiError(sres as unknown as ApiHttpError)
+      progress.setError(reference.id, msg)
+      throw new Error(msg)
+    }
+
     await matchOne(reference)
+
+    // Note: setDone wird nur aufgerufen, wenn die Referenz wirklich komplett fertig ist
+    // Das passiert in performVerificationWithEarlyTermination
   }
 
   async function performVerificationWithEarlyTermination(
@@ -109,7 +139,7 @@ export function useVerification() {
     threshold: number,
     earlyEnabled: boolean,
   ) {
-    // Keep track of which references are "finished
+    // Track remaining refs to process (for early termination)
     const remaining = new Set(references.map(r => r.id))
 
     for (const db of databases) {
@@ -124,14 +154,29 @@ export function useVerification() {
 
         if (shouldTerminateEarly(ref.id, threshold, earlyEnabled)) {
           remaining.delete(ref.id)
+          // Referenz ist durch Early Termination komplett fertig
+          const score = matchingStore.getMatchingScoreByReference(ref.id)
+          progress.setDone(ref.id, score ?? undefined)
         }
+      }
+    }
+
+    // Alle verbleibenden Referenzen sind jetzt komplett fertig
+    for (const ref of references) {
+      if (remaining.has(ref.id)) {
+        const score = matchingStore.getMatchingScoreByReference(ref.id)
+        progress.setDone(ref.id, score ?? undefined)
       }
     }
 
     // Optional final matching run if early termination is disabled
     if (!earlyEnabled) {
       for (const ref of references) {
+        // Set phase to matching (for those that might not have been matched last)
+        progress.setMatching(ref.id)
         await matchOne(ref)
+        const score = matchingStore.getMatchingScoreByReference(ref.id)
+        progress.setDone(ref.id, score ?? undefined)
       }
     }
   }
@@ -150,13 +195,20 @@ export function useVerification() {
       matchingStore.clearMatchingResults()
 
       const references = await prepareReferences()
+
+      // Init progress for all references
+      progress.init(references.map(r => r.id))
+
       const { databases, threshold, earlyEnabled } = getVerificationSettings()
-
-      if (!databases.length) {
+      if (!databases.length)
         throw new Error('No databases are enabled. Please enable at least one database in Settings.')
-      }
 
-      await performVerificationWithEarlyTermination(references, databases, threshold, earlyEnabled)
+      await performVerificationWithEarlyTermination(
+        references,
+        databases,
+        threshold,
+        earlyEnabled,
+      )
     }
     catch (e: any) {
       console.error('Verification failed:', e)
@@ -174,7 +226,7 @@ export function useVerification() {
     canVerify,
     // actions
     verify,
-    // (optional) low-level helpers if you need them in special cases
+    // optional exports
     prepareReferences,
     performVerificationWithEarlyTermination,
   }

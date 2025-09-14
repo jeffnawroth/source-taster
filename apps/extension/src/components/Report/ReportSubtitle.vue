@@ -2,6 +2,7 @@
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAlertCircleOutline, mdiBullseye, mdiCloseCircleOutline, mdiHelpCircleOutline, mdiMagnify, mdiTarget } from '@mdi/js'
+import { useVerificationProgressStore } from '@/extension/composables/useVerificationProgress'
 import { settings } from '@/extension/logic'
 import { useMatchingStore } from '@/extension/stores/matching'
 
@@ -10,7 +11,9 @@ const props = defineProps<{
 }>()
 
 const matchingStore = useMatchingStore()
+const progressStore = useVerificationProgressStore()
 const { getMatchingScoreByReference } = storeToRefs(matchingStore)
+const { overall } = storeToRefs(progressStore)
 
 // Helper function to categorize a single reference based on its match score
 function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'notTested' | 'error' {
@@ -117,6 +120,35 @@ const statusCounts = computed(() => {
         </v-tooltip>
       </v-col>
 
+      <!-- Processing Status -->
+      <v-col
+        v-if="overall.total > 0 && overall.done < overall.total"
+        cols="auto"
+      >
+        <v-tooltip :text="$t('processing-references-tooltip')">
+          <template #activator="{ props }">
+            <v-chip
+              label
+              v-bind="props"
+              variant="tonal"
+              density="compact"
+              color="secondary"
+              class="mx-1"
+            >
+              <template #prepend>
+                <v-progress-circular
+                  indeterminate
+                  size="16"
+                  width="2"
+                  class="mr-1"
+                />
+              </template>
+              {{ overall.done }}/{{ overall.total }} {{ $t('processing') }}
+            </v-chip>
+          </template>
+        </v-tooltip>
+      </v-col>
+
       <!-- Exact Match -->
       <v-col
         v-if="statusCounts.exactMatch > 0"
@@ -130,7 +162,7 @@ const statusCounts = computed(() => {
               v-bind="props"
               variant="tonal"
               density="compact"
-              color="green-darken-2"
+              color="success"
               class="mx-1"
             >
               {{ statusCounts.exactMatch }} {{ $t('exact-match-chip') }}
