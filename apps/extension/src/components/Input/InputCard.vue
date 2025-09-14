@@ -25,11 +25,9 @@ const cardTitle = computed(() => {
     : `${baseNumber}${t('parse')}`
 })
 
-// Dynamic subtitle based on AI setting
+// Dynamic subtitle - now unified since both modes support text and files
 const cardSubtitle = computed(() => {
-  return settings.value.extract.useAi
-    ? t('input-references-for-ai-extraction-only')
-    : t('input-references-as-text-only')
+  return t('input-references-or-files')
 })
 </script>
 
