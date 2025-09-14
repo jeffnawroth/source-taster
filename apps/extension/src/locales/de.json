@@ -19,7 +19,7 @@
   "ai": "KI",
   "ai-configuration": "AI Konfiguration",
   "ai-description": "Aktiviere und konfiguriere KI-gestützte Funktionen",
-  "ai-disclaimer-detailed": "Source Taster nutzt KI. Ergebnisse können Fehler enthalten – bitte vor wissenschaftlicher Nutzung überprüfen.",
+  "ai-disclaimer-detailed": "KI-extrahierte Referenzen können Fehler enthalten und zwischen Extraktionen variieren, was die Matching-Ergebnisse beeinflussen kann. Bitte prüfen Sie die Genauigkeit, bevor Sie sie in wissenschaftlichen Arbeiten verwenden.",
   "ai-extraction": "KI-Extraktion",
   "ai-model": "KI-Modell",
   "ai-model-description": "Wählen Sie das KI-Modell, das für die Extraktion verwendet werden soll.",

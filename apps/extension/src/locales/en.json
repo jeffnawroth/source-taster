@@ -19,7 +19,7 @@
   "ai": "AI",
   "ai-configuration": "AI Configuration",
   "ai-description": "Enable and configure AI-powered functionality",
-  "ai-disclaimer-detailed": "Source Taster uses AI to extract and match references. Results may contain errors. Please verify accuracy before using them in academic work.",
+  "ai-disclaimer-detailed": "AI-extracted references may contain errors and vary between extractions, which can affect matching scores. Please verify their accuracy before using them in academic work.",
   "ai-extraction": "AI Extraction",
   "ai-model": "AI Model",
   "ai-model-description": "Select the AI model to be used for the extraction.",
