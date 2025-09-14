@@ -260,6 +260,8 @@
   "expert-settings-description": "Erweiterte Verifizierungseinstellungen und Feldgewichtungen für Metadaten-Abgleich konfigurieren",
   "extract": "Extrahieren",
   "extract-references": "Referenzen extrahieren",
+  "extract-and-verify": "Extrahieren & Verifizieren",
+  "extracting-and-verifying": "Extrahiere & Verifiziere",
   "input-references-for-ai-extraction": "Referenzen für KI-gestützte Extraktion und Verifizierung eingeben",
   "input-references-for-ai-extraction-only": "Referenzen oder Dateien für KI-gestützte Extraktion eingeben",
   "input-references-as-text-only": "Referenzen als Text für Parsing eingeben",

@@ -69,7 +69,7 @@ watch(ctrlEnter, (pressed) => {
       />
     </template>
 
-    {{ isRunning ? `${t('extracting')}...` : t('extract-references') }}
+    {{ isRunning ? `${t('extracting-and-verifying')}...` : t('extract-and-verify') }}
   </v-btn>
 
   <v-alert

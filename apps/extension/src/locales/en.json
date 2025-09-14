@@ -261,6 +261,8 @@
   "expert-settings-description": "Configure advanced verification settings and field weights for metadata matching",
   "extract": "Extract",
   "extract-references": "Extract References",
+  "extract-and-verify": "Extract & Verify",
+  "extracting-and-verifying": "Extracting & Verifying",
   "input-references-for-ai-extraction": "Input references for AI-powered extraction and verification",
   "input-references-for-ai-extraction-only": "Input references or files for AI-powered extraction",
   "input-references-as-text-only": "Input references as text for parsing",
