@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mdiInformationOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { useExtractionStore } from '@/extension/stores/extraction'
 
@@ -28,6 +29,26 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
     :title="`3. ${$t('verify')}`"
     :subtitle="$t('verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases')"
   >
+    <template #append>
+      <!-- Info Icon with Tooltip -->
+      <v-tooltip location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            :icon="mdiInformationOutline"
+            variant="text"
+            size="small"
+            v-bind="tooltipProps"
+          />
+        </template>
+        <div
+          class="text-caption"
+          style="max-width: 400px;"
+        >
+          <strong>{{ $t('verification-help-title') }}</strong><br>
+          {{ $t('verification-help-description') }}
+        </div>
+      </v-tooltip>
+    </template>
     <VerifyButton
       class="mb-3"
     />

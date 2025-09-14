@@ -1093,6 +1093,8 @@
   "verify-reference-against-website-description": "Enter a website URL to verify this reference against the website content",
   "verify-references": "Verify References",
   "verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases": "Verify references by searching and matching them to entries in scholarly databases.",
+  "verification-help-title": "How Verification Works",
+  "verification-help-description": "Source Taster searches your references across multiple academic databases (Crossref, Semantic Scholar, etc.) to find matching publications. It then compares metadata like title, authors, and publication details to calculate match scores and categorize results as exact, strong, possible, or no match.",
   "verifying": "Verifying",
   "verifying-reference-current": "Verifying: {reference}",
   "verifying-references-progress": "Verifying references ({current}/{total})",
