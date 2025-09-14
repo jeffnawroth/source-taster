@@ -3,7 +3,7 @@ import { mdiCheckboxMarkedCircleOutline } from '@mdi/js'
 import { useExtractionStore } from '@/extension/stores/extraction'
 
 const props = defineProps<{ hasKey: boolean }>()
-const emit = defineEmits<{ (e: 'tested', result: { ok: boolean, message: string }): void }>()
+const emit = defineEmits<{ (e: 'tested', result: { ok: boolean, messageKey: string }): void }>()
 
 const extraction = useExtractionStore()
 const isTesting = ref(false)

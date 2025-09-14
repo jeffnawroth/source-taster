@@ -29,10 +29,10 @@ async function handleDelete() {
     : { type: 'error', message: user.saveError ?? t('ai-settings-delete-error') }
 }
 
-function handleTest(result: { ok: boolean, message: string }) {
+function handleTest(result: { ok: boolean, messageKey: string }) {
   alert.value = {
     type: result.ok ? 'success' : 'error',
-    message: result.message,
+    message: t(result.messageKey),
   }
 }
 
