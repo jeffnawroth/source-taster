@@ -1,36 +1,40 @@
 <script setup lang="ts">
 import { mdiAutoFix } from '@mdi/js'
 import { useMagicKeys } from '@vueuse/core'
+import { useExtractThenVerify } from '@/extension/composables/useExtractThenVerify'
 import { settings } from '@/extension/logic'
-import { useExtractionStore } from '@/extension/stores/extraction'
 import { useUIStore } from '@/extension/stores/ui'
+
 // Stores
-const extractionStore = useExtractionStore()
 const uiStore = useUIStore()
 
 // Get input text directly from UI store
 const { inputText } = storeToRefs(uiStore)
 
+// Composable
+const { extractThenVerify, isRunning, error } = useExtractThenVerify()
+
 // Translation
 const { t } = useI18n()
 
-// Extract references from input text
+// Extract and verify in one step
 async function handleExtractClick() {
   if (!inputText.value.trim())
     return
 
-  await extractionStore.extractReferences(inputText.value)
+  await extractThenVerify(inputText.value)
 }
 
 // Check if button should be disabled
-const isDisabled = computed(() => !inputText.value.trim() || extractionStore.isExtracting || !settings.value.extract.useAi)
+const isDisabled = computed(() =>
+  !inputText.value.trim() || isRunning.value || !settings.value.extract.useAi,
+)
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
 const keys = useMagicKeys()
 const cmdEnter = keys['Cmd+Enter']
 const ctrlEnter = keys['Ctrl+Enter']
 
-// Watch for keyboard shortcuts
 watch(cmdEnter, (pressed) => {
   if (pressed && !isDisabled.value) {
     handleExtractClick()
@@ -54,7 +58,7 @@ watch(ctrlEnter, (pressed) => {
   >
     <template #prepend>
       <v-progress-circular
-        v-if="extractionStore.isExtracting"
+        v-if="isRunning"
         size="20"
         width="2"
         indeterminate
@@ -65,6 +69,17 @@ watch(ctrlEnter, (pressed) => {
       />
     </template>
 
-    {{ extractionStore.isExtracting ? `${t('extracting')}...` : t('extract-references') }}
+    {{ isRunning ? `${t('extracting')}...` : t('extract-references') }}
   </v-btn>
+
+  <v-alert
+    v-if="error"
+    type="error"
+    variant="tonal"
+    class="mt-3"
+    closable
+    @click:close="error = null"
+  >
+    {{ error }}
+  </v-alert>
 </template>
