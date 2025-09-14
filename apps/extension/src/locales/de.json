@@ -1092,6 +1092,7 @@
   "verify-reference-against-website-description": "Geben Sie eine Website-URL ein, um diese Referenz gegen den Website-Inhalt zu prüfen",
   "verify-references": "Referenzen verifizieren",
   "verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases": "Verifizieren Sie Referenzen, indem Sie sie in wissenschaftlichen Datenbanken suchen und abgleichen",
+  "verify-extracted-references": "Extrahierte oder geparste Referenzen verifizieren",
   "verification-help-title": "Wie die Verifikation funktioniert",
   "verification-help-description": "Source Taster durchsucht Ihre Referenzen in mehreren wissenschaftlichen Datenbanken (Crossref, Semantic Scholar, etc.), um passende Publikationen zu finden. Dann vergleicht es Metadaten wie Titel, Autoren und Publikationsdetails, um Match-Scores zu berechnen und Ergebnisse als exakte, starke, mögliche oder keine Übereinstimmung zu kategorisieren.",
   "verifying": "Verifiziert",

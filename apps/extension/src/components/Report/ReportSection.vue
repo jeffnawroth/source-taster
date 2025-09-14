@@ -28,7 +28,7 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
   <v-card
     flat
     :title="`3. ${$t('verify')}`"
-    :subtitle="$t('verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases')"
+    :subtitle="$t('verify-extracted-references')"
   >
     <template #append>
       <!-- Info Icon with Tooltip -->
