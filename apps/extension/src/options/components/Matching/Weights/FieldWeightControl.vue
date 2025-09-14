@@ -80,6 +80,7 @@ function updateWeight(newWeight: number) {
         color="primary"
         hide-details
         class="mr-3 ml-3"
+        inset
         :disabled="fieldConfig?.enabled && !props.canDisable"
         @update:model-value="toggleField"
       />

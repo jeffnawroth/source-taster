@@ -28,6 +28,7 @@ function resetToDefaults() {
           density="comfortable"
           class="mb-3"
           hide-details
+          inset
         />
 
         <!-- Threshold Slider -->
