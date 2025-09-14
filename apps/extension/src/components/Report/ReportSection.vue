@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiInformationOutline } from '@mdi/js'
+import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { useExtractionStore } from '@/extension/stores/extraction'
 
@@ -7,6 +7,7 @@ const extractionStore = useExtractionStore()
 const { extractedReferences } = storeToRefs(extractionStore)
 
 const search = ref('')
+const showReportCard = ref(true)
 
 const { results } = useFuse(search, () => [...extractedReferences.value], {
   fuseOptions: {
@@ -48,44 +49,53 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
           {{ $t('verification-help-description') }}
         </div>
       </v-tooltip>
+
+      <v-btn
+        variant="text"
+        :icon="showReportCard ? mdiChevronUp : mdiChevronDown"
+        @click="showReportCard = !showReportCard"
+      />
     </template>
-    <VerifyButton
-      class="mb-3"
-    />
-    <v-divider
-      v-if="extractedReferences.length > 0"
-      class="mb-3"
-    />
-    <!-- SUBTITLE -->
-    <v-card-subtitle
-      class="px-0"
-    >
-      <ReportSubtitle :references="extractedReferences" />
-    </v-card-subtitle>
 
-    <v-card-text
-      v-if="extractedReferences.length > 0"
-      class="px-0 pb-0"
-    >
-      <!-- VERIFY BUTTON - Always show but disabled when no parsed tokens -->
+    <v-expand-transition>
+      <div v-if="showReportCard">
+        <VerifyButton
+          class="mb-3"
+        />
+        <v-divider
+          v-if="extractedReferences.length > 0"
+          class="mb-3"
+        />
+        <!-- SUBTITLE -->
+        <v-card-subtitle
+          class="px-0"
+        >
+          <ReportSubtitle :references="extractedReferences" />
+        </v-card-subtitle>
 
-      <!-- SEARCH -->
-      <ReferencesSearchInput
-        v-model="search"
-        class="mb-2"
-      />
+        <v-card-text
+          v-if="extractedReferences.length > 0"
+          class="px-0 pb-0"
+        >
+          <!-- SEARCH -->
+          <ReferencesSearchInput
+            v-model="search"
+            class="mb-2"
+          />
 
-      <!-- References Container with fixed height -->
-      <!-- <div
-        class="references-container"
-        style="max-height: calc(100vh - 610px)"
-      > -->
-      <!-- LIST - Show when we have references -->
-      <ReferencesList
-        :results
-      />
-      <!-- </div> -->
-    </v-card-text>
+          <!-- References Container with fixed height -->
+          <!-- <div
+            class="references-container"
+            style="max-height: calc(100vh - 610px)"
+          > -->
+          <!-- LIST - Show when we have references -->
+          <ReferencesList
+            :results
+          />
+          <!-- </div> -->
+        </v-card-text>
+      </div>
+    </v-expand-transition>
   </v-card>
 </template>
 
