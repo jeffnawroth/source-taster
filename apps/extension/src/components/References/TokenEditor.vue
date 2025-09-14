@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import type { ApiAnystyleTokenLabel, ApiAnystyleTokenSequence } from '@source-taster/types'
 import { mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
-import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import TokenRelabelingEditor from './TokenRelabelingEditor.vue'
 
 // Composables
 const anystyleStore = useAnystyleStore()
 const { parsed, showTokenEditor } = storeToRefs(anystyleStore)
-
-// Translation
-const { t } = useI18n()
 
 // State - Simplified: only tokens needed for editing
 const editableTokens = ref<ApiAnystyleTokenSequence[]>([])
@@ -41,19 +37,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
     anystyleStore.updateTokens(currentReferenceIndex.value, newTokens[0])
   }
 }
-
-// Show info message when AI is enabled but no parsed references available
-const showAiExtractedMessage = computed(() =>
-  settings.value.extract.useAi && parsed.value.length === 0,
-)
-
-// Hint to display below the card
-const hint = computed(() => {
-  if (showAiExtractedMessage.value) {
-    return t('training-data-only-parsed-references')
-  }
-  return null
-})
 </script>
 
 <template>
@@ -152,12 +135,4 @@ const hint = computed(() => {
       </v-expand-transition>
     </v-card-text>
   </v-card>
-
-  <!-- Hint -->
-  <div
-    v-if="hint"
-    class="text-caption text-medium-emphasis mt-2 mx-3"
-  >
-    {{ hint }}
-  </div>
 </template>
