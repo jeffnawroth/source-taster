@@ -99,11 +99,17 @@ const cardSubtitle = computed(() => {
               <TextInput />
             </v-col>
 
-            <v-col cols="6">
+            <v-col
+              sm="6"
+              cols="12"
+            >
               <ParseButton />
             </v-col>
             <!-- Extract Button -->
-            <v-col cols="6">
+            <v-col
+              sm="6"
+              cols="12"
+            >
               <ExtractButton />
             </v-col>
 
