@@ -718,7 +718,7 @@
   "parse-mode-title": "Parse Mode",
   "parse-mode-description": "Paste your bibliography or reference list into the text area below. For best results, place each citation on its own line. The parser will automatically skip empty lines and process structured references.",
   "ai-extraction-mode-title": "AI Extraction Mode",
-  "ai-extraction-mode-description": "Free text input and unstructured input is possible as the AI can recognize and extract references automatically from any text format.",
+  "ai-extraction-mode-description": "Free text input and unstructured input is possible as the AI can recognize and extract references automatically from any text format. Extraction time depends on text length and selected AI model/provider.",
   "file-input-disabled-parse-mode": "File upload is only available in AI extraction mode. Switch to AI mode to upload PDF files.",
   "token-editor-help-title": "How to Use the Token Editor",
   "token-editor-help-description": "The parser automatically segments your references (author, title, etc.) using machine learning. Review each segment carefully and correct any errors by clicking on tokens and selecting the correct label from the dropdown. Combine related tokens together - for example, 'in' typically belongs with editor or journal names. Every token must have a label for best results. Your corrections help improve the parser model for everyone.",
