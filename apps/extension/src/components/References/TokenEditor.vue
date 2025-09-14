@@ -60,7 +60,7 @@ const hint = computed(() => {
   <v-card
     flat
     :title="`2. ${$t('edit')}`"
-    :subtitle="$t('review-and-relabel-parsed-references-by-clicking-on-tokens')"
+    :subtitle="$t('review-and-relabel-parsed-references')"
     :disabled="parsed.length === 0"
     :append-icon="mdiChevronDown"
   >
