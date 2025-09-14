@@ -1095,7 +1095,7 @@
   "verify-references-by-searching-and-matching-them-to-entries-in-scholarly-databases": "Verify references by searching and matching them to entries in scholarly databases.",
   "verify-extracted-references": "Verify extracted or parsed references",
   "verification-help-title": "How Verification Works",
-  "verification-help-description": "Source Taster searches your references across multiple academic databases (Crossref, Semantic Scholar, etc.) to find matching publications. It then compares metadata like title, authors, and publication details to calculate match scores and categorize results as exact, strong, possible, or no match.",
+  "verification-help-description": "Source Taster searches your references across multiple academic databases (Crossref, Semantic Scholar, etc.) to find matching publications. It then compares metadata like title, authors, and publication details using the Damerau-Levenshtein algorithm to calculate match scores and categorize results as exact, strong, possible, or no match.",
   "verifying": "Verifying",
   "verifying-reference-current": "Verifying: {reference}",
   "verifying-references-progress": "Verifying references ({current}/{total})",
