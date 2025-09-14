@@ -75,6 +75,14 @@ export abstract class BaseAIProvider {
         messages,
       }
 
+      // Add GPT-5 specific parameters if available
+      if (this.config.reasoning_effort) {
+        requestParams.reasoning_effort = this.config.reasoning_effort
+      }
+      if (this.config.verbosity) {
+        requestParams.verbosity = this.config.verbosity
+      }
+
       // Google AI doesn't support json_schema response format yet, trigger fallback
       if (this.isGoogleProvider()) {
         throw new Error('json_schema not supported for Google AI')
@@ -104,7 +112,7 @@ export abstract class BaseAIProvider {
 
       const enhancedSystemMessage = this.enhanceSystemMessageWithSchema(systemMessage, schema)
 
-      return await this.client.chat.completions.create({
+      const requestParams: any = {
         model: this.config.model,
         temperature: this.config.temperature,
         messages: [
@@ -112,7 +120,17 @@ export abstract class BaseAIProvider {
           { role: 'user', content: userMessage },
         ],
         response_format: { type: 'json_object' },
-      })
+      }
+
+      // Add GPT-5 specific parameters if available
+      if (this.config.reasoning_effort) {
+        requestParams.reasoning_effort = this.config.reasoning_effort
+      }
+      if (this.config.verbosity) {
+        requestParams.verbosity = this.config.verbosity
+      }
+
+      return await this.client.chat.completions.create(requestParams)
     }
     catch (e: any) {
       this.mapAIError(e)
@@ -229,14 +247,16 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
 
   private parseJSONContent(content: string): any {
     try {
-      return JSON.parse(content)
+      const parsed = JSON.parse(content)
+      return this.cleanupProviderSpecificResponse(parsed)
     }
     catch {
       // Try to repair incomplete JSON (e.g., Claude sometimes returns ",...}" instead of "{...}")
       const repairedContent = this.repairIncompleteJSON(content)
       if (repairedContent !== content) {
         try {
-          return JSON.parse(repairedContent)
+          const parsed = JSON.parse(repairedContent)
+          return this.cleanupProviderSpecificResponse(parsed)
         }
         catch {
           // Repair failed, fall through to markdown extraction
@@ -246,12 +266,44 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
       // Try to extract JSON from markdown code blocks
       try {
         const extractedJSON = this.extractJSONFromMarkdown(content)
-        return JSON.parse(extractedJSON)
+        const parsed = JSON.parse(extractedJSON)
+        return this.cleanupProviderSpecificResponse(parsed)
       }
       catch {
         httpUpstream('Invalid JSON response from AI service', 502)
       }
     }
+  }
+
+  /**
+   * Clean up provider-specific response formats
+   */
+  private cleanupProviderSpecificResponse(response: any): any {
+    // GPT-5 models sometimes add extra metadata keys that aren't in our schema
+    if (this.isGPT5Provider() && response && typeof response === 'object') {
+      const allowedKeys = ['references'] // Only keep the keys we expect
+      const cleaned: any = {}
+
+      allowedKeys.forEach((key) => {
+        if (response[key] !== undefined) {
+          cleaned[key] = response[key]
+        }
+      })
+
+      // If we have the expected structure, return cleaned version
+      if (cleaned.references) {
+        return cleaned
+      }
+    }
+
+    return response
+  }
+
+  /**
+   * Check if the current provider is GPT-5
+   */
+  private isGPT5Provider(): boolean {
+    return this.config.model.startsWith('gpt-5')
   }
 
   /**

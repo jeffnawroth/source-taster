@@ -6,7 +6,7 @@ import z from 'zod'
 export const ApiAIProviderSchema = z.enum(['openai', 'anthropic', 'google', 'deepseek'])
 export type ApiAIProvider = z.infer<typeof ApiAIProviderSchema>
 
-export const ApiOpenAIModelSchema = z.enum(['gpt-4o'])
+export const ApiOpenAIModelSchema = z.enum(['gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'gpt-4.1'])
 export type ApiOpenAIModel = z.infer<typeof ApiOpenAIModelSchema>
 
 export const ApiAnthropicModelSchema = z.enum(['claude-opus-4-1', 'claude-sonnet-4-0', 'claude-3-5-haiku-latest'])
@@ -28,10 +28,10 @@ export type ApiAIModel = z.infer<typeof ApiAIModelSchema>
 
 export const ApiAISettingsSchema = z.object({
   provider: ApiAIProviderSchema.default('openai'),
-  model: ApiAIModelSchema.default('gpt-4o'),
+  model: ApiAIModelSchema.default('gpt-4.1'),
 }).strict()
 export type ApiAISettings = z.infer<typeof ApiAISettingsSchema>
-export const DEFAULT_AI_SETTINGS: ApiAISettings = { provider: 'openai', model: 'gpt-4o' }
+export const DEFAULT_AI_SETTINGS: ApiAISettings = { provider: 'openai', model: 'gpt-4.1' }
 
 // const ApiAISettingsOpenAISchema = z.object({
 //   provider: z.literal('openai'),

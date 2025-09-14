@@ -30,13 +30,24 @@ export class AIProviderFactory {
       console.warn(`🔌 Using ${providerCfg.name} via OpenAI-compatible API`)
     }
 
+    // GPT-5 models use different parameters for optimization
+    let additionalParams = {}
+    if (model.startsWith('gpt-5')) {
+      // For GPT-5: Use minimal reasoning and low verbosity for fastest extraction
+      additionalParams = {
+        reasoning_effort: 'minimal', // Fastest response time
+        verbosity: 'low', // Concise output
+      }
+    }
+
     const config: OpenAIConfig = {
       apiKey,
       model: model as any,
       baseUrl,
       maxRetries: 3,
       timeout: 60_000,
-      temperature: 0.1,
+      temperature: 1.0, // All models use temperature 1.0 now
+      ...additionalParams,
     }
 
     return new OpenAIExtractionProvider(config)

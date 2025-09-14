@@ -30,11 +30,11 @@
     "deepseek-chat": "DeepSeek Chat (General Purpose)",
     "deepseek-reasoner": "DeepSeek Reasoner (Advanced Problem Solving)",
     "gemini-2-5-flash": "Gemini 2.5 Flash (Adaptive Thinking)",
-    "gemini-2-5-flash-lite": "Gemini 2.5 Flash-Lite (Most Cost-Efficient)",
     "gemini-2-5-pro": "Gemini 2.5 Pro (Enhanced Reasoning)",
-    "gpt-4o": "GPT-4o (Flagship Chat Model)",
-    "o3": "o3 (Most Powerful Reasoning)",
-    "o3-mini": "o3 Mini (Cost-Efficient Reasoning)"
+    "gpt-4-1": "GPT-4.1 (Smartest Non-Reasoning Model)",
+    "gpt-5": "GPT-5 (Best for Coding & Agentic Tasks)",
+    "gpt-5-mini": "GPT-5 Mini (Faster, Cost-Efficient Version)",
+    "gpt-5-nano": "GPT-5 Nano (Fastest, Most Cost-Efficient)"
   },
   "ai-settings-api-key-help": "You can get your API key from the provider's platform:",
   "ai-settings-api-key-help-anthropic": "You can get your Anthropic API key from the console:",
