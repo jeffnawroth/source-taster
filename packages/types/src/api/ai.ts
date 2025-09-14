@@ -12,7 +12,7 @@ export type ApiOpenAIModel = z.infer<typeof ApiOpenAIModelSchema>
 export const ApiAnthropicModelSchema = z.enum(['claude-opus-4-1', 'claude-sonnet-4-0', 'claude-3-5-haiku-latest'])
 export type ApiAnthropicModel = z.infer<typeof ApiAnthropicModelSchema>
 
-export const ApiGoogleModelSchema = z.enum(['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'])
+export const ApiGoogleModelSchema = z.enum(['gemini-2.5-pro', 'gemini-2.5-flash'])
 export type ApiGoogleModel = z.infer<typeof ApiGoogleModelSchema>
 
 export const ApiDeepSeekModelSchema = z.enum(['deepseek-chat', 'deepseek-reasoner'])

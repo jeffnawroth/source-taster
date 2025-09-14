@@ -42,7 +42,7 @@ export abstract class BaseAIProvider {
       return await this.makeStructuredAPICall(systemMessage, userMessage, schema)
     }
     catch (e: any) {
-      // Fallback nur, wenn wirklich response_format nicht unterstützt wird
+      // Fallback only when response_format is truly unsupported
       if (this.isJsonSchemaUnsupportedError(e)) {
         return await this.makeUnstructuredAPICall(systemMessage, userMessage, schema)
       }
@@ -51,7 +51,7 @@ export abstract class BaseAIProvider {
   }
 
   /**
-   * Make structured API call with json_schema support
+   * Make structured API call with json_schema response format
    */
   protected async makeStructuredAPICall(
     systemMessage: string,
@@ -64,20 +64,27 @@ export abstract class BaseAIProvider {
         { role: 'user', content: userMessage },
       ]
 
-      // Optional: Provider-spezifische Anpassungen (z. B. Anthropic via OpenAI-kompatible Gateways)
+      // Provider-specific adjustments
       if (this.isAnthropicProvider()) {
         messages.push({ role: 'assistant', content: JSON.stringify(schema) })
       }
 
-      return await this.client.chat.completions.create({
+      const requestParams: any = {
         model: this.config.model,
         temperature: this.config.temperature,
         messages,
-        response_format: { type: 'json_schema', json_schema: schema },
-      })
+      }
+
+      // Google AI doesn't support json_schema response format yet, trigger fallback
+      if (this.isGoogleProvider()) {
+        throw new Error('json_schema not supported for Google AI')
+      }
+
+      requestParams.response_format = { type: 'json_schema', json_schema: schema }
+      return await this.client.chat.completions.create(requestParams)
     }
     catch (e: any) {
-      // structured nicht verfügbar? Caller kümmert sich um Fallback
+      // If json_schema is unsupported, let caller handle fallback
       if (this.isJsonSchemaUnsupportedError(e))
         throw e
       this.mapAIError(e)
@@ -123,7 +130,7 @@ export abstract class BaseAIProvider {
     const msg: string
       = e?.error?.message ?? e?.message ?? 'Upstream AI error'
 
-    // Häufige Fälle:
+    // Common error cases
     if (status === 400)
       return httpBadRequest(msg, e)
     if (status === 401 || code === 'invalid_api_key')
@@ -141,12 +148,12 @@ export abstract class BaseAIProvider {
     if (status && status >= 500)
       return httpUpstream('Upstream server error', 502, e)
 
-    // Spezieller Case: response_format nicht unterstützt — wird vom Caller als Fallback behandelt.
+    // Special case: json_schema unsupported - handled by caller as fallback
     if (this.isJsonSchemaUnsupportedError(e)) {
       throw e
     }
 
-    // Default: behandle als Upstream-Fehler
+    // Default: treat as upstream error
     return httpUpstream(msg, 502, e)
   }
 
@@ -160,12 +167,27 @@ export abstract class BaseAIProvider {
   }
 
   /**
+   * Check if the current provider is Google AI/Gemini
+   */
+  protected isGoogleProvider(): boolean {
+    const baseUrl = this.config.baseUrl?.toLowerCase() || ''
+    const model = this.config.model.toLowerCase()
+    return baseUrl.includes('generativelanguage.googleapis.com') || model.startsWith('gemini')
+  }
+
+  /**
    * Check if error indicates json_schema is unsupported
    */
   protected isJsonSchemaUnsupportedError(error: any): boolean {
-    return error?.error?.type === 'invalid_request_error'
+    // Standard OpenAI API errors
+    const isStandardError = error?.error?.type === 'invalid_request_error'
       && typeof error?.error?.message === 'string'
       && error.error.message.includes('response_format')
+
+    // Google AI specific fallback trigger
+    const isGoogleAIFallback = error?.message === 'json_schema not supported for Google AI'
+
+    return isStandardError || isGoogleAIFallback
   }
 
   /**
@@ -210,6 +232,18 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
       return JSON.parse(content)
     }
     catch {
+      // Try to repair incomplete JSON (e.g., Claude sometimes returns ",...}" instead of "{...}")
+      const repairedContent = this.repairIncompleteJSON(content)
+      if (repairedContent !== content) {
+        try {
+          return JSON.parse(repairedContent)
+        }
+        catch {
+          // Repair failed, fall through to markdown extraction
+        }
+      }
+
+      // Try to extract JSON from markdown code blocks
       try {
         const extractedJSON = this.extractJSONFromMarkdown(content)
         return JSON.parse(extractedJSON)
@@ -220,8 +254,34 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     }
   }
 
+  /**
+   * Attempt to repair common JSON formatting issues from AI providers
+   * - Claude sometimes returns incomplete JSON starting with comma
+   * - Some providers may miss opening/closing braces
+   */
+  private repairIncompleteJSON(content: string): string {
+    const trimmed = content.trim()
+
+    // Missing opening brace (starts with comma)
+    if (trimmed.startsWith(',')) {
+      return `{${trimmed.substring(1)}` // Remove comma, add opening brace
+    }
+
+    // Missing opening brace (starts with property)
+    if (trimmed.match(/^"[^"]+"\s*:\s*/)) {
+      return `{${trimmed}}`
+    }
+
+    // Missing closing brace
+    if (trimmed.startsWith('{') && !trimmed.endsWith('}')) {
+      return `${trimmed}}`
+    }
+
+    return content
+  }
+
   private validateResponse<T>(parsedResponse: any, schema: any): T {
-    // Zod-Fehler werden weitergeworfen → app.onError macht 400/validation_error
+    // Zod errors are thrown → app.onError handles 400/validation_error
     return schema.parse(parsedResponse) as T
   }
 
