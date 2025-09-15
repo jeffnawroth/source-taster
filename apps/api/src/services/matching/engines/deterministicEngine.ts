@@ -1,5 +1,5 @@
 import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem, CSLVariable } from '@source-taster/types'
-import { containsNumericToken } from '@/api/utils/fieldSimilarity'
+import { containsNumericToken, pageSimilarity } from '@/api/utils/fieldSimilarity'
 import { MetadataComparator } from '@/api/utils/metadataComparator'
 import { similarity } from '@/api/utils/similarity'
 import { NormalizationService } from '../../matching/normalizationService'
@@ -96,6 +96,17 @@ export class DeterministicEngine {
       )
       if (numericMatch)
         return 1
+    }
+    // Pages: treat single page vs. page range as overlap; compute overlap ratio
+    if (fieldName === 'page') {
+      const sim = pageSimilarity(
+        referenceValue,
+        sourceValue,
+        normalizationRules,
+        (v, r) => this.normalizationService.normalizeValue(v, r),
+      )
+      if (sim !== null)
+        return sim
     }
     return this.compareValues(referenceValue, sourceValue, normalizationRules)
   }
