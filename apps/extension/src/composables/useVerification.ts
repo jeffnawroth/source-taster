@@ -9,7 +9,6 @@ import type {
 import { DEFAULT_EARLY_TERMINATION } from '@source-taster/types'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
-import { useAnystyleAutoTraining } from '@/extension/composables/useAnystyleAutoTraining'
 import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
@@ -26,8 +25,6 @@ export function useVerification() {
   const searchStore = useSearchStore()
   const matchingStore = useMatchingStore()
   const progress = useVerificationProgressStore()
-
-  const { trainFromVerified, isTraining, trainError } = useAnystyleAutoTraining()
 
   // Refs from stores
   const { parsed, hasParseResults } = storeToRefs(anystyleStore)
@@ -188,17 +185,6 @@ export function useVerification() {
         threshold,
         earlyEnabled,
       )
-
-      // Nach erfolgreicher Verifizierung optional Auto-Training triggern
-      // Nur sinnvoll im Parse-Flow (hasParseResults = true), da nur dann Token/Labels vorhanden sind
-      if (hasParseResults.value) {
-        // microtask, damit verify-UI sofort fertig ist
-        queueMicrotask(() => {
-          trainFromVerified().catch((e) => {
-            console.warn('[AutoTrain] failed after verify:', e)
-          })
-        })
-      }
     }
     catch (e: any) {
       console.error('Verification failed:', e)
@@ -214,9 +200,6 @@ export function useVerification() {
     isVerifying,
     verifyError,
     canVerify,
-
-    isTraining,
-    trainError,
 
     // actions
     verify,
