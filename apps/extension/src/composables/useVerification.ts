@@ -9,13 +9,14 @@ import type {
 import { DEFAULT_EARLY_TERMINATION } from '@source-taster/types'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import { useAnystyleAutoTraining } from '@/extension/composables/useAnystyleAutoTraining'
 import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useSearchStore } from '@/extension/stores/search'
-
 import { mapApiError } from '@/extension/utils/mapApiError'
+
 import { useVerificationProgressStore } from './useVerificationProgress'
 
 export function useVerification() {
@@ -24,7 +25,9 @@ export function useVerification() {
   const extractionStore = useExtractionStore()
   const searchStore = useSearchStore()
   const matchingStore = useMatchingStore()
-  const progress = useVerificationProgressStore() // ⟵ NEU
+  const progress = useVerificationProgressStore()
+
+  const { trainFromVerified, isTraining, trainError } = useAnystyleAutoTraining()
 
   // Refs from stores
   const { parsed, hasParseResults } = storeToRefs(anystyleStore)
@@ -35,14 +38,11 @@ export function useVerification() {
   const isVerifying = ref(false)
   const verifyError = ref<string | null>(null)
 
-  // Can verify? => Either tokens available OR extracted references
   const canVerify = computed(
     () => hasParseResults.value || extractedReferences.value.length > 0,
   )
 
   // --- Helper functions ---
-
-  // A) AnyStyle flow: Tokens -> CSL + store extractedReferences in extraction store
   async function convertTokensToCSL(): Promise<ApiSearchReference[]> {
     const res = await anystyleStore.convertToCSL()
     if (!res.success)
@@ -50,13 +50,11 @@ export function useVerification() {
 
     const csl = res.data?.csl ?? []
 
-    // Assign IDs (Search API expects its own ID + identical CSL ID)
     const searchRefs = csl.map((item) => {
       const id = crypto.randomUUID()
       return { id, metadata: { ...item, id } }
     })
 
-    // Store extractedReferences including originalText in extraction store
     const extractedRefs = searchRefs.map((item, index) => {
       const originalText = parsed.value[index]?.originalText ?? ''
       return { ...item, originalText }
@@ -66,7 +64,6 @@ export function useVerification() {
     return searchRefs
   }
 
-  // B) AI-extracted references -> directly as ApiSearchReference
   function getExtractedCSL(): ApiSearchReference[] {
     return extractedReferences.value.map((r) => {
       const cloned = JSON.parse(JSON.stringify(r.metadata))
@@ -98,13 +95,10 @@ export function useVerification() {
   }
 
   async function matchOne(reference: ApiMatchReference) {
-    // Progress: matching
     progress.setMatching(reference.id)
-
     const candidates = searchStore.getCandidatesByReferenceId(reference.id)
     if (!candidates.length)
       return
-
     const res = await matchingStore.matchReference({ reference, candidates })
     if (!res.success)
       throw new Error(mapApiError(res as unknown as ApiHttpError))
@@ -114,23 +108,16 @@ export function useVerification() {
     reference: ApiSearchReference,
     databaseName: ApiSearchSource,
   ) {
-    // Progress: searching in DB
     progress.setSearching(reference.id, databaseName)
-
     const sres = await searchStore.searchInDatabase(databaseName, {
       references: [reference],
     })
-
     if (sres && !sres.success) {
       const msg = mapApiError(sres as unknown as ApiHttpError)
       progress.setError(reference.id, msg)
       throw new Error(msg)
     }
-
     await matchOne(reference)
-
-    // Note: setDone wird nur aufgerufen, wenn die Referenz wirklich komplett fertig ist
-    // Das passiert in performVerificationWithEarlyTermination
   }
 
   async function performVerificationWithEarlyTermination(
@@ -139,7 +126,6 @@ export function useVerification() {
     threshold: number,
     earlyEnabled: boolean,
   ) {
-    // Track remaining refs to process (for early termination)
     const remaining = new Set(references.map(r => r.id))
 
     for (const db of databases) {
@@ -154,14 +140,12 @@ export function useVerification() {
 
         if (shouldTerminateEarly(ref.id, threshold, earlyEnabled)) {
           remaining.delete(ref.id)
-          // Referenz ist durch Early Termination komplett fertig
           const score = matchingStore.getMatchingScoreByReference(ref.id)
           progress.setDone(ref.id, score ?? undefined)
         }
       }
     }
 
-    // Alle verbleibenden Referenzen sind jetzt komplett fertig
     for (const ref of references) {
       if (remaining.has(ref.id)) {
         const score = matchingStore.getMatchingScoreByReference(ref.id)
@@ -169,10 +153,8 @@ export function useVerification() {
       }
     }
 
-    // Optional final matching run if early termination is disabled
     if (!earlyEnabled) {
       for (const ref of references) {
-        // Set phase to matching (for those that might not have been matched last)
         progress.setMatching(ref.id)
         await matchOne(ref)
         const score = matchingStore.getMatchingScoreByReference(ref.id)
@@ -190,13 +172,10 @@ export function useVerification() {
     verifyError.value = null
 
     try {
-      // Clear previous results (otherwise stale scores)
       searchStore.clearSearchResults()
       matchingStore.clearMatchingResults()
 
       const references = await prepareReferences()
-
-      // Init progress for all references
       progress.init(references.map(r => r.id))
 
       const { databases, threshold, earlyEnabled } = getVerificationSettings()
@@ -209,6 +188,17 @@ export function useVerification() {
         threshold,
         earlyEnabled,
       )
+
+      // Nach erfolgreicher Verifizierung optional Auto-Training triggern
+      // Nur sinnvoll im Parse-Flow (hasParseResults = true), da nur dann Token/Labels vorhanden sind
+      if (hasParseResults.value) {
+        // microtask, damit verify-UI sofort fertig ist
+        queueMicrotask(() => {
+          trainFromVerified().catch((e) => {
+            console.warn('[AutoTrain] failed after verify:', e)
+          })
+        })
+      }
     }
     catch (e: any) {
       console.error('Verification failed:', e)
@@ -224,8 +214,13 @@ export function useVerification() {
     isVerifying,
     verifyError,
     canVerify,
+
+    isTraining,
+    trainError,
+
     // actions
     verify,
+
     // optional exports
     prepareReferences,
     performVerificationWithEarlyTermination,
