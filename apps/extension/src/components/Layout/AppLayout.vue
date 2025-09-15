@@ -40,7 +40,7 @@ const shouldShowOnboarding = computed(() => {
     v-else
     flat
     density="compact"
-    class="d-flex flex-column flex-1 min-h-0 overflow-hidden"
+    class="d-flex flex-column flex-1 min-h-0"
   >
     <v-card-text class="d-flex flex-column flex-1 min-h-0">
       <div class="d-flex flex-column gap-3 flex-0">

@@ -13,7 +13,6 @@ const { results } = defineProps<{
     v-if="results.length > 0"
     class="pa-0"
     density="compact"
-    slim
   >
     <v-slide-y-transition group>
       <ReferenceItem

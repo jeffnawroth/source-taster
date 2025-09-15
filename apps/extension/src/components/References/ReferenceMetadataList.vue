@@ -950,7 +950,6 @@ const hasIdentifiers = computed(() => {
 <template>
   <v-list
     density="compact"
-    slim
   >
     <v-list-subheader>{{ subheader }}</v-list-subheader>
 

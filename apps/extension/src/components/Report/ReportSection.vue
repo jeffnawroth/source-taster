@@ -71,7 +71,7 @@ const filteredResults = computed(() => {
     flat
     :title="`3. ${$t('verify')}`"
     :subtitle="$t('verify-extracted-references')"
-    class="d-flex flex-column flex-1 min-h-0 overflow-hidden"
+    class="d-flex flex-column flex-1 min-h-0"
   >
     <template #append>
       <!-- Info Icon with Tooltip -->

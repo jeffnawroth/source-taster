@@ -4,7 +4,11 @@
   <v-app class="h-100">
     <AppBar />
     <v-main class="d-flex flex-column h-100 min-h-0 overflow-hidden">
-      <AppLayout class="flex-1 d-flex flex-column min-h-0" />
+      <v-container
+        class="d-flex flex-column flex-1 min-h-0"
+      >
+        <AppLayout class="flex-1 d-flex flex-column min-h-0" />
+      </v-container>
     </v-main>
     <Footer />
   </v-app>
