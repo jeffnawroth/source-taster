@@ -1,8 +1,20 @@
 import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem, CSLVariable } from '@source-taster/types'
 import { MetadataComparator } from '@/api/utils/metadataComparator'
 import { similarity } from '@/api/utils/similarity'
+import { NormalizationService } from '../../matching/normalizationService'
 
 export class DeterministicEngine {
+  private readonly normalizationService = new NormalizationService()
+
+  private extractIntegers(input: string): number[] {
+    const m = input.match(/\d+/g)
+    return m ? m.map(n => Number.parseInt(n, 10)).filter(n => Number.isFinite(n)) : []
+  }
+
+  private normalizeValue(value: unknown, rules: ApiMatchNormalizationRule[]): string {
+    return this.normalizationService.normalizeValue(value, rules)
+  }
+
   /**
    * Matches a reference against an external source using deterministic similarity algorithms
    */
@@ -49,7 +61,39 @@ export class DeterministicEngine {
         const referenceValue = referenceMetadata[fieldName]
         const sourceValue = sourceMetadata[fieldName]
 
-        const score = this.compareValues(referenceValue, sourceValue, normalizationRules)
+        // Special handling for volume/issue: references may pack both numbers into a single field
+        let score: number
+        if (fieldName === 'volume') {
+          // If reference volume contains the source's volume number among other tokens, count as full match
+          const refStr = this.normalizeValue(referenceValue, normalizationRules)
+          const srcVolStr = this.normalizeValue(sourceValue, normalizationRules)
+          const refNums = this.extractIntegers(refStr)
+          const srcVolNums = this.extractIntegers(srcVolStr)
+
+          if (refNums.length > 0 && srcVolNums.length > 0 && refNums.includes(srcVolNums[0])) {
+            score = 1
+          }
+          else {
+            score = this.compareValues(referenceValue, sourceValue, normalizationRules)
+          }
+        }
+        else if (fieldName === 'issue') {
+          // If reference issue contains the source's issue number among other tokens, count as full match
+          const refStr = this.normalizeValue(referenceValue, normalizationRules)
+          const srcIssStr = this.normalizeValue(sourceValue, normalizationRules)
+          const refNums = this.extractIntegers(refStr)
+          const srcIssNums = this.extractIntegers(srcIssStr)
+
+          if (refNums.length > 0 && srcIssNums.length > 0 && refNums.includes(srcIssNums[0])) {
+            score = 1
+          }
+          else {
+            score = this.compareValues(referenceValue, sourceValue, normalizationRules)
+          }
+        }
+        else {
+          score = this.compareValues(referenceValue, sourceValue, normalizationRules)
+        }
         const weightedScore = score * 100 // Convert to percentage (0-100)
 
         fieldScores.push({
