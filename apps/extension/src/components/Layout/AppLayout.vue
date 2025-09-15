@@ -22,13 +22,13 @@ const shouldShowOnboarding = computed(() => {
 })
 
 // COMPONENTS
-const components = [
-  InputCard,
-  VDivider,
-  TokenEditor,
-  VDivider,
-  ReportSection,
-]
+// const components = [
+//   InputCard,
+//   VDivider,
+//   TokenEditor,
+//   VDivider,
+//   ReportSection,
+// ]
 </script>
 
 <template>
@@ -39,17 +39,21 @@ const components = [
   <v-card
     v-else
     flat
+    density="compact"
+    class="d-flex flex-column flex-1 min-h-0 overflow-hidden"
   >
-    <v-card-text>
-      <v-row dense>
-        <v-col
-          v-for="component in components"
-          :key="component.name"
-          cols="12"
-        >
-          <component :is="component" />
-        </v-col>
-      </v-row>
+    <v-card-text class="d-flex flex-column flex-1 min-h-0">
+      <div class="d-flex flex-column gap-3 flex-0">
+        <InputCard />
+        <VDivider />
+        <TokenEditor />
+        <VDivider />
+      </div>
+
+      <!-- Report gets the remaining height -->
+      <div class="d-flex flex-column flex-1 min-h-0">
+        <ReportSection />
+      </div>
     </v-card-text>
   </v-card>
 </template>

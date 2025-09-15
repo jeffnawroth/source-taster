@@ -71,6 +71,7 @@ const filteredResults = computed(() => {
     flat
     :title="`3. ${$t('verify')}`"
     :subtitle="$t('verify-extracted-references')"
+    class="d-flex flex-column flex-1 min-h-0 overflow-hidden"
   >
     <template #append>
       <!-- Info Icon with Tooltip -->
@@ -99,75 +100,41 @@ const filteredResults = computed(() => {
       />
     </template>
 
-    <v-expand-transition>
-      <div v-if="showReportCard">
-        <VerifyButton
-          class="mb-3"
-        />
-        <v-divider
-          v-if="extractedReferences.length > 0"
-          class="mb-3"
-        />
-        <!-- SUBTITLE -->
-        <v-card-subtitle
-          class="px-0"
+    <!-- Keep the flex chain intact here -->
+    <div class="d-flex flex-column flex-1 min-h-0">
+      <v-expand-transition>
+        <!-- Toggle THIS inner block, not the flex parent -->
+        <div
+          v-if="showReportCard"
+          class="d-flex flex-column flex-1 min-h-0"
         >
-          <ReportSubtitle
-            v-model:active-filters="activeFilters"
-            :references="extractedReferences"
-          />
-        </v-card-subtitle>
-
-        <v-card-text
-          v-if="extractedReferences.length > 0"
-          class="px-0 pb-0"
-        >
-          <!-- SEARCH -->
-          <ReferencesSearchInput
-            v-model="search"
-            class="mb-2"
+          <VerifyButton class="mb-3" />
+          <v-divider
+            v-if="extractedReferences.length > 0"
+            class="mb-3"
           />
 
-          <!-- References Container with fixed height -->
-          <!-- <div
-            class="references-container"
-            style="max-height: calc(100vh - 610px)"
-          > -->
-          <!-- LIST - Show when we have references -->
-          <ReferencesList
-            :results="filteredResults"
-          />
-          <!-- </div> -->
-        </v-card-text>
-      </div>
-    </v-expand-transition>
+          <v-card-subtitle class="px-0">
+            <ReportSubtitle
+              v-model:active-filters="activeFilters"
+              :references="extractedReferences"
+            />
+          </v-card-subtitle>
+
+          <!-- Content area gets rest height -->
+          <v-card-text class="px-0 pb-0 d-flex flex-column flex-1 min-h-0">
+            <ReferencesSearchInput
+              v-model="search"
+              class="mb-2"
+            />
+
+            <!-- This is the ONLY scroll container -->
+            <div class="flex-1 min-h-0 overflow-auto">
+              <ReferencesList :results="filteredResults" />
+            </div>
+          </v-card-text>
+        </div>
+      </v-expand-transition>
+    </div>
   </v-card>
 </template>
-
-<!-- <style scoped>
-.references-container {
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 0.5rem;
-  scrollbar-color: #404040b3 transparent; /*firefox*/
-  scrollbar-width: thin;
-}
-
-/* Webkit browsers (Chrome, Safari, Edge) */
-.references-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.references-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.references-container::-webkit-scrollbar-thumb {
-  background: rgba(64, 64, 64, 0.7);
-  border-radius: 3px;
-}
-
-.references-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(64, 64, 64, 0.9);
-}
-</style> -->
