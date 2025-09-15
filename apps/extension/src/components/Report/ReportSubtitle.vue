@@ -220,8 +220,9 @@ const summaryChips = computed<ChipItem[]>(() => {
         :text="chip.text"
         :tooltip="chip.tooltip"
         :prepend-icon="chip.icon"
-        :color="chip.category && isSelected(chip.category) ? chip.color : undefined"
-        @click="toggleCategory(chip.category)"
+        :color="chip.category ? (isSelected(chip.category) ? chip.color : undefined) : chip.color"
+        :class="[{ 'cursor-default': !chip.category }]"
+        @click="chip.category && toggleCategory(chip.category)"
       />
     </v-col>
   </v-row>
