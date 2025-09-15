@@ -12,7 +12,7 @@ const uiStore = useUIStore()
 const { inputText } = storeToRefs(uiStore)
 
 // Composable
-const { extractThenVerify, isRunning, error } = useExtractThenVerify()
+const { extractThenVerify, isRunning } = useExtractThenVerify()
 
 // Translation
 const { t } = useI18n()
@@ -71,15 +71,4 @@ watch(ctrlEnter, (pressed) => {
 
     {{ isRunning ? `${t('extracting-and-verifying')}...` : t('extract-and-verify') }}
   </v-btn>
-
-  <v-alert
-    v-if="error"
-    type="error"
-    variant="tonal"
-    class="mt-3"
-    closable
-    @click:close="error = null"
-  >
-    {{ error }}
-  </v-alert>
 </template>
