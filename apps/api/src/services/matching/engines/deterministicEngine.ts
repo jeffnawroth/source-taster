@@ -1,19 +1,11 @@
 import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem, CSLVariable } from '@source-taster/types'
+import { containsNumericToken } from '@/api/utils/fieldSimilarity'
 import { MetadataComparator } from '@/api/utils/metadataComparator'
 import { similarity } from '@/api/utils/similarity'
 import { NormalizationService } from '../../matching/normalizationService'
 
 export class DeterministicEngine {
   private readonly normalizationService = new NormalizationService()
-
-  private extractIntegers(input: string): number[] {
-    const m = input.match(/\d+/g)
-    return m ? m.map(n => Number.parseInt(n, 10)).filter(n => Number.isFinite(n)) : []
-  }
-
-  private normalizeValue(value: unknown, rules: ApiMatchNormalizationRule[]): string {
-    return this.normalizationService.normalizeValue(value, rules)
-  }
 
   /**
    * Matches a reference against an external source using deterministic similarity algorithms
@@ -57,50 +49,19 @@ export class DeterministicEngine {
     // Compare only enabled fields directly (no path traversal needed for flat CSL structure)
     for (const fieldName of enabledFields) {
       const config = fieldConfigurations[fieldName as keyof ApiMatchConfig['fieldConfigurations']]
-      if (config?.weight && config.weight > 0) {
-        const referenceValue = referenceMetadata[fieldName]
-        const sourceValue = sourceMetadata[fieldName]
+      if (!config?.weight || config.weight <= 0)
+        continue
 
-        // Special handling for volume/issue: references may pack both numbers into a single field
-        let score: number
-        if (fieldName === 'volume') {
-          // If reference volume contains the source's volume number among other tokens, count as full match
-          const refStr = this.normalizeValue(referenceValue, normalizationRules)
-          const srcVolStr = this.normalizeValue(sourceValue, normalizationRules)
-          const refNums = this.extractIntegers(refStr)
-          const srcVolNums = this.extractIntegers(srcVolStr)
+      const referenceValue = referenceMetadata[fieldName]
+      const sourceValue = sourceMetadata[fieldName]
 
-          if (refNums.length > 0 && srcVolNums.length > 0 && refNums.includes(srcVolNums[0])) {
-            score = 1
-          }
-          else {
-            score = this.compareValues(referenceValue, sourceValue, normalizationRules)
-          }
-        }
-        else if (fieldName === 'issue') {
-          // If reference issue contains the source's issue number among other tokens, count as full match
-          const refStr = this.normalizeValue(referenceValue, normalizationRules)
-          const srcIssStr = this.normalizeValue(sourceValue, normalizationRules)
-          const refNums = this.extractIntegers(refStr)
-          const srcIssNums = this.extractIntegers(srcIssStr)
+      const score = this.scoreField(fieldName, referenceValue, sourceValue, normalizationRules)
+      const weightedScore = score * 100 // Convert to percentage (0-100)
 
-          if (refNums.length > 0 && srcIssNums.length > 0 && refNums.includes(srcIssNums[0])) {
-            score = 1
-          }
-          else {
-            score = this.compareValues(referenceValue, sourceValue, normalizationRules)
-          }
-        }
-        else {
-          score = this.compareValues(referenceValue, sourceValue, normalizationRules)
-        }
-        const weightedScore = score * 100 // Convert to percentage (0-100)
-
-        fieldScores.push({
-          field: fieldName as CSLVariable,
-          fieldScore: Math.round(weightedScore),
-        })
-      }
+      fieldScores.push({
+        field: fieldName as CSLVariable,
+        fieldScore: Math.round(weightedScore),
+      })
     }
 
     return fieldScores
@@ -117,6 +78,26 @@ export class DeterministicEngine {
     }
 
     return similarity(referenceValue, sourceValue, normalizationRules)
+  }
+
+  private scoreField(
+    fieldName: string,
+    referenceValue: unknown,
+    sourceValue: unknown,
+    normalizationRules: ApiMatchNormalizationRule[],
+  ): number {
+    // Special handling for volume/issue: references may pack both numbers into a single field
+    if (fieldName === 'volume' || fieldName === 'issue') {
+      const numericMatch = containsNumericToken(
+        referenceValue,
+        sourceValue,
+        normalizationRules,
+        (v, r) => this.normalizationService.normalizeValue(v, r),
+      )
+      if (numericMatch)
+        return 1
+    }
+    return this.compareValues(referenceValue, sourceValue, normalizationRules)
   }
 
   private compareArrays(arr1: unknown[], arr2: unknown[], normalizationRules: ApiMatchNormalizationRule[]): number {
