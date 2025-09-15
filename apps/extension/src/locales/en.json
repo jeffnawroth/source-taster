@@ -1087,6 +1087,7 @@
   "verification-failed": "Verification failed",
   "verification-help-description": "Source Taster searches your references across multiple academic databases (Crossref, Semantic Scholar, etc.) to find matching publications. It then compares metadata like title, authors, and publication details using the Damerau-Levenshtein algorithm to calculate match scores and categorize results as exact, strong, possible, or no match.",
   "verification-help-title": "How Verification Works",
+  "verification-help-note-common-fields": "Only fields that exist in both the extracted reference and the database record are matched and scored.",
   "verification-in-progress": "Another verification is in progress",
   "verification-successful": "Verification successful",
   "verification-with-errors": "{verified}/{total} verified ({errors} errors)",

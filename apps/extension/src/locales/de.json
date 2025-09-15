@@ -1087,6 +1087,7 @@
   "verification-failed": "Verifizierung fehlgeschlagen",
   "verification-help-description": "Source Taster durchsucht Ihre Referenzen in mehreren wissenschaftlichen Datenbanken (Crossref, Semantic Scholar, etc.), um passende Publikationen zu finden. Dann vergleicht es Metadaten wie Titel, Autoren und Publikationsdetails mit dem Damerau-Levenshtein-Algorithmus, um Match-Scores zu berechnen und Ergebnisse als exakte, starke, mögliche oder keine Übereinstimmung zu kategorisieren.",
   "verification-help-title": "Wie die Verifikation funktioniert",
+  "verification-help-note-common-fields": "Es werden nur Felder verglichen und bewertet, die sowohl in der extrahierten Referenz als auch im Datensatz der Datenbank vorhanden sind.",
   "verification-in-progress": "Eine andere Überprüfung läuft bereits",
   "verification-successful": "Verifizierung erfolgreich",
   "verification-with-errors": "{verified}/{total} verifiziert ({errors} Fehler)",

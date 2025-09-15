@@ -92,6 +92,8 @@ const filteredResults = computed(() => {
         >
           <strong>{{ $t('verification-help-title') }}</strong><br>
           {{ $t('verification-help-description') }}
+          <br><br>
+          <em>{{ $t('verification-help-note-common-fields') }}</em>
         </div>
       </v-tooltip>
 
