@@ -109,7 +109,10 @@ const cardSubtitle = computed(() => {
             </v-col>
 
             <!-- Central Error Alerts -->
-            <v-col cols="12">
+            <v-col
+              v-if="extractionStore.extractionError || anystyleStore.parseError"
+              cols="12"
+            >
               <!-- Extraction Error Alert -->
               <v-alert
                 v-if="extractionStore.extractionError"

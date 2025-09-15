@@ -22,13 +22,12 @@ const shouldShowOnboarding = computed(() => {
 })
 
 // COMPONENTS
-// const components = [
-//   InputCard,
-//   VDivider,
-//   TokenEditor,
-//   VDivider,
-//   ReportSection,
-// ]
+const components = [
+  InputCard,
+  VDivider,
+  TokenEditor,
+  VDivider,
+]
 </script>
 
 <template>
@@ -43,12 +42,19 @@ const shouldShowOnboarding = computed(() => {
     class="d-flex flex-column flex-1 min-h-0"
   >
     <v-card-text class="d-flex flex-column flex-1 min-h-0">
-      <div class="d-flex flex-column gap-3 flex-0">
-        <InputCard />
-        <VDivider />
-        <TokenEditor />
-        <VDivider />
-      </div>
+      <!-- Static header area using grid -->
+      <v-row
+        dense
+        class="flex-0"
+      >
+        <v-col
+          v-for="component in components"
+          :key="component.name"
+          cols="12"
+        >
+          <component :is="component" />
+        </v-col>
+      </v-row>
 
       <!-- Report gets the remaining height -->
       <div class="d-flex flex-column flex-1 min-h-0">
