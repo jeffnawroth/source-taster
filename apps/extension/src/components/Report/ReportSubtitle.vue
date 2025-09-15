@@ -177,8 +177,7 @@ const summaryChips = computed<ChipItem[]>(() => {
 <template>
   <!-- Detailed Status Chips -->
   <v-row
-    no-gutters
-    density="compact"
+    dense
   >
     <v-col
       v-for="chip in summaryChips"
@@ -191,7 +190,6 @@ const summaryChips = computed<ChipItem[]>(() => {
         :prepend-icon="chip.icon"
         :color="chip.color"
         :loading="chip.loading"
-        class="mx-1"
       />
     </v-col>
   </v-row>
