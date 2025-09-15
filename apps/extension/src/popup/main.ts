@@ -1,9 +1,15 @@
 import { createApp } from 'vue'
 
 import { setupApp } from '@/extension/logic/common-setup'
+import { bootstrapStorage } from '../logic/bootstrap'
 import App from './Popup.vue'
 
-const app = createApp(App)
+;
 
-setupApp(app)
-app.mount('#app')
+(async () => {
+  await bootstrapStorage()
+
+  const app = createApp(App)
+  setupApp(app)
+  app.mount('#app')
+})()
