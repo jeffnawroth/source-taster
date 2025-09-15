@@ -5,9 +5,7 @@
  */
 
 // Composables
-// eslint-disable-next-line import/no-duplicates
 import { createMemoryHistory, createRouter } from 'vue-router/auto'
-// eslint-disable-next-line import/no-duplicates
 import { handleHotUpdate, routes } from 'vue-router/auto-routes'
 
 const router = createRouter({

@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { ApiAIModel, ApiAIProvider } from '@source-taster/types'
 import { mdiCloudOutline } from '@mdi/js'
-import { type ApiAIModel, type ApiAIProvider, PROVIDER_LABELS, PROVIDER_MODELS, PROVIDERS } from '@source-taster/types'
+import { PROVIDER_LABELS, PROVIDER_MODELS, PROVIDERS } from '@source-taster/types'
 
 const settings = defineModel<{
   provider: ApiAIProvider

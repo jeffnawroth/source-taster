@@ -28,7 +28,7 @@ export class AnystyleService {
 
   /**
    * Convert token arrays to CSL (Citation Style Language) format
-   * @param tokens - Array of token sequences to convert
+   * @param references - Array of token sequences to convert
    * @returns ApiResult mit { csl }
    */
   static async convertToCSL(references: ApiAnystyleConvertReference[]): Promise<ApiResult<ApiAnystyleConvertData>> {
