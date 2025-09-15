@@ -2,6 +2,7 @@
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAlertCircleOutline, mdiBullseye, mdiCloseCircleOutline, mdiHelpCircleOutline, mdiMagnify, mdiTarget } from '@mdi/js'
+import { useI18n } from 'vue-i18n'
 import StatusChip from '@/extension/components/common/StatusChip.vue'
 import { useVerificationProgressStore } from '@/extension/composables/useVerificationProgress'
 import { settings } from '@/extension/logic'
@@ -15,6 +16,7 @@ const matchingStore = useMatchingStore()
 const progressStore = useVerificationProgressStore()
 const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 const { overall } = storeToRefs(progressStore)
+const { t } = useI18n()
 
 // Helper function to categorize a single reference based on its match score
 function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'notTested' | 'error' {
@@ -90,110 +92,106 @@ const statusCounts = computed(() => {
     error,
   }
 })
+
+interface ChipItem {
+  key: string
+  show: boolean
+  text: string
+  tooltip: string
+  color?: string
+  icon?: string
+  loading?: boolean
+}
+
+const summaryChips = computed<ChipItem[]>(() => {
+  const chips: ChipItem[] = []
+  const counts = statusCounts.value
+  const thresholds = settings.value.matching.matchingConfig.displayThresholds
+
+  chips.push({
+    key: 'total',
+    show: counts.total > 0,
+    text: `${counts.total} ${t('found')}`,
+    tooltip: t('found-references-tooltip') as string,
+    color: 'blue',
+    icon: mdiMagnify,
+  })
+
+  chips.push({
+    key: 'processing',
+    show: overall.value.total > 0 && overall.value.done < overall.value.total,
+    text: `${overall.value.done}/${overall.value.total} ${t('processing')}`,
+    tooltip: t('processing-references-tooltip') as string,
+    color: 'secondary',
+    loading: true,
+  })
+
+  chips.push({
+    key: 'exact',
+    show: counts.exactMatch > 0,
+    text: `${counts.exactMatch} ${t('exact-match-chip')}`,
+    tooltip: t('exact-match-tooltip', { count: counts.exactMatch }) as string,
+    color: 'success',
+    icon: mdiBullseye,
+  })
+
+  chips.push({
+    key: 'strong',
+    show: counts.strongMatch > 0,
+    text: `${counts.strongMatch} ${t('strong-match-chip')}`,
+    tooltip: t('strong-match-tooltip', { count: counts.strongMatch, strongThreshold: thresholds.strongMatchThreshold }) as string,
+    color: 'green',
+    icon: mdiTarget,
+  })
+
+  chips.push({
+    key: 'possible',
+    show: counts.possibleMatch > 0,
+    text: `${counts.possibleMatch} ${t('possible-match-chip')}`,
+    tooltip: t('possible-match-tooltip', { count: counts.possibleMatch, possibleThreshold: thresholds.possibleMatchThreshold, strongThreshold: thresholds.strongMatchThreshold - 1 }) as string,
+    color: 'orange',
+    icon: mdiHelpCircleOutline,
+  })
+
+  chips.push({
+    key: 'no',
+    show: counts.noMatch > 0,
+    text: `${counts.noMatch} ${t('no-match-chip')}`,
+    tooltip: t('no-match-tooltip', { count: counts.noMatch, possibleThreshold: thresholds.possibleMatchThreshold }) as string,
+    color: 'error',
+    icon: mdiAlertCircleOutline,
+  })
+
+  chips.push({
+    key: 'error',
+    show: counts.error > 0,
+    text: `${counts.error} ${t('error')}`,
+    tooltip: t('error-references-tooltip') as string,
+    icon: mdiCloseCircleOutline,
+  })
+
+  return chips.filter(c => c.show)
+})
 </script>
 
 <template>
   <!-- Detailed Status Chips -->
   <v-row
-    dense
+    no-gutters
+    density="compact"
   >
-    <!-- Total Found -->
     <v-col
-      v-if="statusCounts.total > 0"
+      v-for="chip in summaryChips"
+      :key="chip.key"
       cols="auto"
     >
       <StatusChip
-        :text="`${statusCounts.total} ${$t('found')}`"
-        :tooltip="$t('found-references-tooltip')"
-        :prepend-icon="mdiMagnify"
-        color="blue"
-      />
-    </v-col>
-
-    <!-- Processing Status -->
-    <v-col
-      v-if="overall.total > 0 && overall.done < overall.total"
-      cols="auto"
-    >
-      <StatusChip
-        :text="`${overall.done}/${overall.total} ${$t('processing')}`"
-        :tooltip="$t('processing-references-tooltip')"
-        color="secondary"
-        :loading="true"
-      />
-    </v-col>
-
-    <!-- Exact Match -->
-    <v-col
-      v-if="statusCounts.exactMatch > 0"
-      cols="auto"
-    >
-      <StatusChip
-        :text="`${statusCounts.exactMatch} ${$t('exact-match-chip')}`"
-        :tooltip="$t('exact-match-tooltip', { count: statusCounts.exactMatch })"
-        :prepend-icon="mdiBullseye"
-        color="success"
-      />
-    </v-col>
-
-    <!-- Strong Match -->
-    <v-col
-      v-if="statusCounts.strongMatch > 0"
-      cols="auto"
-    >
-      <StatusChip
-        :text="`${statusCounts.strongMatch} ${$t('strong-match-chip')}`"
-        :tooltip="$t('strong-match-tooltip', {
-          count: statusCounts.strongMatch,
-          strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold,
-        })"
-        :prepend-icon="mdiTarget"
-        color="green"
-      />
-    </v-col>
-
-    <!-- Possible Match -->
-    <v-col
-      v-if="statusCounts.possibleMatch > 0"
-      cols="auto"
-    >
-      <StatusChip
-        :text="`${statusCounts.possibleMatch} ${$t('possible-match-chip')}`"
-        :tooltip="$t('possible-match-tooltip', {
-          count: statusCounts.possibleMatch,
-          possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
-          strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold - 1,
-        })"
-        :prepend-icon="mdiHelpCircleOutline"
-        color="orange"
-      />
-    </v-col>
-
-    <!-- No Match -->
-    <v-col
-      v-if="statusCounts.noMatch > 0"
-      cols="auto"
-    >
-      <StatusChip
-        :text="`${statusCounts.noMatch} ${$t('no-match-chip')}`"
-        :tooltip="$t('no-match-tooltip', {
-          count: statusCounts.noMatch,
-          possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
-        })"
-        :prepend-icon="mdiAlertCircleOutline"
-        color="error"
-      />
-    </v-col>
-
-    <!-- Errors -->
-    <v-col
-      v-if="statusCounts.error > 0"
-      cols="auto"
-    >
-      <StatusChip
-        :text="`${statusCounts.error} ${$t('error')}`"
-        :tooltip="$t('error-references-tooltip')"
-        :prepend-icon="mdiCloseCircleOutline"
+        :text="chip.text"
+        :tooltip="chip.tooltip"
+        :prepend-icon="chip.icon"
+        :color="chip.color"
+        :loading="chip.loading"
+        class="mx-1"
       />
     </v-col>
   </v-row>
