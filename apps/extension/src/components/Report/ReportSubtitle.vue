@@ -10,6 +10,10 @@ import { useMatchingStore } from '@/extension/stores/matching'
 
 const props = defineProps<{
   references?: DeepReadonly<ApiExtractReference[]>
+  activeFilters?: Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'>
+}>()
+const emit = defineEmits<{
+  (e: 'update:activeFilters', value: Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'>): void
 }>()
 
 const matchingStore = useMatchingStore()
@@ -93,6 +97,9 @@ const statusCounts = computed(() => {
   }
 })
 
+type FilterCategory = 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'
+const ALL_FILTERS: FilterCategory[] = ['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'error']
+
 interface ChipItem {
   key: string
   show: boolean
@@ -101,6 +108,28 @@ interface ChipItem {
   color?: string
   icon?: string
   loading?: boolean
+  category?: FilterCategory
+}
+
+const activeFilters = computed<FilterCategory[]>({
+  get: () => props.activeFilters ?? ALL_FILTERS,
+  set: val => emit('update:activeFilters', val),
+})
+
+function isSelected(category?: FilterCategory) {
+  if (!category)
+    return true
+  return activeFilters.value.includes(category)
+}
+
+function toggleCategory(category?: FilterCategory) {
+  if (!category)
+    return
+  const set = new Set(activeFilters.value)
+  if (set.has(category))
+    set.delete(category)
+  else set.add(category)
+  activeFilters.value = Array.from(set)
 }
 
 const summaryChips = computed<ChipItem[]>(() => {
@@ -113,7 +142,6 @@ const summaryChips = computed<ChipItem[]>(() => {
     show: counts.total > 0,
     text: `${counts.total} ${t('found')}`,
     tooltip: t('found-references-tooltip') as string,
-    color: 'blue',
     icon: mdiMagnify,
   })
 
@@ -122,7 +150,7 @@ const summaryChips = computed<ChipItem[]>(() => {
     show: overall.value.total > 0 && overall.value.done < overall.value.total,
     text: `${overall.value.done}/${overall.value.total} ${t('processing')}`,
     tooltip: t('processing-references-tooltip') as string,
-    color: 'secondary',
+    color: 'info',
     loading: true,
   })
 
@@ -133,6 +161,7 @@ const summaryChips = computed<ChipItem[]>(() => {
     tooltip: t('exact-match-tooltip', { count: counts.exactMatch }) as string,
     color: 'success',
     icon: mdiBullseye,
+    category: 'exactMatch',
   })
 
   chips.push({
@@ -140,8 +169,9 @@ const summaryChips = computed<ChipItem[]>(() => {
     show: counts.strongMatch > 0,
     text: `${counts.strongMatch} ${t('strong-match-chip')}`,
     tooltip: t('strong-match-tooltip', { count: counts.strongMatch, strongThreshold: thresholds.strongMatchThreshold }) as string,
-    color: 'green',
+    color: 'success',
     icon: mdiTarget,
+    category: 'strongMatch',
   })
 
   chips.push({
@@ -149,8 +179,9 @@ const summaryChips = computed<ChipItem[]>(() => {
     show: counts.possibleMatch > 0,
     text: `${counts.possibleMatch} ${t('possible-match-chip')}`,
     tooltip: t('possible-match-tooltip', { count: counts.possibleMatch, possibleThreshold: thresholds.possibleMatchThreshold, strongThreshold: thresholds.strongMatchThreshold - 1 }) as string,
-    color: 'orange',
+    color: 'warning',
     icon: mdiHelpCircleOutline,
+    category: 'possibleMatch',
   })
 
   chips.push({
@@ -160,6 +191,7 @@ const summaryChips = computed<ChipItem[]>(() => {
     tooltip: t('no-match-tooltip', { count: counts.noMatch, possibleThreshold: thresholds.possibleMatchThreshold }) as string,
     color: 'error',
     icon: mdiAlertCircleOutline,
+    category: 'noMatch',
   })
 
   chips.push({
@@ -168,6 +200,7 @@ const summaryChips = computed<ChipItem[]>(() => {
     text: `${counts.error} ${t('error')}`,
     tooltip: t('error-references-tooltip') as string,
     icon: mdiCloseCircleOutline,
+    category: 'error',
   })
 
   return chips.filter(c => c.show)
@@ -175,7 +208,6 @@ const summaryChips = computed<ChipItem[]>(() => {
 </script>
 
 <template>
-  <!-- Detailed Status Chips -->
   <v-row
     dense
   >
@@ -188,8 +220,8 @@ const summaryChips = computed<ChipItem[]>(() => {
         :text="chip.text"
         :tooltip="chip.tooltip"
         :prepend-icon="chip.icon"
-        :color="chip.color"
-        :loading="chip.loading"
+        :color="chip.category && isSelected(chip.category) ? chip.color : undefined"
+        @click="toggleCategory(chip.category)"
       />
     </v-col>
   </v-row>

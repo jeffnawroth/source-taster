@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
+import { settings } from '@/extension/logic'
 import { useExtractionStore } from '@/extension/stores/extraction'
+import { useMatchingStore } from '@/extension/stores/matching'
 
 const extractionStore = useExtractionStore()
+const matchingStore = useMatchingStore()
+const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 const { extractedReferences } = storeToRefs(extractionStore)
 
 const search = ref('')
 const showReportCard = ref(true)
+
+const activeFilters = ref<Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'>>(['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'error'])
 
 const { results } = useFuse(search, () => [...extractedReferences.value], {
   fuseOptions: {
@@ -21,6 +27,42 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
     threshold: 0.3,
   },
   matchAllWhenSearchEmpty: true,
+})
+
+// Map reference to category for filtering
+function categorize(reference: any): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error' | 'notTested' {
+  try {
+    // Reuse same logic as ReportSubtitle via store
+    const score = getMatchingScoreByReference.value(reference.id)
+    if (score === null || score === undefined || !Number.isFinite(score))
+      return 'notTested'
+    if (score === 0)
+      return 'noMatch'
+    if (score === 100)
+      return 'exactMatch'
+    const strong = settings.value.matching.matchingConfig.displayThresholds.strongMatchThreshold
+    const possible = settings.value.matching.matchingConfig.displayThresholds.possibleMatchThreshold
+    if (score >= strong)
+      return 'strongMatch'
+    if (score >= possible)
+      return 'possibleMatch'
+    return 'noMatch'
+  }
+  catch {
+    return 'error'
+  }
+}
+
+const filteredResults = computed(() => {
+  // If all filters selected, just return full results
+  if (activeFilters.value.length === 5)
+    return results.value
+  return results.value.filter((r) => {
+    const cat = categorize(r.item)
+    if (cat === 'notTested')
+      return true
+    return activeFilters.value.includes(cat as 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error')
+  })
 })
 </script>
 
@@ -70,7 +112,10 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
         <v-card-subtitle
           class="px-0"
         >
-          <ReportSubtitle :references="extractedReferences" />
+          <ReportSubtitle
+            v-model:active-filters="activeFilters"
+            :references="extractedReferences"
+          />
         </v-card-subtitle>
 
         <v-card-text
@@ -90,7 +135,7 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
           > -->
           <!-- LIST - Show when we have references -->
           <ReferencesList
-            :results
+            :results="filteredResults"
           />
           <!-- </div> -->
         </v-card-text>
