@@ -53,7 +53,6 @@ export const ApiAnystyleParsedReferenceSchema = z.object({
 export type ApiAnystyleParsedReference = z.infer<typeof ApiAnystyleParsedReferenceSchema>
 
 export const ApiAnystyleParseDataSchema = z.object({
-  modelUsed: z.string().min(1).describe('The AnyStyle model used for parsing'),
   references: z.array(ApiAnystyleParsedReferenceSchema).describe('Array of parsed references with tokens'),
 }).strict()
 export type ApiAnystyleParseData = z.infer<typeof ApiAnystyleParseDataSchema>

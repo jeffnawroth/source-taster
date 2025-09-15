@@ -19,7 +19,7 @@ export class AnystyleService {
   /**
    * Parse references using AnyStyle and return tokens with labels
    * @param references - Array of reference strings to parse
-   * @returns ApiResult mit { modelUsed, tokens }
+   * @returns ApiResult mit { tokens }
    */
   static async parseReferences(references: string[]): Promise<ApiResult<ApiAnystyleParseData>> {
     const req = ApiAnystyleParseRequestSchema.parse({ input: references })

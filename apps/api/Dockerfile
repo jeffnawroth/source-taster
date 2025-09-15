@@ -17,9 +17,6 @@ WORKDIR /app
 
 # Serverdatei + ggf. Modell kopieren
 COPY anystyle-server.rb ./
-# COPY make_dataset.rb ./
-# falls du schon ein custom.mod hast:
-  # COPY custom.mod ./
 
 EXPOSE 4567
 

@@ -9,8 +9,7 @@ require 'securerandom'
 set :bind, '0.0.0.0'
 set :port, 4567
 
-# Parse references and return tokens with labels (plus originalText),
-# using custom model if available.
+# Parse references and return tokens with labels (plus originalText)
 post '/parse' do
   content_type :json
   payload = JSON.parse(request.body.read) rescue {}
@@ -18,9 +17,7 @@ post '/parse' do
   halt 400, { error: 'No input provided' }.to_json unless input_refs.is_a?(Array) && !input_refs.empty?
 
   begin
-    custom_model_file = File.join('/app', 'custom.mod')
-    using_custom_model = File.exist?(custom_model_file)
-    parser = using_custom_model ? AnyStyle::Parser.new(model: custom_model_file) : AnyStyle.parser
+    parser = AnyStyle.parser
 
     dataset = parser.parse(input_refs, format: :wapiti)
 
@@ -34,10 +31,7 @@ post '/parse' do
       }
     end
 
-    {
-      modelUsed: using_custom_model ? 'custom.mod' : 'default',
-      references: references
-    }.to_json
+    { references: references }.to_json
   rescue => e
     halt 500, { error: "Parsing failed: #{e.message}", backtrace: e.backtrace&.first(5) }.to_json
   end
