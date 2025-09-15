@@ -2,6 +2,7 @@
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAlertCircleOutline, mdiBullseye, mdiCloseCircleOutline, mdiHelpCircleOutline, mdiMagnify, mdiTarget } from '@mdi/js'
+import StatusChip from '@/extension/components/common/StatusChip.vue'
 import { useVerificationProgressStore } from '@/extension/composables/useVerificationProgress'
 import { settings } from '@/extension/logic'
 import { useMatchingStore } from '@/extension/stores/matching'
@@ -92,203 +93,108 @@ const statusCounts = computed(() => {
 </script>
 
 <template>
-  <div class="reference-summary">
-    <!-- Detailed Status Chips -->
-    <v-row
-      no-gutters
-      density="compact"
+  <!-- Detailed Status Chips -->
+  <v-row
+    dense
+  >
+    <!-- Total Found -->
+    <v-col
+      v-if="statusCounts.total > 0"
+      cols="auto"
     >
-      <!-- Total Found -->
-      <v-col
-        v-if="statusCounts.total > 0"
-        cols="auto"
-      >
-        <v-tooltip :text="$t('found-references-tooltip')">
-          <template #activator="{ props }">
-            <v-chip
-              label
-              :prepend-icon="mdiMagnify"
-              v-bind="props"
-              variant="tonal"
-              density="compact"
-              color="blue"
-              class="mx-1"
-            >
-              {{ statusCounts.total }} {{ $t('found') }}
-            </v-chip>
-          </template>
-        </v-tooltip>
-      </v-col>
+      <StatusChip
+        :text="`${statusCounts.total} ${$t('found')}`"
+        :tooltip="$t('found-references-tooltip')"
+        :prepend-icon="mdiMagnify"
+        color="blue"
+      />
+    </v-col>
 
-      <!-- Processing Status -->
-      <v-col
-        v-if="overall.total > 0 && overall.done < overall.total"
-        cols="auto"
-      >
-        <v-tooltip :text="$t('processing-references-tooltip')">
-          <template #activator="{ props }">
-            <v-chip
-              label
-              v-bind="props"
-              variant="tonal"
-              density="compact"
-              color="secondary"
-              class="mx-1"
-            >
-              <template #prepend>
-                <v-progress-circular
-                  indeterminate
-                  size="16"
-                  width="2"
-                  class="mr-1"
-                />
-              </template>
-              {{ overall.done }}/{{ overall.total }} {{ $t('processing') }}
-            </v-chip>
-          </template>
-        </v-tooltip>
-      </v-col>
+    <!-- Processing Status -->
+    <v-col
+      v-if="overall.total > 0 && overall.done < overall.total"
+      cols="auto"
+    >
+      <StatusChip
+        :text="`${overall.done}/${overall.total} ${$t('processing')}`"
+        :tooltip="$t('processing-references-tooltip')"
+        color="secondary"
+        :loading="true"
+      />
+    </v-col>
 
-      <!-- Exact Match -->
-      <v-col
-        v-if="statusCounts.exactMatch > 0"
-        cols="auto"
-      >
-        <v-tooltip :text="$t('exact-match-tooltip', { count: statusCounts.exactMatch })">
-          <template #activator="{ props }">
-            <v-chip
-              label
-              :prepend-icon="mdiBullseye"
-              v-bind="props"
-              variant="tonal"
-              density="compact"
-              color="success"
-              class="mx-1"
-            >
-              {{ statusCounts.exactMatch }} {{ $t('exact-match-chip') }}
-            </v-chip>
-          </template>
-        </v-tooltip>
-      </v-col>
+    <!-- Exact Match -->
+    <v-col
+      v-if="statusCounts.exactMatch > 0"
+      cols="auto"
+    >
+      <StatusChip
+        :text="`${statusCounts.exactMatch} ${$t('exact-match-chip')}`"
+        :tooltip="$t('exact-match-tooltip', { count: statusCounts.exactMatch })"
+        :prepend-icon="mdiBullseye"
+        color="success"
+      />
+    </v-col>
 
-      <!-- Strong Match -->
-      <v-col
-        v-if="statusCounts.strongMatch > 0"
-        cols="auto"
-      >
-        <v-tooltip
-          :text="$t('strong-match-tooltip', {
-            count: statusCounts.strongMatch,
-            strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold,
-          })"
-        >
-          <template #activator="{ props }">
-            <v-chip
-              label
-              :prepend-icon="mdiTarget"
-              v-bind="props"
-              variant="tonal"
-              density="compact"
-              color="green"
-              class="mx-1"
-            >
-              {{ statusCounts.strongMatch }} {{ $t('strong-match-chip') }}
-            </v-chip>
-          </template>
-        </v-tooltip>
-      </v-col>
+    <!-- Strong Match -->
+    <v-col
+      v-if="statusCounts.strongMatch > 0"
+      cols="auto"
+    >
+      <StatusChip
+        :text="`${statusCounts.strongMatch} ${$t('strong-match-chip')}`"
+        :tooltip="$t('strong-match-tooltip', {
+          count: statusCounts.strongMatch,
+          strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold,
+        })"
+        :prepend-icon="mdiTarget"
+        color="green"
+      />
+    </v-col>
 
-      <!-- Possible Match -->
-      <v-col
-        v-if="statusCounts.possibleMatch > 0"
-        cols="auto"
-      >
-        <v-tooltip
-          :text="$t('possible-match-tooltip', {
-            count: statusCounts.possibleMatch,
-            possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
-            strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold - 1,
-          })"
-        >
-          <template #activator="{ props }">
-            <v-chip
-              label
-              :prepend-icon="mdiHelpCircleOutline"
-              v-bind="props"
-              variant="tonal"
-              density="compact"
-              color="orange"
-              class="mx-1"
-            >
-              {{ statusCounts.possibleMatch }} {{ $t('possible-match-chip') }}
-            </v-chip>
-          </template>
-        </v-tooltip>
-      </v-col>
+    <!-- Possible Match -->
+    <v-col
+      v-if="statusCounts.possibleMatch > 0"
+      cols="auto"
+    >
+      <StatusChip
+        :text="`${statusCounts.possibleMatch} ${$t('possible-match-chip')}`"
+        :tooltip="$t('possible-match-tooltip', {
+          count: statusCounts.possibleMatch,
+          possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
+          strongThreshold: settings.matching.matchingConfig.displayThresholds.strongMatchThreshold - 1,
+        })"
+        :prepend-icon="mdiHelpCircleOutline"
+        color="orange"
+      />
+    </v-col>
 
-      <!-- No Match -->
-      <v-col
-        v-if="statusCounts.noMatch > 0"
-        cols="auto"
-      >
-        <v-tooltip
-          :text="$t('no-match-tooltip', {
-            count: statusCounts.noMatch,
-            possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
-          })"
-        >
-          <template #activator="{ props }">
-            <v-chip
-              label
-              :prepend-icon="mdiAlertCircleOutline"
-              v-bind="props"
-              variant="tonal"
-              density="compact"
-              color="error"
-              class="mx-1"
-            >
-              {{ statusCounts.noMatch }} {{ $t('no-match-chip') }}
-            </v-chip>
-          </template>
-        </v-tooltip>
-      </v-col>
+    <!-- No Match -->
+    <v-col
+      v-if="statusCounts.noMatch > 0"
+      cols="auto"
+    >
+      <StatusChip
+        :text="`${statusCounts.noMatch} ${$t('no-match-chip')}`"
+        :tooltip="$t('no-match-tooltip', {
+          count: statusCounts.noMatch,
+          possibleThreshold: settings.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
+        })"
+        :prepend-icon="mdiAlertCircleOutline"
+        color="error"
+      />
+    </v-col>
 
-      <!-- Errors -->
-      <v-col
-        v-if="statusCounts.error > 0"
-        cols="auto"
-      >
-        <v-tooltip :text="$t('error-references-tooltip')">
-          <template #activator="{ props }">
-            <v-chip
-              label
-              :prepend-icon="mdiCloseCircleOutline"
-              v-bind="props"
-              variant="tonal"
-              density="compact"
-              class="mx-1"
-            >
-              {{ statusCounts.error }} {{ $t('error') }}
-            </v-chip>
-          </template>
-        </v-tooltip>
-      </v-col>
-    </v-row>
-  </div>
+    <!-- Errors -->
+    <v-col
+      v-if="statusCounts.error > 0"
+      cols="auto"
+    >
+      <StatusChip
+        :text="`${statusCounts.error} ${$t('error')}`"
+        :tooltip="$t('error-references-tooltip')"
+        :prepend-icon="mdiCloseCircleOutline"
+      />
+    </v-col>
+  </v-row>
 </template>
-
-<style scoped>
-.reference-summary .v-progress-linear {
-  transition: all 0.3s ease-in-out;
-}
-
-.reference-summary .v-chip {
-  transition: all 0.2s ease-in-out;
-  font-weight: 500;
-}
-
-.reference-summary .v-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-</style>
