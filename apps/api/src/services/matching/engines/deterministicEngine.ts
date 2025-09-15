@@ -1,5 +1,6 @@
 import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem, CSLVariable } from '@source-taster/types'
-import { containsNumericToken, pageSimilarity } from '@/api/utils/fieldSimilarity'
+import levenshtein from 'damerau-levenshtein'
+import { containerTitleSimilarity, containsNumericToken, pageSimilarity } from '@/api/utils/fieldSimilarity'
 import { MetadataComparator } from '@/api/utils/metadataComparator'
 import { similarity } from '@/api/utils/similarity'
 import { NormalizationService } from '../../matching/normalizationService'
@@ -108,6 +109,20 @@ export class DeterministicEngine {
       if (sim !== null)
         return sim
     }
+    // Container title: ignore acronym-only parentheses for comparison and take best
+    if (fieldName === 'container-title') {
+      const base = this.compareValues(referenceValue, sourceValue, normalizationRules)
+      const enhanced = containerTitleSimilarity(
+        referenceValue,
+        sourceValue,
+        normalizationRules,
+        (v, r) => this.normalizationService.normalizeValue(v, r),
+        (a, b) => levenshtein(a, b).similarity,
+      )
+
+      return Math.max(base, enhanced ?? 0)
+    }
+
     return this.compareValues(referenceValue, sourceValue, normalizationRules)
   }
 

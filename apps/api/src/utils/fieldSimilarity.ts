@@ -103,3 +103,66 @@ export function pageSimilarity(
   // Both ranges: use overlap ratio
   return rangeOverlapRatio(refRange, srcRange)
 }
+
+function stripAcronymParentheticals(s: string): string {
+  return s.replace(/\s*\(([^)]*)\)\s*/g, (_m, inner: string) => {
+    const cleaned = inner.replace(/[^A-Z0-9]/gi, '')
+    const isAcronym = cleaned.length >= 2 && cleaned.length <= 10 && cleaned.toUpperCase() === cleaned
+    return isAcronym ? ' ' : _m
+  }).replace(/\s{2,}/g, ' ').trim()
+}
+
+function stripTrailingAcronymToken(s: string): string {
+  const trimmed = s.trim()
+  // eslint-disable-next-line regexp/no-super-linear-backtracking
+  const m = trimmed.match(/^(.*?)\s+([A-Z0-9]{2,10})\s*$/i)
+  if (!m)
+    return trimmed
+  const body = m[1]!
+  const last = m[2]!
+  // If the last token (likely an acronym) already appears in the body, keep it
+  const existsInBody = new RegExp(`(^|\s)${last}(?=\s|$)`, 'i').test(body)
+  if (existsInBody)
+    return trimmed
+  return body.trim()
+}
+
+export function containerTitleSimilarity(
+  referenceValue: unknown,
+  sourceValue: unknown,
+  rules: ApiMatchNormalizationRule[],
+  normalizeValue: (v: unknown, r: ApiMatchNormalizationRule[]) => string,
+  stringSimilarity: (a: string, b: string) => number,
+): number | null {
+  const a = normalizeValue(referenceValue, rules)
+  const b = normalizeValue(sourceValue, rules)
+  if (!a || !b)
+    return null
+
+  // Determine if raw values had parentheses (to enable trailing acronym removal heuristic)
+  const rawA = typeof referenceValue === 'string' ? referenceValue : a
+  const rawB = typeof sourceValue === 'string' ? sourceValue : b
+  const hasParenA = rawA.includes('(')
+  const hasParenB = rawB.includes('(')
+
+  const variantsA = new Set<string>([a])
+  const variantsB = new Set<string>([b])
+
+  variantsA.add(stripAcronymParentheticals(a))
+  variantsB.add(stripAcronymParentheticals(b))
+
+  if (hasParenA)
+    variantsA.add(stripTrailingAcronymToken(a))
+  if (hasParenB)
+    variantsB.add(stripTrailingAcronymToken(b))
+
+  let best = 0
+  for (const va of variantsA) {
+    for (const vb of variantsB) {
+      best = Math.max(best, stringSimilarity(va, vb))
+      if (best === 1)
+        return 1
+    }
+  }
+  return best
+}
