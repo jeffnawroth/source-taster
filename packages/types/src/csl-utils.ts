@@ -136,7 +136,14 @@ export function stringifyCSLValue(value: unknown): string {
     }
 
     // Handle CSL date objects
-    if ('date-parts' in value) {
+    // Recognize any CSL date shape: date-parts, raw, literal, season, circa
+    if (
+      'date-parts' in value
+      || 'raw' in value
+      || 'literal' in value
+      || 'season' in value
+      || 'circa' in value
+    ) {
       return stringifyCSLDate(value as CSLDate)
     }
 
