@@ -2,13 +2,11 @@ import type {
   ApiAnystyleConvertData,
   ApiAnystyleConvertResponse,
   ApiAnystyleParseResponse,
-  ApiAnystyleTrainResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
 import {
   ApiAnystyleConvertRequestSchema,
   ApiAnystyleParseRequestSchema,
-  ApiAnystyleTrainRequestSchema,
 } from '@source-taster/types'
 import { anystyleProvider } from '../services/anystyleProvider'
 
@@ -36,20 +34,6 @@ export class AnystyleController {
       success: true,
       data,
       message: 'Tokens converted to CSL successfully',
-    }
-    return c.json(payload)
-  }
-
-  /** POST /api/anystyle/train-model */
-  static async trainModel(c: Context): Promise<Response> {
-    const req = ApiAnystyleTrainRequestSchema.parse(await c.req.json())
-
-    const data = await anystyleProvider.trainModel(req.tokens)
-
-    const payload: ApiAnystyleTrainResponse = {
-      success: true,
-      data,
-      message: 'Model trained successfully',
     }
     return c.json(payload)
   }

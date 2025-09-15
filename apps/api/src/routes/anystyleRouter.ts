@@ -9,7 +9,4 @@ anystyleRouter.post('/parse', AnystyleController.parse)
 // Convert token arrays to CSL format
 anystyleRouter.post('/convert-to-csl', AnystyleController.convertToCSL)
 
-// Train a custom AnyStyle model with provided training data
-anystyleRouter.post('/train-model', AnystyleController.trainModel)
-
 export { anystyleRouter }

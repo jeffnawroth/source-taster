@@ -4,7 +4,6 @@ import type {
   ApiAnystyleParseData,
   ApiAnystyleParsedReference,
   ApiAnystyleTokenSequence,
-  ApiAnystyleTrainData,
   ApiHttpError,
   ApiResult,
 } from '@source-taster/types'
@@ -20,11 +19,9 @@ export const useAnystyleStore = defineStore('anystyle', () => {
 
   const isParsing = ref(false)
   const isConverting = ref(false)
-  const isTraining = ref(false)
 
   const parseError = ref<string | null>(null)
   const convertError = ref<string | null>(null)
-  const trainError = ref<string | null>(null)
 
   // --- Computed ---
   const totalParsedReferences = computed(() => parsed.value.length)
@@ -41,7 +38,7 @@ export const useAnystyleStore = defineStore('anystyle', () => {
   })
 
   const isAnyProcessing = computed(() =>
-    isParsing.value || isConverting.value || isTraining.value,
+    isParsing.value || isConverting.value,
   )
 
   // --- Actions ---
@@ -94,22 +91,6 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     return res
   }
 
-  async function trainModel(trainingData: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleTrainData>> {
-    isTraining.value = true
-    trainError.value = null
-
-    const res = await AnystyleService.trainModel(trainingData)
-
-    if (!res.success) {
-      trainError.value = mapApiError(res as ApiHttpError)
-      isTraining.value = false
-      return res
-    }
-
-    isTraining.value = false
-    return res
-  }
-
   // Bulk-Update, falls Editor viele Sequenzen zurückgibt
   function updateParsedTokens(newTokens: ApiAnystyleTokenSequence[]) {
     const next = parsed.value.slice()
@@ -128,14 +109,9 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     convertError.value = null
   }
 
-  function clearTrainError() {
-    trainError.value = null
-  }
-
   function clearAllErrors() {
     parseError.value = null
     convertError.value = null
-    trainError.value = null
   }
 
   function setShowTokenEditor(show: boolean) {
@@ -149,10 +125,8 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     showTokenEditor: readonly(showTokenEditor),
     isParsing: readonly(isParsing),
     isConverting: readonly(isConverting),
-    isTraining: readonly(isTraining),
     parseError: readonly(parseError),
     convertError: readonly(convertError),
-    trainError: readonly(trainError),
 
     // Computed
     totalParsedReferences,
@@ -164,11 +138,9 @@ export const useAnystyleStore = defineStore('anystyle', () => {
     parseReferences,
     updateTokens,
     convertToCSL,
-    trainModel,
     updateParsedTokens,
     clearParseResults,
     clearConvertError,
-    clearTrainError,
     clearAllErrors,
     setShowTokenEditor,
   }

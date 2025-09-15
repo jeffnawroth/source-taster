@@ -3,8 +3,6 @@ import type {
   ApiAnystyleConvertRequest,
   ApiAnystyleParseData,
   ApiAnystyleParseRequest,
-  ApiAnystyleTrainData,
-  ApiAnystyleTrainRequest,
 } from '@source-taster/types'
 import process from 'node:process'
 import { httpBadRequest, httpUpstream } from '../errors/http'
@@ -71,16 +69,6 @@ export class AnystyleProvider {
     return await this.postJson<ApiAnystyleConvertRequest, ApiAnystyleConvertData>(
       '/convert-to-csl',
       { references },
-    )
-  }
-
-  /**
-   * Train the AnyStyle model with new data
-   */
-  async trainModel(tokens: ApiAnystyleTrainRequest['tokens']): Promise<ApiAnystyleTrainData> {
-    return await this.postJson<ApiAnystyleTrainRequest, ApiAnystyleTrainData>(
-      '/train-model',
-      { tokens },
     )
   }
 }

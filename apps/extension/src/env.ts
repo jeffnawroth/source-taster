@@ -22,7 +22,6 @@ export const API_CONFIG = {
       base: '/api/anystyle',
       parse: '/api/anystyle/parse',
       convertToCSL: '/api/anystyle/convert-to-csl',
-      train: '/api/anystyle/train-model',
     },
     user: {
       base: '/api/user',

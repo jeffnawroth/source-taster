@@ -1,8 +1,12 @@
-import type { ApiAnystyleConvertData, ApiAnystyleConvertReference, ApiAnystyleParseData, ApiAnystyleTokenSequence, ApiAnystyleTrainData, ApiResult } from '@source-taster/types'
+import type {
+  ApiAnystyleConvertData,
+  ApiAnystyleConvertReference,
+  ApiAnystyleParseData,
+  ApiResult,
+} from '@source-taster/types'
 import {
   ApiAnystyleConvertRequestSchema,
   ApiAnystyleParseRequestSchema,
-  ApiAnystyleTrainRequestSchema,
 } from '@source-taster/types'
 
 import { API_CONFIG } from '../env'
@@ -34,20 +38,6 @@ export class AnystyleService {
   static async convertToCSL(references: ApiAnystyleConvertReference[]): Promise<ApiResult<ApiAnystyleConvertData>> {
     const req = ApiAnystyleConvertRequestSchema.parse({ references })
     return apiCall<ApiAnystyleConvertData>(`${BASE}${PATHS.convertToCSL}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
-    })
-  }
-
-  /**
-   * Train a custom AnyStyle model with provided training data
-   * @param tokens - Training data as token sequences
-   * @returns ApiResult mit Trainingsmetadaten
-   */
-  static async trainModel(tokens: ApiAnystyleTokenSequence[]): Promise<ApiResult<ApiAnystyleTrainData>> {
-    const req = ApiAnystyleTrainRequestSchema.parse({ tokens })
-    return apiCall<ApiAnystyleTrainData>(`${BASE}${PATHS.train}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
