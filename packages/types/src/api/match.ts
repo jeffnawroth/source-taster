@@ -116,7 +116,7 @@ export type ApiMatchMatchingSettings = z.infer<typeof ApiMatchMatchingSettingsSc
 export const ApiMatchRequestSchema = z.object({
   reference: ApiMatchReferenceSchema.describe('The reference to be matched'),
   candidates: z.array(ApiMatchCandidateSchema).nonempty().describe('List of candidate items to match against'),
-  matchingSettings: ApiMatchMatchingSettingsSchema.describe('Matching strategy and configuration settings'),
+  matchingSettings: ApiMatchMatchingSettingsSchema.default(DEFAULT_MATCHING_SETTINGS).describe('Matching strategy and configuration settings'),
 }).strict()
 export type ApiMatchRequest = z.infer<typeof ApiMatchRequestSchema>
 
