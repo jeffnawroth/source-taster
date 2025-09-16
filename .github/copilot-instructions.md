@@ -21,7 +21,7 @@ Backend (apps/api)
 - Routers and controllers:
   - /api/extract → extractionRouter → extractionController.extractReferences
   - /api/match → matchingRouter → matchingController.matchReference
-  - /api/search[/:database] → searchRouter → searchController.searchAllDatabases|searchSingleDatabase
+  - /api/search[/:database] → searchRouter → searchController.searchSingleDatabase
   - /api/anystyle/\* → anystyleRouter → AnystyleController.{parse,convertToCSL}
 - Request validation: Every controller parses with zod schemas from @source-taster/types (e.g., ApiExtractRequestSchema).
 - Error contract: registerOnError() serializes errors as { success:false, error, message } and maps Zod to 400 and HTTPException codes.

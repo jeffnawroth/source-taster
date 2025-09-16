@@ -8,18 +8,8 @@ import { httpBadRequest } from '../errors/http'
 import searchCoordinator from '../services/search/searchCoordinator'
 
 /**
- * POST /api/search
- * Sucht in allen Datenbanken
- */
-export async function searchAllDatabases(c: Context) {
-  const req = await parseAndValidateRequest(c)
-  const results = await searchCoordinator.searchAllDatabases(req.references)
-  return createSuccessResponse(c, results)
-}
-
-/**
  * POST /api/search/:database
- * Sucht nur in einer konkreten Datenbank
+ * Search for references in a single database
  */
 export async function searchSingleDatabase(c: Context) {
   const database = c.req.param('database')

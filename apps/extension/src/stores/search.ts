@@ -50,23 +50,6 @@ export const useSearchStore = defineStore('search', () => {
     }
   }
 
-  // ---------- Actions ----------
-  async function searchCandidates(request: ApiSearchRequest) {
-    isSearching.value = true
-    searchError.value = null
-
-    const res = await SearchService.searchCandidates(request)
-    if (!res.success) {
-      searchError.value = mapApiError(res as ApiHttpError)
-      isSearching.value = false
-      return res
-    }
-
-    mergeResults(res.data!)
-    isSearching.value = false
-    return res
-  }
-
   async function searchInDatabase(database: ApiSearchSource, request: ApiSearchRequest) {
     isSearching.value = true
     searchError.value = null
@@ -116,7 +99,6 @@ export const useSearchStore = defineStore('search', () => {
     getCandidatesByReference,
 
     // Actions
-    searchCandidates,
     searchInDatabase,
     getCandidateById,
     getCandidatesByReferenceId,

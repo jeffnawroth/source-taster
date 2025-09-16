@@ -1,5 +1,4 @@
 import type {
-  ApiSearchCandidate,
   ApiSearchReference,
   ApiSearchResult,
 } from '@source-taster/types'
@@ -26,30 +25,14 @@ export class SearchCoordinator {
     { name: 'arxiv', service: new ArxivProvider(), priority: 5 },
   ]
 
-  public async searchAllDatabases(references: ApiSearchReference[]): Promise<ApiSearchResult[]> {
-    const results: ApiSearchResult[] = []
-
-    for (const reference of references) {
-      if (!reference?.metadata) {
-        httpBadRequest(`Missing metadata for reference ${reference?.id ?? '<unknown>'}`)
-      }
-
-      const candidates = await this.searchAllDatabasesForSingle(reference)
-      results.push({ referenceId: reference.id, candidates })
-    }
-
-    return results
-  }
-
   public async searchSingleDatabase(
     references: ApiSearchReference[],
     databaseName: string,
   ): Promise<ApiSearchResult[]> {
-    const databases = this.getDatabasesByPriority()
-    const databaseInfo = databases.find(db => db.name.toLowerCase() === databaseName.toLowerCase())
+    const databaseInfo = this.databaseServices.find(db => db.name.toLowerCase() === databaseName.toLowerCase())
 
     if (!databaseInfo) {
-      const available = databases.map(db => db.name).join(', ')
+      const available = this.databaseServices.map(db => db.name).join(', ')
       httpNotFound(`Database '${databaseName}' not found. Available: ${available}`)
     }
 
@@ -64,25 +47,6 @@ export class SearchCoordinator {
     }
 
     return results
-  }
-
-  private getDatabasesByPriority(): DatabaseInfo[] {
-    return [...this.databaseServices].sort((a, b) => a.priority - b.priority)
-  }
-
-  private async searchAllDatabasesForSingle(reference: ApiSearchReference): Promise<ApiSearchCandidate[]> {
-    const searchPromises = this.databaseServices.map(async ({ service }) => {
-      try {
-        const result = await service.search(reference.metadata)
-        return result ?? null
-      }
-      catch {
-        return null
-      }
-    })
-
-    const results = await Promise.all(searchPromises)
-    return results.filter((r): r is ApiSearchCandidate => !!r)
   }
 
   private async searchSingleDatabaseForSingle(
