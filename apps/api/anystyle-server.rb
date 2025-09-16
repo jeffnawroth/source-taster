@@ -8,6 +8,7 @@ require 'securerandom'
 
 set :bind, '0.0.0.0'
 set :port, 4567
+set :environment, :production
 
 # Parse references and return tokens with labels (plus originalText)
 post '/parse' do
