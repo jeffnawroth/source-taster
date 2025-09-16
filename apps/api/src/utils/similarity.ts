@@ -10,14 +10,19 @@ export function similarity(
   b: unknown,
   rules: ApiMatchNormalizationRule[],
 ): number {
+  const allowDateHeuristic = rules.includes('match-structured-dates')
+  const allowNameHeuristic = rules.includes('match-author-initials')
+
   // Date-aware path: compare structured date components first
-  const ds = dateSimilarity(a, b)
-  if (ds !== null) {
-    return ds
+  if (allowDateHeuristic) {
+    const ds = dateSimilarity(a, b)
+    if (ds !== null) {
+      return ds
+    }
   }
 
   // Name-aware path: compare author/editor names with family+initials logic
-  if (isCSLNameObject(a) || isCSLNameObject(b)) {
+  if (allowNameHeuristic && (isCSLNameObject(a) || isCSLNameObject(b))) {
     const ns = nameSimilarity(
       a,
       b,

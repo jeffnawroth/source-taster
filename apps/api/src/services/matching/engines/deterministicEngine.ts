@@ -87,8 +87,12 @@ export class DeterministicEngine {
     sourceValue: unknown,
     normalizationRules: ApiMatchNormalizationRule[],
   ): number {
+    const allowNumericFieldHeuristic = normalizationRules.includes('match-volume-issue-numeric')
+    const allowPageRangeHeuristic = normalizationRules.includes('match-page-range-overlap')
+    const allowContainerVariantsHeuristic = normalizationRules.includes('match-container-title-variants')
+
     // Special handling for volume/issue: references may pack both numbers into a single field
-    if (fieldName === 'volume' || fieldName === 'issue') {
+    if (allowNumericFieldHeuristic && (fieldName === 'volume' || fieldName === 'issue')) {
       const numericMatch = containsNumericToken(
         referenceValue,
         sourceValue,
@@ -99,7 +103,7 @@ export class DeterministicEngine {
         return 1
     }
     // Pages: treat single page vs. page range as overlap; compute overlap ratio
-    if (fieldName === 'page') {
+    if (allowPageRangeHeuristic && fieldName === 'page') {
       const sim = pageSimilarity(
         referenceValue,
         sourceValue,
@@ -112,15 +116,18 @@ export class DeterministicEngine {
     // Container title: ignore acronym-only parentheses for comparison and take best
     if (fieldName === 'container-title') {
       const base = this.compareValues(referenceValue, sourceValue, normalizationRules)
-      const enhanced = containerTitleSimilarity(
-        referenceValue,
-        sourceValue,
-        normalizationRules,
-        (v, r) => this.normalizationService.normalizeValue(v, r),
-        (a, b) => levenshtein(a, b).similarity,
-      )
+      if (allowContainerVariantsHeuristic) {
+        const enhanced = containerTitleSimilarity(
+          referenceValue,
+          sourceValue,
+          normalizationRules,
+          (v, r) => this.normalizationService.normalizeValue(v, r),
+          (a, b) => levenshtein(a, b).similarity,
+        )
 
-      return Math.max(base, enhanced ?? 0)
+        return Math.max(base, enhanced ?? 0)
+      }
+      return base
     }
 
     return this.compareValues(referenceValue, sourceValue, normalizationRules)

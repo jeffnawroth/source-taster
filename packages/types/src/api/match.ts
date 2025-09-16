@@ -26,6 +26,11 @@ export const ApiMatchNormalizationRuleSchema = z.enum([
   'normalize-punctuation',
   'normalize-unicode',
   'normalize-urls',
+  'match-structured-dates',
+  'match-author-initials',
+  'match-volume-issue-numeric',
+  'match-page-range-overlap',
+  'match-container-title-variants',
 ]).describe('Normalization rule action type')
 export type ApiMatchNormalizationRule = z.infer<typeof ApiMatchNormalizationRuleSchema>
 

@@ -11,6 +11,11 @@ export const BALANCED_NORMALIZATION_RULES: ApiMatchNormalizationRule[] = [
   'normalize-punctuation',
   'normalize-unicode',
   'normalize-urls',
+  'match-structured-dates',
+  'match-author-initials',
+  'match-volume-issue-numeric',
+  'match-page-range-overlap',
+  'match-container-title-variants',
 ] as const
 
 function createModePresets<T extends string>(actions: T[]): Record<ApiMatchMode, T[]> {
