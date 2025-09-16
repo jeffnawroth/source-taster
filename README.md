@@ -31,6 +31,7 @@ The Source Taster is a browser extension that helps users, especially students a
 - The container exposes port `8000` and persists encrypted user keys in `/app/.keystore` (mount a volume to keep them across restarts).
 - Provide real API keys (OpenAI/Anthropic/Google, Semantic Scholar, etc.) via `--env` or an env file before deploying publicly.
 - To run the API together with the AnyStyle parser, use `docker compose up --build` (this builds both images, starts them on a shared network, and wires the API to `http://anystyle:4567`).
+- Endpoints under `/api/user/*` and `/api/extract` require an `X-Client-Id` header (UUID v4). The browser extension generates this automatically; for manual testing use a fixed value such as `00000000-0000-4000-8000-000000000001`.
 
 ## Docs Docker Image
 
