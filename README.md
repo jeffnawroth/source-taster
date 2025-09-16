@@ -32,6 +32,12 @@ The Source Taster is a browser extension that helps users, especially students a
 - Provide real API keys (OpenAI/Anthropic/Google, Semantic Scholar, etc.) via `--env` or an env file before deploying publicly.
 - To run the API together with the AnyStyle parser, use `docker compose up --build` (this builds both images, starts them on a shared network, and wires the API to `http://anystyle:4567`).
 
+## Docs Docker Image
+
+- Build the static docs site with `docker build -f apps/docs/Dockerfile -t source-taster-docs .`.
+- Serve it locally via `docker run --rm -p 8080:80 source-taster-docs` (the docs will be available at http://localhost:8080).
+- The root `docker-compose.yml` also defines a `docs` service; run `docker compose up docs --build` to serve the documentation alongside the API stack on port 8080.
+
 ## How it Works
 
 The Source Taster functions by extracting DOIs from the text of academic papers. It then queries the [Crossref](https://www.crossref.org/) database to check the existence of these DOIs. If a DOI is not found in the database, the extension further investigates whether it can still be [resolved](https://dx.doi.org/).

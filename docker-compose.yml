@@ -21,3 +21,10 @@ services:
       dockerfile: Dockerfile.anystyle
     ports:
       - '4567:4567'
+
+  docs:
+    build:
+      context: .
+      dockerfile: apps/docs/Dockerfile
+    ports:
+      - '8080:80'
