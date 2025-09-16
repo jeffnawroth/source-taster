@@ -11,11 +11,15 @@ export class CrossrefProvider {
   private baseUrl = 'https://api.crossref.org'
   private readonly mailto = process.env.CROSSREF_MAILTO || 'your-email@domain.com' // For the "polite pool" - better performance
   private readonly userAgent = `source-taster/1.0 (https://github.com/your-repo/source-taster; mailto:${this.mailto}) CrossrefService/1.0`
+  private static warnedMissingMailto = false
 
   constructor() {
     // Warn if no proper email is configured for Crossref "polite pool"
     if (!process.env.CROSSREF_MAILTO || this.mailto === 'your-email@domain.com') {
-      console.warn('⚠️  Crossref: No CROSSREF_MAILTO environment variable set. Consider setting it for better API performance and access to the "polite pool".')
+      if (!CrossrefProvider.warnedMissingMailto) {
+        console.warn('⚠️  Crossref: No CROSSREF_MAILTO environment variable set. Consider setting it for better API performance and access to the "polite pool".')
+        CrossrefProvider.warnedMissingMailto = true
+      }
     }
   }
 

@@ -6,9 +6,15 @@ import { generateUUID } from '../../../utils/generateUUID.js'
 export class EuropePmcProvider {
   private baseUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest'
   private email: string | undefined
+  private static warnedMissingEmail = false
 
   constructor(email?: string) {
-    this.email = email || process.env.EUROPEPMC_EMAIL
+    this.email = email || process.env.EUROPEPMC_EMAIL || 'your-email@domain.com'
+
+    if ((!this.email || this.email === 'your-email@domain.com') && !EuropePmcProvider.warnedMissingEmail) {
+      console.warn('⚠️  Europe PMC: No EUROPEPMC_EMAIL environment variable set. Provide an email for better API performance and support.')
+      EuropePmcProvider.warnedMissingEmail = true
+    }
   }
 
   async search(metadata: CSLItem): Promise<ApiSearchCandidate | null> {

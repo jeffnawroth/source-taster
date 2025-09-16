@@ -11,9 +11,15 @@ export class OpenAlexProvider {
   private baseUrl = 'https://api.openalex.org'
   private mailto: string | undefined
   private userAgent = 'SourceTaster/1.0 (https://github.com/source-taster/source-taster)'
+  private static warnedMissingMailto = false
 
   constructor(mailto?: string) {
-    this.mailto = mailto || process.env.OPENALEX_MAILTO
+    this.mailto = mailto || process.env.OPENALEX_MAILTO || 'your-email@domain.com'
+
+    if ((!this.mailto || this.mailto === 'your-email@domain.com') && !OpenAlexProvider.warnedMissingMailto) {
+      console.warn('⚠️  OpenAlex: No OPENALEX_MAILTO environment variable set. Provide an email for better API rate limits.')
+      OpenAlexProvider.warnedMissingMailto = true
+    }
   }
 
   async search(metadata: CSLItem): Promise<ApiSearchCandidate | null> {

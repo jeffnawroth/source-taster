@@ -6,6 +6,8 @@ import { loadApiKey } from '../../secrets/keystore.js'
 import { OpenAIExtractionProvider } from './openAIExtractionProvider.js'
 
 export class AIProviderFactory {
+  private static readonly OPENAI_KEY_PLACEHOLDER = 'your_openai_api_key_here'
+
   static async createOpenAIService(userId: string, userAISettings: ApiAISettings): Promise<AIService> {
     const { provider, model } = userAISettings
     let apiKey = await loadApiKey(userId, provider)
@@ -13,7 +15,7 @@ export class AIProviderFactory {
     if (!apiKey) {
       if (process.env.NODE_ENV === 'development') {
         const envKey = process.env.OPENAI_API_KEY
-        if (!envKey)
+        if (!envKey || envKey === AIProviderFactory.OPENAI_KEY_PLACEHOLDER)
           throw httpUnauthorized('No API key for this client (and no OPENAI_API_KEY set)')
         console.warn('🔧 Dev fallback: using OPENAI_API_KEY from env')
         apiKey = envKey

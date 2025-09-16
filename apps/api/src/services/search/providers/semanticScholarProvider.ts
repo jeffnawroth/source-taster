@@ -9,9 +9,17 @@ type SemanticScholarTitleMatchResponse = components['schemas']['PaperMatch']
 export class SemanticScholarProvider {
   private baseUrl = 'https://api.semanticscholar.org/graph/v1'
   private apiKey: string | undefined
+  private static warnedMissingApiKey = false
+  private static readonly PLACEHOLDER_KEY = 'your_semantic_scholar_api_key_here'
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey
+    const normalizedKey = apiKey === SemanticScholarProvider.PLACEHOLDER_KEY ? undefined : apiKey
+    this.apiKey = normalizedKey
+
+    if (!this.apiKey && !SemanticScholarProvider.warnedMissingApiKey) {
+      console.warn('⚠️  Semantic Scholar: No SEMANTIC_SCHOLAR_API_KEY configured. Some endpoints may be rate-limited.')
+      SemanticScholarProvider.warnedMissingApiKey = true
+    }
   }
 
   async search(metadata: CSLItem): Promise<ApiSearchCandidate | null> {
