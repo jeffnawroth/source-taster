@@ -1,12 +1,12 @@
 import { Hono } from 'hono'
-import { AnystyleController } from '../controllers/anystyleController'
+import { convertToCSL, parse } from '../controllers/anystyleController'
 
 const anystyleRouter = new Hono()
 
 // Parse references and return tokens with labels
-anystyleRouter.post('/parse', AnystyleController.parse)
+anystyleRouter.post('/parse', parse)
 
 // Convert token arrays to CSL format
-anystyleRouter.post('/convert-to-csl', AnystyleController.convertToCSL)
+anystyleRouter.post('/convert-to-csl', convertToCSL)
 
 export { anystyleRouter }
