@@ -1,5 +1,5 @@
-import type { ApiExtractRequest } from '../api'
-import type { LLMExtractPayload } from './llm'
+import type { ApiExtractRequest } from '../api/index.js'
+import type { LLMExtractPayload } from './llm.js'
 import { z } from 'zod'
 
 export const OpenAIConfigSchema = z.object({

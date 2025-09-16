@@ -5,7 +5,7 @@ import type {
   ApiAnystyleParseRequest,
 } from '@source-taster/types'
 import process from 'node:process'
-import { httpBadRequest, httpUpstream } from '../errors/http'
+import { httpBadRequest, httpUpstream } from '../errors/http.js'
 
 export class AnystyleProvider {
   private readonly serverUrl: string

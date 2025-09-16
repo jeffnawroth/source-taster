@@ -1,1 +1,1 @@
-export * from './csl-json.zod'
+export * from './csl-json.zod.js'

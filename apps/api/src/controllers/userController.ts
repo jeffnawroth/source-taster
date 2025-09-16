@@ -5,7 +5,7 @@ import {
   ApiUserAISecretsRequestSchema,
   ApiUserAISecretsResponseSchema,
 } from '@source-taster/types'
-import { userSecretsService } from '../services/userSecretsService'
+import { userSecretsService } from '../services/userSecretsService.js'
 
 /**
  * POST /api/user/ai-secrets

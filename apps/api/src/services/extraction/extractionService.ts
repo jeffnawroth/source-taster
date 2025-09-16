@@ -1,7 +1,7 @@
 import type { ApiExtractExtractionSettings, ApiExtractRequest, LLMExtractPayload, OpenAIConfig } from '@source-taster/types'
-import { createDynamicExtractionSchema } from '@/api/utils/dynamicExtractionSchema'
-import { systemMessage, userMessage } from '@/api/utils/extraction-prompt'
-import { BaseAIProvider } from './baseAIProvider'
+import { createDynamicExtractionSchema } from '../../utils/dynamicExtractionSchema.js'
+import { systemMessage, userMessage } from '../../utils/extraction-prompt.js'
+import { BaseAIProvider } from './baseAIProvider.js'
 
 export class ExtractionService extends BaseAIProvider {
   constructor(config: OpenAIConfig) {

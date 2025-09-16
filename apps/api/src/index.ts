@@ -1,14 +1,14 @@
 import process from 'node:process'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import { registerOnError } from './errors/registerOnError'
-import { withClientId } from './middleware/clientId'
-import { corsMiddleware } from './middleware/cors'
-import { anystyleRouter } from './routes/anystyleRouter'
-import extractionRouter from './routes/extractionRouter'
-import matchingRouter from './routes/matchingRouter'
-import searchRouter from './routes/searchRouter'
-import { userRouter } from './routes/userRouter'
+import { registerOnError } from './errors/registerOnError.js'
+import { withClientId } from './middleware/clientId.js'
+import { corsMiddleware } from './middleware/cors.js'
+import { anystyleRouter } from './routes/anystyleRouter.js'
+import extractionRouter from './routes/extractionRouter.js'
+import matchingRouter from './routes/matchingRouter.js'
+import searchRouter from './routes/searchRouter.js'
+import { userRouter } from './routes/userRouter.js'
 
 const app = new Hono()
 

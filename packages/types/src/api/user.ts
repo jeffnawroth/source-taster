@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { ApiAIProviderSchema } from './ai'
-import { createApiResponseSchema } from './api'
+import { ApiAIProviderSchema } from './ai.js'
+import { createApiResponseSchema } from './api.js'
 
 // ----- Request -----
 export const ApiUserAISecretsRequestSchema = z.object({
@@ -27,8 +27,8 @@ export type ApiUserAISecretsInfoData = z.infer<typeof ApiUserAISecretsInfoDataSc
 
 export const ApiUserAISecretsInfoResponseSchema
   = createApiResponseSchema(ApiUserAISecretsInfoDataSchema)
-export type ApiUserAISecretsInfoResponse =
-  z.infer<typeof ApiUserAISecretsInfoResponseSchema>
+export type ApiUserAISecretsInfoResponse
+  = z.infer<typeof ApiUserAISecretsInfoResponseSchema>
 
 // ----- Delete Response -----
 export const ApiUserAISecretsDeleteDataSchema = z.object({
@@ -38,5 +38,5 @@ export type ApiUserAISecretsDeleteData = z.infer<typeof ApiUserAISecretsDeleteDa
 
 export const ApiUserAISecretsDeleteResponseSchema
   = createApiResponseSchema(ApiUserAISecretsDeleteDataSchema)
-export type ApiUserAISecretsDeleteResponse =
-  z.infer<typeof ApiUserAISecretsDeleteResponseSchema>
+export type ApiUserAISecretsDeleteResponse
+  = z.infer<typeof ApiUserAISecretsDeleteResponseSchema>

@@ -1,7 +1,7 @@
 import z from 'zod'
-import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from '../api'
-import { ApiExtractExtractionSettingsSchema, DEFAULT_EXTRACTION_CONFIG } from '../api/extract'
-import { ApiMatchConfigSchema, ApiMatchMatchingStrategySchema, DEFAULT_MATCHING_CONFIG, DEFAULT_MATCHING_STRATEGY } from '../api/match'
+import { ApiExtractExtractionSettingsSchema, DEFAULT_EXTRACTION_CONFIG } from '../api/extract.js'
+import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from '../api/index.js'
+import { ApiMatchConfigSchema, ApiMatchMatchingStrategySchema, DEFAULT_MATCHING_CONFIG, DEFAULT_MATCHING_STRATEGY } from '../api/match.js'
 
 export const UIMatchingEarlyTerminationSchema = z.object({
   enabled: z.boolean().describe('Whether early termination is enabled'),

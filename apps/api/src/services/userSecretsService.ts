@@ -1,7 +1,7 @@
 import type { ApiAIProvider, ApiUserAISecretsInfoData } from '@source-taster/types'
 import { ApiAIProviderSchema } from '@source-taster/types'
-import { httpBadRequest, httpUpstream } from '../errors/http'
-import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore'
+import { httpBadRequest, httpUpstream } from '../errors/http.js'
+import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore.js'
 
 export class UserSecretsService {
   /**

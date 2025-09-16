@@ -2,7 +2,7 @@ import type { ApiMatchData } from '@source-taster/types'
 // src/controllers/matchingController.ts
 import type { Context } from 'hono'
 import { ApiMatchRequestSchema } from '@source-taster/types'
-import { MatchingCoordinator } from '../services/matching/matchingCoordinator'
+import { MatchingCoordinator } from '../services/matching/matchingCoordinator.js'
 
 /**
  * POST /api/match

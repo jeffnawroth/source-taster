@@ -1,7 +1,7 @@
 import z from 'zod'
-import { CSLItemSchema, CSLVariableWithoutIdSchema } from '../app/csl-json.zod'
-import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from './ai'
-import { createApiResponseSchema } from './api'
+import { CSLItemSchema, CSLVariableWithoutIdSchema } from '../app/csl-json.zod.js'
+import { ApiAISettingsSchema, DEFAULT_AI_SETTINGS } from './ai.js'
+import { createApiResponseSchema } from './api.js'
 
 // ----- Request -----
 

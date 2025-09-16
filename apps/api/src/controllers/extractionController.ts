@@ -6,7 +6,7 @@ import type {
 import type { Context } from 'hono'
 
 import { ApiExtractRequestSchema } from '@source-taster/types'
-import { ReferenceExtractionCoordinator } from '../services/extraction/referenceExtractionCoordinator'
+import { ReferenceExtractionCoordinator } from '../services/extraction/referenceExtractionCoordinator.js'
 
 /**
  * Extract references from text using AI

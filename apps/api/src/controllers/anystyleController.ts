@@ -8,7 +8,7 @@ import {
   ApiAnystyleConvertRequestSchema,
   ApiAnystyleParseRequestSchema,
 } from '@source-taster/types'
-import { anystyleProvider } from '../services/anystyleProvider'
+import { anystyleProvider } from '../services/anystyleProvider.js'
 
 export async function parse(c: Context): Promise<Response> {
   const req = ApiAnystyleParseRequestSchema.parse(await c.req.json())

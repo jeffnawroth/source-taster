@@ -4,8 +4,8 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
 import { ApiAIProviderSchema } from '@source-taster/types'
-import { httpBadRequest } from '../errors/http'
-import { decrypt, encrypt } from './crypto'
+import { httpBadRequest } from '../errors/http.js'
+import { decrypt, encrypt } from './crypto.js'
 
 const require = createRequire(import.meta.url)
 const kfsMod = require('key-file-storage')

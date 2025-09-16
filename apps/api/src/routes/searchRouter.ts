@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import * as searchController from '../controllers/searchController'
+import * as searchController from '../controllers/searchController.js'
 
 const router = new Hono()
 

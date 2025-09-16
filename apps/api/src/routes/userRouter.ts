@@ -5,7 +5,7 @@ import {
   deleteAISecrets,
   getAISecretsInfo,
   saveAISecrets,
-} from '../controllers/userController'
+} from '../controllers/userController.js'
 
 export const userRouter = new Hono<AppEnv>()
 

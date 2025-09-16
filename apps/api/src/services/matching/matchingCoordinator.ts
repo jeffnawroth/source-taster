@@ -8,7 +8,7 @@ import type {
   ApiMatchReference,
   ApiSearchCandidate,
 } from '@source-taster/types'
-import { DeterministicEngine } from './engines/deterministicEngine'
+import { DeterministicEngine } from './engines/deterministicEngine.js'
 
 export class MatchingCoordinator {
   private readonly deterministicEngine = new DeterministicEngine()

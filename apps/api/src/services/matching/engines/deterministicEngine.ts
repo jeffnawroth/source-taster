@@ -1,9 +1,9 @@
 import type { ApiMatchCandidate, ApiMatchConfig, ApiMatchDetails, ApiMatchFieldDetail, ApiMatchMatchingSettings, ApiMatchNormalizationRule, ApiMatchReference, CSLItem, CSLVariable } from '@source-taster/types'
 import levenshtein from 'damerau-levenshtein'
-import { containerTitleSimilarity, containsNumericToken, pageSimilarity } from '@/api/utils/fieldSimilarity'
-import { MetadataComparator } from '@/api/utils/metadataComparator'
-import { similarity } from '@/api/utils/similarity'
-import { NormalizationService } from '../../matching/normalizationService'
+import { containerTitleSimilarity, containsNumericToken, pageSimilarity } from '../../../utils/fieldSimilarity.js'
+import { MetadataComparator } from '../../../utils/metadataComparator.js'
+import { similarity } from '../../../utils/similarity.js'
+import { NormalizationService } from '../../matching/normalizationService.js'
 
 export class DeterministicEngine {
   private readonly normalizationService = new NormalizationService()

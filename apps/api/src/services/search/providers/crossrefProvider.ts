@@ -1,7 +1,7 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
-import type { components } from '@/api/types/crossref'
+import type { components } from '../../../types/crossref.js'
 import process from 'node:process'
-import { generateUUID } from '@/api/utils/generateUUID'
+import { generateUUID } from '../../../utils/generateUUID.js'
 
 // Type aliases for better readability
 type CrossrefWork = components['schemas']['Work']

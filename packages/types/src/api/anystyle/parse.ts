@@ -1,5 +1,5 @@
 import z from 'zod'
-import { createApiResponseSchema } from '../api'
+import { createApiResponseSchema } from '../api.js'
 
 // ----- Request -----
 export const ApiAnystyleParseRequestSchema = z.object({

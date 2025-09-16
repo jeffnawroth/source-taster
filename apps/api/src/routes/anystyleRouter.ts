@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { convertToCSL, parse } from '../controllers/anystyleController'
+import { convertToCSL, parse } from '../controllers/anystyleController.js'
 
 const anystyleRouter = new Hono()
 

@@ -9,7 +9,7 @@ import {
   httpUnauthorized,
   httpUnprocessable,
   httpUpstream,
-} from '../../errors/http'
+} from '../../errors/http.js'
 
 /**
  * Base AI service with common functionality for all AI providers

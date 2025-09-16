@@ -1,7 +1,7 @@
 import type { ApiMatchNormalizationRule } from '@source-taster/types'
 import levenshtein from 'damerau-levenshtein'
-import { NormalizationService } from '../services/matching/normalizationService'
-import { dateSimilarity, isCSLNameObject, nameSimilarity } from './similarityHelpers'
+import { NormalizationService } from '../services/matching/normalizationService.js'
+import { dateSimilarity, isCSLNameObject, nameSimilarity } from './similarityHelpers.js'
 
 const normalizationService = new NormalizationService()
 

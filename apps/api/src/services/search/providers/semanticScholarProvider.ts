@@ -1,6 +1,6 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
-import type { components } from '@/api/types/semanticScholar'
-import { generateUUID } from '@/api/utils/generateUUID'
+import type { components } from '../../../types/semanticScholar.js'
+import { generateUUID } from '../../../utils/generateUUID.js'
 
 type SemanticScholarPaper = components['schemas']['FullPaper']
 type SemanticScholarSearchResponse = components['schemas']['PaperRelevanceSearchBatch']

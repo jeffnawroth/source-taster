@@ -1,6 +1,6 @@
 import z from 'zod'
-import { createApiResponseSchema } from '../api'
-import { CSLItemSchema } from '../app'
+import { createApiResponseSchema } from '../api/index.js'
+import { CSLItemSchema } from '../app/index.js'
 
 // ----- Request -----
 export const ApiSearchReferenceSchema = z.object({

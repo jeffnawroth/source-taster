@@ -6,11 +6,11 @@
  */
 
 // AI Service Types
-export * from './api/index'
-export * from './app/index'
-export * from './backend/index'
+export * from './api/index.js'
+export * from './app/index.js'
+export * from './backend/index.js'
 
 // CSL Utilities
-export * from './csl-utils'
+export * from './csl-utils.js'
 
-export * from './frontend/index'
+export * from './frontend/index.js'

@@ -5,9 +5,9 @@ import type {
   LLMExtractPayload,
   LLMExtractReference,
 } from '@source-taster/types'
-import { generateUUID } from '@/api/utils/generateUUID'
-import { httpBadRequest } from '../../errors/http'
-import { AIProviderFactory } from './aiProviderFactory'
+import { httpBadRequest } from '../../errors/http.js'
+import { generateUUID } from '../../utils/generateUUID.js'
+import { AIProviderFactory } from './aiProviderFactory.js'
 
 export class ReferenceExtractionCoordinator {
   constructor(private readonly userId: string) {}

@@ -1,7 +1,7 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
-import type { components } from '@/api/types/openAlex'
+import type { components } from '../../../types/openAlex.js'
 import process from 'node:process'
-import { generateUUID } from '@/api/utils/generateUUID'
+import { generateUUID } from '../../../utils/generateUUID.js'
 
 // Type aliases for better readability
 type Work = components['schemas']['workSchema']

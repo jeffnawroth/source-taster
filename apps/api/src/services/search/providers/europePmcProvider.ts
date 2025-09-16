@@ -1,7 +1,7 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
-import type { EuropePmcSearchResponse, EuropePmcWork } from '@/api/types/europepmc'
+import type { EuropePmcSearchResponse, EuropePmcWork } from '../../../types/europepmc.js'
 import process from 'node:process'
-import { generateUUID } from '@/api/utils/generateUUID'
+import { generateUUID } from '../../../utils/generateUUID.js'
 
 export class EuropePmcProvider {
   private baseUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest'

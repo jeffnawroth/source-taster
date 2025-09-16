@@ -4,8 +4,8 @@ import {
   ApiSearchRequestSchema,
   ApiSearchResponseSchema,
 } from '@source-taster/types'
-import { httpBadRequest } from '../errors/http'
-import searchCoordinator from '../services/search/searchCoordinator'
+import { httpBadRequest } from '../errors/http.js'
+import searchCoordinator from '../services/search/searchCoordinator.js'
 
 /**
  * POST /api/search/:database

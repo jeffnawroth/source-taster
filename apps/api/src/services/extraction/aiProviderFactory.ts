@@ -1,9 +1,9 @@
 import type { AIService, ApiAISettings, OpenAIConfig } from '@source-taster/types'
 import process from 'node:process'
 import { PROVIDER_CONFIG } from '@source-taster/types'
-import { httpUnauthorized } from '@/api/errors/http'
-import { loadApiKey } from '../../secrets/keystore'
-import { OpenAIExtractionProvider } from './openAIExtractionProvider'
+import { httpUnauthorized } from '../../errors/http.js'
+import { loadApiKey } from '../../secrets/keystore.js'
+import { OpenAIExtractionProvider } from './openAIExtractionProvider.js'
 
 export class AIProviderFactory {
   static async createOpenAIService(userId: string, userAISettings: ApiAISettings): Promise<AIService> {

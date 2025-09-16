@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import * as extractionController from '../controllers/extractionController'
+import * as extractionController from '../controllers/extractionController.js'
 
 const router = new Hono()
 

@@ -1,5 +1,5 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
-import { generateUUID } from '@/api/utils/generateUUID'
+import { generateUUID } from '../../../utils/generateUUID.js'
 
 export class ArxivProvider {
   private baseUrl = 'http://export.arxiv.org/api/query'

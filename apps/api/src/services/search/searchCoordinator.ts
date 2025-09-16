@@ -3,12 +3,12 @@ import type {
   ApiSearchResult,
 } from '@source-taster/types'
 import process from 'node:process'
-import { httpBadRequest, httpNotFound } from '../../errors/http'
-import { ArxivProvider } from './providers/arxivProvider'
-import { CrossrefProvider } from './providers/crossrefProvider'
-import { EuropePmcProvider } from './providers/europePmcProvider'
-import { OpenAlexProvider } from './providers/openAlexProvider'
-import { SemanticScholarProvider } from './providers/semanticScholarProvider'
+import { httpBadRequest, httpNotFound } from '../../errors/http.js'
+import { ArxivProvider } from './providers/arxivProvider.js'
+import { CrossrefProvider } from './providers/crossrefProvider.js'
+import { EuropePmcProvider } from './providers/europePmcProvider.js'
+import { OpenAlexProvider } from './providers/openAlexProvider.js'
+import { SemanticScholarProvider } from './providers/semanticScholarProvider.js'
 
 interface DatabaseInfo {
   name: string

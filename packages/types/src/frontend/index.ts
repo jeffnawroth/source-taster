@@ -1,2 +1,2 @@
-export * from './api'
-export * from './settings'
+export * from './api.js'
+export * from './settings.js'

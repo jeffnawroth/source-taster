@@ -3,7 +3,7 @@
  * Used by both frontend (display formatting) and backend (normalization/matching)
  */
 
-import type { CSLDate, CSLName } from './index'
+import type { CSLDate, CSLName } from './index.js'
 
 /**
  * Core CSL name stringification - combines all name parts in correct order

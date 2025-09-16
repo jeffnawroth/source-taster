@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import * as matchingController from '../controllers/matchingController'
+import * as matchingController from '../controllers/matchingController.js'
 
 const router = new Hono()
 

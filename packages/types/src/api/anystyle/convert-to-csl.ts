@@ -1,7 +1,7 @@
 import z from 'zod'
-import { CSLItemWithoutIdSchema } from '../../app/csl-json.zod'
-import { createApiResponseSchema } from '../api'
-import { ApiAnystyleTokenSchema } from './parse'
+import { CSLItemWithoutIdSchema } from '../../app/csl-json.zod.js'
+import { createApiResponseSchema } from '../api.js'
+import { ApiAnystyleTokenSchema } from './parse.js'
 
 // ----- Request -----
 

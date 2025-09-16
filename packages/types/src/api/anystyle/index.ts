@@ -1,2 +1,2 @@
-export * from './convert-to-csl'
-export * from './parse'
+export * from './convert-to-csl.js'
+export * from './parse.js'
