@@ -1,0 +1,23 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - apps/api/.env.example
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./.keystore:/app/.keystore
+    environment:
+      ANYSTYLE_SERVER_URL: http://anystyle:4567
+    depends_on:
+      anystyle:
+        condition: service_started
+
+  anystyle:
+    build:
+      context: apps/api
+      dockerfile: Dockerfile.anystyle
+    ports:
+      - '4567:4567'

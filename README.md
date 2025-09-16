@@ -30,6 +30,7 @@ The Source Taster is a browser extension that helps users, especially students a
 - Run the container with your own environment variables: `docker run --rm -p 8000:8000 --env-file ./apps/api/.env.example -v $(pwd)/.keystore:/app/.keystore source-taster-api` (adjust the env file/values before using in production).
 - The container exposes port `8000` and persists encrypted user keys in `/app/.keystore` (mount a volume to keep them across restarts).
 - Provide real API keys (OpenAI/Anthropic/Google, Semantic Scholar, etc.) via `--env` or an env file before deploying publicly.
+- To run the API together with the AnyStyle parser, use `docker compose up --build` (this builds both images, starts them on a shared network, and wires the API to `http://anystyle:4567`).
 
 ## How it Works
 
