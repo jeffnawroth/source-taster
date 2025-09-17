@@ -42,7 +42,7 @@ export async function corsMiddleware(c: Context, next: Next) {
     // Set CORS headers for development
     c.header('Access-Control-Allow-Origin', '*')
     c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Extension-ID')
+    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Extension-ID, X-Client-Id')
 
     // Handle preflight
     if (c.req.method === 'OPTIONS') {
@@ -55,10 +55,36 @@ export async function corsMiddleware(c: Context, next: Next) {
   // PRODUCTION: Only allow specific extension IDs
   const allowedOrigins = getProductionAllowedOrigins()
 
-  // Block requests without origin header in production
+  const fetchSite = c.req.header('sec-fetch-site')
+  const fetchMode = c.req.header('sec-fetch-mode')
+  const clientIdHeader = c.req.header('X-Client-Id')
+
+  // Block requests without origin header in production unless they can be
+  // identified as trusted extension calls (Chrome options page no longer sends
+  // an origin header but keeps the Sec-Fetch metadata and client ID).
   if (!origin) {
-    console.warn('❌ PROD: Blocked request without origin header')
-    return c.json({ error: 'Origin header required' }, 403)
+    const isTrustedExtensionRequest = Boolean(
+      clientIdHeader
+      && fetchSite === 'none'
+      && fetchMode === 'cors',
+    )
+
+    if (!isTrustedExtensionRequest) {
+      console.warn('❌ PROD: Blocked request without origin header')
+      return c.json({ error: 'Origin header required' }, 403)
+    }
+
+    console.warn('✅ PROD: Allowing trusted extension request without origin header')
+
+    c.header('Access-Control-Allow-Origin', '*')
+    c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Extension-ID, X-Client-Id')
+
+    if (c.req.method === 'OPTIONS') {
+      return new Response('', { status: 204 })
+    }
+
+    return next()
   }
 
   let isAllowed = false
@@ -90,7 +116,7 @@ export async function corsMiddleware(c: Context, next: Next) {
   // Set CORS headers for allowed origins
   c.header('Access-Control-Allow-Origin', origin)
   c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Extension-ID')
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Extension-ID, X-Client-Id')
 
   // Handle preflight
   if (c.req.method === 'OPTIONS') {
