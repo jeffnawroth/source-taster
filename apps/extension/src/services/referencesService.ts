@@ -1,21 +1,31 @@
-import type { Reference, VerificationResult, WebsiteVerificationResult } from '@source-taster/types'
+import type { APIMatchingSettings, MatchingReference, MatchingResult, Reference, WebsiteMatchingResult } from '@source-taster/types'
+import { runtime } from 'webextension-polyfill'
 import { API_CONFIG } from '@/extension/env'
-import { selectedAiModel } from '../logic'
+import { aiSettings, extractionSettings, matchingSettings } from '@/extension/logic/storage'
+import { encryptApiKey } from '@/extension/utils/crypto'
 
 export class ReferencesService {
   /**
    * Extract references from text using AI
    */
   static async extractReferences(text: string, signal?: AbortSignal): Promise<Reference[]> {
+    // Encrypt API key for secure transmission
+    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+
     const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.extract}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Extension-ID': runtime.id,
+        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
         text,
-        aiService: selectedAiModel.value.service,
-        model: selectedAiModel.value.model,
+        extractionSettings: extractionSettings.value,
+        aiSettings: {
+          provider: aiSettings.value.provider,
+          model: aiSettings.value.model,
+        },
       }),
       signal,
     })
@@ -34,88 +44,133 @@ export class ReferencesService {
   }
 
   /**
-   * Verify references against databases
+   * Match references against databases
    */
-  static async verifyReferences(references: Reference[], signal?: AbortSignal): Promise<VerificationResult[]> {
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.verify}`, {
+  static async matchReferences(references: Reference[], signal?: AbortSignal): Promise<MatchingResult[]> {
+    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+
+    const matchingReferences: MatchingReference[] = references.map(ref => ({
+      id: ref.id,
+      metadata: ref.metadata,
+    }))
+
+    const apiMatchingSettings: APIMatchingSettings = {
+      matchingStrategy: {
+        actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
+      },
+      matchingConfig: {
+        fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,
+        earlyTermination: matchingSettings.value.matchingConfig.earlyTermination,
+      },
+    }
+
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Extension-ID': runtime.id,
+        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
-        references,
-        aiService: selectedAiModel.value.service,
-        model: selectedAiModel.value.model,
-      }),
-      signal,
-    })
-
-    if (!response.ok) {
-      throw new Error(`Verification failed: ${response.statusText}`)
-    }
-
-    const data = await response.json()
-
-    if (!data.success) {
-      throw new Error(data.error || 'Verification failed')
-    }
-
-    return data.data.results || []
-  }
-
-  /**
-   * Verify a reference against a website URL
-   */
-  static async verifyWebsiteReference(
-    reference: Reference,
-    url: string,
-    signal?: AbortSignal,
-  ): Promise<WebsiteVerificationResult> {
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.verify}/website`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reference,
-        url,
-        aiService: selectedAiModel.value.service,
-        options: {
-          timeout: 10000,
-          enableWaybackMachine: true,
+        references: matchingReferences,
+        matchingSettings: apiMatchingSettings,
+        aiSettings: {
+          provider: aiSettings.value.provider,
+          model: aiSettings.value.model,
         },
       }),
       signal,
     })
 
     if (!response.ok) {
-      throw new Error(`Website verification failed: ${response.statusText}`)
+      throw new Error(`Matching failed: ${response.statusText}`)
     }
 
     const data = await response.json()
 
     if (!data.success) {
-      throw new Error(data.error || 'Website verification failed')
+      throw new Error(data.error || 'Matching failed')
+    }
+
+    return data.data.results || []
+  }
+
+  /**
+   * Match a reference against a website URL
+   */
+  static async matchReferenceToWebsite(
+    reference: Reference,
+    url: string,
+    signal?: AbortSignal,
+  ): Promise<WebsiteMatchingResult> {
+    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
+
+    const matchingReference: MatchingReference = {
+      id: reference.id,
+      metadata: reference.metadata,
+    }
+
+    const apiMatchingSettings: APIMatchingSettings = {
+      matchingStrategy: {
+        actionTypes: matchingSettings.value.matchingStrategy.actionTypes,
+      },
+      matchingConfig: {
+        fieldConfigurations: matchingSettings.value.matchingConfig.fieldConfigurations,
+        earlyTermination: matchingSettings.value.matchingConfig.earlyTermination,
+      },
+    }
+
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}/website`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Extension-ID': runtime.id,
+        'X-API-Key': encryptedApiKey,
+      },
+      body: JSON.stringify({
+        reference: matchingReference,
+        url,
+        matchingSettings: apiMatchingSettings,
+        aiSettings: {
+          provider: aiSettings.value.provider,
+          model: aiSettings.value.model,
+          // apiKey moved to X-API-Key header
+        },
+        options: {
+          timeout: 10000,
+        },
+      }),
+      signal,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Website matching failed: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    if (!data.success) {
+      throw new Error(data.error || 'Website matching failed')
     }
 
     return data.data
   }
 
   /**
-   * Extract and verify references in one call
+   * Extract and match references in one call
    */
-  static async extractAndVerify(text: string, signal?: AbortSignal): Promise<{
+  static async extractAndMatch(text: string, signal?: AbortSignal): Promise<{
     references: Reference[]
-    verificationResults: VerificationResult[]
+    matchingResults: MatchingResult[]
   }> {
     const references = await this.extractReferences(text, signal)
 
     if (references.length === 0) {
-      return { references: [], verificationResults: [] }
+      return { references: [], matchingResults: [] }
     }
 
-    const verificationResults = await this.verifyReferences(references, signal)
+    const matchingResults = await this.matchReferences(references, signal)
 
-    return { references, verificationResults }
+    return { references, matchingResults }
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiDesktopTowerMonitor, mdiPageLayoutSidebarRight, mdiWeatherNight, mdiWhiteBalanceSunny, mdiWindowMaximize } from '@mdi/js'
+import { mdiDesktopTowerMonitor, mdiPageLayoutSidebarRight, mdiPalette, mdiWeatherNight, mdiWhiteBalanceSunny, mdiWindowMaximize } from '@mdi/js'
 import { getDisplayOption, setDisplayOption, themeOption } from '@/extension/logic'
 
 // TRANSLATION
@@ -68,16 +68,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container>
-    <p class="text-h5 font-weight-bold mb-3">
-      {{ t('appearance') }}
-    </p>
-
-    <p class="text-body-2 text-medium-emphasis">
-      {{ t('appearance-description') }}
-    </p>
-
-    <v-divider class="my-4" />
+  <SettingsPageLayout
+    :icon="mdiPalette"
+    :title="t('appearance')"
+    :description="t('appearance-description')"
+  >
     <OptionListItem
       :title="t('display-mode')"
       :subtitle="t('display-mode-description')"
@@ -116,5 +111,5 @@ onMounted(() => {
         flat
       />
     </OptionListItem>
-  </v-container>
+  </SettingsPageLayout>
 </template>

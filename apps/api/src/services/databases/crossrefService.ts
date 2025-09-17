@@ -1,5 +1,10 @@
 import type { Author, DateInfo, ExternalIdentifiers, ExternalSource, ReferenceMetadata, SourceInfo } from '@source-taster/types'
+import type { components } from '../../types/crossref'
 import process from 'node:process'
+
+// Type aliases for better readability
+type CrossrefWork = components['schemas']['Work']
+type CrossrefWorksMessage = components['schemas']['WorksMessage']
 
 export class CrossrefService {
   private baseUrl = 'https://api.crossref.org'
@@ -40,7 +45,7 @@ export class CrossrefService {
   }
 
   private hasBibliographicData(metadata: ReferenceMetadata): boolean {
-    return !!(metadata.title && metadata.authors?.length && metadata.date.year)
+    return !!(metadata.title && metadata.authors?.length && metadata.date?.year)
   }
 
   private async searchByDOI(doi: string): Promise<ExternalSource | null> {
@@ -71,7 +76,7 @@ export class CrossrefService {
         return null // DOI not found, try query search
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as { message: CrossrefWork }
 
       if (data.message) {
         const work = data.message
@@ -103,7 +108,7 @@ export class CrossrefService {
       params.append('query.bibliographic', bibQuery)
 
       // Add filters for better matching
-      if (metadata.date.year) {
+      if (metadata.date?.year) {
         params.append('filter', `from-pub-date:${metadata.date.year},until-pub-date:${metadata.date.year}`)
       }
 
@@ -128,7 +133,7 @@ export class CrossrefService {
         throw new Error(`Crossref API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as CrossrefWorksMessage
 
       if (data.message?.items && data.message.items.length > 0) {
         // Take the first (best) result from Crossref's relevance ranking
@@ -152,9 +157,7 @@ export class CrossrefService {
     const parts: string[] = []
 
     if (metadata.title) {
-      // Clean title for better matching
-      const cleanTitle = metadata.title.replace(/[^\w\s]/g, ' ').trim()
-      parts.push(cleanTitle)
+      parts.push(metadata.title)
     }
 
     if (metadata.authors?.length) {
@@ -162,19 +165,8 @@ export class CrossrefService {
       const firstAuthor = metadata.authors[0]
       let surname: string | undefined
 
-      if (typeof firstAuthor === 'string') {
-        // Parse string format to extract surname
-        const nameParts = (firstAuthor as string).split(/[,\s]+/).filter(Boolean)
-        // Try to get last word as surname, or first word if comma-separated
-        if (firstAuthor.includes(',')) {
-          surname = nameParts[0] // "Smith, John" -> "Smith"
-        }
-        else {
-          surname = nameParts[nameParts.length - 1] // "John Smith" -> "Smith"
-        }
-      }
-      else {
-        // Handle Author object structure
+      // authors array should contain Author objects according to schema
+      if (firstAuthor && typeof firstAuthor === 'object' && 'lastName' in firstAuthor) {
         surname = firstAuthor.lastName
       }
 
@@ -187,16 +179,7 @@ export class CrossrefService {
         const secondAuthor = metadata.authors[1]
         let secondSurname: string | undefined
 
-        if (typeof secondAuthor === 'string') {
-          const nameParts = (secondAuthor as string).split(/[,\s]+/).filter(Boolean)
-          if (secondAuthor.includes(',')) {
-            secondSurname = nameParts[0]
-          }
-          else {
-            secondSurname = nameParts[nameParts.length - 1]
-          }
-        }
-        else {
+        if (secondAuthor && typeof secondAuthor === 'object' && 'lastName' in secondAuthor) {
           secondSurname = secondAuthor.lastName
         }
 
@@ -206,18 +189,16 @@ export class CrossrefService {
       }
     }
 
-    if (metadata.date.year) {
+    if (metadata.date?.year) {
       parts.push(metadata.date.year.toString())
     }
 
-    if (metadata.source.containerTitle) {
-      // Clean journal name for better matching
-      const cleanJournal = metadata.source.containerTitle.replace(/[^\w\s]/g, ' ').trim()
-      parts.push(cleanJournal)
+    if (metadata.source?.containerTitle) {
+      parts.push(metadata.source.containerTitle)
     }
 
     // Add volume if available for better matching
-    if (metadata.source.volume) {
+    if (metadata.source?.volume) {
       parts.push(`vol ${metadata.source.volume}`)
     }
 
@@ -232,9 +213,8 @@ export class CrossrefService {
     }
 
     // Add publisher for books and reports
-    if (metadata.source.publisher && ['Book', 'Report', 'Thesis'].includes(metadata.source.sourceType || '')) {
-      const cleanPublisher = metadata.source.publisher.replace(/[^\w\s]/g, ' ').trim()
-      parts.push(cleanPublisher)
+    if (metadata.source?.publisher && ['Book', 'Report', 'Thesis'].includes(metadata.source?.sourceType || '')) {
+      parts.push(metadata.source.publisher)
     }
 
     return parts.join(' ')
@@ -260,7 +240,7 @@ export class CrossrefService {
         throw new Error(`Crossref API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as CrossrefWorksMessage
 
       if (data.message?.items && data.message.items.length > 0) {
         // Take the first (best) result from Crossref's relevance ranking
@@ -304,7 +284,7 @@ export class CrossrefService {
       }
     }
 
-    if (metadata.source.containerTitle) {
+    if (metadata.source?.containerTitle) {
       queryParts.push(metadata.source.containerTitle)
     }
 
@@ -329,7 +309,7 @@ export class CrossrefService {
     return result
   }
 
-  private parseCrossrefWork(work: any): ReferenceMetadata {
+  private parseCrossrefWork(work: CrossrefWork): ReferenceMetadata {
     // Parse publication date with comprehensive handling
     const dateInfo = this.parseCrossrefDate(work)
 
@@ -339,19 +319,19 @@ export class CrossrefService {
     // Parse additional contributors (editors, translators, etc.)
     const contributors = this.parseCrossrefContributors(work.editor || [], work.translator || [])
 
-    // Get the best available title and subtitle
+    // Get raw title and subtitle from Crossref
     const title = work.title?.[0] || work['short-title']?.[0] || work['original-title']?.[0]
     const subtitle = work.subtitle?.[0] || work.title?.[1] // Sometimes subtitle is in title[1]
 
-    // Get the best available journal/container name
+    // Get raw journal/container name from Crossref
     const containerTitle = work['container-title']?.[0] || work['short-container-title']?.[0]
 
-    // Extract publisher information with enhanced details
+    // Get raw publisher information from Crossref
     const publisher = work.publisher
     const publicationPlace = work['publisher-location']
 
-    // Map work type to our sourceType
-    const sourceType = this.mapCrossrefType(work.type)
+    // Use raw work type instead of mapping to standardized sourceType
+    const sourceType = work.type
 
     // Extract comprehensive identifiers
     const identifiers = this.extractCrossrefIdentifiers(work)
@@ -365,10 +345,10 @@ export class CrossrefService {
       url = work.URL
     }
 
-    // Parse pages with enhanced formatting
+    // Parse pages - return raw value
     const pages = this.parseCrossrefPages(work.page)
 
-    // Extract enhanced source information
+    // Get raw source information from Crossref
     const sourceInfo = this.buildSourceInfo(work, {
       containerTitle,
       subtitle,
@@ -383,8 +363,8 @@ export class CrossrefService {
     return {
       title,
       authors,
-      date: dateInfo,
-      source: sourceInfo,
+      date: dateInfo!,
+      source: sourceInfo!,
       identifiers,
     }
   }
@@ -392,7 +372,10 @@ export class CrossrefService {
   /**
    * Parse date information from Crossref work with comprehensive handling
    */
-  private parseCrossrefDate(work: any): DateInfo {
+  /**
+   * Parse date information from Crossref work - return raw values
+   */
+  private parseCrossrefDate(work: CrossrefWork): DateInfo {
     let year: number | undefined
     let month: string | undefined
     let day: number | undefined
@@ -407,31 +390,22 @@ export class CrossrefService {
 
     // Find the most complete date information
     for (const dateField of dateFields) {
-      if (dateField?.['date-parts']?.[0]) {
-        const dateParts = dateField['date-parts'][0]
-        if (dateParts[0])
-          year = dateParts[0]
-        if (dateParts[1]) {
-          // Convert month number to month name
-          const monthNames = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-          ]
-          month = monthNames[dateParts[1] - 1]
+      // The date-parts field exists in the API but the generated types are too restrictive
+      // We need to work with the actual structure returned by the API
+      if (dateField && typeof dateField === 'object') {
+        const dateFieldWithParts = dateField as Record<string, unknown>
+        const dateParts = (dateFieldWithParts?.['date-parts'] as number[][] | undefined)?.[0]
+        if (dateParts && Array.isArray(dateParts)) {
+          if (typeof dateParts[0] === 'number' && dateParts[0] > 0)
+            year = dateParts[0]
+          if (typeof dateParts[1] === 'number' && dateParts[1] > 0) {
+            // Keep month as number, don't convert to string
+            month = dateParts[1].toString()
+          }
+          if (typeof dateParts[2] === 'number' && dateParts[2] > 0)
+            day = dateParts[2]
+          break
         }
-        if (dateParts[2])
-          day = dateParts[2]
-        break
       }
     }
 
@@ -441,8 +415,9 @@ export class CrossrefService {
       day,
     }
 
-    // Check for "in press" status
-    if (work.status === 'aheadofprint' || work.status === 'in-press') {
+    // Check for "in press" status - raw value from Crossref
+    const workWithStatus = work as Record<string, unknown>
+    if (workWithStatus.status === 'aheadofprint' || workWithStatus.status === 'in-press') {
       dateInfo.inPress = true
     }
 
@@ -450,23 +425,16 @@ export class CrossrefService {
   }
 
   /**
-   * Parse authors from Crossref work with enhanced structure support
+   * Parse authors from Crossref work - return raw structure
    */
-  private parseCrossrefAuthors(authorArray: any[]): (Author | string)[] {
-    return authorArray.map((author: any) => {
+  private parseCrossrefAuthors(authorArray: components['schemas']['Author'][]): Author[] {
+    return authorArray.map((author) => {
       if (author.given && author.family) {
-        // Return as Author object for better structure
-        const authorObj: Author = {
+        // Return as Author object with raw values
+        return {
           firstName: author.given,
           lastName: author.family,
         }
-
-        // Add role if specified and not default "author"
-        if (author.role && author.role !== 'author') {
-          authorObj.role = this.mapCrossrefRole(author.role)
-        }
-
-        return authorObj
       }
 
       // Handle cases where only family name is available
@@ -476,7 +444,7 @@ export class CrossrefService {
         }
       }
 
-      // Fallback to string format for incomplete data
+      // Fallback for incomplete data - create Author object with parsed name
       const parts: string[] = []
       if (author.given)
         parts.push(author.given)
@@ -484,21 +452,36 @@ export class CrossrefService {
         parts.push(author.family)
 
       if (parts.length === 0) {
-        return author.name || author.literal || ''
+        // Use author.name if available, otherwise unknown
+        const fullName = author.name || 'Unknown Author'
+        const nameParts = fullName.trim().split(/\s+/)
+        return {
+          firstName: nameParts.slice(0, -1).join(' ') || undefined,
+          lastName: nameParts[nameParts.length - 1] || 'Unknown',
+        }
       }
 
-      return parts.join(' ')
+      // Parse the joined parts into firstName/lastName
+      const fullName = parts.join(' ')
+      const nameParts = fullName.trim().split(/\s+/)
+      return {
+        firstName: nameParts.slice(0, -1).join(' ') || undefined,
+        lastName: nameParts[nameParts.length - 1] || 'Unknown',
+      }
     }).filter(Boolean)
   }
 
   /**
    * Parse contributors (editors, translators, etc.) from Crossref work
    */
-  private parseCrossrefContributors(editors: any[], translators: any[]): Author[] {
+  private parseCrossrefContributors(
+    editors: components['schemas']['Author'][],
+    translators: components['schemas']['Author'][],
+  ): Author[] {
     const contributors: Author[] = []
 
     // Add editors
-    editors.forEach((editor: any) => {
+    editors.forEach((editor) => {
       if (editor.given && editor.family) {
         contributors.push({
           firstName: editor.given,
@@ -509,7 +492,7 @@ export class CrossrefService {
     })
 
     // Add translators
-    translators.forEach((translator: any) => {
+    translators.forEach((translator) => {
       if (translator.given && translator.family) {
         contributors.push({
           firstName: translator.given,
@@ -523,33 +506,30 @@ export class CrossrefService {
   }
 
   /**
-   * Extract comprehensive identifiers from Crossref work
+   * Extract identifiers from Crossref work - return raw values
    */
-  private extractCrossrefIdentifiers(work: any): ExternalIdentifiers {
+  private extractCrossrefIdentifiers(work: CrossrefWork): ExternalIdentifiers {
     const identifiers: ExternalIdentifiers = {}
 
-    // DOI
+    // DOI - raw value
     if (work.DOI) {
       identifiers.doi = work.DOI
     }
 
-    // ISSN - prefer electronic ISSN, fall back to print ISSN
-    if (work.ISSN?.length > 0) {
-      // Crossref may provide multiple ISSNs, prioritize electronic
-      const electronicISSN = work.ISSN.find((issn: string) =>
-        work['issn-type']?.find((type: any) => type.value === issn && type.type === 'electronic'),
-      )
-      identifiers.issn = electronicISSN || work.ISSN[0]
+    // ISSN - raw values from Crossref
+    if (work.ISSN && work.ISSN.length > 0) {
+      // Take first ISSN without preference logic
+      identifiers.issn = work.ISSN[0]
     }
 
-    // ISBN
-    if (work.ISBN?.length > 0) {
+    // ISBN - raw value
+    if (work.ISBN && work.ISBN.length > 0) {
       identifiers.isbn = work.ISBN[0]
     }
 
-    // PubMed ID from Crossref links
+    // PubMed ID from Crossref links - raw extraction
     if (work.link) {
-      const pubmedLink = work.link.find((link: any) =>
+      const pubmedLink = work.link.find(link =>
         link['intended-application'] === 'text-mining'
         && link.URL?.includes('pubmed'),
       )
@@ -565,26 +545,28 @@ export class CrossrefService {
   }
 
   /**
-   * Parse page information with enhanced formatting
+   * Parse page information - return raw value from Crossref
    */
   private parseCrossrefPages(pageString?: string): string | undefined {
-    if (!pageString)
-      return undefined
-
-    // Clean up common page formatting issues
-    let pages = pageString.trim()
-
-    // Handle different page separators
-    pages = pages.replace(/[\u2013\u2014]/, '-') // en-dash, em-dash to hyphen
-    pages = pages.replace(/\s*-\s*/, '-') // normalize spacing around hyphens
-
-    return pages
+    return pageString
   }
 
   /**
-   * Build comprehensive source information
+   * Build source information - return raw values from Crossref
    */
-  private buildSourceInfo(work: any, baseInfo: any): SourceInfo {
+  private buildSourceInfo(
+    work: CrossrefWork,
+    baseInfo: {
+      containerTitle?: string
+      subtitle?: string
+      publisher?: string
+      publicationPlace?: string
+      url?: string
+      sourceType: string
+      pages?: string
+      contributors: Author[]
+    },
+  ): SourceInfo {
     const sourceInfo: SourceInfo = {
       containerTitle: baseInfo.containerTitle,
       subtitle: baseInfo.subtitle,
@@ -598,112 +580,24 @@ export class CrossrefService {
       contributors: baseInfo.contributors.length > 0 ? baseInfo.contributors : undefined,
     }
 
-    // Add article number for electronic journals
+    // Add raw values directly from Crossref
     if (work['article-number']) {
       sourceInfo.articleNumber = work['article-number']
     }
 
-    // Add series information if available
-    if (work.series) {
-      sourceInfo.series = work.series
+    const workWithExtras = work as Record<string, unknown>
+    if (typeof workWithExtras.series === 'string') {
+      sourceInfo.series = workWithExtras.series
     }
 
-    // Add edition information
-    if (work.edition) {
-      sourceInfo.edition = work.edition
+    if (typeof workWithExtras.edition === 'string') {
+      sourceInfo.edition = workWithExtras.edition
     }
 
-    // Add medium information based on work type and availability
-    if (work.type === 'journal-article') {
-      // Check if it's an online-only journal
-      if (work.ISSN?.length === 1 && work['issn-type']?.some((type: any) => type.type === 'electronic')) {
-        sourceInfo.medium = 'web'
-      }
-      else {
-        sourceInfo.medium = 'print'
-      }
-    }
-    else if (work.type === 'posted-content') {
-      sourceInfo.medium = 'web'
-    }
-    else if (work.type === 'book' && work.URL && !work.ISBN) {
-      sourceInfo.medium = 'web'
-    }
-
-    // Handle special publication types with enhanced information
-    if (work.type === 'proceedings-article') {
-      sourceInfo.conference = baseInfo.containerTitle
-      sourceInfo.sourceType = 'Conference paper'
-    }
-    else if (work.type === 'dissertation' || work.type === 'thesis') {
-      sourceInfo.institution = baseInfo.publisher
-      sourceInfo.sourceType = 'Thesis'
-    }
-
-    // Add original title for translated works
     if (work['original-title']?.[0] && work['original-title'][0] !== work.title?.[0]) {
       sourceInfo.originalTitle = work['original-title'][0]
     }
 
-    // Extract chapter information for book chapters
-    if (work.type === 'book-chapter' && work['chapter-number']) {
-      sourceInfo.chapterTitle = work.title?.[0]
-    }
-
     return sourceInfo
   }
-
-  /**
-   * Map Crossref work types to our standardized source types
-   */
-  private mapCrossrefType(type: string): string {
-    const typeMap: { [key: string]: string } = {
-      'journal-article': 'Journal article',
-      'book': 'Book',
-      'book-chapter': 'Book chapter',
-      'proceedings-article': 'Conference paper',
-      'thesis': 'Thesis',
-      'dissertation': 'Thesis',
-      'report': 'Report',
-      'dataset': 'Dataset',
-      'posted-content': 'Preprint',
-      'peer-review': 'Peer review',
-      'book-series': 'Book series',
-      'book-set': 'Book set',
-      'book-track': 'Book',
-      'edited-book': 'Book',
-      'reference-book': 'Reference book',
-      'monograph': 'Monograph',
-      'component': 'Webpage',
-      'standard': 'Standard',
-      'report-series': 'Report',
-      'proceedings': 'Conference proceedings',
-      'other': 'Other',
-    }
-
-    return typeMap[type] || 'Other'
-  }
-
-  /**
-   * Map Crossref author roles to our standardized roles
-   */
-  private mapCrossrefRole(role?: string): string | undefined {
-    if (!role)
-      return undefined
-
-    const roleMap: { [key: string]: string } = {
-      author: 'author',
-      editor: 'editor',
-      translator: 'translator',
-      compiler: 'compiler',
-      director: 'director',
-      producer: 'producer',
-    }
-
-    return roleMap[role.toLowerCase()] || role
-  }
-
-  /**
-   * Select the best match from multiple Crossref results based on metadata similarity
-   */
 }

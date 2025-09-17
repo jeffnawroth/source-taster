@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core'
 import { useReferencesStore } from '@/extension/stores/references'
-import CheckReferencesButton from './CheckReferencesButton.vue'
+import CheckButton from './CheckButton.vue'
 import FileInput from './FileInput.vue'
 import TextInput from './TextInput.vue'
 
@@ -9,16 +9,16 @@ import TextInput from './TextInput.vue'
 const components = [
   FileInput,
   TextInput,
-  CheckReferencesButton,
+  CheckButton,
 ]
 
 // KEYBOARD SHORTCUT FOR CHECK REFERENCES
 const referencesStore = useReferencesStore()
-const { inputText, isProcessing, file } = storeToRefs(referencesStore)
-const { extractAndVerifyReferences } = referencesStore
+const { inputText, isExtraction, file } = storeToRefs(referencesStore)
+const { extractAndMatchReferences } = referencesStore
 
 // Check if button should be disabled (same logic as in CheckReferencesButton)
-const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isProcessing.value)
+const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isExtraction.value)
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
 const keys = useMagicKeys()
@@ -29,10 +29,10 @@ const ctrlEnter = keys['Ctrl+Enter']
 async function triggerCheckReferences() {
   if (!isDisabled.value) {
     try {
-      await extractAndVerifyReferences()
+      await extractAndMatchReferences()
     }
     catch (error) {
-      console.error('Error processing references via keyboard shortcut:', error)
+      console.error('Error extraction references via keyboard shortcut:', error)
     }
   }
 }

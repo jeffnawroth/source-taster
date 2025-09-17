@@ -1,4 +1,5 @@
 import type { ExternalSource, ReferenceMetadata } from '@source-taster/types'
+import type { EuropePmcSearchResponse, EuropePmcWork } from '../../types/europePmc'
 import process from 'node:process'
 
 export class EuropePmcService {
@@ -77,7 +78,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -125,7 +126,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -175,7 +176,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -212,7 +213,7 @@ export class EuropePmcService {
         throw new Error(`Europe PMC API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         // For query-based searches, take the first result which should be most relevant
@@ -252,15 +253,11 @@ export class EuropePmcService {
 
       if (metadata.authors && metadata.authors.length > 0) {
         const firstAuthor = metadata.authors[0]
-        if (typeof firstAuthor === 'string') {
-          const authorParts = firstAuthor.trim().split(/\s+/)
-          if (authorParts.length > 0) {
-            const lastName = authorParts[authorParts.length - 1]
+        if (firstAuthor && typeof firstAuthor === 'object' && 'lastName' in firstAuthor) {
+          const lastName = firstAuthor.lastName
+          if (lastName) {
             queryParts.push(`AUTH:"${this.escapeSearchTerm(lastName)}"`)
           }
-        }
-        else if (firstAuthor.lastName) {
-          queryParts.push(`AUTH:"${this.escapeSearchTerm(firstAuthor.lastName)}"`)
         }
       }
 
@@ -292,7 +289,7 @@ export class EuropePmcService {
         return null
       }
 
-      const data = await response.json() as any
+      const data = await response.json() as EuropePmcSearchResponse
 
       if (data.resultList?.result && data.resultList.result.length > 0) {
         const work = data.resultList.result[0]
@@ -328,15 +325,7 @@ export class EuropePmcService {
       const authorQueries: string[] = []
 
       for (const author of metadata.authors.slice(0, 3)) { // Limit to first 3 authors to avoid overly restrictive searches
-        if (typeof author === 'string') {
-          // Simple string author - try to extract last name
-          const authorParts = author.trim().split(/\s+/)
-          if (authorParts.length > 0) {
-            const lastName = authorParts[authorParts.length - 1]
-            authorQueries.push(`AUTH:"${this.escapeSearchTerm(lastName)}"`)
-          }
-        }
-        else {
+        if (author && typeof author === 'object' && 'lastName' in author) {
           // Author object - use last name and optionally first initial
           if (author.lastName) {
             if (author.firstName) {
@@ -357,21 +346,21 @@ export class EuropePmcService {
     }
 
     // 3. Journal search - use JOURNAL field for precise journal matching
-    if (metadata.source.containerTitle) {
+    if (metadata.source?.containerTitle) {
       queryParts.push(`JOURNAL:"${this.escapeSearchTerm(metadata.source.containerTitle)}"`)
     }
 
     // 4. Publication year - use PUB_YEAR field
-    if (metadata.date.year) {
+    if (metadata.date?.year) {
       queryParts.push(`PUB_YEAR:${metadata.date.year}`)
     }
 
     // 5. Volume and issue for more precise matching
-    if (metadata.source.volume) {
+    if (metadata.source?.volume) {
       queryParts.push(`VOLUME:"${this.escapeSearchTerm(metadata.source.volume)}"`)
     }
 
-    if (metadata.source.issue) {
+    if (metadata.source?.issue) {
       queryParts.push(`ISSUE:"${this.escapeSearchTerm(metadata.source.issue)}"`)
     }
 
@@ -408,7 +397,7 @@ export class EuropePmcService {
   /**
    * Build the best URL for a Europe PMC work (prefer DOI, then PMC, then PubMed)
    */
-  private buildWorkUrl(work: any): string | undefined {
+  private buildWorkUrl(work: EuropePmcWork): string | undefined {
     if (work.doi) {
       return `https://doi.org/${work.doi}`
     }
@@ -427,7 +416,7 @@ export class EuropePmcService {
    * @param work The Europe PMC work object to parse.
    * @returns The parsed ReferenceMetadata object.
    */
-  private parseEuropePmcWork(work: any): ReferenceMetadata {
+  private parseEuropePmcWork(work: EuropePmcWork): ReferenceMetadata {
     const metadata: ReferenceMetadata = {
       date: {},
       source: {},
@@ -442,7 +431,22 @@ export class EuropePmcService {
     if (work.authorString) {
       const authors = work.authorString
         .split(',')
-        .map((author: string) => author.trim().replace(/\.$/, '')) // Remove trailing dot
+        .map((author: string) => {
+          const cleanAuthor = author.trim().replace(/\.$/, '') // Remove trailing dot
+          // Parse name into firstName/lastName
+          const nameParts = cleanAuthor.split(/\s+/)
+          if (nameParts.length > 1) {
+            return {
+              firstName: nameParts.slice(0, -1).join(' '),
+              lastName: nameParts[nameParts.length - 1],
+            }
+          }
+          else {
+            return {
+              lastName: cleanAuthor || 'Unknown',
+            }
+          }
+        })
         .filter(Boolean)
       if (authors.length > 0) {
         metadata.authors = authors
@@ -458,7 +462,19 @@ export class EuropePmcService {
           }
         }
         else if (author.fullName) {
-          return author.fullName
+          // Parse fullName into firstName/lastName
+          const nameParts = author.fullName.trim().split(/\s+/)
+          if (nameParts.length > 1) {
+            return {
+              firstName: nameParts.slice(0, -1).join(' '),
+              lastName: nameParts[nameParts.length - 1],
+            }
+          }
+          else {
+            return {
+              lastName: author.fullName || 'Unknown',
+            }
+          }
         }
         else if (author.lastName) {
           return {
@@ -466,8 +482,10 @@ export class EuropePmcService {
             firstName: author.initials || author.firstName,
           }
         }
-        return null
-      }).filter(Boolean)
+        return {
+          lastName: 'Unknown',
+        }
+      }).filter((author): author is { firstName?: string, lastName: string } => Boolean(author))
 
       if (authors.length > 0) {
         metadata.authors = authors
@@ -476,14 +494,14 @@ export class EuropePmcService {
 
     // Source/Journal information
     if (work.journalTitle) {
-      metadata.source.containerTitle = work.journalTitle
+      metadata.source!.containerTitle = work.journalTitle
     }
 
     // Publication dates
     if (work.pubYear) {
       const year = Number.parseInt(work.pubYear, 10)
       if (!Number.isNaN(year)) {
-        metadata.date.year = year
+        metadata.date!.year = year
       }
     }
 
@@ -493,27 +511,27 @@ export class EuropePmcService {
       if (dateString) {
         const date = new Date(dateString)
         if (!Number.isNaN(date.getTime())) {
-          if (!metadata.date.year) {
-            metadata.date.year = date.getFullYear()
+          if (!metadata.date!.year) {
+            metadata.date!.year = date.getFullYear()
           }
-          metadata.date.month = date.toLocaleString('en-US', { month: 'long' })
-          metadata.date.day = date.getDate()
+          metadata.date!.month = date.toLocaleString('en-US', { month: 'long' })
+          metadata.date!.day = date.getDate()
         }
       }
     }
 
     // Volume and issue
     if (work.journalVolume) {
-      metadata.source.volume = work.journalVolume
+      metadata.source!.volume = work.journalVolume
     }
 
     if (work.issue) {
-      metadata.source.issue = work.issue
+      metadata.source!.issue = work.issue
     }
 
     // Page information
     if (work.pageInfo) {
-      metadata.source.pages = work.pageInfo
+      metadata.source!.pages = work.pageInfo
     }
 
     // External identifiers
@@ -545,12 +563,12 @@ export class EuropePmcService {
     // Abstract (if available)
     if (work.abstractText) {
       // Store abstract in source type field for now (could be extended in future)
-      metadata.source.sourceType = 'Journal article'
+      metadata.source!.sourceType = 'Journal article'
     }
 
     // Publisher information
     if (work.journalInfo?.journal?.publisherName) {
-      metadata.source.publisher = work.journalInfo.journal.publisherName
+      metadata.source!.publisher = work.journalInfo.journal.publisherName
     }
 
     // Additional identifiers from Europe PMC
@@ -590,20 +608,20 @@ export class EuropePmcService {
 
       const primaryType = pubTypes[0]
       if (primaryType && typeMapping[primaryType]) {
-        metadata.source.sourceType = typeMapping[primaryType]
+        metadata.source!.sourceType = typeMapping[primaryType]
       }
       else if (primaryType) {
-        metadata.source.sourceType = primaryType
+        metadata.source!.sourceType = primaryType
       }
     }
 
     // Handle preprints
     if (work.source === 'PPR') {
-      metadata.source.sourceType = 'Preprint'
+      metadata.source!.sourceType = 'Preprint'
 
       // For preprints, the journal info might actually be the preprint server
-      if (work.journalTitle && !metadata.source.containerTitle) {
-        metadata.source.containerTitle = work.journalTitle
+      if (work.journalTitle && !metadata.source!.containerTitle) {
+        metadata.source!.containerTitle = work.journalTitle
       }
     }
 

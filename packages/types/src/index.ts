@@ -5,14 +5,23 @@
  * All types are organized into logical modules for better maintainability.
  */
 
+// AI Service Types
+export * from './ai'
+
 // API Types
 export * from './api'
+
+// Common Types
+export * from './common'
 
 // Extraction Types
 export * from './extraction'
 
+// Matching Types
+export * from './matching'
+
 // Core Reference Types
 export * from './reference'
 
-// Verification and Matching Types
-export * from './verification'
+// Website Types
+export * from './website'

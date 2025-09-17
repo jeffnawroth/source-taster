@@ -1,12 +1,44 @@
-import type { AIModel } from '../types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
+import { DEFAULT_AI_SETTINGS } from '../constants/defaults/defaultAISettings'
+import { DEFAULT_EXTRACTION_SETTINGS } from '../constants/defaults/defaultExtractionSettings'
+import { DEFAULT_MATCHING_SETTINGS } from '../constants/defaults/defaultMatchingSettings'
 
-export const useAutoImport = useWebExtensionStorage('auto-import-option', false)
+/**
+ * Theme option storage
+ */
 export const themeOption = useWebExtensionStorage('theme-option', 'system')
+
+/**
+ * Locale option storage
+ */
 export const localeOption = useWebExtensionStorage('locale-option', 'en')
-export const useAiExtraction = useWebExtensionStorage('ai-extraction-option', false)
-export const selectedAiModel = useWebExtensionStorage('selected-ai-model', { model: 'gemini-2.5-flash', service: 'gemini' } as AIModel)
-export const useAutoCheckReferences = useWebExtensionStorage('auto-check-references', false)
+
+/**
+ * AI settings storage
+ */
+export const aiSettings = useWebExtensionStorage('ai-settings', { ...DEFAULT_AI_SETTINGS })
+
+/**
+ * Extraction settings storage
+ */
+export const extractionSettings = useWebExtensionStorage('extraction-settings', { ...DEFAULT_EXTRACTION_SETTINGS })
+
+/**
+ * Matching settings storage
+ */
+export const matchingSettings = useWebExtensionStorage('matching-settings', { ...DEFAULT_MATCHING_SETTINGS })
+
+/**
+ * Onboarding completion status
+ */
+export const hasCompletedOnboarding = useWebExtensionStorage('onboarding-completed', false)
+
+/**
+ * Reset onboarding status (useful for re-running setup)
+ */
+export function resetOnboarding() {
+  hasCompletedOnboarding.value = false
+}
 
 declare let chrome: any
 

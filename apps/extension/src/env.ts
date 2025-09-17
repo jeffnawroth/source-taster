@@ -16,7 +16,7 @@ export const API_CONFIG = {
   baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
   endpoints: {
     extract: '/api/extract',
-    verify: '/api/verify',
+    match: '/api/match',
   },
 } as const
 

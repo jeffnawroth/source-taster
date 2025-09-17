@@ -1,9 +1,10 @@
 import type {
   ApiResponse,
-  ExtractionRequest,
   ExtractionResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
+import { ExtractionRequestSchema } from '@source-taster/types'
+
 import { ReferenceExtractionService } from '../services/referenceExtractionService'
 
 export class ExtractionController {
@@ -19,24 +20,25 @@ export class ExtractionController {
    */
   async extractReferences(c: Context) {
     try {
-      const request = await c.req.json() as ExtractionRequest
+      // Get decrypted body from middleware or fall back to regular parsing
+      const rawBody = c.get('decryptedBody') || await c.req.json()
 
-      // Validation
-      if (!request.text || !request.aiService) {
-        const errorResponse: ApiResponse = {
+      // Validate the request body (now with decrypted API key)
+      const parseResult = ExtractionRequestSchema.safeParse(rawBody)
+
+      if (!parseResult.success) {
+        return c.json({
           success: false,
-          error: 'Text and aiService are required',
-        }
-        return c.json(errorResponse, 400)
+          error: parseResult.error,
+        }, 400)
       }
 
-      // Extract references
-      const references = await this.extractionService.extractReferences(
-        request.text,
-        request.aiService,
-        request.model,
-      )
+      const request = parseResult.data
 
+      // Perform extraction
+      const references = await this.extractionService.extractReferences(request)
+
+      // Create success response
       const response: ApiResponse<ExtractionResponse> = {
         success: true,
         data: {

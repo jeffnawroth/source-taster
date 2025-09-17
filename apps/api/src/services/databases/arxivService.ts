@@ -663,7 +663,7 @@ export class ArxivService {
 
     // Add categories as additional metadata if available
     if (entry.categories && entry.categories.length > 0) {
-      metadata.source.series = entry.categories.join(', ')
+      metadata.source!.series = entry.categories.join(', ')
     }
 
     return {

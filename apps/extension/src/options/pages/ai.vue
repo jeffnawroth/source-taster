@@ -1,84 +1,28 @@
 <script setup lang="ts">
-import type { AIModel } from '../../types'
-import { mdiRobotHappyOutline, mdiStarFourPointsOutline } from '@mdi/js'
-import { selectedAiModel, useAiExtraction } from '@/extension/logic'
-import OptionListItem from '../components/OptionListItem.vue'
+import { mdiCogOutline } from '@mdi/js'
+import { aiSettings } from '@/extension/logic/storage'
+import AIKeyCard from '@/extension/options/components/AI/AIKeyCard.vue'
+import AIProviderCard from '@/extension/options/components/AI/AIProviderCard.vue'
 
-// i18n
+// TRANSLATION
 const { t } = useI18n()
-
-const aiModels = ref<Array<AIModel>>([
-  { title: 'Gemini 2.5 Flash', model: 'gemini-2.5-flash', description: t('gemini-2.0-flash-description'), service: 'gemini' },
-  { title: 'GPT-4o', model: 'gpt-4o', description: t('gpt-4o-description'), service: 'openai' },
-])
 </script>
 
 <template>
-  <v-container>
-    <p class="text-h5 font-weight-bold mb-3">
-      {{ t('ai') }}
-    </p>
-
-    <p class="text-body-2 text-medium-emphasis">
-      {{ t('ai-description') }}
-    </p>
-
-    <v-divider class="my-4" />
-
-    <OptionListItem
-      :title="t('ai-extraction')"
-      :prepend-icon="mdiStarFourPointsOutline"
-      @click="useAiExtraction = !useAiExtraction"
-    >
-      <template #subtitle>
-        <p>{{ t('ai-extraction-description') }}</p>
-        <p class="text-medium-emphasis mt-2">
-          {{ t('ai-extraction-description-info') }}
-        </p>
-        <p class="text-medium-emphasis mt-2">
-          {{ t('ai-extraction-description-limit') }}
-        </p>
-      </template>
-
-      <OptionSwitch
-        v-model="useAiExtraction"
-      />
-    </OptionListItem>
+  <SettingsPageLayout
+    :icon="mdiCogOutline"
+    :title="t('ai-settings-title')"
+    :description="t('ai-settings-subtitle')"
+  >
+    <!-- AI Provider Selection -->
+    <AIProviderCard v-model="aiSettings" />
 
     <v-divider class="my-4" />
 
-    <OptionListItem
-      :title="t('ai-model')"
-      :prepend-icon="mdiRobotHappyOutline"
-    >
-      <template #subtitle>
-        <p class="mb-1">
-          {{ t('ai-model-description') }}
-        </p>
-
-        <p
-          v-for="(aiModel, index) in aiModels"
-          :key="aiModel.model"
-          class="text-medium-emphasis mt-1"
-        >
-          <span class="font-weight-bold">{{ aiModel.title }}</span>
-          <span class="text-medium-emphasis"> - {{ aiModel.description }}</span>
-          <span
-            v-if="index === 0"
-            class="font-weight-bold"
-          >{{ ` (${t('recommended')})` }} </span>
-        </p>
-      </template>
-      <v-select
-        v-model="selectedAiModel"
-        :items="aiModels"
-        item-value="model"
-        item-title="title"
-        density="compact"
-        hide-details
-        variant="solo-filled"
-        return-object
-      />
-    </OptionListItem>
-  </v-container>
+    <!-- API Key Configuration -->
+    <AIKeyCard
+      v-model="aiSettings.apiKey"
+      :provider="aiSettings.provider"
+    />
+  </SettingsPageLayout>
 </template>
