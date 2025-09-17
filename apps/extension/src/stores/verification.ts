@@ -1,4 +1,3 @@
-// src/composables/useVerification.ts
 import type {
   ApiHttpError,
   ApiMatchReference,
@@ -7,8 +6,9 @@ import type {
   UISearchDatabaseConfig,
 } from '@source-taster/types'
 import { DEFAULT_EARLY_TERMINATION } from '@source-taster/types'
-import { storeToRefs } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import { useVerificationProgressStore } from '@/extension/composables/useVerificationProgress'
 import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
@@ -16,14 +16,7 @@ import { useMatchingStore } from '@/extension/stores/matching'
 import { useSearchStore } from '@/extension/stores/search'
 import { mapApiError } from '@/extension/utils/mapApiError'
 
-import { useVerificationProgressStore } from './useVerificationProgress'
-
-// Shared state across all consumers so programmatic verification (e.g. extract+verify)
-// reflects in UI components using this composable.
-const isVerifying = ref(false)
-const verifyError = ref<string | null>(null)
-
-export function useVerification() {
+export const useVerificationStore = defineStore('verification', () => {
   // Stores
   const anystyleStore = useAnystyleStore()
   const extractionStore = useExtractionStore()
@@ -36,12 +29,14 @@ export function useVerification() {
   const { extractedReferences } = storeToRefs(extractionStore)
   const { databasesByPriority } = storeToRefs(searchStore)
 
-  // UI-State
+  // State
+  const isVerifying = ref(false)
+  const verifyError = ref<string | null>(null)
+
   const canVerify = computed(
     () => hasParseResults.value || extractedReferences.value.length > 0,
   )
 
-  // --- Helper functions ---
   async function convertTokensToCSL(): Promise<ApiSearchReference[]> {
     const res = await anystyleStore.convertToCSL()
     if (!res.success)
@@ -162,7 +157,6 @@ export function useVerification() {
     }
   }
 
-  // --- Public orchestration ---
   async function verify() {
     if (!canVerify.value)
       return
@@ -198,16 +192,14 @@ export function useVerification() {
   }
 
   return {
-    // state
+    // State
     isVerifying,
     verifyError,
     canVerify,
 
-    // actions
+    // Actions
     verify,
-
-    // optional exports
     prepareReferences,
     performVerificationWithEarlyTermination,
   }
-}
+})

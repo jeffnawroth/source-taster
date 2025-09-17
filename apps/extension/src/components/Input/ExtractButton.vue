@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { mdiAutoFix } from '@mdi/js'
 import { useMagicKeys } from '@vueuse/core'
-import { useVerification } from '@/extension/composables/useVerification'
+import { storeToRefs } from 'pinia'
 import { settings } from '@/extension/logic'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useUIStore } from '@/extension/stores/ui'
+import { useVerificationStore } from '@/extension/stores/verification'
 
 // Stores
 const uiStore = useUIStore()
@@ -15,7 +16,9 @@ const { inputText } = storeToRefs(uiStore)
 const { isExtracting } = storeToRefs(extractionStore)
 
 // Composable
-const { isVerifying, verify } = useVerification()
+const verificationStore = useVerificationStore()
+const { isVerifying } = storeToRefs(verificationStore)
+const { verify } = verificationStore
 
 // Translation
 const { t } = useI18n()

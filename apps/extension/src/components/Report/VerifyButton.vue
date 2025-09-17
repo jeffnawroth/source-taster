@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { mdiMagnifyExpand } from '@mdi/js'
-import { useVerification } from '@/extension/composables/useVerification'
+import { storeToRefs } from 'pinia'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import { useVerificationStore } from '@/extension/stores/verification'
 
-const { canVerify, isVerifying, verifyError, verify } = useVerification()
+const verificationStore = useVerificationStore()
+const { canVerify, isVerifying, verifyError } = storeToRefs(verificationStore)
+const { verify } = verificationStore
+
+const extractionStore = useExtractionStore()
+const { isExtracting } = storeToRefs(extractionStore)
 </script>
 
 <template>
   <v-btn
-    :disabled="!canVerify || isVerifying"
+    :disabled="!canVerify || isVerifying || isExtracting"
     color="success"
     variant="tonal"
     block
