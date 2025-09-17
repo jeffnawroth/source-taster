@@ -15,15 +15,18 @@ outline: deep
 
 ```mermaid
 flowchart LR
-  Extension[Browser-Extension\nVue + Vuetify] -->|fetch + X-Client-Id| API[(Hono API)]
-  API -->|parse/convert| AnyStyle[(AnyStyle Server\nRuby 3.2)]
+  Extension[Browser-Extension
+  Vue + Vuetify] -->|fetch + X-Client-Id| API[(Hono API)]
+  API -->|parse/convert| AnyStyle[(AnyStyle Server
+  Ruby 3.2)]
   API -->|HTTPS| OpenAlex[(OpenAlex)]
   API -->|HTTPS| Crossref[(Crossref)]
   API -->|HTTPS| Semantic[(Semantic Scholar)]
   API -->|HTTPS| Europe[(Europe PMC)]
   API -->|HTTPS| Arxiv[(arXiv)]
-  Extension -. imports .-> Types[@source-taster/types]
-  API -. imports .-> Types
+  TypesNode["@source-taster/types"]
+  Extension -. imports .-> TypesNode
+  API -. imports .-> TypesNode
 ```
 
 ## Sequenz: „Extrahieren & Verifizieren“
