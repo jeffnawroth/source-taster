@@ -1130,6 +1130,8 @@
   "verifying-references-progress": "Überprüfe Referenzen ({current}/{total})",
   "version": "Version",
   "view-demo": "Demo ansehen",
+  "documentation": "Dokumentation",
+  "view-docs": "Dokumentation öffnen",
   "visit-website": "Webseite besuchen",
   "volume": "Band",
   "volume-match": "Band-Übereinstimmung",

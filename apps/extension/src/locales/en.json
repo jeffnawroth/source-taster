@@ -1130,6 +1130,8 @@
   "verifying-references-progress": "Verifying references ({current}/{total})",
   "version": "Version",
   "view-demo": "View Demo",
+  "documentation": "Documentation",
+  "view-docs": "Open the documentation",
   "visit-website": "Visit Website",
   "volume": "Volume",
   "volume-match": "Volume Match",
