@@ -973,7 +973,7 @@
   "title": "Title",
   "title-match": "Title Match",
   "title-short": "Title (Short)",
-  "token-editor-help-description": "The parser automatically segments your references (author, title, etc.) using machine learning. Review each segment carefully and correct any errors by clicking on tokens and selecting the correct label from the dropdown. Combine related tokens together - for example, 'in' typically belongs with editor or journal names. Every token must have a label for best results. Your corrections help improve the parser model for everyone.",
+  "token-editor-help-description": "The parser automatically segments your references (author, title, etc.) using machine learning. Review each segment carefully and correct any errors by clicking on tokens and selecting the correct label from the dropdown. Combine related tokens together - for example, 'in' typically belongs with editor or journal names. Every token must have a label for best results.",
   "token-editor-help-title": "How to Use the Token Editor",
   "token-relabeling": {
     "changeLabelFor": "Change label for",
