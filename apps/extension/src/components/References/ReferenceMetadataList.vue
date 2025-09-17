@@ -12,8 +12,7 @@ const props = defineProps<{
 const { t } = useI18n()
 
 // State for collapsible sections
-const showAdditionalFields = ref(false)
-const showAllCSLFields = ref(false)
+const showOtherFields = ref(false)
 
 // Main metadata fields configuration
 const mainFields = computed(() => [
@@ -169,8 +168,9 @@ const urlFields = computed(() => [
   },
 ].filter(field => field.condition()))
 
-// Additional fields configuration - CSL Variables only
-const additionalFields = computed(() => [
+// Other fields configuration (collapsed section)
+const otherFieldConfigs = computed(() => [
+  // Commonly useful extras shown first
   {
     id: 'title-short',
     condition: () => props.reference.metadata['title-short'],
@@ -255,10 +255,8 @@ const additionalFields = computed(() => [
     title: t('event-place'),
     text: () => props.reference.metadata['event-place'] || '',
   },
-].filter(field => field.condition()))
 
-// All CSL Fields configuration - comprehensive coverage
-const allCSLFields = computed(() => [
+  // Comprehensive CSL coverage
   // Contributors (Name fields)
   {
     id: 'editor',
@@ -929,16 +927,33 @@ const allCSLFields = computed(() => [
     title: t('custom'),
     text: () => JSON.stringify(props.reference.metadata.custom) || '',
   },
-].filter(field => field.condition()))
 
-// Computed properties to check if additional fields exist
-const hasAdditionalFields = computed(() => {
-  return additionalFields.value.length > 0
+].filter(field => field.condition()))
+const otherFields = computed(() => {
+  const excludedIds = new Set([
+    ...mainFields.value.map(field => field.id),
+    ...identifierFields.value.map(field => field.id),
+    ...urlFields.value.map(field => field.id),
+  ])
+
+  const seen = new Set<string>()
+
+  return otherFieldConfigs.value.filter((field) => {
+    if (excludedIds.has(field.id)) {
+      return false
+    }
+
+    if (seen.has(field.id)) {
+      return false
+    }
+
+    seen.add(field.id)
+    return true
+  })
 })
 
-// Check if all CSL fields section should be shown
-const hasAllCSLFields = computed(() => {
-  return allCSLFields.value.length > 0
+const hasOtherFields = computed(() => {
+  return otherFields.value.length > 0
 })
 
 // Check if identifier section should be shown
@@ -986,45 +1001,21 @@ const hasIdentifiers = computed(() => {
       :link="field.link"
     />
 
-    <!-- ADDITIONAL FIELDS SECTION (Collapsible) -->
-    <template v-if="hasAdditionalFields">
+    <!-- OTHER FIELDS SECTION (Collapsible) -->
+    <template v-if="hasOtherFields">
       <v-divider class="my-2" />
 
       <v-list-item
-        :title="showAdditionalFields ? t('hide-additional-fields') : t('show-additional-fields')"
-        :prepend-icon="showAdditionalFields ? mdiChevronUp : mdiChevronDown"
+        :title="showOtherFields ? t('hide-all-fields') : t('show-all-fields')"
+        :prepend-icon="showOtherFields ? mdiChevronUp : mdiChevronDown"
         nav
-        @click="showAdditionalFields = !showAdditionalFields"
+        @click="showOtherFields = !showOtherFields"
       />
 
       <v-expand-transition>
-        <div v-if="showAdditionalFields">
+        <div v-if="showOtherFields">
           <ReferenceMetadataItem
-            v-for="field in additionalFields"
-            :key="field.id"
-            :icon="field.icon"
-            :title="field.title"
-            :text="field.text()"
-          />
-        </div>
-      </v-expand-transition>
-    </template>
-
-    <!-- ALL CSL FIELDS SECTION (Collapsible, Categorized) -->
-    <template v-if="hasAllCSLFields">
-      <v-divider class="my-2" />
-
-      <v-list-item
-        :title="showAllCSLFields ? t('hide-all-fields') : t('show-all-fields')"
-        :prepend-icon="showAllCSLFields ? mdiChevronUp : mdiChevronDown"
-        nav
-        @click="showAllCSLFields = !showAllCSLFields"
-      />
-
-      <v-expand-transition>
-        <div v-if="showAllCSLFields">
-          <ReferenceMetadataItem
-            v-for="field in allCSLFields"
+            v-for="field in otherFields"
             :key="field.id"
             :icon="field.icon"
             :title="field.title"
