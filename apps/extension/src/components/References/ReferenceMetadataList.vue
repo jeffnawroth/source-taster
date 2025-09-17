@@ -626,13 +626,6 @@ const otherFieldConfigs = computed(() => [
     text: () => props.reference.metadata['original-publisher-place'] || '',
   },
   {
-    id: 'page',
-    condition: () => props.reference.metadata.page,
-    icon: mdiNumeric,
-    title: t('page'),
-    text: () => props.reference.metadata.page || '',
-  },
-  {
     id: 'page-first',
     condition: () => props.reference.metadata['page-first'],
     icon: mdiNumeric,
