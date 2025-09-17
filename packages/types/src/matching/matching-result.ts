@@ -1,19 +1,15 @@
-import type { ReferenceMetadata } from '../reference'
 import type { ReferenceMetadataFields } from '../reference/reference.constants'
+import z from 'zod'
+import { ReferenceMetadataSchema } from '../reference'
 
-/**
- * Represents a reference found in an external database
- */
-export interface ExternalSource {
-  /** Unique identifier in the external database */
-  id: string
-  /** Which database this source comes from */
-  source: 'openalex' | 'crossref' | 'europepmc' | 'semanticscholar' | 'arxiv' | 'website'
-  /** Bibliographic metadata from the database */
-  metadata: ReferenceMetadata
-  /** Canonical URL to access this source in the database */
-  url?: string
-}
+export const ExternalSourceSchema = z.object({
+  id: z.string().describe('Unique identifier in the external database'),
+  source: z.enum(['openalex', 'crossref', 'europepmc', 'semanticscholar', 'arxiv', 'website']).describe('Which database this source comes from'),
+  metadata: ReferenceMetadataSchema.describe('Bibliographic metadata from the database'),
+  url: z.string().optional().describe('Canonical URL to access this source in the database'),
+})
+
+export type ExternalSource = z.infer<typeof ExternalSourceSchema>
 
 /**
  * Container for all matching-related information

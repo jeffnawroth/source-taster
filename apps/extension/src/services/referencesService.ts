@@ -47,8 +47,6 @@ export class ReferencesService {
    * Match references against databases
    */
   static async matchReferences(references: Reference[], signal?: AbortSignal): Promise<MatchingResult[]> {
-    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
-
     const matchingReferences: MatchingReference[] = references.map(ref => ({
       id: ref.id,
       metadata: ref.metadata,
@@ -64,20 +62,15 @@ export class ReferencesService {
       },
     }
 
-    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.match}`, {
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/search-and-match`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Extension-ID': runtime.id,
-        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
         references: matchingReferences,
         matchingSettings: apiMatchingSettings,
-        aiSettings: {
-          provider: aiSettings.value.provider,
-          model: aiSettings.value.model,
-        },
       }),
       signal,
     })
@@ -103,8 +96,6 @@ export class ReferencesService {
     url: string,
     signal?: AbortSignal,
   ): Promise<WebsiteMatchingResult> {
-    const encryptedApiKey = encryptApiKey(aiSettings.value.apiKey)
-
     const matchingReference: MatchingReference = {
       id: reference.id,
       metadata: reference.metadata,
@@ -125,17 +116,11 @@ export class ReferencesService {
       headers: {
         'Content-Type': 'application/json',
         'X-Extension-ID': runtime.id,
-        'X-API-Key': encryptedApiKey,
       },
       body: JSON.stringify({
         reference: matchingReference,
         url,
         matchingSettings: apiMatchingSettings,
-        aiSettings: {
-          provider: aiSettings.value.provider,
-          model: aiSettings.value.model,
-          // apiKey moved to X-API-Key header
-        },
         options: {
           timeout: 10000,
         },

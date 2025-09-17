@@ -1,10 +1,10 @@
 import type { MatchingResult } from './matching-result'
 import z from 'zod'
-import { UserAISettingsSchema } from '../common/ai-settings.schema'
 import { ReferenceMetadataSchema } from '../reference'
-
 import { WebsiteMatchingOptionsSchema } from '../website'
+
 import { EarlyTerminationConfigSchema, FieldConfigurationsSchema, validateFieldWeights } from './matching-config.types'
+import { ExternalSourceSchema } from './matching-result'
 import { MatchingActionTypeSchema } from './matching-strategy.types'
 
 /**
@@ -50,17 +50,25 @@ export const APIMatchingSettingsSchema = z.object({
 })
 
 /**
- * Response containing multiple matching results
+ * Response containing matching results for multiple references
  */
-export interface MatchingResponse {
-  /** Individual matching results */
+export interface SearchAndMatchResponse {
+  /** Array of matching results, one per reference */
   results: MatchingResult[]
 }
 
+/**
+ * Response containing a single matching result
+ */
+export interface MatchingResponse {
+  /** Single matching result for the reference against all candidates */
+  result: MatchingResult
+}
+
 export const MatchingRequestSchema = z.object({
-  references: z.array(MatchingReferenceSchema).min(1).describe('Array of reference metadata to match'),
+  reference: MatchingReferenceSchema.describe('Single reference metadata to match against candidates'),
+  candidates: z.array(ExternalSourceSchema).describe('Array of candidate sources to evaluate against the reference'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
-  aiSettings: UserAISettingsSchema.describe('User AI configuration'),
 })
 
 export const ValidatedMatchingRequestSchema = MatchingRequestSchema.extend({
@@ -75,7 +83,21 @@ export const WebsiteMatchingRequestSchema = z.object({
   url: z.string().url().describe('Website URL to match against'),
   matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
   options: WebsiteMatchingOptionsSchema.optional().describe('Optional website matching configuration'),
-  aiSettings: UserAISettingsSchema.describe('User AI configuration'),
+})
+
+/**
+ * Search and match request - searches for candidates and then matches them
+ */
+export const SearchAndMatchRequestSchema = z.object({
+  references: z.array(MatchingReferenceSchema).min(1).describe('Array of references to search and match'),
+  matchingSettings: APIMatchingSettingsSchema.describe('Optimized settings for matching behavior'),
+})
+
+export const ValidatedSearchAndMatchRequestSchema = SearchAndMatchRequestSchema.extend({
+  matchingSettings: z.object({
+    matchingStrategy: APIMatchingStrategySchema,
+    matchingConfig: ValidatedAPIMatchingConfigSchema,
+  }),
 })
 
 // Export types
@@ -86,3 +108,5 @@ export type APIMatchingSettings = z.infer<typeof APIMatchingSettingsSchema>
 export type MatchingRequest = z.infer<typeof MatchingRequestSchema>
 export type ValidatedMatchingRequest = z.infer<typeof ValidatedMatchingRequestSchema>
 export type WebsiteMatchingRequest = z.infer<typeof WebsiteMatchingRequestSchema>
+export type SearchAndMatchRequest = z.infer<typeof SearchAndMatchRequestSchema>
+export type ValidatedSearchAndMatchRequest = z.infer<typeof ValidatedSearchAndMatchRequestSchema>

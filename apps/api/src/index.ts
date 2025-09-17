@@ -5,6 +5,8 @@ import { corsMiddleware } from './middleware/cors'
 import { errorHandler } from './middleware/errorHandler'
 import extractionRouter from './routes/extractionRouter'
 import matchingRouter from './routes/matchingRouter'
+import searchAndMatchRouter from './routes/searchAndMatchRouter'
+import searchRouter from './routes/searchRouter'
 
 const app = new Hono()
 
@@ -16,6 +18,8 @@ app.use('*', errorHandler)
 // Mount API routes
 app.route('/api/extract', extractionRouter)
 app.route('/api/match', matchingRouter)
+app.route('/api/search', searchRouter)
+app.route('/api/search-and-match', searchAndMatchRouter)
 
 // Root endpoint
 app.get('/', (c) => {
@@ -23,8 +27,9 @@ app.get('/', (c) => {
     name: 'Source Taster API',
     endpoints: {
       extract: '/api/extract',
+      search: '/api/search',
       match: '/api/match',
-      matchWebsite: '/api/match/website',
+      searchAndMatch: '/api/search-and-match',
     },
   })
 })
