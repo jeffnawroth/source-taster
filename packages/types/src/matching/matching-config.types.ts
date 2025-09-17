@@ -1,5 +1,5 @@
-import type { ReferenceMetadataFields } from '../reference/reference.constants'
 import z from 'zod'
+import { CSLVariableSchema } from '../reference'
 
 // Field Configuration Schemas
 export const FieldConfigSchema = z.object({
@@ -8,7 +8,7 @@ export const FieldConfigSchema = z.object({
 })
 
 export const FieldConfigurationsSchema = z.record(
-  z.string() as z.ZodSchema<ReferenceMetadataFields>,
+  CSLVariableSchema,
   FieldConfigSchema.optional(),
 ).describe('Configuration for each metadata field')
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ReferenceMetadataFields } from '@source-taster/types'
+import type { CSLVariable } from '@source-taster/types'
 import { extractionSettings } from '@/extension/logic'
 
 // PROPS
 defineProps<{
   title: string
   icon: string
-  fields: ReferenceMetadataFields[]
+  fields: CSLVariable[]
   count: number
   totalFields: number
   color: string
@@ -33,7 +33,7 @@ defineProps<{
     </v-expansion-panel-title>
     <v-expansion-panel-text>
       <v-selection-control-group
-        v-model="extractionSettings.extractionConfig.fields"
+        v-model="extractionSettings.extractionConfig.variables"
       >
         <v-row
           dense
@@ -50,7 +50,7 @@ defineProps<{
               <template #activator="{ props }">
                 <v-checkbox
                   v-bind="props"
-                  :label="$t(`field-${field}`)"
+                  :label="$t(field)"
                   :value="field"
                 />
               </template>

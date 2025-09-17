@@ -50,8 +50,7 @@ export class ReferenceExtractionService {
     return {
       id: this.generateUniqueId(),
       originalText: aiRef.originalText,
-      metadata: aiRef.metadata,
-      extractionResults: aiRef.extractionResults || [],
+      metadata: { ...aiRef.metadata, id: this.generateUniqueId() },
     }
   }
 

@@ -666,22 +666,23 @@ export class WebsiteMatchingService {
       source: 'website',
       url: websiteMetadata.url,
       metadata: {
-        title: websiteMetadata.title,
-        authors: websiteMetadata.authors?.map(author => ({
-          firstName: '',
-          lastName: author,
-          role: 'author',
+        'id': websiteMetadata.url,
+        'type': 'webpage',
+        'title': websiteMetadata.title,
+        'author': websiteMetadata.authors?.map(author => ({
+          family: author,
         })),
-        date: {
-          year: websiteMetadata.publishedDate?.getFullYear(),
-          month: websiteMetadata.publishedDate?.getMonth() !== undefined ? (websiteMetadata.publishedDate.getMonth() + 1).toString() : undefined,
-          day: websiteMetadata.publishedDate?.getDate(),
-        },
-        source: {
-          containerTitle: websiteMetadata.siteName,
-          url: websiteMetadata.url,
-        },
-        identifiers: {},
+        'issued': websiteMetadata.publishedDate
+          ? {
+              'date-parts': [[
+                websiteMetadata.publishedDate.getFullYear(),
+                websiteMetadata.publishedDate.getMonth() + 1,
+                websiteMetadata.publishedDate.getDate(),
+              ]],
+            }
+          : undefined,
+        'container-title': websiteMetadata.siteName,
+        'URL': websiteMetadata.url,
       },
     }
   }

@@ -9,7 +9,7 @@ const { t } = useI18n()
     :subtitle="t('extraction-settings-description')"
   >
     <!-- Extraction Mode Panel -->
-    <ExtractionModePanel />
+    <!-- <ExtractionModePanel /> -->
 
     <!-- Field Selection Panel -->
     <ExtractionFieldsPanel />

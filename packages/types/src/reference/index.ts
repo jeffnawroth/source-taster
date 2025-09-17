@@ -1,2 +1,2 @@
-export * from './reference.constants'
+export * from './csl-json.zod'
 export * from './reference.types'

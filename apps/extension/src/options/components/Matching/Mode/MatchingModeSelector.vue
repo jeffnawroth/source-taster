@@ -3,17 +3,16 @@ import {
   mdiCheckCircleOutline,
   mdiCloseCircleOutline,
   mdiCogOutline,
-  mdiFormTextbox,
   mdiLock,
-  mdiPalette,
   mdiScale,
-  mdiTarget,
-  mdiWrench,
 } from '@mdi/js'
-import { type MatchingActionType, MatchingRuleCategory, type Mode } from '@source-taster/types'
-import { getMatchingActionTypesByCategory } from '@/extension/constants/matchingCategories'
+import { type Mode, type NormalizationRule, NormalizationRuleSchema } from '@source-taster/types'
+
 import { MATCHING_MODE_PRESETS } from '@/extension/constants/matchingModePresets'
 import { matchingSettings } from '@/extension/logic'
+
+// Get all available matching action types from the schema
+const ALL_NORMALIZATION_RULES: NormalizationRule[] = NormalizationRuleSchema.options
 
 // TRANSLATION
 const { t } = useI18n()
@@ -23,24 +22,19 @@ watch(() => matchingSettings.value.matchingStrategy.mode, (newMode) => {
     deselectAll()
   }
   else {
-    matchingSettings.value.matchingStrategy.actionTypes = MATCHING_MODE_PRESETS[newMode]
+    loadRuleSet(newMode)
   }
 })
 
-// === Hilfsfunktionen ===
 function loadRuleSet(preset: Mode) {
-  matchingSettings.value.matchingStrategy.actionTypes = MATCHING_MODE_PRESETS[preset]
+  matchingSettings.value.matchingStrategy.normalizationRules = MATCHING_MODE_PRESETS[preset]
 }
 function selectAll() {
-  // Get all available action types from all categories
-  matchingSettings.value.matchingStrategy.actionTypes = [
-    ...getMatchingActionTypesByCategory(MatchingRuleCategory.CONTENT_EQUIVALENCE),
-    ...getMatchingActionTypesByCategory(MatchingRuleCategory.STYLE_INSENSITIVITY),
-    ...getMatchingActionTypesByCategory(MatchingRuleCategory.TOLERANCE),
-  ]
+  // Get all available normalization rules
+  matchingSettings.value.matchingStrategy.normalizationRules = [...ALL_NORMALIZATION_RULES]
 }
 function deselectAll() {
-  matchingSettings.value.matchingStrategy.actionTypes = []
+  matchingSettings.value.matchingStrategy.normalizationRules = []
 }
 
 const modeOptions = computed(() =>
@@ -48,7 +42,6 @@ const modeOptions = computed(() =>
     const iconMap: Record<Mode, string> = {
       strict: mdiLock,
       balanced: mdiScale,
-      tolerant: mdiTarget,
       custom: mdiCogOutline,
     }
 
@@ -64,36 +57,14 @@ const modeOptions = computed(() =>
   }),
 )
 
-const categoryConfig = {
-  [MatchingRuleCategory.CONTENT_EQUIVALENCE]: {
-    title: t('text-extraction-settings'),
-    description: t('text-extraction-settings-description'),
-    icon: mdiFormTextbox,
-  },
-  [MatchingRuleCategory.STYLE_INSENSITIVITY]: {
-    title: t('content-formatting-settings'),
-    description: t('content-formatting-settings-description'),
-    icon: mdiPalette,
-  },
-  [MatchingRuleCategory.TOLERANCE]: {
-    title: t('technical-extraction-settings'),
-    description: t('technical-extraction-settings-description'),
-    icon: mdiWrench,
-  },
-}
-
-// Setting groups based on rule categories
-const settingGroups = computed(() => {
-  return Object.entries(categoryConfig).map(([category, config]) => ({
-    key: category,
-    title: config.title,
-    icon: config.icon,
-    settings: getMatchingActionTypesByCategory(category as MatchingRuleCategory).map((actionType: MatchingActionType) => ({
-      key: actionType,
-      label: t(`setting-${actionType}`),
-      description: t(`setting-${actionType}-description`),
-      example: t(`setting-${actionType}-example`),
-    })),
+// Simplified settings - direct array instead of groups
+const settings = computed(() => {
+  return ALL_NORMALIZATION_RULES.map((rule: NormalizationRule) => ({
+    key: rule,
+    label: t(`setting-${rule}`),
+    description: t(`setting-${rule}-short-description`),
+    detailedDescription: t(`setting-${rule}-description`),
+    example: t(`setting-${rule}-example`),
   }))
 })
 
@@ -107,11 +78,6 @@ const presetButtons = computed(() => [
     label: t('load-balanced'),
     icon: mdiScale,
     onClick: () => loadRuleSet('balanced'),
-  },
-  {
-    label: t('load-tolerant'),
-    icon: mdiTarget,
-    onClick: () => loadRuleSet('tolerant'),
   },
   {
     label: t('select-all'),
@@ -129,11 +95,11 @@ const presetButtons = computed(() => [
 <template>
   <ModeSelector
     v-model:mode="matchingSettings.matchingStrategy.mode"
-    v-model:selected-actions="matchingSettings.matchingStrategy.actionTypes"
+    v-model:selected-actions="matchingSettings.matchingStrategy.normalizationRules"
     :mode-options
-    custom-value="'custom'"
-    :setting-groups
-    :custom-settings-description="t('custom-extraction-settings-description')"
+    custom-value="custom"
+    :settings
+    :custom-settings-description="t('custom-matching-settings-description')"
     :preset-buttons
   />
 </template>

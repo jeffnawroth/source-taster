@@ -1,23 +1,20 @@
-// Mode presets - only actionTypes needed for frontend
+// Mode presets - only normalizationRules needed for frontend
 
-import type { ExtractionActionType } from '@source-taster/types'
+import type { NormalizationRule } from '@source-taster/types'
 import { createModePresets } from '@source-taster/types'
 
-const BALANCED_ACTIONS: ExtractionActionType[] = [
-  'normalize-spelling',
+const BALANCED_EXTRACTION_RULES: NormalizationRule[] = [
   'normalize-typography',
-  'normalize-title-case',
-  // 'normalize-abbreviations',
-  // 'normalize-author-names',
-  // 'normalize-date-format',
   'normalize-identifiers',
   'normalize-characters',
   'normalize-whitespace',
-] as const
+  'normalize-accents',
+  'normalize-umlauts',
+  'normalize-punctuation',
+  'normalize-unicode',
+  'normalize-lowercase',
+]
 
-const TOLERANT_ACTIONS: ExtractionActionType[] = [] as const
-
-export const EXTRACTION_MODE_PRESETS = createModePresets<ExtractionActionType>(
-  BALANCED_ACTIONS,
-  TOLERANT_ACTIONS,
+export const EXTRACTION_MODE_PRESETS = createModePresets<NormalizationRule>(
+  BALANCED_EXTRACTION_RULES,
 )

@@ -28,7 +28,7 @@ export const DEFAULT_EARLY_TERMINATION_CONFIG: EarlyTerminationConfig = {
 
 export const DEFAULT_MATCHING_STRATEGY: MatchingStrategy = {
   mode: DEFAULT_MATCHING_MODE,
-  actionTypes: MATCHING_MODE_PRESETS.balanced,
+  normalizationRules: MATCHING_MODE_PRESETS.balanced,
 } as const
 
 /**

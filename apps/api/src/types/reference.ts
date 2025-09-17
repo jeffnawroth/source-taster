@@ -1,19 +1,17 @@
-import type { ExtractionSettings, ReferenceMetadataFields } from '@source-taster/types'
+import type { ExtractionSettings } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
-import { AIExtractedReferenceSchema, AIExtractionResponseSchema, DateInfoSchema, ExternalIdentifiersSchema, ReferenceMetadataSchema, SourceInfoSchema } from '@source-taster/types'
+import { AIExtractedReferenceSchema, AIExtractionResponseSchema, CSLItemSchema } from '@source-taster/types'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
 // Helper function to create conditional schema fields based on enabled fields
-function createConditionalSchema<T extends z.ZodRawShape>(
-  enabledFields: string[],
-  baseSchema: z.ZodObject<T>,
-): z.ZodObject<any> {
-  const shape = baseSchema.shape
+function createConditionalCSLSchema(enabledFields: string[]): z.ZodType<any> {
+  const cslShape = CSLItemSchema.shape
   const conditionalShape: Record<string, z.ZodTypeAny> = {}
 
-  for (const [fieldName, schema] of Object.entries(shape)) {
-    if (enabledFields.includes(fieldName)) {
+  // Add optional fields based on user selection
+  for (const [fieldName, schema] of Object.entries(cslShape)) {
+    if (fieldName !== 'id' && enabledFields.includes(fieldName)) {
       conditionalShape[fieldName] = schema
     }
   }
@@ -21,86 +19,26 @@ function createConditionalSchema<T extends z.ZodRawShape>(
   return z.object(conditionalShape)
 }
 
-// Check if any fields from a schema are enabled
-function hasAnyFieldsEnabled(enabledFields: string[], schema: z.ZodObject<any>): boolean {
-  return enabledFields.some(field => Object.keys(schema.shape).includes(field))
-}
-
-// Create dynamic nested schemas for date, source, and identifiers
-function createDynamicNestedSchemas(fields: ReferenceMetadataFields[]) {
-  return {
-    DynamicExternalIdentifiersSchema: createConditionalSchema(fields, ExternalIdentifiersSchema),
-    DynamicSourceInfoSchema: createConditionalSchema(fields, SourceInfoSchema),
-    DynamicDateInfoSchema: createConditionalSchema(fields, DateInfoSchema),
-  }
-}
-
-// Build the metadata shape with conditional nested objects
-function buildMetadataShape(fields: ReferenceMetadataFields[], dynamicSchemas: ReturnType<typeof createDynamicNestedSchemas>) {
-  const baseMetadataConditional = createConditionalSchema(fields, ReferenceMetadataSchema)
-  const metadataShape: Record<string, z.ZodTypeAny> = { ...baseMetadataConditional.shape }
-
-  const hasDateFields = hasAnyFieldsEnabled(fields, DateInfoSchema)
-  const hasSourceFields = hasAnyFieldsEnabled(fields, SourceInfoSchema)
-  const hasIdentifierFields = hasAnyFieldsEnabled(fields, ExternalIdentifiersSchema)
-
-  if (hasDateFields) {
-    metadataShape.date = dynamicSchemas.DynamicDateInfoSchema.optional().describe('Date information')
-  }
-
-  if (hasSourceFields) {
-    metadataShape.source = dynamicSchemas.DynamicSourceInfoSchema.optional().describe('Source information')
-  }
-
-  if (hasIdentifierFields) {
-    metadataShape.identifiers = dynamicSchemas.DynamicExternalIdentifiersSchema.optional().describe('External database identifiers')
-  }
-
-  return z.object(metadataShape)
-}
-
 // Create dynamic schema based on extraction settings
 export function createDynamicExtractionSchema(extractionSettings: ExtractionSettings) {
-  const { fields } = extractionSettings.extractionConfig
+  const { variables } = extractionSettings.extractionConfig
 
-  // If no fields are enabled, return a schema that only allows empty metadata
-  // if (enabledFields.length === 0) {
-  //   const EmptyMetadataSchema = z.object({}).strict().describe('No fields requested for extraction')
+  // Create dynamic CSL schema based on enabled variables/fields
+  const DynamicCSLItemSchema = createConditionalCSLSchema(variables)
 
-  //   const EmptyReferenceSchema = AIExtractedReferenceSchema.extend({
-  //     metadata: EmptyMetadataSchema.describe('Empty metadata - no fields requested'),
-  //   })
-
-  //   const EmptyExtractionResponseSchema = AIExtractionResponseSchema.extend({
-  //     references: z.array(EmptyReferenceSchema).describe('Array of references with empty metadata'),
-  //   })
-
-  //   return {
-  //     name: 'reference_extraction',
-  //     schema: zodToJsonSchema(EmptyExtractionResponseSchema, {
-  //       $refStrategy: 'none',
-  //     }),
-  //   }
-  // }
-
-  const dynamicSchemas = createDynamicNestedSchemas(fields)
-  const DynamicReferenceMetadataSchema = buildMetadataShape(fields, dynamicSchemas)
-
-  // Create dynamic reference schema by overriding the metadata part of AIExtractedReferenceSchema
-  const DynamicReferenceSchema = AIExtractedReferenceSchema.extend({
-    metadata: DynamicReferenceMetadataSchema.describe('Parsed bibliographic information'),
+  const DynamicCSLReferenceSchema = AIExtractedReferenceSchema.extend({
+    metadata: DynamicCSLItemSchema.describe('Extracted reference metadata in CSL-JSON format with selected fields'),
   })
 
-  // Create dynamic extraction response schema by overriding the references array
-  const DynamicExtractionResponseSchema = AIExtractionResponseSchema.extend({
-    references: z.array(DynamicReferenceSchema).describe('Array of extracted references'),
+  const DynamicCSLExtractionResponseSchema = AIExtractionResponseSchema.extend({
+    references: z.array(DynamicCSLReferenceSchema).describe('Array of extracted references with dynamic CSL metadata'),
   })
 
   return {
-    DynamicExtractionResponseSchema,
+    DynamicExtractionResponseSchema: DynamicCSLExtractionResponseSchema,
     jsonSchema: {
       name: 'reference_extraction',
-      schema: zodToJsonSchema(DynamicExtractionResponseSchema, {
+      schema: zodToJsonSchema(DynamicCSLExtractionResponseSchema, {
         $refStrategy: 'none',
       }),
     } as ResponseFormatJSONSchema.JSONSchema,

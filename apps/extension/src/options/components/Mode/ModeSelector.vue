@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="TMode extends string, TActions">
-import type { SettingGroup } from './CustomSettings.vue'
+import type { Setting } from './CustomSettings.vue'
 import type { PresetButton } from './CustomSettingsActions.vue'
 import type { ModeOption } from './ModeSelection.vue'
 import CustomSettings from './CustomSettings.vue'
@@ -8,7 +8,7 @@ import ModeSelection from './ModeSelection.vue'
 interface Props {
   customValue: TMode
   modeOptions: ModeOption[]
-  settingGroups: SettingGroup[]
+  settings: Setting[]
   presetButtons: PresetButton[]
   customSettingsDescription: string
 }
@@ -35,7 +35,7 @@ const showCustomSettings = computed(() => mode.value === props.customValue)
       <v-divider />
       <CustomSettings
         v-model="selectedActions"
-        :setting-groups
+        :settings
         :preset-buttons
         :description="customSettingsDescription"
       />

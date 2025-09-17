@@ -1,13 +1,13 @@
 import type {
   APIMatchingSettings,
+  CSLItem,
   ExternalSource,
   FieldConfigurations,
   FieldMatchDetail,
   MatchDetails,
   MatchingReference,
-  ReferenceMetadata,
+  NormalizationRule,
 } from '@source-taster/types'
-import _ from 'lodash'
 import { MetadataComparator } from '../utils/metadataComparator'
 import { similarity } from '../utils/similarity'
 
@@ -21,7 +21,13 @@ export class DeterministicMatchingService {
     matchingSettings: APIMatchingSettings,
   ): MatchDetails {
     const fieldConfigurations = matchingSettings.matchingConfig.fieldConfigurations
-    const fieldDetails = this.calculateFieldScores(reference.metadata, source.metadata, fieldConfigurations)
+    const normalizationRules = matchingSettings.matchingStrategy.normalizationRules
+    const fieldDetails = this.calculateFieldScores(
+      reference.metadata,
+      source.metadata,
+      fieldConfigurations,
+      normalizationRules,
+    )
     const overallScore = this.calculateOverallScore(fieldDetails, fieldConfigurations)
 
     return {
@@ -31,27 +37,28 @@ export class DeterministicMatchingService {
   }
 
   private calculateFieldScores(
-    referenceMetadata: ReferenceMetadata,
-    sourceMetadata: ReferenceMetadata,
+    referenceMetadata: CSLItem,
+    sourceMetadata: CSLItem,
     fieldConfigurations: FieldConfigurations,
+    normalizationRules: NormalizationRule[],
   ): FieldMatchDetail[] {
     const fieldScores: FieldMatchDetail[] = []
 
-    // Get available fields with their paths (that exist in both objects and are enabled)
-    const availableFieldsWithPaths = MetadataComparator.getAvailableFieldsWithPaths(
+    // Get enabled fields that exist in both objects with meaningful values
+    const enabledFields = MetadataComparator.getEnabledFields(
       referenceMetadata,
       sourceMetadata,
       fieldConfigurations,
     )
 
-    // Compare only available fields using their paths
-    for (const { path, fieldName } of availableFieldsWithPaths) {
+    // Compare only enabled fields directly (no path traversal needed for flat CSL structure)
+    for (const fieldName of enabledFields) {
       const config = fieldConfigurations[fieldName as keyof FieldConfigurations]
-      if (config?.enabled && config.weight > 0) {
-        const referenceValue = _.get(referenceMetadata, path)
-        const sourceValue = _.get(sourceMetadata, path)
+      if (config?.weight && config.weight > 0) {
+        const referenceValue = referenceMetadata[fieldName]
+        const sourceValue = sourceMetadata[fieldName]
 
-        const score = this.compareValues(referenceValue, sourceValue)
+        const score = this.compareValues(referenceValue, sourceValue, normalizationRules)
         const weightedScore = score * 100 // Convert to percentage (0-100)
 
         fieldScores.push({
@@ -64,30 +71,20 @@ export class DeterministicMatchingService {
     return fieldScores
   }
 
-  private compareValues(referenceValue: unknown, sourceValue: unknown): number {
-    const refStr = this.stringifyValue(referenceValue)
-    const srcStr = this.stringifyValue(sourceValue)
-
-    // If both values are empty, return neutral score
-    if (!refStr && !srcStr) {
-      return 0.5
-    }
-
-    // If one value is empty, return low score
-    if (!refStr || !srcStr) {
-      return 0.1
-    }
-
+  private compareValues(
+    referenceValue: unknown,
+    sourceValue: unknown,
+    normalizationRules: NormalizationRule[],
+  ): number {
     // Special handling for arrays (like authors)
     if (Array.isArray(referenceValue) && Array.isArray(sourceValue)) {
-      return this.compareArrays(referenceValue, sourceValue)
+      return this.compareArrays(referenceValue, sourceValue, normalizationRules)
     }
 
-    // Use similarity function for string comparison
-    return similarity(refStr, srcStr)
+    return similarity(referenceValue, sourceValue, normalizationRules)
   }
 
-  private compareArrays(arr1: unknown[], arr2: unknown[]): number {
+  private compareArrays(arr1: unknown[], arr2: unknown[], normalizationRules: NormalizationRule[]): number {
     if (arr1.length === 0 && arr2.length === 0) {
       return 0.5
     }
@@ -102,7 +99,7 @@ export class DeterministicMatchingService {
     for (const item1 of arr1) {
       let bestScore = 0
       for (const item2 of arr2) {
-        const score = similarity(this.stringifyValue(item1), this.stringifyValue(item2))
+        const score = similarity(item1, item2, normalizationRules)
         bestScore = Math.max(bestScore, score)
       }
       scores.push(bestScore)
@@ -110,35 +107,6 @@ export class DeterministicMatchingService {
 
     // Return average of best matches
     return scores.reduce((sum, score) => sum + score, 0) / scores.length
-  }
-
-  private stringifyValue(value: unknown): string {
-    if (value === null || value === undefined) {
-      return ''
-    }
-
-    if (typeof value === 'string') {
-      return value
-    }
-
-    if (typeof value === 'number') {
-      return value.toString()
-    }
-
-    if (Array.isArray(value)) {
-      return value.map(item => this.stringifyValue(item)).join(' ')
-    }
-
-    if (typeof value === 'object') {
-      // For author objects, combine lastName and firstName
-      if ('lastName' in value) {
-        const author = value as { lastName?: string, firstName?: string }
-        return [author.firstName, author.lastName].filter(Boolean).join(' ')
-      }
-      return JSON.stringify(value)
-    }
-
-    return String(value)
   }
 
   private calculateOverallScore(fieldDetails: FieldMatchDetail[], fieldConfigurations: FieldConfigurations): number {

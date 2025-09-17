@@ -1,7 +1,7 @@
-import type { OpenAIConfig } from '@source-taster/types'
+import type { NormalizationRule, OpenAIConfig } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { OpenAI } from 'openai'
-import { buildInstructionsFromActionTypes } from '../../utils/instructionGenerator'
+import { buildInstructionsFromNormalizationRules } from '@/api/utils/instructionGenerator'
 
 /**
  * Base AI service with common functionality for all AI providers
@@ -187,12 +187,12 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
    */
   protected buildSystemMessage(
     baseMessage: string,
-    actionTypes: any[],
+    normalizationRules: NormalizationRule[],
     rulesMap: Record<string, any>,
     modePrefix: string,
     fallbackMessage: string,
   ): string {
-    const modeInstructions = this.buildInstructions(actionTypes, rulesMap, modePrefix, fallbackMessage)
+    const modeInstructions = this.buildInstructions(normalizationRules, rulesMap, modePrefix, fallbackMessage)
     return `${baseMessage}\n\n${modeInstructions}`
   }
 
@@ -200,13 +200,13 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
    * Build instructions from action types using the instruction generator
    */
   protected buildInstructions(
-    actionTypes: any[],
+    normalizationRules: NormalizationRule[],
     rulesMap: Record<string, any>,
     modePrefix: string,
     fallbackMessage: string,
   ): string {
-    return buildInstructionsFromActionTypes(
-      actionTypes,
+    return buildInstructionsFromNormalizationRules(
+      normalizationRules,
       rulesMap,
       modePrefix,
       fallbackMessage,

@@ -9,20 +9,20 @@ const { reference } = defineProps<{
 // PRIMARY URL for opening source
 const primaryUrl = computed(() => {
   // Priority: DOI > PMC > PMID > URL
-  if (reference.metadata.identifiers?.doi) {
-    return `https://doi.org/${reference.metadata.identifiers.doi}`
+  if (reference.metadata.DOI) {
+    return `https://doi.org/${reference.metadata.DOI}`
   }
-  if (reference.metadata.identifiers?.pmcid) {
-    const pmcid = reference.metadata.identifiers.pmcid.startsWith('PMC')
-      ? reference.metadata.identifiers.pmcid
-      : `PMC${reference.metadata.identifiers.pmcid}`
+  if (reference.metadata.PMCID) {
+    const pmcid = reference.metadata.PMCID.startsWith('PMC')
+      ? reference.metadata.PMCID
+      : `PMC${reference.metadata.PMCID}`
     return `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/`
   }
-  if (reference.metadata.identifiers?.pmid) {
-    return `https://pubmed.ncbi.nlm.nih.gov/${reference.metadata.identifiers.pmid}`
+  if (reference.metadata.PMID) {
+    return `https://pubmed.ncbi.nlm.nih.gov/${reference.metadata.PMID}`
   }
-  if (reference.metadata.source?.url) {
-    return reference.metadata.source.url
+  if (reference.metadata.URL) {
+    return reference.metadata.URL
   }
   return undefined
 })

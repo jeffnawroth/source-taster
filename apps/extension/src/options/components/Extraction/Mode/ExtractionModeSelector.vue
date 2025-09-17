@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import type { ExtractionActionType, Mode } from '@source-taster/types'
-import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiFormTextbox, mdiLock, mdiPalette, mdiScale, mdiWrench } from '@mdi/js'
-import { ExtractionRuleCategory } from '@source-taster/types'
-import { getExtractionActionTypesByCategory } from '@/extension/constants/extractionCategories'
+import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiLock, mdiScale } from '@mdi/js'
+import { type Mode, type NormalizationRule, NormalizationRuleSchema } from '@source-taster/types'
+
 import { EXTRACTION_MODE_PRESETS } from '@/extension/constants/extractionModePresets'
 import { extractionSettings } from '@/extension/logic'
+
+// Get all available normalization rules from the schema
+const ALL_NORMALIZATION_RULES: NormalizationRule[] = NormalizationRuleSchema.options
 
 // TRANSLATION
 const { t } = useI18n()
@@ -19,28 +21,22 @@ watch(() => extractionSettings.value.extractionStrategy.mode, (newMode) => {
 })
 
 function loadRuleSet(preset: Mode) {
-  extractionSettings.value.extractionStrategy.actionTypes = EXTRACTION_MODE_PRESETS[preset]
+  extractionSettings.value.extractionStrategy.normalizationRules = EXTRACTION_MODE_PRESETS[preset]
 }
 function selectAll() {
-  // Get all available action types from all categories
-  extractionSettings.value.extractionStrategy.actionTypes = [
-    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.CONTENT_NORMALIZATION),
-    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.STYLE_FORMATTING),
-    ...getExtractionActionTypesByCategory(ExtractionRuleCategory.TECHNICAL_EXTRACTION),
-  ]
+  // Get all available normalization rules
+  extractionSettings.value.extractionStrategy.normalizationRules = [...ALL_NORMALIZATION_RULES]
 }
 function deselectAll() {
-  extractionSettings.value.extractionStrategy.actionTypes = []
+  extractionSettings.value.extractionStrategy.normalizationRules = []
 }
 
 const modeOptions = computed(() =>
   Object.entries(EXTRACTION_MODE_PRESETS)
-    .filter(([mode]) => mode !== 'tolerant') // Filter out tolerant mode
     .map(([mode]) => {
       const iconMap: Record<string, string> = {
         strict: mdiLock,
         balanced: mdiScale,
-        // tolerant: mdiTarget, // Commented out
         custom: mdiCogOutline,
       }
 
@@ -56,37 +52,14 @@ const modeOptions = computed(() =>
     }),
 )
 
-const categoryConfig = {
-  [ExtractionRuleCategory.CONTENT_NORMALIZATION]: {
-    title: t('text-extraction-settings'),
-    description: t('text-extraction-settings-description'),
-    icon: mdiFormTextbox,
-  },
-  [ExtractionRuleCategory.STYLE_FORMATTING]: {
-    title: t('content-formatting-settings'),
-    description: t('content-formatting-settings-description'),
-    icon: mdiPalette,
-  },
-  [ExtractionRuleCategory.TECHNICAL_EXTRACTION]: {
-    title: t('technical-extraction-settings'),
-    description: t('technical-extraction-settings-description'),
-    icon: mdiWrench,
-  },
-}
-
-// Setting groups based on rule categories
-const settingGroups = computed(() => {
-  return Object.entries(categoryConfig).map(([category, config]) => ({
-    key: category,
-    title: config.title,
-    icon: config.icon,
-    settings: getExtractionActionTypesByCategory(category as ExtractionRuleCategory).map((actionType: ExtractionActionType) => ({
-      key: actionType,
-      label: t(`setting-${actionType}`),
-      description: t(`setting-${actionType}-short-description`), // GEÄNDERT: Kurze Beschreibung
-      detailedDescription: t(`setting-${actionType}-description`), // NEU: Detaillierte Beschreibung
-      example: t(`setting-${actionType}-example`),
-    })),
+// Simplified settings - direct array instead of groups
+const settings = computed(() => {
+  return ALL_NORMALIZATION_RULES.map((rule: NormalizationRule) => ({
+    key: rule,
+    label: t(`setting-${rule}`),
+    description: t(`setting-${rule}-short-description`),
+    detailedDescription: t(`setting-${rule}-description`),
+    example: t(`setting-${rule}-example`),
   }))
 })
 
@@ -101,11 +74,6 @@ const presetButtons = computed(() => [
     icon: mdiScale,
     onClick: () => loadRuleSet('balanced'),
   },
-  // {
-  //   label: t('load-tolerant'),
-  //   icon: mdiTarget,
-  //   onClick: () => loadRuleSet('tolerant'),
-  // },
   {
     label: t('select-all'),
     icon: mdiCheckCircleOutline,
@@ -122,10 +90,10 @@ const presetButtons = computed(() => [
 <template>
   <ModeSelector
     v-model:mode="extractionSettings.extractionStrategy.mode"
-    v-model:selected-actions="extractionSettings.extractionStrategy.actionTypes"
+    v-model:selected-actions="extractionSettings.extractionStrategy.normalizationRules"
     :mode-options
     custom-value="custom"
-    :setting-groups
+    :settings
     :custom-settings-description="t('custom-extraction-settings-description')"
     :preset-buttons
   />

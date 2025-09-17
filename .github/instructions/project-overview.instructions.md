@@ -35,7 +35,7 @@ applyTo: '**'
 
 ## Project-Specific Patterns
 
-- **Extraction Modes:** Unified as `strict`, `balanced`, `tolerant`, `custom` (see `ExtractionMode` in `@source-taster/types`).
+- **Extraction Modes:** Unified as `strict`, `balanced`, `custom` (see `ExtractionMode` in `@source-taster/types`).
 - **Settings Storage:** Use `useWebExtensionStorage` for all persistent user settings in the extension.
 - **Localization:** All user-facing strings must use `vue-i18n` with nested keys in `src/locales/`.
 - **Type Safety:** All API payloads and settings are strongly typed and shared via `@source-taster/types`.

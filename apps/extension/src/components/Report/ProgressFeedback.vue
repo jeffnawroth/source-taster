@@ -54,20 +54,20 @@ function getCurrentReferenceDisplayText(ref: ExtractedReference): string {
     return title.length > 50 ? `${title.substring(0, 47)}...` : title
   }
 
-  if (ref.metadata?.authors && ref.metadata.authors.length > 0) {
-    const firstAuthor = ref.metadata.authors[0]
+  if (ref.metadata?.author && ref.metadata.author.length > 0) {
+    const firstAuthor = ref.metadata.author[0]
     let authorName = ''
 
     if (typeof firstAuthor === 'string') {
       authorName = firstAuthor
     }
     else {
-      // Build author name from Author object
+      // Build author name from Author object (CSL format)
       const nameParts = []
-      if (firstAuthor.firstName)
-        nameParts.push(firstAuthor.firstName)
-      if (firstAuthor.lastName)
-        nameParts.push(firstAuthor.lastName)
+      if (firstAuthor.given)
+        nameParts.push(firstAuthor.given)
+      if (firstAuthor.family)
+        nameParts.push(firstAuthor.family)
       authorName = nameParts.join(' ')
     }
 
