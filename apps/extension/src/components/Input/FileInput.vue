@@ -1,34 +1,49 @@
 <script setup lang="ts">
-import { useDoiStore } from '@/extension/stores/doi'
-import { useFileStore } from '@/extension/stores/file'
-import { useTextStore } from '@/extension/stores/text'
-import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 import { mdiFilePdfBox } from '@mdi/js'
+import { useUIStore } from '@/extension/stores/ui'
+import { extractTextFromPdfFile } from '@/extension/utils/pdfUtils'
 
-// Doi Store
-const doiStore = useDoiStore()
-const { extractedDois } = storeToRefs(doiStore)
-const { handleDoisExtraction } = doiStore
+// UI STORE
+const uiStore = useUIStore()
+const { file, inputText } = storeToRefs(uiStore)
 
-// FILE
-const { file } = storeToRefs(useFileStore())
-
-// PDF TEXT
-const { text } = storeToRefs(useTextStore())
+// Loading state for PDF extraction
+const isExtractionPdf = ref(false)
 
 watch(file, async (newValue) => {
-  if (!newValue)
+  if (!newValue) {
+    inputText.value = ''
     return
+  }
 
-  // Extract text from PDF file
-  const pdfText = await extractTextFromPdfFile(newValue)
+  try {
+    isExtractionPdf.value = true
 
-  // Handle DOIs extraction
-  await handleDoisExtraction(pdfText)
+    // Extract text from PDF file
+    const pdfText = await extractTextFromPdfFile(newValue)
 
-  // Set text value to DOIs
-  text.value = extractedDois.value.length > 0 ? extractedDois.value.join('\n') : ''
+    if (pdfText) {
+      inputText.value = pdfText
+    }
+    else {
+      // Handle case where PDF extraction failed
+      console.warn('Failed to extract text from PDF file')
+      inputText.value = ''
+    }
+  }
+  catch (error) {
+    console.error('Error extraction PDF file:', error)
+    inputText.value = ''
+  }
+  finally {
+    isExtractionPdf.value = false
+  }
 })
+
+// CLEAR HANDLER
+function handleClear() {
+  uiStore.clearAll()
+}
 </script>
 
 <template>
@@ -42,5 +57,8 @@ watch(file, async (newValue) => {
     prepend-icon=""
     clearable
     hide-details="auto"
+    :loading="isExtractionPdf"
+    :disabled="isExtractionPdf"
+    @click:clear="handleClear"
   />
 </template>

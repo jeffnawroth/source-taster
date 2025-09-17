@@ -1,9 +1,18 @@
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
 
-export const useAutoImport = useWebExtensionStorage('auto-import-option', false)
-export const themeOption = useWebExtensionStorage('theme-option', 'system')
-export const localeOption = useWebExtensionStorage('locale-option', 'en')
-export const useAiExtraction = useWebExtensionStorage('ai-extraction-option', false)
+export const clientId = useWebExtensionStorage<string>('clientId', () => crypto.randomUUID())
+
+export const settings = useWebExtensionStorage('settings', { ...DEFAULT_UI_SETTINGS })
+
+export const hasCompletedOnboarding = useWebExtensionStorage('onboarding-completed', false)
+
+/**
+ * Reset onboarding status (useful for re-running setup)
+ */
+export function resetOnboarding() {
+  hasCompletedOnboarding.value = false
+}
 
 declare let chrome: any
 

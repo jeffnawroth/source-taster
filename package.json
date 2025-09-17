@@ -5,11 +5,24 @@
   "scripts": {
     "dev": "pnpm run -r --parallel --aggregate-output dev",
     "build": "pnpm run -r build",
+    "build:api": "pnpm --filter @source-taster/api build",
+    "build:extension": "pnpm --filter @source-taster/extension build",
+    "build:types": "pnpm --filter @source-taster/types build",
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
-    "deploy": "pnpm build && pnpm run -r deploy"
+    "deploy": "pnpm build && pnpm run -r deploy",
+    "preinstall": "simple-git-hooks"
   },
   "devDependencies": {
-    "eslint": "^9.21.0"
+    "eslint": "^9.35.0",
+    "lint-staged": "^16.1.6",
+    "simple-git-hooks": "^2.13.1",
+    "typescript": "^5.9.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

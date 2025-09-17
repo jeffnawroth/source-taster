@@ -15,15 +15,15 @@ export async function getManifest() {
     description: pkg.description,
     action: {
       default_icon: {
-        16: './assets/icon16.png',
-        32: './assets/icon32.png',
-        48: './assets/icon48.png',
-        128: './assets/icon128.png',
+        16: 'assets/icon16.png',
+        32: 'assets/icon32.png',
+        48: 'assets/icon48.png',
+        128: 'assets/icon128.png',
       },
-      default_popup: './dist/popup/index.html',
+      default_popup: 'dist/popup/index.html',
     },
     options_ui: {
-      page: './dist/options/index.html',
+      page: 'dist/options/index.html',
       open_in_tab: true,
     },
     background: isFirefox
@@ -32,17 +32,21 @@ export async function getManifest() {
           type: 'module',
         }
       : {
-          service_worker: './dist/background/index.mjs',
+          service_worker: 'dist/background/index.mjs',
         },
     icons: {
-      16: './assets/icon16.png',
-      32: './assets/icon32.png',
-      48: './assets/icon48.png',
-      128: './assets/icon128.png',
+      16: 'assets/icon16.png',
+      32: 'assets/icon32.png',
+      48: 'assets/icon48.png',
+      128: 'assets/icon128.png',
     },
     permissions: isFirefox
       ? ['storage', 'activeTab', 'contextMenus']
       : ['storage', 'activeTab', 'contextMenus', 'sidePanel'],
+    host_permissions: [
+      'http://*/*',
+      'https://*/*',
+    ],
     content_scripts: [
       {
         matches: [
@@ -64,6 +68,11 @@ export async function getManifest() {
         // this is required on dev for Vite script to load
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
         : 'script-src \'self\'; object-src \'self\'',
+    },
+    browser_specific_settings: {
+      gecko: {
+        id: 'contact@sourcetaster.com',
+      },
     },
     default_locale: 'en',
   }

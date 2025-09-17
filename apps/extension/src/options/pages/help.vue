@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { mdiEmailOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
+import { mdiBookOpenPageVariant, mdiEmailOutline, mdiHelpCircleOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
 
 // TRANSLATION
 const { t } = useI18n()
 
 // LIST ITEMS
 const items = ref([
-
+  {
+    title: computed(() => t('documentation')),
+    subtitle: computed(() => t('view-docs')),
+    href: 'https://docs.sourcetaster.com/',
+    appendIcon: mdiOpenInNew,
+    prependIcon: mdiBookOpenPageVariant,
+  },
   {
     title: 'Demo',
     subtitle: computed(() => t('view-demo')),
-    href: 'https://sourcetaster.com/demo.html',
+    href: 'https://docs.sourcetaster.com/demo.html',
     appendIcon: mdiOpenInNew,
     prependIcon: mdiVideoOutline,
-
   },
   {
     title: computed(() => t('contact')),
@@ -26,21 +31,21 @@ const items = ref([
 </script>
 
 <template>
-  <v-container>
-    <p class="text-h5 font-weight-bold mb-3">
-      {{ t('help') }}
-    </p>
+  <SettingsPageLayout
+    :icon="mdiHelpCircleOutline"
+    :title="t('help')"
+    :description="t('help-description')"
+  >
+    <div
+      v-for="(item, index) in items"
+      :key="item.href"
+    >
+      <OptionListItem v-bind="item" />
 
-    <p class="text-body-2 text-medium-emphasis">
-      {{ t('help-description') }}
-    </p>
-
-    <v-divider class="my-4" />
-
-    <OptionListItem v-bind="items[0]" />
-
-    <v-divider class="my-4" />
-
-    <OptionListItem v-bind="items[1]" />
-  </v-container>
+      <v-divider
+        v-if="index < items.length - 1"
+        class="my-4"
+      />
+    </div>
+  </SettingsPageLayout>
 </template>

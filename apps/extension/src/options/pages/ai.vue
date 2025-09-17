@@ -1,41 +1,24 @@
 <script setup lang="ts">
-import { useAiExtraction } from '@/extension/logic'
-import { mdiStarFourPointsOutline } from '@mdi/js'
+import { mdiCogOutline } from '@mdi/js'
+import { settings } from '@/extension/logic'
+import AIKeyCard from '@/extension/options/components/AI/AIKeyCard.vue'
+import AIProviderCard from '@/extension/options/components/AI/AIProviderCard.vue'
 
-// i18n
 const { t } = useI18n()
 </script>
 
 <template>
-  <v-container>
-    <p class="text-h5 font-weight-bold mb-3">
-      {{ t('ai') }}
-    </p>
-
-    <p class="text-body-2 text-medium-emphasis">
-      {{ t('ai-description') }}
-    </p>
+  <SettingsPageLayout
+    :icon="mdiCogOutline"
+    :title="t('ai-settings-title')"
+    :description="t('ai-settings-subtitle')"
+  >
+    <!-- Provider & Model -->
+    <AIProviderCard v-model="settings.ai" />
 
     <v-divider class="my-4" />
 
-    <OptionListItem
-      :title="t('ai-extraction')"
-      :prepend-icon="mdiStarFourPointsOutline"
-      @click="useAiExtraction = !useAiExtraction"
-    >
-      <template #subtitle>
-        <p>{{ t('ai-extraction-description') }}</p>
-        <p class="text-medium-emphasis mt-2">
-          {{ t('ai-extraction-description-info') }}
-        </p>
-        <p class="text-medium-emphasis mt-2">
-          {{ t('ai-extraction-description-limit') }}
-        </p>
-      </template>
-
-      <OptionSwitch
-        v-model="useAiExtraction"
-      />
-    </OptionListItem>
-  </v-container>
+    <!-- API Key (nur temporär, nicht im Local Storage speichern) -->
+    <AIKeyCard />
+  </SettingsPageLayout>
 </template>
