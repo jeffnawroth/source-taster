@@ -10,6 +10,43 @@ set :bind, '0.0.0.0'
 set :port, 4567
 set :environment, :production
 
+def normalize_csl_item(raw_item)
+  item = raw_item.dup
+
+  type_value = item.key?('type') ? item['type'] : item[:type]
+  if type_value.nil?
+    item.delete('type')
+    item.delete(:type)
+  end
+
+  item.each do |key, value|
+    next unless value.is_a?(Array)
+
+    item[key] = value.map do |entry|
+      next entry unless entry.is_a?(Hash)
+
+      normalized_entry = entry.dup
+      particle_value = if normalized_entry.key?('particle')
+        normalized_entry['particle']
+      elsif normalized_entry.key?(:particle)
+        normalized_entry[:particle]
+      end
+
+      if particle_value
+        existing = normalized_entry['non-dropping-particle'] || normalized_entry[:'non-dropping-particle']
+        normalized_entry['non-dropping-particle'] = existing || particle_value
+        normalized_entry.delete(:'non-dropping-particle')
+        normalized_entry.delete('particle')
+        normalized_entry.delete(:particle)
+      end
+
+      normalized_entry
+    end
+  end
+
+  item
+end
+
 # Parse references and return tokens with labels (plus originalText)
 post '/parse' do
   content_type :json
@@ -61,7 +98,8 @@ post '/convert-to-csl' do
 
     csl_with_ids = csl_results.each_with_index.map do |item, idx|
       ref_id = refs[idx]['id'] || SecureRandom.uuid
-      item.merge('id' => ref_id)
+      normalized_item = normalize_csl_item(item)
+      normalized_item.merge('id' => ref_id)
     end
 
     { csl: csl_with_ids }.to_json
