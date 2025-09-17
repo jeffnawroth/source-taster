@@ -23,7 +23,11 @@ flowchart LR
   end
   UI -->|X-Client-Id, JSON| API[(Source Taster API)]
   API -->|/api/anystyle| AnyStyle[(AnyStyle Server)]
-  API -->|Fetch| External[(OpenAlex\nCrossref\nSemantic Scholar\nEurope PMC\narXiv)]
+  API -->|Fetch| External[(OpenAlex
+  Crossref
+  Semantic Scholar
+  Europe PMC
+  arXiv)]
   API -->|Responses| UI
   UI -.->|Normalisation & Matching Settings| TypesNode["@source-taster/types"]
 ```
