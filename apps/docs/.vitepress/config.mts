@@ -3,29 +3,27 @@ import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import pkg from '../../extension/package.json'
 
-const englishSidebar: DefaultTheme.Sidebar = {
-  '/en/': [
-    {
-      text: 'Guide',
-      items: [
-        { text: 'Overview', link: '/en/intro' },
-        { text: 'Development', link: '/en/development' },
-        { text: 'Browser Extension', link: '/en/extension' },
-      ],
-    },
-    {
-      text: 'Reference',
-      items: [
-        { text: 'Architecture', link: '/en/architecture' },
-        { text: 'API Reference', link: '/en/api' },
-        { text: 'Data Models & Schemas', link: '/en/data-models' },
-        { text: 'Matching & Scoring', link: '/en/matching-scoring' },
-        { text: 'Migration', link: '/en/migration' },
-        { text: 'Changelog', link: '/en/changelog' },
-      ],
-    },
-  ],
-}
+const englishSidebar: DefaultTheme.Sidebar = [
+  {
+    text: 'Guide',
+    items: [
+      { text: 'Overview', link: '/intro' },
+      { text: 'Development', link: '/development' },
+      { text: 'Browser Extension', link: '/extension' },
+    ],
+  },
+  {
+    text: 'Reference',
+    items: [
+      { text: 'Architecture', link: '/architecture' },
+      { text: 'API Reference', link: '/api' },
+      { text: 'Data Models & Schemas', link: '/data-models' },
+      { text: 'Matching & Scoring', link: '/matching-scoring' },
+      { text: 'Migration', link: '/migration' },
+      { text: 'Changelog', link: '/changelog' },
+    ],
+  },
+]
 
 const germanSidebar: DefaultTheme.Sidebar = {
   '/de/': [
@@ -124,8 +122,8 @@ function nav(): DefaultTheme.NavItem[] {
     {
       text: 'Documentation',
       items: [
-        { text: 'Overview', link: '/en/intro' },
-        { text: 'API Reference', link: '/en/api' },
+        { text: 'Overview', link: '/intro' },
+        { text: 'API Reference', link: '/api' },
       ],
     },
     {

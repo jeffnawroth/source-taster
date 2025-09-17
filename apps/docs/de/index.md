@@ -19,7 +19,7 @@ hero:
       link: /de/intro
     - theme: alt
       text: Demo
-      link: /de/demo
+      link: /demo
 
 features:
   - icon: 🤖

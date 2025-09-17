@@ -9,7 +9,7 @@ const items = ref([
   {
     title: computed(() => t('documentation')),
     subtitle: computed(() => t('view-docs')),
-    href: 'https://docs.sourcetaster.com/en/intro.html',
+    href: 'https://docs.sourcetaster.com/',
     appendIcon: mdiOpenInNew,
     prependIcon: mdiBookOpenPageVariant,
   },

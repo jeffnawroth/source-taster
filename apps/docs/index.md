@@ -16,7 +16,7 @@ hero:
       link: https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp
     - theme: alt
       text: Documentation
-      link: /en/intro
+      link: /intro
     - theme: alt
       text: Demo
       link: /demo
