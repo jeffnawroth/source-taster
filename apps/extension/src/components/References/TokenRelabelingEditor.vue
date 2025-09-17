@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ApiAnystyleTokenLabel, ApiAnystyleTokenSequence } from '@source-taster/types'
 import { mdiAccount, mdiAccountEdit, mdiAccountStar, mdiArchive, mdiBarcode, mdiBookOpenVariant, mdiCalendar, mdiCounter, mdiDisc, mdiDomain, mdiFileDocument, mdiFolderMultiple, mdiFormatTitle, mdiHelp, mdiIdentifier, mdiLibrary, mdiLink, mdiMapMarker, mdiMovieOpen, mdiNoteText, mdiNumeric1Box, mdiSourceBranch, mdiTagMultiple, mdiTranslate } from '@mdi/js'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 // Types
 interface SelectedToken {
@@ -13,7 +13,7 @@ interface SelectedToken {
 
 interface LabelOption {
   value: ApiAnystyleTokenLabel
-  name: string
+  nameKey: string
   color: string
   icon: string
 }
@@ -35,34 +35,46 @@ const emit = defineEmits<{
 const tokenSequences = ref<ApiAnystyleTokenSequence[]>([])
 const selectedToken = ref<SelectedToken | null>(null)
 const hoveredToken = ref<{ sequenceIndex: number, tokenIndex: number } | null>(null)
+const { t } = useI18n()
 
 // Available labels with colors and icons (sorted alphabetically)
 const availableLabels: LabelOption[] = [
-  { value: 'author', name: 'Author', color: 'blue', icon: mdiAccount },
-  { value: 'citation-number', name: 'Citation Number', color: 'grey', icon: mdiCounter },
-  { value: 'collection-title', name: 'Collection Title', color: 'deep-purple', icon: mdiFolderMultiple },
-  { value: 'container-title', name: 'Container Title', color: 'blue-grey', icon: mdiArchive },
-  { value: 'date', name: 'Date', color: 'orange', icon: mdiCalendar },
-  { value: 'director', name: 'Director', color: 'red-darken-1', icon: mdiMovieOpen },
-  { value: 'doi', name: 'DOI', color: 'red', icon: mdiIdentifier },
-  { value: 'edition', name: 'Edition', color: 'indigo-darken-2', icon: mdiNumeric1Box },
-  { value: 'editor', name: 'Editor', color: 'deep-orange', icon: mdiAccountEdit },
-  { value: 'genre', name: 'Genre', color: 'purple-accent-4', icon: mdiTagMultiple },
-  { value: 'isbn', name: 'ISBN', color: 'brown-darken-2', icon: mdiBarcode },
-  { value: 'journal', name: 'Journal', color: 'purple', icon: mdiBookOpenVariant },
-  { value: 'location', name: 'Location', color: 'pink', icon: mdiMapMarker },
-  { value: 'medium', name: 'Medium', color: 'teal-accent-3', icon: mdiDisc },
-  { value: 'note', name: 'Note', color: 'yellow-darken-2', icon: mdiNoteText },
-  { value: 'other', name: 'Other', color: 'amber', icon: mdiHelp },
-  { value: 'pages', name: 'Pages', color: 'indigo', icon: mdiFileDocument },
-  { value: 'producer', name: 'Producer', color: 'green-darken-2', icon: mdiAccountStar },
-  { value: 'publisher', name: 'Publisher', color: 'brown', icon: mdiDomain },
-  { value: 'source', name: 'Source', color: 'cyan-darken-2', icon: mdiSourceBranch },
-  { value: 'title', name: 'Title', color: 'green', icon: mdiFormatTitle },
-  { value: 'translator', name: 'Translator', color: 'light-blue-darken-1', icon: mdiTranslate },
-  { value: 'url', name: 'URL', color: 'cyan', icon: mdiLink },
-  { value: 'volume', name: 'Volume / Issue', color: 'teal', icon: mdiLibrary },
+  { value: 'author', nameKey: 'token-label-author', color: 'blue', icon: mdiAccount },
+  { value: 'citation-number', nameKey: 'token-label-citation-number', color: 'grey', icon: mdiCounter },
+  { value: 'collection-title', nameKey: 'token-label-collection-title', color: 'deep-purple', icon: mdiFolderMultiple },
+  { value: 'container-title', nameKey: 'token-label-container-title', color: 'blue-grey', icon: mdiArchive },
+  { value: 'date', nameKey: 'token-label-date', color: 'orange', icon: mdiCalendar },
+  { value: 'director', nameKey: 'token-label-director', color: 'red-darken-1', icon: mdiMovieOpen },
+  { value: 'doi', nameKey: 'token-label-doi', color: 'red', icon: mdiIdentifier },
+  { value: 'edition', nameKey: 'token-label-edition', color: 'indigo-darken-2', icon: mdiNumeric1Box },
+  { value: 'editor', nameKey: 'token-label-editor', color: 'deep-orange', icon: mdiAccountEdit },
+  { value: 'genre', nameKey: 'token-label-genre', color: 'purple-accent-4', icon: mdiTagMultiple },
+  { value: 'isbn', nameKey: 'token-label-isbn', color: 'brown-darken-2', icon: mdiBarcode },
+  { value: 'journal', nameKey: 'token-label-journal', color: 'purple', icon: mdiBookOpenVariant },
+  { value: 'location', nameKey: 'token-label-location', color: 'pink', icon: mdiMapMarker },
+  { value: 'medium', nameKey: 'token-label-medium', color: 'teal-accent-3', icon: mdiDisc },
+  { value: 'note', nameKey: 'token-label-note', color: 'yellow-darken-2', icon: mdiNoteText },
+  { value: 'other', nameKey: 'token-label-other', color: 'amber', icon: mdiHelp },
+  { value: 'pages', nameKey: 'token-label-pages', color: 'indigo', icon: mdiFileDocument },
+  { value: 'producer', nameKey: 'token-label-producer', color: 'green-darken-2', icon: mdiAccountStar },
+  { value: 'publisher', nameKey: 'token-label-publisher', color: 'brown', icon: mdiDomain },
+  { value: 'source', nameKey: 'token-label-source', color: 'cyan-darken-2', icon: mdiSourceBranch },
+  { value: 'title', nameKey: 'token-label-title', color: 'green', icon: mdiFormatTitle },
+  { value: 'translator', nameKey: 'token-label-translator', color: 'light-blue-darken-1', icon: mdiTranslate },
+  { value: 'url', nameKey: 'token-label-url', color: 'cyan', icon: mdiLink },
+  { value: 'volume', nameKey: 'token-label-volume', color: 'teal', icon: mdiLibrary },
 ]
+
+interface TranslatedLabelOption extends LabelOption {
+  name: string
+}
+
+const translatedLabelOptions = computed<TranslatedLabelOption[]>(() =>
+  availableLabels.map(option => ({
+    ...option,
+    name: t(option.nameKey),
+  })),
+)
 
 // Computed - removed hasChanges since we don't need save functionality
 
@@ -74,7 +86,7 @@ function getLabelColor(label: ApiAnystyleTokenLabel): string {
 
 function getLabelDisplayName(label: ApiAnystyleTokenLabel): string {
   const labelOption = availableLabels.find(l => l.value === label)
-  return labelOption?.name || label
+  return labelOption ? t(labelOption.nameKey) : label
 }
 
 function selectToken(sequenceIndex: number, tokenIndex: number) {
@@ -188,12 +200,12 @@ watch(() => props.tokens, (newTokens) => {
     >
       <!-- Autocomplete for label selection -->
       <v-autocomplete
-        :items="availableLabels"
+        :items="translatedLabelOptions"
         item-title="name"
         item-value="value"
         :model-value="selectedToken.label"
-        label="Select new label"
-        placeholder="Type to search labels..."
+        :label="t('token-editor-select-new-label')"
+        :placeholder="t('token-editor-search-labels-placeholder')"
         variant="outlined"
         density="comfortable"
         auto-select-first
