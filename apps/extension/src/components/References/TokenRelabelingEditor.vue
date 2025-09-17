@@ -21,6 +21,7 @@ interface LabelOption {
 // Props
 interface Props {
   tokens: ApiAnystyleTokenSequence[]
+  originalTexts?: string[]
 }
 
 const props = defineProps<Props>()
@@ -146,29 +147,39 @@ watch(() => props.tokens, (newTokens) => {
   <div
     v-for="(sequence, sequenceIndex) in tokenSequences"
     :key="sequenceIndex"
+    class="token-sequence mb-4"
   >
-    <v-chip
-      v-for="(token, tokenIndex) in sequence"
-      :key="`${sequenceIndex}-${tokenIndex}`"
-      :color="getLabelColor(token[0])"
-      :variant="isTokenSelected(sequenceIndex, tokenIndex) ? 'elevated' : 'outlined'"
-      class="token-chip ma-1"
-      :class="{ 'token-selected': isTokenSelected(sequenceIndex, tokenIndex) }"
-      :closable="isTokenHovered(sequenceIndex, tokenIndex)"
-      @click="selectToken(sequenceIndex, tokenIndex)"
-      @click:close="deleteToken(sequenceIndex, tokenIndex)"
-      @mouseenter="setHoveredToken(sequenceIndex, tokenIndex)"
-      @mouseleave="clearHoveredToken"
+    <div
+      v-if="originalTexts?.[sequenceIndex]"
+      class="original-text text-body-2 text-medium-emphasis mb-2"
     >
-      <span>{{ token[1] }}</span>
+      {{ originalTexts[sequenceIndex] }}
+    </div>
 
-      <v-tooltip
-        activator="parent"
-        location="top"
+    <div class="d-flex flex-wrap">
+      <v-chip
+        v-for="(token, tokenIndex) in sequence"
+        :key="`${sequenceIndex}-${tokenIndex}`"
+        :color="getLabelColor(token[0])"
+        :variant="isTokenSelected(sequenceIndex, tokenIndex) ? 'elevated' : 'outlined'"
+        class="token-chip ma-1"
+        :class="{ 'token-selected': isTokenSelected(sequenceIndex, tokenIndex) }"
+        :closable="isTokenHovered(sequenceIndex, tokenIndex)"
+        @click="selectToken(sequenceIndex, tokenIndex)"
+        @click:close="deleteToken(sequenceIndex, tokenIndex)"
+        @mouseenter="setHoveredToken(sequenceIndex, tokenIndex)"
+        @mouseleave="clearHoveredToken"
       >
-        {{ getLabelDisplayName(token[0]) }}
-      </v-tooltip>
-    </v-chip>
+        <span>{{ token[1] }}</span>
+
+        <v-tooltip
+          activator="parent"
+          location="top"
+        >
+          {{ getLabelDisplayName(token[0]) }}
+        </v-tooltip>
+      </v-chip>
+    </div>
   </div>
 
   <v-expand-transition>
@@ -213,6 +224,15 @@ watch(() => props.tokens, (newTokens) => {
 </template>
 
 <style scoped>
+.token-sequence {
+  display: flex;
+  flex-direction: column;
+}
+
+.original-text {
+  word-break: break-word;
+}
+
 .token-chip {
   cursor: pointer;
 }

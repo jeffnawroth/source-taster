@@ -13,6 +13,10 @@ const editableTokens = ref<ApiAnystyleTokenSequence[]>([])
 const error = ref('')
 const currentReferenceIndex = ref(0)
 
+const currentOriginalText = computed(() =>
+  parsed.value[currentReferenceIndex.value]?.originalText ?? '',
+)
+
 // Watch for changes in store data
 watch([parsed, showTokenEditor], ([tokens, show]) => {
   if (show && tokens.length > 0) {
@@ -96,6 +100,7 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
           <TokenRelabelingEditor
             v-if="editableTokens[currentReferenceIndex]"
             :tokens="[editableTokens[currentReferenceIndex]]"
+            :original-texts="[currentOriginalText]"
             @update:tokens="updateCurrentSequenceTokens"
           />
 
