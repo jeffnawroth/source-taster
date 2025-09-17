@@ -112,10 +112,10 @@ const filteredResults = computed(() => {
           v-if="showReportCard"
           class="d-flex flex-column flex-1 min-h-0"
         >
-          <VerifyButton class="mb-3" />
+          <VerifyButton />
           <v-divider
             v-if="extractedReferences.length > 0"
-            class="mb-3"
+            class="my-3"
           />
 
           <v-card-subtitle class="px-0">
