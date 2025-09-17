@@ -1,55 +1,73 @@
 <script setup lang="ts">
-import { useAutoImport } from '@/extension/logic'
-import { useDoiStore } from '@/extension/stores/doi'
-import { useTextStore } from '@/extension/stores/text'
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
+import { settings } from '@/extension/logic'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import { useMatchingStore } from '@/extension/stores/matching'
+import { useUIStore } from '@/extension/stores/ui'
 
 // TRANSLATION
 const { t } = useI18n()
 
-// Doi Store
-const doiStore = useDoiStore()
-const { extractedDois } = storeToRefs(doiStore)
-const { handleDoisExtraction } = doiStore
+// STORES
+const uiStore = useUIStore()
+const extractionStore = useExtractionStore()
+const matchingStore = useMatchingStore()
+const anystyleStore = useAnystyleStore()
 
-// TEXTAREA PLACEHOLDER
-const placeholder = computed(() => useAutoImport.value ? t('reload-page-auto-import') : t('insert-dois'))
+const { inputText } = storeToRefs(uiStore)
+const { isExtracting } = storeToRefs(extractionStore)
+const { isMatching } = storeToRefs(matchingStore)
 
-// SET SELECTED TEXT
-const { text } = storeToRefs(useTextStore())
+// TEXTAREA PLACEHOLDER - Dynamic based on AI setting
+const placeholder = computed(() => {
+  if (settings.value.extract.useAi) {
+    // AI mode - can handle various formats and unstructured text
+    return `${t('ai-placeholder-example')}:
+"Machine learning applications in healthcare research showed significant improvements..."
+Reference: Smith et al. Nature Medicine 2023, Vol 29, pp 1234-1245
+DOI: 10.1038/s41591-023-01234-5`
+  }
+  else {
+    // Parse mode - needs structured references
+    return `${t('parse-placeholder-example')}:
+Smith, J. (2020). Example article. Journal of Examples, 15(3), 123-145.
 
+Doe, J., & Brown, A. (2019). Another reference. Science Publishing, New York.`
+  }
+})
+
+// Handle incoming selected text from content script
 onMessage('selectedText', async ({ data }) => {
-  text.value = data.text
-  await handleTextChange(data.text)
+  inputText.value = data.text
 })
 
-// SET AUTO IMPORTED TEXT
-onMessage('autoImportText', async ({ data }) => {
-  if (!useAutoImport.value)
-    return
+// CLEAR HANDLER
+function handleClear() {
+  // Clear input text and display references
+  uiStore.clearAll()
+  // Also clear extracted references
+  extractionStore.clearExtractedReferences()
 
-  await handleTextChange(data.text)
-  text.value = extractedDois.value.length > 0 ? extractedDois.value.join('\n') : ''
-})
-
-// HANDLE TEXT CHANGE
-async function handleTextChange(newVal: string) {
-  await handleDoisExtraction(newVal)
+  anystyleStore.clearParseResults()
 }
+
+// DISABLED STATE - disabled when file is loaded or any process is running
+const disabled = computed(() => isExtracting.value || isMatching.value)
 </script>
 
 <template>
   <v-textarea
-    v-model="text"
-    auto-grow
+    v-model.trim="inputText"
     :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"
-    max-rows="8"
-    rows="2"
+    rows="4"
     variant="solo-filled"
     clearable
-    @update:model-value="handleTextChange($event)"
+    flat
+    :disabled
+    @click:clear="handleClear"
   />
 </template>

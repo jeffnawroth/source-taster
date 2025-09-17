@@ -4,20 +4,36 @@
   "scripts": {
     "dev": "tsx watch --env-file=.env src/index.ts",
     "build": "tsc",
-    "start": "node --env-file=.env dist/index.js",
+    "start": "node --experimental-specifier-resolution=node --env-file=.env dist/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.8",
-    "hono": "^4.7.2"
+    "@hono/node-server": "^1.19.2",
+    "@hono/zod-validator": "^0.7.2",
+    "@source-taster/types": "workspace:^",
+    "cheerio": "^1.1.2",
+    "crypto-js": "^4.2.0",
+    "damerau-levenshtein": "^1.0.8",
+    "hono": "^4.9.6",
+    "key-file-storage": "^2.3.3",
+    "lodash": "^4.17.21",
+    "normalize-url": "^8.1.0",
+    "openai": "^5.20.0",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
-    "@google/generative-ai": "^0.21.0",
     "@source-taster/eslint-config": "workspace:^",
-    "@types/node": "^20.17.19",
-    "eslint": "^9.21.0",
-    "tsx": "^4.19.3",
-    "typescript": "^5.7.3"
+    "@types/cheerio": "^1.0.0",
+    "@types/crypto-js": "^4.2.2",
+    "@types/damerau-levenshtein": "^1.0.2",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.3.1",
+    "eslint": "^9.35.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

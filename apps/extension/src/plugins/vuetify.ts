@@ -7,6 +7,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
 // Translations provided by Vuetify
 import { de, en } from 'vuetify/locale'
 
+// @ts-expect-error - vuetify styles import has TypeScript declaration issues
 import 'vuetify/styles'
 
 const vuetify = createVuetify({

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { localeOption } from '@/extension/logic/storage'
 import { mdiTranslate } from '@mdi/js'
-import { useLocale } from 'vuetify/lib/framework.mjs'
+import { useLocale } from 'vuetify'
 import { sendMessage } from 'webext-bridge/options'
+import { settings } from '@/extension/logic/storage'
 
 // LOCALE
 const { t } = useI18n()
@@ -15,32 +15,26 @@ const languages = ref([
 ])
 
 watchEffect(() => {
-  locale.value = localeOption.value
-  current.value = localeOption.value
+  locale.value = settings.value.locale
+  current.value = settings.value.locale
 })
 
-watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeOption.value }, { context: 'background', tabId: 0 }))
+watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: settings.value.locale }, { context: 'background', tabId: 0 }))
 </script>
 
 <template>
-  <v-container>
-    <p class="text-h5 font-weight-bold mb-3">
-      {{ t('language') }}
-    </p>
-
-    <p class="text-body-2 text-medium-emphasis">
-      {{ t('language-description') }}
-    </p>
-
-    <v-divider class="my-4" />
-
+  <SettingsPageLayout
+    :icon="mdiTranslate"
+    :title="t('language')"
+    :description="t('language-description')"
+  >
     <OptionListItem
       :title="t('language')"
       :subtitle="t('language-option-description')"
       :prepend-icon="mdiTranslate"
     >
       <v-select
-        v-model="localeOption"
+        v-model="settings.locale"
         :items="languages"
         :item-title="(option) => t(option.name.toLocaleLowerCase())"
         item-value="locale"
@@ -51,5 +45,5 @@ watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeO
         flat
       />
     </OptionListItem>
-  </v-container>
+  </SettingsPageLayout>
 </template>

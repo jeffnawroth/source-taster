@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1.6
+
+FROM ruby:3.2-slim AS base
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    build-essential \
+    libxml2-dev \
+    libxslt1-dev \
+    git \
+    curl \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN gem install anystyle anystyle-cli sinatra citeproc rackup puma nokogiri
+
+WORKDIR /app
+
+COPY anystyle-server.rb ./
+
+EXPOSE 4567
+
+CMD ["ruby", "anystyle-server.rb"]

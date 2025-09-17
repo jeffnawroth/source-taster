@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiCogOutline, mdiEarth, mdiHelpCircleOutline, mdiInformationOutline, mdiPalette, mdiRobotOutline } from '@mdi/js'
+import { mdiBrain, mdiEarth, mdiHelpCircleOutline, mdiInformationOutline, mdiPalette, mdiTune } from '@mdi/js'
 
 // I18n
 const { t } = useI18n()
@@ -9,10 +9,10 @@ const drawer = defineModel<boolean>()
 
 // Data
 const items = ref([
-  { prependIcon: mdiCogOutline, title: computed(() => t('general')), to: '/' },
-  { prependIcon: mdiPalette, title: computed(() => t('appearance')), to: '/appearance' },
+  { prependIcon: mdiTune, title: computed(() => t('expert-settings')), to: '/' },
+  { prependIcon: mdiBrain, title: computed(() => t('ai-settings-title')), to: '/ai' },
   { prependIcon: mdiEarth, title: computed(() => t('language')), to: '/language' },
-  { prependIcon: mdiRobotOutline, title: computed(() => t('ai')), to: '/ai' },
+  { prependIcon: mdiPalette, title: computed(() => t('appearance')), to: '/appearance' },
   { prependIcon: mdiInformationOutline, title: computed(() => t('about')), to: '/about' },
   { prependIcon: mdiHelpCircleOutline, title: computed(() => t('help')), to: '/help' },
 ])

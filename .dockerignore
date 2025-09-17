@@ -1,0 +1,16 @@
+.git
+.gitignore
+node_modules
+.pnpm-store
+dist
+apps/*/dist
+apps/*/.env.local
+apps/*/.turbo
+apps/*/node_modules
+packages/*/dist
+packages/*/node_modules
+Dockerfile
+docker-compose.yml
+*.log
+.DS_Store
+tmp

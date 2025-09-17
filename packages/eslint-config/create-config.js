@@ -9,5 +9,6 @@ export default function createConfig(options, ...userConfigs) {
       html: true,
       markdown: 'prettier',
     },
+    ...options,
   }, ...userConfigs)
 }
