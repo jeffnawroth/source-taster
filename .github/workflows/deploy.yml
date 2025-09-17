@@ -47,6 +47,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           script_stop: 'true'
           command_timeout: 30m
           script: |
