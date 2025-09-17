@@ -7,14 +7,16 @@ import type {
   UserAISettings,
 } from '@source-taster/types'
 import process from 'node:process'
-import { BaseMatchingService } from './baseMatchingService'
+// import { BaseMatchingService } from './baseMatchingService'
 import { ArxivService } from './databases/arxivService'
 import { CrossrefService } from './databases/crossrefService'
 import { EuropePmcService } from './databases/europePmcService'
 import { OpenAlexService } from './databases/openAlexService'
 import { SemanticScholarService } from './databases/semanticScholarService'
+import { DeterministicMatchingService } from './deterministicMatchingService'
 
-export class DatabaseMatchingService extends BaseMatchingService {
+// export class DatabaseMatchingService extends BaseMatchingService {
+export class DatabaseMatchingService {
   private readonly databaseServices = [
     { name: 'OpenAlex', service: new OpenAlexService() },
     { name: 'Crossref', service: new CrossrefService() },
@@ -23,8 +25,10 @@ export class DatabaseMatchingService extends BaseMatchingService {
     { name: 'ArXiv', service: new ArxivService() },
   ]
 
+  private readonly deterministicMatchingService = new DeterministicMatchingService()
+
   constructor() {
-    super()
+    // super()
   }
 
   async matchReference(
@@ -181,12 +185,12 @@ export class DatabaseMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     source: ExternalSource,
     matchingSettings: APIMatchingSettings,
-    aiSettings: UserAISettings,
+    _aiSettings: UserAISettings,
   ): Promise<SourceEvaluation> {
-    const matchResult = await this.matchWithAI(reference, source, matchingSettings, aiSettings)
+    const matchDetails = await this.deterministicMatchingService.matchReference(reference, source, matchingSettings)
     return {
       source,
-      matchDetails: matchResult.details,
+      matchDetails,
     }
   }
 

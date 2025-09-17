@@ -4,27 +4,29 @@ import type {
   ExternalSource,
   MatchDetails,
   MatchingReference,
-  UserAISettings,
   WebsiteMatchingOptions,
   WebsiteMatchingResult,
   WebsiteMetadata,
 } from '@source-taster/types'
 import * as cheerio from 'cheerio'
-import { BaseMatchingService } from './baseMatchingService'
+import { DeterministicMatchingService } from './deterministicMatchingService'
 
 /**
  * Service for matching references against website content
  * Handles URL accessibility, metadata extraction, and content matching
  */
-export class WebsiteMatchingService extends BaseMatchingService {
+// export class WebsiteMatchingService extends BaseMatchingService {
+export class WebsiteMatchingService {
   private readonly defaultOptions: Required<WebsiteMatchingOptions> = {
     timeout: 10000, // 10 seconds
     enableWaybackMachine: true,
     userAgent: 'Source-Taster-Bot/1.0 (https://source-taster.app)',
   }
 
+  private readonly deterministicMatchingService = new DeterministicMatchingService()
+
   constructor() {
-    super()
+    // super()
   }
 
   /**
@@ -34,7 +36,6 @@ export class WebsiteMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     url: string,
     matchingSettings: APIMatchingSettings,
-    aiSettings: UserAISettings,
     options?: WebsiteMatchingOptions,
   ): Promise<WebsiteMatchingResult> {
     const opts = { ...this.defaultOptions, ...options }
@@ -47,7 +48,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
         console.warn(`Extracted metadata for ${url}:`, JSON.stringify(websiteMetadata, null, 2))
 
         // Use a specialized website matching method
-        const matchResult = await this.matchWebsiteWithAI(reference, websiteMetadata, matchingSettings, aiSettings)
+        const matchResult = await this.matchWebsiteWithAI(reference, websiteMetadata, matchingSettings)
 
         console.warn(`AI matching result:`, JSON.stringify(matchResult, null, 2))
         return {
@@ -71,7 +72,7 @@ export class WebsiteMatchingService extends BaseMatchingService {
       try {
         const archivedVersion = await this.getArchivedVersion(url)
         if (archivedVersion && archivedVersion.metadata) {
-          const matchResult = await this.matchWebsiteWithAI(reference, archivedVersion.metadata, matchingSettings, aiSettings)
+          const matchResult = await this.matchWebsiteWithAI(reference, archivedVersion.metadata, matchingSettings)
           return {
             url,
             isAccessible: false,
@@ -692,16 +693,14 @@ export class WebsiteMatchingService extends BaseMatchingService {
     reference: MatchingReference,
     websiteMetadata: WebsiteMetadata,
     matchingSettings: APIMatchingSettings,
-    aiSettings: UserAISettings,
   ): Promise<{ details: MatchDetails }> {
     // Convert WebsiteMetadata to ExternalSource format
     const externalSource = this.convertWebsiteMetadataToExternalSource(websiteMetadata)
 
-    // Use the base matching logic with provided matching settings
-    const result = await this.matchWithAI(reference, externalSource, matchingSettings, aiSettings)
+    const matchDetails = await this.deterministicMatchingService.matchReference(reference, externalSource, matchingSettings)
 
     return {
-      details: result.details,
+      details: matchDetails,
     }
   }
 }
