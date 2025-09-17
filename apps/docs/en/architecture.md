@@ -24,6 +24,8 @@ flowchart LR
   API -->|HTTPS| Semantic[(Semantic Scholar)]
   API -->|HTTPS| Europe[(Europe PMC)]
   API -->|HTTPS| Arxiv[(arXiv)]
+  API -->|LLM Extraction| AIProviders[(AI Providers
+  OpenAI / Anthropic / Google / DeepSeek)]
   TypesNode["@source-taster/types"]
   Extension -. imports .-> TypesNode
   API -. imports .-> TypesNode
@@ -36,13 +38,15 @@ sequenceDiagram
   participant User
   participant Ext as Extension
   participant API as Hono API
+  participant LLM as AI Providers
   participant Any as AnyStyle
   participant OA as OpenAlex & Co.
 
   User->>Ext: Provide text / PDF
   Ext->>Ext: Extract PDF text (unpdf)
   Ext->>API: POST /api/extract (X-Client-Id)
-  API->>API: AIProviderFactory → OpenAIExtractionProvider
+  API->>LLM: Invoke extraction LLM (OpenAI / Anthropic / Google / DeepSeek)
+  LLM-->>API: Structured reference payload
   API->>Any: POST /parse (optional AnyStyle workflow)
   API-->>Ext: Extracted CSL references
   Ext->>Ext: Apply settings (fields, matching)

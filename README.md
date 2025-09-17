@@ -28,8 +28,11 @@ flowchart LR
   Semantic Scholar
   Europe PMC
   arXiv)]
+  API -->|LLM Extraction| AIProviders[(AI Providers<br/>OpenAI / Anthropic / Google / DeepSeek)]
+  TypesNode["@source-taster/types"]
   API -->|Responses| UI
-  UI -.->|Normalisation & Matching Settings| TypesNode["@source-taster/types"]
+  UI -.->|Normalisation & Matching Settings| TypesNode
+  API -.->|Shared Schemas| TypesNode
 ```
 
 ## Quick Start
