@@ -25,7 +25,7 @@ flowchart LR
   API -->|/api/anystyle| AnyStyle[(AnyStyle Server)]
   API -->|Fetch| External[(OpenAlex\nCrossref\nSemantic Scholar\nEurope PMC\narXiv)]
   API -->|Responses| UI
-  UI -.->|Normalisation & Matching Settings| Types[@source-taster/types]
+  UI -.->|Normalisation & Matching Settings| TypesNode["@source-taster/types"]
 ```
 
 ## Quick Start
