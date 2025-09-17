@@ -8,7 +8,7 @@ services:
     ports:
       - '8000:8000'
     volumes:
-      - ./.keystore:/app/.keystore
+      - ./apps/api/.keystore:/app/.keystore
     environment:
       ANYSTYLE_SERVER_URL: http://anystyle:4567
     restart: unless-stopped
