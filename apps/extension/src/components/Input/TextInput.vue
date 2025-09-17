@@ -4,7 +4,6 @@ import { onMessage } from 'webext-bridge/popup'
 import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
-import { useMatchingStore } from '@/extension/stores/matching'
 import { useUIStore } from '@/extension/stores/ui'
 
 // TRANSLATION
@@ -13,12 +12,9 @@ const { t } = useI18n()
 // STORES
 const uiStore = useUIStore()
 const extractionStore = useExtractionStore()
-const matchingStore = useMatchingStore()
 const anystyleStore = useAnystyleStore()
 
 const { inputText } = storeToRefs(uiStore)
-const { isExtracting } = storeToRefs(extractionStore)
-const { isMatching } = storeToRefs(matchingStore)
 
 // TEXTAREA PLACEHOLDER - Dynamic based on AI setting
 const placeholder = computed(() => {
@@ -52,9 +48,6 @@ function handleClear() {
 
   anystyleStore.clearParseResults()
 }
-
-// DISABLED STATE - disabled when file is loaded or any process is running
-const disabled = computed(() => isExtracting.value || isMatching.value)
 </script>
 
 <template>
@@ -67,7 +60,6 @@ const disabled = computed(() => isExtracting.value || isMatching.value)
     variant="solo-filled"
     clearable
     flat
-    :disabled
     @click:clear="handleClear"
   />
 </template>
