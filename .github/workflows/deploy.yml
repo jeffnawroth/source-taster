@@ -1,34 +1,58 @@
-name: Deploy
+name: Test and Deploy
 
 on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy
+  test:
+    name: Lint & Build
     runs-on: ubuntu-latest
     steps:
-      - name: executing remote ssh commands using password
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build workspace
+        run: pnpm build
+
+  deploy:
+    name: Deploy to VPS
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          passphrase: ${{ secrets.PASSPHRASE }}
+          script_stop: 'true'
+          command_timeout: 30m
           script: |
+            set -euo pipefail
             cd ${{ secrets.DEPLOY_PATH }}
-            eval "$(ssh-agent -s)"
-            echo "${{ secrets.PASSPHRASE }}" | ssh-add ${{ secrets.KEY_PATH }}
-            git pull origin main
-
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-
-            pnpm install
-            pnpm build
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose build --pull --no-cache
+            docker compose up -d --remove-orphans
