@@ -17,6 +17,16 @@ export const API_CONFIG = {
   endpoints: {
     extract: '/api/extract',
     match: '/api/match',
+    search: '/api/search',
+    anystyle: {
+      base: '/api/anystyle',
+      parse: '/api/anystyle/parse',
+      convertToCSL: '/api/anystyle/convert-to-csl',
+    },
+    user: {
+      base: '/api/user',
+      aiSecrets: '/api/user/ai-secrets',
+    },
   },
 } as const
 

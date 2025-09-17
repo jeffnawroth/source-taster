@@ -2,7 +2,7 @@
 import { mdiTranslate } from '@mdi/js'
 import { useLocale } from 'vuetify'
 import { sendMessage } from 'webext-bridge/options'
-import { localeOption } from '@/extension/logic/storage'
+import { settings } from '@/extension/logic/storage'
 
 // LOCALE
 const { t } = useI18n()
@@ -15,11 +15,11 @@ const languages = ref([
 ])
 
 watchEffect(() => {
-  locale.value = localeOption.value
-  current.value = localeOption.value
+  locale.value = settings.value.locale
+  current.value = settings.value.locale
 })
 
-watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeOption.value }, { context: 'background', tabId: 0 }))
+watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: settings.value.locale }, { context: 'background', tabId: 0 }))
 </script>
 
 <template>
@@ -34,7 +34,7 @@ watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: localeO
       :prepend-icon="mdiTranslate"
     >
       <v-select
-        v-model="localeOption"
+        v-model="settings.locale"
         :items="languages"
         :item-title="(option) => t(option.name.toLocaleLowerCase())"
         item-value="locale"

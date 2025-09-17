@@ -15,6 +15,10 @@ const { t } = useI18n()
 
     <v-divider class="my-4" />
 
+    <SearchSettings />
+
+    <v-divider class="my-4" />
+
     <MatchingSettings />
   </SettingsPageLayout>
 </template>

@@ -1,5 +1,6 @@
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import { isFirefox } from '@/extension/env'
+import { bootstrapStorage } from '@/extension/logic/bootstrap'
 import { getDisplayOption } from '@/extension/logic/storage'
 
 // only on dev mode
@@ -17,27 +18,57 @@ let isSidePanelOpen = false // Track Sidepanel open status
 let currentLocale: string
 
 // to toggle the sidepanel with the action button in chromium:
-if (USE_SIDE_PANEL) {
-  if (!isFirefox) {
-    // Chromium: sidePanel API
-    // @ts-expect-error missing types
-    browser.sidePanel
-      .setPanelBehavior({ openPanelOnActionClick: true })
-      .catch((error: unknown) => console.error('sidePanel error:', error))
-  }
-  else {
-    // @ts-expect-error missing types
-    if (!globalThis._sidepanelListenerAdded) {
-      browser.action.onClicked.addListener(() => {
-        browser.sidebarAction.toggle().catch((error: any) => {
-          console.error('sidebarAction.toggle error:', error)
-        })
-      })
+
+async function initBackground() {
+  // 1) Storage migrieren/resetten bevor IRGENDWAS anderes den Storage nutzt
+  await bootstrapStorage()
+
+  // 2) Sidepanel-Behavior setzen (wie vorher)
+  if (USE_SIDE_PANEL) {
+    if (!isFirefox) {
       // @ts-expect-error missing types
-      globalThis._sidepanelListenerAdded = true
+      browser.sidePanel
+        .setPanelBehavior({ openPanelOnActionClick: true })
+        .catch((error: unknown) => console.error('sidePanel error:', error))
+    }
+    else {
+      // @ts-expect-error missing types
+      if (!globalThis._sidepanelListenerAdded) {
+        browser.action.onClicked.addListener(() => {
+          browser.sidebarAction.toggle().catch((error: any) => {
+            console.error('sidebarAction.toggle error:', error)
+          })
+        })
+        // @ts-expect-error missing types
+        globalThis._sidepanelListenerAdded = true
+      }
     }
   }
+
+  // 4) Anzeige-Option laden und UI initialisieren – jetzt ist Storage sicher
+  try {
+    cachedDisplayOption = await getDisplayOption()
+    initializeView(cachedDisplayOption)
+  }
+  catch (error) {
+    console.error('Failed to load display option:', error)
+    initializeView('sidepanel') // Fallback
+  }
+
+  // 5) Initialen Context-Menu-Text korrekt setzen
+  await updateContextMenuState()
+
+  console.warn('[Background] Ready')
 }
+
+;(async () => {
+  try {
+    await initBackground()
+  }
+  catch (e) {
+    console.error('[Background] init failed', e)
+  }
+})()
 
 browser.runtime.onInstalled.addListener((): void => {
   // eslint-disable-next-line no-console

@@ -1,102 +1,18 @@
-<script setup lang="ts">
-import type { ExternalSource, FieldExtractionResult, Reference } from '@source-taster/types'
+<script setup lang="ts" generic="T extends ApiExtractReference | ApiSearchCandidate">
+import type { ApiExtractReference, ApiSearchCandidate } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAccountGroup, mdiAccountTie, mdiBookmark, mdiBookOpenBlankVariantOutline, mdiCalendarClock, mdiCalendarOutline, mdiCalendarRange, mdiChevronDown, mdiChevronUp, mdiDomain, mdiEarth, mdiFileDocumentOutline, mdiGavel, mdiIdentifier, mdiInformation, mdiLibrary, mdiLink, mdiMapMarker, mdiMedicalBag, mdiMicrophone, mdiNewspaper, mdiNotebookOutline, mdiNoteText, mdiNumeric, mdiOfficeBuilding, mdiRuler, mdiTag, mdiTelevision, mdiText, mdiTranslate } from '@mdi/js'
+import { formatCSLDateForDisplay, stringifyCSLName } from '@source-taster/types'
 
 const props = defineProps<{
-  reference: Reference | ExternalSource
+  reference: DeepReadonly<UnwrapNestedRefs<T>> | T
   subheader?: string
 }>()
 
 const { t } = useI18n()
 
-// Helper function to get all modifications for a specific field
-function getModificationsForField(fieldPath: string): FieldExtractionResult[] {
-  if (!('extractionResults' in props.reference) || !props.reference.extractionResults) {
-    return []
-  }
-
-  // Find modifications that match the exact fieldPath or are sub-fields of it
-  return props.reference.extractionResults.filter((mod) => {
-    // Exact match
-    if (mod.fieldPath === fieldPath) {
-      return true
-    }
-
-    // For arrays like authors, also match individual indices
-    if (fieldPath === 'metadata.authors' && mod.fieldPath.startsWith('metadata.authors[')) {
-      return true
-    }
-
-    // For date fields, match any sub-field of date
-    if (fieldPath === 'metadata.date' && mod.fieldPath.startsWith('metadata.date.')) {
-      return true
-    }
-
-    return false
-  })
-}
-
 // State for collapsible sections
-const showAdditionalFields = ref(false)
-const showAllCSLFields = ref(false)
-
-// Computed property for formatted date display
-const formattedDate = computed(() => {
-  const issued = props.reference.metadata.issued
-
-  if (!issued)
-    return null
-
-  // Handle string dates (EDTF format)
-  if (typeof issued === 'string') {
-    return issued
-  }
-
-  // Handle CSL date structure
-  if (issued['date-parts'] && issued['date-parts'][0]) {
-    const dateParts = issued['date-parts'][0]
-    const year = dateParts[0]
-    const month = dateParts[1]
-    const day = dateParts[2]
-
-    const parts: string[] = []
-
-    // Add day if available
-    if (day) {
-      parts.push(day.toString())
-    }
-
-    // Add month if available (convert number to name if needed)
-    if (month) {
-      if (typeof month === 'number') {
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        parts.push(monthNames[month - 1] || month.toString())
-      }
-      else {
-        parts.push(month.toString())
-      }
-    }
-
-    // Add year if available
-    if (year) {
-      parts.push(year.toString())
-    }
-
-    return parts.join(' ') || null
-  }
-
-  // Handle literal dates
-  if (issued.literal) {
-    return issued.literal
-  }
-
-  // Handle season
-  if (issued.season) {
-    return issued.season.toString()
-  }
-
-  return null
-})
+const showOtherFields = ref(false)
 
 // Main metadata fields configuration
 const mainFields = computed(() => [
@@ -106,7 +22,6 @@ const mainFields = computed(() => [
     icon: mdiText,
     title: t('original-text'),
     text: () => 'originalText' in props.reference ? props.reference.originalText : '',
-    fieldPath: null,
   },
   {
     id: 'title',
@@ -114,7 +29,6 @@ const mainFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('title'),
     text: () => props.reference.metadata.title,
-    fieldPath: 'metadata.title',
   },
   {
     id: 'authors',
@@ -122,12 +36,8 @@ const mainFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('authors'),
     text: () => props.reference.metadata.author?.map((author) => {
-      if (typeof author === 'string')
-        return author
-      const name = `${author.given || ''} ${author.family || ''}`.trim()
-      return name
+      return stringifyCSLName(author)
     }).join(', ') || '',
-    fieldPath: 'metadata.author',
   },
   {
     id: 'container-title',
@@ -135,15 +45,13 @@ const mainFields = computed(() => [
     icon: mdiEarth,
     title: t('containerTitle'),
     text: () => props.reference.metadata['container-title'] || '',
-    fieldPath: 'metadata.container-title',
   },
   {
-    id: 'publication-date',
-    condition: () => formattedDate.value,
+    id: 'issued',
+    condition: () => props.reference.metadata.issued,
     icon: mdiCalendarOutline,
-    title: t('publication-date'),
-    text: () => formattedDate.value || '',
-    fieldPath: 'metadata.issued',
+    title: t('issued'),
+    text: () => formatCSLDateForDisplay(props.reference.metadata.issued) || '',
   },
   {
     id: 'volume',
@@ -151,7 +59,6 @@ const mainFields = computed(() => [
     icon: mdiBookOpenBlankVariantOutline,
     title: t('volume'),
     text: () => props.reference.metadata.volume || '',
-    fieldPath: 'metadata.volume',
   },
   {
     id: 'issue',
@@ -159,7 +66,6 @@ const mainFields = computed(() => [
     icon: mdiCalendarRange,
     title: t('issue'),
     text: () => props.reference.metadata.issue || '',
-    fieldPath: 'metadata.issue',
   },
   {
     id: 'pages',
@@ -167,7 +73,6 @@ const mainFields = computed(() => [
     icon: mdiNotebookOutline,
     title: t('pages'),
     text: () => props.reference.metadata.page || '',
-    fieldPath: 'metadata.page',
   },
   {
     id: 'publisher',
@@ -175,7 +80,6 @@ const mainFields = computed(() => [
     icon: mdiDomain,
     title: t('publisher'),
     text: () => props.reference.metadata.publisher || '',
-    fieldPath: 'metadata.publisher',
   },
   {
     id: 'publication-place',
@@ -183,7 +87,6 @@ const mainFields = computed(() => [
     icon: mdiMapMarker,
     title: t('publication-place'),
     text: () => props.reference.metadata['publisher-place'] || '',
-    fieldPath: 'metadata.publisher-place',
   },
   {
     id: 'edition',
@@ -191,7 +94,6 @@ const mainFields = computed(() => [
     icon: mdiBookmark,
     title: t('edition'),
     text: () => props.reference.metadata.edition || '',
-    fieldPath: 'metadata.edition',
   },
   {
     id: 'type',
@@ -199,7 +101,6 @@ const mainFields = computed(() => [
     icon: mdiTag,
     title: t('type'),
     text: () => props.reference.metadata.type || '',
-    fieldPath: 'metadata.type',
   },
 ].filter(field => field.condition()))
 
@@ -211,7 +112,6 @@ const identifierFields = computed(() => [
     icon: mdiIdentifier,
     title: 'DOI',
     text: () => props.reference.metadata.DOI,
-    fieldPath: 'metadata.DOI',
     link: true,
   },
   {
@@ -220,7 +120,6 @@ const identifierFields = computed(() => [
     icon: mdiNewspaper,
     title: 'arXiv ID',
     text: () => props.reference.metadata.arxivId,
-    fieldPath: 'metadata.arxivId',
     link: true,
   },
   {
@@ -229,7 +128,6 @@ const identifierFields = computed(() => [
     icon: mdiMedicalBag,
     title: 'PMID',
     text: () => props.reference.metadata.PMID,
-    fieldPath: 'metadata.PMID',
     link: true,
   },
   {
@@ -238,7 +136,6 @@ const identifierFields = computed(() => [
     icon: mdiMedicalBag,
     title: 'PMCID',
     text: () => props.reference.metadata.PMCID,
-    fieldPath: 'metadata.PMCID',
     link: true,
   },
   {
@@ -247,7 +144,6 @@ const identifierFields = computed(() => [
     icon: mdiLibrary,
     title: 'ISBN',
     text: () => props.reference.metadata.ISBN,
-    fieldPath: 'metadata.ISBN',
     link: true,
   },
   {
@@ -256,7 +152,6 @@ const identifierFields = computed(() => [
     icon: mdiNewspaper,
     title: 'ISSN',
     text: () => props.reference.metadata.ISSN,
-    fieldPath: 'metadata.ISSN',
     link: true,
   },
 ].filter(field => field.condition()))
@@ -264,34 +159,24 @@ const identifierFields = computed(() => [
 // URL fields configuration
 const urlFields = computed(() => [
   {
-    id: 'external-url',
-    condition: () => 'url' in props.reference && props.reference.url,
-    icon: mdiLink,
-    title: 'URL',
-    text: () => 'url' in props.reference ? props.reference.url || '' : '',
-    fieldPath: 'url',
-    link: true,
-  },
-  {
-    id: 'source-url',
+    id: 'url',
     condition: () => props.reference.metadata.URL,
     icon: mdiLink,
-    title: t('source-url'),
+    title: t('url'),
     text: () => props.reference.metadata.URL || '',
-    fieldPath: 'metadata.URL',
     link: true,
   },
 ].filter(field => field.condition()))
 
-// Additional fields configuration - CSL Variables only
-const additionalFields = computed(() => [
+// Other fields configuration (collapsed section)
+const otherFieldConfigs = computed(() => [
+  // Commonly useful extras shown first
   {
     id: 'title-short',
     condition: () => props.reference.metadata['title-short'],
     icon: mdiFileDocumentOutline,
     title: t('title-short'),
     text: () => props.reference.metadata['title-short'] || '',
-    fieldPath: 'metadata.title-short',
   },
   {
     id: 'medium',
@@ -299,7 +184,6 @@ const additionalFields = computed(() => [
     icon: mdiTelevision,
     title: t('medium'),
     text: () => props.reference.metadata.medium || '',
-    fieldPath: 'metadata.medium',
   },
   {
     id: 'original-title',
@@ -307,7 +191,6 @@ const additionalFields = computed(() => [
     icon: mdiTranslate,
     title: t('original-title'),
     text: () => props.reference.metadata['original-title'] || '',
-    fieldPath: 'metadata.original-title',
   },
   {
     id: 'genre',
@@ -315,7 +198,6 @@ const additionalFields = computed(() => [
     icon: mdiTag,
     title: t('genre'),
     text: () => props.reference.metadata.genre || '',
-    fieldPath: 'metadata.genre',
   },
   {
     id: 'abstract',
@@ -323,7 +205,6 @@ const additionalFields = computed(() => [
     icon: mdiText,
     title: t('abstract'),
     text: () => props.reference.metadata.abstract || '',
-    fieldPath: 'metadata.abstract',
   },
   {
     id: 'language',
@@ -331,7 +212,6 @@ const additionalFields = computed(() => [
     icon: mdiTranslate,
     title: t('language'),
     text: () => props.reference.metadata.language || '',
-    fieldPath: 'metadata.language',
   },
   {
     id: 'note',
@@ -339,7 +219,6 @@ const additionalFields = computed(() => [
     icon: mdiNotebookOutline,
     title: t('note'),
     text: () => props.reference.metadata.note || '',
-    fieldPath: 'metadata.note',
   },
   {
     id: 'number',
@@ -347,7 +226,6 @@ const additionalFields = computed(() => [
     icon: mdiNumeric,
     title: t('number'),
     text: () => props.reference.metadata.number || '',
-    fieldPath: 'metadata.number',
   },
   {
     id: 'number-of-pages',
@@ -355,7 +233,6 @@ const additionalFields = computed(() => [
     icon: mdiNotebookOutline,
     title: t('number-of-pages'),
     text: () => props.reference.metadata['number-of-pages'] || '',
-    fieldPath: 'metadata.number-of-pages',
   },
   {
     id: 'event',
@@ -363,7 +240,6 @@ const additionalFields = computed(() => [
     icon: mdiMicrophone,
     title: t('event'),
     text: () => props.reference.metadata.event || '',
-    fieldPath: 'metadata.event',
   },
   {
     id: 'event-title',
@@ -371,7 +247,6 @@ const additionalFields = computed(() => [
     icon: mdiMicrophone,
     title: t('event-title'),
     text: () => props.reference.metadata['event-title'] || '',
-    fieldPath: 'metadata.event-title',
   },
   {
     id: 'event-place',
@@ -379,12 +254,9 @@ const additionalFields = computed(() => [
     icon: mdiMapMarker,
     title: t('event-place'),
     text: () => props.reference.metadata['event-place'] || '',
-    fieldPath: 'metadata.event-place',
   },
-].filter(field => field.condition()))
 
-// All CSL Fields configuration - comprehensive coverage
-const allCSLFields = computed(() => [
+  // Comprehensive CSL coverage
   // Contributors (Name fields)
   {
     id: 'editor',
@@ -392,13 +264,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('editor'),
     text: () => props.reference.metadata.editor?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.editor',
-    category: 'contributors',
   },
   {
     id: 'translator',
@@ -406,13 +273,8 @@ const allCSLFields = computed(() => [
     icon: mdiTranslate,
     title: t('translator'),
     text: () => props.reference.metadata.translator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.translator',
-    category: 'contributors',
   },
   {
     id: 'director',
@@ -420,13 +282,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('director'),
     text: () => props.reference.metadata.director?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.director',
-    category: 'contributors',
   },
   {
     id: 'chair',
@@ -434,13 +291,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('chair'),
     text: () => props.reference.metadata.chair?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.chair',
-    category: 'contributors',
   },
   {
     id: 'collection-editor',
@@ -448,13 +300,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('collection-editor'),
     text: () => props.reference.metadata['collection-editor']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.collection-editor',
-    category: 'contributors',
   },
   {
     id: 'compiler',
@@ -462,13 +309,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('compiler'),
     text: () => props.reference.metadata.compiler?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.compiler',
-    category: 'contributors',
   },
   {
     id: 'composer',
@@ -476,13 +318,8 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('composer'),
     text: () => props.reference.metadata.composer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.composer',
-    category: 'contributors',
   },
   {
     id: 'container-author',
@@ -490,13 +327,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('container-author'),
     text: () => props.reference.metadata['container-author']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.container-author',
-    category: 'contributors',
   },
   {
     id: 'contributor',
@@ -504,13 +336,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('contributor'),
     text: () => props.reference.metadata.contributor?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.contributor',
-    category: 'contributors',
   },
   {
     id: 'curator',
@@ -518,13 +345,8 @@ const allCSLFields = computed(() => [
     icon: mdiLibrary,
     title: t('curator'),
     text: () => props.reference.metadata.curator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.curator',
-    category: 'contributors',
   },
   {
     id: 'editorial-director',
@@ -532,13 +354,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('editorial-director'),
     text: () => props.reference.metadata['editorial-director']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.editorial-director',
-    category: 'contributors',
   },
   {
     id: 'executive-producer',
@@ -546,13 +363,8 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('executive-producer'),
     text: () => props.reference.metadata['executive-producer']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.executive-producer',
-    category: 'contributors',
   },
   {
     id: 'guest',
@@ -560,13 +372,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('guest'),
     text: () => props.reference.metadata.guest?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.guest',
-    category: 'contributors',
   },
   {
     id: 'host',
@@ -574,13 +381,8 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('host'),
     text: () => props.reference.metadata.host?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.host',
-    category: 'contributors',
   },
   {
     id: 'interviewer',
@@ -588,13 +390,8 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('interviewer'),
     text: () => props.reference.metadata.interviewer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.interviewer',
-    category: 'contributors',
   },
   {
     id: 'illustrator',
@@ -602,13 +399,8 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('illustrator'),
     text: () => props.reference.metadata.illustrator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.illustrator',
-    category: 'contributors',
   },
   {
     id: 'narrator',
@@ -616,13 +408,8 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('narrator'),
     text: () => props.reference.metadata.narrator?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.narrator',
-    category: 'contributors',
   },
   {
     id: 'organizer',
@@ -630,13 +417,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountTie,
     title: t('organizer'),
     text: () => props.reference.metadata.organizer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.organizer',
-    category: 'contributors',
   },
   {
     id: 'original-author',
@@ -644,13 +426,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('original-author'),
     text: () => props.reference.metadata['original-author']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.original-author',
-    category: 'contributors',
   },
   {
     id: 'performer',
@@ -658,13 +435,8 @@ const allCSLFields = computed(() => [
     icon: mdiMicrophone,
     title: t('performer'),
     text: () => props.reference.metadata.performer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.performer',
-    category: 'contributors',
   },
   {
     id: 'producer',
@@ -672,13 +444,8 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('producer'),
     text: () => props.reference.metadata.producer?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.producer',
-    category: 'contributors',
   },
   {
     id: 'recipient',
@@ -686,13 +453,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('recipient'),
     text: () => props.reference.metadata.recipient?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.recipient',
-    category: 'contributors',
   },
   {
     id: 'reviewed-author',
@@ -700,13 +462,8 @@ const allCSLFields = computed(() => [
     icon: mdiAccountGroup,
     title: t('reviewed-author'),
     text: () => props.reference.metadata['reviewed-author']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.reviewed-author',
-    category: 'contributors',
   },
   {
     id: 'script-writer',
@@ -714,13 +471,8 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('script-writer'),
     text: () => props.reference.metadata['script-writer']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.script-writer',
-    category: 'contributors',
   },
   {
     id: 'series-creator',
@@ -728,13 +480,8 @@ const allCSLFields = computed(() => [
     icon: mdiTelevision,
     title: t('series-creator'),
     text: () => props.reference.metadata['series-creator']?.map((person) => {
-      if (typeof person === 'string')
-        return person
-      const name = `${person.given || ''} ${person.family || ''}`.trim()
-      return name
+      return stringifyCSLName(person)
     }).join(', ') || '',
-    fieldPath: 'metadata.series-creator',
-    category: 'contributors',
   },
   // Dates
   {
@@ -742,91 +489,35 @@ const allCSLFields = computed(() => [
     condition: () => props.reference.metadata.accessed,
     icon: mdiCalendarClock,
     title: t('accessed'),
-    text: () => {
-      const accessed = props.reference.metadata.accessed
-      if (typeof accessed === 'string')
-        return accessed
-      // Handle CSL date structure similar to issued
-      if (accessed?.['date-parts']?.[0]) {
-        const dateParts = accessed['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return accessed?.literal || ''
-    },
-    fieldPath: 'metadata.accessed',
-    category: 'dates',
+    text: () => formatCSLDateForDisplay(props.reference.metadata.accessed) || '',
   },
   {
     id: 'submitted',
     condition: () => props.reference.metadata.submitted,
     icon: mdiCalendarClock,
     title: t('submitted'),
-    text: () => {
-      const submitted = props.reference.metadata.submitted
-      if (typeof submitted === 'string')
-        return submitted
-      if (submitted?.['date-parts']?.[0]) {
-        const dateParts = submitted['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return submitted?.literal || ''
-    },
-    fieldPath: 'metadata.submitted',
-    category: 'dates',
+    text: () => formatCSLDateForDisplay(props.reference.metadata.submitted) || '',
   },
   {
     id: 'available-date',
     condition: () => props.reference.metadata['available-date'],
     icon: mdiCalendarClock,
     title: t('available-date'),
-    text: () => {
-      const date = props.reference.metadata['available-date']
-      if (typeof date === 'string')
-        return date
-      if (date?.['date-parts']?.[0]) {
-        const dateParts = date['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return date?.literal || date?.raw || ''
-    },
-    fieldPath: 'metadata.available-date',
-    category: 'dates',
+    text: () => formatCSLDateForDisplay(props.reference.metadata['available-date']) || '',
   },
   {
     id: 'event-date',
     condition: () => props.reference.metadata['event-date'],
     icon: mdiCalendarClock,
     title: t('event-date'),
-    text: () => {
-      const date = props.reference.metadata['event-date']
-      if (typeof date === 'string')
-        return date
-      if (date?.['date-parts']?.[0]) {
-        const dateParts = date['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return date?.literal || date?.raw || ''
-    },
-    fieldPath: 'metadata.event-date',
-    category: 'dates',
+    text: () => formatCSLDateForDisplay(props.reference.metadata['event-date']) || '',
   },
   {
     id: 'original-date',
     condition: () => props.reference.metadata['original-date'],
     icon: mdiCalendarClock,
     title: t('original-date'),
-    text: () => {
-      const date = props.reference.metadata['original-date']
-      if (typeof date === 'string')
-        return date
-      if (date?.['date-parts']?.[0]) {
-        const dateParts = date['date-parts'][0]
-        return dateParts.join('-')
-      }
-      return date?.literal || date?.raw || ''
-    },
-    fieldPath: 'metadata.original-date',
-    category: 'dates',
+    text: () => formatCSLDateForDisplay(props.reference.metadata['original-date']) || '',
   },
   // Bibliographic
   {
@@ -835,8 +526,6 @@ const allCSLFields = computed(() => [
     icon: mdiBookmark,
     title: t('collection-title'),
     text: () => props.reference.metadata['collection-title'] || '',
-    fieldPath: 'metadata.collection-title',
-    category: 'bibliographic',
   },
   {
     id: 'container-title-short',
@@ -844,8 +533,6 @@ const allCSLFields = computed(() => [
     icon: mdiEarth,
     title: t('container-title-short'),
     text: () => props.reference.metadata['container-title-short'] || '',
-    fieldPath: 'metadata.container-title-short',
-    category: 'bibliographic',
   },
   {
     id: 'part-title',
@@ -853,8 +540,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('part-title'),
     text: () => props.reference.metadata['part-title'] || '',
-    fieldPath: 'metadata.part-title',
-    category: 'bibliographic',
   },
   {
     id: 'title-short',
@@ -862,8 +547,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('title-short'),
     text: () => props.reference.metadata['title-short'] || '',
-    fieldPath: 'metadata.title-short',
-    category: 'bibliographic',
   },
   {
     id: 'original-title',
@@ -871,8 +554,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('original-title'),
     text: () => props.reference.metadata['original-title'] || '',
-    fieldPath: 'metadata.original-title',
-    category: 'bibliographic',
   },
   {
     id: 'reviewed-title',
@@ -880,8 +561,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('reviewed-title'),
     text: () => props.reference.metadata['reviewed-title'] || '',
-    fieldPath: 'metadata.reviewed-title',
-    category: 'bibliographic',
   },
   {
     id: 'collection-number',
@@ -889,8 +568,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('collection-number'),
     text: () => props.reference.metadata['collection-number'] || '',
-    fieldPath: 'metadata.collection-number',
-    category: 'bibliographic',
   },
   {
     id: 'chapter-number',
@@ -898,8 +575,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('chapter-number'),
     text: () => props.reference.metadata['chapter-number'] || '',
-    fieldPath: 'metadata.chapter-number',
-    category: 'bibliographic',
   },
   {
     id: 'citation-number',
@@ -907,8 +582,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('citation-number'),
     text: () => props.reference.metadata['citation-number'] || '',
-    fieldPath: 'metadata.citation-number',
-    category: 'bibliographic',
   },
   {
     id: 'citation-label',
@@ -916,8 +589,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('citation-label'),
     text: () => props.reference.metadata['citation-label'] || '',
-    fieldPath: 'metadata.citation-label',
-    category: 'bibliographic',
   },
   {
     id: 'first-reference-note-number',
@@ -925,8 +596,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('first-reference-note-number'),
     text: () => props.reference.metadata['first-reference-note-number'] || '',
-    fieldPath: 'metadata.first-reference-note-number',
-    category: 'bibliographic',
   },
   {
     id: 'genre',
@@ -934,8 +603,6 @@ const allCSLFields = computed(() => [
     icon: mdiTag,
     title: t('genre'),
     text: () => props.reference.metadata.genre || '',
-    fieldPath: 'metadata.genre',
-    category: 'bibliographic',
   },
   {
     id: 'issue',
@@ -943,8 +610,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('issue'),
     text: () => props.reference.metadata.issue || '',
-    fieldPath: 'metadata.issue',
-    category: 'bibliographic',
   },
   {
     id: 'jurisdiction',
@@ -952,8 +617,6 @@ const allCSLFields = computed(() => [
     icon: mdiMapMarker,
     title: t('jurisdiction'),
     text: () => props.reference.metadata.jurisdiction || '',
-    fieldPath: 'metadata.jurisdiction',
-    category: 'bibliographic',
   },
   {
     id: 'keyword',
@@ -961,8 +624,6 @@ const allCSLFields = computed(() => [
     icon: mdiTag,
     title: t('keyword'),
     text: () => props.reference.metadata.keyword || '',
-    fieldPath: 'metadata.keyword',
-    category: 'bibliographic',
   },
   {
     id: 'locator',
@@ -970,8 +631,6 @@ const allCSLFields = computed(() => [
     icon: mdiMapMarker,
     title: t('locator'),
     text: () => props.reference.metadata.locator || '',
-    fieldPath: 'metadata.locator',
-    category: 'bibliographic',
   },
   {
     id: 'medium',
@@ -979,8 +638,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('medium'),
     text: () => props.reference.metadata.medium || '',
-    fieldPath: 'metadata.medium',
-    category: 'bibliographic',
   },
   {
     id: 'note',
@@ -988,8 +645,6 @@ const allCSLFields = computed(() => [
     icon: mdiNoteText,
     title: t('note'),
     text: () => props.reference.metadata.note || '',
-    fieldPath: 'metadata.note',
-    category: 'bibliographic',
   },
   {
     id: 'number',
@@ -997,8 +652,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('number'),
     text: () => props.reference.metadata.number || '',
-    fieldPath: 'metadata.number',
-    category: 'bibliographic',
   },
   {
     id: 'number-of-pages',
@@ -1006,8 +659,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('number-of-pages'),
     text: () => props.reference.metadata['number-of-pages'] || '',
-    fieldPath: 'metadata.number-of-pages',
-    category: 'bibliographic',
   },
   {
     id: 'number-of-volumes',
@@ -1015,8 +666,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('number-of-volumes'),
     text: () => props.reference.metadata['number-of-volumes'] || '',
-    fieldPath: 'metadata.number-of-volumes',
-    category: 'bibliographic',
   },
   {
     id: 'original-publisher',
@@ -1024,8 +673,6 @@ const allCSLFields = computed(() => [
     icon: mdiOfficeBuilding,
     title: t('original-publisher'),
     text: () => props.reference.metadata['original-publisher'] || '',
-    fieldPath: 'metadata.original-publisher',
-    category: 'bibliographic',
   },
   {
     id: 'original-publisher-place',
@@ -1033,8 +680,6 @@ const allCSLFields = computed(() => [
     icon: mdiMapMarker,
     title: t('original-publisher-place'),
     text: () => props.reference.metadata['original-publisher-place'] || '',
-    fieldPath: 'metadata.original-publisher-place',
-    category: 'bibliographic',
   },
   {
     id: 'page',
@@ -1042,8 +687,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('page'),
     text: () => props.reference.metadata.page || '',
-    fieldPath: 'metadata.page',
-    category: 'bibliographic',
   },
   {
     id: 'page-first',
@@ -1051,8 +694,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('page-first'),
     text: () => props.reference.metadata['page-first'] || '',
-    fieldPath: 'metadata.page-first',
-    category: 'bibliographic',
   },
   {
     id: 'references',
@@ -1060,8 +701,6 @@ const allCSLFields = computed(() => [
     icon: mdiBookmark,
     title: t('references'),
     text: () => props.reference.metadata.references || '',
-    fieldPath: 'metadata.references',
-    category: 'bibliographic',
   },
   {
     id: 'section',
@@ -1069,8 +708,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('section'),
     text: () => props.reference.metadata.section || '',
-    fieldPath: 'metadata.section',
-    category: 'bibliographic',
   },
   {
     id: 'source',
@@ -1078,8 +715,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('source'),
     text: () => props.reference.metadata.source || '',
-    fieldPath: 'metadata.source',
-    category: 'bibliographic',
   },
   {
     id: 'status',
@@ -1087,8 +722,6 @@ const allCSLFields = computed(() => [
     icon: mdiInformation,
     title: t('status'),
     text: () => props.reference.metadata.status || '',
-    fieldPath: 'metadata.status',
-    category: 'bibliographic',
   },
   {
     id: 'supplement',
@@ -1096,8 +729,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('supplement'),
     text: () => props.reference.metadata.supplement || '',
-    fieldPath: 'metadata.supplement',
-    category: 'bibliographic',
   },
   {
     id: 'version',
@@ -1105,8 +736,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('version'),
     text: () => props.reference.metadata.version || '',
-    fieldPath: 'metadata.version',
-    category: 'bibliographic',
   },
   {
     id: 'volume',
@@ -1114,8 +743,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('volume'),
     text: () => props.reference.metadata.volume || '',
-    fieldPath: 'metadata.volume',
-    category: 'bibliographic',
   },
   {
     id: 'volume-title',
@@ -1123,8 +750,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('volume-title'),
     text: () => props.reference.metadata['volume-title'] || '',
-    fieldPath: 'metadata.volume-title',
-    category: 'bibliographic',
   },
   {
     id: 'volume-title-short',
@@ -1132,8 +757,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('volume-title-short'),
     text: () => props.reference.metadata['volume-title-short'] || '',
-    fieldPath: 'metadata.volume-title-short',
-    category: 'bibliographic',
   },
   {
     id: 'year-suffix',
@@ -1141,8 +764,6 @@ const allCSLFields = computed(() => [
     icon: mdiCalendarClock,
     title: t('year-suffix'),
     text: () => props.reference.metadata['year-suffix'] || '',
-    fieldPath: 'metadata.year-suffix',
-    category: 'bibliographic',
   },
   // Technical/Archive
   {
@@ -1151,8 +772,6 @@ const allCSLFields = computed(() => [
     icon: mdiLibrary,
     title: t('archive'),
     text: () => props.reference.metadata.archive || '',
-    fieldPath: 'metadata.archive',
-    category: 'technical',
   },
   {
     id: 'call-number',
@@ -1160,8 +779,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('call-number'),
     text: () => props.reference.metadata['call-number'] || '',
-    fieldPath: 'metadata.call-number',
-    category: 'technical',
   },
   {
     id: 'archive-collection',
@@ -1169,8 +786,6 @@ const allCSLFields = computed(() => [
     icon: mdiLibrary,
     title: t('archive-collection'),
     text: () => props.reference.metadata.archive_collection || '',
-    fieldPath: 'metadata.archive_collection',
-    category: 'technical',
   },
   {
     id: 'archive-location',
@@ -1178,8 +793,6 @@ const allCSLFields = computed(() => [
     icon: mdiMapMarker,
     title: t('archive-location'),
     text: () => props.reference.metadata.archive_location || '',
-    fieldPath: 'metadata.archive_location',
-    category: 'technical',
   },
   {
     id: 'archive-place',
@@ -1187,8 +800,6 @@ const allCSLFields = computed(() => [
     icon: mdiMapMarker,
     title: t('archive-place'),
     text: () => props.reference.metadata['archive-place'] || '',
-    fieldPath: 'metadata.archive-place',
-    category: 'technical',
   },
   {
     id: 'authority',
@@ -1196,8 +807,6 @@ const allCSLFields = computed(() => [
     icon: mdiGavel,
     title: t('authority'),
     text: () => props.reference.metadata.authority || '',
-    fieldPath: 'metadata.authority',
-    category: 'technical',
   },
   {
     id: 'event',
@@ -1205,8 +814,6 @@ const allCSLFields = computed(() => [
     icon: mdiCalendarRange,
     title: t('event'),
     text: () => props.reference.metadata.event || '',
-    fieldPath: 'metadata.event',
-    category: 'technical',
   },
   {
     id: 'event-place',
@@ -1214,8 +821,6 @@ const allCSLFields = computed(() => [
     icon: mdiMapMarker,
     title: t('event-place'),
     text: () => props.reference.metadata['event-place'] || '',
-    fieldPath: 'metadata.event-place',
-    category: 'technical',
   },
   {
     id: 'event-title',
@@ -1223,8 +828,6 @@ const allCSLFields = computed(() => [
     icon: mdiCalendarRange,
     title: t('event-title'),
     text: () => props.reference.metadata['event-title'] || '',
-    fieldPath: 'metadata.event-title',
-    category: 'technical',
   },
   {
     id: 'language',
@@ -1232,8 +835,6 @@ const allCSLFields = computed(() => [
     icon: mdiTranslate,
     title: t('language'),
     text: () => props.reference.metadata.language || '',
-    fieldPath: 'metadata.language',
-    category: 'technical',
   },
   {
     id: 'annote',
@@ -1241,8 +842,6 @@ const allCSLFields = computed(() => [
     icon: mdiNoteText,
     title: t('annote'),
     text: () => props.reference.metadata.annote || '',
-    fieldPath: 'metadata.annote',
-    category: 'technical',
   },
   {
     id: 'abstract',
@@ -1250,8 +849,6 @@ const allCSLFields = computed(() => [
     icon: mdiText,
     title: t('abstract'),
     text: () => props.reference.metadata.abstract || '',
-    fieldPath: 'metadata.abstract',
-    category: 'technical',
   },
   {
     id: 'dimensions',
@@ -1259,8 +856,6 @@ const allCSLFields = computed(() => [
     icon: mdiRuler,
     title: t('dimensions'),
     text: () => props.reference.metadata.dimensions || '',
-    fieldPath: 'metadata.dimensions',
-    category: 'technical',
   },
   {
     id: 'division',
@@ -1268,8 +863,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('division'),
     text: () => props.reference.metadata.division || '',
-    fieldPath: 'metadata.division',
-    category: 'bibliographic',
   },
   {
     id: 'part',
@@ -1277,8 +870,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('part'),
     text: () => props.reference.metadata.part || '',
-    fieldPath: 'metadata.part',
-    category: 'bibliographic',
   },
   {
     id: 'printing',
@@ -1286,8 +877,6 @@ const allCSLFields = computed(() => [
     icon: mdiNumeric,
     title: t('printing'),
     text: () => props.reference.metadata.printing || '',
-    fieldPath: 'metadata.printing',
-    category: 'bibliographic',
   },
   {
     id: 'reviewed-genre',
@@ -1295,8 +884,6 @@ const allCSLFields = computed(() => [
     icon: mdiTag,
     title: t('reviewed-genre'),
     text: () => props.reference.metadata['reviewed-genre'] || '',
-    fieldPath: 'metadata.reviewed-genre',
-    category: 'bibliographic',
   },
   {
     id: 'scale',
@@ -1304,8 +891,6 @@ const allCSLFields = computed(() => [
     icon: mdiRuler,
     title: t('scale'),
     text: () => props.reference.metadata.scale || '',
-    fieldPath: 'metadata.scale',
-    category: 'technical',
   },
   {
     id: 'categories',
@@ -1313,8 +898,6 @@ const allCSLFields = computed(() => [
     icon: mdiTag,
     title: t('categories'),
     text: () => props.reference.metadata.categories?.join(', ') || '',
-    fieldPath: 'metadata.categories',
-    category: 'technical',
   },
   {
     id: 'citation-key',
@@ -1322,8 +905,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('citation-key'),
     text: () => props.reference.metadata['citation-key'] || '',
-    fieldPath: 'metadata.citation-key',
-    category: 'technical',
   },
   {
     id: 'journalAbbreviation',
@@ -1331,8 +912,6 @@ const allCSLFields = computed(() => [
     icon: mdiNewspaper,
     title: t('journalAbbreviation'),
     text: () => props.reference.metadata.journalAbbreviation || '',
-    fieldPath: 'metadata.journalAbbreviation',
-    category: 'technical',
   },
   {
     id: 'shortTitle',
@@ -1340,8 +919,6 @@ const allCSLFields = computed(() => [
     icon: mdiFileDocumentOutline,
     title: t('shortTitle'),
     text: () => props.reference.metadata.shortTitle || '',
-    fieldPath: 'metadata.shortTitle',
-    category: 'technical',
   },
   {
     id: 'custom',
@@ -1349,37 +926,34 @@ const allCSLFields = computed(() => [
     icon: mdiTag,
     title: t('custom'),
     text: () => JSON.stringify(props.reference.metadata.custom) || '',
-    fieldPath: 'metadata.custom',
-    category: 'technical',
   },
+
 ].filter(field => field.condition()))
+const otherFields = computed(() => {
+  const excludedIds = new Set([
+    ...mainFields.value.map(field => field.id),
+    ...identifierFields.value.map(field => field.id),
+    ...urlFields.value.map(field => field.id),
+  ])
 
-// Computed properties to check if additional fields exist
-const hasAdditionalFields = computed(() => {
-  return additionalFields.value.length > 0
-})
+  const seen = new Set<string>()
 
-// Check if all CSL fields section should be shown
-const hasAllCSLFields = computed(() => {
-  return allCSLFields.value.length > 0
-})
-
-// Group all CSL fields by category
-const groupedCSLFields = computed(() => {
-  const groups = {
-    contributors: [] as any[],
-    dates: [] as any[],
-    bibliographic: [] as any[],
-    technical: [] as any[],
-  }
-
-  allCSLFields.value.forEach((field) => {
-    if (groups[field.category as keyof typeof groups]) {
-      groups[field.category as keyof typeof groups].push(field)
+  return otherFieldConfigs.value.filter((field) => {
+    if (excludedIds.has(field.id)) {
+      return false
     }
-  })
 
-  return groups
+    if (seen.has(field.id)) {
+      return false
+    }
+
+    seen.add(field.id)
+    return true
+  })
+})
+
+const hasOtherFields = computed(() => {
+  return otherFields.value.length > 0
 })
 
 // Check if identifier section should be shown
@@ -1391,7 +965,6 @@ const hasIdentifiers = computed(() => {
 <template>
   <v-list
     density="compact"
-    slim
   >
     <v-list-subheader>{{ subheader }}</v-list-subheader>
 
@@ -1402,7 +975,6 @@ const hasIdentifiers = computed(() => {
       :icon="field.icon"
       :title="field.title"
       :text="field.text()"
-      :modifications="field.fieldPath ? getModificationsForField(field.fieldPath) : []"
     />
 
     <!-- IDENTIFIERS SECTION -->
@@ -1415,7 +987,6 @@ const hasIdentifiers = computed(() => {
         :icon="field.icon"
         :title="field.title"
         :text="field.text()"
-        :modifications="field.fieldPath ? getModificationsForField(field.fieldPath) : []"
         :link="field.link"
       />
     </template>
@@ -1430,103 +1001,26 @@ const hasIdentifiers = computed(() => {
       :link="field.link"
     />
 
-    <!-- ADDITIONAL FIELDS SECTION (Collapsible) -->
-    <template v-if="hasAdditionalFields">
+    <!-- OTHER FIELDS SECTION (Collapsible) -->
+    <template v-if="hasOtherFields">
       <v-divider class="my-2" />
 
       <v-list-item
-        :title="showAdditionalFields ? t('hide-additional-fields') : t('show-additional-fields')"
-        :prepend-icon="showAdditionalFields ? mdiChevronUp : mdiChevronDown"
+        :title="showOtherFields ? t('hide-all-fields') : t('show-all-fields')"
+        :prepend-icon="showOtherFields ? mdiChevronUp : mdiChevronDown"
         nav
-        @click="showAdditionalFields = !showAdditionalFields"
+        @click="showOtherFields = !showOtherFields"
       />
 
       <v-expand-transition>
-        <div v-if="showAdditionalFields">
+        <div v-if="showOtherFields">
           <ReferenceMetadataItem
-            v-for="field in additionalFields"
+            v-for="field in otherFields"
             :key="field.id"
             :icon="field.icon"
             :title="field.title"
             :text="field.text()"
-            :modifications="field.fieldPath ? getModificationsForField(field.fieldPath) : []"
           />
-        </div>
-      </v-expand-transition>
-    </template>
-
-    <!-- ALL CSL FIELDS SECTION (Collapsible, Categorized) -->
-    <template v-if="hasAllCSLFields">
-      <v-divider class="my-2" />
-
-      <v-list-item
-        :title="showAllCSLFields ? t('hide-all-csl-fields') : t('show-all-csl-fields')"
-        :prepend-icon="showAllCSLFields ? mdiChevronUp : mdiChevronDown"
-        nav
-        @click="showAllCSLFields = !showAllCSLFields"
-      />
-
-      <v-expand-transition>
-        <div v-if="showAllCSLFields">
-          <!-- Contributors -->
-          <template v-if="groupedCSLFields.contributors.length > 0">
-            <v-list-subheader class="text-sm font-weight-medium text-primary">
-              {{ t('contributors') }}
-            </v-list-subheader>
-            <ReferenceMetadataItem
-              v-for="field in groupedCSLFields.contributors"
-              :key="field.id"
-              :icon="field.icon"
-              :title="field.title"
-              :text="field.text()"
-              :modifications="field.fieldPath ? getModificationsForField(field.fieldPath) : []"
-            />
-          </template>
-
-          <!-- Dates -->
-          <template v-if="groupedCSLFields.dates.length > 0">
-            <v-list-subheader class="text-sm font-weight-medium text-primary">
-              {{ t('dates') }}
-            </v-list-subheader>
-            <ReferenceMetadataItem
-              v-for="field in groupedCSLFields.dates"
-              :key="field.id"
-              :icon="field.icon"
-              :title="field.title"
-              :text="field.text()"
-              :modifications="field.fieldPath ? getModificationsForField(field.fieldPath) : []"
-            />
-          </template>
-
-          <!-- Bibliographic -->
-          <template v-if="groupedCSLFields.bibliographic.length > 0">
-            <v-list-subheader class="text-sm font-weight-medium text-primary">
-              {{ t('bibliographic') }}
-            </v-list-subheader>
-            <ReferenceMetadataItem
-              v-for="field in groupedCSLFields.bibliographic"
-              :key="field.id"
-              :icon="field.icon"
-              :title="field.title"
-              :text="field.text()"
-              :modifications="field.fieldPath ? getModificationsForField(field.fieldPath) : []"
-            />
-          </template>
-
-          <!-- Technical/Archive -->
-          <template v-if="groupedCSLFields.technical.length > 0">
-            <v-list-subheader class="text-sm font-weight-medium text-primary">
-              {{ t('technical') }}
-            </v-list-subheader>
-            <ReferenceMetadataItem
-              v-for="field in groupedCSLFields.technical"
-              :key="field.id"
-              :icon="field.icon"
-              :title="field.title"
-              :text="field.text()"
-              :modifications="field.fieldPath ? getModificationsForField(field.fieldPath) : []"
-            />
-          </template>
         </div>
       </v-expand-transition>
     </template>

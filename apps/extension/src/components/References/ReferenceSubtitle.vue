@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import type { ExtractedReference } from '@/extension/types/reference'
+import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
+import { extractYearFromCSLDate, formatAuthorsCompact } from '@source-taster/types'
 
 const { reference } = defineProps<{
-  reference: ExtractedReference
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
-// AUTHORS
-// If there are more than 2 authors, show first 2 and "et al."
+// AUTHORS - using the compact formatter utility
 const authors = computed(() => {
-  if (reference.metadata.author && reference.metadata.author.length > 2) {
-    const first2Authors = reference.metadata.author.slice(0, 2).map(author =>
-      typeof author === 'string' ? author : `${author.given || ''} ${author.family || ''}`.trim(),
-    )
-    return `${first2Authors.join(', ')} et al.`
+  if (!reference.metadata.author)
+    return null
+  try {
+    // Convert readonly type to mutable for the utility function
+    const authorsData = reference.metadata.author as any
+    return formatAuthorsCompact(authorsData)
   }
-  return reference.metadata.author?.map(author =>
-    typeof author === 'string' ? author : `${author.given || ''} ${author.family || ''}`.trim(),
-  ).join(', ')
+  catch (error) {
+    console.warn('Error formatting authors:', error)
+    return null
+  }
 })
 
 // CARD SUBTITLE
@@ -24,23 +27,24 @@ const authors = computed(() => {
 const subtitle = computed(() => {
   const parts = []
 
-  // Extract year from CSL issued date
-  if (reference.metadata.issued) {
-    if (typeof reference.metadata.issued === 'string') {
-      parts.push(reference.metadata.issued)
+  // Extract year using the utility function
+  try {
+    if (reference.metadata.issued) {
+      const issuedData = reference.metadata.issued as any
+      const year = extractYearFromCSLDate(issuedData)
+      if (year)
+        parts.push(year)
     }
-    else if (reference.metadata.issued['date-parts']?.[0]?.[0]) {
-      parts.push(reference.metadata.issued['date-parts'][0][0].toString())
-    }
-    else if (reference.metadata.issued.literal) {
-      parts.push(reference.metadata.issued.literal)
-    }
+  }
+  catch (error) {
+    console.warn('Error parsing issued date:', error)
   }
 
   if (authors.value)
     parts.push(authors.value)
   if (reference.metadata['container-title'])
     parts.push(reference.metadata['container-title'])
+
   return parts.join(' · ')
 })
 </script>

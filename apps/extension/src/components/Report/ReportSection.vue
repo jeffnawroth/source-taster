@@ -1,115 +1,165 @@
 <script setup lang="ts">
-import { mdiFileDocumentOutline } from '@mdi/js'
+import { mdiChevronDown, mdiChevronUp, mdiInformationOutline, mdiRobot } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
-import { useReferencesStore } from '@/extension/stores/references'
+import { settings } from '@/extension/logic'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import { useMatchingStore } from '@/extension/stores/matching'
 
-const { t } = useI18n()
-const { references, isExtraction, currentPhase, currentlyMatchingIndex } = storeToRefs(useReferencesStore())
+const extractionStore = useExtractionStore()
+const matchingStore = useMatchingStore()
+const { getMatchingScoreByReference } = storeToRefs(matchingStore)
+const { extractedReferences } = storeToRefs(extractionStore)
+const { hasParseResults } = storeToRefs(useAnystyleStore())
 
 const search = ref('')
+const showReportCard = ref(true)
 
-const { results } = useFuse(search, references, {
+const activeFilters = ref<Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'>>(['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'error'])
+
+const { results } = useFuse(search, () => [...extractedReferences.value], {
   fuseOptions: {
     keys: [
       'originalText',
       'metadata.title',
-      'metadata.authors',
-      'metadata.source.containerTitle',
-      'metadata.date.year',
+      'metadata.author.family',
+      'metadata.author.given',
+      'metadata.container-title',
     ],
     threshold: 0.3,
   },
   matchAllWhenSearchEmpty: true,
 })
 
-// Calculate if progress feedback is showing (same logic as in ProgressFeedback component)
-const showProgressFeedback = computed(() => {
-  // Show during main extraction (extract + match all)
-  const isMainExtraction = isExtraction.value && (currentPhase.value === 'extracting' || currentPhase.value === 'matching')
+// Map reference to category for filtering
+function categorize(reference: any): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error' | 'notTested' {
+  try {
+    // Reuse same logic as ReportSubtitle via store
+    const score = getMatchingScoreByReference.value(reference.id)
+    if (score === null || score === undefined || !Number.isFinite(score))
+      return 'notTested'
+    if (score === 0)
+      return 'noMatch'
+    if (score === 100)
+      return 'exactMatch'
+    const strong = settings.value.matching.matchingConfig.displayThresholds.strongMatchThreshold
+    const possible = settings.value.matching.matchingConfig.displayThresholds.possibleMatchThreshold
+    if (score >= strong)
+      return 'strongMatch'
+    if (score >= possible)
+      return 'possibleMatch'
+    return 'noMatch'
+  }
+  catch {
+    return 'error'
+  }
+}
 
-  // Show during individual re-matching (when currentlyMatchingIndex is set but not main extraction)
-  const isReMatching = !isExtraction.value && currentlyMatchingIndex.value >= 0
-
-  return isMainExtraction || isReMatching
-})
-
-const maxHeight = computed(() => {
-  // Calculate max height based on presence of alert
-  return showProgressFeedback.value ? 'calc(100vh - 665px)' : 'calc(100vh - 610px)'
+const filteredResults = computed(() => {
+  // If all filters selected, just return full results
+  if (activeFilters.value.length === 5)
+    return results.value
+  return results.value.filter((r) => {
+    const cat = categorize(r.item)
+    if (cat === 'notTested')
+      return true
+    return activeFilters.value.includes(cat as 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error')
+  })
 })
 </script>
 
 <template>
   <v-card
     flat
+    :title="`3. ${$t('verify')}`"
+    :subtitle="$t('verify-extracted-references')"
+    class="d-flex flex-column flex-1 min-h-0"
   >
-    <!-- TITLE -->
-    <v-card-title class="px-0">
-      <v-icon size="x-small">
-        {{ mdiFileDocumentOutline }}
-      </v-icon>
-      {{ t('report') }}
-    </v-card-title>
+    <template #append>
+      <!-- Info Icon with Tooltip -->
+      <v-tooltip location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            :icon="mdiInformationOutline"
+            variant="text"
+            size="small"
+            v-bind="tooltipProps"
+          />
+        </template>
+        <div
+          class="text-caption"
+          style="max-width: 400px;"
+        >
+          <strong>{{ $t('verification-help-title') }}</strong><br>
+          {{ $t('verification-help-description') }}
+          <br><br>
+          <em>{{ $t('verification-help-note-common-fields') }}</em>
+        </div>
+      </v-tooltip>
 
-    <!-- SUBTITLE -->
-    <v-card-subtitle class="px-0">
-      <ReportSubtitle />
-    </v-card-subtitle>
-
-    <v-card-text class="px-0">
-      <!-- SEARCH -->
-      <ReferencesSearchInput
-        v-model="search"
-        class="mb-2"
+      <v-btn
+        variant="text"
+        :icon="showReportCard ? mdiChevronUp : mdiChevronDown"
+        @click="showReportCard = !showReportCard"
       />
+    </template>
 
-      <!-- PROGRESS FEEDBACK -->
-      <ProgressFeedback v-show="showProgressFeedback" />
+    <!-- Keep the flex chain intact here -->
+    <div class="d-flex flex-column flex-1 min-h-0">
+      <v-expand-transition>
+        <!-- Toggle THIS inner block, not the flex parent -->
+        <div
+          v-if="showReportCard"
+          class="d-flex flex-column flex-1 min-h-0"
+        >
+          <VerifyButton />
+          <v-divider
+            v-if="extractedReferences.length > 0"
+            class="my-3"
+          />
 
-      <!-- Calculate max height based on presence of progress feedback alert -->
-      <!-- 670px with alert, 600px without alert -->
+          <v-card-subtitle class="px-0">
+            <ReportSubtitle
+              v-model:active-filters="activeFilters"
+              :references="extractedReferences"
+            />
+          </v-card-subtitle>
 
-      <div
-        class="references-container"
-        :style="{ 'max-height': maxHeight }"
-      >
-        <!-- LIST - Show immediately after extraction, even during extraction -->
-        <ReferencesList
-          v-if="references.length > 0"
-          :results
-        />
-      </div>
+          <!-- Content area gets rest height -->
+          <v-card-text class="px-0 pb-0 d-flex flex-column flex-1 min-h-0">
+            <!-- Empty state when AI mode is on and nothing has been extracted yet -->
+            <template v-if="settings.extract.useAi && !hasParseResults && extractedReferences.length === 0">
+              <v-empty-state
+                :icon="mdiRobot"
+                :title="$t('ai-auto-verification-title')"
+                :text="$t('ai-auto-verification-text')"
+              />
+            </template>
 
-      <!-- STATES - Only show when no references available AND not extraction -->
-      <IdleState v-if="references.length === 0 && !isExtraction" />
-    </v-card-text>
+            <!-- Empty state when AI mode is off and no references exist yet -->
+            <template v-else-if="!settings.extract.useAi && !hasParseResults && extractedReferences.length === 0">
+              <v-empty-state
+                :icon="mdiInformationOutline"
+                :title="$t('manual-verification-title')"
+                :text="$t('manual-verification-text')"
+              />
+            </template>
+
+            <!-- Search + results when we have references (or parsed tokens) -->
+            <template v-else>
+              <ReferencesSearchInput
+                v-model="search"
+                class="mb-2"
+              />
+
+              <!-- This is the ONLY scroll container -->
+              <div class="flex-1 min-h-0 overflow-auto">
+                <ReferencesList :results="filteredResults" />
+              </div>
+            </template>
+          </v-card-text>
+        </div>
+      </v-expand-transition>
+    </div>
   </v-card>
 </template>
-
-<style scoped>
-.references-container {
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 0.5rem;
-  scrollbar-color: #404040b3 transparent; /*firefox*/
-  scrollbar-width: thin;
-}
-
-/* Webkit browsers (Chrome, Safari, Edge) */
-.references-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.references-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.references-container::-webkit-scrollbar-thumb {
-  background: rgba(64, 64, 64, 0.7);
-  border-radius: 3px;
-}
-
-.references-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(64, 64, 64, 0.9);
-}
-</style>

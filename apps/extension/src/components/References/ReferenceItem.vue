@@ -1,61 +1,43 @@
 <script setup lang="ts">
-import type { ExtractedReference } from '@/extension/types/reference'
+import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
+import { useVerificationProgressStore } from '@/extension/composables/useVerificationProgress'
+import { useMatchingStore } from '@/extension/stores/matching'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
-const { reference, isCurrentlyMatching = false } = defineProps<{
-  reference: ExtractedReference
-  isCurrentlyMatching?: boolean
+const { reference } = defineProps<{
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
-// TRANSLATION
+// I18n
 const { t } = useI18n()
 
-// CARD COLOR based on matching score
-const color = computed(() => {
-  // If currently matching, show special color
-  if (isCurrentlyMatching) {
-    return 'primary'
-  }
+// STORES
+const matchingStore = useMatchingStore()
+const progressStore = useVerificationProgressStore()
 
-  // If there's an error, show error color
-  if (reference.status === 'error') {
-    return 'error'
-  }
-
-  // If still pending, no color
-  if (reference.status === 'pending') {
-    return undefined
-  }
-
-  // Get the overall score from matching details
-  const score = reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore
-
-  if (score === undefined) {
-    return 'warning' // No score available
-  }
-
-  // Use consistent score-based color mapping from scoreUtils
-  return getScoreColor(score)
-})
+const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 
 // TITLE
 const title = computed(() => reference.metadata.title || t('no-title'))
 
-// MATCHING SCORE
-const matchingScore = computed(() =>
-  reference.matchingResult?.sourceEvaluations?.[0]?.matchDetails?.overallScore,
-)
-
-// SCORE DISPLAY TEXT
-const scoreText = computed(() => {
-  if (matchingScore.value === undefined)
-    return null
-  return `${Math.round(matchingScore.value)} %`
+// Best score
+const bestScore = computed<number | null>(() => {
+  const s = getMatchingScoreByReference.value(reference.id)
+  return Number.isFinite(s) ? s : null
 })
 
-// SHOW DETAILS - managed by ReferenceActions component
+const scoreColor = computed<string>(() =>
+  bestScore.value !== null ? getScoreColor(bestScore.value) : 'default')
+
+// Progress (pro Referenz) - nur für Shimmer-Effekt
+const state = computed(() => progressStore.get(reference.id) || null)
+const phase = computed(() => state.value?.phase ?? 'idle')
+const isSearching = computed(() => phase.value === 'searching')
+const isMatching = computed(() => phase.value === 'matching')
+
 const showDetails = ref(false)
 </script>
 
@@ -64,15 +46,16 @@ const showDetails = ref(false)
     density="compact"
     variant="outlined"
     class="mb-2"
-    :class="{ 'currently-matching': isCurrentlyMatching }"
+    :class="{ 'currently-verifying': isSearching || isMatching }"
+    :color="scoreColor"
     :title
-    :color
   >
     <!-- STATUS ICON & SCORE -->
     <template #append>
       <ReferenceScore
-        :score="scoreText"
-        :color
+        v-if="bestScore !== null"
+        :score="bestScore"
+        :color="scoreColor"
       />
     </template>
 
@@ -96,21 +79,22 @@ const showDetails = ref(false)
 </template>
 
 <style scoped>
-.currently-matching {
+.currently-verifying {
   position: relative;
   overflow: hidden;
 }
 
-.currently-matching::before {
+.currently-verifying::before {
   content: '';
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-primary), 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   animation: shimmer 2s infinite;
   z-index: 1;
+  pointer-events: none;
 }
 
 @keyframes shimmer {

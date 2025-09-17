@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import type { SourceEvaluation } from '@source-taster/types'
+import type { ApiMatchEvaluation } from '@source-taster/types'
 import { mdiDatabaseOutline, mdiSourceBranch, mdiWeb } from '@mdi/js'
+import { useSearchStore } from '@/extension/stores/search'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
 
-const { sourceEvaluations } = defineProps<{
-  sourceEvaluations: SourceEvaluation[]
+const props = defineProps<{
+  evaluations: ApiMatchEvaluation[]
+  referenceId: string
 }>()
 
 const { t } = useI18n()
+
+const searchStore = useSearchStore()
+const { getCandidateById } = searchStore
 
 // Helper function to format source names
 function formatSourceName(source: string): string {
@@ -24,17 +29,23 @@ function formatSourceName(source: string): string {
 
 // Sort sources by score (highest first)
 const sortedEvaluations = computed(() =>
-  [...sourceEvaluations].sort((a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore),
+  [...props.evaluations].sort((a, b) => b.matchDetails.overallScore - a.matchDetails.overallScore),
 )
+
+// Helper function to get candidate source
+function getCandidateSource(candidateId: string): string {
+  const candidate = getCandidateById(candidateId)
+  return candidate?.source || 'unknown'
+}
 </script>
 
 <template>
-  <div v-if="sourceEvaluations.length > 0">
+  <div v-if="evaluations.length > 0">
     <v-list-subheader>
       <v-icon
         :icon="mdiSourceBranch"
       />
-      {{ t('all-found-sources') }} ({{ sourceEvaluations.length }})
+      {{ t('all-found-sources') }} ({{ evaluations.length }})
     </v-list-subheader>
 
     <v-expansion-panels
@@ -44,8 +55,8 @@ const sortedEvaluations = computed(() =>
     >
       <v-expansion-panel
         v-for="(evaluation, index) in sortedEvaluations"
-        :key="evaluation.source.id"
-        :title="formatSourceName(evaluation.source.source)"
+        :key="evaluation.candidateId"
+        :title="getCandidateById(evaluation.candidateId)?.metadata.title || t('no-title')"
       >
         <template #text>
           <div class="pa-2">
@@ -78,7 +89,8 @@ const sortedEvaluations = computed(() =>
             <v-divider class="my-3" />
 
             <ReferenceMetadataList
-              :reference="evaluation.source"
+              v-if="getCandidateById(evaluation.candidateId)"
+              :reference="getCandidateById(evaluation.candidateId)!"
               :subheader="$t('source-metadata')"
             />
           </div>
@@ -95,12 +107,12 @@ const sortedEvaluations = computed(() =>
               align-self="center"
             >
               <v-icon
-                :icon="evaluation.source.source === 'website' ? mdiWeb : mdiDatabaseOutline"
+                :icon="getCandidateSource(evaluation.candidateId) === 'website' ? mdiWeb : mdiDatabaseOutline"
                 class="me-2"
               />
             </v-col>
             <v-col cols="auto">
-              <span>{{ formatSourceName(evaluation.source.source) }}</span>
+              <span>{{ formatSourceName(getCandidateSource(evaluation.candidateId)) }}</span>
             </v-col>
             <v-col cols="auto">
               <v-chip

@@ -1,85 +1,95 @@
 <script setup lang="ts">
-import type { CSLVariable } from '@source-taster/types'
-import { CSLVariableSchema } from '@source-taster/types'
-
-import { extractionSettings } from '@/extension/logic'
-
-// Get all available CSL variables directly from the schema, excluding technical fields
-const ALL_CSL_VARIABLES: CSLVariable[] = CSLVariableSchema.options
-  .filter((variable: CSLVariable) => variable !== 'id') // Remove id
-  .sort()
-
-// Essential CSL variables that are commonly used
-const COMMON_CSL_VARIABLES: CSLVariable[] = [
-  'title',
-  'author',
-  'issued',
-  'container-title',
-  'volume',
-  'issue',
-  'page',
-  'DOI',
-  'URL',
-  'publisher',
-  'type',
-]
+import type { CommonCSLVariable, CSLVariableWithoutId } from '@source-taster/types'
+import { COMMON_CSL_VARIABLES, CSLVariableWithoutIdSchema } from '@source-taster/types'
+import { settings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
 
 // Select All logic
 const allVariablesSelected = computed(() =>
-  extractionSettings.value.extractionConfig.variables.length === ALL_CSL_VARIABLES.length,
+  settings.value.extract.extractionConfig.variables.length === CSLVariableWithoutIdSchema.options.length,
 )
 
 const someVariablesSelected = computed(() =>
-  extractionSettings.value.extractionConfig.variables.length > 0,
+  settings.value.extract.extractionConfig.variables.length > 0,
 )
 
 const commonSelected = computed(() => {
-  const selected = extractionSettings.value.extractionConfig.variables
+  const selected = settings.value.extract.extractionConfig.variables
   return COMMON_CSL_VARIABLES.every(common => selected.includes(common))
 })
 
 function toggleSelectAll() {
   if (allVariablesSelected.value) {
-    // Deselect all
-    extractionSettings.value.extractionConfig.variables = []
+    settings.value.extract.extractionConfig.variables = [COMMON_CSL_VARIABLES[0]]
   }
   else {
     // Select all
-    extractionSettings.value.extractionConfig.variables = [...ALL_CSL_VARIABLES]
+    settings.value.extract.extractionConfig.variables = [...CSLVariableWithoutIdSchema.options]
   }
 }
 
 function toggleSelectCommon() {
   if (commonSelected.value) {
     // Deselect common (remove them from current selection)
-    extractionSettings.value.extractionConfig.variables = extractionSettings.value.extractionConfig.variables
-      .filter(variable => !COMMON_CSL_VARIABLES.includes(variable))
+    const remainingVariables = settings.value.extract.extractionConfig.variables
+      .filter(variable => !COMMON_CSL_VARIABLES.includes(variable as CommonCSLVariable))
+
+    // If no variables would remain, keep at least one common field
+    settings.value.extract.extractionConfig.variables = remainingVariables.length > 0
+      ? remainingVariables
+      : [COMMON_CSL_VARIABLES[0]]
   }
   else {
     // Select common (add missing common to current selection)
-    const currentVariables = extractionSettings.value.extractionConfig.variables
+    const currentVariables = settings.value.extract.extractionConfig.variables
     const missingCommon = COMMON_CSL_VARIABLES.filter(common => !currentVariables.includes(common))
-    extractionSettings.value.extractionConfig.variables = [...currentVariables, ...missingCommon]
+    settings.value.extract.extractionConfig.variables = [...currentVariables, ...missingCommon]
   }
 }
 
-function remove(item: CSLVariable) {
-  const index = extractionSettings.value.extractionConfig.variables.indexOf(item)
+function remove(item: CSLVariableWithoutId) {
+  // Don't allow removing the last field
+  if (settings.value.extract.extractionConfig.variables.length <= 1) {
+    return
+  }
+
+  const index = settings.value.extract.extractionConfig.variables.indexOf(item)
   if (index > -1) {
-    extractionSettings.value.extractionConfig.variables.splice(index, 1)
+    settings.value.extract.extractionConfig.variables.splice(index, 1)
   }
 }
+
+// Check if field can be removed (for UI state)
+function canRemoveField(): boolean {
+  return settings.value.extract.extractionConfig.variables.length > 1
+}
+
+// Sort items to show selected ones at the top
+const sortedItems = computed(() => {
+  const selectedVars = settings.value.extract.extractionConfig.variables
+  const allVars = [...CSLVariableWithoutIdSchema.options]
+
+  // Separate selected and unselected
+  const selected = allVars.filter(item => selectedVars.includes(item))
+  const unselected = allVars.filter(item => !selectedVars.includes(item))
+
+  // Sort both groups alphabetically by their translated titles
+  const sortAlphabetically = (items: CSLVariableWithoutId[]) =>
+    items.sort((a, b) => t(a).localeCompare(t(b)))
+
+  // Return selected first (sorted), then unselected (sorted)
+  return [...sortAlphabetically(selected), ...sortAlphabetically(unselected)]
+})
 </script>
 
 <template>
   <v-card flat>
     <v-card-text>
       <v-autocomplete
-        v-model="extractionSettings.extractionConfig.variables"
-        :items="ALL_CSL_VARIABLES"
+        v-model="settings.extract.extractionConfig.variables"
+        :items="sortedItems"
         :label="t('fields')"
         multiple
         :item-title="(item) => t(item)"
@@ -115,10 +125,27 @@ function remove(item: CSLVariable) {
         </template>
 
         <template #selection="{ item, index }">
+          <v-tooltip
+            v-if="index < 5 && !canRemoveField()"
+            location="top"
+          >
+            <template #activator="{ props }">
+              <v-chip
+                v-bind="props"
+                :text="item.title"
+                :closable="canRemoveField()"
+                size="small"
+                @click:close="remove(item.value)"
+              />
+            </template>
+            <span>{{ t('extraction-fields-last-field-tooltip') }}</span>
+          </v-tooltip>
+
           <v-chip
-            v-if="index < 5"
+            v-else-if="index < 5"
             :text="item.title"
-            closable
+            :closable="canRemoveField()"
+            size="small"
             @click:close="remove(item.value)"
           />
 
@@ -126,7 +153,7 @@ function remove(item: CSLVariable) {
             v-if="index === 5"
             class="text-grey text-caption align-self-center"
           >
-            (+{{ extractionSettings.extractionConfig.variables.length - 5 }} {{ t('more-fields') }})
+            (+{{ settings.extract.extractionConfig.variables.length - 5 }} {{ t('more-fields') }})
           </span>
         </template>
       </v-autocomplete>

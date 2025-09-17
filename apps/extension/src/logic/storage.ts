@@ -1,36 +1,10 @@
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
 import { useWebExtensionStorage } from '@/extension/composables/useWebExtensionStorage'
-import { DEFAULT_AI_SETTINGS } from '../constants/defaults/defaultAISettings'
-import { DEFAULT_EXTRACTION_SETTINGS } from '../constants/defaults/defaultExtractionSettings'
-import { DEFAULT_MATCHING_SETTINGS } from '../constants/defaults/defaultMatchingSettings'
 
-/**
- * Theme option storage
- */
-export const themeOption = useWebExtensionStorage('theme-option', 'system')
+export const clientId = useWebExtensionStorage<string>('clientId', () => crypto.randomUUID())
 
-/**
- * Locale option storage
- */
-export const localeOption = useWebExtensionStorage('locale-option', 'en')
+export const settings = useWebExtensionStorage('settings', { ...DEFAULT_UI_SETTINGS })
 
-/**
- * AI settings storage
- */
-export const aiSettings = useWebExtensionStorage('ai-settings', { ...DEFAULT_AI_SETTINGS })
-
-/**
- * Extraction settings storage
- */
-export const extractionSettings = useWebExtensionStorage('extraction-settings', { ...DEFAULT_EXTRACTION_SETTINGS })
-
-/**
- * Matching settings storage
- */
-export const matchingSettings = useWebExtensionStorage('matching-settings', { ...DEFAULT_MATCHING_SETTINGS })
-
-/**
- * Onboarding completion status
- */
 export const hasCompletedOnboarding = useWebExtensionStorage('onboarding-completed', false)
 
 /**

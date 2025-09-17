@@ -1,50 +1,69 @@
 <script setup lang="ts">
 import { mdiText } from '@mdi/js'
 import { onMessage } from 'webext-bridge/popup'
-import { useReferencesStore } from '@/extension/stores/references'
+import { settings } from '@/extension/logic'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import { useMatchingStore } from '@/extension/stores/matching'
+import { useUIStore } from '@/extension/stores/ui'
 
 // TRANSLATION
 const { t } = useI18n()
 
-// REFERENCES STORE
-const referencesStore = useReferencesStore()
-const { inputText } = storeToRefs(referencesStore)
+// STORES
+const uiStore = useUIStore()
+const extractionStore = useExtractionStore()
+const matchingStore = useMatchingStore()
+const anystyleStore = useAnystyleStore()
 
-// TEXTAREA PLACEHOLDER
-const placeholder = computed(() => t('insert-references'))
+const { inputText } = storeToRefs(uiStore)
+const { isExtracting } = storeToRefs(extractionStore)
+const { isMatching } = storeToRefs(matchingStore)
 
-// SYNC TEXT
-const currentText = ref('')
+// TEXTAREA PLACEHOLDER - Dynamic based on AI setting
+const placeholder = computed(() => {
+  if (settings.value.extract.useAi) {
+    // AI mode - can handle various formats and unstructured text
+    return `${t('ai-placeholder-example')}:
+"Machine learning applications in healthcare research showed significant improvements..."
+Reference: Smith et al. Nature Medicine 2023, Vol 29, pp 1234-1245
+DOI: 10.1038/s41591-023-01234-5`
+  }
+  else {
+    // Parse mode - needs structured references
+    return `${t('parse-placeholder-example')}:
+Smith, J. (2020). Example article. Journal of Examples, 15(3), 123-145.
 
-watch(currentText, async (newVal) => {
-  if (newVal !== inputText.value) {
-    inputText.value = newVal
+Doe, J., & Brown, A. (2019). Another reference. Science Publishing, New York.`
   }
 })
 
+// Handle incoming selected text from content script
 onMessage('selectedText', async ({ data }) => {
-  currentText.value = data.text
+  inputText.value = data.text
 })
 
 // CLEAR HANDLER
-const { clearReferences } = referencesStore
 function handleClear() {
-  clearReferences()
-  currentText.value = ''
+  // Clear input text and display references
+  uiStore.clearAll()
+  // Also clear extracted references
+  extractionStore.clearExtractedReferences()
+
+  anystyleStore.clearParseResults()
 }
 
-// DISABLED STATE
-const { isExtraction, file } = storeToRefs(referencesStore)
-const disabled = computed(() => !!file.value || isExtraction.value)
+// DISABLED STATE - disabled when file is loaded or any process is running
+const disabled = computed(() => isExtracting.value || isMatching.value)
 </script>
 
 <template>
   <v-textarea
-    v-model.trim="currentText"
+    v-model.trim="inputText"
     :prepend-inner-icon="mdiText"
     :placeholder
     hide-details="auto"
-    rows="2"
+    rows="4"
     variant="solo-filled"
     clearable
     flat

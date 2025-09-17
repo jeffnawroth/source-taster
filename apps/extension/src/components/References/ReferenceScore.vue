@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Props
 defineProps<{
-  score: string | null
+  score: number | null
   color?: string
 }>()
 
@@ -11,7 +11,7 @@ const { t } = useI18n()
 
 <template>
   <v-tooltip
-    v-if="score"
+    v-if="score !== null"
     location="top"
     width="200"
   >
@@ -23,7 +23,7 @@ const { t } = useI18n()
         variant="tonal"
         class="font-weight-bold"
       >
-        {{ score }}
+        {{ `${score} %` }}
       </v-chip>
     </template>
 

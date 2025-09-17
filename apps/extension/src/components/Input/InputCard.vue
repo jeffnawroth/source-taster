@@ -1,72 +1,143 @@
 <script setup lang="ts">
-import { useMagicKeys } from '@vueuse/core'
-import { useReferencesStore } from '@/extension/stores/references'
-import CheckButton from './CheckButton.vue'
+import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
+import { settings } from '@/extension/logic'
+import { useAnystyleStore } from '@/extension/stores/anystyle'
+import { useExtractionStore } from '@/extension/stores/extraction'
+import ExtractButton from './ExtractButton.vue'
 import FileInput from './FileInput.vue'
+import ParseButton from './ParseButton.vue'
 import TextInput from './TextInput.vue'
 
-// COMPONENTS
-const components = [
-  FileInput,
-  TextInput,
-  CheckButton,
-]
+// TRANSLATION
+const { t } = useI18n()
 
-// KEYBOARD SHORTCUT FOR CHECK REFERENCES
-const referencesStore = useReferencesStore()
-const { inputText, isExtraction, file } = storeToRefs(referencesStore)
-const { extractAndMatchReferences } = referencesStore
+const showInputCard = ref(true)
 
-// Check if button should be disabled (same logic as in CheckReferencesButton)
-const isDisabled = computed(() => (!inputText.value.trim() && !file.value) || isExtraction.value)
+// Stores für die Error-Anzeige
+const extractionStore = useExtractionStore()
+const anystyleStore = useAnystyleStore()
 
-// Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
-const keys = useMagicKeys()
-const cmdEnter = keys['Cmd+Enter']
-const ctrlEnter = keys['Ctrl+Enter']
-
-// Trigger check references on keyboard shortcut
-async function triggerCheckReferences() {
-  if (!isDisabled.value) {
-    try {
-      await extractAndMatchReferences()
-    }
-    catch (error) {
-      console.error('Error extraction references via keyboard shortcut:', error)
-    }
-  }
-}
-
-// Watch for keyboard shortcuts
-watch(cmdEnter, (pressed) => {
-  if (pressed) {
-    triggerCheckReferences()
-  }
+// Dynamic title based on AI setting
+const cardTitle = computed(() => {
+  const baseNumber = '1. '
+  return settings.value.extract.useAi
+    ? `${baseNumber}${t('extract')}`
+    : `${baseNumber}${t('parse')}`
 })
 
-watch(ctrlEnter, (pressed) => {
-  if (pressed) {
-    triggerCheckReferences()
-  }
+// Dynamic subtitle - now unified since both modes support text and files
+const cardSubtitle = computed(() => {
+  return t('input-references-or-files')
 })
 </script>
 
 <template>
   <v-card
     flat
+    :title="cardTitle"
+    :subtitle="cardSubtitle"
   >
-    <v-card-text
-      class="pa-0"
-    >
-      <v-row dense>
-        <v-col
-          v-for="(component, index) in components"
-          :key="index"
-          cols="12"
+    <template #append>
+      <AIToggleSwitch
+        v-model="settings.extract.useAi"
+        :show-alert="false"
+        :show-description="false"
+      />
+
+      <!-- Info Icon with Tooltip -->
+      <v-tooltip location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            :icon="mdiInformationOutline"
+            variant="text"
+            size="small"
+            v-bind="tooltipProps"
+          />
+        </template>
+        <div
+          class="text-caption"
+          style="max-width: 300px;"
         >
-          <component :is="component" />
-        </v-col>
-      </v-row>
-    </v-card-text>
+          <div
+            v-if="settings.extract.useAi"
+            class="mb-2"
+          >
+            <strong>{{ $t('ai-extraction-mode-title') }}</strong><br>
+            {{ $t('ai-extraction-mode-description') }}
+          </div>
+          <div v-else>
+            <strong>{{ $t('parse-mode-title') }}</strong><br>
+            {{ $t('parse-mode-description') }}
+          </div>
+        </div>
+      </v-tooltip>
+
+      <v-btn
+        variant="text"
+        :icon="showInputCard ? mdiChevronUp : mdiChevronDown"
+        @click="showInputCard = !showInputCard"
+      />
+    </template>
+    <v-expand-transition>
+      <div v-if="showInputCard">
+        <v-card-text
+          class="pa-0"
+        >
+          <v-row dense>
+            <!-- File Input -->
+            <v-col cols="12">
+              <FileInput />
+            </v-col>
+
+            <!-- Text Input -->
+            <v-col cols="12">
+              <TextInput />
+            </v-col>
+
+            <v-col
+              sm="6"
+              cols="12"
+            >
+              <ParseButton />
+            </v-col>
+            <!-- Extract Button -->
+            <v-col
+              sm="6"
+              cols="12"
+            >
+              <ExtractButton />
+            </v-col>
+
+            <!-- Central Error Alerts -->
+            <v-col
+              v-if="extractionStore.extractionError || anystyleStore.parseError"
+              cols="12"
+            >
+              <!-- Extraction Error Alert -->
+              <v-alert
+                v-if="extractionStore.extractionError"
+                type="error"
+                variant="tonal"
+                closable
+                :text="$t(extractionStore.extractionError)"
+                @click:close="extractionStore.clearExtractionError()"
+              />
+
+              <!-- Parse Error Alert -->
+              <v-alert
+                v-if="anystyleStore.parseError"
+                type="error"
+                variant="tonal"
+                closable
+                :text="$t(anystyleStore.parseError)"
+                @click:close="anystyleStore.clearParseResults()"
+              />
+            </v-col>
+
+            <!-- Parse Button -->
+          </v-row>
+        </v-card-text>
+      </div>
+    </v-expand-transition>
   </v-card>
 </template>

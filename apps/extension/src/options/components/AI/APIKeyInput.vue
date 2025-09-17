@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { AIProvider } from '@source-taster/types'
 import { mdiEye, mdiEyeOff } from '@mdi/js'
 
 defineProps<{
-  provider: AIProvider
   apiKeyError?: string | null
 }>()
 

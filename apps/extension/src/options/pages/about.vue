@@ -34,7 +34,7 @@ const version = `v${__APP_VERSION__}`
         :text="t('visit-website')"
         variant="text"
         :prepend-icon="mdiHomeOutline"
-        href="https://sourcetaster.com"
+        href="https://docs.sourcetaster.com"
       />
 
       <v-btn

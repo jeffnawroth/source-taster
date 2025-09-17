@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import type { ExtractedReference } from '@/extension/types/reference'
-import { mdiAlertCircle } from '@mdi/js'
+import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
+import { useMatchingStore } from '@/extension/stores/matching'
 
 const { reference } = defineProps<{
-  reference: ExtractedReference
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
-const { t } = useI18n()
+const matchingStore = useMatchingStore()
+const { getMatchingResultByReference } = storeToRefs(matchingStore)
+
+const matchingResults = computed(() => getMatchingResultByReference.value(reference.id))
+
+// const { t } = useI18n()
 </script>
 
 <template>
@@ -21,19 +27,11 @@ const { t } = useI18n()
 
       <v-divider class="my-2" />
 
-      <!-- ERROR -->
-      <ReferenceMetadataItem
-        v-if="reference.status === 'error' && reference.error"
-        :icon="mdiAlertCircle"
-        :title="t('error')"
-        color="error"
-        :text="reference.error || t('no-additional-error-info')"
-      />
-
       <!-- All Source Evaluations for Transparency -->
       <EvaluationList
-        v-if="reference.matchingResult?.sourceEvaluations?.length"
-        :source-evaluations="reference.matchingResult.sourceEvaluations"
+        v-if="matchingResults?.evaluations"
+        :reference-id="reference.id"
+        :evaluations="matchingResults.evaluations"
       />
     </div>
   </v-expand-transition>

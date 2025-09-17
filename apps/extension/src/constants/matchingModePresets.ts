@@ -1,7 +1,6 @@
-import type { NormalizationRule } from '@source-taster/types'
-import { createModePresets } from '@source-taster/types'
+import type { ApiMatchMode, ApiMatchNormalizationRule } from '@source-taster/types'
 
-const BALANCED_ACTIONS: NormalizationRule[] = [
+export const BALANCED_NORMALIZATION_RULES: ApiMatchNormalizationRule[] = [
   'normalize-typography',
   'normalize-lowercase',
   'normalize-identifiers',
@@ -12,8 +11,21 @@ const BALANCED_ACTIONS: NormalizationRule[] = [
   'normalize-punctuation',
   'normalize-unicode',
   'normalize-urls',
+  'match-structured-dates',
+  'match-author-initials',
+  'match-volume-issue-numeric',
+  'match-page-range-overlap',
+  'match-container-title-variants',
 ] as const
 
-export const MATCHING_MODE_PRESETS = createModePresets<NormalizationRule>(
-  BALANCED_ACTIONS,
+function createModePresets<T extends string>(actions: T[]): Record<ApiMatchMode, T[]> {
+  return {
+    strict: [] as T[],
+    balanced: actions,
+    custom: [] as T[],
+  }
+}
+
+export const MATCHING_MODE_PRESETS = createModePresets<ApiMatchNormalizationRule>(
+  BALANCED_NORMALIZATION_RULES,
 )

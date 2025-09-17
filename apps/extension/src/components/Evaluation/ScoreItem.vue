@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mdiCheckCircle, mdiCloseCircle, mdiMinusCircle } from '@mdi/js'
 import { computed } from 'vue'
-import { matchingSettings } from '@/extension/logic'
+import { settings } from '@/extension/logic'
 import { getScoreColor } from '@/extension/utils/scoreUtils'
 
 const props = defineProps<{
@@ -14,11 +14,11 @@ const scoreColor = computed(() => getScoreColor(props.score))
 
 // Define the icon based on user-defined thresholds
 const scoreIcon = computed(() => {
-  const thresholds = matchingSettings.value.matchingConfig.matchThresholds
+  const thresholds = settings.value.matching.matchingConfig.displayThresholds
 
-  if (props.score >= thresholds.highMatchThreshold) // High confidence
+  if (props.score >= thresholds.strongMatchThreshold) // High confidence
     return mdiCheckCircle
-  if (props.score >= thresholds.partialMatchThreshold) // Medium confidence
+  if (props.score >= thresholds.possibleMatchThreshold) // Medium confidence
     return mdiMinusCircle
   return mdiCloseCircle // Low confidence
 })

@@ -1,7 +1,7 @@
 :root {
-  --vp-c-brand-1: #4e2e92; /* Primäres Lila */
+  --vp-c-brand-3: #4e2e92; /* Primäres Lila */
   --vp-c-brand-2: #45a3b5; /* Türkis */
-  --vp-c-brand-3: #70c875; /* Grün */
+  --vp-c-brand-1: #70c875; /* Grün */
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #4e2e92 0%, #45a3b5 40%, #45a3b5 60%, #70c875 100%);
   --vp-home-hero-image-background-image: linear-gradient(-45deg, #4e2e92 50%, #45a3b5 50%);

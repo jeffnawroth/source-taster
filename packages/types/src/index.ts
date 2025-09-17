@@ -6,25 +6,11 @@
  */
 
 // AI Service Types
-export * from './ai'
+export * from './api/index.js'
+export * from './app/index.js'
+export * from './backend/index.js'
 
-// API Types
-export * from './api'
+// CSL Utilities
+export * from './csl-utils.js'
 
-// Common Types
-export * from './common'
-
-// Extraction Types
-export * from './extraction'
-
-// Matching Types
-export * from './matching'
-
-// Normalization Types
-export * from './normalization'
-
-// Core Reference Types
-export * from './reference'
-
-// Website Types
-export * from './website'
+export * from './frontend/index.js'

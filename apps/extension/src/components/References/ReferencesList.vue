@@ -1,13 +1,11 @@
 <script setup lang="ts">
+import type { ApiExtractReference } from '@source-taster/types'
 import type { FuseResult } from 'fuse.js'
-import type { ExtractedReference } from '@/extension/types/reference'
-import { useReferencesStore } from '@/extension/stores/references'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 
 const { results } = defineProps<{
-  results: FuseResult<ExtractedReference>[]
+  results: FuseResult<DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>>[]
 }>()
-
-const { currentlyMatchingReference } = storeToRefs(useReferencesStore())
 </script>
 
 <template>
@@ -15,16 +13,13 @@ const { currentlyMatchingReference } = storeToRefs(useReferencesStore())
     v-if="results.length > 0"
     class="pa-0"
     density="compact"
-    slim
   >
     <v-slide-y-transition group>
       <ReferenceItem
         v-for="(extractedReference) in results"
         :key="extractedReference.item.id"
         :reference="extractedReference.item"
-        :is-currently-matching="currentlyMatchingReference?.id === extractedReference.item.id"
       />
     </v-slide-y-transition>
   </v-list>
-  <!-- <NoResultsFoundState v-else /> -->
 </template>

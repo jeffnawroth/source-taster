@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { mdiEmailOutline, mdiHelpCircleOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
+import { mdiBookOpenPageVariant, mdiEmailOutline, mdiHelpCircleOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
 
 // TRANSLATION
 const { t } = useI18n()
 
 // LIST ITEMS
 const items = ref([
-
+  {
+    title: computed(() => t('documentation')),
+    subtitle: computed(() => t('view-docs')),
+    href: 'https://docs.sourcetaster.com/en/intro.html',
+    appendIcon: mdiOpenInNew,
+    prependIcon: mdiBookOpenPageVariant,
+  },
   {
     title: 'Demo',
     subtitle: computed(() => t('view-demo')),
-    href: 'https://sourcetaster.com/demo.html',
+    href: 'https://docs.sourcetaster.com/demo.html',
     appendIcon: mdiOpenInNew,
     prependIcon: mdiVideoOutline,
-
   },
   {
     title: computed(() => t('contact')),
@@ -31,10 +36,16 @@ const items = ref([
     :title="t('help')"
     :description="t('help-description')"
   >
-    <OptionListItem v-bind="items[0]" />
+    <div
+      v-for="(item, index) in items"
+      :key="item.href"
+    >
+      <OptionListItem v-bind="item" />
 
-    <v-divider class="my-4" />
-
-    <OptionListItem v-bind="items[1]" />
+      <v-divider
+        v-if="index < items.length - 1"
+        class="my-4"
+      />
+    </div>
   </SettingsPageLayout>
 </template>

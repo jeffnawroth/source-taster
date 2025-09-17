@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CSLVariable } from '@source-taster/types'
-import { extractionSettings } from '@/extension/logic'
+import { settings } from '@/extension/logic'
 
 // PROPS
 defineProps<{
@@ -33,7 +33,7 @@ defineProps<{
     </v-expansion-panel-title>
     <v-expansion-panel-text>
       <v-selection-control-group
-        v-model="extractionSettings.extractionConfig.variables"
+        v-model="settings.extract.extractionConfig.variables"
       >
         <v-row
           dense

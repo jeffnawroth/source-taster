@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { mdiMagnify } from '@mdi/js'
-import { useReferencesStore } from '@/extension/stores/references'
+import { useExtractionStore } from '@/extension/stores/extraction'
 
 const search = defineModel({ default: '' })
 
 // SHOW SEARCH INPUT IF THERE ARE REFERENCES
-const { references } = storeToRefs(useReferencesStore())
-const show = computed(() => references.value.length)
+const { extractedReferences } = storeToRefs(useExtractionStore())
+const show = computed(() => extractedReferences.value.length)
 </script>
 
 <template>

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { DEFAULT_FIELDS_CONFIG } from '@/extension/constants/defaults/defaultFieldConfig'
-import { matchingSettings } from '@/extension/logic'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
+import { settings } from '@/extension/logic'
 
 // Reset to defaults
 function resetToDefaults() {
-  matchingSettings.value.matchingConfig.fieldConfigurations = { ...DEFAULT_FIELDS_CONFIG }
+  settings.value.matching.matchingConfig.fieldConfigurations = { ...DEFAULT_UI_SETTINGS.matching.matchingConfig.fieldConfigurations }
 }
 
 // Calculate total weight for validation - only enabled fields
 const totalWeight = computed(() => {
-  return Object.values(matchingSettings.value.matchingConfig.fieldConfigurations).reduce((sum: number, config) => {
+  return Object.values(settings.value.matching.matchingConfig.fieldConfigurations).reduce((sum: number, config) => {
     return sum + (config?.enabled ? (config.weight || 0) : 0)
   }, 0)
 })
@@ -27,7 +27,7 @@ const isValidConfiguration = computed(() => {
   />
 
   <FieldWeightsPanels
-    v-model="matchingSettings.matchingConfig.fieldConfigurations"
+    v-model="settings.matching.matchingConfig"
   />
 
   <v-card-actions>

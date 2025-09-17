@@ -1,51 +1,52 @@
 <script setup lang="ts">
-import { mdiAlertCircle, mdiCheckCircle, mdiPalette } from '@mdi/js'
-import { DEFAULT_MATCH_QUALITY_THRESHOLDS } from '@/extension/constants/defaults/defaultMatchingSettings'
-import { matchingSettings } from '@/extension/logic'
+import { mdiAlertCircleOutline, mdiBullseye, mdiHelpCircleOutline, mdiPalette, mdiTarget } from '@mdi/js'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
+import { settings } from '@/extension/logic'
 
 const { t } = useI18n()
 
 // Reset to defaults
 function resetToDefaults() {
-  matchingSettings.value.matchingConfig.matchThresholds = { ...DEFAULT_MATCH_QUALITY_THRESHOLDS }
+  settings.value.matching.matchingConfig.displayThresholds = { ...DEFAULT_UI_SETTINGS.matching.matchingConfig.displayThresholds }
 }
 
 // Computed values for dynamic min/max constraints
-const exactMatchThreshold = computed({
-  get: () => matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold,
+const strongMatchThreshold = computed({
+  get: () => settings.value.matching.matchingConfig.displayThresholds.strongMatchThreshold,
   set: (value) => {
-    // Ensure exact match is at least 1 point higher than partial match
-    const minValue = Math.max(value, matchingSettings.value.matchingConfig.matchThresholds.partialMatchThreshold + 1)
-    matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold = minValue
+    // Ensure strong match is at least 1 point higher than possible match, but less than 100
+    const minValue = Math.max(value, settings.value.matching.matchingConfig.displayThresholds.possibleMatchThreshold + 1)
+    const maxValue = Math.min(minValue, 99)
+    settings.value.matching.matchingConfig.displayThresholds.strongMatchThreshold = maxValue
   },
 })
 
-const highMatchThreshold = computed({
-  get: () => matchingSettings.value.matchingConfig.matchThresholds.partialMatchThreshold,
+const possibleMatchThreshold = computed({
+  get: () => settings.value.matching.matchingConfig.displayThresholds.possibleMatchThreshold,
   set: (value) => {
-    // Ensure partial match is at least 1 point lower than exact match
-    const maxValue = Math.min(value, matchingSettings.value.matchingConfig.matchThresholds.highMatchThreshold - 1)
-    matchingSettings.value.matchingConfig.matchThresholds.partialMatchThreshold = maxValue
+    // Ensure possible match is at least 1 point lower than strong match
+    const maxValue = Math.min(value, settings.value.matching.matchingConfig.displayThresholds.strongMatchThreshold - 1)
+    settings.value.matching.matchingConfig.displayThresholds.possibleMatchThreshold = Math.max(maxValue, 1)
   },
 })
 
-// Threshold slider items with dynamic constraints
+// Threshold slider items with dynamic constraints (only editable ones)
 const thresholdSliderItems = computed(() => [
   {
-    label: t('exact-match-threshold'),
-    min: Math.max(51, highMatchThreshold.value + 1), // Always at least 1 higher than high match
-    max: 100,
+    label: t('strong-match-threshold'),
+    min: Math.max(51, possibleMatchThreshold.value + 1),
+    max: 99,
     color: 'success',
-    description: t('exact-match-threshold-description'),
-    icon: mdiCheckCircle,
+    description: t('strong-match-threshold-description'),
+    icon: mdiTarget,
   },
   {
-    label: t('high-match-threshold'),
+    label: t('possible-match-threshold'),
     min: 1,
-    max: Math.min(99, exactMatchThreshold.value - 1), // Always at least 1 lower than exact match
+    max: Math.min(98, strongMatchThreshold.value - 1),
     color: 'warning',
-    description: t('high-match-threshold-description'),
-    icon: mdiAlertCircle,
+    description: t('possible-match-threshold-description'),
+    icon: mdiHelpCircleOutline,
   },
 ])
 </script>
@@ -55,23 +56,72 @@ const thresholdSliderItems = computed(() => [
     :icon="mdiPalette"
     :title="t('match-quality-settings-title')"
     :description="t('match-quality-settings-description')"
+    :subtitle="t('quality-thresholds-description')"
   >
     <!-- Threshold Settings -->
     <v-card
       flat
-      :subtitle="$t('quality-thresholds-description')"
     >
       <v-card-text>
-        <!-- Exact Match Threshold -->
+        <div class="mb-6">
+          <div class="d-flex align-center justify-space-between mb-2">
+            <label class="font-weight-medium d-flex align-center">
+              <v-icon
+                :icon="mdiBullseye"
+                color="success"
+                size="small"
+                class="me-2"
+              />
+              {{ t('exact-match-threshold') }}
+            </label>
+            <v-chip
+              color="success"
+              variant="flat"
+              size="small"
+            >
+              {{ 100 }}%
+            </v-chip>
+          </div>
+          <p class="text-body-2 text-medium-emphasis">
+            {{ t('exact-match-threshold-description') }}
+          </p>
+        </div>
+
+        <!-- Strong Match Threshold -->
         <ThresholdSlider
-          v-model="exactMatchThreshold"
+          v-model="strongMatchThreshold"
           v-bind="thresholdSliderItems[0]"
         />
 
+        <!-- Possible Match Threshold -->
         <ThresholdSlider
-          v-model="highMatchThreshold"
+          v-model="possibleMatchThreshold"
           v-bind="thresholdSliderItems[1]"
         />
+
+        <div class="mb-6">
+          <div class="d-flex align-center justify-space-between mb-2">
+            <label class="font-weight-medium d-flex align-center">
+              <v-icon
+                :icon="mdiAlertCircleOutline"
+                color="error"
+                size="small"
+                class="me-2"
+              />
+              {{ t('no-match-threshold') }}
+            </label>
+            <v-chip
+              color="error"
+              variant="flat"
+              size="small"
+            >
+              &lt; {{ possibleMatchThreshold }}%
+            </v-chip>
+          </div>
+          <p class="text-body-2 text-medium-emphasis">
+            {{ t('no-match-threshold-description') }}
+          </p>
+        </div>
       </v-card-text>
       <v-card-actions>
         <ResetButton @click="resetToDefaults" />

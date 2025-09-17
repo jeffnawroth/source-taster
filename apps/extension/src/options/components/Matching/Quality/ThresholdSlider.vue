@@ -37,18 +37,21 @@ const modelValue = defineModel<number>({ required: true })
         variant="flat"
         size="small"
       >
-        {{ modelValue }}%
+        {{ modelValue }} %
       </v-chip>
     </div>
+
     <v-slider
       v-model="modelValue"
       :min
       :max
       :step="1"
-      :thumb-label="true"
       :color
+      class="ma-0"
+      hide-details
     />
-    <p class="text-caption text-medium-emphasis">
+
+    <p class="text-body-2 text-medium-emphasis">
       {{ description }}
     </p>
   </div>

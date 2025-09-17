@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { mdiCogOutline } from '@mdi/js'
-import { aiSettings } from '@/extension/logic/storage'
+import { settings } from '@/extension/logic'
 import AIKeyCard from '@/extension/options/components/AI/AIKeyCard.vue'
 import AIProviderCard from '@/extension/options/components/AI/AIProviderCard.vue'
 
-// TRANSLATION
 const { t } = useI18n()
 </script>
 
@@ -14,15 +13,12 @@ const { t } = useI18n()
     :title="t('ai-settings-title')"
     :description="t('ai-settings-subtitle')"
   >
-    <!-- AI Provider Selection -->
-    <AIProviderCard v-model="aiSettings" />
+    <!-- Provider & Model -->
+    <AIProviderCard v-model="settings.ai" />
 
     <v-divider class="my-4" />
 
-    <!-- API Key Configuration -->
-    <AIKeyCard
-      v-model="aiSettings.apiKey"
-      :provider="aiSettings.provider"
-    />
+    <!-- API Key (nur temporär, nicht im Local Storage speichern) -->
+    <AIKeyCard />
   </SettingsPageLayout>
 </template>

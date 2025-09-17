@@ -1,75 +1,24 @@
-import type { ApiResponse, MatchingResponse, ValidatedMatchingRequest } from '@source-taster/types'
+import type { ApiMatchData } from '@source-taster/types'
+// src/controllers/matchingController.ts
 import type { Context } from 'hono'
-import { ValidatedMatchingRequestSchema } from '@source-taster/types'
-import * as matchingService from '../services/matchingService'
+import { ApiMatchRequestSchema } from '@source-taster/types'
+import { MatchingCoordinator } from '../services/matching/matchingCoordinator.js'
 
 /**
- * Evaluates provided candidates against a reference
  * POST /api/match
  */
-export async function matchReferences(c: Context) {
-  try {
-    const request = await parseAndValidateRequest(c)
-    const result = matchingService.matchReferenceAgainstCandidates(request)
-    return createSuccessResponse(c, result)
-  }
-  catch (error) {
-    return handleError(c, error)
-  }
-}
+export async function matchReference(c: Context) {
+  const req = ApiMatchRequestSchema.parse(await c.req.json())
 
-/**
- * Parse and validate the incoming request
- */
-async function parseAndValidateRequest(c: Context): Promise<ValidatedMatchingRequest> {
-  const rawBody = await c.req.json()
-  const parseResult = ValidatedMatchingRequestSchema.safeParse(rawBody)
+  const coordinator = new MatchingCoordinator()
+  const result: ApiMatchData = coordinator.evaluateAllCandidates(
+    req.reference,
+    req.candidates,
+    req.matchingSettings,
+  )
 
-  if (!parseResult.success) {
-    throw new ValidationError('Validation failed', parseResult.error)
-  }
-
-  return parseResult.data
-}
-
-/**
- * Create a successful response
- */
-function createSuccessResponse(c: Context, result: any) {
-  const response: MatchingResponse = { result }
   return c.json({
     success: true,
-    data: response,
+    data: result,
   })
-}
-/**
- * Handle errors and create error response
- */
-function handleError(c: Context, error: unknown) {
-  console.error('Error in matchReferences:', error)
-
-  if (error instanceof ValidationError) {
-    return c.json({
-      success: false,
-      error: error.validationError,
-    }, 400)
-  }
-
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-
-  const errorResponse: ApiResponse = {
-    success: false,
-    error: errorMessage,
-  }
-  return c.json(errorResponse, 500)
-}
-
-/**
- * Custom error class for validation errors
- */
-class ValidationError extends Error {
-  constructor(message: string, public validationError: any) {
-    super(message)
-    this.name = 'ValidationError'
-  }
 }

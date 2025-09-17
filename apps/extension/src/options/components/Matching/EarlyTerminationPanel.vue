@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { mdiFlash } from '@mdi/js'
-import { DEFAULT_EARLY_TERMINATION_CONFIG } from '@/extension/constants/defaults/defaultMatchingSettings'
-import { matchingSettings } from '@/extension/logic'
+import { DEFAULT_UI_SETTINGS } from '@source-taster/types'
+import { settings } from '@/extension/logic'
 
 // TRANSLATION
 const { t } = useI18n()
 
 // Reset to defaults
 function resetToDefaults() {
-  matchingSettings.value.matchingConfig.earlyTermination = { ...DEFAULT_EARLY_TERMINATION_CONFIG }
+  settings.value.matching.matchingConfig.earlyTermination = { ...DEFAULT_UI_SETTINGS.matching.matchingConfig.earlyTermination }
 }
 </script>
 
@@ -22,17 +22,18 @@ function resetToDefaults() {
     <v-card flat>
       <v-card-text>
         <v-switch
-          v-model="matchingSettings.matchingConfig.earlyTermination.enabled"
+          v-model="settings.matching.matchingConfig.earlyTermination.enabled"
           :label="t('early-termination-enabled')"
           color="primary"
           density="comfortable"
           class="mb-3"
           hide-details
+          inset
         />
 
         <!-- Threshold Slider -->
         <v-expand-transition>
-          <div v-if="matchingSettings.matchingConfig.earlyTermination.enabled">
+          <div v-if="settings.matching.matchingConfig.earlyTermination.enabled">
             <v-divider class="mb-4" />
 
             <div class="mb-2">
@@ -45,7 +46,7 @@ function resetToDefaults() {
             </div>
 
             <v-slider
-              v-model="matchingSettings.matchingConfig.earlyTermination.threshold"
+              v-model="settings.matching.matchingConfig.earlyTermination.threshold"
               :min="50"
               :max="99"
               :step="1"
@@ -53,6 +54,7 @@ function resetToDefaults() {
               color="primary"
               track-color="grey-lighten-1"
               class="mb-2"
+              hide-details
             >
               <template #thumb-label="{ modelValue }">
                 {{ modelValue }}%
@@ -67,7 +69,7 @@ function resetToDefaults() {
 
             <!-- Current Setting Display -->
             <v-alert
-              :text="t('early-termination-current-setting', { threshold: matchingSettings.matchingConfig.earlyTermination.threshold })"
+              :text="t('early-termination-current-setting', { threshold: settings.matching.matchingConfig.earlyTermination.threshold })"
               type="info"
               variant="tonal"
               density="compact"

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { mdiCheckCircleOutline, mdiCloseCircleOutline, mdiCogOutline, mdiLock, mdiScale } from '@mdi/js'
 import { type Mode, type NormalizationRule, NormalizationRuleSchema } from '@source-taster/types'
 
@@ -97,4 +97,4 @@ const presetButtons = computed(() => [
     :custom-settings-description="t('custom-extraction-settings-description')"
     :preset-buttons
   />
-</template>
+</template> -->

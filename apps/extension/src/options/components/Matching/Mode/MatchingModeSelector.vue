@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ApiMatchMode, ApiMatchNormalizationRule } from '@source-taster/types'
 import {
   mdiCheckCircleOutline,
   mdiCloseCircleOutline,
@@ -6,18 +7,16 @@ import {
   mdiLock,
   mdiScale,
 } from '@mdi/js'
-import { type Mode, type NormalizationRule, NormalizationRuleSchema } from '@source-taster/types'
-
+import { ApiMatchNormalizationRuleSchema } from '@source-taster/types'
 import { MATCHING_MODE_PRESETS } from '@/extension/constants/matchingModePresets'
-import { matchingSettings } from '@/extension/logic'
-
+import { settings } from '@/extension/logic'
 // Get all available matching action types from the schema
-const ALL_NORMALIZATION_RULES: NormalizationRule[] = NormalizationRuleSchema.options
+const ALL_NORMALIZATION_RULES: ApiMatchNormalizationRule[] = ApiMatchNormalizationRuleSchema.options
 
 // TRANSLATION
 const { t } = useI18n()
 
-watch(() => matchingSettings.value.matchingStrategy.mode, (newMode) => {
+watch(() => settings.value.matching.matchingStrategy.mode, (newMode) => {
   if (newMode === 'custom') {
     deselectAll()
   }
@@ -26,20 +25,20 @@ watch(() => matchingSettings.value.matchingStrategy.mode, (newMode) => {
   }
 })
 
-function loadRuleSet(preset: Mode) {
-  matchingSettings.value.matchingStrategy.normalizationRules = MATCHING_MODE_PRESETS[preset]
+function loadRuleSet(preset: ApiMatchMode) {
+  settings.value.matching.matchingStrategy.normalizationRules = MATCHING_MODE_PRESETS[preset as ApiMatchMode]
 }
 function selectAll() {
   // Get all available normalization rules
-  matchingSettings.value.matchingStrategy.normalizationRules = [...ALL_NORMALIZATION_RULES]
+  settings.value.matching.matchingStrategy.normalizationRules = [...ALL_NORMALIZATION_RULES]
 }
 function deselectAll() {
-  matchingSettings.value.matchingStrategy.normalizationRules = []
+  settings.value.matching.matchingStrategy.normalizationRules = []
 }
 
 const modeOptions = computed(() =>
   Object.entries(MATCHING_MODE_PRESETS).map(([mode]) => {
-    const iconMap: Record<Mode, string> = {
+    const iconMap: Record<ApiMatchMode, string> = {
       strict: mdiLock,
       balanced: mdiScale,
       custom: mdiCogOutline,
@@ -48,7 +47,7 @@ const modeOptions = computed(() =>
     const modeKey = mode.toLowerCase()
     return {
       value: mode,
-      icon: iconMap[mode as Mode],
+      icon: iconMap[mode as ApiMatchMode],
       label: t(`matching-mode-${modeKey}`),
       description: t(`matching-mode-${modeKey}-description`),
       tooltipTitle: t(`matching-mode-${modeKey}-tooltip-title`),
@@ -58,8 +57,8 @@ const modeOptions = computed(() =>
 )
 
 // Simplified settings - direct array instead of groups
-const settings = computed(() => {
-  return ALL_NORMALIZATION_RULES.map((rule: NormalizationRule) => ({
+const settingsRules = computed(() => {
+  return ALL_NORMALIZATION_RULES.map((rule: ApiMatchNormalizationRule) => ({
     key: rule,
     label: t(`setting-${rule}`),
     description: t(`setting-${rule}-short-description`),
@@ -94,11 +93,11 @@ const presetButtons = computed(() => [
 
 <template>
   <ModeSelector
-    v-model:mode="matchingSettings.matchingStrategy.mode"
-    v-model:selected-actions="matchingSettings.matchingStrategy.normalizationRules"
+    v-model:mode="settings.matching.matchingStrategy.mode"
+    v-model:selected-actions="settings.matching.matchingStrategy.normalizationRules"
     :mode-options
     custom-value="custom"
-    :settings
+    :settings="settingsRules"
     :custom-settings-description="t('custom-matching-settings-description')"
     :preset-buttons
   />

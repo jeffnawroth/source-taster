@@ -28,7 +28,7 @@ defineProps<Props>()
       </div>
     </v-expansion-panel-title>
 
-    <v-expansion-panel-text>
+    <v-expansion-panel-text eager>
       <v-card
         flat
       >
@@ -38,7 +38,7 @@ defineProps<Props>()
         <v-card-text>
           <slot />
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions v-if="$slots.actions">
           <slot name="actions" />
         </v-card-actions>
       </v-card>

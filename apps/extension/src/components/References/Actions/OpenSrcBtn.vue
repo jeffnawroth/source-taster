@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { ExtractedReference } from '@/extension/types/reference'
+import type { ApiExtractReference } from '@source-taster/types'
+import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiOpenInNew } from '@mdi/js'
 
 const { reference } = defineProps<{
-  reference: ExtractedReference
+  reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
 // PRIMARY URL for opening source
