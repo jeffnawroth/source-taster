@@ -18,6 +18,11 @@ import { mapApiError } from '@/extension/utils/mapApiError'
 
 import { useVerificationProgressStore } from './useVerificationProgress'
 
+// Shared state across all consumers so programmatic verification (e.g. extract+verify)
+// reflects in UI components using this composable.
+const isVerifying = ref(false)
+const verifyError = ref<string | null>(null)
+
 export function useVerification() {
   // Stores
   const anystyleStore = useAnystyleStore()
@@ -32,9 +37,6 @@ export function useVerification() {
   const { databasesByPriority } = storeToRefs(searchStore)
 
   // UI-State
-  const isVerifying = ref(false)
-  const verifyError = ref<string | null>(null)
-
   const canVerify = computed(
     () => hasParseResults.value || extractedReferences.value.length > 0,
   )
