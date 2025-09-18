@@ -7,23 +7,57 @@ const { reference } = defineProps<{
   reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
 }>()
 
+type ReferenceMetadata = DeepReadonly<ApiExtractReference['metadata']>
+
+type UrlResolver = (metadata: ReferenceMetadata) => string | undefined
+
+function resolveDoi({ DOI }: ReferenceMetadata): string | undefined {
+  const trimmed = DOI?.trim()
+  return trimmed ? `https://doi.org/${trimmed}` : undefined
+}
+
+function resolveArxiv({ arxivId }: ReferenceMetadata): string | undefined {
+  const rawId = arxivId?.trim()
+  if (!rawId)
+    return undefined
+  if (rawId.startsWith('http'))
+    return rawId
+  const normalizedId = rawId.replace(/^arxiv:/i, '')
+  return `https://arxiv.org/abs/${normalizedId}`
+}
+
+function resolvePmc({ PMCID }: ReferenceMetadata): string | undefined {
+  const trimmed = PMCID?.trim()
+  if (!trimmed)
+    return undefined
+  const pmcid = trimmed.startsWith('PMC') ? trimmed : `PMC${trimmed}`
+  return `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/`
+}
+
+function resolvePmid({ PMID }: ReferenceMetadata): string | undefined {
+  const trimmed = PMID?.trim()
+  return trimmed ? `https://pubmed.ncbi.nlm.nih.gov/${trimmed}` : undefined
+}
+
+function resolveUrl({ URL }: ReferenceMetadata): string | undefined {
+  return URL?.trim() || undefined
+}
+
+const urlResolvers: UrlResolver[] = [
+  resolveDoi,
+  resolveArxiv,
+  resolvePmc,
+  resolvePmid,
+  resolveUrl,
+]
+
 // PRIMARY URL for opening source
 const primaryUrl = computed(() => {
-  // Priority: DOI > PMC > PMID > URL
-  if (reference.metadata.DOI) {
-    return `https://doi.org/${reference.metadata.DOI}`
-  }
-  if (reference.metadata.PMCID) {
-    const pmcid = reference.metadata.PMCID.startsWith('PMC')
-      ? reference.metadata.PMCID
-      : `PMC${reference.metadata.PMCID}`
-    return `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/`
-  }
-  if (reference.metadata.PMID) {
-    return `https://pubmed.ncbi.nlm.nih.gov/${reference.metadata.PMID}`
-  }
-  if (reference.metadata.URL) {
-    return reference.metadata.URL
+  const metadata = reference.metadata
+  for (const resolve of urlResolvers) {
+    const url = resolve(metadata)
+    if (url)
+      return url
   }
   return undefined
 })
