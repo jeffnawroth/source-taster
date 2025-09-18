@@ -32,6 +32,9 @@ export const useVerificationStore = defineStore('verification', () => {
   // State
   const isVerifying = ref(false)
   const verifyError = ref<string | null>(null)
+  const abortController = ref<AbortController | null>(null)
+  const isCancelled = ref(false)
+  const activeReferenceIds = ref<string[]>([])
 
   const canVerify = computed(
     () => hasParseResults.value || extractedReferences.value.length > 0,
@@ -88,12 +91,30 @@ export const useVerificationStore = defineStore('verification', () => {
     return score !== null && score >= threshold
   }
 
-  async function matchOne(reference: ApiMatchReference) {
+  function throwIfAborted(signal?: AbortSignal) {
+    if (signal?.aborted)
+      throw new DOMException('Verification cancelled', 'AbortError')
+  }
+
+  function markCancelledReferences() {
+    for (const id of activeReferenceIds.value) {
+      const state = progress.get(id)
+      if (!state)
+        continue
+      if (state.phase === 'done' || state.phase === 'error')
+        continue
+      progress.setCancelled(id)
+    }
+  }
+
+  async function matchOne(reference: ApiMatchReference, signal?: AbortSignal) {
+    throwIfAborted(signal)
     progress.setMatching(reference.id)
     const candidates = searchStore.getCandidatesByReferenceId(reference.id)
     if (!candidates.length)
       return
-    const res = await matchingStore.matchReference({ reference, candidates })
+    throwIfAborted(signal)
+    const res = await matchingStore.matchReference({ reference, candidates }, { signal })
     if (!res.success)
       throw new Error(mapApiError(res as unknown as ApiHttpError))
   }
@@ -101,17 +122,24 @@ export const useVerificationStore = defineStore('verification', () => {
   async function processReferenceInDatabase(
     reference: ApiSearchReference,
     databaseName: ApiSearchSource,
+    signal?: AbortSignal,
   ) {
+    throwIfAborted(signal)
     progress.setSearching(reference.id, databaseName)
-    const sres = await searchStore.searchInDatabase(databaseName, {
-      references: [reference],
-    })
+    const sres = await searchStore.searchInDatabase(
+      databaseName,
+      {
+        references: [reference],
+      },
+      { signal },
+    )
+    throwIfAborted(signal)
     if (sres && !sres.success) {
       const msg = mapApiError(sres as unknown as ApiHttpError)
       progress.setError(reference.id, msg)
       throw new Error(msg)
     }
-    await matchOne(reference)
+    await matchOne(reference, signal)
   }
 
   async function performVerificationWithEarlyTermination(
@@ -119,18 +147,21 @@ export const useVerificationStore = defineStore('verification', () => {
     databases: UISearchDatabaseConfig[],
     threshold: number,
     earlyEnabled: boolean,
+    signal?: AbortSignal,
   ) {
     const remaining = new Set(references.map(r => r.id))
 
     for (const db of databases) {
+      throwIfAborted(signal)
       if (remaining.size === 0)
         break
 
       for (const ref of references) {
+        throwIfAborted(signal)
         if (!remaining.has(ref.id))
           continue
 
-        await processReferenceInDatabase(ref, db.name as ApiSearchSource)
+        await processReferenceInDatabase(ref, db.name as ApiSearchSource, signal)
 
         if (shouldTerminateEarly(ref.id, threshold, earlyEnabled)) {
           remaining.delete(ref.id)
@@ -149,8 +180,9 @@ export const useVerificationStore = defineStore('verification', () => {
 
     if (!earlyEnabled) {
       for (const ref of references) {
+        throwIfAborted(signal)
         progress.setMatching(ref.id)
-        await matchOne(ref)
+        await matchOne(ref, signal)
         const score = matchingStore.getMatchingScoreByReference(ref.id)
         progress.setDone(ref.id, score ?? undefined)
       }
@@ -161,6 +193,12 @@ export const useVerificationStore = defineStore('verification', () => {
     if (!canVerify.value)
       return
 
+    // Aborts any previous controller to ensure a clean state
+    abortController.value?.abort()
+    isCancelled.value = false
+    const controller = new AbortController()
+    abortController.value = controller
+
     isVerifying.value = true
     verifyError.value = null
 
@@ -169,26 +207,45 @@ export const useVerificationStore = defineStore('verification', () => {
       matchingStore.clearMatchingResults()
 
       const references = await prepareReferences()
+      activeReferenceIds.value = references.map(r => r.id)
       progress.init(references.map(r => r.id))
 
       const { databases, threshold, earlyEnabled } = getVerificationSettings()
       if (!databases.length)
-        throw new Error('No databases are enabled. Please enable at least one database in Settings.')
+        throw new Error('errors.no_databases_enabled')
 
       await performVerificationWithEarlyTermination(
         references,
         databases,
         threshold,
         earlyEnabled,
+        controller.signal,
       )
     }
     catch (e: any) {
-      console.error('Verification failed:', e)
-      verifyError.value = typeof e?.message === 'string' ? e.message : 'Verification failed'
+      if (!(isCancelled.value && e?.name === 'AbortError')) {
+        console.error('Verification failed:', e)
+        const fallback = 'errors.verification_failed'
+        const message = typeof e?.message === 'string' ? e.message : null
+        verifyError.value = message && message.startsWith('errors.') ? message : fallback
+      }
     }
     finally {
       isVerifying.value = false
+      if (isCancelled.value)
+        markCancelledReferences()
+      abortController.value = null
+      activeReferenceIds.value = []
+      isCancelled.value = false
     }
+  }
+
+  function cancelVerification() {
+    if (!isVerifying.value)
+      return
+    isCancelled.value = true
+    abortController.value?.abort()
+    markCancelledReferences()
   }
 
   return {
@@ -201,5 +258,6 @@ export const useVerificationStore = defineStore('verification', () => {
     verify,
     prepareReferences,
     performVerificationWithEarlyTermination,
+    cancelVerification,
   }
 })

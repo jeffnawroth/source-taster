@@ -38,7 +38,10 @@ export const useMatchingStore = defineStore('matching', () => {
   })
 
   // Actions
-  async function matchReference(request: Omit<ApiMatchRequest, 'matchingSettings'> & { matchingSettings?: ApiMatchMatchingSettings }) {
+  async function matchReference(
+    request: Omit<ApiMatchRequest, 'matchingSettings'> & { matchingSettings?: ApiMatchMatchingSettings },
+    options?: { signal?: AbortSignal },
+  ) {
     isMatching.value = true
     matchingError.value = null
 
@@ -61,7 +64,7 @@ export const useMatchingStore = defineStore('matching', () => {
         reference: request.reference,
         candidates: matchCandidates,
         matchingSettings: request.matchingSettings ?? matchingSettings,
-      })
+      }, options)
 
       if (!res.success) {
         matchingError.value = mapApiError(res as ApiHttpError)
@@ -74,6 +77,15 @@ export const useMatchingStore = defineStore('matching', () => {
       matchingResults.value.set(referenceId, { evaluations })
 
       return res
+    }
+    catch (error: any) {
+      if (error?.name === 'AbortError')
+        throw error
+
+      const fallback = 'errors.matching_failed'
+      const message = typeof error?.message === 'string' ? error.message : null
+      matchingError.value = message && message.startsWith('errors.') ? message : fallback
+      throw error
     }
     finally {
       isMatching.value = false

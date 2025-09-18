@@ -48,15 +48,18 @@ export async function apiCall<T>(url: string, init?: RequestInit): Promise<ApiRe
     return {
       success: false,
       error: 'server_error',
-      message: 'Unerwartetes Antwortformat vom Server',
+      message: 'errors.unexpected_response',
     }
   }
   catch (e: any) {
+    if (e?.name === 'AbortError')
+      throw e
+
     // 4) Netzwerk/Client-Fehler
     return {
       success: false,
       error: 'server_error',
-      message: e?.message || 'Netzwerkfehler',
+      message: 'errors.network',
     }
   }
 }

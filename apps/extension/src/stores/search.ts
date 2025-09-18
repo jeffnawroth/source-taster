@@ -50,20 +50,36 @@ export const useSearchStore = defineStore('search', () => {
     }
   }
 
-  async function searchInDatabase(database: ApiSearchSource, request: ApiSearchRequest) {
+  async function searchInDatabase(
+    database: ApiSearchSource,
+    request: ApiSearchRequest,
+    options?: { signal?: AbortSignal },
+  ) {
     isSearching.value = true
     searchError.value = null
 
-    const res = await SearchService.searchInDatabase(database, request)
-    if (!res.success) {
-      searchError.value = mapApiError(res as ApiHttpError)
-      isSearching.value = false
+    try {
+      const res = await SearchService.searchInDatabase(database, request, options)
+      if (!res.success) {
+        searchError.value = mapApiError(res as ApiHttpError)
+        return res
+      }
+
+      mergeResults(res.data!)
       return res
     }
+    catch (error: any) {
+      if (error?.name === 'AbortError')
+        throw error
 
-    mergeResults(res.data!)
-    isSearching.value = false
-    return res
+      const fallback = 'errors.search_failed'
+      const message = typeof error?.message === 'string' ? error.message : null
+      searchError.value = message && message.startsWith('errors.') ? message : fallback
+      throw error
+    }
+    finally {
+      isSearching.value = false
+    }
   }
 
   // Utilities
