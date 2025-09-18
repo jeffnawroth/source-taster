@@ -643,6 +643,8 @@
   "no-match-threshold": "No Match",
   "no-match-threshold-description": "References below the possible match threshold",
   "no-match-tooltip": "No matches found (<{possibleThreshold}%)",
+  "unverified-chip": "Unverified",
+  "unverified-tooltip": "{count} references unverified (cancelled, pending, or failed)",
   "no-matching-source-found": " No matching source found or verification failed",
   "no-references-detected": "No references detected",
   "no-references-found": "No references found",

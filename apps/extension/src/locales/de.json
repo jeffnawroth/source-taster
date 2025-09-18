@@ -643,6 +643,8 @@
   "no-match-threshold": "Keine Übereinstimmung",
   "no-match-threshold-description": "Referenzen unter der möglichen Übereinstimmungs-Schwelle",
   "no-match-tooltip": "Keine Übereinstimmungen gefunden (<{possibleThreshold}%)",
+  "unverified-chip": "Nicht verifiziert",
+  "unverified-tooltip": "{count} Referenzen nicht verifiziert (z. B. abgebrochen, ausstehend oder Fehler)",
   "no-matching-source-found": "Keine passende Quelle gefunden oder Überprüfung fehlgeschlagen",
   "no-references-detected": "Keine Referenzen erkannt",
   "no-references-found": "Keine Referenzen gefunden",

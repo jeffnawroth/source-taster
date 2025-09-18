@@ -15,7 +15,10 @@ const { hasParseResults } = storeToRefs(useAnystyleStore())
 const search = ref('')
 const showReportCard = ref(true)
 
-const activeFilters = ref<Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'>>(['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'error'])
+type FilterCategory = 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'unverified'
+const ALL_FILTERS: FilterCategory[] = ['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'unverified']
+
+const activeFilters = ref<FilterCategory[]>([...ALL_FILTERS])
 
 const { results } = useFuse(search, () => [...extractedReferences.value], {
   fuseOptions: {
@@ -32,12 +35,12 @@ const { results } = useFuse(search, () => [...extractedReferences.value], {
 })
 
 // Map reference to category for filtering
-function categorize(reference: any): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error' | 'notTested' {
+function categorize(reference: any): FilterCategory {
   try {
     // Reuse same logic as ReportSubtitle via store
     const score = getMatchingScoreByReference.value(reference.id)
     if (score === null || score === undefined || !Number.isFinite(score))
-      return 'notTested'
+      return 'unverified'
     if (score === 0)
       return 'noMatch'
     if (score === 100)
@@ -51,19 +54,17 @@ function categorize(reference: any): 'exactMatch' | 'strongMatch' | 'possibleMat
     return 'noMatch'
   }
   catch {
-    return 'error'
+    return 'unverified'
   }
 }
 
 const filteredResults = computed(() => {
-  // If all filters selected, just return full results
-  if (activeFilters.value.length === 5)
+  if (activeFilters.value.length === ALL_FILTERS.length)
     return results.value
+
   return results.value.filter((r) => {
     const cat = categorize(r.item)
-    if (cat === 'notTested')
-      return true
-    return activeFilters.value.includes(cat as 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error')
+    return activeFilters.value.includes(cat)
   })
 })
 </script>
