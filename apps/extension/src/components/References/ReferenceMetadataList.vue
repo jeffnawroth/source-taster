@@ -3,6 +3,7 @@ import type { ApiExtractReference, ApiSearchCandidate } from '@source-taster/typ
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 import { mdiAccountGroup, mdiAccountTie, mdiBookmark, mdiBookOpenBlankVariantOutline, mdiCalendarClock, mdiCalendarOutline, mdiCalendarRange, mdiChevronDown, mdiChevronUp, mdiDomain, mdiEarth, mdiFileDocumentOutline, mdiGavel, mdiIdentifier, mdiInformation, mdiLibrary, mdiLink, mdiMapMarker, mdiMedicalBag, mdiMicrophone, mdiNewspaper, mdiNotebookOutline, mdiNoteText, mdiNumeric, mdiOfficeBuilding, mdiRuler, mdiTag, mdiTelevision, mdiText, mdiTranslate } from '@mdi/js'
 import { formatCSLDateForDisplay, stringifyCSLName } from '@source-taster/types'
+import { translateSourceType } from '@/extension/utils/sourceType'
 
 const props = defineProps<{
   reference: DeepReadonly<UnwrapNestedRefs<T>> | T
@@ -100,7 +101,7 @@ const mainFields = computed(() => [
     condition: () => props.reference.metadata.type,
     icon: mdiTag,
     title: t('type'),
-    text: () => props.reference.metadata.type || '',
+    text: () => translateSourceType(t, props.reference.metadata.type) || props.reference.metadata.type || '',
   },
 ].filter(field => field.condition()))
 
