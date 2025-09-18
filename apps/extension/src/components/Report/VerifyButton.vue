@@ -5,7 +5,7 @@ import { useExtractionStore } from '@/extension/stores/extraction'
 import { useVerificationStore } from '@/extension/stores/verification'
 
 const verificationStore = useVerificationStore()
-const { canVerify, isVerifying, verifyError } = storeToRefs(verificationStore)
+const { canVerify, isVerifying } = storeToRefs(verificationStore)
 const { verify, cancelVerification } = verificationStore
 
 const extractionStore = useExtractionStore()
@@ -22,8 +22,8 @@ const { isExtracting } = storeToRefs(extractionStore)
   >
     <template #prepend>
       <v-progress-circular
-        size="25"
-        width="2"
+        size="24"
+        width="3"
         indeterminate
       >
         <v-icon
@@ -49,20 +49,4 @@ const { isExtracting } = storeToRefs(extractionStore)
     </template>
     {{ $t('verify-references') }}
   </v-btn>
-
-  <v-expand-transition>
-    <div
-      v-if="verifyError"
-      class="flex-grow-0 flex-shrink-0 mt-3"
-    >
-      <v-alert
-        type="error"
-        variant="tonal"
-        closable
-        @click:close="verifyError = null"
-      >
-        {{ $t(verifyError) }}
-      </v-alert>
-    </div>
-  </v-expand-transition>
 </template>

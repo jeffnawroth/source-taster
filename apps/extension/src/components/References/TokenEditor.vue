@@ -10,7 +10,6 @@ const { parsed, showTokenEditor } = storeToRefs(anystyleStore)
 
 // State - Simplified: only tokens needed for editing
 const editableTokens = ref<ApiAnystyleTokenSequence[]>([])
-const error = ref('')
 const currentReferenceIndex = ref(0)
 
 const currentOriginalText = computed(() =>
@@ -79,21 +78,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
       />
     </template>
     <v-card-text class="pa-0">
-      <!-- Error Display -->
-      <div
-        v-if="error"
-        class="d-flex flex-column gap-4"
-      >
-        <v-alert
-          type="error"
-          variant="tonal"
-          closable
-          @click:close="error = ''"
-        >
-          {{ error }}
-        </v-alert>
-      </div>
-
       <!-- Token Editor with Navigation -->
       <v-expand-transition>
         <div v-if="showTokenEditor && editableTokens.length > 0">
