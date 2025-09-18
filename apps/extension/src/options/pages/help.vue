@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiBookOpenPageVariant, mdiEmailOutline, mdiHelpCircleOutline, mdiOpenInNew, mdiVideoOutline } from '@mdi/js'
+import { mdiBookOpenPageVariant, mdiEmailOutline, mdiHelpCircleOutline, mdiOpenInNew } from '@mdi/js'
 
 // TRANSLATION
 const { t } = useI18n()
@@ -12,13 +12,6 @@ const items = ref([
     href: 'https://docs.sourcetaster.com/',
     appendIcon: mdiOpenInNew,
     prependIcon: mdiBookOpenPageVariant,
-  },
-  {
-    title: 'Demo',
-    subtitle: computed(() => t('view-demo')),
-    href: 'https://docs.sourcetaster.com/demo.html',
-    appendIcon: mdiOpenInNew,
-    prependIcon: mdiVideoOutline,
   },
   {
     title: computed(() => t('contact')),
