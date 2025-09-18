@@ -52,6 +52,7 @@ function openOptionsPage() {
     <v-app-bar-nav-icon
       v-if="$vuetify.display.mdAndDown && showNavBarIcon"
       variant="plain"
+      color="undefined"
       @click.stop="drawer = !drawer"
     />
 
@@ -64,7 +65,6 @@ function openOptionsPage() {
       #append
     >
       <v-btn
-
         size="small"
         :icon="mdiCogOutline"
         variant="plain"

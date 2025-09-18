@@ -121,11 +121,11 @@ function getDatabaseColor(database: UISearchDatabaseConfig): string {
           <v-chip
             variant="outlined"
             size="small"
-            class="me-2"
+            class="me-3"
             :text="`${t('priority')}: ${database.priority}`"
           />
 
-          <v-btn
+          <v-icon
             :icon="database.enabled ? mdiEye : mdiEyeOff"
             variant="text"
             size="small"

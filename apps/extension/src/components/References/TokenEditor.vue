@@ -55,9 +55,10 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
       <!-- Info Icon with Tooltip -->
       <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
-          <v-btn
+          <v-icon
             :icon="mdiInformationOutline"
-            variant="text"
+            variant="plain"
+            class="mx-2"
             size="small"
             v-bind="tooltipProps"
           />
@@ -72,7 +73,7 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
       </v-tooltip>
 
       <v-btn
-        variant="text"
+        variant="plain"
         :icon="showTokenEditor ? mdiChevronUp : mdiChevronDown"
         @click="anystyleStore.setShowTokenEditor(!showTokenEditor)"
       />
@@ -120,7 +121,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
             </v-btn>
 
             <v-chip
-              color="primary"
               variant="outlined"
             >
               {{ currentReferenceIndex + 1 }} / {{ editableTokens.length }}
