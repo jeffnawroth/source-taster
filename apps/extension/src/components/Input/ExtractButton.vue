@@ -64,7 +64,6 @@ watch(ctrlEnter, (pressed) => {
 <template>
   <v-btn
     variant="tonal"
-    color="primary"
     :disabled="isDisabled"
     block
     @click="handleExtractClick"

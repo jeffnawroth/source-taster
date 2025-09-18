@@ -80,10 +80,11 @@ const filteredResults = computed(() => {
       <!-- Info Icon with Tooltip -->
       <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
-          <v-btn
+          <v-icon
             :icon="mdiInformationOutline"
             variant="text"
             size="small"
+            class="mx-2"
             v-bind="tooltipProps"
           />
         </template>
@@ -99,7 +100,7 @@ const filteredResults = computed(() => {
       </v-tooltip>
 
       <v-btn
-        variant="text"
+        variant="plain"
         :icon="showReportCard ? mdiChevronUp : mdiChevronDown"
         @click="showReportCard = !showReportCard"
       />

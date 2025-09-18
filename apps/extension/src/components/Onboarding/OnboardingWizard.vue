@@ -281,7 +281,6 @@ function completeOnboarding() {
       <v-btn
         v-if="currentStep < 3"
         :disabled="!canProceed"
-        color="primary"
         variant="elevated"
         :append-icon="mdiArrowRight"
         :text="$t('onboarding.actions.next')"
@@ -290,7 +289,6 @@ function completeOnboarding() {
 
       <v-btn
         v-if="currentStep === 3"
-        color="primary"
         variant="elevated"
         :append-icon="mdiCheckCircle"
         :text="$t('onboarding.actions.complete')"

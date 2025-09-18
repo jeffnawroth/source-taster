@@ -42,7 +42,7 @@ watch([keys['Cmd+Enter'], keys['Ctrl+Enter']], ([cmd, ctrl]) => {
 <template>
   <v-btn
     variant="tonal"
-    color="secondary"
+    color="primary"
     :disabled="isDisabled"
     block
     @click="handleParseClick"

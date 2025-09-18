@@ -32,7 +32,7 @@ const { isExtracting } = storeToRefs(extractionStore)
   <v-btn
     v-else
     :disabled="!canVerify || isExtracting"
-    color="success"
+    color="primary"
     variant="tonal"
     block
     @click="verify"

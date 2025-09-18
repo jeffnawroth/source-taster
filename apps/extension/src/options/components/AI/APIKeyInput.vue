@@ -25,7 +25,7 @@ const showApiKey = ref(false)
     @click:clear="modelValue = ''"
   >
     <template #append-inner>
-      <v-btn
+      <v-icon
         :icon="showApiKey ? mdiEyeOff : mdiEye"
         variant="text"
         size="small"

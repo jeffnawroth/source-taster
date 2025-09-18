@@ -74,7 +74,6 @@ watch(() => settings.value.ai.provider, () => {
 
     <v-card-actions>
       <v-btn
-        color="primary"
         variant="tonal"
         :loading="user.isSaving"
         :disabled="apiKey.trim().length === 0 || user.isSaving"
