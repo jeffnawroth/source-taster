@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
 
-export type VerificationPhase = 'idle' | 'searching' | 'matching' | 'done' | 'error'
+export type VerificationPhase = 'idle' | 'searching' | 'matching' | 'done' | 'error' | 'cancelled'
 export interface VerificationState {
   phase: VerificationPhase
   db?: string
@@ -37,6 +37,9 @@ export const useVerificationProgressStore = defineStore('verificationProgress', 
   function setDone(id: string, score?: number) {
     setPhase(id, 'done', { db: undefined, score, error: null })
   }
+  function setCancelled(id: string) {
+    setPhase(id, 'cancelled', { db: undefined })
+  }
   function setError(id: string, message: string) {
     setPhase(id, 'error', { error: message })
   }
@@ -58,7 +61,7 @@ export const useVerificationProgressStore = defineStore('verificationProgress', 
     const total = byRef.value.size
     if (!total)
       return { total: 0, done: 0, percent: 0 }
-    const done = [...byRef.value.values()].filter(s => s.phase === 'done' || s.phase === 'error').length
+    const done = [...byRef.value.values()].filter(s => ['done', 'error', 'cancelled'].includes(s.phase)).length
     return { total, done, percent: Math.round((done / total) * 100) }
   })
 
@@ -69,6 +72,7 @@ export const useVerificationProgressStore = defineStore('verificationProgress', 
     setSearching,
     setMatching,
     setDone,
+    setCancelled,
     setError,
     get,
     reset,

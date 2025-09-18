@@ -21,6 +21,7 @@ export class SearchService {
   static async searchInDatabase(
     database: ApiSearchSource,
     request: ApiSearchRequest,
+    options?: { signal?: AbortSignal },
   ): Promise<ApiResult<ApiSearchData>> {
     const req = ApiSearchRequestSchema.parse(request)
 
@@ -28,6 +29,7 @@ export class SearchService {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
+      signal: options?.signal,
     })
   }
 }

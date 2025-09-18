@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
-import { mdiAlertCircleOutline, mdiBullseye, mdiCloseCircleOutline, mdiHelpCircleOutline, mdiMagnify, mdiTarget } from '@mdi/js'
+import { mdiAlertCircleOutline, mdiBullseye, mdiHelpCircleOutline, mdiMagnify, mdiPauseCircleOutline, mdiTarget } from '@mdi/js'
 import { useI18n } from 'vue-i18n'
 import StatusChip from '@/extension/components/common/StatusChip.vue'
 import { useVerificationProgressStore } from '@/extension/composables/useVerificationProgress'
@@ -10,10 +10,10 @@ import { useMatchingStore } from '@/extension/stores/matching'
 
 const props = defineProps<{
   references?: DeepReadonly<ApiExtractReference[]>
-  activeFilters?: Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'>
+  activeFilters?: Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'unverified'>
 }>()
 const emit = defineEmits<{
-  (e: 'update:activeFilters', value: Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'>): void
+  (e: 'update:activeFilters', value: Array<'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'unverified'>): void
 }>()
 
 const matchingStore = useMatchingStore()
@@ -23,14 +23,13 @@ const { overall } = storeToRefs(progressStore)
 const { t } = useI18n()
 
 // Helper function to categorize a single reference based on its match score
-function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'notTested' | 'error' {
+function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>): 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'unverified' {
   try {
     const score = getMatchingScoreByReference.value(reference.id)
 
     // Distinguish between not tested (null) and no match found (0)
-    if (score === null || score === undefined || !Number.isFinite(score)) {
-      return 'notTested'
-    }
+    if (score === null || score === undefined || !Number.isFinite(score))
+      return 'unverified'
 
     if (score === 0) {
       return 'noMatch'
@@ -54,7 +53,7 @@ function categorizeReference(reference: DeepReadonly<UnwrapNestedRefs<ApiExtract
     return 'noMatch'
   }
   catch {
-    return 'error'
+    return 'unverified'
   }
 }
 
@@ -67,8 +66,7 @@ const matchCounts = computed(() => {
     strongMatch: 0,
     possibleMatch: 0,
     noMatch: 0,
-    notTested: 0,
-    error: 0,
+    unverified: 0,
   }
 
   references.forEach((reference) => {
@@ -82,7 +80,7 @@ const matchCounts = computed(() => {
 // Computed for derived counts
 const statusCounts = computed(() => {
   const total = props.references?.length || 0
-  const { exactMatch, strongMatch, possibleMatch, noMatch, notTested, error } = matchCounts.value
+  const { exactMatch, strongMatch, possibleMatch, noMatch, unverified } = matchCounts.value
 
   return {
     total,
@@ -90,15 +88,12 @@ const statusCounts = computed(() => {
     strongMatch,
     possibleMatch,
     noMatch,
-    notTested,
-    matched: exactMatch + strongMatch,
-    notMatched: possibleMatch + noMatch, // notTested are not counted as notMatched
-    error,
+    unverified,
   }
 })
 
-type FilterCategory = 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'error'
-const ALL_FILTERS: FilterCategory[] = ['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'error']
+type FilterCategory = 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'unverified'
+const ALL_FILTERS: FilterCategory[] = ['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'unverified']
 
 interface ChipItem {
   key: string
@@ -109,6 +104,7 @@ interface ChipItem {
   icon?: string
   loading?: boolean
   category?: FilterCategory
+  variant?: 'text' | 'plain' | 'outlined' | 'elevated' | 'tonal'
 }
 
 const activeFilters = computed<FilterCategory[]>({
@@ -143,6 +139,7 @@ const summaryChips = computed<ChipItem[]>(() => {
     text: `${counts.total} ${t('found')}`,
     tooltip: t('found-references-tooltip') as string,
     icon: mdiMagnify,
+    variant: 'text',
   })
 
   chips.push({
@@ -195,12 +192,12 @@ const summaryChips = computed<ChipItem[]>(() => {
   })
 
   chips.push({
-    key: 'error',
-    show: counts.error > 0,
-    text: `${counts.error} ${t('error')}`,
-    tooltip: t('error-references-tooltip') as string,
-    icon: mdiCloseCircleOutline,
-    category: 'error',
+    key: 'unverified',
+    show: counts.unverified > 0,
+    text: `${counts.unverified} ${t('unverified-chip')}`,
+    tooltip: t('unverified-tooltip', { count: counts.unverified }) as string,
+    icon: mdiPauseCircleOutline,
+    category: 'unverified',
   })
 
   return chips.filter(c => c.show)
@@ -222,6 +219,8 @@ const summaryChips = computed<ChipItem[]>(() => {
         :prepend-icon="chip.icon"
         :color="chip.category ? (isSelected(chip.category) ? chip.color : undefined) : chip.color"
         :class="[{ 'cursor-default': !chip.category }]"
+        :variant="chip.category ? (isSelected(chip.category) ? 'tonal' : 'plain') : (chip.variant || 'text')"
+        :loading="chip.loading"
         @click="chip.category && toggleCategory(chip.category)"
       />
     </v-col>

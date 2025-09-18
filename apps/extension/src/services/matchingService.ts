@@ -15,7 +15,7 @@ export class MatchingService {
    * @param request - The matching request containing references and settings
    * @returns ApiResult<ApiMatchData>
    */
-  static async matchReference(request: ApiMatchRequest) {
+  static async matchReference(request: ApiMatchRequest, options?: { signal?: AbortSignal }) {
     const req = ApiMatchRequestSchema.parse(request)
 
     return apiCall<ApiMatchData>(API_BASE_URL, {
@@ -25,6 +25,7 @@ export class MatchingService {
         'Accept': 'application/json',
       },
       body: JSON.stringify(req),
+      signal: options?.signal,
     })
   }
 }

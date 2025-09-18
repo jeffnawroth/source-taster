@@ -6,7 +6,7 @@ import { useVerificationStore } from '@/extension/stores/verification'
 
 const verificationStore = useVerificationStore()
 const { canVerify, isVerifying, verifyError } = storeToRefs(verificationStore)
-const { verify } = verificationStore
+const { verify, cancelVerification } = verificationStore
 
 const extractionStore = useExtractionStore()
 const { isExtracting } = storeToRefs(extractionStore)
@@ -14,26 +14,36 @@ const { isExtracting } = storeToRefs(extractionStore)
 
 <template>
   <v-btn
-    :disabled="!canVerify || isVerifying || isExtracting"
+    v-if="isVerifying"
+    color="warning"
+    variant="tonal"
+    block
+    @click="cancelVerification"
+  >
+    <template #prepend>
+      <v-progress-circular
+        size="20"
+        width="2"
+        indeterminate
+      />
+    </template>
+    {{ $t('cancel-verification') }}
+  </v-btn>
+  <v-btn
+    v-else
+    :disabled="!canVerify || isExtracting"
     color="success"
     variant="tonal"
     block
     @click="verify"
   >
     <template #prepend>
-      <v-progress-circular
-        v-if="isVerifying"
-        size="20"
-        width="2"
-        indeterminate
-      />
       <v-icon
-        v-else
         :icon="mdiMagnifyExpand"
         start
       />
     </template>
-    {{ isVerifying ? `${$t('verifying')}...` : $t('verify-references') }}
+    {{ $t('verify-references') }}
   </v-btn>
 
   <v-expand-transition>
@@ -45,7 +55,7 @@ const { isExtracting } = storeToRefs(extractionStore)
       closable
       @click:close="verifyError = null"
     >
-      {{ verifyError }}
+      {{ $t(verifyError) }}
     </v-alert>
   </v-expand-transition>
 </template>
