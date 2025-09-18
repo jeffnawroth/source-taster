@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ApiExtractReference } from '@source-taster/types'
 import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
-import { mdiAlertCircleOutline, mdiBullseye, mdiHelpCircleOutline, mdiMagnify, mdiPauseCircleOutline, mdiTarget } from '@mdi/js'
+import { mdiAlertCircleOutline, mdiBullseye, mdiHelpCircleOutline, mdiMagnify, mdiProgressQuestion, mdiTarget } from '@mdi/js'
 import { useI18n } from 'vue-i18n'
 import StatusChip from '@/extension/components/common/StatusChip.vue'
 import { useVerificationProgressStore } from '@/extension/composables/useVerificationProgress'
@@ -196,7 +196,7 @@ const summaryChips = computed<ChipItem[]>(() => {
     show: counts.unverified > 0,
     text: `${counts.unverified} ${t('unverified-chip')}`,
     tooltip: t('unverified-tooltip', { count: counts.unverified }) as string,
-    icon: mdiPauseCircleOutline,
+    icon: mdiProgressQuestion,
     category: 'unverified',
   })
 
