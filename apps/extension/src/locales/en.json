@@ -985,6 +985,7 @@
   "token-editor-help-title": "How to Use the Token Editor",
   "token-editor-select-new-label": "Select new label",
   "token-editor-search-labels-placeholder": "Type to search labels...",
+  "token-editor-multi-selection-count": "{count} tokens selected",
   "token-label-author": "Author",
   "token-label-citation-number": "Citation Number",
   "token-label-collection-title": "Collection Title",
