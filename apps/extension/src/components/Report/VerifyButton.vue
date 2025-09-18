@@ -51,15 +51,18 @@ const { isExtracting } = storeToRefs(extractionStore)
   </v-btn>
 
   <v-expand-transition>
-    <v-alert
+    <div
       v-if="verifyError"
-      type="error"
-      variant="tonal"
-      class="mt-3"
-      closable
-      @click:close="verifyError = null"
+      class="flex-grow-0 flex-shrink-0 mt-3"
     >
-      {{ $t(verifyError) }}
-    </v-alert>
+      <v-alert
+        type="error"
+        variant="tonal"
+        closable
+        @click:close="verifyError = null"
+      >
+        {{ $t(verifyError) }}
+      </v-alert>
+    </div>
   </v-expand-transition>
 </template>
