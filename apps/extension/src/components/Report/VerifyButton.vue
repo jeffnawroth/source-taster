@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiMagnifyExpand } from '@mdi/js'
+import { mdiClose, mdiMagnifyExpand } from '@mdi/js'
 import { storeToRefs } from 'pinia'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useVerificationStore } from '@/extension/stores/verification'
@@ -22,10 +22,14 @@ const { isExtracting } = storeToRefs(extractionStore)
   >
     <template #prepend>
       <v-progress-circular
-        size="20"
+        size="25"
         width="2"
         indeterminate
-      />
+      >
+        <v-icon
+          :icon="mdiClose"
+        />
+      </v-progress-circular>
     </template>
     {{ $t('cancel-verification') }}
   </v-btn>

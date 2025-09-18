@@ -65,6 +65,7 @@ function openOptionsPage() {
     >
       <v-btn
         size="small"
+        color="undefined"
         :icon="mdiCogOutline"
         variant="plain"
 

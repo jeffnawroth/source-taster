@@ -74,6 +74,7 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
 
       <v-btn
         variant="plain"
+        color="undefined"
         :icon="showTokenEditor ? mdiChevronUp : mdiChevronDown"
         @click="anystyleStore.setShowTokenEditor(!showTokenEditor)"
       />
