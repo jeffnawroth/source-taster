@@ -31,10 +31,10 @@ const isDisabled = computed(
   () => !inputText.value.trim() || anystyle.isParsing,
 )
 
-// Keyboard Shortcuts: Cmd/Ctrl + Enter
+// Keyboard Shortcuts: Cmd/Ctrl + Shift + Enter
 const keys = useMagicKeys()
-watch([keys['Cmd+Enter'], keys['Ctrl+Enter']], ([cmd, ctrl]) => {
-  if ((cmd || ctrl) && !isDisabled.value)
+watch([keys['Cmd+Shift+Enter'], keys['Ctrl+Shift+Enter']], ([cmdShift, ctrlShift]) => {
+  if ((cmdShift || ctrlShift) && !isDisabled.value)
     handleParseClick()
 })
 </script>

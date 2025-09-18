@@ -129,7 +129,7 @@
   "chapter-title": "Chapter Title",
   "check-dois": "Please check your input and ensure it contains DOIs and is correctly formatted to improve search results",
   "check-references": "Check References",
-  "check-references-shortcut": "Check References (Cmd+Enter / Ctrl+Enter)",
+  "check-references-shortcut": "Check References (Cmd+Alt+Enter / Ctrl+Alt+Enter)",
   "checked": "checked",
   "citation-key": "Citation Key",
   "citation-label": "Citation Label",
