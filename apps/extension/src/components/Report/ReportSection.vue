@@ -101,7 +101,6 @@ const filteredResults = computed(() => {
 
       <v-btn
         variant="plain"
-        color="undefined"
         :icon="showReportCard ? mdiChevronUp : mdiChevronDown"
         @click="showReportCard = !showReportCard"
       />

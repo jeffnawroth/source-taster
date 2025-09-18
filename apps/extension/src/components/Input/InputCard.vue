@@ -75,7 +75,6 @@ const cardSubtitle = computed(() => {
 
       <v-btn
         variant="plain"
-        color="undefined"
         :icon="showInputCard ? mdiChevronUp : mdiChevronDown"
         @click="showInputCard = !showInputCard"
       />

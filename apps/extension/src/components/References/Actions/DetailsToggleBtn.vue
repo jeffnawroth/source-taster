@@ -11,7 +11,6 @@ const showDetails = defineModel({
   <v-btn
     variant="text"
     size="small"
-    color="undefined"
     :prepend-icon="showDetails ? mdiChevronUp : mdiChevronDown"
     @click="showDetails = !showDetails"
   >

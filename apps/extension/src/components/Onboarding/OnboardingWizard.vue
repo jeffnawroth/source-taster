@@ -271,6 +271,7 @@ function completeOnboarding() {
       <v-btn
         v-if="currentStep > 1"
         variant="text"
+        color="primary"
         :prepend-icon="mdiArrowLeft"
         :text="$t('onboarding.actions.back')"
         @click="previousStep"
@@ -283,6 +284,7 @@ function completeOnboarding() {
         :disabled="!canProceed"
         variant="elevated"
         :append-icon="mdiArrowRight"
+        color="primary"
         :text="$t('onboarding.actions.next')"
         @click="nextStep"
       />
@@ -290,6 +292,7 @@ function completeOnboarding() {
       <v-btn
         v-if="currentStep === 3"
         variant="elevated"
+        color="primary"
         :append-icon="mdiCheckCircle"
         :text="$t('onboarding.actions.complete')"
         @click="completeOnboarding"

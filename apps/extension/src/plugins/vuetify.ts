@@ -71,11 +71,6 @@ const vuetify = createVuetify({
       mdi,
     },
   },
-  defaults: {
-    VBtn: {
-      color: 'primary',
-    },
-  },
 })
 
 export default vuetify

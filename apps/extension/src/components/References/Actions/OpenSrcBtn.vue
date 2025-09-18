@@ -45,7 +45,6 @@ function openSource() {
       <v-btn
         v-bind="props"
         variant="text"
-        color="undefined"
         size="small"
         :icon="mdiOpenInNew"
         @click="openSource"
