@@ -33,7 +33,8 @@ const emit = defineEmits<{
 
 // State
 const tokenSequences = ref<ApiAnystyleTokenSequence[]>([])
-const selectedToken = ref<SelectedToken | null>(null)
+const selectedTokens = ref<SelectedToken[]>([])
+const lastSelectedToken = ref<SelectedToken | null>(null)
 const hoveredToken = ref<{ sequenceIndex: number, tokenIndex: number } | null>(null)
 const { t } = useI18n()
 
@@ -89,23 +90,82 @@ function getLabelDisplayName(label: ApiAnystyleTokenLabel): string {
   return labelOption ? t(labelOption.nameKey) : label
 }
 
-function selectToken(sequenceIndex: number, tokenIndex: number) {
+function getTokenAt(sequenceIndex: number, tokenIndex: number): SelectedToken | null {
+  const sequence = tokenSequences.value[sequenceIndex]
+  const token = sequence?.[tokenIndex]
+  if (!sequence || !token)
+    return null
+
+  const [label, tokenValue] = token
+  return {
+    sequenceIndex,
+    tokenIndex,
+    label,
+    token: tokenValue,
+  }
+}
+
+function toggleTokenSelection(selection: SelectedToken) {
+  const index = selectedTokens.value.findIndex(token =>
+    token.sequenceIndex === selection.sequenceIndex && token.tokenIndex === selection.tokenIndex,
+  )
+
+  if (index >= 0)
+    selectedTokens.value.splice(index, 1)
+  else
+    selectedTokens.value.push(selection)
+}
+
+function addRangeSelection(selection: SelectedToken) {
+  if (!lastSelectedToken.value || lastSelectedToken.value.sequenceIndex !== selection.sequenceIndex) {
+    selectedTokens.value = [selection]
+    return
+  }
+
+  const start = Math.min(lastSelectedToken.value.tokenIndex, selection.tokenIndex)
+  const end = Math.max(lastSelectedToken.value.tokenIndex, selection.tokenIndex)
+
+  const additions: SelectedToken[] = []
+  for (let tokenIndex = start; tokenIndex <= end; tokenIndex++) {
+    const token = getTokenAt(selection.sequenceIndex, tokenIndex)
+    if (!token)
+      continue
+    if (!selectedTokens.value.some(selected =>
+      selected.sequenceIndex === token.sequenceIndex && selected.tokenIndex === token.tokenIndex,
+    )) {
+      additions.push(token)
+    }
+  }
+
+  selectedTokens.value.push(...additions)
+}
+
+function selectToken(sequenceIndex: number, tokenIndex: number, event?: MouseEvent | KeyboardEvent) {
   const sequence = tokenSequences.value[sequenceIndex]
   if (!sequence || !sequence[tokenIndex])
     return
 
-  const [label, token] = sequence[tokenIndex]
-  selectedToken.value = {
-    sequenceIndex,
-    tokenIndex,
-    label,
-    token,
-  }
+  const selection = getTokenAt(sequenceIndex, tokenIndex)
+  if (!selection)
+    return
+
+  const isMultiSelect = event?.metaKey || event?.ctrlKey
+  const isRangeSelection = event?.shiftKey && !isMultiSelect
+
+  if (isRangeSelection)
+    addRangeSelection(selection)
+  else if (isMultiSelect)
+    toggleTokenSelection(selection)
+  else
+    selectedTokens.value = [selection]
+
+  lastSelectedToken.value = selection
 }
 
 function isTokenSelected(sequenceIndex: number, tokenIndex: number): boolean {
-  return selectedToken.value?.sequenceIndex === sequenceIndex
-    && selectedToken.value?.tokenIndex === tokenIndex
+  return selectedTokens.value.some(token =>
+    token.sequenceIndex === sequenceIndex && token.tokenIndex === tokenIndex,
+  )
 }
 
 function isTokenHovered(sequenceIndex: number, tokenIndex: number): boolean {
@@ -121,19 +181,34 @@ function clearHoveredToken() {
   hoveredToken.value = null
 }
 
+const primarySelectedToken = computed(() => selectedTokens.value[0] ?? null)
+
+const selectedLabel = computed<ApiAnystyleTokenLabel | null>(() => {
+  const token = primarySelectedToken.value
+  if (!token)
+    return null
+  return tokenSequences.value[token.sequenceIndex]?.[token.tokenIndex]?.[0] ?? null
+})
+
 function changeTokenLabel(newLabel: ApiAnystyleTokenLabel | null | undefined) {
-  if (!selectedToken.value || !newLabel)
+  if (!newLabel || selectedTokens.value.length === 0)
     return
 
-  const { sequenceIndex, tokenIndex } = selectedToken.value
-  const sequence = tokenSequences.value[sequenceIndex]
-  if (sequence && sequence[tokenIndex]) {
-    sequence[tokenIndex] = [newLabel, sequence[tokenIndex][1]]
-    // Update the selected token's label to reflect the change
-    selectedToken.value.label = newLabel
-    emit('update:tokens', tokenSequences.value)
+  let changed = false
+
+  for (const selection of selectedTokens.value) {
+    const sequence = tokenSequences.value[selection.sequenceIndex]
+    if (!sequence)
+      continue
+    const currentToken = sequence[selection.tokenIndex]
+    if (!currentToken)
+      continue
+    sequence[selection.tokenIndex] = [newLabel, currentToken[1]]
+    changed = true
   }
-  // Don't set selectedToken.value = null to keep the panel open
+
+  if (changed)
+    emit('update:tokens', tokenSequences.value)
 }
 
 function deleteToken(sequenceIndex: number, tokenIndex: number) {
@@ -142,16 +217,54 @@ function deleteToken(sequenceIndex: number, tokenIndex: number) {
     sequence.splice(tokenIndex, 1)
     emit('update:tokens', tokenSequences.value)
   }
-  // Clear selection if we deleted the selected token
-  if (selectedToken.value?.sequenceIndex === sequenceIndex && selectedToken.value?.tokenIndex === tokenIndex) {
-    selectedToken.value = null
+  const updated: SelectedToken[] = []
+  for (const token of selectedTokens.value) {
+    if (token.sequenceIndex !== sequenceIndex) {
+      updated.push(token)
+      continue
+    }
+
+    if (token.tokenIndex === tokenIndex)
+      continue
+
+    if (token.tokenIndex > tokenIndex)
+      updated.push({ ...token, tokenIndex: token.tokenIndex - 1 })
+    else
+      updated.push(token)
+  }
+
+  selectedTokens.value = updated
+  if (lastSelectedToken.value?.sequenceIndex === sequenceIndex) {
+    if (lastSelectedToken.value.tokenIndex === tokenIndex) {
+      lastSelectedToken.value = null
+    }
+    else if (lastSelectedToken.value.tokenIndex > tokenIndex) {
+      lastSelectedToken.value = {
+        ...lastSelectedToken.value,
+        tokenIndex: lastSelectedToken.value.tokenIndex - 1,
+      }
+    }
   }
 }
 
 // Watch for prop changes
 watch(() => props.tokens, (newTokens) => {
   tokenSequences.value = JSON.parse(JSON.stringify(newTokens))
-  selectedToken.value = null
+  const refreshedSelections: SelectedToken[] = []
+  for (const token of selectedTokens.value) {
+    const refreshed = getTokenAt(token.sequenceIndex, token.tokenIndex)
+    if (refreshed)
+      refreshedSelections.push(refreshed)
+  }
+  selectedTokens.value = refreshedSelections
+
+  if (selectedTokens.value.length === 0) {
+    lastSelectedToken.value = null
+  }
+  else if (lastSelectedToken.value) {
+    const refreshedLast = getTokenAt(lastSelectedToken.value.sequenceIndex, lastSelectedToken.value.tokenIndex)
+    lastSelectedToken.value = refreshedLast
+  }
 }, { immediate: true, deep: true })
 </script>
 
@@ -177,7 +290,7 @@ watch(() => props.tokens, (newTokens) => {
         class="token-chip ma-1"
         :class="{ 'token-selected': isTokenSelected(sequenceIndex, tokenIndex) }"
         :closable="isTokenHovered(sequenceIndex, tokenIndex)"
-        @click="selectToken(sequenceIndex, tokenIndex)"
+        @click="selectToken(sequenceIndex, tokenIndex, $event)"
         @click:close="deleteToken(sequenceIndex, tokenIndex)"
         @mouseenter="setHoveredToken(sequenceIndex, tokenIndex)"
         @mouseleave="clearHoveredToken"
@@ -196,14 +309,14 @@ watch(() => props.tokens, (newTokens) => {
 
   <v-expand-transition>
     <div
-      v-if="selectedToken"
+      v-if="selectedTokens.length"
     >
       <!-- Autocomplete for label selection -->
       <v-autocomplete
         :items="translatedLabelOptions"
         item-title="name"
         item-value="value"
-        :model-value="selectedToken.label"
+        :model-value="selectedLabel"
         :label="t('token-editor-select-new-label')"
         :placeholder="t('token-editor-search-labels-placeholder')"
         variant="outlined"
@@ -231,6 +344,12 @@ watch(() => props.tokens, (newTokens) => {
           </v-list-item>
         </template>
       </v-autocomplete>
+      <div
+        v-if="selectedTokens.length > 1"
+        class="text-caption text-medium-emphasis"
+      >
+        {{ t('token-editor-multi-selection-count', { count: selectedTokens.length }) }}
+      </div>
     </div>
   </v-expand-transition>
 </template>
