@@ -15,6 +15,36 @@ const { t } = useI18n()
 // State for collapsible sections
 const showOtherFields = ref(false)
 
+function stringifyCustomValue(value: unknown): string {
+  if (value === null || value === undefined)
+    return ''
+  if (Array.isArray(value)) {
+    return value
+      .map(item => stringifyCustomValue(item))
+      .filter(Boolean)
+      .join(', ')
+  }
+  if (typeof value === 'object')
+    return JSON.stringify(value)
+  return String(value)
+}
+
+type CustomRecord = Record<string, unknown> | Readonly<Record<string, unknown>>
+
+function formatCustomFields(custom: CustomRecord | undefined): string {
+  if (!custom)
+    return ''
+
+  const entries = Object.entries(custom)
+    .map(([key, value]) => {
+      const formatted = stringifyCustomValue(value)
+      return formatted ? `${key}: ${formatted}` : key
+    })
+    .filter(Boolean)
+
+  return entries.join(' • ')
+}
+
 // Main metadata fields configuration
 const mainFields = computed(() => [
   {
@@ -821,7 +851,7 @@ const otherFieldConfigs = computed(() => [
     condition: () => props.reference.metadata.custom && Object.keys(props.reference.metadata.custom).length > 0,
     icon: mdiTag,
     title: t('custom'),
-    text: () => JSON.stringify(props.reference.metadata.custom) || '',
+    text: () => formatCustomFields(props.reference.metadata.custom),
   },
 
 ].filter(field => field.condition()))
