@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useLocale } from 'vuetify'
 import { VDivider } from 'vuetify/lib/components/index.mjs'
-import OnboardingLayout from '@/extension/components/Onboarding/OnboardingLayout.vue'
 import TokenEditor from '@/extension/components/References/TokenEditor.vue'
 import ReportSection from '@/extension/components/Report/ReportSection.vue'
 import { hasCompletedOnboarding, settings } from '@/extension/logic/storage'
@@ -32,7 +31,7 @@ const components = [
 
 <template>
   <!-- Show onboarding if not completed -->
-  <OnboardingLayout v-if="shouldShowOnboarding" />
+  <OnboardingWizard v-if="shouldShowOnboarding" />
 
   <!-- Show main app if onboarding is completed -->
   <v-card
