@@ -249,18 +249,6 @@ function completeOnboarding() {
             <p class="text-h6 mb-6 text-medium-emphasis">
               {{ t('onboarding.ready.description') }}
             </p>
-
-            <!-- <v-alert
-              type="success"
-              variant="tonal"
-              class="mb-6"
-            >
-              {{ t('onboarding.ready.success') }}
-            </v-alert> -->
-
-            <!-- <p class="text-body-1">
-              {{ t('onboarding.ready.nextSteps') }}
-            </p> -->
           </v-card-text>
         </v-card>
       </template>

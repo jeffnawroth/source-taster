@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
+import AutoDismissAlert from '@/extension/components/UI/AutoDismissAlert.vue'
 import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
@@ -16,6 +17,22 @@ const showInputCard = ref(true)
 // Stores für die Error-Anzeige
 const extractionStore = useExtractionStore()
 const anystyleStore = useAnystyleStore()
+
+const extractionErrorMessage = computed({
+  get: () => extractionStore.extractionError,
+  set: (value) => {
+    if (!value)
+      extractionStore.clearExtractionError()
+  },
+})
+
+const parseErrorMessage = computed({
+  get: () => anystyleStore.parseError,
+  set: (value) => {
+    if (!value)
+      anystyleStore.clearParseResults()
+  },
+})
 
 // Dynamic title based on AI setting
 const cardTitle = computed(() => {
@@ -115,24 +132,24 @@ const cardSubtitle = computed(() => {
               cols="12"
             >
               <!-- Extraction Error Alert -->
-              <v-alert
-                v-if="extractionStore.extractionError"
+              <AutoDismissAlert
+                v-if="extractionErrorMessage"
+                v-model="extractionErrorMessage"
                 type="error"
                 variant="tonal"
-                closable
-                :text="$t(extractionStore.extractionError)"
-                @click:close="extractionStore.clearExtractionError()"
-              />
+              >
+                {{ extractionErrorMessage ? $t(extractionErrorMessage) : '' }}
+              </AutoDismissAlert>
 
               <!-- Parse Error Alert -->
-              <v-alert
-                v-if="anystyleStore.parseError"
+              <AutoDismissAlert
+                v-if="parseErrorMessage"
+                v-model="parseErrorMessage"
                 type="error"
                 variant="tonal"
-                closable
-                :text="$t(anystyleStore.parseError)"
-                @click:close="anystyleStore.clearParseResults()"
-              />
+              >
+                {{ parseErrorMessage ? $t(parseErrorMessage) : '' }}
+              </AutoDismissAlert>
             </v-col>
 
             <!-- Parse Button -->

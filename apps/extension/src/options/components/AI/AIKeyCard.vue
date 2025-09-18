@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mdiKeyOutline } from '@mdi/js'
+import AutoDismissAlert from '@/extension/components/UI/AutoDismissAlert.vue'
 import { settings } from '@/extension/logic'
 import { useUserSettingsStore } from '@/extension/stores/userStore'
 import APIKeyInput from './APIKeyInput.vue'
@@ -11,34 +12,30 @@ const apiKey = ref<string>('')
 const user = useUserSettingsStore()
 const { t } = useI18n()
 
-// Einheitlicher Alert-State
-const alert = ref<{ type: 'success' | 'error', message: string } | null>(null)
+const alertType = ref<'success' | 'error'>('success')
+const alertMessage = ref<string | null>(null)
 
 // Methoden für Save/Delete aus dem Store
 async function handleSave() {
   const res = await user.saveAISecrets({ provider: settings.value.ai.provider, apiKey: apiKey.value })
-  alert.value = res
-    ? { type: 'success', message: t('ai-settings-saved') }
-    : { type: 'error', message: user.saveError ?? t('ai-settings-save-error') }
+  alertType.value = res ? 'success' : 'error'
+  alertMessage.value = res ? t('ai-settings-saved') : (user.saveError ?? t('ai-settings-save-error'))
 }
 
 async function handleDelete() {
   const res = await user.deleteAISecrets()
-  alert.value = res
-    ? { type: 'success', message: t('ai-settings-deleted') }
-    : { type: 'error', message: user.saveError ?? t('ai-settings-delete-error') }
+  alertType.value = res ? 'success' : 'error'
+  alertMessage.value = res ? t('ai-settings-deleted') : (user.saveError ?? t('ai-settings-delete-error'))
 }
 
 function handleTest(result: { ok: boolean, messageKey: string }) {
-  alert.value = {
-    type: result.ok ? 'success' : 'error',
-    message: t(result.messageKey),
-  }
+  alertType.value = result.ok ? 'success' : 'error'
+  alertMessage.value = t(result.messageKey)
 }
 
 function reset() {
   apiKey.value = ''
-  alert.value = null
+  alertMessage.value = null
   user.clearErrors()
 }
 
@@ -97,17 +94,16 @@ watch(() => settings.value.ai.provider, () => {
         @tested="handleTest"
       />
     </v-card-actions>
-    <v-alert
-      v-if="alert"
-      :type="alert.type"
+    <AutoDismissAlert
+      v-if="alertMessage"
+      v-model="alertMessage"
+      :type="alertType"
       variant="tonal"
       density="compact"
       class="mb-3"
-      closable
-      @click:close="alert = null"
     >
-      {{ alert.message }}
-    </v-alert>
+      {{ alertMessage }}
+    </AutoDismissAlert>
     <APIKeyLink />
   </v-card>
 </template>

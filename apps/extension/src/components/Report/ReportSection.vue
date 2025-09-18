@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { mdiChevronDown, mdiChevronUp, mdiInformationOutline, mdiRobot } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
+import AutoDismissAlert from '@/extension/components/UI/AutoDismissAlert.vue'
 import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useMatchingStore } from '@/extension/stores/matching'
+import { useVerificationStore } from '@/extension/stores/verification'
 
 const extractionStore = useExtractionStore()
 const matchingStore = useMatchingStore()
+const verificationStore = useVerificationStore()
 const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 const { extractedReferences } = storeToRefs(extractionStore)
 const { hasParseResults } = storeToRefs(useAnystyleStore())
+const { verifyError } = storeToRefs(verificationStore)
 
 const search = ref('')
 const showReportCard = ref(true)
@@ -115,6 +119,16 @@ const filteredResults = computed(() => {
           class="d-flex flex-column flex-1 min-h-0"
         >
           <VerifyButton />
+
+          <AutoDismissAlert
+            v-model="verifyError"
+            type="error"
+            variant="tonal"
+            class="flex-grow-0 flex-shrink-0 mt-3"
+          >
+            {{ verifyError ? $t(verifyError) : '' }}
+          </AutoDismissAlert>
+
           <v-divider
             v-if="extractedReferences.length > 0"
             class="my-3"
