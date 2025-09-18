@@ -47,15 +47,17 @@ const isDisabled = computed(() =>
 const keys = useMagicKeys()
 const cmdEnter = keys['Cmd+Enter']
 const ctrlEnter = keys['Ctrl+Enter']
+const shift = keys.Shift
+const alt = computed(() => keys.Alt?.value || keys.alt?.value || false)
 
 watch(cmdEnter, (pressed) => {
-  if (pressed && !isDisabled.value) {
+  if (pressed && !shift.value && !alt.value && !isDisabled.value) {
     handleExtractClick()
   }
 })
 
 watch(ctrlEnter, (pressed) => {
-  if (pressed && !isDisabled.value) {
+  if (pressed && !shift.value && !alt.value && !isDisabled.value) {
     handleExtractClick()
   }
 })

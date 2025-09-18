@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { mdiClose, mdiMagnifyExpand } from '@mdi/js'
+import { useMagicKeys } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
+import { watch } from 'vue'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useVerificationStore } from '@/extension/stores/verification'
 
@@ -10,6 +12,13 @@ const { verify, cancelVerification } = verificationStore
 
 const extractionStore = useExtractionStore()
 const { isExtracting } = storeToRefs(extractionStore)
+
+const keys = useMagicKeys()
+
+watch([keys['Cmd+Alt+Enter'], keys['Ctrl+Alt+Enter']], ([cmdAlt, ctrlAlt]) => {
+  if ((cmdAlt || ctrlAlt) && canVerify.value && !isExtracting.value && !isVerifying.value)
+    verify()
+})
 </script>
 
 <template>

@@ -129,7 +129,7 @@
   "chapter-title": "Kapiteltitel",
   "check-dois": "Bitte überprüfen Sie Ihre Eingabe und stellen Sie sicher, dass diese DOIs enthält und korrekt formatiert ist, um die Suchergebnisse zu verbessern",
   "check-references": "Referenzen prüfen",
-  "check-references-shortcut": "Referenzen prüfen (Cmd+Enter / Strg+Enter)",
+  "check-references-shortcut": "Referenzen prüfen (Cmd+Alt+Enter / Strg+Alt+Enter)",
   "checked": "überprüft",
   "citation-key": "Zitationsschlüssel",
   "citation-label": "Zitationslabel",
