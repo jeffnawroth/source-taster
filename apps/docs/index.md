@@ -17,9 +17,6 @@ hero:
     - theme: alt
       text: Documentation
       link: /intro
-    - theme: alt
-      text: Demo
-      link: /demo
 
 features:
   - icon: 🤖
