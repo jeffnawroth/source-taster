@@ -13,7 +13,7 @@ Source Taster is a monorepo that combines a browser extension, a Hono-based API,
 
 ## Architecture at a Glance
 
-The workspace consists of `apps/extension` (Vue 3 + Vuetify), `apps/api` (Hono on Node 20), `apps/docs` (VitePress), and `packages/types` for shared types and schemas. High-level details live in [apps/docs/en/architecture.md](apps/docs/en/architecture.md).
+The workspace consists of `apps/extension` (Vue 3 + Vuetify), `apps/api` (Hono on Node 20), `apps/docs` (VitePress), and `packages/types` for shared types and schemas. High-level details live in [apps/docs/architecture.md](apps/docs/architecture.md).
 
 ```mermaid
 flowchart LR
@@ -100,7 +100,7 @@ Core environment variables (see `apps/api/.env.example`):
   - Firefox XPI: `pnpm --filter @source-taster/extension pack:xpi`
 - **Static docs build**: `pnpm --filter @source-taster/docs build` or `docker compose up docs --build`.
 
-Release automation (GitHub Actions) is described in [apps/docs/en/extension.md](apps/docs/en/extension.md) and [apps/docs/en/development.md](apps/docs/en/development.md).
+Release automation (GitHub Actions) is described in [apps/docs/extension.md](apps/docs/extension.md) and [apps/docs/development.md](apps/docs/development.md).
 
 ## API Snapshot
 
@@ -126,7 +126,7 @@ curl -X POST http://localhost:8000/api/extract \
   }'
 ```
 
-A full reference of schemas, error codes, and provider nuances is documented in [apps/docs/en/api.md](apps/docs/en/api.md).
+A full reference of schemas, error codes, and provider nuances is documented in [apps/docs/api.md](apps/docs/api.md).
 
 ## Quality Assurance
 
@@ -137,15 +137,15 @@ A full reference of schemas, error codes, and provider nuances is documented in 
 
 ## Documentation
 
-- [apps/docs/en/intro.md](apps/docs/en/intro.md) – overview & goals
-- [apps/docs/en/architecture.md](apps/docs/en/architecture.md) – component & sequence diagrams
-- [apps/docs/en/development.md](apps/docs/en/development.md) – setup, scripts, troubleshooting
-- [apps/docs/en/api.md](apps/docs/en/api.md) – endpoints, examples, errors
-- [apps/docs/en/extension.md](apps/docs/en/extension.md) – build, load, manifest
-- [apps/docs/en/data-models.md](apps/docs/en/data-models.md) – CSL models, schemas, defaults
-- [apps/docs/en/matching-scoring.md](apps/docs/en/matching-scoring.md) – normalisation, heuristics, thresholds
-- [apps/docs/en/changelog.md](apps/docs/en/changelog.md) – change history
-- [apps/docs/en/migration.md](apps/docs/en/migration.md) – breaking changes & TODOs
+- [apps/docs/intro.md](apps/docs/intro.md) – overview & goals
+- [apps/docs/architecture.md](apps/docs/architecture.md) – component & sequence diagrams
+- [apps/docs/development.md](apps/docs/development.md) – setup, scripts, troubleshooting
+- [apps/docs/api.md](apps/docs/api.md) – endpoints, examples, errors
+- [apps/docs/extension.md](apps/docs/extension.md) – build, load, manifest
+- [apps/docs/data-models.md](apps/docs/data-models.md) – CSL models, schemas, defaults
+- [apps/docs/matching-scoring.md](apps/docs/matching-scoring.md) – normalisation, heuristics, thresholds
+- [apps/docs/changelog.md](apps/docs/changelog.md) – change history
+- [apps/docs/migration.md](apps/docs/migration.md) – breaking changes & TODOs
 
 Equivalent German pages live under `apps/docs/de/`.
 
