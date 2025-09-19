@@ -59,6 +59,7 @@ const cardSubtitle = computed(() => {
         v-model="settings.extract.useAi"
         :show-alert="false"
         :show-description="false"
+        :inset="false"
       />
 
       <!-- Info Icon with Tooltip -->

@@ -19,7 +19,6 @@ const { t } = useI18n()
       <v-chip
         v-bind="props"
         :color
-        size="small"
         variant="tonal"
         class="font-weight-bold"
       >

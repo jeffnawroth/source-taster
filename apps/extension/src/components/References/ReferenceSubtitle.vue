@@ -213,7 +213,6 @@ const subtitle = computed(() => {
   <v-card-subtitle>
     <v-chip
       v-if="sourceType"
-      size="small"
       class="mr-2"
       variant="outlined"
     >

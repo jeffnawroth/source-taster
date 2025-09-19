@@ -23,8 +23,8 @@ const otherActionButtons = [
 
 <template>
   <v-row
-    dense
     align-content="center"
+    justify="space-between"
   >
     <!-- Details Toggle Button (left side) -->
     <v-col
@@ -33,9 +33,6 @@ const otherActionButtons = [
     >
       <DetailsToggleBtn v-model="showDetails" />
     </v-col>
-
-    <!-- Spacer to push other buttons to the right -->
-    <v-spacer />
 
     <!-- Other action buttons (right side) -->
     <v-col

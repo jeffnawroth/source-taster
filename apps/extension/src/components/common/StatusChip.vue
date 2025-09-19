@@ -31,7 +31,6 @@ const props = withDefaults(defineProps<{
         v-bind="{ ...tooltipProps, ...$attrs }"
         :label="props.label"
         :variant="props.variant"
-        :density="props.density"
         :color="props.color"
       >
         <v-progress-circular
@@ -56,7 +55,6 @@ const props = withDefaults(defineProps<{
     v-else
     :label="props.label"
     :variant="props.variant"
-    :density="props.density"
     :color="props.color"
     v-bind="$attrs"
   >

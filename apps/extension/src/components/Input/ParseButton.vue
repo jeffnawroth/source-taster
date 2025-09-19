@@ -50,7 +50,7 @@ watch([keys['Cmd+Shift+Enter'], keys['Ctrl+Shift+Enter']], ([cmdShift, ctrlShift
     <template #prepend>
       <v-progress-circular
         v-if="anystyle.isParsing"
-        size="20"
+        size="16"
         width="2"
         indeterminate
       />

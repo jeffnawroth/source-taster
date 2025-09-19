@@ -37,7 +37,6 @@ const components = [
   <v-card
     v-else
     flat
-    density="compact"
     class="d-flex flex-column flex-1 min-h-0"
   >
     <v-card-text class="d-flex flex-column flex-1 min-h-0 px-2 py-0">
@@ -49,14 +48,14 @@ const components = [
           v-for="component in components"
           :key="component.name"
           cols="12"
-          class="pa-0"
+          class="py-0"
         >
           <component :is="component" />
         </v-col>
       </v-row>
 
       <!-- Report gets the remaining height -->
-      <div class="d-flex flex-column flex-1 min-h-0">
+      <div class="d-flex flex-column flex-1 min-h-0 mt-2">
         <ReportSection />
       </div>
     </v-card-text>

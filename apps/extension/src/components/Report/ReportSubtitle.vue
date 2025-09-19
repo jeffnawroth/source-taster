@@ -205,9 +205,7 @@ const summaryChips = computed<ChipItem[]>(() => {
 </script>
 
 <template>
-  <v-row
-    dense
-  >
+  <v-row>
     <v-col
       v-for="chip in summaryChips"
       :key="chip.key"

@@ -10,7 +10,6 @@ const showDetails = defineModel({
   <!-- Details Toggle -->
   <v-btn
     variant="text"
-    size="small"
     :prepend-icon="showDetails ? mdiChevronUp : mdiChevronDown"
     @click="showDetails = !showDetails"
   >

@@ -13,6 +13,10 @@ interface Props {
   compact?: boolean
   /** Show label next to the switch (default true) */
   showLabel?: boolean
+  /** Inset style for the switch */
+  inset?: boolean
+  /** Flat style for the switch */
+  flat?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -20,6 +24,8 @@ const props = withDefaults(defineProps<Props>(), {
   showAlert: true,
   customLabel: undefined,
   compact: false,
+  inset: true,
+  flat: true,
 })
 
 const modelValue = defineModel<boolean>({ required: true })
@@ -62,7 +68,8 @@ const descriptionText = computed(() => {
           color="primary"
           hide-details
           :density="compact ? 'compact' : 'default'"
-          inset
+          :inset
+          :flat
           v-bind="tooltipProps"
         />
       </template>

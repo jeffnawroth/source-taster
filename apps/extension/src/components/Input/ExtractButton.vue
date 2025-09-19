@@ -74,7 +74,7 @@ watch(ctrlEnter, (pressed) => {
     <template #prepend>
       <v-progress-circular
         v-if="isExtracting"
-        size="20"
+        size="16"
         width="2"
         indeterminate
       />

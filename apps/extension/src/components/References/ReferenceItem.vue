@@ -43,7 +43,6 @@ const showDetails = ref(false)
 
 <template>
   <v-card
-    density="compact"
     variant="outlined"
     class="mb-2"
     :class="{ 'currently-verifying': isSearching || isMatching }"
@@ -63,7 +62,7 @@ const showDetails = ref(false)
     <ReferenceSubtitle :reference />
 
     <!-- ACTIONS -->
-    <v-card-actions>
+    <v-card-actions class="py-0">
       <ReferenceActions
         v-model:show-details="showDetails"
         :reference

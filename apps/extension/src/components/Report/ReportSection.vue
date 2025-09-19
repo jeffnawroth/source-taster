@@ -77,7 +77,6 @@ const filteredResults = computed(() => {
 
 <template>
   <v-card
-    flat
     :title="`3. ${$t('verify')}`"
     :subtitle="$t('verify-extracted-references')"
     :disabled="!canVerify"
@@ -90,7 +89,6 @@ const filteredResults = computed(() => {
           <v-icon
             :icon="mdiInformationOutline"
             variant="text"
-            size="small"
             class="mx-2"
             v-bind="tooltipProps"
           />
