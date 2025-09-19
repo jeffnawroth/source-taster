@@ -124,7 +124,6 @@ function completeOnboarding() {
             {{ t('onboarding.methods.description') }}
           </p>
           <v-row
-            dense
             no-gutters
           >
             <v-col

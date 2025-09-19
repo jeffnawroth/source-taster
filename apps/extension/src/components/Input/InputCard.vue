@@ -101,7 +101,7 @@ const cardSubtitle = computed(() => {
         <v-card-text
           class="pa-0 pb-2"
         >
-          <v-row dense>
+          <v-row>
             <!-- File Input -->
             <v-col cols="12">
               <FileInput />

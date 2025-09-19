@@ -97,7 +97,6 @@ function getCandidateSource(candidateId: string): string {
 
         <template #title>
           <v-row
-            dense
             align="center"
             align-content="center"
           >

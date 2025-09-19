@@ -15,7 +15,6 @@ defineProps<{
     <!-- Field Details (if available) -->
     <v-row
       v-if="evaluation.matchDetails.fieldDetails?.length"
-      dense
     >
       <v-col
         v-for="fieldDetail in evaluation.matchDetails.fieldDetails"

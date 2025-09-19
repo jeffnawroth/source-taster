@@ -35,7 +35,6 @@ defineProps<{
         v-model="settings.extract.extractionConfig.variables"
       >
         <v-row
-          dense
           no-gutters
         >
           <v-col

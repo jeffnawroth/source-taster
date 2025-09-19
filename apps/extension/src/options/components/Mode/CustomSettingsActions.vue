@@ -12,9 +12,7 @@ defineProps<{
 
 <template>
   <v-card-actions>
-    <v-row
-      dense
-    >
+    <v-row>
       <v-col
         v-for="preset in presetButtons"
         :key="preset.label"
