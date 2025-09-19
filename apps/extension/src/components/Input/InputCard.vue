@@ -50,7 +50,6 @@ const cardSubtitle = computed(() => {
 
 <template>
   <v-card
-    flat
     :title="cardTitle"
     :subtitle="cardSubtitle"
   >

@@ -28,7 +28,6 @@ const { t } = useI18n()
 <template>
   <v-card
     :subtitle="description"
-    flat
   >
     <v-card-text>
       <v-selection-control-group

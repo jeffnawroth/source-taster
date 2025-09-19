@@ -86,7 +86,6 @@ onMounted(() => {
         item-value="value"
         color="primary"
         variant="solo-filled"
-        flat
       />
     </OptionListItem>
 
@@ -104,7 +103,6 @@ onMounted(() => {
         :item-value="(option) => option"
         width="150"
         variant="solo-filled"
-        flat
       />
     </OptionListItem>
   </SettingsPageLayout>

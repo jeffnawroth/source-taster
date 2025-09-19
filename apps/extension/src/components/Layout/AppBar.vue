@@ -44,7 +44,7 @@ function openOptionsPage() {
 <template>
   <v-app-bar
     app
-    flat
+
     scroll-threshold="25"
     scroll-behavior="hide"
   >

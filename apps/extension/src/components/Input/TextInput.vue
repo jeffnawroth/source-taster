@@ -58,7 +58,6 @@ function handleClear() {
     rows="4"
     variant="solo-filled"
     clearable
-    flat
     @click:clear="handleClear"
   />
 </template>

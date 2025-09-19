@@ -19,7 +19,7 @@ function resetToDefaults() {
     :description="t('early-termination-description')"
   >
     <!-- Enable/Disable Switch -->
-    <v-card flat>
+    <v-card>
       <v-card-text>
         <v-switch
           v-model="settings.matching.matchingConfig.earlyTermination.enabled"

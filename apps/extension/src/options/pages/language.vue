@@ -40,7 +40,6 @@ watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: setting
         item-value="locale"
         width="150"
         variant="solo-filled"
-        flat
       />
     </OptionListItem>
   </SettingsPageLayout>

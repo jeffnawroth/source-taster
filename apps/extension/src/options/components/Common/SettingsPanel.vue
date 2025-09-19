@@ -29,9 +29,7 @@ defineProps<Props>()
     </v-expansion-panel-title>
 
     <v-expansion-panel-text eager>
-      <v-card
-        flat
-      >
+      <v-card>
         <v-card-subtitle class="text-wrap">
           {{ subtitle }}
         </v-card-subtitle>

@@ -15,6 +15,5 @@ const modelValue = defineModel<ApiAIProvider>({
     v-model="modelValue"
     :items="providerOptions"
     variant="solo-filled"
-    flat
   />
 </template>

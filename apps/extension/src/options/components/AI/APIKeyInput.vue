@@ -18,7 +18,6 @@ const showApiKey = ref(false)
     :type="showApiKey ? 'text' : 'password'"
     :error-messages="apiKeyError"
     variant="solo-filled"
-    flat
     clearable
     class="mb-3"
     @click:clear="modelValue = ''"

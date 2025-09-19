@@ -15,8 +15,6 @@ interface Props {
   showLabel?: boolean
   /** Inset style for the switch */
   inset?: boolean
-  /** Flat style for the switch */
-  flat?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +23,6 @@ const props = withDefaults(defineProps<Props>(), {
   customLabel: undefined,
   compact: false,
   inset: true,
-  flat: true,
 })
 
 const modelValue = defineModel<boolean>({ required: true })
@@ -67,7 +64,6 @@ const descriptionText = computed(() => {
           :disabled="!settings.ai.canUseAI"
           color="primary"
           :inset
-          :flat
           v-bind="tooltipProps"
         />
       </template>

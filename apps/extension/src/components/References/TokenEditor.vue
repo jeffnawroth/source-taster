@@ -44,7 +44,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
 
 <template>
   <v-card
-    flat
     :title="`2. ${$t('edit')}`"
     :subtitle="$t('review-and-relabel-parsed-references')"
     :disabled="parsed.length === 0"

@@ -85,7 +85,7 @@ const sortedItems = computed(() => {
 </script>
 
 <template>
-  <v-card flat>
+  <v-card>
     <v-card-text>
       <v-autocomplete
         v-model="settings.extract.extractionConfig.variables"

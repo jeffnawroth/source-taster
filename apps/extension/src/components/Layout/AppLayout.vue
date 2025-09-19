@@ -36,7 +36,6 @@ const components = [
   <!-- Show main app if onboarding is completed -->
   <v-card
     v-else
-    flat
     class="d-flex flex-column flex-1 min-h-0"
   >
     <v-card-text class="d-flex flex-column flex-1 min-h-0 px-2 py-0">

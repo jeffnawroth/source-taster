@@ -55,7 +55,6 @@ function completeOnboarding() {
       v-model="currentStep"
       :items="steps"
       hide-actions
-      flat
     >
       <!-- Step 1: Welcome -->
       <template #[`item.1`]>

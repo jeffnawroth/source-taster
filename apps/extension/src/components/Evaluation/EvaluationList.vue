@@ -50,7 +50,6 @@ function getCandidateSource(candidateId: string): string {
 
     <v-expansion-panels
       multiple
-      flat
       static
     >
       <v-expansion-panel

@@ -100,7 +100,7 @@ function canDisableField(fieldKey: string): boolean {
 </script>
 
 <template>
-  <v-card flat>
+  <v-card>
     <v-card-text>
       <!-- Search Field -->
       <v-text-field

@@ -59,9 +59,7 @@ const thresholdSliderItems = computed(() => [
     :subtitle="t('quality-thresholds-description')"
   >
     <!-- Threshold Settings -->
-    <v-card
-      flat
-    >
+    <v-card>
       <v-card-text>
         <div class="mb-6">
           <div class="d-flex align-center justify-space-between mb-2">

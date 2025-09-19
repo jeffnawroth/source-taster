@@ -80,10 +80,12 @@ const vuetify = createVuetify({
     VSwitch: {
       density: 'compact',
       hideDetails: true,
+      flat: true,
     },
     VTextarea: {
       density: 'compact',
       hideDetails: true,
+      flat: true,
     },
     VCard: {
       density: 'compact',
@@ -112,6 +114,7 @@ const vuetify = createVuetify({
     VFileInput: {
       density: 'compact',
       hideDetails: true,
+      flat: true,
     },
     VRadioGroup: {
       density: 'compact',
@@ -147,6 +150,12 @@ const vuetify = createVuetify({
     },
     VAlert: {
       density: 'compact',
+    },
+    VExpansionPanels: {
+      flat: true,
+    },
+    VStepper: {
+      flat: true,
     },
   },
 })

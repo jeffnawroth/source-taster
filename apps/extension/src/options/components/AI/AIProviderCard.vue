@@ -62,7 +62,6 @@ watch(
         v-model="settings.provider"
         :items="providerOptions"
         variant="solo-filled"
-        flat
       />
 
       <div
@@ -76,7 +75,6 @@ watch(
           v-model="settings.model"
           :items="modelOptions"
           variant="solo-filled"
-          flat
         />
       </div>
     </v-card-text>
