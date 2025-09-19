@@ -19,8 +19,6 @@ const { t } = useI18n()
         v-model="modelValue"
         :label="t(`field-${field}`)"
         v-bind="props"
-        density="compact"
-        hide-details
       />
     </template>
 

@@ -46,8 +46,6 @@ const { t } = useI18n()
             <template #prepend>
               <v-checkbox
                 :value="setting.key"
-                density="comfortable"
-                hide-details
               />
             </template>
 

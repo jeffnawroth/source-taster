@@ -55,7 +55,6 @@ function handleClear() {
     v-model.trim="inputText"
     :prepend-inner-icon="mdiText"
     :placeholder
-    hide-details="auto"
     rows="4"
     variant="solo-filled"
     clearable

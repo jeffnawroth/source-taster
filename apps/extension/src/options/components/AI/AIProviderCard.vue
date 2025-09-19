@@ -65,7 +65,6 @@ watch(
         density="compact"
         variant="solo-filled"
         flat
-        hide-details
       />
 
       <div
@@ -81,7 +80,6 @@ watch(
           density="compact"
           variant="solo-filled"
           flat
-          hide-details
         />
       </div>
     </v-card-text>

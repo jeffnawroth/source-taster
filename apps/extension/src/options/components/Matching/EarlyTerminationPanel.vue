@@ -27,7 +27,6 @@ function resetToDefaults() {
           color="primary"
           density="comfortable"
           class="mb-3"
-          hide-details
           inset
         />
 
@@ -54,7 +53,6 @@ function resetToDefaults() {
               color="primary"
               track-color="grey-lighten-1"
               class="mb-2"
-              hide-details
             >
               <template #thumb-label="{ modelValue }">
                 {{ modelValue }}%

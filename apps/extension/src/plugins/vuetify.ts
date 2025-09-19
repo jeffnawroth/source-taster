@@ -141,6 +141,10 @@ const vuetify = createVuetify({
       hideDetails: true,
       flat: true,
     },
+    VCheckbox: {
+      hideDetails: true,
+      density: 'compact',
+    },
   },
 })
 

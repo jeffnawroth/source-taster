@@ -66,7 +66,6 @@ const descriptionText = computed(() => {
           :false-icon="mdiRobotOff"
           :disabled="!settings.ai.canUseAI"
           color="primary"
-          hide-details
           :density="compact ? 'compact' : 'default'"
           :inset
           :flat

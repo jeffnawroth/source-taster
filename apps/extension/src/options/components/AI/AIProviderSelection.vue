@@ -17,6 +17,5 @@ const modelValue = defineModel<ApiAIProvider>({
     density="compact"
     variant="solo-filled"
     flat
-    hide-details
   />
 </template>
