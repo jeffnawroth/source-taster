@@ -17,7 +17,6 @@ const showApiKey = ref(false)
     :placeholder="t('ai-settings-api-key-placeholder')"
     :type="showApiKey ? 'text' : 'password'"
     :error-messages="apiKeyError"
-    density="compact"
     variant="solo-filled"
     flat
     clearable

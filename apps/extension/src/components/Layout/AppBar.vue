@@ -45,7 +45,6 @@ function openOptionsPage() {
   <v-app-bar
     app
     flat
-    density="compact"
     scroll-threshold="25"
     scroll-behavior="hide"
   >

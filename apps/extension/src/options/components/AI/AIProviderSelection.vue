@@ -14,7 +14,6 @@ const modelValue = defineModel<ApiAIProvider>({
   <v-select
     v-model="modelValue"
     :items="providerOptions"
-    density="compact"
     variant="solo-filled"
     flat
   />

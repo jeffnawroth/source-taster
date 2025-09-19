@@ -1,6 +1,5 @@
 <script setup lang="ts">
 type Variant = 'flat' | 'text' | 'tonal' | 'elevated' | 'outlined' | 'plain' | undefined
-type Density = 'default' | 'comfortable' | 'compact' | undefined
 
 const props = withDefaults(defineProps<{
   text: string | number
@@ -10,11 +9,9 @@ const props = withDefaults(defineProps<{
   loading?: boolean
   label?: boolean
   variant?: Variant
-  density?: Density
 }>(), {
   label: true,
   variant: 'tonal',
-  density: 'compact',
 })
 </script>
 

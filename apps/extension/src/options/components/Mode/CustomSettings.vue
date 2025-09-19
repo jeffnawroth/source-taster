@@ -36,7 +36,6 @@ const { t } = useI18n()
         multiple
       >
         <v-list
-          density="comfortable"
           class="settings-list"
         >
           <v-list-item

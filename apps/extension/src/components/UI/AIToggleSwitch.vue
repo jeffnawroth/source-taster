@@ -66,7 +66,6 @@ const descriptionText = computed(() => {
           :false-icon="mdiRobotOff"
           :disabled="!settings.ai.canUseAI"
           color="primary"
-          :density="compact ? 'compact' : 'default'"
           :inset
           :flat
           v-bind="tooltipProps"
@@ -86,7 +85,6 @@ const descriptionText = computed(() => {
       type="info"
       variant="tonal"
       :class="compact ? 'mt-2' : 'mt-4'"
-      :density="compact ? 'compact' : 'default'"
     >
       <template #text>
         {{ t('extraction-ai-fallback-info') }}

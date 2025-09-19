@@ -36,7 +36,6 @@ withDefaults(defineProps<Props>(), {
         v-if="showAlert"
         type="info"
         variant="tonal"
-        density="compact"
         class="mb-4"
       >
         {{ alertText }}

@@ -62,7 +62,6 @@ function updateWeight(newWeight: number) {
           <v-switch
             v-bind="tooltipProps"
             :model-value="fieldConfig?.enabled || false"
-            density="compact"
             color="primary"
             class="mr-3 ml-3"
             :disabled="fieldConfig?.enabled && !props.canDisable"
@@ -75,7 +74,6 @@ function updateWeight(newWeight: number) {
       <v-switch
         v-else
         :model-value="fieldConfig?.enabled || false"
-        density="compact"
         color="primary"
         class="mr-3 ml-3"
         inset

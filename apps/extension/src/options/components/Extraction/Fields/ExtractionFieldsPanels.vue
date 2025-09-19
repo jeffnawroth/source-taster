@@ -95,7 +95,6 @@ const sortedItems = computed(() => {
         :item-title="(item) => t(item)"
         :item-value="(item) => item"
         variant="outlined"
-        density="comfortable"
       >
         <template #prepend-item>
           <v-list-item

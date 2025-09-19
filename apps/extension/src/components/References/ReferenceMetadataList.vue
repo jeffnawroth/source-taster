@@ -889,9 +889,7 @@ const hasIdentifiers = computed(() => {
 </script>
 
 <template>
-  <v-list
-    density="compact"
-  >
+  <v-list>
     <v-list-subheader>{{ subheader }}</v-list-subheader>
 
     <!-- MAIN FIELDS -->

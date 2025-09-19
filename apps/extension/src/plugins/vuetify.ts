@@ -145,6 +145,9 @@ const vuetify = createVuetify({
       hideDetails: true,
       density: 'compact',
     },
+    VAlert: {
+      density: 'compact',
+    },
   },
 })
 

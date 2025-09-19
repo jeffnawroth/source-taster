@@ -39,7 +39,6 @@ watchEffect(() => sendMessage('updateContextMenuWithLanguage', { locale: setting
         :item-title="(option) => t(option.name.toLocaleLowerCase())"
         item-value="locale"
         width="150"
-        density="compact"
         variant="solo-filled"
         flat
       />

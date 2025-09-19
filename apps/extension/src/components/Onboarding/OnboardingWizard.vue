@@ -133,7 +133,6 @@ function completeOnboarding() {
             >
               <v-card
                 variant="outlined"
-                density="compact"
                 class="mb-2 text-start"
                 :title="t('onboarding.methods.ai.title')"
               >
@@ -163,7 +162,6 @@ function completeOnboarding() {
             >
               <v-card
                 variant="outlined"
-                density="compact"
                 class="text-start"
                 :title="t('onboarding.methods.anystyle.title')"
               >
@@ -193,7 +191,6 @@ function completeOnboarding() {
             type="info"
             variant="tonal"
             class="mt-2"
-            density="compact"
           >
             {{ t('onboarding.methods.info') }}
           </v-alert>

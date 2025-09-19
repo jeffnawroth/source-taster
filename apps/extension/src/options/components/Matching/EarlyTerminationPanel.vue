@@ -25,7 +25,6 @@ function resetToDefaults() {
           v-model="settings.matching.matchingConfig.earlyTermination.enabled"
           :label="t('early-termination-enabled')"
           color="primary"
-          density="comfortable"
           class="mb-3"
           inset
         />
@@ -70,7 +69,6 @@ function resetToDefaults() {
               :text="t('early-termination-current-setting', { threshold: settings.matching.matchingConfig.earlyTermination.threshold })"
               type="info"
               variant="tonal"
-              density="compact"
               class="mt-4"
             />
           </div>

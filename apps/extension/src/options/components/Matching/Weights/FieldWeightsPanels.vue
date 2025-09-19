@@ -109,7 +109,6 @@ function canDisableField(fieldKey: string): boolean {
         :prepend-inner-icon="mdiMagnify"
         clearable
         variant="outlined"
-        density="compact"
         class="mb-4"
       />
 

@@ -39,7 +39,6 @@ const apiKeyLink = computed(() => {
   <v-alert
     type="info"
     variant="tonal"
-    density="compact"
   >
     <template #prepend>
       <v-icon :icon="mdiInformation" />

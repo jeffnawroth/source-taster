@@ -85,7 +85,6 @@ onMounted(() => {
         width="150"
         item-value="value"
         color="primary"
-        density="compact"
         variant="solo-filled"
         flat
       />
@@ -104,7 +103,6 @@ onMounted(() => {
         :item-title="(option) => t(option)"
         :item-value="(option) => option"
         width="150"
-        density="compact"
         variant="solo-filled"
         flat
       />
