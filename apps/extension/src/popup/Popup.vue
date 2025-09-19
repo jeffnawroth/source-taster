@@ -6,6 +6,6 @@
         <AppLayout />
       </v-container>
     </v-main>
-    <Footer />
+    <Disclaimer />
   </v-app>
 </template>

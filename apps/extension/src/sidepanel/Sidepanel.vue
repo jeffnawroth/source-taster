@@ -11,7 +11,7 @@
         <AppLayout class="flex-1 d-flex flex-column min-h-0" />
       </v-container>
     </v-main>
-    <Footer />
+    <Disclaimer />
   </v-app>
 </template>
 
