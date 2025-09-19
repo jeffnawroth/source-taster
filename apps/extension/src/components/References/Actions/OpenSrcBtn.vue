@@ -76,10 +76,10 @@ function openSource() {
     location="top"
   >
     <template #activator="{ props }">
-      <v-btn
+      <v-icon
         v-bind="props"
-        variant="text"
         :icon="mdiOpenInNew"
+        class="cursor-pointer"
         @click="openSource"
       />
     </template>

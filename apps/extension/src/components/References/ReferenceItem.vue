@@ -42,39 +42,46 @@ const showDetails = ref(false)
 </script>
 
 <template>
-  <v-card
-    variant="outlined"
-    class="mb-2"
+  <v-list-item
     :class="{ 'currently-verifying': isSearching || isMatching }"
-    :color="scoreColor"
-    :title
+    class="my-1"
+    :base-color="scoreColor"
   >
-    <!-- STATUS ICON & SCORE -->
-    <template #append>
-      <ReferenceScore
-        v-if="bestScore !== null"
-        :score="bestScore"
-        :color="scoreColor"
-      />
-    </template>
-
-    <!-- SUBTITLE -->
-    <ReferenceSubtitle :reference />
-
-    <!-- ACTIONS -->
-    <v-card-actions class="py-0">
-      <ReferenceActions
-        v-model:show-details="showDetails"
+    <v-list-item-title
+      class="mb-1"
+    >
+      {{ title }}
+    </v-list-item-title>
+    <v-list-item-subtitle class="mb-1">
+      <ReferenceSubtitle
         :reference
       />
-    </v-card-actions>
+    </v-list-item-subtitle>
 
-    <!-- DETAILS -->
-    <ReferenceDetails
-      v-show="showDetails"
-      :reference
-    />
-  </v-card>
+    <template #append>
+      <v-list-item-action class="flex-column align-end">
+        <ReferenceScore
+          v-if="bestScore !== null"
+          :score="bestScore"
+          class="mb-3"
+        />
+
+        <v-spacer />
+
+        <ReferenceActions
+          v-model:show-details="showDetails"
+          :reference
+        />
+      </v-list-item-action>
+    </template>
+  </v-list-item>
+
+  <ReferenceDetails
+    v-show="showDetails"
+    :reference
+  />
+
+  <v-divider />
 </template>
 
 <style scoped>

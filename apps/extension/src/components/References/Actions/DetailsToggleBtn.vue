@@ -8,11 +8,11 @@ const showDetails = defineModel({
 
 <template>
   <!-- Details Toggle -->
-  <v-btn
-    variant="text"
-    :prepend-icon="showDetails ? mdiChevronUp : mdiChevronDown"
+  <v-icon
+    :icon="showDetails ? mdiChevronUp : mdiChevronDown"
+    class="cursor-pointer"
     @click="showDetails = !showDetails"
   >
-    {{ showDetails ? $t('hide-details') : $t('show-details') }}
-  </v-btn>
+    <!-- {{ showDetails ? $t('hide-details') : $t('show-details') }} -->
+  </v-icon>
 </template>

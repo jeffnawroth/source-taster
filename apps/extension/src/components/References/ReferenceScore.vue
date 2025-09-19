@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { mergeProps } from 'vue'
+
 // Props
 defineProps<{
   score: number | null
   color?: string
 }>()
+
+const attrs = useAttrs()
 
 // TRANSLATION
 const { t } = useI18n()
@@ -17,7 +21,7 @@ const { t } = useI18n()
   >
     <template #activator="{ props }">
       <v-chip
-        v-bind="props"
+        v-bind="mergeProps(props, attrs)"
         :color
         variant="tonal"
         class="font-weight-bold"

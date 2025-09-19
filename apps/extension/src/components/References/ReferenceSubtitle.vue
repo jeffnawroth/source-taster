@@ -210,16 +210,16 @@ const subtitle = computed(() => {
 </script>
 
 <template>
-  <v-card-subtitle>
-    <v-chip
-      v-if="sourceType"
-      class="mr-2"
-      variant="outlined"
-    >
-      {{ sourceType }}
-    </v-chip>
-    <span v-if="subtitle">
-      {{ subtitle }}
-    </span>
-  </v-card-subtitle>
+  <!-- <v-card-subtitle> -->
+  <v-chip
+    v-if="sourceType"
+    variant="outlined"
+    class="mr-2"
+  >
+    {{ sourceType }}
+  </v-chip>
+  <span v-if="subtitle">
+    {{ subtitle }}
+  </span>
+  <!-- </v-card-subtitle> -->
 </template>
