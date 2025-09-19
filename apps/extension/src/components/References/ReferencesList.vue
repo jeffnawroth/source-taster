@@ -15,9 +15,10 @@ const { results } = defineProps<{
   >
     <v-slide-y-transition group>
       <ReferenceItem
-        v-for="(extractedReference) in results"
+        v-for="(extractedReference, index) in results"
         :key="extractedReference.item.id"
         :reference="extractedReference.item"
+        :is-last="index === results.length - 1"
       />
     </v-slide-y-transition>
   </v-list>

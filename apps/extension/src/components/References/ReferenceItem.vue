@@ -7,9 +7,12 @@ import { getScoreColor } from '@/extension/utils/scoreUtils'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
-const { reference } = defineProps<{
+const { reference, isLast } = withDefaults(defineProps<{
   reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
-}>()
+  isLast?: boolean
+}>(), {
+  isLast: false,
+})
 
 // I18n
 const { t } = useI18n()
@@ -42,46 +45,48 @@ const showDetails = ref(false)
 </script>
 
 <template>
-  <v-list-item
-    :class="{ 'currently-verifying': isSearching || isMatching }"
-    class="my-1"
-    :base-color="scoreColor"
-  >
-    <v-list-item-title
-      class="mb-1"
+  <div>
+    <v-list-item
+      :class="{ 'currently-verifying': isSearching || isMatching }"
+      class="my-1"
+      :base-color="scoreColor"
     >
-      {{ title }}
-    </v-list-item-title>
-    <v-list-item-subtitle class="mb-1">
-      <ReferenceSubtitle
-        :reference
-      />
-    </v-list-item-subtitle>
-
-    <template #append>
-      <v-list-item-action class="flex-column align-end">
-        <ReferenceScore
-          v-if="bestScore !== null"
-          :score="bestScore"
-          class="mb-3"
-        />
-
-        <v-spacer />
-
-        <ReferenceActions
-          v-model:show-details="showDetails"
+      <v-list-item-title
+        class="mb-1"
+      >
+        {{ title }}
+      </v-list-item-title>
+      <v-list-item-subtitle class="mb-1">
+        <ReferenceSubtitle
           :reference
         />
-      </v-list-item-action>
-    </template>
-  </v-list-item>
+      </v-list-item-subtitle>
 
-  <ReferenceDetails
-    v-show="showDetails"
-    :reference
-  />
+      <template #append>
+        <v-list-item-action class="flex-column align-end">
+          <ReferenceScore
+            v-if="bestScore !== null"
+            :score="bestScore"
+            class="mb-3"
+          />
 
-  <v-divider />
+          <v-spacer />
+
+          <ReferenceActions
+            v-model:show-details="showDetails"
+            :reference
+          />
+        </v-list-item-action>
+      </template>
+    </v-list-item>
+
+    <ReferenceDetails
+      v-show="showDetails"
+      :reference
+    />
+
+    <v-divider v-if="!isLast" />
+  </div>
 </template>
 
 <style scoped>
