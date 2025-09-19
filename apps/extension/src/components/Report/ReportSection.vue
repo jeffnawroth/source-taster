@@ -12,10 +12,14 @@ const matchingStore = useMatchingStore()
 const verificationStore = useVerificationStore()
 const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 const { extractedReferences } = storeToRefs(extractionStore)
-const { verifyError } = storeToRefs(verificationStore)
+const { canVerify, verifyError } = storeToRefs(verificationStore)
 
 const search = ref('')
-const showReportCard = ref(true)
+const showReportCard = ref(false)
+
+watch(canVerify, (value) => {
+  showReportCard.value = !!value
+}, { immediate: true })
 
 type FilterCategory = 'exactMatch' | 'strongMatch' | 'possibleMatch' | 'noMatch' | 'unverified'
 const ALL_FILTERS: FilterCategory[] = ['exactMatch', 'strongMatch', 'possibleMatch', 'noMatch', 'unverified']
@@ -76,6 +80,7 @@ const filteredResults = computed(() => {
     flat
     :title="`3. ${$t('verify')}`"
     :subtitle="$t('verify-extracted-references')"
+    :disabled="!canVerify"
     class="d-flex flex-column flex-1 min-h-0"
   >
     <template #append>
@@ -104,6 +109,7 @@ const filteredResults = computed(() => {
       <v-btn
         variant="plain"
         :icon="showReportCard ? mdiChevronUp : mdiChevronDown"
+        :disabled="!canVerify"
         @click="showReportCard = !showReportCard"
       />
     </template>
