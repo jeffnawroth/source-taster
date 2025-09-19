@@ -6,7 +6,7 @@
     <SystemBar />
     <v-main class="d-flex flex-column h-100 min-h-0 overflow-hidden">
       <v-container
-        class="d-flex flex-column flex-1 min-h-0"
+        class="d-flex flex-column flex-1 min-h-0 pa-0"
       >
         <AppLayout class="flex-1 d-flex flex-column min-h-0" />
       </v-container>

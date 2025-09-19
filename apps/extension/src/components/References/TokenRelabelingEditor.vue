@@ -272,7 +272,7 @@ watch(() => props.tokens, (newTokens) => {
   <div
     v-for="(sequence, sequenceIndex) in tokenSequences"
     :key="sequenceIndex"
-    class="token-sequence mb-4"
+    class="token-sequence"
   >
     <div
       v-if="originalTexts?.[sequenceIndex]"
@@ -320,7 +320,6 @@ watch(() => props.tokens, (newTokens) => {
         :label="t('token-editor-select-new-label')"
         :placeholder="t('token-editor-search-labels-placeholder')"
         variant="outlined"
-        density="comfortable"
         auto-select-first
         class="mt-5"
         @update:model-value="changeTokenLabel"
@@ -335,9 +334,13 @@ watch(() => props.tokens, (newTokens) => {
         </template>
 
         <template #item="{ props: itemProps, item }">
-          <v-list-item v-bind="itemProps">
+          <v-list-item
+            v-bind="itemProps"
+          >
             <template #prepend>
-              <v-icon :color="item.raw.color">
+              <v-icon
+                :color="item.raw.color"
+              >
                 {{ item.raw.icon }}
               </v-icon>
             </template>
@@ -346,7 +349,7 @@ watch(() => props.tokens, (newTokens) => {
       </v-autocomplete>
       <div
         v-if="selectedTokens.length > 1"
-        class="text-caption text-medium-emphasis"
+        class="text-caption text-medium-emphasis mt-1"
       >
         {{ t('token-editor-multi-selection-count', { count: selectedTokens.length }) }}
       </div>

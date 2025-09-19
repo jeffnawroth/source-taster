@@ -74,10 +74,13 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
       <v-btn
         variant="plain"
         :icon="showTokenEditor ? mdiChevronUp : mdiChevronDown"
+        :disabled="parsed.length === 0"
         @click="anystyleStore.setShowTokenEditor(!showTokenEditor)"
       />
     </template>
-    <v-card-text class="pa-0">
+    <v-card-text
+      class="px-2"
+    >
       <!-- Token Editor with Navigation -->
       <v-expand-transition>
         <div v-if="showTokenEditor && editableTokens.length > 0">

@@ -50,215 +50,217 @@ function completeOnboarding() {
 </script>
 
 <template>
-  <v-stepper
-    v-model="currentStep"
-    :items="steps"
-    hide-actions
-    flat
-  >
-    <!-- Step 1: Welcome -->
-    <template #[`item.1`]>
-      <v-sheet
-        class="pa-0 text-center mx-auto"
-      >
-        <v-icon
-          :icon="mdiRocketLaunchOutline"
-          size="64"
-          color="primary"
-          class="mb-5"
-        />
-        <h2 class="text-h5 mb-6">
-          {{ t('onboarding.welcome.title') }}
-        </h2>
-        <p class="mb-4 text-medium-emphasis text-body-2">
-          {{ t('onboarding.welcome.description') }}
-        </p>
-
-        <v-list class="text-start">
-          <v-list-item>
-            <v-list-item-title class="text-wrap">
-              {{ t('onboarding.features.extraction') }}
-            </v-list-item-title>
-            <template #prepend>
-              <v-icon
-                :icon="mdiCheckCircle"
-                color="success"
-                size="small"
-              />
-            </template>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title class="text-wrap">
-              {{ t('onboarding.features.matching') }}
-            </v-list-item-title>
-            <template #prepend>
-              <v-icon
-                :icon="mdiCheckCircle"
-                color="success"
-                size="small"
-              />
-            </template>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-title class="text-wrap">
-              {{ t('onboarding.features.verification') }}
-            </v-list-item-title>
-            <template #prepend>
-              <v-icon
-                :icon="mdiCheckCircle"
-                color="success"
-                size="small"
-              />
-            </template>
-          </v-list-item>
-        </v-list>
-      </v-sheet>
-    </template>
-
-    <!-- Step 2: Extraction Methods -->
-    <template #[`item.2`]>
-      <v-sheet class="pa-0 text-center mx-auto">
-        <h2 class="text-h5 mb-4 text-center">
-          {{ t('onboarding.methods.title') }}
-        </h2>
-        <p class="mb-4 text-medium-emphasis text-body-2">
-          {{ t('onboarding.methods.description') }}
-        </p>
-        <v-row
-          dense
-          no-gutters
+  <v-container>
+    <v-stepper
+      v-model="currentStep"
+      :items="steps"
+      hide-actions
+      flat
+    >
+      <!-- Step 1: Welcome -->
+      <template #[`item.1`]>
+        <v-sheet
+          class="pa-0 text-center mx-auto"
         >
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-card
-              variant="outlined"
-              density="compact"
-              class="mb-2 text-start"
-              :title="t('onboarding.methods.ai.title')"
-            >
+          <v-icon
+            :icon="mdiRocketLaunchOutline"
+            size="64"
+            color="primary"
+            class="mb-5"
+          />
+          <h2 class="text-h5 mb-6">
+            {{ t('onboarding.welcome.title') }}
+          </h2>
+          <p class="mb-4 text-medium-emphasis text-body-2">
+            {{ t('onboarding.welcome.description') }}
+          </p>
+
+          <v-list class="text-start">
+            <v-list-item>
+              <v-list-item-title class="text-wrap">
+                {{ t('onboarding.features.extraction') }}
+              </v-list-item-title>
               <template #prepend>
                 <v-icon
-                  :icon="mdiRobot"
-                  color="primary"
-                />
-              </template>
-              <v-card-text>
-                <p class="mb-2">
-                  {{ t('onboarding.methods.ai.description') }}
-                </p>
-                <v-chip
+                  :icon="mdiCheckCircle"
                   color="success"
                   size="small"
-                  variant="tonal"
-                >
-                  {{ t('onboarding.methods.ai.accuracy') }}
-                </v-chip>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-card
-              variant="outlined"
-              density="compact"
-              class="text-start"
-              :title="t('onboarding.methods.anystyle.title')"
-            >
-              <template #prepend>
-                <v-icon
-                  :icon="mdiRocketLaunchOutline"
-                  color="secondary"
                 />
               </template>
-
-              <v-card-text>
-                <p class="mb-2">
-                  {{ t('onboarding.methods.anystyle.description') }}
-                </p>
-                <v-chip
-                  color="info"
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="text-wrap">
+                {{ t('onboarding.features.matching') }}
+              </v-list-item-title>
+              <template #prepend>
+                <v-icon
+                  :icon="mdiCheckCircle"
+                  color="success"
                   size="small"
-                  variant="tonal"
-                >
-                  {{ t('onboarding.methods.anystyle.free') }}
-                </v-chip>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+                />
+              </template>
+            </v-list-item>
 
-        <v-alert
-          type="info"
-          variant="tonal"
-          class="mt-2"
-          density="compact"
+            <v-list-item>
+              <v-list-item-title class="text-wrap">
+                {{ t('onboarding.features.verification') }}
+              </v-list-item-title>
+              <template #prepend>
+                <v-icon
+                  :icon="mdiCheckCircle"
+                  color="success"
+                  size="small"
+                />
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-sheet>
+      </template>
+
+      <!-- Step 2: Extraction Methods -->
+      <template #[`item.2`]>
+        <v-sheet class="pa-0 text-center mx-auto">
+          <h2 class="text-h5 mb-4 text-center">
+            {{ t('onboarding.methods.title') }}
+          </h2>
+          <p class="mb-4 text-medium-emphasis text-body-2">
+            {{ t('onboarding.methods.description') }}
+          </p>
+          <v-row
+            dense
+            no-gutters
+          >
+            <v-col
+              cols="12"
+              md="6"
+            >
+              <v-card
+                variant="outlined"
+                density="compact"
+                class="mb-2 text-start"
+                :title="t('onboarding.methods.ai.title')"
+              >
+                <template #prepend>
+                  <v-icon
+                    :icon="mdiRobot"
+                    color="primary"
+                  />
+                </template>
+                <v-card-text>
+                  <p class="mb-2">
+                    {{ t('onboarding.methods.ai.description') }}
+                  </p>
+                  <v-chip
+                    color="success"
+                    size="small"
+                    variant="tonal"
+                  >
+                    {{ t('onboarding.methods.ai.accuracy') }}
+                  </v-chip>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col
+              cols="12"
+              md="6"
+            >
+              <v-card
+                variant="outlined"
+                density="compact"
+                class="text-start"
+                :title="t('onboarding.methods.anystyle.title')"
+              >
+                <template #prepend>
+                  <v-icon
+                    :icon="mdiRocketLaunchOutline"
+                    color="secondary"
+                  />
+                </template>
+
+                <v-card-text>
+                  <p class="mb-2">
+                    {{ t('onboarding.methods.anystyle.description') }}
+                  </p>
+                  <v-chip
+                    color="info"
+                    size="small"
+                    variant="tonal"
+                  >
+                    {{ t('onboarding.methods.anystyle.free') }}
+                  </v-chip>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <v-alert
+            type="info"
+            variant="tonal"
+            class="mt-2"
+            density="compact"
+          >
+            {{ t('onboarding.methods.info') }}
+          </v-alert>
+        </v-sheet>
+      </template>
+
+      <!-- Step 3: Ready -->
+      <template #[`item.3`]>
+        <v-sheet
+          class="text-center mx-auto pa-0"
         >
-          {{ t('onboarding.methods.info') }}
-        </v-alert>
-      </v-sheet>
-    </template>
+          <v-icon
+            :icon="mdiCheckCircle"
+            size="64"
+            color="success"
+            class="mb-5"
+          />
+          <h2 class="text-h5 mb-6">
+            {{ t('onboarding.ready.title') }}
+          </h2>
 
-    <!-- Step 3: Ready -->
-    <template #[`item.3`]>
-      <v-sheet
-        class="text-center mx-auto pa-0"
-      >
-        <v-icon
-          :icon="mdiCheckCircle"
-          size="64"
-          color="success"
-          class="mb-5"
+          <p class="mb-4 text-medium-emphasis text-body-2">
+            {{ t('onboarding.ready.description') }}
+          </p>
+        </v-sheet>
+      </template>
+
+      <!-- Actions -->
+      <v-card-actions>
+        <v-btn
+          v-if="currentStep > 1"
+          variant="text"
+          color="primary"
+          :prepend-icon="mdiArrowLeft"
+          :text="$t('onboarding.actions.back')"
+          size="small"
+          @click="previousStep"
         />
-        <h2 class="text-h5 mb-6">
-          {{ t('onboarding.ready.title') }}
-        </h2>
 
-        <p class="mb-4 text-medium-emphasis text-body-2">
-          {{ t('onboarding.ready.description') }}
-        </p>
-      </v-sheet>
-    </template>
+        <v-spacer />
 
-    <!-- Actions -->
-    <v-card-actions>
-      <v-btn
-        v-if="currentStep > 1"
-        variant="text"
-        color="primary"
-        :prepend-icon="mdiArrowLeft"
-        :text="$t('onboarding.actions.back')"
-        size="small"
-        @click="previousStep"
-      />
+        <v-btn
+          v-if="currentStep < 3"
+          :disabled="!canProceed"
+          variant="elevated"
+          :append-icon="mdiArrowRight"
+          color="primary"
+          :text="$t('onboarding.actions.next')"
+          size="small"
+          @click="nextStep"
+        />
 
-      <v-spacer />
-
-      <v-btn
-        v-if="currentStep < 3"
-        :disabled="!canProceed"
-        variant="elevated"
-        :append-icon="mdiArrowRight"
-        color="primary"
-        :text="$t('onboarding.actions.next')"
-        size="small"
-        @click="nextStep"
-      />
-
-      <v-btn
-        v-if="currentStep === 3"
-        variant="elevated"
-        color="primary"
-        size="small"
-        :append-icon="mdiCheckCircle"
-        :text="$t('onboarding.actions.complete')"
-        @click="completeOnboarding"
-      />
-    </v-card-actions>
-  </v-stepper>
+        <v-btn
+          v-if="currentStep === 3"
+          variant="elevated"
+          color="primary"
+          size="small"
+          :append-icon="mdiCheckCircle"
+          :text="$t('onboarding.actions.complete')"
+          @click="completeOnboarding"
+        />
+      </v-card-actions>
+    </v-stepper>
+  </v-container>
 </template>

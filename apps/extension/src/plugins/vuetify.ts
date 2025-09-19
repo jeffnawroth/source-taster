@@ -71,6 +71,71 @@ const vuetify = createVuetify({
       mdi,
     },
   },
+  defaults: {
+    VBtn: {
+      // density: 'compact',
+      size: 'small',
+      slim: true,
+    },
+    VSwitch: {
+      density: 'compact',
+      hideDetails: true,
+    },
+    VTextarea: {
+      density: 'compact',
+      hideDetails: true,
+    },
+    VCard: {
+      density: 'compact',
+    },
+    VCardItem: {
+      density: 'compact',
+    },
+    VList: {
+      density: 'compact',
+      slim: true,
+    },
+    VListItem: {
+      density: 'compact',
+      slim: true,
+    },
+    VAppBar: {
+      density: 'compact',
+      flat: true,
+    },
+    VAutocomplete: {
+      density: 'compact',
+      flat: true,
+      hideDetails: true,
+    },
+    VFileInput: {
+      density: 'compact',
+      hideDetails: true,
+    },
+    VRadioGroup: {
+      density: 'compact',
+      hideDetails: true,
+    },
+    VSelect: {
+      density: 'compact',
+      flat: true,
+      hideDetails: true,
+    },
+    VSlider: {
+      density: 'compact',
+      hideDetails: true,
+    },
+    VRow: {
+      dense: true,
+    },
+    VChip: {
+      // density: 'compact',
+      size: 'small',
+    },
+    VIcon: {
+      size: 'small',
+    },
+  },
 })
 
 export default vuetify

@@ -40,16 +40,16 @@ const components = [
     density="compact"
     class="d-flex flex-column flex-1 min-h-0"
   >
-    <v-card-text class="d-flex flex-column flex-1 min-h-0">
+    <v-card-text class="d-flex flex-column flex-1 min-h-0 px-2 py-0">
       <!-- Static header area using grid -->
       <v-row
-        dense
         class="flex-0"
       >
         <v-col
           v-for="component in components"
           :key="component.name"
           cols="12"
+          class="pa-0"
         >
           <component :is="component" />
         </v-col>

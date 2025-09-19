@@ -99,7 +99,7 @@ const cardSubtitle = computed(() => {
     <v-expand-transition>
       <div v-if="showInputCard">
         <v-card-text
-          class="pa-0"
+          class="pa-0 pb-2"
         >
           <v-row dense>
             <!-- File Input -->
@@ -114,14 +114,12 @@ const cardSubtitle = computed(() => {
 
             <v-col
               sm="6"
-              cols="12"
             >
               <ParseButton />
             </v-col>
             <!-- Extract Button -->
             <v-col
               sm="6"
-              cols="12"
             >
               <ExtractButton />
             </v-col>
@@ -151,8 +149,6 @@ const cardSubtitle = computed(() => {
                 {{ parseErrorMessage ? $t(parseErrorMessage) : '' }}
               </AutoDismissAlert>
             </v-col>
-
-            <!-- Parse Button -->
           </v-row>
         </v-card-text>
       </div>
