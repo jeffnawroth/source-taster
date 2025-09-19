@@ -25,7 +25,6 @@ withDefaults(defineProps<Props>(), {
         />
         {{ title }}
         <v-chip
-          size="small"
           class="ml-2"
         >
           {{ weight }} %

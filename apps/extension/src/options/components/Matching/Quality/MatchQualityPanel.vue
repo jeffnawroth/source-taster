@@ -69,7 +69,6 @@ const thresholdSliderItems = computed(() => [
               <v-icon
                 :icon="mdiBullseye"
                 color="success"
-                size="small"
                 class="me-2"
               />
               {{ t('exact-match-threshold') }}
@@ -77,7 +76,6 @@ const thresholdSliderItems = computed(() => [
             <v-chip
               color="success"
               variant="flat"
-              size="small"
             >
               {{ 100 }}%
             </v-chip>
@@ -105,7 +103,6 @@ const thresholdSliderItems = computed(() => [
               <v-icon
                 :icon="mdiAlertCircleOutline"
                 color="error"
-                size="small"
                 class="me-2"
               />
               {{ t('no-match-threshold') }}
@@ -113,7 +110,6 @@ const thresholdSliderItems = computed(() => [
             <v-chip
               color="error"
               variant="flat"
-              size="small"
             >
               &lt; {{ possibleMatchThreshold }}%
             </v-chip>

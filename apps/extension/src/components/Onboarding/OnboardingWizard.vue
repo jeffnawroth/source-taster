@@ -84,7 +84,6 @@ function completeOnboarding() {
                 <v-icon
                   :icon="mdiCheckCircle"
                   color="success"
-                  size="small"
                 />
               </template>
             </v-list-item>
@@ -96,7 +95,6 @@ function completeOnboarding() {
                 <v-icon
                   :icon="mdiCheckCircle"
                   color="success"
-                  size="small"
                 />
               </template>
             </v-list-item>
@@ -109,7 +107,6 @@ function completeOnboarding() {
                 <v-icon
                   :icon="mdiCheckCircle"
                   color="success"
-                  size="small"
                 />
               </template>
             </v-list-item>
@@ -152,7 +149,6 @@ function completeOnboarding() {
                   </p>
                   <v-chip
                     color="success"
-                    size="small"
                     variant="tonal"
                   >
                     {{ t('onboarding.methods.ai.accuracy') }}
@@ -184,7 +180,6 @@ function completeOnboarding() {
                   </p>
                   <v-chip
                     color="info"
-                    size="small"
                     variant="tonal"
                   >
                     {{ t('onboarding.methods.anystyle.free') }}
@@ -234,7 +229,6 @@ function completeOnboarding() {
           color="primary"
           :prepend-icon="mdiArrowLeft"
           :text="$t('onboarding.actions.back')"
-          size="small"
           @click="previousStep"
         />
 
@@ -247,7 +241,6 @@ function completeOnboarding() {
           :append-icon="mdiArrowRight"
           color="primary"
           :text="$t('onboarding.actions.next')"
-          size="small"
           @click="nextStep"
         />
 
@@ -255,7 +248,6 @@ function completeOnboarding() {
           v-if="currentStep === 3"
           variant="elevated"
           color="primary"
-          size="small"
           :append-icon="mdiCheckCircle"
           :text="$t('onboarding.actions.complete')"
           @click="completeOnboarding"

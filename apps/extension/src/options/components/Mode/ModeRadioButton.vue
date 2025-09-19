@@ -19,7 +19,6 @@ defineProps<Props>()
         <div class="font-weight-medium d-flex align-center">
           <v-icon
             :icon
-            size="small"
             class="me-2"
           />
           {{ label }}

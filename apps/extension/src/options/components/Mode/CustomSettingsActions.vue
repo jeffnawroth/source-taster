@@ -28,7 +28,6 @@ defineProps<{
         >
           <v-icon
             :icon="preset.icon"
-            size="small"
             start
           />
           {{ preset.label }}

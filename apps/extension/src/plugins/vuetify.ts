@@ -87,6 +87,7 @@ const vuetify = createVuetify({
     },
     VCard: {
       density: 'compact',
+      flat: true,
     },
     VCardItem: {
       density: 'compact',
@@ -134,6 +135,11 @@ const vuetify = createVuetify({
     },
     VIcon: {
       size: 'small',
+    },
+    VTextField: {
+      density: 'compact',
+      hideDetails: true,
+      flat: true,
     },
   },
 })

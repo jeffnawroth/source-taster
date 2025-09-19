@@ -34,7 +34,6 @@ function openOptionsPage() {
 <template>
   <v-system-bar color="surface">
     <v-icon
-      size="small"
       :icon="mdiCogOutline"
       variant="plain"
 

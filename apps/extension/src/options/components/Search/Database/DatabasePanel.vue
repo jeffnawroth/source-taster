@@ -120,7 +120,6 @@ function getDatabaseColor(database: UISearchDatabaseConfig): string {
           <!-- Priority Badge -->
           <v-chip
             variant="outlined"
-            size="small"
             class="me-3"
             :text="`${t('priority')}: ${database.priority}`"
           />
@@ -128,7 +127,6 @@ function getDatabaseColor(database: UISearchDatabaseConfig): string {
           <v-icon
             :icon="database.enabled ? mdiEye : mdiEyeOff"
             variant="text"
-            size="small"
             :disabled="database.enabled && !canDisableDatabase(database)"
             @click="toggleDatabase(database)"
           />

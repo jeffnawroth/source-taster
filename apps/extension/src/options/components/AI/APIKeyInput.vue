@@ -28,7 +28,6 @@ const showApiKey = ref(false)
       <v-icon
         :icon="showApiKey ? mdiEyeOff : mdiEye"
         variant="text"
-        size="small"
         @click="showApiKey = !showApiKey"
       />
     </template>

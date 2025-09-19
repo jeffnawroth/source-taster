@@ -24,7 +24,6 @@ const { t } = useI18n()
         <v-icon
           :icon="mdiInformationOutline"
           class="mr-2"
-          size="small"
         />
         <span class="font-weight-medium">{{ t('how-field-weights-work') }}</span>
       </div>
@@ -37,7 +36,6 @@ const { t } = useI18n()
         <v-icon
           :icon="mdiLightbulbOutline"
           class="mr-2"
-          size="small"
         />
         <span class="font-weight-medium">{{ t('practical-example') }}</span>
       </div>

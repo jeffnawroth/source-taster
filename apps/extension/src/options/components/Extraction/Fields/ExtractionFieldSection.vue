@@ -23,7 +23,6 @@ defineProps<{
         />
         {{ title }}
         <v-chip
-          size="small"
           class="ml-2"
           :color
         >

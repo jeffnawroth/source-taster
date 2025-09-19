@@ -63,7 +63,7 @@ const { t } = useI18n()
                   <v-icon
                     v-bind="tooltipProps"
                     :icon="mdiHelpCircleOutline"
-                    size="small"
+
                     class="text-medium-emphasis"
                   />
                 </template>

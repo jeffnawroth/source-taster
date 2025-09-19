@@ -79,7 +79,6 @@ function copyValue() {
       <div class="d-flex align-start">
         <v-icon
           :icon
-          size="small"
           class="me-2 mt-1"
         />
         <div class="flex-grow-1">

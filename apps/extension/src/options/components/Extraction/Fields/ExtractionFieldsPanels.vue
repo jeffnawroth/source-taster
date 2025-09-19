@@ -134,7 +134,6 @@ const sortedItems = computed(() => {
                 v-bind="props"
                 :text="item.title"
                 :closable="canRemoveField()"
-                size="small"
                 @click:close="remove(item.value)"
               />
             </template>
@@ -145,7 +144,6 @@ const sortedItems = computed(() => {
             v-else-if="index < 5"
             :text="item.title"
             :closable="canRemoveField()"
-            size="small"
             @click:close="remove(item.value)"
           />
 

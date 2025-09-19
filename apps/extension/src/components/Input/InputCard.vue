@@ -68,7 +68,6 @@ const cardSubtitle = computed(() => {
           <v-icon
             :icon="mdiInformationOutline"
             variant="text"
-            size="small"
             class="mx-2"
             v-bind="tooltipProps"
           />
