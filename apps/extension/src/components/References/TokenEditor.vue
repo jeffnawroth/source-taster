@@ -58,7 +58,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
             :icon="mdiInformationOutline"
             variant="plain"
             class="mx-2"
-            size="small"
             v-bind="tooltipProps"
           />
         </template>
@@ -101,7 +100,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
               :disabled="currentReferenceIndex <= 0"
               icon
               variant="outlined"
-              size="small"
               @click="currentReferenceIndex--"
             >
               <v-icon :icon="mdiChevronLeft" />
@@ -117,7 +115,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
               :disabled="currentReferenceIndex >= editableTokens.length - 1"
               icon
               variant="outlined"
-              size="small"
               @click="currentReferenceIndex++"
             >
               <v-icon :icon="mdiChevronRight" />
