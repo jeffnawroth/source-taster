@@ -1,6 +1,6 @@
 <template>
   <v-app style="min-width: 430px;">
-    <AppBar />
+    <SystemBar />
     <v-main>
       <v-container>
         <AppLayout />
