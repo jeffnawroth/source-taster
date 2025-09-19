@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { mdiChevronDown, mdiChevronUp, mdiInformationOutline, mdiRobot } from '@mdi/js'
+import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
 import { useFuse } from '@vueuse/integrations/useFuse'
 import AutoDismissAlert from '@/extension/components/UI/AutoDismissAlert.vue'
 import { settings } from '@/extension/logic'
-import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import { useMatchingStore } from '@/extension/stores/matching'
 import { useVerificationStore } from '@/extension/stores/verification'
@@ -13,7 +12,6 @@ const matchingStore = useMatchingStore()
 const verificationStore = useVerificationStore()
 const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 const { extractedReferences } = storeToRefs(extractionStore)
-const { hasParseResults } = storeToRefs(useAnystyleStore())
 const { verifyError } = storeToRefs(verificationStore)
 
 const search = ref('')
@@ -143,36 +141,15 @@ const filteredResults = computed(() => {
 
           <!-- Content area gets rest height -->
           <v-card-text class="px-0 pb-0 d-flex flex-column flex-1 min-h-0">
-            <!-- Empty state when AI mode is on and nothing has been extracted yet -->
-            <template v-if="settings.extract.useAi && !hasParseResults && extractedReferences.length === 0">
-              <v-empty-state
-                :icon="mdiRobot"
-                :title="$t('ai-auto-verification-title')"
-                :text="$t('ai-auto-verification-text')"
-              />
-            </template>
+            <ReferencesSearchInput
+              v-model="search"
+              class="mb-2"
+            />
 
-            <!-- Empty state when AI mode is off and no references exist yet -->
-            <template v-else-if="!settings.extract.useAi && !hasParseResults && extractedReferences.length === 0">
-              <v-empty-state
-                :icon="mdiInformationOutline"
-                :title="$t('manual-verification-title')"
-                :text="$t('manual-verification-text')"
-              />
-            </template>
-
-            <!-- Search + results when we have references (or parsed tokens) -->
-            <template v-else>
-              <ReferencesSearchInput
-                v-model="search"
-                class="mb-2"
-              />
-
-              <!-- This is the ONLY scroll container -->
-              <div class="flex-1 min-h-0 overflow-auto">
-                <ReferencesList :results="filteredResults" />
-              </div>
-            </template>
+            <!-- This is the ONLY scroll container -->
+            <div class="flex-1 min-h-0 overflow-auto">
+              <ReferencesList :results="filteredResults" />
+            </div>
           </v-card-text>
         </div>
       </v-expand-transition>
