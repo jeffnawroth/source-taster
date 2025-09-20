@@ -21,7 +21,7 @@ const tooltipText = computed(() =>
         :icon="showDetails ? mdiChevronUp : mdiChevronDown"
         class="cursor-pointer"
         v-bind="tooltipProps"
-        @click="showDetails = !showDetails"
+        @click.stop="showDetails = !showDetails"
       />
     </template>
     {{ tooltipText }}

@@ -6,6 +6,16 @@ import type { DeepReadonly, UnwrapNestedRefs } from 'vue'
 const { results } = defineProps<{
   results: FuseResult<DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>>[]
 }>()
+
+const openedReferenceId = ref<string | null>(null)
+
+function updateReferenceDetails(referenceId: string, isOpen: boolean) {
+  openedReferenceId.value = isOpen
+    ? referenceId
+    : openedReferenceId.value === referenceId
+      ? null
+      : openedReferenceId.value
+}
 </script>
 
 <template>
@@ -19,6 +29,8 @@ const { results } = defineProps<{
         :key="extractedReference.item.id"
         :reference="extractedReference.item"
         :is-last="index === results.length - 1"
+        :show-details="openedReferenceId === extractedReference.item.id"
+        @update:show-details="value => updateReferenceDetails(extractedReference.item.id, value)"
       />
     </v-slide-y-transition>
   </v-list>

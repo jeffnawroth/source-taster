@@ -7,12 +7,20 @@ import { getScoreColor } from '@/extension/utils/scoreUtils'
 import ReferenceActions from './Actions/ReferenceActions.vue'
 
 // PROPS
-const { reference, isLast } = withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   reference: DeepReadonly<UnwrapNestedRefs<ApiExtractReference>>
   isLast?: boolean
+  showDetails?: boolean
 }>(), {
   isLast: false,
+  showDetails: false,
 })
+
+const emit = defineEmits<{
+  (e: 'update:showDetails', value: boolean): void
+}>()
+
+const { reference, isLast } = toRefs(props)
 
 // I18n
 const { t } = useI18n()
@@ -24,11 +32,11 @@ const progressStore = useVerificationProgressStore()
 const { getMatchingScoreByReference } = storeToRefs(matchingStore)
 
 // TITLE
-const title = computed(() => reference.metadata.title || t('no-title'))
+const title = computed(() => reference.value.metadata.title || t('no-title'))
 
 // Best score
 const bestScore = computed<number | null>(() => {
-  const s = getMatchingScoreByReference.value(reference.id)
+  const s = getMatchingScoreByReference.value(reference.value.id)
   return Number.isFinite(s) ? s : null
 })
 
@@ -36,12 +44,19 @@ const scoreColor = computed<string>(() =>
   bestScore.value !== null ? getScoreColor(bestScore.value) : 'default')
 
 // Progress (pro Referenz) - nur für Shimmer-Effekt
-const state = computed(() => progressStore.get(reference.id) || null)
+const state = computed(() => progressStore.get(reference.value.id) || null)
 const phase = computed(() => state.value?.phase ?? 'idle')
 const isSearching = computed(() => phase.value === 'searching')
 const isMatching = computed(() => phase.value === 'matching')
 
-const showDetails = ref(false)
+const showDetails = computed({
+  get: () => props.showDetails,
+  set: value => emit('update:showDetails', value),
+})
+
+function toggleDetails() {
+  showDetails.value = !showDetails.value
+}
 </script>
 
 <template>
@@ -50,6 +65,8 @@ const showDetails = ref(false)
       :class="{ 'currently-verifying': isSearching || isMatching }"
       class="my-1"
       :base-color="scoreColor"
+      :active="showDetails"
+      @click="toggleDetails"
     >
       <v-list-item-title
         class="mb-1"

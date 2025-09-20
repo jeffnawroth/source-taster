@@ -80,7 +80,7 @@ function openSource() {
         v-bind="props"
         :icon="mdiOpenInNew"
         class="cursor-pointer"
-        @click="openSource"
+        @click.stop="openSource"
       />
     </template>
     <span>{{ $t('open-source-tooltip') }}</span>
