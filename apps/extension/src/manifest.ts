@@ -72,7 +72,12 @@ export async function getManifest() {
     browser_specific_settings: {
       gecko: {
         id: 'contact@sourcetaster.com',
-      },
+        ...(isFirefox && {
+          data_collection_permissions: {
+            required: ['none'],
+          },
+        }),
+      } as any,
     },
     default_locale: 'en',
   }
