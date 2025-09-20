@@ -40,6 +40,7 @@ const props = withDefaults(defineProps<{
         <v-icon
           v-else-if="props.prependIcon"
           :icon="props.prependIcon"
+          size="medium"
           start
         />
         {{ props.text }}
@@ -65,6 +66,8 @@ const props = withDefaults(defineProps<{
     <v-icon
       v-else-if="props.prependIcon"
       :icon="props.prependIcon"
+      size="medium"
+
       start
     />
     {{ props.text }}
