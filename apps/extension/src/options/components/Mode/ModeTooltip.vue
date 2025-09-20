@@ -18,7 +18,6 @@ defineProps<Props>()
       <v-icon
         v-bind="tooltipProps"
         :icon="mdiHelpCircleOutline"
-        size="small"
         class="text-medium-emphasis ml-2"
       />
     </template>

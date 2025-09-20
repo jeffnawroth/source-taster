@@ -44,7 +44,6 @@ watch(
 
 <template>
   <v-card
-    density="compact"
     variant="text"
   >
     <template #prepend>
@@ -62,10 +61,7 @@ watch(
       <v-select
         v-model="settings.provider"
         :items="providerOptions"
-        density="compact"
         variant="solo-filled"
-        flat
-        hide-details
       />
 
       <div
@@ -78,10 +74,7 @@ watch(
         <v-select
           v-model="settings.model"
           :items="modelOptions"
-          density="compact"
           variant="solo-filled"
-          flat
-          hide-details
         />
       </div>
     </v-card-text>

@@ -17,9 +17,7 @@ const showApiKey = ref(false)
     :placeholder="t('ai-settings-api-key-placeholder')"
     :type="showApiKey ? 'text' : 'password'"
     :error-messages="apiKeyError"
-    density="compact"
     variant="solo-filled"
-    flat
     clearable
     class="mb-3"
     @click:clear="modelValue = ''"
@@ -28,7 +26,6 @@ const showApiKey = ref(false)
       <v-icon
         :icon="showApiKey ? mdiEyeOff : mdiEye"
         variant="text"
-        size="small"
         @click="showApiKey = !showApiKey"
       />
     </template>

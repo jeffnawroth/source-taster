@@ -88,7 +88,7 @@ See [Matching & Scoring](matching-scoring.md) for heuristics.
   3. semanticscholar (3)
   4. europepmc (4, disabled)
   5. arxiv (5, disabled)
-- **Extraction (`settings.extract`)** – `extractionConfig.variables` (defaults to all fields), `useAi` flag (default `false`).
+- **Extraction (`settings.extract`)** – `extractionConfig.variables` (defaults to all fields).
 - **Matching (`settings.matching`)** – strategy/config mirroring backend defaults, plus:
   - `earlyTermination`: `{ enabled: true, threshold: 95 }`
   - `displayThresholds`: `{ strongMatchThreshold: 85, possibleMatchThreshold: 50 }`

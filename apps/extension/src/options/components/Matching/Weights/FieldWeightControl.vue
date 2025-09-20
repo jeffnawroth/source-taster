@@ -62,9 +62,7 @@ function updateWeight(newWeight: number) {
           <v-switch
             v-bind="tooltipProps"
             :model-value="fieldConfig?.enabled || false"
-            density="compact"
             color="primary"
-            hide-details
             class="mr-3 ml-3"
             :disabled="fieldConfig?.enabled && !props.canDisable"
             @update:model-value="toggleField"
@@ -76,9 +74,7 @@ function updateWeight(newWeight: number) {
       <v-switch
         v-else
         :model-value="fieldConfig?.enabled || false"
-        density="compact"
         color="primary"
-        hide-details
         class="mr-3 ml-3"
         inset
         :disabled="fieldConfig?.enabled && !props.canDisable"
@@ -87,7 +83,6 @@ function updateWeight(newWeight: number) {
       <label class="font-weight-medium">{{ label }}</label>
     </div>
     <v-chip
-      size="small"
       :color="fieldConfig?.enabled ? 'primary' : 'default'"
       class="mr-2"
     >

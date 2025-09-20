@@ -76,12 +76,11 @@ function openSource() {
     location="top"
   >
     <template #activator="{ props }">
-      <v-btn
+      <v-icon
         v-bind="props"
-        variant="text"
-        size="small"
         :icon="mdiOpenInNew"
-        @click="openSource"
+        class="cursor-pointer"
+        @click.stop="openSource"
       />
     </template>
     <span>{{ $t('open-source-tooltip') }}</span>

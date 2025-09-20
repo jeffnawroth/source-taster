@@ -44,7 +44,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
 
 <template>
   <v-card
-    flat
     :title="`2. ${$t('edit')}`"
     :subtitle="$t('review-and-relabel-parsed-references')"
     :disabled="parsed.length === 0"
@@ -58,7 +57,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
             :icon="mdiInformationOutline"
             variant="plain"
             class="mx-2"
-            size="small"
             v-bind="tooltipProps"
           />
         </template>
@@ -74,13 +72,17 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
       <v-btn
         variant="plain"
         :icon="showTokenEditor ? mdiChevronUp : mdiChevronDown"
+        :disabled="parsed.length === 0"
         @click="anystyleStore.setShowTokenEditor(!showTokenEditor)"
       />
     </template>
-    <v-card-text class="pa-0">
-      <!-- Token Editor with Navigation -->
-      <v-expand-transition>
-        <div v-if="showTokenEditor && editableTokens.length > 0">
+    <v-expand-transition>
+      <div v-if="showTokenEditor && editableTokens.length > 0">
+        <v-card-text
+          class="px-2"
+        >
+          <!-- Token Editor with Navigation -->
+
           <!-- Current Token Sequence Editor -->
           <TokenRelabelingEditor
             v-if="editableTokens[currentReferenceIndex]"
@@ -98,7 +100,6 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
               :disabled="currentReferenceIndex <= 0"
               icon
               variant="outlined"
-              size="small"
               @click="currentReferenceIndex--"
             >
               <v-icon :icon="mdiChevronLeft" />
@@ -114,14 +115,13 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
               :disabled="currentReferenceIndex >= editableTokens.length - 1"
               icon
               variant="outlined"
-              size="small"
               @click="currentReferenceIndex++"
             >
               <v-icon :icon="mdiChevronRight" />
             </v-btn>
           </div>
-        </div>
-      </v-expand-transition>
-    </v-card-text>
+        </v-card-text>
+      </div>
+    </v-expand-transition>
   </v-card>
 </template>

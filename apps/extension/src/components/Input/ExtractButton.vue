@@ -40,7 +40,7 @@ const isDisabled = computed(() =>
   !inputText.value.trim()
   || isExtracting.value
   || isVerifying.value
-  || !settings.value.extract.useAi,
+  || !settings.value.ai.canUseAI,
 )
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
@@ -74,7 +74,7 @@ watch(ctrlEnter, (pressed) => {
     <template #prepend>
       <v-progress-circular
         v-if="isExtracting"
-        size="20"
+        size="16"
         width="2"
         indeterminate
       />
@@ -84,6 +84,6 @@ watch(ctrlEnter, (pressed) => {
       />
     </template>
 
-    {{ isExtracting ? `${t('extracting')}...` : t('extract-references') }}
+    {{ isExtracting ? `${t('extracting')}...` : t('ai-extract-references') }}
   </v-btn>
 </template>

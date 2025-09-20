@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <v-card flat>
+  <v-card>
     <v-list
       lines="two"
       subheader

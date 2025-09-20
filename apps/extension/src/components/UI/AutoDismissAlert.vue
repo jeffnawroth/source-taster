@@ -171,7 +171,6 @@ onBeforeUnmount(() => {
           #append
         >
           <v-btn
-            density="comfortable"
             variant="text"
             icon
             :disabled="!props.closable"

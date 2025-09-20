@@ -13,12 +13,9 @@ const show = computed(() => extractedReferences.value.length)
   <v-text-field
     v-if="show"
     v-model.trim="search"
-    density="compact"
     :prepend-inner-icon="mdiMagnify"
-    hide-details
     variant="solo-filled"
     :placeholder="`${$t('search-references')}…`"
-    flat
     clearable
     class="mb-4"
   />

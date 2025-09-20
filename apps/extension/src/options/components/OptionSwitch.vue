@@ -7,7 +7,6 @@ const model = defineModel()
 <template>
   <v-switch
     v-model="model"
-    hide-details
     color="primary"
     inset
     :false-icon="mdiClose"

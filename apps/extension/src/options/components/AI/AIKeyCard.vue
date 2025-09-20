@@ -53,7 +53,6 @@ watch(() => settings.value.ai.provider, () => {
 <template>
   <v-card
     variant="text"
-    density="compact"
   >
     <template #prepend>
       <v-icon :icon="mdiKeyOutline" />
@@ -99,7 +98,6 @@ watch(() => settings.value.ai.provider, () => {
       v-model="alertMessage"
       :type="alertType"
       variant="tonal"
-      density="compact"
       class="mb-3"
     >
       {{ alertMessage }}

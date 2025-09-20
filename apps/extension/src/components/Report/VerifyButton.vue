@@ -31,8 +31,8 @@ watch([keys['Cmd+Alt+Enter'], keys['Ctrl+Alt+Enter']], ([cmdAlt, ctrlAlt]) => {
   >
     <template #prepend>
       <v-progress-circular
-        size="24"
-        width="3"
+        size="16"
+        width="2"
         indeterminate
       >
         <v-icon

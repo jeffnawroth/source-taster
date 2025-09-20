@@ -36,7 +36,6 @@ const displayText = computed(() => {
     <v-icon
       :icon="scoreIcon"
       :color="scoreColor"
-      size="small"
       class="me-2"
     />
     <span class="text-caption">{{ displayText }}</span>

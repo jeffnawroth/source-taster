@@ -85,7 +85,7 @@ const sortedItems = computed(() => {
 </script>
 
 <template>
-  <v-card flat>
+  <v-card>
     <v-card-text>
       <v-autocomplete
         v-model="settings.extract.extractionConfig.variables"
@@ -95,7 +95,6 @@ const sortedItems = computed(() => {
         :item-title="(item) => t(item)"
         :item-value="(item) => item"
         variant="outlined"
-        density="comfortable"
       >
         <template #prepend-item>
           <v-list-item
@@ -134,7 +133,6 @@ const sortedItems = computed(() => {
                 v-bind="props"
                 :text="item.title"
                 :closable="canRemoveField()"
-                size="small"
                 @click:close="remove(item.value)"
               />
             </template>
@@ -145,7 +143,6 @@ const sortedItems = computed(() => {
             v-else-if="index < 5"
             :text="item.title"
             :closable="canRemoveField()"
-            size="small"
             @click:close="remove(item.value)"
           />
 

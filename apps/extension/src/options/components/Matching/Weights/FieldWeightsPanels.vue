@@ -100,7 +100,7 @@ function canDisableField(fieldKey: string): boolean {
 </script>
 
 <template>
-  <v-card flat>
+  <v-card>
     <v-card-text>
       <!-- Search Field -->
       <v-text-field
@@ -109,7 +109,6 @@ function canDisableField(fieldKey: string): boolean {
         :prepend-inner-icon="mdiMagnify"
         clearable
         variant="outlined"
-        density="compact"
         class="mb-4"
       />
 

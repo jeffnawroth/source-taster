@@ -85,10 +85,7 @@ onMounted(() => {
         width="150"
         item-value="value"
         color="primary"
-        density="compact"
-        hide-details
         variant="solo-filled"
-        flat
       />
     </OptionListItem>
 
@@ -105,10 +102,7 @@ onMounted(() => {
         :item-title="(option) => t(option)"
         :item-value="(option) => option"
         width="150"
-        density="compact"
-        hide-details
         variant="solo-filled"
-        flat
       />
     </OptionListItem>
   </SettingsPageLayout>

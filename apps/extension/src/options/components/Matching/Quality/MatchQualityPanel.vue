@@ -59,9 +59,7 @@ const thresholdSliderItems = computed(() => [
     :subtitle="t('quality-thresholds-description')"
   >
     <!-- Threshold Settings -->
-    <v-card
-      flat
-    >
+    <v-card>
       <v-card-text>
         <div class="mb-6">
           <div class="d-flex align-center justify-space-between mb-2">
@@ -69,7 +67,6 @@ const thresholdSliderItems = computed(() => [
               <v-icon
                 :icon="mdiBullseye"
                 color="success"
-                size="small"
                 class="me-2"
               />
               {{ t('exact-match-threshold') }}
@@ -77,7 +74,6 @@ const thresholdSliderItems = computed(() => [
             <v-chip
               color="success"
               variant="flat"
-              size="small"
             >
               {{ 100 }}%
             </v-chip>
@@ -105,7 +101,6 @@ const thresholdSliderItems = computed(() => [
               <v-icon
                 :icon="mdiAlertCircleOutline"
                 color="error"
-                size="small"
                 class="me-2"
               />
               {{ t('no-match-threshold') }}
@@ -113,7 +108,6 @@ const thresholdSliderItems = computed(() => [
             <v-chip
               color="error"
               variant="flat"
-              size="small"
             >
               &lt; {{ possibleMatchThreshold }}%
             </v-chip>

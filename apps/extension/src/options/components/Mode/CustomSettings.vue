@@ -28,7 +28,6 @@ const { t } = useI18n()
 <template>
   <v-card
     :subtitle="description"
-    flat
   >
     <v-card-text>
       <v-selection-control-group
@@ -36,7 +35,6 @@ const { t } = useI18n()
         multiple
       >
         <v-list
-          density="comfortable"
           class="settings-list"
         >
           <v-list-item
@@ -46,8 +44,6 @@ const { t } = useI18n()
             <template #prepend>
               <v-checkbox
                 :value="setting.key"
-                density="comfortable"
-                hide-details
               />
             </template>
 
@@ -63,7 +59,7 @@ const { t } = useI18n()
                   <v-icon
                     v-bind="tooltipProps"
                     :icon="mdiHelpCircleOutline"
-                    size="small"
+
                     class="text-medium-emphasis"
                   />
                 </template>

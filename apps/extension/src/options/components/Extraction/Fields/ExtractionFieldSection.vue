@@ -23,7 +23,6 @@ defineProps<{
         />
         {{ title }}
         <v-chip
-          size="small"
           class="ml-2"
           :color
         >
@@ -36,7 +35,6 @@ defineProps<{
         v-model="settings.extract.extractionConfig.variables"
       >
         <v-row
-          dense
           no-gutters
         >
           <v-col

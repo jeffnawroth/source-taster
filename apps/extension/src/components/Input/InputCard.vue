@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
 import AutoDismissAlert from '@/extension/components/UI/AutoDismissAlert.vue'
-import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import ExtractButton from './ExtractButton.vue'
@@ -37,9 +36,7 @@ const parseErrorMessage = computed({
 // Dynamic title based on AI setting
 const cardTitle = computed(() => {
   const baseNumber = '1. '
-  return settings.value.extract.useAi
-    ? `${baseNumber}${t('extract')}`
-    : `${baseNumber}${t('parse')}`
+  return `${baseNumber}${t('extract')}`
 })
 
 // Dynamic subtitle - now unified since both modes support text and files
@@ -50,24 +47,16 @@ const cardSubtitle = computed(() => {
 
 <template>
   <v-card
-    flat
     :title="cardTitle"
     :subtitle="cardSubtitle"
   >
     <template #append>
-      <AIToggleSwitch
-        v-model="settings.extract.useAi"
-        :show-alert="false"
-        :show-description="false"
-      />
-
       <!-- Info Icon with Tooltip -->
       <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
           <v-icon
             :icon="mdiInformationOutline"
             variant="text"
-            size="small"
             class="mx-2"
             v-bind="tooltipProps"
           />
@@ -77,16 +66,15 @@ const cardSubtitle = computed(() => {
           style="max-width: 300px;"
         >
           <div
-            v-if="settings.extract.useAi"
             class="mb-2"
           >
-            <strong>{{ $t('ai-extraction-mode-title') }}</strong><br>
-            {{ $t('ai-extraction-mode-description') }}
+            <div>
+              <strong>{{ $t('parse-mode-title') }}</strong><br>
+              {{ $t('parse-mode-description') }}
+            </div>
           </div>
-          <div v-else>
-            <strong>{{ $t('parse-mode-title') }}</strong><br>
-            {{ $t('parse-mode-description') }}
-          </div>
+          <strong>{{ $t('ai-extraction-mode-title') }}</strong><br>
+          {{ $t('ai-extraction-mode-description') }}
         </div>
       </v-tooltip>
 
@@ -99,9 +87,9 @@ const cardSubtitle = computed(() => {
     <v-expand-transition>
       <div v-if="showInputCard">
         <v-card-text
-          class="pa-0"
+          class="pa-0 pb-2"
         >
-          <v-row dense>
+          <v-row>
             <!-- File Input -->
             <v-col cols="12">
               <FileInput />
@@ -114,14 +102,12 @@ const cardSubtitle = computed(() => {
 
             <v-col
               sm="6"
-              cols="12"
             >
               <ParseButton />
             </v-col>
             <!-- Extract Button -->
             <v-col
               sm="6"
-              cols="12"
             >
               <ExtractButton />
             </v-col>
@@ -151,8 +137,6 @@ const cardSubtitle = computed(() => {
                 {{ parseErrorMessage ? $t(parseErrorMessage) : '' }}
               </AutoDismissAlert>
             </v-col>
-
-            <!-- Parse Button -->
           </v-row>
         </v-card-text>
       </div>

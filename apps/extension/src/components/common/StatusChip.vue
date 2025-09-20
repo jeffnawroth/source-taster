@@ -1,6 +1,5 @@
 <script setup lang="ts">
 type Variant = 'flat' | 'text' | 'tonal' | 'elevated' | 'outlined' | 'plain' | undefined
-type Density = 'default' | 'comfortable' | 'compact' | undefined
 
 const props = withDefaults(defineProps<{
   text: string | number
@@ -10,11 +9,9 @@ const props = withDefaults(defineProps<{
   loading?: boolean
   label?: boolean
   variant?: Variant
-  density?: Density
 }>(), {
   label: true,
   variant: 'tonal',
-  density: 'compact',
 })
 </script>
 
@@ -31,7 +28,6 @@ const props = withDefaults(defineProps<{
         v-bind="{ ...tooltipProps, ...$attrs }"
         :label="props.label"
         :variant="props.variant"
-        :density="props.density"
         :color="props.color"
       >
         <v-progress-circular
@@ -44,6 +40,7 @@ const props = withDefaults(defineProps<{
         <v-icon
           v-else-if="props.prependIcon"
           :icon="props.prependIcon"
+          size="medium"
           start
         />
         {{ props.text }}
@@ -56,7 +53,6 @@ const props = withDefaults(defineProps<{
     v-else
     :label="props.label"
     :variant="props.variant"
-    :density="props.density"
     :color="props.color"
     v-bind="$attrs"
   >
@@ -70,6 +66,8 @@ const props = withDefaults(defineProps<{
     <v-icon
       v-else-if="props.prependIcon"
       :icon="props.prependIcon"
+      size="medium"
+
       start
     />
     {{ props.text }}

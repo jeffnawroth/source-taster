@@ -18,7 +18,7 @@ const { inputText } = storeToRefs(uiStore)
 
 // TEXTAREA PLACEHOLDER - Dynamic based on AI setting
 const placeholder = computed(() => {
-  if (settings.value.extract.useAi) {
+  if (settings.value.ai.canUseAI) {
     // AI mode - can handle various formats and unstructured text
     return `${t('ai-placeholder-example')}:
 "Machine learning applications in healthcare research showed significant improvements..."
@@ -55,11 +55,9 @@ function handleClear() {
     v-model.trim="inputText"
     :prepend-inner-icon="mdiText"
     :placeholder
-    hide-details="auto"
     rows="4"
     variant="solo-filled"
     clearable
-    flat
     @click:clear="handleClear"
   />
 </template>

@@ -9,7 +9,6 @@ defineProps<Props>()
 
 <template>
   <v-card
-    flat
     :title
     variant="text"
   >

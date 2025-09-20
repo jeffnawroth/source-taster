@@ -25,7 +25,6 @@ withDefaults(defineProps<Props>(), {
         />
         {{ title }}
         <v-chip
-          size="small"
           class="ml-2"
         >
           {{ weight }} %
@@ -37,7 +36,6 @@ withDefaults(defineProps<Props>(), {
         v-if="showAlert"
         type="info"
         variant="tonal"
-        density="compact"
         class="mb-4"
       >
         {{ alertText }}

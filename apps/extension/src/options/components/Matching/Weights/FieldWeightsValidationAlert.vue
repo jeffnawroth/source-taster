@@ -14,7 +14,6 @@ const { t } = useI18n()
   <v-alert
     :type="isValidConfiguration ? 'success' : 'warning'"
     class="mb-4"
-    density="compact"
   >
     <div class="d-flex justify-space-between align-center">
       <span>{{ t('total-weight') }}: {{ totalWeight }}%</span>

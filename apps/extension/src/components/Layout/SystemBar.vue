@@ -3,15 +3,6 @@ import { mdiCogOutline } from '@mdi/js'
 import { useTheme } from 'vuetify'
 import { settings } from '@/extension/logic'
 
-// PROPS
-defineProps<{
-  hideSettings?: boolean
-  showNavBarIcon?: boolean
-}>()
-
-// NAVIGATION DRAWER
-const drawer = defineModel()
-
 // THEME
 const theme = useTheme()
 
@@ -30,7 +21,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (ev
   theme.change(newColorScheme)
 })
 
-// OPTIONS PAGE
 function openOptionsPage() {
   if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.openOptionsPage) {
     browser.runtime.openOptionsPage()
@@ -42,33 +32,12 @@ function openOptionsPage() {
 </script>
 
 <template>
-  <v-app-bar
-    app
-
-    scroll-threshold="25"
-    scroll-behavior="hide"
-  >
-    <v-app-bar-nav-icon
-      v-if="$vuetify.display.mdAndDown && showNavBarIcon"
+  <v-system-bar color="surface">
+    <v-icon
+      :icon="mdiCogOutline"
       variant="plain"
-      color="undefined"
-      @click.stop="drawer = !drawer"
+
+      @click="openOptionsPage"
     />
-
-    <v-app-bar-title>
-      {{ $t('app-title') }}
-    </v-app-bar-title>
-
-    <template
-      v-if="!hideSettings"
-      #append
-    >
-      <v-btn
-        :icon="mdiCogOutline"
-        variant="plain"
-
-        @click="openOptionsPage"
-      />
-    </template>
-  </v-app-bar>
+  </v-system-bar>
 </template>

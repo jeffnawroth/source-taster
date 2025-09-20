@@ -9,7 +9,7 @@ const { t } = useI18n()
     :subtitle="t('extraction-settings-description')"
   >
     <!-- AI Toggle Panel -->
-    <AITogglePanel />
+    <!-- <AITogglePanel /> -->
 
     <!-- Extraction Mode Panel -->
     <!-- <ExtractionModePanel /> -->

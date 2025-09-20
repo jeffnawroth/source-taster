@@ -18,8 +18,6 @@ const matchingResults = computed(() => getMatchingResultByReference.value(refere
 <template>
   <v-expand-transition>
     <div>
-      <v-divider />
-
       <ReferenceMetadataList
         :reference
         :subheader="$t('reference-metadata')"

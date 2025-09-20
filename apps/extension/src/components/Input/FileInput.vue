@@ -52,11 +52,9 @@ function handleClear() {
     accept=".pdf"
     :label="$t('pdf-file')"
     variant="solo-filled"
-    flat
     :prepend-inner-icon="mdiFilePdfBox"
     prepend-icon=""
     clearable
-    hide-details="auto"
     :loading="isExtractionPdf"
     :disabled="isExtractionPdf"
     @click:clear="handleClear"

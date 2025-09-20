@@ -71,6 +71,93 @@ const vuetify = createVuetify({
       mdi,
     },
   },
+  defaults: {
+    VBtn: {
+      // density: 'compact',
+      size: 'small',
+      slim: true,
+    },
+    VSwitch: {
+      density: 'compact',
+      hideDetails: true,
+      flat: true,
+    },
+    VTextarea: {
+      density: 'compact',
+      hideDetails: true,
+      flat: true,
+    },
+    VCard: {
+      density: 'compact',
+      flat: true,
+    },
+    VCardItem: {
+      density: 'compact',
+    },
+    VList: {
+      density: 'compact',
+      slim: true,
+    },
+    VListItem: {
+      density: 'compact',
+      slim: true,
+    },
+    VAppBar: {
+      density: 'compact',
+      flat: true,
+    },
+    VAutocomplete: {
+      density: 'compact',
+      flat: true,
+      hideDetails: true,
+    },
+    VFileInput: {
+      density: 'compact',
+      hideDetails: true,
+      flat: true,
+    },
+    VRadioGroup: {
+      density: 'compact',
+      hideDetails: true,
+    },
+    VSelect: {
+      density: 'compact',
+      flat: true,
+      hideDetails: true,
+    },
+    VSlider: {
+      density: 'compact',
+      hideDetails: true,
+    },
+    VRow: {
+      dense: true,
+    },
+    VChip: {
+      // density: 'compact',
+      size: 'small',
+    },
+    VIcon: {
+      size: 'small',
+    },
+    VTextField: {
+      density: 'compact',
+      hideDetails: true,
+      flat: true,
+    },
+    VCheckbox: {
+      hideDetails: true,
+      density: 'compact',
+    },
+    VAlert: {
+      density: 'compact',
+    },
+    VExpansionPanels: {
+      flat: true,
+    },
+    VStepper: {
+      flat: true,
+    },
+  },
 })
 
 export default vuetify

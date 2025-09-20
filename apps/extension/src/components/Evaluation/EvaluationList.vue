@@ -50,7 +50,6 @@ function getCandidateSource(candidateId: string): string {
 
     <v-expansion-panels
       multiple
-      flat
       static
     >
       <v-expansion-panel
@@ -66,7 +65,6 @@ function getCandidateSource(candidateId: string): string {
                 <span class="text-subtitle-2">{{ t('match-score') }}</span>
                 <v-chip
                   :color="getScoreColor(evaluation.matchDetails.overallScore)"
-                  size="small"
                   variant="elevated"
                 >
                   {{ evaluation.matchDetails.overallScore }} %
@@ -98,7 +96,6 @@ function getCandidateSource(candidateId: string): string {
 
         <template #title>
           <v-row
-            dense
             align="center"
             align-content="center"
           >
@@ -128,7 +125,6 @@ function getCandidateSource(candidateId: string): string {
             <v-col cols="auto">
               <v-chip
                 :color="getScoreColor(evaluation.matchDetails.overallScore)"
-                size="small"
               >
                 {{ evaluation.matchDetails.overallScore }} %
               </v-chip>

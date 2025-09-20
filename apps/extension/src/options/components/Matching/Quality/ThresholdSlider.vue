@@ -27,7 +27,6 @@ const modelValue = defineModel<number>({ required: true })
           v-if="icon"
           :icon
           :color
-          size="small"
           class="me-2"
         />
         {{ label }}
@@ -35,7 +34,6 @@ const modelValue = defineModel<number>({ required: true })
       <v-chip
         :color
         variant="flat"
-        size="small"
       >
         {{ modelValue }} %
       </v-chip>
@@ -48,7 +46,6 @@ const modelValue = defineModel<number>({ required: true })
       :step="1"
       :color
       class="ma-0"
-      hide-details
     />
 
     <p class="text-body-2 text-medium-emphasis">
