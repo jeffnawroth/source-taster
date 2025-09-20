@@ -78,7 +78,6 @@ export const DEFAULT_UI_AI_EXTRACTION_USE = false
 
 export const DEFAULT_UI_EXTRACTION_SETTINGS = {
   extractionConfig: { ...DEFAULT_EXTRACTION_CONFIG },
-  useAi: DEFAULT_UI_AI_EXTRACTION_USE,
 }
 
 export const UISettingsSchema = z.object({
@@ -87,9 +86,7 @@ export const UISettingsSchema = z.object({
   search: UISearchSettingsSchema
     .default(DEFAULT_UI_SEARCH_SETTINGS)
     .describe('Search settings for the user'),
-  extract: ApiExtractExtractionSettingsSchema.safeExtend({
-    useAi: z.boolean().describe('Whether to use AI for extraction'),
-  }).default(DEFAULT_UI_EXTRACTION_SETTINGS).describe('Extraction settings for the user'),
+  extract: ApiExtractExtractionSettingsSchema.default(DEFAULT_UI_EXTRACTION_SETTINGS).describe('Extraction settings for the user'),
   matching: z.object({
     matchingStrategy: ApiMatchMatchingStrategySchema
       .default(DEFAULT_MATCHING_STRATEGY)

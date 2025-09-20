@@ -37,7 +37,7 @@ const parseErrorMessage = computed({
 // Dynamic title based on AI setting
 const cardTitle = computed(() => {
   const baseNumber = '1. '
-  return settings.value.extract.useAi
+  return settings.value.ai.canUseAI
     ? `${baseNumber}${t('extract')}`
     : `${baseNumber}${t('parse')}`
 })
@@ -54,13 +54,6 @@ const cardSubtitle = computed(() => {
     :subtitle="cardSubtitle"
   >
     <template #append>
-      <AIToggleSwitch
-        v-model="settings.extract.useAi"
-        :show-alert="false"
-        :show-description="false"
-        :inset="false"
-      />
-
       <!-- Info Icon with Tooltip -->
       <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
@@ -76,7 +69,7 @@ const cardSubtitle = computed(() => {
           style="max-width: 300px;"
         >
           <div
-            v-if="settings.extract.useAi"
+            v-if="settings.ai.canUseAI"
             class="mb-2"
           >
             <strong>{{ $t('ai-extraction-mode-title') }}</strong><br>

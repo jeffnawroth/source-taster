@@ -18,7 +18,7 @@ const { inputText } = storeToRefs(uiStore)
 
 // TEXTAREA PLACEHOLDER - Dynamic based on AI setting
 const placeholder = computed(() => {
-  if (settings.value.extract.useAi) {
+  if (settings.value.ai.canUseAI) {
     // AI mode - can handle various formats and unstructured text
     return `${t('ai-placeholder-example')}:
 "Machine learning applications in healthcare research showed significant improvements..."

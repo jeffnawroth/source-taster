@@ -40,7 +40,7 @@ const isDisabled = computed(() =>
   !inputText.value.trim()
   || isExtracting.value
   || isVerifying.value
-  || !settings.value.extract.useAi,
+  || !settings.value.ai.canUseAI,
 )
 
 // Setup keyboard shortcuts: Cmd+Enter (Mac) / Ctrl+Enter (Windows/Linux)
