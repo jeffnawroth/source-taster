@@ -84,6 +84,6 @@ watch(ctrlEnter, (pressed) => {
       />
     </template>
 
-    {{ isExtracting ? `${t('extracting')}...` : t('extract-references') }}
+    {{ isExtracting ? `${t('extracting')}...` : t('ai-extract-references') }}
   </v-btn>
 </template>

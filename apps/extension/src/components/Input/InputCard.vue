@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { mdiChevronDown, mdiChevronUp, mdiInformationOutline } from '@mdi/js'
 import AutoDismissAlert from '@/extension/components/UI/AutoDismissAlert.vue'
-import { settings } from '@/extension/logic'
 import { useAnystyleStore } from '@/extension/stores/anystyle'
 import { useExtractionStore } from '@/extension/stores/extraction'
 import ExtractButton from './ExtractButton.vue'
@@ -37,9 +36,7 @@ const parseErrorMessage = computed({
 // Dynamic title based on AI setting
 const cardTitle = computed(() => {
   const baseNumber = '1. '
-  return settings.value.ai.canUseAI
-    ? `${baseNumber}${t('extract')}`
-    : `${baseNumber}${t('parse')}`
+  return `${baseNumber}${t('extract')}`
 })
 
 // Dynamic subtitle - now unified since both modes support text and files
@@ -69,16 +66,15 @@ const cardSubtitle = computed(() => {
           style="max-width: 300px;"
         >
           <div
-            v-if="settings.ai.canUseAI"
             class="mb-2"
           >
-            <strong>{{ $t('ai-extraction-mode-title') }}</strong><br>
-            {{ $t('ai-extraction-mode-description') }}
+            <div>
+              <strong>{{ $t('parse-mode-title') }}</strong><br>
+              {{ $t('parse-mode-description') }}
+            </div>
           </div>
-          <div v-else>
-            <strong>{{ $t('parse-mode-title') }}</strong><br>
-            {{ $t('parse-mode-description') }}
-          </div>
+          <strong>{{ $t('ai-extraction-mode-title') }}</strong><br>
+          {{ $t('ai-extraction-mode-description') }}
         </div>
       </v-tooltip>
 
