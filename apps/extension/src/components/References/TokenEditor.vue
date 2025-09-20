@@ -76,12 +76,13 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
         @click="anystyleStore.setShowTokenEditor(!showTokenEditor)"
       />
     </template>
-    <v-card-text
-      class="px-2"
-    >
-      <!-- Token Editor with Navigation -->
-      <v-expand-transition>
-        <div v-if="showTokenEditor && editableTokens.length > 0">
+    <v-expand-transition>
+      <div v-if="showTokenEditor && editableTokens.length > 0">
+        <v-card-text
+          class="px-2"
+        >
+          <!-- Token Editor with Navigation -->
+
           <!-- Current Token Sequence Editor -->
           <TokenRelabelingEditor
             v-if="editableTokens[currentReferenceIndex]"
@@ -119,8 +120,8 @@ function updateCurrentSequenceTokens(newTokens: ApiAnystyleTokenSequence[]) {
               <v-icon :icon="mdiChevronRight" />
             </v-btn>
           </div>
-        </div>
-      </v-expand-transition>
-    </v-card-text>
+        </v-card-text>
+      </div>
+    </v-expand-transition>
   </v-card>
 </template>
