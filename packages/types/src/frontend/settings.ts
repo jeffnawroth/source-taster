@@ -10,7 +10,7 @@ export const UIMatchingEarlyTerminationSchema = z.object({
 export type UIMatchingEarlyTermination = z.infer<typeof UIMatchingEarlyTerminationSchema>
 export const DEFAULT_EARLY_TERMINATION: UIMatchingEarlyTermination = {
   enabled: true,
-  threshold: 95,
+  threshold: 85,
 } as const
 
 export const UIMatchingDisplayThresholdsSchema = z.object({
