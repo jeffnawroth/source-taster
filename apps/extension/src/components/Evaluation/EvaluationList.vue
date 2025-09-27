@@ -65,7 +65,6 @@ function getCandidateSource(candidateId: string): string {
                 <span class="text-subtitle-2">{{ t('match-score') }}</span>
                 <v-chip
                   :color="getScoreColor(evaluation.matchDetails.overallScore)"
-                  variant="elevated"
                 >
                   {{ evaluation.matchDetails.overallScore }} %
                 </v-chip>
