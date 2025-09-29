@@ -98,13 +98,13 @@ function valueToArray(entity, field) {
     return []
   }
   if (Array.isArray(value)) {
-    if (field === 'author' || field === 'editor' || field === 'translator' || field === 'container-author') {
+    if (['author', 'editor', 'translator', 'container-author'].includes(field)) {
       return value.map(normaliseName).filter(Boolean)
     }
     return value.map(entry => normaliseString(entry)).filter(Boolean)
   }
   if (typeof value === 'object') {
-    if (field === 'issued' || field === 'event-date' || field === 'submitted' || field === 'accessed') {
+    if (['issued', 'event-date', 'submitted', 'accessed'].includes(field)) {
       const normalised = normaliseDate(value)
       return normalised ? [normalised] : []
     }
@@ -184,13 +184,16 @@ function computeExtractionMetrics(entries, predictorKey) {
   const missingPredictions = []
 
   for (const entry of entries) {
-    const gold = entry.gold
+    const gold = entry.gold ?? entry.metadata
     const prediction = entry.predictions?.[predictorKey]?.metadata
-    if (!prediction) {
-      missingPredictions.push(entry.id)
+    if (!gold) {
       continue
     }
-    const type = entry.type ?? 'Unbekannt'
+    if (!prediction) {
+      missingPredictions.push(entry.id ?? entry.referenceId ?? 'unknown')
+      continue
+    }
+    const type = entry.type ?? entry.category ?? 'Unbekannt'
     const totalsForType = totalsByType.get(type) ?? { tp: 0, fp: 0, fn: 0 }
 
     for (const field of FIELDS_TO_COMPARE) {
@@ -241,10 +244,10 @@ function computeMatchingMetrics(entries) {
   for (const entry of entries) {
     const matching = entry.predictions?.sourceTaster?.matching
     if (!matching) {
-      missing.push(entry.id)
+      missing.push(entry.id ?? entry.referenceId ?? 'unknown')
       continue
     }
-    const type = entry.type ?? 'Unbekannt'
+    const type = entry.type ?? entry.category ?? 'Unbekannt'
     const totals = totalsByType.get(type) ?? { total: 0, top1: 0, top3: 0 }
     totals.total += 1
     if (matching.top1Correct) {
@@ -379,17 +382,18 @@ async function main() {
   const rawContent = await readFile(resolvedPath, 'utf8')
   const data = JSON.parse(rawContent)
 
-  if (!Array.isArray(data.entries)) {
-    throw new TypeError('Erwarte Feld "entries" als Array in der Eingabedatei')
+  const entries = Array.isArray(data.entries) ? data.entries : Array.isArray(data) ? data : []
+  if (!Array.isArray(entries) || entries.length === 0) {
+    throw new Error('Erwarte Feld "entries" als Array in der Eingabedatei oder eine Array-Datei')
   }
 
-  const sourceTasterExtraction = computeExtractionMetrics(data.entries, 'sourceTaster')
-  const anyStyleExtraction = computeExtractionMetrics(data.entries, 'anyStyle')
-  const matchingSummary = computeMatchingMetrics(data.entries)
-  const performanceSummary = computePerformanceMetrics(data.performance)
+  const sourceTasterExtraction = computeExtractionMetrics(entries, 'sourceTaster')
+  const anyStyleExtraction = computeExtractionMetrics(entries, 'anyStyle')
+  const matchingSummary = computeMatchingMetrics(entries)
+  const performanceSummary = computePerformanceMetrics(data.meta?.performance ?? data.performance)
 
-  printExtractionSummary('Extraktionsgüte – Source Taster', sourceTasterExtraction)
-  printExtractionSummary('Extraktionsgüte – AnyStyle CLI', anyStyleExtraction)
+  printExtractionSummary('Extraktionsgüte – Source Taster (/api/extract)', sourceTasterExtraction)
+  printExtractionSummary('Extraktionsgüte – AnyStyle (/api/anystyle)', anyStyleExtraction)
   printMatchingSummary(matchingSummary)
   printPerformanceSummary(performanceSummary)
 

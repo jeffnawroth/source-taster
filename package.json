@@ -15,7 +15,9 @@
     "evaluation": "node evaluation/run-evaluation.js",
     "evaluation:goldset": "node evaluation/build-goldset.js",
     "evaluation:fetch-works": "node evaluation/fetch-openalex-works.js",
-    "evaluation:generate-dataset": "node evaluation/generate-openalex-dataset.js"
+    "evaluation:generate-dataset": "node evaluation/generate-openalex-dataset.js",
+    "evaluation:run-live": "node evaluation/run-live-pipeline.js",
+    "evaluation:prepare-input": "node evaluation/build-live-input.js"
   },
   "devDependencies": {
     "citation-js": "^0.7.20",
