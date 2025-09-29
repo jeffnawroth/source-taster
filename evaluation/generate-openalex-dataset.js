@@ -46,15 +46,6 @@ const CATEGORY_CONFIGS = [
     ],
   },
   {
-    category: 'Webseite',
-    target: 40,
-    requests: [
-      { filter: 'type:article,primary_location.source.type:repository,language:en', sort: 'publication_year:desc', target: 20 },
-      { filter: 'type:article,primary_location.source.type:repository,language:de', sort: 'publication_year:desc', target: 20 },
-      { filter: 'primary_location.source.type:repository', sort: 'publication_year:desc', target: 40 },
-    ],
-  },
-  {
     category: 'Thesis/Report',
     target: 40,
     requests: [
