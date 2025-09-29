@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable unused-imports/no-unused-vars */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-fallthrough */
 /* eslint-disable no-console */
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -23,6 +25,21 @@ const EXTRACT_FIELDS = [
   'DOI',
   'URL',
 ]
+const DEFAULT_EARLY_TERMINATION = process.env.SOURCE_TASTER_EARLY_TERMINATION === 'true'
+const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Number(process.env.SOURCE_TASTER_EARLY_THRESHOLD) : 90
+const MATCHING_FIELD_CONFIG = {
+  'title': { enabled: true, weight: 30 },
+  'author': { enabled: true, weight: 20 },
+  'issued': { enabled: true, weight: 10 },
+  'container-title': { enabled: true, weight: 10 },
+  'publisher': { enabled: true, weight: 5 },
+  'publisher-place': { enabled: true, weight: 5 },
+  'volume': { enabled: true, weight: 5 },
+  'issue': { enabled: true, weight: 5 },
+  'page': { enabled: true, weight: 5 },
+  'DOI': { enabled: true, weight: 5 },
+  'URL': { enabled: false, weight: 0 },
+}
 
 function parseArgs() {
   const options = {
@@ -34,6 +51,8 @@ function parseArgs() {
     aiModel: process.env.SOURCE_TASTER_AI_MODEL ?? null,
     sources: [...DEFAULT_SOURCES],
     skipSearch: false,
+    earlyTermination: DEFAULT_EARLY_TERMINATION,
+    earlyThreshold: DEFAULT_EARLY_THRESHOLD,
   }
 
   const args = process.argv.slice(2)
@@ -66,6 +85,12 @@ function parseArgs() {
         break
       case '--skip-search':
         options.skipSearch = true
+        break
+      case '--early-termination':
+        options.earlyTermination = true
+        break
+      case '--early-threshold':
+        options.earlyThreshold = Number(args[++i] ?? '') || DEFAULT_EARLY_THRESHOLD
         break
       case '--help':
       case '-h':
@@ -109,6 +134,8 @@ Parameter:
   --ai-model <name>     AI Modell (z.B. gpt-4.1)
   --sources a,b,c       Liste der Suchdatenbanken (Default ${DEFAULT_SOURCES.join(',')})
   --skip-search         Überspringt /api/search & /api/match (nur Extraktion)
+  --early-termination   Aktiviert Early Termination im Matching (Default ${DEFAULT_EARLY_TERMINATION})
+  --early-threshold n   Schwellenwert 0-100 (Default ${DEFAULT_EARLY_THRESHOLD})
 `)
 }
 
@@ -206,9 +233,9 @@ function deriveMatchingSummary(evaluations, gold) {
   if (!Array.isArray(evaluations) || evaluations.length === 0) {
     return {
       top1Correct: false,
-      top3Correct: false,
       candidateId: null,
       scores: [],
+      topScore: null,
     }
   }
   const scores = evaluations.map(evalItem => ({
@@ -217,13 +244,12 @@ function deriveMatchingSummary(evaluations, gold) {
   }))
   const topCandidate = evaluations[0]
   const top1Correct = candidateMatchesGold(topCandidate.metadata ?? null, gold)
-  const top3Correct = evaluations.slice(0, 3).some(item => candidateMatchesGold(item.metadata ?? null, gold))
 
   return {
     top1Correct,
-    top3Correct,
     candidateId: topCandidate.candidateId,
     scores,
+    topScore: topCandidate.matchDetails?.overallScore ?? null,
   }
 }
 
@@ -232,6 +258,45 @@ function attachMetadataToEvaluations(evaluations, candidatesIndex) {
     ...evalItem,
     metadata: candidatesIndex.get(evalItem.candidateId) ?? null,
   }))
+}
+
+async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, aggregatedCandidates, candidateIndex, durationStats }) {
+  try {
+    const matchStart = performance.now()
+    const matchResponse = await callApi({
+      apiUrl,
+      path: '/api/match',
+      body: {
+        reference: {
+          id: sourceTasterResult.metadata.id ?? entryId,
+          metadata: sourceTasterResult.metadata,
+        },
+        candidates: aggregatedCandidates,
+        matchingSettings: {
+          matchingConfig: {
+            fieldConfigurations: MATCHING_FIELD_CONFIG,
+          },
+        },
+      },
+    })
+    const matchDuration = Math.round(performance.now() - matchStart)
+    sourceTasterResult.timings.matchMs = matchDuration
+    durationStats.match.push(matchDuration / 1000)
+
+    const evaluationsWithMetadata = attachMetadataToEvaluations(matchResponse?.data?.evaluations ?? [], candidateIndex)
+    const matchSummary = deriveMatchingSummary(evaluationsWithMetadata, entry.gold ?? entry.metadata ?? null)
+
+    const payload = {
+      evaluations: evaluationsWithMetadata,
+      ...matchSummary,
+    }
+    sourceTasterResult.matching = payload
+    return payload
+  }
+  catch (error) {
+    console.error(`Matching fehlgeschlagen (${entryId}):`, error.message ?? error)
+    return null
+  }
 }
 
 function buildPerformanceSummary(durationStats, entryCount) {
@@ -353,9 +418,12 @@ async function main() {
     }
 
     // --- Search & Match (optional) ---
+    let matchingResult = null
+
     if (!options.skipSearch && sourceTasterResult.metadata) {
       const aggregatedCandidates = []
       const candidateIndex = new Map()
+      let terminatedEarly = false
 
       for (const source of options.sources) {
         try {
@@ -387,6 +455,24 @@ async function main() {
             })
             candidateIndex.set(candidate.id, candidate.metadata)
           })
+
+          if (options.earlyTermination && aggregatedCandidates.length) {
+            const currentMatch = await performMatching({
+              apiUrl: options.apiUrl,
+              entry,
+              entryId,
+              sourceTasterResult,
+              aggregatedCandidates,
+              candidateIndex,
+              durationStats,
+            })
+            matchingResult = currentMatch
+
+            if ((currentMatch?.topScore ?? 0) >= options.earlyThreshold) {
+              terminatedEarly = true
+              break
+            }
+          }
         }
         catch (error) {
           sourceTasterResult.timings[`search:${source}`] = null
@@ -394,36 +480,19 @@ async function main() {
         }
       }
 
-      if (aggregatedCandidates.length) {
-        try {
-          const matchStart = performance.now()
-          const matchResponse = await callApi({
-            apiUrl: options.apiUrl,
-            path: '/api/match',
-            body: {
-              reference: {
-                id: sourceTasterResult.metadata.id ?? entryId,
-                metadata: sourceTasterResult.metadata,
-              },
-              candidates: aggregatedCandidates,
-            },
-          })
-          const matchDuration = Math.round(performance.now() - matchStart)
-          const evaluationsWithMetadata = attachMetadataToEvaluations(matchResponse?.data?.evaluations ?? [], candidateIndex)
-          const matchSummary = deriveMatchingSummary(evaluationsWithMetadata, entry.gold ?? entry.metadata ?? null)
-
-          sourceTasterResult.timings.matchMs = matchDuration
-          durationStats.match.push(matchDuration / 1000)
-          sourceTasterResult.matching = {
-            evaluations: evaluationsWithMetadata,
-            ...matchSummary,
-          }
-        }
-        catch (error) {
-          console.error(`Matching fehlgeschlagen (${entryId}):`, error.message ?? error)
-        }
+      if (!matchingResult && aggregatedCandidates.length) {
+        matchingResult = await performMatching({
+          apiUrl: options.apiUrl,
+          entry,
+          entryId,
+          sourceTasterResult,
+          aggregatedCandidates,
+          candidateIndex,
+          durationStats,
+        })
       }
-      else {
+
+      if (!aggregatedCandidates.length) {
         console.warn(`⚠️  Keine Kandidaten für ${entryId} gefunden (Quellen: ${options.sources.join(', ')})`)
       }
     }
