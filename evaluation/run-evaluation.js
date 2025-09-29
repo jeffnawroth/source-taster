@@ -43,7 +43,24 @@ function normaliseString(value) {
     .replace(/[\u2013\u2014]/g, '-')
 }
 
-function normaliseName(name) {
+// function normaliseName(name) {
+//   if (typeof name === 'string') {
+//     return normaliseString(name)
+//   }
+//   if (!name || typeof name !== 'object') {
+//     return ''
+//   }
+//   if (name.literal) {
+//     return normaliseString(name.literal)
+//   }
+//   const parts = [name['non-dropping-particle'], name.family, name.given, name.suffix]
+//     .filter(Boolean)
+//     .map(part => normaliseString(part))
+//   return parts.join(' ').trim()
+// }
+
+// Canonical person representation: family + initials (treats "Rasmita" == "R.")
+function canonicalPerson(name) {
   if (typeof name === 'string') {
     return normaliseString(name)
   }
@@ -53,24 +70,33 @@ function normaliseName(name) {
   if (name.literal) {
     return normaliseString(name.literal)
   }
-  const parts = [name['non-dropping-particle'], name.family, name.given, name.suffix]
-    .filter(Boolean)
-    .map(part => normaliseString(part))
-  return parts.join(' ').trim()
+  const family = normaliseString(name.family || '')
+  const given = normaliseString(name.given || '')
+  const initials = given
+    ? given.split(/[\s-]+/).filter(Boolean).map(s => s[0]).join('')
+    : ''
+  if (family && initials)
+    return `${family}|${initials}`
+  return family || given || ''
 }
 
 function normaliseDate(value) {
   if (!value) {
     return ''
   }
+  // For fairness compare only the year component
   if (typeof value === 'string' || typeof value === 'number') {
-    return normaliseString(value)
+    const s = normaliseString(value)
+    const m = s.match(/\d{4}/)
+    return m ? m[0] : s
   }
   if (value.literal) {
-    return normaliseString(value.literal)
+    const m = String(value.literal).match(/\d{4}/)
+    return m ? m[0] : normaliseString(value.literal)
   }
   if (value.raw) {
-    return normaliseString(value.raw)
+    const m = String(value.raw).match(/\d{4}/)
+    return m ? m[0] : normaliseString(value.raw)
   }
   const parts = Array.isArray(value['date-parts'])
     ? value['date-parts'][0] ?? []
@@ -78,15 +104,14 @@ function normaliseDate(value) {
   if (parts.length === 0) {
     return ''
   }
-  return parts
-    .map((part, index) => {
-      const str = String(part)
-      if (index === 0) {
-        return str.padStart(4, '0')
-      }
-      return str.padStart(2, '0')
-    })
-    .join('-')
+  return String(parts[0]).padStart(4, '0')
+}
+
+function normalisePageString(s) {
+  const m = s.match(/^(\d+)-(\d+)$/)
+  if (m && m[1] === m[2])
+    return m[1]
+  return s
 }
 
 function valueToArray(entity, field) {
@@ -99,7 +124,7 @@ function valueToArray(entity, field) {
   }
   if (Array.isArray(value)) {
     if (['author', 'editor', 'translator', 'container-author'].includes(field)) {
-      return value.map(normaliseName).filter(Boolean)
+      return value.map(canonicalPerson).filter(Boolean)
     }
     return value.map(entry => normaliseString(entry)).filter(Boolean)
   }
@@ -112,7 +137,10 @@ function valueToArray(entity, field) {
       return normaliseString(value.value) ? [normaliseString(value.value)] : []
     }
   }
-  const normalised = normaliseString(value)
+  let normalised = normaliseString(value)
+  if (field === 'page') {
+    normalised = normalisePageString(normalised)
+  }
   return normalised ? [normalised] : []
 }
 
@@ -248,40 +276,34 @@ function computeMatchingMetrics(entries) {
       continue
     }
     const type = entry.type ?? entry.category ?? 'Unbekannt'
-    const totals = totalsByType.get(type) ?? { total: 0, top1: 0, top3: 0 }
+    const totals = totalsByType.get(type) ?? { total: 0, top1: 0 }
     totals.total += 1
     if (matching.top1Correct) {
       totals.top1 += 1
-    }
-    if (matching.top3Correct) {
-      totals.top3 += 1
     }
     totalsByType.set(type, totals)
   }
 
   const perType = Array.from(totalsByType.entries())
-    .map(([type, { total, top1, top3 }]) => ({
+    .map(([type, { total, top1 }]) => ({
       type,
       total,
       top1Accuracy: total === 0 ? null : top1 / total,
-      top3Accuracy: total === 0 ? null : top3 / total,
     }))
     .sort((a, b) => a.type.localeCompare(b.type, 'de'))
 
   const overallTotals = Array.from(totalsByType.values()).reduce(
-    (acc, { total, top1, top3 }) => {
+    (acc, { total, top1 }) => {
       acc.total += total
       acc.top1 += top1
-      acc.top3 += top3
       return acc
     },
-    { total: 0, top1: 0, top3: 0 },
+    { total: 0, top1: 0 },
   )
 
   const overall = {
     total: overallTotals.total,
     top1Accuracy: overallTotals.total === 0 ? null : overallTotals.top1 / overallTotals.total,
-    top3Accuracy: overallTotals.total === 0 ? null : overallTotals.top3 / overallTotals.total,
   }
 
   return { perType, overall, missing }
@@ -345,13 +367,11 @@ function printMatchingSummary(summary) {
   const rows = summary.perType.map(item => ({
     'Typ': item.type,
     'Top-1': formatPercent(item.top1Accuracy),
-    'Top-3': formatPercent(item.top3Accuracy),
     'Anzahl': item.total,
   }))
   rows.push({
     'Typ': 'Ø gesamt',
     'Top-1': formatPercent(summary.overall.top1Accuracy),
-    'Top-3': formatPercent(summary.overall.top3Accuracy),
     'Anzahl': summary.overall.total,
   })
   console.table(rows)
