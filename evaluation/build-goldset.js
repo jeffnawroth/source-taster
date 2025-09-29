@@ -7,7 +7,7 @@ import Cite from 'citation-js'
 
 const OPENALEX_BASE_URL = 'https://api.openalex.org/works/'
 const DEFAULT_INPUT_PATH = 'evaluation/openalex-works.json'
-const DEFAULT_GOLD_PATH = 'gold-set.json'
+const DEFAULT_GOLD_PATH = 'evaluation/gold-set.json'
 const DEFAULT_RAW_PATH = 'evaluation/raw-references.txt'
 const DEFAULT_META_PATH = 'evaluation/out/openalex-goldset-metadata.json'
 const DEFAULT_CONCURRENCY = 3

@@ -5,7 +5,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_GOLD_PATH = 'gold-set.json'
+const DEFAULT_GOLD_PATH = 'evaluation/gold-set.json'
 const DEFAULT_RAW_PATH = 'evaluation/raw-references.txt'
 const DEFAULT_META_PATH = 'evaluation/out/openalex-goldset-metadata.json'
 const DEFAULT_OUTPUT_PATH = 'evaluation/out/live-input.json'
@@ -55,7 +55,7 @@ function parseArgs() {
 }
 
 function printHelp() {
-  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --gold gold-set.json --raw evaluation/raw-references.txt\n\nOptionen:\n  --gold <pfad>    Pfad zur gold-set.json (Default ${DEFAULT_GOLD_PATH})\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --meta <pfad>    Pfad zur Metadatendatei (Default ${DEFAULT_META_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilangabe für Meta-Infos (z.B. apa)\n`)
+  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --gold evaluation/gold-set.json --raw evaluation/raw-references.txt\n\nOptionen:\n  --gold <pfad>    Pfad zur gold-set.json (Default ${DEFAULT_GOLD_PATH})\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --meta <pfad>    Pfad zur Metadatendatei (Default ${DEFAULT_META_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilangabe für Meta-Infos (z.B. apa)\n`)
 }
 
 async function loadJson(filePath) {

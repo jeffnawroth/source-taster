@@ -214,6 +214,41 @@ function attachMetadataToEvaluations(evaluations, candidatesIndex) {
   }))
 }
 
+function buildPerformanceSummary(durationStats, entryCount) {
+  const durationsSeconds = {}
+
+  if (durationStats.extraction.length) {
+    durationsSeconds['sourceTaster.extract'] = [...durationStats.extraction]
+  }
+  if (durationStats.anystyleParse.length) {
+    durationsSeconds['anyStyle.parse'] = [...durationStats.anystyleParse]
+  }
+  if (durationStats.anystyleConvert.length) {
+    durationsSeconds['anyStyle.convert'] = [...durationStats.anystyleConvert]
+  }
+  for (const [source, samples] of Object.entries(durationStats.search)) {
+    if (samples.length) {
+      durationsSeconds[`search.${source}`] = [...samples]
+    }
+  }
+  if (durationStats.match.length) {
+    durationsSeconds['sourceTaster.match'] = [...durationStats.match]
+  }
+
+  if (Object.keys(durationsSeconds).length === 0) {
+    return { scenarios: [] }
+  }
+
+  return {
+    scenarios: [
+      {
+        name: `Einzelprüfung (n=${entryCount})`,
+        durationsSeconds,
+      },
+    ],
+  }
+}
+
 async function ensureDirectory(targetFile) {
   const dir = path.dirname(path.resolve(process.cwd(), targetFile))
   await mkdir(dir, { recursive: true })
@@ -224,6 +259,13 @@ async function main() {
   const { meta, entries } = await loadDataset(options.input)
 
   const outputEntries = []
+  const durationStats = {
+    extraction: [],
+    anystyleParse: [],
+    anystyleConvert: [],
+    search: {},
+    match: [],
+  }
 
   for (const [idx, entry] of entries.entries()) {
     const entryId = entry.id ?? `entry-${idx + 1}`
@@ -250,6 +292,7 @@ async function main() {
         clientId: options.clientId,
       })
       sourceTasterResult.timings.extractionMs = Math.round(performance.now() - extractStart)
+      durationStats.extraction.push(sourceTasterResult.timings.extractionMs / 1000)
       const extractedReference = chooseExtractedReference(extractResponse?.data?.references ?? [], entryId)
       sourceTasterResult.metadata = extractedReference?.metadata ?? null
       sourceTasterResult.rawResponse = extractResponse
@@ -268,6 +311,7 @@ async function main() {
         body: { input: [rawText] },
       })
       anyStyleResult.timings.parseMs = Math.round(performance.now() - parseStart)
+      durationStats.anystyleParse.push(anyStyleResult.timings.parseMs / 1000)
       anyStyleResult.tokens = parseResponse?.data?.references?.[0]?.tokens ?? null
 
       if (anyStyleResult.tokens) {
@@ -278,6 +322,7 @@ async function main() {
           body: { references: [{ id: parseResponse.data.references[0].id, tokens: anyStyleResult.tokens }] },
         })
         anyStyleResult.timings.convertMs = Math.round(performance.now() - convertStart)
+        durationStats.anystyleConvert.push(anyStyleResult.timings.convertMs / 1000)
         anyStyleResult.metadata = convertResponse?.data?.csl?.[0] ?? null
         anyStyleResult.rawResponse = { parse: parseResponse, convert: convertResponse }
       }
@@ -309,6 +354,10 @@ async function main() {
           })
           const duration = Math.round(performance.now() - searchStart)
           sourceTasterResult.timings[`search:${source}`] = duration
+          if (!durationStats.search[source]) {
+            durationStats.search[source] = []
+          }
+          durationStats.search[source].push(duration / 1000)
 
           const candidates = searchResponse?.data?.results?.[0]?.candidates ?? []
           candidates.forEach((candidate) => {
@@ -344,6 +393,7 @@ async function main() {
           const matchSummary = deriveMatchingSummary(evaluationsWithMetadata, entry.gold ?? entry.metadata ?? null)
 
           sourceTasterResult.timings.matchMs = matchDuration
+          durationStats.match.push(matchDuration / 1000)
           sourceTasterResult.matching = {
             evaluations: evaluationsWithMetadata,
             ...matchSummary,
@@ -373,6 +423,7 @@ async function main() {
     sources: options.sources,
     skipSearch: options.skipSearch,
     meta,
+    performance: buildPerformanceSummary(durationStats, outputEntries.length),
     entries: outputEntries,
   }
 
