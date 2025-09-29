@@ -38,7 +38,7 @@ const MATCHING_FIELD_CONFIG = {
   'issue': { enabled: true, weight: 5 },
   'page': { enabled: true, weight: 5 },
   'DOI': { enabled: true, weight: 5 },
-  'URL': { enabled: false, weight: 0 },
+  'URL': { enabled: true, weight: 5 },
 }
 
 function parseArgs() {
