@@ -9,7 +9,7 @@ import process from 'node:process'
 const DEFAULT_INPUT = 'evaluation/sample-evaluation.json'
 const DEFAULT_OUTPUT = 'evaluation/out/live-results.json'
 const DEFAULT_API_URL = 'http://localhost:8000'
-const DEFAULT_SOURCES = ['openalex', 'crossref', 'semanticscholar', 'europepmc', 'arxiv']
+const DEFAULT_SOURCES = ['openalex', 'crossref', 'semanticscholar']
 
 function parseArgs() {
   const options = {
