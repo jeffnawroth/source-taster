@@ -10,6 +10,19 @@ const DEFAULT_INPUT = 'evaluation/sample-evaluation.json'
 const DEFAULT_OUTPUT = 'evaluation/out/live-results.json'
 const DEFAULT_API_URL = 'http://localhost:8000'
 const DEFAULT_SOURCES = ['openalex', 'crossref', 'semanticscholar']
+const EXTRACT_FIELDS = [
+  'author',
+  'title',
+  'issued',
+  'container-title',
+  'publisher',
+  'publisher-place',
+  'volume',
+  'issue',
+  'page',
+  'DOI',
+  'URL',
+]
 
 function parseArgs() {
   const options = {
@@ -149,7 +162,14 @@ function chooseExtractedReference(extracted, fallbackId) {
 }
 
 function buildExtractRequest(raw, options) {
-  const request = { text: raw }
+  const request = {
+    text: raw,
+    extractionSettings: {
+      extractionConfig: {
+        variables: EXTRACT_FIELDS,
+      },
+    },
+  }
   if (options.aiProvider || options.aiModel) {
     request.aiSettings = {
       ...(options.aiProvider ? { provider: options.aiProvider } : {}),
