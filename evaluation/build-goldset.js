@@ -11,6 +11,7 @@ const DEFAULT_GOLD_PATH = 'evaluation/gold-set.json'
 const DEFAULT_RAW_PATH = 'evaluation/raw-references.txt'
 const DEFAULT_META_PATH = 'evaluation/out/openalex-goldset-metadata.json'
 const DEFAULT_CONCURRENCY = 3
+const POLITE_MAILTO = process.env.OPENALEX_MAILTO || process.env.OPENALEX_POLITE_MAILTO || null
 
 const TYPE_MAP = new Map([
   ['journal-article', 'article-journal'],
@@ -43,6 +44,7 @@ function parseArgs() {
     style: 'apa',
     styleFormat: 'text',
     styleLang: 'en-US',
+    mailto: POLITE_MAILTO,
   }
 
   const args = process.argv.slice(2)
@@ -71,6 +73,9 @@ function parseArgs() {
     }
     else if (arg === '--style-lang') {
       options.styleLang = args[++i] ?? 'en-US'
+    }
+    else if (arg === '--mailto') {
+      options.mailto = args[++i] ?? POLITE_MAILTO
     }
     else if (!arg.startsWith('--') && i === 0) {
       options.input = arg
@@ -132,17 +137,21 @@ function normaliseWorkEntry(entry) {
   }
 }
 
-async function fetchWithRetry(url, options = {}, retries = 4, backoffMs = 800) {
+async function fetchWithRetry(url, options = {}, retries = 4, backoffMs = 800, mailto = POLITE_MAILTO) {
   let attempt = 0
   let lastError = null
   while (attempt <= retries) {
     try {
+      const headers = {
+        Accept: 'application/json',
+        ...(options.headers ?? {}),
+      }
+      if (mailto) {
+        headers['User-Agent'] = `Source-Taster-Eval (mailto:${mailto})`
+      }
       const response = await fetch(url, {
         ...options,
-        headers: {
-          Accept: 'application/json',
-          ...(options.headers ?? {}),
-        },
+        headers,
       })
       if (!response.ok) {
         if (response.status === 404) {
@@ -176,12 +185,15 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-async function fetchWork(id) {
-  const url = `${OPENALEX_BASE_URL}${id}`
-  return fetchWithRetry(url)
+async function fetchWork(id, mailto = POLITE_MAILTO) {
+  let url = `${OPENALEX_BASE_URL}${id}`
+  if (mailto) {
+    url += url.includes('?') ? `&mailto=${encodeURIComponent(mailto)}` : `?mailto=${encodeURIComponent(mailto)}`
+  }
+  return fetchWithRetry(url, {}, 4, 800, mailto)
 }
 
-async function fetchAllWorks(workEntries, concurrency) {
+async function fetchAllWorks(workEntries, concurrency, mailto = POLITE_MAILTO) {
   const results = Array.from({ length: workEntries.length })
   let index = 0
 
@@ -193,7 +205,7 @@ async function fetchAllWorks(workEntries, concurrency) {
       }
       index += 1
       const { id } = workEntries[currentIndex]
-      const work = await fetchWork(id)
+      const work = await fetchWork(id, mailto)
       results[currentIndex] = work
       console.log(`[#${workerIndex + 1}] ${id} – ${work.display_name || work.title || 'ohne Titel'}`)
     }
@@ -530,8 +542,12 @@ async function main() {
   const { works: workEntries, style: configStyle } = await readWorkConfig(options.input)
   const styleTemplate = options.style ?? configStyle ?? 'apa'
 
+  if (!options.mailto) {
+    console.warn('⚠️  Kein OPENALEX_MAILTO gesetzt – Anfragen an OpenAlex laufen im common pool. Für stabilere Antwortzeiten empfiehlt sich eine Kontakt-Adresse (mailto).')
+  }
+
   console.log(`→ Lade ${workEntries.length} OpenAlex-Werke (Konfiguration: ${options.input})`)
-  const works = await fetchAllWorks(workEntries, options.concurrency)
+  const works = await fetchAllWorks(workEntries, options.concurrency, options.mailto)
 
   const cslItems = []
   const rawReferences = []

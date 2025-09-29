@@ -71,9 +71,13 @@ const OPENALEX_ENDPOINT = 'https://api.openalex.org/works'
 const MAX_PER_PAGE = 200
 const MAX_PAGES = 5
 const DEFAULT_SELECT_FIELDS = 'id,display_name,type,publication_year,language,primary_location'
+const POLITE_MAILTO = process.env.OPENALEX_MAILTO || process.env.OPENALEX_POLITE_MAILTO || null
 
 async function main() {
   console.log('→ Starte automatisierten OpenAlex-Batch (6 × 40)')
+  if (!POLITE_MAILTO) {
+    console.warn('⚠️  Kein OPENALEX_MAILTO gesetzt – Anfragen laufen im common pool. Für stabilere Antwortzeiten empfiehlt sich eine Kontakt-Adresse (mailto).')
+  }
   const fetchLog = []
   const dataset = []
   const summary = []
@@ -190,6 +194,9 @@ function buildUrl({ filter, sort, perPage, page }) {
   params.set('per-page', String(perPage))
   params.set('page', String(page))
   params.set('select', DEFAULT_SELECT_FIELDS)
+  if (POLITE_MAILTO) {
+    params.set('mailto', POLITE_MAILTO)
+  }
   return `${OPENALEX_ENDPOINT}?${params.toString()}`
 }
 
@@ -198,7 +205,11 @@ async function fetchWithRetry(url, retries = 4, backoffMs = 800) {
   let lastError = null
   while (attempt <= retries) {
     try {
-      const response = await fetch(url, { headers: { Accept: 'application/json' } })
+      const headers = { Accept: 'application/json' }
+      if (POLITE_MAILTO) {
+        headers['User-Agent'] = `Source-Taster-Eval (mailto:${POLITE_MAILTO})`
+      }
+      const response = await fetch(url, { headers })
       if (!response.ok) {
         if (response.status === 429 || response.status === 503) {
           const retryAfter = Number(response.headers.get('retry-after'))
