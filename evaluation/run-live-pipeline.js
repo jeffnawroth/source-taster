@@ -28,12 +28,12 @@ const EXTRACT_FIELDS = [
 const DEFAULT_EARLY_TERMINATION = process.env.SOURCE_TASTER_EARLY_TERMINATION === 'true'
 const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Number(process.env.SOURCE_TASTER_EARLY_THRESHOLD) : 90
 const MATCHING_FIELD_CONFIG = {
-  'title': { enabled: true, weight: 30 },
+  'title': { enabled: true, weight: 28 },
   'author': { enabled: true, weight: 20 },
   'issued': { enabled: true, weight: 10 },
   'container-title': { enabled: true, weight: 10 },
   'publisher': { enabled: true, weight: 5 },
-  'publisher-place': { enabled: true, weight: 5 },
+  'publisher-place': { enabled: true, weight: 2 },
   'volume': { enabled: true, weight: 5 },
   'issue': { enabled: true, weight: 5 },
   'page': { enabled: true, weight: 5 },
@@ -283,7 +283,10 @@ async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, agg
     sourceTasterResult.timings.matchMs = matchDuration
     durationStats.match.push(matchDuration / 1000)
 
-    const evaluationsWithMetadata = attachMetadataToEvaluations(matchResponse?.data?.evaluations ?? [], candidateIndex)
+    const evaluations = Array.isArray(matchResponse?.data?.evaluations)
+      ? [...matchResponse.data.evaluations].sort((a, b) => (b.matchDetails?.overallScore ?? 0) - (a.matchDetails?.overallScore ?? 0))
+      : []
+    const evaluationsWithMetadata = attachMetadataToEvaluations(evaluations, candidateIndex)
     const matchSummary = deriveMatchingSummary(evaluationsWithMetadata, entry.gold ?? entry.metadata ?? null)
 
     const payload = {

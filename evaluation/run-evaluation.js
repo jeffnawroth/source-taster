@@ -19,6 +19,8 @@ const FIELDS_TO_COMPARE = [
   'DOI',
   'URL',
 ]
+const DEFAULT_BUCKET_THRESHOLDS = parseBucketThresholdString(process.env.SOURCE_TASTER_BUCKET_THRESHOLDS) ?? [95, 85, 70]
+let MATCH_SCORE_BUCKET_THRESHOLDS = [...DEFAULT_BUCKET_THRESHOLDS]
 
 function pickInputPath() {
   const [, , maybePathArg] = process.argv
@@ -30,6 +32,18 @@ function pickInputPath() {
     return process.argv[flagIndex + 1]
   }
   return DEFAULT_RESULTS_PATH
+}
+
+function getBucketThresholdsFromArgs() {
+  const flagIndex = process.argv.indexOf('--bucket-thresholds')
+  if (flagIndex === -1) {
+    return null
+  }
+  const value = process.argv[flagIndex + 1]
+  if (!value) {
+    return null
+  }
+  return parseBucketThresholdString(value)
 }
 
 function normaliseString(value) {
@@ -266,7 +280,7 @@ function computeExtractionMetrics(entries, predictorKey) {
 }
 
 function computeMatchingMetrics(entries) {
-  const totalsByType = new Map()
+  const scoresByType = new Map()
   const missing = []
 
   for (const entry of entries) {
@@ -275,38 +289,35 @@ function computeMatchingMetrics(entries) {
       missing.push(entry.id ?? entry.referenceId ?? 'unknown')
       continue
     }
-    const type = entry.type ?? entry.category ?? 'Unbekannt'
-    const totals = totalsByType.get(type) ?? { total: 0, top1: 0 }
-    totals.total += 1
-    if (matching.top1Correct) {
-      totals.top1 += 1
+    const topScore = matching.topScore ?? matching.evaluations?.[0]?.matchDetails?.overallScore ?? null
+    if (topScore === null || Number.isNaN(topScore)) {
+      missing.push(entry.id ?? entry.referenceId ?? 'unknown')
+      continue
     }
-    totalsByType.set(type, totals)
+    const type = entry.type ?? entry.category ?? 'Unbekannt'
+    const list = scoresByType.get(type) ?? []
+    list.push(topScore)
+    scoresByType.set(type, list)
   }
 
-  const perType = Array.from(totalsByType.entries())
-    .map(([type, { total, top1 }]) => ({
-      type,
-      total,
-      top1Accuracy: total === 0 ? null : top1 / total,
-    }))
-    .sort((a, b) => a.type.localeCompare(b.type, 'de'))
-
-  const overallTotals = Array.from(totalsByType.values()).reduce(
-    (acc, { total, top1 }) => {
-      acc.total += total
-      acc.top1 += top1
-      return acc
-    },
-    { total: 0, top1: 0 },
-  )
-
-  const overall = {
-    total: overallTotals.total,
-    top1Accuracy: overallTotals.total === 0 ? null : overallTotals.top1 / overallTotals.total,
+  const perType = []
+  let allScores = []
+  for (const [type, scores] of scoresByType.entries()) {
+    const stats = computeScoreStats(scores)
+    perType.push({ type, ...stats })
+    allScores = allScores.concat(scores)
   }
 
-  return { perType, overall, missing }
+  perType.sort((a, b) => a.type.localeCompare(b.type, 'de'))
+
+  const overallStats = computeScoreStats(allScores)
+
+  return {
+    perType,
+    overall: overallStats,
+    missing,
+    thresholds: [...MATCH_SCORE_BUCKET_THRESHOLDS],
+  }
 }
 
 function calculateStats(samples) {
@@ -342,6 +353,110 @@ function computePerformanceMetrics(performance) {
   return { scenarios }
 }
 
+function computeScoreStats(scores) {
+  if (!Array.isArray(scores) || scores.length === 0) {
+    return {
+      count: 0,
+      average: null,
+      median: null,
+      q1: null,
+      q3: null,
+      buckets: { exact: 0, strong: 0, possible: 0, none: 0 },
+    }
+  }
+  const sorted = [...scores].sort((a, b) => a - b)
+  const count = sorted.length
+  const sum = sorted.reduce((acc, value) => acc + value, 0)
+  const average = sum / count
+  const median = percentile(sorted, 0.5)
+  const q1 = percentile(sorted, 0.25)
+  const q3 = percentile(sorted, 0.75)
+  const buckets = { exact: 0, strong: 0, possible: 0, none: 0 }
+  const [exactThreshold, strongThreshold, possibleThreshold] = MATCH_SCORE_BUCKET_THRESHOLDS
+  for (const score of scores) {
+    const normalizedScore = normalizeScore(score)
+    if (normalizedScore >= exactThreshold) {
+      buckets.exact += 1
+    }
+    else if (normalizedScore >= strongThreshold) {
+      buckets.strong += 1
+    }
+    else if (normalizedScore >= possibleThreshold) {
+      buckets.possible += 1
+    }
+    else {
+      buckets.none += 1
+    }
+  }
+  return { count, average, median, q1, q3, buckets }
+}
+
+function percentile(sortedArray, percentile) {
+  if (!sortedArray.length) {
+    return null
+  }
+  if (sortedArray.length === 1) {
+    return sortedArray[0]
+  }
+  const position = (sortedArray.length - 1) * percentile
+  const lowerIndex = Math.floor(position)
+  const upperIndex = Math.ceil(position)
+  if (lowerIndex === upperIndex) {
+    return sortedArray[lowerIndex]
+  }
+  const lowerValue = sortedArray[lowerIndex]
+  const upperValue = sortedArray[upperIndex]
+  const weight = position - lowerIndex
+  return lowerValue + (upperValue - lowerValue) * weight
+}
+
+function getBucketLabels() {
+  const [exactThreshold, strongThreshold, possibleThreshold] = MATCH_SCORE_BUCKET_THRESHOLDS
+  return {
+    exact: `Exact (≥${formatThreshold(exactThreshold)})`,
+    strong: `Strong (≥${formatThreshold(strongThreshold)} <${formatThreshold(exactThreshold)})`,
+    possible: `Possible (≥${formatThreshold(possibleThreshold)} <${formatThreshold(strongThreshold)})`,
+    none: `No (<${formatThreshold(possibleThreshold)})`,
+  }
+}
+
+function formatThreshold(value) {
+  if (value == null) {
+    return 'n/a'
+  }
+  const num = value <= 1 ? value * 100 : value
+  return `${num.toFixed(0)}%`
+}
+
+function normalizeScore(score) {
+  if (score == null || Number.isNaN(score)) {
+    return null
+  }
+  if (score <= 1) {
+    return score * 100
+  }
+  return score
+}
+
+function parseBucketThresholdString(raw) {
+  if (!raw) {
+    return null
+  }
+  const parts = raw.split(',').map(part => part.trim()).filter(Boolean)
+  if (parts.length !== 3) {
+    return null
+  }
+  const numbers = []
+  for (const part of parts) {
+    const value = Number.parseFloat(part)
+    if (Number.isNaN(value)) {
+      return null
+    }
+    numbers.push(value <= 1 ? value * 100 : value)
+  }
+  return numbers.sort((a, b) => b - a)
+}
+
 function printExtractionSummary(label, summary) {
   console.log(`\n${label}`)
   const rows = summary.perType.map(item => ({
@@ -363,21 +478,47 @@ function printExtractionSummary(label, summary) {
 }
 
 function printMatchingSummary(summary) {
-  console.log('\nMatching-Genauigkeit (Source Taster)')
+  console.log('\nMatching-Score (Source Taster)')
   const rows = summary.perType.map(item => ({
     'Typ': item.type,
-    'Top-1': formatPercent(item.top1Accuracy),
-    'Anzahl': item.total,
+    'Ø Score': formatNumber(item.average),
+    'Median': formatNumber(item.median),
+    'Q1': formatNumber(item.q1),
+    'Q3': formatNumber(item.q3),
+    'Anzahl': item.count,
   }))
   rows.push({
     'Typ': 'Ø gesamt',
-    'Top-1': formatPercent(summary.overall.top1Accuracy),
-    'Anzahl': summary.overall.total,
+    'Ø Score': formatNumber(summary.overall.average),
+    'Median': formatNumber(summary.overall.median),
+    'Q1': formatNumber(summary.overall.q1),
+    'Q3': formatNumber(summary.overall.q3),
+    'Anzahl': summary.overall.count ?? 0,
   })
   console.table(rows)
   if (summary.missing.length > 0) {
     console.warn(`⚠️  ${summary.missing.length} Referenzen ohne Matching-Ergebnis: ${summary.missing.join(', ')}`)
   }
+}
+
+function printMatchingBuckets(summary) {
+  console.log('\nMatching-Score Verteilung (Source Taster)')
+  const labels = getBucketLabels()
+  const rows = summary.perType.map(item => ({
+    Typ: item.type,
+    [labels.exact]: item.buckets?.exact ?? 0,
+    [labels.strong]: item.buckets?.strong ?? 0,
+    [labels.possible]: item.buckets?.possible ?? 0,
+    [labels.none]: item.buckets?.none ?? 0,
+  }))
+  rows.push({
+    Typ: 'Ø gesamt',
+    [labels.exact]: summary.overall.buckets?.exact ?? 0,
+    [labels.strong]: summary.overall.buckets?.strong ?? 0,
+    [labels.possible]: summary.overall.buckets?.possible ?? 0,
+    [labels.none]: summary.overall.buckets?.none ?? 0,
+  })
+  console.table(rows)
 }
 
 function printPerformanceSummary(summary) {
@@ -398,6 +539,8 @@ function printPerformanceSummary(summary) {
 
 async function main() {
   const inputPath = pickInputPath()
+  const bucketThresholdsArg = getBucketThresholdsFromArgs()
+  MATCH_SCORE_BUCKET_THRESHOLDS = bucketThresholdsArg ?? [...DEFAULT_BUCKET_THRESHOLDS]
   const resolvedPath = path.resolve(process.cwd(), inputPath)
   const rawContent = await readFile(resolvedPath, 'utf8')
   const data = JSON.parse(rawContent)
@@ -415,6 +558,7 @@ async function main() {
   printExtractionSummary('Extraktionsgüte – Source Taster (/api/extract)', sourceTasterExtraction)
   printExtractionSummary('Extraktionsgüte – AnyStyle (/api/anystyle)', anyStyleExtraction)
   printMatchingSummary(matchingSummary)
+  printMatchingBuckets(matchingSummary)
   printPerformanceSummary(performanceSummary)
 
   const summaryPayload = {
@@ -427,6 +571,7 @@ async function main() {
     },
     matching: matchingSummary,
     performance: performanceSummary,
+    matchingBucketThresholds: MATCH_SCORE_BUCKET_THRESHOLDS,
   }
 
   await mkdir(OUTPUT_DIR, { recursive: true })
