@@ -19,7 +19,7 @@ const FIELDS_TO_COMPARE = [
   'DOI',
   'URL',
 ]
-const DEFAULT_BUCKET_THRESHOLDS = parseBucketThresholdString(process.env.SOURCE_TASTER_BUCKET_THRESHOLDS) ?? [95, 85, 70]
+const DEFAULT_BUCKET_THRESHOLDS = parseBucketThresholdString(process.env.SOURCE_TASTER_BUCKET_THRESHOLDS) ?? [100, 85, 70]
 let MATCH_SCORE_BUCKET_THRESHOLDS = [...DEFAULT_BUCKET_THRESHOLDS]
 
 function pickInputPath() {
