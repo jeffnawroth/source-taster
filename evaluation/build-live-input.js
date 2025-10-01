@@ -105,8 +105,10 @@ function normaliseId(id) {
   return String(id)
 }
 
-function buildEntry({ goldItem, rawText, metadataItem, index }) {
+function buildEntry({ goldItem, rawText, metadataItem, index, fallbackStyle }) {
   const entryId = goldItem?.id ?? metadataItem?.normalizedId ?? fallbackId(index)
+  const formatting = metadataItem?.formatting ?? null
+  const styleTemplate = formatting?.template ?? fallbackStyle ?? null
   return {
     id: entryId,
     category: metadataItem?.category ?? null,
@@ -115,6 +117,8 @@ function buildEntry({ goldItem, rawText, metadataItem, index }) {
     raw: rawText,
     gold: goldItem ?? null,
     note: metadataItem?.note ?? null,
+    style: styleTemplate,
+    formatting,
   }
 }
 
@@ -141,6 +145,7 @@ async function main() {
   }
 
   const metadataIndex = buildMetadataIndex(metadataData)
+  const fallbackStyle = options.style ?? metadataData?.style ?? 'apa'
   const total = Math.min(rawEntries.length, goldItems.length)
   const entries = []
 
@@ -149,7 +154,7 @@ async function main() {
     const rawText = rawEntries[index]
     const normalizedId = normaliseId(goldItem?.id ?? null)
     const metadataItem = normalizedId ? metadataIndex.get(normalizedId) ?? metadataIndex.get(goldItem?.id ?? '') : null
-    entries.push(buildEntry({ goldItem, rawText, metadataItem, index }))
+    entries.push(buildEntry({ goldItem, rawText, metadataItem, index, fallbackStyle }))
   }
 
   const payload = {
