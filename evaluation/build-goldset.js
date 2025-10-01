@@ -61,6 +61,37 @@ function resolveStyleTemplates(styleOption) {
   return normalized
 }
 
+function normaliseStyleScope(scope) {
+  const normalized = String(scope ?? '').trim().toLowerCase()
+  if (['dataset', 'per-dataset', 'collection', 'global', 'batch', 'set'].includes(normalized)) {
+    return 'dataset'
+  }
+  if (['entry', 'per-entry', 'record', 'work', 'item'].includes(normalized)) {
+    return 'entry'
+  }
+  return 'entry'
+}
+
+function sanitiseStyleSlug(styleName) {
+  const fallback = 'style'
+  const slug = String(styleName ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return slug || fallback
+}
+
+function applyStyleSuffix(filePath, styleName, styleCount = 1) {
+  if (!filePath || styleCount <= 1) {
+    return filePath
+  }
+  const ext = path.extname(filePath)
+  const base = ext ? filePath.slice(0, -ext.length) : filePath
+  const suffix = sanitiseStyleSlug(styleName)
+  return `${base}.${suffix}${ext}`
+}
+
 function registerStyleIfNeeded(styleName) {
   if (!styleName) {
     return
@@ -106,6 +137,8 @@ function parseArgs() {
     meta: DEFAULT_META_PATH,
     concurrency: DEFAULT_CONCURRENCY,
     style: 'apa',
+    styleScope: 'entry',
+    styleScopeExplicit: false,
     styleFormat: 'text',
     styleLang: 'en-US',
     mailto: POLITE_MAILTO,
@@ -113,39 +146,53 @@ function parseArgs() {
 
   const args = process.argv.slice(2)
   for (let i = 0; i < args.length; i += 1) {
-    const arg = args[i]
+    const rawArg = args[i]
+    let inlineValue
+    let arg = rawArg
+    if (arg.startsWith('--') && arg.includes('=')) {
+      const [flag, value] = arg.split(/=(.+)/)
+      arg = flag
+      inlineValue = value
+    }
+
     if (arg === '--input') {
-      options.input = args[++i]
+      options.input = inlineValue ?? args[++i]
     }
     else if (arg === '--gold') {
-      options.gold = args[++i]
+      options.gold = inlineValue ?? args[++i]
     }
     else if (arg === '--raw') {
-      options.raw = args[++i]
+      options.raw = inlineValue ?? args[++i]
     }
     else if (arg === '--meta') {
-      options.meta = args[++i]
+      options.meta = inlineValue ?? args[++i]
     }
     else if (arg === '--concurrency') {
-      options.concurrency = Number.parseInt(args[++i] ?? '', 10) || DEFAULT_CONCURRENCY
+      const value = inlineValue ?? args[++i]
+      options.concurrency = Number.parseInt(value ?? '', 10) || DEFAULT_CONCURRENCY
     }
     else if (arg === '--style') {
-      options.style = args[++i] ?? 'apa'
+      options.style = inlineValue ?? args[++i] ?? 'apa'
     }
     else if (arg === '--style-format') {
-      options.styleFormat = args[++i] ?? 'text'
+      options.styleFormat = inlineValue ?? args[++i] ?? 'text'
     }
     else if (arg === '--style-lang') {
-      options.styleLang = args[++i] ?? 'en-US'
+      options.styleLang = inlineValue ?? args[++i] ?? 'en-US'
+    }
+    else if (arg === '--style-scope') {
+      options.styleScope = inlineValue ?? args[++i] ?? 'entry'
+      options.styleScopeExplicit = true
     }
     else if (arg === '--mailto') {
-      options.mailto = args[++i] ?? POLITE_MAILTO
+      options.mailto = inlineValue ?? args[++i] ?? POLITE_MAILTO
     }
     else if (!arg.startsWith('--') && i === 0) {
       options.input = arg
     }
   }
 
+  options.styleScope = normaliseStyleScope(options.styleScope)
   return options
 }
 
@@ -606,13 +653,12 @@ async function main() {
   const { works: workEntries, style: configStyle } = await readWorkConfig(options.input)
   const styleOption = options.style ?? configStyle ?? 'apa'
   const styleTemplates = resolveStyleTemplates(styleOption)
-
-  if (Array.isArray(styleTemplates)) {
-    styleTemplates.forEach(registerStyleIfNeeded)
-  }
-  else {
-    registerStyleIfNeeded(styleTemplates)
-  }
+  const styleList = Array.isArray(styleTemplates) ? styleTemplates : [styleTemplates]
+  styleList.forEach(registerStyleIfNeeded)
+  const effectiveStyleScope = options.styleScopeExplicit
+    ? options.styleScope
+    : (styleList.length > 1 ? 'dataset' : options.styleScope)
+  const isDatasetScope = effectiveStyleScope === 'dataset'
 
   if (!options.mailto) {
     console.warn('⚠️  Kein OPENALEX_MAILTO gesetzt – Anfragen an OpenAlex laufen im common pool. Für stabilere Antwortzeiten empfiehlt sich eine Kontakt-Adresse (mailto).')
@@ -621,42 +667,107 @@ async function main() {
   console.log(`→ Lade ${workEntries.length} OpenAlex-Werke (Konfiguration: ${options.input})`)
   const works = await fetchAllWorks(workEntries, options.concurrency, options.mailto)
 
-  const cslItems = []
-  const rawReferences = []
-  const metadata = []
-
-  works.forEach((work, index) => {
-    const workEntry = workEntries[index]
+  const datasetItems = works.map((work, index) => {
     const cslItem = toCSL(work)
-    const styleTemplateForEntry = Array.isArray(styleTemplates)
-      ? styleTemplates[index % styleTemplates.length]
-      : styleTemplates
-    const rawReference = formatRawReference(cslItem, {
-      template: styleTemplateForEntry,
-      format: options.styleFormat,
-      lang: options.styleLang,
-    })
-    cslItems.push({ ...cslItem, 'source': 'OpenAlex', 'original-id': work.id })
-    rawReferences.push(rawReference)
-    metadata.push(buildMetadataEntry(workEntry, work, cslItem, rawReference, {
-      template: styleTemplateForEntry,
-      format: options.styleFormat,
-      lang: options.styleLang,
-    }))
+    return {
+      work,
+      workEntry: workEntries[index],
+      cslItem,
+      cslItemWithSource: { ...cslItem, 'source': 'OpenAlex', 'original-id': work.id },
+    }
   })
+  const cslItemsForGold = datasetItems.map(item => item.cslItemWithSource)
+  const outputSummary = []
 
-  await writeOutputs({
-    goldPath: path.resolve(process.cwd(), options.gold),
-    rawPath: path.resolve(process.cwd(), options.raw),
-    metaPath: options.meta ? path.resolve(process.cwd(), options.meta) : null,
-  }, cslItems, rawReferences, metadata)
+  if (isDatasetScope) {
+    for (const styleName of styleList) {
+      const rawReferences = []
+      const metadata = []
+
+      datasetItems.forEach(({ workEntry, work, cslItem }) => {
+        const rawReference = formatRawReference(cslItem, {
+          template: styleName,
+          format: options.styleFormat,
+          lang: options.styleLang,
+        })
+        rawReferences.push(rawReference)
+        metadata.push(buildMetadataEntry(workEntry, work, cslItem, rawReference, {
+          template: styleName,
+          format: options.styleFormat,
+          lang: options.styleLang,
+        }))
+      })
+
+      const goldOutputName = applyStyleSuffix(options.gold, styleName, styleList.length)
+      const rawOutputName = applyStyleSuffix(options.raw, styleName, styleList.length)
+      const metaOutputName = options.meta ? applyStyleSuffix(options.meta, styleName, styleList.length) : null
+
+      await writeOutputs({
+        goldPath: path.resolve(process.cwd(), goldOutputName),
+        rawPath: path.resolve(process.cwd(), rawOutputName),
+        metaPath: metaOutputName ? path.resolve(process.cwd(), metaOutputName) : null,
+      }, cslItemsForGold, rawReferences, metadata)
+
+      outputSummary.push({
+        style: styleName,
+        gold: goldOutputName,
+        raw: rawOutputName,
+        meta: metaOutputName,
+      })
+    }
+  }
+  else {
+    const rawReferences = []
+    const metadata = []
+
+    datasetItems.forEach(({ workEntry, work, cslItem }, index) => {
+      const styleName = styleList[index % styleList.length]
+      const rawReference = formatRawReference(cslItem, {
+        template: styleName,
+        format: options.styleFormat,
+        lang: options.styleLang,
+      })
+      rawReferences.push(rawReference)
+      metadata.push(buildMetadataEntry(workEntry, work, cslItem, rawReference, {
+        template: styleName,
+        format: options.styleFormat,
+        lang: options.styleLang,
+      }))
+    })
+
+    await writeOutputs({
+      goldPath: path.resolve(process.cwd(), options.gold),
+      rawPath: path.resolve(process.cwd(), options.raw),
+      metaPath: options.meta ? path.resolve(process.cwd(), options.meta) : null,
+    }, cslItemsForGold, rawReferences, metadata)
+
+    outputSummary.push({
+      style: styleList.length === 1 ? styleList[0] : 'rotating',
+      gold: options.gold,
+      raw: options.raw,
+      meta: options.meta,
+    })
+  }
 
   console.log(`
-✅ Fertig. ${cslItems.length} Referenzen exportiert.`)
-  console.log(`• CSL-JSON: ${options.gold}`)
-  console.log(`• Raw Text: ${options.raw}`)
-  if (options.meta) {
-    console.log(`• Metadaten: ${options.meta}`)
+✅ Fertig. ${cslItemsForGold.length} Referenzen exportiert.`)
+  if (isDatasetScope) {
+    outputSummary.forEach((entry) => {
+      console.log(`• ${entry.style}:`)
+      console.log(`  • CSL-JSON: ${entry.gold}`)
+      console.log(`  • Raw Text: ${entry.raw}`)
+      if (entry.meta) {
+        console.log(`  • Metadaten: ${entry.meta}`)
+      }
+    })
+  }
+  else {
+    const entry = outputSummary[0]
+    console.log(`• CSL-JSON: ${entry.gold}`)
+    console.log(`• Raw Text: ${entry.raw}`)
+    if (entry.meta) {
+      console.log(`• Metadaten: ${entry.meta}`)
+    }
   }
 }
 
