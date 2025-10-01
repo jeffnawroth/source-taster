@@ -16,7 +16,7 @@ const DEFAULT_RAW_PATH = 'evaluation/raw-references.txt'
 const DEFAULT_META_PATH = 'evaluation/out/openalex-goldset-metadata.json'
 const DEFAULT_CONCURRENCY = 3
 const POLITE_MAILTO = process.env.OPENALEX_MAILTO || process.env.OPENALEX_POLITE_MAILTO || null
-const DEFAULT_STYLE_MIX = ['apa', 'mla', 'harvard1', 'vancouver', 'chicago-author-date', 'ieee']
+const DEFAULT_STYLE_MIX = ['apa', 'mla', 'harvard1', 'vancouver', 'chicago-author-date', 'ieee', 'oscola']
 const REGISTERED_STYLES = new Set(['apa', 'harvard1', 'vancouver'])
 const cslConfig = Cite.plugins?.config?.get('@csl') ?? null
 const __filename = fileURLToPath(import.meta.url)
@@ -73,6 +73,7 @@ function registerStyleIfNeeded(styleName) {
     'mla': 'modern-language-association.csl',
     'chicago-author-date': 'chicago-author-date.csl',
     'ieee': 'ieee.csl',
+    'oscola': 'oscola.csl',
   }
   const filename = styleFileMap[normalized]
   if (!filename) {
