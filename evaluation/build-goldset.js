@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
+import { readFileSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { templates as cslTemplates } from '@citation-js/plugin-csl/lib/styles.js'
 import Cite from 'citation-js'
+import '@citation-js/plugin-csl'
 
 const OPENALEX_BASE_URL = 'https://api.openalex.org/works/'
 const DEFAULT_INPUT_PATH = 'evaluation/openalex-works.json'
@@ -12,6 +16,11 @@ const DEFAULT_RAW_PATH = 'evaluation/raw-references.txt'
 const DEFAULT_META_PATH = 'evaluation/out/openalex-goldset-metadata.json'
 const DEFAULT_CONCURRENCY = 3
 const POLITE_MAILTO = process.env.OPENALEX_MAILTO || process.env.OPENALEX_POLITE_MAILTO || null
+const DEFAULT_STYLE_MIX = ['apa', 'mla', 'harvard1', 'vancouver', 'chicago-author-date']
+const REGISTERED_STYLES = new Set(['apa', 'harvard1', 'vancouver'])
+const cslConfig = Cite.plugins?.config?.get('@csl') ?? null
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const TYPE_MAP = new Map([
   ['journal-article', 'article-journal'],
@@ -33,6 +42,57 @@ const TYPE_MAP = new Map([
   ['conference-proceeding', 'paper-conference'],
   ['other', 'document'],
 ])
+
+function resolveStyleTemplates(styleOption) {
+  if (!styleOption) {
+    return 'apa'
+  }
+  if (Array.isArray(styleOption)) {
+    return styleOption.length ? styleOption : 'apa'
+  }
+  const normalized = String(styleOption).trim()
+  if (normalized.toLowerCase() === 'mixed') {
+    return DEFAULT_STYLE_MIX
+  }
+  if (normalized.includes(',')) {
+    const parts = normalized.split(',').map(part => part.trim()).filter(Boolean)
+    return parts.length ? parts : 'apa'
+  }
+  return normalized
+}
+
+function registerStyleIfNeeded(styleName) {
+  if (!styleName) {
+    return
+  }
+  const normalized = styleName.toLowerCase()
+  if (REGISTERED_STYLES.has(normalized)) {
+    return
+  }
+  const styleFileMap = {
+    'mla': 'modern-language-association.csl',
+    'chicago-author-date': 'chicago-author-date.csl',
+  }
+  const filename = styleFileMap[normalized]
+  if (!filename) {
+    REGISTERED_STYLES.add(normalized)
+    return
+  }
+  try {
+    const stylePath = path.resolve(__dirname, 'styles', filename)
+    const styleXml = readFileSync(stylePath, 'utf8')
+    if (cslConfig && cslConfig.templates) {
+      cslConfig.templates.add(normalized, styleXml)
+    }
+    else {
+      cslTemplates.add(normalized, styleXml)
+    }
+    REGISTERED_STYLES.add(normalized)
+  }
+  catch (error) {
+    console.warn(`⚠️  Konnte CSL-Stil "${styleName}" nicht laden: ${error?.message ?? error}`)
+  }
+}
 
 function parseArgs() {
   const options = {
@@ -540,7 +600,15 @@ function buildMetadataEntry(workEntry, work, cslItem, rawReference, formattingOp
 async function main() {
   const options = parseArgs()
   const { works: workEntries, style: configStyle } = await readWorkConfig(options.input)
-  const styleTemplate = options.style ?? configStyle ?? 'apa'
+  const styleOption = options.style ?? configStyle ?? 'apa'
+  const styleTemplates = resolveStyleTemplates(styleOption)
+
+  if (Array.isArray(styleTemplates)) {
+    styleTemplates.forEach(registerStyleIfNeeded)
+  }
+  else {
+    registerStyleIfNeeded(styleTemplates)
+  }
 
   if (!options.mailto) {
     console.warn('⚠️  Kein OPENALEX_MAILTO gesetzt – Anfragen an OpenAlex laufen im common pool. Für stabilere Antwortzeiten empfiehlt sich eine Kontakt-Adresse (mailto).')
@@ -556,15 +624,18 @@ async function main() {
   works.forEach((work, index) => {
     const workEntry = workEntries[index]
     const cslItem = toCSL(work)
+    const styleTemplateForEntry = Array.isArray(styleTemplates)
+      ? styleTemplates[index % styleTemplates.length]
+      : styleTemplates
     const rawReference = formatRawReference(cslItem, {
-      template: styleTemplate,
+      template: styleTemplateForEntry,
       format: options.styleFormat,
       lang: options.styleLang,
     })
     cslItems.push({ ...cslItem, 'source': 'OpenAlex', 'original-id': work.id })
     rawReferences.push(rawReference)
     metadata.push(buildMetadataEntry(workEntry, work, cslItem, rawReference, {
-      template: styleTemplate,
+      template: styleTemplateForEntry,
       format: options.styleFormat,
       lang: options.styleLang,
     }))
