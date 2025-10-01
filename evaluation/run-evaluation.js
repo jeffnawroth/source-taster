@@ -222,6 +222,7 @@ function formatNumber(value) {
 
 function computeExtractionMetrics(entries, predictorKey) {
   const totalsByType = new Map()
+  const totalsByStyle = new Map()
   const fieldBreakdown = new Map()
   const missingPredictions = []
 
@@ -237,12 +238,20 @@ function computeExtractionMetrics(entries, predictorKey) {
     }
     const type = entry.type ?? entry.category ?? 'Unbekannt'
     const totalsForType = totalsByType.get(type) ?? { tp: 0, fp: 0, fn: 0 }
+    const style = entry.style ?? entry.formatting?.template ?? entry.predictions?.sourceTaster?.formatting?.template ?? null
+    const totalsForStyle = style ? (totalsByStyle.get(style) ?? { tp: 0, fp: 0, fn: 0 }) : null
 
     for (const field of FIELDS_TO_COMPARE) {
       const counts = compareField(gold, prediction, field)
       totalsForType.tp += counts.tp
       totalsForType.fp += counts.fp
       totalsForType.fn += counts.fn
+
+      if (totalsForStyle) {
+        totalsForStyle.tp += counts.tp
+        totalsForStyle.fp += counts.fp
+        totalsForStyle.fn += counts.fn
+      }
 
       const fieldTotals = fieldBreakdown.get(field) ?? { tp: 0, fp: 0, fn: 0 }
       fieldTotals.tp += counts.tp
@@ -252,6 +261,9 @@ function computeExtractionMetrics(entries, predictorKey) {
     }
 
     totalsByType.set(type, totalsForType)
+    if (style && totalsForStyle) {
+      totalsByStyle.set(style, totalsForStyle)
+    }
   }
 
   const totalsList = Array.from(totalsByType.entries()).map(([type, counts]) => ({ type, counts }))
@@ -271,8 +283,15 @@ function computeExtractionMetrics(entries, predictorKey) {
     .map(([field, counts]) => ({ field, ...counts, ...deriveScores(counts) }))
     .sort((a, b) => a.field.localeCompare(b.field, 'de'))
 
+  const perStyle = Array.from(totalsByStyle.entries()).map(([style, counts]) => ({
+    style,
+    ...counts,
+    ...deriveScores(counts),
+  })).sort((a, b) => a.style.localeCompare(b.style, 'de'))
+
   return {
     perType,
+    perStyle,
     overall,
     fieldDetails,
     missingPredictions,
@@ -281,6 +300,7 @@ function computeExtractionMetrics(entries, predictorKey) {
 
 function computeMatchingMetrics(entries) {
   const scoresByType = new Map()
+  const scoresByStyle = new Map()
   const missing = []
 
   for (const entry of entries) {
@@ -295,9 +315,16 @@ function computeMatchingMetrics(entries) {
       continue
     }
     const type = entry.type ?? entry.category ?? 'Unbekannt'
-    const list = scoresByType.get(type) ?? []
-    list.push(topScore)
-    scoresByType.set(type, list)
+    const typeList = scoresByType.get(type) ?? []
+    typeList.push(topScore)
+    scoresByType.set(type, typeList)
+
+    const style = entry.style ?? entry.formatting?.template ?? entry.predictions?.sourceTaster?.formatting?.template ?? null
+    if (style) {
+      const styleList = scoresByStyle.get(style) ?? []
+      styleList.push(topScore)
+      scoresByStyle.set(style, styleList)
+    }
   }
 
   const perType = []
@@ -310,10 +337,18 @@ function computeMatchingMetrics(entries) {
 
   perType.sort((a, b) => a.type.localeCompare(b.type, 'de'))
 
+  const perStyle = []
+  for (const [style, scores] of scoresByStyle.entries()) {
+    const stats = computeScoreStats(scores)
+    perStyle.push({ style, ...stats })
+  }
+  perStyle.sort((a, b) => a.style.localeCompare(b.style, 'de'))
+
   const overallStats = computeScoreStats(allScores)
 
   return {
     perType,
+    perStyle,
     overall: overallStats,
     missing,
     thresholds: [...MATCH_SCORE_BUCKET_THRESHOLDS],
@@ -477,6 +512,20 @@ function printExtractionSummary(label, summary) {
   }
 }
 
+function printExtractionSummaryByStyle(summary) {
+  if (!summary.perStyle || summary.perStyle.length === 0) {
+    return
+  }
+  console.log('\nExtraktionsgüte nach Stil')
+  const rows = summary.perStyle.map(item => ({
+    'Stil': item.style,
+    'Precision': formatPercent(item.precision),
+    'Recall': formatPercent(item.recall),
+    'F1-Score': formatPercent(item.f1),
+  }))
+  console.table(rows)
+}
+
 function printMatchingSummary(summary) {
   console.log('\nMatching-Score (Source Taster)')
   const rows = summary.perType.map(item => ({
@@ -501,6 +550,22 @@ function printMatchingSummary(summary) {
   }
 }
 
+function printMatchingSummaryByStyle(summary) {
+  if (!summary.perStyle || summary.perStyle.length === 0) {
+    return
+  }
+  console.log('\nMatching-Score nach Stil (Source Taster)')
+  const rows = summary.perStyle.map(item => ({
+    'Stil': item.style,
+    'Ø Score': formatNumber(item.average),
+    'Median': formatNumber(item.median),
+    'Q1': formatNumber(item.q1),
+    'Q3': formatNumber(item.q3),
+    'Anzahl': item.count,
+  }))
+  console.table(rows)
+}
+
 function printMatchingBuckets(summary) {
   console.log('\nMatching-Score Verteilung (Source Taster)')
   const labels = getBucketLabels()
@@ -518,6 +583,22 @@ function printMatchingBuckets(summary) {
     [labels.possible]: summary.overall.buckets?.possible ?? 0,
     [labels.none]: summary.overall.buckets?.none ?? 0,
   })
+  console.table(rows)
+}
+
+function printMatchingBucketsByStyle(summary) {
+  if (!summary.perStyle || summary.perStyle.length === 0) {
+    return
+  }
+  console.log('\nMatching-Score Verteilung nach Stil (Source Taster)')
+  const labels = getBucketLabels()
+  const rows = summary.perStyle.map(item => ({
+    Stil: item.style,
+    [labels.exact]: item.buckets?.exact ?? 0,
+    [labels.strong]: item.buckets?.strong ?? 0,
+    [labels.possible]: item.buckets?.possible ?? 0,
+    [labels.none]: item.buckets?.none ?? 0,
+  }))
   console.table(rows)
 }
 
@@ -556,9 +637,13 @@ async function main() {
   const performanceSummary = computePerformanceMetrics(data.meta?.performance ?? data.performance)
 
   printExtractionSummary('Extraktionsgüte – Source Taster (/api/extract)', sourceTasterExtraction)
+  printExtractionSummaryByStyle(sourceTasterExtraction)
   printExtractionSummary('Extraktionsgüte – AnyStyle (/api/anystyle)', anyStyleExtraction)
+  printExtractionSummaryByStyle(anyStyleExtraction)
   printMatchingSummary(matchingSummary)
+  printMatchingSummaryByStyle(matchingSummary)
   printMatchingBuckets(matchingSummary)
+  printMatchingBucketsByStyle(matchingSummary)
   printPerformanceSummary(performanceSummary)
 
   const summaryPayload = {
