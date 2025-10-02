@@ -33,10 +33,13 @@ async function main() {
     console.warn('⚠️  Kein CROSSREF_MAILTO gesetzt – Crossref bittet um eine Kontaktadresse im User-Agent.')
   }
 
+  console.log(`→ Starte Crossref-Export (Stil: ${options.style}, Ziel pro Kategorie: ${options.target})`)
+
   const items = []
   const seenDois = new Set()
 
   for (const config of CATEGORY_CONFIGS) {
+    console.log(`\n== ${config.label} ==`)
     const sample = await collectSample(config.filter, options.target)
     for (const entry of sample) {
       const doi = entry?.DOI
@@ -50,15 +53,18 @@ async function main() {
       if (getCountByCategory(items, config.label) >= options.target)
         break
     }
+    console.log(`→ ${getCountByCategory(items, config.label)} DOIs gesammelt`)
   }
 
   const rawSegments = []
   for (const item of items) {
+    console.log(`   · APA-Format abrufen: ${item.doi}`)
     const raw = await fetchBibliography(item.doi, options.style, options.locale)
     item.raw = raw
     rawSegments.push(raw)
   }
 
+  console.log('\n→ Schreibe Ausgabedateien …')
   const worksPayload = {
     generatedAt: new Date().toISOString(),
     style: options.style,
