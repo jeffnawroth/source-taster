@@ -6,6 +6,7 @@ import process from 'node:process'
 
 const DEFAULT_RESULTS_PATH = 'evaluation/out/live-results.crossref.json'
 const OUTPUT_DIR = 'evaluation/out'
+/*
 const FIELDS_TO_COMPARE = [
   'author',
   'title',
@@ -18,6 +19,7 @@ const FIELDS_TO_COMPARE = [
   'DOI',
   'URL',
 ]
+*/
 const DEFAULT_BUCKET_THRESHOLDS = parseBucketThresholdString(process.env.SOURCE_TASTER_BUCKET_THRESHOLDS) ?? [100, 85, 70]
 let MATCH_SCORE_BUCKET_THRESHOLDS = [...DEFAULT_BUCKET_THRESHOLDS]
 
@@ -45,6 +47,7 @@ function getBucketThresholdsFromArgs() {
   return parseBucketThresholdString(value)
 }
 
+/*
 function deepEqual(a, b) {
   if (a === b) {
     return true
@@ -150,6 +153,7 @@ function formatPercent(value) {
   }
   return `${(value * 100).toFixed(2)}%`
 }
+*/
 
 function formatNumber(value) {
   if (value === null) {
@@ -158,6 +162,7 @@ function formatNumber(value) {
   return value.toFixed(2)
 }
 
+/*
 function computeExtractionMetrics(entries, predictorKey) {
   const totalsByType = new Map()
   const totalsByStyle = new Map()
@@ -235,6 +240,7 @@ function computeExtractionMetrics(entries, predictorKey) {
     missingPredictions,
   }
 }
+*/
 
 function computeMatchingMetrics(entries) {
   const scoresByType = new Map()
@@ -430,6 +436,7 @@ function parseBucketThresholdString(raw) {
   return numbers.sort((a, b) => b - a)
 }
 
+/*
 function printExtractionSummary(label, summary) {
   console.log(`\n${label}`)
   const rows = summary.perType.map(item => ({
@@ -463,6 +470,7 @@ function printExtractionSummaryByStyle(summary) {
   }))
   console.table(rows)
 }
+*/
 
 function printMatchingSummary(summary) {
   console.log('\nMatching-Score (Source Taster)')
@@ -569,15 +577,17 @@ async function main() {
     throw new Error('Erwarte Feld "entries" als Array in der Eingabedatei oder eine Array-Datei')
   }
 
-  const sourceTasterExtraction = computeExtractionMetrics(entries, 'sourceTaster')
-  const anyStyleExtraction = computeExtractionMetrics(entries, 'anyStyle')
   const matchingSummary = computeMatchingMetrics(entries)
   const performanceSummary = computePerformanceMetrics(data.meta?.performance ?? data.performance)
 
+  /*
+  const sourceTasterExtraction = computeExtractionMetrics(entries, 'sourceTaster')
+  const anyStyleExtraction = computeExtractionMetrics(entries, 'anyStyle')
   printExtractionSummary('Extraktionsgüte – Source Taster (/api/extract)', sourceTasterExtraction)
   printExtractionSummaryByStyle(sourceTasterExtraction)
   printExtractionSummary('Extraktionsgüte – AnyStyle (/api/anystyle)', anyStyleExtraction)
   printExtractionSummaryByStyle(anyStyleExtraction)
+  */
   printMatchingSummary(matchingSummary)
   printMatchingSummaryByStyle(matchingSummary)
   printMatchingBuckets(matchingSummary)
@@ -587,11 +597,13 @@ async function main() {
   const summaryPayload = {
     generatedAt: new Date().toISOString(),
     input: path.relative(process.cwd(), resolvedPath),
+    /*
     fields: FIELDS_TO_COMPARE,
     extraction: {
       sourceTaster: sourceTasterExtraction,
       anyStyle: anyStyleExtraction,
     },
+    */
     matching: matchingSummary,
     performance: performanceSummary,
     matchingBucketThresholds: MATCH_SCORE_BUCKET_THRESHOLDS,
