@@ -11,7 +11,7 @@ import process from 'node:process'
 const DEFAULT_INPUT = 'evaluation/out/live-input.crossref.json'
 const DEFAULT_OUTPUT = 'evaluation/out/live-results.crossref.json'
 const DEFAULT_API_URL = 'http://localhost:8000'
-const DEFAULT_SOURCES = ['crossref']
+const DEFAULT_SOURCES = ['crossref', 'openalex', 'semanticscholar']
 const DEFAULT_AI_PROVIDER = process.env.SOURCE_TASTER_AI_PROVIDER ?? 'openai'
 const DEFAULT_AI_MODEL = process.env.SOURCE_TASTER_AI_MODEL ?? 'gpt-4.1'
 const EXTRACT_FIELDS = [
