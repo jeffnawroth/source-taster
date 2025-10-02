@@ -9,9 +9,9 @@ const DOI_RESOLVER_BASE = 'https://doi.org/'
 
 const DEFAULT_WORKS_FILE = 'evaluation/crossref-works.json'
 const DEFAULT_RAW_FILE = 'evaluation/raw-references.crossref.txt'
-const DEFAULT_STYLES = ['apa', 'mla', 'chicago', 'harvard', 'vancouver']
+const DEFAULT_STYLES = ['apa', 'mla', 'chicago', 'harvard', 'vancouver', 'ieee', 'nature', 'acs', 'ama', 'springer', 'oxford']
 const DEFAULT_LOCALE = 'en-US'
-const DEFAULT_TARGET = 1
+const DEFAULT_TARGET = 5
 const DEFAULT_CONCURRENCY = 5
 
 const BUILTIN_STYLE_ALIASES = [
@@ -20,6 +20,12 @@ const BUILTIN_STYLE_ALIASES = [
   { alias: 'chicago', id: 'chicago-author-date' },
   { alias: 'harvard', id: 'harvard-cite-them-right' },
   { alias: 'vancouver', id: 'vancouver' },
+  { alias: 'ieee', id: 'ieee' },
+  { alias: 'nature', id: 'nature' },
+  { alias: 'acs', id: 'american-chemical-society' },
+  { alias: 'ama', id: 'american-medical-association' },
+  { alias: 'springer', id: 'springer-vancouver-author-date' },
+  { alias: 'oxford', id: 'oxford-university-press-author-date' },
 ]
 
 const STYLE_LOOKUP = new Map()
