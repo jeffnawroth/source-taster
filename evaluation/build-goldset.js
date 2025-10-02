@@ -399,7 +399,6 @@ function toCSL(work) {
     publisher,
     'publisher-place': publisherPlace,
     'citation-label': work.cited_by_count ? `C${work.cited_by_count}` : undefined,
-    'source': 'OpenAlex',
     'original-title': work.original_title ?? undefined,
   }
 }
@@ -673,10 +672,10 @@ async function main() {
       work,
       workEntry: workEntries[index],
       cslItem,
-      cslItemWithSource: { ...cslItem, 'source': 'OpenAlex', 'original-id': work.id },
+      cslItemWithMeta: { ...cslItem, 'original-id': work.id },
     }
   })
-  const cslItemsForGold = datasetItems.map(item => item.cslItemWithSource)
+  const cslItemsForGold = datasetItems.map(item => item.cslItemWithMeta)
   const outputSummary = []
 
   if (isDatasetScope) {

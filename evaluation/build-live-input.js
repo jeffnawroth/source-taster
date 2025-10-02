@@ -22,6 +22,9 @@ function parseArgs() {
   const args = process.argv.slice(2)
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
+    if (arg === '--') {
+      continue
+    }
     switch (arg) {
       case '--gold':
         options.gold = args[++i]
