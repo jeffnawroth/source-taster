@@ -207,27 +207,7 @@ function buildExtractRequest(raw, options) {
 function normalizeString(value) {
   return (value ?? '').toString().trim().toLowerCase()
 }
-
-function candidateMatchesGold(candidate, gold) {
-  if (!candidate || !gold)
-    return false
-
-  const candidateDoi = normalizeString(candidate.DOI)
-  const goldDoi = normalizeString(gold.DOI)
-  if (candidateDoi && goldDoi && candidateDoi === goldDoi) {
-    return true
-  }
-
-  const candidateTitle = normalizeString(candidate.title)
-  const goldTitle = normalizeString(gold.title)
-  if (candidateTitle && goldTitle && candidateTitle === goldTitle) {
-    return true
-  }
-
-  return false
-}
-
-function deriveMatchingSummary(evaluations, gold) {
+function deriveMatchingSummary(evaluations) {
   if (!Array.isArray(evaluations) || evaluations.length === 0) {
     return {
       top1Correct: false,
@@ -241,7 +221,7 @@ function deriveMatchingSummary(evaluations, gold) {
     score: evalItem.matchDetails?.overallScore ?? null,
   }))
   const topCandidate = evaluations[0]
-  const top1Correct = candidateMatchesGold(topCandidate.metadata ?? null, gold)
+  const top1Correct = null
 
   return {
     top1Correct,
@@ -285,7 +265,7 @@ async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, agg
       ? [...matchResponse.data.evaluations].sort((a, b) => (b.matchDetails?.overallScore ?? 0) - (a.matchDetails?.overallScore ?? 0))
       : []
     const evaluationsWithMetadata = attachMetadataToEvaluations(evaluations, candidateIndex)
-    const matchSummary = deriveMatchingSummary(evaluationsWithMetadata, entry.gold ?? entry.metadata ?? null)
+    const matchSummary = deriveMatchingSummary(evaluationsWithMetadata)
 
     const payload = {
       evaluations: evaluationsWithMetadata,

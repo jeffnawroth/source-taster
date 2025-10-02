@@ -6,20 +6,6 @@ import process from 'node:process'
 
 const DEFAULT_RESULTS_PATH = 'evaluation/out/live-results.crossref.json'
 const OUTPUT_DIR = 'evaluation/out'
-/*
-const FIELDS_TO_COMPARE = [
-  'author',
-  'title',
-  'issued',
-  'container-title',
-  'publisher',
-  'volume',
-  'issue',
-  'page',
-  'DOI',
-  'URL',
-]
-*/
 const DEFAULT_BUCKET_THRESHOLDS = parseBucketThresholdString(process.env.SOURCE_TASTER_BUCKET_THRESHOLDS) ?? [100, 85, 70]
 let MATCH_SCORE_BUCKET_THRESHOLDS = [...DEFAULT_BUCKET_THRESHOLDS]
 
@@ -47,200 +33,12 @@ function getBucketThresholdsFromArgs() {
   return parseBucketThresholdString(value)
 }
 
-/*
-function deepEqual(a, b) {
-  if (a === b) {
-    return true
-  }
-  if (typeof a !== typeof b) {
-    return false
-  }
-  if (a === null || b === null) {
-    return false
-  }
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) {
-      return false
-    }
-    for (let i = 0; i < a.length; i += 1) {
-      if (!deepEqual(a[i], b[i])) {
-        return false
-      }
-    }
-    return true
-  }
-  if (typeof a === 'object' && typeof b === 'object') {
-    const keysA = Object.keys(a).sort()
-    const keysB = Object.keys(b).sort()
-    if (keysA.length !== keysB.length) {
-      return false
-    }
-    for (let i = 0; i < keysA.length; i += 1) {
-      if (keysA[i] !== keysB[i]) {
-        return false
-      }
-      if (!deepEqual(a[keysA[i]], b[keysA[i]])) {
-        return false
-      }
-    }
-    return true
-  }
-  return a === b
-}
-
-function hasValue(value) {
-  if (value === undefined || value === null) {
-    return false
-  }
-  if (typeof value === 'string') {
-    return value.trim().length > 0
-  }
-  if (Array.isArray(value)) {
-    return value.length > 0
-  }
-  if (typeof value === 'object') {
-    return Object.keys(value).length > 0
-  }
-  return true
-}
-
-function compareField(gold, predicted, field) {
-  const goldValue = gold?.[field]
-  const predictedValue = predicted?.[field]
-  const hasGold = hasValue(goldValue)
-  const hasPredicted = hasValue(predictedValue)
-
-  if (!hasGold && !hasPredicted) {
-    return { tp: 0, fp: 0, fn: 0 }
-  }
-
-  const equal = deepEqual(goldValue, predictedValue)
-  if (equal) {
-    return { tp: 1, fp: 0, fn: 0 }
-  }
-
-  return {
-    tp: 0,
-    fp: hasPredicted ? 1 : 0,
-    fn: hasGold ? 1 : 0,
-  }
-}
-
-function sumCounts(list) {
-  return list.reduce(
-    (acc, item) => {
-      acc.tp += item.tp
-      acc.fp += item.fp
-      acc.fn += item.fn
-      return acc
-    },
-    { tp: 0, fp: 0, fn: 0 },
-  )
-}
-
-function deriveScores({ tp, fp, fn }) {
-  const precision = tp + fp === 0 ? null : tp / (tp + fp)
-  const recall = tp + fn === 0 ? null : tp / (tp + fn)
-  const f1 = precision === null || recall === null || precision + recall === 0
-    ? null
-    : (2 * precision * recall) / (precision + recall)
-  return { precision, recall, f1 }
-}
-
-function formatPercent(value) {
-  if (value === null) {
-    return 'n/a'
-  }
-  return `${(value * 100).toFixed(2)}%`
-}
-*/
-
 function formatNumber(value) {
   if (value === null) {
     return 'n/a'
   }
   return value.toFixed(2)
 }
-
-/*
-function computeExtractionMetrics(entries, predictorKey) {
-  const totalsByType = new Map()
-  const totalsByStyle = new Map()
-  const fieldBreakdown = new Map()
-  const missingPredictions = []
-
-  for (const entry of entries) {
-    const gold = entry.gold ?? entry.metadata
-    const prediction = entry.predictions?.[predictorKey]?.metadata
-    if (!gold) {
-      continue
-    }
-    if (!prediction) {
-      missingPredictions.push(entry.id ?? entry.referenceId ?? 'unknown')
-      continue
-    }
-    const type = entry.type ?? entry.category ?? 'Unbekannt'
-    const totalsForType = totalsByType.get(type) ?? { tp: 0, fp: 0, fn: 0 }
-    const style = entry.style ?? entry.formatting?.template ?? entry.predictions?.sourceTaster?.formatting?.template ?? null
-    const totalsForStyle = style ? (totalsByStyle.get(style) ?? { tp: 0, fp: 0, fn: 0 }) : null
-
-    for (const field of FIELDS_TO_COMPARE) {
-      const counts = compareField(gold, prediction, field)
-      totalsForType.tp += counts.tp
-      totalsForType.fp += counts.fp
-      totalsForType.fn += counts.fn
-
-      if (totalsForStyle) {
-        totalsForStyle.tp += counts.tp
-        totalsForStyle.fp += counts.fp
-        totalsForStyle.fn += counts.fn
-      }
-
-      const fieldTotals = fieldBreakdown.get(field) ?? { tp: 0, fp: 0, fn: 0 }
-      fieldTotals.tp += counts.tp
-      fieldTotals.fp += counts.fp
-      fieldTotals.fn += counts.fn
-      fieldBreakdown.set(field, fieldTotals)
-    }
-
-    totalsByType.set(type, totalsForType)
-    if (style && totalsForStyle) {
-      totalsByStyle.set(style, totalsForStyle)
-    }
-  }
-
-  const totalsList = Array.from(totalsByType.entries()).map(([type, counts]) => ({ type, counts }))
-  const overallCounts = sumCounts(totalsList.map(entry => entry.counts))
-
-  const perType = totalsList
-    .map(({ type, counts }) => ({
-      type,
-      ...counts,
-      ...deriveScores(counts),
-    }))
-    .sort((a, b) => a.type.localeCompare(b.type, 'de'))
-
-  const overall = { ...overallCounts, ...deriveScores(overallCounts) }
-
-  const fieldDetails = Array.from(fieldBreakdown.entries())
-    .map(([field, counts]) => ({ field, ...counts, ...deriveScores(counts) }))
-    .sort((a, b) => a.field.localeCompare(b.field, 'de'))
-
-  const perStyle = Array.from(totalsByStyle.entries()).map(([style, counts]) => ({
-    style,
-    ...counts,
-    ...deriveScores(counts),
-  })).sort((a, b) => a.style.localeCompare(b.style, 'de'))
-
-  return {
-    perType,
-    perStyle,
-    overall,
-    fieldDetails,
-    missingPredictions,
-  }
-}
-*/
 
 function computeMatchingMetrics(entries) {
   const scoresByType = new Map()
@@ -436,42 +234,6 @@ function parseBucketThresholdString(raw) {
   return numbers.sort((a, b) => b - a)
 }
 
-/*
-function printExtractionSummary(label, summary) {
-  console.log(`\n${label}`)
-  const rows = summary.perType.map(item => ({
-    'Typ': item.type,
-    'Precision': formatPercent(item.precision),
-    'Recall': formatPercent(item.recall),
-    'F1-Score': formatPercent(item.f1),
-  }))
-  rows.push({
-    'Typ': 'Ø gesamt',
-    'Precision': formatPercent(summary.overall.precision),
-    'Recall': formatPercent(summary.overall.recall),
-    'F1-Score': formatPercent(summary.overall.f1),
-  })
-  console.table(rows)
-  if (summary.missingPredictions.length > 0) {
-    console.warn(`⚠️  ${summary.missingPredictions.length} Referenzen ohne Vorhersage: ${summary.missingPredictions.join(', ')}`)
-  }
-}
-
-function printExtractionSummaryByStyle(summary) {
-  if (!summary.perStyle || summary.perStyle.length === 0) {
-    return
-  }
-  console.log('\nExtraktionsgüte nach Stil')
-  const rows = summary.perStyle.map(item => ({
-    'Stil': item.style,
-    'Precision': formatPercent(item.precision),
-    'Recall': formatPercent(item.recall),
-    'F1-Score': formatPercent(item.f1),
-  }))
-  console.table(rows)
-}
-*/
-
 function printMatchingSummary(summary) {
   console.log('\nMatching-Score (Source Taster)')
   const rows = summary.perType.map(item => ({
@@ -580,14 +342,6 @@ async function main() {
   const matchingSummary = computeMatchingMetrics(entries)
   const performanceSummary = computePerformanceMetrics(data.meta?.performance ?? data.performance)
 
-  /*
-  const sourceTasterExtraction = computeExtractionMetrics(entries, 'sourceTaster')
-  const anyStyleExtraction = computeExtractionMetrics(entries, 'anyStyle')
-  printExtractionSummary('Extraktionsgüte – Source Taster (/api/extract)', sourceTasterExtraction)
-  printExtractionSummaryByStyle(sourceTasterExtraction)
-  printExtractionSummary('Extraktionsgüte – AnyStyle (/api/anystyle)', anyStyleExtraction)
-  printExtractionSummaryByStyle(anyStyleExtraction)
-  */
   printMatchingSummary(matchingSummary)
   printMatchingSummaryByStyle(matchingSummary)
   printMatchingBuckets(matchingSummary)
@@ -597,13 +351,6 @@ async function main() {
   const summaryPayload = {
     generatedAt: new Date().toISOString(),
     input: path.relative(process.cwd(), resolvedPath),
-    /*
-    fields: FIELDS_TO_COMPARE,
-    extraction: {
-      sourceTaster: sourceTasterExtraction,
-      anyStyle: anyStyleExtraction,
-    },
-    */
     matching: matchingSummary,
     performance: performanceSummary,
     matchingBucketThresholds: MATCH_SCORE_BUCKET_THRESHOLDS,

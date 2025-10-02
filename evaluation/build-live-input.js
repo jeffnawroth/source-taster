@@ -5,14 +5,12 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_GOLD_PATH = 'evaluation/gold-set.crossref.json'
 const DEFAULT_RAW_PATH = 'evaluation/raw-references.crossref.txt'
 const DEFAULT_WORKS_PATH = 'evaluation/crossref-works.json'
 const DEFAULT_OUTPUT_PATH = 'evaluation/out/live-input.crossref.json'
 
 function parseArgs() {
   const options = {
-    gold: DEFAULT_GOLD_PATH,
     raw: DEFAULT_RAW_PATH,
     works: DEFAULT_WORKS_PATH,
     output: DEFAULT_OUTPUT_PATH,
@@ -26,9 +24,6 @@ function parseArgs() {
       continue
     }
     switch (arg) {
-      case '--gold':
-        options.gold = args[++i]
-        break
       case '--raw':
         options.raw = args[++i]
         break
@@ -47,7 +42,7 @@ function parseArgs() {
         process.exit(0)
       default:
         if (!arg.startsWith('-') && !options._input) {
-          options.gold = arg
+          options.raw = arg
         }
         else {
           console.warn(`Unbekannte Option: ${arg}`)
@@ -58,7 +53,7 @@ function parseArgs() {
 }
 
 function printHelp() {
-  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --gold evaluation/gold-set.crossref.json --raw evaluation/raw-references.crossref.txt\n\nOptionen:\n  --gold <pfad>    Pfad zur gold-set.json (Default ${DEFAULT_GOLD_PATH})\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --works <pfad>   (Optional) Pfad zu crossref-works.json (Default ${DEFAULT_WORKS_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilname (Default apa)\n`)
+  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --raw evaluation/raw-references.crossref.txt\n\nOptionen:\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --works <pfad>   (Optional) Pfad zu crossref-works.json (Default ${DEFAULT_WORKS_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilname (Default apa)`)
 }
 
 async function loadJson(filePath) {
@@ -83,20 +78,18 @@ function fallbackId(index) {
   return `ref-${String(index + 1).padStart(3, '0')}`
 }
 
-function buildEntry({ goldItem, worksEntry, rawText, index, style }) {
+function buildEntry({ worksEntry, rawText, index, style }) {
   return {
-    id: worksEntry?.doi ?? goldItem?.DOI ?? goldItem?.id ?? fallbackId(index),
-    category: worksEntry?.category ?? goldItem?.type ?? null,
-    type: worksEntry?.category ?? goldItem?.type ?? null,
+    id: worksEntry?.doi ?? fallbackId(index),
+    category: worksEntry?.category ?? null,
+    type: worksEntry?.category ?? null,
     raw: rawText,
-    gold: goldItem ?? null,
     style,
   }
 }
 
 async function main() {
   const options = parseArgs()
-  const goldData = await loadJson(options.gold)
   const rawContent = await readFile(path.resolve(process.cwd(), options.raw), 'utf8')
   let worksData = null
   try {
@@ -105,27 +98,17 @@ async function main() {
   catch (error) {
     console.warn(`⚠️  Works-Datei konnte nicht geladen werden (${options.works}): ${error.message ?? error}`)
   }
-
-  const goldItems = Array.isArray(goldData.references) ? goldData.references : Array.isArray(goldData) ? goldData : []
-  if (!goldItems.length) {
-    throw new Error('Keine Referenzen in der Gold-Datei gefunden. Erwarte Feld "references" oder Array.')
-  }
-
   const rawEntries = splitRawReferences(rawContent)
-  if (rawEntries.length !== goldItems.length) {
-    console.warn(`⚠️  Anzahl Rohreferenzen (${rawEntries.length}) weicht von Gold-Einträgen (${goldItems.length}) ab. Es werden die kürzere Anzahl verwendet.`)
-  }
 
-  const worksIndex = buildWorksIndex(worksData)
-  const resolvedStyle = options.style ?? goldData.style ?? 'apa'
-  const total = Math.min(rawEntries.length, goldItems.length)
+  const worksItems = Array.isArray(worksData?.items) ? worksData.items : []
+  const resolvedStyle = options.style ?? 'apa'
+  const total = rawEntries.length
   const entries = []
 
   for (let index = 0; index < total; index += 1) {
-    const goldItem = goldItems[index]
-    const worksEntry = findWorksEntry(worksIndex, goldItem)
+    const worksEntry = worksItems[index] ?? null
     const rawText = rawEntries[index]
-    entries.push(buildEntry({ goldItem, worksEntry, rawText, index, style: resolvedStyle }))
+    entries.push(buildEntry({ worksEntry, rawText, index, style: resolvedStyle }))
   }
 
   const payload = {
@@ -133,7 +116,6 @@ async function main() {
     style: resolvedStyle,
     total: entries.length,
     meta: {
-      goldFile: path.relative(process.cwd(), path.resolve(process.cwd(), options.gold)),
       rawFile: path.relative(process.cwd(), path.resolve(process.cwd(), options.raw)),
     },
     entries,
@@ -149,28 +131,3 @@ main().catch((error) => {
   console.error(error)
   process.exitCode = 1
 })
-
-function buildWorksIndex(worksData) {
-  if (!worksData || !Array.isArray(worksData.items)) {
-    return new Map()
-  }
-  const map = new Map()
-  for (const item of worksData.items) {
-    if (!item?.doi) {
-      continue
-    }
-    map.set(item.doi.toLowerCase(), item)
-  }
-  return map
-}
-
-function findWorksEntry(worksIndex, goldItem) {
-  if (!worksIndex || worksIndex.size === 0) {
-    return null
-  }
-  const doi = goldItem?.DOI ?? goldItem?.id
-  if (!doi) {
-    return null
-  }
-  return worksIndex.get(String(doi).toLowerCase()) ?? null
-}
