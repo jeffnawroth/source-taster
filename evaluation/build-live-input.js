@@ -82,7 +82,6 @@ function buildEntry({ worksEntry, rawText, index, style }) {
   return {
     id: worksEntry?.doi ?? fallbackId(index),
     category: worksEntry?.category ?? null,
-    type: worksEntry?.category ?? null,
     raw: rawText,
     style,
   }
