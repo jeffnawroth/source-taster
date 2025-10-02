@@ -9,10 +9,25 @@ const DOI_RESOLVER_BASE = 'https://doi.org/'
 
 const DEFAULT_WORKS_FILE = 'evaluation/crossref-works.json'
 const DEFAULT_RAW_FILE = 'evaluation/raw-references.crossref.txt'
-const DEFAULT_STYLE = 'apa'
+const DEFAULT_STYLES = ['apa', 'mla', 'chicago', 'harvard', 'vancouver']
 const DEFAULT_LOCALE = 'en-US'
-const DEFAULT_TARGET = 2
+const DEFAULT_TARGET = 1
 const DEFAULT_CONCURRENCY = 5
+
+const BUILTIN_STYLE_ALIASES = [
+  { alias: 'apa', id: 'apa' },
+  { alias: 'mla', id: 'modern-language-association' },
+  { alias: 'chicago', id: 'chicago-author-date' },
+  { alias: 'harvard', id: 'harvard-cite-them-right' },
+  { alias: 'vancouver', id: 'vancouver' },
+]
+
+const STYLE_LOOKUP = new Map()
+for (const style of BUILTIN_STYLE_ALIASES) {
+  for (const key of [style.alias, style.id]) {
+    STYLE_LOOKUP.set(key.toLowerCase(), style)
+  }
+}
 
 const CATEGORY_CONFIGS = [
   { label: 'journal-article', filter: 'type:journal-article', sort: 'is-referenced-by-count', order: 'desc' },
@@ -37,7 +52,8 @@ async function main() {
     console.warn('⚠️  Kein CROSSREF_MAILTO gesetzt – Crossref bittet um eine Kontaktadresse im User-Agent.')
   }
 
-  console.log(`→ Starte Crossref-Export (Stil: ${options.style}, Ziel pro Kategorie: ${options.target}, Concurrency: ${options.concurrency})`)
+  const styleSummary = options.styles.map(style => style.alias).join(', ')
+  console.log(`→ Starte Crossref-Export (Stile: ${styleSummary}, Ziel pro Kategorie: ${options.target}, Concurrency: ${options.concurrency})`)
 
   const items = []
   const seenDois = new Set()
@@ -53,49 +69,59 @@ async function main() {
       if (seenDois.has(key))
         continue
       seenDois.add(key)
-      items.push({ doi, category: config.label })
+      items.push({ doi, category: config.label, bibliography: {} })
       if (getCountByCategory(items, config.label) >= options.target)
         break
     }
     console.log(`→ ${getCountByCategory(items, config.label)} DOIs gesammelt`)
   }
 
-  const rawSegments = await mapWithConcurrency(items, options.concurrency, async (item) => {
-    console.log(`   · APA-Format abrufen: ${item.doi}`)
-    const raw = await fetchBibliography(item.doi, options.style, options.locale)
-    item.raw = raw
-    return raw
-  })
+  const rawByStyle = new Map()
+  for (const style of options.styles) {
+    console.log(`\n→ Bibliografien abrufen (${style.alias.toUpperCase()})`)
+    const segments = await mapWithConcurrency(items, options.concurrency, async (item) => {
+      console.log(`   · ${style.alias.toUpperCase()}-Format abrufen: ${item.doi}`)
+      const raw = await fetchBibliography(item.doi, style.id, options.locale)
+      item.bibliography[style.alias] = raw
+      return raw
+    })
+    rawByStyle.set(style.alias, segments)
+  }
 
   console.log('\n→ Schreibe Ausgabedateien …')
   const worksPayload = {
     generatedAt: new Date().toISOString(),
-    style: options.style,
+    styles: options.styles,
     locale: options.locale,
     items,
   }
 
   await ensureDirectory(options.worksFile)
-  await ensureDirectory(options.rawFile)
 
   await writeFile(path.resolve(process.cwd(), options.worksFile), JSON.stringify(worksPayload, null, 2), 'utf8')
-  await writeFile(path.resolve(process.cwd(), options.rawFile), `${rawSegments.join('\n\n')}\n`, 'utf8')
-
   console.log(`✅ Crossref-Werke exportiert: ${options.worksFile}`)
-  console.log(`ℹ️ Rohreferenzen gesammelt in: ${options.rawFile}`)
+
+  for (const style of options.styles) {
+    const filePath = buildRawFilePath(options.rawFile, style.alias)
+    const segments = rawByStyle.get(style.alias) ?? []
+    await ensureDirectory(filePath)
+    await writeFile(path.resolve(process.cwd(), filePath), `${segments.join('\n\n')}\n`, 'utf8')
+    console.log(`ℹ️ Rohreferenzen (${style.alias}) gesammelt in: ${filePath}`)
+  }
 }
 
 function parseArgs() {
   const options = {
     worksFile: DEFAULT_WORKS_FILE,
     rawFile: DEFAULT_RAW_FILE,
-    style: DEFAULT_STYLE,
     locale: DEFAULT_LOCALE,
     target: DEFAULT_TARGET,
     concurrency: DEFAULT_CONCURRENCY,
   }
 
   const args = process.argv.slice(2)
+  let styleInputs = [...DEFAULT_STYLES]
+  let stylesExplicitlySet = false
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
     if (arg === '--works') {
@@ -105,7 +131,34 @@ function parseArgs() {
       options.rawFile = args[++i]
     }
     else if (arg === '--style') {
-      options.style = args[++i]
+      const value = args[++i]
+      if (value) {
+        if (!stylesExplicitlySet) {
+          styleInputs = []
+          stylesExplicitlySet = true
+        }
+        styleInputs.push(value)
+      }
+    }
+    else if (arg === '--styles') {
+      const collected = []
+      if (i + 1 < args.length) {
+        collected.push(args[++i])
+        while (i + 1 < args.length && !args[i + 1].startsWith('--')) {
+          collected.push(args[++i])
+        }
+      }
+      const parts = collected
+        .flatMap(entry => (entry ?? '').split(','))
+        .map(part => part.trim())
+        .filter(Boolean)
+      if (parts.length > 0) {
+        if (!stylesExplicitlySet) {
+          styleInputs = []
+          stylesExplicitlySet = true
+        }
+        styleInputs.push(...parts)
+      }
     }
     else if (arg === '--locale') {
       options.locale = args[++i]
@@ -118,7 +171,36 @@ function parseArgs() {
     }
   }
 
+  options.styles = resolveStyleList(styleInputs)
+  if (options.styles.length === 0) {
+    throw new Error('Mindestens ein Stil muss angegeben werden (--style/--styles).')
+  }
+
   return options
+}
+
+function resolveStyleList(inputs) {
+  const resolved = []
+  const seen = new Set()
+  for (const rawInput of inputs) {
+    if (!rawInput)
+      continue
+    const value = String(rawInput).trim()
+    if (!value)
+      continue
+    const match = STYLE_LOOKUP.get(value.toLowerCase())
+    const alias = match?.alias ?? slugifyStyle(value)
+    const id = match?.id ?? value
+    if (!alias || seen.has(alias))
+      continue
+    resolved.push({ alias, id })
+    seen.add(alias)
+  }
+  return resolved
+}
+
+function slugifyStyle(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
 
 async function collectSample(config, target) {
@@ -232,6 +314,14 @@ async function mapWithConcurrency(items, limit, mapper) {
 async function ensureDirectory(filePath) {
   const dir = path.dirname(path.resolve(process.cwd(), filePath))
   await mkdir(dir, { recursive: true })
+}
+
+function buildRawFilePath(baseFile, styleAlias) {
+  const styleSlug = slugifyStyle(styleAlias) || 'style'
+  const parsed = path.parse(baseFile)
+  const suffix = styleSlug ? `.${styleSlug}` : ''
+  const baseName = `${parsed.name}${suffix}${parsed.ext}`
+  return parsed.dir ? path.join(parsed.dir, baseName) : baseName
 }
 
 function formatUserAgent() {
