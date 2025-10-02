@@ -11,15 +11,18 @@ const DEFAULT_WORKS_FILE = 'evaluation/crossref-works.json'
 const DEFAULT_RAW_FILE = 'evaluation/raw-references.crossref.txt'
 const DEFAULT_STYLE = 'apa'
 const DEFAULT_LOCALE = 'en-US'
-const DEFAULT_TARGET = 10
+const DEFAULT_TARGET = 2
 const DEFAULT_CONCURRENCY = 5
 
 const CATEGORY_CONFIGS = [
-  { label: 'journal-article', filter: 'type:journal-article' },
-  { label: 'proceedings-article', filter: 'type:proceedings-article' },
-  { label: 'book', filter: 'type:book' },
-  { label: 'book-chapter', filter: 'type:book-chapter' },
-  { label: 'report', filter: 'type:report' },
+  { label: 'journal-article', filter: 'type:journal-article', sort: 'is-referenced-by-count', order: 'desc' },
+  { label: 'proceedings-article', filter: 'type:proceedings-article', sort: 'is-referenced-by-count', order: 'desc' },
+  { label: 'book', filter: 'type:book', sort: 'is-referenced-by-count', order: 'desc' },
+  { label: 'book-chapter', filter: 'type:book-chapter', sort: 'is-referenced-by-count', order: 'desc' },
+  { label: 'monograph', filter: 'type:monograph', sort: 'is-referenced-by-count', order: 'desc' },
+  { label: 'report', filter: 'type:report', sort: 'is-referenced-by-count', order: 'desc' },
+  { label: 'posted-content', filter: 'type:posted-content', sort: 'published', order: 'desc' },
+  { label: 'dissertation', filter: 'type:dissertation', sort: 'is-referenced-by-count', order: 'desc' },
 ]
 
 const POLITE_MAILTO = process.env.CROSSREF_MAILTO
@@ -41,7 +44,7 @@ async function main() {
 
   for (const config of CATEGORY_CONFIGS) {
     console.log(`\n== ${config.label} ==`)
-    const sample = await collectSample(config.filter, options.target)
+    const sample = await collectSample(config, options.target)
     for (const entry of sample) {
       const doi = entry?.DOI
       if (!doi)
@@ -118,13 +121,16 @@ function parseArgs() {
   return options
 }
 
-async function collectSample(filter, target) {
+async function collectSample(config, target) {
   const sampleSize = Math.max(1, Math.min(target * 3, 100))
   const params = new URLSearchParams()
   params.set('sample', String(sampleSize))
-  if (filter) {
-    params.set('filter', filter)
-  }
+  if (config.filter)
+    params.set('filter', config.filter)
+  if (config.sort)
+    params.set('sort', config.sort)
+  if (config.order)
+    params.set('order', config.order)
 
   const url = `${CROSSREF_WORKS_ENDPOINT}?${params.toString()}`
   const response = await fetchWithRetry(url)
