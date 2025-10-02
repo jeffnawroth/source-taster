@@ -11,7 +11,8 @@ const DEFAULT_WORKS_FILE = 'evaluation/crossref-works.json'
 const DEFAULT_RAW_FILE = 'evaluation/raw-references.crossref.txt'
 const DEFAULT_STYLE = 'apa'
 const DEFAULT_LOCALE = 'en-US'
-const DEFAULT_TARGET = 1
+const DEFAULT_TARGET = 10
+const DEFAULT_CONCURRENCY = 5
 
 const CATEGORY_CONFIGS = [
   { label: 'journal-article', filter: 'type:journal-article' },
@@ -33,7 +34,7 @@ async function main() {
     console.warn('⚠️  Kein CROSSREF_MAILTO gesetzt – Crossref bittet um eine Kontaktadresse im User-Agent.')
   }
 
-  console.log(`→ Starte Crossref-Export (Stil: ${options.style}, Ziel pro Kategorie: ${options.target})`)
+  console.log(`→ Starte Crossref-Export (Stil: ${options.style}, Ziel pro Kategorie: ${options.target}, Concurrency: ${options.concurrency})`)
 
   const items = []
   const seenDois = new Set()
@@ -56,13 +57,12 @@ async function main() {
     console.log(`→ ${getCountByCategory(items, config.label)} DOIs gesammelt`)
   }
 
-  const rawSegments = []
-  for (const item of items) {
+  const rawSegments = await mapWithConcurrency(items, options.concurrency, async (item) => {
     console.log(`   · APA-Format abrufen: ${item.doi}`)
     const raw = await fetchBibliography(item.doi, options.style, options.locale)
     item.raw = raw
-    rawSegments.push(raw)
-  }
+    return raw
+  })
 
   console.log('\n→ Schreibe Ausgabedateien …')
   const worksPayload = {
@@ -89,6 +89,7 @@ function parseArgs() {
     style: DEFAULT_STYLE,
     locale: DEFAULT_LOCALE,
     target: DEFAULT_TARGET,
+    concurrency: DEFAULT_CONCURRENCY,
   }
 
   const args = process.argv.slice(2)
@@ -108,6 +109,9 @@ function parseArgs() {
     }
     else if (arg === '--target') {
       options.target = Math.max(1, Math.min(100, Number.parseInt(args[++i] ?? '', 10) || DEFAULT_TARGET))
+    }
+    else if (arg === '--concurrency') {
+      options.concurrency = Math.max(1, Number.parseInt(args[++i] ?? '', 10) || DEFAULT_CONCURRENCY)
     }
   }
 
@@ -198,6 +202,25 @@ async function fetchWithRetry(url, headers = {}, mode = 'json', retries = 4, bac
 
 function getCountByCategory(items, category) {
   return items.filter(item => item.category === category).length
+}
+
+async function mapWithConcurrency(items, limit, mapper) {
+  const results = Array.from({ length: items.length })
+  let index = 0
+
+  async function worker() {
+    while (true) {
+      const currentIndex = index
+      if (currentIndex >= items.length)
+        break
+      index += 1
+      results[currentIndex] = await mapper(items[currentIndex], currentIndex)
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker())
+  await Promise.all(workers)
+  return results
 }
 
 async function ensureDirectory(filePath) {
