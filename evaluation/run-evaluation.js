@@ -12,7 +12,6 @@ const FIELDS_TO_COMPARE = [
   'issued',
   'container-title',
   'publisher',
-  'publisher-place',
   'volume',
   'issue',
   'page',
@@ -86,11 +85,27 @@ function deepEqual(a, b) {
   return a === b
 }
 
+function hasValue(value) {
+  if (value === undefined || value === null) {
+    return false
+  }
+  if (typeof value === 'string') {
+    return value.trim().length > 0
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0
+  }
+  if (typeof value === 'object') {
+    return Object.keys(value).length > 0
+  }
+  return true
+}
+
 function compareField(gold, predicted, field) {
   const goldValue = gold?.[field]
   const predictedValue = predicted?.[field]
-  const hasGold = goldValue !== undefined && goldValue !== null
-  const hasPredicted = predictedValue !== undefined && predictedValue !== null
+  const hasGold = hasValue(goldValue)
+  const hasPredicted = hasValue(predictedValue)
 
   if (!hasGold && !hasPredicted) {
     return { tp: 0, fp: 0, fn: 0 }
