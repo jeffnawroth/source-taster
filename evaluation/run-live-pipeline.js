@@ -20,7 +20,6 @@ const EXTRACT_FIELDS = [
   'issued',
   'container-title',
   'publisher',
-  'publisher-place',
   'volume',
   'issue',
   'page',
@@ -30,12 +29,11 @@ const EXTRACT_FIELDS = [
 const DEFAULT_EARLY_TERMINATION = process.env.SOURCE_TASTER_EARLY_TERMINATION === 'true'
 const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Number(process.env.SOURCE_TASTER_EARLY_THRESHOLD) : 90
 const MATCHING_FIELD_CONFIG = {
-  'title': { enabled: true, weight: 18 },
+  'title': { enabled: true, weight: 20 },
   'author': { enabled: true, weight: 18 },
   'issued': { enabled: true, weight: 10 },
   'container-title': { enabled: true, weight: 12 },
   'publisher': { enabled: true, weight: 5 },
-  'publisher-place': { enabled: true, weight: 2 },
   'volume': { enabled: true, weight: 6 },
   'issue': { enabled: true, weight: 3 },
   'page': { enabled: true, weight: 6 },
