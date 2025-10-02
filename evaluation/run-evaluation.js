@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_RESULTS_PATH = 'evaluation/sample-evaluation.json'
+const DEFAULT_RESULTS_PATH = 'evaluation/out/live-results.crossref.json'
 const OUTPUT_DIR = 'evaluation/out'
 const FIELDS_TO_COMPARE = [
   'author',
@@ -46,143 +46,66 @@ function getBucketThresholdsFromArgs() {
   return parseBucketThresholdString(value)
 }
 
-function normaliseString(value) {
-  if (value === undefined || value === null) {
-    return ''
+function deepEqual(a, b) {
+  if (a === b) {
+    return true
   }
-  return String(value)
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .replace(/[\u2013\u2014]/g, '-')
-}
-
-// function normaliseName(name) {
-//   if (typeof name === 'string') {
-//     return normaliseString(name)
-//   }
-//   if (!name || typeof name !== 'object') {
-//     return ''
-//   }
-//   if (name.literal) {
-//     return normaliseString(name.literal)
-//   }
-//   const parts = [name['non-dropping-particle'], name.family, name.given, name.suffix]
-//     .filter(Boolean)
-//     .map(part => normaliseString(part))
-//   return parts.join(' ').trim()
-// }
-
-// Canonical person representation: family + initials (treats "Rasmita" == "R.")
-function canonicalPerson(name) {
-  if (typeof name === 'string') {
-    return normaliseString(name)
+  if (typeof a !== typeof b) {
+    return false
   }
-  if (!name || typeof name !== 'object') {
-    return ''
+  if (a === null || b === null) {
+    return false
   }
-  if (name.literal) {
-    return normaliseString(name.literal)
-  }
-  const family = normaliseString(name.family || '')
-  const given = normaliseString(name.given || '')
-  const initials = given
-    ? given.split(/[\s-]+/).filter(Boolean).map(s => s[0]).join('')
-    : ''
-  if (family && initials)
-    return `${family}|${initials}`
-  return family || given || ''
-}
-
-function normaliseDate(value) {
-  if (!value) {
-    return ''
-  }
-  // For fairness compare only the year component
-  if (typeof value === 'string' || typeof value === 'number') {
-    const s = normaliseString(value)
-    const m = s.match(/\d{4}/)
-    return m ? m[0] : s
-  }
-  if (value.literal) {
-    const m = String(value.literal).match(/\d{4}/)
-    return m ? m[0] : normaliseString(value.literal)
-  }
-  if (value.raw) {
-    const m = String(value.raw).match(/\d{4}/)
-    return m ? m[0] : normaliseString(value.raw)
-  }
-  const parts = Array.isArray(value['date-parts'])
-    ? value['date-parts'][0] ?? []
-    : []
-  if (parts.length === 0) {
-    return ''
-  }
-  return String(parts[0]).padStart(4, '0')
-}
-
-function normalisePageString(s) {
-  const m = s.match(/^(\d+)-(\d+)$/)
-  if (m && m[1] === m[2])
-    return m[1]
-  return s
-}
-
-function valueToArray(entity, field) {
-  if (!entity) {
-    return []
-  }
-  const value = entity[field]
-  if (value === undefined || value === null) {
-    return []
-  }
-  if (Array.isArray(value)) {
-    if (['author', 'editor', 'translator', 'container-author'].includes(field)) {
-      return value.map(canonicalPerson).filter(Boolean)
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return false
     }
-    return value.map(entry => normaliseString(entry)).filter(Boolean)
-  }
-  if (typeof value === 'object') {
-    if (['issued', 'event-date', 'submitted', 'accessed'].includes(field)) {
-      const normalised = normaliseDate(value)
-      return normalised ? [normalised] : []
+    for (let i = 0; i < a.length; i += 1) {
+      if (!deepEqual(a[i], b[i])) {
+        return false
+      }
     }
-    if ('value' in value) {
-      return normaliseString(value.value) ? [normaliseString(value.value)] : []
+    return true
+  }
+  if (typeof a === 'object' && typeof b === 'object') {
+    const keysA = Object.keys(a).sort()
+    const keysB = Object.keys(b).sort()
+    if (keysA.length !== keysB.length) {
+      return false
     }
+    for (let i = 0; i < keysA.length; i += 1) {
+      if (keysA[i] !== keysB[i]) {
+        return false
+      }
+      if (!deepEqual(a[keysA[i]], b[keysA[i]])) {
+        return false
+      }
+    }
+    return true
   }
-  let normalised = normaliseString(value)
-  if (field === 'page') {
-    normalised = normalisePageString(normalised)
-  }
-  return normalised ? [normalised] : []
+  return a === b
 }
 
 function compareField(gold, predicted, field) {
-  const goldValues = valueToArray(gold, field)
-  const predictedValues = valueToArray(predicted, field)
+  const goldValue = gold?.[field]
+  const predictedValue = predicted?.[field]
+  const hasGold = goldValue !== undefined && goldValue !== null
+  const hasPredicted = predictedValue !== undefined && predictedValue !== null
 
-  if (goldValues.length === 0 && predictedValues.length === 0) {
+  if (!hasGold && !hasPredicted) {
     return { tp: 0, fp: 0, fn: 0 }
   }
 
-  const remainingGold = [...goldValues]
-  let truePositives = 0
-  let falsePositives = 0
-
-  for (const predictedValue of predictedValues) {
-    const matchIndex = remainingGold.indexOf(predictedValue)
-    if (matchIndex >= 0) {
-      remainingGold.splice(matchIndex, 1)
-      truePositives += 1
-    }
-    else {
-      falsePositives += 1
-    }
+  const equal = deepEqual(goldValue, predictedValue)
+  if (equal) {
+    return { tp: 1, fp: 0, fn: 0 }
   }
 
-  const falseNegatives = remainingGold.length
-  return { tp: truePositives, fp: falsePositives, fn: falseNegatives }
+  return {
+    tp: 0,
+    fp: hasPredicted ? 1 : 0,
+    fn: hasGold ? 1 : 0,
+  }
 }
 
 function sumCounts(list) {

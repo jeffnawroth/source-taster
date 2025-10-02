@@ -8,10 +8,12 @@ import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 import process from 'node:process'
 
-const DEFAULT_INPUT = 'evaluation/sample-evaluation.json'
-const DEFAULT_OUTPUT = 'evaluation/out/live-results.json'
+const DEFAULT_INPUT = 'evaluation/out/live-input.crossref.json'
+const DEFAULT_OUTPUT = 'evaluation/out/live-results.crossref.json'
 const DEFAULT_API_URL = 'http://localhost:8000'
-const DEFAULT_SOURCES = ['openalex', 'crossref', 'semanticscholar']
+const DEFAULT_SOURCES = ['crossref']
+const DEFAULT_AI_PROVIDER = process.env.SOURCE_TASTER_AI_PROVIDER ?? 'openai'
+const DEFAULT_AI_MODEL = process.env.SOURCE_TASTER_AI_MODEL ?? 'gpt-4.1'
 const EXTRACT_FIELDS = [
   'author',
   'title',
@@ -47,8 +49,8 @@ function parseArgs() {
     output: DEFAULT_OUTPUT,
     apiUrl: DEFAULT_API_URL,
     clientId: process.env.SOURCE_TASTER_CLIENT_ID ?? null,
-    aiProvider: process.env.SOURCE_TASTER_AI_PROVIDER ?? null,
-    aiModel: process.env.SOURCE_TASTER_AI_MODEL ?? null,
+    aiProvider: DEFAULT_AI_PROVIDER,
+    aiModel: DEFAULT_AI_MODEL,
     sources: [...DEFAULT_SOURCES],
     skipSearch: false,
     earlyTermination: DEFAULT_EARLY_TERMINATION,
@@ -75,10 +77,10 @@ function parseArgs() {
         options.clientId = args[++i]
         break
       case '--ai-provider':
-        options.aiProvider = args[++i]
+        options.aiProvider = args[++i] ?? DEFAULT_AI_PROVIDER
         break
       case '--ai-model':
-        options.aiModel = args[++i]
+        options.aiModel = args[++i] ?? DEFAULT_AI_MODEL
         break
       case '--sources':
         options.sources = args[++i].split(',').map(s => s.trim()).filter(Boolean)
@@ -121,18 +123,16 @@ function printHelp() {
   console.log(`Live-Pipeline Evaluation
 
 Verwendung:
-  pnpm evaluation:generate-dataset # optional
-  pnpm evaluation:goldset -- ...   # optional
-  pnpm evaluation:run-live -- --input evaluation/sample-evaluation.json --client-id <uuid>
+  pnpm evaluation:run-live -- --input evaluation/out/live-input.crossref.json --client-id <uuid>
 
 Parameter:
-  --input <pfad>        Datensatz mit goldenen Referenzen (Default ${DEFAULT_INPUT})
+  --input <pfad>        Pfad zur Input-Datei (Default ${DEFAULT_INPUT})
   --output <pfad>       Ausgabe-Datei für Vorhersagen (Default ${DEFAULT_OUTPUT})
   --api-url <url>       Basis-URL der API (Default ${DEFAULT_API_URL})
   --client-id <uuid>    X-Client-Id Header für /api/extract (erforderlich)
-  --ai-provider <name>  AI Provider (z.B. openai, anthropic)
-  --ai-model <name>     AI Modell (z.B. gpt-4.1)
-  --sources a,b,c       Liste der Suchdatenbanken (Default ${DEFAULT_SOURCES.join(',')})
+  --ai-provider <name>  AI Provider (optional)
+  --ai-model <name>     AI Modell (optional)
+  --sources a,b,c       Liste der Such-Datenbanken (Default ${DEFAULT_SOURCES.join(',')})
   --skip-search         Überspringt /api/search & /api/match (nur Extraktion)
   --early-termination   Aktiviert Early Termination im Matching (Default ${DEFAULT_EARLY_TERMINATION})
   --early-threshold n   Schwellenwert 0-100 (Default ${DEFAULT_EARLY_THRESHOLD})

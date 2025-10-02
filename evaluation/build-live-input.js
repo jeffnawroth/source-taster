@@ -5,16 +5,16 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_GOLD_PATH = 'evaluation/gold-set.json'
-const DEFAULT_RAW_PATH = 'evaluation/raw-references.txt'
-const DEFAULT_META_PATH = 'evaluation/out/openalex-goldset-metadata.json'
-const DEFAULT_OUTPUT_PATH = 'evaluation/out/live-input.json'
+const DEFAULT_GOLD_PATH = 'evaluation/gold-set.crossref.json'
+const DEFAULT_RAW_PATH = 'evaluation/raw-references.crossref.txt'
+const DEFAULT_WORKS_PATH = 'evaluation/crossref-works.json'
+const DEFAULT_OUTPUT_PATH = 'evaluation/out/live-input.crossref.json'
 
 function parseArgs() {
   const options = {
     gold: DEFAULT_GOLD_PATH,
     raw: DEFAULT_RAW_PATH,
-    meta: DEFAULT_META_PATH,
+    works: DEFAULT_WORKS_PATH,
     output: DEFAULT_OUTPUT_PATH,
     style: null,
   }
@@ -32,8 +32,8 @@ function parseArgs() {
       case '--raw':
         options.raw = args[++i]
         break
-      case '--meta':
-        options.meta = args[++i]
+      case '--works':
+        options.works = args[++i]
         break
       case '--output':
         options.output = args[++i]
@@ -58,7 +58,7 @@ function parseArgs() {
 }
 
 function printHelp() {
-  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --gold evaluation/gold-set.json --raw evaluation/raw-references.txt\n\nOptionen:\n  --gold <pfad>    Pfad zur gold-set.json (Default ${DEFAULT_GOLD_PATH})\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --meta <pfad>    Pfad zur Metadatendatei (Default ${DEFAULT_META_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilangabe für Meta-Infos (z.B. apa)\n`)
+  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --gold evaluation/gold-set.crossref.json --raw evaluation/raw-references.crossref.txt\n\nOptionen:\n  --gold <pfad>    Pfad zur gold-set.json (Default ${DEFAULT_GOLD_PATH})\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --works <pfad>   (Optional) Pfad zu crossref-works.json (Default ${DEFAULT_WORKS_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilname (Default apa)\n`)
 }
 
 async function loadJson(filePath) {
@@ -74,20 +74,6 @@ function splitRawReferences(content) {
     .filter(Boolean)
 }
 
-function buildMetadataIndex(metadata) {
-  if (!metadata || !Array.isArray(metadata.items)) {
-    return new Map()
-  }
-  const map = new Map()
-  for (const item of metadata.items) {
-    const key = item.normalizedId ?? item.openAlexId ?? null
-    if (key) {
-      map.set(key, item)
-    }
-  }
-  return map
-}
-
 async function ensureDirectory(filePath) {
   const dir = path.dirname(path.resolve(process.cwd(), filePath))
   await mkdir(dir, { recursive: true })
@@ -97,31 +83,14 @@ function fallbackId(index) {
   return `ref-${String(index + 1).padStart(3, '0')}`
 }
 
-function normaliseId(id) {
-  if (!id) {
-    return null
-  }
-  const match = String(id).match(/W\d+/i)
-  if (match) {
-    return match[0].toUpperCase()
-  }
-  return String(id)
-}
-
-function buildEntry({ goldItem, rawText, metadataItem, index, fallbackStyle }) {
-  const entryId = goldItem?.id ?? metadataItem?.normalizedId ?? fallbackId(index)
-  const formatting = metadataItem?.formatting ?? null
-  const styleTemplate = formatting?.template ?? fallbackStyle ?? null
+function buildEntry({ goldItem, worksEntry, rawText, index, style }) {
   return {
-    id: entryId,
-    category: metadataItem?.category ?? null,
-    type: metadataItem?.category ?? null,
-    openAlexId: metadataItem?.openAlexId ?? null,
+    id: worksEntry?.doi ?? goldItem?.DOI ?? goldItem?.id ?? fallbackId(index),
+    category: worksEntry?.category ?? goldItem?.type ?? null,
+    type: worksEntry?.category ?? goldItem?.type ?? null,
     raw: rawText,
     gold: goldItem ?? null,
-    note: metadataItem?.note ?? null,
-    style: styleTemplate,
-    formatting,
+    style,
   }
 }
 
@@ -129,12 +98,12 @@ async function main() {
   const options = parseArgs()
   const goldData = await loadJson(options.gold)
   const rawContent = await readFile(path.resolve(process.cwd(), options.raw), 'utf8')
-  let metadataData = null
+  let worksData = null
   try {
-    metadataData = await loadJson(options.meta)
+    worksData = await loadJson(options.works)
   }
   catch (error) {
-    console.warn(`⚠️  Metadatendatei konnte nicht geladen werden (${options.meta}): ${error.message ?? error}`)
+    console.warn(`⚠️  Works-Datei konnte nicht geladen werden (${options.works}): ${error.message ?? error}`)
   }
 
   const goldItems = Array.isArray(goldData.references) ? goldData.references : Array.isArray(goldData) ? goldData : []
@@ -147,27 +116,25 @@ async function main() {
     console.warn(`⚠️  Anzahl Rohreferenzen (${rawEntries.length}) weicht von Gold-Einträgen (${goldItems.length}) ab. Es werden die kürzere Anzahl verwendet.`)
   }
 
-  const metadataIndex = buildMetadataIndex(metadataData)
-  const fallbackStyle = options.style ?? metadataData?.style ?? 'apa'
+  const worksIndex = buildWorksIndex(worksData)
+  const resolvedStyle = options.style ?? goldData.style ?? 'apa'
   const total = Math.min(rawEntries.length, goldItems.length)
   const entries = []
 
   for (let index = 0; index < total; index += 1) {
     const goldItem = goldItems[index]
+    const worksEntry = findWorksEntry(worksIndex, goldItem)
     const rawText = rawEntries[index]
-    const normalizedId = normaliseId(goldItem?.id ?? null)
-    const metadataItem = normalizedId ? metadataIndex.get(normalizedId) ?? metadataIndex.get(goldItem?.id ?? '') : null
-    entries.push(buildEntry({ goldItem, rawText, metadataItem, index, fallbackStyle }))
+    entries.push(buildEntry({ goldItem, worksEntry, rawText, index, style: resolvedStyle }))
   }
 
   const payload = {
     generatedAt: new Date().toISOString(),
-    style: options.style ?? goldData.style ?? 'apa',
+    style: resolvedStyle,
     total: entries.length,
     meta: {
       goldFile: path.relative(process.cwd(), path.resolve(process.cwd(), options.gold)),
       rawFile: path.relative(process.cwd(), path.resolve(process.cwd(), options.raw)),
-      metaFile: metadataData ? path.relative(process.cwd(), path.resolve(process.cwd(), options.meta)) : null,
     },
     entries,
   }
@@ -182,3 +149,28 @@ main().catch((error) => {
   console.error(error)
   process.exitCode = 1
 })
+
+function buildWorksIndex(worksData) {
+  if (!worksData || !Array.isArray(worksData.items)) {
+    return new Map()
+  }
+  const map = new Map()
+  for (const item of worksData.items) {
+    if (!item?.doi) {
+      continue
+    }
+    map.set(item.doi.toLowerCase(), item)
+  }
+  return map
+}
+
+function findWorksEntry(worksIndex, goldItem) {
+  if (!worksIndex || worksIndex.size === 0) {
+    return null
+  }
+  const doi = goldItem?.DOI ?? goldItem?.id
+  if (!doi) {
+    return null
+  }
+  return worksIndex.get(String(doi).toLowerCase()) ?? null
+}

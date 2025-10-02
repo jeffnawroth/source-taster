@@ -1,0 +1,74 @@
+{
+  "references": [
+    {
+      "id": "midgley-1993",
+      "type": "article-journal",
+      "title": "Adrenal function in preterm infants",
+      "author": [
+        { "family": "Midgley", "given": "P. C." },
+        { "family": "Holownia", "given": "P." },
+        { "family": "Russell", "given": "K." },
+        { "family": "Oates", "given": "N." },
+        { "family": "Shaw", "given": "J. C. L." },
+        { "family": "Honour", "given": "J. W." }
+      ],
+      "container-title": "Pediatric Research",
+      "issued": { "date-parts": [[1993]] },
+      "volume": "33",
+      "page": "S71–S71",
+      "DOI": "10.1203/00006450-199305001-00410",
+      "URL": "https://doi.org/10.1203/00006450-199305001-00410"
+    },
+    {
+      "id": "kuan-2009",
+      "type": "paper-conference",
+      "title": "Independent joint dynamic sliding mode control of a humanoid robot arm",
+      "author": [
+        { "family": "Kuan", "given": "Jiun-Yih" },
+        { "family": "Huang", "given": "Han-Pang" }
+      ],
+      "container-title": "2008 IEEE International Conference on Robotics and Biomimetics",
+      "issued": { "date-parts": [[2009]] },
+      "page": "602–607",
+      "DOI": "10.1109/robio.2009.4913070",
+      "URL": "https://doi.org/10.1109/robio.2009.4913070"
+    },
+    {
+      "id": "oecd-2001",
+      "type": "book",
+      "title": "Measuring Productivity - OECD Manual",
+      "author": [],
+      "publisher": "OECD",
+      "issued": { "date-parts": [[2001]] },
+      "DOI": "10.1787/9789264194519-en",
+      "URL": "https://doi.org/10.1787/9789264194519-en"
+    },
+    {
+      "id": "southern-exotic-2020",
+      "type": "chapter",
+      "title": "The Southern Exotic",
+      "author": [],
+      "container-title": "Homintern",
+      "issued": { "date-parts": [[2020]] },
+      "page": "208–260",
+      "DOI": "10.12987/9780300219562-011",
+      "URL": "https://doi.org/10.12987/9780300219562-011"
+    },
+    {
+      "id": "mok-1998",
+      "type": "report",
+      "title": "SCANS (Shipping Cask ANalysis System) a microcomputer-based analysis system for shipping cask design review: User's manual to Version 3a. Volume 1, Revision 2",
+      "author": [
+        { "family": "Mok", "given": "G. C." },
+        { "family": "Thomas", "given": "G. R." },
+        { "family": "Gerhard", "given": "M. A." },
+        { "family": "Trummer", "given": "D. J." },
+        { "family": "Johnson", "given": "G. L." }
+      ],
+      "publisher": "Office of Scientific and Technical Information (OSTI)",
+      "issued": { "date-parts": [[1998]] },
+      "DOI": "10.2172/573402",
+      "URL": "https://doi.org/10.2172/573402"
+    }
+  ]
+}
