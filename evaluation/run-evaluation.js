@@ -120,7 +120,13 @@ function computePerformanceMetrics(performance) {
 
   for (const scenario of performance.scenarios) {
     const scenarioName = scenario.name ?? 'Unbenanntes Szenario'
-    const durations = scenario.durationsSeconds ?? {}
+    const durations = scenario.durationsSeconds ? { ...scenario.durationsSeconds } : {}
+    if (durations && !('pipeline.total' in durations)) {
+      const totals = derivePipelineTotals(durations)
+      if (totals.length) {
+        durations['pipeline.total'] = totals
+      }
+    }
     for (const [systemName, samples] of Object.entries(durations)) {
       const stats = calculateStats(samples)
       scenarios.push({
@@ -170,6 +176,36 @@ function computeScoreStats(scores) {
     }
   }
   return { count, average, median, q1, q3, buckets }
+}
+
+function derivePipelineTotals(durationsBySystem) {
+  const entries = Object.entries(durationsBySystem)
+    .filter(([key]) => key !== 'pipeline.total')
+    .map(([, value]) => (Array.isArray(value) ? value : []))
+
+  if (!entries.length) {
+    return []
+  }
+
+  const maxLength = Math.max(...entries.map(arr => arr.length))
+  const totals = []
+
+  for (let index = 0; index < maxLength; index += 1) {
+    let sum = 0
+    let hasSample = false
+    for (const samples of entries) {
+      const sample = samples[index]
+      if (typeof sample === 'number' && Number.isFinite(sample)) {
+        sum += sample
+        hasSample = true
+      }
+    }
+    if (hasSample) {
+      totals.push(sum)
+    }
+  }
+
+  return totals
 }
 
 function percentile(sortedArray, percentile) {

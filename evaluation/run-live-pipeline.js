@@ -302,6 +302,9 @@ function buildPerformanceSummary(durationStats, entryCount) {
   if (durationStats.anystyleConvert.length) {
     durationsSeconds['anyStyle.convert'] = [...durationStats.anystyleConvert]
   }
+  if (durationStats.total.length) {
+    durationsSeconds['pipeline.total'] = [...durationStats.total]
+  }
   for (const [source, samples] of Object.entries(durationStats.search)) {
     if (samples.length) {
       durationsSeconds[`search.${source}`] = [...samples]
@@ -332,6 +335,7 @@ function createDurationStats() {
     anystyleConvert: [],
     search: {},
     match: [],
+    total: [],
   }
 }
 
@@ -343,6 +347,42 @@ function stripDoiFromMetadata(metadata) {
     delete clone.DOI
   }
   return clone
+}
+
+function computeTotalDurationSeconds({
+  extractionMs,
+  parseMs,
+  convertMs,
+  matchMs,
+  searchTimings,
+  sources,
+}) {
+  let totalMs = 0
+
+  if (typeof extractionMs === 'number' && Number.isFinite(extractionMs)) {
+    totalMs += extractionMs
+  }
+  if (typeof parseMs === 'number' && Number.isFinite(parseMs)) {
+    totalMs += parseMs
+  }
+  if (typeof convertMs === 'number' && Number.isFinite(convertMs)) {
+    totalMs += convertMs
+  }
+  if (typeof matchMs === 'number' && Number.isFinite(matchMs)) {
+    totalMs += matchMs
+  }
+
+  if (searchTimings && Array.isArray(sources)) {
+    for (const source of sources) {
+      const key = `search:${source}`
+      const value = searchTimings[key]
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        totalMs += value
+      }
+    }
+  }
+
+  return totalMs / 1000
 }
 
 async function ensureDirectory(targetFile) {
@@ -531,6 +571,18 @@ async function main() {
         label: 'mit DOI',
       })
       // matchWithDoi already stored in sourceTasterResult inside performMatching
+
+      if (typeof sourceTasterResult.timings.extractionMs === 'number') {
+        const totalSeconds = computeTotalDurationSeconds({
+          extractionMs: sourceTasterResult.timings.extractionMs,
+          parseMs: anyStyleResult.timings.parseMs,
+          convertMs: anyStyleResult.timings.convertMs,
+          matchMs: sourceTasterResult.timings.matchMs,
+          searchTimings: sourceTasterResult.timings,
+          sources: options.skipSearch ? [] : options.sources,
+        })
+        durationStats.total.push(totalSeconds)
+      }
     }
 
     // No-DOI mode
@@ -546,6 +598,23 @@ async function main() {
       // matchNoDoi stored in timings via performMatching; attach full result for clarity
       if (matchNoDoi) {
         sourceTasterNoDoi.matching = matchNoDoi
+      }
+
+      if (typeof sourceTasterResult.timings.extractionMs === 'number') {
+        const totalNoDoiSeconds = computeTotalDurationSeconds({
+          extractionMs: sourceTasterResult.timings.extractionMs,
+          parseMs: anyStyleResult.timings.parseMs,
+          convertMs: anyStyleResult.timings.convertMs,
+          matchMs: sourceTasterNoDoi.timings.matchMs,
+          searchTimings: sourceTasterNoDoi.timings,
+          sources: options.skipSearch ? [] : options.sources,
+        })
+        if (durationStatsNoDoi) {
+          durationStatsNoDoi.total.push(totalNoDoiSeconds)
+        }
+        if (options.noDoiOnly) {
+          durationStats.total.push(totalNoDoiSeconds)
+        }
       }
     }
 
@@ -573,6 +642,8 @@ async function main() {
                 durationsSeconds['anyStyle.parse'] = [...durationStatsNoDoi.anystyleParse]
               if (durationStatsNoDoi.anystyleConvert.length)
                 durationsSeconds['anyStyle.convert'] = [...durationStatsNoDoi.anystyleConvert]
+              if (durationStatsNoDoi.total.length)
+                durationsSeconds['pipeline.total'] = [...durationStatsNoDoi.total]
               for (const [source, samples] of Object.entries(durationStatsNoDoi.search)) {
                 if (samples.length)
                   durationsSeconds[`search.${source}`] = [...samples]
