@@ -330,6 +330,144 @@ function printPerformanceSummary(summary) {
   console.table(rows)
 }
 
+function hasMatchingData(summary) {
+  if (!summary) {
+    return false
+  }
+  if (summary.overall && (summary.overall.count ?? 0) > 0) {
+    return true
+  }
+  return Array.isArray(summary.perType) && summary.perType.some(item => (item.count ?? 0) > 0)
+}
+
+function toMarkdownTable(headers, rows) {
+  if (!rows.length) {
+    return '_Keine Daten verfügbar_'
+  }
+
+  const headerRow = `| ${headers.join(' | ')} |`
+  const separatorRow = `| ${headers.map(() => '---').join(' | ')} |`
+  const bodyRows = rows.map(row => `| ${row.join(' | ')} |`).join('\n')
+  return `${headerRow}\n${separatorRow}\n${bodyRows}`
+}
+
+function buildMatchingMarkdown(summary, label) {
+  const lines = [`## Matching – ${label}`]
+
+  if (!hasMatchingData(summary)) {
+    lines.push('_Keine Daten verfügbar_')
+    return lines.join('\n\n')
+  }
+
+  const typeHeaders = ['Typ', 'Ø Score', 'Median', 'Q1', 'Q3', 'Anzahl']
+  const typeRows = summary.perType.map(item => [
+    item.type,
+    formatNumber(item.average),
+    formatNumber(item.median),
+    formatNumber(item.q1),
+    formatNumber(item.q3),
+    String(item.count ?? 0),
+  ])
+  typeRows.push([
+    'Ø gesamt',
+    formatNumber(summary.overall.average),
+    formatNumber(summary.overall.median),
+    formatNumber(summary.overall.q1),
+    formatNumber(summary.overall.q3),
+    String(summary.overall.count ?? 0),
+  ])
+
+  lines.push('### Ø Score nach Typ')
+  lines.push(toMarkdownTable(typeHeaders, typeRows))
+
+  if (summary.perStyle && summary.perStyle.length > 0) {
+    const styleHeaders = ['Stil', 'Ø Score', 'Median', 'Q1', 'Q3', 'Anzahl']
+    const styleRows = summary.perStyle.map(item => [
+      item.style,
+      formatNumber(item.average),
+      formatNumber(item.median),
+      formatNumber(item.q1),
+      formatNumber(item.q3),
+      String(item.count ?? 0),
+    ])
+    lines.push('### Ø Score nach Stil')
+    lines.push(toMarkdownTable(styleHeaders, styleRows))
+  }
+
+  const labels = getBucketLabels()
+  const bucketHeaders = ['Typ', labels.exact, labels.strong, labels.possible, labels.none]
+  const bucketRows = summary.perType.map(item => [
+    item.type,
+    String(item.buckets?.exact ?? 0),
+    String(item.buckets?.strong ?? 0),
+    String(item.buckets?.possible ?? 0),
+    String(item.buckets?.none ?? 0),
+  ])
+  bucketRows.push([
+    'Ø gesamt',
+    String(summary.overall.buckets?.exact ?? 0),
+    String(summary.overall.buckets?.strong ?? 0),
+    String(summary.overall.buckets?.possible ?? 0),
+    String(summary.overall.buckets?.none ?? 0),
+  ])
+  lines.push('### Score-Verteilung nach Typ')
+  lines.push(toMarkdownTable(bucketHeaders, bucketRows))
+
+  if (summary.perStyle && summary.perStyle.length > 0) {
+    const bucketStyleRows = summary.perStyle.map(item => [
+      item.style,
+      String(item.buckets?.exact ?? 0),
+      String(item.buckets?.strong ?? 0),
+      String(item.buckets?.possible ?? 0),
+      String(item.buckets?.none ?? 0),
+    ])
+    lines.push('### Score-Verteilung nach Stil')
+    lines.push(toMarkdownTable(['Stil', labels.exact, labels.strong, labels.possible, labels.none], bucketStyleRows))
+  }
+
+  if (summary.missing.length > 0) {
+    lines.push(`> ⚠️ ${summary.missing.length} Referenzen ohne Matching-Ergebnis: ${summary.missing.join(', ')}`)
+  }
+
+  return lines.join('\n\n')
+}
+
+function buildPerformanceMarkdown(summary) {
+  if (!summary || !Array.isArray(summary.scenarios) || summary.scenarios.length === 0) {
+    return '## Performance\n\n_Keine Performance-Daten vorhanden._'
+  }
+
+  const headers = ['Szenario', 'System', 'Ø Zeit (s)', 'StdAbw (s)', 'Durchsatz (Ref/min)']
+  const rows = summary.scenarios.map(item => [
+    item.scenario,
+    item.system,
+    formatNumber(item.average),
+    formatNumber(item.stdDev),
+    formatNumber(item.throughput),
+  ])
+
+  return ['## Performance', toMarkdownTable(headers, rows)].join('\n\n')
+}
+
+function buildMarkdownReport({ generatedAt, input, thresholds, matching, matchingNoDoi, performance }) {
+  const lines = ['# Evaluation Summary', '', `- Generated: ${generatedAt}`, `- Input: ${input}`, `- Matching bucket thresholds: ${thresholds.map(formatThreshold).join(' / ')}`]
+
+  if (hasMatchingData(matching)) {
+    lines.push('', buildMatchingMarkdown(matching, 'Source Taster'))
+  }
+  else {
+    lines.push('', '## Matching – Source Taster', '', '_Keine Daten verfügbar_')
+  }
+
+  if (hasMatchingData(matchingNoDoi)) {
+    lines.push('', buildMatchingMarkdown(matchingNoDoi, 'Source Taster ohne DOI'))
+  }
+
+  lines.push('', buildPerformanceMarkdown(performance))
+
+  return `${lines.join('\n')}\n`
+}
+
 async function main() {
   const inputPath = pickInputPath()
   const bucketThresholdsArg = getBucketThresholdsFromArgs()
@@ -373,6 +511,18 @@ async function main() {
   const outputPath = path.join(OUTPUT_DIR, 'metrics-summary.json')
   await writeFile(outputPath, JSON.stringify(summaryPayload, null, 2), 'utf8')
   console.log(`\n→ Zusammenfassung gespeichert unter ${outputPath}`)
+
+  const markdownPath = path.join(OUTPUT_DIR, 'metrics-summary.md')
+  const markdownReport = buildMarkdownReport({
+    generatedAt: summaryPayload.generatedAt,
+    input: summaryPayload.input,
+    thresholds: MATCH_SCORE_BUCKET_THRESHOLDS,
+    matching: matchingSummary,
+    matchingNoDoi: matchingSummaryNoDoi,
+    performance: performanceSummary,
+  })
+  await writeFile(markdownPath, markdownReport, 'utf8')
+  console.log(`→ Markdown-Übersicht gespeichert unter ${markdownPath}`)
 }
 
 main().catch((error) => {
