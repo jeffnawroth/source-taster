@@ -11,7 +11,7 @@ import process from 'node:process'
 const DEFAULT_INPUT = 'evaluation/out/live-input.crossref.json'
 const DEFAULT_OUTPUT = 'evaluation/out/live-results.crossref.json'
 const DEFAULT_API_URL = 'http://localhost:8000'
-const DEFAULT_SOURCES = ['crossref', 'openalex', 'semanticscholar']
+const DEFAULT_SOURCES = ['crossref', 'openalex', 'semanticscholar', 'europepmc', 'arxiv']
 const DEFAULT_AI_PROVIDER = process.env.SOURCE_TASTER_AI_PROVIDER ?? 'openai'
 const DEFAULT_AI_MODEL = process.env.SOURCE_TASTER_AI_MODEL ?? 'gpt-4.1'
 const EXTRACT_FIELDS = [
@@ -27,7 +27,7 @@ const EXTRACT_FIELDS = [
   'URL',
 ]
 const DEFAULT_EARLY_TERMINATION = process.env.SOURCE_TASTER_EARLY_TERMINATION === 'true'
-const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Number(process.env.SOURCE_TASTER_EARLY_THRESHOLD) : 90
+const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Number(process.env.SOURCE_TASTER_EARLY_THRESHOLD) : 95
 const MATCHING_FIELD_CONFIG = {
   'title': { enabled: true, weight: 20 },
   'author': { enabled: true, weight: 18 },
