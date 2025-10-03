@@ -40,13 +40,13 @@ function formatNumber(value) {
   return value.toFixed(2)
 }
 
-function computeMatchingMetrics(entries) {
+function computeMatchingMetricsFor(entries, getMatching) {
   const scoresByType = new Map()
   const scoresByStyle = new Map()
   const missing = []
 
   for (const entry of entries) {
-    const matching = entry.predictions?.sourceTaster?.matching
+    const matching = getMatching(entry)
     if (!matching) {
       missing.push(entry.id ?? entry.referenceId ?? 'unknown')
       continue
@@ -95,6 +95,10 @@ function computeMatchingMetrics(entries) {
     missing,
     thresholds: [...MATCH_SCORE_BUCKET_THRESHOLDS],
   }
+}
+
+function computeMatchingMetrics(entries) {
+  return computeMatchingMetricsFor(entries, e => e.predictions?.sourceTaster?.matching)
 }
 
 function calculateStats(samples) {
@@ -234,8 +238,8 @@ function parseBucketThresholdString(raw) {
   return numbers.sort((a, b) => b - a)
 }
 
-function printMatchingSummary(summary) {
-  console.log('\nMatching-Score (Source Taster)')
+function printMatchingSummary(summary, title = 'Matching-Score (Source Taster)') {
+  console.log(`\n${title}`)
   const rows = summary.perType.map(item => ({
     'Typ': item.type,
     'Ø Score': formatNumber(item.average),
@@ -258,11 +262,11 @@ function printMatchingSummary(summary) {
   }
 }
 
-function printMatchingSummaryByStyle(summary) {
+function printMatchingSummaryByStyle(summary, title = 'Matching-Score nach Stil (Source Taster)') {
   if (!summary.perStyle || summary.perStyle.length === 0) {
     return
   }
-  console.log('\nMatching-Score nach Stil (Source Taster)')
+  console.log(`\n${title}`)
   const rows = summary.perStyle.map(item => ({
     'Stil': item.style,
     'Ø Score': formatNumber(item.average),
@@ -274,8 +278,8 @@ function printMatchingSummaryByStyle(summary) {
   console.table(rows)
 }
 
-function printMatchingBuckets(summary) {
-  console.log('\nMatching-Score Verteilung (Source Taster)')
+function printMatchingBuckets(summary, title = 'Matching-Score Verteilung (Source Taster)') {
+  console.log(`\n${title}`)
   const labels = getBucketLabels()
   const rows = summary.perType.map(item => ({
     Typ: item.type,
@@ -294,11 +298,11 @@ function printMatchingBuckets(summary) {
   console.table(rows)
 }
 
-function printMatchingBucketsByStyle(summary) {
+function printMatchingBucketsByStyle(summary, title = 'Matching-Score Verteilung nach Stil (Source Taster)') {
   if (!summary.perStyle || summary.perStyle.length === 0) {
     return
   }
-  console.log('\nMatching-Score Verteilung nach Stil (Source Taster)')
+  console.log(`\n${title}`)
   const labels = getBucketLabels()
   const rows = summary.perStyle.map(item => ({
     Stil: item.style,
@@ -340,18 +344,27 @@ async function main() {
   }
 
   const matchingSummary = computeMatchingMetrics(entries)
+  const matchingSummaryNoDoi = computeMatchingMetricsFor(entries, e => e.predictions?.sourceTasterNoDoi?.matching)
   const performanceSummary = computePerformanceMetrics(data.meta?.performance ?? data.performance)
 
   printMatchingSummary(matchingSummary)
   printMatchingSummaryByStyle(matchingSummary)
   printMatchingBuckets(matchingSummary)
   printMatchingBucketsByStyle(matchingSummary)
+
+  if ((matchingSummaryNoDoi?.overall?.count ?? 0) > 0 || (matchingSummaryNoDoi?.perType?.some(t => t.count > 0) ?? false)) {
+    printMatchingSummary(matchingSummaryNoDoi, 'Matching-Score (Source Taster – ohne DOI)')
+    printMatchingSummaryByStyle(matchingSummaryNoDoi, 'Matching-Score nach Stil (Source Taster – ohne DOI)')
+    printMatchingBuckets(matchingSummaryNoDoi, 'Matching-Score Verteilung (Source Taster – ohne DOI)')
+    printMatchingBucketsByStyle(matchingSummaryNoDoi, 'Matching-Score Verteilung nach Stil (Source Taster – ohne DOI)')
+  }
   printPerformanceSummary(performanceSummary)
 
   const summaryPayload = {
     generatedAt: new Date().toISOString(),
     input: path.relative(process.cwd(), resolvedPath),
     matching: matchingSummary,
+    matchingNoDoi: matchingSummaryNoDoi,
     performance: performanceSummary,
     matchingBucketThresholds: MATCH_SCORE_BUCKET_THRESHOLDS,
   }

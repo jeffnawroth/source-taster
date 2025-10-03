@@ -53,6 +53,8 @@ function parseArgs() {
     skipSearch: false,
     earlyTermination: DEFAULT_EARLY_TERMINATION,
     earlyThreshold: DEFAULT_EARLY_THRESHOLD,
+    noDoiOnly: false,
+    alsoNoDoi: false,
   }
 
   const args = process.argv.slice(2)
@@ -91,6 +93,12 @@ function parseArgs() {
         break
       case '--early-threshold':
         options.earlyThreshold = Number(args[++i] ?? '') || DEFAULT_EARLY_THRESHOLD
+        break
+      case '--no-doi':
+        options.noDoiOnly = true
+        break
+      case '--also-no-doi':
+        options.alsoNoDoi = true
         break
       case '--help':
       case '-h':
@@ -134,6 +142,8 @@ Parameter:
   --skip-search         Überspringt /api/search & /api/match (nur Extraktion)
   --early-termination   Aktiviert Early Termination im Matching (Default ${DEFAULT_EARLY_TERMINATION})
   --early-threshold n   Schwellenwert 0-100 (Default ${DEFAULT_EARLY_THRESHOLD})
+  --no-doi              Suche/Matching ohne DOI (anstelle der Standard-Variante)
+  --also-no-doi         Zusätzlich zur Standard-Variante auch ohne DOI ausführen
 `)
 }
 
@@ -315,6 +325,26 @@ function buildPerformanceSummary(durationStats, entryCount) {
   }
 }
 
+function createDurationStats() {
+  return {
+    extraction: [],
+    anystyleParse: [],
+    anystyleConvert: [],
+    search: {},
+    match: [],
+  }
+}
+
+function stripDoiFromMetadata(metadata) {
+  if (!metadata || typeof metadata !== 'object')
+    return metadata
+  const clone = { ...metadata }
+  if ('DOI' in clone) {
+    delete clone.DOI
+  }
+  return clone
+}
+
 async function ensureDirectory(targetFile) {
   const dir = path.dirname(path.resolve(process.cwd(), targetFile))
   await mkdir(dir, { recursive: true })
@@ -325,13 +355,8 @@ async function main() {
   const { meta, entries } = await loadDataset(options.input)
 
   const outputEntries = []
-  const durationStats = {
-    extraction: [],
-    anystyleParse: [],
-    anystyleConvert: [],
-    search: {},
-    match: [],
-  }
+  const durationStats = createDurationStats()
+  const durationStatsNoDoi = (options.alsoNoDoi || options.noDoiOnly) ? createDurationStats() : null
 
   for (const [idx, entry] of entries.entries()) {
     const entryId = entry.id ?? `entry-${idx + 1}`
@@ -358,7 +383,10 @@ async function main() {
         clientId: options.clientId,
       })
       sourceTasterResult.timings.extractionMs = Math.round(performance.now() - extractStart)
-      durationStats.extraction.push(sourceTasterResult.timings.extractionMs / 1000)
+      const extractSec = sourceTasterResult.timings.extractionMs / 1000
+      durationStats.extraction.push(extractSec)
+      if (durationStatsNoDoi)
+        durationStatsNoDoi.extraction.push(extractSec)
       const extractedReference = chooseExtractedReference(extractResponse?.data?.references ?? [], entryId)
       sourceTasterResult.metadata = extractedReference?.metadata ?? null
       sourceTasterResult.rawResponse = extractResponse
@@ -377,7 +405,10 @@ async function main() {
         body: { input: [rawText] },
       })
       anyStyleResult.timings.parseMs = Math.round(performance.now() - parseStart)
-      durationStats.anystyleParse.push(anyStyleResult.timings.parseMs / 1000)
+      const parseSec = anyStyleResult.timings.parseMs / 1000
+      durationStats.anystyleParse.push(parseSec)
+      if (durationStatsNoDoi)
+        durationStatsNoDoi.anystyleParse.push(parseSec)
       anyStyleResult.tokens = parseResponse?.data?.references?.[0]?.tokens ?? null
 
       if (anyStyleResult.tokens) {
@@ -388,7 +419,10 @@ async function main() {
           body: { references: [{ id: parseResponse.data.references[0].id, tokens: anyStyleResult.tokens }] },
         })
         anyStyleResult.timings.convertMs = Math.round(performance.now() - convertStart)
-        durationStats.anystyleConvert.push(anyStyleResult.timings.convertMs / 1000)
+        const convertSec = anyStyleResult.timings.convertMs / 1000
+        durationStats.anystyleConvert.push(convertSec)
+        if (durationStatsNoDoi)
+          durationStatsNoDoi.anystyleConvert.push(convertSec)
         anyStyleResult.metadata = convertResponse?.data?.csl?.[0] ?? null
         anyStyleResult.rawResponse = { parse: parseResponse, convert: convertResponse }
       }
@@ -399,12 +433,19 @@ async function main() {
     }
 
     // --- Search & Match (optional) ---
-    let matchingResult = null
+    const outputPrediction = {
+      sourceTaster: sourceTasterResult,
+      anyStyle: anyStyleResult,
+    }
 
-    if (!options.skipSearch && sourceTasterResult.metadata) {
+    // Helper to execute search+match for a given metadata/result/stats tuple
+    const runSearchAndMatch = async ({ metadata, resultTarget, statsTarget, label }) => {
+      let matchingResultLocal = null
+      if (options.skipSearch || !metadata) {
+        return matchingResultLocal
+      }
       const aggregatedCandidates = []
       const candidateIndex = new Map()
-      let terminatedEarly = false
 
       for (const source of options.sources) {
         try {
@@ -415,25 +456,22 @@ async function main() {
             body: {
               references: [
                 {
-                  id: sourceTasterResult.metadata.id ?? entryId,
-                  metadata: sourceTasterResult.metadata,
+                  id: metadata.id ?? entryId,
+                  metadata,
                 },
               ],
             },
           })
           const duration = Math.round(performance.now() - searchStart)
-          sourceTasterResult.timings[`search:${source}`] = duration
-          if (!durationStats.search[source]) {
-            durationStats.search[source] = []
+          resultTarget.timings[`search:${source}`] = duration
+          if (!statsTarget.search[source]) {
+            statsTarget.search[source] = []
           }
-          durationStats.search[source].push(duration / 1000)
+          statsTarget.search[source].push(duration / 1000)
 
           const candidates = searchResponse?.data?.results?.[0]?.candidates ?? []
           candidates.forEach((candidate) => {
-            aggregatedCandidates.push({
-              id: candidate.id,
-              metadata: candidate.metadata,
-            })
+            aggregatedCandidates.push({ id: candidate.id, metadata: candidate.metadata })
             candidateIndex.set(candidate.id, candidate.metadata)
           })
 
@@ -442,48 +480,78 @@ async function main() {
               apiUrl: options.apiUrl,
               entry,
               entryId,
-              sourceTasterResult,
+              sourceTasterResult: resultTarget,
               aggregatedCandidates,
               candidateIndex,
-              durationStats,
+              durationStats: statsTarget,
             })
-            matchingResult = currentMatch
-
+            matchingResultLocal = currentMatch
+            if (currentMatch) {
+              resultTarget.matching = currentMatch
+            }
             if ((currentMatch?.topScore ?? 0) >= options.earlyThreshold) {
-              terminatedEarly = true
               break
             }
           }
         }
         catch (error) {
-          sourceTasterResult.timings[`search:${source}`] = null
-          console.error(`Search (${source}) fehlgeschlagen (${entryId}):`, error.message ?? error)
+          resultTarget.timings[`search:${source}`] = null
+          console.error(`Search (${source}) fehlgeschlagen (${entryId}) [${label}]:`, error.message ?? error)
         }
       }
 
-      if (!matchingResult && aggregatedCandidates.length) {
-        matchingResult = await performMatching({
+      if (!matchingResultLocal && aggregatedCandidates.length) {
+        matchingResultLocal = await performMatching({
           apiUrl: options.apiUrl,
           entry,
           entryId,
-          sourceTasterResult,
+          sourceTasterResult: resultTarget,
           aggregatedCandidates,
           candidateIndex,
-          durationStats,
+          durationStats: statsTarget,
         })
+        if (matchingResultLocal) {
+          resultTarget.matching = matchingResultLocal
+        }
       }
 
       if (!aggregatedCandidates.length) {
-        console.warn(`⚠️  Keine Kandidaten für ${entryId} gefunden (Quellen: ${options.sources.join(', ')})`)
+        console.warn(`⚠️  Keine Kandidaten für ${entryId} gefunden (Quellen: ${options.sources.join(', ')}) [${label}]`)
+      }
+
+      return matchingResultLocal
+    }
+
+    // Default mode (with DOI) unless only-no-doi
+    if (!options.noDoiOnly) {
+      const matchWithDoi = await runSearchAndMatch({
+        metadata: sourceTasterResult.metadata,
+        resultTarget: sourceTasterResult,
+        statsTarget: durationStats,
+        label: 'mit DOI',
+      })
+      // matchWithDoi already stored in sourceTasterResult inside performMatching
+    }
+
+    // No-DOI mode
+    if (options.alsoNoDoi || options.noDoiOnly) {
+      const sourceTasterNoDoi = { metadata: stripDoiFromMetadata(sourceTasterResult.metadata), timings: {}, errors: [] }
+      outputPrediction.sourceTasterNoDoi = sourceTasterNoDoi
+      const matchNoDoi = await runSearchAndMatch({
+        metadata: sourceTasterNoDoi.metadata,
+        resultTarget: sourceTasterNoDoi,
+        statsTarget: durationStatsNoDoi,
+        label: 'ohne DOI',
+      })
+      // matchNoDoi stored in timings via performMatching; attach full result for clarity
+      if (matchNoDoi) {
+        sourceTasterNoDoi.matching = matchNoDoi
       }
     }
 
     outputEntries.push({
       ...entry,
-      predictions: {
-        sourceTaster: sourceTasterResult,
-        anyStyle: anyStyleResult,
-      },
+      predictions: outputPrediction,
     })
   }
 
@@ -493,7 +561,29 @@ async function main() {
     sources: options.sources,
     skipSearch: options.skipSearch,
     meta,
-    performance: buildPerformanceSummary(durationStats, outputEntries.length),
+    performance: {
+      scenarios: [
+        ...buildPerformanceSummary(durationStats, outputEntries.length).scenarios,
+        ...(durationStatsNoDoi
+          ? [{ name: `Einzelprüfung ohne DOI (n=${outputEntries.length})`, durationsSeconds: (() => {
+              const durationsSeconds = {}
+              if (durationStatsNoDoi.extraction.length)
+                durationsSeconds['sourceTaster.extract'] = [...durationStatsNoDoi.extraction]
+              if (durationStatsNoDoi.anystyleParse.length)
+                durationsSeconds['anyStyle.parse'] = [...durationStatsNoDoi.anystyleParse]
+              if (durationStatsNoDoi.anystyleConvert.length)
+                durationsSeconds['anyStyle.convert'] = [...durationStatsNoDoi.anystyleConvert]
+              for (const [source, samples] of Object.entries(durationStatsNoDoi.search)) {
+                if (samples.length)
+                  durationsSeconds[`search.${source}`] = [...samples]
+              }
+              if (durationStatsNoDoi.match.length)
+                durationsSeconds['sourceTaster.match'] = [...durationStatsNoDoi.match]
+              return durationsSeconds
+            })() }]
+          : []),
+      ],
+    },
     entries: outputEntries,
   }
 
