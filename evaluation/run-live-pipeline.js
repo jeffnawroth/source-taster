@@ -26,8 +26,10 @@ const EXTRACT_FIELDS = [
   'DOI',
   'URL',
 ]
-const DEFAULT_EARLY_TERMINATION = process.env.SOURCE_TASTER_EARLY_TERMINATION === 'true'
-const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Number(process.env.SOURCE_TASTER_EARLY_THRESHOLD) : 95
+const DEFAULT_EARLY_TERMINATION = process.env.SOURCE_TASTER_EARLY_TERMINATION
+  ? process.env.SOURCE_TASTER_EARLY_TERMINATION === 'true'
+  : true
+const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Number(process.env.SOURCE_TASTER_EARLY_THRESHOLD) : 90
 const MATCHING_FIELD_CONFIG = {
   'title': { enabled: true, weight: 20 },
   'author': { enabled: true, weight: 18 },
@@ -39,6 +41,63 @@ const MATCHING_FIELD_CONFIG = {
   'page': { enabled: true, weight: 6 },
   'DOI': { enabled: true, weight: 16 },
   'URL': { enabled: true, weight: 4 },
+}
+
+function formatMs(ms) {
+  if (!Number.isFinite(ms))
+    return '—'
+  return `${(ms / 1000).toFixed(2)}s (${Math.round(ms)}ms)`
+}
+
+function formatSeconds(seconds) {
+  if (!Number.isFinite(seconds))
+    return '—'
+  return `${seconds.toFixed(2)}s`
+}
+
+function summarizeSeconds(samples) {
+  if (!samples?.length)
+    return null
+  const min = Math.min(...samples)
+  const max = Math.max(...samples)
+  const sum = samples.reduce((acc, value) => acc + value, 0)
+  const avg = sum / samples.length
+  return {
+    count: samples.length,
+    avg: formatSeconds(avg),
+    min: formatSeconds(min),
+    max: formatSeconds(max),
+  }
+}
+
+function logSection(title) {
+  console.log(`\n\n📊 ${title}`)
+}
+
+function logEntryHeader(index, total, entryId) {
+  console.log(`\n🔎 Eintrag ${index}/${total}: ${entryId}`)
+}
+
+function logStep(message) {
+  console.log(`   → ${message}`)
+}
+
+function logDetail(message) {
+  console.log(`      • ${message}`)
+}
+
+function logSuccess(message) {
+  console.log(`     ✅ ${message}`)
+}
+
+function logWarn(message) {
+  console.warn(`     ⚠️  ${message}`)
+}
+
+function logError(message, error) {
+  console.error(`     ❌ ${message}`)
+  if (error)
+    console.error(error)
 }
 
 function parseArgs() {
@@ -109,13 +168,13 @@ function parseArgs() {
           options.input = arg
         }
         else {
-          console.warn(`Unbekannte Option: ${arg}`)
+          logWarn(`Unbekannte Option: ${arg}`)
         }
     }
   }
 
   if (!options.clientId) {
-    console.warn('⚠️  Kein X-Client-Id über --client-id oder SOURCE_TASTER_CLIENT_ID gesetzt. /api/extract wird wahrscheinlich scheitern.')
+    logWarn('Kein X-Client-Id über --client-id oder SOURCE_TASTER_CLIENT_ID gesetzt. /api/extract wird wahrscheinlich scheitern.')
   }
 
   if (!options.sources.length) {
@@ -248,8 +307,9 @@ function attachMetadataToEvaluations(evaluations, candidatesIndex) {
   }))
 }
 
-async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, aggregatedCandidates, candidateIndex, durationStats }) {
+async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, aggregatedCandidates, candidateIndex, durationStats, label }) {
   try {
+    logStep(`[${label}] Matching mit ${aggregatedCandidates.length} Kandidaten`)
     const matchStart = performance.now()
     const matchResponse = await callApi({
       apiUrl,
@@ -281,11 +341,21 @@ async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, agg
       evaluations: evaluationsWithMetadata,
       ...matchSummary,
     }
+    const topCandidateMeta = matchSummary.candidateId ? candidateIndex.get(matchSummary.candidateId) ?? null : null
+    const titleCandidate = Array.isArray(topCandidateMeta?.title) ? topCandidateMeta.title[0] : topCandidateMeta?.title
+    logSuccess(`[${label}] Matching abgeschlossen in ${formatMs(matchDuration)} (Top-Score: ${matchSummary.topScore !== null ? matchSummary.topScore.toFixed(1) : '—'})`)
+    logDetail(`[${label}] Bewertete Kandidaten: ${matchSummary.scores.length}`)
+    if (topCandidateMeta) {
+      logDetail(`[${label}] Top-Kandidat: ${titleCandidate ?? '—'} (${matchSummary.candidateId})`)
+    }
+    else if (matchSummary.candidateId) {
+      logDetail(`[${label}] Top-Kandidat-ID: ${matchSummary.candidateId}`)
+    }
     sourceTasterResult.matching = payload
     return payload
   }
   catch (error) {
-    console.error(`Matching fehlgeschlagen (${entryId}):`, error.message ?? error)
+    logError(`Matching fehlgeschlagen (${entryId}) [${label}]`, error)
     return null
   }
 }
@@ -394,6 +464,26 @@ async function main() {
   const options = parseArgs()
   const { meta, entries } = await loadDataset(options.input)
 
+  logSection('Pipeline-Setup')
+  logDetail(`Input: ${options.input}`)
+  logDetail(`Output: ${options.output}`)
+  logDetail(`API: ${options.apiUrl}`)
+  logDetail(`Client-Id: ${options.clientId ?? '—'}`)
+  logDetail(`AI: ${options.aiProvider ?? '—'} / ${options.aiModel ?? '—'}`)
+  logDetail(`Suchquellen: ${options.sources.join(', ')}`)
+  logDetail(`Suche aktiv: ${options.skipSearch ? 'nein (--skip-search)' : 'ja'}`)
+  logDetail(`Early Termination: ${options.earlyTermination ? `ja (>= ${options.earlyThreshold})` : 'nein'}`)
+  if (options.noDoiOnly)
+    logDetail('Modus: nur ohne DOI')
+  else if (options.alsoNoDoi)
+    logDetail('Modus: zusätzlich ohne DOI')
+
+  logSection('Datensatz')
+  logDetail(`Einträge gesamt: ${entries.length}`)
+  const metaKeys = Object.keys(meta ?? {})
+  if (metaKeys.length)
+    logDetail(`Meta-Felder: ${metaKeys.join(', ')}`)
+
   const outputEntries = []
   const durationStats = createDurationStats()
   const durationStatsNoDoi = (options.alsoNoDoi || options.noDoiOnly) ? createDurationStats() : null
@@ -403,16 +493,17 @@ async function main() {
     const rawText = entry.raw ?? entry.originalText ?? entry.text
 
     if (!rawText || typeof rawText !== 'string') {
-      console.warn(`⚠️  Eintrag ${entryId}: Kein "raw" Text gefunden, übersprungen`)
+      logWarn(`Eintrag ${entryId}: Kein "raw" Text gefunden, übersprungen`)
       continue
     }
 
-    console.log(`\n#${idx + 1}/${entries.length} – ${entryId}`)
+    logEntryHeader(idx + 1, entries.length, entryId)
 
     const sourceTasterResult = { metadata: null, timings: {}, errors: [] }
     const anyStyleResult = { metadata: null, tokens: null, timings: {}, errors: [] }
 
     // --- Source Taster Extraction ---
+    logStep('Extraktion via /api/extract')
     try {
       const extractStart = performance.now()
       const extractPayload = buildExtractRequest(rawText, options)
@@ -430,13 +521,18 @@ async function main() {
       const extractedReference = chooseExtractedReference(extractResponse?.data?.references ?? [], entryId)
       sourceTasterResult.metadata = extractedReference?.metadata ?? null
       sourceTasterResult.rawResponse = extractResponse
+      const extractedFields = sourceTasterResult.metadata ? Object.entries(sourceTasterResult.metadata).filter(([, value]) => value !== null && value !== undefined && value !== '').length : 0
+      logSuccess(`Extraktion abgeschlossen in ${formatMs(sourceTasterResult.timings.extractionMs)} (${extractedFields} Felder)`)
+      if (!sourceTasterResult.metadata)
+        logWarn('Extraktion lieferte kein strukturierter Metadata-Objekt')
     }
     catch (error) {
       sourceTasterResult.errors.push(error.message ?? String(error))
-      console.error(`Extraction fehlgeschlagen (${entryId}):`, error)
+      logError(`Extraction fehlgeschlagen (${entryId})`, error)
     }
 
     // --- AnyStyle parse & convert ---
+    logStep('AnyStyle.parse')
     try {
       const parseStart = performance.now()
       const parseResponse = await callApi({
@@ -450,8 +546,10 @@ async function main() {
       if (durationStatsNoDoi)
         durationStatsNoDoi.anystyleParse.push(parseSec)
       anyStyleResult.tokens = parseResponse?.data?.references?.[0]?.tokens ?? null
+      logSuccess(`AnyStyle.parse abgeschlossen in ${formatMs(anyStyleResult.timings.parseMs)}`)
 
       if (anyStyleResult.tokens) {
+        logStep('AnyStyle.convert-to-csl')
         const convertStart = performance.now()
         const convertResponse = await callApi({
           apiUrl: options.apiUrl,
@@ -465,11 +563,17 @@ async function main() {
           durationStatsNoDoi.anystyleConvert.push(convertSec)
         anyStyleResult.metadata = convertResponse?.data?.csl?.[0] ?? null
         anyStyleResult.rawResponse = { parse: parseResponse, convert: convertResponse }
+        logSuccess(`AnyStyle.convert abgeschlossen in ${formatMs(anyStyleResult.timings.convertMs)}`)
+        if (!anyStyleResult.metadata)
+          logWarn('AnyStyle.convert lieferte kein CSL-Objekt')
+      }
+      else {
+        logWarn('AnyStyle.parse lieferte keine Tokens; Konvertierung übersprungen')
       }
     }
     catch (error) {
       anyStyleResult.errors.push(error.message ?? String(error))
-      console.error(`AnyStyle fehlgeschlagen (${entryId}):`, error)
+      logError(`AnyStyle fehlgeschlagen (${entryId})`, error)
     }
 
     // --- Search & Match (optional) ---
@@ -482,13 +586,20 @@ async function main() {
     const runSearchAndMatch = async ({ metadata, resultTarget, statsTarget, label }) => {
       let matchingResultLocal = null
       if (options.skipSearch || !metadata) {
+        if (options.skipSearch)
+          logWarn(`[${label}] Suche deaktiviert (--skip-search)`)
+        else
+          logWarn(`[${label}] Keine Metadaten vorhanden – Suche übersprungen`)
         return matchingResultLocal
       }
       const aggregatedCandidates = []
       const candidateIndex = new Map()
 
+      logStep(`[${label}] Suche & Matching gestartet`)
+
       for (const source of options.sources) {
         try {
+          logStep(`[${label}] Suche @${source}`)
           const searchStart = performance.now()
           const searchResponse = await callApi({
             apiUrl: options.apiUrl,
@@ -515,6 +626,10 @@ async function main() {
             candidateIndex.set(candidate.id, candidate.metadata)
           })
 
+          logDetail(`[${label}] ${source}: ${candidates.length} Kandidaten (${formatMs(duration)})`)
+          if (!candidates.length)
+            logWarn(`[${label}] ${source}: Keine Kandidaten`)
+
           if (options.earlyTermination && aggregatedCandidates.length) {
             const currentMatch = await performMatching({
               apiUrl: options.apiUrl,
@@ -524,19 +639,24 @@ async function main() {
               aggregatedCandidates,
               candidateIndex,
               durationStats: statsTarget,
+              label,
             })
             matchingResultLocal = currentMatch
             if (currentMatch) {
               resultTarget.matching = currentMatch
             }
             if ((currentMatch?.topScore ?? 0) >= options.earlyThreshold) {
+              logSuccess(`[${label}] Frühabbruch nach Treffer bei ${source} (Score ${currentMatch.topScore?.toFixed(1) ?? '—'})`)
               break
+            }
+            else {
+              logDetail(`[${label}] Score unter Schwelle ${options.earlyThreshold}, weitere Suche`)
             }
           }
         }
         catch (error) {
           resultTarget.timings[`search:${source}`] = null
-          console.error(`Search (${source}) fehlgeschlagen (${entryId}) [${label}]:`, error.message ?? error)
+          logError(`Search (${source}) fehlgeschlagen (${entryId}) [${label}]`, error)
         }
       }
 
@@ -549,6 +669,7 @@ async function main() {
           aggregatedCandidates,
           candidateIndex,
           durationStats: statsTarget,
+          label,
         })
         if (matchingResultLocal) {
           resultTarget.matching = matchingResultLocal
@@ -556,7 +677,7 @@ async function main() {
       }
 
       if (!aggregatedCandidates.length) {
-        console.warn(`⚠️  Keine Kandidaten für ${entryId} gefunden (Quellen: ${options.sources.join(', ')}) [${label}]`)
+        logWarn(`Keine Kandidaten für ${entryId} gefunden (Quellen: ${options.sources.join(', ')}) [${label}]`)
       }
 
       return matchingResultLocal
@@ -582,6 +703,7 @@ async function main() {
           sources: options.skipSearch ? [] : options.sources,
         })
         durationStats.total.push(totalSeconds)
+        logDetail(`[mit DOI] pipeline.total: ${formatSeconds(totalSeconds)}`)
       }
     }
 
@@ -615,6 +737,7 @@ async function main() {
         if (options.noDoiOnly) {
           durationStats.total.push(totalNoDoiSeconds)
         }
+        logDetail(`[ohne DOI] pipeline.total: ${formatSeconds(totalNoDoiSeconds)}`)
       }
     }
 
@@ -622,6 +745,40 @@ async function main() {
       ...entry,
       predictions: outputPrediction,
     })
+  }
+
+  const summaryRows = []
+  const collectSummary = (label, samples) => {
+    const stats = summarizeSeconds(samples)
+    if (stats) {
+      summaryRows.push({
+        Schritt: label,
+        Messungen: stats.count,
+        Durchschnitt: stats.avg,
+        Minimum: stats.min,
+        Maximum: stats.max,
+      })
+    }
+  }
+
+  collectSummary('sourceTaster.extract', durationStats.extraction)
+  collectSummary('anyStyle.parse', durationStats.anystyleParse)
+  collectSummary('anyStyle.convert', durationStats.anystyleConvert)
+  for (const [source, samples] of Object.entries(durationStats.search)) {
+    collectSummary(`search.${source}`, samples)
+  }
+  collectSummary('sourceTaster.match', durationStats.match)
+  collectSummary('pipeline.total', durationStats.total)
+
+  if (durationStatsNoDoi) {
+    collectSummary('ohne DOI → sourceTaster.extract', durationStatsNoDoi.extraction)
+    collectSummary('ohne DOI → anyStyle.parse', durationStatsNoDoi.anystyleParse)
+    collectSummary('ohne DOI → anyStyle.convert', durationStatsNoDoi.anystyleConvert)
+    for (const [source, samples] of Object.entries(durationStatsNoDoi.search)) {
+      collectSummary(`ohne DOI → search.${source}`, samples)
+    }
+    collectSummary('ohne DOI → sourceTaster.match', durationStatsNoDoi.match)
+    collectSummary('ohne DOI → pipeline.total', durationStatsNoDoi.total)
   }
 
   const outputPayload = {
@@ -661,7 +818,16 @@ async function main() {
   const outputPath = path.resolve(process.cwd(), options.output)
   await ensureDirectory(outputPath)
   await writeFile(outputPath, JSON.stringify(outputPayload, null, 2), 'utf8')
-  console.log(`\n✅ Live-Pipeline Ergebnisse gespeichert unter ${options.output}`)
+
+  logSection('Laufzeit-Zusammenfassung')
+  if (summaryRows.length)
+    console.table(summaryRows)
+  else
+    logDetail('Keine Messpunkte erfasst')
+
+  logSection('Ausgabe')
+  logDetail(`Datei: ${options.output}`)
+  logSuccess('Live-Pipeline abgeschlossen')
 }
 
 main().catch((error) => {
