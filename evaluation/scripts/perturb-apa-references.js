@@ -6,7 +6,7 @@ import process from 'node:process'
 
 const DEFAULT_INPUT = 'evaluation/references/raw-references.crossref.txt'
 const DEFAULT_OUTPUT = 'evaluation/references/raw-references.apa-perturbed.txt'
-const DEFAULT_REPORT = 'evaluation/perturbation-report.apa.json'
+const DEFAULT_REPORT = 'evaluation/metadata/perturbation-report.apa.json'
 
 function parseArgs() {
   const options = {

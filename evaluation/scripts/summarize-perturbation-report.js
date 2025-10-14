@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_INPUT = 'evaluation/perturbation-report.apa.json'
+const DEFAULT_INPUT = 'evaluation/metadata/perturbation-report.apa.json'
 const DEFAULT_OUTPUT = 'evaluation/out/perturbation-summary.md'
 
 function parseArgs() {

@@ -6,7 +6,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 const DEFAULT_RAW_PATH = 'evaluation/references/raw-references.crossref.txt'
-const DEFAULT_WORKS_PATH = 'evaluation/crossref-works.json'
+const DEFAULT_WORKS_PATH = 'evaluation/metadata/crossref-works.json'
 const DEFAULT_OUTPUT_PATH = 'evaluation/out/live-input.crossref.json'
 
 function parseArgs() {

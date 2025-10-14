@@ -7,7 +7,7 @@ import process from 'node:process'
 const CROSSREF_WORKS_ENDPOINT = 'https://api.crossref.org/works'
 const DOI_RESOLVER_BASE = 'https://doi.org/'
 
-const DEFAULT_WORKS_FILE = 'evaluation/crossref-works.json'
+const DEFAULT_WORKS_FILE = 'evaluation/metadata/crossref-works.json'
 const DEFAULT_RAW_FILE = 'evaluation/references/raw-references.crossref.txt'
 const DEFAULT_STYLES = ['apa', 'mla', 'chicago', 'harvard', 'vancouver', 'ieee', 'nature', 'acs', 'ama', 'springer', 'oxford']
 const DEFAULT_LOCALE = 'en-US'

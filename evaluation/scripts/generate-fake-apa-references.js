@@ -5,7 +5,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 const DEFAULT_RAW_OUT = 'evaluation/references/raw-references.fake-apa.txt'
-const DEFAULT_WORKS_OUT = 'evaluation/crossref-works.fake.json'
+const DEFAULT_WORKS_OUT = 'evaluation/metadata/crossref-works.fake.json'
 const PER_CATEGORY = 25
 const CATEGORIES = [
   'journal-article',
