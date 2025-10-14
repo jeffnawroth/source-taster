@@ -25,6 +25,7 @@ const EXTRACT_FIELDS = [
   'page',
   'DOI',
   'URL',
+  // 'editor',
 ]
 const DEFAULT_EARLY_TERMINATION = process.env.SOURCE_TASTER_EARLY_TERMINATION
   ? process.env.SOURCE_TASTER_EARLY_TERMINATION === 'true'
@@ -33,6 +34,7 @@ const DEFAULT_EARLY_THRESHOLD = process.env.SOURCE_TASTER_EARLY_THRESHOLD ? Numb
 const MATCHING_FIELD_CONFIG = {
   'title': { enabled: true, weight: 20 },
   'author': { enabled: true, weight: 18 },
+  // 'editor': { enabled: true, weight: 6 },
   'issued': { enabled: true, weight: 10 },
   'container-title': { enabled: true, weight: 12 },
   'publisher': { enabled: true, weight: 5 },
@@ -114,6 +116,8 @@ function parseArgs() {
     earlyThreshold: DEFAULT_EARLY_THRESHOLD,
     noDoiOnly: false,
     alsoNoDoi: false,
+    anyStyleOnly: false,
+    alsoAnyStyle: false,
   }
 
   const args = process.argv.slice(2)
@@ -159,6 +163,12 @@ function parseArgs() {
       case '--also-no-doi':
         options.alsoNoDoi = true
         break
+      case '--anystyle-only':
+        options.anyStyleOnly = true
+        break
+      case '--also-anystyle':
+        options.alsoAnyStyle = true
+        break
       case '--help':
       case '-h':
         printHelp()
@@ -203,6 +213,8 @@ Parameter:
   --early-threshold n   Schwellenwert 0-100 (Default ${DEFAULT_EARLY_THRESHOLD})
   --no-doi              Suche/Matching ohne DOI (anstelle der Standard-Variante)
   --also-no-doi         Zusätzlich zur Standard-Variante auch ohne DOI ausführen
+  --anystyle-only       Nur Matching mit AnyStyle-Metadaten durchführen
+  --also-anystyle       Zusätzlich Matching mit AnyStyle-Metadaten durchführen
 `)
 }
 
@@ -487,6 +499,8 @@ async function main() {
   const outputEntries = []
   const durationStats = createDurationStats()
   const durationStatsNoDoi = (options.alsoNoDoi || options.noDoiOnly) ? createDurationStats() : null
+  const durationStatsAnyStyle = (options.alsoAnyStyle || options.anyStyleOnly) ? createDurationStats() : null
+  const durationStatsAnyStyleNoDoi = ((options.alsoAnyStyle || options.anyStyleOnly) && (options.alsoNoDoi || options.noDoiOnly)) ? createDurationStats() : null
 
   for (const [idx, entry] of entries.entries()) {
     const entryId = entry.id ?? `entry-${idx + 1}`
@@ -503,32 +517,37 @@ async function main() {
     const anyStyleResult = { metadata: null, tokens: null, timings: {}, errors: [] }
 
     // --- Source Taster Extraction ---
-    logStep('Extraktion via /api/extract')
-    try {
-      const extractStart = performance.now()
-      const extractPayload = buildExtractRequest(rawText, options)
-      const extractResponse = await callApi({
-        apiUrl: options.apiUrl,
-        path: '/api/extract',
-        body: extractPayload,
-        clientId: options.clientId,
-      })
-      sourceTasterResult.timings.extractionMs = Math.round(performance.now() - extractStart)
-      const extractSec = sourceTasterResult.timings.extractionMs / 1000
-      durationStats.extraction.push(extractSec)
-      if (durationStatsNoDoi)
-        durationStatsNoDoi.extraction.push(extractSec)
-      const extractedReference = chooseExtractedReference(extractResponse?.data?.references ?? [], entryId)
-      sourceTasterResult.metadata = extractedReference?.metadata ?? null
-      sourceTasterResult.rawResponse = extractResponse
-      const extractedFields = sourceTasterResult.metadata ? Object.entries(sourceTasterResult.metadata).filter(([, value]) => value !== null && value !== undefined && value !== '').length : 0
-      logSuccess(`Extraktion abgeschlossen in ${formatMs(sourceTasterResult.timings.extractionMs)} (${extractedFields} Felder)`)
-      if (!sourceTasterResult.metadata)
-        logWarn('Extraktion lieferte kein strukturierter Metadata-Objekt')
+    if (!options.anyStyleOnly) {
+      logStep('Extraktion via /api/extract')
+      try {
+        const extractStart = performance.now()
+        const extractPayload = buildExtractRequest(rawText, options)
+        const extractResponse = await callApi({
+          apiUrl: options.apiUrl,
+          path: '/api/extract',
+          body: extractPayload,
+          clientId: options.clientId,
+        })
+        sourceTasterResult.timings.extractionMs = Math.round(performance.now() - extractStart)
+        const extractSec = sourceTasterResult.timings.extractionMs / 1000
+        durationStats.extraction.push(extractSec)
+        if (durationStatsNoDoi)
+          durationStatsNoDoi.extraction.push(extractSec)
+        const extractedReference = chooseExtractedReference(extractResponse?.data?.references ?? [], entryId)
+        sourceTasterResult.metadata = extractedReference?.metadata ?? null
+        sourceTasterResult.rawResponse = extractResponse
+        const extractedFields = sourceTasterResult.metadata ? Object.entries(sourceTasterResult.metadata).filter(([, value]) => value !== null && value !== undefined && value !== '').length : 0
+        logSuccess(`Extraktion abgeschlossen in ${formatMs(sourceTasterResult.timings.extractionMs)} (${extractedFields} Felder)`)
+        if (!sourceTasterResult.metadata)
+          logWarn('Extraktion lieferte kein strukturierter Metadata-Objekt')
+      }
+      catch (error) {
+        sourceTasterResult.errors.push(error.message ?? String(error))
+        logError(`Extraction fehlgeschlagen (${entryId})`, error)
+      }
     }
-    catch (error) {
-      sourceTasterResult.errors.push(error.message ?? String(error))
-      logError(`Extraction fehlgeschlagen (${entryId})`, error)
+    else {
+      logDetail('AnyStyle-only Modus: LLM-Extraktion übersprungen')
     }
 
     // --- AnyStyle parse & convert ---
@@ -545,6 +564,10 @@ async function main() {
       durationStats.anystyleParse.push(parseSec)
       if (durationStatsNoDoi)
         durationStatsNoDoi.anystyleParse.push(parseSec)
+      if (durationStatsAnyStyle)
+        durationStatsAnyStyle.anystyleParse.push(parseSec)
+      if (durationStatsAnyStyleNoDoi)
+        durationStatsAnyStyleNoDoi.anystyleParse.push(parseSec)
       anyStyleResult.tokens = parseResponse?.data?.references?.[0]?.tokens ?? null
       logSuccess(`AnyStyle.parse abgeschlossen in ${formatMs(anyStyleResult.timings.parseMs)}`)
 
@@ -561,6 +584,10 @@ async function main() {
         durationStats.anystyleConvert.push(convertSec)
         if (durationStatsNoDoi)
           durationStatsNoDoi.anystyleConvert.push(convertSec)
+        if (durationStatsAnyStyle)
+          durationStatsAnyStyle.anystyleConvert.push(convertSec)
+        if (durationStatsAnyStyleNoDoi)
+          durationStatsAnyStyleNoDoi.anystyleConvert.push(convertSec)
         anyStyleResult.metadata = convertResponse?.data?.csl?.[0] ?? null
         anyStyleResult.rawResponse = { parse: parseResponse, convert: convertResponse }
         logSuccess(`AnyStyle.convert abgeschlossen in ${formatMs(anyStyleResult.timings.convertMs)}`)
@@ -684,7 +711,7 @@ async function main() {
     }
 
     // Default mode (with DOI) unless only-no-doi
-    if (!options.noDoiOnly) {
+    if (!options.noDoiOnly && !options.anyStyleOnly) {
       const matchWithDoi = await runSearchAndMatch({
         metadata: sourceTasterResult.metadata,
         resultTarget: sourceTasterResult,
@@ -708,7 +735,7 @@ async function main() {
     }
 
     // No-DOI mode
-    if (options.alsoNoDoi || options.noDoiOnly) {
+    if ((options.alsoNoDoi || options.noDoiOnly) && !options.anyStyleOnly) {
       const sourceTasterNoDoi = { metadata: stripDoiFromMetadata(sourceTasterResult.metadata), timings: {}, errors: [] }
       outputPrediction.sourceTasterNoDoi = sourceTasterNoDoi
       const matchNoDoi = await runSearchAndMatch({
@@ -738,6 +765,83 @@ async function main() {
           durationStats.total.push(totalNoDoiSeconds)
         }
         logDetail(`[ohne DOI] pipeline.total: ${formatSeconds(totalNoDoiSeconds)}`)
+      }
+    }
+
+    // AnyStyle-only / additional mode
+    if (options.anyStyleOnly || options.alsoAnyStyle) {
+      if (anyStyleResult.metadata) {
+        if (!options.noDoiOnly) {
+          const anyStyleMatchResult = { metadata: anyStyleResult.metadata, timings: {}, errors: [] }
+          outputPrediction.anyStyleMatch = anyStyleMatchResult
+          const statsTargetForAnyStyle = options.anyStyleOnly ? durationStats : durationStatsAnyStyle
+          const matchAnyStyle = await runSearchAndMatch({
+            metadata: anyStyleMatchResult.metadata,
+            resultTarget: anyStyleMatchResult,
+            statsTarget: statsTargetForAnyStyle,
+            label: 'AnyStyle',
+          })
+          if (matchAnyStyle) {
+            anyStyleMatchResult.matching = matchAnyStyle
+          }
+
+          const totalAnyStyleSeconds = computeTotalDurationSeconds({
+            extractionMs: undefined,
+            parseMs: anyStyleResult.timings.parseMs,
+            convertMs: anyStyleResult.timings.convertMs,
+            matchMs: anyStyleMatchResult.timings.matchMs,
+            searchTimings: anyStyleMatchResult.timings,
+            sources: options.skipSearch ? [] : options.sources,
+          })
+          if (statsTargetForAnyStyle) {
+            statsTargetForAnyStyle.total.push(totalAnyStyleSeconds)
+          }
+          logDetail(`[AnyStyle] pipeline.total: ${formatSeconds(totalAnyStyleSeconds)}`)
+        }
+
+        if (options.alsoNoDoi || options.noDoiOnly) {
+          const metadataNoDoi = stripDoiFromMetadata(anyStyleResult.metadata)
+          if (metadataNoDoi) {
+            const anyStyleMatchNoDoiResult = { metadata: metadataNoDoi, timings: {}, errors: [] }
+            outputPrediction.anyStyleMatchNoDoi = anyStyleMatchNoDoiResult
+            const statsTargetForAnyStyleNoDoi = durationStatsAnyStyleNoDoi
+              ?? (options.anyStyleOnly ? durationStats : durationStatsAnyStyle)
+            const matchAnyStyleNoDoi = await runSearchAndMatch({
+              metadata: anyStyleMatchNoDoiResult.metadata,
+              resultTarget: anyStyleMatchNoDoiResult,
+              statsTarget: statsTargetForAnyStyleNoDoi,
+              label: 'AnyStyle ohne DOI',
+            })
+            if (matchAnyStyleNoDoi) {
+              anyStyleMatchNoDoiResult.matching = matchAnyStyleNoDoi
+            }
+
+            const totalAnyStyleNoDoiSeconds = computeTotalDurationSeconds({
+              extractionMs: undefined,
+              parseMs: anyStyleResult.timings.parseMs,
+              convertMs: anyStyleResult.timings.convertMs,
+              matchMs: anyStyleMatchNoDoiResult.timings.matchMs,
+              searchTimings: anyStyleMatchNoDoiResult.timings,
+              sources: options.skipSearch ? [] : options.sources,
+            })
+            if (statsTargetForAnyStyleNoDoi) {
+              statsTargetForAnyStyleNoDoi.total.push(totalAnyStyleNoDoiSeconds)
+            }
+            if (durationStatsAnyStyleNoDoi && statsTargetForAnyStyleNoDoi !== durationStatsAnyStyleNoDoi) {
+              durationStatsAnyStyleNoDoi.total.push(totalAnyStyleNoDoiSeconds)
+            }
+            if (options.noDoiOnly && statsTargetForAnyStyleNoDoi !== durationStats) {
+              durationStats.total.push(totalAnyStyleNoDoiSeconds)
+            }
+            logDetail(`[AnyStyle ohne DOI] pipeline.total: ${formatSeconds(totalAnyStyleNoDoiSeconds)}`)
+          }
+          else {
+            logWarn('[AnyStyle ohne DOI] Metadaten ohne DOI nicht verfügbar – Matching übersprungen')
+          }
+        }
+      }
+      else {
+        logWarn('[AnyStyle] Keine CSL-Metadaten verfügbar – Matching übersprungen')
       }
     }
 
@@ -780,6 +884,24 @@ async function main() {
     collectSummary('ohne DOI → sourceTaster.match', durationStatsNoDoi.match)
     collectSummary('ohne DOI → pipeline.total', durationStatsNoDoi.total)
   }
+  if (durationStatsAnyStyle && options.alsoAnyStyle) {
+    collectSummary('AnyStyle → anyStyle.parse', durationStatsAnyStyle.anystyleParse)
+    collectSummary('AnyStyle → anyStyle.convert', durationStatsAnyStyle.anystyleConvert)
+    for (const [source, samples] of Object.entries(durationStatsAnyStyle.search)) {
+      collectSummary(`AnyStyle → search.${source}`, samples)
+    }
+    collectSummary('AnyStyle → matching', durationStatsAnyStyle.match)
+    collectSummary('AnyStyle → pipeline.total', durationStatsAnyStyle.total)
+  }
+  if (durationStatsAnyStyleNoDoi && (options.alsoAnyStyle || options.anyStyleOnly)) {
+    collectSummary('AnyStyle ohne DOI → anyStyle.parse', durationStatsAnyStyleNoDoi.anystyleParse)
+    collectSummary('AnyStyle ohne DOI → anyStyle.convert', durationStatsAnyStyleNoDoi.anystyleConvert)
+    for (const [source, samples] of Object.entries(durationStatsAnyStyleNoDoi.search)) {
+      collectSummary(`AnyStyle ohne DOI → search.${source}`, samples)
+    }
+    collectSummary('AnyStyle ohne DOI → matching', durationStatsAnyStyleNoDoi.match)
+    collectSummary('AnyStyle ohne DOI → pipeline.total', durationStatsAnyStyleNoDoi.total)
+  }
 
   const outputPayload = {
     generatedAt: new Date().toISOString(),
@@ -807,6 +929,42 @@ async function main() {
               }
               if (durationStatsNoDoi.match.length)
                 durationsSeconds['sourceTaster.match'] = [...durationStatsNoDoi.match]
+              return durationsSeconds
+            })() }]
+          : []),
+        ...(durationStatsAnyStyle && options.alsoAnyStyle
+          ? [{ name: `Einzelprüfung AnyStyle (n=${outputEntries.length})`, durationsSeconds: (() => {
+              const durationsSeconds = {}
+              if (durationStatsAnyStyle.anystyleParse.length)
+                durationsSeconds['anyStyle.parse'] = [...durationStatsAnyStyle.anystyleParse]
+              if (durationStatsAnyStyle.anystyleConvert.length)
+                durationsSeconds['anyStyle.convert'] = [...durationStatsAnyStyle.anystyleConvert]
+              if (durationStatsAnyStyle.total.length)
+                durationsSeconds['pipeline.total'] = [...durationStatsAnyStyle.total]
+              for (const [source, samples] of Object.entries(durationStatsAnyStyle.search)) {
+                if (samples.length)
+                  durationsSeconds[`search.${source}`] = [...samples]
+              }
+              if (durationStatsAnyStyle.match.length)
+                durationsSeconds.matching = [...durationStatsAnyStyle.match]
+              return durationsSeconds
+            })() }]
+          : []),
+        ...(durationStatsAnyStyleNoDoi && (options.alsoAnyStyle || options.anyStyleOnly)
+          ? [{ name: `Einzelprüfung AnyStyle ohne DOI (n=${outputEntries.length})`, durationsSeconds: (() => {
+              const durationsSeconds = {}
+              if (durationStatsAnyStyleNoDoi.anystyleParse.length)
+                durationsSeconds['anyStyle.parse'] = [...durationStatsAnyStyleNoDoi.anystyleParse]
+              if (durationStatsAnyStyleNoDoi.anystyleConvert.length)
+                durationsSeconds['anyStyle.convert'] = [...durationStatsAnyStyleNoDoi.anystyleConvert]
+              if (durationStatsAnyStyleNoDoi.total.length)
+                durationsSeconds['pipeline.total'] = [...durationStatsAnyStyleNoDoi.total]
+              for (const [source, samples] of Object.entries(durationStatsAnyStyleNoDoi.search)) {
+                if (samples.length)
+                  durationsSeconds[`search.${source}`] = [...samples]
+              }
+              if (durationStatsAnyStyleNoDoi.match.length)
+                durationsSeconds.matching = [...durationStatsAnyStyleNoDoi.match]
               return durationsSeconds
             })() }]
           : []),

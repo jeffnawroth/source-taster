@@ -13,11 +13,9 @@
     "deploy": "pnpm build && pnpm run -r deploy",
     "preinstall": "simple-git-hooks",
     "evaluation": "node evaluation/run-evaluation.js",
-    "evaluation:goldset": "node evaluation/build-goldset.js",
-    "evaluation:fetch-works": "node evaluation/fetch-openalex-works.js",
-    "evaluation:generate-dataset": "node evaluation/generate-openalex-dataset.js",
     "evaluation:export-crossref": "node evaluation/export-crossref-raw.js",
     "evaluation:run-live": "node evaluation/run-live-pipeline.js",
+    "evaluation:run-live:anystyle-batch": "node evaluation/run-live-anystyle-batch.js",
     "evaluation:prepare-input": "node evaluation/build-live-input.js",
     "evaluation:perturb-apa": "node evaluation/perturb-apa-references.js",
     "evaluation:perturb-summary": "node evaluation/summarize-perturbation-report.js"

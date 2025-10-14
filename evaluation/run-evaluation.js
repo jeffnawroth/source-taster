@@ -33,11 +33,15 @@ function getBucketThresholdsFromArgs() {
   return parseBucketThresholdString(value)
 }
 
-function formatNumber(value) {
-  if (value === null) {
+function formatNumber(value, fractionDigits = 2) {
+  if (value === null || value === undefined) {
     return 'n/a'
   }
-  return value.toFixed(2)
+  const numericValue = Number(value)
+  if (!Number.isFinite(numericValue)) {
+    return 'n/a'
+  }
+  return numericValue.toFixed(fractionDigits)
 }
 
 function computeMatchingMetricsFor(entries, getMatching) {
@@ -99,6 +103,14 @@ function computeMatchingMetricsFor(entries, getMatching) {
 
 function computeMatchingMetrics(entries) {
   return computeMatchingMetricsFor(entries, e => e.predictions?.sourceTaster?.matching)
+}
+
+function computeMatchingMetricsAnyStyle(entries) {
+  return computeMatchingMetricsFor(entries, e => e.predictions?.anyStyleMatch?.matching)
+}
+
+function computeMatchingMetricsAnyStyleNoDoi(entries) {
+  return computeMatchingMetricsFor(entries, e => e.predictions?.anyStyleMatchNoDoi?.matching)
 }
 
 function calculateStats(samples) {
@@ -359,9 +371,9 @@ function printPerformanceSummary(summary) {
   const rows = summary.scenarios.map(item => ({
     'Szenario': item.scenario,
     'System': item.system,
-    'Ø Zeit (s)': formatNumber(item.average),
-    'StdAbw (s)': formatNumber(item.stdDev),
-    'Durchsatz (Ref/min)': formatNumber(item.throughput),
+    'Ø Zeit (s)': formatNumber(item.average, 3),
+    'StdAbw (s)': formatNumber(item.stdDev, 3),
+    'Durchsatz (Ref/min)': formatNumber(item.throughput, 3),
   }))
   console.table(rows)
 }
@@ -477,15 +489,15 @@ function buildPerformanceMarkdown(summary) {
   const rows = summary.scenarios.map(item => [
     item.scenario,
     item.system,
-    formatNumber(item.average),
-    formatNumber(item.stdDev),
-    formatNumber(item.throughput),
+    formatNumber(item.average, 3),
+    formatNumber(item.stdDev, 3),
+    formatNumber(item.throughput, 3),
   ])
 
   return ['## Performance', toMarkdownTable(headers, rows)].join('\n\n')
 }
 
-function buildMarkdownReport({ generatedAt, input, thresholds, matching, matchingNoDoi, performance }) {
+function buildMarkdownReport({ generatedAt, input, thresholds, matching, matchingNoDoi, matchingAnyStyle, matchingAnyStyleNoDoi, performance }) {
   const lines = ['# Evaluation Summary', '', `- Generated: ${generatedAt}`, `- Input: ${input}`, `- Matching bucket thresholds: ${thresholds.map(formatThreshold).join(' / ')}`]
 
   if (hasMatchingData(matching)) {
@@ -498,6 +510,13 @@ function buildMarkdownReport({ generatedAt, input, thresholds, matching, matchin
   if (hasMatchingData(matchingNoDoi)) {
     lines.push('', buildMatchingMarkdown(matchingNoDoi, 'Source Taster ohne DOI'))
   }
+  if (hasMatchingData(matchingAnyStyle)) {
+    lines.push('', buildMatchingMarkdown(matchingAnyStyle, 'AnyStyle'))
+  }
+  else {
+    lines.push('', '## Matching – AnyStyle', '', '_Keine Daten verfügbar_')
+  }
+  lines.push('', buildMatchingMarkdown(matchingAnyStyleNoDoi, 'AnyStyle ohne DOI'))
 
   lines.push('', buildPerformanceMarkdown(performance))
 
@@ -519,6 +538,8 @@ async function main() {
 
   const matchingSummary = computeMatchingMetrics(entries)
   const matchingSummaryNoDoi = computeMatchingMetricsFor(entries, e => e.predictions?.sourceTasterNoDoi?.matching)
+  const matchingSummaryAnyStyle = computeMatchingMetricsAnyStyle(entries)
+  const matchingSummaryAnyStyleNoDoi = computeMatchingMetricsAnyStyleNoDoi(entries)
   const performanceSummary = computePerformanceMetrics(data.meta?.performance ?? data.performance)
 
   printMatchingSummary(matchingSummary)
@@ -532,6 +553,18 @@ async function main() {
     printMatchingBuckets(matchingSummaryNoDoi, 'Matching-Score Verteilung (Source Taster – ohne DOI)')
     printMatchingBucketsByStyle(matchingSummaryNoDoi, 'Matching-Score Verteilung nach Stil (Source Taster – ohne DOI)')
   }
+  if (hasMatchingData(matchingSummaryAnyStyle)) {
+    printMatchingSummary(matchingSummaryAnyStyle, 'Matching-Score (AnyStyle)')
+    printMatchingSummaryByStyle(matchingSummaryAnyStyle, 'Matching-Score nach Stil (AnyStyle)')
+    printMatchingBuckets(matchingSummaryAnyStyle, 'Matching-Score Verteilung (AnyStyle)')
+    printMatchingBucketsByStyle(matchingSummaryAnyStyle, 'Matching-Score Verteilung nach Stil (AnyStyle)')
+  }
+  if (hasMatchingData(matchingSummaryAnyStyleNoDoi)) {
+    printMatchingSummary(matchingSummaryAnyStyleNoDoi, 'Matching-Score (AnyStyle – ohne DOI)')
+    printMatchingSummaryByStyle(matchingSummaryAnyStyleNoDoi, 'Matching-Score nach Stil (AnyStyle – ohne DOI)')
+    printMatchingBuckets(matchingSummaryAnyStyleNoDoi, 'Matching-Score Verteilung (AnyStyle – ohne DOI)')
+    printMatchingBucketsByStyle(matchingSummaryAnyStyleNoDoi, 'Matching-Score Verteilung nach Stil (AnyStyle – ohne DOI)')
+  }
   printPerformanceSummary(performanceSummary)
 
   const summaryPayload = {
@@ -539,6 +572,8 @@ async function main() {
     input: path.relative(process.cwd(), resolvedPath),
     matching: matchingSummary,
     matchingNoDoi: matchingSummaryNoDoi,
+    matchingAnyStyle: matchingSummaryAnyStyle,
+    matchingAnyStyleNoDoi: matchingSummaryAnyStyleNoDoi,
     performance: performanceSummary,
     matchingBucketThresholds: MATCH_SCORE_BUCKET_THRESHOLDS,
   }
@@ -549,12 +584,15 @@ async function main() {
   console.log(`\n→ Zusammenfassung gespeichert unter ${outputPath}`)
 
   const markdownPath = path.join(OUTPUT_DIR, 'metrics-summary.md')
+  // Debug output removed
   const markdownReport = buildMarkdownReport({
     generatedAt: summaryPayload.generatedAt,
     input: summaryPayload.input,
     thresholds: MATCH_SCORE_BUCKET_THRESHOLDS,
     matching: matchingSummary,
     matchingNoDoi: matchingSummaryNoDoi,
+    matchingAnyStyle: matchingSummaryAnyStyle,
+    matchingAnyStyleNoDoi: matchingSummaryAnyStyleNoDoi,
     performance: performanceSummary,
   })
   await writeFile(markdownPath, markdownReport, 'utf8')
