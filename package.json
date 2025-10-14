@@ -11,13 +11,21 @@
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
     "deploy": "pnpm build && pnpm run -r deploy",
-    "preinstall": "simple-git-hooks"
+    "preinstall": "simple-git-hooks",
+    "evaluation": "node evaluation/run-evaluation.js",
+    "evaluation:export-crossref": "node evaluation/export-crossref-raw.js",
+    "evaluation:run-live": "node evaluation/run-live-pipeline.js",
+    "evaluation:prepare-input": "node evaluation/build-live-input.js",
+    "evaluation:perturb-apa": "node evaluation/perturb-apa-references.js",
+    "evaluation:perturb-summary": "node evaluation/summarize-perturbation-report.js"
   },
   "devDependencies": {
-    "eslint": "^9.35.0",
-    "lint-staged": "^16.1.6",
+    "@citation-js/plugin-csl": "^0.7.18",
+    "citation-js": "^0.7.20",
+    "eslint": "^9.36.0",
+    "lint-staged": "^16.2.3",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

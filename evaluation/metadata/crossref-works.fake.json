@@ -1,0 +1,1412 @@
+{
+  "generatedAt": "2025-10-03T17:03:45.339Z",
+  "styles": [
+    {
+      "alias": "apa",
+      "id": "apa"
+    }
+  ],
+  "locale": "en-US",
+  "items": [
+    {
+      "doi": "10.1137/ja/2007/1scm",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Löfgren, M. H. & Meier, C. (2007). Multi-modal inference: an empirical study. Pattern Recognition Letters, 18(2), e68808. https://doi.org/10.1137/ja/2007/1scm"
+      }
+    },
+    {
+      "doi": "10.42424/ja.2022.2.sg4t-lhzm9li",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Sommer, M., Jansen, L., Wolf, E. M., Krüger, O. & Dietrich, A. (2022). Self-supervised language modeling —  a simulation-based analysis. Pattern Recognition Letters, 27(4), 116–136. https://doi.org/10.42424/ja.2022.2.sg4t-lhzm9li"
+      }
+    },
+    {
+      "doi": "10.42424/ja.o8.2015.11.9094",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Hartmann, M. (2015). Probabilistic model selection —  theory and practice in healthcare. Transactions on Information Theory and Practice, 36(2), 19–38. https://doi.org/10.42424/ja.o8.2015.11.9094"
+      }
+    },
+    {
+      "doi": "10.42424/ja/1998/46hm",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Jansen, F. Sr. (1998). Interpretable evaluation: a simulation-based analysis in education. Transactions on Information Theory and Practice, 19, 182–196. https://doi.org/10.42424/ja/1998/46hm"
+      }
+    },
+    {
+      "doi": "10.55555/ja/1999/53ox",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Löfgren-González, I. (1999). Adaptive representation learning —  challenges and opportunities. Journal of Statistical Computation, 28(4), 51–56. https://doi.org/10.55555/ja/1999/53ox"
+      }
+    },
+    {
+      "doi": "10.1007/ja.2013.6.cqtzs-rlh1",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Ulrich, E., Becker, S. & Schultz, S. (2013). Hybrid optimization —  an empirical study in robotics. Annals of Empirical Analytics, 4(2), 17–32. https://doi.org/10.1007/ja.2013.6.cqtzs-rlh1"
+      }
+    },
+    {
+      "doi": "10.55555/ii.ya7u.2001.7",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Seidel, E., Novák, M. B., Wolf, A., Hartmann, B., Silva, M., Neumann, M. & Stein, I. (2001). Self-supervised language modeling: theory and practice in robotics. Journal of Information Retrieval, 11(4), e36215. https://doi.org/10.55555/ii.ya7u.2001.7"
+      }
+    },
+    {
+      "doi": "10.1007/ja.4a.2022.11.4065",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Lange, J. (2022). Neural evaluation: a multi-site comparison. Journal of Modern Research, 32(10), e9256. https://doi.org/10.1007/ja.4a.2022.11.4065"
+      }
+    },
+    {
+      "doi": "10.1007/ja.r0.2016.06.5033",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Wagner, N. L. & Öztürk, M. A. (2016). Interpretable language modeling —  design and evaluation in climate modeling. Journal of Information Retrieval, 1, e45676. https://doi.org/10.1007/ja.r0.2016.06.5033"
+      }
+    },
+    {
+      "doi": "10.54321/55.mfnr.2001.10",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Keller, F., Beck, K., Sørensen, L., Novák, S., Müller, L., Klein, A. I. & Schröder, B. (2001). Probabilistic evidence aggregation —  a multi-site comparison. Advances in Data Science, 2(5), 121–131. https://doi.org/10.54321/55.mfnr.2001.10"
+      }
+    },
+    {
+      "doi": "10.42424/ja.2015.11.k693j-a8w9",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Ivić, L., Sommer, R. Sr., Bauer, N., Ünal, L. & Peters, L. (2015). Semi-supervised optimization: a simulation-based analysis. Transactions on Information Theory and Practice, 1(1), 176–177. https://doi.org/10.42424/ja.2015.11.k693j-a8w9"
+      }
+    },
+    {
+      "doi": "10.1101/ja-xp8.12201667",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Stahl, Z. K., Weißmann, L. L. & Link, B. (2016). Probabilistic evaluation —  a practical guide. Journal of Modern Research, 39(11), 197–198. https://doi.org/10.1101/ja-xp8.12201667"
+      }
+    },
+    {
+      "doi": "10.1007/ja-nzm.132011ea",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Hofmann, B., Löfgren, B., Weißmann, M., Nielsen, L. & Gruber-Weiß, M. (2011). Hybrid representation learning: design and evaluation. Neural Processing Letters, 2, 87–95. https://doi.org/10.1007/ja-nzm.132011ea"
+      }
+    },
+    {
+      "doi": "10.55555/ja.pm.2025.10.0666",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Zimmermann, L. H., Ulrich, E., Novák, A., Ulrich, L. & Smith-Jones, B. (2025). Efficient search —  a simulation-based analysis. Neural Processing Letters, 29(6), 186–199. https://doi.org/10.55555/ja.pm.2025.10.0666"
+      }
+    },
+    {
+      "doi": "10.42424/ja/2007/15b44",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Sommer, S., Novák, E. II, Lange, Ł., Zimmermann, M. & Sommer, M. F. (2007). Robust hyperparameter tuning —  a randomized benchmark. Journal of Information Retrieval, 20(7), 181–201. https://doi.org/10.42424/ja/2007/15b44"
+      }
+    },
+    {
+      "doi": "10.1137/6d.jpx9.1999.16",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Järvinen, I. L., Sørensen, M. M. II, Stein, B., Schmidt, B. & Novák-Stahl, P. II (1999). Efficient search: a multi-site comparison. Information Systems Journal, 16(12), 108–121. https://doi.org/10.1137/6d.jpx9.1999.16"
+      }
+    },
+    {
+      "doi": "10.55555/ja.y7.2009.12.4833",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Ünal, M. N., Nowak, E., Wolf, E., Núñez, C., González, H. Jr., Åström, N. L. & O’Connor, N. D. (2009). Modular optimization —  a multi-site comparison. ACM Computing Surveys, 16, 53–70. https://doi.org/10.55555/ja.y7.2009.12.4833"
+      }
+    },
+    {
+      "doi": "10.1101/ja-g96.181993s6",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Weber, M., González, P., Schreiber, O. & Schröder, L. (1993). Adaptive evidence aggregation —  a practical guide. Annals of Empirical Analytics, 30(8), e5876. https://doi.org/10.1101/ja-g96.181993s6"
+      }
+    },
+    {
+      "doi": "10.55555/y9.m51v.1998.19",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Hoffmann, L., Vogel, N. N., Hoffmann, R. L., Heinrich, B., Richter, L. Sr., Richter, M. & Hartmann, I. (1998). Approximate model selection: design and evaluation. Data Mining and Knowledge Discovery, 25(8), e8343. https://doi.org/10.55555/y9.m51v.1998.19"
+      }
+    },
+    {
+      "doi": "10.42424/ja-5xo.202011e5",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "König, M. L., Zimmermann, E., Öztürk, A. S., Arnold-Klein, L., Schäfer, M. & D’Amico, A. (2011). Interpretable language modeling: a multi-site comparison. Journal of Computational Studies, 24(7), 141–144. https://doi.org/10.42424/ja-5xo.202011e5"
+      }
+    },
+    {
+      "doi": "10.1101/ja.2022.21.69upt-l0n4qut",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Neumann-Schneider, M., Heinrich, I. A. II & Arnold, N. (2022). Multi-modal model selection: an empirical study. Transactions on Information Theory and Practice, 40(12), 197–199. https://doi.org/10.1101/ja.2022.21.69upt-l0n4qut"
+      }
+    },
+    {
+      "doi": "10.54321/ja/2000/22ymm",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Nowak, M., Núñez, M. E., Sørensen, L. P., Fuchs, N., Braun, Ł. L., Nielsen, P. E. & López-García, M. (2000). Multi-modal sampling: theory and practice. Data Mining and Knowledge Discovery, 19(3), 199–211. https://doi.org/10.54321/ja/2000/22ymm"
+      }
+    },
+    {
+      "doi": "10.1137/ja.e7.2012.07.9610",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Sørensen, N., Braun, M. & O’Connor, E. (2012). Interpretable structured prediction: a multi-site comparison. Journal of Information Retrieval, 1, 28–35. https://doi.org/10.1137/ja.e7.2012.07.9610"
+      }
+    },
+    {
+      "doi": "10.1101/ja-nel.241995r5",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Ott, L. & Heinrich, M. (1995). Efficient feature extraction —  theory and practice in climate modeling. International Review of Systems, 16(10), 93–98. https://doi.org/10.1101/ja-nel.241995r5"
+      }
+    },
+    {
+      "doi": "10.1101/ja/2016/25b9h",
+      "category": "journal-article",
+      "bibliography": {
+        "apa": "Beck, I., Ulrich, Z., Brandt, L., O’Connor, J. L., Łukasiewicz, K. & Becker, M. N. (2016). Probabilistic structured prediction: a case study in climate modeling. Data Mining and Knowledge Discovery, 23(12), 162–177. https://doi.org/10.1101/ja/2016/25b9h"
+      }
+    },
+    {
+      "doi": "10.1137/pa/2023/26ogw",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Öztürk, A. H., Peters, M., Tavares, K. C., Roth, N., Heinrich, L. M. & Novák, K. (2023). Scalable search: an empirical study. In International Conference on Emerging Analytics (ICEA) (pp. 101–121). Broadview Academic. https://doi.org/10.1137/pa/2023/26ogw"
+      }
+    },
+    {
+      "doi": "10.55555/3g.vhmn.2001.27",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Neumann, A. S., Heinze, Z., Roth, Z. J. & Schreiber-Fernández, M. (2001). Adversarial hyperparameter tuning: a randomized benchmark. In International Conference on Emerging Analytics (ICEA) (pp. 148–153). Westlake University Press. https://doi.org/10.55555/3g.vhmn.2001.27"
+      }
+    },
+    {
+      "doi": "10.99999/pa.2022.28.c2xs-fdfh",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Meier, L., Roth, S., Ulrich, K. & Sørensen, L. B. (2022). Modular optimization —  challenges and opportunities. In Proceedings of the Workshop on Data-centric Systems (WDCS) (pp. 81–88). Broadview Academic. https://doi.org/10.99999/pa.2022.28.c2xs-fdfh"
+      }
+    },
+    {
+      "doi": "10.55555/pa-7us.292016xg",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Schneider, M., Keller, M. & Seidel, S. (2016). Adaptive model selection: design and evaluation. In European Conference on Applied Informatics (ECAI) (pp. 195–209). Fintree Publishing. https://doi.org/10.55555/pa-7us.292016xg"
+      }
+    },
+    {
+      "doi": "10.12345/pa-hvc.301996xm",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Håkansson, N. L. Jr., Tavares, L. & Schmidt, B. (1996). Adaptive language modeling —  an empirical study in education. In Workshop on Data-centric Systems (WDCS) (pp. 173–178). Springwell Press. https://doi.org/10.12345/pa-hvc.301996xm"
+      }
+    },
+    {
+      "doi": "10.99999/pa.ei.2018.09.8288",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Ünal, B. III (2018). Self-supervised model selection: an empirical study in healthcare. In Proceedings of the European Conference on Applied Informatics (ECAI) (pp. 170–171). Springwell Press. https://doi.org/10.99999/pa.ei.2018.09.8288"
+      }
+    },
+    {
+      "doi": "10.12345/pa/2001/32jvw",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Schmidt, M., Link, A., Kowalski, P., Jansen, L. Sr., Klein, M. & Heinrich, L. L. (2001). Graph-based optimization —  design and evaluation. In Proceedings of the Symposium on Computational Methods (SCM) (pp. 76–89). Springwell Press. https://doi.org/10.12345/pa/2001/32jvw"
+      }
+    },
+    {
+      "doi": "10.42424/pa.sq.1998.06.8564",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Hofmann, L. & Graf, M. (1998). Adversarial time series modeling —  an empirical study in genomics. In European Conference on Applied Informatics (ECAI) (pp. 183–184). Northbridge Academic. https://doi.org/10.42424/pa.sq.1998.06.8564"
+      }
+    },
+    {
+      "doi": "10.1101/pa.1996.34.6zg-hxm8",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Åström, M., Schmidt-Novák, F. A., Jansen, Z., Neumann, E. I., Silva, E. & Franke, I. A. (1996). Efficient time series modeling —  a case study. In Proceedings of the International Conference on Emerging Analytics (ICEA) (pp. 186–195). Broadview Academic. https://doi.org/10.1101/pa.1996.34.6zg-hxm8"
+      }
+    },
+    {
+      "doi": "10.99999/pa.2005.35.o36sn-k2thz",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Hoffmann, H. H., Fernández, L. K. & Schmitt, L. (2005). Neural optimization: a multi-site comparison. In Proceedings of the European Conference on Applied Informatics (ECAI) (pp. 7–19). Fintree Publishing. https://doi.org/10.99999/pa.2005.35.o36sn-k2thz"
+      }
+    },
+    {
+      "doi": "10.55555/pa/2014/36onk",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Braun-Hoffmann, I., Bauer, O., Krause, E. M., Klein, L. II & Lorenz, L. (2014). Neural model selection: a multi-site comparison. In Proceedings of the European Conference on Applied Informatics (ECAI) (pp. 114–127). Fintree Publishing. https://doi.org/10.55555/pa/2014/36onk"
+      }
+    },
+    {
+      "doi": "10.12345/o0.h4vz.1996.37",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Ivić, H. M. (1996). Efficient graph mining: challenges and opportunities in healthcare. In International Conference on Emerging Analytics (ICEA) (pp. 44–47). Fintree Publishing. https://doi.org/10.12345/o0.h4vz.1996.37"
+      }
+    },
+    {
+      "doi": "10.54321/pa.1994.38.crs-nzzey",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Bauer-Seidel, L., Fuchs, H. & Keller, F. (1994). Modular evidence aggregation —  design and evaluation. In Proceedings of the Workshop on Data-centric Systems (WDCS) (pp. 126–144). Springwell Press. https://doi.org/10.54321/pa.1994.38.crs-nzzey"
+      }
+    },
+    {
+      "doi": "10.54321/pa/2018/39zab",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Zimmermann, L. N. (2018). Context-aware search —  foundations and applications in genomics. In Symposium on Computational Methods (SCM) (pp. 88–101). Northbridge Academic. https://doi.org/10.54321/pa/2018/39zab"
+      }
+    },
+    {
+      "doi": "10.1101/pa-q4v.4019983p",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Krüger, M. & O’Connor, H. (1998). Graph-based time series modeling —  a practical guide. In Proceedings of the Symposium on Computational Methods (SCM) (pp. 133–147). Springwell Press. https://doi.org/10.1101/pa-q4v.4019983p"
+      }
+    },
+    {
+      "doi": "10.55555/pa.2023.41.piw8-em5e9",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "González, O., Graf, P., Bauer, Z. & Seidel-Tavares, A. (2023). Adversarial model selection: design and evaluation. In Proceedings of the Workshop on Data-centric Systems (WDCS) (pp. 65–75). Westlake University Press. https://doi.org/10.55555/pa.2023.41.piw8-em5e9"
+      }
+    },
+    {
+      "doi": "10.42424/pa/1997/42sgq",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Łukasiewicz, J., Nowak, R., Jansen, L., Löfgren, E. & Ulrich, A. (1997). Context-aware model selection: a multi-site comparison. In International Conference on Emerging Analytics (ICEA) (pp. 147–164). Oakridge Science. https://doi.org/10.42424/pa/1997/42sgq"
+      }
+    },
+    {
+      "doi": "10.12345/pa.1999.43.avdh-bo6d93",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Hoffmann, N. Sr., Weiß, A., Smith-Jones, M., Löfgren, B. S., Arnold, L. & Schultz, P. (1999). Neural search: a simulation-based analysis. In Proceedings of the International Conference on Emerging Analytics (ICEA) (pp. 174–190). Fintree Publishing. https://doi.org/10.12345/pa.1999.43.avdh-bo6d93"
+      }
+    },
+    {
+      "doi": "10.99999/nh.ec97.2021.44",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Müller, F., Järvinen, K. M., Kowalski, A., Haas, B. M., Löfgren, L. & Kühn, L. (2021). Scalable feature extraction: foundations and applications in climate modeling. In European Conference on Applied Informatics (ECAI) (pp. 98–105). Springwell Press. https://doi.org/10.99999/nh.ec97.2021.44"
+      }
+    },
+    {
+      "doi": "10.55555/pa.2022.45.oelf-gxiy",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Silva, M. P. III & Richter, Ł. (2022). Neural evaluation: a case study in genomics. In Workshop on Data-centric Systems (WDCS) (pp. 66–72). Springwell Press. https://doi.org/10.55555/pa.2022.45.oelf-gxiy"
+      }
+    },
+    {
+      "doi": "10.55555/pa/2009/46724",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Krüger, L., Novák, B., Roth, I. A., Dietrich, P., Klein, S. Jr., Stein, B. & König, L. Sr. (2009). Efficient structured prediction: design and evaluation. In Proceedings of the European Conference on Applied Informatics (ECAI) (pp. 37–44). Westlake University Press. https://doi.org/10.55555/pa/2009/46724"
+      }
+    },
+    {
+      "doi": "10.1101/pa.xf.2007.11.7871",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Becker, M. C., Hartmann, F. L., Lange, L. & Hofmann, L. S. (2007). Approximate feature extraction: foundations and applications. In Proceedings of the European Conference on Applied Informatics (ECAI) (pp. 67–70). Fintree Publishing. https://doi.org/10.1101/pa.xf.2007.11.7871"
+      }
+    },
+    {
+      "doi": "10.99999/pa-zed.482001wq",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Stahl, I. Sr., Åström, L., O’Connor, H., Weißmann, L., González, L. & Łukasiewicz, O. I. (2001). Robust structured prediction —  a simulation-based analysis. In Proceedings of the Symposium on Computational Methods (SCM) (pp. 200–220). Westlake University Press. https://doi.org/10.99999/pa-zed.482001wq"
+      }
+    },
+    {
+      "doi": "10.54321/pa.lj.1994.07.0438",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Fuchs, J. (1994). Neural evaluation —  challenges and opportunities. In European Conference on Applied Informatics (ECAI) (pp. 107–120). Fintree Publishing. https://doi.org/10.54321/pa.lj.1994.07.0438"
+      }
+    },
+    {
+      "doi": "10.42424/pa/2010/50k5u",
+      "category": "proceedings-article",
+      "bibliography": {
+        "apa": "Smith-Jones, E., Schröder, S. M. II, Lange, C., Lange, C., Haas, F. & O’Connor, B. (2010). Multi-modal language modeling —  a simulation-based analysis. In Proceedings of the Symposium on Computational Methods (SCM) (pp. 171–173). Northbridge Academic. https://doi.org/10.42424/pa/2010/50k5u"
+      }
+    },
+    {
+      "doi": "10.55555/dr.9fyv.1998.51",
+      "category": "book",
+      "bibliography": {
+        "apa": "Heinrich, F., Stein, Z. & Schröder, O. L. (1998). Foundations of Modern Analytics. Fintree Publishing. https://doi.org/10.55555/dr.9fyv.1998.51"
+      }
+    },
+    {
+      "doi": "10.42424/bt.rx6x.2015.52",
+      "category": "book",
+      "bibliography": {
+        "apa": "Hoffmann, L. (2015). Advances in Applied Statistics. Westlake University Press. https://doi.org/10.42424/bt.rx6x.2015.52"
+      }
+    },
+    {
+      "doi": "10.1137/bk/2005/53928",
+      "category": "book",
+      "bibliography": {
+        "apa": "Krüger, B. A., Sommer-Braun, I. & Kühn, E. (2005). Foundations of Modern Analytics. Westlake University Press. https://doi.org/10.1137/bk/2005/53928"
+      }
+    },
+    {
+      "doi": "10.55555/bk-378.542021th",
+      "category": "book",
+      "bibliography": {
+        "apa": "Löfgren, N. & Bauer, E. (2021). Design Patterns for Research Software. Fintree Publishing. https://doi.org/10.55555/bk-378.542021th"
+      }
+    },
+    {
+      "doi": "10.1101/bk.2002.55.n28e-1lk8",
+      "category": "book",
+      "bibliography": {
+        "apa": "Hartmann, M. & Silva, N. (2002). Advances in Applied Statistics. Oakridge Science. https://doi.org/10.1101/bk.2002.55.n28e-1lk8"
+      }
+    },
+    {
+      "doi": "10.55555/bk.1s.1996.10.2968",
+      "category": "book",
+      "bibliography": {
+        "apa": "Dietrich, A., Ivić, I. L. & Krause, M. (1996). Practical Graph Algorithms. Fintree Publishing. https://doi.org/10.55555/bk.1s.1996.10.2968"
+      }
+    },
+    {
+      "doi": "10.99999/7j.cluz.2010.57",
+      "category": "book",
+      "bibliography": {
+        "apa": "Dietrich, P. Sr. (2010). Principles of Data-Centric AI. Westlake University Press. https://doi.org/10.99999/7j.cluz.2010.57"
+      }
+    },
+    {
+      "doi": "10.1007/bk.1998.58.9aqn-euo4p",
+      "category": "book",
+      "bibliography": {
+        "apa": "Fischer, B. D. & Hartmann, C. (1998). Practical Graph Algorithms. (3nd ed.). Northbridge Academic. https://doi.org/10.1007/bk.1998.58.9aqn-euo4p"
+      }
+    },
+    {
+      "doi": "10.55555/a9.e59s.2012.59",
+      "category": "book",
+      "bibliography": {
+        "apa": "Järvinen, M. E. & Schäfer, A. (2012). Foundations of Modern Analytics. Westlake University Press. https://doi.org/10.55555/a9.e59s.2012.59"
+      }
+    },
+    {
+      "doi": "10.1101/bk-gls.602018b7",
+      "category": "book",
+      "bibliography": {
+        "apa": "Seidel, L. & Keller, A. (2018). Contemporary Topics in Information Systems. (5nd ed.). Broadview Academic. https://doi.org/10.1101/bk-gls.602018b7"
+      }
+    },
+    {
+      "doi": "10.42424/bk-4c5.61201794",
+      "category": "book",
+      "bibliography": {
+        "apa": "Arnold, L. (2017). Contemporary Topics in Information Systems. Oakridge Science. https://doi.org/10.42424/bk-4c5.61201794"
+      }
+    },
+    {
+      "doi": "10.12345/bk.2018.62.d7q2-elekcxe",
+      "category": "book",
+      "bibliography": {
+        "apa": "Heinze-Franke, I. (2018). Learning-based Optimization. Fintree Publishing. https://doi.org/10.12345/bk.2018.62.d7q2-elekcxe"
+      }
+    },
+    {
+      "doi": "10.54321/bk-1ao.631996ny",
+      "category": "book",
+      "bibliography": {
+        "apa": "Hoffmann, Z. B. (1996). Advances in Applied Statistics. Broadview Academic. https://doi.org/10.54321/bk-1ao.631996ny"
+      }
+    },
+    {
+      "doi": "10.12345/bk-2wt.6419965d",
+      "category": "book",
+      "bibliography": {
+        "apa": "Sørensen, J. (1996). Learning-based Optimization. (3nd ed.). Broadview Academic. https://doi.org/10.12345/bk-2wt.6419965d"
+      }
+    },
+    {
+      "doi": "10.1007/9c.mfrm.2017.65",
+      "category": "book",
+      "bibliography": {
+        "apa": "Franke, L. & Braun-Lange, I. (2017). Modern Time Series Analysis. Springwell Press. https://doi.org/10.1007/9c.mfrm.2017.65"
+      }
+    },
+    {
+      "doi": "10.1137/bk.dl.2022.08.1323",
+      "category": "book",
+      "bibliography": {
+        "apa": "Ott, P. (2022). Practical Graph Algorithms. Broadview Academic. https://doi.org/10.1137/bk.dl.2022.08.1323"
+      }
+    },
+    {
+      "doi": "10.54321/gn.nvbz.1997.67",
+      "category": "book",
+      "bibliography": {
+        "apa": "Bauer, B. L., Seidel, N. & Becker, D. M. (1997). Methods in Empirical Computing. Broadview Academic. https://doi.org/10.54321/gn.nvbz.1997.67"
+      }
+    },
+    {
+      "doi": "10.1137/bk-zue.682015lk",
+      "category": "book",
+      "bibliography": {
+        "apa": "Krüger, S. (2015). Principles of Data-Centric AI. (2nd ed.). Northbridge Academic. https://doi.org/10.1137/bk-zue.682015lk"
+      }
+    },
+    {
+      "doi": "10.54321/bk.2004.69.zo3m9-3xxoodl",
+      "category": "book",
+      "bibliography": {
+        "apa": "Sommer, J. & Håkansson, I. (2004). Advances in Applied Statistics. Oakridge Science. https://doi.org/10.54321/bk.2004.69.zo3m9-3xxoodl"
+      }
+    },
+    {
+      "doi": "10.1101/bk.2009.70.dai-er0j",
+      "category": "book",
+      "bibliography": {
+        "apa": "Hoffmann, A. H. & Schultz, F. L. (2009). Learning-based Optimization. Oakridge Science. https://doi.org/10.1101/bk.2009.70.dai-er0j"
+      }
+    },
+    {
+      "doi": "10.12345/bk/1995/71n0j",
+      "category": "book",
+      "bibliography": {
+        "apa": "Novák, L. S., Fernández, L. & Schultz, I. K. (1995). Foundations of Modern Analytics. Westlake University Press. https://doi.org/10.12345/bk/1995/71n0j"
+      }
+    },
+    {
+      "doi": "10.99999/bk/2006/72c1c",
+      "category": "book",
+      "bibliography": {
+        "apa": "Núñez, L. I. & Kowalski, M. II (2006). Principles of Data-Centric AI. Springwell Press. https://doi.org/10.99999/bk/2006/72c1c"
+      }
+    },
+    {
+      "doi": "10.12345/bk-i5t.73201287",
+      "category": "book",
+      "bibliography": {
+        "apa": "Weiß, I. (2012). Design Patterns for Research Software. (5nd ed.). Springwell Press. https://doi.org/10.12345/bk-i5t.73201287"
+      }
+    },
+    {
+      "doi": "10.99999/bk.yc.2005.01.1836",
+      "category": "book",
+      "bibliography": {
+        "apa": "Lorenz, F. J. & Löfgren, I. (2005). Foundations of Modern Analytics. (3nd ed.). Northbridge Academic. https://doi.org/10.99999/bk.yc.2005.01.1836"
+      }
+    },
+    {
+      "doi": "10.1007/bk.a5.2000.05.5656",
+      "category": "book",
+      "bibliography": {
+        "apa": "König, C., Seidel-Haas, A. & Wagner, J. E. (2000). Foundations of Modern Analytics. Broadview Academic. https://doi.org/10.1007/bk.a5.2000.05.5656"
+      }
+    },
+    {
+      "doi": "10.54321/38.3avb.2011.76",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Klein, L. & D’Amico, R. (2011). Probabilistic inference: challenges and opportunities. In González, E. H. & López-García, K. Jr. (Eds.), Methods in Empirical Computing (pp. 67–78). Springwell Press. https://doi.org/10.54321/38.3avb.2011.76"
+      }
+    },
+    {
+      "doi": "10.12345/bc-hnq.77201932",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Fuchs, Ł. (2019). Interpretable optimization —  a simulation-based analysis. In Beck, M. & Fischer, L. (Eds.), Modern Time Series Analysis (pp. 32–33). Northbridge Academic. https://doi.org/10.12345/bc-hnq.77201932"
+      }
+    },
+    {
+      "doi": "10.55555/bc.dw.2013.04.3920",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Lange, L., Schreiber, A. III & Stahl, L. (2013). Efficient inference: challenges and opportunities in social networks. In Löfgren, R. & Sommer-Tavares, N. (Eds.), Advances in Applied Statistics (pp. 41–56). Broadview Academic. https://doi.org/10.55555/bc.dw.2013.04.3920"
+      }
+    },
+    {
+      "doi": "10.12345/bc.37.2017.06.3824",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Franke, C. III & Schmitt, M. (2017). Scalable graph mining: a randomized benchmark. In Weber, A. J. & Weiß, K. L. Jr. (Eds.), Practical Graph Algorithms (pp. 32–43). Oakridge Science. https://doi.org/10.12345/bc.37.2017.06.3824"
+      }
+    },
+    {
+      "doi": "10.42424/bc.n9.2007.11.7418",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Smith-Jones, N. S. (2007). Generalized hyperparameter tuning: foundations and applications in genomics. In Graf, L. (Ed.), Foundations of Modern Analytics (pp. 145–163). Oakridge Science. https://doi.org/10.42424/bc.n9.2007.11.7418"
+      }
+    },
+    {
+      "doi": "10.1007/ca.4hvc.2021.81",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Seidel, A. L. (2021). Graph-based model selection: foundations and applications in recommender systems. In Seidel-Schröder, R. & Richter, L. (Eds.), Principles of Data-Centric AI (pp. 188–192). Northbridge Academic. https://doi.org/10.1007/ca.4hvc.2021.81"
+      }
+    },
+    {
+      "doi": "10.55555/bc.ej.2021.07.0238",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Klein, M. (2021). Adversarial evidence aggregation: foundations and applications in robotics. In Åström, Z. M. Jr. (Ed.), Design Patterns for Research Software (pp. 136–141). Fintree Publishing. https://doi.org/10.55555/bc.ej.2021.07.0238"
+      }
+    },
+    {
+      "doi": "10.54321/bc.2025.83.8rgqm-ztia4",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Ott, H., Ulrich, R. & Łukasiewicz, H. (2025). Generalized evidence aggregation —  a multi-site comparison in climate modeling. In Richter, A. & Nielsen, L. (Eds.), Methods in Empirical Computing (pp. 65–82). Broadview Academic. https://doi.org/10.54321/bc.2025.83.8rgqm-ztia4"
+      }
+    },
+    {
+      "doi": "10.1101/bc-pva.84201164",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Sørensen, F. N., Hartmann, L. P. & Gruber, I. (2011). Modular language modeling: challenges and opportunities in computer vision. In Seidel, Ł. M. (Ed.), Learning-based Optimization (pp. 185–196). Springwell Press. https://doi.org/10.1101/bc-pva.84201164"
+      }
+    },
+    {
+      "doi": "10.99999/bc/2017/85pr0",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Hofmann, F. & Schultz, A. N. (2017). Interpretable model selection —  design and evaluation. In Sommer, H. (Ed.), Principles of Data-Centric AI (pp. 121–128). Oakridge Science. https://doi.org/10.99999/bc/2017/85pr0"
+      }
+    },
+    {
+      "doi": "10.12345/bc.18.2018.01.4493",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Öztürk, D. (2018). Semi-supervised search —  a practical guide. In Graf, Z. (Ed.), Methods in Empirical Computing (pp. 196–200). Northbridge Academic. https://doi.org/10.12345/bc.18.2018.01.4493"
+      }
+    },
+    {
+      "doi": "10.55555/bc.2021.87.xyvr-ebxytdf",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Smith-Jones, L. M. & López-García, N. Jr. (2021). Probabilistic representation learning: a multi-site comparison. In Fischer, A. & Gruber, P. M. (Eds.), Learning-based Optimization (pp. 69–89). Westlake University Press. https://doi.org/10.55555/bc.2021.87.xyvr-ebxytdf"
+      }
+    },
+    {
+      "doi": "10.1137/bc.2019.88.jjz-tz7ye4",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Wagner, A. & Schultz, L. (2019). Neural sampling: challenges and opportunities. In Franke, N. & García, A. (Eds.), Foundations of Modern Analytics (pp. 32–38). Westlake University Press. https://doi.org/10.1137/bc.2019.88.jjz-tz7ye4"
+      }
+    },
+    {
+      "doi": "10.1137/bc.n9.2020.10.7016",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Åström, M., Graf, L. & Arnold, F. L. (2020). Adaptive time series modeling: a simulation-based analysis. In Ulrich, E. (Ed.), Principles of Data-Centric AI (pp. 12–24). Fintree Publishing. https://doi.org/10.1137/bc.n9.2020.10.7016"
+      }
+    },
+    {
+      "doi": "10.99999/bc.ih.2014.08.7063",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Franke, L. & Sørensen, M. (2014). Neural language modeling: a simulation-based analysis. In D’Amico, I. (Ed.), Practical Graph Algorithms (pp. 73–74). Fintree Publishing. https://doi.org/10.99999/bc.ih.2014.08.7063"
+      }
+    },
+    {
+      "doi": "10.55555/j8.73oo.2001.91",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "König-Novák, E. & Dietrich, L. (2001). Robust graph mining: theory and practice. In Meier, M. & Sørensen, H. J. (Eds.), Design Patterns for Research Software (pp. 32–52). Springwell Press. https://doi.org/10.55555/j8.73oo.2001.91"
+      }
+    },
+    {
+      "doi": "10.42424/bc.xu.2011.12.1627",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Schreiber, I. & Seidel, N. (2011). Semi-supervised inference: design and evaluation. In Tavares, A. (Ed.), Learning-based Optimization (pp. 123–141). Westlake University Press. https://doi.org/10.42424/bc.xu.2011.12.1627"
+      }
+    },
+    {
+      "doi": "10.55555/ef.fjra.2004.93",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Ünal, H. K. & Schäfer, H. A. (2004). Multi-modal model selection: foundations and applications. In Fuchs, M., Tavares, L. I. & Richter, E. II (Eds.), Principles of Data-Centric AI (pp. 146–162). Northbridge Academic. https://doi.org/10.55555/ef.fjra.2004.93"
+      }
+    },
+    {
+      "doi": "10.54321/bc-a7l.942021ox",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Fuchs, Z. B. & Hofmann, E. J. (2021). Adversarial evidence aggregation —  challenges and opportunities in computer vision. In Meier, F. & Zimmermann, F. (Eds.), Contemporary Topics in Information Systems (pp. 200–202). Westlake University Press. https://doi.org/10.54321/bc-a7l.942021ox"
+      }
+    },
+    {
+      "doi": "10.99999/bc/2006/95kta",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Bauer, F. (2006). Interpretable graph mining: foundations and applications in recommender systems. In Löfgren, Z. L. (Ed.), Modern Time Series Analysis (pp. 15–18). Westlake University Press. https://doi.org/10.99999/bc/2006/95kta"
+      }
+    },
+    {
+      "doi": "10.42424/b4.53o7.2007.96",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Peters, A. & López-García, M. Jr. (2007). Probabilistic structured prediction: design and evaluation. In Müller, E. & Schäfer, L. L. (Eds.), Modern Time Series Analysis (pp. 91–92). Westlake University Press. https://doi.org/10.42424/b4.53o7.2007.96"
+      }
+    },
+    {
+      "doi": "10.55555/bc/2021/97w16",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Weber, M. (2021). Probabilistic hyperparameter tuning —  a practical guide. In Klein, I. A. & Busch, J. Sr. (Eds.), Principles of Data-Centric AI (pp. 101–110). Oakridge Science. https://doi.org/10.55555/bc/2021/97w16"
+      }
+    },
+    {
+      "doi": "10.12345/rw.5p2x.1996.98",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Heinze, E., Zimmermann, E. L. & Becker, M. (1996). Efficient time series modeling: foundations and applications. In Ott, E. (Ed.), Foundations of Modern Analytics (pp. 90–108). Northbridge Academic. https://doi.org/10.12345/rw.5p2x.1996.98"
+      }
+    },
+    {
+      "doi": "10.54321/bc.2000.99.kwmtx-ks2xt",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Lange, M. & Becker, P. (2000). Adversarial model selection —  an empirical study. In Weiß, B. & Novák, E. Jr. (Eds.), Methods in Empirical Computing (pp. 33–37). Broadview Academic. https://doi.org/10.54321/bc.2000.99.kwmtx-ks2xt"
+      }
+    },
+    {
+      "doi": "10.42424/bc-9fe.1002022tv",
+      "category": "book-chapter",
+      "bibliography": {
+        "apa": "Tavares, J. (2022). Graph-based graph mining: theory and practice in social networks. In Graf, H. (Ed.), Principles of Data-Centric AI (pp. 174–184). Broadview Academic. https://doi.org/10.42424/bc-9fe.1002022tv"
+      }
+    },
+    {
+      "doi": "10.1007/n8.4pb8.1999.101",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Schäfer, M. L. & Seidel, M. E. (1999). Learning-based Optimization. Westlake University Press. https://doi.org/10.1007/n8.4pb8.1999.101"
+      }
+    },
+    {
+      "doi": "10.12345/mo-wrx.10220095x",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "González, P. (2009). Principles of Data-Centric AI. (5nd ed.). Springwell Press. https://doi.org/10.12345/mo-wrx.10220095x"
+      }
+    },
+    {
+      "doi": "10.99999/mo.2010.103.23oj-zbbe5",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Roth, A. F. & Silva, B. (2010). Advances in Applied Statistics. Broadview Academic. https://doi.org/10.99999/mo.2010.103.23oj-zbbe5"
+      }
+    },
+    {
+      "doi": "10.12345/mo.2012.104.ep6q-9omvq1",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Schröder, E. (2012). Contemporary Topics in Information Systems. Fintree Publishing. https://doi.org/10.12345/mo.2012.104.ep6q-9omvq1"
+      }
+    },
+    {
+      "doi": "10.54321/mo/2002/105b7k",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Lange-Fuchs, F., Nowak, F. & König, S. (2002). Principles of Data-Centric AI. Fintree Publishing. https://doi.org/10.54321/mo/2002/105b7k"
+      }
+    },
+    {
+      "doi": "10.99999/mo.2013.106.pq3sa-83tweb",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Järvinen, L. (2013). Learning-based Optimization. (2nd ed.). Northbridge Academic. https://doi.org/10.99999/mo.2013.106.pq3sa-83tweb"
+      }
+    },
+    {
+      "doi": "10.55555/mo.33.2020.01.3001",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "González, E. C., Schreiber, M. & Ivić, I. (2020). Foundations of Modern Analytics. Northbridge Academic. https://doi.org/10.55555/mo.33.2020.01.3001"
+      }
+    },
+    {
+      "doi": "10.99999/mo-mmy.1081997a0",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "López-García, H. M. II (1997). Practical Graph Algorithms. Broadview Academic. https://doi.org/10.99999/mo-mmy.1081997a0"
+      }
+    },
+    {
+      "doi": "10.1007/mo.q2.2009.02.0685",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Fernández, J., Tavares, S. & Schneider, Ł. L. (2009). Modern Time Series Analysis. Broadview Academic. https://doi.org/10.1007/mo.q2.2009.02.0685"
+      }
+    },
+    {
+      "doi": "10.55555/qx.abol.2010.110",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Håkansson, P. Sr., Łukasiewicz, F. A. & Järvinen, L. M. Jr. (2010). Advances in Applied Statistics. Westlake University Press. https://doi.org/10.55555/qx.abol.2010.110"
+      }
+    },
+    {
+      "doi": "10.12345/mo.2013.111.1j1-37rj2x",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Vogel, Y. & Stahl, J. (2013). Methods in Empirical Computing. Springwell Press. https://doi.org/10.12345/mo.2013.111.1j1-37rj2x"
+      }
+    },
+    {
+      "doi": "10.42424/mo-hj2.1122020kk",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Hofmann, A. (2020). Advances in Applied Statistics. Oakridge Science. https://doi.org/10.42424/mo-hj2.1122020kk"
+      }
+    },
+    {
+      "doi": "10.1101/mo/2003/113ck7",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Ott, B., O’Connor, I. & Keller, C. (2003). Contemporary Topics in Information Systems. (5nd ed.). Broadview Academic. https://doi.org/10.1101/mo/2003/113ck7"
+      }
+    },
+    {
+      "doi": "10.1137/us.ghhh.2016.114",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Seidel, L., Nielsen, R. Sr. & Vogel, E. (2016). Practical Graph Algorithms. Fintree Publishing. https://doi.org/10.1137/us.ghhh.2016.114"
+      }
+    },
+    {
+      "doi": "10.1137/ne.e7vb.1996.115",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Krüger, Y. P., Fernández-Ünal, J. & Kühn, S. (1996). Principles of Data-Centric AI. (4nd ed.). Springwell Press. https://doi.org/10.1137/ne.e7vb.1996.115"
+      }
+    },
+    {
+      "doi": "10.42424/mo.02.2014.05.9162",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Haas, N. II, Schultz, S. & Link, L. (2014). Foundations of Modern Analytics. Westlake University Press. https://doi.org/10.42424/mo.02.2014.05.9162"
+      }
+    },
+    {
+      "doi": "10.12345/mo/2017/117w0v",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Kowalski, M. (2017). Design Patterns for Research Software. (4nd ed.). Broadview Academic. https://doi.org/10.12345/mo/2017/117w0v"
+      }
+    },
+    {
+      "doi": "10.55555/mo.2h.1995.04.5671",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Braun, A., Łukasiewicz, M. L. & Ivić, M. (1995). Design Patterns for Research Software. (3nd ed.). Broadview Academic. https://doi.org/10.55555/mo.2h.1995.04.5671"
+      }
+    },
+    {
+      "doi": "10.99999/mo/2018/1195jh",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Wolf, L. A. & Håkansson, S. E. (2018). Foundations of Modern Analytics. Fintree Publishing. https://doi.org/10.99999/mo/2018/1195jh"
+      }
+    },
+    {
+      "doi": "10.55555/mo-kvn.12020118p",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Hofmann, M. (2011). Contemporary Topics in Information Systems. Fintree Publishing. https://doi.org/10.55555/mo-kvn.12020118p"
+      }
+    },
+    {
+      "doi": "10.42424/mo.z7.2005.07.0474",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Kowalski, P. Sr. & Krause-Hartmann, S. I. (2005). Principles of Data-Centric AI. Springwell Press. https://doi.org/10.42424/mo.z7.2005.07.0474"
+      }
+    },
+    {
+      "doi": "10.1137/mo.1999.122.senxh-5alo",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Öztürk, I. P. & Richter, C. (1999). Practical Graph Algorithms. (5nd ed.). Fintree Publishing. https://doi.org/10.1137/mo.1999.122.senxh-5alo"
+      }
+    },
+    {
+      "doi": "10.12345/mo.az.1994.12.8226",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Becker, C. & Öztürk, L. (1994). Practical Graph Algorithms. Fintree Publishing. https://doi.org/10.12345/mo.az.1994.12.8226"
+      }
+    },
+    {
+      "doi": "10.1007/mo/2025/124yzx",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Richter, M., Roth, M. II & Klein, S. (2025). Practical Graph Algorithms. Broadview Academic. https://doi.org/10.1007/mo/2025/124yzx"
+      }
+    },
+    {
+      "doi": "10.1137/1q.9jm5.2008.125",
+      "category": "monograph",
+      "bibliography": {
+        "apa": "Schäfer, I. (2008). Principles of Data-Centric AI. Northbridge Academic. https://doi.org/10.1137/1q.9jm5.2008.125"
+      }
+    },
+    {
+      "doi": "10.42424/rp.2024.126.6l1-xdco",
+      "category": "report",
+      "bibliography": {
+        "apa": "O’Connor, P., Fernández, A. A. & Järvinen, A. (2024). Scalable inference: foundations and applications (White Paper No. WP-2024-209). Broadview Academic. https://doi.org/10.42424/rp.2024.126.6l1-xdco"
+      }
+    },
+    {
+      "doi": "10.99999/rp.hx.2023.03.6076",
+      "category": "report",
+      "bibliography": {
+        "apa": "Bauer, Ł. & López-García, K. (2023). Interpretable time series modeling: an empirical study in computer vision (Technical Report No. RP-2023-849). Fintree Publishing. https://doi.org/10.99999/rp.hx.2023.03.6076"
+      }
+    },
+    {
+      "doi": "10.42424/rp-0jm.1282015ch",
+      "category": "report",
+      "bibliography": {
+        "apa": "Weiß, J., García, Ł. & Braun, J. (2015). Adversarial feature extraction —  foundations and applications (Technical Report No. WP-2015-358). Springwell Press. https://doi.org/10.42424/rp-0jm.1282015ch"
+      }
+    },
+    {
+      "doi": "10.99999/rp/2005/129ymc",
+      "category": "report",
+      "bibliography": {
+        "apa": "Krause, M. K. (2005). Approximate structured prediction: design and evaluation in climate modeling (Research Report No. TR-2005-874). Northbridge Academic. https://doi.org/10.99999/rp/2005/129ymc"
+      }
+    },
+    {
+      "doi": "10.1101/mk.y02x.2025.130",
+      "category": "report",
+      "bibliography": {
+        "apa": "Núñez, M. & Fernández, S. (2025). Scalable hyperparameter tuning —  theory and practice (Research Report No. WP-2025-195). Oakridge Science. https://doi.org/10.1101/mk.y02x.2025.130"
+      }
+    },
+    {
+      "doi": "10.1137/ek.n3er.1998.131",
+      "category": "report",
+      "bibliography": {
+        "apa": "Núñez, S. & Schmidt, N. (1998). Neural structured prediction —  a case study (White Paper No. RP-1998-661). Springwell Press. https://doi.org/10.1137/ek.n3er.1998.131"
+      }
+    },
+    {
+      "doi": "10.12345/rp.1995.132.5jk0-slo0jji",
+      "category": "report",
+      "bibliography": {
+        "apa": "König, I. (1995). Multi-modal inference: challenges and opportunities (Technical Report No. WP-1995-465). Westlake University Press. https://doi.org/10.12345/rp.1995.132.5jk0-slo0jji"
+      }
+    },
+    {
+      "doi": "10.1007/rp.k6.2006.01.3643",
+      "category": "report",
+      "bibliography": {
+        "apa": "Gruber, M., García, Y. E. II & Neumann, R. (2006). Robust feature extraction —  a case study (Working Paper No. RP-2006-710). Fintree Publishing. https://doi.org/10.1007/rp.k6.2006.01.3643"
+      }
+    },
+    {
+      "doi": "10.42424/rp-zab.134200227",
+      "category": "report",
+      "bibliography": {
+        "apa": "Franke, A. I., Heinrich, P. & Fuchs, H. (2002). Multi-modal structured prediction —  an empirical study in computer vision (Research Report No. TR-2002-566). Springwell Press. https://doi.org/10.42424/rp-zab.134200227"
+      }
+    },
+    {
+      "doi": "10.55555/rp.3p.2011.03.6350",
+      "category": "report",
+      "bibliography": {
+        "apa": "Nielsen, A. L., Brandt, M. & Neumann, P. (2011). Modular representation learning —  design and evaluation (Working Paper No. TR-2011-145). Fintree Publishing. https://doi.org/10.55555/rp.3p.2011.03.6350"
+      }
+    },
+    {
+      "doi": "10.12345/rp-bh9.1362012mz",
+      "category": "report",
+      "bibliography": {
+        "apa": "Braun, L. III (2012). Approximate sampling: a randomized benchmark (Research Report No. TR-2012-690). Broadview Academic. https://doi.org/10.12345/rp-bh9.1362012mz"
+      }
+    },
+    {
+      "doi": "10.99999/rp-ev3.13720245v",
+      "category": "report",
+      "bibliography": {
+        "apa": "Tavares, S. & Haas, A. (2024). Multi-modal time series modeling: a randomized benchmark (Working Paper No. RP-2024-966). Westlake University Press. https://doi.org/10.99999/rp-ev3.13720245v"
+      }
+    },
+    {
+      "doi": "10.42424/rp/2014/138z3x",
+      "category": "report",
+      "bibliography": {
+        "apa": "Lorenz, L. (2014). Adaptive structured prediction: design and evaluation (White Paper No. WP-2014-322). Broadview Academic. https://doi.org/10.42424/rp/2014/138z3x"
+      }
+    },
+    {
+      "doi": "10.54321/rp-ty3.1392007rn",
+      "category": "report",
+      "bibliography": {
+        "apa": "Busch, E. (2007). Multi-modal structured prediction: challenges and opportunities (Technical Report No. WP-2007-699). Westlake University Press. https://doi.org/10.54321/rp-ty3.1392007rn"
+      }
+    },
+    {
+      "doi": "10.1101/rp/2018/140nx9",
+      "category": "report",
+      "bibliography": {
+        "apa": "Hoffmann, L. D. (2018). Probabilistic graph mining —  challenges and opportunities (Working Paper No. TR-2018-455). Northbridge Academic. https://doi.org/10.1101/rp/2018/140nx9"
+      }
+    },
+    {
+      "doi": "10.1137/rp.2023.141.2fa-sszo",
+      "category": "report",
+      "bibliography": {
+        "apa": "Richter, N. & Łukasiewicz, E. (2023). Neural search —  a multi-site comparison (Technical Report No. TR-2023-367). Fintree Publishing. https://doi.org/10.1137/rp.2023.141.2fa-sszo"
+      }
+    },
+    {
+      "doi": "10.55555/rp.1994.142.lu9s-5xbkfq9",
+      "category": "report",
+      "bibliography": {
+        "apa": "Lorenz, I. (1994). Probabilistic representation learning —  challenges and opportunities (Technical Report No. TR-1994-731). Springwell Press. https://doi.org/10.55555/rp.1994.142.lu9s-5xbkfq9"
+      }
+    },
+    {
+      "doi": "10.54321/rp/2007/143edo",
+      "category": "report",
+      "bibliography": {
+        "apa": "Becker, A. A. & Krüger, N. (2007). Context-aware inference: design and evaluation (Research Report No. WP-2007-830). Northbridge Academic. https://doi.org/10.54321/rp/2007/143edo"
+      }
+    },
+    {
+      "doi": "10.1137/s3.w1v8.1996.144",
+      "category": "report",
+      "bibliography": {
+        "apa": "Peters, E. & García, B. (1996). Generalized graph mining —  an empirical study (Working Paper No. TR-1996-520). Fintree Publishing. https://doi.org/10.1137/s3.w1v8.1996.144"
+      }
+    },
+    {
+      "doi": "10.99999/rp.2020.145.c5loe-5274",
+      "category": "report",
+      "bibliography": {
+        "apa": "Vogel, N. & Schmitt, K. (2020). Self-supervised optimization: challenges and opportunities (Research Report No. TR-2020-316). Springwell Press. https://doi.org/10.99999/rp.2020.145.c5loe-5274"
+      }
+    },
+    {
+      "doi": "10.42424/8k.ms87.2009.146",
+      "category": "report",
+      "bibliography": {
+        "apa": "Fischer, A. A., Braun, I. & Schneider, Z. (2009). Self-supervised evidence aggregation: a practical guide (Working Paper No. RP-2009-253). Broadview Academic. https://doi.org/10.42424/8k.ms87.2009.146"
+      }
+    },
+    {
+      "doi": "10.55555/rp/1995/147f4r",
+      "category": "report",
+      "bibliography": {
+        "apa": "Smith-Jones, L., Bauer, N. & Schneider, E. (1995). Approximate representation learning —  foundations and applications (Technical Report No. WP-1995-931). Broadview Academic. https://doi.org/10.55555/rp/1995/147f4r"
+      }
+    },
+    {
+      "doi": "10.12345/rp.1993.148.s4y4-sifmk",
+      "category": "report",
+      "bibliography": {
+        "apa": "Tavares, A. F., Kühn, H. L. & Núñez, L. Jr. (1993). Interpretable search: a simulation-based analysis in climate modeling (Technical Report No. TR-1993-777). Springwell Press. https://doi.org/10.12345/rp.1993.148.s4y4-sifmk"
+      }
+    },
+    {
+      "doi": "10.55555/rp.2000.149.l4v85-fgf5yc",
+      "category": "report",
+      "bibliography": {
+        "apa": "Schultz, L., Franke, M. & Krause, E. (2000). Neural time series modeling: a simulation-based analysis (Technical Report No. RP-2000-195). Northbridge Academic. https://doi.org/10.55555/rp.2000.149.l4v85-fgf5yc"
+      }
+    },
+    {
+      "doi": "10.1137/rp-hse.1502019i1",
+      "category": "report",
+      "bibliography": {
+        "apa": "Ivić-Schreiber, H. I., Gruber, L. H. & Haas, D. (2019). Approximate structured prediction: an empirical study (Technical Report No. TR-2019-662). Oakridge Science. https://doi.org/10.1137/rp-hse.1502019i1"
+      }
+    },
+    {
+      "doi": "10.1101/pc/1994/151p0q",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "König, L., Klein, N. & Jansen, A. A. (1994, February 17). Robust inference —  a simulation-based analysis. Zenodo Preprints. https://example.org/preprint/1994/3519 https://doi.org/10.1101/pc/1994/151p0q"
+      }
+    },
+    {
+      "doi": "10.12345/pc/2010/152pmu",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Lorenz, C., Tavares, Ł. & Arnold, C. (2010). Efficient time series modeling: a randomized benchmark. Research Archives. https://example.org/preprint/2010/4355 https://doi.org/10.12345/pc/2010/152pmu"
+      }
+    },
+    {
+      "doi": "10.54321/pc.eb.2019.07.5162",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Weber, E. Y. & Öztürk, P. (2019, June 27). Scalable language modeling: foundations and applications in robotics. Open Science Repository. https://example.org/preprint/2019/6149 https://doi.org/10.54321/pc.eb.2019.07.5162"
+      }
+    },
+    {
+      "doi": "10.54321/pc-dvf.15420241q",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Becker, C., Dietrich, B., Fernández, O. & Bauer, C. (2024). Modular language modeling —  a case study in robotics. Zenodo Preprints. https://example.org/preprint/2024/9349 https://doi.org/10.54321/pc-dvf.15420241q"
+      }
+    },
+    {
+      "doi": "10.42424/pc-n05.15520098p",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Weißmann, Ł. (2009, June 1). Hybrid sampling: theory and practice. Zenodo Preprints. https://example.org/preprint/2009/2246 https://doi.org/10.42424/pc-n05.15520098p"
+      }
+    },
+    {
+      "doi": "10.12345/pc-on4.15620143a",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Heinze-O’Connor, C. (2014). Semi-supervised model selection: foundations and applications. Research Archives. https://example.org/preprint/2014/5926 https://doi.org/10.12345/pc-on4.15620143a"
+      }
+    },
+    {
+      "doi": "10.99999/pc.s4.2024.09.2777",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Fernández, C. B. Jr. & Hoffmann-Ivić, F. III (2024, December 25). Neural evidence aggregation: foundations and applications. Zenodo Preprints. https://example.org/preprint/2024/9606 https://doi.org/10.99999/pc.s4.2024.09.2777"
+      }
+    },
+    {
+      "doi": "10.42424/pc-1ma.15819952y",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Håkansson, D. & Ott, Z. Jr. (1995). Graph-based inference: foundations and applications. Open Science Repository. https://example.org/preprint/1995/9757 https://doi.org/10.42424/pc-1ma.15819952y"
+      }
+    },
+    {
+      "doi": "10.12345/pc.1997.159.jzl-1mfdx",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Ott, M. & Fuchs, M. L. (1997). Probabilistic representation learning —  theory and practice in healthcare. Open Science Repository. https://example.org/preprint/1997/3660 https://doi.org/10.12345/pc.1997.159.jzl-1mfdx"
+      }
+    },
+    {
+      "doi": "10.42424/pc.2t.1998.08.9295",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Ott, I., Franke, M. M. & Müller, D. N. (1998, June 6). Hybrid search: foundations and applications. OSF Preprints. https://example.org/preprint/1998/1692 https://doi.org/10.42424/pc.2t.1998.08.9295"
+      }
+    },
+    {
+      "doi": "10.99999/pc/2022/161j3c",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Núñez, O. A., Nowak, M. Ł. & Ott, N. (2022, February 20). Hybrid time series modeling: theory and practice in healthcare. OSF Preprints. https://example.org/preprint/2022/5245 https://doi.org/10.99999/pc/2022/161j3c"
+      }
+    },
+    {
+      "doi": "10.54321/sw.6665.1995.162",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Weber, L. & Hartmann, M. M. (1995, August 1). Approximate model selection: a case study. Research Archives. https://example.org/preprint/1995/7953 https://doi.org/10.54321/sw.6665.1995.162"
+      }
+    },
+    {
+      "doi": "10.55555/pc.9s.1997.12.2404",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Stahl, E., Heinze, S. & Becker, M. (1997, August 23). Interpretable optimization —  theory and practice. OSF Preprints. https://example.org/preprint/1997/4256 https://doi.org/10.55555/pc.9s.1997.12.2404"
+      }
+    },
+    {
+      "doi": "10.54321/oi.p5vt.2020.164",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Ünal, J. M., Müller, P. & Roth, B. (2020). Hybrid optimization —  theory and practice. Research Archives. https://example.org/preprint/2020/7440 https://doi.org/10.54321/oi.p5vt.2020.164"
+      }
+    },
+    {
+      "doi": "10.42424/pc.z0.2015.07.2090",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Müller, B., Öztürk, N. Z., Öztürk, L. & Seidel, L. (2015). Adversarial search —  a simulation-based analysis. OSF Preprints. https://example.org/preprint/2015/1428 https://doi.org/10.42424/pc.z0.2015.07.2090"
+      }
+    },
+    {
+      "doi": "10.55555/pc/2019/166qai",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Heinze, C. & Wolf, E. Sr. (2019). Semi-supervised model selection —  challenges and opportunities in healthcare. Open Science Repository. https://example.org/preprint/2019/1326 https://doi.org/10.55555/pc/2019/166qai"
+      }
+    },
+    {
+      "doi": "10.12345/pc.sf.2022.03.0987",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Brandt, I., Jansen, S. & Novák, E. (2022, February 8). Adaptive sampling: an empirical study in social networks. Zenodo Preprints. https://example.org/preprint/2022/1914 https://doi.org/10.12345/pc.sf.2022.03.0987"
+      }
+    },
+    {
+      "doi": "10.55555/pc.0g.2019.03.0896",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Weißmann, B. (2019). Adversarial representation learning: a multi-site comparison. Open Science Repository. https://example.org/preprint/2019/9982 https://doi.org/10.55555/pc.0g.2019.03.0896"
+      }
+    },
+    {
+      "doi": "10.1007/pc/2006/169w2n",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Wagner, P. (2006, June 26). Graph-based optimization: design and evaluation. Open Science Repository. https://example.org/preprint/2006/1926 https://doi.org/10.1007/pc/2006/169w2n"
+      }
+    },
+    {
+      "doi": "10.55555/pc-pyz.1702009fs",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Löfgren, H. & Richter, A. Y. Jr. (2009). Efficient optimization: an empirical study. Open Science Repository. https://example.org/preprint/2009/6351 https://doi.org/10.55555/pc-pyz.1702009fs"
+      }
+    },
+    {
+      "doi": "10.1101/pc-pfs.1712010yw",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Silva, M. O., Klein, P. & Hofmann, H. (2010, September 23). Approximate time series modeling —  design and evaluation. OSF Preprints. https://example.org/preprint/2010/4245 https://doi.org/10.1101/pc-pfs.1712010yw"
+      }
+    },
+    {
+      "doi": "10.42424/pc.h5.2005.03.2019",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Kowalski, D. E., Brandt-König, L., Heinze, H. L. Sr. & Dietrich, B. (2005, September 23). Graph-based time series modeling —  a case study in healthcare. OSF Preprints. https://example.org/preprint/2005/8341 https://doi.org/10.42424/pc.h5.2005.03.2019"
+      }
+    },
+    {
+      "doi": "10.99999/pc-n0u.1732003vk",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Nielsen, L., Schneider, M., Meier, M. & Fuchs, E. (2003, March 13). Hybrid representation learning —  theory and practice in natural language processing. Open Science Repository. https://example.org/preprint/2003/5362 https://doi.org/10.99999/pc-n0u.1732003vk"
+      }
+    },
+    {
+      "doi": "10.1007/pc/2025/174h8z",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Stein, M., Weber, L., Kowalski, F. Sr. & González, S. (2025, April 9). Modular graph mining: an empirical study. Zenodo Preprints. https://example.org/preprint/2025/3866 https://doi.org/10.1007/pc/2025/174h8z"
+      }
+    },
+    {
+      "doi": "10.99999/pc-egr.17519988f",
+      "category": "posted-content",
+      "bibliography": {
+        "apa": "Schmitt, L. (1998). Neural hyperparameter tuning —  a multi-site comparison. Zenodo Preprints. https://example.org/preprint/1998/3221 https://doi.org/10.99999/pc-egr.17519988f"
+      }
+    },
+    {
+      "doi": "10.99999/ds.br.2002.05.8192",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Arnold, L. L. (2002). Approximate model selection: a multi-site comparison (Doctoral dissertation, Technische Universität Westtal). https://doi.org/10.99999/ds.br.2002.05.8192"
+      }
+    },
+    {
+      "doi": "10.55555/ds-cdh.17720229y",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Haas-Neumann, L. (2022). Semi-supervised feature extraction: theory and practice (Doctoral dissertation, Universität Nordstadt). https://doi.org/10.55555/ds-cdh.17720229y"
+      }
+    },
+    {
+      "doi": "10.99999/ds.ut.1995.07.9329",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Jansen, A. L. (1995). Adversarial evaluation: a randomized benchmark in education (Doctoral dissertation, Technische Universität Westtal). https://doi.org/10.99999/ds.ut.1995.07.9329"
+      }
+    },
+    {
+      "doi": "10.12345/ds/2000/1796fc",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Dietrich, C. K. (2000). Efficient feature extraction: challenges and opportunities (Doctoral dissertation, Hochschule Ostbrück). https://doi.org/10.12345/ds/2000/1796fc"
+      }
+    },
+    {
+      "doi": "10.1101/ds.2022.180.dbvaq-x1je",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "García, H. (2022). Scalable optimization —  a simulation-based analysis (Doctoral dissertation, Freie Universität Bergheim). https://doi.org/10.1101/ds.2022.180.dbvaq-x1je"
+      }
+    },
+    {
+      "doi": "10.1101/ds.f3.2020.06.7109",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Zimmermann, S. (2020). Neural language modeling: foundations and applications (Doctoral dissertation, Universität Nordstadt). https://doi.org/10.1101/ds.f3.2020.06.7109"
+      }
+    },
+    {
+      "doi": "10.1007/ds/2025/1821n7",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Zimmermann, Y. Sr. (2025). Efficient time series modeling —  a randomized benchmark (Doctoral dissertation, Hochschule Ostbrück). https://doi.org/10.1007/ds/2025/1821n7"
+      }
+    },
+    {
+      "doi": "10.1007/ds.vd.2020.11.6922",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Peters, H. M. (2020). Modular structured prediction: a randomized benchmark (Doctoral dissertation, Freie Universität Bergheim). https://doi.org/10.1007/ds.vd.2020.11.6922"
+      }
+    },
+    {
+      "doi": "10.42424/ds-p78.1842006hm",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Peters, E. (2006). Multi-modal model selection —  design and evaluation (Doctoral dissertation, Hochschule Ostbrück). https://doi.org/10.42424/ds-p78.1842006hm"
+      }
+    },
+    {
+      "doi": "10.99999/5s.9kjw.1996.185",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Hartmann, N. E. (1996). Context-aware optimization —  an empirical study (Doctoral dissertation, Hochschule Ostbrück). https://doi.org/10.99999/5s.9kjw.1996.185"
+      }
+    },
+    {
+      "doi": "10.99999/ds-5w9.1862007x6",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Järvinen, M. Ł. (2007). Hybrid structured prediction: foundations and applications in robotics (Doctoral dissertation, Hochschule Ostbrück). https://doi.org/10.99999/ds-5w9.1862007x6"
+      }
+    },
+    {
+      "doi": "10.1137/ds-iyh.187199682",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Dietrich, N. R. (1996). Multi-modal language modeling: foundations and applications (Doctoral dissertation, Universität Nordstadt). https://doi.org/10.1137/ds-iyh.187199682"
+      }
+    },
+    {
+      "doi": "10.55555/2b.p5c9.1997.188",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Hartmann, B. F. (1997). Efficient evidence aggregation: a randomized benchmark (Doctoral dissertation, Universität Nordstadt). https://doi.org/10.55555/2b.p5c9.1997.188"
+      }
+    },
+    {
+      "doi": "10.1101/ds/2012/189db5",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Link, F. (2012). Efficient hyperparameter tuning: a randomized benchmark (Doctoral dissertation, Freie Universität Bergheim). https://doi.org/10.1101/ds/2012/189db5"
+      }
+    },
+    {
+      "doi": "10.99999/ds.vj.2020.03.3909",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Sommer, K. (2020). Context-aware feature extraction: challenges and opportunities (Doctoral dissertation, Freie Universität Bergheim). https://doi.org/10.99999/ds.vj.2020.03.3909"
+      }
+    },
+    {
+      "doi": "10.1007/ds/2024/191ygq",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Müller, M. C. (2024). Scalable evidence aggregation: design and evaluation in computer vision (Doctoral dissertation, Freie Universität Bergheim). https://doi.org/10.1007/ds/2024/191ygq"
+      }
+    },
+    {
+      "doi": "10.1137/ds-l4r.19220073m",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Schreiber, E. M. (2007). Interpretable representation learning: a randomized benchmark in robotics (Doctoral dissertation, Technische Universität Westtal). https://doi.org/10.1137/ds-l4r.19220073m"
+      }
+    },
+    {
+      "doi": "10.42424/ds-18e.1932024yd",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "König, M. (2024). Efficient evaluation: design and evaluation in robotics (Doctoral dissertation, Hochschule Ostbrück). https://doi.org/10.42424/ds-18e.1932024yd"
+      }
+    },
+    {
+      "doi": "10.1137/ds/1996/194tek",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Weber, M. (1996). Approximate feature extraction —  a case study in genomics (Doctoral dissertation, Freie Universität Bergheim). https://doi.org/10.1137/ds/1996/194tek"
+      }
+    },
+    {
+      "doi": "10.42424/ds-075.19520167h",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Klein, L. (2016). Efficient evidence aggregation —  foundations and applications in climate modeling (Doctoral dissertation, Universität Nordstadt). https://doi.org/10.42424/ds-075.19520167h"
+      }
+    },
+    {
+      "doi": "10.1101/nv.m0gp.2007.196",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Seidel, L. (2007). Neural evaluation: a multi-site comparison (Doctoral dissertation, Universität Südstadt). https://doi.org/10.1101/nv.m0gp.2007.196"
+      }
+    },
+    {
+      "doi": "10.55555/ds/2015/197nwc",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Silva, M. (2015). Adaptive representation learning —  a practical guide (Doctoral dissertation, Universität Südstadt). https://doi.org/10.55555/ds/2015/197nwc"
+      }
+    },
+    {
+      "doi": "10.12345/39.qiz3.2008.198",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Weißmann, L. (2008). Efficient inference —  a multi-site comparison (Doctoral dissertation, Technische Universität Westtal). https://doi.org/10.12345/39.qiz3.2008.198"
+      }
+    },
+    {
+      "doi": "10.42424/65.tou1.2004.199",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Schneider, Y. (2004). Approximate structured prediction: theory and practice in computer vision (Doctoral dissertation, Universität Südstadt). https://doi.org/10.42424/65.tou1.2004.199"
+      }
+    },
+    {
+      "doi": "10.99999/ds-xjl.2002008x4",
+      "category": "dissertation",
+      "bibliography": {
+        "apa": "Fuchs, B. (2008). Probabilistic feature extraction: a case study (Doctoral dissertation, Hochschule Ostbrück). https://doi.org/10.99999/ds-xjl.2002008x4"
+      }
+    }
+  ]
+}
