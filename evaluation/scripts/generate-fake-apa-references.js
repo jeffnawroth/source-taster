@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
+
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_RAW_OUT = 'evaluation/raw-references.fake-apa.txt'
+const DEFAULT_RAW_OUT = 'evaluation/references/raw-references.fake-apa.txt'
 const DEFAULT_WORKS_OUT = 'evaluation/crossref-works.fake.json'
 const PER_CATEGORY = 25
 const CATEGORIES = [

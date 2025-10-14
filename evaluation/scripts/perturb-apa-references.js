@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
+
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_INPUT = 'evaluation/raw-references.crossref.txt'
-const DEFAULT_OUTPUT = 'evaluation/raw-references.apa-perturbed.txt'
+const DEFAULT_INPUT = 'evaluation/references/raw-references.crossref.txt'
+const DEFAULT_OUTPUT = 'evaluation/references/raw-references.apa-perturbed.txt'
 const DEFAULT_REPORT = 'evaluation/perturbation-report.apa.json'
 
 function parseArgs() {

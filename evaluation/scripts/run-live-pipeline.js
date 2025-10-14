@@ -2,7 +2,7 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-fallthrough */
-/* eslint-disable no-console */
+
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { performance } from 'node:perf_hooks'

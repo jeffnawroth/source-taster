@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /* eslint-disable no-fallthrough */
-/* eslint-disable no-console */
+
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-const DEFAULT_RAW_PATH = 'evaluation/raw-references.crossref.txt'
+const DEFAULT_RAW_PATH = 'evaluation/references/raw-references.crossref.txt'
 const DEFAULT_WORKS_PATH = 'evaluation/crossref-works.json'
 const DEFAULT_OUTPUT_PATH = 'evaluation/out/live-input.crossref.json'
 
@@ -53,7 +53,7 @@ function parseArgs() {
 }
 
 function printHelp() {
-  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --raw evaluation/raw-references.crossref.txt\n\nOptionen:\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --works <pfad>   (Optional) Pfad zu crossref-works.json (Default ${DEFAULT_WORKS_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilname (Default apa)`)
+  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --raw evaluation/references/raw-references.crossref.txt\n\nOptionen:\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --works <pfad>   (Optional) Pfad zu crossref-works.json (Default ${DEFAULT_WORKS_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilname (Default apa)`)
 }
 
 async function loadJson(filePath) {
