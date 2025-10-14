@@ -62,14 +62,14 @@ function parseArgs() {
       default:
         if (!a.startsWith('-'))
           options.input = a
-        else console.warn(`Unbekannte Option: ${a}`)
+        else console.warn(`Unknown option: ${a}`)
     }
   }
   return options
 }
 
 function printHelp() {
-  console.log(`APA Perturbation Generator\n\nVerwendung:\n  node evaluation/perturb-apa-references.js --input ${DEFAULT_INPUT} --output ${DEFAULT_OUTPUT} --report ${DEFAULT_REPORT}\n\nOptionen:\n  --input <pfad>     Eingabe (APA Rohreferenzen, leerzeilengetrennt)\n  --output <pfad>    Ausgabe modifizierte Referenzen (leerzeilengetrennt)\n  --report <pfad>    JSON-Report mit angewandten Modifikationen\n  --profile <name>   light|medium|heavy (Default medium)\n  --seed <wert>      Seed für Reproduzierbarkeit\n  --typo n           Wahrscheinlichkeit 0..1 für Tippfehler\n  --title n          Wahrscheinlichkeit 0..1 für Titeländerungen\n  --year n           Wahrscheinlichkeit 0..1 für Jahresänderungen\n  --author n         Wahrscheinlichkeit 0..1 für Autorenänderungen\n  --punct n          Wahrscheinlichkeit 0..1 für Zeichensetzung/Format\n  --doi n            Wahrscheinlichkeit 0..1 für DOI-Varianten\n  --max-ops n        Obergrenze Modifikationen pro Eintrag (Default profilabhängig)\n`)
+  console.log(`APA Perturbation Generator\n\nUsage:\n  node evaluation/perturb-apa-references.js --input ${DEFAULT_INPUT} --output ${DEFAULT_OUTPUT} --report ${DEFAULT_REPORT}\n\nOptions:\n  --input <path>     Input file (APA raw references, separated by blank lines)\n  --output <path>    Output file for perturbed references (blank-line separated)\n  --report <path>    JSON report describing applied modifications\n  --profile <name>   light|medium|heavy (default medium)\n  --seed <value>     Seed for reproducibility\n  --typo n           Probability 0..1 for typos\n  --title n          Probability 0..1 for title changes\n  --year n           Probability 0..1 for year changes\n  --author n         Probability 0..1 for author changes\n  --punct n          Probability 0..1 for punctuation/format changes\n  --doi n            Probability 0..1 for DOI variants\n  --max-ops n        Maximum operations per entry (profile dependent by default)\n`)
 }
 
 function mulberry32(seedStr) {
@@ -393,12 +393,12 @@ async function main() {
     entries: reportEntries,
   }
   await writeFile(path.resolve(process.cwd(), options.report), JSON.stringify(reportPayload, null, 2), 'utf8')
-  console.log(`✅ Perturbation abgeschlossen → ${options.output}`)
+  console.log(`✅ Perturbation complete → ${options.output}`)
   console.log(`ℹ️ Report → ${options.report}`)
 }
 
 main().catch((err) => {
-  console.error('Perturbation fehlgeschlagen:')
+  console.error('Perturbation failed:')
   console.error(err)
   process.exitCode = 1
 })

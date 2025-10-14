@@ -60,7 +60,7 @@ function computeMatchingMetricsFor(entries, getMatching) {
       missing.push(entry.id ?? entry.referenceId ?? 'unknown')
       continue
     }
-    const type = entry.type ?? entry.category ?? 'Unbekannt'
+    const type = entry.type ?? entry.category ?? 'Unknown'
     const typeList = scoresByType.get(type) ?? []
     typeList.push(topScore)
     scoresByType.set(type, typeList)
@@ -81,14 +81,14 @@ function computeMatchingMetricsFor(entries, getMatching) {
     allScores = allScores.concat(scores)
   }
 
-  perType.sort((a, b) => a.type.localeCompare(b.type, 'de'))
+  perType.sort((a, b) => a.type.localeCompare(b.type, 'en'))
 
   const perStyle = []
   for (const [style, scores] of scoresByStyle.entries()) {
     const stats = computeScoreStats(scores)
     perStyle.push({ style, ...stats })
   }
-  perStyle.sort((a, b) => a.style.localeCompare(b.style, 'de'))
+  perStyle.sort((a, b) => a.style.localeCompare(b.style, 'en'))
 
   const overallStats = computeScoreStats(allScores)
 
@@ -131,7 +131,7 @@ function computePerformanceMetrics(performance) {
   const scenarios = []
 
   for (const scenario of performance.scenarios) {
-    const scenarioName = scenario.name ?? 'Unbenanntes Szenario'
+    const scenarioName = scenario.name ?? 'Unnamed scenario'
     const durations = scenario.durationsSeconds ? { ...scenario.durationsSeconds } : {}
     if (durations && !('pipeline.total' in durations)) {
       const totals = derivePipelineTotals(durations)
@@ -286,58 +286,58 @@ function parseBucketThresholdString(raw) {
   return numbers.sort((a, b) => b - a)
 }
 
-function printMatchingSummary(summary, title = 'Matching-Score (Source Taster)') {
+function printMatchingSummary(summary, title = 'Matching Score (Source Taster)') {
   console.log(`\n${title}`)
   const rows = summary.perType.map(item => ({
-    'Typ': item.type,
-    'Ø Score': formatNumber(item.average),
+    'Type': item.type,
+    'Avg score': formatNumber(item.average),
     'Median': formatNumber(item.median),
     'Q1': formatNumber(item.q1),
     'Q3': formatNumber(item.q3),
-    'Anzahl': item.count,
+    'Count': item.count,
   }))
   rows.push({
-    'Typ': 'Ø gesamt',
-    'Ø Score': formatNumber(summary.overall.average),
+    'Type': 'All entries',
+    'Avg score': formatNumber(summary.overall.average),
     'Median': formatNumber(summary.overall.median),
     'Q1': formatNumber(summary.overall.q1),
     'Q3': formatNumber(summary.overall.q3),
-    'Anzahl': summary.overall.count ?? 0,
+    'Count': summary.overall.count ?? 0,
   })
   console.table(rows)
   if (summary.missing.length > 0) {
-    console.warn(`⚠️  ${summary.missing.length} Referenzen ohne Matching-Ergebnis: ${summary.missing.join(', ')}`)
+    console.warn(`⚠️  ${summary.missing.length} references without matching results: ${summary.missing.join(', ')}`)
   }
 }
 
-function printMatchingSummaryByStyle(summary, title = 'Matching-Score nach Stil (Source Taster)') {
+function printMatchingSummaryByStyle(summary, title = 'Matching Score by style (Source Taster)') {
   if (!summary.perStyle || summary.perStyle.length === 0) {
     return
   }
   console.log(`\n${title}`)
   const rows = summary.perStyle.map(item => ({
-    'Stil': item.style,
-    'Ø Score': formatNumber(item.average),
+    'Style': item.style,
+    'Avg score': formatNumber(item.average),
     'Median': formatNumber(item.median),
     'Q1': formatNumber(item.q1),
     'Q3': formatNumber(item.q3),
-    'Anzahl': item.count,
+    'Count': item.count,
   }))
   console.table(rows)
 }
 
-function printMatchingBuckets(summary, title = 'Matching-Score Verteilung (Source Taster)') {
+function printMatchingBuckets(summary, title = 'Matching score distribution (Source Taster)') {
   console.log(`\n${title}`)
   const labels = getBucketLabels()
   const rows = summary.perType.map(item => ({
-    Typ: item.type,
+    Type: item.type,
     [labels.exact]: item.buckets?.exact ?? 0,
     [labels.strong]: item.buckets?.strong ?? 0,
     [labels.possible]: item.buckets?.possible ?? 0,
     [labels.none]: item.buckets?.none ?? 0,
   }))
   rows.push({
-    Typ: 'Ø gesamt',
+    Type: 'All entries',
     [labels.exact]: summary.overall.buckets?.exact ?? 0,
     [labels.strong]: summary.overall.buckets?.strong ?? 0,
     [labels.possible]: summary.overall.buckets?.possible ?? 0,
@@ -346,14 +346,14 @@ function printMatchingBuckets(summary, title = 'Matching-Score Verteilung (Sourc
   console.table(rows)
 }
 
-function printMatchingBucketsByStyle(summary, title = 'Matching-Score Verteilung nach Stil (Source Taster)') {
+function printMatchingBucketsByStyle(summary, title = 'Matching score distribution by style (Source Taster)') {
   if (!summary.perStyle || summary.perStyle.length === 0) {
     return
   }
   console.log(`\n${title}`)
   const labels = getBucketLabels()
   const rows = summary.perStyle.map(item => ({
-    Stil: item.style,
+    Style: item.style,
     [labels.exact]: item.buckets?.exact ?? 0,
     [labels.strong]: item.buckets?.strong ?? 0,
     [labels.possible]: item.buckets?.possible ?? 0,
@@ -364,16 +364,16 @@ function printMatchingBucketsByStyle(summary, title = 'Matching-Score Verteilung
 
 function printPerformanceSummary(summary) {
   if (!summary.scenarios.length) {
-    console.log('\nKeine Performance-Daten vorhanden.')
+    console.log('\nNo performance data available.')
     return
   }
-  console.log('\nPerformance (Zeit pro Referenz)')
+  console.log('\nPerformance (time per reference)')
   const rows = summary.scenarios.map(item => ({
-    'Szenario': item.scenario,
+    'Scenario': item.scenario,
     'System': item.system,
-    'Ø Zeit (s)': formatNumber(item.average, 3),
-    'StdAbw (s)': formatNumber(item.stdDev, 3),
-    'Durchsatz (Ref/min)': formatNumber(item.throughput, 3),
+    'Avg time (s)': formatNumber(item.average, 3),
+    'StdDev (s)': formatNumber(item.stdDev, 3),
+    'Throughput (ref/min)': formatNumber(item.throughput, 3),
   }))
   console.table(rows)
 }
@@ -390,7 +390,7 @@ function hasMatchingData(summary) {
 
 function toMarkdownTable(headers, rows) {
   if (!rows.length) {
-    return '_Keine Daten verfügbar_'
+    return '_No data available_'
   }
 
   const headerRow = `| ${headers.join(' | ')} |`
@@ -403,11 +403,11 @@ function buildMatchingMarkdown(summary, label) {
   const lines = [`## Matching – ${label}`]
 
   if (!hasMatchingData(summary)) {
-    lines.push('_Keine Daten verfügbar_')
+    lines.push('_No data available_')
     return lines.join('\n\n')
   }
 
-  const typeHeaders = ['Typ', 'Ø Score', 'Median', 'Q1', 'Q3', 'Anzahl']
+  const typeHeaders = ['Type', 'Avg score', 'Median', 'Q1', 'Q3', 'Count']
   const typeRows = summary.perType.map(item => [
     item.type,
     formatNumber(item.average),
@@ -417,7 +417,7 @@ function buildMatchingMarkdown(summary, label) {
     String(item.count ?? 0),
   ])
   typeRows.push([
-    'Ø gesamt',
+    'All entries',
     formatNumber(summary.overall.average),
     formatNumber(summary.overall.median),
     formatNumber(summary.overall.q1),
@@ -425,11 +425,11 @@ function buildMatchingMarkdown(summary, label) {
     String(summary.overall.count ?? 0),
   ])
 
-  lines.push('### Ø Score nach Typ')
+  lines.push('### Avg score by type')
   lines.push(toMarkdownTable(typeHeaders, typeRows))
 
   if (summary.perStyle && summary.perStyle.length > 0) {
-    const styleHeaders = ['Stil', 'Ø Score', 'Median', 'Q1', 'Q3', 'Anzahl']
+    const styleHeaders = ['Style', 'Avg score', 'Median', 'Q1', 'Q3', 'Count']
     const styleRows = summary.perStyle.map(item => [
       item.style,
       formatNumber(item.average),
@@ -438,12 +438,12 @@ function buildMatchingMarkdown(summary, label) {
       formatNumber(item.q3),
       String(item.count ?? 0),
     ])
-    lines.push('### Ø Score nach Stil')
+    lines.push('### Avg score by style')
     lines.push(toMarkdownTable(styleHeaders, styleRows))
   }
 
   const labels = getBucketLabels()
-  const bucketHeaders = ['Typ', labels.exact, labels.strong, labels.possible, labels.none]
+  const bucketHeaders = ['Type', labels.exact, labels.strong, labels.possible, labels.none]
   const bucketRows = summary.perType.map(item => [
     item.type,
     String(item.buckets?.exact ?? 0),
@@ -452,13 +452,13 @@ function buildMatchingMarkdown(summary, label) {
     String(item.buckets?.none ?? 0),
   ])
   bucketRows.push([
-    'Ø gesamt',
+    'All entries',
     String(summary.overall.buckets?.exact ?? 0),
     String(summary.overall.buckets?.strong ?? 0),
     String(summary.overall.buckets?.possible ?? 0),
     String(summary.overall.buckets?.none ?? 0),
   ])
-  lines.push('### Score-Verteilung nach Typ')
+  lines.push('### Score distribution by type')
   lines.push(toMarkdownTable(bucketHeaders, bucketRows))
 
   if (summary.perStyle && summary.perStyle.length > 0) {
@@ -469,12 +469,12 @@ function buildMatchingMarkdown(summary, label) {
       String(item.buckets?.possible ?? 0),
       String(item.buckets?.none ?? 0),
     ])
-    lines.push('### Score-Verteilung nach Stil')
-    lines.push(toMarkdownTable(['Stil', labels.exact, labels.strong, labels.possible, labels.none], bucketStyleRows))
+    lines.push('### Score distribution by style')
+    lines.push(toMarkdownTable(['Style', labels.exact, labels.strong, labels.possible, labels.none], bucketStyleRows))
   }
 
   if (summary.missing.length > 0) {
-    lines.push(`> ⚠️ ${summary.missing.length} Referenzen ohne Matching-Ergebnis: ${summary.missing.join(', ')}`)
+    lines.push(`> ⚠️ ${summary.missing.length} references without matching results: ${summary.missing.join(', ')}`)
   }
 
   return lines.join('\n\n')
@@ -482,10 +482,10 @@ function buildMatchingMarkdown(summary, label) {
 
 function buildPerformanceMarkdown(summary) {
   if (!summary || !Array.isArray(summary.scenarios) || summary.scenarios.length === 0) {
-    return '## Performance\n\n_Keine Performance-Daten vorhanden._'
+    return '## Performance\n\n_No performance data available._'
   }
 
-  const headers = ['Szenario', 'System', 'Ø Zeit (s)', 'StdAbw (s)', 'Durchsatz (Ref/min)']
+  const headers = ['Scenario', 'System', 'Avg time (s)', 'StdDev (s)', 'Throughput (ref/min)']
   const rows = summary.scenarios.map(item => [
     item.scenario,
     item.system,
@@ -504,19 +504,19 @@ function buildMarkdownReport({ generatedAt, input, thresholds, matching, matchin
     lines.push('', buildMatchingMarkdown(matching, 'Source Taster'))
   }
   else {
-    lines.push('', '## Matching – Source Taster', '', '_Keine Daten verfügbar_')
+    lines.push('', '## Matching – Source Taster', '', '_No data available_')
   }
 
   if (hasMatchingData(matchingNoDoi)) {
-    lines.push('', buildMatchingMarkdown(matchingNoDoi, 'Source Taster ohne DOI'))
+    lines.push('', buildMatchingMarkdown(matchingNoDoi, 'Source Taster without DOI'))
   }
   if (hasMatchingData(matchingAnyStyle)) {
     lines.push('', buildMatchingMarkdown(matchingAnyStyle, 'AnyStyle'))
   }
   else {
-    lines.push('', '## Matching – AnyStyle', '', '_Keine Daten verfügbar_')
+    lines.push('', '## Matching – AnyStyle', '', '_No data available_')
   }
-  lines.push('', buildMatchingMarkdown(matchingAnyStyleNoDoi, 'AnyStyle ohne DOI'))
+  lines.push('', buildMatchingMarkdown(matchingAnyStyleNoDoi, 'AnyStyle without DOI'))
 
   lines.push('', buildPerformanceMarkdown(performance))
 
@@ -533,7 +533,7 @@ async function main() {
 
   const entries = Array.isArray(data.entries) ? data.entries : Array.isArray(data) ? data : []
   if (!Array.isArray(entries) || entries.length === 0) {
-    throw new Error('Erwarte Feld "entries" als Array in der Eingabedatei oder eine Array-Datei')
+    throw new Error('Expected field "entries" to be an array or the file itself to be an array')
   }
 
   const matchingSummary = computeMatchingMetrics(entries)
@@ -548,22 +548,22 @@ async function main() {
   printMatchingBucketsByStyle(matchingSummary)
 
   if ((matchingSummaryNoDoi?.overall?.count ?? 0) > 0 || (matchingSummaryNoDoi?.perType?.some(t => t.count > 0) ?? false)) {
-    printMatchingSummary(matchingSummaryNoDoi, 'Matching-Score (Source Taster – ohne DOI)')
-    printMatchingSummaryByStyle(matchingSummaryNoDoi, 'Matching-Score nach Stil (Source Taster – ohne DOI)')
-    printMatchingBuckets(matchingSummaryNoDoi, 'Matching-Score Verteilung (Source Taster – ohne DOI)')
-    printMatchingBucketsByStyle(matchingSummaryNoDoi, 'Matching-Score Verteilung nach Stil (Source Taster – ohne DOI)')
+    printMatchingSummary(matchingSummaryNoDoi, 'Matching Score (Source Taster – without DOI)')
+    printMatchingSummaryByStyle(matchingSummaryNoDoi, 'Matching Score by style (Source Taster – without DOI)')
+    printMatchingBuckets(matchingSummaryNoDoi, 'Matching score distribution (Source Taster – without DOI)')
+    printMatchingBucketsByStyle(matchingSummaryNoDoi, 'Matching score distribution by style (Source Taster – without DOI)')
   }
   if (hasMatchingData(matchingSummaryAnyStyle)) {
-    printMatchingSummary(matchingSummaryAnyStyle, 'Matching-Score (AnyStyle)')
-    printMatchingSummaryByStyle(matchingSummaryAnyStyle, 'Matching-Score nach Stil (AnyStyle)')
-    printMatchingBuckets(matchingSummaryAnyStyle, 'Matching-Score Verteilung (AnyStyle)')
-    printMatchingBucketsByStyle(matchingSummaryAnyStyle, 'Matching-Score Verteilung nach Stil (AnyStyle)')
+    printMatchingSummary(matchingSummaryAnyStyle, 'Matching Score (AnyStyle)')
+    printMatchingSummaryByStyle(matchingSummaryAnyStyle, 'Matching Score by style (AnyStyle)')
+    printMatchingBuckets(matchingSummaryAnyStyle, 'Matching score distribution (AnyStyle)')
+    printMatchingBucketsByStyle(matchingSummaryAnyStyle, 'Matching score distribution by style (AnyStyle)')
   }
   if (hasMatchingData(matchingSummaryAnyStyleNoDoi)) {
-    printMatchingSummary(matchingSummaryAnyStyleNoDoi, 'Matching-Score (AnyStyle – ohne DOI)')
-    printMatchingSummaryByStyle(matchingSummaryAnyStyleNoDoi, 'Matching-Score nach Stil (AnyStyle – ohne DOI)')
-    printMatchingBuckets(matchingSummaryAnyStyleNoDoi, 'Matching-Score Verteilung (AnyStyle – ohne DOI)')
-    printMatchingBucketsByStyle(matchingSummaryAnyStyleNoDoi, 'Matching-Score Verteilung nach Stil (AnyStyle – ohne DOI)')
+    printMatchingSummary(matchingSummaryAnyStyleNoDoi, 'Matching Score (AnyStyle – without DOI)')
+    printMatchingSummaryByStyle(matchingSummaryAnyStyleNoDoi, 'Matching Score by style (AnyStyle – without DOI)')
+    printMatchingBuckets(matchingSummaryAnyStyleNoDoi, 'Matching score distribution (AnyStyle – without DOI)')
+    printMatchingBucketsByStyle(matchingSummaryAnyStyleNoDoi, 'Matching score distribution by style (AnyStyle – without DOI)')
   }
   printPerformanceSummary(performanceSummary)
 
@@ -581,7 +581,7 @@ async function main() {
   await mkdir(OUTPUT_DIR, { recursive: true })
   const outputPath = path.join(OUTPUT_DIR, 'metrics-summary.json')
   await writeFile(outputPath, JSON.stringify(summaryPayload, null, 2), 'utf8')
-  console.log(`\n→ Zusammenfassung gespeichert unter ${outputPath}`)
+  console.log(`\n→ Summary saved to ${outputPath}`)
 
   const markdownPath = path.join(OUTPUT_DIR, 'metrics-summary.md')
   // Debug output removed
@@ -596,11 +596,11 @@ async function main() {
     performance: performanceSummary,
   })
   await writeFile(markdownPath, markdownReport, 'utf8')
-  console.log(`→ Markdown-Übersicht gespeichert unter ${markdownPath}`)
+  console.log(`→ Markdown report saved to ${markdownPath}`)
 }
 
 main().catch((error) => {
-  console.error('Evaluation fehlgeschlagen:')
+  console.error('Evaluation failed:')
   console.error(error)
   process.exitCode = 1
 })

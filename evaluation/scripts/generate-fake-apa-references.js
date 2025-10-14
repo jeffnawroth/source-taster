@@ -39,14 +39,14 @@ function parseArgs() {
         process.exit(0)
         break
       default:
-        console.warn(`Unbekannte Option: ${a}`)
+        console.warn(`Unknown option: ${a}`)
     }
   }
   return options
 }
 
 function printHelp() {
-  console.log(`Fake APA Generator\n\nVerwendung:\n  node evaluation/generate-fake-apa-references.js --raw ${DEFAULT_RAW_OUT} --works ${DEFAULT_WORKS_OUT}\n\nOptionen:\n  --raw <pfad>           Ausgabe-Datei für Rohreferenzen (Default ${DEFAULT_RAW_OUT})\n  --works <pfad>         Ausgabe-Datei für Works JSON (Default ${DEFAULT_WORKS_OUT})\n  --per-category <anz>   Anzahl pro Kategorie (Default ${PER_CATEGORY})\n`)
+  console.log(`Fake APA Generator\n\nUsage:\n  node evaluation/generate-fake-apa-references.js --raw ${DEFAULT_RAW_OUT} --works ${DEFAULT_WORKS_OUT}\n\nOptions:\n  --raw <path>           Output file for raw references (default ${DEFAULT_RAW_OUT})\n  --works <path>         Output file for works JSON (default ${DEFAULT_WORKS_OUT})\n  --per-category <n>     Number per category (default ${PER_CATEGORY})\n`)
 }
 
 function randInt(min, max) {
@@ -449,12 +449,12 @@ async function main() {
   await writeFile(path.resolve(process.cwd(), options.works), JSON.stringify(worksPayload, null, 2), 'utf8')
   await writeFile(path.resolve(process.cwd(), options.raw), `${rawSegments.join('\n\n')}\n`, 'utf8')
 
-  console.log(`✅ Fake-Works exportiert: ${options.works}`)
-  console.log(`✅ Fake-Rohreferenzen exportiert: ${options.raw} (gesamt ${rawSegments.length})`)
+  console.log(`✅ Fake works exported: ${options.works}`)
+  console.log(`✅ Fake raw references exported: ${options.raw} (total ${rawSegments.length})`)
 }
 
 main().catch((err) => {
-  console.error('Erzeugung der Fake-Referenzen fehlgeschlagen:')
+  console.error('Generating fake references failed:')
   console.error(err)
   process.exitCode = 1
 })

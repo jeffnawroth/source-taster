@@ -45,7 +45,7 @@ function parseArgs() {
           options.raw = arg
         }
         else {
-          console.warn(`Unbekannte Option: ${arg}`)
+          console.warn(`Unknown option: ${arg}`)
         }
     }
   }
@@ -53,7 +53,7 @@ function parseArgs() {
 }
 
 function printHelp() {
-  console.log(`Live-Input Builder\n\nVerwendung:\n  pnpm evaluation:prepare-input -- --raw evaluation/references/raw-references.crossref.txt\n\nOptionen:\n  --raw <pfad>     Pfad zur Rohreferenz-Datei (Default ${DEFAULT_RAW_PATH})\n  --works <pfad>   (Optional) Pfad zu crossref-works.json (Default ${DEFAULT_WORKS_PATH})\n  --output <pfad>  Ziel-Datei (Default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optionaler Stilname (Default apa)`)
+  console.log(`Live Input Builder\n\nUsage:\n  pnpm evaluation:prepare-input -- --raw evaluation/references/raw-references.crossref.txt\n\nOptions:\n  --raw <path>     Path to the raw reference file (default ${DEFAULT_RAW_PATH})\n  --works <path>   (Optional) path to crossref-works.json (default ${DEFAULT_WORKS_PATH})\n  --output <path>  Output file (default ${DEFAULT_OUTPUT_PATH})\n  --style <name>   Optional style name (default apa)`)
 }
 
 async function loadJson(filePath) {
@@ -95,7 +95,7 @@ async function main() {
     worksData = await loadJson(options.works)
   }
   catch (error) {
-    console.warn(`⚠️  Works-Datei konnte nicht geladen werden (${options.works}): ${error.message ?? error}`)
+    console.warn(`⚠️  Failed to load works file (${options.works}): ${error.message ?? error}`)
   }
   const rawEntries = splitRawReferences(rawContent)
 
@@ -122,11 +122,11 @@ async function main() {
 
   await ensureDirectory(options.output)
   await writeFile(path.resolve(process.cwd(), options.output), JSON.stringify(payload, null, 2), 'utf8')
-  console.log(`✅ Live-Input erstellt (${entries.length} Einträge) → ${options.output}`)
+  console.log(`✅ Live input generated (${entries.length} entries) → ${options.output}`)
 }
 
 main().catch((error) => {
-  console.error('Erstellung der Input-Datei fehlgeschlagen:')
+  console.error('Building the input file failed:')
   console.error(error)
   process.exitCode = 1
 })

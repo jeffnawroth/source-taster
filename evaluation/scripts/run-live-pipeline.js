@@ -77,7 +77,7 @@ function logSection(title) {
 }
 
 function logEntryHeader(index, total, entryId) {
-  console.log(`\n🔎 Eintrag ${index}/${total}: ${entryId}`)
+  console.log(`\n🔎 Entry ${index}/${total}: ${entryId}`)
 }
 
 function logStep(message) {
@@ -178,13 +178,13 @@ function parseArgs() {
           options.input = arg
         }
         else {
-          logWarn(`Unbekannte Option: ${arg}`)
+          logWarn(`Unknown option: ${arg}`)
         }
     }
   }
 
   if (!options.clientId) {
-    logWarn('Kein X-Client-Id über --client-id oder SOURCE_TASTER_CLIENT_ID gesetzt. /api/extract wird wahrscheinlich scheitern.')
+    logWarn('No X-Client-Id provided via --client-id or SOURCE_TASTER_CLIENT_ID. /api/extract will likely fail.')
   }
 
   if (!options.sources.length) {
@@ -195,26 +195,26 @@ function parseArgs() {
 }
 
 function printHelp() {
-  console.log(`Live-Pipeline Evaluation
+  console.log(`Live pipeline evaluation
 
-Verwendung:
+Usage:
   pnpm evaluation:run-live -- --input evaluation/out/live-input.crossref.json --client-id <uuid>
 
-Parameter:
-  --input <pfad>        Pfad zur Input-Datei (Default ${DEFAULT_INPUT})
-  --output <pfad>       Ausgabe-Datei für Vorhersagen (Default ${DEFAULT_OUTPUT})
-  --api-url <url>       Basis-URL der API (Default ${DEFAULT_API_URL})
-  --client-id <uuid>    X-Client-Id Header für /api/extract (erforderlich)
-  --ai-provider <name>  AI Provider (optional)
-  --ai-model <name>     AI Modell (optional)
-  --sources a,b,c       Liste der Such-Datenbanken (Default ${DEFAULT_SOURCES.join(',')})
-  --skip-search         Überspringt /api/search & /api/match (nur Extraktion)
-  --early-termination   Aktiviert Early Termination im Matching (Default ${DEFAULT_EARLY_TERMINATION})
-  --early-threshold n   Schwellenwert 0-100 (Default ${DEFAULT_EARLY_THRESHOLD})
-  --no-doi              Suche/Matching ohne DOI (anstelle der Standard-Variante)
-  --also-no-doi         Zusätzlich zur Standard-Variante auch ohne DOI ausführen
-  --anystyle-only       Nur Matching mit AnyStyle-Metadaten durchführen
-  --also-anystyle       Zusätzlich Matching mit AnyStyle-Metadaten durchführen
+Options:
+  --input <path>        Path to the input file (default ${DEFAULT_INPUT})
+  --output <path>       Output file for predictions (default ${DEFAULT_OUTPUT})
+  --api-url <url>       Base URL of the API (default ${DEFAULT_API_URL})
+  --client-id <uuid>    X-Client-Id header for /api/extract (required)
+  --ai-provider <name>  AI provider (optional)
+  --ai-model <name>     AI model (optional)
+  --sources a,b,c       Comma-separated list of search providers (default ${DEFAULT_SOURCES.join(',')})
+  --skip-search         Skip /api/search and /api/match (extraction only)
+  --early-termination   Enable early termination in matching (default ${DEFAULT_EARLY_TERMINATION})
+  --early-threshold n   Threshold 0-100 (default ${DEFAULT_EARLY_THRESHOLD})
+  --no-doi              Run search/matching without DOI instead of the default mode
+  --also-no-doi         Run the default mode and an additional pass without DOI
+  --anystyle-only       Only run matching with AnyStyle metadata
+  --also-anystyle       Run default matching plus an additional AnyStyle pass
 `)
 }
 
@@ -228,7 +228,7 @@ async function loadDataset(inputPath) {
   if (Array.isArray(parsed)) {
     return { meta: {}, entries: parsed }
   }
-  throw new Error('Datensatz muss ein Array oder Objekt mit Feld "entries" sein')
+  throw new Error('Dataset must be an array or an object with an "entries" field')
 }
 
 function pickedMeta(data) {
@@ -321,7 +321,7 @@ function attachMetadataToEvaluations(evaluations, candidatesIndex) {
 
 async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, aggregatedCandidates, candidateIndex, durationStats, label }) {
   try {
-    logStep(`[${label}] Matching mit ${aggregatedCandidates.length} Kandidaten`)
+    logStep(`[${label}] Matching with ${aggregatedCandidates.length} candidates`)
     const matchStart = performance.now()
     const matchResponse = await callApi({
       apiUrl,
@@ -355,19 +355,19 @@ async function performMatching({ apiUrl, entry, entryId, sourceTasterResult, agg
     }
     const topCandidateMeta = matchSummary.candidateId ? candidateIndex.get(matchSummary.candidateId) ?? null : null
     const titleCandidate = Array.isArray(topCandidateMeta?.title) ? topCandidateMeta.title[0] : topCandidateMeta?.title
-    logSuccess(`[${label}] Matching abgeschlossen in ${formatMs(matchDuration)} (Top-Score: ${matchSummary.topScore !== null ? matchSummary.topScore.toFixed(1) : '—'})`)
-    logDetail(`[${label}] Bewertete Kandidaten: ${matchSummary.scores.length}`)
+    logSuccess(`[${label}] Matching finished in ${formatMs(matchDuration)} (top score: ${matchSummary.topScore !== null ? matchSummary.topScore.toFixed(1) : '—'})`)
+    logDetail(`[${label}] Evaluated candidates: ${matchSummary.scores.length}`)
     if (topCandidateMeta) {
-      logDetail(`[${label}] Top-Kandidat: ${titleCandidate ?? '—'} (${matchSummary.candidateId})`)
+      logDetail(`[${label}] Top candidate: ${titleCandidate ?? '—'} (${matchSummary.candidateId})`)
     }
     else if (matchSummary.candidateId) {
-      logDetail(`[${label}] Top-Kandidat-ID: ${matchSummary.candidateId}`)
+      logDetail(`[${label}] Top candidate ID: ${matchSummary.candidateId}`)
     }
     sourceTasterResult.matching = payload
     return payload
   }
   catch (error) {
-    logError(`Matching fehlgeschlagen (${entryId}) [${label}]`, error)
+    logError(`Matching failed (${entryId}) [${label}]`, error)
     return null
   }
 }
@@ -403,7 +403,7 @@ function buildPerformanceSummary(durationStats, entryCount) {
   return {
     scenarios: [
       {
-        name: `Einzelprüfung (n=${entryCount})`,
+        name: `Single pass (n=${entryCount})`,
         durationsSeconds,
       },
     ],
@@ -476,25 +476,25 @@ async function main() {
   const options = parseArgs()
   const { meta, entries } = await loadDataset(options.input)
 
-  logSection('Pipeline-Setup')
+  logSection('Pipeline setup')
   logDetail(`Input: ${options.input}`)
   logDetail(`Output: ${options.output}`)
   logDetail(`API: ${options.apiUrl}`)
   logDetail(`Client-Id: ${options.clientId ?? '—'}`)
   logDetail(`AI: ${options.aiProvider ?? '—'} / ${options.aiModel ?? '—'}`)
-  logDetail(`Suchquellen: ${options.sources.join(', ')}`)
-  logDetail(`Suche aktiv: ${options.skipSearch ? 'nein (--skip-search)' : 'ja'}`)
-  logDetail(`Early Termination: ${options.earlyTermination ? `ja (>= ${options.earlyThreshold})` : 'nein'}`)
+  logDetail(`Search providers: ${options.sources.join(', ')}`)
+  logDetail(`Search enabled: ${options.skipSearch ? 'no (--skip-search)' : 'yes'}`)
+  logDetail(`Early termination: ${options.earlyTermination ? `yes (>= ${options.earlyThreshold})` : 'no'}`)
   if (options.noDoiOnly)
-    logDetail('Modus: nur ohne DOI')
+    logDetail('Mode: without DOI only')
   else if (options.alsoNoDoi)
-    logDetail('Modus: zusätzlich ohne DOI')
+    logDetail('Mode: include additional pass without DOI')
 
-  logSection('Datensatz')
-  logDetail(`Einträge gesamt: ${entries.length}`)
+  logSection('Dataset')
+  logDetail(`Total entries: ${entries.length}`)
   const metaKeys = Object.keys(meta ?? {})
   if (metaKeys.length)
-    logDetail(`Meta-Felder: ${metaKeys.join(', ')}`)
+    logDetail(`Meta fields: ${metaKeys.join(', ')}`)
 
   const outputEntries = []
   const durationStats = createDurationStats()
@@ -507,7 +507,7 @@ async function main() {
     const rawText = entry.raw ?? entry.originalText ?? entry.text
 
     if (!rawText || typeof rawText !== 'string') {
-      logWarn(`Eintrag ${entryId}: Kein "raw" Text gefunden, übersprungen`)
+      logWarn(`Entry ${entryId}: No "raw" text found, skipped`)
       continue
     }
 
@@ -543,11 +543,11 @@ async function main() {
       }
       catch (error) {
         sourceTasterResult.errors.push(error.message ?? String(error))
-        logError(`Extraction fehlgeschlagen (${entryId})`, error)
+        logError(`Extraction failed (${entryId})`, error)
       }
     }
     else {
-      logDetail('AnyStyle-only Modus: LLM-Extraktion übersprungen')
+      logDetail('AnyStyle-only mode: LLM extraction skipped')
     }
 
     // --- AnyStyle parse & convert ---
@@ -595,12 +595,12 @@ async function main() {
           logWarn('AnyStyle.convert lieferte kein CSL-Objekt')
       }
       else {
-        logWarn('AnyStyle.parse lieferte keine Tokens; Konvertierung übersprungen')
+        logWarn('AnyStyle.parse returned no tokens; conversion skipped')
       }
     }
     catch (error) {
       anyStyleResult.errors.push(error.message ?? String(error))
-      logError(`AnyStyle fehlgeschlagen (${entryId})`, error)
+      logError(`AnyStyle failed (${entryId})`, error)
     }
 
     // --- Search & Match (optional) ---
@@ -614,19 +614,19 @@ async function main() {
       let matchingResultLocal = null
       if (options.skipSearch || !metadata) {
         if (options.skipSearch)
-          logWarn(`[${label}] Suche deaktiviert (--skip-search)`)
+          logWarn(`[${label}] Search disabled (--skip-search)`)
         else
-          logWarn(`[${label}] Keine Metadaten vorhanden – Suche übersprungen`)
+          logWarn(`[${label}] No metadata available – skipping search`)
         return matchingResultLocal
       }
       const aggregatedCandidates = []
       const candidateIndex = new Map()
 
-      logStep(`[${label}] Suche & Matching gestartet`)
+      logStep(`[${label}] Search & matching started`)
 
       for (const source of options.sources) {
         try {
-          logStep(`[${label}] Suche @${source}`)
+          logStep(`[${label}] Searching @${source}`)
           const searchStart = performance.now()
           const searchResponse = await callApi({
             apiUrl: options.apiUrl,
@@ -653,9 +653,9 @@ async function main() {
             candidateIndex.set(candidate.id, candidate.metadata)
           })
 
-          logDetail(`[${label}] ${source}: ${candidates.length} Kandidaten (${formatMs(duration)})`)
+          logDetail(`[${label}] ${source}: ${candidates.length} candidates (${formatMs(duration)})`)
           if (!candidates.length)
-            logWarn(`[${label}] ${source}: Keine Kandidaten`)
+            logWarn(`[${label}] ${source}: no candidates`)
 
           if (options.earlyTermination && aggregatedCandidates.length) {
             const currentMatch = await performMatching({
@@ -673,17 +673,17 @@ async function main() {
               resultTarget.matching = currentMatch
             }
             if ((currentMatch?.topScore ?? 0) >= options.earlyThreshold) {
-              logSuccess(`[${label}] Frühabbruch nach Treffer bei ${source} (Score ${currentMatch.topScore?.toFixed(1) ?? '—'})`)
+              logSuccess(`[${label}] Early stop after hit from ${source} (score ${currentMatch.topScore?.toFixed(1) ?? '—'})`)
               break
             }
             else {
-              logDetail(`[${label}] Score unter Schwelle ${options.earlyThreshold}, weitere Suche`)
+              logDetail(`[${label}] Score below threshold ${options.earlyThreshold}, continuing search`)
             }
           }
         }
         catch (error) {
           resultTarget.timings[`search:${source}`] = null
-          logError(`Search (${source}) fehlgeschlagen (${entryId}) [${label}]`, error)
+          logError(`Search (${source}) failed (${entryId}) [${label}]`, error)
         }
       }
 
@@ -704,7 +704,7 @@ async function main() {
       }
 
       if (!aggregatedCandidates.length) {
-        logWarn(`Keine Kandidaten für ${entryId} gefunden (Quellen: ${options.sources.join(', ')}) [${label}]`)
+        logWarn(`No candidates found for ${entryId} (sources: ${options.sources.join(', ')}) [${label}]`)
       }
 
       return matchingResultLocal
@@ -716,7 +716,7 @@ async function main() {
         metadata: sourceTasterResult.metadata,
         resultTarget: sourceTasterResult,
         statsTarget: durationStats,
-        label: 'mit DOI',
+        label: 'with DOI',
       })
       // matchWithDoi already stored in sourceTasterResult inside performMatching
 
@@ -730,7 +730,7 @@ async function main() {
           sources: options.skipSearch ? [] : options.sources,
         })
         durationStats.total.push(totalSeconds)
-        logDetail(`[mit DOI] pipeline.total: ${formatSeconds(totalSeconds)}`)
+        logDetail(`[with DOI] pipeline.total: ${formatSeconds(totalSeconds)}`)
       }
     }
 
@@ -742,7 +742,7 @@ async function main() {
         metadata: sourceTasterNoDoi.metadata,
         resultTarget: sourceTasterNoDoi,
         statsTarget: durationStatsNoDoi,
-        label: 'ohne DOI',
+        label: 'without DOI',
       })
       // matchNoDoi stored in timings via performMatching; attach full result for clarity
       if (matchNoDoi) {
@@ -764,7 +764,7 @@ async function main() {
         if (options.noDoiOnly) {
           durationStats.total.push(totalNoDoiSeconds)
         }
-        logDetail(`[ohne DOI] pipeline.total: ${formatSeconds(totalNoDoiSeconds)}`)
+        logDetail(`[without DOI] pipeline.total: ${formatSeconds(totalNoDoiSeconds)}`)
       }
     }
 
@@ -810,7 +810,7 @@ async function main() {
               metadata: anyStyleMatchNoDoiResult.metadata,
               resultTarget: anyStyleMatchNoDoiResult,
               statsTarget: statsTargetForAnyStyleNoDoi,
-              label: 'AnyStyle ohne DOI',
+              label: 'AnyStyle without DOI',
             })
             if (matchAnyStyleNoDoi) {
               anyStyleMatchNoDoiResult.matching = matchAnyStyleNoDoi
@@ -833,15 +833,15 @@ async function main() {
             if (options.noDoiOnly && statsTargetForAnyStyleNoDoi !== durationStats) {
               durationStats.total.push(totalAnyStyleNoDoiSeconds)
             }
-            logDetail(`[AnyStyle ohne DOI] pipeline.total: ${formatSeconds(totalAnyStyleNoDoiSeconds)}`)
+            logDetail(`[AnyStyle without DOI] pipeline.total: ${formatSeconds(totalAnyStyleNoDoiSeconds)}`)
           }
           else {
-            logWarn('[AnyStyle ohne DOI] Metadaten ohne DOI nicht verfügbar – Matching übersprungen')
+            logWarn('[AnyStyle without DOI] Metadata without DOI not available – skipping matching')
           }
         }
       }
       else {
-        logWarn('[AnyStyle] Keine CSL-Metadaten verfügbar – Matching übersprungen')
+        logWarn('[AnyStyle] No CSL metadata available – skipping matching')
       }
     }
 
@@ -856,9 +856,9 @@ async function main() {
     const stats = summarizeSeconds(samples)
     if (stats) {
       summaryRows.push({
-        Schritt: label,
-        Messungen: stats.count,
-        Durchschnitt: stats.avg,
+        Step: label,
+        Samples: stats.count,
+        Average: stats.avg,
         Minimum: stats.min,
         Maximum: stats.max,
       })
@@ -875,14 +875,14 @@ async function main() {
   collectSummary('pipeline.total', durationStats.total)
 
   if (durationStatsNoDoi) {
-    collectSummary('ohne DOI → sourceTaster.extract', durationStatsNoDoi.extraction)
-    collectSummary('ohne DOI → anyStyle.parse', durationStatsNoDoi.anystyleParse)
-    collectSummary('ohne DOI → anyStyle.convert', durationStatsNoDoi.anystyleConvert)
+    collectSummary('without DOI → sourceTaster.extract', durationStatsNoDoi.extraction)
+    collectSummary('without DOI → anyStyle.parse', durationStatsNoDoi.anystyleParse)
+    collectSummary('without DOI → anyStyle.convert', durationStatsNoDoi.anystyleConvert)
     for (const [source, samples] of Object.entries(durationStatsNoDoi.search)) {
-      collectSummary(`ohne DOI → search.${source}`, samples)
+      collectSummary(`without DOI → search.${source}`, samples)
     }
-    collectSummary('ohne DOI → sourceTaster.match', durationStatsNoDoi.match)
-    collectSummary('ohne DOI → pipeline.total', durationStatsNoDoi.total)
+    collectSummary('without DOI → sourceTaster.match', durationStatsNoDoi.match)
+    collectSummary('without DOI → pipeline.total', durationStatsNoDoi.total)
   }
   if (durationStatsAnyStyle && options.alsoAnyStyle) {
     collectSummary('AnyStyle → anyStyle.parse', durationStatsAnyStyle.anystyleParse)
@@ -894,13 +894,13 @@ async function main() {
     collectSummary('AnyStyle → pipeline.total', durationStatsAnyStyle.total)
   }
   if (durationStatsAnyStyleNoDoi && (options.alsoAnyStyle || options.anyStyleOnly)) {
-    collectSummary('AnyStyle ohne DOI → anyStyle.parse', durationStatsAnyStyleNoDoi.anystyleParse)
-    collectSummary('AnyStyle ohne DOI → anyStyle.convert', durationStatsAnyStyleNoDoi.anystyleConvert)
+    collectSummary('AnyStyle without DOI → anyStyle.parse', durationStatsAnyStyleNoDoi.anystyleParse)
+    collectSummary('AnyStyle without DOI → anyStyle.convert', durationStatsAnyStyleNoDoi.anystyleConvert)
     for (const [source, samples] of Object.entries(durationStatsAnyStyleNoDoi.search)) {
-      collectSummary(`AnyStyle ohne DOI → search.${source}`, samples)
+      collectSummary(`AnyStyle without DOI → search.${source}`, samples)
     }
-    collectSummary('AnyStyle ohne DOI → matching', durationStatsAnyStyleNoDoi.match)
-    collectSummary('AnyStyle ohne DOI → pipeline.total', durationStatsAnyStyleNoDoi.total)
+    collectSummary('AnyStyle without DOI → matching', durationStatsAnyStyleNoDoi.match)
+    collectSummary('AnyStyle without DOI → pipeline.total', durationStatsAnyStyleNoDoi.total)
   }
 
   const outputPayload = {
@@ -913,7 +913,7 @@ async function main() {
       scenarios: [
         ...buildPerformanceSummary(durationStats, outputEntries.length).scenarios,
         ...(durationStatsNoDoi
-          ? [{ name: `Einzelprüfung ohne DOI (n=${outputEntries.length})`, durationsSeconds: (() => {
+          ? [{ name: `Single pass without DOI (n=${outputEntries.length})`, durationsSeconds: (() => {
               const durationsSeconds = {}
               if (durationStatsNoDoi.extraction.length)
                 durationsSeconds['sourceTaster.extract'] = [...durationStatsNoDoi.extraction]
@@ -933,7 +933,7 @@ async function main() {
             })() }]
           : []),
         ...(durationStatsAnyStyle && options.alsoAnyStyle
-          ? [{ name: `Einzelprüfung AnyStyle (n=${outputEntries.length})`, durationsSeconds: (() => {
+          ? [{ name: `Single pass AnyStyle (n=${outputEntries.length})`, durationsSeconds: (() => {
               const durationsSeconds = {}
               if (durationStatsAnyStyle.anystyleParse.length)
                 durationsSeconds['anyStyle.parse'] = [...durationStatsAnyStyle.anystyleParse]
@@ -951,7 +951,7 @@ async function main() {
             })() }]
           : []),
         ...(durationStatsAnyStyleNoDoi && (options.alsoAnyStyle || options.anyStyleOnly)
-          ? [{ name: `Einzelprüfung AnyStyle ohne DOI (n=${outputEntries.length})`, durationsSeconds: (() => {
+          ? [{ name: `Single pass AnyStyle without DOI (n=${outputEntries.length})`, durationsSeconds: (() => {
               const durationsSeconds = {}
               if (durationStatsAnyStyleNoDoi.anystyleParse.length)
                 durationsSeconds['anyStyle.parse'] = [...durationStatsAnyStyleNoDoi.anystyleParse]
@@ -977,19 +977,19 @@ async function main() {
   await ensureDirectory(outputPath)
   await writeFile(outputPath, JSON.stringify(outputPayload, null, 2), 'utf8')
 
-  logSection('Laufzeit-Zusammenfassung')
+  logSection('Runtime summary')
   if (summaryRows.length)
     console.table(summaryRows)
   else
-    logDetail('Keine Messpunkte erfasst')
+    logDetail('No samples recorded')
 
-  logSection('Ausgabe')
-  logDetail(`Datei: ${options.output}`)
-  logSuccess('Live-Pipeline abgeschlossen')
+  logSection('Output')
+  logDetail(`File: ${options.output}`)
+  logSuccess('Live pipeline finished')
 }
 
 main().catch((error) => {
-  console.error('Live-Evaluation fehlgeschlagen:')
+  console.error('Live evaluation failed:')
   console.error(error)
   process.exitCode = 1
 })

@@ -27,14 +27,14 @@ function parseArgs() {
       default:
         if (!a.startsWith('-'))
           options.input = a
-        else console.warn(`Unbekannte Option: ${a}`)
+        else console.warn(`Unknown option: ${a}`)
     }
   }
   return options
 }
 
 function printHelp() {
-  console.log(`Perturbation Summary (Markdown)\n\nVerwendung:\n  node evaluation/summarize-perturbation-report.js --input ${DEFAULT_INPUT} --output ${DEFAULT_OUTPUT}\n\nOptionen:\n  --input <pfad>     Pfad zur JSON-Reportdatei\n  --output <pfad>    Pfad zur Markdown-Zusammenfassung\n  --samples <n>      Beispiele je Operationstyp (Default 3)\n`)
+  console.log(`Perturbation Summary (Markdown)\n\nUsage:\n  node evaluation/summarize-perturbation-report.js --input ${DEFAULT_INPUT} --output ${DEFAULT_OUTPUT}\n\nOptions:\n  --input <path>     Path to the JSON report\n  --output <path>    Path for the Markdown summary\n  --samples <n>      Examples per operation type (default 3)\n`)
 }
 
 function escapePipes(s) {
@@ -100,20 +100,20 @@ function buildMarkdown(report, summary) {
   // Counts table
   const countRows = Object.entries(summary.counts).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, String(v)])
   lines.push('## Operation Counts')
-  lines.push(countRows.length ? toTable(['Operation', 'Count'], countRows) : '_Keine Operationen gefunden_')
+  lines.push(countRows.length ? toTable(['Operation', 'Count'], countRows) : '_No operations found_')
   lines.push('')
 
   // Histogram operations per entry
   const histRows = Object.entries(summary.hist).sort((a, b) => Number(a[0]) - Number(b[0])).map(([ops, cnt]) => [ops, String(cnt)])
-  lines.push('## Operations pro Eintrag (Histogramm)')
+  lines.push('## Operations per entry (histogram)')
   lines.push(toTable(['#Ops', '#Entries'], histRows))
   lines.push('')
 
   // Examples per operation type
   for (const [type, arr] of Object.entries(summary.examples)) {
-    lines.push(`## Beispiele – ${type}`)
+    lines.push(`## Examples – ${type}`)
     if (!arr.length) {
-      lines.push('_Keine Beispiele_')
+      lines.push('_No examples_')
       continue
     }
     for (const ex of arr) {
@@ -128,7 +128,7 @@ function buildMarkdown(report, summary) {
       lines.push(ex.original || '')
       lines.push('```')
       lines.push('')
-      lines.push('Modifiziert:')
+      lines.push('Modified:')
       lines.push('')
       lines.push('```')
       lines.push(ex.modified || '')
@@ -148,11 +148,11 @@ async function main() {
   const md = buildMarkdown(report, summary)
   await ensureDir(options.output)
   await writeFile(path.resolve(process.cwd(), options.output), md, 'utf8')
-  console.log(`✅ Markdown gespeichert → ${options.output}`)
+  console.log(`✅ Markdown saved → ${options.output}`)
 }
 
 main().catch((err) => {
-  console.error('Zusammenfassung fehlgeschlagen:')
+  console.error('Summary failed:')
   console.error(err)
   process.exitCode = 1
 })

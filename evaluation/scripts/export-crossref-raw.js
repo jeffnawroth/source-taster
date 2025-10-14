@@ -55,11 +55,11 @@ async function main() {
   const options = parseArgs()
 
   if (!POLITE_MAILTO) {
-    console.warn('⚠️  Kein CROSSREF_MAILTO gesetzt – Crossref bittet um eine Kontaktadresse im User-Agent.')
+    console.warn('⚠️  No CROSSREF_MAILTO configured – Crossref requests a contact address in the User-Agent.')
   }
 
   const styleSummary = options.styles.map(style => style.alias).join(', ')
-  console.log(`→ Starte Crossref-Export (Stile: ${styleSummary}, Ziel pro Kategorie: ${options.target}, Concurrency: ${options.concurrency})`)
+  console.log(`→ Starting Crossref export (styles: ${styleSummary}, per-category target: ${options.target}, concurrency: ${options.concurrency})`)
 
   const items = []
   const seenDois = new Set()
@@ -79,14 +79,14 @@ async function main() {
       if (getCountByCategory(items, config.label) >= options.target)
         break
     }
-    console.log(`→ ${getCountByCategory(items, config.label)} DOIs gesammelt`)
+    console.log(`→ ${getCountByCategory(items, config.label)} DOIs collected`)
   }
 
   const rawByStyle = new Map()
   for (const style of options.styles) {
-    console.log(`\n→ Bibliografien abrufen (${style.alias.toUpperCase()})`)
+    console.log(`\n→ Fetching bibliographies (${style.alias.toUpperCase()})`)
     const segments = await mapWithConcurrency(items, options.concurrency, async (item) => {
-      console.log(`   · ${style.alias.toUpperCase()}-Format abrufen: ${item.doi}`)
+      console.log(`   · Fetching ${style.alias.toUpperCase()} format: ${item.doi}`)
       const raw = await fetchBibliography(item.doi, style.id, options.locale)
       item.bibliography[style.alias] = raw
       return raw
@@ -94,7 +94,7 @@ async function main() {
     rawByStyle.set(style.alias, segments)
   }
 
-  console.log('\n→ Schreibe Ausgabedateien …')
+  console.log('\n→ Writing output files …')
   const worksPayload = {
     generatedAt: new Date().toISOString(),
     styles: options.styles,
@@ -105,14 +105,14 @@ async function main() {
   await ensureDirectory(options.worksFile)
 
   await writeFile(path.resolve(process.cwd(), options.worksFile), JSON.stringify(worksPayload, null, 2), 'utf8')
-  console.log(`✅ Crossref-Werke exportiert: ${options.worksFile}`)
+  console.log(`✅ Crossref works exported: ${options.worksFile}`)
 
   for (const style of options.styles) {
     const filePath = buildRawFilePath(options.rawFile, style.alias)
     const segments = rawByStyle.get(style.alias) ?? []
     await ensureDirectory(filePath)
     await writeFile(path.resolve(process.cwd(), filePath), `${segments.join('\n\n')}\n`, 'utf8')
-    console.log(`ℹ️ Rohreferenzen (${style.alias}) gesammelt in: ${filePath}`)
+    console.log(`ℹ️ Raw references (${style.alias}) written to: ${filePath}`)
   }
 }
 
@@ -179,7 +179,7 @@ function parseArgs() {
 
   options.styles = resolveStyleList(styleInputs)
   if (options.styles.length === 0) {
-    throw new Error('Mindestens ein Stil muss angegeben werden (--style/--styles).')
+    throw new Error('At least one style must be provided (--style/--styles).')
   }
 
   return options
@@ -233,7 +233,7 @@ async function fetchBibliography(doi, style, locale) {
   const url = `${DOI_RESOLVER_BASE}${encodeURIComponent(doi)}`
   const text = await fetchWithRetry(url, headers, 'text')
   if (typeof text !== 'string') {
-    throw new TypeError(`Unerwartete Antwort für DOI ${doi}`)
+    throw new TypeError(`Unexpected response for DOI ${doi}`)
   }
   return text.trim()
 }
@@ -252,7 +252,7 @@ async function fetchWithRetry(url, headers = {}, mode = 'json', retries = 4, bac
       })
       if (!response.ok) {
         if (response.status === 404) {
-          const error = new Error(`Nicht gefunden (${url})`)
+          const error = new Error(`Not found (${url})`)
           error.status = response.status
           error.noRetry = true
           throw error
@@ -260,13 +260,13 @@ async function fetchWithRetry(url, headers = {}, mode = 'json', retries = 4, bac
         if (response.status === 429 || response.status === 503) {
           const retryAfter = Number(response.headers.get('retry-after'))
           const delay = Number.isFinite(retryAfter) ? retryAfter * 1000 : backoffMs * (attempt + 1)
-          console.warn(`   · Rate-Limit (${response.status}). Warte ${delay} ms`)
+          console.warn(`   · Rate limited (${response.status}). Waiting ${delay} ms`)
           await sleep(delay)
           attempt += 1
           continue
         }
         const text = await response.text()
-        const error = new Error(`Fehler ${response.status}: ${text.slice(0, 200)}`)
+        const error = new Error(`Error ${response.status}: ${text.slice(0, 200)}`)
         error.status = response.status
         error.body = text
         if (response.status >= 400 && response.status < 500)
@@ -285,13 +285,13 @@ async function fetchWithRetry(url, headers = {}, mode = 'json', retries = 4, bac
         throw lastError
       }
       const delay = backoffMs * (attempt + 1)
-      console.warn(`   · Fehler (${error?.message ?? error}). Neuer Versuch in ${delay} ms`)
+      console.warn(`   · Error (${error?.message ?? error}). Retrying in ${delay} ms`)
       await sleep(delay)
       attempt += 1
     }
   }
 
-  throw lastError ?? new Error(`Abruf fehlgeschlagen (${url})`)
+  throw lastError ?? new Error(`Request failed (${url})`)
 }
 
 function getCountByCategory(items, category) {
@@ -343,7 +343,7 @@ function sleep(ms) {
 }
 
 main().catch((error) => {
-  console.error('Export fehlgeschlagen:')
+  console.error('Export failed:')
   console.error(error)
   process.exitCode = 1
 })
