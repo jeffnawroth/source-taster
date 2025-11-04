@@ -79,8 +79,3 @@ Konfiguriert in `settings.matching.matchingConfig.displayThresholds` und umgeset
   4. Ohne Early Termination werden alle Datenbanken abgefragt und abschließend erneut gematcht.
 
 `useVerificationProgressStore` verfolgt Phasen (`searching`, `matching`, `done`, `error`) pro Referenz.
-
-## TODOs
-
-- **TODO:** Dokumentieren, wie alternative Gewichtsschemata (`strict`, `balanced`, `custom`) eingesetzt werden, sobald verfügbar.
-- **TODO:** Beispiele für individuelle Normalisierungsprofile (z. B. „nur Titel + DOI“) ergänzen.

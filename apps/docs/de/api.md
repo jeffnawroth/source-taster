@@ -298,8 +298,3 @@ Der KeyStore verschlüsselt Werte (AES-256-GCM) und speichert sie in `KEYSTORE_D
      -H 'Content-Type: application/json' \
      -d '{"reference":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","metadata":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","title":"Example Article"}},"candidates":[{"id":"c40b55dd-3f5f-42d4-9b5b-6f4aab559201","metadata":{"id":"candidate-1","title":"Example Article"}}]}'
    ```
-
-## TODOs
-
-- **TODO:** Dokumentieren, wie `match-mode: custom` funktioniert, sobald verfügbar.
-- **TODO:** Authentifizierungsstrategie definieren, falls ein öffentliches Hosting geplant ist.

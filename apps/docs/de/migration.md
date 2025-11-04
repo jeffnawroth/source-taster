@@ -22,8 +22,3 @@ Derzeit existieren keine offiziellen Migration Guides. Dieses Dokument dient als
 1. Shared Types in `packages/types` versionieren und Release-Notizen ergänzen.
 2. Storage-Migration der Extension planen (z. B. `ensureStorageVersion` erweitern).
 3. API-Änderungen mit Request/Response-Diffs und ggf. Scripts dokumentieren.
-
-## TODO
-
-- **TODO:** Release-Historie (Extension ≥1.8.4, API) sammeln und Migrationshinweise ergänzen.
-- **TODO:** Prozesse für das Hinzufügen/Entfernen von Datenquellen definieren.

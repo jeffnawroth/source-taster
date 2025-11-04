@@ -99,8 +99,3 @@ See [Matching & Scoring](matching-scoring.md) for heuristics.
 - **`NormalizationService`** (API) applies rules in a deterministic order (`normalize-typography` → … → `normalize-lowercase`).
 - **`MetadataComparator`** filters meaningful fields and respects enabled configuration.
 - **`similarity.ts` / `similarityHelpers.ts`** provide date parsing, name similarity, and Damerau-Levenshtein utilities.
-
-## TODOs
-
-- **TODO:** Decide whether the new `deepseek` provider should surface in the UI selector.
-- **TODO:** Document how to migrate `DEFAULT_UI_SETTINGS` when storage versions change.

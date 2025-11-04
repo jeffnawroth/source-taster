@@ -98,8 +98,3 @@ Siehe [Matching & Scoring](matching-scoring.md) für Details.
 - **`NormalizationService`** (API) wendet Regeln deterministisch an (`normalize-typography` → … → `normalize-lowercase`).
 - **`MetadataComparator`** filtert sinnvolle Felder gemäß Aktivierung.
 - **`similarity.ts` / `similarityHelpers.ts`** liefern Datums-Parsing, Namensvergleich und Damerau-Levenshtein.
-
-## TODOs
-
-- **TODO:** Entscheiden, ob der Provider `deepseek` in der UI auswählbar sein soll.
-- **TODO:** Dokumentieren, wie `DEFAULT_UI_SETTINGS` bei Storage-Migrationen angepasst werden.

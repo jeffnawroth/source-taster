@@ -79,8 +79,3 @@ Configured in `settings.matching.matchingConfig.displayThresholds` and applied b
   4. Without early termination, the workflow completes all searches and re-matches to provide final scores.
 
 `useVerificationProgressStore` tracks phases (`searching`, `matching`, `done`, `error`) per reference.
-
-## TODOs
-
-- **TODO:** Document custom weight presets (`strict`, `balanced`, `custom`) once additional modes ship.
-- **TODO:** Provide sample normalisation profiles (e.g. “title + DOI only”).

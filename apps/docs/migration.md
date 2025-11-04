@@ -22,8 +22,3 @@ No official migration guides exist yet. Use this document as a placeholder for f
 1. Version shared types in `packages/types` first and add release notes.
 2. Outline extension storage migrations (e.g. helper scripts or `ensureStorageVersion` upgrades).
 3. Document API changes with request/response diffs and optional migration scripts.
-
-## TODO
-
-- **TODO:** Compile historical release notes (extension ≥1.8.4, API) and add migration guidance.
-- **TODO:** Define processes for adding/removing data sources (search providers).
