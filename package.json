@@ -20,10 +20,10 @@
     "evaluation:perturb-summary": "node evaluation/summarize-perturbation-report.js"
   },
   "devDependencies": {
-    "@citation-js/plugin-csl": "^0.7.18",
-    "citation-js": "^0.7.20",
-    "eslint": "^9.36.0",
-    "lint-staged": "^16.2.3",
+    "@citation-js/plugin-csl": "^0.7.22",
+    "citation-js": "^0.7.22",
+    "eslint": "^9.39.5",
+    "lint-staged": "^16.4.0",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.3"
   },
