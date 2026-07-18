@@ -1,0 +1,103 @@
+apiVersion: 1
+
+groups:
+  - name: SourceTasterAlerts
+    folder: Source Taster Alerts
+    interval: 30s
+    rules:
+      - uid: api_down
+        title: API is down
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: up{job="source-taster-api"} == 0
+              intervalMs: 15000
+              maxDataPoints: 100
+              refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+        noDataState: Alerting
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: Source Taster API is unreachable
+          description: The Prometheus target for the API has been down for over 1 minute.
+        labels:
+          severity: critical
+
+      - uid: high_error_rate
+        title: High API Error Rate
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: |
+                sum(rate(http_requests_total{status_code=~"5.."}[5m]))
+                /
+                sum(rate(http_requests_total[5m]))
+                * 100 > 5
+              intervalMs: 15000
+              maxDataPoints: 100
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: High error rate ({{ $value | humanizePercentage }})
+          description: The API 5xx error rate has exceeded 5% for over 2 minutes.
+        labels:
+          severity: warning
+
+      - uid: high_latency
+        title: High API Latency (P99)
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: |
+                histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+              intervalMs: 15000
+              maxDataPoints: 100
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: High P99 latency ({{ $value | humanizeDuration }})
+          description: The 99th percentile request latency has exceeded 1 second for over 2 minutes.
+        labels:
+          severity: warning
+
+      - uid: no_metrics_data
+        title: No metrics data from API
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: absent(up{job="source-taster-api"})
+              intervalMs: 30000
+              maxDataPoints: 100
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: No metrics data received for 5 minutes
+          description: Prometheus has not received any metrics from the API for 5 minutes.
+        labels:
+          severity: warning

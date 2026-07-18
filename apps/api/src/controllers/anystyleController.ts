@@ -8,31 +8,52 @@ import {
   ApiAnystyleConvertRequestSchema,
   ApiAnystyleParseRequestSchema,
 } from '@source-taster/types'
+import { anystyleDurationSeconds, anystyleRequestsTotal } from '../middleware/metrics.js'
 import { anystyleProvider } from '../services/anystyleProvider.js'
 
 export async function parse(c: Context): Promise<Response> {
+  const start = Date.now()
   const req = ApiAnystyleParseRequestSchema.parse(await c.req.json())
 
-  const data = await anystyleProvider.parseReferences(req.input)
+  try {
+    const data = await anystyleProvider.parseReferences(req.input)
 
-  const payload: ApiAnystyleParseResponse = {
-    success: true,
-    data,
-    message: 'References parsed successfully',
+    anystyleRequestsTotal.inc({ operation: 'parse', status: 'success' })
+    anystyleDurationSeconds.observe({ operation: 'parse' }, (Date.now() - start) / 1000)
+
+    const payload: ApiAnystyleParseResponse = {
+      success: true,
+      data,
+      message: 'References parsed successfully',
+    }
+    return c.json(payload)
   }
-  return c.json(payload)
+  catch (e) {
+    anystyleRequestsTotal.inc({ operation: 'parse', status: 'error' })
+    throw e
+  }
 }
 
 /** POST /api/anystyle/convert-to-csl */
 export async function convertToCSL(c: Context): Promise<Response> {
+  const start = Date.now()
   const req = ApiAnystyleConvertRequestSchema.parse(await c.req.json())
 
-  const data: ApiAnystyleConvertData = await anystyleProvider.convertToCSL(req.references)
+  try {
+    const data: ApiAnystyleConvertData = await anystyleProvider.convertToCSL(req.references)
 
-  const payload: ApiAnystyleConvertResponse = {
-    success: true,
-    data,
-    message: 'Tokens converted to CSL successfully',
+    anystyleRequestsTotal.inc({ operation: 'convert', status: 'success' })
+    anystyleDurationSeconds.observe({ operation: 'convert' }, (Date.now() - start) / 1000)
+
+    const payload: ApiAnystyleConvertResponse = {
+      success: true,
+      data,
+      message: 'Tokens converted to CSL successfully',
+    }
+    return c.json(payload)
   }
-  return c.json(payload)
+  catch (e) {
+    anystyleRequestsTotal.inc({ operation: 'convert', status: 'error' })
+    throw e
+  }
 }

@@ -4,8 +4,13 @@ import { Hono } from 'hono'
 import { registerOnError } from './errors/registerOnError.js'
 import { withClientId } from './middleware/clientId.js'
 import { corsMiddleware } from './middleware/cors.js'
+import { logger } from './middleware/logger.js'
+import { metricsMiddleware } from './middleware/metrics.js'
+import { requestId } from './middleware/requestId.js'
+import { requestLogger } from './middleware/requestLogger.js'
 import { anystyleRouter } from './routes/anystyleRouter.js'
 import extractionRouter from './routes/extractionRouter.js'
+import { healthRouter } from './routes/healthRouter.js'
 import matchingRouter from './routes/matchingRouter.js'
 import searchRouter from './routes/searchRouter.js'
 import { userRouter } from './routes/userRouter.js'
@@ -14,10 +19,16 @@ const app = new Hono()
 
 registerOnError(app)
 
+app.use('*', requestId())
+app.use('*', requestLogger())
+app.use('*', metricsMiddleware())
 app.use('*', corsMiddleware)
 
 app.use('/api/user/*', withClientId)
 app.use('/api/extract', withClientId)
+
+// Mount health & metrics — before API routes so they're not blocked by clientId
+app.route('/', healthRouter)
 
 // Mount API routes
 app.route('/api/anystyle', anystyleRouter)
@@ -40,7 +51,7 @@ app.get('/', (c) => {
 })
 
 const port = Number(process.env.PORT || '') || 8000
-console.warn(`🚀 API running on http://localhost:${port}`)
+logger.info(`API running on http://localhost:${port}`)
 
 serve({
   fetch: app.fetch,

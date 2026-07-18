@@ -11,6 +11,8 @@ services:
       - ./apps/api/.keystore:/app/.keystore
     environment:
       ANYSTYLE_SERVER_URL: http://anystyle:4567
+      LOKI_URL: http://loki:3100
+      NODE_ENV: production
     restart: unless-stopped
     depends_on:
       anystyle:
@@ -20,6 +22,8 @@ services:
     build:
       context: apps/api
       dockerfile: Dockerfile.anystyle
+    ports:
+      - '4567:4567'
     restart: unless-stopped
 
   docs:
@@ -28,4 +32,70 @@ services:
       dockerfile: apps/docs/Dockerfile
     ports:
       - '8080:80'
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - '8082:8080'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./apps/api/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - '3100:3100'
+    volumes:
+      - ./apps/api/loki-config.yml:/etc/loki/config.yml
+    command:
+      - '--config.file=/etc/loki/config.yml'
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./apps/api/promtail-config.yml:/etc/promtail/config.yml
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./apps/api/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./apps/api/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./apps/api/grafana/alerting:/etc/grafana/provisioning/alerting
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/provisioning/dashboards/observability.json
+      GF_FEATURE_TOGGLE_ENABLE: alertingSimplifiedRouting
+      # SMTP – setze deine Zugangsdaten ein, damit E-Mail-Alerts funktionieren
+      GF_SMTP_ENABLED: 'true'
+      GF_SMTP_HOST: 'smtp.example.com:587'
+      GF_SMTP_USER: 'your-smtp-user'
+      GF_SMTP_PASSWORD: 'your-smtp-password'
+      GF_SMTP_FROM_ADDRESS: 'contact@jeffnawroth.me'
+      GF_SMTP_FROM_NAME: 'Source Taster Alerts'
     restart: unless-stopped

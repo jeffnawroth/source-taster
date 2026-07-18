@@ -10,6 +10,8 @@ import {
   httpUnprocessable,
   httpUpstream,
 } from '../../errors/http.js'
+import { logger } from '../../middleware/logger.js'
+import { extractionTokenUsageTotal } from '../../middleware/metrics.js'
 
 /**
  * Base AI service with common functionality for all AI providers
@@ -108,7 +110,7 @@ export abstract class BaseAIProvider {
     schema: ResponseFormatJSONSchema.JSONSchema,
   ) {
     try {
-      console.warn(`Provider ${this.config.model} doesn't support json_schema, falling back to json_object with schema instructions`)
+      logger.warn(`Provider ${this.config.model} doesn't support json_schema, falling back to json_object with schema instructions`)
 
       const enhancedSystemMessage = this.enhanceSystemMessageWithSchema(systemMessage, schema)
 
@@ -307,6 +309,22 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
   }
 
   /**
+   * Derive provider name from model and baseUrl for metrics labels
+   */
+  private getProviderName(): string {
+    if (this.isAnthropicProvider())
+      return 'anthropic'
+    if (this.isGoogleProvider())
+      return 'google'
+    const model = this.config.model.toLowerCase()
+    if (model.startsWith('deepseek'))
+      return 'deepseek'
+    if (model.startsWith('gpt') || model.startsWith('o'))
+      return 'openai'
+    return 'unknown'
+  }
+
+  /**
    * Attempt to repair common JSON formatting issues from AI providers
    * - Claude sometimes returns incomplete JSON starting with comma
    * - Some providers may miss opening/closing braces
@@ -320,7 +338,7 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     }
 
     // Missing opening brace (starts with property)
-    if (trimmed.match(/^"[^"]+"\s*:\s*/)) {
+    if (/^"[^"]+"\s*:\s*/.test(trimmed)) {
       return `{${trimmed}}`
     }
 
@@ -349,6 +367,14 @@ Your response should be ONLY the JSON object starting with { and ending with }.`
     if (!response) {
       throw httpUpstream('No response from AI service', 502)
     }
+
+    if (response.usage) {
+      extractionTokenUsageTotal.inc({
+        ai_provider: this.getProviderName(),
+        model: this.config.model,
+      }, response.usage.total_tokens)
+    }
+
     return this.parseOpenAIResponse(response, schema.responseSchema) as T
   }
 

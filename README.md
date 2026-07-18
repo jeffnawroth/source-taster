@@ -122,7 +122,7 @@ curl -X POST http://localhost:8000/api/extract \
   -d '{
     "text": "Smith, J. (2024). Example Article. Journal, 12(3), 45-67. https://doi.org/10.1000/example",
     "extractionSettings": { "extractionConfig": { "variables": ["title", "author", "issued", "DOI"] } },
-    "aiSettings": { "provider": "openai", "model": "gpt-4.1" }
+    "aiSettings": { "provider": "openai", "model": "gpt-5.6-terra" }
   }'
 ```
 
