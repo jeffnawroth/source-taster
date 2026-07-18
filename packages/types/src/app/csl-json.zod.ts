@@ -1,6 +1,6 @@
 // csl-json.zod.ts
 // Zod schema for CSL-JSON (based on schema v1.0: csl-data.json)
-// Runtime validation that mirrors the TypeScript types. Uses .strict() to emulate "additionalProperties: false".
+// Runtime validation that mirrors the TypeScript types
 
 import { z } from 'zod'
 
@@ -205,7 +205,7 @@ export const CSLItemSchema = z
     'arxivId': z.string().optional(),
 
   })
-  .strict()
+  .passthrough()
 
 export const CSLSchema = z.array(CSLItemSchema)
 

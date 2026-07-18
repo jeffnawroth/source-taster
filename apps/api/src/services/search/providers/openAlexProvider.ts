@@ -1,6 +1,7 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { components } from '../../../types/openAlex.js'
 import process from 'node:process'
+import { logger } from '../../../middleware/logger.js'
 import { generateUUID } from '../../../utils/generateUUID.js'
 
 // Type aliases for better readability
@@ -17,7 +18,7 @@ export class OpenAlexProvider {
     this.mailto = mailto || process.env.OPENALEX_MAILTO || 'your-email@domain.com'
 
     if ((!this.mailto || this.mailto === 'your-email@domain.com') && !OpenAlexProvider.warnedMissingMailto) {
-      console.warn('⚠️  OpenAlex: No OPENALEX_MAILTO environment variable set. Provide an email for better API rate limits.')
+      logger.warn('⚠️  OpenAlex: No OPENALEX_MAILTO environment variable set. Provide an email for better API rate limits.')
       OpenAlexProvider.warnedMissingMailto = true
     }
   }
@@ -35,7 +36,7 @@ export class OpenAlexProvider {
       return await this.searchByQuery(metadata)
     }
     catch (error) {
-      console.error('OpenAlex search error:', error)
+      logger.error('OpenAlex search error: %s', error)
     }
 
     return null
@@ -49,7 +50,7 @@ export class OpenAlexProvider {
 
       const url = `${this.baseUrl}/works/${encodeURIComponent(fullDoi)}`
 
-      console.warn(`OpenAlex: Searching by DOI: ${url}`)
+      logger.debug({ searchType: 'doi', provider: 'openalex' }, 'OpenAlex: Searching by DOI')
 
       const headers: Record<string, string> = {
         'User-Agent': this.mailto
@@ -77,7 +78,7 @@ export class OpenAlexProvider {
       }
     }
     catch (error) {
-      console.error('OpenAlex DOI search error:', error)
+      logger.error('OpenAlex DOI search error: %s', error)
     }
 
     return null
@@ -88,7 +89,7 @@ export class OpenAlexProvider {
       const queryParams = this.buildSearchQuery(metadata)
       const url = `${this.baseUrl}/works?${queryParams}`
 
-      console.warn(`OpenAlex: Query search: ${url}`)
+      logger.debug({ searchType: 'query', provider: 'openalex' }, 'OpenAlex: Query search')
 
       const headers: Record<string, string> = {
         'User-Agent': this.mailto
@@ -115,7 +116,7 @@ export class OpenAlexProvider {
       }
     }
     catch (error) {
-      console.error('OpenAlex query search error:', error)
+      logger.error('OpenAlex query search error: %s', error)
     }
 
     return null
@@ -332,11 +333,11 @@ export class OpenAlexProvider {
     const intervalRemaining = response.headers.get('x-ratelimit-interval-remaining')
 
     if (dailyRemaining && Number(dailyRemaining) < 1000) {
-      console.warn(`OpenAlex: Daily rate limit low: ${dailyRemaining}/${dailyLimit} remaining`)
+      logger.warn(`OpenAlex: Daily rate limit low: ${dailyRemaining}/${dailyLimit} remaining`)
     }
 
     if (intervalRemaining && Number(intervalRemaining) < 5) {
-      console.warn(`OpenAlex: Interval rate limit low: ${intervalRemaining}/${intervalLimit} remaining`)
+      logger.warn(`OpenAlex: Interval rate limit low: ${intervalRemaining}/${intervalLimit} remaining`)
     }
   }
 

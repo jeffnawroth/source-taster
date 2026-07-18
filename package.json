@@ -2,6 +2,11 @@
   "name": "source-taster",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@11.14.0",
   "scripts": {
     "dev": "pnpm run -r --parallel --aggregate-output dev",
     "build": "pnpm run -r build",

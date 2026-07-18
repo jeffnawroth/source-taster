@@ -4,6 +4,7 @@ import type {
 } from '@source-taster/types'
 import process from 'node:process'
 import { httpBadRequest, httpNotFound } from '../../errors/http.js'
+import { searchDurationSeconds, searchesTotal } from '../../middleware/metrics.js'
 import { ArxivProvider } from './providers/arxivProvider.js'
 import { CrossrefProvider } from './providers/crossrefProvider.js'
 import { EuropePmcProvider } from './providers/europePmcProvider.js'
@@ -53,12 +54,20 @@ export class SearchCoordinator {
     reference: ApiSearchReference,
     databaseInfo: DatabaseInfo,
   ) {
+    const start = Date.now()
+    let status = 'error'
     try {
       const result = await databaseInfo.service.search(reference.metadata)
+      status = result ? 'success' : 'not_found'
       return result ?? null
     }
     catch {
       return null
+    }
+    finally {
+      const duration = (Date.now() - start) / 1000
+      searchesTotal.inc({ provider: databaseInfo.name, status })
+      searchDurationSeconds.observe({ provider: databaseInfo.name }, duration)
     }
   }
 }

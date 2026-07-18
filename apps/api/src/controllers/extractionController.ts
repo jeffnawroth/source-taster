@@ -1,11 +1,10 @@
-// src/controllers/extractionController.ts
-
 import type {
   ApiExtractResponse,
 } from '@source-taster/types'
 import type { Context } from 'hono'
 
 import { ApiExtractRequestSchema } from '@source-taster/types'
+import { referencesExtractedTotal } from '../middleware/metrics.js'
 import { ReferenceExtractionCoordinator } from '../services/extraction/referenceExtractionCoordinator.js'
 
 /**
@@ -18,6 +17,8 @@ export async function extractReferences(c: Context) {
 
   const coordinator = new ReferenceExtractionCoordinator(userId)
   const references = await coordinator.extractReferences(req)
+
+  referencesExtractedTotal.inc({ ai_provider: req.aiSettings?.provider ?? 'unknown' })
 
   return c.json({ success: true, data: { references } } as ApiExtractResponse)
 }

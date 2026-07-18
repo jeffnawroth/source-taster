@@ -1,6 +1,7 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
 import type { components } from '../../../types/crossref.js'
 import process from 'node:process'
+import { logger } from '../../../middleware/logger.js'
 import { generateUUID } from '../../../utils/generateUUID.js'
 
 // Type aliases for better readability
@@ -17,7 +18,7 @@ export class CrossrefProvider {
     // Warn if no proper email is configured for Crossref "polite pool"
     if (!process.env.CROSSREF_MAILTO || this.mailto === 'your-email@domain.com') {
       if (!CrossrefProvider.warnedMissingMailto) {
-        console.warn('⚠️  Crossref: No CROSSREF_MAILTO environment variable set. Consider setting it for better API performance and access to the "polite pool".')
+        logger.warn('⚠️  Crossref: No CROSSREF_MAILTO environment variable set. Consider setting it for better API performance and access to the "polite pool".')
         CrossrefProvider.warnedMissingMailto = true
       }
     }
@@ -43,7 +44,7 @@ export class CrossrefProvider {
       return await this.searchByQuery(metadata)
     }
     catch (error) {
-      console.error('Crossref search error:', error)
+      logger.error('Crossref search error: %s', error)
     }
 
     return null
@@ -58,7 +59,7 @@ export class CrossrefProvider {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
       const url = `${this.baseUrl}/works/${encodeURIComponent(cleanDoi)}`
 
-      console.warn(`Crossref: Searching by DOI: ${url}`)
+      logger.debug({ searchType: 'doi', provider: 'crossref' }, 'Crossref: Searching by DOI')
 
       const response = await fetch(url, {
         headers: {
@@ -73,7 +74,7 @@ export class CrossrefProvider {
         const rateLimitInterval = response.headers.get('X-Rate-Limit-Interval')
         // Only log if rate limit is low to avoid spam
         if (Number.parseInt(rateLimit || '0') < 10) {
-          console.warn(`Crossref rate limit low: ${rateLimit}/${rateLimitInterval}`)
+          logger.warn(`Crossref rate limit low: ${rateLimit}/${rateLimitInterval}`)
         }
       }
 
@@ -94,7 +95,7 @@ export class CrossrefProvider {
       }
     }
     catch (error) {
-      console.warn('Crossref DOI search failed:', error)
+      logger.warn('Crossref DOI search failed: %s', error)
     }
 
     return null
@@ -126,7 +127,7 @@ export class CrossrefProvider {
       params.append('mailto', this.mailto)
 
       const url = `${this.baseUrl}/works?${params.toString()}`
-      console.warn(`Crossref: Bibliographic search: ${url}`)
+      logger.debug({ searchType: 'bibliographic', provider: 'crossref' }, 'Crossref: Bibliographic search')
 
       const response = await fetch(url, {
         headers: {
@@ -153,7 +154,7 @@ export class CrossrefProvider {
       }
     }
     catch (error) {
-      console.error('Crossref bibliographic search error:', error)
+      logger.error('Crossref bibliographic search error: %s', error)
     }
 
     return null
@@ -233,8 +234,7 @@ export class CrossrefProvider {
       const params = this.buildAdvancedSearchQuery(metadata)
       const url = `${this.baseUrl}/works?${params}`
 
-      console.warn(`Crossref: Advanced query search: ${url}`)
-      console.warn(`Crossref: Query params debug:`, params)
+      logger.debug({ searchType: 'query', provider: 'crossref' }, 'Crossref: Advanced query search')
 
       const response = await fetch(url, {
         headers: {
@@ -261,7 +261,7 @@ export class CrossrefProvider {
       }
     }
     catch (error) {
-      console.error('Crossref search error:', error)
+      logger.error('Crossref search error: %s', error)
     }
 
     return null
@@ -269,8 +269,6 @@ export class CrossrefProvider {
 
   private buildAdvancedSearchQuery(metadata: CSLItem): string {
     const params = new URLSearchParams()
-
-    console.warn('Crossref: Building query for metadata:', JSON.stringify(metadata, null, 2))
 
     // Use simple query approach - much more reliable
     const queryParts: string[] = []
@@ -299,7 +297,7 @@ export class CrossrefProvider {
     }
 
     const queryString = queryParts.join(' ')
-    console.warn('Crossref: Simple query string:', queryString)
+    logger.debug({ searchType: 'build_query', provider: 'crossref' }, 'Crossref: Built query string')
 
     if (queryString.trim()) {
       params.append('query', queryString)
@@ -315,7 +313,7 @@ export class CrossrefProvider {
     params.append('mailto', this.mailto)
 
     const result = params.toString()
-    console.warn('Crossref: Final query string:', result)
+    logger.debug({ searchType: 'final_query', provider: 'crossref' }, 'Crossref: Final query built')
     return result
   }
 

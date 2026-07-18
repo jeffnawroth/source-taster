@@ -75,7 +75,7 @@ Extrahiert Referenzen aus freiem Text via KI.
     },
     "aiSettings": {
       "provider": "openai",
-      "model": "gpt-4.1"
+      "model": "gpt-5.6-terra"
     }
   }
   ```

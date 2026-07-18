@@ -22,7 +22,7 @@ Diese Funktionen werden im Matching und in der UI zur Normalisierung und Darstel
 
 - **`ApiAIProviderSchema`** – `openai`, `anthropic`, `google`, `deepseek`.
 - **Modell-Enums** – `ApiOpenAIModelSchema`, `ApiAnthropicModelSchema`, `ApiGoogleModelSchema`, `ApiDeepSeekModelSchema`.
-- **`ApiAISettingsSchema`** – `{ provider, model }`, Default `{ openai, gpt-4.1 }`.
+- **`ApiAISettingsSchema`** – `{ provider, model }`, Default `{ openai, gpt-5.6-terra }`.
 - **`ApiExtractRequestSchema`**
   ```ts
   interface ApiExtractRequest {

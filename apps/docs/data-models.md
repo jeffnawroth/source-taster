@@ -22,7 +22,7 @@ The utilities are used by the matching engine and the UI to format or normalise 
 
 - **`ApiAIProviderSchema`** – `openai`, `anthropic`, `google`, `deepseek`.
 - **Model enums** – `ApiOpenAIModelSchema`, `ApiAnthropicModelSchema`, `ApiGoogleModelSchema`, `ApiDeepSeekModelSchema`.
-- **`ApiAISettingsSchema`** – `{ provider, model }`, default `{ openai, gpt-4.1 }`.
+- **`ApiAISettingsSchema`** – `{ provider, model }`, default `{ openai, gpt-5.6-terra }`.
 - **`ApiExtractRequestSchema`**
   ```ts
   interface ApiExtractRequest {

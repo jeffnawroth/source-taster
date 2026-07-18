@@ -6,16 +6,16 @@ import z from 'zod'
 export const ApiAIProviderSchema = z.enum(['openai', 'anthropic', 'google', 'deepseek'])
 export type ApiAIProvider = z.infer<typeof ApiAIProviderSchema>
 
-export const ApiOpenAIModelSchema = z.enum(['gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'gpt-4.1'])
+export const ApiOpenAIModelSchema = z.enum(['gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano'])
 export type ApiOpenAIModel = z.infer<typeof ApiOpenAIModelSchema>
 
-export const ApiAnthropicModelSchema = z.enum(['claude-opus-4-1', 'claude-sonnet-4-0', 'claude-3-5-haiku-latest'])
+export const ApiAnthropicModelSchema = z.enum(['claude-fable-5', 'claude-sonnet-5', 'claude-opus-4-8', 'claude-haiku-4-5'])
 export type ApiAnthropicModel = z.infer<typeof ApiAnthropicModelSchema>
 
-export const ApiGoogleModelSchema = z.enum(['gemini-2.5-pro', 'gemini-2.5-flash'])
+export const ApiGoogleModelSchema = z.enum(['gemini-3.5-pro', 'gemini-3.5-flash', 'gemini-3.1-pro'])
 export type ApiGoogleModel = z.infer<typeof ApiGoogleModelSchema>
 
-export const ApiDeepSeekModelSchema = z.enum(['deepseek-chat', 'deepseek-reasoner'])
+export const ApiDeepSeekModelSchema = z.enum(['deepseek-v4-pro', 'deepseek-v4-flash'])
 export type ApiDeepSeekModel = z.infer<typeof ApiDeepSeekModelSchema>
 
 export const ApiAIModelSchema = z.union([
@@ -28,10 +28,10 @@ export type ApiAIModel = z.infer<typeof ApiAIModelSchema>
 
 export const ApiAISettingsSchema = z.object({
   provider: ApiAIProviderSchema.default('openai'),
-  model: ApiAIModelSchema.default('gpt-4.1'),
+  model: ApiAIModelSchema.default('gpt-5.6-terra'),
 }).strict()
 export type ApiAISettings = z.infer<typeof ApiAISettingsSchema>
-export const DEFAULT_AI_SETTINGS: ApiAISettings = { provider: 'openai', model: 'gpt-4.1' }
+export const DEFAULT_AI_SETTINGS: ApiAISettings = { provider: 'openai', model: 'gpt-5.6-terra' }
 
 export const PROVIDER_LABELS: Record<ApiAIProvider, string> = {
   openai: 'OpenAI',

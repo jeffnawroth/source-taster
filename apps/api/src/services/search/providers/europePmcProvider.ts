@@ -1,6 +1,7 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { EuropePmcSearchResponse, EuropePmcWork } from '../../../types/europepmc.js'
 import process from 'node:process'
+import { logger } from '../../../middleware/logger.js'
 import { generateUUID } from '../../../utils/generateUUID.js'
 
 export class EuropePmcProvider {
@@ -12,7 +13,7 @@ export class EuropePmcProvider {
     this.email = email || process.env.EUROPEPMC_EMAIL || 'your-email@domain.com'
 
     if ((!this.email || this.email === 'your-email@domain.com') && !EuropePmcProvider.warnedMissingEmail) {
-      console.warn('⚠️  Europe PMC: No EUROPEPMC_EMAIL environment variable set. Provide an email for better API performance and support.')
+      logger.warn('⚠️  Europe PMC: No EUROPEPMC_EMAIL environment variable set. Provide an email for better API performance and support.')
       EuropePmcProvider.warnedMissingEmail = true
     }
   }
@@ -50,7 +51,7 @@ export class EuropePmcProvider {
       return await this.searchByQuery(metadata)
     }
     catch (error) {
-      console.error('Europe PMC search error:', error)
+      logger.error('Europe PMC search error: %s', error)
     }
 
     return null
@@ -73,7 +74,7 @@ export class EuropePmcProvider {
 
       const url = `${this.baseUrl}/search?${params.toString()}`
 
-      console.warn(`Europe PMC: Searching by DOI: ${url}`)
+      logger.debug({ searchType: 'doi', provider: 'europepmc' }, 'Europe PMC: Searching by DOI')
 
       const response = await fetch(url, {
         headers: {
@@ -98,7 +99,7 @@ export class EuropePmcProvider {
       }
     }
     catch (error) {
-      console.warn('Europe PMC DOI search failed:', error)
+      logger.warn('Europe PMC DOI search failed: %s', error)
     }
 
     return null
@@ -121,7 +122,7 @@ export class EuropePmcProvider {
 
       const url = `${this.baseUrl}/search?${params.toString()}`
 
-      console.warn(`Europe PMC: Searching by PMID: ${url}`)
+      logger.debug({ searchType: 'pmid', provider: 'europepmc' }, 'Europe PMC: Searching by PMID')
 
       const response = await fetch(url, {
         headers: {
@@ -146,7 +147,7 @@ export class EuropePmcProvider {
       }
     }
     catch (error) {
-      console.warn('Europe PMC PMID search failed:', error)
+      logger.warn('Europe PMC PMID search failed: %s', error)
     }
 
     return null
@@ -171,7 +172,7 @@ export class EuropePmcProvider {
 
       const url = `${this.baseUrl}/search?${params.toString()}`
 
-      console.warn(`Europe PMC: Searching by PMCID: ${url}`)
+      logger.debug({ searchType: 'pmcid', provider: 'europepmc' }, 'Europe PMC: Searching by PMCID')
 
       const response = await fetch(url, {
         headers: {
@@ -196,7 +197,7 @@ export class EuropePmcProvider {
       }
     }
     catch (error) {
-      console.warn('Europe PMC PMCID search failed:', error)
+      logger.warn('Europe PMC PMCID search failed: %s', error)
     }
 
     return null
@@ -208,7 +209,7 @@ export class EuropePmcProvider {
       const queryParams = this.buildSearchQuery(metadata)
       const url = `${this.baseUrl}/search?${queryParams}`
 
-      console.warn(`Europe PMC: Query search: ${url}`)
+      logger.debug({ searchType: 'query', provider: 'europepmc' }, 'Europe PMC: Query search')
 
       const response = await fetch(url, {
         headers: {
@@ -241,7 +242,7 @@ export class EuropePmcProvider {
       }
     }
     catch (error) {
-      console.error('Europe PMC search error:', error)
+      logger.error('Europe PMC search error: %s', error)
     }
 
     return null
@@ -284,7 +285,7 @@ export class EuropePmcProvider {
 
       const url = `${this.baseUrl}/search?${params.toString()}`
 
-      console.warn(`Europe PMC: Fallback title+author search: ${url}`)
+      logger.debug({ searchType: 'title+author', provider: 'europepmc' }, 'Europe PMC: Fallback title+author search')
 
       const response = await fetch(url, {
         headers: {
@@ -309,7 +310,7 @@ export class EuropePmcProvider {
       }
     }
     catch (error) {
-      console.warn('Europe PMC fallback search failed:', error)
+      logger.warn('Europe PMC fallback search failed: %s', error)
     }
 
     return null

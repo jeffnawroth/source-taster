@@ -1,5 +1,6 @@
 import type { Context, Next } from 'hono'
 import process from 'node:process'
+import { logger } from './logger.js'
 
 /**
  * Get allowed origins for production mode based on environment variables
@@ -22,7 +23,7 @@ function getProductionAllowedOrigins(): string[] {
   }
 
   // Fallback: Allow all extensions if no specific IDs configured
-  console.warn('⚠️  No ALLOWED_EXTENSION_IDS configured, allowing all extensions')
+  logger.warn('⚠️  No ALLOWED_EXTENSION_IDS configured, allowing all extensions')
   return ['chrome-extension://*', 'moz-extension://*']
 }
 
@@ -37,7 +38,7 @@ export async function corsMiddleware(c: Context, next: Next) {
 
   // DEVELOPMENT: Allow ALL origins
   if (process.env.NODE_ENV === 'development') {
-    console.warn(`🔧 DEV: Allowing origin: ${origin || 'null (API tool)'}`)
+    logger.warn(`🔧 DEV: Allowing origin: ${origin || 'null (API tool)'}`)
 
     // Set CORS headers for development
     c.header('Access-Control-Allow-Origin', '*')
@@ -70,11 +71,11 @@ export async function corsMiddleware(c: Context, next: Next) {
     )
 
     if (!isTrustedExtensionRequest) {
-      console.warn('❌ PROD: Blocked request without origin header')
+      logger.warn('❌ PROD: Blocked request without origin header')
       return c.json({ error: 'Origin header required' }, 403)
     }
 
-    console.warn('✅ PROD: Allowing trusted extension request without origin header')
+    logger.warn('✅ PROD: Allowing trusted extension request without origin header')
 
     c.header('Access-Control-Allow-Origin', '*')
     c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
@@ -91,7 +92,7 @@ export async function corsMiddleware(c: Context, next: Next) {
 
   // Check exact match
   if (allowedOrigins.includes(origin)) {
-    console.warn(`✅ PROD: Allowed extension origin: ${origin}`)
+    logger.warn(`✅ PROD: Allowed extension origin: ${origin}`)
     isAllowed = true
   }
 
@@ -103,13 +104,13 @@ export async function corsMiddleware(c: Context, next: Next) {
     }
     return false
   })) {
-    console.warn(`✅ PROD: Allowed extension origin (wildcard): ${origin}`)
+    logger.warn(`✅ PROD: Allowed extension origin (wildcard): ${origin}`)
     isAllowed = true
   }
 
   // Block if not allowed
   if (!isAllowed) {
-    console.warn(`❌ PROD: Blocked request from origin: ${origin}`)
+    logger.warn(`❌ PROD: Blocked request from origin: ${origin}`)
     return c.json({ error: 'Origin not allowed' }, 403)
   }
 
