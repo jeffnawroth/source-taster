@@ -20,6 +20,8 @@ services:
     build:
       context: apps/api
       dockerfile: Dockerfile.anystyle
+    ports:
+      - '4567:4567'
     restart: unless-stopped
 
   docs:
