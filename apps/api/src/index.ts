@@ -19,6 +19,9 @@ const app = new Hono()
 
 registerOnError(app)
 
+// Mount health & metrics — before CORS so tools like curl work
+app.route('/', healthRouter)
+
 app.use('*', requestId())
 app.use('*', requestLogger())
 app.use('*', metricsMiddleware())
@@ -26,9 +29,6 @@ app.use('*', corsMiddleware)
 
 app.use('/api/user/*', withClientId)
 app.use('/api/extract', withClientId)
-
-// Mount health & metrics — before API routes so they're not blocked by clientId
-app.route('/', healthRouter)
 
 // Mount API routes
 app.route('/api/anystyle', anystyleRouter)
