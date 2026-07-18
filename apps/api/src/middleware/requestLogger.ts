@@ -5,7 +5,7 @@ export function requestLogger(): MiddlewareHandler {
   return async (c, next) => {
     const path = c.req.path
 
-    if (path === '/api/health' || path === '/metrics') {
+    if (path === '/health' || path === '/metrics') {
       await next()
       return
     }

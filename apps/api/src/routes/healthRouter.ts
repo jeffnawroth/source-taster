@@ -4,7 +4,7 @@ import { metricsHandler } from '../middleware/metrics.js'
 
 export const healthRouter = new Hono()
 
-healthRouter.get('/api/health', (c) => {
+healthRouter.get('/health', (c) => {
   return c.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
