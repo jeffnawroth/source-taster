@@ -19,13 +19,13 @@ const app = new Hono()
 
 registerOnError(app)
 
-// Mount health & metrics — before CORS so tools like curl work
-app.route('/', healthRouter)
-
 app.use('*', requestId())
 app.use('*', requestLogger())
 app.use('*', metricsMiddleware())
-app.use('*', corsMiddleware)
+app.use('/api/*', corsMiddleware)
+
+// Mount health & metrics — not protected by CORS so monitoring tools work
+app.route('/', healthRouter)
 
 app.use('/api/user/*', withClientId)
 app.use('/api/extract', withClientId)
