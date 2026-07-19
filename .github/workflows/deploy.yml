@@ -53,5 +53,5 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
             git fetch origin main
             git reset --hard origin/main
-            docker compose build --pull --no-cache
+            docker compose build --pull
             docker compose up -d --remove-orphans
