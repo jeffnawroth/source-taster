@@ -314,8 +314,8 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (service_name) (count_over_time({service_name=~\"source-taster.*\"}[$__interval]))",
-          "legendFormat": "{{service_name}}",
+          "expr": "sum by (service) (count_over_time({service=~\"source-taster.*\"}[$__interval]))",
+          "legendFormat": "{{service}}",
           "queryType": "range",
           "refId": "A"
         }

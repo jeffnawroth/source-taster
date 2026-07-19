@@ -15,6 +15,7 @@ import { healthRouter } from './routes/healthRouter.js'
 import matchingRouter from './routes/matchingRouter.js'
 import searchRouter from './routes/searchRouter.js'
 import { userRouter } from './routes/userRouter.js'
+import './telemetry/instrumentation.js'
 
 const app = new Hono()
 

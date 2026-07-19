@@ -26,7 +26,16 @@ const sdk = new NodeSDK({
   ],
 })
 
-sdk.start()
+let started = false
+
+export function startInstrumentation() {
+  if (started)
+    return
+  started = true
+  sdk.start()
+}
+
+startInstrumentation()
 
 process.on('SIGTERM', () => {
   sdk.shutdown().finally(() => process.exit(0))
