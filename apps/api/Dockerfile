@@ -10,7 +10,7 @@ WORKDIR /app
 FROM base AS deps
 WORKDIR /app
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates build-essential python3 \
+  && apt-get install -y --no-install-recommends ca-certificates build-essential python3 git \
   && rm -rf /var/lib/apt/lists/*
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json apps/api/package.json

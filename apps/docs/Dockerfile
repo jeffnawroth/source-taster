@@ -9,8 +9,13 @@ WORKDIR /app
 
 FROM base AS deps
 WORKDIR /app
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git \
+  && rm -rf /var/lib/apt/lists/*
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/docs/package.json apps/docs/package.json
+COPY apps/extension/package.json apps/extension/package.json
+COPY apps/api/package.json apps/api/package.json
 COPY packages/types/package.json packages/types/package.json
 COPY packages/eslint-config/package.json packages/eslint-config/package.json
 RUN pnpm install --frozen-lockfile
