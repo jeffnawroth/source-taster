@@ -192,7 +192,7 @@
       "links": [
         {
           "title": "View Error Logs",
-          "url": "/d/21aa208c-c176-487d-b807-ebd9bd6a1536/source-taster-logs?viewPanel=6"
+          "url": "/d/source-taster-logs?viewPanel=6"
         }
       ],
       "targets": [
@@ -528,7 +528,7 @@
       "links": [
         {
           "title": "View Error Logs",
-          "url": "/d/21aa208c-c176-487d-b807-ebd9bd6a1536/source-taster-logs?viewPanel=6"
+          "url": "/d/source-taster-logs?viewPanel=6"
         }
       ],
       "targets": [
@@ -542,6 +542,29 @@
       ],
       "title": "Error Breakdown (5m avg)",
       "type": "piechart"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "id": 9,
+      "options": {
+        "filters": [],
+        "showFilters": true,
+        "showSpanFilterControls": true,
+        "spanCount": 25,
+        "serviceMapShow": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "queryType": "nativeSearch",
+          "serviceName": "source-taster-api",
+          "query": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Traces",
+      "type": "traces"
     }
   ]
 }

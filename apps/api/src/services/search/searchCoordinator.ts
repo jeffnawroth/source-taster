@@ -1,8 +1,10 @@
+import type { Span } from '@opentelemetry/api'
 import type {
   ApiSearchReference,
   ApiSearchResult,
 } from '@source-taster/types'
 import process from 'node:process'
+import { trace } from '@opentelemetry/api'
 import { httpBadRequest, httpNotFound } from '../../errors/http.js'
 import { searchDurationSeconds, searchesTotal } from '../../middleware/metrics.js'
 import { ArxivProvider } from './providers/arxivProvider.js'
@@ -10,6 +12,8 @@ import { CrossrefProvider } from './providers/crossrefProvider.js'
 import { EuropePmcProvider } from './providers/europePmcProvider.js'
 import { OpenAlexProvider } from './providers/openAlexProvider.js'
 import { SemanticScholarProvider } from './providers/semanticScholarProvider.js'
+
+const tracer = trace.getTracer('source-taster-api', '2.1.3')
 
 interface DatabaseInfo {
   name: string
@@ -54,21 +58,31 @@ export class SearchCoordinator {
     reference: ApiSearchReference,
     databaseInfo: DatabaseInfo,
   ) {
-    const start = Date.now()
-    let status = 'error'
-    try {
-      const result = await databaseInfo.service.search(reference.metadata)
-      status = result ? 'success' : 'not_found'
-      return result ?? null
-    }
-    catch {
-      return null
-    }
-    finally {
-      const duration = (Date.now() - start) / 1000
-      searchesTotal.inc({ provider: databaseInfo.name, status })
-      searchDurationSeconds.observe({ provider: databaseInfo.name }, duration)
-    }
+    return tracer.startActiveSpan(
+      `search.${databaseInfo.name}`,
+      { attributes: { 'db.system': databaseInfo.name } },
+      async (span: Span) => {
+        const start = Date.now()
+        let status = 'error'
+        try {
+          const result = await databaseInfo.service.search(reference.metadata)
+          span.setAttribute('search.result', result ? 'found' : 'not_found')
+          status = result ? 'success' : 'not_found'
+          return result ?? null
+        }
+        catch (e) {
+          span.recordException(e as Error)
+          return null
+        }
+        finally {
+          const duration = (Date.now() - start) / 1000
+          span.setAttribute('search.duration_seconds', duration)
+          searchesTotal.inc({ provider: databaseInfo.name, status })
+          searchDurationSeconds.observe({ provider: databaseInfo.name }, duration)
+          span.end()
+        }
+      },
+    )
   }
 }
 

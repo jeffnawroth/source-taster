@@ -1,5 +1,6 @@
 import process from 'node:process'
 import { serve } from '@hono/node-server'
+import { httpInstrumentationMiddleware } from '@hono/otel'
 import { Hono } from 'hono'
 import { registerOnError } from './errors/registerOnError.js'
 import { withClientId } from './middleware/clientId.js'
@@ -19,6 +20,7 @@ const app = new Hono()
 
 registerOnError(app)
 
+app.use('*', httpInstrumentationMiddleware())
 app.use('*', requestId())
 app.use('*', requestLogger())
 app.use('*', metricsMiddleware())

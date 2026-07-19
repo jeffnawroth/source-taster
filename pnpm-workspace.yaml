@@ -1,9 +1,14 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+
 packages:
   - apps/*
   - packages/*
 allowBuilds:
   citation-js: true
   esbuild: true
+  protobufjs: true
   simple-git-hooks: true
   spawn-sync: true
   vue-demi: true

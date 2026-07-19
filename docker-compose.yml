@@ -13,6 +13,8 @@ services:
       ANYSTYLE_SERVER_URL: http://anystyle:4567
       LOKI_URL: http://loki:3100
       NODE_ENV: production
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: source-taster-api
     restart: unless-stopped
     depends_on:
       anystyle:
@@ -56,8 +58,8 @@ services:
     volumes:
       - ./apps/api/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.retention.time=30d'
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
     restart: unless-stopped
 
   loki:
@@ -67,7 +69,7 @@ services:
     volumes:
       - ./apps/api/loki-config.yml:/etc/loki/config.yml
     command:
-      - '--config.file=/etc/loki/config.yml'
+      - --config.file=/etc/loki/config.yml
     restart: unless-stopped
 
   promtail:
@@ -78,6 +80,24 @@ services:
     restart: unless-stopped
     depends_on:
       - loki
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - ./apps/api/otel-collector.yml:/etc/otel-collector.yml
+    command: --config=/etc/otel-collector.yml
+    ports:
+      - '4318:4318'
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:latest
+    volumes:
+      - ./apps/api/tempo-config.yml:/etc/tempo.yml
+    command: --config.file=/etc/tempo.yml
+    ports:
+      - '3200:3200'
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
@@ -94,8 +114,8 @@ services:
       # SMTP – setze deine Zugangsdaten ein, damit E-Mail-Alerts funktionieren
       GF_SMTP_ENABLED: 'true'
       GF_SMTP_HOST: 'smtp.example.com:587'
-      GF_SMTP_USER: 'your-smtp-user'
-      GF_SMTP_PASSWORD: 'your-smtp-password'
-      GF_SMTP_FROM_ADDRESS: 'contact@jeffnawroth.me'
-      GF_SMTP_FROM_NAME: 'Source Taster Alerts'
+      GF_SMTP_USER: your-smtp-user
+      GF_SMTP_PASSWORD: your-smtp-password
+      GF_SMTP_FROM_ADDRESS: contact@jeffnawroth.me
+      GF_SMTP_FROM_NAME: Source Taster Alerts
     restart: unless-stopped

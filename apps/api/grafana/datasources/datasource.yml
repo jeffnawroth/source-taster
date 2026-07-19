@@ -19,8 +19,32 @@ datasources:
     jsonData:
       maxLines: 5000
       derivedFields:
+        - name: traceId
+          type: field
+          matcherRegex: '"trace_id":"([^"]+)"'
+          url: '$${__value.raw}'
+          datasourceUid: tempo
         - name: requestId
           type: field
           matcherRegex: ''
           url: ''
           datasourceUid: loki
+
+  - name: Tempo
+    uid: tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: [service.name, service.version]
+        mappedTags: [{key: service.name, value: service}]
+        mapTagNamesEnabled: true
+        spanStartTimeShift: -5m
+        spanEndTimeShift: 5m
+        filterByTraceID: true
+        filterBySpanID: false
+      serviceMap:
+        datasourceUid: prometheus
