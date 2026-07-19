@@ -2,7 +2,7 @@
   "__inputs": [],
   "__requires": [],
   "title": "Source Taster – Observability",
-  "version": 1,
+  "version": 11,
   "refresh": "10s",
   "timezone": "browser",
   "panels": [
@@ -545,14 +545,14 @@
     },
     {
       "datasource": { "type": "tempo", "uid": "tempo" },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 28 },
       "id": 9,
       "options": {
         "filters": [],
         "showFilters": true,
         "showSpanFilterControls": true,
         "spanCount": 25,
-        "serviceMapShow": true
+        "serviceMapShow": false
       },
       "targets": [
         {
