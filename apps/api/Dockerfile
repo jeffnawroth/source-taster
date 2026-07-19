@@ -14,6 +14,8 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json apps/api/package.json
+COPY apps/docs/package.json apps/docs/package.json
+COPY apps/extension/package.json apps/extension/package.json
 COPY packages/types/package.json packages/types/package.json
 COPY packages/eslint-config/package.json packages/eslint-config/package.json
 RUN pnpm install --frozen-lockfile
