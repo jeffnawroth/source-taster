@@ -10,6 +10,17 @@ distributor:
         grpc:
           endpoint: 0.0.0.0:4317
 
+live_store:
+  max_trace_idle: 10s
+  max_block_duration: 5m
+
+backend_scheduler:
+  provider:
+    compaction:
+      compaction:
+        block_retention: 6h
+        compacted_block_retention: 10m
+
 storage:
   trace:
     backend: local
@@ -17,5 +28,8 @@ storage:
       path: /tmp/tempo/blocks
     wal:
       path: /tmp/tempo/wal
-    block:
+
+overrides:
+  defaults:
+    compaction:
       block_retention: 6h
