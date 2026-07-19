@@ -557,8 +557,9 @@
       "targets": [
         {
           "datasource": { "type": "tempo", "uid": "tempo" },
-          "queryType": "traceql",
-          "query": "{.service.name = \"source-taster-api\"}",
+          "queryType": "nativeSearch",
+          "serviceName": "source-taster-api",
+          "query": "",
           "refId": "A"
         }
       ],
