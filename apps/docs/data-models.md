@@ -55,15 +55,15 @@ The utilities are used by the matching engine and the UI to format or normalise 
   `normalize-typography`, `normalize-lowercase`, `normalize-identifiers`, `normalize-characters`, `normalize-whitespace`, `normalize-accents`, `normalize-umlauts`, `normalize-punctuation`, `normalize-unicode`, `normalize-urls`, `match-structured-dates`, `match-author-initials`, `match-volume-issue-numeric`, `match-page-range-overlap`, `match-container-title-variants`.
 - **`ApiMatchFieldConfigSchema`** – `enabled: boolean`, `weight: number (0–100)`.
 - **Default configuration** (`createDefaultFieldConfigurations`):
-  | Field | Weight |
-  | --- | --- |
-  | `title` | 30 |
-  | `author` | 25 |
-  | `issued` | 15 |
-  | `container-title` | 15 |
-  | `DOI` | 10 |
-  | `volume` | 3 |
-  | `page` | 2 |
+  | Field             | Weight |
+  | ----------------- | ------ |
+  | `title`           | 30     |
+  | `author`          | 25     |
+  | `issued`          | 15     |
+  | `container-title` | 15     |
+  | `DOI`             | 10     |
+  | `volume`          | 3      |
+  | `page`            | 2      |
 - **`ApiMatchMatchingSettingsSchema`** – `{ matchingStrategy, matchingConfig }`, default `balanced` plus the full normalisation set.
 - **Response (`ApiMatchResponseSchema`)** – `{ evaluations: [{ candidateId, matchDetails: { overallScore, fieldDetails[] } }] }`.
 

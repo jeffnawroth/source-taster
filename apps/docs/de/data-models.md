@@ -54,15 +54,15 @@ Diese Funktionen werden im Matching und in der UI zur Normalisierung und Darstel
 - **Normalisierungsregeln (`ApiMatchNormalizationRuleSchema`)**: `normalize-typography`, `normalize-lowercase`, `normalize-identifiers`, `normalize-characters`, `normalize-whitespace`, `normalize-accents`, `normalize-umlauts`, `normalize-punctuation`, `normalize-unicode`, `normalize-urls`, `match-structured-dates`, `match-author-initials`, `match-volume-issue-numeric`, `match-page-range-overlap`, `match-container-title-variants`.
 - **`ApiMatchFieldConfigSchema`** – `enabled: boolean`, `weight: number (0–100)`.
 - **Default-Konfiguration** (`createDefaultFieldConfigurations`):
-  | Feld | Gewicht |
-  | --- | --- |
-  | `title` | 30 |
-  | `author` | 25 |
-  | `issued` | 15 |
-  | `container-title` | 15 |
-  | `DOI` | 10 |
-  | `volume` | 3 |
-  | `page` | 2 |
+  | Feld              | Gewicht |
+  | ----------------- | ------- |
+  | `title`           | 30      |
+  | `author`          | 25      |
+  | `issued`          | 15      |
+  | `container-title` | 15      |
+  | `DOI`             | 10      |
+  | `volume`          | 3       |
+  | `page`            | 2       |
 - **`ApiMatchMatchingSettingsSchema`** – `{ matchingStrategy, matchingConfig }`, Default `balanced` plus vollständige Normalisierung.
 - **Antwort (`ApiMatchResponseSchema`)** – `{ evaluations: [{ candidateId, matchDetails: { overallScore, fieldDetails[] } }] }`.
 
