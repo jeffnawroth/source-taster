@@ -21,33 +21,33 @@ const href = computed(() => {
   const titleStr = props.title?.toString().toLowerCase() || ''
 
   // Handle DOI links - check if it's a DOI by looking for common DOI patterns
-  if (textStr.match(/^10\.\d{4,}/)) {
+  if (/^10\.\d{4,}/.test(textStr)) {
     return `https://doi.org/${textStr}`
   }
 
   // Handle PMID links - check if it's a numeric PMID
-  if (textStr.match(/^\d+$/) && titleStr.includes('pmid')) {
+  if (/^\d+$/.test(textStr) && titleStr.includes('pmid')) {
     return `https://pubmed.ncbi.nlm.nih.gov/${textStr}`
   }
 
   // Handle PMCID links - check for PMC pattern
-  if ((textStr.match(/^PMC\d+$/) || textStr.match(/^\d+$/)) && titleStr.includes('pmcid')) {
+  if ((/^PMC\d+$/.test(textStr) || /^\d+$/.test(textStr)) && titleStr.includes('pmcid')) {
     const pmcid = textStr.startsWith('PMC') ? textStr : `PMC${textStr}`
     return `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/`
   }
 
   // Handle arXiv ID links - check for arXiv patterns
-  if (textStr.match(/^\d{4}\.\d{4,5}(v\d+)?$/) || titleStr.includes('arxiv')) {
+  if (/^\d{4}\.\d{4,5}(?:v\d+)?$/.test(textStr) || titleStr.includes('arxiv')) {
     return `https://arxiv.org/abs/${textStr}`
   }
 
   // Handle ISSN links - check for ISSN patterns (XXXX-XXXX)
-  if (textStr.match(/^\d{4}-\d{3}[\dX]$/) || titleStr.includes('issn')) {
+  if (/^\d{4}-\d{3}[\dX]$/.test(textStr) || titleStr.includes('issn')) {
     return `https://portal.issn.org/api/search?search[]=MUST=allissnbis=%22${encodeURIComponent(textStr)}%22`
   }
 
   // Handle ISBN links - check for ISBN patterns (various formats)
-  if (textStr.match(/^\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?[\dX]$/) || titleStr.includes('isbn')) {
+  if (/^\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?[\dX]$/.test(textStr) || titleStr.includes('isbn')) {
     return `https://www.isbn.de/buecher/suche/${textStr}`
   }
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ApiExtractExtractionSettings, CSLVariable } from '@source-taster/types'
 import type { ResponseFormatJSONSchema } from 'openai/resources/shared.mjs'
 import { CSLItemSchema, LLMExtractPayloadSchema, LLMExtractReferenceSchema } from '@source-taster/types'
