@@ -43,4 +43,4 @@ RUN mkdir -p /app/.keystore
 VOLUME ["/app/.keystore"]
 
 EXPOSE 8000
-CMD ["node", "--import", "apps/api/dist/telemetry/instrumentation.js", "apps/api/dist/index.js"]
+CMD ["node", "apps/api/dist/index.js"]
