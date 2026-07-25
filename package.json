@@ -2,12 +2,12 @@
   "name": "source-taster",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@11.14.0",
   "description": "Browser extension and API for automated academic reference verification. Extracts, searches, and validates sources across 5 databases — detects AI-hallucinated references with 100% accuracy.",
   "engines": {
     "node": ">=22",
     "pnpm": ">=9"
   },
-  "packageManager": "pnpm@11.14.0",
   "scripts": {
     "dev": "pnpm run -r --parallel --aggregate-output dev",
     "build": "pnpm run -r build",
@@ -19,6 +19,12 @@
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
     "deploy": "pnpm build && pnpm run -r deploy",
+    "docker:build:api": "docker compose build api",
+    "docker:build:docs": "docker compose build docs",
+    "docker:build:landing": "docker compose build landing",
+    "docker:build:all": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
     "preinstall": "simple-git-hooks",
     "evaluation": "node evaluation/run-evaluation.js",
     "evaluation:export-crossref": "node evaluation/export-crossref-raw.js",
