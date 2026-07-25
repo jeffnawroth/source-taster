@@ -16,6 +16,8 @@
     "build:landing": "pnpm --filter @source-taster/landing build",
     "dev:landing": "pnpm --filter @source-taster/landing dev",
     "build:types": "pnpm --filter @source-taster/types build",
+    "typecheck": "pnpm run -r --parallel --aggregate-output typecheck",
+    "preview": "pnpm run -r --parallel preview",
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
     "deploy": "pnpm build && pnpm run -r deploy",
