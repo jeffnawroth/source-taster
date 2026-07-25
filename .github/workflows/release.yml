@@ -7,18 +7,24 @@ on:
 
 jobs:
   release:
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
-          fetch-depth: 0
-
+          version: 11
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-
-      - run: npx changelogithub
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm build
+      - run: pnpm --filter @source-taster/extension pack
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/extension/extension.zip
+            apps/extension/extension.xpi
+          generate_release_notes: true
