@@ -5,8 +5,8 @@
  */
 
 // Composables
-import type { RouteLocationNormalized } from 'vue-router/auto'
-import { createMemoryHistory, createRouter } from 'vue-router/auto'
+import type { RouteLocationNormalized } from 'vue-router'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import { handleHotUpdate, routes } from 'vue-router/auto-routes'
 
 const router = createRouter({
