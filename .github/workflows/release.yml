@@ -68,10 +68,10 @@ jobs:
           git commit -m "chore(release): v${VERSION} [skip ci]"
           git tag "v${VERSION}"
           git push origin --tags
+          git push origin main
 
       - name: Build extension packages
         run: |
-          pnpm install
           pnpm build
           pnpm --filter @source-taster/extension pack
 
