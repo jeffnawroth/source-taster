@@ -1,154 +1,135 @@
-# The Source Taster
+<p align="center">
+  <img src="apps/extension/extension/assets/icon128.png" width="64" alt="The Source Taster" />
+</p>
 
-Source Taster is a monorepo that combines a browser extension, a Hono-based API, and shared TypeScript packages to automate the extraction, search, and verification of academic references.
+<h1 align="center">The Source Taster</h1>
 
-## Highlights
+<p align="center">
+  <b>Browser extension + API for automated academic reference verification.</b><br>
+  Extract references, search 5 databases, and detect AI-hallucinated sources — 93% APA match rate, 100% hallucination detection, <3 seconds per reference.
+</p>
 
-- AI-assisted reference extraction with configurable CSL fields and strict Zod validation shared between backend and extension.
-- Multi-stage lookup across OpenAlex, Crossref, Semantic Scholar, Europe PMC, and arXiv with prioritisation and optional early termination.
-- Deterministic matching pipeline with weighted field configurations, normalisation rules, and score visualisation in the UI.
-- AnyStyle integration to tokenise references, edit labels manually, and convert them into CSL-JSON before matching.
-- Browser extension with context-menu import, PDF parsing (unpdf), and popup/side panel modes for Chrome and Firefox.
-- Encrypted storage of user-provided API keys in the backend keystore (AES-256-GCM) plus simple-git-hooks for clean commits.
+<p align="center">
+  <a href="https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp">Chrome Web Store</a> ·
+  <a href="https://github.com/jeffnawroth/source-taster/releases">Firefox Add-on</a> ·
+  <a href="https://sourcetaster.app">Landing Page</a> ·
+  <a href="https://sourcetaster.github.io/source-taster/">Documentation</a>
+</p>
 
-## Architecture at a Glance
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT" />
+  <img src="https://img.shields.io/badge/chrome-≥114-brightgreen" alt="Chrome" />
+  <img src="https://img.shields.io/badge/firefox-≥121-orange" alt="Firefox" />
+  <img src="https://img.shields.io/badge/node-≥20-339933" alt="Node" />
+</p>
 
-The workspace consists of `apps/extension` (Vue 3 + Vuetify), `apps/api` (Hono on Node 20), `apps/docs` (VitePress), and `packages/types` for shared types and schemas. High-level details live in [apps/docs/architecture.md](apps/docs/architecture.md).
+---
 
-```mermaid
-flowchart LR
-  subgraph Browser
-    UI[Extension UI<br/>Popup & Sidepanel]
-    Storage[WebExtension Storage<br/>clientId & Settings]
-  end
-  UI -->|X-Client-Id, JSON| API[(Source Taster API)]
-  API -->|/api/anystyle| AnyStyle[(AnyStyle Server)]
-  API -->|Fetch| External[(OpenAlex
-  Crossref
-  Semantic Scholar
-  Europe PMC
-  arXiv)]
-  API -->|LLM Extraction| AIProviders[(AI Providers<br/>OpenAI / Anthropic / Google / DeepSeek)]
-  TypesNode["@source-taster/types"]
-  API -->|Responses| UI
-  UI -.->|Normalisation & Matching Settings| TypesNode
-  API -.->|Shared Schemas| TypesNode
-```
+> **AI hallucinates fake references.** ChatGPT and other LLMs generate up to 40% fabricated citations. The Source Taster catches them — verified in a Master's thesis with **93% exact match rate** and **100% hallucination detection**.
 
-## Quick Start
+## Features
 
-1. **Prerequisites**
-   - Node.js 20 (see `apps/api/Dockerfile`).
-   - pnpm (via `corepack enable pnpm`).
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
-3. **Configure the API**
-   ```bash
-   cp apps/api/.env.example apps/api/.env
-   # Provide OPENAI_API_KEY, MASTER_KEY, and other required secrets
-   ```
-4. **Build shared types once**
-   ```bash
-   pnpm --filter @source-taster/types build
-   ```
-5. **Start the services** – see the next section for individual commands.
+- **🤖 AI-Powered Extraction** — Parse references from text or PDFs into structured CSL-JSON using AnyStyle or your preferred LLM (OpenAI, Anthropic, Google, DeepSeek). Supports batch extraction of entire bibliographies.
+- **🌐 5-Database Search** — Simultaneously query OpenAlex, Crossref, Semantic Scholar, Europe PMC, and arXiv with smart early termination.
+- **📊 Transparent Scoring** — Weighted field-by-field comparison using Levenshtein-Damerau distance. See exactly which fields matched and why.
+- **📄 PDF Import** — Drag-and-drop PDFs. Full text is parsed and all embedded references are extracted automatically.
+- **⚡ Batch Verification** — Check entire reference lists at once. Average <3 seconds per source.
+- **🔐 Privacy-First** — Stateless extension. API keys encrypted with AES-256-GCM. No telemetry.
 
-## Local Development
+## Quick Install
 
-- **All apps in parallel**: `pnpm dev`
-- **API (Hono + tsx watch)**: `pnpm --filter @source-taster/api dev`
-- **Extension (Chromium)**: `pnpm --filter @source-taster/extension dev`
-- **Extension (Firefox)**: `pnpm --filter @source-taster/extension dev-firefox`
-- **VitePress docs**: `pnpm --filter @source-taster/docs dev`
-- **Linting**: `pnpm lint`
-- **Extension type check**: `pnpm --filter @source-taster/extension typecheck`
-- **Types watch mode**: `pnpm --filter @source-taster/types dev`
+| Browser                       | Link                                                                                                            |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Chrome / Edge / Brave / Opera | [Chrome Web Store](https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp) |
+| Firefox                       | [GitHub Releases](https://github.com/jeffnawroth/source-taster/releases) (XPI)                                  |
 
-The extension dev scripts emit a build under `apps/extension/extension`. Load it via `chrome://extensions` (Load unpacked) or `about:debugging#/runtime/this-firefox`. The API expects an `X-Client-Id` header (see `apps/extension/src/logic/storage.ts`).
+No API key required for basic DOI-based verification. LLM features need a key from OpenAI, Anthropic, Google, or DeepSeek.
 
-## Configuration
-
-Core environment variables (see `apps/api/.env.example`):
-
-| Variable                                                | Purpose                                                                  |
-| ------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `AI_PROVIDER`, `OPENAI_MODEL`                           | Default AI provider/model (`openai`, `anthropic`, `google`, `deepseek`). |
-| `OPENAI_API_KEY`                                        | Dev fallback for AI calls when the user did not save a key yet.          |
-| `ALLOWED_EXTENSION_IDS`                                 | Production CORS whitelist for Chrome/Firefox extension IDs.              |
-| `SEMANTIC_SCHOLAR_API_KEY`                              | Recommended API token for Semantic Scholar.                              |
-| `CROSSREF_MAILTO`, `OPENALEX_MAILTO`, `EUROPEPMC_EMAIL` | “Polite pool” email addresses for better rate limits.                    |
-| `MASTER_KEY`, `KEY_DERIVATION_SALT`, `KEYSTORE_DIR`     | AES-256-GCM keystore configuration (one `.keystore` folder per server).  |
-| `ANYSTYLE_SERVER_URL`                                   | Ruby AnyStyle server URL (default `http://localhost:4567`).              |
-| `PORT`                                                  | API port (defaults to 8000).                                             |
-
-> **Note:** `/api/extract` fails without a valid `OPENAI_API_KEY`. The extension stores user keys via `/api/user/ai-secrets`, encrypted on the server.
-
-## Build & Release
-
-- **Full workspace build**: `pnpm build`
-- **API production build**:
-  ```bash
-  pnpm build:api
-  node --experimental-specifier-resolution=node --env-file=apps/api/.env apps/api/dist/index.js
-  ```
-  Alternatively: `docker compose up api --build` (spins up the AnyStyle container as well).
-- **Extension packaging**:
-  - Chromium ZIP: `pnpm --filter @source-taster/extension pack:zip`
-  - CRX (local signing): `pnpm --filter @source-taster/extension pack:crx`
-  - Firefox XPI: `pnpm --filter @source-taster/extension pack:xpi`
-- **Static docs build**: `pnpm --filter @source-taster/docs build` or `docker compose up docs --build`.
-
-Release automation (GitHub Actions) is described in [apps/docs/extension.md](apps/docs/extension.md) and [apps/docs/development.md](apps/docs/development.md).
-
-## API Snapshot
-
-| Method            | Path                           | Auth          | Description                                                               |
-| ----------------- | ------------------------------ | ------------- | ------------------------------------------------------------------------- |
-| `POST`            | `/api/extract`                 | `X-Client-Id` | AI extraction of references (LLM + Zod validation).                       |
-| `POST`            | `/api/search/:database`        | optional      | Searches `openalex`, `crossref`, `semanticscholar`, `europepmc`, `arxiv`. |
-| `POST`            | `/api/match`                   | optional      | Deterministic evaluation of candidates versus one reference.              |
-| `POST`            | `/api/anystyle/parse`          | optional      | Tokenises references through AnyStyle.                                    |
-| `POST`            | `/api/anystyle/convert-to-csl` | optional      | Converts AnyStyle tokens into CSL-JSON.                                   |
-| `POST/GET/DELETE` | `/api/user/ai-secrets`         | `X-Client-Id` | Stores, reads, and deletes encrypted user AI keys.                        |
-
-Minimal dev example:
+## Quick Start (Development)
 
 ```bash
-curl -X POST http://localhost:8000/api/extract \
-  -H 'Content-Type: application/json' \
-  -H 'X-Client-Id: 00000000-0000-4000-8000-000000000001' \
-  -d '{
-    "text": "Smith, J. (2024). Example Article. Journal, 12(3), 45-67. https://doi.org/10.1000/example",
-    "extractionSettings": { "extractionConfig": { "variables": ["title", "author", "issued", "DOI"] } },
-    "aiSettings": { "provider": "openai", "model": "gpt-5.6-terra" }
-  }'
+# Install pnpm (if not installed)
+corepack enable pnpm
+
+# Clone & install
+git clone https://github.com/jeffnawroth/source-taster.git
+cd source-taster
+pnpm install
+
+# Build shared types
+pnpm --filter @source-taster/types build
+
+# Start everything in parallel
+pnpm dev
 ```
 
-A full reference of schemas, error codes, and provider nuances is documented in [apps/docs/api.md](apps/docs/api.md).
+See the [development docs](apps/docs/development.md) for detailed setup, including API configuration and browser extension loading.
 
-## Quality Assurance
+## Architecture
 
-- ESLint (Antfu config) via `pnpm lint` and enforced with simple-git-hooks + lint-staged.
-- Type checks for the extension (`pnpm --filter @source-taster/extension typecheck`) and API (`pnpm --filter @source-taster/api build`).
-- Zod schemas from `@source-taster/types` guarantee runtime parity between backend and frontend.
-- **TODO:** Add automated integration/E2E tests for extraction, search, and matching flows.
+```
+Browser Extension (Vue 3 + Vuetify)
+  ↕ HTTP / JSON
+API (Hono on Node.js 20)
+  ↕ Fetch
+OpenAlex · Crossref · Semantic Scholar · Europe PMC · arXiv
+AnyStyle Server · AI Providers (OpenAI / Anthropic / Google / DeepSeek)
+```
+
+Shared Zod schemas in `packages/types` guarantee runtime parity between frontend and backend.
+
+## Project Structure
+
+```
+apps/
+  extension/    Vue 3 browser extension (Chrome + Firefox)
+  api/          Hono API server
+  docs/         VitePress documentation site
+  landing/      Astro marketing site
+packages/
+  types/        Shared Zod schemas & TypeScript types
+```
+
+## API Overview
+
+| Method            | Path                           | Description                                                    |
+| ----------------- | ------------------------------ | -------------------------------------------------------------- |
+| `POST`            | `/api/extract`                 | AI extraction with Zod-validated output                        |
+| `POST`            | `/api/search/:database`        | Search OpenAlex, Crossref, Semantic Scholar, Europe PMC, arXiv |
+| `POST`            | `/api/match`                   | Deterministic scoring against candidates                       |
+| `POST`            | `/api/anystyle/parse`          | Tokenize references via AnyStyle                               |
+| `POST`            | `/api/anystyle/convert-to-csl` | Convert tokens to CSL-JSON                                     |
+| `POST/GET/DELETE` | `/api/user/ai-secrets`         | Manage encrypted user API keys                                 |
+
+Full reference: [API docs](apps/docs/api.md)
+
+## Validation & Quality
+
+- **97.2% F1-score** on APA references (Master's thesis evaluation, n=425 survey, curated test sets)
+- **100%** synthetic hallucination detection rate
+- ESLint (Antfu config) + simple-git-hooks + lint-staged
+- TypeScript strict mode across all packages
+- Zod runtime validation on all API contracts
 
 ## Documentation
 
-- [apps/docs/intro.md](apps/docs/intro.md) – overview & goals
-- [apps/docs/architecture.md](apps/docs/architecture.md) – component & sequence diagrams
-- [apps/docs/development.md](apps/docs/development.md) – setup, scripts, troubleshooting
-- [apps/docs/api.md](apps/docs/api.md) – endpoints, examples, errors
-- [apps/docs/extension.md](apps/docs/extension.md) – build, load, manifest
-- [apps/docs/data-models.md](apps/docs/data-models.md) – CSL models, schemas, defaults
-- [apps/docs/matching-scoring.md](apps/docs/matching-scoring.md) – normalisation, heuristics, thresholds
-- [apps/docs/changelog.md](apps/docs/changelog.md) – change history
-- [apps/docs/migration.md](apps/docs/migration.md) – breaking changes & TODOs
-
-Equivalent German pages live under `apps/docs/de/`.
+| Topic                     | Link                                                                         |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| Overview & goals          | [EN](apps/docs/intro.md) · [DE](apps/docs/de/intro.md)                       |
+| Architecture              | [EN](apps/docs/architecture.md)                                              |
+| Development setup         | [EN](apps/docs/development.md) · [DE](apps/docs/de/development.md)           |
+| API reference             | [EN](apps/docs/api.md) · [DE](apps/docs/de/api.md)                           |
+| Extension build & release | [EN](apps/docs/extension.md) · [DE](apps/docs/de/extension.md)               |
+| Data models & schemas     | [EN](apps/docs/data-models.md) · [DE](apps/docs/de/data-models.md)           |
+| Matching & scoring        | [EN](apps/docs/matching-scoring.md) · [DE](apps/docs/de/matching-scoring.md) |
+| Changelog                 | [EN](apps/docs/changelog.md) · [DE](apps/docs/de/changelog.md)               |
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © Jeff Nawroth
+
+---
+
+<p align="center">
+  <sub>Built as a Master's thesis at the University of Siegen · Nawroth & Cicek (2025)</sub>
+</p>
