@@ -6,7 +6,7 @@ titleTemplate: Browser extension and API for automated source verification
 hero:
   name: "The Source Taster"
   text: "Automated academic reference verification"
-  tagline: "Extract, search, and validate references across 5 databases — <3 seconds per source.<br><strong>Detects AI-hallucinated references with 100% accuracy.</strong>"
+  tagline: "Extract, search, and validate references across 5 databases — <3 seconds per source.<br><strong>100% hallucination detection rate.</strong>"
   image:
     src: /web-app-manifest-192x192.png
     alt: The Source Taster

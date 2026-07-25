@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "The Source Taster",
   "version": "2.1.3",
-  "description": "Automated academic reference verification. Extract, search 5 databases, detect AI-hallucinated sources — 93% APA match rate, 100% hallucination detection.",
+  "description": "Automated academic reference verification. Extract, search 5 databases, detect AI-hallucinated sources. 93% APA match rate.",
   "action": {
     "default_icon": {
       "16": "assets/icon16.png",

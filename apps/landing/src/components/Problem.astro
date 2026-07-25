@@ -1,0 +1,64 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section" id="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div class="problem-content fade-in">
+        <h2 class="section-title" style="text-align:left;font-size:clamp(1.3rem,2.5vw,1.8rem)">{t.problem.title}</h2>
+        <p class="problem-desc">{t.problem.desc}</p>
+        <ul class="problem-list">
+          {t.problem.items.map(item => (
+            <li>
+              <span class="problem-bullet"></span>
+              <span><strong>{item.num}</strong> {item.text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="problem-visual fade-in fade-in-d1">
+        <blockquote class="problem-quote">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" style="margin-bottom:12px"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 2v7c0 1.25.75 2 2 2c0 0 4 0 4 4c0 2-1 3-3 3m9 0c3 0 7-1 7-8V5c0-1.25-.756-2-2-2h-4c-1.25 0-2 .75-2 2v7c0 1.25.75 2 2 2c0 0 4 0 4 4c0 2-1 3-3 3"/></svg>
+          {t.problem.quote}
+          <div class="problem-quote-author">{t.problem.quoteAuthor}</div>
+        </blockquote>
+        <div class="problem-accent"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.problem-desc{color:var(--text2);margin-bottom:24px;line-height:1.7}
+.problem-list{list-style:none;display:flex;flex-direction:column;gap:12px}
+.problem-list li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:16px 20px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--p);font-size:.95rem;line-height:1.5;
+}
+.problem-list li strong{color:var(--p)}
+.problem-bullet{width:6px;height:6px;border-radius:50%;background:var(--p);flex-shrink:0;margin-top:7px}
+.problem-visual{
+  background:var(--p-d);border-radius:var(--r);padding:36px;
+  color:#e0d8f0;position:relative;overflow:hidden;min-height:280px;display:flex;flex-direction:column;justify-content:center;
+}
+.problem-visual::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 40% 50%,rgba(78,46,146,0.4),transparent 70%);
+}
+.problem-quote{position:relative;z-index:1;font-size:.95rem;line-height:1.8;font-style:italic;opacity:.92}
+.problem-quote-author{margin-top:16px;font-size:.82rem;opacity:.55;font-style:normal}
+.problem-accent{
+  position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;
+  border-radius:50%;background:radial-gradient(circle,rgba(31,107,124,0.15),transparent 70%);
+}
+
+@media(max-width:768px){
+  .problem-grid{grid-template-columns:1fr;gap:32px}
+  .problem-visual{min-height:auto;padding:28px}
+}
+</style>

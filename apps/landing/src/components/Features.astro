@@ -1,0 +1,47 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section section-alt" id="features">
+  <div class="container">
+    <h2 class="section-title fade-in">{t.features.title}</h2>
+    <p class="section-sub fade-in fade-in-d1">{t.features.sub}</p>
+    <div class="features-bento">
+      {t.features.items.map((f, i) => (
+        <article class="feature-card fade-in" class:list={[`fade-in-d${(i % 4) + 1}`]}>
+          <div class="feature-icon" style={`background:${f.color}`}>{f.icon}</div>
+          <h3>{f.title}</h3>
+          <p>{f.desc}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.features-bento{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feature-card{
+  padding:28px;border-radius:var(--r);
+  background:var(--bg);border:1px solid var(--border);
+  transition:transform .2s,box-shadow .2s;
+}
+.feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.feature-card:nth-child(4){grid-column:1/3}
+.feature-icon{
+  width:44px;height:44px;border-radius:10px;display:grid;place-items:center;
+  font-size:1.3rem;margin-bottom:18px;color:#fff;
+}
+.feature-card h3{font-size:1.05rem;margin-bottom:8px;line-height:1.4}
+.feature-card p{font-size:.9rem;color:var(--text2);line-height:1.65}
+
+@media(max-width:900px){
+  .features-bento{grid-template-columns:repeat(2,1fr)}
+  .feature-card:nth-child(4){grid-column:auto}
+}
+@media(max-width:560px){
+  .features-bento{grid-template-columns:1fr}
+}
+</style>

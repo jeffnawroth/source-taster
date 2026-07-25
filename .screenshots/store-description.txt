@@ -1,0 +1,51 @@
+── Short Description ──
+(132 chars, in manifest)
+
+Browser extension for automated academic reference verification. Extract, search 5 databases, and detect AI-hallucinated sources — 93% APA match rate, 100% hallucination detection.
+
+── Detailed Description ──
+(for Chrome Web Store product details)
+
+ChatGPT and other LLMs are known to generate academic references that look real but don't exist — up to 40% of AI-generated citations are fabricated. Traditional plagiarism checkers can't catch them.
+
+The Source Taster is an open‑source browser extension that extracts, searches, and validates academic references in seconds. It checks each citation against five academic databases simultaneously and provides a transparent, field‑by‑field confidence score using fuzzy‑string matching (Levenshtein‑Damerau).
+
+── Features ──
+
+✓ Extract references from any text or PDF — paste them or drag‑and‑drop a PDF; AnyStyle or an LLM parses them into structured data.
+✓ Search 5 databases at once — OpenAlex, Crossref, Semantic Scholar, Europe PMC, and arXiv. Smart early termination stops searching once a high‑confidence match is found.
+✓ Field‑by‑field scoring — every decision is transparent. See exactly which fields matched (title, authors, year, journal, DOI) and by how much.
+✓ Classify results instantly — Exact Match, Strong Match, Possible Match, or No Match. Each classification includes the evidence behind it.
+✓ Batch‑verify entire bibliographies — check a full reference list in one pass. Average time: under 3 seconds per source.
+✓ Privacy‑first — the extension is stateless. API keys are AES‑256‑GCM encrypted and stored in the backend keystore; no data persists on your machine.
+
+── Validated Accuracy ──
+
+Tested in a controlled study (Master's thesis, University of Siegen, 2025):
+• 93% exact‑match rate on genuine APA references (avg score 99.11%)
+• 100% hallucination detection — every fabricated reference was correctly flagged
+• 96.22% robustness score on perturbed references
+• <3 seconds average processing time per reference
+
+Supports 10+ citation styles: APA, MLA, Chicago, IEEE, Vancouver, Harvard, ACS, AMA, Oxford, Springer.
+
+── Open Source ──
+
+The Source Taster is MIT‑licensed and available on GitHub. Self‑host the backend with Docker and bring your own AI key to use it completely free and without limits.
+
+→ GitHub: https://github.com/jeffnawroth/source-taster
+→ Documentation: https://source-taster.app/docs
+
+── Compatibility ──
+
+Works on Chrome 114+, Edge 114+, Brave, Opera, and other Chromium‑based browsers. Also available for Firefox.
+
+── Store Assets Checklist ──
+
+□ Icon 128px:   apps/extension/extension/assets/icon128.png
+□ Screenshot 1: .screenshots/01-main-view.png
+□ Screenshot 2: .screenshots/02-match-details.png
+□ Screenshot 3: .screenshots/03-input-pdf.png
+□ Screenshot 4: .screenshots/04-settings.png
+□ Screenshot 5: .screenshots/05-report.png
+□ Extension:    apps/extension/extension.zip

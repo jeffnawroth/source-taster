@@ -10,35 +10,41 @@ import { de, en } from 'vuetify/locale'
 // @ts-expect-error - vuetify styles import has TypeScript declaration issues
 import 'vuetify/styles'
 
-// const brandLightColors = {
-//   'primary': '#4F2D91',
-//   'primary-darken-1': '#43267B',
-//   'primary-lighten-1': '#7257A7',
-//   'secondary': '#4266AC',
-//   'secondary-darken-1': '#385792',
-//   'secondary-lighten-1': '#6885BD',
-//   'accent': '#45A2B5',
-//   'accent-darken-1': '#3B8A9A',
-//   'accent-lighten-1': '#6AB5C4',
-//   'on-primary': '#FFFFFF',
-//   'on-secondary': '#FFFFFF',
-//   'on-accent': '#FFFFFF',
-// } as const
+const brandLightColors = {
+  'primary': '#4e2e92',
+  'primary-darken-1': '#3a1f6e',
+  'primary-lighten-1': '#6b4db8',
+  'secondary': '#1f6b7c',
+  'secondary-darken-1': '#15505e',
+  'secondary-lighten-1': '#45a3b5',
+  'accent': '#c9952e',
+  'accent-darken-1': '#a87a1f',
+  'accent-lighten-1': '#e0b352',
+  'success': '#2d7a31',
+  'success-lighten-1': '#70c875',
+  'on-primary': '#FFFFFF',
+  'on-secondary': '#FFFFFF',
+  'on-accent': '#FFFFFF',
+  'on-success': '#FFFFFF',
+} as const
 
-// const brandDarkColors = {
-//   'primary': '#8B78BF',
-//   'primary-darken-1': '#7257A7',
-//   'primary-lighten-1': '#A796C8',
-//   'secondary': '#5C80C3',
-//   'secondary-darken-1': '#4266AC',
-//   'secondary-lighten-1': '#6D90CD',
-//   'accent': '#45A2B5',
-//   'accent-darken-1': '#3B8A9A',
-//   'accent-lighten-1': '#60B5C5',
-//   'on-primary': '#1B102F',
-//   'on-secondary': '#0A172D',
-//   'on-accent': '#082127',
-// } as const
+const brandDarkColors = {
+  'primary': '#8B78BF',
+  'primary-darken-1': '#6b4db8',
+  'primary-lighten-1': '#a796c8',
+  'secondary': '#45a3b5',
+  'secondary-darken-1': '#1f6b7c',
+  'secondary-lighten-1': '#5cc0d4',
+  'accent': '#e0b352',
+  'accent-darken-1': '#c9952e',
+  'accent-lighten-1': '#edcc7a',
+  'success': '#70c875',
+  'success-darken-1': '#2d7a31',
+  'on-primary': '#1B102F',
+  'on-secondary': '#082127',
+  'on-accent': '#1a1408',
+  'on-success': '#0a1f0b',
+} as const
 
 const vuetify = createVuetify({
   locale: {
@@ -52,15 +58,15 @@ const vuetify = createVuetify({
     defaultTheme: 'system',
     themes: {
       light: {
-        // colors: {
-        //   ...brandLightColors,
-        // },
+        colors: {
+          ...brandLightColors,
+        },
       },
       dark: {
         dark: true,
-        // colors: {
-        //   ...brandDarkColors,
-        // },
+        colors: {
+          ...brandDarkColors,
+        },
       },
     },
   },

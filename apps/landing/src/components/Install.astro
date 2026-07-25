@@ -1,0 +1,55 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section" id="install">
+  <div class="container" style="max-width:800px">
+    <h2 class="section-title fade-in">{t.install.title}</h2>
+    <p class="section-sub fade-in fade-in-d1">{t.install.sub}</p>
+    <div class="install-grid">
+      <a href="https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp" target="_blank" rel="noopener" class="install-card fade-in fade-in-d1">
+        <div class="install-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 2c2.82 0 5.29 1.28 6.94 3.29L12 12V4zm0 8l6.94 6.71A7.957 7.957 0 0112 20c-4.41 0-8-3.59-8-8s3.59-8 8-8v8z" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <h3>{t.install.chrome}</h3>
+          <p>{t.install.chromeLabel}</p>
+        </div>
+        <span class="btn btn-primary btn-sm">{t.lang === 'de' ? 'Hinzufügen' : 'Add to Chrome'}</span>
+      </a>
+      <a href="https://github.com/jeffnawroth/source-taster/releases" target="_blank" rel="noopener" class="install-card fade-in fade-in-d2">
+        <div class="install-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <h3>{t.install.firefox}</h3>
+          <p>{t.install.firefoxLabel}</p>
+        </div>
+        <span class="btn btn-primary btn-sm">{t.lang === 'de' ? 'Herunterladen' : 'Download'}</span>
+      </a>
+    </div>
+    <p class="install-note">{t.install.note}</p>
+  </div>
+</section>
+
+<style is:global>
+.install-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.install-card{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  padding:32px 24px;border-radius:var(--r);
+  background:var(--bg);border:2px solid var(--border);text-align:center;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.install-card:hover{transform:translateY(-4px);border-color:var(--p-l);box-shadow:var(--shadow-lg);text-decoration:none}
+.install-icon{color:var(--p-l)}
+.install-card h3{font-size:1.15rem;margin-bottom:4px;color:var(--text)}
+.install-card p{font-size:.85rem;color:var(--text2);line-height:1.5}
+.install-note{text-align:center;margin-top:28px;color:var(--text2);font-size:.85rem}
+
+@media(max-width:600px){
+  .install-grid{grid-template-columns:1fr}
+}
+</style>

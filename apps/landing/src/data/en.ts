@@ -22,7 +22,7 @@ const en: T = {
       { num: '93%', label: 'Verification rate' },
       { num: '100%', label: 'Hallucination detection' },
       { num: '<3s', label: 'per reference' },
-      { num: '5+', label: 'Metadata sources' },
+      { num: '5+', label: 'Academic databases' },
     ],
   },
   problem: {

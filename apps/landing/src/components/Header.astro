@@ -1,0 +1,113 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<header class="header">
+  <div class="container header-inner">
+    <a href={t.url} class="logo" aria-label="Home">
+      <img src="/logo.svg" alt="The Source Taster" class="logo-img" width="133" height="36" />
+    </a>
+    <nav class="nav" id="nav">
+      <a href={t.url + '#features'}>{t.header.features}</a>
+      <a href={t.url + '#evaluation'}>{t.header.evaluation}</a>
+      <a href={t.url + '#pricing'}>{t.header.pricing}</a>
+      <a href={t.url + '#faq'}>{t.header.faq}</a>
+      <a href={t.url + '#install'} class="nav-cta">{t.header.install}</a>
+      <div class="nav-actions">
+        <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
+          <span class="theme-icon-light">🌙</span>
+          <span class="theme-icon-dark">☀️</span>
+        </button>
+        <a href={t.altUrl} class="lang-btn" aria-label="Switch language">
+          {t.lang === 'de' ? 'EN' : 'DE'}
+        </a>
+      </div>
+    </nav>
+    <button class="menu-btn" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<script>
+const menuBtn = document.getElementById('menuToggle')
+const nav = document.getElementById('nav')
+menuBtn?.addEventListener('click', () => {
+  nav?.classList.toggle('open')
+  menuBtn.classList.toggle('open')
+})
+
+const themeBtn = document.getElementById('themeToggle')
+function loadTheme() {
+  const saved = localStorage.getItem('st-theme') || 'system'
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const theme = saved === 'system' ? (prefersDark ? 'dark' : 'light') : saved
+  document.documentElement.setAttribute('data-theme', theme)
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme')
+  const next = current === 'dark' ? 'light' : 'dark'
+  document.documentElement.setAttribute('data-theme', next)
+  localStorage.setItem('st-theme', next)
+}
+themeBtn?.addEventListener('click', toggleTheme)
+loadTheme()
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (localStorage.getItem('st-theme') === 'system') loadTheme()
+})
+</script>
+
+<style is:global>
+.header {
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  transition:background .3s;
+}
+[data-theme="dark"] .header{background:rgba(15,15,26,0.88)}
+.header-inner{
+  display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px;
+}
+.logo{display:flex;align-items:center;gap:10px;color:var(--text)!important}
+.logo-img{display:block;height:30px;width:auto}
+.nav{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.nav a{
+  color:var(--text2);font-size:.9rem;padding:8px 14px;border-radius:6px;transition:all .15s;
+}
+.nav a:hover{color:var(--text);background:rgba(78,46,146,0.06);text-decoration:none}
+.nav .nav-cta{
+  background:var(--grad);color:#fff!important;
+  background-size:200% 200%;animation:gradientShift 4s ease infinite;
+  padding:8px 20px;border-radius:6px;font-weight:600;
+}
+.nav .nav-cta:hover{opacity:.9;background:var(--p-l)}
+.nav-actions{display:flex;align-items:center;gap:4px;margin-left:8px}
+.theme-btn{
+  background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:6px;
+  font-size:1.05rem;color:var(--text2);transition:all .15s;
+}
+.theme-btn:hover{background:var(--bg2);color:var(--text)}
+[data-theme="dark"] .theme-icon-light{display:none}
+[data-theme="light"] .theme-icon-dark{display:none}
+html:not([data-theme]) .theme-icon-dark{display:none}
+.lang-btn{
+  padding:6px 12px;border-radius:6px;font-size:.8rem;font-weight:700;
+  background:var(--bg2);color:var(--text2)!important;transition:all .15s;
+}
+.lang-btn:hover{background:var(--p);color:#fff!important;text-decoration:none}
+.menu-btn{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:8px}
+.menu-btn span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .25s}
+.menu-btn.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.menu-btn.open span:nth-child(2){opacity:0}
+.menu-btn.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+
+@media(max-width:768px){
+  .nav{display:none;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:var(--bg);padding:16px;gap:8px;border-bottom:1px solid var(--border);box-shadow:var(--shadow-lg)}
+  .nav.open{display:flex}
+  .nav-actions{margin-left:0}
+  .menu-btn{display:flex}
+}
+</style>

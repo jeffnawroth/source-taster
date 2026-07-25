@@ -1,0 +1,50 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section section-alt" id="evaluation">
+  <div class="container">
+    <h2 class="section-title fade-in">{t.eval.title}</h2>
+    <p class="section-sub fade-in fade-in-d1">{t.eval.sub}</p>
+    <div class="eval-grid">
+      {t.eval.cards.map((c, i) => (
+        <div class="eval-card fade-in" class:list={[`fade-in-d${i + 1}`]}>
+          <div class="eval-num" style={`color:${c.color}`}>{c.num}</div>
+          <div class="eval-label">{c.label}</div>
+          <div class="eval-desc">{c.desc}</div>
+        </div>
+      ))}
+    </div>
+    <div class="eval-badges">
+      {t.eval.badges.map(b => <span class="badge">{b}</span>)}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.eval-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.eval-card{
+  text-align:center;padding:32px 20px;border-radius:var(--r);
+  background:var(--bg);border:1px solid var(--border);
+  transition:transform .2s,box-shadow .2s;
+}
+.eval-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.eval-num{font-size:2.6rem;font-weight:800;line-height:1;margin-bottom:8px}
+.eval-label{font-size:.88rem;font-weight:600;margin-bottom:8px}
+.eval-desc{font-size:.8rem;color:var(--text2);line-height:1.5;max-width:220px;margin:0 auto}
+.eval-badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:36px}
+.badge{
+  padding:6px 16px;border-radius:20px;background:var(--bg2);
+  font-size:.82rem;font-weight:500;border:1px solid var(--border);color:var(--text2);
+}
+
+@media(max-width:768px){
+  .eval-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:450px){
+  .eval-grid{grid-template-columns:1fr}
+}
+</style>

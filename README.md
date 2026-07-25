@@ -25,7 +25,7 @@
 
 ---
 
-> **AI hallucinates fake references.** ChatGPT and other LLMs generate up to 40% fabricated citations. The Source Taster catches them — verified in a Master's thesis with **93% exact match rate** and **100% hallucination detection**.
+> **AI hallucinates fake references.** ChatGPT and other LLMs generate up to 40% fabricated citations. The Source Taster catches them — verified in a Master's thesis with **93% APA exact match rate** and **100% hallucination detection**.
 
 ## Features
 

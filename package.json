@@ -2,6 +2,7 @@
   "name": "source-taster",
   "type": "module",
   "private": true,
+  "description": "Browser extension and API for automated academic reference verification. Extracts, searches, and validates sources across 5 databases — detects AI-hallucinated references with 100% accuracy.",
   "engines": {
     "node": ">=22",
     "pnpm": ">=9"
@@ -12,6 +13,8 @@
     "build": "pnpm run -r build",
     "build:api": "pnpm --filter @source-taster/api build",
     "build:extension": "pnpm --filter @source-taster/extension build",
+    "build:landing": "pnpm --filter @source-taster/landing build",
+    "dev:landing": "pnpm --filter @source-taster/landing dev",
     "build:types": "pnpm --filter @source-taster/types build",
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
