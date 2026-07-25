@@ -19,40 +19,40 @@ export interface T {
     sub: string
     cta: string
     github: string
-    stats: { num: string; label: string }[]
+    stats: { num: string, label: string }[]
   }
   problem: {
     title: string
     desc: string
-    items: { num: string; text: string }[]
+    items: { num: string, text: string }[]
     quote: string
     quoteAuthor: string
   }
   features: {
     title: string
     sub: string
-    items: { icon: string; title: string; desc: string; color: string }[]
+    items: { icon: string, title: string, desc: string, color: string }[]
   }
   how: {
     title: string
     sub: string
-    steps: { title: string; desc: string }[]
+    steps: { title: string, desc: string }[]
   }
   eval: {
     title: string
     sub: string
-    cards: { num: string; label: string; desc: string; color: string }[]
+    cards: { num: string, label: string, desc: string, color: string }[]
     badges: string[]
   }
   tech: {
     title: string
     sub: string
-    items: { title: string; entries: string[] }[]
+    items: { title: string, entries: string[] }[]
   }
   faq: {
     title: string
     sub: string
-    items: { q: string; a: string }[]
+    items: { q: string, a: string }[]
   }
   install: {
     title: string
@@ -84,7 +84,7 @@ export interface T {
   social: {
     title: string
     sub: string
-    cards: { num: string; label: string; desc: string; color: string }[]
+    cards: { num: string, label: string, desc: string, color: string }[]
     quote: string
     quoteAuthor: string
   }

@@ -25,6 +25,7 @@ outline: deep
 ### Einzelne verdächtige Referenz prüfen
 
 Eine Quellenangabe gefunden, die komisch wirkt? Füge sie direkt in die Extension ein:
+
 - **Exakte Übereinstimmung (grün)** — Die Referenz existiert in akademischen Datenbanken
 - **Mögliche Übereinstimmung (gelb)** — Teilweise Übereinstimmung — prüfe die Abweichungen
 - **Keine Übereinstimmung (rot)** — In keiner Datenbank gefunden — wahrscheinlich halluziniert

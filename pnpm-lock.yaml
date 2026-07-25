@@ -302,6 +302,10 @@ importers:
       astro:
         specifier: ^5.18.2
         version: 5.18.2(@types/node@24.13.3)(jiti@2.7.0)(rollup@4.62.2)(tsx@4.23.1)(typescript@5.9.3)(yaml@2.9.0)
+    devDependencies:
+      '@source-taster/eslint-config':
+        specifier: workspace:^
+        version: link:../../packages/eslint-config
 
   packages/eslint-config:
     devDependencies:

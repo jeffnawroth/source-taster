@@ -24,12 +24,12 @@ The Source Taster gives you a fast, transparent way to verify every reference in
 
 ### What the Scores Mean
 
-| Score | Classification | Action |
-|---|---|---|
-| ≥90% | Exact Match | Verified — exists in academic databases |
-| 70–89% | Strong Match | Likely real — minor formatting differences |
+| Score  | Classification | Action                                           |
+| ------ | -------------- | ------------------------------------------------ |
+| ≥90%   | Exact Match    | Verified — exists in academic databases          |
+| 70–89% | Strong Match   | Likely real — minor formatting differences       |
 | 40–69% | Possible Match | Check manually — author, title, or year mismatch |
-| <40% | No Match | Not found — likely hallucinated |
+| <40%   | No Match       | Not found — likely hallucinated                  |
 
 ## Transparent Scoring
 
@@ -60,6 +60,7 @@ No black box — you see exactly why each reference scored what it did.
 ## Accuracy
 
 Validated in a controlled Master's thesis study at the University of Siegen:
+
 - **93%** exact-match rate on genuine APA references
 - **100%** hallucination detection on synthetic fabrications
 - **<3 seconds** average processing time per reference

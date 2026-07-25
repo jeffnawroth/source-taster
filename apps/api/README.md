@@ -15,9 +15,9 @@ The API starts on `http://localhost:8000`.
 
 Copy `.env.example` to `.env` and configure at minimum:
 
-| Variable | Description |
-|---|---|
-| `OPENAI_API_KEY` | Required for `/api/extract` |
+| Variable          | Description                                |
+| ----------------- | ------------------------------------------ |
+| `OPENAI_API_KEY`  | Required for `/api/extract`                |
 | `CROSSREF_MAILTO` | Polite pool email for Crossref rate limits |
 
 See [apps/docs/api.md](../docs/api.md) for a full reference of all endpoints, schemas, and error codes.

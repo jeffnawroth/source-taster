@@ -25,6 +25,7 @@ outline: deep
 ### Checking a Single Suspicious Reference
 
 Found a citation that looks off? Paste it directly into the extension:
+
 - **Exact Match (green)** — The reference exists in academic databases
 - **Possible Match (yellow)** — Partial match — review the differences
 - **No Match (red)** — Not found in any database — likely hallucinated

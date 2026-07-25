@@ -24,12 +24,12 @@ The Source Taster bietet eine schnelle, transparente Möglichkeit, jede Referenz
 
 ### Was die Bewertungen bedeuten
 
-| Score | Klassifikation | Handlung |
-|---|---|---|
-| ≥90 % | Exakte Übereinstimmung | Verifiziert — existiert in akademischen Datenbanken |
-| 70–89 % | Starke Übereinstimmung | Wahrscheinlich echt — geringe Formatierungsunterschiede |
-| 40–69 % | Mögliche Übereinstimmung | Manuell prüfen — Autor, Titel oder Jahr abweichend |
-| <40 % | Keine Übereinstimmung | Nicht gefunden — wahrscheinlich halluziniert |
+| Score   | Klassifikation           | Handlung                                                |
+| ------- | ------------------------ | ------------------------------------------------------- |
+| ≥90 %   | Exakte Übereinstimmung   | Verifiziert — existiert in akademischen Datenbanken     |
+| 70–89 % | Starke Übereinstimmung   | Wahrscheinlich echt — geringe Formatierungsunterschiede |
+| 40–69 % | Mögliche Übereinstimmung | Manuell prüfen — Autor, Titel oder Jahr abweichend      |
+| <40 %   | Keine Übereinstimmung    | Nicht gefunden — wahrscheinlich halluziniert            |
 
 ## Transparentes Scoring
 
@@ -60,6 +60,7 @@ Keine Blackbox — du siehst genau, warum jede Referenz wie bewertet wurde.
 ## Genauigkeit
 
 Validiert in einer kontrollierten Masterarbeit an der Universität Siegen:
+
 - **93 %** exakte Trefferquote bei echten APA-Referenzen
 - **100 %** Erkennung synthetischer Fälschungen
 - **<3 Sekunden** durchschnittliche Verarbeitungszeit pro Referenz

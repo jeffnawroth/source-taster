@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "@source-taster/eslint-config": "workspace:^"
   }
 }
