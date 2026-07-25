@@ -24,5 +24,3 @@ RUN pnpm --filter @source-taster/docs build
 FROM nginx:1.27-alpine AS runtime
 COPY --from=build /app/apps/docs/.vitepress/dist /usr/share/nginx/html
 EXPOSE 80
-
-

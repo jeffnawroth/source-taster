@@ -67,6 +67,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    # statische Astro-Site — kein depends_on nötig
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -143,7 +144,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/provisioning/dashboards/observability.json
       GF_FEATURE_TOGGLE_ENABLE: alertingSimplifiedRouting
-      # SMTP – setze deine Zugangsdaten ein, damit E-Mail-Alerts funktionieren
+      # SMTP — setze GF_SMTP_HOST / GF_SMTP_USER / GF_SMTP_PASSWORD als Environment-Variablen
       GF_SMTP_ENABLED: 'true'
       GF_SMTP_HOST: ${GF_SMTP_HOST:-}
       GF_SMTP_USER: ${GF_SMTP_USER:-}
