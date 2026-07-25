@@ -11,15 +11,15 @@ import { de, en } from 'vuetify/locale'
 import 'vuetify/styles'
 
 const brandLightColors = {
-  'primary': '#4e2e92',
-  'primary-darken-1': '#3a1f6e',
-  'primary-lighten-1': '#6b4db8',
-  'secondary': '#1f6b7c',
-  'secondary-darken-1': '#15505e',
-  'secondary-lighten-1': '#45a3b5',
-  'accent': '#c9952e',
-  'accent-darken-1': '#a87a1f',
-  'accent-lighten-1': '#e0b352',
+  'primary': '#5B2D8E',
+  'primary-darken-1': '#3D1A6B',
+  'primary-lighten-1': '#7B4DB8',
+  'secondary': '#1A7A7A',
+  'secondary-darken-1': '#0F5A5A',
+  'secondary-lighten-1': '#3FA8A8',
+  'accent': '#D4A030',
+  'accent-darken-1': '#B07A1F',
+  'accent-lighten-1': '#E0B85C',
   'success': '#2d7a31',
   'success-lighten-1': '#70c875',
   'on-primary': '#FFFFFF',
@@ -29,21 +29,21 @@ const brandLightColors = {
 } as const
 
 const brandDarkColors = {
-  'primary': '#8B78BF',
-  'primary-darken-1': '#6b4db8',
-  'primary-lighten-1': '#a796c8',
-  'secondary': '#45a3b5',
-  'secondary-darken-1': '#1f6b7c',
-  'secondary-lighten-1': '#5cc0d4',
-  'accent': '#e0b352',
-  'accent-darken-1': '#c9952e',
-  'accent-lighten-1': '#edcc7a',
+  'primary': '#7B4DB8',
+  'primary-darken-1': '#5B2D8E',
+  'primary-lighten-1': '#9B6BC8',
+  'secondary': '#5CC0C0',
+  'secondary-darken-1': '#1A7A7A',
+  'secondary-lighten-1': '#7DD8D8',
+  'accent': '#E8C870',
+  'accent-darken-1': '#D4A030',
+  'accent-lighten-1': '#F0D080',
   'success': '#70c875',
   'success-darken-1': '#2d7a31',
-  'on-primary': '#1B102F',
-  'on-secondary': '#082127',
+  'on-primary': '#FFFFFF',
+  'on-secondary': '#FFFFFF',
   'on-accent': '#1a1408',
-  'on-success': '#0a1f0b',
+  'on-success': '#FFFFFF',
 } as const
 
 const vuetify = createVuetify({

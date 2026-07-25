@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/extension/extension/assets/icon128.png" width="64" alt="The Source Taster" />
+  <img src="apps/landing/public/favicon.svg" width="64" alt="The Source Taster" />
 </p>
 
 <h1 align="center">The Source Taster</h1>

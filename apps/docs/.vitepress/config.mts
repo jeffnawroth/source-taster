@@ -71,11 +71,14 @@ export default withMermaid(
 
     head: [
       ['link', { rel: 'icon', href: '/favicon.svg' }],
+      ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+      ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
+      ['link', { href: 'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap', rel: 'stylesheet' }],
     ],
 
     themeConfig: {
       nav: nav(),
-      logo: '/favicon.svg',
+      logo: '/logo.svg',
       sidebar: englishSidebar,
       socialLinks: [
         { icon: 'github', link: 'https://github.com/jeffnawroth/source-taster' },
