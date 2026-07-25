@@ -2,27 +2,104 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
 
 jobs:
-  release:
+  quality:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install
+      - run: pnpm lint
       - run: pnpm build
-      - run: pnpm --filter @source-taster/extension pack
+      - run: pnpm run -r typecheck
+
+  release:
+    needs: [quality]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine version bump
+        id: version
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
+          if git log "$LAST_TAG..HEAD" --oneline | grep -q "BREAKING CHANGE\|feat!"; then
+            echo "bump=major" >> "$GITHUB_OUTPUT"
+          elif git log "$LAST_TAG..HEAD" --oneline | grep -q "^feat"; then
+            echo "bump=minor" >> "$GITHUB_OUTPUT"
+          else
+            echo "bump=patch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump versions
+        run: pnpm bumpp --no-commit --no-push --release "${{ steps.version.outputs.bump }}"
+
+      - name: Generate changelog
+        run: npx conventional-changelog -p conventionalcommits -i CHANGELOG.md -s
+
+      - name: Commit and tag
+        run: |
+          VERSION=$(node -p "require('./apps/extension/package.json').version")
+          git add -A
+          git commit -m "chore(release): v${VERSION} [skip ci]"
+          git tag "v${VERSION}"
+          git push origin --tags
+
+      - name: Build extension packages
+        run: |
+          pnpm install
+          pnpm build
+          pnpm --filter @source-taster/extension pack
+
       - uses: softprops/action-gh-release@v2
         with:
           files: |
             apps/extension/extension.zip
             apps/extension/extension.xpi
           generate_release_notes: true
+
+  deploy:
+    needs: [release]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script_stop: 'true'
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+            cd ${{ secrets.DEPLOY_PATH }}
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose build --pull
+            docker compose up -d --remove-orphans
