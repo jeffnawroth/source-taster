@@ -16,6 +16,12 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_SERVICE_NAME: source-taster-api
     restart: unless-stopped
+    healthcheck:
+      test: [CMD, curl, -f, 'http://localhost:8000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     depends_on:
       anystyle:
         condition: service_started
@@ -27,6 +33,12 @@ services:
     ports:
       - '4567:4567'
     restart: unless-stopped
+    healthcheck:
+      test: [CMD, curl, -f, 'http://localhost:4567/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   docs:
     build:
@@ -35,6 +47,26 @@ services:
     ports:
       - '8080:80'
     restart: unless-stopped
+    healthcheck:
+      test: [CMD, curl, -f, 'http://localhost:80/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  landing:
+    build:
+      context: .
+      dockerfile: apps/landing/Dockerfile
+    ports:
+      - '8081:80'
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, curl, -f, 'http://localhost:80/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -113,9 +145,9 @@ services:
       GF_FEATURE_TOGGLE_ENABLE: alertingSimplifiedRouting
       # SMTP – setze deine Zugangsdaten ein, damit E-Mail-Alerts funktionieren
       GF_SMTP_ENABLED: 'true'
-      GF_SMTP_HOST: 'smtp.example.com:587'
-      GF_SMTP_USER: your-smtp-user
-      GF_SMTP_PASSWORD: your-smtp-password
+      GF_SMTP_HOST: ${GF_SMTP_HOST:-}
+      GF_SMTP_USER: ${GF_SMTP_USER:-}
+      GF_SMTP_PASSWORD: ${GF_SMTP_PASSWORD:-}
       GF_SMTP_FROM_ADDRESS: contact@jeffnawroth.me
       GF_SMTP_FROM_NAME: Source Taster Alerts
     restart: unless-stopped
