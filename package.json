@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "pnpm dev:kill && pnpm build:types && pnpm run -r --parallel --aggregate-output dev",
-    "dev:kill": "lsof -ti :5173 -ti :4321 -ti :3303 -ti :8000 | xargs kill 2>/dev/null; true",
+    "dev:kill": "lsof -t -i :5173 -i :4321 -i :3303 -i :8000 | xargs kill 2>/dev/null; true",
     "dev:docker": "pnpm dev:kill && docker compose up -d anystyle && pnpm dev",
     "build": "pnpm run -r build",
     "build:api": "pnpm --filter @source-taster/api build",
