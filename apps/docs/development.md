@@ -47,6 +47,13 @@ Production (alle Services):
 docker compose up --build
 ```
 
+Production im Hintergrund:
+
+```bash
+docker compose up -d
+docker compose down --volumes
+```
+
 Development (API mit Hot Reload):
 
 ```bash
