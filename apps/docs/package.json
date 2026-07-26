@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vitepress dev",
+    "dev": "vitepress build && vitepress preview",
     "build": "vitepress build",
     "preview": "vitepress preview",
     "lint": "eslint .",
@@ -14,8 +14,14 @@
     "vue": "^3.5.40"
   },
   "devDependencies": {
+    "@braintree/sanitize-url": "^7.1.2",
     "@mermaid-js/mermaid-mindmap": "^9.3.0",
     "@source-taster/eslint-config": "workspace:^",
+    "cytoscape": "^3.34.0",
+    "cytoscape-cose-bilkent": "^4.1.0",
+    "dagre-d3-es": "^7.0.14",
+    "dayjs": "^1.11.21",
+    "debug": "^4.4.3",
     "eslint": "^9.39.5",
     "mermaid": "^11.16.0",
     "vitepress": "^1.6.4",

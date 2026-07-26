@@ -57,10 +57,10 @@ const germanSidebar: DefaultTheme.Sidebar = {
 export default withMermaid(
   defineConfig({
     vite: {
-      optimizeDeps: { include: ['@braintree/sanitize-url'] },
+      optimizeDeps: { include: ['@braintree/sanitize-url', 'cytoscape', 'cytoscape-cose-bilkent', 'dagre-d3-es', 'debug'] },
       resolve: {
         alias: {
-          dayjs: 'dayjs/',
+          dayjs: 'dayjs',
         },
       },
     },
