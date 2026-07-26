@@ -24,7 +24,7 @@ services:
       start_period: 15s
     depends_on:
       anystyle:
-        condition: service_started
+        condition: service_healthy
 
   anystyle:
     build:
@@ -34,7 +34,7 @@ services:
       - '4567:4567'
     restart: unless-stopped
     healthcheck:
-      test: [CMD, curl, -f, 'http://localhost:4567/']
+      test: [CMD-SHELL, 'curl -s -o /dev/null http://localhost:4567/ || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3

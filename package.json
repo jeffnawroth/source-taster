@@ -9,7 +9,7 @@
     "pnpm": ">=9"
   },
   "scripts": {
-    "dev": "pnpm run -r --parallel --aggregate-output dev",
+    "dev": "pnpm build:types && pnpm run -r --parallel --aggregate-output dev",
     "build": "pnpm run -r build",
     "build:api": "pnpm --filter @source-taster/api build",
     "build:extension": "pnpm --filter @source-taster/extension build",

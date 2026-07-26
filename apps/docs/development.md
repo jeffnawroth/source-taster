@@ -17,7 +17,7 @@ outline: deep
 pnpm install
 cp apps/api/.env.example apps/api/.env
 # Provide secrets such as OPENAI_API_KEY, MASTER_KEY, KEY_DERIVATION_SALT.
-pnpm build:types
+pnpm dev
 ```
 
 ## Workspace Commands
@@ -33,32 +33,47 @@ pnpm build:types
 
 ## Workflow
 
-1. **Shared types aktualisieren** bei Schema-Änderungen: `packages/types/src` editieren, dann `pnpm build:types`.
-2. **API starten**: `pnpm dev` oder `pnpm --filter @source-taster/api dev`.
-3. **Extension entwickeln**: `pnpm --filter @source-taster/extension dev`, Build in Browser laden.
-4. **Docs editieren**: `pnpm --filter @source-taster/docs dev` für Live-Vorschau.
-5. **Pre-commit**: Typecheck + ESLint laufen automatisch vor jedem Commit.
+1. **API starten**: `pnpm dev` oder `pnpm --filter @source-taster/api dev`.
+2. **Extension entwickeln**: `pnpm --filter @source-taster/extension dev`, Build in Browser laden.
+3. **Docs editieren**: `pnpm --filter @source-taster/docs dev` für Live-Vorschau.
+4. **Pre-commit**: Typecheck + ESLint laufen automatisch vor jedem Commit.
 
 ## Docker Compose
 
-Production (alle Services):
+Drei Modi, je nachdem was du brauchst:
+
+### 1. Alles lokal (schnellste Iteration)
 
 ```bash
-docker compose up --build
+docker compose up -d anystyle    # Ruby-Dienst im Container
+pnpm dev                           # Api, Extension, Docs, Landing lokal
 ```
 
-Production im Hintergrund:
+Anystyle (Ruby/Sinatra) läuft im Container — alles andere lokal mit Hot Reload.
+
+### 2. Hybride Entwicklung (empfohlen)
 
 ```bash
-docker compose up -d
-docker compose down --volumes
+docker compose up -d anystyle     # Ruby im Hintergrund
+pnpm dev                           # Lokale Dev-Server
 ```
 
-Development (API mit Hot Reload):
+Gleicher Flow wie "alles lokal", aber anystyle läuft im Hintergrund.
+
+### 3. Alles im Container (production-like)
 
 ```bash
-docker compose up api
-# Volume-Mounts syncen lokale Änderungen live in den Container
+docker compose up --build         # Alle Services in Containern
+```
+
+### Docker-Kommandos
+
+```bash
+docker compose up api              # Api mit Hot Reload (Dev-Override)
+docker compose up -d anystyle      # Nur anystyle im Hintergrund
+docker compose up -d               # Alle Services im Hintergrund
+docker compose down                # Stoppen
+docker compose down --volumes      # Stoppen + Volumes löschen
 ```
 
 ## Contribution Guide
