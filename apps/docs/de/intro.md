@@ -13,7 +13,7 @@ Das System hilft Studierenden und Forschenden, bibliografische Referenzen in Sek
 
 - **93 %** exakte APA-Trefferquote
 - **100 %** Erkennung synthetisch erzeugter Halluzinationen
-- **<3 Sekunden** durchschnittliche Prüfzeit pro Referenz
+- **&lt;3 Sekunden** durchschnittliche Prüfzeit pro Referenz
 - **97,2 %** F1-Score auf kuratierten Testsets (n=425 Umfrage + automatisierte Benchmarks)
 
 ## Wie es funktioniert

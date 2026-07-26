@@ -63,7 +63,7 @@ Validiert in einer kontrollierten Masterarbeit an der Universität Siegen:
 
 - **93 %** exakte Trefferquote bei echten APA-Referenzen
 - **100 %** Erkennung synthetischer Fälschungen
-- **<3 Sekunden** durchschnittliche Verarbeitungszeit pro Referenz
+- **&lt;3 Sekunden** durchschnittliche Verarbeitungszeit pro Referenz
 - **10 Zitierstile** getestet
 
 ## Integration

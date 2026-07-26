@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vitepress build && vitepress preview",
+    "dev": "vitepress dev --force --port 5173",
     "build": "vitepress build",
     "preview": "vitepress preview",
     "lint": "eslint .",

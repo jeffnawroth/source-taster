@@ -6,9 +6,9 @@ titleTemplate: Browser extension and API for automated source verification
 hero:
   name: "The Source Taster"
   text: "Automated academic reference verification"
-  tagline: "Extract, search, and validate references across 5 databases — <3 seconds per source.<br><strong>100% hallucination detection rate.</strong>"
+  tagline: "Extract, search, and validate references across 5 databases — &lt;3 seconds per source.<br><strong>100% hallucination detection rate.</strong>"
   image:
-    src: /web-app-manifest-192x192.png
+    src: /logo.svg
     alt: The Source Taster
   actions:
     - theme: brand
@@ -37,7 +37,7 @@ features:
 
   - icon: ⚡
     title: Batch Verification
-    details: Check entire reference lists at once. Average <3 seconds per reference — 93% APA exact match rate.
+    details: Check entire reference lists at once. Average &lt;3 seconds per reference — 93% APA exact match rate.
 
   - icon: 🔐
     title: Privacy-First
@@ -55,6 +55,23 @@ features:
 @media (min-width: 960px) {
   :root {
     --vp-home-hero-image-filter: blur(68px);
+  }
+}
+
+@media (min-width: 960px) {
+  .image-container {
+    width: 640px !important;
+    height: 360px !important;
+  }
+
+  .image-bg {
+    width: 480px !important;
+    height: 480px !important;
+  }
+
+  .image-src {
+    max-width: 560px !important;
+    max-height: 315px !important;
   }
 }
 </style>

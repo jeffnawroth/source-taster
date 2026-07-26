@@ -177,7 +177,7 @@ const en: T = {
           'Dedicated support & SLA',
         ],
         cta: 'Contact us',
-        ctaLink: 'mailto:jeff@sourcetaster.app',
+        ctaLink: 'mailto:jeff@sourcetaster.com',
         color: '#2d7a31',
       },
     ],

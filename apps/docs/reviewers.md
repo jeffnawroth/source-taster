@@ -63,7 +63,7 @@ Validated in a controlled Master's thesis study at the University of Siegen:
 
 - **93%** exact-match rate on genuine APA references
 - **100%** hallucination detection on synthetic fabrications
-- **<3 seconds** average processing time per reference
+- **&lt;3 seconds** average processing time per reference
 - **10 citation styles** tested
 
 ## Integration

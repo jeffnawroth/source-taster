@@ -13,7 +13,7 @@ The system helps students and researchers verify bibliographic references in sec
 
 - **93%** APA exact match rate
 - **100%** hallucination detection on synthetic fakes
-- **<3 seconds** average verification time per reference
+- **&lt;3 seconds** average verification time per reference
 - **97.2%** F1-score on curated test sets (n=425 survey + automated benchmarks)
 
 ## How It Works

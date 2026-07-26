@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp">Chrome Web Store</a> ·
   <a href="https://github.com/jeffnawroth/source-taster/releases">Firefox Add-on</a> ·
-  <a href="https://sourcetaster.app">Landing Page</a> ·
+  <a href="https://sourcetaster.com">Landing Page</a> ·
   <a href="https://sourcetaster.github.io/source-taster/">Documentation</a>
 </p>
 

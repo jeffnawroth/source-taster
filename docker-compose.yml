@@ -59,7 +59,7 @@ services:
       context: .
       dockerfile: apps/landing/Dockerfile
     ports:
-      - '8081:80'
+      - '8083:80'
     restart: unless-stopped
     healthcheck:
       test: [CMD, curl, -f, 'http://localhost:80/']
