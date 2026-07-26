@@ -147,7 +147,7 @@ EXPOSE 80
 - [ ] **Step 2: Verify the Dockerfile builds**
 
 ```bash
-docker compose build landing
+docker build -f apps/landing/Dockerfile --tag source-taster-landing .
 ```
 
 Expected: Build succeeds, exit code 0.
