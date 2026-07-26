@@ -9,12 +9,13 @@
     "pnpm": ">=9"
   },
   "scripts": {
-    "dev": "pnpm build:types && pnpm run -r --parallel --aggregate-output dev",
+    "dev": "pnpm dev:kill && pnpm build:types && pnpm run -r --parallel --aggregate-output dev",
+    "dev:kill": "lsof -ti :5173 -ti :4321 -ti :3303 -ti :8000 | xargs kill 2>/dev/null; true",
+    "dev:docker": "pnpm dev:kill && docker compose up -d anystyle && pnpm dev",
     "build": "pnpm run -r build",
     "build:api": "pnpm --filter @source-taster/api build",
     "build:extension": "pnpm --filter @source-taster/extension build",
     "build:landing": "pnpm --filter @source-taster/landing build",
-    "dev:docker": "docker compose up -d anystyle && pnpm dev",
     "dev:landing": "pnpm --filter @source-taster/landing dev",
     "build:types": "pnpm --filter @source-taster/types build",
     "typecheck": "pnpm run -r --parallel --aggregate-output typecheck",
