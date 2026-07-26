@@ -1,0 +1,44 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-main">
+      <div>
+        <div class="footer-brand">
+          <img src="/logo.svg" alt="The Source Taster" class="footer-logo" width="99" height="27" />
+        </div>
+        <p class="footer-thesis">{t.footer.thesis}</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/jeffnawroth/source-taster" target="_blank" rel="noopener">{t.footer.github}</a>
+        <a href="https://github.com/jeffnawroth/source-taster/releases" target="_blank" rel="noopener">{t.footer.releases}</a>
+        <a href="https://github.com/jeffnawroth/source-taster/issues" target="_blank" rel="noopener">{t.footer.issues}</a>
+        <a href={t.altUrl}>{t.lang === 'de' ? 'English' : 'Deutsch'}</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© {new Date().getFullYear()} Jeff Nawroth. {t.footer.mit}</p>
+    </div>
+  </div>
+</footer>
+
+<style is:global>
+.footer{
+  border-top:1px solid var(--border);padding:40px 0 24px;
+  background:var(--bg2);
+}
+.footer-main{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+.footer-brand{margin-bottom:4px}
+.footer-logo{display:block;height:24px;width:auto}
+.footer-thesis{font-size:.82rem;color:var(--text3);margin-top:4px}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap}
+.footer-links a{font-size:.88rem;color:var(--text2)}
+.footer-links a:hover{color:var(--p)}
+.footer-bottom{margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.footer-bottom p{font-size:.8rem;color:var(--text3);text-align:center}
+</style>

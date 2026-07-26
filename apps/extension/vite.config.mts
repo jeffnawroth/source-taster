@@ -41,8 +41,8 @@ export const sharedConfig: UserConfig = {
       fontsource: {
         families: [
           {
-            name: 'Roboto',
-            weights: [100, 300, 400, 500, 700, 900],
+            name: 'noto-sans',
+            weights: [400, 600, 700],
             styles: ['normal', 'italic'],
           },
         ],

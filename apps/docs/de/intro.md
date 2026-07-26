@@ -5,24 +5,36 @@ outline: deep
 
 # Überblick
 
-Source Taster unterstützt Studierende und Forschende dabei, bibliografische Referenzen schnell zu prüfen. Das System besteht aus drei Kernbausteinen:
+**KI halluziniert gefälschte Referenzen.** ChatGPT und andere LLMs generieren bis zu 40 % erfundene Quellenangaben. The Source Taster erkennt sie — validiert in einer Masterarbeit an der Universität Siegen.
 
-- **Browser-Extension (`apps/extension`)** – Eine Vue-3-Anwendung mit Vuetify, die Referenzen (Text, PDF, Kontextmenü) importiert, KI-gestützt extrahiert und verifizierte Treffer visualisiert.
-- **API (`apps/api`)** – Ein Hono-Server auf Node.js 20, der KI-Extraktion, AnyStyle-Parsing, Datenbanksuchen (OpenAlex, Crossref, Semantic Scholar, Europe PMC, arXiv) sowie das deterministische Matching orchestriert.
-- **Shared Types (`packages/types`)** – Zod-Schemas und TypeScript-Typen für CSL-JSON, API-Verträge, Matching-Konfigurationen und UI-Voreinstellungen. Extension und API nutzen sie gemeinsam.
+Das System hilft Studierenden und Forschenden, bibliografische Referenzen in Sekunden zu prüfen. Es extrahiert Referenzen aus Texten oder PDFs, durchsucht sie in 5 akademischen Datenbanken und bewertet jeden Treffer transparent — Feld für Feld.
 
-Das VitePress-Projekt (`apps/docs`) liefert die Dokumentation in `apps/docs/en` und `apps/docs/de`.
+## Kennzahlen
 
-## Ziele & Nutzen
+- **93 %** exakte APA-Trefferquote
+- **100 %** Erkennung synthetisch erzeugter Halluzinationen
+- **&lt;3 Sekunden** durchschnittliche Prüfzeit pro Referenz
+- **97,2 %** F1-Score auf kuratierten Testsets (n=425 Umfrage + automatisierte Benchmarks)
 
-- **Zuverlässigkeit** – Sämtliche Payloads werden per Zod validiert (z. B. `ApiExtractRequestSchema`, `ApiMatchRequestSchema`). Fehler werden über `registerOnError` in Hono einheitlich ausgegeben.
-- **Nachvollziehbarkeit** – Matching-Resultate enthalten Feld-Scores, die in der UI farbcodiert dargestellt werden (siehe [Matching & Scoring](matching-scoring.md)).
-- **Erweiterbarkeit** – KI-Provider sind abstrahiert (`ApiAIProviderSchema`, `AIProviderFactory`); zusätzliche Datenquellen lassen sich über Provider-Klassen anbinden.
-- **Datenschutz** – Nutzer-API-Keys werden mit AES-256-GCM verschlüsselt in einem Key-File-Store abgelegt (`apps/api/src/secrets/keystore.ts`).
+## Wie es funktioniert
+
+1. **Importieren** — Text einfügen, PDF hochladen oder per Rechtsklick eine Bibliographie auf beliebiger Seite auswählen.
+2. **Extrahieren** — KI parst unstrukturierte Referenzen in strukturiertes CSL-JSON (Titel, Autoren, DOI, Jahr etc.).
+3. **Suchen** — Jede Referenz wird gegen OpenAlex, Crossref, Semantic Scholar, Europe PMC und arXiv abgefragt.
+4. **Abgleichen** — Deterministisches Scoring vergleicht extrahierte Daten mit Datenbankkandidaten. Ergebnisse zeigen eine farbcodierte Aufschlüsselung pro Feld.
+5. **Prüfen** — Grün bedeutet verifiziert. Rot bedeutet verdächtig. Sie wissen sofort, welche Quellen vertrauenswürdig sind.
+
+## Architektur
+
+Das System besteht aus drei Kernbausteinen:
+
+- **Browser-Extension (`apps/extension`)** — Eine Vue-3-Anwendung mit Vuetify, die Referenzen (Text, PDF, Kontextmenü) importiert, KI-gestützt extrahiert und verifizierte Treffer visualisiert.
+- **API (`apps/api`)** — Ein Hono-Server auf Node.js 20, der KI-Extraktion, AnyStyle-Parsing, Datenbanksuchen (OpenAlex, Crossref, Semantic Scholar, Europe PMC, arXiv) sowie das deterministische Matching orchestriert.
+- **Shared Types (`packages/types`)** — Zod-Schemas und TypeScript-Typen für CSL-JSON, API-Verträge, Matching-Konfigurationen und UI-Voreinstellungen. Extension und API nutzen sie gemeinsam.
 
 ## Hauptfunktionen der Extension
 
-- Import über Kontextmenü („Bibliographie prüfen“), PDF-Upload oder manuelle Texteingabe.
+- Import über Kontextmenü („Bibliographie prüfen"), PDF-Upload oder manuelle Texteingabe.
 - KI-Extraktion mit konfigurierbaren CSL-Feldern aus den Shared Defaults.
 - AnyStyle-gestütztes Token-Labeling und manuelle Korrektur vor der CSL-Konvertierung.
 - Recherche gegen priorisierte Datenbanken mit Early-Termination ab definiertem Score.

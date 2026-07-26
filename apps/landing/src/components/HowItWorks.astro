@@ -1,0 +1,36 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section" id="how">
+  <div class="container" style="max-width:720px">
+    <h2 class="section-title fade-in">{t.how.title}</h2>
+    <p class="section-sub fade-in fade-in-d1">{t.how.sub}</p>
+    <div class="steps">
+      {t.how.steps.map((s, i) => (
+        <div class="step fade-in" class:list={[`fade-in-d${i + 1}`]}>
+          <div class="step-num">{i + 1}</div>
+          <div>
+            <h3>{s.title}</h3>
+            <p>{s.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.steps{display:flex;flex-direction:column;gap:28px}
+.step{display:flex;gap:20px;align-items:flex-start}
+.step-num{
+  width:40px;height:40px;border-radius:50%;min-width:40px;
+  background:var(--grad);color:#fff;display:grid;place-items:center;
+  font-weight:700;font-size:1.1rem;
+}
+.step h3{font-size:1.05rem;margin-bottom:4px;text-transform:capitalize}
+.step p{font-size:.9rem;color:var(--text2);line-height:1.65}
+</style>

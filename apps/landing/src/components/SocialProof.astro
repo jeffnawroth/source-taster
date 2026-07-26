@@ -1,0 +1,43 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section section-alt" id="social">
+  <div class="container">
+    <h2 class="section-title fade-in">{t.social.title}</h2>
+    <p class="section-sub fade-in fade-in-d1">{t.social.sub}</p>
+    <div class="social-grid">
+      {t.social.cards.map((c, i) => (
+        <div class="social-card fade-in" class:list={[`fade-in-d${i + 1}`]}>
+          <div class="social-num" style={`color:${c.color}`}>{c.num}</div>
+          <div class="social-label">{c.label}</div>
+          <div class="social-desc">{c.desc}</div>
+        </div>
+      ))}
+    </div>
+    <div class="social-quote fade-in fade-in-d3">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--p)" opacity=".2"><path d="M10 11H6.5C6.22 11 6 10.78 6 10.5V7c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v5c0 2.21-1.79 4-4 4h-.5c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5H8c1.1 0 2-.9 2-2v-.5zm10 0h-3.5c-.28 0-.5-.22-.5-.5V7c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v5c0 2.21-1.79 4-4 4h-.5c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5H18c1.1 0 2-.9 2-2v-.5z"/></svg>
+      <blockquote>{t.social.quote}</blockquote>
+      <cite>{t.social.quoteAuthor}</cite>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.social-card{text-align:center;padding:32px 20px;border-radius:var(--r);background:var(--bg);border:1px solid var(--border);transition:transform .2s,box-shadow .2s}
+.social-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.social-num{font-size:2.6rem;font-weight:800;line-height:1;margin-bottom:8px}
+.social-label{font-size:.88rem;font-weight:600;margin-bottom:8px}
+.social-desc{font-size:.8rem;color:var(--text2);line-height:1.5;max-width:260px;margin:0 auto}
+.social-quote{max-width:680px;margin:40px auto 0;padding:28px 32px;background:var(--bg2);border-radius:var(--r);border-left:4px solid var(--p);position:relative}
+.social-quote svg{position:absolute;top:20px;left:20px}
+.social-quote blockquote{font-size:.95rem;line-height:1.7;color:var(--text);font-style:italic;padding-left:8px}
+.social-quote cite{display:block;margin-top:12px;font-size:.82rem;color:var(--text2);font-style:normal}
+
+@media(max-width:768px){.social-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:450px){.social-grid{grid-template-columns:1fr}}
+</style>

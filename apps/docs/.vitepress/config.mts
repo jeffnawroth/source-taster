@@ -8,6 +8,8 @@ const englishSidebar: DefaultTheme.Sidebar = [
     text: 'Guide',
     items: [
       { text: 'Overview', link: '/intro' },
+      { text: 'For Students', link: '/students' },
+      { text: 'For Reviewers', link: '/reviewers' },
       { text: 'Development', link: '/development' },
       { text: 'Browser Extension', link: '/extension' },
     ],
@@ -31,6 +33,8 @@ const germanSidebar: DefaultTheme.Sidebar = {
       text: 'Leitfaden',
       items: [
         { text: 'Überblick', link: '/de/intro' },
+        { text: 'Für Studierende', link: '/de/students' },
+        { text: 'Für Gutachter', link: '/de/reviewers' },
         { text: 'Entwicklung', link: '/de/development' },
         { text: 'Browser-Extension', link: '/de/extension' },
       ],
@@ -53,25 +57,28 @@ const germanSidebar: DefaultTheme.Sidebar = {
 export default withMermaid(
   defineConfig({
     vite: {
-      optimizeDeps: { include: ['@braintree/sanitize-url'] },
+      optimizeDeps: { include: ['@braintree/sanitize-url', 'cytoscape', 'cytoscape-cose-bilkent', 'dagre-d3-es', 'debug'] },
       resolve: {
         alias: {
-          dayjs: 'dayjs/',
+          dayjs: 'dayjs',
         },
       },
     },
     title: 'The Source Taster',
-    description: 'Quickly check the validity of academic sources via DOIs',
+    description: 'Technical documentation for The Source Taster — open-source browser extension and API for automated academic reference verification. 93% APA match rate, 100% hallucination detection.',
     lang: 'en-US',
     appearance: 'dark',
 
     head: [
       ['link', { rel: 'icon', href: '/favicon.svg' }],
+      ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+      ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
+      ['link', { href: 'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap', rel: 'stylesheet' }],
     ],
 
     themeConfig: {
       nav: nav(),
-      logo: '/favicon.svg',
+      logo: '/logo.svg',
       sidebar: englishSidebar,
       socialLinks: [
         { icon: 'github', link: 'https://github.com/jeffnawroth/source-taster' },
@@ -85,7 +92,7 @@ export default withMermaid(
       root: {
         label: 'English',
         lang: 'en',
-        description: 'Quickly check the validity of academic sources via DOIs',
+        description: 'Technical documentation for The Source Taster — open-source browser extension and API for automated academic reference verification. 93% APA match rate, 100% hallucination detection.',
         themeConfig: {
           nav: nav(),
           sidebar: englishSidebar,
@@ -101,7 +108,7 @@ export default withMermaid(
         label: 'Deutsch',
         lang: 'de',
         link: '/de/',
-        description: 'Überprüfe schnell die Gültigkeit akademischer Quellen über DOIs',
+        description: 'Technische Dokumentation für The Source Taster — quelloffene Browser-Erweiterung und API zur automatisierten Prüfung akademischer Referenzen. 93 % APA-Trefferquote, 100 % Halluzinationserkennung.',
         themeConfig: {
           nav: navDe(),
           sidebar: germanSidebar,

@@ -1,0 +1,42 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section" id="tech">
+  <div class="container">
+    <h2 class="section-title fade-in">{t.tech.title}</h2>
+    <p class="section-sub fade-in fade-in-d1">{t.tech.sub}</p>
+    <div class="tech-grid">
+      {t.tech.items.map((item, i) => (
+        <div class="tech-card fade-in" class:list={[`fade-in-d${i + 1}`]}>
+          <h4>{item.title}</h4>
+          <ul>
+            {item.entries.map(e => <li>{e}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.tech-card{
+  padding:24px;border-radius:8px;
+  background:var(--bg);border:1px solid var(--border);
+}
+.tech-card h4{font-size:.95rem;margin-bottom:12px;color:var(--p)}
+.tech-card ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.tech-card li{font-size:.85rem;color:var(--text2);line-height:1.5}
+.tech-card li::before{content:'·';color:var(--a);margin-right:6px;font-weight:700}
+
+@media(max-width:800px){
+  .tech-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:450px){
+  .tech-grid{grid-template-columns:1fr}
+}
+</style>

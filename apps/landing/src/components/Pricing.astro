@@ -1,0 +1,82 @@
+---
+import type { T } from '@/data/types'
+
+interface Props { t: T }
+const { t } = Astro.props
+---
+
+<section class="section" id="pricing">
+  <div class="container">
+    <h2 class="section-title fade-in">{t.pricing.title}</h2>
+    <p class="section-sub fade-in fade-in-d1">{t.pricing.sub}</p>
+    <div class="pricing-grid">
+      {t.pricing.tiers.map((tier, i) => (
+        <article class="pricing-card fade-in" class:list={[`fade-in-d${i + 1}`, tier.popular && 'popular']}>
+          {tier.popular && <div class="popular-badge">{t.pricing.mostPopular}</div>}
+          {tier.comingSoon && <div class="coming-badge">{t.pricing.comingSoon}</div>}
+          <div class="pricing-header" style={`border-color:${tier.color}`}>
+            <h3 class="pricing-name">{tier.name}</h3>
+            <div class="pricing-price">
+              <span class="pricing-amount">{tier.price}</span>
+              {tier.period && <span class="pricing-period">{tier.period}</span>}
+            </div>
+            <p class="pricing-desc">{tier.desc}</p>
+          </div>
+          <ul class="pricing-features">
+            {tier.features.map(f => (
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={tier.color} stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                {f}
+              </li>
+            ))}
+          </ul>
+          <a href={tier.ctaLink} class="pricing-cta" style={tier.popular ? `background:linear-gradient(135deg,${tier.color},var(--p));color:#fff` : `border-color:${tier.color};color:${tier.color}`}>
+            {tier.cta}
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.pricing-card{
+  border-radius:var(--r);background:var(--bg);border:1px solid var(--border);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.pricing-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.pricing-card.popular{border-color:var(--t);box-shadow:0 0 0 1px var(--t),var(--shadow-lg);transform:scale(1.03)}
+.pricing-card.popular:hover{transform:scale(1.03) translateY(-4px)}
+.popular-badge{
+  position:absolute;top:14px;right:-30px;transform:rotate(45deg);
+  background:var(--grad);color:#fff;font-size:.7rem;font-weight:700;
+  padding:4px 36px;text-transform:uppercase;letter-spacing:.5px;
+}
+.coming-badge{
+  position:absolute;top:12px;left:12px;z-index:1;
+  background:var(--a);color:#fff;font-size:.68rem;font-weight:700;
+  padding:3px 10px;border-radius:4px;letter-spacing:.3px;
+}
+.pricing-header{padding:28px 24px 20px;border-bottom:2px solid;text-align:center;min-height:160px;display:flex;flex-direction:column;justify-content:center}
+.pricing-name{font-size:.9rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.pricing-price{display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:8px}
+.pricing-amount{font-size:2.2rem;font-weight:800;line-height:1}
+.pricing-period{font-size:.88rem;color:var(--text2)}
+.pricing-desc{font-size:.85rem;color:var(--text2);line-height:1.5;min-height:2.6em}
+.pricing-features{list-style:none;padding:20px 24px;flex:1;display:flex;flex-direction:column;gap:12px}
+.pricing-features li{display:flex;align-items:flex-start;gap:8px;font-size:.85rem;color:var(--text);line-height:1.4}
+.pricing-features li svg{flex-shrink:0;margin-top:2px}
+.pricing-cta{
+  display:block;margin:0 24px 24px;padding:12px;border-radius:8px;
+  text-align:center;font-weight:700;font-size:.9rem;
+  background:var(--bg);border:2px solid;text-decoration:none;
+  transition:all .2s;
+}
+.pricing-cta:hover{opacity:.85;transform:translateY(-2px)}
+.pricing-card.popular .pricing-cta{box-shadow:0 4px 16px rgba(31,107,124,.3)}
+
+@media(max-width:1000px){.pricing-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.pricing-grid{grid-template-columns:1fr}}
+</style>

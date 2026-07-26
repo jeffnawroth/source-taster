@@ -1,0 +1,32 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/Header.astro'
+import Hero from '@/components/Hero.astro'
+import Problem from '@/components/Problem.astro'
+import Features from '@/components/Features.astro'
+import HowItWorks from '@/components/HowItWorks.astro'
+import Evaluation from '@/components/Evaluation.astro'
+import TechDetails from '@/components/TechDetails.astro'
+import SocialProof from '@/components/SocialProof.astro'
+import Pricing from '@/components/Pricing.astro'
+import FAQ from '@/components/FAQ.astro'
+import Install from '@/components/Install.astro'
+import Footer from '@/components/Footer.astro'
+import t from '@/data/en'
+---
+<BaseLayout t={t} canonical="https://sourcetaster.com/en/">
+  <Header {t} />
+  <main>
+    <Hero {t} />
+    <Problem {t} />
+    <Features {t} />
+    <HowItWorks {t} />
+    <Evaluation {t} />
+    <TechDetails {t} />
+    <SocialProof {t} />
+    <Pricing {t} />
+    <FAQ {t} />
+    <Install {t} />
+  </main>
+  <Footer {t} />
+</BaseLayout>

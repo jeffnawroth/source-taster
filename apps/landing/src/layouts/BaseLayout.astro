@@ -1,0 +1,87 @@
+---
+import type { T } from '@/data/types'
+import '@/styles/global.css'
+
+interface Props {
+  t: T
+  canonical: string
+}
+
+const { t, canonical } = Astro.props
+const title = 'The Source Taster – ' + (t.lang === 'de' ? 'Referenzen automatisch verifizieren' : 'Verify academic references automatically')
+const desc = t.lang === 'de'
+  ? 'Browser-Erweiterung zur automatisierten Verifikation akademischer Quellen. Erkennt KI-halluzinierte Referenzen zuverlässig.'
+  : 'Browser extension for automated academic reference verification. Reliably detects AI-hallucinated citations.'
+const image = '/og.png'
+---
+
+<!DOCTYPE html>
+<html lang={t.lang} data-theme="system">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={desc} />
+  <link rel="canonical" href={canonical} />
+  <link rel="alternate" hreflang="de" href="https://sourcetaster.com/" />
+  <link rel="alternate" hreflang="en" href="https://sourcetaster.com/en/" />
+  <link rel="alternate" hreflang="x-default" href="https://sourcetaster.com/" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={desc} />
+  <meta property="og:image" content={image} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={desc} />
+  <meta name="twitter:image" content={image} />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "The Source Taster",
+    "applicationCategory": "BrowserExtension",
+    "operatingSystem": "Chrome, Firefox, Edge, Opera",
+    "description": desc,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Jeff Nawroth"
+    }
+  })} />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": t.faq.items.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a
+      }
+    }))
+  })} />
+</head>
+<body>
+  <slot />
+</body>
+</html>
+
+<style is:global>
+  .fade-in{animation:fadeIn .6s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .fade-in-d1{animation-delay:.1s}
+  .fade-in-d2{animation-delay:.2s}
+  .fade-in-d3{animation-delay:.3s}
+  .fade-in-d4{animation-delay:.4s}
+</style>
