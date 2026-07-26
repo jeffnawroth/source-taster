@@ -17,19 +17,36 @@ outline: deep
 pnpm install
 cp apps/api/.env.example apps/api/.env
 # Provide secrets such as OPENAI_API_KEY, MASTER_KEY, KEY_DERIVATION_SALT.
+```
+
+## Dev-Server starten
+
+**Mit API + anystyle (empfohlen):**
+
+```bash
+pnpm dev:docker
+# Startet: anystyle (Docker) + Types + Api + Extension + Docs + Landing (lokal)
+```
+
+**Ohne API (nur Frontend — Extension, Docs, Landing):**
+
+```bash
 pnpm dev
+# Startet: Types + Extension + Docs + Landing (lokal)
+# Api läuft, aber anystyle fehlt → Reference-Parsing geht nicht
 ```
 
 ## Workspace Commands
 
-| Command          | Description                                               |
-| ---------------- | --------------------------------------------------------- |
-| `pnpm dev`       | Alle Dev-Server parallel (API, Extension, Docs, Landing)  |
-| `pnpm build`     | Alle Packages bauen                                       |
-| `pnpm typecheck` | TypeScript-Prüfung workspace-weit                         |
-| `pnpm preview`   | Preview für docs + landing                                |
-| `pnpm test`      | Tests ausführen (bereitgestellt, sobald Tests existieren) |
-| `pnpm lint`      | ESLint workspace-weit                                     |
+| Command           | Description                                                        |
+| ----------------- | ------------------------------------------------------------------ |
+| `pnpm dev:docker` | **Für API-Entwicklung.** Docker (anystyle) + alle Dev-Server lokal |
+| `pnpm dev`        | Nur lokale Dev-Server (ohne anystyle)                              |
+| `pnpm build`      | Alle Packages bauen                                                |
+| `pnpm typecheck`  | TypeScript-Prüfung workspace-weit                                  |
+| `pnpm preview`    | Preview für docs + landing                                         |
+| `pnpm test`       | Tests ausführen (bereitgestellt, sobald Tests existieren)          |
+| `pnpm lint`       | ESLint workspace-weit                                              |
 
 ## Workflow
 
@@ -40,38 +57,14 @@ pnpm dev
 
 ## Docker Compose
 
-Drei Modi, je nachdem was du brauchst:
+Für den Normalfall reicht `pnpm dev:docker` — das startet anystyle automatisch.
 
-### 1. Alles lokal (schnellste Iteration)
-
-```bash
-docker compose up -d anystyle    # Ruby-Dienst im Container
-pnpm dev                           # Api, Extension, Docs, Landing lokal
-```
-
-Anystyle (Ruby/Sinatra) läuft im Container — alles andere lokal mit Hot Reload.
-
-### 2. Hybride Entwicklung (empfohlen)
+Nur Docker (ohne pnpm):
 
 ```bash
-docker compose up -d anystyle     # Ruby im Hintergrund
-pnpm dev                           # Lokale Dev-Server
-```
-
-Gleicher Flow wie "alles lokal", aber anystyle läuft im Hintergrund.
-
-### 3. Alles im Container (production-like)
-
-```bash
-docker compose up --build         # Alle Services in Containern
-```
-
-### Docker-Kommandos
-
-```bash
+docker compose up --build         # Alle Services in Containern (production-like)
 docker compose up api              # Api mit Hot Reload (Dev-Override)
-docker compose up -d anystyle      # Nur anystyle im Hintergrund
-docker compose up -d               # Alle Services im Hintergrund
+docker compose up anystyle         # Nur anystyle
 docker compose down                # Stoppen
 docker compose down --volumes      # Stoppen + Volumes löschen
 ```
@@ -93,6 +86,6 @@ docker compose down --volumes      # Stoppen + Volumes löschen
 ## Troubleshooting
 
 - **“Missing X-Client-Id”**: Der Header wird nur von der Extension gesetzt. Für curl/Postman manuelle UUID mitschicken.
-- **“AnyStyle unreachable”**: `docker compose up anystyle` prüfen oder `ANYSTYLE_SERVER_URL` anpassen.
+- **“AnyStyle unreachable”**: `pnpm dev:docker` startet anystyle automatisch. Reicht das nicht: `docker compose up anystyle` prüfen oder `ANYSTYLE_SERVER_URL` anpassen.
 - **TypeScript-Fehler nach Pull**: `pnpm build:types && pnpm typecheck` — möglicherweise sind shared types geändert.
 - **Firefox side panel fehlt**: Extension neu laden (`about:debugging` → "Reload").

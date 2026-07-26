@@ -14,6 +14,7 @@
     "build:api": "pnpm --filter @source-taster/api build",
     "build:extension": "pnpm --filter @source-taster/extension build",
     "build:landing": "pnpm --filter @source-taster/landing build",
+    "dev:docker": "docker compose up -d anystyle && pnpm dev",
     "dev:landing": "pnpm --filter @source-taster/landing dev",
     "build:types": "pnpm --filter @source-taster/types build",
     "typecheck": "pnpm run -r --parallel --aggregate-output typecheck",
