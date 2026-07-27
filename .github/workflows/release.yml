@@ -59,7 +59,7 @@ jobs:
 
       - name: Bump versions and commit
         run: |
-          pnpm bumpp --yes --no-verify --no-push --recursive --release "${{ steps.version.outputs.bump }}"
+          pnpm bumpp --yes --no-verify --no-push --no-tag --recursive --release "${{ steps.version.outputs.bump }}"
           echo "VERSION=$(node -p "require('./apps/extension/package.json').version")" >> "$GITHUB_ENV"
 
       - name: Generate changelog
