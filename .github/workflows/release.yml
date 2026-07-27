@@ -68,7 +68,7 @@ jobs:
           BRANCH="chore/release-v${VERSION}"
           git add -A
           git commit --no-verify -m "chore(release): v${VERSION} [skip ci]"
-          git tag "v${VERSION}"
+          git tag -f "v${VERSION}"
           git push origin --tags --force
           git checkout -b "$BRANCH"
           git push origin "$BRANCH" --force
