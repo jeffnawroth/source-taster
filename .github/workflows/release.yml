@@ -66,6 +66,7 @@ jobs:
       - name: Commit, tag, and create release PR
         run: |
           VERSION=$(node -p "require('./apps/extension/package.json').version")
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           BRANCH="chore/release-v${VERSION}"
           git add -A
           git commit --no-verify -m "chore(release): v${VERSION} [skip ci]"
@@ -87,6 +88,7 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ env.VERSION }}
           files: |
             apps/extension/extension.zip
             apps/extension/extension.xpi
