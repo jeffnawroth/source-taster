@@ -15,6 +15,7 @@ RUN apt-get update \
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json apps/api/package.json
 COPY packages/types/package.json packages/types/package.json
+COPY packages/eslint-config/package.json packages/eslint-config/package.json
 RUN pnpm install --no-frozen-lockfile
 
 FROM deps AS build
