@@ -7,7 +7,7 @@ COPY apps/api/tsconfig.json apps/api/
 COPY apps/api/package.json apps/api/
 COPY packages/types/package.json packages/types/
 COPY packages/types/tsconfig.json packages/types/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 COPY packages/types/ packages/types/
 RUN pnpm --filter @source-taster/types build
 COPY apps/api/ apps/api/
