@@ -62,14 +62,23 @@ jobs:
       - name: Generate changelog
         run: npx conventional-changelog -p conventionalcommits -i CHANGELOG.md -s
 
-      - name: Commit and tag
+      - name: Commit, tag, and create release PR
         run: |
           VERSION=$(node -p "require('./apps/extension/package.json').version")
+          BRANCH="chore/release-v${VERSION}"
           git add -A
           git commit --no-verify -m "chore(release): v${VERSION} [skip ci]"
           git tag "v${VERSION}"
           git push origin --tags
-          git push origin main
+          git checkout -b "$BRANCH"
+          git push origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "chore(release): v${VERSION}" \
+            --body "Automated release. Version bumped to v${VERSION}." \
+            --label automated
+          gh pr merge "$BRANCH" --squash --subject "chore(release): v${VERSION}" --body ""
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build extension packages
         run: |
