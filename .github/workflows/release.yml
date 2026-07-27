@@ -22,7 +22,7 @@ jobs:
       - run: pnpm run -r typecheck
 
   release:
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && !startsWith(github.event.head_commit.message, 'chore(release):')
     needs: [quality]
     runs-on: ubuntu-24.04
     permissions:
