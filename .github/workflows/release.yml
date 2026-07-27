@@ -68,7 +68,7 @@ jobs:
       - name: Amend commit with changelog
         run: |
           git add CHANGELOG.md
-          git commit --amend --no-edit
+          git commit --amend --no-edit --no-verify
           git tag -f "v${{ env.VERSION }}"
 
       - name: Create release PR
