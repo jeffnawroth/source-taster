@@ -74,8 +74,7 @@ jobs:
           git push origin "$BRANCH" --force
           gh pr create --base main --head "$BRANCH" \
             --title "chore(release): v${VERSION}" \
-            --body "Automated release. Version bumped to v${VERSION}." \
-            --label automated
+            --body "Automated release. Version bumped to v${VERSION}."
           gh pr merge "$BRANCH" --squash --subject "chore(release): v${VERSION}" --body ""
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
