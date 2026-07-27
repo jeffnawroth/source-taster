@@ -69,9 +69,9 @@ jobs:
           git add -A
           git commit --no-verify -m "chore(release): v${VERSION} [skip ci]"
           git tag "v${VERSION}"
-          git push origin --tags
+          git push origin --tags --force
           git checkout -b "$BRANCH"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" --force
           gh pr create --base main --head "$BRANCH" \
             --title "chore(release): v${VERSION}" \
             --body "Automated release. Version bumped to v${VERSION}." \
