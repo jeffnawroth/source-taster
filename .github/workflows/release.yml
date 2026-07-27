@@ -57,27 +57,30 @@ jobs:
             echo "bump=patch" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Bump versions
-        run: pnpm bumpp --yes --no-verify --no-commit --no-push --all --release "${{ steps.version.outputs.bump }}"
+      - name: Bump versions and commit
+        run: |
+          pnpm bumpp --yes --no-verify --no-push --all --release "${{ steps.version.outputs.bump }}"
+          echo "VERSION=$(node -p "require('./apps/extension/package.json').version")" >> "$GITHUB_ENV"
 
       - name: Generate changelog
         run: npx conventional-changelog -p conventionalcommits -i CHANGELOG.md -s
 
-      - name: Commit, tag, and create release PR
+      - name: Amend commit with changelog
         run: |
-          VERSION=$(node -p "require('./apps/extension/package.json').version")
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          BRANCH="chore/release-v${VERSION}"
-          git add -A
-          git commit --no-verify -m "chore(release): v${VERSION} [skip ci]"
-          git tag -f "v${VERSION}"
+          git add CHANGELOG.md
+          git commit --amend --no-edit
+          git tag -f "v${{ env.VERSION }}"
+
+      - name: Create release PR
+        run: |
+          BRANCH="chore/release-v${{ env.VERSION }}"
           git push origin --tags --force
           git checkout -b "$BRANCH"
           git push origin "$BRANCH" --force
           gh pr create --base main --head "$BRANCH" \
-            --title "chore(release): v${VERSION}" \
-            --body "Automated release. Version bumped to v${VERSION}."
-          gh pr merge "$BRANCH" --squash --subject "chore(release): v${VERSION}" --body ""
+            --title "chore(release): v${{ env.VERSION }}" \
+            --body "Automated release. Version bumped to v${{ env.VERSION }}."
+          gh pr merge "$BRANCH" --squash --subject "chore(release): v${{ env.VERSION }}" --body ""
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
 
