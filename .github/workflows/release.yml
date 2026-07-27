@@ -58,7 +58,7 @@ jobs:
           fi
 
       - name: Bump versions
-        run: pnpm bumpp --no-commit --no-push --all --release "${{ steps.version.outputs.bump }}"
+        run: pnpm bumpp --yes --no-commit --no-push --all --release "${{ steps.version.outputs.bump }}"
 
       - name: Generate changelog
         run: npx conventional-changelog -p conventionalcommits -i CHANGELOG.md -s
