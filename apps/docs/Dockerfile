@@ -14,7 +14,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/docs/package.json apps/docs/package.json
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 FROM deps AS build
 WORKDIR /app
