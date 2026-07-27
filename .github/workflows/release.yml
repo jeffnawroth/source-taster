@@ -78,7 +78,7 @@ jobs:
             --body "Automated release. Version bumped to v${VERSION}."
           gh pr merge "$BRANCH" --squash --subject "chore(release): v${VERSION}" --body ""
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Build extension packages
         run: |
