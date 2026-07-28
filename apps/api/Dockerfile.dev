@@ -8,7 +8,7 @@ COPY apps/api/package.json apps/api/
 COPY packages/types/package.json packages/types/
 COPY packages/types/tsconfig.json packages/types/
 COPY packages/eslint-config/package.json packages/eslint-config/
-RUN pnpm install --no-frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --no-frozen-lockfile
 COPY packages/types/ packages/types/
 RUN pnpm --filter @source-taster/types build
 COPY apps/api/ apps/api/

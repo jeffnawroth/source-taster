@@ -1,7 +1,7 @@
 {
   "name": "@source-taster/docs",
   "type": "module",
-  "version": "2.1.7",
+  "version": "2.1.9",
   "private": true,
   "scripts": {
     "dev": "vitepress dev --force --port 5173",
