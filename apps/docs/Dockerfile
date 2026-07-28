@@ -15,7 +15,7 @@ RUN apt-get update \
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/docs/package.json apps/docs/package.json
 COPY packages/eslint-config/package.json packages/eslint-config/package.json
-RUN pnpm install --no-frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --no-frozen-lockfile
 
 FROM deps AS build
 WORKDIR /app
