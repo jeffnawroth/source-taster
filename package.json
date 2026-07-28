@@ -1,7 +1,7 @@
 {
   "name": "source-taster",
   "type": "module",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "private": true,
   "packageManager": "pnpm@11.14.0",
   "description": "Browser extension and API for automated academic reference verification. Extracts, searches, and validates sources across 5 databases — detects AI-hallucinated references with 100% accuracy.",
@@ -50,7 +50,7 @@
     "typescript": "^5.9.3"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm typecheck && pnpm lint-staged"
+    "pre-commit": "pnpm build:types && pnpm typecheck && pnpm lint-staged"
   },
   "lint-staged": {
     "*": "eslint --fix"
