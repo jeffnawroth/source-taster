@@ -117,5 +117,13 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
             git fetch origin main
             git reset --hard origin/main
-            docker compose build --pull
+
+            # free disk space before build
+            docker system prune -f
+
+            # build images sequentially (low-memory VPS, 3.7GB RAM)
+            for service in landing docs api; do
+              docker compose build --no-cache "$service"
+            done
+
             docker compose up -d --remove-orphans
