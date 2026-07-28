@@ -97,6 +97,37 @@ jobs:
             apps/extension/extension.xpi
           generate_release_notes: true
 
+      - name: Publish to Chrome Web Store
+        if: env.VERSION != ''
+        continue-on-error: true
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+        run: |
+          npx chrome-webstore-upload-cli \
+            --client-id "$CHROME_CLIENT_ID" \
+            --client-secret "$CHROME_CLIENT_SECRET" \
+            --refresh-token "$CHROME_REFRESH_TOKEN" \
+            --extension-id "$CHROME_EXTENSION_ID" \
+            --zip apps/extension/extension.zip
+
+      - name: Publish to Firefox Add-ons
+        if: env.VERSION != ''
+        continue-on-error: true
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          cd apps/extension
+          npx web-ext sign \
+            --channel listed \
+            --source-dir ./extension \
+            --api-key "$AMO_JWT_ISSUER" \
+            --api-secret "$AMO_JWT_SECRET" \
+            --use-submission-api
+
   deploy:
     if: github.actor != 'github-actions[bot]'
     needs: [release]
