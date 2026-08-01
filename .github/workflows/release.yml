@@ -106,7 +106,7 @@ jobs:
           REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
         run: |
-          npx chrome-webstore-upload upload --source apps/extension/extension.zip
+          npx -y -p chrome-webstore-upload-cli chrome-webstore-upload upload --source apps/extension/extension.zip
 
       - name: Publish to Firefox Add-ons
         if: env.VERSION != ''
