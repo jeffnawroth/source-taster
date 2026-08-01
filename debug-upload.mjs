@@ -9,7 +9,7 @@ const client = chromeWebstoreUpload({
 })
 
 try {
-  const res = await client.uploadExisting('apps/extension/extension.zip')
+  const res = await client.uploadExisting(process.env.ZIP_PATH)
   console.log('OK:', JSON.stringify(res))
 } catch (e) {
   console.log('MESSAGE:', e.message)

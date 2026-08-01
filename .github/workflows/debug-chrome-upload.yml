@@ -18,8 +18,6 @@ jobs:
         run: |
           pnpm build
           pnpm --filter @source-taster/extension run pack
-      - name: Install upload library
-        run: npm install --no-save chrome-webstore-upload
       - name: Debug upload
         env:
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -27,4 +25,11 @@ jobs:
           REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
           EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
-        run: node debug-upload.mjs
+          ZIP_PATH: ${{ github.workspace }}/apps/extension/extension.zip
+        run: |
+          mkdir -p /tmp/uploadlib
+          cd /tmp/uploadlib
+          npm init -y >/dev/null
+          npm install chrome-webstore-upload >/dev/null 2>&1
+          cp "$GITHUB_WORKSPACE/debug-upload.mjs" /tmp/uploadlib/
+          node /tmp/uploadlib/debug-upload.mjs
