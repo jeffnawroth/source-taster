@@ -3,7 +3,7 @@
   "displayName": "The Source Taster",
   "version": "2.1.20",
   "private": true,
-  "description": "Browser extension for automated academic reference verification. Extract, search 5 databases, and detect AI-hallucinated sources — 93% APA match rate, 100% hallucination detection.",
+  "description": "Automated academic reference verification: extract citations, search 5 databases, and detect AI-hallucinated sources.",
   "scripts": {
     "dev": "npm run clear && cross-env NODE_ENV=development run-p dev:prepare dev:background dev:web dev:js",
     "dev-firefox": "npm run clear && cross-env NODE_ENV=development EXTENSION=firefox run-p dev:prepare dev:background dev:web dev:js",
