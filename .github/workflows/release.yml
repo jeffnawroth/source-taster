@@ -87,7 +87,7 @@ jobs:
       - name: Build extension packages
         run: |
           pnpm build
-          pnpm --filter @source-taster/extension pack
+          pnpm --filter @source-taster/extension run pack
 
       - uses: softprops/action-gh-release@v2
         with:
