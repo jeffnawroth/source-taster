@@ -1,0 +1,27 @@
+name: Debug Chrome Status
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Debug status
+        env:
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+        run: |
+          mkdir -p /tmp/statuslib
+          cd /tmp/statuslib
+          npm init -y >/dev/null
+          npm install chrome-webstore-upload >/dev/null 2>&1
+          cp "$GITHUB_WORKSPACE/debug-status.mjs" /tmp/statuslib/
+          node /tmp/statuslib/debug-status.mjs
