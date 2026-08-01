@@ -17,7 +17,7 @@
     "build:background": "vite build --config vite.config.background.mts",
     "build:web": "vite build",
     "build:js": "vite build --config vite.config.content.mts",
-    "pack": "cross-env NODE_ENV=production run-p pack:*",
+    "pack": "cross-env NODE_ENV=production run-p \"pack:*\"",
     "pack:zip": "rimraf extension.zip && jszip-cli add extension/* -o ./extension.zip",
     "pack:crx": "echo 'crx is deprecated – use pack:zip instead'",
     "pack:xpi": "cross-env WEB_EXT_ARTIFACTS_DIR=./ web-ext build --source-dir ./extension --filename extension.xpi --overwrite-dest",
