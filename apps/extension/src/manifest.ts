@@ -57,12 +57,6 @@ export async function getManifest() {
         ],
       },
     ],
-    web_accessible_resources: [
-      {
-        resources: ['dist/contentScripts/style.css'],
-        matches: ['<all_urls>'],
-      },
-    ],
     content_security_policy: {
       extension_pages: isDev && !isFirefox
         // this is required on dev for Vite script to load
