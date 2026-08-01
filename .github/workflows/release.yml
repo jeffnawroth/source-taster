@@ -105,6 +105,7 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
         run: |
           npx -y -p chrome-webstore-upload-cli chrome-webstore-upload upload --source apps/extension/extension.zip
 
@@ -120,8 +121,7 @@ jobs:
             --channel listed \
             --source-dir ./extension \
             --api-key "$AMO_JWT_ISSUER" \
-            --api-secret "$AMO_JWT_SECRET" \
-            --use-submission-api
+            --api-secret "$AMO_JWT_SECRET"
 
   deploy:
     if: github.actor != 'github-actions[bot]'
