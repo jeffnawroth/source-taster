@@ -36,7 +36,7 @@ src/components.d.ts
 
 # Environment variables
 .env
-.env.production
+.env.*.local
 
 # Logs
 logs/

@@ -13,7 +13,7 @@ export function isForbiddenUrl(url: string): boolean {
 
 // API Configuration
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8000' : 'https://api.sourcetaster.com'),
   endpoints: {
     extract: '/api/extract',
     match: '/api/match',
