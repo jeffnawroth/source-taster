@@ -10,7 +10,7 @@ export const OpenAIConfigSchema = z.object({
   timeout: z.number().int().min(100).default(30_000).describe('Request timeout in ms'),
   temperature: z.number().min(0).max(2).default(0.7),
   // GPT-5 specific parameters
-  reasoning_effort: z.enum(['minimal', 'low', 'medium', 'high']).optional().describe('GPT-5 reasoning effort level'),
+  reasoning_effort: z.enum(['none', 'low', 'medium', 'high', 'xhigh']).optional().describe('GPT-5 reasoning effort level'),
   verbosity: z.enum(['low', 'medium', 'high']).optional().describe('GPT-5 response verbosity level'),
 }).strict()
 export type OpenAIConfig = z.infer<typeof OpenAIConfigSchema>

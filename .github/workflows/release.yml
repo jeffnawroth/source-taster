@@ -159,7 +159,7 @@ jobs:
             docker system prune -f
 
             # build images sequentially (low-memory VPS, 3.7GB RAM)
-            for service in landing docs api; do
+            for service in landing docs api web; do
               docker compose build "$service"
             done
 

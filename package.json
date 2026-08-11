@@ -53,6 +53,6 @@
     "pre-commit": "pnpm build:types && pnpm typecheck && pnpm lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --fix"
+    "*.{js,mjs,cjs,ts,tsx,vue,json,html,css}": "eslint --fix"
   }
 }

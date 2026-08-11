@@ -69,6 +69,20 @@ services:
       start_period: 10s
     # statische Astro-Site — kein depends_on nötig
 
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - '8084:80'
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, curl, -f, 'http://localhost:80/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     ports:

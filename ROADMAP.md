@@ -32,6 +32,7 @@
 - [ ] Gleiche Assets + Beschreibung wie Chrome
 
 ### 1.3 Landing Page Erweiterungen
+- [x] Web Workspace (`sourcetaster.com/app`) — Paste/PDF → Extract → Verify → Export
 - [ ] Screen-Recording GIF (15s: Paste → Extract → Search → Match)
 - [ ] Pricing-Tabelle (Free / Pro €9/mo / Team €29/mo / Enterprise)
 - [ ] „Coming Soon"-Badges für Cloud-Tier
