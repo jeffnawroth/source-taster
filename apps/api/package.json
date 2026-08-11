@@ -11,7 +11,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx --env-file=.env src/db/migrate.ts"
+    "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
+    "keys": "tsx --env-file=.env src/cli/keys.ts",
+    "key:create": "tsx --env-file=.env src/cli/keys.ts create",
+    "key:list": "tsx --env-file=.env src/cli/keys.ts list",
+    "key:revoke": "tsx --env-file=.env src/cli/keys.ts revoke"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.10",
