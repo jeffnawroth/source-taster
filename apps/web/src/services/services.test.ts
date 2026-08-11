@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { deleteAiSecret, getAiSecretInfo, saveAiSecret } from './aiSecretsService'
 import { apiClient } from './apiClient'
 import { extractReferences } from './extractionService'
@@ -10,6 +10,10 @@ vi.mock('./apiClient', () => ({
 }))
 
 const mocked = vi.mocked(apiClient)
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
 describe('extractionService', () => {
   it('posts text and returns data', async () => {
@@ -30,13 +34,46 @@ describe('extractionService', () => {
 })
 
 describe('searchService', () => {
-  it('posts references array', async () => {
-    mocked.mockResolvedValue({ results: [] } as never)
-    await searchReferences([{ id: '11111111-1111-4111-8111-111111111111', metadata: {} } as never])
-    expect(mocked).toHaveBeenCalledWith('/api/search', {
+  it('searches each database and merges candidates per reference', async () => {
+    mocked.mockResolvedValue({
+      results: [{
+        referenceId: '11111111-1111-4111-8111-111111111111',
+        candidates: [{ id: '22222222-2222-4222-8222-222222222222', source: 'crossref', metadata: {} }],
+      }],
+    } as never)
+    const result = await searchReferences([{ id: '11111111-1111-4111-8111-111111111111', metadata: {} } as never])
+
+    expect(mocked).toHaveBeenCalledTimes(5)
+    expect(mocked).toHaveBeenCalledWith('/api/search/openalex', {
       method: 'POST',
       body: JSON.stringify({ references: [{ id: '11111111-1111-4111-8111-111111111111', metadata: {} }] }),
     })
+    expect(mocked).toHaveBeenCalledWith('/api/search/crossref', {
+      method: 'POST',
+      body: JSON.stringify({ references: [{ id: '11111111-1111-4111-8111-111111111111', metadata: {} }] }),
+    })
+    expect(result.results).toHaveLength(1)
+    expect(result.results[0].candidates).toHaveLength(5)
+  })
+
+  it('throws when every database fails', async () => {
+    mocked.mockRejectedValue(new Error('network down'))
+    await expect(
+      searchReferences([{ id: '11111111-1111-4111-8111-111111111111', metadata: {} } as never]),
+    ).rejects.toThrow('network down')
+  })
+
+  it('returns partial results when some databases fail', async () => {
+    mocked
+      .mockRejectedValueOnce(new Error('openalex down'))
+      .mockResolvedValue({
+        results: [{
+          referenceId: '11111111-1111-4111-8111-111111111111',
+          candidates: [{ id: '22222222-2222-4222-8222-222222222222', source: 'crossref', metadata: {} }],
+        }],
+      } as never)
+    const result = await searchReferences([{ id: '11111111-1111-4111-8111-111111111111', metadata: {} } as never])
+    expect(result.results[0].candidates).toHaveLength(4)
   })
 })
 

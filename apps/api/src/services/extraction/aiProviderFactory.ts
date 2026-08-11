@@ -36,9 +36,9 @@ export class AIProviderFactory {
     // GPT-5 models use different parameters for optimization
     let additionalParams = {}
     if (model.startsWith('gpt-5')) {
-      // For GPT-5: Use minimal reasoning and low verbosity for fastest extraction
+      // For GPT-5: Use low reasoning and low verbosity for fast extraction
       additionalParams = {
-        reasoning_effort: 'minimal', // Fastest response time
+        reasoning_effort: 'low', // Fastest supported reasoning effort
         verbosity: 'low', // Concise output
       }
     }
