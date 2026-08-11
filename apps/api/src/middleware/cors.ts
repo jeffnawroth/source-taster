@@ -7,24 +7,32 @@ import { logger } from './logger.js'
  */
 function getProductionAllowedOrigins(): string[] {
   const extensionIds = process.env.ALLOWED_EXTENSION_IDS
+  const webOrigins = process.env.ALLOWED_WEB_ORIGINS
 
-  if (extensionIds) {
-    // Split comma-separated extension IDs and create full origins
-    const allowedExtensions = extensionIds
-      .split(',')
-      .map(id => id.trim())
-      .filter(Boolean)
-      .flatMap(id => [
-        `chrome-extension://${id}`,
-        `moz-extension://${id}`, // Firefox support
-      ])
+  const allowedExtensions = extensionIds
+    ? extensionIds
+        .split(',')
+        .map(id => id.trim())
+        .filter(Boolean)
+        .flatMap(id => [
+          `chrome-extension://${id}`,
+          `moz-extension://${id}`, // Firefox support
+        ])
+    : [`chrome-extension://*`, `moz-extension://*`]
 
-    return allowedExtensions
+  const allowedWeb = webOrigins
+    ? webOrigins
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(Boolean)
+    : []
+
+  if (!extensionIds) {
+    // Fallback: Allow all extensions if no specific IDs configured
+    logger.warn('⚠️  No ALLOWED_EXTENSION_IDS configured, allowing all extensions')
   }
 
-  // Fallback: Allow all extensions if no specific IDs configured
-  logger.warn('⚠️  No ALLOWED_EXTENSION_IDS configured, allowing all extensions')
-  return ['chrome-extension://*', 'moz-extension://*']
+  return [...allowedExtensions, ...allowedWeb]
 }
 
 /**
@@ -92,7 +100,7 @@ export async function corsMiddleware(c: Context, next: Next) {
 
   // Check exact match
   if (allowedOrigins.includes(origin)) {
-    logger.warn(`✅ PROD: Allowed extension origin: ${origin}`)
+    logger.warn(`✅ PROD: Allowed origin: ${origin}`)
     isAllowed = true
   }
 
@@ -104,7 +112,7 @@ export async function corsMiddleware(c: Context, next: Next) {
     }
     return false
   })) {
-    logger.warn(`✅ PROD: Allowed extension origin (wildcard): ${origin}`)
+    logger.warn(`✅ PROD: Allowed origin (wildcard): ${origin}`)
     isAllowed = true
   }
 
