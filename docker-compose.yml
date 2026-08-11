@@ -15,6 +15,7 @@ services:
       NODE_ENV: production
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_SERVICE_NAME: source-taster-api
+      ALLOWED_WEB_ORIGINS: https://sourcetaster.com,https://www.sourcetaster.com
     restart: unless-stopped
     healthcheck:
       test: [CMD, node, -e, "fetch('http://localhost:8000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
