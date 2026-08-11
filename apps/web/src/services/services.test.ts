@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { deleteAiSecret, getAiSecretInfo, saveAiSecret } from './aiSecretsService'
+import { extractWithAnystyle, parseInputText } from './anystyleService'
 import { apiClient } from './apiClient'
 import { extractReferences } from './extractionService'
 import { matchReference } from './matchingService'
@@ -91,6 +92,61 @@ describe('matchingService', () => {
   })
 })
 
+describe('anystyleService', () => {
+  it('splits multiline input into non-empty trimmed lines', () => {
+    expect(parseInputText('  Ref A  \n\n  Ref B\n')).toEqual(['Ref A', 'Ref B'])
+    expect(parseInputText('   \n \n')).toEqual([])
+  })
+
+  it('returns [] for empty input without calling the api', async () => {
+    const result = await extractWithAnystyle('   \n \n')
+    expect(result).toEqual([])
+    expect(mocked).not.toHaveBeenCalled()
+  })
+
+  it('parses and converts references, merging csl by index', async () => {
+    mocked.mockResolvedValueOnce({
+      references: [
+        { id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', tokens: [['title', 'A']] },
+        { id: '22222222-2222-4222-8222-222222222222', originalText: 'Ref B', tokens: [['title', 'B']] },
+      ],
+    } as never)
+    mocked.mockResolvedValueOnce({ csl: [{ title: 'A' }, { title: 'B' }] } as never)
+
+    const result = await extractWithAnystyle('Ref A\nRef B')
+
+    expect(mocked).toHaveBeenNthCalledWith(1, '/api/anystyle/parse', {
+      method: 'POST',
+      body: JSON.stringify({ input: ['Ref A', 'Ref B'] }),
+    })
+    expect(mocked).toHaveBeenNthCalledWith(2, '/api/anystyle/convert-to-csl', {
+      method: 'POST',
+      body: JSON.stringify({
+        references: [
+          { id: '11111111-1111-4111-8111-111111111111', tokens: [['title', 'A']] },
+          { id: '22222222-2222-4222-8222-222222222222', tokens: [['title', 'B']] },
+        ],
+      }),
+    })
+    expect(result).toEqual([
+      { id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', metadata: { title: 'A' } },
+      { id: '22222222-2222-4222-8222-222222222222', originalText: 'Ref B', metadata: { title: 'B' } },
+    ])
+  })
+
+  it('falls back to empty metadata when csl has no entry for a reference', async () => {
+    mocked.mockResolvedValueOnce({
+      references: [{ id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', tokens: [['title', 'A']] }],
+    } as never)
+    mocked.mockResolvedValueOnce({ csl: [] } as never)
+
+    const result = await extractWithAnystyle('Ref A')
+    expect(result).toEqual([
+      { id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', metadata: {} },
+    ])
+  })
+})
+
 describe('aiSecretsService', () => {
   it('saves, fetches info and deletes', async () => {
     mocked.mockResolvedValueOnce({ saved: true } as never)
@@ -101,10 +157,11 @@ describe('aiSecretsService', () => {
     })
 
     mocked.mockResolvedValueOnce({ hasApiKey: true, provider: 'openai' } as never)
-    await expect(getAiSecretInfo()).resolves.toEqual({ hasApiKey: true, provider: 'openai' })
+    await expect(getAiSecretInfo('openai')).resolves.toEqual({ hasApiKey: true, provider: 'openai' })
+    expect(mocked).toHaveBeenCalledWith('/api/user/ai-secrets?provider=openai')
 
     mocked.mockResolvedValueOnce({ deleted: true } as never)
-    await deleteAiSecret()
-    expect(mocked).toHaveBeenCalledWith('/api/user/ai-secrets', { method: 'DELETE' })
+    await deleteAiSecret('openai')
+    expect(mocked).toHaveBeenCalledWith('/api/user/ai-secrets?provider=openai', { method: 'DELETE' })
   })
 })

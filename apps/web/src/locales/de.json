@@ -7,6 +7,7 @@
     "textareaLabel": "Referenzen hier einfügen",
     "pdfLabel": "Oder PDF hochladen",
     "useAiLabel": "KI-Extraktion verwenden (erfordert API-Key)",
+    "useAiKeyRequired": "Speichere einen API-Key, um KI-Extraktion zu nutzen.",
     "extractButton": "Referenzen extrahieren"
   },
   "results": {

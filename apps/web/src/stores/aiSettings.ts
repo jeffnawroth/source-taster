@@ -11,7 +11,7 @@ export const useAiSettingsStore = defineStore('aiSettings', {
   actions: {
     async loadInfo() {
       try {
-        const info = await getAiSecretInfo()
+        const info = await getAiSecretInfo(this.provider)
         this.hasApiKey = info.hasApiKey
         if (info.provider)
           this.provider = info.provider
@@ -31,7 +31,7 @@ export const useAiSettingsStore = defineStore('aiSettings', {
     },
     async remove() {
       try {
-        await deleteAiSecret()
+        await deleteAiSecret(this.provider)
         this.hasApiKey = false
       }
       catch {

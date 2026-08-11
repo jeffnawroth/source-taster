@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { ApiAIProvider } from '@source-taster/types'
 import { PROVIDER_MODELS } from '@source-taster/types'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAiSettingsStore } from '@/stores/aiSettings'
 import { useExtractionStore } from '@/stores/extraction'
 import { extractTextFromPdfFile } from '@/utils/pdfUtils'
 
 const router = useRouter()
 const extraction = useExtractionStore()
+const aiSettings = useAiSettingsStore()
 
 const inputText = ref('')
 const useAi = ref(false)
-const aiSettings = ref<{ provider: ApiAIProvider }>({ provider: 'openai' })
 
 const providers: { label: string, value: ApiAIProvider }[] = [
   { label: 'OpenAI', value: 'openai' },
@@ -19,6 +20,10 @@ const providers: { label: string, value: ApiAIProvider }[] = [
   { label: 'Google (Gemini)', value: 'google' },
   { label: 'DeepSeek', value: 'deepseek' },
 ]
+
+onMounted(() => {
+  aiSettings.loadInfo()
+})
 
 async function onPdf(file: File | null) {
   if (!file)
@@ -29,8 +34,8 @@ async function onPdf(file: File | null) {
 }
 
 async function onExtract() {
-  const ai = useAi.value
-    ? { provider: aiSettings.value.provider, model: PROVIDER_MODELS[aiSettings.value.provider][0] }
+  const ai = useAi.value && aiSettings.hasApiKey
+    ? { provider: aiSettings.provider, model: PROVIDER_MODELS[aiSettings.provider][0] }
     : undefined
   await extraction.extract(inputText.value, ai)
   if (!extraction.error)
@@ -69,7 +74,10 @@ async function onExtract() {
         @change="onPdf"
       />
 
-      <v-switch v-model="useAi" :label="$t('home.useAiLabel')" class="mb-2" />
+      <v-switch v-model="useAi" :label="$t('home.useAiLabel')" :disabled="aiSettings.hasApiKey !== true" class="mb-2" />
+      <p v-if="aiSettings.hasApiKey !== true" class="text-body-2 text-medium-emphasis mb-4">
+        {{ $t('home.useAiKeyRequired') }}
+      </p>
       <div v-if="useAi" class="mb-4">
         <v-select v-model="aiSettings.provider" :items="providers" item-title="label" item-value="value" label="Provider" />
       </div>

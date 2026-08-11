@@ -7,6 +7,7 @@
     "textareaLabel": "Paste references here",
     "pdfLabel": "Or upload a PDF",
     "useAiLabel": "Use AI extraction (requires API key)",
+    "useAiKeyRequired": "Save an API key to unlock AI extraction.",
     "extractButton": "Extract references"
   },
   "results": {

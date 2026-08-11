@@ -1,5 +1,6 @@
 import type { ApiAISettings, ApiExtractReference } from '@source-taster/types'
 import { defineStore } from 'pinia'
+import { extractWithAnystyle } from '@/services/anystyleService'
 import { extractReferences } from '@/services/extractionService'
 
 export const useExtractionStore = defineStore('extraction', {
@@ -13,8 +14,10 @@ export const useExtractionStore = defineStore('extraction', {
       this.loading = true
       this.error = null
       try {
-        const data = await extractReferences(text, aiSettings)
-        this.references = data.references
+        const references = aiSettings
+          ? (await extractReferences(text, aiSettings)).references
+          : await extractWithAnystyle(text)
+        this.references = references
       }
       catch (e) {
         this.error = e instanceof Error ? e.message : 'Extraction failed'

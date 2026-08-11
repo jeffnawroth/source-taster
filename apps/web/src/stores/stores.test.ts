@@ -1,7 +1,8 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { classifyScore } from '@/utils/scores'
-import { deleteAiSecret, saveAiSecret } from '../services/aiSecretsService'
+import { deleteAiSecret, getAiSecretInfo, saveAiSecret } from '../services/aiSecretsService'
+import { extractWithAnystyle } from '../services/anystyleService'
 import { extractReferences } from '../services/extractionService'
 import { matchReference } from '../services/matchingService'
 
@@ -10,6 +11,7 @@ import { useAiSettingsStore } from './aiSettings'
 import { useExtractionStore } from './extraction'
 import { useVerificationStore } from './verification'
 
+vi.mock('../services/anystyleService', () => ({ extractWithAnystyle: vi.fn() }))
 vi.mock('../services/extractionService', () => ({ extractReferences: vi.fn() }))
 vi.mock('../services/searchService', () => ({ searchReferences: vi.fn() }))
 vi.mock('../services/matchingService', () => ({ matchReference: vi.fn() }))
@@ -28,15 +30,29 @@ describe('classifyScore', () => {
 })
 
 describe('useExtractionStore', () => {
-  beforeEach(() => setActivePinia(createPinia()))
-  it('extracts and stores references', async () => {
-    vi.mocked(extractReferences).mockResolvedValue({ references: [ref(U)] } as never)
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+  it('extracts via anystyle without aiSettings and stores references', async () => {
+    vi.mocked(extractWithAnystyle).mockResolvedValue([ref(U)] as never)
     const store = useExtractionStore()
     await store.extract('text')
+    expect(extractWithAnystyle).toHaveBeenCalledWith('text')
     expect(store.references).toHaveLength(1)
     expect(store.loading).toBe(false)
     store.removeReference(U)
     expect(store.references).toHaveLength(0)
+  })
+
+  it('extracts via ai path when aiSettings are provided', async () => {
+    vi.mocked(extractReferences).mockResolvedValue({ references: [ref(U)] } as never)
+    const store = useExtractionStore()
+    await store.extract('text', { provider: 'openai', model: 'gpt-5-mini' })
+    expect(extractReferences).toHaveBeenCalledWith('text', { provider: 'openai', model: 'gpt-5-mini' })
+    expect(extractWithAnystyle).not.toHaveBeenCalled()
+    expect(store.references).toHaveLength(1)
+    expect(store.loading).toBe(false)
   })
 })
 
@@ -54,12 +70,22 @@ describe('useAiSettingsStore', () => {
     expect(store.hasApiKey).toBe(true)
   })
 
+  it('loads api key info for the current provider', async () => {
+    vi.mocked(getAiSecretInfo).mockResolvedValue({ hasApiKey: true, provider: 'openai' })
+    const store = useAiSettingsStore()
+    store.provider = 'openai'
+    await store.loadInfo()
+    expect(getAiSecretInfo).toHaveBeenCalledWith('openai')
+    expect(store.hasApiKey).toBe(true)
+  })
+
   it('removes the api key', async () => {
     vi.mocked(deleteAiSecret).mockResolvedValue({})
     const store = useAiSettingsStore()
+    store.provider = 'openai'
     store.hasApiKey = true
     await store.remove()
-    expect(deleteAiSecret).toHaveBeenCalled()
+    expect(deleteAiSecret).toHaveBeenCalledWith('openai')
     expect(store.hasApiKey).toBe(false)
   })
 })

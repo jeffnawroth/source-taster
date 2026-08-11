@@ -69,6 +69,10 @@ docker compose down                # Stoppen
 docker compose down --volumes      # Stoppen + Volumes löschen
 ```
 
+## Web App (sourcetaster.com/app)
+
+Die Web-Version deployed als `web`-Compose-Service auf Port 8084. Der Caddy der Server-Maschine muss `sourcetaster.com/app/*` auf `web:8084` routen (SPA nutzt Hash-Routing, kein Rewrite nötig). Dieser Schritt wird nach dem Merge manuell durchgeführt.
+
 ## Contribution Guide
 
 - **Branch-Naming:** `feature/`, `fix/`, `chore/` Prefix
