@@ -2,7 +2,6 @@ import type {
   ApiAnystyleConvertData,
   ApiAnystyleParseData,
   ApiExtractReference,
-  CSLItem,
 } from '@source-taster/types'
 import { apiClient } from './apiClient'
 
@@ -32,6 +31,6 @@ export async function extractWithAnystyle(text: string): Promise<ApiExtractRefer
   return parseData.references.map((ref, i) => ({
     id: ref.id,
     originalText: ref.originalText,
-    metadata: (convertData.csl[i] ?? {}) as CSLItem,
+    metadata: { ...(convertData.csl[i] ?? {}), id: ref.id },
   }))
 }

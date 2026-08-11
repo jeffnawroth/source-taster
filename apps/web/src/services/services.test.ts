@@ -129,8 +129,8 @@ describe('anystyleService', () => {
       }),
     })
     expect(result).toEqual([
-      { id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', metadata: { title: 'A' } },
-      { id: '22222222-2222-4222-8222-222222222222', originalText: 'Ref B', metadata: { title: 'B' } },
+      { id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', metadata: { id: '11111111-1111-4111-8111-111111111111', title: 'A' } },
+      { id: '22222222-2222-4222-8222-222222222222', originalText: 'Ref B', metadata: { id: '22222222-2222-4222-8222-222222222222', title: 'B' } },
     ])
   })
 
@@ -142,7 +142,7 @@ describe('anystyleService', () => {
 
     const result = await extractWithAnystyle('Ref A')
     expect(result).toEqual([
-      { id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', metadata: {} },
+      { id: '11111111-1111-4111-8111-111111111111', originalText: 'Ref A', metadata: { id: '11111111-1111-4111-8111-111111111111' } },
     ])
   })
 })
