@@ -2,5 +2,20 @@
 </script>
 
 <template>
-  <div>{{ $t('app.tagline') }}</div>
+  <v-row justify="center">
+    <v-col cols="12" md="8">
+      <h1 class="text-h4 mb-4">
+        {{ $t('about.title') }}
+      </h1>
+      <p class="text-body-1 mb-3">
+        {{ $t('about.webIntro') }}
+      </p>
+      <p class="text-body-1 mb-3">
+        {{ $t('about.extensionIntro') }}
+      </p>
+      <v-btn color="primary" href="https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp" target="_blank" rel="noopener">
+        {{ $t('about.extensionLink') }}
+      </v-btn>
+    </v-col>
+  </v-row>
 </template>

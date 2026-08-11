@@ -1,4 +1,4 @@
-import type { ApiExtractReference, ApiMatchData } from '@source-taster/types'
+import type { ApiExtractReference, ApiMatchData, ApiMatchEvaluation } from '@source-taster/types'
 import type { VerificationStatus } from '@/utils/scores'
 import { defineStore } from 'pinia'
 import { matchReference } from '@/services/matchingService'
@@ -13,6 +13,7 @@ export interface ReferenceResult {
 export const useVerificationStore = defineStore('verification', {
   state: () => ({
     results: {} as Record<string, ReferenceResult>,
+    bestEvaluations: {} as Record<string, ApiMatchEvaluation[]>,
     running: false,
     error: null as string | null,
   }),
@@ -34,6 +35,7 @@ export const useVerificationStore = defineStore('verification', {
             candidates.map(c => ({ id: c.id, metadata: c.metadata })),
           )
           const bestScore = bestScoreOf(data.evaluations)
+          this.bestEvaluations[reference.id] = data.evaluations
           this.results[reference.id] = { bestScore, status: classifyScore(bestScore) }
         }
       }

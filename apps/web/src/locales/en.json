@@ -1,4 +1,29 @@
 {
   "app": { "title": "Source Taster", "tagline": "Verify your references" },
-  "nav": { "about": "About", "results": "Results" }
+  "nav": { "about": "About", "results": "Results" },
+  "home": {
+    "title": "Verify your references",
+    "subtitle": "Paste a reference list or upload a PDF. We extract the citations, search 5 academic databases, and score every match.",
+    "textareaLabel": "Paste references here",
+    "pdfLabel": "Or upload a PDF",
+    "useAiLabel": "Use AI extraction (requires API key)",
+    "extractButton": "Extract references"
+  },
+  "results": {
+    "back": "Back",
+    "verifyButton": "Verify all",
+    "export": "Export",
+    "empty": "No references extracted yet — go back and paste text or upload a PDF.",
+    "match": "Best match",
+    "notFound": "No matching source found. This reference could be hallucinated — double-check it!",
+    "verified": "Verified",
+    "partial": "Partial match",
+    "notFoundShort": "Not found"
+  },
+  "about": {
+    "title": "About Source Taster Web",
+    "webIntro": "This web app verifies references online — no installation needed. Paste text or upload a PDF, we extract and check every reference against 5 academic databases.",
+    "extensionIntro": "For checking references directly in your workflow (context menu, sidepanel), install the browser extension.",
+    "extensionLink": "Get the extension (Chrome Web Store)"
+  }
 }

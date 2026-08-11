@@ -1,4 +1,29 @@
 {
   "app": { "title": "Source Taster", "tagline": "Prüfe deine Referenzen" },
-  "nav": { "about": "Über", "results": "Ergebnisse" }
+  "nav": { "about": "Über", "results": "Ergebnisse" },
+  "home": {
+    "title": "Prüfe deine Referenzen",
+    "subtitle": "Füge eine Referenzliste ein oder lade ein PDF hoch. Wir extrahieren die Zitate, durchsuchen 5 akademische Datenbanken und bewerten jeden Treffer.",
+    "textareaLabel": "Referenzen hier einfügen",
+    "pdfLabel": "Oder PDF hochladen",
+    "useAiLabel": "KI-Extraktion verwenden (erfordert API-Key)",
+    "extractButton": "Referenzen extrahieren"
+  },
+  "results": {
+    "back": "Zurück",
+    "verifyButton": "Alle prüfen",
+    "export": "Export",
+    "empty": "Noch keine Referenzen extrahiert — gehe zurück und füge Text ein oder lade ein PDF hoch.",
+    "match": "Bester Treffer",
+    "notFound": "Keine Quelle gefunden. Diese Referenz könnte halluziniert sein — prüfe sie noch einmal!",
+    "verified": "Verifiziert",
+    "partial": "Teilweise übereinstimmend",
+    "notFoundShort": "Nicht gefunden"
+  },
+  "about": {
+    "title": "Über Source Taster Web",
+    "webIntro": "Diese Web-App prüft Referenzen online — ganz ohne Installation. Füge Text ein oder lade ein PDF hoch; wir extrahieren und prüfen jede Referenz gegen 5 akademische Datenbanken.",
+    "extensionIntro": "Für die Prüfung direkt im Arbeitsfluss (Kontextmenü, Sidepanel) installiere die Browser-Erweiterung.",
+    "extensionLink": "Erweiterung holen (Chrome Web Store)"
+  }
 }
