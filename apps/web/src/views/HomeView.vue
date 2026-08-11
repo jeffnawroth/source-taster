@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ApiAIProvider } from '@source-taster/types'
+import { PROVIDER_MODELS } from '@source-taster/types'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useExtractionStore } from '@/stores/extraction'
@@ -9,9 +11,9 @@ const extraction = useExtractionStore()
 
 const inputText = ref('')
 const useAi = ref(false)
-const aiSettings = ref({ provider: 'openai' })
+const aiSettings = ref<{ provider: ApiAIProvider }>({ provider: 'openai' })
 
-const providers = [
+const providers: { label: string, value: ApiAIProvider }[] = [
   { label: 'OpenAI', value: 'openai' },
   { label: 'Anthropic (Claude)', value: 'anthropic' },
   { label: 'Google (Gemini)', value: 'google' },
@@ -27,7 +29,10 @@ async function onPdf(file: File | null) {
 }
 
 async function onExtract() {
-  await extraction.extract(inputText.value, useAi.value ? { provider: aiSettings.value.provider as never, model: 'gpt-5-mini' as never } : undefined)
+  const ai = useAi.value
+    ? { provider: aiSettings.value.provider, model: PROVIDER_MODELS[aiSettings.value.provider][0] }
+    : undefined
+  await extraction.extract(inputText.value, ai)
   if (!extraction.error)
     router.push('/results')
 }

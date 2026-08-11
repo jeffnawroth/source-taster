@@ -13,8 +13,17 @@
       <p class="text-body-1 mb-3">
         {{ $t('about.extensionIntro') }}
       </p>
-      <v-btn color="primary" href="https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp" target="_blank" rel="noopener">
+      <p class="text-body-1 mb-6">
+        {{ $t('about.privacy') }}
+      </p>
+      <v-btn color="primary" href="https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp" target="_blank" rel="noopener" class="mr-3">
         {{ $t('about.extensionLink') }}
+      </v-btn>
+      <v-btn variant="tonal" href="https://sourcetaster.com" target="_blank" rel="noopener" class="mr-3">
+        {{ $t('about.landingLink') }}
+      </v-btn>
+      <v-btn variant="tonal" href="https://sourcetaster.github.io/source-taster/" target="_blank" rel="noopener">
+        {{ $t('about.docsLink') }}
       </v-btn>
     </v-col>
   </v-row>

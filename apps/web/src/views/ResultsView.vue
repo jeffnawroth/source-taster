@@ -26,7 +26,7 @@ function download(filename: string, content: string, type: string) {
 }
 
 function exportJson() {
-  download('references.json', JSON.stringify(extraction.references, null, 2), 'application/json')
+  download('references.json', JSON.stringify(extraction.references.map(r => r.metadata), null, 2), 'application/json')
 }
 
 function exportBibtex() {

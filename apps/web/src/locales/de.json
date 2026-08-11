@@ -24,6 +24,9 @@
     "title": "Über Source Taster Web",
     "webIntro": "Diese Web-App prüft Referenzen online — ganz ohne Installation. Füge Text ein oder lade ein PDF hoch; wir extrahieren und prüfen jede Referenz gegen 5 akademische Datenbanken.",
     "extensionIntro": "Für die Prüfung direkt im Arbeitsfluss (Kontextmenü, Sidepanel) installiere die Browser-Erweiterung.",
-    "extensionLink": "Erweiterung holen (Chrome Web Store)"
+    "extensionLink": "Erweiterung holen (Chrome Web Store)",
+    "privacy": "Dein Text und deine Referenzen werden nur zur Verarbeitung an unsere API gesendet. API-Keys werden serverseitig verschlüsselt gespeichert.",
+    "landingLink": "Website",
+    "docsLink": "Dokumentation"
   }
 }

@@ -24,6 +24,9 @@
     "title": "About Source Taster Web",
     "webIntro": "This web app verifies references online — no installation needed. Paste text or upload a PDF, we extract and check every reference against 5 academic databases.",
     "extensionIntro": "For checking references directly in your workflow (context menu, sidepanel), install the browser extension.",
-    "extensionLink": "Get the extension (Chrome Web Store)"
+    "extensionLink": "Get the extension (Chrome Web Store)",
+    "privacy": "Your text and references are only sent to our API for processing. API keys are stored encrypted on the server.",
+    "landingLink": "Website",
+    "docsLink": "Documentation"
   }
 }

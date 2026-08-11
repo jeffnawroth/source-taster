@@ -22,6 +22,7 @@ export const useVerificationStore = defineStore('verification', {
       this.running = true
       this.error = null
       this.results = {}
+      this.bestEvaluations = {}
       try {
         const { results } = await searchReferences(references.map(r => ({ id: r.id, metadata: r.metadata })))
         for (const reference of references) {
