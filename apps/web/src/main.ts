@@ -2,6 +2,8 @@ import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createI18n } from 'vue-i18n'
 import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 import App from './App.vue'
 import de from './locales/de.json'
 import en from './locales/en.json'
@@ -17,6 +19,8 @@ const i18n = createI18n({
 })
 
 const vuetify = createVuetify({
+  components,
+  directives,
   theme: {
     defaultTheme: 'light',
     themes: {
