@@ -56,6 +56,8 @@ In `docker-compose.yml` einen Service `postgres` ergänzen:
       POSTGRES_USER: sourcetaster
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sourcetaster_pg}
       POSTGRES_DB: sourcetaster
+    ports:
+      - '127.0.0.1:5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
@@ -446,45 +448,40 @@ import { describe, expect, it } from 'vitest'
 import type { ApiKeyRow } from '../db/schema.js'
 import { keyAuth } from './auth.js'
 
-function fakeLookup(rows: Array<Pick<ApiKeyRow, 'id' | 'keyPrefix' | 'status'>>) {
-  const byHash = new Map(rows.map((r, i) => [`hash-${i}`, r]))
-  return async (hash: string) => byHash.get(hash) ?? null
+async function fakeLookup(rows: Array<Pick<ApiKeyRow, 'id' | 'keyPrefix' | 'status'>>): Promise<ApiKeyRow | null> {
+  return rows[0] ?? null
 }
 
-function buildApp(lookup: ReturnType<typeof fakeLookup>) {
+function buildApp(rows: Array<Pick<ApiKeyRow, 'id' | 'keyPrefix' | 'status'>>) {
   const app = new Hono()
-  app.use('*', keyAuth(lookup))
+  app.use('*', keyAuth(fakeLookup.bind(null, rows)))
   app.get('/test', (c) => c.json({ ok: true, apiKey: c.get('apiKey') ?? null }))
   return app
 }
 
 describe('keyAuth', () => {
   it('lets requests without X-API-Key pass (browser path)', async () => {
-    const app = buildApp(fakeLookup([]))
-    const res = await app.request('/test')
+    const res = await buildApp([]).request('/test')
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ ok: true, apiKey: null })
   })
 
   it('rejects invalid keys with 401', async () => {
-    const app = buildApp(fakeLookup([]))
-    const res = await app.request('/test', { headers: { 'X-API-Key': 'srt_live_nope' } })
+    const res = await buildApp([]).request('/test', { headers: { 'X-API-Key': 'srt_live_nope' } })
     expect(res.status).toBe(401)
   })
 
   it('rejects revoked keys with 401', async () => {
-    const app = buildApp(fakeLookup([
+    const res = await buildApp([
       { id: 'revoked-id', keyPrefix: 'srt_live_…0000', status: 'revoked' },
-    ]))
-    const res = await app.request('/test', { headers: { 'X-API-Key': 'srt_live_whatever' } })
+    ]).request('/test', { headers: { 'X-API-Key': 'srt_live_whatever' } })
     expect(res.status).toBe(401)
   })
 
   it('accepts valid active keys and exposes key context', async () => {
-    const app = buildApp(fakeLookup([
+    const res = await buildApp([
       { id: 'key-1', keyPrefix: 'srt_live_…0000', status: 'active' },
-    ]))
-    const res = await app.request('/test', { headers: { 'X-API-Key': 'srt_live_whatever' } })
+    ]).request('/test', { headers: { 'X-API-Key': 'srt_live_whatever' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ ok: true, apiKey: { id: 'key-1', keyPrefix: 'srt_live_…0000' } })
   })
