@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { apiClient, ApiError } from './apiClient'
+import { apiClient } from './apiClient'
 import { getClientId } from './clientId'
 
 function okResponse(data: unknown) {
   return new Response(JSON.stringify({ success: true, data }), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }
-function errorResponse(error: string, status = 400) {
-  return new Response(JSON.stringify({ success: false, error }), { status, headers: { 'Content-Type': 'application/json' } })
+function errorResponse(code: string, message: string, status = 400) {
+  return new Response(JSON.stringify({ success: false, error: code, message }), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
 describe('getClientId', () => {
@@ -39,13 +39,14 @@ describe('apiClient', () => {
     expect((init!.headers as Headers).get('X-Client-Id')).toBe(id)
   })
 
-  it('throws ApiError with status and message on error envelope', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(errorResponse('Invalid reference', 400)))
-    await expect(apiClient('/api/match')).rejects.toMatchObject({ status: 400, message: 'Invalid reference' })
+  it('throws ApiError with status, code and message on error envelope', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(errorResponse('validation_error', 'Invalid reference', 400)))
+    await expect(apiClient('/api/match')).rejects.toMatchObject({ status: 400, code: 'validation_error', message: 'Invalid reference' })
   })
 
   it('falls back to HTTP status text when body is not an envelope', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('oops', { status: 500 })))
-    await expect(apiClient('/api/search')).rejects.toBeInstanceOf(ApiError)
+    const res = new Response('oops', { status: 500 })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(res))
+    await expect(apiClient('/api/search')).rejects.toMatchObject({ status: 500, message: res.statusText })
   })
 })
