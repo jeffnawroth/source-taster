@@ -5,7 +5,7 @@
 <h1 align="center">The Source Taster</h1>
 
 <p align="center">
-  <b>Browser extension + API for automated academic reference verification.</b><br>
+  <b>Browser extension + web app + API for automated academic reference verification.</b><br>
   Extract references, search 5 databases, and detect AI-hallucinated sources — 93% APA match rate, 100% hallucination detection, <3 seconds per reference.
 </p>
 
@@ -40,6 +40,7 @@
 
 | Browser                       | Link                                                                                                            |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Online (ohne Installation)    | [Web App](https://sourcetaster.com/app) — Paste & Verify im Browser                                             |
 | Chrome / Edge / Brave / Opera | [Chrome Web Store](https://chromewebstore.google.com/detail/the-source-taster/leggmjghcbdfilhfkgnllhnhhbalpanp) |
 | Firefox                       | [GitHub Releases](https://github.com/jeffnawroth/source-taster/releases) (XPI)                                  |
 

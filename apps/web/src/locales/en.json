@@ -1,6 +1,6 @@
 {
   "app": { "title": "Source Taster", "tagline": "Verify your references" },
-  "nav": { "about": "About", "results": "Results" },
+  "nav": { "about": "About", "home": "Home", "results": "Results" },
   "home": {
     "title": "Verify your references",
     "subtitle": "Paste a reference list or upload a PDF. We extract the citations, search 5 academic databases, and score every match.",

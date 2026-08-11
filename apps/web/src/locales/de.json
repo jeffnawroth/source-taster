@@ -1,6 +1,6 @@
 {
   "app": { "title": "Source Taster", "tagline": "Prüfe deine Referenzen" },
-  "nav": { "about": "Über", "results": "Ergebnisse" },
+  "nav": { "about": "Über", "home": "Start", "results": "Ergebnisse" },
   "home": {
     "title": "Prüfe deine Referenzen",
     "subtitle": "Füge eine Referenzliste ein oder lade ein PDF hoch. Wir extrahieren die Zitate, durchsuchen 5 akademische Datenbanken und bewerten jeden Treffer.",
