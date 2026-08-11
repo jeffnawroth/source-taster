@@ -1,7 +1,7 @@
 {
   "name": "@source-taster/extension",
   "displayName": "The Source Taster",
-  "version": "2.1.26",
+  "version": "2.1.27",
   "private": true,
   "description": "Automated academic reference verification: extract citations, search 5 databases, and detect AI-hallucinated sources.",
   "scripts": {

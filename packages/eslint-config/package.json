@@ -1,7 +1,7 @@
 {
   "name": "@source-taster/eslint-config",
   "type": "module",
-  "version": "2.1.26",
+  "version": "2.1.27",
   "exports": {
     ".": "./eslint.config.js",
     "./create-config": "./create-config.js"
