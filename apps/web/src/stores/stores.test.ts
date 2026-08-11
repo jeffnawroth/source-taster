@@ -1,17 +1,19 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { classifyScore } from '@/utils/scores'
+import { deleteAiSecret, saveAiSecret } from '../services/aiSecretsService'
 import { extractReferences } from '../services/extractionService'
 import { matchReference } from '../services/matchingService'
 
 import { searchReferences } from '../services/searchService'
+import { useAiSettingsStore } from './aiSettings'
 import { useExtractionStore } from './extraction'
 import { useVerificationStore } from './verification'
 
 vi.mock('../services/extractionService', () => ({ extractReferences: vi.fn() }))
 vi.mock('../services/searchService', () => ({ searchReferences: vi.fn() }))
 vi.mock('../services/matchingService', () => ({ matchReference: vi.fn() }))
-vi.mock('../services/aiSecretsService', () => ({ getAiSecretInfo: vi.fn() }))
+vi.mock('../services/aiSecretsService', () => ({ deleteAiSecret: vi.fn(), getAiSecretInfo: vi.fn(), saveAiSecret: vi.fn() }))
 
 const U = '11111111-1111-4111-8111-111111111111'
 const ref = (id: string) => ({ id, originalText: 'x', metadata: { title: 'T' } })
@@ -35,6 +37,30 @@ describe('useExtractionStore', () => {
     expect(store.loading).toBe(false)
     store.removeReference(U)
     expect(store.references).toHaveLength(0)
+  })
+})
+
+describe('useAiSettingsStore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+  it('saves an api key', async () => {
+    vi.mocked(saveAiSecret).mockResolvedValue({})
+    const store = useAiSettingsStore()
+    store.provider = 'openai'
+    await store.save('sk-test')
+    expect(saveAiSecret).toHaveBeenCalledWith('openai', 'sk-test')
+    expect(store.hasApiKey).toBe(true)
+  })
+
+  it('removes the api key', async () => {
+    vi.mocked(deleteAiSecret).mockResolvedValue({})
+    const store = useAiSettingsStore()
+    store.hasApiKey = true
+    await store.remove()
+    expect(deleteAiSecret).toHaveBeenCalled()
+    expect(store.hasApiKey).toBe(false)
   })
 })
 
