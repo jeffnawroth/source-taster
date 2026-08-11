@@ -55,7 +55,7 @@ export async function corsMiddleware(c: Context, next: Next) {
 
     // Handle preflight
     if (c.req.method === 'OPTIONS') {
-      return new Response('', { status: 204 })
+      return new Response(null, { status: 204 })
     }
 
     return next()
@@ -90,7 +90,7 @@ export async function corsMiddleware(c: Context, next: Next) {
     c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Extension-ID, X-Client-Id')
 
     if (c.req.method === 'OPTIONS') {
-      return new Response('', { status: 204 })
+      return new Response(null, { status: 204 })
     }
 
     return next()
@@ -129,7 +129,7 @@ export async function corsMiddleware(c: Context, next: Next) {
 
   // Handle preflight
   if (c.req.method === 'OPTIONS') {
-    return new Response('', { status: 204 })
+    return new Response(null, { status: 204 })
   }
 
   return next()
