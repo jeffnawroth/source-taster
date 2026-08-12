@@ -773,11 +773,11 @@ Auf `jeff@195.201.102.233` in `/srv/source-taster`:
 rm -f docker-compose.override.yml
 docker compose up -d --build
 docker compose exec api printenv NODE_ENV     # muss "production" zeigen
-docker compose exec api node -e "fetch('http://localhost:8000/v1/health').then(r => console.log(r.status))"
+docker compose exec api node -e "fetch('http://localhost:8000/health').then(r => console.log(r.status))"
 docker compose ps
 ```
 
-Expected: api läuft mit `NODE_ENV=production`, Migration hat `api_keys` angelegt, `/v1/health` → 200. Postgres-Daten liegen in Volume `source-taster_pgdata`.
+Expected: api läuft mit `NODE_ENV=production`, Migration hat `api_keys` angelegt, `/health` → 200. Postgres-Daten liegen in Volume `source-taster_pgdata`.
 
 - [ ] **Step 4: Key für Partner vergeben (erstes echtes Onboarding)**
 

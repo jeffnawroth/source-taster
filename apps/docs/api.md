@@ -10,10 +10,10 @@ outline: deep
 - **Headers:**
   - `Content-Type: application/json`
   - `X-Client-Id: <uuid-v4>` – required for `/v1/extract` and `/v1/user/*`, optional elsewhere.
-  - `X-API-Key: <srt_live_…>` – optional für Server-Clients (B2B). Wenn gesetzt, muss der Key
-    aktiv sein, sonst `401 invalid_api_key`. Browser-Clients senden stattdessen `X-Client-Id`.
-  - Keys werden über das CLI vergeben (`pnpm --filter @source-taster/api key:create`), nur der
-    SHA-256-Hash wird gespeichert; ein Widerruf erfolgt per `key:revoke <id>`.
+  - `X-API-Key: <srt_live_…>` – optional for server clients (B2B). If set, the key must be
+    active, otherwise `401 invalid_api_key`. Browser clients send `X-Client-Id` instead.
+  - Keys are issued via the CLI (`pnpm --filter @source-taster/api key:create`); only the
+    SHA-256 hash is stored, revocation happens via `key:revoke <id>`.
 - **Response envelope:**
 
 ```json
