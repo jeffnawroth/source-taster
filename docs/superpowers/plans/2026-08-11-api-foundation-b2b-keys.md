@@ -643,7 +643,7 @@ Expected: PASS
 docker compose up -d postgres
 pnpm --filter @source-taster/api key:create   # Key notieren
 pnpm dev   # API auf :8000 (aus Root)
-curl -i http://localhost:8000/v1/health           # 200
+curl -i http://localhost:8000/health           # 200 (Health liegt an Root, außerhalb CORS)
 curl -i http://localhost:8000/v1/search/openalex \
   -H 'Content-Type: application/json' \
   -d '{"references":[{"id":"00000000-0000-0000-0000-000000000000","metadata":{"type":"article-journal","title":"x","author":[]}}]}'
