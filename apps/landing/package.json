@@ -1,7 +1,7 @@
 {
   "name": "@source-taster/landing",
   "type": "module",
-  "version": "2.1.31",
+  "version": "2.1.32",
   "private": true,
   "scripts": {
     "dev": "astro dev",
