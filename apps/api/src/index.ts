@@ -8,6 +8,7 @@ import { withClientId } from './middleware/clientId.js'
 import { corsMiddleware } from './middleware/cors.js'
 import { logger } from './middleware/logger.js'
 import { metricsMiddleware } from './middleware/metrics.js'
+import { rateLimit } from './middleware/rateLimit.js'
 import { requestId } from './middleware/requestId.js'
 import { requestLogger } from './middleware/requestLogger.js'
 import { anystyleRouter } from './routes/anystyleRouter.js'
@@ -34,6 +35,9 @@ app.route('/', healthRouter)
 
 // API-Key-Auth: optional-invalidierend — fehlt der Key, läuft der Browser-Pfad
 app.use('/v1/*', keyAuth(findApiKeyByHash))
+
+// Rate-Limiting: Bucket pro API-Key, geteilter Bucket für anonyme Caller (nach keyAuth, vor den Routen)
+app.use('/v1/*', rateLimit())
 
 // Browser-Clients: X-Client-Id bleibt Pflicht für diese Routen
 app.use('/v1/user/*', withClientId)
