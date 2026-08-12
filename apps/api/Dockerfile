@@ -34,6 +34,7 @@ RUN apt-get update \
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build /app/apps/api/dist/ ./apps/api/dist/
+COPY --from=build /app/apps/api/drizzle/ ./apps/api/drizzle/
 COPY --from=build /app/apps/api/package.json ./apps/api/package.json
 COPY --from=build /app/apps/api/.env.example ./apps/api/.env.example
 COPY --from=build /app/packages/types ./packages/types
@@ -43,4 +44,4 @@ RUN mkdir -p /app/.keystore
 VOLUME ["/app/.keystore"]
 
 EXPOSE 8000
-CMD ["node", "apps/api/dist/index.js"]
+CMD ["sh", "-c", "node apps/api/dist/db/migrate.js && node apps/api/dist/index.js"]

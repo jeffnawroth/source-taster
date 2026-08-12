@@ -137,3 +137,6 @@ evaluation/out/
 
 # cache test
 # chrome store test
+
+# git worktrees
+.worktrees/

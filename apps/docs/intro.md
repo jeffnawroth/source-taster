@@ -42,10 +42,10 @@ The system consists of three main building blocks:
 
 ## API Highlights
 
-- `/api/extract` — AI extraction with `response_format=json_schema` and automatic fallback to `json_object`.
-- `/api/search/:database` — provider-specific search with DOI/identifier shortcuts and query heuristics.
-- `/api/match` — deterministic matching with normalisation and similarity heuristics.
-- `/api/anystyle/*` — proxy to a Ruby AnyStyle server for tokenisation and CSL conversion.
-- `/api/user/ai-secrets` — store, inspect, and delete user keys (scoped by `X-Client-Id`).
+- `/v1/extract` — AI extraction with `response_format=json_schema` and automatic fallback to `json_object`.
+- `/v1/search/:database` — provider-specific search with DOI/identifier shortcuts and query heuristics.
+- `/v1/match` — deterministic matching with normalisation and similarity heuristics.
+- `/v1/anystyle/*` — proxy to a Ruby AnyStyle server for tokenisation and CSL conversion.
+- `/v1/user/ai-secrets` — store, inspect, and delete user keys (scoped by `X-Client-Id`).
 
 A full flow from extraction to matching is illustrated in [Architecture](architecture.md).

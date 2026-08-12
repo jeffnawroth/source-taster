@@ -9,7 +9,7 @@ export async function searchReferences(references: ApiSearchReference[]): Promis
 
   for (const database of SEARCH_DATABASES) {
     try {
-      const data = await apiClient(`/api/search/${database}`, {
+      const data = await apiClient(`/v1/search/${database}`, {
         method: 'POST',
         body: JSON.stringify({ references }),
       }) as ApiSearchData

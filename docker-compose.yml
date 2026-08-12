@@ -10,6 +10,7 @@ services:
     volumes:
       - ./apps/api/.keystore:/app/.keystore
     environment:
+      DATABASE_URL: postgres://sourcetaster:${POSTGRES_PASSWORD:-sourcetaster_pg}@postgres:5432/sourcetaster
       ANYSTYLE_SERVER_URL: http://anystyle:4567
       LOKI_URL: http://loki:3100
       NODE_ENV: production
@@ -26,6 +27,25 @@ services:
     depends_on:
       anystyle:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sourcetaster
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sourcetaster_pg}
+      POSTGRES_DB: sourcetaster
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U sourcetaster -d sourcetaster']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   anystyle:
     build:
@@ -167,3 +187,6 @@ services:
       GF_SMTP_FROM_ADDRESS: contact@jeffnawroth.me
       GF_SMTP_FROM_NAME: Source Taster Alerts
     restart: unless-stopped
+
+volumes:
+  pgdata:

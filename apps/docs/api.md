@@ -9,7 +9,11 @@ outline: deep
 - **Format:** JSON (`application/json`)
 - **Headers:**
   - `Content-Type: application/json`
-  - `X-Client-Id: <uuid-v4>` – required for `/api/extract` and `/api/user/*`, optional elsewhere.
+  - `X-Client-Id: <uuid-v4>` – required for `/v1/extract` and `/v1/user/*`, optional elsewhere.
+  - `X-API-Key: <srt_live_…>` – optional for server clients (B2B). If set, the key must be
+    active, otherwise `401 invalid_api_key`. Browser clients send `X-Client-Id` instead.
+  - Keys are issued via the CLI (`pnpm --filter @source-taster/api key:create`); only the
+    SHA-256 hash is stored, revocation happens via `key:revoke <id>`.
 - **Response envelope:**
 
 ```json
@@ -48,17 +52,17 @@ Health/info endpoint.
 {
   "name": "Source Taster API",
   "endpoints": {
-    "anystyle": "/api/anystyle",
-    "extract": "/api/extract",
-    "search": "/api/search",
-    "match": "/api/match"
+    "anystyle": "/v1/anystyle",
+    "extract": "/v1/extract",
+    "search": "/v1/search",
+    "match": "/v1/match"
   }
 }
 ```
 
 ---
 
-### POST `/api/extract`
+### POST `/v1/extract`
 
 Extract references from free text via AI.
 
@@ -112,7 +116,7 @@ Extract references from free text via AI.
 
 ---
 
-### POST `/api/search/:database`
+### POST `/v1/search/:database`
 
 Search in a single database.
 
@@ -176,7 +180,7 @@ Search in a single database.
 
 ---
 
-### POST `/api/match`
+### POST `/v1/match`
 
 Match one reference against supplied candidates.
 
@@ -249,12 +253,12 @@ Match one reference against supplied candidates.
 
 ### AnyStyle Proxy
 
-#### POST `/api/anystyle/parse`
+#### POST `/v1/anystyle/parse`
 
 - **Body:** `{ "input": ["Smith, J., Example Article, 2024"] }`
 - **Response:** `{ "references": [{ "id": "fa8c3f40-6ed9-4c74-9cf4-08c46bdc7b4b", "originalText": "Smith, J., Example Article, 2024", "tokens": [["author", "Smith"], ["title", "Example Article"]] }] }`
 
-#### POST `/api/anystyle/convert-to-csl`
+#### POST `/v1/anystyle/convert-to-csl`
 
 - **Body:** `{ "references": [{ "id": "fa8c3f40-6ed9-4c74-9cf4-08c46bdc7b4b", "tokens": [["author", "Smith"], ["title", "Example Article"]] }] }`
 - **Response:** `{ "csl": [{ "title": "Example Article", "author": [{ "family": "Smith", "given": "John" }] }] }`
@@ -265,17 +269,17 @@ Client errors (`4xx`) and server errors (`5xx`) from AnyStyle are passed through
 
 ### User Secrets
 
-#### POST `/api/user/ai-secrets`
+#### POST `/v1/user/ai-secrets`
 
 - **Headers:** `X-Client-Id`
 - **Body:** `{ "provider": "openai", "apiKey": "sk-live-example-key" }`
 - **Response:** `{ "success": true, "data": { "saved": true } }`
 
-#### GET `/api/user/ai-secrets?provider=openai`
+#### GET `/v1/user/ai-secrets?provider=openai`
 
 - **Response:** `{ "success": true, "data": { "hasApiKey": true, "provider": "openai" } }`
 
-#### DELETE `/api/user/ai-secrets?provider=openai`
+#### DELETE `/v1/user/ai-secrets?provider=openai`
 
 - **Response:** `{ "success": true, "data": { "deleted": true } }`
 
@@ -288,13 +292,13 @@ The keystore encrypts values via AES-256-GCM and stores them in `KEYSTORE_DIR`.
 1. **Extract** (see above).
 2. **Search**:
    ```bash
-   curl -X POST http://localhost:8000/api/search/openalex \
+   curl -X POST http://localhost:8000/v1/search/openalex \
      -H 'Content-Type: application/json' \
      -d '{"references":[{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","metadata":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","title":"Example Article"}}]}'
    ```
 3. **Match**:
    ```bash
-   curl -X POST http://localhost:8000/api/match \
+   curl -X POST http://localhost:8000/v1/match \
      -H 'Content-Type: application/json' \
      -d '{"reference":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","metadata":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","title":"Example Article"}},"candidates":[{"id":"c40b55dd-3f5f-42d4-9b5b-6f4aab559201","metadata":{"id":"candidate-1","title":"Candidate Article"}}]}'
    ```

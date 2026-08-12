@@ -42,10 +42,10 @@ Das System besteht aus drei Kernbausteinen:
 
 ## Hauptfunktionen der API
 
-- `/api/extract`: KI-Extraktion mit `response_format=json_schema` und Fallback auf `json_object`.
-- `/api/search/:database`: Provider-spezifische Suche mit DOI-/Identifier-Shortcuts und Query-Heuristiken.
-- `/api/match`: Deterministisches Matching mit Normalisierungs- und Ähnlichkeitsheuristiken.
-- `/api/anystyle/*`: Proxy zum AnyStyle-Ruby-Server für Tokenisierung und CSL-Konvertierung.
-- `/api/user/ai-secrets`: Speichern, Auslesen und Löschen von Nutzer-Keys (per `X-Client-Id`).
+- `/v1/extract`: KI-Extraktion mit `response_format=json_schema` und Fallback auf `json_object`.
+- `/v1/search/:database`: Provider-spezifische Suche mit DOI-/Identifier-Shortcuts und Query-Heuristiken.
+- `/v1/match`: Deterministisches Matching mit Normalisierungs- und Ähnlichkeitsheuristiken.
+- `/v1/anystyle/*`: Proxy zum AnyStyle-Ruby-Server für Tokenisierung und CSL-Konvertierung.
+- `/v1/user/ai-secrets`: Speichern, Auslesen und Löschen von Nutzer-Keys (per `X-Client-Id`).
 
 Ein Ablauf von der Referenz bis zum Match ist in [Architektur](architecture.md) visualisiert.

@@ -34,7 +34,7 @@ export async function parse(c: Context): Promise<Response> {
   }
 }
 
-/** POST /api/anystyle/convert-to-csl */
+/** POST /v1/anystyle/convert-to-csl */
 export async function convertToCSL(c: Context): Promise<Response> {
   const start = Date.now()
   const req = ApiAnystyleConvertRequestSchema.parse(await c.req.json())

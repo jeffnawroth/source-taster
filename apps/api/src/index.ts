@@ -3,6 +3,7 @@ import { serve } from '@hono/node-server'
 import { httpInstrumentationMiddleware } from '@hono/otel'
 import { Hono } from 'hono'
 import { registerOnError } from './errors/registerOnError.js'
+import { keyAuth } from './middleware/auth.js'
 import { withClientId } from './middleware/clientId.js'
 import { corsMiddleware } from './middleware/cors.js'
 import { logger } from './middleware/logger.js'
@@ -15,6 +16,7 @@ import { healthRouter } from './routes/healthRouter.js'
 import matchingRouter from './routes/matchingRouter.js'
 import searchRouter from './routes/searchRouter.js'
 import { userRouter } from './routes/userRouter.js'
+import { findApiKeyByHash } from './services/apiKeyService.js'
 import './telemetry/instrumentation.js'
 
 const app = new Hono()
@@ -25,30 +27,34 @@ app.use('*', httpInstrumentationMiddleware())
 app.use('*', requestId())
 app.use('*', requestLogger())
 app.use('*', metricsMiddleware())
-app.use('/api/*', corsMiddleware)
+app.use('/v1/*', corsMiddleware)
 
 // Mount health & metrics — not protected by CORS so monitoring tools work
 app.route('/', healthRouter)
 
-app.use('/api/user/*', withClientId)
-app.use('/api/extract', withClientId)
+// API-Key-Auth: optional-invalidierend — fehlt der Key, läuft der Browser-Pfad
+app.use('/v1/*', keyAuth(findApiKeyByHash))
 
-// Mount API routes
-app.route('/api/anystyle', anystyleRouter)
-app.route('/api/extract', extractionRouter)
-app.route('/api/match', matchingRouter)
-app.route('/api/search', searchRouter)
-app.route('/api/user', userRouter)
+// Browser-Clients: X-Client-Id bleibt Pflicht für diese Routen
+app.use('/v1/user/*', withClientId)
+app.use('/v1/extract', withClientId)
+
+// Mount API routes (versioned namespace)
+app.route('/v1/anystyle', anystyleRouter)
+app.route('/v1/extract', extractionRouter)
+app.route('/v1/match', matchingRouter)
+app.route('/v1/search', searchRouter)
+app.route('/v1/user', userRouter)
 
 // Root endpoint
 app.get('/', (c) => {
   return c.json({
     name: 'Source Taster API',
     endpoints: {
-      anystyle: '/api/anystyle',
-      extract: '/api/extract',
-      search: '/api/search',
-      match: '/api/match',
+      anystyle: '/v1/anystyle',
+      extract: '/v1/extract',
+      search: '/v1/search',
+      match: '/v1/match',
     },
   })
 })

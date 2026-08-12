@@ -88,6 +88,6 @@ Manifest wird durch `scripts/prepare.ts` generiert (`esno scripts/manifest.ts`).
 
 ## Sicherheit & Datenschutz
 
-- API-Keys werden nicht lokal gespeichert, sondern verschlüsselt über `/api/user/ai-secrets` abgelegt.
+- API-Keys werden nicht lokal gespeichert, sondern verschlüsselt über `/v1/user/ai-secrets` abgelegt.
 - Alle Requests laufen gegen `VITE_API_BASE_URL` (`env.ts`, Default `http://localhost:8000`).
 - **TODO:** CSP/Permissions prüfen, sobald neue Provider oder APIs hinzukommen.

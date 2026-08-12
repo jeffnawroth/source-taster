@@ -3,7 +3,9 @@ import type { MiddlewareHandler } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 
-export interface AppEnv { Variables: { userId: string } }
+export interface AppEnv {
+  Variables: { userId: string, apiKey?: { id: string, keyPrefix: string } | null }
+}
 
 // UUID v4 Check via Zod
 const ClientIdSchema = z.uuid()
@@ -11,6 +13,13 @@ const ClientIdSchema = z.uuid()
 export const withClientId: MiddlewareHandler<AppEnv> = async (c, next) => {
   // OPTIONS (Preflight) durchlassen
   if (c.req.method === 'OPTIONS') {
+    return next()
+  }
+
+  // key caller (X-API-Key) -> derive userId from the key id, no client id needed
+  const apiKey = c.get('apiKey')
+  if (apiKey) {
+    c.set('userId', apiKey.id)
     return next()
   }
 
