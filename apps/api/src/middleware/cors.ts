@@ -64,6 +64,16 @@ export async function corsMiddleware(c: Context, next: Next) {
   // PRODUCTION: Only allow specific extension IDs
   const allowedOrigins = getProductionAllowedOrigins()
 
+  // B2B server clients authenticate with X-API-Key (a bearer secret like
+  // Authorization); CORS is a browser mechanism, so skip origin validation
+  // for key callers — keyAuth validates the key right after.
+  if (c.req.header('X-API-Key')) {
+    if (c.req.method === 'OPTIONS') {
+      return new Response(null, { status: 204 })
+    }
+    return next()
+  }
+
   const fetchSite = c.req.header('sec-fetch-site')
   const fetchMode = c.req.header('sec-fetch-mode')
   const clientIdHeader = c.req.header('X-Client-Id')
