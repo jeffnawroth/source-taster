@@ -9,7 +9,11 @@ outline: deep
 - **Format:** JSON (`application/json`)
 - **Header:**
   - `Content-Type: application/json`
-  - `X-Client-Id: <uuid-v4>` – Pflicht für `/api/extract` und `/api/user/*`, optional für andere Endpoints.
+  - `X-Client-Id: <uuid-v4>` – Pflicht für `/v1/extract` und `/v1/user/*`, optional für andere Endpoints.
+  - `X-API-Key: <srt_live_…>` – optional für Server-Clients (B2B). Wenn gesetzt, muss der Key
+    aktiv sein, sonst `401 invalid_api_key`. Browser-Clients senden stattdessen `X-Client-Id`.
+  - Keys werden über das CLI vergeben (`pnpm --filter @source-taster/api key:create`), nur der
+    SHA-256-Hash wird gespeichert; ein Widerruf erfolgt per `key:revoke <id>`.
 - **Antwortschema:**
 
 ```json
@@ -48,17 +52,17 @@ Kurzer Health-/Info-Endpunkt.
 {
   "name": "Source Taster API",
   "endpoints": {
-    "anystyle": "/api/anystyle",
-    "extract": "/api/extract",
-    "search": "/api/search",
-    "match": "/api/match"
+    "anystyle": "/v1/anystyle",
+    "extract": "/v1/extract",
+    "search": "/v1/search",
+    "match": "/v1/match"
   }
 }
 ```
 
 ---
 
-### POST `/api/extract`
+### POST `/v1/extract`
 
 Extrahiert Referenzen aus freiem Text via KI.
 
@@ -112,7 +116,7 @@ Extrahiert Referenzen aus freiem Text via KI.
 
 ---
 
-### POST `/api/search/:database`
+### POST `/v1/search/:database`
 
 Recherche in einer einzelnen Datenbank.
 
@@ -176,7 +180,7 @@ Recherche in einer einzelnen Datenbank.
 
 ---
 
-### POST `/api/match`
+### POST `/v1/match`
 
 Vergleicht eine Referenz mit übergebenen Kandidaten.
 
@@ -249,12 +253,12 @@ Vergleicht eine Referenz mit übergebenen Kandidaten.
 
 ### AnyStyle-Proxy
 
-#### POST `/api/anystyle/parse`
+#### POST `/v1/anystyle/parse`
 
 - **Body:** `{ "input": ["Smith, J., Example Article, 2024"] }`
 - **Antwort:** `{ "references": [{ "id": "fa8c3f40-6ed9-4c74-9cf4-08c46bdc7b4b", "originalText": "Smith, J., Example Article, 2024", "tokens": [["author", "Smith"], ["title", "Example Article"]] }] }`
 
-#### POST `/api/anystyle/convert-to-csl`
+#### POST `/v1/anystyle/convert-to-csl`
 
 - **Body:** `{ "references": [{ "id": "fa8c3f40-6ed9-4c74-9cf4-08c46bdc7b4b", "tokens": [["author", "Smith"], ["title", "Example Article"]] }] }`
 - **Antwort:** `{ "csl": [{ "title": "Example Article", "author": [{ "family": "Smith", "given": "John" }] }] }`
@@ -265,17 +269,17 @@ Fehler werden 1:1 als `bad_request` oder `upstream_error` durchgereicht.
 
 ### Nutzer-Keys
 
-#### POST `/api/user/ai-secrets`
+#### POST `/v1/user/ai-secrets`
 
 - **Header:** `X-Client-Id`
 - **Body:** `{ "provider": "openai", "apiKey": "sk-live-example-key" }`
 - **Antwort:** `{ "success": true, "data": { "saved": true } }`
 
-#### GET `/api/user/ai-secrets?provider=openai`
+#### GET `/v1/user/ai-secrets?provider=openai`
 
 - **Antwort:** `{ "success": true, "data": { "hasApiKey": true, "provider": "openai" } }`
 
-#### DELETE `/api/user/ai-secrets?provider=openai`
+#### DELETE `/v1/user/ai-secrets?provider=openai`
 
 - **Antwort:** `{ "success": true, "data": { "deleted": true } }`
 
@@ -288,13 +292,13 @@ Der KeyStore verschlüsselt Werte (AES-256-GCM) und speichert sie in `KEYSTORE_D
 1. **Extraktion** – siehe oben.
 2. **Suche**:
    ```bash
-   curl -X POST http://localhost:8000/api/search/openalex \
+   curl -X POST http://localhost:8000/v1/search/openalex \
      -H 'Content-Type: application/json' \
      -d '{"references":[{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","metadata":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","title":"Example Article"}}]}'
    ```
 3. **Matching**:
    ```bash
-   curl -X POST http://localhost:8000/api/match \
+   curl -X POST http://localhost:8000/v1/match \
      -H 'Content-Type: application/json' \
      -d '{"reference":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","metadata":{"id":"8f9c4b2e-3b9c-4ef1-9fbf-9f1f0c93a111","title":"Example Article"}},"candidates":[{"id":"c40b55dd-3f5f-42d4-9b5b-6f4aab559201","metadata":{"id":"candidate-1","title":"Example Article"}}]}'
    ```

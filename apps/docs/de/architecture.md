@@ -8,7 +8,7 @@ outline: deep
 ## Komponenten
 
 - **Browser-Extension** (Vue 3, Pinia, Vuetify): UI-Schicht, verwaltet WebExtension-Storage (`clientId`, Einstellungen) und kommuniziert per `fetch` mit der API.
-- **Source Taster API** (Hono): Stellt `/api/extract`, `/api/search/:database`, `/api/match`, `/api/anystyle/*`, `/api/user/*` bereit.
+- **Source Taster API** (Hono): Stellt `/v1/extract`, `/v1/search/:database`, `/v1/match`, `/v1/anystyle/*`, `/v1/user/*` bereit.
 - **AnyStyle-Server** (Ruby, Sinatra): Tokenisiert Referenzen und konvertiert sie in CSL.
 - **Externe Datenquellen**: OpenAlex, Crossref, Semantic Scholar, Europe PMC, arXiv.
 - **Shared Types** (`@source-taster/types`): CSL-JSON-Schemata, API-Verträge, Matching-Konfigurationen.
@@ -44,17 +44,17 @@ sequenceDiagram
 
   User->>Ext: Text / PDF bereitstellen
   Ext->>Ext: PDF-Text extrahieren (unpdf)
-  Ext->>API: POST /api/extract (X-Client-Id)
+  Ext->>API: POST /v1/extract (X-Client-Id)
   API->>LLM: KI-Provider anfragen (OpenAI / Anthropic / Google / DeepSeek)
   LLM-->>API: Strukturierte Referenzen
   API->>Any: POST /parse (optional AnyStyle-Workflow)
   API-->>Ext: Extrahierte CSL-Referenzen
   Ext->>Ext: Einstellungen anwenden (Felder, Matching)
-  Ext->>API: POST /api/search/openalex
+  Ext->>API: POST /v1/search/openalex
   API->>OA: DOI- / Query-Suche
   OA-->>API: Kandidaten
   API-->>Ext: Kandidatenliste
-  Ext->>API: POST /api/match (Referenz + Kandidaten)
+  Ext->>API: POST /v1/match (Referenz + Kandidaten)
   API->>API: DeterministicEngine.matchReference
   API-->>Ext: Scores & Felddetails
   Ext-->>User: Visualisierung & Export
@@ -72,7 +72,7 @@ sequenceDiagram
 
 ## Datenflüsse & Speicherung
 
-- Die **clientId** wird einmalig per `useWebExtensionStorage` erzeugt und bei `/api/extract` sowie `/api/user/*` gesendet.
+- Die **clientId** wird einmalig per `useWebExtensionStorage` erzeugt und bei `/v1/extract` sowie `/v1/user/*` gesendet.
 - **Nutzer-API-Keys** werden AES-256-GCM-verschlüsselt in `.keystore/` abgelegt (konfigurierbar).
 - **Matching-Ergebnisse** werden serverseitig nicht persistiert; der Browser hält den Zustand.
 - **AnyStyle** läuft als separater Service (Docker-Compose-Service `anystyle`).

@@ -8,7 +8,7 @@ outline: deep
 ## Components
 
 - **Browser extension** (Vue 3, Pinia, Vuetify): UI layer, manages WebExtension storage (`clientId`, settings), and communicates with the API via `fetch`.
-- **Source Taster API** (Hono): exposes `/api/extract`, `/api/search/:database`, `/api/match`, `/api/anystyle/*`, `/api/user/*`.
+- **Source Taster API** (Hono): exposes `/v1/extract`, `/v1/search/:database`, `/v1/match`, `/v1/anystyle/*`, `/v1/user/*`.
 - **AnyStyle server** (Ruby, Sinatra): tokenises references and converts them to CSL.
 - **External data sources**: OpenAlex, Crossref, Semantic Scholar, Europe PMC, arXiv.
 - **Shared types** (`@source-taster/types`): CSL-JSON schemas, API contracts, matching configuration.
@@ -44,17 +44,17 @@ sequenceDiagram
 
   User->>Ext: Provide text / PDF
   Ext->>Ext: Extract PDF text (unpdf)
-  Ext->>API: POST /api/extract (X-Client-Id)
+  Ext->>API: POST /v1/extract (X-Client-Id)
   API->>LLM: Invoke extraction LLM (OpenAI / Anthropic / Google / DeepSeek)
   LLM-->>API: Structured reference payload
   API->>Any: POST /parse (optional AnyStyle workflow)
   API-->>Ext: Extracted CSL references
   Ext->>Ext: Apply settings (fields, matching)
-  Ext->>API: POST /api/search/openalex
+  Ext->>API: POST /v1/search/openalex
   API->>OA: DOI / query search
   OA-->>API: Candidate set
   API-->>Ext: Candidate payload
-  Ext->>API: POST /api/match (reference + candidates)
+  Ext->>API: POST /v1/match (reference + candidates)
   API->>API: DeterministicEngine.matchReference
   API-->>Ext: Scores & field details
   Ext-->>User: Visualisation & export
@@ -72,7 +72,7 @@ sequenceDiagram
 
 ## Data Flow & Storage
 
-- The **clientId** is generated once via `useWebExtensionStorage` and sent alongside `/api/extract` and `/api/user/*` calls.
+- The **clientId** is generated once via `useWebExtensionStorage` and sent alongside `/v1/extract` and `/v1/user/*` calls.
 - **User API keys** are encrypted (AES-256-GCM) and stored in `.keystore/` (configurable via environment variables).
 - **Matching results** are not persisted server-side; the browser keeps the state.
 - **AnyStyle** runs as a dedicated service (see Docker Compose `anystyle` service).

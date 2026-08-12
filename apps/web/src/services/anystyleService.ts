@@ -17,11 +17,11 @@ export async function extractWithAnystyle(text: string): Promise<ApiExtractRefer
   if (input.length === 0)
     return []
 
-  const parseData = await apiClient('/api/anystyle/parse', {
+  const parseData = await apiClient('/v1/anystyle/parse', {
     method: 'POST',
     body: JSON.stringify({ input }),
   }) as ApiAnystyleParseData
-  const convertData = await apiClient('/api/anystyle/convert-to-csl', {
+  const convertData = await apiClient('/v1/anystyle/convert-to-csl', {
     method: 'POST',
     body: JSON.stringify({
       references: parseData.references.map(r => ({ id: r.id, tokens: r.tokens })),

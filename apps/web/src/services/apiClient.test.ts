@@ -32,21 +32,21 @@ describe('apiClient', () => {
     const fetchMock = vi.fn().mockResolvedValue(okResponse({ ok: true }))
     vi.stubGlobal('fetch', fetchMock)
     const id = getClientId()
-    const result = await apiClient('/api/extract', { method: 'POST', body: JSON.stringify({ text: 'x' }) })
+    const result = await apiClient('/v1/extract', { method: 'POST', body: JSON.stringify({ text: 'x' }) })
     expect(result).toEqual({ ok: true })
     const [url, init] = fetchMock.mock.calls[0]
-    expect(String(url)).toBe('http://localhost:8000/api/extract')
+    expect(String(url)).toBe('http://localhost:8000/v1/extract')
     expect((init!.headers as Headers).get('X-Client-Id')).toBe(id)
   })
 
   it('throws ApiError with status, code and message on error envelope', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(errorResponse('validation_error', 'Invalid reference', 400)))
-    await expect(apiClient('/api/match')).rejects.toMatchObject({ status: 400, code: 'validation_error', message: 'Invalid reference' })
+    await expect(apiClient('/v1/match')).rejects.toMatchObject({ status: 400, code: 'validation_error', message: 'Invalid reference' })
   })
 
   it('falls back to HTTP status text when body is not an envelope', async () => {
     const res = new Response('oops', { status: 500 })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(res))
-    await expect(apiClient('/api/search')).rejects.toMatchObject({ status: 500, message: res.statusText })
+    await expect(apiClient('/v1/search')).rejects.toMatchObject({ status: 500, message: res.statusText })
   })
 })

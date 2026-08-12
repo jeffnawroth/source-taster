@@ -21,7 +21,7 @@ describe('extractionService', () => {
     const data = { references: [] }
     mocked.mockResolvedValue(data as never)
     const result = await extractReferences('Some ref text', { provider: 'openai', model: 'gpt-5-mini' })
-    expect(mocked).toHaveBeenCalledWith('/api/extract', {
+    expect(mocked).toHaveBeenCalledWith('/v1/extract', {
       method: 'POST',
       body: JSON.stringify({ text: 'Some ref text', aiSettings: { provider: 'openai', model: 'gpt-5-mini' } }),
     })
@@ -30,7 +30,7 @@ describe('extractionService', () => {
   it('works without aiSettings', async () => {
     mocked.mockResolvedValue({ references: [] } as never)
     await extractReferences('text')
-    expect(mocked).toHaveBeenCalledWith('/api/extract', { method: 'POST', body: JSON.stringify({ text: 'text' }) })
+    expect(mocked).toHaveBeenCalledWith('/v1/extract', { method: 'POST', body: JSON.stringify({ text: 'text' }) })
   })
 })
 
@@ -45,11 +45,11 @@ describe('searchService', () => {
     const result = await searchReferences([{ id: '11111111-1111-4111-8111-111111111111', metadata: {} } as never])
 
     expect(mocked).toHaveBeenCalledTimes(5)
-    expect(mocked).toHaveBeenCalledWith('/api/search/openalex', {
+    expect(mocked).toHaveBeenCalledWith('/v1/search/openalex', {
       method: 'POST',
       body: JSON.stringify({ references: [{ id: '11111111-1111-4111-8111-111111111111', metadata: {} }] }),
     })
-    expect(mocked).toHaveBeenCalledWith('/api/search/crossref', {
+    expect(mocked).toHaveBeenCalledWith('/v1/search/crossref', {
       method: 'POST',
       body: JSON.stringify({ references: [{ id: '11111111-1111-4111-8111-111111111111', metadata: {} }] }),
     })
@@ -82,7 +82,7 @@ describe('matchingService', () => {
   it('posts reference and candidates', async () => {
     mocked.mockResolvedValue({ evaluations: [] } as never)
     await matchReference({ id: '11111111-1111-4111-8111-111111111111', metadata: {} } as never, [])
-    expect(mocked).toHaveBeenCalledWith('/api/match', {
+    expect(mocked).toHaveBeenCalledWith('/v1/match', {
       method: 'POST',
       body: JSON.stringify({
         reference: { id: '11111111-1111-4111-8111-111111111111', metadata: {} },
@@ -115,11 +115,11 @@ describe('anystyleService', () => {
 
     const result = await extractWithAnystyle('Ref A\nRef B')
 
-    expect(mocked).toHaveBeenNthCalledWith(1, '/api/anystyle/parse', {
+    expect(mocked).toHaveBeenNthCalledWith(1, '/v1/anystyle/parse', {
       method: 'POST',
       body: JSON.stringify({ input: ['Ref A', 'Ref B'] }),
     })
-    expect(mocked).toHaveBeenNthCalledWith(2, '/api/anystyle/convert-to-csl', {
+    expect(mocked).toHaveBeenNthCalledWith(2, '/v1/anystyle/convert-to-csl', {
       method: 'POST',
       body: JSON.stringify({
         references: [
@@ -151,17 +151,17 @@ describe('aiSecretsService', () => {
   it('saves, fetches info and deletes', async () => {
     mocked.mockResolvedValueOnce({ saved: true } as never)
     await saveAiSecret('openai', 'sk-test')
-    expect(mocked).toHaveBeenCalledWith('/api/user/ai-secrets', {
+    expect(mocked).toHaveBeenCalledWith('/v1/user/ai-secrets', {
       method: 'POST',
       body: JSON.stringify({ provider: 'openai', apiKey: 'sk-test' }),
     })
 
     mocked.mockResolvedValueOnce({ hasApiKey: true, provider: 'openai' } as never)
     await expect(getAiSecretInfo('openai')).resolves.toEqual({ hasApiKey: true, provider: 'openai' })
-    expect(mocked).toHaveBeenCalledWith('/api/user/ai-secrets?provider=openai')
+    expect(mocked).toHaveBeenCalledWith('/v1/user/ai-secrets?provider=openai')
 
     mocked.mockResolvedValueOnce({ deleted: true } as never)
     await deleteAiSecret('openai')
-    expect(mocked).toHaveBeenCalledWith('/api/user/ai-secrets?provider=openai', { method: 'DELETE' })
+    expect(mocked).toHaveBeenCalledWith('/v1/user/ai-secrets?provider=openai', { method: 'DELETE' })
   })
 })
