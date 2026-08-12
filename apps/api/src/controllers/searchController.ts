@@ -8,7 +8,7 @@ import { httpBadRequest } from '../errors/http.js'
 import searchCoordinator from '../services/search/searchCoordinator.js'
 
 /**
- * POST /api/search/:database
+ * POST /v1/search/:database
  * Search for references in a single database
  */
 export async function searchSingleDatabase(c: Context) {

@@ -4,7 +4,7 @@ import * as extractionController from '../controllers/extractionController.js'
 const router = new Hono()
 
 /**
- * @route POST /api/extract
+ * @route POST /v1/extract
  * @desc Extract references from text using AI
  */
 router.post('/', extractionController.extractReferences)

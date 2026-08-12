@@ -9,11 +9,11 @@ import {
 
 export const userRouter = new Hono<AppEnv>()
 
-// POST /api/user/ai-secrets
+// POST /v1/user/ai-secrets
 userRouter.post('/ai-secrets', saveAISecrets)
 
-// GET /api/user/ai-secrets?provider=...
+// GET /v1/user/ai-secrets?provider=...
 userRouter.get('/ai-secrets', getAISecretsInfo)
 
-// DELETE /api/user/ai-secrets?provider=...
+// DELETE /v1/user/ai-secrets?provider=...
 userRouter.delete('/ai-secrets', deleteAISecrets)

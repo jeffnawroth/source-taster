@@ -4,7 +4,7 @@ import * as matchingController from '../controllers/matchingController.js'
 const router = new Hono()
 
 /**
- * @route POST /api/match
+ * @route POST /v1/match
  * @desc Pure matching - evaluates provided candidates against references (no AI, no API keys needed)
  */
 router.post('/', matchingController.matchReference)

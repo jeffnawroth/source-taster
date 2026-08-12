@@ -11,7 +11,7 @@ const tracer = trace.getTracer('source-taster-api', '2.1.3')
 
 /**
  * Extract references from text using AI
- * POST /api/extract
+ * POST /v1/extract
  */
 export async function extractReferences(c: Context) {
   return tracer.startActiveSpan('extract.references', async (span) => {

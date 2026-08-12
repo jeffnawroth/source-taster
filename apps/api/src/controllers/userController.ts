@@ -8,7 +8,7 @@ import {
 import { userSecretsService } from '../services/userSecretsService.js'
 
 /**
- * POST /api/user/ai-secrets
+ * POST /v1/user/ai-secrets
  * Body: { provider, apiKey }
  */
 export async function saveAISecrets(c: Context): Promise<Response> {
@@ -25,7 +25,7 @@ export async function saveAISecrets(c: Context): Promise<Response> {
 }
 
 /**
- * GET /api/user/ai-secrets?provider=...
+ * GET /v1/user/ai-secrets?provider=...
  */
 export async function getAISecretsInfo(c: Context): Promise<Response> {
   const userId = c.get('userId') as string
@@ -41,7 +41,7 @@ export async function getAISecretsInfo(c: Context): Promise<Response> {
 }
 
 /**
- * DELETE /api/user/ai-secrets?provider=...
+ * DELETE /v1/user/ai-secrets?provider=...
  */
 export async function deleteAISecrets(c: Context): Promise<Response> {
   const userId = c.get('userId') as string

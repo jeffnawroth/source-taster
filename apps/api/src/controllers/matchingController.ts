@@ -5,7 +5,7 @@ import { matchCandidatesEvaluatedTotal, matchDurationSeconds } from '../middlewa
 import { MatchingCoordinator } from '../services/matching/matchingCoordinator.js'
 
 /**
- * POST /api/match
+ * POST /v1/match
  */
 export async function matchReference(c: Context) {
   const req = ApiMatchRequestSchema.parse(await c.req.json())

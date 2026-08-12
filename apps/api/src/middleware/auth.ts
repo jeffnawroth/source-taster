@@ -4,6 +4,12 @@ import { hashApiKey } from '../services/apiKeyService.js'
 
 export interface ApiKeyContext { apiKey: { id: string, keyPrefix: string } }
 
+export class InvalidApiKeyError extends HTTPException {
+  constructor() {
+    super(401, { message: 'Invalid API key' })
+  }
+}
+
 export function keyAuth(lookup: (hash: string) => Promise<{ id: string, keyPrefix: string, status: string } | null>): MiddlewareHandler<{ Variables: ApiKeyContext }> {
   return async (c, next) => {
     const header = c.req.header('X-API-Key')
@@ -14,7 +20,7 @@ export function keyAuth(lookup: (hash: string) => Promise<{ id: string, keyPrefi
 
     const row = await lookup(hashApiKey(header))
     if (!row || row.status !== 'active') {
-      throw new HTTPException(401, { message: 'Invalid API key' })
+      throw new InvalidApiKeyError()
     }
 
     c.set('apiKey', { id: row.id, keyPrefix: row.keyPrefix })

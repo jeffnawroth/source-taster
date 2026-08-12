@@ -3,6 +3,7 @@ import type { ApiKeyContext } from './auth.js'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 import { keyAuth } from './auth.js'
+import { withClientId } from './clientId.js'
 
 async function fakeLookup(rows: Array<Pick<ApiKeyRow, 'id' | 'keyPrefix' | 'status'>>): Promise<Pick<ApiKeyRow, 'id' | 'keyPrefix' | 'status'> | null> {
   return rows[0] ?? null
@@ -40,5 +41,26 @@ describe('keyAuth', () => {
     ]).request('/test', { headers: { 'X-API-Key': 'srt_live_whatever' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ ok: true, apiKey: { id: 'key-1', keyPrefix: 'srt_live_…0000' } })
+  })
+
+  it('lets key callers pass withClientId without a client id', async () => {
+    const app = new Hono<{ Variables: ApiKeyContext & { userId: string } }>()
+    app.use('*', keyAuth(fakeLookup.bind(null, [
+      { id: 'key-1', keyPrefix: 'srt_live_…0000', status: 'active' },
+    ])))
+    app.use('/test', withClientId)
+    app.get('/test', c => c.json({ ok: true, userId: c.get('userId') }))
+    const res = await app.request('/test', { headers: { 'X-API-Key': 'srt_live_whatever' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ ok: true, userId: 'key-1' })
+  })
+
+  it('still requires a client id for browser callers', async () => {
+    const app = new Hono<{ Variables: ApiKeyContext & { userId: string } }>()
+    app.use('*', keyAuth(fakeLookup.bind(null, [])))
+    app.use('/test', withClientId)
+    app.get('/test', c => c.json({ ok: true }))
+    const res = await app.request('/test')
+    expect(res.status).toBe(401)
   })
 })

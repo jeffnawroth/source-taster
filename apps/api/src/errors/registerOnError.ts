@@ -2,6 +2,7 @@ import type { Hono } from 'hono'
 import type { StatusCode } from 'hono/utils/http-status'
 import { HTTPException } from 'hono/http-exception'
 import { ZodError } from 'zod'
+import { InvalidApiKeyError } from '../middleware/auth.js'
 import { logger } from '../middleware/logger.js'
 import { incrementErrorCounter } from '../middleware/metrics.js'
 
@@ -19,6 +20,12 @@ export function registerOnError(app: Hono) {
       log.warn({ err }, `Validation error: ${message}`)
       c.status(400 as StatusCode)
       return c.json({ success: false, error: 'validation_error', message })
+    }
+
+    if (err instanceof InvalidApiKeyError) {
+      log.warn({ err, status: 401 }, `HTTP 401: ${err.message}`)
+      c.status(401)
+      return c.json({ success: false, error: 'invalid_api_key', message: err.message })
     }
 
     if (err instanceof HTTPException) {
