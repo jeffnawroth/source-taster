@@ -67,6 +67,16 @@ describe('bodyLimit', () => {
     expect(res.status).toBe(200)
   })
 
+  it('rejects on the content-length fast path when the declared length exceeds the limit', async () => {
+    const res = await buildApp().request('/v1/test', {
+      method: 'POST',
+      body: 'x'.repeat(10),
+      headers: { 'content-length': '2000' },
+    })
+    expect(res.status).toBe(413)
+    expect(await res.json()).toEqual({ success: false, error: 'payload_too_large', message: 'Payload too large' })
+  })
+
   it('lets GET requests without a body pass', async () => {
     const res = await buildApp().request('/v1/test')
     expect(res.status).toBe(200)
