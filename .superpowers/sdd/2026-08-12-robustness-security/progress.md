@@ -22,3 +22,20 @@ Abschluss (review, PR, merge, deploy) pending.
   413 → payload_too_large in registerOnError, Cache-Control: no-store auf /v1/*.
 - Review: APPROVED (F2 minor: Content-Length-Fast-Path war ungetestet) → Fast-Path-Test ergänzt,
   30/30 Tests grün.
+
+## R3 abgeschlossen (809e9181)
+- ci.yml: neuer test-Job (pnpm install && pnpm test), YAML validiert, beide Suiten lokal grün
+  (api 30, web 25). Kein Review nötig (reine Config, lokal verifiziert).
+
+## R4 abgeschlossen (0480b1bc)
+- N1: eine AppEnv-Quelle in types/hono.ts (userId + optionales apiKey), clientId.ts importiert;
+  Platzhalter-Kommentar entfernt. auth/rateLimit unangetastet.
+- F6: errors/domain.ts InvariantError; apiKeyService wirft ihn statt httpBadRequest;
+  registerOnError mappt → 400 bad_request (Branch vor HTTPException!). Legacy-Services
+  (baseAIProvider, userSecretsService, keystore, anystyleProvider, searchCoordinator,
+  referenceExtractionCoordinator, aiProviderFactory) nutzen weiter http* — bekannter
+  Legacy-Refactor, separat zu planen.
+- F5: isApiKeyId (pure) + revokeApiKey(id|prefix), CLI usage <id|prefix> + Kollisions-Hinweis.
+- Review APPROVED. Notiz: isApiKeyId case-insensitiv, aber eq(id) case-sensitiv → Uppercase-UUID
+  meldet not found (harmlos, option: lower()-Match im Ledger festhalten).
+- 37/37 Tests grün.
