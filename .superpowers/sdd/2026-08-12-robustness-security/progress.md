@@ -39,3 +39,22 @@ Abschluss (review, PR, merge, deploy) pending.
 - Review APPROVED. Notiz: isApiKeyId case-insensitiv, aber eq(id) case-sensitiv → Uppercase-UUID
   meldet not found (harmlos, option: lower()-Match im Ledger festhalten).
 - 37/37 Tests grün.
+
+## R5 abgeschlossen (31332a7a)
+- db/client.ts: connect_timeout 10s, idle_timeout 60s, max_lifetime 30min, application_name
+  source-taster-api, Startup-Optionen "-c statement_timeout=30000 -c lock_timeout=10000".
+- Verifiziert gegen lokale Postgres: SHOW statement_timeout=30s, lock_timeout=10s, app-name korrekt.
+- Vitest-Konfig setzt DATABASE_URL bereits → CI weiterhin grün.
+
+## R6 abgeschlossen (c1d5a639)
+- Neu src/shutdown.ts: shutdown()-Kern (close → idleConnections → drain 5s → closeAllConnections →
+  endSql mit Fehler-Toleranz → Exit-Code; force-Exit nach 10s) + registerGracefulShutdown
+  (SIGTERM/SIGINT, once, Guard gegen Mehrfach-Signale, events/exit injizierbar für Tests).
+- 9 Unit-Tests (fake server, fake timers) → 46/46 grün. index.ts: server-Variable + Registrierung
+  mit sql.end({timeout:5}). Dockerfile: CMD mit "exec node …" → node wird PID 1, SIGTERM kommt an.
+- E2E-Verifikation: gebauter dist gestartet, /health 200, SIGTERM → "graceful shutdown complete",
+  Exit 0. Lint-Fixes: Timer-Hoisting (no-use-before-define), process-Import.
+
+## R4-Follow-up-Notiz
+- isApiKeyId case-insensitiv vs. eq(id) case-sensitiv: option lower()-Match — bewusst offen gelassen.
+- Legacy-Services mit http*-Nutzung: eigener Refactor-Plan nötig (F6 nur scoped umgesetzt).
