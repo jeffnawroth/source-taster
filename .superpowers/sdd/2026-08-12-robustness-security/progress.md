@@ -108,3 +108,34 @@ Abschluss (review, PR, merge, deploy) pending.
 - NIEMALS parallel/zeitgleich mit Drone-Pipeline bauen; Drone deployt main automatisch.
   Manuelle Deploys nur, wenn keine CI-Build läuft; .npmrc fetch-timeout 600000 nur für
   manuelle Builds, danach wieder löschen.
+
+## Deployment-Abschluss + Prod-Smoke-Tests (13.08., nach Reboot)
+- **Gefunden:** deployter Container lief auf ALTEM Code — die parallelen Builds am Morgen
+  (mein manueller `build api` + Drone-Pipeline) haben das Image-Tag gegenseitig überschrieben;
+  der Gewinner war aus einem veralteten Kontext-Snapshot. Marker-Check im Container
+  (dist/middleware ohne security.js/rateLimit.js) deckte es auf. Fix: sequenzieller
+  `docker compose build api` nach Reboot (Cache-warm, ~1 min) + `up -d api`.
+- **Port-Korrektur:** API läuft auf **8000** (3000 = Grafana → /login-Redirect!). Frühere
+  Smoke-Referenzen "localhost:3000" waren falsch — alle Tests liefen gegen 8000.
+- **Smoke-Ergebnisse (alle OK):** /health 200; /v1/* ohne Origin+Key → 403; invalid key → 401
+  invalid_api_key; Security-Header auf Fehlerpfaden (nosniff, X-Frame-Options DENY,
+  no-referrer, permissions-policy, Cache-Control no-store); RateLimit-Header (limit 120,
+  remaining, reset-Epoch); 429 bei parallelem Burst (43×404/257×429), remaining 0;
+  Token-Refill (2/s) bestätigt; 12 MiB POST → 413; CLI create/list/revoke-by-id OK;
+  Test-Key danach revoked.
+- **Graceful Shutdown E2E in Prod:** `docker kill --signal=SIGTERM` → Container exited 0
+  (kein Crash, Doku „Migrations applied"), health danach 200.
+  LERNER: Docker behandelt `docker kill` als manuellen Stop — Restart-Policy greift NICHT
+  (Restarts: 0). Im normalen Betrieb (docker stop/restart, Reboot) startet unless-stopped
+  wieder. Kein Bug unseres Codes.
+- **Backup-Cron:** aktiv (03:30, Log-/Backup-Dateien vorhanden), Restore-Drill von R7 gilt.
+- **Offener Punkt:** Key `769376ca…` (srt_live_…mioY, active, erstellt 08:54:03) stammt nicht
+  von meiner Session — vermutlich automatischer Smoke der Deploy-Pipeline (Muster von gestern:
+  a21cb018 erstellt 09:14 + revoked 09:14). Nicht angetastet.
+
+## Root-Cause „ständige Last-Probleme" (für User-Bericht)
+- VPS (3.7 GB RAM) = Produktion UND Drone-CI-Buildmaschine zugleich; jeder main-Commit
+  triggert kompletten Rebuild aller 4 Services (landing/docs/api/web) auf dem Prod-Host;
+  der vite/web-Build sprengt den RAM → Swap-Thrash → SSH timeouts.
+- Empfehlungen: (a) Builds auslagern (GitHub Actions bauen Images, VPS nur pull + up -d),
+  (b) RAM aufstocken, (c) Swap vergrößern.
