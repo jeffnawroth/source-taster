@@ -14,3 +14,11 @@ Abschluss (review, PR, merge, deploy) pending.
   nach Verbrauch gerechnet (kollabiert an vollem Bucket nicht auf „jetzt"); 429-Pfad setzt jetzt
   RateLimit-Limit/Remaining=0/Reset; 2 Regressionstests (Env-Fallback bei ungültigen Werten,
   Refill nach Window via Fake-Timers). 19/19 Tests grün, Typecheck grün.
+
+## R2 abgeschlossen (db c2a669 + Test-Fix)
+- Implementierung: dbc2a669 — securityHeaders() (nosniff, DENY, no-referrer, Permissions-Policy,
+  HSTS nur bei x-forwarded-proto https, KEIN CSP bewusst für reine JSON-API), bodyLimit aus
+  hono/body-limit global (BODY_LIMIT_BYTES default 10 MiB, parseEnv aus rateLimit.ts exportiert),
+  413 → payload_too_large in registerOnError, Cache-Control: no-store auf /v1/*.
+- Review: APPROVED (F2 minor: Content-Length-Fast-Path war ungetestet) → Fast-Path-Test ergänzt,
+  30/30 Tests grün.
