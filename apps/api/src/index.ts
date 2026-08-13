@@ -4,6 +4,7 @@ import { httpInstrumentationMiddleware } from '@hono/otel'
 import { Hono } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
 import { HTTPException } from 'hono/http-exception'
+import { sql } from './db/client.js'
 import { registerOnError } from './errors/registerOnError.js'
 import { keyAuth } from './middleware/auth.js'
 import { withClientId } from './middleware/clientId.js'
@@ -21,6 +22,7 @@ import matchingRouter from './routes/matchingRouter.js'
 import searchRouter from './routes/searchRouter.js'
 import { userRouter } from './routes/userRouter.js'
 import { findApiKeyByHash } from './services/apiKeyService.js'
+import { registerGracefulShutdown } from './shutdown.js'
 import './telemetry/instrumentation.js'
 
 const app = new Hono()
@@ -76,7 +78,8 @@ app.get('/', (c) => {
 const port = Number(process.env.PORT || '') || 8000
 logger.info(`API running on http://localhost:${port}`)
 
-serve({
+const server = serve({
   fetch: app.fetch,
   port,
 })
+registerGracefulShutdown({ server, endSql: () => sql.end({ timeout: 5 }), logger })
