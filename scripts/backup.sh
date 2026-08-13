@@ -6,7 +6,7 @@ set -euo pipefail
 # Offsite: BACKUP_RSYNC_TARGET setzen (z.B. rsync://host/backup) für zusätzliche Kopie.
 
 COMPOSE_DIR="${COMPOSE_DIR:-/srv/source-taster}"
-BACKUP_DIR="${BACKUP_DIR:-/srv/backups/source-taster}"
+BACKUP_DIR="${BACKUP_DIR:-$HOME/backups/source-taster}"
 KEEP="${BACKUP_KEEP:-14}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
