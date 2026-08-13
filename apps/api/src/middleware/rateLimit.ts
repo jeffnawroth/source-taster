@@ -58,6 +58,9 @@ export function rateLimit(options?: Partial<RateLimitOptions>): MiddlewareHandle
       bucket.tokens = tokens
       bucket.updated = now
       buckets.set(id, bucket)
+      c.header('RateLimit-Limit', String(capacity))
+      c.header('RateLimit-Remaining', '0')
+      c.header('RateLimit-Reset', String(Math.floor(now / 1000 + (capacity - tokens) / ratePerSec)))
       throw new HTTPException(429, { message: 'Rate limit exceeded' })
     }
 
@@ -68,7 +71,7 @@ export function rateLimit(options?: Partial<RateLimitOptions>): MiddlewareHandle
 
     c.header('RateLimit-Limit', String(capacity))
     c.header('RateLimit-Remaining', String(Math.floor(remaining)))
-    c.header('RateLimit-Reset', String(Math.floor(now / 1000 + remaining / ratePerSec)))
+    c.header('RateLimit-Reset', String(Math.floor(now / 1000 + (capacity - remaining) / ratePerSec)))
 
     await next()
   }
