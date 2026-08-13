@@ -1,11 +1,8 @@
 // src/middleware/clientId.ts
 import type { MiddlewareHandler } from 'hono'
+import type { AppEnv } from '../types/hono.js'
 import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
-
-export interface AppEnv {
-  Variables: { userId: string, apiKey?: { id: string, keyPrefix: string } | null }
-}
 
 // UUID v4 Check via Zod
 const ClientIdSchema = z.uuid()

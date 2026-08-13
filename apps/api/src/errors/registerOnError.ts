@@ -5,6 +5,7 @@ import { ZodError } from 'zod'
 import { InvalidApiKeyError } from '../middleware/auth.js'
 import { logger } from '../middleware/logger.js'
 import { incrementErrorCounter } from '../middleware/metrics.js'
+import { InvariantError } from './domain.js'
 
 export function registerOnError(app: Hono) {
   app.onError((err, c) => {
@@ -26,6 +27,12 @@ export function registerOnError(app: Hono) {
       log.warn({ err, status: 401 }, `HTTP 401: ${err.message}`)
       c.status(401)
       return c.json({ success: false, error: 'invalid_api_key', message: err.message })
+    }
+
+    if (err instanceof InvariantError) {
+      log.warn({ err, status: 400 }, `HTTP 400: ${err.message}`)
+      c.status(400)
+      return c.json({ success: false, error: 'bad_request', message: err.message })
     }
 
     if (err instanceof HTTPException) {
