@@ -58,3 +58,14 @@ Abschluss (review, PR, merge, deploy) pending.
 ## R4-Follow-up-Notiz
 - isApiKeyId case-insensitiv vs. eq(id) case-sensitiv: option lower()-Match — bewusst offen gelassen.
 - Legacy-Services mit http*-Nutzung: eigener Refactor-Plan nötig (F6 nur scoped umgesetzt).
+
+## R7 abgeschlossen (970f14d5 + Backup-Installation auf Server)
+- scripts/backup.sh: pg_dump -Fc --no-owner + .keystore-tar, Rotation (BACKUP_KEEP=14),
+  optional BACKUP_RSYNC_TARGET offsite; Default BACKUP_DIR=$HOME/backups/source-taster
+  (sudo nicht verfügbar auf VPS → kein /srv/backups möglich).
+- Server: Script deployt (/srv/source-taster/scripts/backup.sh), Testlauf OK
+  (postgres-20260813-072201.dump 5 KB, keystore-tar 3 KB), Restore-Probelauf verifiziert:
+  pg_restore in scratch-DB → api_keys count 1 = 1, scratch-DB wieder gedroppt.
+- Cron: täglich 03:30 als jeff → /var/log/source-taster-backup.log.
+- scripts/backup.md: Restore-Anleitung postgres/keystore + Smoke nach Restore.
+- Hinweis: Restore-Probe nächste Runde mit aktivem Key-Bestand wiederholen.
