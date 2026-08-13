@@ -13,7 +13,8 @@ outline: deep
   - `X-API-Key: <srt_live_…>` – optional for server clients (B2B). If set, the key must be
     active, otherwise `401 invalid_api_key`. Browser clients send `X-Client-Id` instead.
   - Keys are issued via the CLI (`pnpm --filter @source-taster/api key:create`); only the
-    SHA-256 hash is stored, revocation happens via `key:revoke <id>`.
+    SHA-256 hash is stored, revocation happens via `key:revoke <id>` (also accepts the
+    `srt_live_…xxxx` key prefix shown by `key:list`).
 - **Response envelope:**
 
 ```json
@@ -24,6 +25,16 @@ outline: deep
   "message": "optional"
 }
 ```
+
+## Rate Limiting
+
+- **Per API key:** 120 requests/minute (token bucket, burst = 120). Browser path without a key:
+  600 requests/minute per shared bucket. Configurable via `RATE_LIMIT_PER_KEY` /
+  `RATE_LIMIT_ANONYMOUS_PER_MINUTE` on the server.
+- Every `/v1/*` response carries **`RateLimit-Limit` / `RateLimit-Remaining` / `RateLimit-Reset`**
+  (epoch seconds until the bucket refills). Exceeding the limit returns
+  `429` with `error: "rate_limited"` — retry after `RateLimit-Reset`.
+- Buckets are in-process (per worker), independent per key.
 
 ## Error Codes
 
@@ -36,11 +47,21 @@ outline: deep
 | `not_found`                       | Resource or database does not exist.                  |
 | `conflict`                        | Conflicting state (e.g. duplicate key).               |
 | `unprocessable`                   | Semantically invalid content.                         |
-| `rate_limited`                    | Upstream rate limit reached.                          |
+| `payload_too_large`               | Request body exceeds the limit (10 MiB default).      |
+| `rate_limited`                    | API or upstream rate limit reached.                   |
 | `upstream_error`                  | External service failed (AnyStyle, AI, data sources). |
 | `server_error` / `internal_error` | Unexpected server error.                              |
 
 `registerOnError` in `apps/api/src/errors` maps runtime errors to this structure.
+
+## Security Notes
+
+- Request bodies are limited to 10 MiB (`BODY_LIMIT_BYTES` on the server) → `413 payload_too_large`.
+- All responses carry security headers (`X-Content-Type-Options`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy`; `Strict-Transport-Security` behind HTTPS) and
+  `/v1/*` responses `Cache-Control: no-store`.
+- Server-side: DB connection/statement timeouts, graceful shutdown on SIGTERM, daily backups
+  (see `scripts/backup.md`).
 
 ## Endpoints
 
