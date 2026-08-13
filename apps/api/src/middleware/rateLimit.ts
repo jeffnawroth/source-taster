@@ -18,7 +18,7 @@ const WINDOW_MS = 60_000
 const SWEEP_INTERVAL_MS = 5 * 60_000
 const SWEEP_IDLE_MULTIPLIER = 2
 
-function parseEnv(name: string, fallback: number): number {
+export function parseEnv(name: string, fallback: number): number {
   const value = Number(process.env[name])
   return Number.isFinite(value) && value > 0 ? value : fallback
 }

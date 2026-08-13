@@ -2,15 +2,18 @@ import process from 'node:process'
 import { serve } from '@hono/node-server'
 import { httpInstrumentationMiddleware } from '@hono/otel'
 import { Hono } from 'hono'
+import { bodyLimit } from 'hono/body-limit'
+import { HTTPException } from 'hono/http-exception'
 import { registerOnError } from './errors/registerOnError.js'
 import { keyAuth } from './middleware/auth.js'
 import { withClientId } from './middleware/clientId.js'
 import { corsMiddleware } from './middleware/cors.js'
 import { logger } from './middleware/logger.js'
 import { metricsMiddleware } from './middleware/metrics.js'
-import { rateLimit } from './middleware/rateLimit.js'
+import { parseEnv, rateLimit } from './middleware/rateLimit.js'
 import { requestId } from './middleware/requestId.js'
 import { requestLogger } from './middleware/requestLogger.js'
+import { securityHeaders } from './middleware/security.js'
 import { anystyleRouter } from './routes/anystyleRouter.js'
 import extractionRouter from './routes/extractionRouter.js'
 import { healthRouter } from './routes/healthRouter.js'
@@ -28,6 +31,13 @@ app.use('*', httpInstrumentationMiddleware())
 app.use('*', requestId())
 app.use('*', requestLogger())
 app.use('*', metricsMiddleware())
+app.use('*', securityHeaders())
+app.use('*', bodyLimit({
+  maxSize: parseEnv('BODY_LIMIT_BYTES', 10 * 1024 * 1024),
+  onError: () => {
+    throw new HTTPException(413, { message: 'Payload too large' })
+  },
+}))
 app.use('/v1/*', corsMiddleware)
 
 // Mount health & metrics — not protected by CORS so monitoring tools work

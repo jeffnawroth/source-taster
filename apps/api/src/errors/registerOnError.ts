@@ -45,7 +45,9 @@ export function registerOnError(app: Hono) {
                     ? 'unprocessable'
                     : status === 429
                       ? 'rate_limited'
-                      : status >= 500 ? 'server_error' : 'http_error'
+                      : status === 413
+                        ? 'payload_too_large'
+                        : status >= 500 ? 'server_error' : 'http_error'
       if (status >= 500) {
         incrementErrorCounter(map, route)
         log.error({ err, status }, `HTTP ${status}: ${err.message}`)
