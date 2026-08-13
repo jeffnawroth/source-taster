@@ -18,7 +18,11 @@ docker compose exec -T postgres pg_dump -U sourcetaster -d sourcetaster -Fc --no
   > "$BACKUP_DIR/postgres-$STAMP.dump"
 
 # 2. .keystore (Nutzer-LLM-API-Keys, verschlüsselt auf Platte)
-tar -czf "$BACKUP_DIR/keystore-$STAMP.tar.gz" -C "$COMPOSE_DIR/apps/api" .keystore
+if [[ -d "$COMPOSE_DIR/apps/api/.keystore" ]]; then
+  tar -czf "$BACKUP_DIR/keystore-$STAMP.tar.gz" -C "$COMPOSE_DIR/apps/api" .keystore
+else
+  echo "warning: no .keystore directory, skipping keystore backup"
+fi
 
 # 3. Rotation: nur die KEEP neuesten behalten
 ls -1t "$BACKUP_DIR"/postgres-*.dump 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -f

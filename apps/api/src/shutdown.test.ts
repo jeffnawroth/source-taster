@@ -83,7 +83,7 @@ describe('registerGracefulShutdown', () => {
     const events = new EventEmitter()
     const exit = vi.fn()
     const server = fakeServer()
-    registerGracefulShutdown({ server, endSql: vi.fn(), logger: noopLogger, events, exit })
+    registerGracefulShutdown({ server, endSql: vi.fn().mockResolvedValue(undefined), logger: noopLogger, events, exit })
     events.emit('SIGINT')
     expect(server.close).toHaveBeenCalled()
   })

@@ -55,7 +55,7 @@ export async function corsMiddleware(c: Context, next: Next) {
 
     // Handle preflight
     if (c.req.method === 'OPTIONS') {
-      return new Response(null, { status: 204 })
+      return c.body(null, 204)
     }
 
     return next()
@@ -69,7 +69,7 @@ export async function corsMiddleware(c: Context, next: Next) {
   // for key callers — keyAuth validates the key right after.
   if (c.req.header('X-API-Key')) {
     if (c.req.method === 'OPTIONS') {
-      return new Response(null, { status: 204 })
+      return c.body(null, 204)
     }
     return next()
   }
@@ -100,7 +100,7 @@ export async function corsMiddleware(c: Context, next: Next) {
     c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Extension-ID, X-Client-Id')
 
     if (c.req.method === 'OPTIONS') {
-      return new Response(null, { status: 204 })
+      return c.body(null, 204)
     }
 
     return next()
@@ -139,7 +139,7 @@ export async function corsMiddleware(c: Context, next: Next) {
 
   // Handle preflight
   if (c.req.method === 'OPTIONS') {
-    return new Response(null, { status: 204 })
+    return c.body(null, 204)
   }
 
   return next()
