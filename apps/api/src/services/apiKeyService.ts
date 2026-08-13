@@ -3,9 +3,15 @@ import { createHash, randomBytes } from 'node:crypto'
 import { and, desc, eq } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { apiKeys } from '../db/schema.js'
-import { httpBadRequest } from '../errors/http.js'
+import { InvariantError } from '../errors/domain.js'
 
 const PREFIX = 'srt_live_'
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export function isApiKeyId(value: string): boolean {
+  return UUID_PATTERN.test(value)
+}
 
 export function generateApiKey(): { fullKey: string, keyHash: string, keyPrefix: string } {
   const payload = randomBytes(32).toString('base64url')
@@ -27,12 +33,12 @@ export async function listApiKeys(): Promise<ApiKeyRow[]> {
   return db.select().from(apiKeys).orderBy(desc(apiKeys.createdAt))
 }
 
-export async function revokeApiKey(id: string): Promise<boolean> {
-  if (!id)
-    throw httpBadRequest('revokeApiKey: id is required')
+export async function revokeApiKey(idOrPrefix: string): Promise<boolean> {
+  if (!idOrPrefix)
+    throw new InvariantError('revokeApiKey: id or key prefix is required')
   const rows = await db.update(apiKeys)
     .set({ status: 'revoked', revokedAt: new Date() })
-    .where(and(eq(apiKeys.id, id), eq(apiKeys.status, 'active')))
+    .where(and(isApiKeyId(idOrPrefix) ? eq(apiKeys.id, idOrPrefix) : eq(apiKeys.keyPrefix, idOrPrefix), eq(apiKeys.status, 'active')))
     .returning({ id: apiKeys.id })
   return rows.length > 0
 }

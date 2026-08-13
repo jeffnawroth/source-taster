@@ -44,4 +44,4 @@ RUN mkdir -p /app/.keystore
 VOLUME ["/app/.keystore"]
 
 EXPOSE 8000
-CMD ["sh", "-c", "node apps/api/dist/db/migrate.js && node apps/api/dist/index.js"]
+CMD ["sh", "-c", "node apps/api/dist/db/migrate.js && exec node apps/api/dist/index.js"]

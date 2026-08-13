@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
+import { HTTPException } from 'hono/http-exception'
 import { describe, expect, it } from 'vitest'
 import { InvalidApiKeyError } from '../middleware/auth.js'
+import { InvariantError } from './domain.js'
 import { registerOnError } from './registerOnError.js'
 
 describe('registerOnError', () => {
@@ -13,5 +15,27 @@ describe('registerOnError', () => {
     const res = await app.request('/test')
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({ success: false, error: 'invalid_api_key', message: 'Invalid API key' })
+  })
+
+  it('maps HTTPException 413 to payload_too_large', async () => {
+    const app = new Hono()
+    registerOnError(app)
+    app.post('/test', () => {
+      throw new HTTPException(413, { message: 'Payload too large' })
+    })
+    const res = await app.request('/test', { method: 'POST' })
+    expect(res.status).toBe(413)
+    expect(await res.json()).toEqual({ success: false, error: 'payload_too_large', message: 'Payload too large' })
+  })
+
+  it('maps InvariantError to bad_request with 400', async () => {
+    const app = new Hono()
+    registerOnError(app)
+    app.get('/test', () => {
+      throw new InvariantError('revokeApiKey: id or key prefix is required')
+    })
+    const res = await app.request('/test')
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ success: false, error: 'bad_request', message: 'revokeApiKey: id or key prefix is required' })
   })
 })

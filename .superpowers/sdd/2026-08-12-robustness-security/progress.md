@@ -1,0 +1,71 @@
+# SDD ledger — plan: robustness-security (2026-08-12)
+
+Scope: Hardening der API für mehrere Nutzer (Rate-Limiting, HTTP-Security, CI-Tests,
+Konsolidierung F5/F6/N1, DB-Timeouts, Graceful Shutdown, Server-Backups, Docs).
+Basis: origin/main (v2.1.33, contains B2B foundation + cors fix).
+
+Tasks: R1 rate limiting in progress | R2 security headers/body limit pending |
+R3 CI tests pending | R4 consolidation pending | R5 db timeouts pending |
+R6 graceful shutdown pending | R7 server backups pending | R8 docs pending |
+Abschluss (review, PR, merge, deploy) pending.
+## R1 abgeschlossen (Commit 0c3262b5)
+- Implementierung: 991edea2 (rateLimit.ts, Testdatei, index.ts-Registrierung, .env.example)
+- Review-Fixes (0c3262b5): Reset-Header-Semantik korrigiert — Epoch-Sekunden bis Bucket wieder voll,
+  nach Verbrauch gerechnet (kollabiert an vollem Bucket nicht auf „jetzt"); 429-Pfad setzt jetzt
+  RateLimit-Limit/Remaining=0/Reset; 2 Regressionstests (Env-Fallback bei ungültigen Werten,
+  Refill nach Window via Fake-Timers). 19/19 Tests grün, Typecheck grün.
+
+## R2 abgeschlossen (db c2a669 + Test-Fix)
+- Implementierung: dbc2a669 — securityHeaders() (nosniff, DENY, no-referrer, Permissions-Policy,
+  HSTS nur bei x-forwarded-proto https, KEIN CSP bewusst für reine JSON-API), bodyLimit aus
+  hono/body-limit global (BODY_LIMIT_BYTES default 10 MiB, parseEnv aus rateLimit.ts exportiert),
+  413 → payload_too_large in registerOnError, Cache-Control: no-store auf /v1/*.
+- Review: APPROVED (F2 minor: Content-Length-Fast-Path war ungetestet) → Fast-Path-Test ergänzt,
+  30/30 Tests grün.
+
+## R3 abgeschlossen (809e9181)
+- ci.yml: neuer test-Job (pnpm install && pnpm test), YAML validiert, beide Suiten lokal grün
+  (api 30, web 25). Kein Review nötig (reine Config, lokal verifiziert).
+
+## R4 abgeschlossen (0480b1bc)
+- N1: eine AppEnv-Quelle in types/hono.ts (userId + optionales apiKey), clientId.ts importiert;
+  Platzhalter-Kommentar entfernt. auth/rateLimit unangetastet.
+- F6: errors/domain.ts InvariantError; apiKeyService wirft ihn statt httpBadRequest;
+  registerOnError mappt → 400 bad_request (Branch vor HTTPException!). Legacy-Services
+  (baseAIProvider, userSecretsService, keystore, anystyleProvider, searchCoordinator,
+  referenceExtractionCoordinator, aiProviderFactory) nutzen weiter http* — bekannter
+  Legacy-Refactor, separat zu planen.
+- F5: isApiKeyId (pure) + revokeApiKey(id|prefix), CLI usage <id|prefix> + Kollisions-Hinweis.
+- Review APPROVED. Notiz: isApiKeyId case-insensitiv, aber eq(id) case-sensitiv → Uppercase-UUID
+  meldet not found (harmlos, option: lower()-Match im Ledger festhalten).
+- 37/37 Tests grün.
+
+## R5 abgeschlossen (31332a7a)
+- db/client.ts: connect_timeout 10s, idle_timeout 60s, max_lifetime 30min, application_name
+  source-taster-api, Startup-Optionen "-c statement_timeout=30000 -c lock_timeout=10000".
+- Verifiziert gegen lokale Postgres: SHOW statement_timeout=30s, lock_timeout=10s, app-name korrekt.
+- Vitest-Konfig setzt DATABASE_URL bereits → CI weiterhin grün.
+
+## R6 abgeschlossen (c1d5a639)
+- Neu src/shutdown.ts: shutdown()-Kern (close → idleConnections → drain 5s → closeAllConnections →
+  endSql mit Fehler-Toleranz → Exit-Code; force-Exit nach 10s) + registerGracefulShutdown
+  (SIGTERM/SIGINT, once, Guard gegen Mehrfach-Signale, events/exit injizierbar für Tests).
+- 9 Unit-Tests (fake server, fake timers) → 46/46 grün. index.ts: server-Variable + Registrierung
+  mit sql.end({timeout:5}). Dockerfile: CMD mit "exec node …" → node wird PID 1, SIGTERM kommt an.
+- E2E-Verifikation: gebauter dist gestartet, /health 200, SIGTERM → "graceful shutdown complete",
+  Exit 0. Lint-Fixes: Timer-Hoisting (no-use-before-define), process-Import.
+
+## R4-Follow-up-Notiz
+- isApiKeyId case-insensitiv vs. eq(id) case-sensitiv: option lower()-Match — bewusst offen gelassen.
+- Legacy-Services mit http*-Nutzung: eigener Refactor-Plan nötig (F6 nur scoped umgesetzt).
+
+## R7 abgeschlossen (970f14d5 + Backup-Installation auf Server)
+- scripts/backup.sh: pg_dump -Fc --no-owner + .keystore-tar, Rotation (BACKUP_KEEP=14),
+  optional BACKUP_RSYNC_TARGET offsite; Default BACKUP_DIR=$HOME/backups/source-taster
+  (sudo nicht verfügbar auf VPS → kein /srv/backups möglich).
+- Server: Script deployt (/srv/source-taster/scripts/backup.sh), Testlauf OK
+  (postgres-20260813-072201.dump 5 KB, keystore-tar 3 KB), Restore-Probelauf verifiziert:
+  pg_restore in scratch-DB → api_keys count 1 = 1, scratch-DB wieder gedroppt.
+- Cron: täglich 03:30 als jeff → /var/log/source-taster-backup.log.
+- scripts/backup.md: Restore-Anleitung postgres/keystore + Smoke nach Restore.
+- Hinweis: Restore-Probe nächste Runde mit aktivem Key-Bestand wiederholen.

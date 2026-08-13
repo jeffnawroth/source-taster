@@ -13,7 +13,8 @@ outline: deep
   - `X-API-Key: <srt_live_…>` – optional für Server-Clients (B2B). Wenn gesetzt, muss der Key
     aktiv sein, sonst `401 invalid_api_key`. Browser-Clients senden stattdessen `X-Client-Id`.
   - Keys werden über das CLI vergeben (`pnpm --filter @source-taster/api key:create`), nur der
-    SHA-256-Hash wird gespeichert; ein Widerruf erfolgt per `key:revoke <id>`.
+    SHA-256-Hash wird gespeichert; ein Widerruf erfolgt per `key:revoke <id>` (auch über das
+    per `key:list` angezeigte Prefix `srt_live_…xxxx`).
 - **Antwortschema:**
 
 ```json
@@ -24,6 +25,16 @@ outline: deep
   "message": "optional"
 }
 ```
+
+## Rate-Limiting
+
+- **Pro API-Key:** 120 Anfragen/Minute (Token-Bucket, Burst = 120). Browser-Pfad ohne Key:
+  600 Anfragen/Minute pro geteiltem Bucket. Konfigurierbar auf dem Server über
+  `RATE_LIMIT_PER_KEY` / `RATE_LIMIT_ANONYMOUS_PER_MINUTE`.
+- Jede `/v1/*`-Antwort enthält **`RateLimit-Limit` / `RateLimit-Remaining` / `RateLimit-Reset`**
+  (Epoch-Sekunden bis der Bucket sich füllt). Bei Überschreitung: `429` mit
+  `error: "rate_limited"` — erneut versuchen nach `RateLimit-Reset`.
+- Buckets sind pro Worker im Prozess (unabhängig pro Key).
 
 ## Fehlercodes
 
@@ -36,11 +47,21 @@ outline: deep
 | `not_found`                       | Ressource/Database unbekannt.                          |
 | `conflict`                        | Konflikt (z. B. doppelter Key).                        |
 | `unprocessable`                   | Inhalt semantisch ungültig.                            |
-| `rate_limited`                    | Upstream-Rate-Limit erreicht.                          |
+| `payload_too_large`               | Anfrage-Body überschreitet das Limit (Default 10 MiB). |
+| `rate_limited`                    | API- oder Upstream-Rate-Limit erreicht.                |
 | `upstream_error`                  | Fehler in externem Dienst (AnyStyle, KI, Datenbanken). |
 | `server_error` / `internal_error` | Unerwarteter Serverfehler.                             |
 
 `registerOnError` mappt Laufzeitfehler auf dieses Format.
+
+## Sicherheitshinweise
+
+- Request-Bodies sind auf 10 MiB begrenzt (`BODY_LIMIT_BYTES` auf dem Server) → `413 payload_too_large`.
+- Alle Antworten tragen Security-Header (`X-Content-Type-Options`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy`; `Strict-Transport-Security` hinter HTTPS) und
+  `/v1/*`-Antworten `Cache-Control: no-store`.
+- Serverseitig: DB-Verbindungs-/Statement-Timeouts, Graceful Shutdown bei SIGTERM, tägliche
+  Backups (siehe `scripts/backup.md`).
 
 ## Endpoints
 

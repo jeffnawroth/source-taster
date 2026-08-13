@@ -1,6 +1,6 @@
-// Passe/erweitere nach Bedarf (z.B. Bindings, Variables, etc.)
 export interface AppVariables {
   userId: string
+  apiKey?: { id: string, keyPrefix: string } | null
 }
 
 export interface AppEnv {

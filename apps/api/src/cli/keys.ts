@@ -24,11 +24,12 @@ async function main() {
     }
     case 'revoke': {
       if (!arg) {
-        console.error('Usage: keys revoke <id>')
+        console.error('Usage: keys revoke <id|prefix>')
+        console.error('Note: revoking a key prefix revokes all keys sharing it')
         process.exit(1)
       }
-      const revoked = await revokeApiKey(arg)
-      console.log(revoked ? `Key ${arg} revoked` : `Key ${arg} not found or already revoked`)
+      const revoked = await revokeApiKey(arg.trim())
+      console.log(revoked ? `Key ${arg.trim()} revoked` : `Key ${arg.trim()} not found or already revoked`)
       break
     }
     default:
