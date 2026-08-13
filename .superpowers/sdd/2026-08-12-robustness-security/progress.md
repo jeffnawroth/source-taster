@@ -69,3 +69,42 @@ Abschluss (review, PR, merge, deploy) pending.
 - Cron: täglich 03:30 als jeff → /var/log/source-taster-backup.log.
 - scripts/backup.md: Restore-Anleitung postgres/keystore + Smoke nach Restore.
 - Hinweis: Restore-Probe nächste Runde mit aktivem Key-Bestand wiederholen.
+
+## R8 abgeschlossen (07c621f7)
+- apps/docs/api.md + de/api.md: Rate-Limiting-Kapitel (Header, 429/Retry-After, Window-Reset),
+  Fehlercode-Tabelle jetzt inkl. payload_too_large + rate_limited, Security-Notizen
+  (Body-Limit 413, Header, HSTS-Bedingung, Backups-Hinweis).
+- Kein Review nötig (Doku, lokal gegengeprüft).
+
+## Whole-Branch-Review: CHANGES REQUIRED → Fixes committet (0018408f)
+- F1 (Blocker): shutdown.test.ts SIGINT-Test reichte vi.fn() als endSql → undefined.catch →
+  unhandled rejection → Vitest-Exit 1 → neuer CI-test-Job wäre trotz grüner Tests rot.
+  Fix: mockResolvedValue(undefined). Verifiziert via Exit 0 (47 Tests).
+- F2#2: backup.sh tar .keystore nur unter [[ -d ]] (warn + skip), damit Backups nicht failen,
+  wenn keystore fehlt (z.B. frischer Checkout).
+- F2#3: cors.ts Preflight 204 via rohem new Response umging den Hono-Header-Merge → in PROD
+  fehlte Access-Control-Allow-Origin auf OPTIONS. Fix: c.body(null, 204) in allen 4 Preflight-
+  Branches (DEV, Key-Caller, Trusted-Extension, Prod-Allowed) — replaceAll erfasste nur die
+  6-Space-Varianten, der Prod-Branch (4-Space) musste separat gefixt werden (Test schlug vorher
+  genau dort fehl). Regressionstest: OPTIONS mit ALLOWED_WEB_ORIGINS → 204 + ACAO-Header.
+- 47/47 Tests grün, Typecheck/Lint grün.
+
+## PR #235: gemergt (f1fe6b6, squash), CI vollständig grün (typecheck, build, lint, test)
+- gh pr create 235 → Checks via gh pr checks --watch alle pass → squash-merge + Branch gelöscht.
+- Deployment: VPS lief ein automatisches Drone-CI-Deployment (git reset --hard origin/main →
+  build landing/docs/api/web sequenziell → up -d --remove-orphans), das den Merge bereits
+  deployt hat. Eigener manueller up-Versuch hing am compose-Lock → gekillt, Drone übernahm.
+- api-Container lief auf neuem Image ("Up 30 seconds (healthy)"). Server danach unter
+  Langzeit-Vollast (web-Build) — SSH zeitweise nicht erreichbar (bekanntes VPS-Muster).
+  Nächste Runde: Smoke-Tests nach Abschluss (SIGTERM-Check, RateLimit-Header, 413, 403/401,
+  Health) + .npmrc-Rest cleanup + Backup-Cron-Check.
+
+## Offene Punkte (bewusst)
+- isApiKeyId case-insensitiv vs eq(id) case-sensitiv (harmlos, lower()-Match option).
+- Legacy-Services mit http*-Helfern: separater Refactor-Plan.
+- Restore-Probe mit aktivem Key-Bestand (Backup hat aktuell 1 Key aus R7-Probe).
+
+## Hinweis (Deployment-Lektion, erneut bestätigt)
+- NIEMALS parallel/zeitgleich mit Drone-Pipeline bauen; Drone deployt main automatisch.
+  Manuelle Deploys nur, wenn keine CI-Build läuft; .npmrc fetch-timeout 600000 nur für
+  manuelle Builds, danach wieder löschen.
