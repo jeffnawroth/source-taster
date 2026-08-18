@@ -40,6 +40,7 @@
   "$schema": "https://opencode.ai/config.json",
   "permission": {
     "bash": {
+      "*": "ask",
       "pnpm lint*": "allow",
       "pnpm typecheck*": "allow",
       "pnpm test*": "allow",
@@ -48,8 +49,7 @@
       "git status": "allow",
       "git log*": "allow",
       "git diff*": "allow",
-      "git branch*": "allow",
-      "*": "ask"
+      "git branch*": "allow"
     },
     "external_directory": { "*": "deny" }
   }
