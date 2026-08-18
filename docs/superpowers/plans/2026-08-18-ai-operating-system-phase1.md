@@ -46,7 +46,7 @@
       "pnpm test*": "allow",
       "pnpm build*": "allow",
       "pnpm dev*": "allow",
-      "git status": "allow",
+      "git status*": "allow",
       "git log*": "allow",
       "git diff*": "allow",
       "git branch*": "allow"
