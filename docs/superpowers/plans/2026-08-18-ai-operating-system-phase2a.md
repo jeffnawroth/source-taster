@@ -57,6 +57,9 @@ permission:
 Append after the existing `## Escalation` section:
 
 ```markdown
+## Permissions
+Read-only evaluation role: `edit: deny`, `bash: deny`, `task: deny`, `webfetch: deny`, `websearch: deny`. Never attempts file writes, shell access, subagent dispatch, or network access.
+
 ## Delegation
 No subagent delegation (read-only evaluation role). May request an independent `reviewer` or `security-reviewer` pass via the orchestrating agent when design safety is material.
 
@@ -64,7 +67,7 @@ No subagent delegation (read-only evaluation role). May request an independent `
 Done when the design artifact contains: target state, existing state, gap, change-impact analysis, recommended approach (with KEEP/IMPROVE/DEFER classification), and an ADR draft when requested — and the user has been given the artifact for decision.
 ```
 
-- [ ] **Step 2: Modify `reviewer.md`** — network deny + Delegation + Definition of done
+- [ ] **Step 2: Modify `reviewer.md`** — network deny + Permissions + Delegation + Definition of done
 
 Frontmatter permission becomes:
 
@@ -80,6 +83,9 @@ permission:
 Append after `## Escalation`:
 
 ```markdown
+## Permissions
+Read-only review role: `edit: deny`, `bash: deny`, `task: deny`, `webfetch: deny`, `websearch: deny`. Never attempts file writes, shell access, subagent dispatch, or network access.
+
 ## Delegation
 No subagent delegation (independent read-only review role). Findings are returned to the orchestrating agent; no delegation chain.
 
@@ -87,7 +93,7 @@ No subagent delegation (independent read-only review role). Findings are returne
 Done when the review report covers both "is it the right solution?" and "does it work?", lists findings with severity and file:line references, and either all findings are resolved or each remaining one is explicitly waived by the user.
 ```
 
-- [ ] **Step 3: Modify `security-reviewer.md`** — network deny + Delegation + Definition of done
+- [ ] **Step 3: Modify `security-reviewer.md`** — network deny + Permissions + Delegation + Definition of done
 
 Frontmatter permission becomes:
 
@@ -103,6 +109,9 @@ permission:
 Append after `## Escalation`:
 
 ```markdown
+## Permissions
+Read-only security role: `edit: deny`, `bash: deny`, `task: deny`, `webfetch: deny`, `websearch: deny`. Never attempts file writes, shell access, subagent dispatch, or network access.
+
 ## Delegation
 No subagent delegation (independent read-only security role). Findings are returned to the orchestrating agent; no delegation chain.
 
@@ -110,11 +119,14 @@ No subagent delegation (independent read-only security role). Findings are retur
 Done when the security review covers trust boundaries, secrets, injection, data handling, and supply-chain aspects of the reviewed scope; findings list severity and file:line references; no secrets or credentials appear in the report; all findings resolved or explicitly waived by the user.
 ```
 
-- [ ] **Step 4: Modify `qa.md`** — add Delegation + Definition of done (permissions unchanged, qa stays T tier)
+- [ ] **Step 4: Modify `qa.md`** — add Permissions + Delegation + Definition of done (permissions unchanged, qa stays T tier)
 
 Append after `## Escalation`:
 
 ```markdown
+## Permissions
+Test-scoped write role: `edit: allow` (test files only), `bash: ask` (repo baseline gates — `pnpm test`/`pnpm lint`/`pnpm typecheck` auto-run, risky commands human-gated), `task: allow`, `webfetch/websearch: ask`.
+
 ## Delegation
 May delegate test-context questions to `explore` for locating existing tests/patterns. May not delegate verification itself — QA owns its verification results.
 
@@ -715,7 +727,7 @@ Expected: APPROVE or ADDRESSED findings; no permission weakening, §22 contracts
 
 ## Self-Review (performed by plan author)
 
-**Spec coverage (§2 of spec):** Phase 2A scope = roster + contracts + tier matrix + model matrix + ADR → Tasks 1–6 cover: all 8 new agents (Tasks 2–4), §22 completion on existing 4 (Task 1), tier/model matrices embedded in Global Constraints + agent frontmatter, ADR-0002 (Task 5), validation + eval re-run + review gate (Tasks 5–6). No spec item without a task.
+**Spec coverage (§2 of spec):** Phase 2A scope = roster + contracts + tier matrix + model matrix + ADR → Tasks 1–6 cover: all 8 new agents (Tasks 2–4), §22 completion on existing 4 (Task 1 — including the missing `## Permissions` section found in pre-flight scan, so all agents have the exact 9 §22 sections), tier/model matrices embedded in Global Constraints + agent frontmatter, ADR-0002 (Task 5), validation + eval re-run + review gate (Tasks 5–6). No spec item without a task.
 
 **Placeholder scan:** No TBD/TODO; every step contains full file content (agent YAML + markdown bodies) or exact commands. ADR body fully written. Handoff rewrite is content-driven (contract fields listed).
 
