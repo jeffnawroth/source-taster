@@ -1,6 +1,6 @@
 # Spec: AI Operating System for Source Taster — Phase 2 (Master-Prompt-Vollmechanisierung)
 
-> Status: Design in review — awaiting user approval (2026-08-18)
+> Status: Decision made — implementation approved (2026-08-18)
 > Decision mode: collaborative (user approved: alle 76 §§ voll mechanisieren, phasiert, vollständiger Rollenkader; §41/§43 "wie in der Master-Prompt")
 
 ## Decision
