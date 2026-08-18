@@ -14,7 +14,7 @@ description: Domain knowledge for academic reference verification — CSL-JSON s
 
 ## CSL-JSON (the canonical item format)
 - Variables used by matching: `title`, `author`, `issued`, `DOI`, `container-title`, `volume`, `page`, `type`
-- Schema lives in `packages/types/src/app/csl.ts` (Zod) — single source of truth
+- Schema lives in `packages/types/src/app/csl-json.ts` (Zod) — single source of truth
 
 ## Matching semantics
 - **Normalization order** (10 steps, documented in `apps/docs/matching-scoring.md`): `normalize-typography`, `normalize-umlauts`, `normalize-accents`, `match-author-initials`, `match-structured-dates`, `match-page-range-overlap`, `match-container-title-variants`, etc.
