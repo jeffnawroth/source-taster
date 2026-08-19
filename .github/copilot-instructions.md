@@ -17,26 +17,26 @@ Dev/build workflows
 
 Backend (apps/api)
 
-- Entry: src/index.ts mounts Hono routers under /api/\* and listens on PORT or 8000.
+- Entry: src/index.ts mounts Hono routers under /v1/\* and listens on PORT or 8000. API namespace is /v1/* — never /api/*.
 - Routers and controllers:
-  - /api/extract → extractionRouter → extractionController.extractReferences
-  - /api/match → matchingRouter → matchingController.matchReference
-  - /api/search[/:database] → searchRouter → searchController.searchSingleDatabase
-  - /api/anystyle/\* → anystyleRouter → AnystyleController.{parse,convertToCSL}
+  - /v1/extract → extractionRouter → extractionController.extractReferences
+  - /v1/match → matchingRouter → matchingController.matchReference
+  - /v1/search[/:database] → searchRouter → searchController.searchSingleDatabase
+  - /v1/anystyle/\* → anystyleRouter → AnystyleController.{parse,convertToCSL}
 - Request validation: Every controller parses with zod schemas from @source-taster/types (e.g., ApiExtractRequestSchema).
 - Error contract: registerOnError() serializes errors as { success:false, error, message } and maps Zod to 400 and HTTPException codes.
-- Auth/identity: withClientId middleware requires header X-Client-Id (UUID v4) for /api/user/\* and /api/extract; controllers read c.get('userId').
+- Auth/identity: withClientId middleware requires header X-Client-Id (UUID v4) for /v1/user/\* and /v1/extract; controllers read c.get('userId').
 - CORS: In development allows all origins; in production, restricts to configured extension IDs via ALLOWED_EXTENSION_IDS.
 - AI provider: AIProviderFactory creates OpenAI-compatible extraction provider; in dev, falls back to OPENAI_API_KEY if no per-user key is stored.
 - Search providers: src/services/search/providers/\* (Crossref, Europe PMC, Semantic Scholar, OpenAlex, arXiv).
-- AnyStyle: anystyleProvider bridges to the AnyStyle service; see routes under /api/anystyle.
+- AnyStyle: anystyleProvider bridges to the AnyStyle service; see routes under /v1/anystyle.
 
 Frontend extension (apps/extension)
 
 - API config: src/env.ts defines baseUrl (VITE_API_BASE_URL default http://localhost:8000) and endpoint paths.
 - HTTP helper: src/services/http.ts returns ApiResult<T> by interpreting the standard {success,data,error,message} shape and HTTP errors.
 - Services:
-  - src/services/extractionService.ts calls POST /api/extract with X-Client-Id
+  - src/services/extractionService.ts calls POST /v1/extract with X-Client-Id
   - src/services/matchingService.ts, searchService.ts, anystyleService.ts, userService.ts follow same pattern
 - Client identity and settings: src/logic/storage.ts persists clientId, settings via useWebExtensionStorage. Always include X-Client-Id from storage when calling protected endpoints.
 - UI structure: popup/, sidepanel/, options/ with shared logic under src/logic and components/; localization in src/locales/; state via Pinia.
@@ -54,8 +54,8 @@ Add/update features — concrete patterns
 Gotchas
 
 - The API relies on the success-flagged JSON contract; do not return raw data from controllers—wrap and validate with the shared zod response schemas.
-- In development, OPENAI_API_KEY can be used as a fallback for extraction if no per-user key is stored; in production, user secrets must be saved via /api/user/ai-secrets.
-- Some endpoints (e.g., /api/extract, /api/user/\*) will 401/400 without a valid X-Client-Id.
+- In development, OPENAI_API_KEY can be used as a fallback for extraction if no per-user key is stored; in production, user secrets must be saved via /v1/user/ai-secrets.
+- Some endpoints (e.g., /v1/extract, /v1/user/\*) will 401/400 without a valid X-Client-Id.
 
 Key files
 

@@ -2,6 +2,7 @@
 description: Independent engineering review of changes. Use before merging, after implementation, or when a second opinion on correctness/design is needed.
 mode: subagent
 model: openai/gpt-5.5
+steps: 150
 permission:
   edit: deny
   bash: deny

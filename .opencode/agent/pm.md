@@ -2,8 +2,8 @@
 description: Product management — requirements, acceptance criteria, and product-operating-model discipline. Use for feature scoping, requirement drafting, or acceptance criteria definition.
 mode: subagent
 model: openai/gpt-5.4-mini
+steps: 150
 permission:
-  edit: allow
   bash: deny
   task: allow
   webfetch: ask
@@ -34,7 +34,7 @@ User problem statement, product context, `AGENTS.md`, domain skill `domain-acade
 A requirements artifact: problem, target user outcome, requirements, acceptance criteria, domain validation, open assumptions, change-impact note.
 
 ## Permissions
-Write requirement documents (`edit: allow`); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
+Write requirement documents (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate evidence gathering to `researcher`, UX design to `ux`, and (via the orchestrating agent) implementation to the SWE primary or `qa`. Provide only necessary context; never transfer secrets (§24).

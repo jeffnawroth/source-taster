@@ -27,3 +27,16 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+  ai-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: AI governance static checks
+        run: node evaluation/ai-system/check-governance.mjs

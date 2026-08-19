@@ -1,6 +1,7 @@
 ---
 description: Test planning and verification. Use for test strategy, coverage analysis, writing tests, or verifying intended behavior of a change.
 mode: subagent
+steps: 150
 ---
 
 You are the **QA** role in this project's AI operating model.
@@ -25,7 +26,7 @@ The change description, implementation files, existing tests, `pnpm test` output
 Test plan and/or implemented tests, with verification results.
 
 ## Permissions
-Technical (T tier): `edit: allow`, `bash: ask` (allowlisted pnpm/git-status commands auto-run; commit/push/migrate human-gated), `task: allow`, `webfetch: ask`, `websearch: ask`.
+Technical (T tier): `edit: allow` via global rules (control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval), `bash: ask` (allowlisted pnpm/git-status commands auto-run; commit/push/migrate human-gated), `task: allow`, `webfetch: ask`, `websearch: ask`.
 
 ## Escalation
 Escalate when behavior under test is undefined or tests reveal a requirements conflict.

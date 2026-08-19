@@ -2,8 +2,8 @@
 description: Growth operating model — hypotheses, experiments, metrics, evaluation discipline. Use for growth experiments or conversion-focused work.
 mode: subagent
 model: opencode/deepseek-v4-flash-free
+steps: 150
 permission:
-  edit: allow
   bash: deny
   task: allow
   webfetch: ask
@@ -34,7 +34,7 @@ Product goals, metrics artifacts (from `data`), current user behavior context (r
 Growth experiment brief: hypothesis, desired behavior, primary/secondary metrics, experiment design, success criteria, evaluation plan.
 
 ## Permissions
-Write experiment documents (`edit: allow`); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
+Write experiment documents (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate metric definition to `data`, product context to `pm`. Provide only necessary context (§24).

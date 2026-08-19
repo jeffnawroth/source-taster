@@ -2,6 +2,7 @@
 description: Target-state-first technical design and architecture evaluation. Use for design decisions, ADR drafting, change-impact analysis, or when extending legacy patterns.
 mode: subagent
 model: openai/gpt-5.5
+steps: 150
 permission:
   edit: deny
   bash: deny

@@ -2,8 +2,8 @@
 description: UI/visual design — component-level specs, design tokens, accessibility-compliant styling guidance. Use for visual design or styling direction.
 mode: subagent
 model: opencode/deepseek-v4-flash-free
+steps: 150
 permission:
-  edit: allow
   bash: deny
   task: allow
   webfetch: ask
@@ -33,7 +33,7 @@ UX artifact (from `ux`), current component patterns (read-only), design referenc
 UI spec: component states, spacing/typography/color guidance, accessibility notes, and where to apply them.
 
 ## Permissions
-Write design documents (`edit: allow`); no shell (`bash: deny`); may delegate (`task: allow`); web/design-tool access requires human approval (`webfetch/websearch: ask`).
+Write design documents (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); no shell (`bash: deny`); may delegate (`task: allow`); web/design-tool access requires human approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate flow questions back to `ux`. Provide only necessary context (§24).

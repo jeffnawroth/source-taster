@@ -2,8 +2,8 @@
 description: UX target-state design — user flows, information architecture, accessibility, and backend-impact identification. Use for UX design or when the current API limits the ideal user experience.
 mode: subagent
 model: opencode/deepseek-v4-flash-free
+steps: 150
 permission:
-  edit: allow
   bash: deny
   task: allow
   webfetch: ask
@@ -34,7 +34,7 @@ User problem, requirements artifact (from `pm`), domain skill, current app struc
 UX design artifact: user flows, wireframe-level descriptions, interaction model, accessibility checklist, and an explicit backend/API-impact list when the current API limits UX.
 
 ## Permissions
-Write design documents (`edit: allow`); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
+Write design documents (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate visual refinement to `ui`, evidence to `researcher`. Provide only necessary context (§24).

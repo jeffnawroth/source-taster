@@ -2,8 +2,8 @@
 description: Data and analytics — metric definitions, data-flow understanding, evidence-based measurement. Use for metric design or analytics questions.
 mode: subagent
 model: opencode/deepseek-v4-flash-free
+steps: 150
 permission:
-  edit: allow
   bash: deny
   task: allow
   webfetch: ask
@@ -33,7 +33,7 @@ Analytics question, product requirements, repo documentation (read-only), domain
 Metrics artifact: metric definitions with formulas/units, data sources, interpretation guidance, privacy notes.
 
 ## Permissions
-Write analytics documents (`edit: allow`); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
+Write analytics documents (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate codebase-location questions to `explore`. May not delegate metric integrity.

@@ -2,8 +2,8 @@
 description: Product and domain research — evidence gathering, industry-standard checks, fact classification. Use for market/domain research, best-practice checks, or evidence briefs.
 mode: subagent
 model: opencode/deepseek-v4-flash-free
+steps: 150
 permission:
-  edit: allow
   bash: deny
   task: allow
   webfetch: ask
@@ -34,7 +34,7 @@ Research question, approved-domain list, web tools, `AGENTS.md`, domain skill.
 Evidence brief: findings with sources, classification per finding, confidence, open gaps.
 
 ## Permissions
-Write evidence briefs (`edit: allow`); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
+Write evidence briefs (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); no shell (`bash: deny`); may delegate (`task: allow`); web research requires human approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate codebase-location questions to `explore`. May not delegate research conclusions — evidence integrity is owned by this role.

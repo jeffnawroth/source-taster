@@ -2,8 +2,8 @@
 description: DevOps and platform — CI/CD inspection, release hygiene, tooling, infrastructure awareness. Use for pipeline questions, release checks, or deployment-adjacent analysis.
 mode: subagent
 model: openai/gpt-5.4-mini
+steps: 150
 permission:
-  edit: allow
   bash: ask
   task: allow
   webfetch: ask
@@ -34,7 +34,7 @@ CI/CD files (read-only), release workflow context, `AGENTS.md`, pipeline questio
 Pipeline assessment: current state, identified gaps (separated from silent changes), recommended actions with risk levels, release-checklist input.
 
 ## Permissions
-Write analysis documents (`edit: allow`); shell access gated by repo baseline (`bash: ask` — pnpm lint/typecheck/test/build auto-run, commit/push/migrate human-gated); may delegate (`task: allow`); web access requires approval (`webfetch/websearch: ask`).
+Write analysis documents (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); shell access gated by repo baseline (`bash: ask` — pnpm lint/typecheck/test/build auto-run, commit/push/migrate human-gated); may delegate (`task: allow`); web access requires approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate pipeline-security review to `security-reviewer`, codebase questions to `explore`. Provide only necessary context (§24).

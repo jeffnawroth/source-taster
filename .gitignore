@@ -140,3 +140,8 @@ evaluation/out/
 
 # git worktrees
 .worktrees/
+
+# Local IDE metadata and generated design exports
+.idea/
+png-exports/
+.pnpm-store/

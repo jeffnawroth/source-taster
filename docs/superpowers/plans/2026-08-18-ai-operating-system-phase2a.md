@@ -660,7 +660,7 @@ Master-prompt §21 defines the target role architecture (PM, research, UX, UI, S
 
 ## Alternatives
 
-- **Full roster as primary agents**: rejected — primary agents can bypass agent-level permission denies (verified limitation of OpenCode 1.18.18 subagent dispatch enforcement); subagent mode keeps permission enforcement.
+- **Full roster as primary agents**: rejected — headless `opencode run --agent <subagent>` falls back to the default build agent (verified OpenCode 1.18.18, corrected 2026-08-19); role agents must be dispatched via the task tool, where their permission layer is enforced; subagent mode keeps permission enforcement.
 - **One omnibus "product" agent**: rejected — violates §21 role separation and §33 evaluator independence; review quality would degrade.
 - **No new agents, principle-only**: rejected by user decision — full mechanization required.
 

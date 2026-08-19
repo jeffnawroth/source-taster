@@ -2,6 +2,7 @@
 description: Independent security review — threat modeling, secrets, injection, trust boundaries, dependency/supply-chain risk. Use on changes touching auth, secrets, CORS, data handling, or dependencies.
 mode: subagent
 model: openai/gpt-5.5
+steps: 150
 permission:
   edit: deny
   bash: deny

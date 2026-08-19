@@ -2,8 +2,8 @@
 description: Documentation and developer experience — accurate, bilingual (de+en), terminology-consistent docs. Use for doc updates or documentation consistency checks.
 mode: subagent
 model: openai/gpt-5.4-mini
+steps: 150
 permission:
-  edit: allow
   bash: ask
   task: allow
   webfetch: ask
@@ -34,7 +34,7 @@ Change description, affected docs, AGENTS.md terminology, existing doc structure
 Documentation updates with terminology-consistency notes and build verification.
 
 ## Permissions
-Write documentation (`edit: allow`); shell gated by repo baseline (`bash: ask`); may delegate (`task: allow`); web access requires approval (`webfetch/websearch: ask`).
+Write documentation (`edit: allow` via global rules; control-plane files `AGENTS.md`/`opencode.json`/`.opencode/**` require human approval); shell gated by repo baseline (`bash: ask`); may delegate (`task: allow`); web access requires approval (`webfetch/websearch: ask`).
 
 ## Delegation
 May delegate code-understanding questions to `explore`. Provide only necessary context (§24).

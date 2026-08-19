@@ -13,6 +13,19 @@
       "git diff*": "allow",
       "git branch*": "allow"
     },
+    "edit": {
+      "*": "allow",
+      "AGENTS.md": "ask",
+      "opencode.json": "ask",
+      ".opencode/**": "ask"
+    },
     "external_directory": { "*": "deny" }
+  },
+  "subagent_depth": 2,
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/Users/jeffnawroth/Developer/Repositories/source-taster"]
+    }
   }
 }
