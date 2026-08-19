@@ -9,6 +9,7 @@ Project AI/architecture memory convention (English). Superseded docs remain — 
 | ADR-0001 | 2026-08-18 | AI Operating System — Phase 1 Setup |
 | ADR-0002 | 2026-08-18 | Full Role Roster for the AI Operating Model (Phase 2A) |
 | ADR-0003 | 2026-08-19 | Skills & Commands for the AI Operating Model (Phase 2B) |
+| ADR-0004 | 2026-08-19 | Boundaries, Evals & Final Validation (Phase 2C) |
 
 ## Template
 
