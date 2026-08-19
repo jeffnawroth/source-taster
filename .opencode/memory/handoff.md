@@ -14,10 +14,9 @@ Phase 2B implementation complete; ADR-0003 + validation + handoff committed; pha
 - `/plan` extended with the §26 six-stage structure (Objective → Milestones → Dependencies → Verifiable Work Units → Evaluation → Integration)
 - `/test` deliberately NOT added — covered by `/check` (§57)
 - ADR-0003 `docs/decisions/2026-08-18-ai-operating-system-phase2b.md` + README index row
-- Commits on `feat-ai-operating-system-phase2b`: d83d4647 (7 skills), 346f9c89 (3 commands + plan template), ADR+handoff commit pending
+- Commits on `feat-ai-operating-system-phase2b`: d83d4647 (7 skills), 346f9c89 (3 commands + plan template), 6c55992b (ADR-0003 + README + handoff), e7f41ef1 (eval re-run)
 
 ## Remaining Work
-- Commit ADR-0003 + README + this handoff (Task 3 Step 7)
 - Task 4 phase review gate: eval suite re-run (5 scenarios must stay PASS), review package, independent review
 - Phase 2C: AGENTS.md updates (approved-domain policy, runtime-isolation statement, memory structure, context rules, stop conditions, human oversight, rollback, SWE note), MCP audit doc (filesystem `$HOME` root finding → user decision), eval expansion to ~12 scenarios, §73/§74 final validation, final merge
 
