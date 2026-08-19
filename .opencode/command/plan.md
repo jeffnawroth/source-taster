@@ -12,4 +12,13 @@ Run the planning workflow for: $ARGUMENTS
 2. Present the design and change-impact summary to the user for approval.
 3. Only after user approval: write the ADR to `docs/decisions/` and update `.opencode/memory/handoff.md`.
 
+## Plan document structure (§26)
+Plans produced by this command follow the six-stage template (see skill `delegation-and-trust`):
+1. **Objective** — one sentence
+2. **Milestones** — phase checkpoints
+3. **Dependencies** — task interfaces
+4. **Verifiable work units** — tasks with explicit verification
+5. **Evaluation** — evals + review gate
+6. **Integration** — merge strategy + rollback path
+
 Do not implement any code in this command.
