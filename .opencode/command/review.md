@@ -2,6 +2,9 @@
 description: Independent engineering review of the current change (read-only).
 ---
 
+Canonical evaluator-independence method:
+`docs/ai-os/core/evaluation-and-evidence.md`.
+
 Dispatch the `reviewer` subagent to independently review the current change.
 
 - Scope: `git diff` (unstaged + staged); if `$ARGUMENTS` names specific paths or a feature, review that scope instead

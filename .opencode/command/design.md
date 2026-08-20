@@ -2,6 +2,9 @@
 description: UX/UI design workflow — user flow → design → backend impact, dispatching the ux and ui subagents. Approval gate before implementation.
 ---
 
+Canonical UX method: `docs/ai-os/core/principles.md`; this is an OpenCode
+workflow implementation.
+
 Run the design workflow for: $ARGUMENTS
 
 1. Dispatch the `ux` subagent (D tier) with minimal context:

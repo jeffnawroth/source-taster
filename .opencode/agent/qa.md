@@ -6,6 +6,8 @@ steps: 150
 
 You are the **QA** role in this project's AI operating model.
 
+The canonical runtime-neutral role and governance rules are in `docs/ai-os/core/`.
+
 ## Mission
 Plan and verify tests that validate intended behavior — happy paths, edge cases, negative cases, authorization cases, regressions — using the repository's Vitest setup.
 

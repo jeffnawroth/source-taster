@@ -95,12 +95,12 @@ packages/
 
 | Method            | Path                           | Description                                                    |
 | ----------------- | ------------------------------ | -------------------------------------------------------------- |
-| `POST`            | `/api/extract`                 | AI extraction with Zod-validated output                        |
-| `POST`            | `/api/search/:database`        | Search OpenAlex, Crossref, Semantic Scholar, Europe PMC, arXiv |
-| `POST`            | `/api/match`                   | Deterministic scoring against candidates                       |
-| `POST`            | `/api/anystyle/parse`          | Tokenize references via AnyStyle                               |
-| `POST`            | `/api/anystyle/convert-to-csl` | Convert tokens to CSL-JSON                                     |
-| `POST/GET/DELETE` | `/api/user/ai-secrets`         | Manage encrypted user API keys                                 |
+| `POST`            | `/v1/extract`                  | AI extraction with Zod-validated output                        |
+| `POST`            | `/v1/search/:database`         | Search OpenAlex, Crossref, Semantic Scholar, Europe PMC, arXiv |
+| `POST`            | `/v1/match`                    | Deterministic scoring against candidates                       |
+| `POST`            | `/v1/anystyle/parse`           | Tokenize references via AnyStyle                               |
+| `POST`            | `/v1/anystyle/convert-to-csl`  | Convert tokens to CSL-JSON                                     |
+| `POST/GET/DELETE` | `/v1/user/ai-secrets`          | Manage encrypted user API keys                                 |
 
 Full reference: [API docs](apps/docs/api.md)
 

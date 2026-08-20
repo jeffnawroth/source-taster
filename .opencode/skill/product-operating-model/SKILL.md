@@ -5,6 +5,9 @@ description: Product operating model — problem → outcome → requirements �
 
 # Product Operating Model
 
+Canonical method: `docs/ai-os/core/operating-model.md`; Source Taster domain
+validation remains project-specific.
+
 ## Workflow (§4/§7/§16)
 1. **Problem** — state the user problem in one sentence; validate it against the domain (academic reference verification)
 2. **Outcome** — measurable outcome the feature must produce (e.g. "hallucinated citations are caught before the thesis is submitted")

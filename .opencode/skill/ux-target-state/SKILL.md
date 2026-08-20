@@ -5,6 +5,8 @@ description: UX independence — user problem → ideal UX → API/backend adapt
 
 # UX Target-State
 
+Canonical method: `docs/ai-os/core/principles.md` and `operating-model.md`.
+
 ## Core rule (§9)
 The UX must be designed from the user problem, not from what the backend happens to support. If the backend forces a worse UX, the recommendation is a backend change — not UX degradation.
 

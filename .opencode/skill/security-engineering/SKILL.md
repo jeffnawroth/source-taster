@@ -5,6 +5,9 @@ description: Security engineering — threat modeling, prompt-injection defense,
 
 # Security Engineering
 
+Canonical method: `docs/ai-os/core/governance-and-audit.md`; repository-specific
+security details below remain Source Taster guidance.
+
 ## Threat modeling (§19)
 For any security-relevant change: assets → threats → attack surfaces → mitigations. Use STRIDE categories where useful. Record residual risk.
 

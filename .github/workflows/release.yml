@@ -20,6 +20,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm run -r typecheck
+      - run: pnpm eval:ai
 
   release:
     if: github.actor != 'github-actions[bot]' && !startsWith(github.event.head_commit.message, 'chore(release):')

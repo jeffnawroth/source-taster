@@ -5,6 +5,8 @@ description: Growth operating model — hypothesis → metric → experiment →
 
 # Growth Operating Model
 
+Canonical method: `docs/ai-os/core/operating-model.md`.
+
 ## Workflow (§17)
 1. **Hypothesis** — "If X then Y because Z" (one sentence)
 2. **Metric** — the one metric that falsifies the hypothesis; define direction + threshold

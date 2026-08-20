@@ -2,6 +2,8 @@
 description: Target-state-first planning: architect analysis, change-impact summary, ADR draft. Approval gate before implementation.
 ---
 
+Canonical planning and decomposition method: `docs/ai-os/core/operating-model.md`.
+
 Run the planning workflow for: $ARGUMENTS
 
 1. Dispatch the `architect` subagent (read-only) for a target-state-first analysis:

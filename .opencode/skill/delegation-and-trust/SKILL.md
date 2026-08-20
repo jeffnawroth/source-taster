@@ -5,6 +5,8 @@ description: Delegation and trust — agent-to-agent delegation rules, task deco
 
 # Delegation & Trust
 
+Canonical method: `docs/ai-os/core/operating-model.md`.
+
 ## Delegation rules (§24/§25)
 - Delegate with **minimal context** — the task description, the deliverable, verification requirements; never full session dumps
 - Subagents receive only the context they need; sensitive data (secrets) is never passed to subagents

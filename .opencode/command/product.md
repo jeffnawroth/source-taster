@@ -2,6 +2,8 @@
 description: Product workflow — problem → outcome → requirements → acceptance criteria, dispatching the pm subagent. Approval gate before implementation.
 ---
 
+Canonical product method: `docs/ai-os/core/operating-model.md`.
+
 Run the product workflow for: $ARGUMENTS
 
 1. Dispatch the `pm` subagent (D tier, edit allow) with minimal context:

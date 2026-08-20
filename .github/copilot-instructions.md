@@ -1,5 +1,11 @@
 # Source Taster — Copilot instructions
 
+Read `docs/ai-os/core/` for the runtime-neutral AI-OS and `AGENTS.md` for
+Source Taster project policy. `docs/ai-os/runtimes/copilot/implementation.md`
+documents the instruction-level nature and limitations of this integration; do
+not claim technical permission, isolation, or approval enforcement not shown
+there.
+
 Monorepo overview
 
 - pnpm workspaces with three main parts:

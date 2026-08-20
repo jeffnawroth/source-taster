@@ -2,6 +2,9 @@
 description: Read-only release checklist — gates, dangerous areas, human authorization (§50/§71). Never executes a release.
 ---
 
+Canonical oversight and release-safety principles:
+`docs/ai-os/core/governance-and-audit.md`.
+
 Run the read-only release checklist for: $ARGUMENTS
 
 1. Verify gates: `pnpm lint`, `pnpm typecheck`, `pnpm test` all green (per `/check` results)

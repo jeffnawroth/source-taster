@@ -5,6 +5,8 @@ description: Domain knowledge for academic reference verification — CSL-JSON s
 
 # Domain: Academic Reference Verification
 
+This is the detailed Source Taster domain workflow referenced by `AGENTS.md`.
+
 ## Workflow
 1. **Import** — paste text, drag-and-drop PDF (client-side parsing via `unpdf`), or extension context menu
 2. **Extraction** — parse raw reference text into structured CSL-JSON via AnyStyle (Ruby, deterministic) or an LLM (OpenAI/Anthropic/Google/DeepSeek, OpenAI-compatible)

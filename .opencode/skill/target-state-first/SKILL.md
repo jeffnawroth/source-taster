@@ -5,6 +5,8 @@ description: Target-state-first thinking — establish the ideal end state befor
 
 # Target-State-First
 
+Canonical method: `docs/ai-os/core/principles.md` and `operating-model.md`.
+
 ## Core rule
 Always establish the ideal target state FIRST (user/business outcome → product/domain context → current best practice → ideal target), then analyze the existing system as a constraint — never as the baseline (§2/§3).
 

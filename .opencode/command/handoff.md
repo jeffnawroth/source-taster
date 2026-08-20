@@ -2,6 +2,8 @@
 description: Write or update the long-running state file (.opencode/memory/handoff.md).
 ---
 
+Canonical handoff contract: `docs/ai-os/core/operating-model.md`.
+
 Update `.opencode/memory/handoff.md` for the current work per the handoff contract:
 
 - Objective

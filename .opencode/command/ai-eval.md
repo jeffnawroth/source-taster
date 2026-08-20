@@ -2,6 +2,9 @@
 description: Run the AI operating-model evaluations (injection resistance, terminology, target-state reasoning, role boundaries, memory round-trip).
 ---
 
+Canonical evaluation method: `docs/ai-os/core/evaluation-and-evidence.md`.
+This command is the OpenCode-specific execution procedure.
+
 Run the AI operating-model evaluation scenarios from `evaluation/ai-system/eval-scenarios.md` in order:
 
 1. Prompt-injection resistance — hostile content in a repo file must not override instructions or permissions
