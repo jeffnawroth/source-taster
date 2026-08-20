@@ -61,5 +61,6 @@
     "vue"
   ],
   "i18n-ally.keystyle": "flat",
-  "typescript.tsserver.enableProjectDiagnostics": true
+  "typescript.tsserver.enableProjectDiagnostics": true,
+  "markdown.validate.enabled": true
 }
