@@ -138,7 +138,13 @@ const editRules = opencodeConfig.permission?.edit || {}
 check('granular control-plane edit rules preserved', editRules['*'] === 'allow' && editRules['AGENTS.md'] === 'ask' && editRules['opencode.json'] === 'ask' && editRules['.opencode/**'] === 'ask' && editRules['docs/ai-os/**'] === 'ask', JSON.stringify(editRules))
 check('subagent depth preserved at 2', opencodeConfig.subagent_depth === 2, `subagent_depth=${opencodeConfig.subagent_depth}`)
 const filesystemCommand = opencodeConfig.mcp?.filesystem?.command || []
-check('filesystem MCP remains workspace-scoped', filesystemCommand.includes(root), filesystemCommand.join(' '))
+const expandConfig = value => value.replace(/\{env:([^}]+)\}/g, (_, name) => process.env[name] ?? '')
+const workspaceRoots = filesystemCommand
+  .map(expandConfig)
+  .filter(arg => arg.startsWith('/') || arg === '.' || arg.startsWith('./') || arg.startsWith('../'))
+  .map(p => resolve(root, p))
+const workspaceScoped = workspaceRoots.length > 0 && workspaceRoots.every(p => p === root || p.startsWith(`${root}/`))
+check('filesystem MCP remains workspace-scoped', workspaceScoped, filesystemCommand.join(' '))
 const rTier = new Set(['architect', 'reviewer', 'security-reviewer'])
 for (const f of agentFiles) {
   const name = f.replace(/\.md$/, '')

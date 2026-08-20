@@ -26,7 +26,7 @@
   "mcp": {
     "filesystem": {
       "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/Users/jeffnawroth/Developer/Repositories/source-taster"]
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "{env:PWD}"]
     }
   }
 }
