@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm lint*)",
+      "Bash(pnpm typecheck*)",
+      "Bash(pnpm test*)",
+      "Bash(pnpm build*)",
+      "Bash(pnpm dev*)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git branch*)"
+    ],
+    "ask": [
+      "Edit(AGENTS.md)",
+      "Edit(CLAUDE.md)",
+      "Edit(docs/ai-os/**)",
+      "Edit(.claude/**)"
+    ],
+    "deny": [
+      "Read(.keystore/**)",
+      "Read(.env)",
+      "Read(apps/api/.env)"
+    ]
+  },
+  "autoMemoryEnabled": false
+}
