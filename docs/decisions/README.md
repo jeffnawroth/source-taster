@@ -11,6 +11,7 @@ Project AI/architecture memory convention (English). Superseded docs remain — 
 | ADR-0003 | 2026-08-19 | Skills & Commands for the AI Operating Model (Phase 2B) |
 | ADR-0004 | 2026-08-19 | Boundaries, Evals & Final Validation (Phase 2C) |
 | ADR-0005 | 2026-08-19 | Audit Remediation — Eval Integrity, Control-Plane Protection, Eval Gate, Recursion Caps, Canonical Sources |
+| ADR-0008 | 2026-08-21 | Claude Code as a Third AI-OS Runtime Adapter |
 
 ## Template
 

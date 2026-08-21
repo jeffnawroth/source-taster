@@ -45,6 +45,10 @@ const requiredFiles = [
   'docs/ai-os/runtimes/opencode/README.md',
   'docs/ai-os/runtimes/copilot/README.md',
   'docs/ai-os/runtimes/copilot/implementation.md',
+  'docs/ai-os/runtimes/claude/README.md',
+  'docs/ai-os/runtimes/claude/implementation.md',
+  '.claude/CLAUDE_IMPLEMENTATION.md',
+  'evaluation/ai-system/claude-eval-results.md',
   'evaluation/ai-system/GOVERNANCE_SPEC.md',
   '.opencode/memory/handoff.md',
   '.opencode/memory/ai-eval-results.md',
@@ -110,6 +114,11 @@ const prohibitedCorePatterns = [
   ['OpenCode run syntax', /opencode run/],
   ['runtime model pin', /(?:openai|opencode)\/[\w.-]+/],
   ['worktree implementation', /git worktree/],
+  ['CLAUDE.md', /CLAUDE\.md/],
+  ['permissionMode', /permissionMode/],
+  ['disallowedTools', /disallowedTools/],
+  ['.claude path', /\.claude\//],
+  ['maxTurns', /maxTurns/],
 ]
 for (const file of coreFiles) {
   const content = read(file)
@@ -119,8 +128,10 @@ for (const file of coreFiles) {
 }
 const openCodeAdapter = read('docs/ai-os/runtimes/opencode/implementation.md')
 const copilotAdapter = read('docs/ai-os/runtimes/copilot/implementation.md')
+const claudeAdapter = read('docs/ai-os/runtimes/claude/implementation.md')
 check('OpenCode adapter distinguishes evidence status', openCodeAdapter.includes('Runtime-enforced') && openCodeAdapter.includes('instruction-level'))
 check('Copilot adapter documents absent technical controls', copilotAdapter.includes('Not technically implemented here') && /instruction-level/i.test(copilotAdapter))
+check('Claude adapter distinguishes evidence status', /TECHNICALLY ENFORCED/i.test(claudeAdapter) && /instruction-level/i.test(claudeAdapter))
 
 output('\n[3] Agent contracts and OpenCode control-plane protection')
 const agentDir = rel('.opencode/agent')
@@ -169,6 +180,14 @@ const commandFiles = readdirSync(rel('.opencode/command')).filter(f => f.endsWit
 check('9 command files', commandFiles.length === 9, `${commandFiles.length} found`)
 for (const f of commandFiles) check(`command ${f}: canonical reference`, read(f).includes('Canonical'))
 
+const claudeSkillDir = rel('.claude/skills')
+const claudeSkillFiles = readdirSync(claudeSkillDir, { withFileTypes: true })
+  .filter(entry => entry.isDirectory() && existsSync(join(claudeSkillDir, entry.name, 'SKILL.md')))
+  .map(entry => `.claude/skills/${entry.name}/SKILL.md`)
+  .sort()
+const claudeAgentDir = rel('.claude/agents')
+const claudeAgentFiles = readdirSync(claudeAgentDir).filter(f => f.endsWith('.md')).sort()
+
 const referenceDocs = [
   'AGENTS.md',
   ...markdownFiles('.opencode'),
@@ -195,9 +214,14 @@ const activeDocs = [
   ...coreFiles,
   'docs/ai-os/runtimes/opencode/implementation.md',
   'docs/ai-os/runtimes/copilot/implementation.md',
+  'docs/ai-os/runtimes/claude/implementation.md',
+  'CLAUDE.md',
+  '.claude/CLAUDE_IMPLEMENTATION.md',
   ...agentFiles.map(f => `.opencode/agent/${f}`),
   ...skillFiles,
   ...commandFiles,
+  ...claudeAgentFiles.map(f => `.claude/agents/${f}`),
+  ...claudeSkillFiles,
 ]
 const apiRefs = []
 for (const file of activeDocs) {
@@ -215,6 +239,24 @@ const approvedDomains = ['openalex.org', 'doi.org', 'crossref.org', 'api.semanti
 check('AGENTS.md lists all approved egress domains', approvedDomains.every(d => agentsMd.includes(d)))
 const researcher = read('.opencode/agent/researcher.md')
 check('derived artifacts reference AGENTS.md domain list', boundarySkill.includes('AGENTS.md') && researcher.includes('AGENTS.md'))
+
+output('\n[6] Claude runtime adapter')
+const claudeMd = read('CLAUDE.md')
+const claudeMdFirstLine = claudeMd.split('\n').find(line => line.trim().length > 0) || ''
+check('CLAUDE.md imports AGENTS.md as its first line', claudeMdFirstLine.trim() === '@AGENTS.md', claudeMdFirstLine)
+check('8 Claude skill files', claudeSkillFiles.length === 8, `${claudeSkillFiles.length} found`)
+for (const f of claudeSkillFiles) check(`Claude skill ${f}: canonical reference`, read(f).includes('Canonical') || f.includes('domain-academic-references'))
+const claudeSkillContents = claudeSkillFiles.map(f => read(f))
+check('no obsolete §58 reference under .claude/skills/**', !claudeSkillContents.some(content => content.includes('§58')))
+check('no dangling OpenCode ui-agent handoff reference under .claude/skills/**', !claudeSkillContents.some(content => content.includes('Hand off to `ui`')))
+check('2 Claude agent files', claudeAgentFiles.length === 2, `${claudeAgentFiles.length} found`)
+for (const f of claudeAgentFiles) {
+  const frontmatter = readFileSync(join(claudeAgentDir, f), 'utf8').match(/^---\n([\s\S]*?)\n---/)?.[1] || ''
+  const disallowed = frontmatter.match(/^disallowedTools:(.*)$/m)?.[1]?.trim() || ''
+  const tools = disallowed.split(',').map(t => t.trim())
+  const requiredExcluded = ['Edit', 'Write', 'Bash', 'Agent']
+  check(`Claude agent ${f}: disallowedTools excludes required tools`, requiredExcluded.every(t => tools.includes(t)), disallowed)
+}
 
 output(`\n${failures.length === 0 ? 'ALL GOVERNANCE CHECKS PASSED' : `${failures.length} CHECK(S) FAILED: ${failures.join(', ')}`}`)
 process.exit(failures.length === 0 ? 0 : 1)

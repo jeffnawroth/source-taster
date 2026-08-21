@@ -133,6 +133,7 @@ the OpenCode adapter.
 | Detailed domain workflow | `.opencode/skill/domain-academic-references/SKILL.md` |
 | OpenCode implementation | `runtimes/opencode/implementation.md` |
 | Copilot implementation status | `runtimes/copilot/implementation.md` |
+| Claude implementation | `runtimes/claude/implementation.md` |
 | Static checks | `evaluation/ai-system/check-governance.mjs` |
 | LLM evaluation scenarios | `evaluation/ai-system/eval-scenarios.md` |
 | Live state | `.opencode/memory/handoff.md` |
