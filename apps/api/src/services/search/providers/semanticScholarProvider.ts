@@ -1,6 +1,5 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { components } from '../../../types/semanticScholar.js'
-import { logger } from '../../../middleware/logger.js'
 import { generateUUID } from '../../../utils/generateUUID.js'
 
 type SemanticScholarPaper = components['schemas']['FullPaper']
@@ -18,7 +17,6 @@ export class SemanticScholarProvider {
     this.apiKey = normalizedKey
 
     if (!this.apiKey && !SemanticScholarProvider.warnedMissingApiKey) {
-      logger.warn('⚠️  Semantic Scholar: No SEMANTIC_SCHOLAR_API_KEY configured. Some endpoints may be rate-limited.')
       SemanticScholarProvider.warnedMissingApiKey = true
     }
   }
@@ -51,8 +49,7 @@ export class SemanticScholarProvider {
       // 4. Comprehensive query-based search with multiple strategies
       return await this.searchByQuery(metadata)
     }
-    catch (error) {
-      logger.error('Semantic Scholar search error: %s', error)
+    catch {
     }
 
     return null
@@ -80,8 +77,6 @@ export class SemanticScholarProvider {
 
       const url = `${this.baseUrl}/paper/DOI:${encodeURIComponent(cleanDoi)}?fields=${encodeURIComponent(fields)}`
 
-      logger.debug({ searchType: 'doi', provider: 'semanticscholar' }, 'Semantic Scholar: Searching by DOI')
-
       const response = await fetch(url, {
         headers: {
           Accept: 'application/json',
@@ -104,8 +99,7 @@ export class SemanticScholarProvider {
         }
       }
     }
-    catch (error) {
-      logger.warn('Semantic Scholar DOI search failed: %s', error)
+    catch {
     }
 
     return null
@@ -133,8 +127,6 @@ export class SemanticScholarProvider {
 
       const url = `${this.baseUrl}/paper/ARXIV:${encodeURIComponent(cleanArxivId)}?fields=${encodeURIComponent(fields)}`
 
-      logger.debug({ searchType: 'arxiv_id', provider: 'semanticscholar' }, 'Semantic Scholar: Searching by arXiv ID')
-
       const response = await fetch(url, {
         headers: {
           Accept: 'application/json',
@@ -157,8 +149,7 @@ export class SemanticScholarProvider {
         }
       }
     }
-    catch (error) {
-      logger.warn('Semantic Scholar arXiv search failed: %s', error)
+    catch {
     }
 
     return null
@@ -189,8 +180,6 @@ export class SemanticScholarProvider {
 
       const url = `${this.baseUrl}/paper/search/match?${params.toString()}`
 
-      logger.debug({ searchType: 'title_match', provider: 'semanticscholar' }, 'Semantic Scholar: Title match search')
-
       const response = await fetch(url, {
         headers: {
           Accept: 'application/json',
@@ -212,8 +201,7 @@ export class SemanticScholarProvider {
         }
       }
     }
-    catch (error) {
-      logger.warn('Semantic Scholar title match search failed: %s', error)
+    catch {
     }
 
     return null
@@ -311,19 +299,15 @@ export class SemanticScholarProvider {
       }
 
       // Try each search strategy
-      logger.debug({ searchStrategyCount: searchQueries.length, provider: 'semanticscholar' }, 'Semantic Scholar: Starting multi-strategy search')
       for (let i = 0; i < searchQueries.length; i++) {
         const query = searchQueries[i]
-        logger.debug({ strategyIndex: i + 1, provider: 'semanticscholar' }, 'Semantic Scholar: Trying search strategy')
         const result = await this.performRelevanceSearch(query, metadata)
         if (result) {
-          logger.debug({ strategyIndex: i + 1, provider: 'semanticscholar' }, 'Semantic Scholar: Found result with strategy')
           return result
         }
       }
     }
-    catch (error) {
-      logger.error('Semantic Scholar search error: %s', error)
+    catch {
     }
 
     return null
@@ -355,8 +339,6 @@ export class SemanticScholarProvider {
       params.append('fields', fields)
 
       const url = `${this.baseUrl}/paper/search?${params.toString()}`
-
-      logger.debug({ searchType: 'query', provider: 'semanticscholar' }, 'Semantic Scholar: Query search')
 
       const response = await fetch(url, {
         headers: {
@@ -405,8 +387,7 @@ export class SemanticScholarProvider {
         }
       }
     }
-    catch (error) {
-      logger.warn('Semantic Scholar relevance search failed: %s', error)
+    catch {
     }
 
     return null

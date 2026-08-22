@@ -15,7 +15,7 @@ Academic reference verification. Browser extension (Vue 3, MV3) + web app + Hono
 - **API namespace**: `/v1/*` (never `/api/*`)
 
 ## Workspace layout (pnpm monorepo)
-- `apps/api` — Hono 4, Drizzle ORM, Postgres 16, Zod 4, pino, OpenTelemetry
+- `apps/api` — Hono 4, Drizzle ORM, Postgres 16, Zod 4
 - `apps/web` — Vue 3 SPA, Vuetify, Pinia, vue-i18n (web workspace at `sourcetaster.com/app`)
 - `apps/extension` — Vue 3 + Vuetify, MV3, dual Chrome/Firefox build
 - `apps/landing` — Astro static site (bilingual EN/DE)
@@ -39,7 +39,7 @@ Academic reference verification. Browser extension (Vue 3, MV3) + web app + Hono
 - `.keystore/` — encrypted user AI keys; never log or expose `MASTER_KEY`, `KEY_DERIVATION_SALT`, or keystore contents
 - `.env` files and any API keys — never commit, never log
 - Release pipeline `.github/workflows/release.yml` — auto-releases and deploys to production via docker compose; human-authorized only
-- Docker Compose observability stack and production CORS allowlist
+- Production CORS allowlist
 - `masterarbeit_nawroth_cicek.md` — thesis document, read-only
 - `png-exports/` — generated artifacts, not source
 

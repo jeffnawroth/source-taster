@@ -1,6 +1,5 @@
 import process from 'node:process'
 import { serve } from '@hono/node-server'
-import { httpInstrumentationMiddleware } from '@hono/otel'
 import { Hono } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
 import { HTTPException } from 'hono/http-exception'
@@ -9,11 +8,8 @@ import { registerOnError } from './errors/registerOnError.js'
 import { keyAuth } from './middleware/auth.js'
 import { withClientId } from './middleware/clientId.js'
 import { corsMiddleware } from './middleware/cors.js'
-import { logger } from './middleware/logger.js'
-import { metricsMiddleware } from './middleware/metrics.js'
 import { parseEnv, rateLimit } from './middleware/rateLimit.js'
 import { requestId } from './middleware/requestId.js'
-import { requestLogger } from './middleware/requestLogger.js'
 import { securityHeaders } from './middleware/security.js'
 import { anystyleRouter } from './routes/anystyleRouter.js'
 import extractionRouter from './routes/extractionRouter.js'
@@ -23,16 +19,12 @@ import searchRouter from './routes/searchRouter.js'
 import { userRouter } from './routes/userRouter.js'
 import { findApiKeyByHash } from './services/apiKeyService.js'
 import { registerGracefulShutdown } from './shutdown.js'
-import './telemetry/instrumentation.js'
 
 const app = new Hono()
 
 registerOnError(app)
 
-app.use('*', httpInstrumentationMiddleware())
 app.use('*', requestId())
-app.use('*', requestLogger())
-app.use('*', metricsMiddleware())
 app.use('*', securityHeaders())
 app.use('*', bodyLimit({
   maxSize: parseEnv('BODY_LIMIT_BYTES', 10 * 1024 * 1024),
@@ -42,7 +34,7 @@ app.use('*', bodyLimit({
 }))
 app.use('/v1/*', corsMiddleware)
 
-// Mount health & metrics — not protected by CORS so monitoring tools work
+// Mount health — not protected by CORS so uptime checks work
 app.route('/', healthRouter)
 
 // API-Key-Auth: optional-invalidierend — fehlt der Key, läuft der Browser-Pfad
@@ -76,10 +68,9 @@ app.get('/', (c) => {
 })
 
 const port = Number(process.env.PORT || '') || 8000
-logger.info(`API running on http://localhost:${port}`)
 
 const server = serve({
   fetch: app.fetch,
   port,
 })
-registerGracefulShutdown({ server, endSql: () => sql.end({ timeout: 5 }), logger })
+registerGracefulShutdown({ server, endSql: () => sql.end({ timeout: 5 }) })

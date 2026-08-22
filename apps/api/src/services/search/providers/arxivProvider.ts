@@ -1,5 +1,4 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
-import { logger } from '../../../middleware/logger.js'
 import { generateUUID } from '../../../utils/generateUUID.js'
 
 export class ArxivProvider {
@@ -38,8 +37,7 @@ export class ArxivProvider {
         return await this.searchByTitle(metadata.title)
       }
     }
-    catch (error) {
-      logger.error('arXiv search error: %s', error)
+    catch {
     }
 
     return null
@@ -80,8 +78,6 @@ export class ArxivProvider {
 
       const url = `${this.baseUrl}?search_query=${encodeURIComponent(query)}&max_results=${this.maxResults}&sortBy=relevance&sortOrder=descending`
 
-      logger.debug({ searchType: 'title+author', provider: 'arxiv' }, 'arXiv: Trying title+author search')
-
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'source-taster/1.0 (academic reference verification)',
@@ -89,7 +85,6 @@ export class ArxivProvider {
       })
 
       if (!response.ok) {
-        logger.warn(`arXiv: HTTP ${response.status} for title+author query`)
         return null
       }
 
@@ -97,7 +92,6 @@ export class ArxivProvider {
 
       // Check for API errors
       if (this.hasApiError(xmlText)) {
-        logger.warn(`arXiv: API error for title+author query`)
         return null
       }
 
@@ -110,8 +104,7 @@ export class ArxivProvider {
 
       return null
     }
-    catch (error) {
-      logger.warn('arXiv title+author search error: %s', error)
+    catch {
       return null
     }
   }
@@ -125,15 +118,12 @@ export class ArxivProvider {
 
       // Validate arXiv ID format before making requests
       if (!this.isValidArxivId(cleanId)) {
-        logger.debug({ searchType: 'arxiv_id', provider: 'arxiv' }, 'arXiv: Invalid arXiv ID format')
         return null
       }
 
       await this.enforceRateLimit()
 
       const url = `${this.baseUrl}?id_list=${encodeURIComponent(cleanId)}&max_results=1`
-
-      logger.debug({ searchType: 'arxiv_id', provider: 'arxiv' }, 'arXiv: Searching by arXiv ID')
 
       const response = await fetch(url, {
         headers: {
@@ -142,7 +132,6 @@ export class ArxivProvider {
       })
 
       if (!response.ok) {
-        logger.warn(`arXiv: HTTP ${response.status} for ID lookup`)
         return null
       }
 
@@ -150,7 +139,6 @@ export class ArxivProvider {
 
       // Check for API errors in the response
       if (this.hasApiError(xmlText)) {
-        logger.warn(`arXiv: API error for ID lookup`)
         return null
       }
 
@@ -162,8 +150,7 @@ export class ArxivProvider {
 
       return null
     }
-    catch (error) {
-      logger.warn('arXiv ID search error: %s', error)
+    catch {
       return null
     }
   }
@@ -180,7 +167,6 @@ export class ArxivProvider {
 
       // Validate arXiv ID format before making requests
       if (!this.isValidArxivId(arxivId)) {
-        logger.debug({ searchType: 'doi', provider: 'arxiv' }, 'arXiv: Invalid arXiv ID format')
         return null
       }
 
@@ -195,8 +181,6 @@ export class ArxivProvider {
 
         const url = `${this.baseUrl}?id_list=${encodeURIComponent(id)}&max_results=1`
 
-        logger.debug({ searchType: 'doi', provider: 'arxiv' }, 'arXiv: Trying DOI/ID format')
-
         const response = await fetch(url, {
           headers: {
             'User-Agent': 'source-taster/1.0 (academic reference verification)',
@@ -204,7 +188,6 @@ export class ArxivProvider {
         })
 
         if (!response.ok) {
-          logger.warn(`arXiv: HTTP ${response.status} for DOI lookup`)
           continue // Try next format
         }
 
@@ -212,7 +195,6 @@ export class ArxivProvider {
 
         // Check for API errors in the response
         if (this.hasApiError(xmlText)) {
-          logger.warn(`arXiv: API error for DOI lookup`)
           continue
         }
 
@@ -225,8 +207,7 @@ export class ArxivProvider {
 
       return null
     }
-    catch (error) {
-      logger.warn('arXiv DOI search error: %s', error)
+    catch {
       return null
     }
   }
@@ -277,8 +258,6 @@ export class ArxivProvider {
 
         const url = `${this.baseUrl}?search_query=${encodeURIComponent(query)}&max_results=${this.maxResults}&sortBy=relevance&sortOrder=descending`
 
-        logger.debug({ searchType: 'title', provider: 'arxiv' }, 'arXiv: Trying search strategy')
-
         const response = await fetch(url, {
           headers: {
             'User-Agent': 'source-taster/1.0 (academic reference verification)',
@@ -286,7 +265,6 @@ export class ArxivProvider {
         })
 
         if (!response.ok) {
-          logger.warn(`arXiv: HTTP ${response.status} for title search`)
           continue // Try next strategy
         }
 
@@ -294,7 +272,6 @@ export class ArxivProvider {
 
         // Check for API errors
         if (this.hasApiError(xmlText)) {
-          logger.warn(`arXiv: API error for title search`)
           continue
         }
 
@@ -308,8 +285,7 @@ export class ArxivProvider {
 
       return null
     }
-    catch (error) {
-      logger.warn('arXiv title search error: %s', error)
+    catch {
       return null
     }
   }
@@ -407,7 +383,6 @@ export class ArxivProvider {
     try {
       // Check for feed-level errors first
       if (this.hasApiError(xmlText)) {
-        logger.warn('arXiv: API returned error in feed')
         return []
       }
 
@@ -426,11 +401,9 @@ export class ArxivProvider {
         match = entryRegex.exec(xmlText)
       }
 
-      logger.warn(`arXiv: Parsed ${entries.length} entries from feed`)
       return entries
     }
-    catch (error) {
-      logger.error('arXiv XML parsing error: %s', error)
+    catch {
       return []
     }
   }
@@ -534,8 +507,7 @@ export class ArxivProvider {
 
       return entry
     }
-    catch (error) {
-      logger.error('arXiv entry parsing error: %s', error)
+    catch {
       return null
     }
   }

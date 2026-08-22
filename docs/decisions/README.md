@@ -22,6 +22,7 @@ Project AI/architecture memory convention (English). Superseded docs remain — 
 | ADR-0015 | 2026-08-22 | Build Images in CI, Not on the Production Host |
 | ADR-0016 | 2026-08-22 | CI Supply-Chain Hardening — SHA-Pinned Actions and a Permissions Floor |
 | ADR-0017 | 2026-08-22 | Observability Footprint — Proposal to Remove cAdvisor and Pin the Stack (**proposed**) |
+| ADR-0018 | 2026-08-22 | Remove Observability, Tracing and Logging Entirely (supersedes ADR-0017) |
 
 ADR-0007 (Client-Side Favorites — Single-Chain Identity Keys) is intentionally absent.
 Favorites was a disposable test feature used only to exercise the AI-assisted workflow;
