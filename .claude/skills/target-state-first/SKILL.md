@@ -31,3 +31,8 @@ Label every claim with its evidence class:
 
 ## Deliverable shape
 Target state, existing state, gap table (KEEP/IMPROVE/DEFER), change impact, recommended approach, ADR draft when requested.
+
+## Approval status (§46/§70)
+- Any plan/design artifact or ADR draft this workflow produces is written with `Status: proposed` — never `Status: accepted`. The status is not a self-assessment.
+- `accepted` is set only in the same commit that follows an explicit human approval in conversation, reusing the existing commit human-gate (AGENTS.md) instead of a new approval mechanism.
+- Do not start implementing application code (`apps/**`, `packages/**`) against a `proposed` artifact.
