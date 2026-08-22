@@ -94,13 +94,18 @@ deploy reproducible and turns rollback into one command:
 `IMAGE_TAG=v2.2.1 docker compose up -d`. Today a rollback would mean a full
 rebuild on the constrained host. This directly serves CORE §49.
 
-### 4. One-time manual step
+### 4. No registry credentials on the host
 
-New GHCR packages default to **private** even for a public repository. The five
-packages must be set to public once, or `docker compose pull` fails with
-`denied`. The alternative — `docker login ghcr.io` on the host with a read-only
-PAT — was rejected because the token would appear in the SSH script, and the
-repository and its source are public anyway.
+The host pulls anonymously. **Correction to this ADR as originally written:** it
+stated that new GHCR packages default to private and would need a one-time
+visibility change, and that `docker compose pull` would otherwise fail with
+`denied`. That did not happen — the first deploy pulled all five images without
+any manual step. Packages pushed from a public repository via `GITHUB_TOKEN`
+inherit the repository's visibility.
+
+A `docker login ghcr.io` on the host with a read-only PAT was considered and
+remains rejected: the token would sit in the SSH script, and the repository and
+its source are public anyway.
 
 ## Alternatives
 
@@ -118,9 +123,21 @@ repository and its source are public anyway.
 
 ## Consequences
 
-- The host performs no compilation during a deploy. The load spike of 85–117
-  and the 48 MiB memory floor should disappear — **this is a measurement to
-  take on the first deploy after this change, not a claim made here.**
+- The host performs no compilation during a deploy. **Measured on the first
+  deploy after this change (run 32594913136, release `v2.3.0`):**
+
+  | | Before | After |
+  |---|---|---|
+  | Deploy duration | 18–30 min, three timeout failures | **1:32** |
+  | Load average (1 min) | 85–117 | **1.30** |
+  | RAM available | 48 MiB | **1169 MiB** |
+  | Images built on host | 4, sequentially | **0** |
+  | Image build step | ~25 min on 2 vCPU | **3:07** on five parallel runners |
+
+  Per-image build times, all started at 19:54:00: `anystyle` 1:27, `web` 1:57,
+  `landing` 1:56, `docs` 2:10, `api` 3:07 — and this was the *cold* run, before
+  any GHA cache existed. Production stayed reachable throughout:
+  `sourcetaster.com` 200 in 156 ms, `api/health` 200 in 131 ms.
 - **ADR-0012 and ADR-0014 become largely moot for production.** Both fixes stay
   in place and are still correct — they now benefit the CI build — but the host
   no longer builds, so the cache they protect is no longer on the critical path.
@@ -136,9 +153,20 @@ repository and its source are public anyway.
   in full. Splitting the lockfile and manifest copies into separate layers is
   the follow-up that would fix this; it is not attempted here.
 - An earlier estimate in conversation put the new deploy at "one to two
-  minutes". Given the 1.02 GB `api` image and decompression on 2 vCPU, that was
-  optimistic. No number is asserted here; the first deploy measures it.
-- **Reported, not acted on:** the host is at 84 % disk with 11.61 GB of build
-  cache, 9.3 GB reclaimable. After this change that cache serves no purpose on
-  the host and could be released entirely — a separate, operator-confirmed
-  action.
+  minutes". That estimate was then revised upward to 2–4 minutes on account of
+  the 1.02 GB `api` image and decompression on 2 vCPU. The measurement came in
+  at **1:32** — the original estimate was right and the revision was
+  unnecessarily pessimistic. The incremental pull was smaller than the image
+  size suggested.
+- **Host disk reclaimed** after the change, on explicit operator approval. The
+  build cache no longer serves any purpose there, and the locally-built
+  `source-taster-*:latest` images were orphaned once the running containers
+  moved to `ghcr.io/jeffnawroth/source-taster-*:v2.3.0` (verified via
+  `docker ps` before removal). `docker buildx prune -af` released 8.19 GB and
+  removing the five orphaned images released a further ~1.7 GB:
+
+  | | Before | After |
+  |---|---|---|
+  | Disk used | 31 G of 38 G (**86 %**) | 21 G of 38 G (**58 %**) |
+  | Free | 5.2 GB | **16 GB** |
+  | Build cache | 10.5 GB | 2.31 GB |
