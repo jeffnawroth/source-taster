@@ -2,7 +2,6 @@ import type { AIService, ApiAISettings, OpenAIConfig } from '@source-taster/type
 import process from 'node:process'
 import { PROVIDER_CONFIG } from '@source-taster/types'
 import { httpUnauthorized } from '../../errors/http.js'
-import { logger } from '../../middleware/logger.js'
 import { loadApiKey } from '../../secrets/keystore.js'
 import { OpenAIExtractionProvider } from './openAIExtractionProvider.js'
 
@@ -18,7 +17,6 @@ export class AIProviderFactory {
         const envKey = process.env.OPENAI_API_KEY
         if (!envKey || envKey === AIProviderFactory.OPENAI_KEY_PLACEHOLDER)
           throw httpUnauthorized('No API key for this client (and no OPENAI_API_KEY set)')
-        logger.warn('🔧 Dev fallback: using OPENAI_API_KEY from env')
         apiKey = envKey
       }
       else {
@@ -30,7 +28,6 @@ export class AIProviderFactory {
     const providerCfg = PROVIDER_CONFIG[provider]
     if (providerCfg && provider !== 'openai') {
       baseUrl = providerCfg.baseUrl
-      logger.warn(`🔌 Using ${providerCfg.name} via OpenAI-compatible API`)
     }
 
     // GPT-5 models use different parameters for optimization

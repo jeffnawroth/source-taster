@@ -1,7 +1,6 @@
 import type { ApiSearchCandidate, CSLItem } from '@source-taster/types'
 import type { components } from '../../../types/openAlex.js'
 import process from 'node:process'
-import { logger } from '../../../middleware/logger.js'
 import { generateUUID } from '../../../utils/generateUUID.js'
 
 // Type aliases for better readability
@@ -18,7 +17,6 @@ export class OpenAlexProvider {
     this.mailto = mailto || process.env.OPENALEX_MAILTO || 'your-email@domain.com'
 
     if ((!this.mailto || this.mailto === 'your-email@domain.com') && !OpenAlexProvider.warnedMissingMailto) {
-      logger.warn('⚠️  OpenAlex: No OPENALEX_MAILTO environment variable set. Provide an email for better API rate limits.')
       OpenAlexProvider.warnedMissingMailto = true
     }
   }
@@ -35,8 +33,7 @@ export class OpenAlexProvider {
       // Fallback to query-based search
       return await this.searchByQuery(metadata)
     }
-    catch (error) {
-      logger.error('OpenAlex search error: %s', error)
+    catch {
     }
 
     return null
@@ -50,8 +47,6 @@ export class OpenAlexProvider {
 
       const url = `${this.baseUrl}/works/${encodeURIComponent(fullDoi)}`
 
-      logger.debug({ searchType: 'doi', provider: 'openalex' }, 'OpenAlex: Searching by DOI')
-
       const headers: Record<string, string> = {
         'User-Agent': this.mailto
           ? `${this.userAgent} (mailto:${this.mailto})`
@@ -62,7 +57,6 @@ export class OpenAlexProvider {
 
       if (!response.ok) {
         // Check rate limit headers
-        this.checkRateLimit(response)
         return null // DOI not found, try query search
       }
 
@@ -77,8 +71,7 @@ export class OpenAlexProvider {
         }
       }
     }
-    catch (error) {
-      logger.error('OpenAlex DOI search error: %s', error)
+    catch {
     }
 
     return null
@@ -89,8 +82,6 @@ export class OpenAlexProvider {
       const queryParams = this.buildSearchQuery(metadata)
       const url = `${this.baseUrl}/works?${queryParams}`
 
-      logger.debug({ searchType: 'query', provider: 'openalex' }, 'OpenAlex: Query search')
-
       const headers: Record<string, string> = {
         'User-Agent': this.mailto
           ? `${this.userAgent} (mailto:${this.mailto})`
@@ -100,7 +91,6 @@ export class OpenAlexProvider {
       const response = await fetch(url, { headers })
 
       // Check rate limit headers
-      this.checkRateLimit(response)
 
       const data = await response.json() as WorksResponse
 
@@ -115,8 +105,7 @@ export class OpenAlexProvider {
         }
       }
     }
-    catch (error) {
-      logger.error('OpenAlex query search error: %s', error)
+    catch {
     }
 
     return null
@@ -321,24 +310,6 @@ export class OpenAlexProvider {
     }
 
     return metadata
-  }
-
-  /**
-   * Check rate limit headers and log warnings if limits are low
-   */
-  private checkRateLimit(response: Response): void {
-    const dailyLimit = response.headers.get('x-ratelimit-limit')
-    const dailyRemaining = response.headers.get('x-ratelimit-remaining')
-    const intervalLimit = response.headers.get('x-ratelimit-interval-limit')
-    const intervalRemaining = response.headers.get('x-ratelimit-interval-remaining')
-
-    if (dailyRemaining && Number(dailyRemaining) < 1000) {
-      logger.warn(`OpenAlex: Daily rate limit low: ${dailyRemaining}/${dailyLimit} remaining`)
-    }
-
-    if (intervalRemaining && Number(intervalRemaining) < 5) {
-      logger.warn(`OpenAlex: Interval rate limit low: ${intervalRemaining}/${intervalLimit} remaining`)
-    }
   }
 
   /**

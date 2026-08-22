@@ -1,7 +1,6 @@
 import type { ApiSearchCandidate, CSLItem, CSLName } from '@source-taster/types'
 import type { components } from '../../../types/crossref.js'
 import process from 'node:process'
-import { logger } from '../../../middleware/logger.js'
 import { generateUUID } from '../../../utils/generateUUID.js'
 
 // Type aliases for better readability
@@ -18,7 +17,6 @@ export class CrossrefProvider {
     // Warn if no proper email is configured for Crossref "polite pool"
     if (!process.env.CROSSREF_MAILTO || this.mailto === 'your-email@domain.com') {
       if (!CrossrefProvider.warnedMissingMailto) {
-        logger.warn('⚠️  Crossref: No CROSSREF_MAILTO environment variable set. Consider setting it for better API performance and access to the "polite pool".')
         CrossrefProvider.warnedMissingMailto = true
       }
     }
@@ -43,8 +41,7 @@ export class CrossrefProvider {
       // Fallback to query-based search
       return await this.searchByQuery(metadata)
     }
-    catch (error) {
-      logger.error('Crossref search error: %s', error)
+    catch {
     }
 
     return null
@@ -59,24 +56,12 @@ export class CrossrefProvider {
       const cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '').replace(/^doi:/, '')
       const url = `${this.baseUrl}/works/${encodeURIComponent(cleanDoi)}`
 
-      logger.debug({ searchType: 'doi', provider: 'crossref' }, 'Crossref: Searching by DOI')
-
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
           'User-Agent': this.userAgent,
         },
       })
-
-      // Check for rate limiting as recommended by Crossref
-      if (response.headers.get('X-Rate-Limit-Limit')) {
-        const rateLimit = response.headers.get('X-Rate-Limit-Limit')
-        const rateLimitInterval = response.headers.get('X-Rate-Limit-Interval')
-        // Only log if rate limit is low to avoid spam
-        if (Number.parseInt(rateLimit || '0') < 10) {
-          logger.warn(`Crossref rate limit low: ${rateLimit}/${rateLimitInterval}`)
-        }
-      }
 
       if (!response.ok) {
         return null // DOI not found, try query search
@@ -94,8 +79,7 @@ export class CrossrefProvider {
         }
       }
     }
-    catch (error) {
-      logger.warn('Crossref DOI search failed: %s', error)
+    catch {
     }
 
     return null
@@ -127,7 +111,6 @@ export class CrossrefProvider {
       params.append('mailto', this.mailto)
 
       const url = `${this.baseUrl}/works?${params.toString()}`
-      logger.debug({ searchType: 'bibliographic', provider: 'crossref' }, 'Crossref: Bibliographic search')
 
       const response = await fetch(url, {
         headers: {
@@ -153,8 +136,7 @@ export class CrossrefProvider {
         }
       }
     }
-    catch (error) {
-      logger.error('Crossref bibliographic search error: %s', error)
+    catch {
     }
 
     return null
@@ -234,8 +216,6 @@ export class CrossrefProvider {
       const params = this.buildAdvancedSearchQuery(metadata)
       const url = `${this.baseUrl}/works?${params}`
 
-      logger.debug({ searchType: 'query', provider: 'crossref' }, 'Crossref: Advanced query search')
-
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
@@ -260,8 +240,7 @@ export class CrossrefProvider {
         }
       }
     }
-    catch (error) {
-      logger.error('Crossref search error: %s', error)
+    catch {
     }
 
     return null
@@ -297,7 +276,6 @@ export class CrossrefProvider {
     }
 
     const queryString = queryParts.join(' ')
-    logger.debug({ searchType: 'build_query', provider: 'crossref' }, 'Crossref: Built query string')
 
     if (queryString.trim()) {
       params.append('query', queryString)
@@ -313,7 +291,6 @@ export class CrossrefProvider {
     params.append('mailto', this.mailto)
 
     const result = params.toString()
-    logger.debug({ searchType: 'final_query', provider: 'crossref' }, 'Crossref: Final query built')
     return result
   }
 

@@ -1,8 +1,6 @@
 import type { ApiAIProvider, ApiUserAISecretsInfoData } from '@source-taster/types'
 import { ApiAIProviderSchema } from '@source-taster/types'
 import { httpBadRequest, httpUpstream } from '../errors/http.js'
-import { logger } from '../middleware/logger.js'
-import { secretsOperationsTotal } from '../middleware/metrics.js'
 import { deleteApiKey, loadApiKey, saveApiKey } from '../secrets/keystore.js'
 
 export class UserSecretsService {
@@ -13,8 +11,6 @@ export class UserSecretsService {
   async saveUserAISecret(userId: string, provider: ApiAIProvider, apiKey: string): Promise<boolean> {
     try {
       await saveApiKey(userId, provider, apiKey)
-      logger.info({ userId, provider, operation: 'secrets.save' })
-      secretsOperationsTotal.inc({ operation: 'save' })
       return true
     }
     catch (e) {
@@ -28,8 +24,6 @@ export class UserSecretsService {
   async getUserAISecretInfo(userId: string, provider: ApiAIProvider): Promise<ApiUserAISecretsInfoData> {
     try {
       const apiKey = await loadApiKey(userId, provider)
-      logger.info({ userId, provider, operation: 'secrets.info' })
-      secretsOperationsTotal.inc({ operation: 'info' })
       return { hasApiKey: !!apiKey, provider }
     }
     catch (e) {
@@ -43,8 +37,6 @@ export class UserSecretsService {
   async deleteUserAISecret(userId: string, provider: ApiAIProvider): Promise<boolean> {
     try {
       await deleteApiKey(userId, provider)
-      logger.info({ userId, provider, operation: 'secrets.delete' })
-      secretsOperationsTotal.inc({ operation: 'delete' })
       return true
     }
     catch (e) {

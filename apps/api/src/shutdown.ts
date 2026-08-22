@@ -1,5 +1,4 @@
 import type { EventEmitter } from 'node:events'
-import type { Logger } from 'pino'
 import process from 'node:process'
 
 export interface ShutdownServer {
@@ -11,20 +10,16 @@ export interface ShutdownServer {
 export interface ShutdownOptions {
   server: ShutdownServer
   endSql: () => Promise<void>
-  logger?: Pick<Logger, 'info' | 'error' | 'warn'>
   forceExitMs?: number
   drainMs?: number
   events?: Pick<EventEmitter, 'once' | 'removeListener'>
   exit?: (code: number) => void
 }
 
-const silentLogger = { info: () => {}, error: () => {}, warn: () => {} }
-
 export function shutdown(options: ShutdownOptions): Promise<number> {
   const {
     server,
     endSql,
-    logger = silentLogger,
     forceExitMs = 10_000,
     drainMs = 5_000,
   } = options
@@ -43,7 +38,6 @@ export function shutdown(options: ShutdownOptions): Promise<number> {
     }
 
     forceTimer = setTimeout(() => {
-      logger.error('graceful shutdown timed out, forcing exit')
       settle(1)
     }, forceExitMs)
     forceTimer.unref?.()
@@ -53,14 +47,11 @@ export function shutdown(options: ShutdownOptions): Promise<number> {
     }, drainMs)
     drainTimer.unref?.()
 
-    server.close((err) => {
-      if (err)
-        logger.error({ err }, 'error while closing the http server')
+    server.close(() => {
       clearTimeout(drainTimer)
       endSql()
-        .catch(e => logger.error({ err: e }, 'error while closing the database pool'))
+        .catch(() => {})
         .finally(() => {
-          logger.info('graceful shutdown complete')
           settle(0)
         })
     })
@@ -70,17 +61,15 @@ export function shutdown(options: ShutdownOptions): Promise<number> {
 
 export function registerGracefulShutdown(options: ShutdownOptions): () => void {
   const {
-    logger = silentLogger,
     events = process,
     exit = code => process.exit(code),
   } = options
 
   let shuttingDown = false
-  const onSignal = (signal: string) => {
+  const onSignal = () => {
     if (shuttingDown)
       return
     shuttingDown = true
-    logger.info(`received ${signal}, shutting down gracefully`)
     void shutdown(options).then(code => exit(code))
   }
 

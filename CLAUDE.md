@@ -57,7 +57,7 @@ Web App (Vue 3 SPA, sourcetaster.com/app) ─┼─ fetch + X-Client-Id ─▶  
 
 ### Workspace layout (pnpm monorepo)
 
-- `apps/api` — Hono 4, Drizzle ORM, Postgres 16, Zod 4, pino, OpenTelemetry
+- `apps/api` — Hono 4, Drizzle ORM, Postgres 16, Zod 4
 - `apps/web` — Vue 3 SPA, Vuetify, Pinia, vue-i18n
 - `apps/extension` — Vue 3 + Vuetify, MV3, dual Chrome/Firefox build (separate Vite bundles for popup/side panel, background, content script)
 - `apps/landing` — Astro static site (bilingual EN/DE)
@@ -75,7 +75,7 @@ Routers → controllers, one router file per resource, mounted under `/v1/*` in 
 - `/v1/anystyle/*` → `anystyleRouter` → bridges to the AnyStyle Ruby service (parse/convert-to-csl)
 - `/v1/user/*` → `userRouter` → BYOK secrets management
 
-Every controller parses input with Zod schemas from `@source-taster/types`. `registerOnError()` normalizes all errors to `{ success:false, error, message }`; never return raw/unwrapped data from a controller. Middleware order in `index.ts` matters: instrumentation → requestId → logging → metrics → security headers → body limit → CORS → health/metrics (unprotected) → API-key auth → rate limit → `X-Client-Id` requirement (only for `/v1/user/*` and `/v1/extract`) → routes.
+Every controller parses input with Zod schemas from `@source-taster/types`. `registerOnError()` normalizes all errors to `{ success:false, error, message }`; never return raw/unwrapped data from a controller. Middleware order in `index.ts` matters: requestId → security headers → body limit → CORS → health (unprotected) → API-key auth → rate limit → `X-Client-Id` requirement (only for `/v1/user/*` and `/v1/extract`) → routes.
 
 ### Matching engine
 
