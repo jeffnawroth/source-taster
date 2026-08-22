@@ -17,6 +17,7 @@ Project AI/architecture memory convention (English). Superseded docs remain — 
 | ADR-0010 | 2026-08-22 | AI-OS v1.0 Hardening — Control-Plane Ownership, MCP Pinning, Secret Boundary |
 | ADR-0011 | 2026-08-22 | Favorites — Disposal of the Workflow Test Feature |
 | ADR-0012 | 2026-08-22 | Release Pipeline Correctness — Version Bump Semantics and Deploy Build Cache |
+| ADR-0013 | 2026-08-22 | Release Bump Range — Release Tags Are Not Reachable from `main` |
 
 ADR-0007 (Client-Side Favorites — Single-Chain Identity Keys) is intentionally absent.
 Favorites was a disposable test feature used only to exercise the AI-assisted workflow;
