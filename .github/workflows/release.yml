@@ -29,6 +29,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      version: ${{ steps.released_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,6 +75,10 @@ jobs:
         run: |
           pnpm bumpp --yes --no-verify --no-push --no-tag --recursive --release "${{ steps.version.outputs.bump }}"
           echo "VERSION=$(node -p "require('./apps/extension/package.json').version")" >> "$GITHUB_ENV"
+
+      - name: Expose released version
+        id: released_version
+        run: echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Generate changelog
         run: npx conventional-changelog -p conventionalcommits -i CHANGELOG.md -s
@@ -149,9 +155,58 @@ jobs:
             --api-key "$AMO_JWT_ISSUER" \
             --api-secret "$AMO_JWT_SECRET"
 
+  publish-images:
+    needs: [release]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: api
+            dockerfile: apps/api/Dockerfile
+            context: .
+          - service: web
+            dockerfile: apps/web/Dockerfile
+            context: .
+          - service: docs
+            dockerfile: apps/docs/Dockerfile
+            context: .
+          - service: landing
+            dockerfile: apps/landing/Dockerfile
+            context: .
+          - service: anystyle
+            dockerfile: apps/api/Dockerfile.anystyle
+            context: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Built here, not on the production host: that host has 2 vCPU and 3.7GB
+      # RAM shared with 16 running containers, and building there starved
+      # production (load average 85-117, 48MiB available). See ADR-0015.
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/jeffnawroth/source-taster-${{ matrix.service }}:v${{ needs.release.outputs.version }}
+            ghcr.io/jeffnawroth/source-taster-${{ matrix.service }}:latest
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
   deploy:
     if: github.actor != 'github-actions[bot]'
-    needs: [release]
+    needs: [release, publish-images]
     runs-on: ubuntu-24.04
     steps:
       - name: Deploy over SSH
@@ -170,18 +225,12 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Free disk space WITHOUT destroying the BuildKit cache.
-            # `docker system prune` also removes "unused build cache", which
-            # includes the --mount=type=cache pnpm store every apps/*/Dockerfile
-            # depends on. That made all four builds cold-install 761 packages
-            # each ("reused 0" in the logs) and pushed the deploy past
-            # command_timeout: 30m from 2026-08-21 onward. See ADR-0012.
-            docker container prune -f
-            docker image prune -f
-
-            # build images sequentially (low-memory VPS, 3.7GB RAM)
-            for service in landing docs api web; do
-              docker compose build "$service"
-            done
-
+            # The host no longer builds anything: images are built in CI and
+            # pulled here. Pinning IMAGE_TAG to the released version keeps the
+            # deploy reproducible and makes rollback a single command
+            # (`IMAGE_TAG=v<older> docker compose up -d`). See ADR-0015.
+            export IMAGE_TAG="v${{ needs.release.outputs.version }}"
+            docker compose pull api web docs landing anystyle
             docker compose up -d --remove-orphans
+
+            docker image prune -f
