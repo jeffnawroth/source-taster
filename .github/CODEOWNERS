@@ -1,0 +1,36 @@
+# CODEOWNERS — AI control-plane protection
+#
+# Purpose: make changes to the AI operating system's control plane humanly
+# reviewable at the platform layer, independent of what any agent runtime
+# permits locally (CORE §47 AI Governance, §48 Self-Modification Boundary).
+#
+# Scope note: this file assigns ownership and triggers review requests. It only
+# *blocks* a merge if branch protection enables "Require review from Code
+# Owners" — which is deliberately NOT enabled today. See ADR-0010 for the
+# reasoning and the consequence for single-owner pull requests.
+#
+# Canonical rationale: docs/decisions/2026-08-22-ai-os-v1-hardening.md
+
+# Default: no global owner. Ownership is declared per control-plane path only,
+# so ordinary application changes are not gated by this file.
+
+# --- Project policy and runtime entry points ---------------------------------
+/AGENTS.md                      @jeffnawroth
+/CLAUDE.md                      @jeffnawroth
+/.github/copilot-instructions.md @jeffnawroth
+
+# --- Runtime adapter configuration -------------------------------------------
+/.claude/                       @jeffnawroth
+/.opencode/                     @jeffnawroth
+/opencode.json                  @jeffnawroth
+/.mcp.json                      @jeffnawroth
+
+# --- Normative AI-OS documentation and decision records ----------------------
+/docs/ai-os/                    @jeffnawroth
+/docs/decisions/                @jeffnawroth
+
+# --- Governance checks and evaluation evidence -------------------------------
+/evaluation/ai-system/          @jeffnawroth
+
+# --- This file protects itself -----------------------------------------------
+/.github/CODEOWNERS             @jeffnawroth

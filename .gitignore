@@ -148,3 +148,8 @@ evaluation/out/
 .idea/
 png-exports/
 .pnpm-store/
+
+# Claude Code local overrides — per-developer permission grants and enabled
+# MCP servers. Must never be committed: that would silently widen the
+# committed AI control plane (CORE §48). See ADR-0010.
+.claude/settings.local.json

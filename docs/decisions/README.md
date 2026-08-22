@@ -14,6 +14,8 @@ Project AI/architecture memory convention (English). Superseded docs remain — 
 | ADR-0006 | 2026-08-19 | Runtime-Agnostic AI-OS |
 | ADR-0008 | 2026-08-21 | Claude Code as a Third AI-OS Runtime Adapter |
 | ADR-0009 | 2026-08-21 | Claude Code MCP Setup — Context7, Playwright, PostgreSQL, Penpot |
+| ADR-0010 | 2026-08-22 | AI-OS v1.0 Hardening — Control-Plane Ownership, MCP Pinning, Secret Boundary |
+| ADR-0011 | 2026-08-22 | Favorites — Disposal of the Workflow Test Feature |
 
 ADR-0007 (Client-Side Favorites — Single-Chain Identity Keys) is intentionally absent.
 Favorites was a disposable test feature used only to exercise the AI-assisted workflow;
