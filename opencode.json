@@ -18,7 +18,9 @@
       "AGENTS.md": "ask",
       "opencode.json": "ask",
       ".opencode/**": "ask",
-      "docs/ai-os/**": "ask"
+      "docs/ai-os/**": "ask",
+      "apps/**": "ask",
+      "packages/**": "ask"
     },
     "external_directory": { "*": "deny" }
   },

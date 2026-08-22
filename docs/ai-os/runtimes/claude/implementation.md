@@ -46,6 +46,7 @@ below traces to a specific completed, approved phase.
 | Filesystem boundary                     | Default scope = current working directory; widened only via `--add-dir`                                                                                                                    | TECHNICALLY ENFORCED for the boundary itself; **explicitly not OS sandboxing** — no container/VM isolation is claimed or verified for this deployment                                             | Baseline runtime behavior, plus repository-specific narrowing since **Phase 4**: `.claude/settings.json` denies `Read(.keystore/**)`, `Read(.env)`, `Read(apps/api/.env)` — which also blocks `Edit`/`Write` on those same paths                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Network egress / approved-domain policy | Claude Code has no configured network-domain allowlist mechanism                                                                                                                           | INSTRUCTION-LEVEL only — the same limitation the OpenCode adapter already documents for itself                                                                                                    | `AGENTS.md`'s approved-domain list applies as policy for Claude sessions exactly as it does for OpenCode and Copilot sessions; no technical filter exists on any runtime in this repository                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Human approval gates                    | Interactive `ask` rules / permission-mode prompts, plus this repository's existing human-gate convention (`AGENTS.md`: commit/push/migrate/docker/install/release require approval)        | INSTRUCTION-LEVEL today via the human-gate convention; would become TECHNICALLY ENFORCED for the specific commands named in explicit `.claude/settings.json` `ask` rules once configured          | **Partially implemented (Phase 4).** `.claude/settings.json` `ask` rules technically enforce human confirmation for edits to `AGENTS.md`/`CLAUDE.md`/`docs/ai-os/**`/`.claude/**`. The human-gate commands themselves (commit/push/migrate/docker/install/release) remain instruction-level only via the `AGENTS.md` convention — Phase 4 deliberately omitted a `Bash(*)` ask rule (it would have made the verified-command allowlist non-functional, since ask rules take precedence over allow rules regardless of specificity); no `PreToolUse` hook exists either. This is a real, intentional, documented limitation, not a pending phase — see Limitations |
+| MCP server approval                     | Project-scoped `.mcp.json` servers require explicit, interactive per-server approval before first connection (`⏸ Pending approval` in `claude mcp list`/`claude mcp get`), independent of permission mode                                                                              | TECHNICALLY ENFORCED                                                                                                                                                                              | **Implemented (ADR-0009).** `.mcp.json` exists with four project-scoped servers (`context7`, `playwright`, `postgres`, `penpot`); each is subject to this approval gate on first use in an interactive session                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Static governance checks                | `evaluation/ai-system/check-governance.mjs`                                                                                                                                                | Will be TECHNICALLY ENFORCED / deterministic CI evidence once extended with Claude-specific assertions                                                                                            | **Implemented (Phase 7).** `check-governance.mjs` was extended with Claude-specific assertions (required-files, CORE-portability tokens, skill/agent structure, `CLAUDE.md`'s import line, the adapter's own evidence-status language); all 278 checks pass, including every pre-existing OpenCode/Copilot assertion unchanged                                                                                                                                                                                                                                                                                                                                    |
 | Auto-memory containment                 | `autoMemoryEnabled: false` in `.claude/settings.json`                                                                                                                                      | TECHNICALLY ENFORCED once set (documented settings key)                                                                                                                                           | **Implemented (Phase 4).** `"autoMemoryEnabled": false` is set in `.claude/settings.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Recovery and audit evidence             | Version control, this document, ADR-0008                                                                                                                                                   | PROCESS-LEVEL                                                                                                                                                                                     | This document and `docs/decisions/2026-08-21-claude-runtime-adapter.md` are the first artifacts of this adapter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -106,13 +107,41 @@ Rationale for the non-1:1 ratios (recorded in full in ADR-0008):
 ## Deliberate Absences
 
 The following are intentionally **not** part of this adapter, each for a
-stated reason (also recorded in ADR-0008):
+stated reason (also recorded in ADR-0008 or ADR-0009):
 
-- **`.mcp.json`** — not created. Claude Code's built-in `Read`/`Write`/`Edit`/
-  `Glob`/`Grep` tools already scope to the working directory (widened only via
-  `--add-dir`); porting OpenCode's workspace-scoped filesystem MCP server
-  would add supply-chain surface (CORE §37, Supply-Chain Governance) with no
-  functional gain over the native tools.
+- **MCP servers.** As of ADR-0009, `.mcp.json` exists at the repository root
+  with four project-scoped servers: `context7` (versioned library docs,
+  started without an API key), `playwright` (local, programmatic browser
+  automation), `postgres` (`crystaldba/postgres-mcp`, `--access-mode=restricted`,
+  intended to run against a dedicated read-only database role), and `penpot`
+  (Penpot's official hosted Cloud MCP endpoint, giving read access to the
+  project's actual designs). Each closes a concrete capability gap native
+  Claude Code tools do not cover; none contains a literal credential — all
+  reference environment variables the developer sets locally. Four other
+  OpenCode MCP servers were evaluated and deliberately **not** adopted:
+  - `filesystem` — Claude Code's built-in `Read`/`Write`/`Edit`/`Glob`/`Grep`
+    tools already scope to the working directory (widened only via
+    `--add-dir`); ADR-0009 additionally confirmed OpenCode's own global
+    `filesystem` server is rooted at the user's entire home directory, not a
+    project, reinforcing the original ADR-0008 reasoning rather than
+    reopening it.
+  - `github` — the `gh` CLI via `Bash` is already this repository's
+    established GitHub access path; a GitHub MCP would duplicate it with a
+    second, separately-scoped credential and no functional gain.
+  - `exa` — native `WebSearch`/`WebFetch` already cover general web research.
+  - `chrome-devtools` — the native `claude-in-chrome` integration already
+    covers this adapter's current browser-verification needs; no concrete
+    workflow step today needs `chrome-devtools-mcp`'s deeper DevTools-protocol
+    features (performance tracing, low-level network inspection).
+
+  **Residual risk, documented rather than concealed:** the `penpot` MCP has
+  no technical read-only scoping — Penpot issues one full read/write key per
+  account (no read-only variant), and Claude and OpenCode necessarily share
+  that same key (Penpot allows only one active key per account). Mitigation
+  today is instruction-level only, pending the separate Design → Human
+  Approval → Implementation workflow decision, which ADR-0009 explicitly does
+  not make. See ADR-0009 for the full security model, the PostgreSQL
+  read-only role SQL, and the rejected-alternatives reasoning.
 - **`.claude/commands/`** — not created. The mechanism it would use is
   identical to `.claude/skills/`; a separate commands directory would only be
   a redundant, legacy-only path.

@@ -147,6 +147,7 @@ for (const f of agentFiles) {
 const opencodeConfig = JSON.parse(read('opencode.json'))
 const editRules = opencodeConfig.permission?.edit || {}
 check('granular control-plane edit rules preserved', editRules['*'] === 'allow' && editRules['AGENTS.md'] === 'ask' && editRules['opencode.json'] === 'ask' && editRules['.opencode/**'] === 'ask' && editRules['docs/ai-os/**'] === 'ask', JSON.stringify(editRules))
+check('opencode.json ask-gates application code before design-gate approval', editRules['apps/**'] === 'ask' && editRules['packages/**'] === 'ask', JSON.stringify(editRules))
 check('subagent depth preserved at 2', opencodeConfig.subagent_depth === 2, `subagent_depth=${opencodeConfig.subagent_depth}`)
 const filesystemCommand = opencodeConfig.mcp?.filesystem?.command || []
 const expandConfig = value => value.replace(/\{env:([^}]+)\}/g, (_, name) => process.env[name] ?? '')
@@ -244,6 +245,10 @@ output('\n[6] Claude runtime adapter')
 const claudeMd = read('CLAUDE.md')
 const claudeMdFirstLine = claudeMd.split('\n').find(line => line.trim().length > 0) || ''
 check('CLAUDE.md imports AGENTS.md as its first line', claudeMdFirstLine.trim() === '@AGENTS.md', claudeMdFirstLine)
+const claudeSettings = JSON.parse(read('.claude/settings.json'))
+const claudeAskRules = claudeSettings.permissions?.ask || []
+const requiredClaudeAskRules = ['Edit(AGENTS.md)', 'Edit(CLAUDE.md)', 'Edit(docs/ai-os/**)', 'Edit(.claude/**)', 'Edit(apps/**)', 'Write(apps/**)', 'Edit(packages/**)', 'Write(packages/**)']
+check('.claude/settings.json ask-gates control-plane and application code before design-gate approval', requiredClaudeAskRules.every(rule => claudeAskRules.includes(rule)), JSON.stringify(claudeAskRules))
 check('8 Claude skill files', claudeSkillFiles.length === 8, `${claudeSkillFiles.length} found`)
 for (const f of claudeSkillFiles) check(`Claude skill ${f}: canonical reference`, read(f).includes('Canonical') || f.includes('domain-academic-references'))
 const claudeSkillContents = claudeSkillFiles.map(f => read(f))
