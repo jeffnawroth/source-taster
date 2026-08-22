@@ -24,7 +24,14 @@
     "deny": [
       "Read(.keystore/**)",
       "Read(.env)",
-      "Read(apps/api/.env)"
+      "Read(apps/api/.env)",
+      "Read(**/.env)",
+      "Read(**/.env.local)",
+      "Read(**/.env.*.local)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*.p12)",
+      "Read(**/*.pfx)"
     ]
   },
   "autoMemoryEnabled": false

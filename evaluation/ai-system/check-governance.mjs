@@ -48,6 +48,8 @@ const requiredFiles = [
   'docs/ai-os/runtimes/claude/README.md',
   'docs/ai-os/runtimes/claude/implementation.md',
   '.claude/CLAUDE_IMPLEMENTATION.md',
+  '.mcp.json',
+  '.github/CODEOWNERS',
   'evaluation/ai-system/claude-eval-results.md',
   'evaluation/ai-system/GOVERNANCE_SPEC.md',
   '.opencode/memory/handoff.md',
@@ -262,6 +264,37 @@ for (const f of claudeAgentFiles) {
   const requiredExcluded = ['Edit', 'Write', 'Bash', 'Agent']
   check(`Claude agent ${f}: disallowedTools excludes required tools`, requiredExcluded.every(t => tools.includes(t)), disallowed)
 }
+
+output('\n[7] v1.0 hardening controls (ADR-0010)')
+const mcpRaw = read('.mcp.json')
+const mcpConfig = JSON.parse(mcpRaw)
+const mcpServers = Object.entries(mcpConfig.mcpServers || {})
+check('.mcp.json pins every local MCP server (no @latest, no floating tag)', !/@latest\b/.test(mcpRaw))
+const unpinned = []
+for (const [name, server] of mcpServers) {
+  const args = server.command ? [server.command, ...(server.args || [])] : []
+  if (!args.length)
+    continue // remote http servers are pinned server-side, not here
+  for (const arg of args) {
+    if (/^[\w@/.-]+\/[\w.-]+$/.test(arg) && !arg.startsWith('-')) {
+      const isNpmPkg = arg.startsWith('@') || /^[\w-]+\/[\w-]+$/.test(arg)
+      const pinned = /@\d+\.\d+\.\d+/.test(arg) || /@sha256:[0-9a-f]{64}/.test(arg) || /:\d+\.\d+\.\d+/.test(arg)
+      if (isNpmPkg && !pinned && !/^(?:npx|docker|node|-y)$/.test(arg))
+        unpinned.push(`${name}: ${arg}`)
+    }
+  }
+}
+check('.mcp.json local servers carry an explicit version or digest', unpinned.length === 0, unpinned.join(', '))
+const claudeDeny = claudeSettings.permissions?.deny || []
+const requiredDenyRules = ['Read(.keystore/**)', 'Read(**/.env)', 'Read(**/.env.local)', 'Read(**/.env.*.local)']
+check('.claude/settings.json denies the repository secret set', requiredDenyRules.every(r => claudeDeny.includes(r)), JSON.stringify(claudeDeny))
+check('.claude/settings.json does not blanket-deny .env.example / tracked VITE env files', !claudeDeny.includes('Read(**/.env*)'))
+const codeowners = read('.github/CODEOWNERS')
+const ownedPaths = ['/AGENTS.md', '/.claude/', '/.opencode/', '/.mcp.json', '/opencode.json', '/docs/ai-os/', '/docs/decisions/', '/evaluation/ai-system/', '/.github/CODEOWNERS']
+const missingOwners = ownedPaths.filter(pth => !new RegExp(`^${pth.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+@`, 'm').test(codeowners))
+check('CODEOWNERS covers every AI control-plane path', missingOwners.length === 0, missingOwners.join(', '))
+const gitignore = read('.gitignore')
+check('.gitignore ignores agent-runtime local overrides in-repo', /^\.claude\/settings\.local\.json$/m.test(gitignore))
 
 output(`\n${failures.length === 0 ? 'ALL GOVERNANCE CHECKS PASSED' : `${failures.length} CHECK(S) FAILED: ${failures.join(', ')}`}`)
 process.exit(failures.length === 0 ? 0 : 1)
