@@ -1,0 +1,20 @@
+# Keeps the SHA pins in .github/workflows/*.yml current.
+#
+# Pinning actions to commit SHAs (ADR-0016) removes the mutable-tag attack
+# path, but a pin that is never updated becomes its own risk: it freezes the
+# action at a version that may later be found vulnerable. Dependabot rewrites
+# the SHA and the trailing `# vN` comment together, so the pins stay both
+# immutable and current.
+#
+# Deliberately github-actions only. An npm ecosystem entry across eight pnpm
+# workspaces would produce a pull-request volume that needs its own decision
+# (audit finding F-8, still open).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps)'

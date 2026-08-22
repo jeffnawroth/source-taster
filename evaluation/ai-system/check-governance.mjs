@@ -295,6 +295,27 @@ const missingOwners = ownedPaths.filter(pth => !new RegExp(`^${pth.replace(/[.*+
 check('CODEOWNERS covers every AI control-plane path', missingOwners.length === 0, missingOwners.join(', '))
 const gitignore = read('.gitignore')
 check('.gitignore ignores agent-runtime local overrides in-repo', /^\.claude\/settings\.local\.json$/m.test(gitignore))
+const workflowDir = rel('.github/workflows')
+const workflowFiles = readdirSync(workflowDir).filter(f => f.endsWith('.yml'))
+const unpinnedUses = []
+const permissionless = []
+for (const f of workflowFiles) {
+  const body = readFileSync(join(workflowDir, f), 'utf8')
+  for (const [index, line] of body.split('\n').entries()) {
+    const ref = line.match(/^\s*(?:-\s*)?uses:\s*(\S+)/)?.[1]
+    if (ref && !/@[0-9a-f]{40}$/.test(ref))
+      unpinnedUses.push(`${f}:${index + 1} ${ref}`)
+  }
+  if (!/^permissions:/m.test(body))
+    permissionless.push(f)
+}
+check('every workflow action is pinned to a commit SHA', unpinnedUses.length === 0, unpinnedUses.join(', '))
+check('every workflow declares a top-level permissions floor', permissionless.length === 0, permissionless.join(', '))
+check('exists .github/dependabot.yml', existsSync(rel('.github/dependabot.yml')))
+const dependabot = read('.github/dependabot.yml')
+// Match the directive, not the word: the file's own comment mentions
+// github-actions, so a plain includes() passes even on an npm-only config.
+check('dependabot keeps the action pins current', /^\s*(?:-\s*)?package-ecosystem:\s*["']?github-actions["']?\s*$/m.test(dependabot))
 
 output(`\n${failures.length === 0 ? 'ALL GOVERNANCE CHECKS PASSED' : `${failures.length} CHECK(S) FAILED: ${failures.join(', ')}`}`)
 process.exit(failures.length === 0 ? 0 : 1)
