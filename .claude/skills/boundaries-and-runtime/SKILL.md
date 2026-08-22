@@ -20,7 +20,7 @@ Approved research domains are listed in `AGENTS.md` ("Research sources"); Claude
 ## Credentials & filesystem (§42)
 - Secrets (`.keystore/`, `.env`, API keys) are never read for reporting, never logged, never committed
 - `.claude/settings.json` denies `Read(.keystore/**)`, `Read(.env)`, `Read(apps/api/.env)` — a `Read` deny rule also blocks `Edit`/`Write` on the same path, so these paths cannot be created or overwritten either
-- MCP servers with overbroad roots must be reported to the user (no MCP servers are configured in this repository's Claude settings)
+- MCP servers with overbroad roots must be reported to the user. Four project-scoped servers are configured (`.mcp.json`, ADR-0009): `context7` (remote, read-only docs, no key required), `playwright` (local, no data access), `postgres` (`crystaldba/postgres-mcp --access-mode=restricted`, intended to run against a dedicated read-only role — see ADR-0009 for the SQL, not yet executed automatically), and `penpot` (Penpot's official hosted Cloud endpoint — **has no technical read-only scoping**, a documented residual risk in ADR-0009, not a gap to conceal). `filesystem`, `github`, `exa`, and `chrome-devtools` remain deliberately unconfigured for Claude sessions; GitHub access continues via the `gh` CLI
 
 ## Human oversight (§46)
 - commit/push/migrate/docker/release = human-gated by project policy (`AGENTS.md`); release = human-only. This is currently policy-level for Claude sessions: `.claude/settings.json` ask-gates control-plane file edits (`AGENTS.md`/`CLAUDE.md`/`docs/ai-os/**`/`.claude/**`) but does not yet have an explicit, mode-independent rule for these specific shell commands — see Limitations in `docs/ai-os/runtimes/claude/implementation.md`

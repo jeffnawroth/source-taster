@@ -15,7 +15,11 @@
       "Edit(AGENTS.md)",
       "Edit(CLAUDE.md)",
       "Edit(docs/ai-os/**)",
-      "Edit(.claude/**)"
+      "Edit(.claude/**)",
+      "Edit(apps/**)",
+      "Write(apps/**)",
+      "Edit(packages/**)",
+      "Write(packages/**)"
     ],
     "deny": [
       "Read(.keystore/**)",

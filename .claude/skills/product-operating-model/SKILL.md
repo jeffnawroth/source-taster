@@ -19,3 +19,8 @@ validation remains project-specific.
 - Requirements without acceptance criteria are not done
 - If a requirement contradicts the domain model, escalate instead of bending the domain
 - Keep requirements minimal — YAGNI; reject gold-plating not tied to the outcome
+
+## Approval status (§46)
+- Any product artifact this workflow produces is written with `Status: proposed` — never `Status: accepted`. The status is not a self-assessment.
+- `accepted` is set only in the same commit that follows an explicit human approval in conversation, reusing the existing commit human-gate (AGENTS.md) instead of a new approval mechanism.
+- Do not start implementing application code (`apps/**`, `packages/**`) against a `proposed` artifact.
