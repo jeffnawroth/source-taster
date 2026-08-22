@@ -181,8 +181,18 @@ fail, and the control restored — so none is decorative.
 - **Branch protection is tightened in two steps, deliberately.** Before this
   decision, `main` declared `required_status_checks.contexts: []` — no status
   check, including `ai-governance`, blocked a merge. Step one, applied with this
-  ADR, makes `lint`, `typecheck`, `build`, and `test` required. Step two adds
-  `ai-governance` once it has been observed running on a release pull request.
+  ADR, made `lint`, `typecheck`, `build`, and `test` required. Step two added
+  `ai-governance` once it had been observed running on a release pull request.
+
+  **Both steps are complete.** Step two was applied on 2026-08-22 after release
+  run 32586424290 demonstrated the full path end to end: `release=success`,
+  release PR #250 created with auto-merge active (`SQUASH`) and correctly held
+  in `BLOCKED` until its checks passed, merged automatically at 17:03:57, with
+  GitHub release `v2.1.39` and both extension artifacts published. `main` now
+  requires `lint`, `typecheck`, `build`, `test`, and `ai-governance`.
+  `delete_branch_on_merge` was enabled at the same time — the stale
+  `chore/release-v2.1.39` branch left by the earlier failure would not have
+  survived a successful merge with that setting on.
 
   The split exists because of how releases reach `main`. `release.yml` does not
   push to `main`: it creates a `chore/release-vX` branch, opens a pull request,

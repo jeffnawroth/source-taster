@@ -52,7 +52,10 @@ jobs:
           echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
           if git log "$LAST_TAG..HEAD" --format="%B" | grep -q -E "^BREAKING CHANGE:|^feat!:|^feat\(.+\)!:"; then
             echo "bump=major" >> "$GITHUB_OUTPUT"
-          elif git log "$LAST_TAG..HEAD" --oneline | grep -q "^feat"; then
+          # --format="%s" prints the subject alone. `--oneline` prefixes the
+          # abbreviated SHA, so `^feat` could never match and every release was
+          # silently a patch (14 feat: commits since v2.1.34 detected as 0).
+          elif git log "$LAST_TAG..HEAD" --format="%s" | grep -qE "^feat(\(.+\))?:"; then
             echo "bump=minor" >> "$GITHUB_OUTPUT"
           else
             echo "bump=patch" >> "$GITHUB_OUTPUT"
@@ -159,8 +162,14 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # free disk space before build
-            docker system prune -f
+            # Free disk space WITHOUT destroying the BuildKit cache.
+            # `docker system prune` also removes "unused build cache", which
+            # includes the --mount=type=cache pnpm store every apps/*/Dockerfile
+            # depends on. That made all four builds cold-install 761 packages
+            # each ("reused 0" in the logs) and pushed the deploy past
+            # command_timeout: 30m from 2026-08-21 onward. See ADR-0012.
+            docker container prune -f
+            docker image prune -f
 
             # build images sequentially (low-memory VPS, 3.7GB RAM)
             for service in landing docs api web; do
