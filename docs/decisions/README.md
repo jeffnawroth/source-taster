@@ -23,6 +23,7 @@ Project AI/architecture memory convention (English). Superseded docs remain — 
 | ADR-0016 | 2026-08-22 | CI Supply-Chain Hardening — SHA-Pinned Actions and a Permissions Floor |
 | ADR-0017 | 2026-08-22 | Observability Footprint — Proposal to Remove cAdvisor and Pin the Stack (**proposed**) |
 | ADR-0018 | 2026-08-22 | Remove Observability, Tracing and Logging Entirely (supersedes ADR-0017) |
+| ADR-0019 | 2026-08-23 | Ship from the Release Commit — Adopt release-please |
 
 ADR-0007 (Client-Side Favorites — Single-Chain Identity Keys) is intentionally absent.
 Favorites was a disposable test feature used only to exercise the AI-assisted workflow;

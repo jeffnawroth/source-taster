@@ -26,8 +26,7 @@
     "clear": "rimraf --glob extension/dist extension/manifest.json",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "typecheck": "tsc --noEmit",
-    "release": "bumpp"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fontsource/noto-sans": "^5.3.0",

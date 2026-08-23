@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-component-in-tag": false,
+  "bootstrap-sha": "0afab560dea3475da11c095c30257122745ced19",
+  "packages": {
+    ".": {
+      "package-name": "source-taster",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        { "type": "json", "path": "apps/api/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "apps/docs/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "apps/extension/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "apps/landing/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "apps/web/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "packages/eslint-config/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "packages/types/package.json", "jsonpath": "$.version" }
+      ]
+    }
+  }
+}

@@ -4,8 +4,14 @@ on:
   push:
     branches: [main]
 
-# Least privilege floor. Jobs that need more (release: contents+PRs,
-# publish-images: packages) declare it themselves and override this.
+# Two pushes in quick succession must not overtake each other: the second would
+# open a release PR against a tree the first has not finished shipping.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+# Least privilege floor. Jobs that need more declare it themselves and override
+# this. See ADR-0016.
 permissions:
   contents: read
 
@@ -27,19 +33,53 @@ jobs:
       - run: pnpm run -r typecheck
       - run: pnpm eval:ai
 
-  release:
-    if: github.actor != 'github-actions[bot]' && !startsWith(github.event.head_commit.message, 'chore(release):')
+  # release-please runs on EVERY push to main and does one of two things:
+  #
+  #   1. the push is ordinary work  -> it opens or updates the release PR
+  #   2. the push IS the merged release PR -> it creates the tag and the GitHub
+  #      release and sets release_created=true
+  #
+  # Every shipping job below gates on that output and runs in the SAME workflow
+  # run, so `actions/checkout` without a `ref:` lands on the release commit —
+  # the tree that actually carries the bumped version.
+  #
+  # The previous hand-rolled pipeline inverted this: it shipped from the commit
+  # BEFORE the bump and excluded the release commit with
+  # `!startsWith(head_commit.message, 'chore(release):')`, so every deployment
+  # surface was permanently one release behind and every tag pointed at an
+  # abandoned branch (the "known limitation" recorded in ADR-0013).
+  release-please:
     needs: [quality]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
       pull-requests: write
     outputs:
-      version: ${{ steps.released_version.outputs.version }}
+      released: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag_name }}
+    steps:
+      # The release PR is deliberately NOT auto-merged. Merging it is the human
+      # release gate required by AGENTS.md.
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
+        with:
+          token: ${{ secrets.GH_PAT }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # Runs in parallel with publish-images and is NOT a dependency of deploy, so a
+  # store rejection fails the run visibly without holding back the deployment.
+  # That is why no step here needs `continue-on-error` — which previously hid a
+  # total Chrome Web Store outage for ten days.
+  publish-extension:
+    needs: [release-please]
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -47,85 +87,25 @@ jobs:
           cache: pnpm
       - run: pnpm install
 
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Determine version bump
-        id: version
-        run: |
-          # Do NOT use `git describe --tags`: release tags are created before the
-          # release PR is squash-merged, so they point at the pre-squash commit on
-          # the abandoned release branch and are never reachable from main. On
-          # 2026-08-22 `git describe --tags --abbrev=0 main` returned v2.1.2 while
-          # the released version was v2.1.39 — a ~150-commit range spanning months.
-          # The `chore(release):` commits ARE on main (they are the squash results),
-          # so the previous release commit is the reliable boundary. See ADR-0013.
-          LAST_RELEASE=$(git log --format="%H" --grep="^chore(release):" --max-count=1 || true)
-          RANGE="${LAST_RELEASE:+$LAST_RELEASE..}HEAD"
-          echo "last_release=${LAST_RELEASE:-<none>}" >> "$GITHUB_OUTPUT"
-          if git log "$RANGE" --format="%B" | grep -q -E "^BREAKING CHANGE:|^feat!:|^feat\(.+\)!:"; then
-            echo "bump=major" >> "$GITHUB_OUTPUT"
-          # --format="%s" prints the subject alone. `--oneline` prefixes the
-          # abbreviated SHA, so `^feat` could never match and every release was
-          # silently a patch (14 feat: commits since v2.1.34 detected as 0).
-          elif git log "$RANGE" --format="%s" | grep -qE "^feat(\(.+\))?:"; then
-            echo "bump=minor" >> "$GITHUB_OUTPUT"
-          else
-            echo "bump=patch" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Bump versions and commit
-        run: |
-          pnpm bumpp --yes --no-verify --no-push --no-tag --recursive --release "${{ steps.version.outputs.bump }}"
-          echo "VERSION=$(node -p "require('./apps/extension/package.json').version")" >> "$GITHUB_ENV"
-
-      - name: Expose released version
-        id: released_version
-        run: echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Generate changelog
-        run: npx conventional-changelog -p conventionalcommits -i CHANGELOG.md -s
-
-      - name: Amend commit with changelog
-        run: |
-          git add CHANGELOG.md
-          git commit --amend --no-edit --no-verify
-          git tag -f "v${{ env.VERSION }}"
-
-      - name: Create release PR
-        run: |
-          BRANCH="chore/release-v${{ env.VERSION }}"
-          git push origin --tags --force
-          git checkout -b "$BRANCH"
-          git push origin "$BRANCH" --force
-          gh pr create --base main --head "$BRANCH" \
-            --title "chore(release): v${{ env.VERSION }}" \
-            --body "Automated release. Version bumped to v${{ env.VERSION }}."
-          # --auto: main requires status checks, which are still queued a second
-          # after `gh pr create`. Without it the merge is rejected with
-          # "N of N required status checks are expected" (see ADR-0010).
-          gh pr merge "$BRANCH" --auto --squash --subject "chore(release): v${{ env.VERSION }}" --body ""
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-
       - name: Build extension packages
         run: |
           pnpm build
           pnpm --filter @source-taster/extension run pack
 
+      # No `generate_release_notes`: release-please already wrote the release
+      # body from CHANGELOG.md, and GitHub's autogenerated notes would replace it.
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
-          tag_name: v${{ env.VERSION }}
+          tag_name: ${{ needs.release-please.outputs.tag }}
           files: |
             apps/extension/extension.zip
             apps/extension/extension.xpi
-          generate_release_notes: true
 
+      # Requires the Google Cloud OAuth consent screen to be "In production"
+      # (or the audience to be Internal). Under "Testing" the refresh token
+      # expires after 7 days and this fails with "Invalid grant" — which is
+      # exactly what froze the store listing at 2.1.34.
       - name: Upload to Chrome Web Store
-        if: env.VERSION != ''
-        continue-on-error: true
         env:
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
@@ -136,8 +116,6 @@ jobs:
           npx -y -p chrome-webstore-upload-cli chrome-webstore-upload upload --source apps/extension/extension.zip
 
       - name: Publish to Chrome Web Store
-        if: env.VERSION != ''
-        continue-on-error: true
         env:
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
@@ -147,8 +125,6 @@ jobs:
           npx -y -p chrome-webstore-upload-cli chrome-webstore-upload publish --extension-id ${{ secrets.CHROME_EXTENSION_ID }}
 
       - name: Publish to Firefox Add-ons
-        if: env.VERSION != ''
-        continue-on-error: true
         env:
           AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
           AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
@@ -161,7 +137,8 @@ jobs:
             --api-secret "$AMO_JWT_SECRET"
 
   publish-images:
-    needs: [release]
+    needs: [release-please]
+    if: needs.release-please.outputs.released == 'true'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -186,6 +163,9 @@ jobs:
             dockerfile: apps/api/Dockerfile.anystyle
             context: apps/api
     steps:
+      # No `ref:` — github.sha is the release commit, so the source tree carries
+      # the released version. apps/docs/.vitepress/config.mts bakes that version
+      # into the rendered navigation at build time.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
@@ -204,14 +184,14 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/jeffnawroth/source-taster-${{ matrix.service }}:v${{ needs.release.outputs.version }}
+            ghcr.io/jeffnawroth/source-taster-${{ matrix.service }}:v${{ needs.release-please.outputs.version }}
             ghcr.io/jeffnawroth/source-taster-${{ matrix.service }}:latest
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
   deploy:
-    if: github.actor != 'github-actions[bot]'
-    needs: [release, publish-images]
+    needs: [release-please, publish-images]
+    if: needs.release-please.outputs.released == 'true'
     runs-on: ubuntu-24.04
     steps:
       - name: Deploy over SSH
@@ -234,8 +214,35 @@ jobs:
             # pulled here. Pinning IMAGE_TAG to the released version keeps the
             # deploy reproducible and makes rollback a single command
             # (`IMAGE_TAG=v<older> docker compose up -d`). See ADR-0015.
-            export IMAGE_TAG="v${{ needs.release.outputs.version }}"
+            export IMAGE_TAG="v${{ needs.release-please.outputs.version }}"
             docker compose pull api web docs landing anystyle
             docker compose up -d --remove-orphans
 
             docker image prune -f
+
+  # Regression test for the defect this pipeline was rebuilt to fix. ADR-0015
+  # assumed no application reads its own version, having searched only
+  # `apps/*/src`; apps/docs/.vitepress/config.mts sits outside `src/`, imports
+  # apps/extension/package.json and renders it in the navigation. The result was
+  # a green release that served the previous version to users.
+  verify-release:
+    needs: [release-please, deploy]
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Assert the deployed docs report the released version
+        env:
+          VERSION: ${{ needs.release-please.outputs.version }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 10); do
+            if curl -fsS --max-time 30 -o /tmp/docs.html https://docs.sourcetaster.com/ \
+              && grep -qF "v${VERSION}" /tmp/docs.html; then
+              echo "docs.sourcetaster.com reports v${VERSION}"
+              exit 0
+            fi
+            echo "attempt ${attempt}/10: v${VERSION} not served yet, retrying in 15s"
+            sleep 15
+          done
+          echo "::error::docs.sourcetaster.com never reported v${VERSION}. The deployed image was most likely built from the wrong commit."
+          exit 1

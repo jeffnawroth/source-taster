@@ -16,6 +16,13 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
+      # Read-only. debug-status.mjs calls client.get() and nothing else.
+      #
+      # This step used to also run debug-publish.mjs, which calls
+      # client.publish() — a real store submission from a workflow named
+      # "Debug Status". Releases publish through release.yml (ADR-0019); there
+      # is no reason to publish by hand, and a preflight that ships something
+      # is a trap.
       - name: Debug status
         env:
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -30,5 +37,3 @@ jobs:
           npm install chrome-webstore-upload >/dev/null 2>&1
           cp "$GITHUB_WORKSPACE/debug-status.mjs" /tmp/statuslib/
           node /tmp/statuslib/debug-status.mjs
-          cp "$GITHUB_WORKSPACE/debug-publish.mjs" /tmp/statuslib/
-          node /tmp/statuslib/debug-publish.mjs
