@@ -15,6 +15,12 @@ updates:
     directory: /
     schedule:
       interval: monthly
-    open-pull-requests-limit: 5
+    # The default of 5 is a silent suppressor, not a queue: on 2026-08-22
+    # Dependabot opened exactly 5 pull requests and dropped the rest without
+    # any signal. actions/setup-node (v4 -> v7), docker/login-action (v3 -> v4)
+    # and docker/setup-buildx-action (v3 -> v4) went unproposed for weeks as a
+    # result — the opposite of what this file exists to guarantee. The limit is
+    # raised past the number of actions in use so the cap can no longer bind.
+    open-pull-requests-limit: 15
     commit-message:
       prefix: 'chore(deps)'
