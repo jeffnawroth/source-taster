@@ -40,7 +40,7 @@ Academic reference verification. Browser extension (Vue 3, MV3) + web app + Hono
 - `.env` files and any API keys — never commit, never log
 - Release pipeline `.github/workflows/release.yml` — auto-releases and deploys to production via docker compose; human-authorized only
 - Production CORS allowlist
-- `masterarbeit_nawroth_cicek.md` — thesis document, read-only
+- `masterarbeit_nawroth_cicek.md` / `.pdf` — thesis document, read-only
 - `png-exports/` — generated artifacts, not source
 
 ## AI operating system
@@ -58,3 +58,4 @@ Academic reference verification. Browser extension (Vue 3, MV3) + web app + Hono
 - Runtime artifacts — derived implementations, including `.opencode/agent/*.md`, `.opencode/skill/*/SKILL.md`, and `.opencode/command/*.md`.
 - `docs/ai-os/evaluation/check-governance.mjs` — static governance checks; `docs/ai-os/evaluation/eval-scenarios.md` — LLM evaluation scenarios.
 - `.opencode/memory/` — live state and historical results, never policy; `docs/decisions/` and `docs/audits/` — historical evidence.
+- `masterarbeit_nawroth_cicek.md` — the thesis this product originated from; explains the problem, approach, and evaluation methodology. Prose is a faithful Docling conversion of the PDF; verified against `masterarbeit_nawroth_cicek.pdf` (the canonical, authoritative source — consult it directly for exact figures/tables when precision matters). Not auto-loaded; read on demand.
