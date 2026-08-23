@@ -134,8 +134,8 @@ the OpenCode adapter.
 | OpenCode implementation | `runtimes/opencode/implementation.md` |
 | Copilot implementation status | `runtimes/copilot/implementation.md` |
 | Claude implementation | `runtimes/claude/implementation.md` |
-| Static checks | `evaluation/ai-system/check-governance.mjs` |
-| LLM evaluation scenarios | `evaluation/ai-system/eval-scenarios.md` |
+| Static checks | `docs/ai-os/evaluation/check-governance.mjs` |
+| LLM evaluation scenarios | `docs/ai-os/evaluation/eval-scenarios.md` |
 | Live state | `.opencode/memory/handoff.md` |
 | ADRs and audit evidence | `docs/decisions/` and `docs/audits/` |
 

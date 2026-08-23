@@ -56,5 +56,5 @@ Academic reference verification. Browser extension (Vue 3, MV3) + web app + Hono
 - This file — Source Taster project/domain policy and terminology.
 - `docs/ai-os/runtimes/*/implementation.md` — runtime implementation status and limitations.
 - Runtime artifacts — derived implementations, including `.opencode/agent/*.md`, `.opencode/skill/*/SKILL.md`, and `.opencode/command/*.md`.
-- `evaluation/ai-system/check-governance.mjs` — static governance checks; `evaluation/ai-system/eval-scenarios.md` — LLM evaluation scenarios.
+- `docs/ai-os/evaluation/check-governance.mjs` — static governance checks; `docs/ai-os/evaluation/eval-scenarios.md` — LLM evaluation scenarios.
 - `.opencode/memory/` — live state and historical results, never policy; `docs/decisions/` and `docs/audits/` — historical evidence.

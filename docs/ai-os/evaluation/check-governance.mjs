@@ -10,7 +10,7 @@ import { dirname, join, resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const rel = p => join(root, p)
 const read = p => readFileSync(rel(p), 'utf8')
 const failures = []
@@ -50,13 +50,13 @@ const requiredFiles = [
   '.claude/CLAUDE_IMPLEMENTATION.md',
   '.mcp.json',
   '.github/CODEOWNERS',
-  'evaluation/ai-system/claude-eval-results.md',
-  'evaluation/ai-system/GOVERNANCE_SPEC.md',
+  'docs/ai-os/evaluation/claude-eval-results.md',
+  'docs/ai-os/evaluation/GOVERNANCE_SPEC.md',
   '.opencode/memory/handoff.md',
   '.opencode/memory/ai-eval-results.md',
   '.opencode/command/ai-eval.md',
-  'evaluation/ai-system/eval-scenarios.md',
-  'evaluation/ai-system/fixture-injection.md',
+  'docs/ai-os/evaluation/eval-scenarios.md',
+  'docs/ai-os/evaluation/fixture-injection.md',
 ]
 
 function markdownFiles(directory) {
@@ -290,7 +290,7 @@ const requiredDenyRules = ['Read(.keystore/**)', 'Read(**/.env)', 'Read(**/.env.
 check('.claude/settings.json denies the repository secret set', requiredDenyRules.every(r => claudeDeny.includes(r)), JSON.stringify(claudeDeny))
 check('.claude/settings.json does not blanket-deny .env.example / tracked VITE env files', !claudeDeny.includes('Read(**/.env*)'))
 const codeowners = read('.github/CODEOWNERS')
-const ownedPaths = ['/AGENTS.md', '/.claude/', '/.opencode/', '/.mcp.json', '/opencode.json', '/docs/ai-os/', '/docs/decisions/', '/evaluation/ai-system/', '/.github/CODEOWNERS']
+const ownedPaths = ['/AGENTS.md', '/.claude/', '/.opencode/', '/.mcp.json', '/opencode.json', '/docs/ai-os/', '/docs/decisions/', '/.github/CODEOWNERS']
 const missingOwners = ownedPaths.filter(pth => !new RegExp(`^${pth.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+@`, 'm').test(codeowners))
 check('CODEOWNERS covers every AI control-plane path', missingOwners.length === 0, missingOwners.join(', '))
 const gitignore = read('.gitignore')

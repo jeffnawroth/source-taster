@@ -25,12 +25,11 @@
 /opencode.json                  @jeffnawroth
 /.mcp.json                      @jeffnawroth
 
-# --- Normative AI-OS documentation and decision records ----------------------
+# --- Normative AI-OS documentation, decision records, governance checks ------
+# /docs/ai-os/ also covers docs/ai-os/evaluation/ — the static governance
+# checks and the LLM evaluation scenarios and evidence.
 /docs/ai-os/                    @jeffnawroth
 /docs/decisions/                @jeffnawroth
-
-# --- Governance checks and evaluation evidence -------------------------------
-/evaluation/ai-system/          @jeffnawroth
 
 # --- This file protects itself -----------------------------------------------
 /.github/CODEOWNERS             @jeffnawroth
