@@ -95,6 +95,14 @@
 ### Performance Improvements
 
 * BuildKit cache mounts for pnpm store, remove --no-cache from deploy ([#185](https://github.com/jeffnawroth/source-taster/issues/185)) ([68327bd](https://github.com/jeffnawroth/source-taster/commit/68327bd62f7c836771afe07977d1e380fda414cb))
+## [3.0.1](https://github.com/jeffnawroth/source-taster/compare/v3.0.0...v3.0.1) (2026-08-23)
+
+
+### Bug Fixes
+
+* **ci:** bound release-please history with last-release-sha ([2f494f1](https://github.com/jeffnawroth/source-taster/commit/2f494f10f6fc48330e4dbcc742ec1609454c6f42))
+* **ci:** bound release-please history with last-release-sha ([e956d54](https://github.com/jeffnawroth/source-taster/commit/e956d54d12b5e4e3edd223b8110cb00f02452e20))
+
 ## [2.3.2](https://github.com/jeffnawroth/source-taster/compare/v2.1.2...v2.3.2) (2026-08-22)
 
 ### Features
