@@ -153,3 +153,8 @@ png-exports/
 # MCP servers. Must never be committed: that would silently widen the
 # committed AI control plane (CORE §48). See ADR-0010.
 .claude/settings.local.json
+
+# SDD workflow scratch space — per-run task briefs, progress ledgers and
+# reports. Ephemeral execution notes, not architectural memory; the durable
+# artifacts live in docs/superpowers/ and docs/decisions/.
+.superpowers/
