@@ -37,7 +37,7 @@
     "evaluation:prepare-input": "node evaluation/build-live-input.js",
     "evaluation:perturb-apa": "node evaluation/perturb-apa-references.js",
     "evaluation:perturb-summary": "node evaluation/summarize-perturbation-report.js",
-    "eval:ai": "node evaluation/ai-system/check-governance.mjs"
+    "eval:ai": "node docs/ai-os/evaluation/check-governance.mjs"
   },
   "devDependencies": {
     "@citation-js/plugin-csl": "^0.7.22",
