@@ -1,0 +1,8 @@
+name = "source-taster-api-proxy"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+account_id = "57578e3ef05a2d8c9929e1ce9b9f2cda"
+
+[[routes]]
+pattern = "api.sourcetaster.com/*"
+zone_id = "098015ce622756c585475b7cb2ba815c"
