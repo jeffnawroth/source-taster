@@ -8,8 +8,6 @@ services:
       - apps/api/.env
     ports:
       - '8000:8000'
-    volumes:
-      - ./apps/api/.keystore:/app/.keystore
     environment:
       DATABASE_URL: postgres://sourcetaster:${POSTGRES_PASSWORD:-sourcetaster_pg}@postgres:5432/sourcetaster
       ANYSTYLE_SERVER_URL: http://anystyle:4567

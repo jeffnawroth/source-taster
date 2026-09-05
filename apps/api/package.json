@@ -26,7 +26,6 @@
     "damerau-levenshtein": "^1.0.8",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.30",
-    "key-file-storage": "^2.3.3",
     "lodash": "^4.18.1",
     "normalize-url": "^9.0.1",
     "openai": "^5.23.2",
