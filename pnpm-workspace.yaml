@@ -13,3 +13,4 @@ allowBuilds:
   simple-git-hooks: true
   spawn-sync: true
   vue-demi: true
+  workerd: true

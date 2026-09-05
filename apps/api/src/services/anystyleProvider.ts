@@ -7,6 +7,32 @@ import type {
 import process from 'node:process'
 import { httpBadRequest, httpUpstream } from '../errors/http.js'
 
+const idTokenCache = new Map<string, { token: string, exp: number }>()
+
+/**
+ * Fetches a Google-signed identity token scoped to `audience` from the
+ * Cloud Run metadata server, for calling a private (IAM-authenticated)
+ * sibling service. Returns null outside Cloud Run (e.g. local dev against
+ * localhost), where anystyle has no auth in front of it.
+ */
+async function getIdentityToken(audience: string): Promise<string | null> {
+  if (audience.includes('localhost') || audience.includes('127.0.0.1'))
+    return null
+
+  const hit = idTokenCache.get(audience)
+  if (hit && hit.exp > Date.now())
+    return hit.token
+
+  const metadataUrl = `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=${encodeURIComponent(audience)}`
+  const res = await fetch(metadataUrl, { headers: { 'Metadata-Flavor': 'Google' } }).catch(() => undefined)
+  if (!res?.ok)
+    return null
+
+  const token = await res.text()
+  idTokenCache.set(audience, { token, exp: Date.now() + 50 * 60 * 1000 }) // tokens are valid ~1h
+  return token
+}
+
 export class AnystyleProvider {
   private readonly serverUrl: string
 
@@ -19,12 +45,16 @@ export class AnystyleProvider {
    */
   private async postJson<TReq, TRes>(path: string, body: TReq): Promise<TRes> {
     const url = `${this.serverUrl}${path}`
+    const idToken = await getIdentityToken(this.serverUrl)
 
     let res: Response | undefined
     try {
       res = await fetch(url, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          ...(idToken ? { authorization: `Bearer ${idToken}` } : {}),
+        },
         body: JSON.stringify(body),
       })
     }
