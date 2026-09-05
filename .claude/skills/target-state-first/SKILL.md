@@ -32,7 +32,13 @@ Label every claim with its evidence class:
 ## Deliverable shape
 Target state, existing state, gap table (KEEP/IMPROVE/DEFER), change impact, recommended approach, ADR draft when requested.
 
+## Live glossary discipline (§6/§14)
+When a new term appears mid-session — in a user message, a file, or your own draft — check it against `AGENTS.md`'s canonical terminology before adopting it. If it diverges from a canonical term, propose the canonical one instead of silently letting the drift stand; don't wait for a dedicated terminology pass. This is a live check during ordinary work, not a separate audit step.
+
+## When an ADR is actually required (§70)
+Write an ADR only when a decision is **all three** of: hard to reverse, surprising to a future reader, and a real trade-off (a choice that gives up something to get something). A decision that is merely non-trivial, or reversible, or unsurprising to anyone who reads the code, does not need one — that's how ADRs stay evidence instead of noise.
+
 ## Approval status (§46/§70)
 - Any plan/design artifact or ADR draft this workflow produces is written with `Status: proposed` — never `Status: accepted`. The status is not a self-assessment.
 - `accepted` is set only in the same commit that follows an explicit human approval in conversation, reusing the existing commit human-gate (AGENTS.md) instead of a new approval mechanism.
-- Do not start implementing application code (`apps/**`, `packages/**`) against a `proposed` artifact.
+- **Do not start implementing application code (`apps/**`, `packages/**`) against a `proposed` artifact.** This is a judgment gate, not a permission rule: the repository deliberately stopped ask-gating every edit under `apps/**`/`packages/**`, because prompting on each of hundreds of routine edits bought friction rather than safety and never actually verified that a design artifact existed (see `docs/decisions/2026-08-25-ai-setup-modernization.md`). The discipline is yours to keep — the commit gate is the enforced backstop.

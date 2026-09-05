@@ -44,18 +44,20 @@ Academic reference verification. Browser extension (Vue 3, MV3) + web app + Hono
 - `png-exports/` — generated artifacts, not source
 
 ## AI operating system
-- **CORE**: `docs/ai-os/core/` is the sole runtime-neutral AI-OS authority. The preserved 76-section map and runtime-adapter contract are in `docs/ai-os/ARCHITECTURE.md`.
-- **Runtime adapters**: OpenCode mechanics and evidence are canonical in `docs/ai-os/runtimes/opencode/implementation.md`; Copilot limitations are canonical in `docs/ai-os/runtimes/copilot/implementation.md`. Runtime adapters and their derived artifacts implement the CORE without redefining it.
+- **CORE**: `docs/ai-os/core/` is the sole runtime-neutral AI-OS authority. The authority model and runtime-adapter contract are in `docs/ai-os/ARCHITECTURE.md`.
+- **Runtime adapters**: `docs/ai-os/runtimes/{claude,opencode,copilot}/implementation.md` record each runtime's mechanisms, evidence class, and limitations. Adapters implement the CORE without redefining it.
+- **Skills live in one place**: `.claude/skills/`. Claude Code and OpenCode both read it natively — never create a parallel skill tree.
 
 ## Project-specific safety constraints
-- **Research sources**: approved domains are `openalex.org`, `doi.org`, `crossref.org`, `api.semanticscholar.org`, `europepmc.org`, `ebi.ac.uk`, `arxiv.org`, `github.com`, `mcp.context7.com`, `sourcetaster.com`, and `opencode.ai`. Runtime enforcement status is recorded by the active runtime adapter.
-- **Human gates**: commit, push, migrate, docker, install, and release require human approval; release is human-only. The pre-commit hook runs `build:types && typecheck && lint-staged`.
+- **Research sources**: approved domains are `openalex.org`, `doi.org`, `crossref.org`, `api.semanticscholar.org`, `europepmc.org`, `ebi.ac.uk`, `arxiv.org`, `github.com`, `mcp.context7.com`, `sourcetaster.com`, and `opencode.ai`. This is policy, not a technical filter — no runtime here has a domain allowlist.
+- **Human gates**: commit, push, merge, migrate, docker, install, and deploy require human approval; release is human-only. On Claude Code these are **enforced** by `.claude/hooks/guard-bash.mjs`; on OpenCode by `bash: { "*": "ask" }`. The pre-commit hook runs `build:types && typecheck && lint-staged`.
 
 ## Canonical sources
 - `docs/ai-os/core/` — normative AI-OS principles, operating model, evaluation, and governance.
 - This file — Source Taster project/domain policy and terminology.
 - `docs/ai-os/runtimes/*/implementation.md` — runtime implementation status and limitations.
-- Runtime artifacts — derived implementations, including `.opencode/agent/*.md`, `.opencode/skill/*/SKILL.md`, and `.opencode/command/*.md`.
-- `docs/ai-os/evaluation/check-governance.mjs` — static governance checks; `docs/ai-os/evaluation/eval-scenarios.md` — LLM evaluation scenarios.
-- `.opencode/memory/` — live state and historical results, never policy; `docs/decisions/` and `docs/audits/` — historical evidence.
+- `.claude/skills/*/SKILL.md` — shared specialist knowledge; `.claude/agents/` and `.opencode/agent/` — read-only review roles; `.opencode/command/` — repeatable workflows.
+- `.claude/hooks/guard-bash.mjs` — the enforced shell boundary, with tests alongside it.
+- `docs/ai-os/evaluation/` — governance checks, evaluation scenarios, and dated evidence.
+- `docs/decisions/` and `docs/audits/` — historical evidence, never current policy.
 - `masterarbeit_nawroth_cicek.md` — the thesis this product originated from; explains the problem, approach, and evaluation methodology. Prose is a faithful Docling conversion of the PDF; verified against `masterarbeit_nawroth_cicek.pdf` (the canonical, authoritative source — consult it directly for exact figures/tables when precision matters). Not auto-loaded; read on demand.

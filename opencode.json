@@ -11,16 +11,20 @@
       "git status*": "allow",
       "git log*": "allow",
       "git diff*": "allow",
-      "git branch*": "allow"
+      "git branch*": "allow",
+      "git show*": "allow"
     },
     "edit": {
       "*": "allow",
       "AGENTS.md": "ask",
+      "CLAUDE.md": "ask",
       "opencode.json": "ask",
       ".opencode/**": "ask",
+      ".claude/**": "ask",
+      ".mcp.json": "ask",
+      ".github/workflows/**": "ask",
       "docs/ai-os/**": "ask",
-      "apps/**": "ask",
-      "packages/**": "ask"
+      "masterarbeit_nawroth_cicek.md": "deny"
     },
     "external_directory": { "*": "deny" }
   },

@@ -9,17 +9,26 @@
       "Bash(git status*)",
       "Bash(git log*)",
       "Bash(git diff*)",
-      "Bash(git branch*)"
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(node --test .claude/hooks/*)",
+      "Bash(node docs/ai-os/evaluation/check-governance.mjs)"
     ],
     "ask": [
+      "Bash(git push *)",
       "Edit(AGENTS.md)",
       "Edit(CLAUDE.md)",
       "Edit(docs/ai-os/**)",
+      "Write(docs/ai-os/**)",
       "Edit(.claude/**)",
-      "Edit(apps/**)",
-      "Write(apps/**)",
-      "Edit(packages/**)",
-      "Write(packages/**)"
+      "Write(.claude/**)",
+      "Edit(.opencode/**)",
+      "Write(.opencode/**)",
+      "Edit(opencode.json)",
+      "Edit(.mcp.json)",
+      "Edit(.github/workflows/**)",
+      "Write(.github/workflows/**)",
+      "Edit(.github/CODEOWNERS)"
     ],
     "deny": [
       "Read(.keystore/**)",
@@ -31,7 +40,31 @@
       "Read(**/*.pem)",
       "Read(**/*.key)",
       "Read(**/*.p12)",
-      "Read(**/*.pfx)"
+      "Read(**/*.pfx)",
+      "Edit(.keystore/**)",
+      "Write(.keystore/**)",
+      "Edit(**/.env)",
+      "Write(**/.env)",
+      "Edit(**/.env.local)",
+      "Write(**/.env.local)",
+      "Edit(**/.env.*.local)",
+      "Write(**/.env.*.local)",
+      "Edit(masterarbeit_nawroth_cicek.md)",
+      "Write(masterarbeit_nawroth_cicek.md)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-bash.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   },
   "autoMemoryEnabled": false

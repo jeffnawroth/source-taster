@@ -68,4 +68,10 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
-      - run: node docs/ai-os/evaluation/check-governance.mjs
+      # Both steps run on stock Node with no install: the guard hook and its
+      # tests are dependency-free on purpose, so the control plane stays
+      # verifiable even if the workspace fails to install.
+      - name: Agent boundary regression tests
+        run: node --test .claude/hooks/guard-bash.test.mjs
+      - name: Static governance checks
+        run: node docs/ai-os/evaluation/check-governance.mjs

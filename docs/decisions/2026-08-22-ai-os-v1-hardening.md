@@ -2,6 +2,9 @@
 
 > Status: accepted
 > Date: 2026-08-22
+> Amended by ADR-0021 (2026-08-25): the `apps/**` / `packages/**` design gate
+> was removed (friction without verification); human gates are now technically
+> enforced by `.claude/hooks/guard-bash.mjs` instead of being instruction-level.
 
 ## Context
 

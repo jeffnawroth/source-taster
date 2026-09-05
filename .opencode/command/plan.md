@@ -12,10 +12,12 @@ Run the planning workflow for: $ARGUMENTS
    - Continuous-improvement recommendation (KEEP / KEEP WITH CONSTRAINT / IMPROVE NOW / MODERNIZE FIRST / DEFER)
    - ADR draft (decision → evidence → constraints → alternatives → reason)
 2. Present the design and change-impact summary to the user for approval.
-3. Only after user approval: write the ADR to `docs/decisions/` and update `.opencode/memory/handoff.md`.
+3. Only after user approval: write the ADR to `docs/decisions/`, following the
+   numbering and template convention in `docs/decisions/README.md`, and add it
+   to that file's index.
 
 ## Plan document structure (§26)
-Plans produced by this command follow the six-stage template (see skill `delegation-and-trust`):
+Plans produced by this command follow the six-stage template (see skill `boundaries-and-runtime`):
 1. **Objective** — one sentence
 2. **Milestones** — phase checkpoints
 3. **Dependencies** — task interfaces
