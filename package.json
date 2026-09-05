@@ -37,7 +37,7 @@
     "evaluation:prepare-input": "node evaluation/scripts/build-live-input.js",
     "evaluation:perturb-apa": "node evaluation/scripts/perturb-apa-references.js",
     "evaluation:perturb-summary": "node evaluation/scripts/summarize-perturbation-report.js",
-    "eval:ai": "node docs/ai-os/evaluation/check-governance.mjs"
+    "eval:ai": "node --test .claude/hooks/guard-bash.test.mjs && node docs/ai-os/evaluation/check-governance.mjs"
   },
   "devDependencies": {
     "@citation-js/plugin-csl": "^0.7.22",
@@ -45,7 +45,8 @@
     "eslint": "^9.39.5",
     "lint-staged": "^16.4.0",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.129.0"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm build:types && pnpm typecheck && pnpm lint-staged"

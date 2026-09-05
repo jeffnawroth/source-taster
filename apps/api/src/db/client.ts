@@ -13,7 +13,6 @@ export const sql = postgres(connectionString, {
   max_lifetime: 30 * 60,
   connection: {
     application_name: 'source-taster-api',
-    options: '-c statement_timeout=30000 -c lock_timeout=10000',
   },
 })
 export const db = drizzle(sql)
