@@ -2,6 +2,8 @@
 
 > Status: accepted
 > Date: 2026-08-21
+> Amended by ADR-0021 (2026-08-25): the 8 skills are now 5 and single-sourced
+> in `.claude/skills/`; the 12 OpenCode agents are now 3.
 
 ## Context
 

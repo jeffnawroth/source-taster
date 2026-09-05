@@ -1,213 +1,177 @@
 # Claude Code Implementation
 
-This document is the canonical Claude Code adapter for the AI-OS CORE
-(`../../core/`) and Source Taster project policy (`AGENTS.md`). It does not
-redefine either. It follows the same shape as the Copilot adapter
-(`../copilot/implementation.md`): a capability-status table, required
-behavior, and limitations — Claude Code does not receive new numbered
-AI-OS sections; §51–63 remain the OpenCode adapter's (see
-`docs/decisions/2026-08-21-claude-runtime-adapter.md`).
+The canonical Claude Code adapter for the AI-OS CORE (`../../core/`) and Source
+Taster project policy (`AGENTS.md`). It does not redefine either.
 
-## Implementation Status
+Every row below separates three things that are routinely conflated:
 
-This document was originally written in the AI-OS documentation phase of the
-Claude adapter's introduction (Phase 2), before any Claude-specific
-configuration or agent files existed in this repository. As of Phase 7
-(governance/evaluation checks), Phases 3–7 are complete and approved: the
-`@AGENTS.md` import (Phase 3), `.claude/settings.json` (Phase 4), the two
-subagents (Phase 5), the eight skills (Phase 6), and the governance-checker
-extension (Phase 7) all exist and are verified. Every row below therefore
-separates three things:
+1. **Mechanism** — what the runtime can do, independent of this repository.
+2. **Evidence class** — `ENFORCED` (the runtime blocks it), `INSTRUCTION-LEVEL`
+   (context the model tries to follow), or `NOT SUPPORTED`.
+3. **Status here** — what this repository has actually configured.
 
-1. **Claude Code mechanism** — what the runtime itself is capable of, evidenced
-   against Claude Code 2.1.237–2.1.238 (official documentation and local CLI
-   output), independent of this repository.
-2. **Evidence class** — whether that mechanism is `TECHNICALLY ENFORCED`,
-   `INSTRUCTION-LEVEL`, `PROCESS-LEVEL`, or `NOT SUPPORTED` / `NOT VERIFIED`.
-3. **Current repository status** — whether this repository has actually
-   configured that mechanism, with the phase that did so and its verification
-   evidence.
+Verified against Claude Code 2.1.243.
 
-Phase 8 (runtime acceptance tests, recording behavioral evidence in
-`docs/ai-os/evaluation/claude-eval-results.md`) and Phase 9 (final human
-review and commit) remain pending. This document is updated at the point
-each phase's evidence becomes real, not before — every "Implemented" claim
-below traces to a specific completed, approved phase.
+## Capability status
 
-## Capability Status
+| Core area | Mechanism | Evidence class | Status here |
+|---|---|---|---|
+| Project/domain policy | `@AGENTS.md` import at the top of `CLAUDE.md` | **INSTRUCTION-LEVEL** — Claude Code's own docs call this "context, not enforced configuration" | Configured. `CLAUDE.md`'s first line is `@AGENTS.md`; asserted by the governance checker |
+| Control-plane protection | `.claude/settings.json` `permissions.{allow,ask,deny}`, resolved in order hooks → deny → ask → mode → allow | **ENFORCED** for rules resolving to `deny` or `ask` | Configured. `ask` on `AGENTS.md`, `CLAUDE.md`, `docs/ai-os/**`, `.claude/**`, `.opencode/**`, `opencode.json`, `.mcp.json`, `.github/workflows/**`, `CODEOWNERS` |
+| **Human approval gates** | `PreToolUse` hook returning `permissionDecision: "ask"` / `"deny"` **plus** a settings.json content-matching `ask` rule | **ENFORCED, with two distinct strengths** — confirmed against official docs (`code.claude.com/docs/en/permissions#extend-permissions-with-hooks`, `.../permission-modes#eliminate-prompts-with-auto-mode`, `.../permission-modes#actions-no-mode-auto-approves`, fetched directly 2026-08-27), not inferred from a single live test. A hook `deny` is unconditional in every mode including `bypassPermissions` (doc-quoted: "Deny rules block in every mode, including bypassPermissions"; also verified live, repeatedly). A hook `ask` "forces a prompt" — but in `auto` mode, "a classifier reviews actions instead of you" for anything that would otherwise prompt, so hook-`ask` is satisfied by classifier review, not a human dialog, specifically in that mode. A **settings.json content-matching `ask` rule** (e.g. `Bash(git push *)`) is different and stronger: it "falls back to a permission prompt" and is explicitly listed under "Actions no mode auto-approves" — never classifier-substituted, in any mode, and confirmed to fail *closed* (not open) under `dontAsk` mode | Configured. `.claude/hooks/guard-bash.mjs` denies force-push, history rewrite, `reset --hard`, remote branch deletion, `gh release`, `gh workflow run`, pipe-to-shell, recursive force-delete, `--no-verify`, git-hooks bypasses (`core.hooksPath`, `SKIP_SIMPLE_GIT_HOOKS=1`), destructive SQL against Postgres, `sudo git push` (the one shape a settings ask-rule's wrapper-strip list can't reach), and a staged-diff secret scan escalating a gated commit from `ask` to `deny`. Bare `git push` is hook-`ask` **plus** a settings.json `Bash(git push *)` ask rule (the actual binding guarantee — added 2026-08-27, replacing a 2026-08-26 unconditional-deny escalation that also blocked the human's own ability to approve a push through the agent, which the security goal never called for). `git commit`/`git merge`/docker/install/migrate/deploy remain hook-`ask` only — real protection under those specifically requires an interactive/confirming session mode, or an equivalent settings.json content rule if that guarantee is ever needed for one of them too. 20 regression test blocks in `guard-bash.test.mjs` (up from 10) plus scratch-repo end-to-end tests exercising the git integration and the anchoring fix directly, run by CI and `pnpm eval:ai` |
+| Secret boundary | `permissions.deny` on file tools **plus** the Bash guard | **ENFORCED** on both paths | Configured. Deny rules cover `.keystore/**`, `.env` variants, `*.pem/key/p12/pfx`; the guard closes the per-tool gap where `Read(**/.env)` does nothing about `cat .env`, and additionally scans a gated commit's staged diff for high-confidence secret shapes (this project's own key prefix plus its actual BYOK providers) before letting it through as `ask`. `.env.example` stays readable on purpose |
+| Independent review | `.claude/agents/*.md` `disallowedTools` | **ENFORCED** — structural tool removal, unaffected by the parent session's permission mode | Configured. `reviewer` and `security-reviewer` have `Edit`/`Write`/`NotebookEdit`/`Bash`/`Agent`/`WebFetch`/`WebSearch` removed. `reviewer` additionally carries a scoped 6-item smell checklist and an explicit two-lens (spec vs. engineering-standards) review framing (2026-08-26) |
+| Specialist knowledge | `.claude/skills/*/SKILL.md` | **INSTRUCTION-LEVEL** — skill bodies are context | Configured. Nine skills, single-sourced (OpenCode reads the same directory, confirmed via `opencode debug skill`) |
+| MCP server approval | Project `.mcp.json` servers need explicit per-server approval on first connection | **ENFORCED** | Configured. Three servers: `context7`, `playwright` (pinned `@0.0.79`), `penpot` |
+| Filesystem scope | cwd by default, widened only via `--add-dir` | **ENFORCED** for the boundary; **not OS isolation** | Baseline runtime behavior, narrowed by the deny rules above |
+| Network egress allowlist | none exists | **NOT SUPPORTED** | `AGENTS.md`'s approved-domain list is policy only, on every runtime here |
+| Delegation depth cap | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (default 3) | **ENFORCED**, but host/environment configuration | Not committed by this repository — unlike OpenCode's `subagent_depth`, this cannot live in version control |
+| Auto-memory containment | `autoMemoryEnabled: false` | **ENFORCED** | Configured |
+| Control-plane ownership | `.github/CODEOWNERS` | **PROCESS-LEVEL** — requests review, does not block merge (`require_code_owner_reviews` is off; a single owner plus `enforce_admins` would deadlock the maintainer's own PRs) | Configured, coverage asserted by the checker |
+| Governance regression gate | `check-governance.mjs` + `guard-bash.test.mjs` in CI | **ENFORCED** deterministic CI evidence | Configured. 37 distinct `check()` assertions across 6 categories (some run once per skill/agent/workflow file, producing more output lines than assertion classes — cite the category count, not the line count) + 20 test blocks in `guard-bash.test.mjs` covering 24 `guardCases` decision checks, dependency-free |
 
-| Core area                               | Claude Code mechanism                                                                                                                                                                      | Evidence class (once configured)                                                                                                                                                                  | Current repository status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Project/domain policy delivery          | `@AGENTS.md` import at the top of `CLAUDE.md`, loaded into every session's context                                                                                                         | INSTRUCTION-LEVEL — CLAUDE.md content is delivered as a user message, not the system prompt, and Claude Code's own documentation states it is "context, not enforced configuration"               | **Implemented (Phase 3).** `CLAUDE.md`'s first line is `@AGENTS.md`; verified via `claude -p "/context"` showing `AGENTS.md` as a separately loaded Project memory file, proving the import resolves                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Permissions / control-plane protection  | `.claude/settings.json` `permissions.{allow,ask,deny}`, evaluated in a fixed order (hooks → deny → ask → permission mode → allow → interactive callback)                                   | TECHNICALLY ENFORCED for rules that resolve to `deny` or an explicit `ask`                                                                                                                        | **Implemented (Phase 4).** `.claude/settings.json` exists with the rules described in the left column; `claude doctor` reported no schema errors and the JSON was confirmed syntactically valid                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Role separation / independent review    | `.claude/agents/reviewer.md` and `.claude/agents/security-reviewer.md`, using `disallowedTools` to structurally remove `Edit`/`Write`/`NotebookEdit`/`Bash`/`Agent`/`WebFetch`/`WebSearch` | TECHNICALLY ENFORCED — tool removal is unaffected by the parent session's permission mode (unlike `permissionMode`, which a parent session in `bypassPermissions`/`acceptEdits`/`auto` overrides) | **Implemented (Phase 5).** `.claude/agents/reviewer.md` and `.claude/agents/security-reviewer.md` exist with `disallowedTools` removing exactly these seven tools; both subagents were dispatched and self-reported resolved tool lists confirmed to exclude them, independently corroborated by `git diff` showing no file mutation was possible                                                                                                                                                                                                                                                                                                                 |
-| Reusable specialist/domain knowledge    | `.claude/skills/*/SKILL.md`, retrieved contextually or via `/<name>`                                                                                                                       | INSTRUCTION-LEVEL — skill bodies are context, the same as CLAUDE.md, not enforced configuration                                                                                                   | **Implemented (Phase 6).** All 8 `.claude/skills/*/SKILL.md` exist; confirmed discoverable via `claude -p "/context"`'s Skills table (listed as `Project` source alongside built-in skills)                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Delegation depth / recursion cap        | Default 3-layer subagent nesting cap; overridable via the `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` environment variable                                                                      | TECHNICALLY ENFORCED, but **host/environment configuration**, not a value this repository commits the way `opencode.json`'s `subagent_depth` is                                                   | Baseline runtime behavior; not something this repository sets. Documented here so the difference from OpenCode's checked-in cap is not silently implied away                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Filesystem boundary                     | Default scope = current working directory; widened only via `--add-dir`                                                                                                                    | TECHNICALLY ENFORCED for the boundary itself; **explicitly not OS sandboxing** — no container/VM isolation is claimed or verified for this deployment                                             | Baseline runtime behavior, plus repository-specific narrowing since **Phase 4** and widened by **ADR-0010**: `.claude/settings.json` denies `Read(.keystore/**)`, `Read(.env)`, `Read(apps/api/.env)`, plus `Read(**/.env)`, `Read(**/.env.local)`, `Read(**/.env.*.local)` and the key/certificate patterns `**/*.pem`, `**/*.key`, `**/*.p12`, `**/*.pfx` — which also blocks `Edit`/`Write` on those same paths. Deliberately not `Read(**/.env*)`: that would block `.env.example` and the tracked, secret-free `apps/extension/.env*` files                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Network egress / approved-domain policy | Claude Code has no configured network-domain allowlist mechanism                                                                                                                           | INSTRUCTION-LEVEL only — the same limitation the OpenCode adapter already documents for itself                                                                                                    | `AGENTS.md`'s approved-domain list applies as policy for Claude sessions exactly as it does for OpenCode and Copilot sessions; no technical filter exists on any runtime in this repository                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Human approval gates                    | Interactive `ask` rules / permission-mode prompts, plus this repository's existing human-gate convention (`AGENTS.md`: commit/push/migrate/docker/install/release require approval)        | INSTRUCTION-LEVEL today via the human-gate convention; would become TECHNICALLY ENFORCED for the specific commands named in explicit `.claude/settings.json` `ask` rules once configured          | **Partially implemented (Phase 4).** `.claude/settings.json` `ask` rules technically enforce human confirmation for edits to `AGENTS.md`/`CLAUDE.md`/`docs/ai-os/**`/`.claude/**`. The human-gate commands themselves (commit/push/migrate/docker/install/release) remain instruction-level only via the `AGENTS.md` convention — Phase 4 deliberately omitted a `Bash(*)` ask rule (it would have made the verified-command allowlist non-functional, since ask rules take precedence over allow rules regardless of specificity); no `PreToolUse` hook exists either. This is a real, intentional, documented limitation, not a pending phase — see Limitations |
-| MCP server approval                     | Project-scoped `.mcp.json` servers require explicit, interactive per-server approval before first connection (`⏸ Pending approval` in `claude mcp list`/`claude mcp get`), independent of permission mode                                                                              | TECHNICALLY ENFORCED                                                                                                                                                                              | **Implemented (ADR-0009), pinned by ADR-0010.** `.mcp.json` exists with four project-scoped servers (`context7`, `playwright`, `postgres`, `penpot`); each is subject to this approval gate on first use in an interactive session. Because that gate fires on *first connection* only, the two locally-executed servers are pinned so an upstream release cannot change an already-approved server: `@playwright/mcp@0.0.79` (npm versions are immutable) and `crystaldba/postgres-mcp:0.3.0@sha256:dbbd3468…` (tag plus manifest digest, since Docker tags are mutable). `context7` and `penpot` are remote endpoints and **cannot be pinned from this repository** — documented residual risk                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Control-plane ownership (platform-level) | `.github/CODEOWNERS` assigning a human owner to every AI control-plane path, evaluated by GitHub rather than by any agent runtime                                                            | PROCESS-LEVEL today — it requests review but does not block merge, because branch protection's `require_code_owner_reviews` is deliberately `false` (single owner + `enforce_admins: true` would deadlock the maintainer's own PRs)                                                        | **Implemented (ADR-0010).** `.github/CODEOWNERS` covers `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.claude/`, `.opencode/`, `opencode.json`, `.mcp.json`, `docs/ai-os/`, `docs/decisions/`, `docs/ai-os/evaluation/`, and itself; coverage is asserted by `check-governance.mjs` section [7]                                                                                                                                                                                                             |
-| Static governance checks                | `docs/ai-os/evaluation/check-governance.mjs`                                                                                                                                                | Will be TECHNICALLY ENFORCED / deterministic CI evidence once extended with Claude-specific assertions                                                                                            | **Implemented (Phase 7).** `check-governance.mjs` was extended with Claude-specific assertions (required-files, CORE-portability tokens, skill/agent structure, `CLAUDE.md`'s import line, the adapter's own evidence-status language); all 278 checks pass, including every pre-existing OpenCode/Copilot assertion unchanged                                                                                                                                                                                                                                                                                                                                    |
-| Auto-memory containment                 | `autoMemoryEnabled: false` in `.claude/settings.json`                                                                                                                                      | TECHNICALLY ENFORCED once set (documented settings key)                                                                                                                                           | **Implemented (Phase 4).** `"autoMemoryEnabled": false` is set in `.claude/settings.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Recovery and audit evidence             | Version control, this document, ADR-0008                                                                                                                                                   | PROCESS-LEVEL                                                                                                                                                                                     | This document and `docs/decisions/2026-08-21-claude-runtime-adapter.md` are the first artifacts of this adapter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+## The `@AGENTS.md` model
 
-## The `@AGENTS.md` / `CLAUDE.md` Model
+Claude Code reads `CLAUDE.md`, not `AGENTS.md`. A single `@AGENTS.md` import at
+the top of `CLAUDE.md` expands the project policy into every session, so
+`AGENTS.md` stays the one file a human edits and `CLAUDE.md` keeps only
+Claude-specific notes. The bridge depends on that import line surviving — the
+checker asserts it.
 
-Claude Code has no native `AGENTS.md` support — it reads `CLAUDE.md`, not
-`AGENTS.md`. The documented bridge is a single `@AGENTS.md` import line at the
-top of `CLAUDE.md`, which expands the current `AGENTS.md` content into every
-session's context at launch. This keeps `AGENTS.md` the one file a human edits
-for Source Taster project/domain policy (CORE §69's project-instruction
-mechanism), and avoids `CLAUDE.md` becoming an independently-edited second
-copy of that policy (CORE §40: avoid duplication and context bloat). `CLAUDE.md`
-retains only genuinely Claude-specific instructions and the project's
-canonical dev/test/lint/build commands and architecture notes that have no
-duplicate elsewhere.
+**`CLAUDE.md` and skill bodies are never enforcement**, however they are
+written. Every enforcement claim in this document traces to
+`.claude/settings.json`, a hook, or `disallowedTools` — never to prose.
 
-This import has been in place since Phase 3 (verified via `/context`).
-Regardless of implementation status: **`CLAUDE.md`, with or
-without the import, is never evidence of an enforced control.** Claude Code's
-own documentation is explicit that CLAUDE.md content is "context, not enforced
-configuration," and that a `PreToolUse` hook — not markdown — is required to
-block an action regardless of what Claude decides. No claim in this adapter,
-before or after Phase 3, treats `CLAUDE.md` as anything other than
-instruction-level.
+## Deliberate absences
 
-## Agent / Skill / Command Mapping
-
-| OpenCode                                | Claude Code (implemented)                                     | Ratio  |
-| --------------------------------------- | ------------------------------------------------------------- | ------ |
-| 12 role agents (`.opencode/agent/*.md`) | 2 subagents (`reviewer`, `security-reviewer`)                 | 12 → 2 |
-| 8 skills (`.opencode/skill/*/SKILL.md`) | 8 skills (`.claude/skills/*/SKILL.md`), near-1:1 content port | 8 → 8  |
-| 9 commands (`.opencode/command/*.md`)   | 0 separate command files                                      | 9 → 0  |
-
-Rationale for the non-1:1 ratios (recorded in full in ADR-0008):
-
-- **Subagents (12 → 2).** Only `reviewer` and `security-reviewer` need Claude
-  subagent isolation, because their value is specifically an _independently_
-  read-only guarantee (CORE §33, Evaluator Independence) that Claude's hard
-  `disallowedTools` removal can make technically enforced and
-  parent-session-mode-independent. The other 10 OpenCode agent roles exist
-  largely to give OpenCode's flatter default agent a forced persona and
-  authority tier; that need does not carry over identically to Claude Code,
-  which already retrieves contextually-relevant skills and reasons with
-  `AGENTS.md` loaded without a dedicated subagent per role.
-- **Commands (9 → 0).** Claude Code has merged its custom-command mechanism
-  into skills — a file at `.claude/commands/x.md` and a skill at
-  `.claude/skills/x/SKILL.md` are documented as equivalent, both producing
-  `/x`. Building 9 separate command-shaped files would duplicate the skill
-  mechanism for no additional capability.
-- **Skills (8 → 8).** `SKILL.md` is the closest structural match between the
-  two runtimes (frontmatter + contextual retrieval in both), so this is a
-  near-literal content port, adjusted only where a skill body describes an
-  OpenCode-specific mechanism (e.g. `boundaries-and-runtime` describes
-  Claude's settings/tool-removal mechanism instead of `opencode.json`/git
-  worktree language, as written in Phase 6).
-
-## Deliberate Absences
-
-The following are intentionally **not** part of this adapter, each for a
-stated reason (also recorded in ADR-0008 or ADR-0009):
-
-- **MCP servers.** As of ADR-0009, `.mcp.json` exists at the repository root
-  with four project-scoped servers: `context7` (versioned library docs,
-  started without an API key), `playwright` (local, programmatic browser
-  automation), `postgres` (`crystaldba/postgres-mcp`, `--access-mode=restricted`,
-  intended to run against a dedicated read-only database role), and `penpot`
-  (Penpot's official hosted Cloud MCP endpoint, giving read access to the
-  project's actual designs). Each closes a concrete capability gap native
-  Claude Code tools do not cover; none contains a literal credential — all
-  reference environment variables the developer sets locally. Four other
-  OpenCode MCP servers were evaluated and deliberately **not** adopted:
-  - `filesystem` — Claude Code's built-in `Read`/`Write`/`Edit`/`Glob`/`Grep`
-    tools already scope to the working directory (widened only via
-    `--add-dir`); ADR-0009 additionally confirmed OpenCode's own global
-    `filesystem` server is rooted at the user's entire home directory, not a
-    project, reinforcing the original ADR-0008 reasoning rather than
-    reopening it.
-  - `github` — the `gh` CLI via `Bash` is already this repository's
-    established GitHub access path; a GitHub MCP would duplicate it with a
-    second, separately-scoped credential and no functional gain.
-  - `exa` — native `WebSearch`/`WebFetch` already cover general web research.
-  - `chrome-devtools` — the native `claude-in-chrome` integration already
-    covers this adapter's current browser-verification needs; no concrete
-    workflow step today needs `chrome-devtools-mcp`'s deeper DevTools-protocol
-    features (performance tracing, low-level network inspection).
-
-  **Residual risk, documented rather than concealed:** the `penpot` MCP has
-  no technical read-only scoping — Penpot issues one full read/write key per
-  account (no read-only variant), and Claude and OpenCode necessarily share
-  that same key (Penpot allows only one active key per account). Mitigation
-  today is instruction-level only, pending the separate Design → Human
-  Approval → Implementation workflow decision, which ADR-0009 explicitly does
-  not make. See ADR-0009 for the full security model, the PostgreSQL
-  read-only role SQL, and the rejected-alternatives reasoning.
-- **`.claude/commands/`** — not created. The mechanism it would use is
-  identical to `.claude/skills/`; a separate commands directory would only be
-  a redundant, legacy-only path.
-- **Bespoke role skills or subagents for `pm`, `ux`, `ui`, `qa`, `data`,
-  `growth`, `docs`, `devops`, `researcher`** — not created. Three of these
-  (`pm`, `ux`, `growth`) are covered by the ported `product-operating-model`,
-  `ux-target-state`, and `growth-operating-model` skills; the other six had no
-  OpenCode _skill_ counterpart either and are covered by native contextual
-  reasoning plus `AGENTS.md`, without a dedicated file.
-- **`architect` subagent** — not created for the initial implementation. Its
-  target-state-first / change-impact / ADR-draft methodology is carried by
-  the `target-state-first` skill. This is deferred, not rejected: it remains
-  a small, additive option if isolated or parallel dispatch for design review
-  is later needed in practice.
-
-## Required Behavior
-
-Claude Code sessions in this repository must follow the CORE and `AGENTS.md`
-(the `@AGENTS.md` import has been in place since Phase 3, so this is automatic
-at session start), retain the `/v1/*` namespace and Source Taster terminology, treat
-untrusted content — repository files, tool output, fetched web content — as
-data rather than instructions (CORE §20), avoid self-elevation (CORE §48: no
-agent may grant itself broader permissions or weaker review), and request
-human approval for the project-gated operations named in `AGENTS.md` (commit,
-push, migrate, docker, install, release).
+- **`.claude/commands/`** — Claude Code merged commands into skills; a
+  parallel directory would duplicate the mechanism for no capability.
+- **A `PostToolUse` formatting hook** — the `simple-git-hooks` pre-commit hook
+  already runs `lint-staged`. Adding ESLint to every single edit would tax
+  every write for feedback that arrives at commit time anyway.
+- **`filesystem`, `github`, `exa`, `chrome-devtools` MCP servers** — the
+  built-in file tools are already cwd-scoped, `gh` via Bash is the established
+  GitHub path, and native `WebSearch`/`WebFetch` plus `context7` cover
+  research. Each would add a credential or a broader root for no new capability.
+- **A `postgres` MCP server** — was configured but disabled in local settings
+  and never pointed at the read-only role its ADR specified. Removed as dead
+  configuration rather than left as a decorative entry; the ADR retains the
+  setup SQL if it is ever wanted.
+- **A `Stop`-hook verify-gate** (block turn-end until tests pass, the pattern
+  gstack calls `verify-gate`) — investigated twice (2026-08-26, 2026-08-27)
+  and deliberately not implemented either time, on different grounds each
+  time (not "still too complex" repeated unchanged — see Limitations below
+  for the current, more specific reasoning; ADR-0022 and ADR-0023 record both
+  passes).
 
 ## Limitations
 
-As of Phase 7, this repository demonstrates technically-enforced Claude Code
-controls: `.claude/settings.json` deny/ask rules, and `disallowedTools` on
-both subagents (see Capability Status above for each control's specific
-evidence). The following limitations are inherent to Claude Code itself and
-remain true regardless — they are not phases still pending, they are
-permanent properties of the runtime or a deliberate, documented scope
-decision:
+These are properties of the runtime, not pending work:
 
-- **No native `AGENTS.md` support.** The `@AGENTS.md` import is a real bridge,
-  but it depends on `CLAUDE.md` continuing to carry that import line; there is
-  no runtime-level guarantee independent of that file.
-- **`CLAUDE.md` (and skill bodies) are never enforcement**, regardless of how
-  they are written or reorganized — Claude Code's own documentation is
-  explicit that this content is context Claude tries to follow, not a hard
-  boundary. Every enforcement claim this adapter makes, now or later, must
-  trace to `.claude/settings.json` rules or subagent `disallowedTools`, never
-  to prose.
-- **No configured network-egress domain allowlist**, the same limitation the
-  OpenCode adapter already documents for itself. The `AGENTS.md`
-  approved-domain list remains policy only on every runtime in this
-  repository.
-- **No OS-level sandboxing is claimed.** Claude Code's filesystem boundary
-  (cwd scope, `--add-dir`) is technically enforced for the boundary itself,
-  but is not container or VM isolation; per CORE §41, no sandboxing claim is
-  made without deployment-specific verification, and none exists for this
-  repository.
-- **The subagent recursion depth cap is host/environment configuration**
-  (`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`), not a value this repository can
-  commit to version control the way OpenCode's `subagent_depth` is committed
-  in `opencode.json`. This adapter cannot claim the cap is "checked into the
-  repository" the way OpenCode's adapter can.
-- **Auto-memory (`MEMORY.md`) has no governance contract by design,
-  independent of being disabled.** `autoMemoryEnabled: false` has been set in
-  `.claude/settings.json` since Phase 4, so this repository does not
-  currently accumulate auto-memory notes. The underlying mechanism still has
-  no ADR/review gate if a future session or configuration change re-enables
-  it — the setting closes the practical gap for this repository today, but
-  the architectural point (auto-memory must never be treated as a project
-  memory or policy source, CORE §28/§29) is independent of that setting and
-  remains true regardless of its current value.
+- **No network-egress allowlist exists.** The approved-domain list is policy.
+- **No OS-level sandboxing is claimed.** The filesystem boundary is a
+  permission boundary, not a container or VM.
+- **The subagent depth cap is environment configuration**, so it cannot be
+  committed here the way OpenCode's can.
+- **Headless (`-p`) runs silently ignore an unparseable settings file** —
+  verified first-hand. A headless run succeeding is not evidence that settings
+  loaded.
+- **The Bash guard is pattern-based.** It is an additive deny/ask layer over
+  the existing allowlist, so a pattern miss degrades to the normal permission
+  flow rather than to a bypass — but it is not a shell parser, and a
+  sufficiently obfuscated command can evade it. It raises the floor; it is not
+  a sandbox.
+- **The guard fails open by design.** A crash inside it prints
+  `guard-bash: FAILED OPEN` to stderr and exits 0, so a broken guard cannot
+  break every Bash call. `check-governance.mjs` syntax-checks both hook files
+  in CI, and a broken file fails the checker (which imports the guard) and
+  `node --test` — both verified by deliberately corrupting the file. The
+  residual gap is a runtime crash on a specific input, which is noisy but not
+  blocking.
+- **A hook `ask` decision is satisfied by classifier review, not a human
+  dialog, in `auto` permission mode — doc-confirmed, not just inferred from
+  one test.** Official docs (2026-08-27, cited above): a `PreToolUse` hook
+  `ask` "forces a prompt," and in `auto` mode "a classifier reviews actions
+  instead of you" for anything that would otherwise prompt. A 2026-08-26 live
+  test (`git commit --dry-run` executing with no pause under this session's
+  own auto-accepting mode) is consistent with this and was the original
+  trigger for investigating it, but that test alone was confounded — a
+  second, independent-seeming gate (the harness's auto-mode classifier) was
+  also active — and an earlier version of this document overstated the
+  finding as "confirmed" on that basis alone. The doc citations resolve the
+  mechanism directly: the classifier the test's `ask` decision routed through
+  *is* the documented `auto`-mode substitution path, not an unrelated
+  interfering layer. What remains genuinely untested: behavior in
+  `default`/Manual mode, never exercised this session, and whether a second
+  hook-`ask`/settings-`ask` double-prompt occurs when both fire on the same
+  command (low risk per the docs' ordering, not directly confirmed).
+- **A settings.json content-matching `ask` rule is the guarantee to reach
+  for when a hook-`ask` isn't enough — used for `git push`, not yet applied
+  elsewhere.** Doc-confirmed: such a rule "falls back to a permission
+  prompt" and is listed under "Actions no mode auto-approves," so it holds
+  even in `auto` mode and fails closed (denies, doesn't silently allow) under
+  `dontAsk`. `deny` still blocks in every mode including `bypassPermissions`,
+  with no documented interactive override — so once a command is hook-`deny`,
+  the human operating this session likely cannot approve it through the
+  agent either, only from a separate terminal or by editing the pattern.
+  This is why `git push` moved from an unconditional `deny` (2026-08-26,
+  ADR-0022) back to `ask` plus the new settings rule (2026-08-27, ADR-0023):
+  the deny escalation solved the original safety gap by removing the human's
+  own approval path too, which the security goal never required. `sudo git
+  push` is the one shape the settings rule can't reach (`sudo` isn't in
+  Claude Code's Bash-rule wrapper-strip list) and stays hook-`deny`.
+- **The Bash guard's command-position patterns are anchored to segment-start
+  as of 2026-08-27, after a live false positive.** A read-only diagnostic
+  command containing the text `git push` inside an `echo` string was denied
+  outright — the pre-anchoring pattern matched the substring anywhere in the
+  segment, not just an actual invocation. Patterns identifying *which
+  command is being invoked* (git/gh/docker/pnpm verbs) are now anchored;
+  patterns that must catch a dangerous *token* regardless of position
+  (`.env`, `.keystore`, secret-material names, `rm -rf`, `chmod 777`,
+  `core.hooksPath`) deliberately stay unanchored, and so keep the same
+  false-positive exposure on prose/echo/grep text as before — an accepted
+  tradeoff, not an oversight, since under-blocking a real instance of these
+  is worse than over-blocking a rare diagnostic string. `DENY_WHOLE` entries
+  (`curl|sh`, `SKIP_SIMPLE_GIT_HOOKS=1`) can't be anchored at all — the
+  danger is the whole-command composition, not a fixed position — and keep
+  the same tradeoff for the same reason.
+- **`penpot` has no read-only scoping.** Penpot issues one full read/write key
+  per account. Documented residual risk.
+- **No `Stop`-hook loop-prevention primitive exists, and two further facts
+  needed to build a self-contained replacement are undocumented, not just
+  unbuilt.** Verified directly against Claude Code's official hooks
+  documentation (2026-08-26, re-confirmed 2026-08-27): the `Stop` event has
+  no `stop_hook_active` field and no built-in attempt counter. A 2026-08-27
+  design pass explored a self-built, trust-ledger-free alternative (a
+  session-scoped "dirty" flag set by mutating tool calls, cleared by a
+  recognized verify command, gating `Stop` with a hard attempt ceiling) —
+  reconsidered specifically to test whether the missing primitive was now
+  buildable, not deferred by default. Two facts the design depends on turned
+  out to be genuinely undocumented in the current hooks reference, not merely
+  unconfirmed: whether `session_id` is shared or distinct for a subagent
+  versus its parent session (a real risk given this repo's own subagent use —
+  a subagent's edit could dirty the parent's flag or vice versa), and the
+  exact `tool_response` shape on `PostToolUse` for a Bash call (whether
+  success/failure is exposed at all). On top of that, the design's own
+  trigger condition has a structural flaw independent of those two facts:
+  reverting a change is itself an `Edit`, so undoing something re-dirties the
+  flag and re-triggers the gate on the very next turn, even though the
+  user's intent was to reduce state, not add unverified state — a 2-attempt
+  ceiling doesn't fix this, it just caps the nuisance. And the safety
+  property this would add (uncommitted code got linted/tested) is already
+  guaranteed at commit time by the existing pre-commit hook
+  (`build:types && typecheck && lint-staged`) and by CI — gating at
+  turn-end duplicates that check at a worse-timed layer (mid-conversation,
+  before the user has decided the work is done) without a correspondingly
+  new safety gain. Reconfirmed deferred on this specific combination of
+  reasons — undocumented mechanics plus a structural trigger-condition flaw
+  plus redundancy with an already-better-timed check — not "still too
+  complex" repeated unchanged. If revisited, the concrete unblocking step is
+  an empirical probe of `session_id` behavior across a parent/subagent pair,
+  in isolation, before any other part of the design is built. See ADR-0022
+  and ADR-0023 for both passes.
+- **The staged-secret scan is high-confidence-shape-only, not an entropy
+  heuristic.** It will not catch a secret in a shape not on its known-prefix
+  list, and cannot see file content passed to a command rather than typed
+  inline (e.g. `psql -f drop.sql`'s file contents, or a secret committed via
+  `psql < file.sql`).

@@ -14,5 +14,7 @@ Read the documents by concern:
 - `governance-and-audit.md` defines security, boundaries, oversight,
   recoverability, and control-plane governance.
 
-The canonical section map is in `../ARCHITECTURE.md`. Runtime adapters implement
-these requirements and must state what they can enforce technically.
+Section numbers (`§N`) are stable citation anchors; find one by searching the
+relevant document. The authority model and adapter contract are in
+`../ARCHITECTURE.md`. Runtime adapters implement these requirements and must
+state what they can enforce technically — and what they cannot.

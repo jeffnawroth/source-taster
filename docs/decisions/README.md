@@ -25,6 +25,9 @@ Project AI/architecture memory convention (English). Superseded docs remain — 
 | ADR-0018 | 2026-08-22 | Remove Observability, Tracing and Logging Entirely (supersedes ADR-0017) |
 | ADR-0019 | 2026-08-23 | Ship from the Release Commit — Adopt release-please (bootstrap-sha decision superseded by ADR-0020) |
 | ADR-0020 | 2026-08-23 | `bootstrap-sha` Does Not Bound History When a Release Tag Exists |
+| ADR-0021 | 2026-08-25 | AI Setup Modernization — Enforced Gates, Single-Sourced Skills, Invariant-Based Governance (**proposed**) |
+| ADR-0022 | 2026-08-26 | Skills, Hooks & Security — Content-Driven Re-Evaluation (**proposed**; several items closed by ADR-0023) |
+| ADR-0023 | 2026-08-27 | AI Setup Round-3 Closeout — Push-Gate Redesign, Doc Citations, Stop-Hook Re-Deferral, Frontend-Design Activation (**proposed**) |
 
 ADR-0007 (Client-Side Favorites — Single-Chain Identity Keys) is intentionally absent.
 Favorites was a disposable test feature used only to exercise the AI-assisted workflow;

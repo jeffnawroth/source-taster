@@ -2,6 +2,9 @@
 
 > Status: accepted
 > Date: 2026-08-21
+> Amended by ADR-0021 (2026-08-25): the `postgres` MCP server was removed as
+> dead configuration (disabled locally, never pointed at the read-only role
+> specified here). The setup SQL below remains valid if it is ever restored.
 
 ## Context
 

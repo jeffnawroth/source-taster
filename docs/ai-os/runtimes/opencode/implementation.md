@@ -1,5 +1,34 @@
 # OpenCode Implementation
 
+Verified against OpenCode 1.18.22.
+
+## Current shape
+
+- **Skills are not duplicated here.** OpenCode natively scans `.claude/skills/`
+  (confirmed with `opencode debug skill`), so that directory is the single
+  source and `.opencode/skill/` was removed. It had caused a real defect: two
+  trees declaring the same `name:` collide, OpenCode resolved the collision
+  arbitrarily, and sessions received a mix of copies — several describing
+  Claude Code's mechanisms to an OpenCode session.
+- **Agents are the read-only tier only** (`architect`, `reviewer`,
+  `security-reviewer`). The nine role-persona agents were removed: they encoded
+  a job title rather than an authority boundary, which CORE §21 explicitly
+  warns against, and their capabilities are covered by skills plus the default
+  agent.
+- **Commands are the four repeatable workflows** (`check`, `plan`, `review`,
+  `security-review`).
+- **`bash: { "*": "ask" }`** means every non-allowlisted shell command already
+  prompts — OpenCode does not need the `PreToolUse` guard hook that Claude Code
+  requires, because Claude's `ask` rules take precedence over `allow` rules and
+  so a blanket `Bash(*)` ask there would have destroyed the verified-command
+  allowlist.
+- **The project `filesystem` MCP overrides a global server of the same name.**
+  The user-level OpenCode config defines `filesystem` rooted at the entire home
+  directory; because project config wins on key collision, the workspace-rooted
+  entry here actively narrows it for this project (verified with
+  `opencode debug config`). That makes it a mitigation, not just scoping — do
+  not remove it as "redundant with built-in tools."
+
 ## Enforcement Status
 
 | Core requirement | OpenCode implementation | Evidence status |
@@ -19,10 +48,11 @@ control.
 
 | Boundary | Technically enforced by checked-in configuration | Instruction-level or user-owned limit |
 |---|---|---|
-| Control plane | `AGENTS.md`, `opencode.json`, and `.opencode/**` edits require approval; R-tier agents deny edits | Review, ADR, and no-self-elevation requirements are CORE governance, not a substitute for the permission layer |
+| Control plane | `AGENTS.md`, `CLAUDE.md`, `opencode.json`, `.opencode/**`, `.claude/**`, `.mcp.json` and `.github/workflows/**` edits require approval; read-only agents deny edits | Review, ADR, and no-self-elevation requirements are CORE governance, not a substitute for the permission layer |
 | Filesystem | `external_directory` is denied and the checked-in filesystem MCP is rooted at this workspace | Ordinary in-workspace reads, including sensitive files, are not blocked by a checked-in read-deny rule; this is not OS isolation |
 | Credentials | No credential is stored in the project OpenCode configuration | Handling of `.env`, `.keystore`, environment variables, and user-level MCP credentials is instruction-level; the effective user configuration can contribute credential-bearing MCP integrations outside repository control |
-| Network egress | R-tier agents deny `webfetch` and `websearch`; other configured roles require approval for those tools | Source Taster's approved-domain list is policy only. OpenCode has no checked-in domain allowlist or network sandbox |
+| File reads | Nothing — confirmed 2026-08-27 by inspecting the resolved permission schema (`opencode debug config`): only `bash`, `edit`, and `external_directory` permission categories exist, no `read` category | OpenCode's native Read tool has no per-path deny primitive equivalent to Claude Code's `Read(.keystore/**)`/`Read(**/.env)` settings rules — likely a genuine capability gap in the runtime's permission schema (there is no `read` key to configure), not a missed configuration line. `.env`/`.keystore` reads via Bash (`cat .env`) still hit the blanket `bash: {"*": "ask"}` rule, so this gap is specific to the native Read tool, not total |
+| Network egress | Read-only agents deny `webfetch` and `websearch`; other configured roles require approval for those tools | Source Taster's approved-domain list is policy only. OpenCode has no checked-in domain allowlist or network sandbox |
 | MCP tools | The checked-in filesystem MCP has one workspace root | User-level MCP integrations and their credentials are user-owned. Review necessity, scope, and credential lifetime before enabling or retaining them |
 | Human gates | Non-allowlisted shell commands require approval | Commit, push, migration, Docker, install, and release gates are project process requirements; validate prompts interactively |
 
