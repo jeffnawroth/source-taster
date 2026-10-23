@@ -2,8 +2,6 @@
 
 ## Greenfield
 
-This repo is a greenfield rebuild. Its sources of truth are the Lastenheft (the requirements spec the user attaches), this repo, and its GitHub issues. Orient within those and derive every decision from them, including the migration of existing users (FA-EIN).
-
 Hard boundary: the predecessor `jeffnawroth/source-taster-legacy` and any local copy of it are out of scope. Leave them unread, uncloned, and out of subagent briefs. When a decision seems to need the old code, ask the user.
 
 ## Agent skills
