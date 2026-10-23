@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Greenfield
+
+Hard boundary: the predecessor `jeffnawroth/source-taster-legacy` and any local copy of it are out of scope. Leave them unread, uncloned, and out of subagent briefs. When a decision seems to need the old code, ask the user.
+
 ## Agent skills
 
 ### Issue tracker
