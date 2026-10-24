@@ -61,7 +61,7 @@ A reference whose components come from different real works.
 The given DOI does not exist or belongs to a different work.
 
 **Status**:
-The state shown instead of a verdict while a reference is running, after cancellation or after an internal technical error.
+The state shown instead of a verdict while a reference is running, after cancellation, after an internal technical error, or when a partial check left it unchecked.
 _Avoid_: Verdict
 
 **Correction suggestion**:
@@ -70,6 +70,14 @@ _Avoid_: Fix
 
 **Scoring rules version**:
 The version of the rules used to score candidates and derive a verdict.
+
+**Re-check**:
+Checking a reference again within the same check after a correction; it adds a new result and keeps the earlier ones.
+_Avoid_: Restart (which starts a new check from the history)
+
+**Manual override**:
+A user's confirmation or change of the verdict of one result, marked as manual and shown with the original verdict.
+_Avoid_: Correction (which changes fields, not the verdict)
 
 **Early termination**:
 The end of the search for a reference as soon as a candidate matches unambiguously.
