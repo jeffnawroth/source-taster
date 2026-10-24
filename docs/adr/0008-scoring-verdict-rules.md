@@ -6,7 +6,7 @@ status: accepted
 
 The client accepted these rules on 24 October 2026 in [Scoring and verdict rules](https://github.com/jeffnawroth/source-taster/issues/17). Highest Score determines Best match; an unambiguous Source additionally requires identity evidence. This prevents a title-only 100% Score, tied metadata or unavailable mandatory verification from being presented as a correctly cited Source. It also permits a confirmed wrong identifier to remain a deviation or DOI conflict even when the other weighted fields agree.
 
-This records an accepted design, not a calibrated implementation. The accompanying **requirements specification v3.2 is a draft for review**. Its expanded Not verifiable conditions and coverage-first exception to mandatory DOI verification require approval of the new specification before implementation; v3.1 remains the approved baseline until then. The prior English baseline remains in Git history. No other research-derived requirement change is approved by this ADR.
+This records an accepted design, not a calibrated implementation. The accompanying **requirements specification v3.2 was approved by the client on 24 October 2026** and supersedes v3.1 as the working baseline, including the expanded Not verifiable conditions and coverage-first exception to mandatory DOI verification. The prior English baseline remains in Git history. No other research-derived requirement change is approved by this ADR.
 
 ## Evidence and scope
 
