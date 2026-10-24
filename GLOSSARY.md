@@ -122,8 +122,20 @@ The role responsible for providing, selling and supporting the service, includin
 _Avoid_: Admin (as a substitute for this role)
 
 **Reference test set**:
-The versioned collection of real and invented references maintained by the operator for quality measurement.
+The frozen, versioned collection of real, invented and falsified references maintained by the operator, on which the quality targets are measured; thresholds are never tuned on it.
 _Avoid_: Benchmark (as a competing domain name)
+
+**Development set**:
+A collection built like the reference test set on which the operator calibrates the verdict thresholds.
+_Avoid_: Training set, test set
+
+**Falsified reference**:
+A reference to a real work with deliberately changed components, such as a wrong DOI or a swapped title.
+_Avoid_: Hallucination (which also covers entirely invented works)
+
+**Quality gate**:
+The measurement of a configuration on the reference test set against the quality targets; a configuration that fails it is neither released nor activated.
+_Avoid_: Benchmark run
 
 **Initial value**:
 A value set by the requirements specification for market launch that the operator can change afterwards.
