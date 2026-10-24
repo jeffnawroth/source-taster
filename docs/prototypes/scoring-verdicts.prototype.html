@@ -15,6 +15,7 @@
 <h1>Scoring &amp; verdict workbench</h1>
 <p>How should field agreement, source identity and contradictory evidence produce one Verdict?</p>
 <p class="hint">All records, source identities and DOI observations are invented fixtures. No network, storage or corpus evaluation. Trial thresholds are discussion inputs, not calibrated launch values. “Decision needed” marks an unresolved design branch, not a seventh product Verdict.</p>
+<p class="hint note">Accepted in round 1: Score alone does not establish identity; a confirmed DOI conflict takes priority over a Mixed citation; ignore a retraction title prefix only with evidence that the Data source added it and that the Source is retracted. The remaining numeric settings are still trial heuristics. Alternative controls deliberately let you explore counterfactual outcomes.</p>
 </header>
 
 <section class="panel" aria-labelledby="state-title">
@@ -35,8 +36,8 @@
 <label for="match">Unambiguous-match score: <output id="match-value"></output><input id="match" type="range" min="50" max="100" step="1"></label>
 <label for="gap">Lead over a different Source: <output id="gap-value"></output><input id="gap" type="range" min="0" max="30" step="1"></label>
 <label for="minimum">Minimum compared fields: <output id="minimum-value"></output><input id="minimum" type="range" min="1" max="5" step="1"></label>
-<label for="priority"><span>DOI conflict + Mixed citation</span><select id="priority"><option value="doi">DOI conflict first</option><option value="mixed">Mixed citation first</option></select></label>
-<div class="checks"><label><input id="coverage-first" type="checkbox"> Outside coverage wins over DOI conflict</label><label><input id="strip-retraction" type="checkbox"> Ignore a provider's RETRACTED: title prefix</label></div>
+<label for="priority"><span>DOI conflict + Mixed citation</span><select id="priority"><option value="doi">DOI conflict first — accepted</option><option value="mixed">Mixed citation first — counterfactual</option></select></label>
+<div class="checks"><label><input id="coverage-first" type="checkbox"> Outside coverage wins over DOI conflict — still open</label><label><input id="strip-retraction" type="checkbox"> Ignore a proven provider-added retraction prefix</label></div>
 <p class="hint">A verified matching DOI can provide identity evidence without two fields. Exact ties between distinct Source identities stay unresolved. Author/title split signals use trial 95% support and &lt;50% contradiction thresholds.</p>
 </div>
 <div class="controls">
@@ -70,7 +71,7 @@
 <li>Try cases before selecting policy. Actual thresholds are calibrated only on the Development set and then checked on the separate Reference test set. Every changed rule/threshold needs a new measured Scoring rules version (ADR-0006/0007).</li>
 </ul>
 </details>
-<p class="footer">Scoring rules draft: experiment-0.1 · Input and state stay in memory · Open this file directly in a browser · Discussion asset for “Scoring and verdict rules”</p>
+<p class="footer">Scoring rules draft: experiment-0.2 · Input and state stay in memory · Open this file directly in a browser · Discussion asset for “Scoring and verdict rules”</p>
 
 <script>
 // Portable pure logic. No DOM, network, persistence or calibration claims.
@@ -105,12 +106,12 @@ const ScoringExperiment = (() => {
   function pages(a,b){const aa=range(a),bb=range(b);if(!aa||!bb)return text(a,b);const overlap=Math.max(0,Math.min(aa[1],bb[1])-Math.max(aa[0],bb[0])+1);return 2*overlap/(aa[1]-aa[0]+bb[1]-bb[0]+2);}
   const journal=s=>String(s).replace(/\s*\([A-Z][A-Z0-9&.\-]{1,14}\)\s*$/,'');
   const volume=s=>String(s).match(/\d+/)?.[0]||fold(s);
-  function field(key,a,b,p){
+  function field(key,a,b,p,provenance={}){
     if(key==='authors')return authors(a,b);if(key==='date')return dates(a,b);if(key==='doi')return identifier(a)===identifier(b)?1:0;if(key==='volume')return volume(a)===volume(b)?1:0;if(key==='pages')return pages(a,b);if(key==='journal')return text(journal(a),journal(b));
-    if(key==='title'&&p.stripRetraction){a=String(a).replace(/^\s*RETRACTED\s*:\s*/i,'');b=String(b).replace(/^\s*RETRACTED\s*:\s*/i,'');}return text(a,b);
+    if(key==='title'&&p.stripRetraction&&provenance.retracted===true&&provenance.titlePrefixAddedBySource===true)b=String(b).replace(/^\s*RETRACTED\s*:\s*/i,'');return text(a,b);
   }
   function score(reference,candidate,p){
-    const fields=Object.keys(weights).map(key=>({key,label:labels[key],reference:reference[key],candidate:candidate[key],score:has(reference[key])&&has(candidate[key])?field(key,reference[key],candidate[key],p):null,baseWeight:weights[key]}));
+    const fields=Object.keys(weights).map(key=>({key,label:labels[key],reference:reference[key],candidate:candidate[key],score:has(reference[key])&&has(candidate[key])?field(key,reference[key],candidate[key],p,candidate):null,baseWeight:weights[key]}));
     const denominator=fields.filter(x=>x.score!==null).reduce((sum,x)=>sum+x.baseWeight,0);
     const scored=fields.filter(x=>x.score!==null);
     return {candidate,fields:fields.map(x=>({...x,usedWeight:x.score===null?0:x.baseWeight/denominator})),score:denominator?scored.reduce((sum,x)=>sum+x.score*x.baseWeight,0)/denominator:null,compared:scored.length,allAgree:scored.length>0&&scored.every(x=>Math.abs(1-x.score)<1e-10)};
@@ -175,7 +176,9 @@ const examples=[
  ['outage','All Data sources failed',s=>{s.candidates=[];s.allFailed=true;s.successfulSearch=false;s.doiObservation='unreachable';s.note='A synthetic total outage. The established product result is Not verifiable, billed as a Verdict under ADR-0005.';return s;}],
  ['empty','Completed searches, no Candidates',s=>{s.reference={title:'A completely invented fixture',authors:[{family:'Example',given:'X.'}],date:'2024'};s.candidates=[];s.doiObservation='none';s.note='The fixture says searches completed with no result. This is distinct from an outage or never-contacted sources.';return s;}],
  ['outside','Outside coverage + invalid DOI',s=>{s.outside=true;s.doiObservation='missing';s.note='A deliberately conflicting fixture: unsupported Source type plus a confirmed non-existent DOI. Toggle coverage precedence to expose the unresolved specification boundary.';return s;}],
- ['retracted','Retracted, otherwise matching',s=>{s.candidates[0].title='RETRACTED: '+baseA.title;s.candidates[0].retracted=true;s.note='Toggle title-prefix handling. Retraction stays visible independently of Correct versus Exists, with deviations; no extra lookup happens here.';return s;}],
+ ['retracted','Retracted, proven provider prefix',s=>{s.candidates[0].title='RETRACTED: '+baseA.title;s.candidates[0].retracted=true;s.candidates[0].titlePrefixAddedBySource=true;s.note='Retraction and provider-added prefix provenance are both known. Disabling prefix handling is a counterfactual to the accepted rule; the marker stays visible.';return s;}],
+ ['unproven-prefix','Retracted, prefix origin unknown',s=>{s.candidates[0].title='RETRACTED: '+baseA.title;s.candidates[0].retracted=true;s.candidates[0].titlePrefixAddedBySource=false;s.note='Retraction is known, but no evidence says the provider added the title prefix. Keep the title intact even when prefix handling is enabled.';return s;}],
+ ['literal-prefix','Literal title starts RETRACTED:',s=>{s.reference.title='RETRACTED: '+baseA.title;s.candidates[0].title=s.reference.title;s.note='The same literal title is supplied on both sides, without provider-prefix provenance. Nothing is stripped from either title.';return s;}],
  ['web','Web page responds 403',s=>{s.reference={title:'A restricted synthetic page'};s.candidates=[];s.doiObservation='none';s.webObservation='403';s.note='Access denied is not a 404 and does not prove a fabricated source. This branch needs an agreed web-evidence policy.';return s;}],
  ['running','Still running',s=>{s.runState='running';s.note='The Candidate snapshot is visible, but a running slot has a Status and no final Verdict.';return s;}]
 ];
@@ -184,7 +187,7 @@ const walks=[
  {id:'conflict',title:'Mixed / DOI',description:'Compare a mixed citation, a foreign DOI and both red conditions together. Then change the priority selector.',steps:[['mixed','1 · Split title and authors'],['foreign','2 · Foreign DOI'],['both','3 · Both conditions']]},
  {id:'certainty',title:'Ambiguity',description:'Try two ways a Score of 100% can fail to establish an unambiguous identity.',steps:[['thin','1 · Only one field'],['tie','2 · Equal different Sources']]},
  {id:'availability',title:'Missing evidence',description:'Keep unavailable verification, a total outage, completed no-match and restricted web access distinct.',steps:[['pending','1 · DOI unavailable'],['outage','2 · Total outage'],['empty','3 · Completed no-match'],['web','4 · HTTP 403']]},
- {id:'boundaries',title:'Precedence / state',description:'Inspect coverage versus DOI precedence, retraction independently of the Verdict, and a run with no final Verdict yet.',steps:[['outside','1 · Scope versus DOI'],['retracted','2 · Retraction prefix'],['running','3 · Running Status']]}
+ {id:'boundaries',title:'Precedence / state',description:'Inspect coverage versus DOI precedence, proven versus unproven title prefixes, and a run with no final Verdict yet.',steps:[['outside','1 · Scope versus DOI'],['retracted','2 · Proven provider prefix'],['unproven-prefix','3 · Prefix origin unknown'],['literal-prefix','4 · Literal title prefix'],['running','5 · Running Status']]}
 ];
 let state=base(),selectedExample='exact',walk=0,nextStep=0,lastAction='Loaded normalized agreement.';
 const el=id=>document.getElementById(id);
@@ -196,10 +199,11 @@ function render(){
  const r=ScoringExperiment.evaluate(state);el('case-name').textContent=state.name;
  const best=r.best;const evidenceNote=r.facts.length?'<ul>'+r.facts.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul>':'';
  const correction=r.corrections.length?'<p><strong>Comparison correction evidence:</strong> '+r.corrections.map(x=>`${escapeHTML(x.field)}: ${escapeHTML(format(x.from))} → ${escapeHTML(format(x.to))}`).join('; ')+'.</p>':'';
- el('summary').innerHTML=`<div class="row spread"><div><span class="badge ${r.kind}">${r.decision?'? ':''}${escapeHTML(r.label)}</span><p>${escapeHTML(r.reason)}</p></div><div><div class="score">${best?pct(best.score):'—'}</div><div class="metric">highest overall Score</div></div></div>${evidenceNote}${correction}<div class="grid metric"><div>Best match: <strong>${best?escapeHTML(best.candidate.id)+' / Source '+escapeHTML(best.candidate.work):'none'}</strong><br>Shared fields: <strong>${best?best.compared:0}</strong> · Lead: <strong>${best?r.gap.toFixed(2)+' points':'—'}</strong><br>Source coverage: ${state.outside?'outside':state.allFailed?'all failed':state.successfulSearch?'fixture search completed':'no completed evidence'}</div><div>Early termination under trial policy: <strong>${r.earlyTermination?'yes':'no'}</strong><br>Retraction evidence: <strong>${r.retracted===true?'Retracted':r.retracted===false?'Verified not retracted':'unknown'}</strong><br>Correction suggestion identity: <strong>${r.unambiguous&&!r.decision&&['Correct','Exists, with deviations'].includes(r.label)?'supported in this experiment':'not established'}</strong></div></div>`;
+ const counterfactual=(r.label==='Correct'&&best&&best.compared===1&&!r.strong)||(r.mixed&&r.doiConflict&&state.policy.priority==='mixed')||(best?.candidate.titlePrefixAddedBySource===true&&best.candidate.retracted===true&&!state.policy.stripRetraction);
+ el('summary').innerHTML=`${counterfactual?'<p class="note"><strong>Counterfactual:</strong> this setting departs from the accepted first-round policy. It is shown to expose the consequence, not as an approved Verdict rule.</p>':''}<div class="row spread"><div><span class="badge ${r.kind}">${r.decision?'? ':''}${escapeHTML(r.label)}</span><p>${escapeHTML(r.reason)}</p></div><div><div class="score">${best?pct(best.score):'—'}</div><div class="metric">highest overall Score</div></div></div>${evidenceNote}${correction}<div class="grid metric"><div>Best match: <strong>${best?escapeHTML(best.candidate.id)+' / Source '+escapeHTML(best.candidate.work):'none'}</strong><br>Shared fields: <strong>${best?best.compared:0}</strong> · Lead: <strong>${best?r.gap.toFixed(2)+' points':'—'}</strong><br>Source coverage: ${state.outside?'outside':state.allFailed?'all failed':state.successfulSearch?'fixture search completed':'no completed evidence'}</div><div>Early termination under trial policy: <strong>${r.earlyTermination?'yes':'no'}</strong><br>Retraction evidence: <strong>${r.retracted===true?'Retracted':r.retracted===false?'Verified not retracted':'unknown'}</strong><br>Correction suggestion identity: <strong>${r.unambiguous&&!r.decision&&['Correct','Exists, with deviations'].includes(r.label)?'supported in this experiment':'not established'}</strong></div></div>`;
  el('fields').innerHTML=(best?best.fields:Object.keys(ScoringExperiment.weights).map(key=>({key,label:ScoringExperiment.labels[key],reference:state.reference[key],candidate:null,score:null,usedWeight:0,baseWeight:ScoringExperiment.weights[key]}))).map(f=>`<tr><td>${escapeHTML(f.label)}<small>base weight ${f.baseWeight}%</small></td><td>${escapeHTML(format(f.reference))}</td><td>${escapeHTML(format(f.candidate))}</td><td>${f.score===null?'Not compared':pct(f.score)}<small>${f.score===null?'missing on at least one side':(f.usedWeight*100).toFixed(2)+'% effective weight'}</small></td></tr>`).join('');
  el('ranking').innerHTML='<h3 style="margin-top:16px">Candidate ranking</h3>'+(r.ranked.length?r.ranked.map((x,i)=>`<p class="rank"><strong>${i+1}. ${escapeHTML(x.candidate.id)}</strong> · Source ${escapeHTML(x.candidate.work)} · ${pct(x.score)} · ${x.compared} shared fields${i===0?' · highest Score':''}</p>`).join(''):'<p class="hint">No Candidate evidence.</p>');
- el('evidence').innerHTML=r.ranked.map(x=>`<h3 style="margin-top:12px">${escapeHTML(x.candidate.id)} · synthetic Source ${escapeHTML(x.candidate.work)}</h3><dl>${Object.keys(ScoringExperiment.weights).map(key=>`<dt class="hint">${escapeHTML(ScoringExperiment.labels[key])}</dt><dd style="margin:0 0 7px">${escapeHTML(format(x.candidate[key]))}</dd>`).join('')}</dl>`).join('')||'<p>No Candidates.</p>';
+ el('evidence').innerHTML=r.ranked.map(x=>`<h3 style="margin-top:12px">${escapeHTML(x.candidate.id)} · synthetic Source ${escapeHTML(x.candidate.work)}</h3><p class="hint">Retraction evidence: ${x.candidate.retracted===true?'confirmed':x.candidate.retracted===false?'verified negative':'unknown'} · Prefix added by source: ${x.candidate.titlePrefixAddedBySource===true?'proven':'not proven'}</p><dl>${Object.keys(ScoringExperiment.weights).map(key=>`<dt class="hint">${escapeHTML(ScoringExperiment.labels[key])}</dt><dd style="margin:0 0 7px">${escapeHTML(format(x.candidate[key]))}</dd>`).join('')}</dl>`).join('')||'<p>No Candidates.</p>';
  el('full-state').textContent=JSON.stringify({input:state,output:{...r,ranked:r.ranked.map(x=>({candidate:x.candidate.id,score:x.score,compared:x.compared,fields:x.fields})),best:r.best?.candidate.id||null}},null,2);
  el('example').value=selectedExample;for(const key of ['match','gap','minimum']){el(key).value=state.policy[key];el(key+'-value').value=state.policy[key]+(key==='match'?'%':key==='gap'?' points':'');}
  el('priority').value=state.policy.priority;el('coverage-first').checked=state.policy.coverageFirst;el('strip-retraction').checked=state.policy.stripRetraction;
