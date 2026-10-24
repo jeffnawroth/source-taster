@@ -4,7 +4,7 @@ The client accepted this decision on 24 October 2026 in [Reference test set and 
 
 The quality targets of section 14.4 are measured on a frozen Reference test set. The set is never used to tune thresholds and is kept in a private, versioned dataset repository. In the gate, Data source responses are replayed, while AI extraction runs live three times. A configuration that has not passed cannot be released or activated, whether it is changed by a release or in the Operator area.
 
-This makes the measured values reproducible, independent of drifting external metadata and hard to game. The cost is a second, separately built Development set and human review of every record's ground truth.
+This makes the Data source side of every measurement reproducible and independent of drifting external metadata, and keeps the targets hard to game. The cost is a second, separately built Development set and human review of every record's ground truth.
 
 This ADR fixes the protocol only. Two things are out of scope:
 
@@ -19,7 +19,7 @@ The spec minimums and target values of section 14.4 are frozen input. They are n
 - **License per fixture.** Every recorded Data source response carries the license of its Data source.
   - Crossref, OpenAlex and arXiv metadata is CC0 and may be published.
   - Semantic Scholar forbids redistribution, and Open Library and Google Books are commercially restricted. Their responses are stored privately and never published.
-- **Publication hook (FA-UEB-31, FA-UEB-32).** Results may be published. At most a subset whose fixtures are all CC0 may be published with them. Before any publication, a test set version must reach the FA-UEB-32 size: 1,000 real References in 10 citation styles, and 300 invented or falsified References.
+- **Publication hook (FA-UEB-31, FA-UEB-32).** Results may be published. At most a subset whose fixtures are all CC0 may be published with them. Before any publication, or once an organization makes a request, a test set version must reach the FA-UEB-32 size: 1,000 real References in 10 citation styles, and 300 invented or falsified References.
 - **No user content.** A reported wrong Verdict (FA-ERG-15) is never copied into a set. The Operator may rebuild the case as a new record from public metadata of the affected Source, without the user's text. That record enters the Development set first.
 
 ## Record classes and expected outcomes
@@ -44,7 +44,7 @@ Every record has exactly one class:
 - **Correctness denominator.** "Real APA references" in section 14.4 means real, **correctly cited** APA References. A real Reference with deviations is rightly yellow and must not lower Correctness.
 - **Identity.** A Correct counts as a hit only if the Best match is one of the record's accepted identifiers. A Correct for a different work is a miss.
 - **Expected Verdict per slot.** The expected Verdict refers to the newest result of the record's Reference slot (ADR-0005).
-- **Two paths per run.** Every gate run checks each record twice, once with AI extraction and once with parsing only. The AI-path targets apply to the AI run, the parser targets to the parser run.
+- **Both paths in every run.** Every gate run checks each record once with parsing only and three times with AI extraction (see Pass rule). The parser targets apply to the parser run, the AI-path targets to each AI run.
 
 ## Composition floors
 
@@ -57,7 +57,7 @@ On top of the section 14.4 launch minimums, the launch version of the Reference 
 - **Invented and falsified References:**
   - at least 75 entirely invented References among the at least 150 invented or falsified ones. Example: 75 means at most 3 misses at the 95 % target.
   - They come from at least 3 current AI models of at least 2 providers.
-- **All 11 styles of FA-STR-02, with at least 20 records each.** At 90 %, that allows at most 2 errors per style.
+- **All 11 styles of FA-STR-02, with at least 20 real records each.** At 90 %, that allows at most 2 errors per style.
   - This goes beyond the five styles of section 14.4, because FA-STR-02 is accepted on the Reference test set itself.
   - A record counts as correctly structured when every expected CSL field matches after normalization and no invented field is added. Normalization covers Unicode NFC, whitespace and dash variants.
   - FA-STR-02 is judged on the AI path; the parser path is measured for information.
@@ -99,8 +99,17 @@ On top of the section 14.4 launch minimums, the launch version of the Reference 
   - the AI model;
   - the thresholds, including the early-termination threshold;
   - the test set version.
-- **Activation in the Operator area.** The Operator area activates an AI model (FA-BTR-05) or a threshold set (FA-ABG-15, FA-SUC-06) only if a passed measurement exists for exactly that measured configuration. This keeps "without changing the software" and still means no unmeasured configuration ever serves users.
+- **Activation in the Operator area.** FA-BTR-05 makes switching the AI model an Operator function, and FA-ABG-15 and FA-SUC-06 let the Operator set the thresholds. The Operator area therefore activates an AI model or a threshold set only if a passed measurement exists for exactly that measured configuration. Both stay Operator functions, and still no unmeasured configuration ever serves users.
 - **Thresholds and Scoring rules version.** Every threshold change creates a new Scoring rules version.
+
+## Clients (FA-GLE-01)
+
+All verification runs on the server, including PDF and DOCX reading, bibliography detection and parsing (ADR-0003). The web app and the extension are thin clients. Therefore:
+
+- **The release gate runs at API level**, where the Verdicts are produced.
+- **The parity set proves client equivalence** on every release.
+- **Formal acceptance (section 16, item 1).** For the acceptance log, every suite runs once through each client: the Reference test set, FA-STR-02, FA-ERF-05, the imports and the export.
+- **Logic moving into a client.** If verification logic ever moves into a client, the affected suite runs through both clients on every release.
 
 ## Repeatability
 
@@ -161,7 +170,7 @@ Separate suites live in the same private repository, each with its acceptance cr
 - **Passing on the lower confidence bound**, rejected because it is practically unreachable at launch sizes and not what the specification asks.
 - **Gating against live Data sources**, rejected because external metadata drift would pass or fail a release without any code change.
 - **A single AI run per gate**, rejected because a release could pass by chance.
-- **Routing model and threshold changes through the release pipeline**, rejected because FA-BTR-05 and FA-ABG-15 require changes without changing the software.
+- **Routing model and threshold changes through the release pipeline**, rejected because FA-BTR-05, FA-ABG-15 and FA-SUC-06 make the model and the thresholds Operator settings, not release content.
 - **Counting any Correct as a hit**, rejected because a Correct for a different work would inflate Correctness.
 - **Excluding failed records from the rates**, rejected because it would flatter every rate; an outage-grey run would trivially pass Detection.
 - **Copying reported wrong Verdicts into the set**, rejected because it would store user content beyond its retention.
