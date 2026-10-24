@@ -1,12 +1,12 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # Route References sequentially with shared source budgets and bounded search time
 
-This draft records the client's accepted rounds F1–F17 in [Search strategy and latency budget](https://github.com/jeffnawroth/source-taster/issues/16). It builds on [ADR-0003](0003-system-architecture.md), [ADR-0005](0005-check-reference-lifecycle.md) and [ADR-0006](0006-reference-test-set-quality-gate.md). Search is sequential across Data sources within a Reference and concurrent across References, so it can stop before querying another source when scoring establishes an unambiguous match.
+The client accepted this decision on 24 October 2026 in [Search strategy and latency budget](https://github.com/jeffnawroth/source-taster/issues/16), including the final corrections F18–F21 to the first two rounds. It builds on [ADR-0003](0003-system-architecture.md), [ADR-0005](0005-check-reference-lifecycle.md) and [ADR-0006](0006-reference-test-set-quality-gate.md). Search is sequential across Data sources within a Reference and concurrent across References, so it stops before querying another source when scoring establishes an unambiguous match.
 
-The design remains **proposed** while the contradictions and validation decisions at the end are resolved. No implementation, source-terms clearance, capacity measurement or requirements amendment is claimed. Numeric limits below are initial operating settings, subject to provider terms and measurement; they are not evidence that the performance requirements have been met.
+This is an accepted design, not an implementation, source-terms clearance, capacity measurement or requirements amendment. Numeric limits below are initial operating settings, subject to provider terms and measurement; they are not evidence that the performance requirements have been met.
 
 ## Routing and source order
 
@@ -31,7 +31,9 @@ An arXiv DOI lookup must not be presented as proof that OpenAlex accepts a nativ
 
 Score a source's Candidates before advancing to another source. The initial FA-SUC-03 cap is five Candidates per Data source. If a combined bibliographic query does not establish an unambiguous match, additionally query by title alone and by authors plus year. These two queries may run concurrently within the **same** source, still consuming its global budget.
 
-Merge the query evidence for scoring and Mixed citation detection. The queries can return more than five distinct upstream records, so selection under the per-source cap needs the decision below; five per query is not silently substituted. Scoring and verdict rules owns unambiguous-match/early-termination thresholds, DOI-conflict precedence (including outside-coverage cases), score ties and treatment of `RETRACTED: ` title prefixes. Search-strategy order/version and source enablement changes are gate triggers under ADR-0006.
+Share one five-Candidate evaluation budget per source. Evaluate at most one top-ranked combined-query Candidate first; if it is not unambiguous, evaluate up to two unique title-only and two unique authors/year Candidates, following the provider's order and deduplicating known source-record IDs. The per-source ceiling includes identifier evidence and repeated queries; it must not be multiplied by the number of calls. Raw replay responses may be retained where licensed, but only evaluated Candidates enter the scored/displayed result set. Measure the effect of the initial 1 + 2 + 2 allocation on retrieval and mixed-citation recall; changing this allocation triggers the gate.
+
+Scoring and verdict rules owns unambiguous-match/early-termination thresholds, DOI-conflict precedence (including outside-coverage cases), score ties and treatment of `RETRACTED: ` title prefixes. It must respect the shared Candidate budget and preserve evidence provenance rather than silently scoring fifteen Candidates under a nominal cap of five. Search-strategy order/version and source enablement changes are gate triggers under ADR-0006.
 
 ## Shared budgets, scheduling and deadlines
 
@@ -58,7 +60,7 @@ Schedule at most ten active References per Check, round-robin between eligible C
 - At deadline, responsible sources still unqueried/uncompleted are unavailable for that run and are named, with reason `rate-budget` or `deadline` as appropriate. Do not silently skip them or convert a timeout into a confirmed no-match.
 - If every applicable enabled source failed, the result is Not verifiable; billing and later Re-checks follow ADR-0005. Internal execution errors remain Status failed. Results after Check cancellation are discarded.
 
-The three/fifteen-second means of FA-UEB-40/41 are measured targets, not per-Reference hard cutoffs. Budget-change gating is unresolved below.
+The three/fifteen-second means of FA-UEB-40/41 are measured targets, not per-Reference hard cutoffs. Budgets, timeouts, deadlines and concurrency that can affect retrieved evidence or Verdicts are part of the measured configuration. Run the quality gate and rate-limited load checks before activating changes; there is no blanket exemption for Operator settings. Replay must exercise the clock, waiting and limiter behavior, not merely return recorded metadata instantly.
 
 ## Identifier batching
 
@@ -78,7 +80,7 @@ Harden URL requests against SSRF: reject private/link-local/internal destination
 
 The retraction marker belongs to the Best match, independently of the Verdict. An affirmative report from Crossref/Retraction Watch, OpenAlex or Europe PMC is sufficient to mark that Source, with provenance. Do not treat an unavailable or absent retraction field as a verified negative.
 
-Round F16 also accepted an extra OpenAlex DOI lookup when a Best match lacks retraction data. Its interaction with FA-SUC-06's no-further-source rule remains unresolved below; this draft does not silently grant an enrichment exception.
+F18 supersedes F16's proposed extra OpenAlex DOI lookup: after an unambiguous match, query no additional source, including for retraction enrichment. Use only evidence already received or available in a permitted cache. Unknown retraction evidence stays unknown; it must not become a verified negative. This preserves FA-SUC-06 without claiming that the optional retraction checks are complete for every Source.
 
 The search log is versioned Check content, not operational telemetry. Record:
 
@@ -89,17 +91,21 @@ The search log is versioned Check content, not operational telemetry. Record:
 
 Emit per-Reference progress identifying the current source. Check content follows ADR-0005 deletion and consent rules; operational logs remain content-free. Fixture recording/replay additionally requires each source's storage rights and ADR-0006's private-dataset protocol.
 
-## Performance evidence and unresolved decisions
+## Performance evidence and activation gates
 
-The accepted measurement plan uses live EU-region FA-UEB-40/41/42 sets from ADR-0006, with Check time beginning after Structuring at automatic Check start. Measure live before releases changing search, sources, concurrency or hosting, and monthly with the drift run. Run the fifty-Check replay load exercise on every release, with the actual global limiter and recorded source latency.
+Use the live EU-region FA-UEB-40/41/42 sets from ADR-0006, with Check time beginning after Structuring at automatic Check start. Measure live before releases changing search, sources, concurrency or hosting, and monthly with the drift run. Run the fifty-Check replay load exercise on every release, with the actual global limiter and recorded source latency.
+
+F20 adds a live fifty-Check load test before launch under the approved acceptance workload and provider terms, respecting the shared limits. Repeat live validation after material capacity/configuration changes. Replay remains regression evidence, not a substitute for the live FA-UEB-43 acceptance result. A limiter makes the traffic compliant; it does not make the target feasible. If validation fails, revise capacity or routing and rerun the gates; any relaxation of the required targets needs an explicit client-approved specification change.
 
 Neither replay nor prepaid credits proves live supplier throughput. For 50 × 100 References in 180 seconds, the required completion rate is about 27.78 References/s. An ambiguous no-cache route with one combined plus two fallback queries costs up to three requests **per source**. The starting budgets therefore need an explicit capacity/quality validation, not a claim that I/O concurrency makes the requirements hold. Waiting until deadline and producing unavailable-source results is not evidence of successful coverage or the required quality.
 
-The following decisions must be confirmed before this ADR is accepted:
+For scale, 5,000 no-match References each requiring one Crossref search consume about 2,000 seconds at 2.5 requests/s; three searches each consume about 6,000 seconds. These are conditional arithmetic lower bounds, not measurements or a claim about every mixed acceptance list. Prepaid credits and ten active References per Check do not establish live supplier capacity.
 
-1. **Early termination versus enrichment:** keep FA-SUC-06 strict and use already obtained/permitted cached retraction evidence without another source lookup, or request an explicit enrichment exception from the client. Do not silently redefine an extra source query as something outside the acceptance criterion.
-2. **Budget/deadline configuration versus the gate:** reconcile F11's ungated operating-budget changes with ADR-0006, because changed waits/deadlines can change candidate coverage and Verdicts. Proposed correction: include outcome-affecting budgets/timeouts/concurrency in the measured configuration and run the quality and rate-limited load checks before activating changes.
-3. **Live-load acceptance:** replay is reproducible regression evidence, not a measured fifty-Check live result. Proposed correction: retain replay on every release and add an authorized, rate-limited live fifty-Check launch test; revalidate live after relevant capacity/configuration changes. Keep any unattainable FA-UEB-43 target as a client change request rather than a silent downgrade or an assertion that live traffic must exceed source limits. For scale, 5,000 no-match References each requiring one Crossref search consume about 2,000 seconds at 2.5 requests/s; three searches each consume about 6,000 seconds. These are conditional arithmetic lower bounds, not measurements or a claim about every mixed acceptance list.
-4. **Candidate selection across queries:** proposed correction: share one five-Candidate evaluation budget per source. Evaluate at most one top-ranked combined-query Candidate first; if it is not unambiguous, evaluate up to two unique title-only and two unique authors/year Candidates, following the provider's order and deduplicating known source-record IDs. Never score fifteen Candidates and then describe that as a cap of five. This preserves a place for both mixed-citation branches without exhausting the budget on the first query. Raw replay responses may be retained where licensed, but only evaluated Candidates enter the scored/displayed result set. Measure the resulting recall and the effect of limiting the first query to one Candidate; this allocation is a gate-triggering design choice, not a recall guarantee.
+## Consequences and handoff
 
-Implementation endpoint compatibility, latency distributions, fairness, cancellation under load, precise Candidate selection and source-rights evidence remain validation/handoff items. The approved requirements remain unchanged.
+- **Bounded evidence under load:** rate waiting and deadlines can make a source unavailable. Record that loss of coverage and apply the explicit failure rules; do not treat it as a successful empty response or claim it proves performance/quality acceptance.
+- **[Scoring and verdict rules](https://github.com/jeffnawroth/source-taster/issues/17):** define unambiguous-match criteria, mixed-citation/DOI/outside-coverage precedence, ties, URL-status interpretation and retraction title-prefix normalization under the fixed source order and common Candidate budget. Reconcile identifier evidence with the 1 + 2 + 2 bibliographic allocation without exceeding the cap.
+- **[Non-AI structuring approach](https://github.com/jeffnawroth/source-taster/issues/20):** map canonical CSL types and normalized identifiers to the routes; do not infer native arXiv-ID lookup from arXiv DOI support.
+- **[Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22):** qualify global budgets, process/connection/memory capacity, fair scheduling, clock/deadline behavior, SSRF/response-size bounds and cancellation under real load; implement the recorded replay/live cadence and observe incomplete source coverage.
+- **[Operator tools without a dedicated interface](https://github.com/jeffnawroth/source-taster/issues/24):** enforce source-rights/enablement and exact measured-configuration gates for outcome-affecting settings; obtain required keys, prepaid credits and approved rate increases during execution, without bypassing provider limits.
+- **Source rights and acceptance:** endpoint compatibility, source terms, fixture/cache permissions and latency distributions require actual evidence. The approved requirements remain unchanged; provider clearance, load tests and corpus/harness implementation remain outside this decision.

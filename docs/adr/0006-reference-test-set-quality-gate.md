@@ -93,12 +93,15 @@ On top of the section 14.4 launch minimums, the launch version of the Reference 
 - **Triggers.** The gate runs on every change that can alter a Verdict:
   - the Scoring rules and the AI model, as FA-UEB-30 requires;
   - a new Data source (section 7: new Data sources must not worsen existing Verdicts);
-  - the parser, the search strategy and the extraction prompt.
+  - the parser, the search strategy and the extraction prompt;
+  - outcome-affecting Data source budgets, timeouts, deadlines and concurrency settings, as refined by [ADR-0007](0007-search-strategy-latency.md).
 - **Measured configuration.** A measured configuration combines:
   - the code version;
   - the AI model;
   - the thresholds, including the early-termination threshold;
+  - the Search strategy version, enabled Data sources and an exact snapshot of outcome-affecting budget/timing/concurrency settings;
   - the test set version.
+- **Timing-sensitive evidence.** For those settings, replay also exercises the clock, rate limiter, waiting and failure classification. Quality and rate-limited load checks must pass before activation; an Operator setting is not an exemption. Live load acceptance remains separate evidence under ADR-0007.
 - **Activation in the Operator area.** FA-BTR-05 makes switching the AI model an Operator function, and FA-ABG-15 and FA-SUC-06 let the Operator set the thresholds. The Operator area therefore activates an AI model or a threshold set only if a passed measurement exists for exactly that measured configuration. Both stay Operator functions, and still no unmeasured configuration ever serves users.
 - **Thresholds and Scoring rules version.** Every threshold change creates a new Scoring rules version.
 
