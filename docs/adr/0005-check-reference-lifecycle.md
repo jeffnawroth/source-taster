@@ -148,7 +148,7 @@ This keeps the deduction equal to the Verdicts the user sees (FA-ERF-08).
   - the original input and the fields;
   - the result and its Verdict;
   - the Scoring rules version;
-  - the opaque Owner and acting Account IDs.
+  - the opaque Owner ID only. The Operator area maps it to the Account through the service (FA-BTR-08), because at launch each Account has exactly one personal Owner.
 - The copy is exempt from the 24-hour rule and has its own configured retention period. The concrete period is left open for privacy and legal review.
 - The Operator area (FA-BTR-08) reads the copy in the browser directly from an Operator-only endpoint of the verification API. The service backend therefore never receives the content (ADR-0003).
 
