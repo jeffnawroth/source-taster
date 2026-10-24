@@ -80,7 +80,7 @@ A document containing all verdicts of a check as evidence.
 _Avoid_: Report (as the canonical domain name)
 
 **History**:
-Stored earlier checks of an account, limited in the free plan and extended in paid plans.
+Stored earlier checks of an owner, limited in the free plan and extended in paid plans.
 
 **Plan**:
 A service package with price and quota, such as Free or Pro.

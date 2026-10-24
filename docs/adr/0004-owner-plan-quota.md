@@ -121,10 +121,10 @@ This ADR fixes the model and the commercial rules the client chose. These belong
 
 - **Quota held on the Account**, rejected because organizations would need migration.
 - **A single mutable counter per period**, rejected because webhook retries, restores and corrections could not be reconciled.
-- **One shared Guest ID across web app and extension**, rejected for the pairing mechanism it would need between the two environments for a small daily Quota.
+- **One shared Guest ID across web app and extension**, rejected because the two cannot share storage in the same browser.
 - **Paid grants keyed on webhook delivery**, rejected because a provider redelivery or a restore could grant twice.
 - **Negative balances for late debits**, rejected in favor of forgiving the excess.
-- **Pro proration and carry-over**, rejected for simplicity.
+- **Pro proration and carry-over**, rejected.
 - **Pruning History on downgrade**, rejected because users would lose Checks.
 - **Keeping all History usable after a downgrade**, rejected because it conflicts with FA-KTO-16.
 - **A per-Reference cap on free Re-checks**, rejected because it would be a new initial value.
