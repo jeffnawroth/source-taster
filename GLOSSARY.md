@@ -98,6 +98,10 @@ _Avoid_: Bundle, credits
 A user without an account.
 _Avoid_: Anonymous user (as a competing role name)
 
+**Account**:
+A person's registration, confirmed by e-mail, with which they sign in to the extension and the web app; at market launch each account acts for exactly one owner, its own.
+_Avoid_: Owner (as a substitute)
+
 **Owner**:
 The person to whom a quota, plan or stored check is assigned at market launch; later, an owner can also be an organization.
 _Avoid_: Customer, user (as substitutes for ownership)
