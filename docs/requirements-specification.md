@@ -1,25 +1,25 @@
 # Requirements Specification – Source Taster
 
-*Functional specification without technical implementation details · Version 3.2 draft: target state of the commercial product*
+*Functional specification without technical implementation details · Version 3.2: target state of the commercial product*
 
 24 October 2026 · Jeff Nawroth
 
-> This English document is authoritative. Version 3.2 is a draft consolidating the client-accepted scoring decisions of 24 October 2026. Version 3.1 remains the approved baseline until this draft is approved; the prior version is preserved in Git history. The superseded German document does not govern this work.
+> This English document is authoritative. Version 3.2 was approved by the client on 24 October 2026 and supersedes version 3.1 as the working baseline. The prior version is preserved in Git history. The superseded German document does not govern this work.
 
 **Document information**
 
 | Attribute | Value |
 | --- | --- |
 | Document | Requirements Specification Source Taster |
-| Version | 3.2 draft of 24 October 2026 |
-| Status | Draft for review; scoring design and amendment instructions accepted on 24 October 2026; consolidated wording pending approval |
+| Version | 3.2 of 24 October 2026 |
+| Status | Approved by the client on 24 October 2026 |
 | Client | Jeff Nawroth |
 
 **Change history**
 
 | Version | Date | Change |
 | --- | --- | --- |
-| 3.2 draft | 24 October 2026 | Explicit identity evidence, expanded Not verifiable reasons, coverage/DOI precedence, author/date/page and web/archive rules, correction eligibility and numeric precision; sections 8 and 17 |
+| 3.2 | 24 October 2026 | Explicit identity evidence, expanded Not verifiable reasons, coverage/DOI precedence, author/date/page and web/archive rules, correction eligibility and numeric precision; sections 8 and 17 |
 | 3.1 | 23 October 2026 | Acceptance criterion of FA-KTO-28 refers to the monthly subscription |
 | 3.0 | 23 October 2026 | First approved version |
 
