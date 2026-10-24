@@ -22,7 +22,7 @@ This ADR fixes the conceptual model only, not the storage schema. These belong t
 
 - **Identity.** Each Reference has a fixed slot within its Check. Quota debits are keyed on Check and slot (ADR-0004).
 - **Correction (FA-STR-10).** Editing fields adds a new field revision to the **same** slot, so the Re-check stays free (FA-STR-11).
-  - Fields can be edited only while the slot has a Verdict or Status, not while it is running.
+  - Fields can be edited at any time except while the slot is running.
   - There is no cancellation of a single Reference; only the whole Check is cancelled.
 - **Adding (FA-STR-12).** A Reference added by hand gets a new slot and is billed on its first Verdict.
 - **Removing (FA-STR-12).** A removed slot is marked as removed, not deleted. It is missing from the result, the verification report and the export.
@@ -123,7 +123,7 @@ This keeps the deduction equal to the Verdicts the user sees (FA-ERF-08).
 - **History consent (FA-UEB-11).**
   - Consent is a revocable setting per Account.
   - A Check is stored at its end, and its retention period runs from then. The deletion date is fixed at storage (ADR-0004), so an upgrade does not extend existing entries from 30 to 90 days.
-  - On Free, storing a new entry when five usable entries exist deletes the oldest usable entry (FA-KTO-15). Entries locked under ADR-0004 are not affected.
+  - On Free, storing a new entry when five usable entries exist removes the oldest usable entry (FA-KTO-15): it is deleted if it was stored on Free, and locked under ADR-0004 if it was stored in a paid period. Already locked entries are not affected.
   - Revoking consent stops new entries and, after a warning, deletes all existing entries.
 - **Opening and restarting History (FA-ERG-22).**
   - **Opening:** a History entry is the same Check. Within its retention period, and unless it is locked, it can be corrected and checked again for free.

@@ -8,6 +8,9 @@ Source Taster checks whether references point to sources that exist and are cite
 A bibliographic entry as raw text whose existence and correctness are to be checked.
 _Avoid_: Citation, entry (as names for this concept)
 
+**Reference slot**:
+The fixed place of one reference within a check; corrections keep it, while a reference added by hand gets a new one.
+
 **Source**:
 The actually published work to which a reference points.
 _Avoid_: Work, publication (as competing domain names), data source
