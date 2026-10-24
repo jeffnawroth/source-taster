@@ -88,6 +88,8 @@ On top of the section 14.4 launch minimums, the launch version of the Reference 
   - No record is ever excluded from the rates.
   - Not verifiable as the *expected* Verdict of an outside-coverage record is normal.
 
+The expanded Not verifiable reasons in [ADR-0008](0008-scoring-verdict-rules.md) do not change expected record classes or denominators. Ambiguity and insufficient identity evidence are measured against the record's expected outcome; unavailable mandatory evidence caused by source failure retains the invalid-run/retry rule above. No grey result is dropped from the rates. The specification changes remain pending until the v3.2 draft is approved.
+
 ## Gate triggers and Operator changes
 
 - **Triggers.** The gate runs on every change that can alter a Verdict:

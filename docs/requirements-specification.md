@@ -1,24 +1,25 @@
 # Requirements Specification – Source Taster
 
-*Functional specification without technical implementation details · Version 3.1: target state of the commercial product*
+*Functional specification without technical implementation details · Version 3.2 draft: target state of the commercial product*
 
-23 October 2026 · Jeff Nawroth
+24 October 2026 · Jeff Nawroth
 
-> English translation of the approved German requirements specification (Lastenheft), version 3.1. If the two versions differ, the German version prevails. Requirement IDs are identical to the German original.
+> This English document is authoritative. Version 3.2 is a draft consolidating the client-accepted scoring decisions of 24 October 2026. Version 3.1 remains the approved baseline until this draft is approved; the prior version is preserved in Git history. The superseded German document does not govern this work.
 
 **Document information**
 
 | Attribute | Value |
 | --- | --- |
 | Document | Requirements Specification Source Taster |
-| Version | 3.1 of 23 October 2026 |
-| Status | Approved by the client on 23 October 2026 |
+| Version | 3.2 draft of 24 October 2026 |
+| Status | Draft for review; scoring design and amendment instructions accepted on 24 October 2026; consolidated wording pending approval |
 | Client | Jeff Nawroth |
 
 **Change history**
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 3.2 draft | 24 October 2026 | Explicit identity evidence, expanded Not verifiable reasons, coverage/DOI precedence, author/date/page and web/archive rules, correction eligibility and numeric precision; sections 8 and 17 |
 | 3.1 | 23 October 2026 | Acceptance criterion of FA-KTO-28 refers to the monthly subscription |
 | 3.0 | 23 October 2026 | First approved version |
 
@@ -235,8 +236,8 @@ The system must compare every reference with its candidates using rules and deri
 | --- | --- | --- | --- |
 | FA-ABG-01 | The system must determine a similarity value from 0 to 100 % for every scored field. Typos such as missing, additional, replaced or transposed characters reduce the value proportionally. | "Jouranl" instead of "Journal" yields a field score above 80 % and below 100 %. | must |
 | FA-ABG-02 | Only fields present in both the reference and the candidate may be compared. | If the year is missing in the reference, the score does not change because of it. | must |
-| FA-ABG-03 | The overall score must be the weighted mean of the field scores; the weights of the scored fields add up to 100 %. | Recalculating 10 test cases yields the displayed scores. | must |
-| FA-ABG-04 | The candidate with the highest overall score counts as the best match. | With several candidates, the one with the highest score is marked as the best. | must |
+| FA-ABG-03 | The overall score must be the weighted mean of the field scores; the weights of the scored fields add up to 100 %. | Recalculating 10 test cases at the defined internal precision yields the stored scores and their two-decimal display. | must |
+| FA-ABG-04 | The candidate with the highest overall score counts as the best match. | The highest-scoring candidate is marked as best; a tied score alone does not establish identity, and verified identifier evidence may select a tied highest-scoring source as described in 8.4. | must |
 | FA-ABG-05 | The system must apply the field-specific comparison rules from 8.3. | Every example given in 8.3 yields the field score described there. | must |
 | FA-ABG-06 | Every verdict must carry the version of the scoring rules. | The result and the verification report show the version. | must |
 
@@ -254,41 +255,60 @@ The system must compare every reference with its candidates using rules and deri
 
 Weights and thresholds are calibrated and apply equally to all users. An expert mode for deviating values is deferred (10.2).
 
+Field scores and overall scores are processed and stored to six decimal places in percentage points and displayed to two. Display rounding must not affect thresholds, ranking or verdicts. Keep normalized full agreement separately from rounded similarity: a real deviation never becomes agreement merely because the score rounds to 100 %. Comparison rules, precision and thresholds belong to the scoring rules version. The initial field weights above remain unchanged by this revision.
+
 ### 8.3 Comparison rules
 
 All rules are always active. Switching off individual rules or comparing character by character without normalization ("Strict" mode) belongs to the deferred expert mode (10.2).
 
 - **Normalization of spelling:** typography, damaged characters, Unicode representation, accents, umlauts ("ü" = "ue"), punctuation, whitespace, upper and lower case.
 - **Normalization of identifiers:** DOI, ISBN, ISSN, PMID, PMCID and arXiv ID without prefixes; URLs without tracking parameters and fragments.
-- **Authors via initials:** the same surname plus matching initials counts as a match ("Müller, A. B." = "Muller, Anna").
-- **Structured dates:** year, month and day separately; the year counts most, a deviation of exactly one year is credited by half.
+- **Authors:** assign names one-to-one; one candidate author cannot satisfy multiple supplied names. The same surname plus compatible initials counts as a match ("Müller, A. B." = "Muller, Anna"). Incompatible full given names do not become equal through shared initials. Reversed author order and unmarked missing coauthors are deviations; an explicitly recognized "et al." abbreviation may omit trailing coauthors without a penalty. Exact similarity weights and order penalties require calibration.
+- **Structured dates:** compare only year, month and day components present on both sides, renormalizing their weights. The year counts most; a deviation of exactly one year receives half agreement on the year component. "2021" against "2021-06-15" fully agrees on the shared year. Component weights require calibration.
 - **Volume and issue numbers:** recognize numbers in combined notations ("Vol. 12 (3)" = volume 12).
-- **Page ranges:** overlapping ranges and single pages within a range count as (partial) matches; abbreviated notations such as "123-8" are recognized.
+- **Page ranges:** expand abbreviated notation such as "123-8" first. Agreement is the proportion of cited pages contained in the source range: a contained single page or range receives full agreement ("125–126" within "123–128" = 100 %); partial overlap receives proportional agreement ("127–130" against "123–128" = 50 %); no overlap receives zero. A valid contained location is preserved in correction suggestions.
 - **Journal title variants:** ignore appended acronyms in brackets ("Journal of Testing (JOT)" = "Journal of Testing").
+- **Retraction title prefix:** ignore a candidate-side "RETRACTED: " prefix for comparison only when provenance establishes that the data source added it and retraction is known. Preserve raw values, never strip arbitrary reference text, and retain the retraction marker independently of the verdict. Unknown retraction evidence is not a verified negative.
 
 ### 8.4 Verdict
 
+**Score and identity are separate.** A high score alone is not an unambiguous match. A supplied verified DOI, ISBN, PMID or arXiv ID must identify the candidate without strong identity counterevidence. Without identifier proof, articles and books require strong title and author agreement and a sufficient lead over different sources. A title alone is insufficient when authors are absent. Web sources require the same or verified canonical target URL and a matching title; HTTP 200 alone is insufficient. Similarity, counterevidence and lead thresholds require calibration.
+
+For equal highest scores belonging to different sources, unique verified supplied-identifier evidence may select one tied source if there is no strong counterevidence. Otherwise the result remains ambiguous. Display ordering alone never establishes identity. Different identifiers or editions are not automatically treated as equivalent; unresolved identity is Not verifiable. A confirmed wrong ISBN is a deviation when the intended source is independently and unambiguously established; it does not change the fixed score weights or become DOI conflict.
+
+**Precedence and incomplete evidence:**
+
+1. Outside-coverage references receive Not verifiable before DOI-conflict assessment; no mandatory DOI verification is required there.
+2. Within coverage, a confirmed non-existent or foreign DOI takes precedence over Mixed citation. Retain any mixed-component evidence in the explanation.
+3. An unavailable mandatory verification step produces Not verifiable; a DOI resolver failure is neither confirmed non-existence nor a foreign DOI. Do not finalize Mixed citation while unavailable mandatory DOI evidence leaves the higher-priority DOI condition unresolved.
+4. Mixed citation requires strong evidence for different sources with contradictory opposing fields, such as title from one and authors from another. Shared authors or similar titles alone are insufficient.
+5. Otherwise apply the identity, deviation, ambiguity and completed-no-match conditions below. Failed or uncompleted mandatory work is never a successful empty response. A source failure is named and other responsible sources continue (FA-SUC-05); completed, sufficient evidence may still establish a source, but incomplete mandatory work cannot establish a negative result.
+
+For web sources, 403, 429, timeouts and unclear error/soft-404 pages produce Not verifiable. A definitive 404/410 and a completed archive lookup with no matching page produce Not found; unavailable archive verification instead produces Not verifiable. A matching archive for the cited original URL and title can establish existence; a dead original URL is an explicit deviation. These observations do not bypass the covered-reference DOI rule.
+
 | Verdict | Condition | Meaning for users | Color |
 | --- | --- | --- | --- |
-| Correct | Unambiguous match, all compared fields agree | The source exists and is cited correctly | Green |
-| Exists, with deviations | Unambiguous match, individual fields deviate | The source exists, the citation is faulty; fields and correction are named | Yellow |
-| Mixed citation | Components match different works, e.g. real authors with the title of another work | Typical pattern of AI-generated references | Red |
-| DOI conflict | The given DOI does not exist or belongs to a different work | Strong indication of an invented or wrongly transcribed reference | Red |
-| Not found | No sufficiently matching candidate in the responsible data sources | Presumably invented; check manually | Red |
-| Not verifiable | Source type outside the coverage (e.g. law, archival record, personal communication) or none of the responsible data sources reachable (FA-SUC-05) | No statement possible | Grey |
+| Correct | Unambiguous match, all compared fields agree, and no confirmed identifier or URL deviation | The source exists and is cited correctly | Green |
+| Exists, with deviations | Unambiguous match with field, confirmed ISBN or original-URL deviations | The source exists, the citation is faulty; fields and correction are named | Yellow |
+| Mixed citation | Strong, contradictory component evidence identifies different works, with no higher-priority condition | Typical pattern of AI-generated references | Red |
+| DOI conflict | Within supported coverage, the given DOI is confirmed non-existent or belongs to a different work | Strong indication of an invented or wrongly transcribed reference | Red |
+| Not found | Completed sufficient searches yield no sufficiently matching candidate; mandatory verification is complete | Presumably invented; check manually | Red |
+| Not verifiable | Outside coverage; all responsible data sources failed; ambiguous different sources; insufficient identity evidence; or uncompleted mandatory verification | No statement possible | Grey |
 
 | ID | Requirement | Acceptance criterion | Obligation |
 | --- | --- | --- | --- |
-| FA-ABG-10 | Every fully checked reference must receive exactly one verdict. During the check, after cancellation or in the event of an internal technical error, the system shows a status instead of a verdict; FA-SUC-05 applies to failed data sources. | Every finished reference has exactly one verdict; running, cancelled and failed ones show a status. | must |
-| FA-ABG-11 | Every verdict must have a plain-language explanation that names deviating or missing fields with both values. | For a deviating year, the explanation reads along the lines of "Year 2019 instead of 2021". | must |
-| FA-ABG-12 | For every verdict with an unambiguous match, the system must provide a correction suggestion from the data of the source found, in the selected citation style. | For every reference rated "Exists, with deviations", there is a suggestion that resolves the deviations. | must |
+| FA-ABG-10 | Every fully checked reference must receive exactly one verdict. During the check, after cancellation or in the event of an internal technical error, the system shows a status instead of a verdict; FA-SUC-05 applies to failed data sources. | Every finished reference has exactly one of the six verdicts; ambiguity, insufficient identity evidence and uncompleted mandatory verification receive Not verifiable. Running, cancelled and internally failed ones show a status. | must |
+| FA-ABG-11 | Every verdict must have a plain-language explanation that names deviating or missing fields with both values. | For a deviating year, the explanation reads along the lines of "Year 2019 instead of 2021". Not verifiable names the concrete reason, relevant candidates when available and failed or incomplete verification steps; unknown evidence is labelled unknown. | must |
+| FA-ABG-12 | For every verdict with an unambiguous match, the system must provide a correction suggestion from the data of the source found, in the selected citation style. | Correct and Exists, with deviations provide a suggestion from proven metadata; DOI conflict does so only if other evidence establishes one source unambiguously. Mixed citation, Not found and unresolved identity do not receive an invented replacement. Valid page locations and original input are preserved; changes are offered, never applied automatically. | must |
 | FA-ABG-13 | The system must detect mixed citations, where individual fields such as authors and title match different candidates. | Of 20 test references combining real authors with another work's title, at least 18 receive the verdict "Mixed citation". | must |
-| FA-ABG-14 | A DOI given in the reference must always be resolved and matched against the other fields. | References with a non-existent or foreign DOI receive "DOI conflict". | must |
-| FA-ABG-15 | The verdict thresholds must be calibrated and the same for all users; the operator sets them based on the quality targets (14.4). | The thresholds are documented and the target values from 14.4 are achieved. | must |
+| FA-ABG-14 | Within supported coverage, a DOI given in the reference must always be resolved and matched against the other fields. Outside coverage receives Not verifiable before this step. | Covered references with a confirmed non-existent or foreign DOI receive "DOI conflict", ahead of Mixed citation. Resolver unavailability receives Not verifiable; an outside-coverage reference with a DOI remains Not verifiable. | must |
+| FA-ABG-15 | The verdict thresholds must be calibrated and the same for all users; the operator sets them based on the quality targets (14.4). | Thresholds are calibrated only on a separate development set; the reference test set evaluates the exact versioned configuration against the unchanged targets from 14.4. Outcome-changing rules or thresholds require a new scoring rules version and a passed quality measurement before release or activation. Not verifiable does not remove records from quality denominators. | must |
 | FA-ABG-16 | Users must be able to confirm or override a verdict manually; the change is marked as manual in the result and the verification report. | An overridden verdict is visible with its marking and the original verdict. | must |
 | FA-ABG-17 | Retracted publications should be clearly marked regardless of the verdict. | A retracted test publication is marked even with the verdict "Correct". | should |
 | FA-ABG-18 | The system matches in-text citations in the running text against the bibliography and reports missing and never-cited entries. | A test document with 2 missing and 2 never-cited entries leads to 4 messages. | deferred |
 | FA-ABG-19 | The system checks whether the source found supports the cited statement; the result is labelled as an AI-assisted assessment and does not feed into the verdict. | The assessment appears separately from the verdict and is labelled. | deferred |
+
+Not verifiable is a final verdict billed under the existing quota rules, including its additional reasons; a re-check of the same reference slot remains free. Statuses are not billed. This revision does not change quality targets or permit excluding ambiguous or insufficient-evidence records from their denominators.
 
 ## 9 Results, evidence and export
 
@@ -622,7 +642,7 @@ Source Taster checks whether a reference matches a source that actually exists a
 - **No plagiarism check:** textual similarity with other works is not examined.
 - **No check of style conformity:** whether a document consistently follows a citation style is not assessed. Correction suggestions are offered; the user's document is not changed automatically.
 - **No content check at market launch:** whether a source supports the cited statement is deferred (FA-ABG-19) and never feeds into the verdict.
-- **No statement outside the coverage:** source types without a responsible data source, such as laws, archival records or personal communications, receive the verdict "Not verifiable".
+- **No statement outside the coverage:** source types without a responsible data source, such as laws, archival records or personal communications, receive the verdict "Not verifiable" before DOI verification or DOI-conflict judgment, even when a DOI was supplied.
 - **No organization functions at market launch:** organization accounts, campus licenses, the third-party API and integrations are deferred (section 12); the product is, however, prepared for them (12.1).
 - **No on-premises operation:** the product is offered as a service of the operator.
 
@@ -639,8 +659,8 @@ Source Taster checks whether a reference matches a source that actually exists a
 | Score | Weighted agreement between reference and candidate from 0 to 100 % |
 | Verdict | Result per reference: Correct, Exists with deviations, Mixed citation, DOI conflict, Not found or Not verifiable |
 | Mixed citation | Reference whose components come from different real works |
-| DOI conflict | The given DOI does not exist or belongs to a different work |
-| Correction suggestion | The reference, rebuilt from the data of the source found in the selected citation style |
+| DOI conflict | Within supported coverage, the given DOI is confirmed non-existent or belongs to a different work |
+| Correction suggestion | The reference rebuilt from proven metadata of an unambiguously identified source in the selected citation style, preserving valid cited page locations |
 | Verification report | Document with all verdicts of a check as evidence |
 | History | Stored earlier checks of an account; limited in the free plan, extended in paid plans |
 | Expert mode | Area for experienced users in which data sources, weights and comparison rules can be set differently (deferred) |
