@@ -15,7 +15,7 @@ The routing key is the Reference's canonical CSL `type` (ADR-0005). Exact CSL ty
 - **Articles, conference papers, preprints, reports and theses:** OpenAlex, Crossref, Europe PMC and Semantic Scholar; direct arXiv access is identifier-only. Unknown/other types take this route.
 - **Books and chapters:** Open Library and Google Books ISBN catalogs, OpenAlex and Crossref.
 - **Web pages and blog posts:** URL reachability and Internet Archive, plus the DOI path when a DOI is supplied.
-- **Outside coverage:** laws, judgments, archival records and personal communications receive Not verifiable without a coverage search. The boundary with the mandatory supplied-DOI rule must not be silently redefined.
+- **Outside coverage:** laws, judgments, archival records and personal communications receive Not verifiable without a coverage search. The explicit coverage-first exception and its pending v3.2 specification amendment are recorded in [ADR-0008](0008-scoring-verdict-rules.md); v3.1 remains the approved baseline until the new specification is approved.
 
 **Identifier-first precedence:** for a covered Reference with a supplied DOI, resolve its existence through the registration-agency-neutral doi.org Handle API before the route's other work, including the book/web routes. Retrieve bibliographic metadata through OpenAlex/Crossref. Crossref's absence alone does not establish DOI non-existence. A definitive DOI conflict does not stop candidate retrieval by title/authors; an unavailable resolver is a failure, not evidence of an invalid DOI. Verdict derivation remains with [Scoring and verdict rules](https://github.com/jeffnawroth/source-taster/issues/17).
 
@@ -33,7 +33,7 @@ Score a source's Candidates before advancing to another source. The initial FA-S
 
 Share one five-Candidate evaluation budget per source. Evaluate at most one top-ranked combined-query Candidate first; if it is not unambiguous, evaluate up to two unique title-only and two unique authors/year Candidates, following the provider's order and deduplicating known source-record IDs. The per-source ceiling includes identifier evidence and repeated queries; it must not be multiplied by the number of calls. Raw replay responses may be retained where licensed, but only evaluated Candidates enter the scored/displayed result set. Measure the effect of the initial 1 + 2 + 2 allocation on retrieval and mixed-citation recall; changing this allocation triggers the gate.
 
-Scoring and verdict rules owns unambiguous-match/early-termination thresholds, DOI-conflict precedence (including outside-coverage cases), score ties and treatment of `RETRACTED: ` title prefixes. It must respect the shared Candidate budget and preserve evidence provenance rather than silently scoring fifteen Candidates under a nominal cap of five. Search-strategy order/version and source enablement changes are gate triggers under ADR-0006.
+[ADR-0008](0008-scoring-verdict-rules.md) records identity and early-termination criteria, DOI/coverage/mixed precedence, score ties, URL/archive outcomes and proven `RETRACTED: ` title-prefix handling. Numeric launch thresholds remain to be calibrated and gated. Scoring must respect the shared Candidate budget and preserve evidence provenance rather than silently scoring fifteen Candidates under a nominal cap of five. Search-strategy order/version and source enablement changes are gate triggers under ADR-0006.
 
 ## Shared budgets, scheduling and deadlines
 

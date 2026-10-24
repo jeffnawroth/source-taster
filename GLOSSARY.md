@@ -61,18 +61,18 @@ _Avoid_: Status, rating; Deviating, Mixed or Unverifiable as alternative labels
 A reference whose components come from different real works.
 
 **DOI conflict**:
-The given DOI does not exist or belongs to a different work.
+A covered reference whose supplied DOI is confirmed non-existent or belongs to a different source.
 
 **Status**:
 The state shown instead of a verdict while a reference is running, after cancellation, after an internal technical error, or when a partial check left it unchecked.
 _Avoid_: Verdict
 
 **Correction suggestion**:
-The reference rebuilt from the data of the source found, in the selected citation style.
+The reference rebuilt from proven metadata of an unambiguously identified source, in the selected citation style, preserving valid cited page locations. It is offered for the user to apply.
 _Avoid_: Fix
 
 **Scoring rules version**:
-The version of the rules used to score candidates and derive a verdict.
+The version of the comparison rules, precision and thresholds used to score candidates and derive a verdict.
 
 **Search strategy version**:
 The version of the rules used to select data sources, retrieve candidates and end the search for a reference.
