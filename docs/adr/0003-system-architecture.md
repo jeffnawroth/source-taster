@@ -80,7 +80,7 @@ packages/i18n
 - **Versions and store compatibility.**
   - The web app and the extension carry the same version number from the open repository.
   - Clients send their version as `Source-Taster-Client: extension/1.4.0`.
-  - The API serves every version from a configured minimum. Below it, it answers `426` with code `client-update-required`.
+  - The API serves every version from a configured minimum. Below it, it answers `400` with code `client-update-required`; `426` is not used because RFC 9110 ties it to an `Upgrade` header naming a protocol.
   - A breaking change means `/v2`. `/v1` keeps running until the store builds of all browsers are released and spread, at least six months.
   - New features ship disabled behind server-side feature flags and are enabled in both environments at once when all store builds are live (FA-GLE-05).
 
@@ -112,7 +112,6 @@ Both programs write structured JSON logs, OpenTelemetry traces and metrics. Only
 ## Consequences
 
 - **Availability coupling.** No Check starts while the service is unreachable. Hosting and operations must size both programs for FA-UEB-44 together.
-- **Status code for the client minimum.** RFC 9110 requires a `426` response to carry an `Upgrade` header naming a protocol. Confirm the status code for `client-update-required` before implementation; the stable Problem `code` is the contract either way.
 - **Handed-off interfaces:**
   - [Authentication and roles](https://github.com/jeffnawroth/source-taster/issues/23): how a client obtains and renews access tokens (cookie session or refresh token); session concurrency; behavior during an identity-provider outage; future SAML or university sign-in without changing accounts (FA-ERW-05); and how open SSE streams and queued jobs of a tombstoned or blocked Owner are revoked within the token lifetime.
   - [Check and Reference model and lifecycle](https://github.com/jeffnawroth/source-taster/issues/14): billing on cancellation, failure and Data source outage; the reaction to an expired lease, including closing the panel.
