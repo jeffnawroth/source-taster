@@ -74,6 +74,9 @@ _Avoid_: Fix
 **Scoring rules version**:
 The version of the rules used to score candidates and derive a verdict.
 
+**Search strategy version**:
+The version of the rules used to select data sources, retrieve candidates and end the search for a reference.
+
 **Re-check**:
 Checking a reference again within the same check after a correction; it adds a new result and keeps the earlier ones.
 _Avoid_: Restart (which starts a new check from the history)
