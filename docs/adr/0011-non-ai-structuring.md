@@ -243,7 +243,7 @@ The APA, MLA, Chicago, IEEE, Vancouver and Harvard files set no default locale, 
     - the FA-ERF-05 or section 14.4 targets;
     - reopening the learned-method constraint.
   - Change-request candidate against ADR-0008: a route from a low-confidence parse to Not verifiable. Not proposed.
-- **Open scoring gap.** The journal-title abbreviation fog on the map stays open. The parser only stores abbreviations in `container-title-short`.
+- **Scoring gap.** The parser only stores abbreviations in `container-title-short`. [ADR-0018](0018-journal-title-abbreviations.md) resolves the gap.
 - **Legal review.** License clearance for citeproc-js, BiblioJSON (LGPL-3.0) and the CC BY-SA 3.0 assets remains outside this plan (section 14.6, FA-UEB-23).
 - **Handed-off interfaces:**
   - [Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22):
