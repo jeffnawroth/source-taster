@@ -32,6 +32,7 @@ The baseline is the approved [requirements specification v3.2](../requirements-s
   - one container per program runs the `web` and `worker` roles in one process;
   - one Scalingo Starter 1G PostgreSQL database holds both schemas;
   - Object Storage costs cents, TEM includes 300 mails per month, and the monitor and status page use a free tier.
+- **Security refinement accepted on 25 October 2026.** [ADR-0015](0015-security-abuse-protection.md) requires OS-enforced isolation for untrusted document extraction at launch. The colocated web/worker roles may remain, but the original single-process/container description is not the complete parser security topology. A separate restricted execution area/container may be required before the ordinary upgrade triggers. Its provider support, enforced restrictions, load and cost must be qualified; the €50–80 estimate does not include a proven isolated layout. The existing cost ceiling remains. No provider switch or unproven sandbox is approved.
 - **Upgrade triggers.** The upgrade to the target stage happens when any of these occurs:
   - monthly revenue reaches twice the target-stage cost, roughly €700;
   - measured availability falls below 99.7% in a month;
