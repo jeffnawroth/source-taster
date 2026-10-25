@@ -1,24 +1,25 @@
 # Requirements Specification – Source Taster
 
-*Functional specification without technical implementation details · Version 3.2: target state of the commercial product*
+*Functional specification without technical implementation details · Version 3.3 draft: target state of the commercial product*
 
-24 October 2026 · Jeff Nawroth
+25 October 2026 · Jeff Nawroth
 
-> This English document is authoritative. Version 3.2 was approved by the client on 24 October 2026 and supersedes version 3.1 as the working baseline. The prior version is preserved in Git history. The superseded German document does not govern this work.
+> This English document is authoritative. Version 3.3 is a draft consolidating the client-accepted launch Operator interface and workflows of 25 October 2026. Version 3.2 remains the approved working baseline until this draft is approved. Prior versions are preserved in Git history. The superseded German document does not govern this work.
 
 **Document information**
 
 | Attribute | Value |
 | --- | --- |
 | Document | Requirements Specification Source Taster |
-| Version | 3.2 of 24 October 2026 |
-| Status | Approved by the client on 24 October 2026 |
+| Version | 3.3 draft of 25 October 2026 |
+| Status | Draft for review; Operator design and amendment instruction accepted on 25 October 2026; consolidated wording pending approval |
 | Client | Jeff Nawroth |
 
 **Change history**
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 3.3 draft | 25 October 2026 | Bring the basic private Operator web interface forward to market launch, remove its deferral trigger, and clarify recipient-only fulfilment of Operator-arranged data exports; sections 13 and 19 |
 | 3.2 | 24 October 2026 | Explicit identity evidence, expanded Not verifiable reasons, coverage/DOI precedence, author/date/page and web/archive rules, correction eligibility and numeric precision; sections 8 and 17 |
 | 3.1 | 23 October 2026 | Acceptance criterion of FA-KTO-28 refers to the monthly subscription |
 | 3.0 | 23 October 2026 | First approved version |
@@ -519,7 +520,7 @@ The third-party API requires an organization account, which may also consist of 
 
 ## 13 Operator administration
 
-The operator must be able to manage customers, plans and costs without directly intervening in data stores; at market launch, the payment provider's administration and a configuration suffice for this, and a dedicated interface is deferred (section 19). The operator does not see users' verification content; the only exception is references that users report as wrong verdicts with their explicit consent (FA-ERG-15).
+The operator must be able to manage customers, plans and costs through a small private web interface at market launch, without directly intervening in data stores. The interface provides the required account administration, catalog/settings, activation of configurations with the required quality evidence, exports and action status; suitable payment, hosting and monitoring provider administration remains available for its respective tasks. The basic Operator interface is a market-launch requirement and is not deferred. The operator does not see users' verification content; the only exception is references that users report as wrong verdicts with their explicit consent (FA-ERG-15).
 
 | ID | Requirement | Acceptance criterion | Obligation |
 | --- | --- | --- | --- |
@@ -534,6 +535,10 @@ The operator must be able to manage customers, plans and costs without directly 
 | FA-BTR-09 | The operator should be able to view key figures: revenue, active users, conversion to paying customers, cost per checked reference and rate of reported wrong verdicts. | The key figures for a test month match the raw data. | should |
 | FA-BTR-10 | Manage and block organizations and API keys and enable features in advance for individual organizations. | An enabled feature is visible only to the selected organization. | deferred |
 | FA-BTR-11 | The operator must be able to export all data of an account in machine-readable form in order to answer requests for access and data portability within one month (Art. 15 and 20 GDPR). | The export of a test account contains account data, history and invoices in machine-readable form. | must |
+
+For FA-BTR-11, the operator initiates and tracks fulfilment; only the verified entitled recipient receives the full data package. Verification content is delivered by the verification program without being exposed in ordinary Operator administration or passed through the private service backend. A purpose-limited data-subject request may cover data still retained for a blocked or deleted account without restoring normal account access. Requesting an export does not extend existing deletion deadlines. Operator-arranged delivery is distinct from the deferred self-service initiation in FA-KTO-05.
+
+Bringing the basic interface forward does not change the obligations or triggers for vouchers, advanced key figures, organizations, or the consent-bound reported-wrong-verdict feature. Their existing must/should/deferred scope remains in force.
 
 ## 14 Cross-cutting requirements
 
@@ -705,7 +710,6 @@ Every deferred requirement is implemented only when its trigger occurs; the clie
 | Data sources German National Library, DataCite, DBLP (section 7) | Quality measurement or reported wrong verdicts show values below target for a language or source type | Reference test set with German-language books (14.4) |
 | FA-UEB-06 independent accessibility audit | Request from a public institution or organization, or the operator has 10 employees or more than EUR 2 million annual revenue | Self-assessment according to FA-UEB-04 |
 | FA-UEB-48 independent security test | Request from an organization, 500 paying customers or a security incident | Self-assessment according to FA-UEB-46 |
-| Dedicated interface for the operator administration (section 13) | Support effort of more than 4 hours per week or a second person takes over support | – |
 | FA-ERF-09 background checks | 5 user requests or conspicuously many cancelled checks of 100 references or more | – |
 | FA-ERF-07 OCR for scanned PDFs | More than 5 % of uploaded PDFs without text | Counting according to FA-ERF-02 |
 | FA-ERG-21 sharing a report via link, FA-ERG-32 table export | 5 user requests each | – |
