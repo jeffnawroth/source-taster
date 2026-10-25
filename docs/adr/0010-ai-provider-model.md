@@ -11,7 +11,7 @@ The client accepted this decision on 25 October 2026 in [AI provider and model](
 
 This keeps data protection and quality evidence ahead of convenience. The cost is measuring up to three provider paths before launch and accepting that the best-known frontier models may not be the launch model.
 
-The baseline is the approved [requirements specification v3.2](../requirements-specification.md). This ADR approves no requirement change. Its change-request candidate is listed under Consequences.
+The baseline is the approved [requirements specification v3.2](../requirements-specification.md). This ADR approves no requirement change. Its interpretations and its change-request candidate are listed under Consequences.
 
 ## AI input and output
 
@@ -79,7 +79,7 @@ Unverified facts are checked when accounts are set up. A candidate that fails a 
 ## Selection rule
 
 - **Candidate order:**
-  1. the strongest eligible open-weight model at IONOS or STACKIT;
+  1. the strongest eligible open-weight model at IONOS or STACKIT, picked on the Development set, never by trying several models on the Reference test set;
   2. Claude Haiku 5.5 on Bedrock EU;
   3. Claude Sonnet 5.5 on Bedrock EU.
 - **Launch configuration.** The first candidate that passes the quality gate in all three AI runs (ADR-0006) and meets the structuring-time target below becomes the launch configuration.
@@ -151,13 +151,18 @@ Rules:
 ## Consequences
 
 - **The launch model is unknown until measured.** Accounts with IONOS, STACKIT and AWS are needed to run the gate.
-- **Change-request candidate** (recorded on the map, not approved): FA-UEB-12 acceptance "contract **or verifiable, enforced configuration**", needed only if Bedrock is chosen and its contract does not cover the exclusion.
+- **Requirements interpretations and change-request candidates** (none approved; recorded on the map):
+  - FA-UEB-12 (interpretation): provider exceptions limited to content Source Taster never sends, such as image safety retention, do not breach the no-storage rule;
+  - FA-UEB-12 (interpretation): legally required retention is disclosed in the record of processing activities and the privacy policy and is not treated as storage;
+  - FA-UEB-12 (change-request candidate): acceptance "contract **or verifiable, enforced configuration**", needed only if Bedrock is chosen and its contract does not cover the exclusion.
+- **Open scoring gap.** Abbreviated journal titles land in `container-title-short`. Scoring under ADR-0008 must compare them with the Candidate's journal title or its abbreviation; otherwise abbreviating styles lose the journal weight as a missing field. This is recorded as fog on the map.
 - **ADR-0006 is refined, not changed:** expected CSL fields are the values as written in the Reference.
 - **Handed-off interfaces:**
   - [Non-AI structuring approach](https://github.com/jeffnawroth/source-taster/issues/20):
     - the parser is the per-chunk fallback of AI extraction;
     - for pasted text, it runs line by line and must reject lines that are not References;
-    - FA-ERF-05 boundaries are used for document chunking and fallback.
+    - FA-ERF-05 boundaries are used for document chunking and fallback;
+    - the parser uses the same as-written field convention, including `container-title-short` for abbreviated journal titles.
   - [Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22):
     - do not assume co-location with AWS, because EU open-weight is measured first;
     - accounts for the three candidate paths;
