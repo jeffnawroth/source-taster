@@ -60,6 +60,8 @@ A boundary correction re-runs Structuring (ADR-0010). Re-structuring everything 
   - They are checked automatically under FA-STR-05; otherwise FA-KTO-13 applies.
 - **Cut.** An entry cut by the new boundary becomes a removed slot plus a new slot.
 
+[ADR-0016](0016-results-presentation-workflow.md) records the accepted UI: Edit Reference list groups region changes/addition/removal, is available when no Check/Reference run is active, and previews added/dropped entries and expected additional Quota. Users can explicitly stop the whole running Check first. Unchanged slots retain evidence; new/cut slots still follow automatic start or the existing partial-Check offer. This does not introduce single-Reference cancellation, refunds or a new parser/Verdict rule.
+
 ### Rejected lines
 
 This fills the ADR-0010 handoff that the parser must reject lines that are not References.
