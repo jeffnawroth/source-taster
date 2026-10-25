@@ -86,7 +86,7 @@ No non-essential e-mail exists at launch. Because the mail module accepts only t
 - **Evidence:**
   - the automated completeness check;
   - a recorded sample of 50 texts per language across interface, messages, Verification report, e-mails and invoice, with reviewer, date and build.
-- **Scope:** website and documentation texts remain open on the decision map.
+- **Scope:** [ADR-0020](0020-website-documentation-help.md) includes website/documentation page completeness and their texts in the FA-UEB-01 evidence. Private/open catalog ownership remains unchanged.
 
 ## Acceptance evidence
 
@@ -115,4 +115,4 @@ No non-essential e-mail exists at launch. Because the mail module accepts only t
 - **Handed-off interfaces:**
   - Final technical-concept synthesis and traceability: map the five e-mails, the reserved withdrawal receipt and the FA-UEB-01 evidence to their requirements.
   - FA-UEB-23 legal review: sets the legal content of the order confirmation, cancellation receipt and withdrawal receipt.
-  - Consent, analytics, website and documentation: website and documentation texts join FA-UEB-01 evidence there. Any future newsletter uses the non-essential gate above.
+  - [Website, documentation, help and analytics](https://github.com/jeffnawroth/source-taster/issues/54), [ADR-0020](0020-website-documentation-help.md): website/documentation texts join FA-UEB-01 evidence; support Reply-To and the versioned legal-page footer destinations are defined there. Any future newsletter uses the non-essential gate above.
