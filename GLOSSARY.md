@@ -156,6 +156,10 @@ _Avoid_: Hallucination (which also covers entirely invented works)
 The measurement of a configuration on the reference test set against the quality targets; a configuration that fails it is neither released nor activated.
 _Avoid_: Benchmark run
 
+**Measured configuration**:
+The complete setup behind structuring and verification, measured as a whole in the quality gate; only one that passed may serve users, and any change to it makes a new one.
+_Avoid_: AI model, model (when meaning the whole setup)
+
 **Initial value**:
 A value set by the requirements specification for market launch that the operator can change afterwards.
 

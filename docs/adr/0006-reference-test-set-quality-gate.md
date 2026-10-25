@@ -60,6 +60,7 @@ On top of the section 14.4 launch minimums, the launch version of the Reference 
 - **All 11 styles of FA-STR-02, with at least 20 real records each.** At 90 %, that allows at most 2 errors per style.
   - This goes beyond the five styles of section 14.4, because FA-STR-02 is accepted on the Reference test set itself.
   - A record counts as correctly structured when every expected CSL field matches after normalization and no invented field is added. Normalization covers Unicode NFC, whitespace and dash variants.
+  - Expected CSL field values are the values as written in the Reference, as refined in [ADR-0010](0010-ai-provider-model.md).
   - FA-STR-02 is judged on the AI path; the parser path is measured for information.
 
 ## Development set and calibration
@@ -73,6 +74,7 @@ On top of the section 14.4 launch minimums, the launch version of the Reference 
 - **Real records.**
   - An agent may prepare a record.
   - A human checks the accepted identifiers and expected fields against the canonical entry before the record enters a set. The canonical entry is the DOI landing page, the publisher page or a library catalog.
+  - The canonical entry proves identity and existence. Expected field values stay as written in the Reference ([ADR-0010](0010-ai-provider-model.md)).
 - **Invented records.**
   - Before entering a set, each one is confirmed as non-existent against all Data sources and by web search.
   - If the work does exist, the record is reclassified: as falsified if the citation contains errors, otherwise as real.
