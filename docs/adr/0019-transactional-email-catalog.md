@@ -48,7 +48,7 @@ It is recorded on the decision map as a change-request candidate. Only the clien
 - **Owned templates:** typed TypeScript template functions, with no rendering dependency. Each e-mail has two parts:
   - plain text;
   - simple, accessible HTML: single column, `lang` attribute, real text instead of images, sufficient contrast.
-- **Fallback:** React Email (`@react-email/components` 1.0.12) is used only if layouts outgrow the owned templates. Adopting it would require a new decision.
+- **Fallback:** React Email (`@react-email/components` 1.0.12) is the fallback if layouts outgrow the owned templates.
 - **Minimal content:** only minimal Account metadata, as ADR-0012 requires. E-mails never contain References, document names or Check content.
 - **No tracking:** no open or click tracking and no external images. Links point only to Source Taster's own domain.
 - **Code privacy:** the sign-in code appears only in the body, not in the subject line, so that it stays out of lock-screen previews.
@@ -114,4 +114,5 @@ No non-essential e-mail exists at launch. Because the mail module accepts only t
 - **Change-request candidate:** the § 356a BGB withdrawal function waits for the client's decision on a specification amendment.
 - **Handed-off interfaces:**
   - Final technical-concept synthesis and traceability: map the five e-mails, the reserved withdrawal receipt and the FA-UEB-01 evidence to their requirements.
+  - FA-UEB-23 legal review: sets the legal content of the order confirmation, cancellation receipt and withdrawal receipt.
   - Consent, analytics, website and documentation: website and documentation texts join FA-UEB-01 evidence there. Any future newsletter uses the non-essential gate above.
