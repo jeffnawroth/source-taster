@@ -155,7 +155,7 @@ Rules:
   - FA-UEB-12 (interpretation): provider exceptions limited to content Source Taster never sends, such as image safety retention, do not breach the no-storage rule;
   - FA-UEB-12 (interpretation): legally required retention is disclosed in the record of processing activities and the privacy policy and is not treated as storage;
   - FA-UEB-12 (change-request candidate): acceptance "contract **or verifiable, enforced configuration**", needed only if Bedrock is chosen and its contract does not cover the exclusion.
-- **Open scoring gap.** Abbreviated journal titles land in `container-title-short`. Scoring under ADR-0008 must compare them with the Candidate's journal title or its abbreviation; otherwise abbreviating styles lose the journal weight as a missing field. This is recorded as fog on the map.
+- **Scoring gap.** Abbreviated journal titles land in `container-title-short`. Scoring under ADR-0008 must compare them with the Candidate's journal title or its abbreviation; otherwise abbreviating styles lose the journal weight as a missing field. [ADR-0018](0018-journal-title-abbreviations.md) resolves it.
 - **ADR-0006 is refined, not changed:** expected CSL fields are the values as written in the Reference.
 - **Handed-off interfaces:**
   - [Non-AI structuring approach](https://github.com/jeffnawroth/source-taster/issues/20):
