@@ -82,6 +82,8 @@ This fills the ADR-0010 handoff that the parser must reject lines that are not R
 - **No OCR and no external converters.** OCR stays deferred (FA-ERF-07).
 - **Extraction port.** Both adapters sit behind an extraction port.
 
+[ADR-0015](0015-security-abuse-protection.md), accepted on 25 October 2026, requires OS-enforced restricted execution for these untrusted-document adapters. A child process alone is not a security sandbox. The trusted verification program retains queue, persistence, authorization and external-provider duties; the parser boundary must deny database/key access and unrestricted networking. Prove deployment-specific isolation, actual memory/concurrency/expanded-byte bounds, termination and cleanup before launch. The libraries, limits and time targets below remain unchanged; the hosting refinement is explicit in ADR-0012.
+
 ### PDFs without text, partially without text, or broken
 
 - **Without text.** No page has extractable text. The user gets the FA-ERF-02 message, and a content-free counter records it. That counter is the OCR trigger of section 19.
