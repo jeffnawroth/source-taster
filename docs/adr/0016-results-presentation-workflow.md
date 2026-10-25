@@ -20,7 +20,7 @@ Keep [ADR-0011's](0011-non-ai-structuring.md) Bibliography selection: all detect
 
 ## Responsive workspace and stable overview
 
-At sufficient width, the web workspace shows the Reference list and selected detail alongside each other. In the narrow side panel, detail replaces the list; **Back** restores the filter and list position. The underlying Check and functionality are the same. Existing web-only purchase/account/Operator paths and extension-only selection/panel exceptions remain FA-GLE-02; narrow width does not remove a required Check action.
+At sufficient width, the web workspace shows the Reference list and selected detail alongside each other. In the narrow side panel, detail replaces the list; **Back** restores the filter and list position. The underlying Check and functionality are the same. Existing web-only purchasing/Plan changes/Operator administration paths and extension-only selection/panel exceptions remain FA-GLE-02; narrow width does not remove a required Check action.
 
 References initially stay in input order. Streaming events update their existing rows without automatic reordering or moving keyboard focus. Show overall/per-Reference progress and the current step in understandable text. Summary counts update with the list and the six Verdict counts act as filters. Make filter state clear and retain it across list/detail navigation.
 
