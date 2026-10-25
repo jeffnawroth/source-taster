@@ -37,6 +37,18 @@ _Avoid_: Parsing (when specifically referring to the AI path)
 Structuring references with a rule-based parser, including individual references supplied by bibliography detection.
 _Avoid_: AI extraction
 
+**Bibliography detection**:
+Finding the bibliography in a document and splitting it into individual references, without AI.
+_Avoid_: Parsing (which structures a single reference)
+
+**Bibliography selection**:
+The one or more regions of a document that bibliography detection marks as its bibliography and that users can move or deselect; only references inside it are checked.
+_Avoid_: Range, boundary (as names for the whole selection)
+
+**Development documents**:
+A collection of documents, separate from the documents used in the quality gate, on which bibliography detection is tuned.
+_Avoid_: Test documents
+
 **Candidate**:
 An entry returned by a data source that could match the reference.
 _Avoid_: Hit, result (as competing domain names)
