@@ -108,6 +108,22 @@ _Avoid_: Credits
 A one-time purchase of a quota with a validity period and Pro features, without a subscription.
 _Avoid_: Bundle, credits
 
+**Order**:
+An owner's binding purchase of a plan or check pack at a fixed price; it grants nothing until it is paid and activated.
+_Avoid_: Checkout, cart
+
+**Activation**:
+The moment from which a paid order grants its quota and its period or validity begins: after the withdrawal period, or earlier if the owner consents to an immediate start.
+_Avoid_: Purchase date (as a substitute)
+
+**Withdrawal**:
+A consumer's statutory revocation of an order within the withdrawal period, which undoes the purchase.
+_Avoid_: Cancellation, refund (as substitutes)
+
+**Cancellation**:
+An owner's notice ending a subscription at the end of the paid period.
+_Avoid_: Withdrawal, deletion (as substitutes)
+
 **Guest**:
 A user without an account.
 _Avoid_: Anonymous user (as a competing role name)
