@@ -90,7 +90,7 @@ The baseline is the approved [requirements specification v3.2](../requirements-s
   - reconciliation reports for grants, reservations, payments against Stripe and mail idempotency (ADR-0004, ADR-0009);
   - evidence that the key table was empty after restore;
   - evidence that all secrets came only from the password manager.
-- **Release before traffic.** After any restore, deletions and tombstones are re-applied, and payment reconciliation completes before paid actions reopen.
+- **Release before traffic.** After any restore, deletions and tombstones are re-applied, and payment reconciliation completes before paid actions reopen. [ADR-0013](0013-authentication-roles.md) additionally requires reapplying Account/Owner blocks and invalidating all pre-restore sessions and sign-in challenges before traffic returns; all clients sign in again.
 
 ## Content in backups
 

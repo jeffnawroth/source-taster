@@ -39,6 +39,7 @@ packages/i18n
 ## Identity, entitlement and Quota
 
 - **Access tokens.** The service issues short-lived signed access tokens, about five minutes, with the verification API as audience. The verification API verifies them locally against the service's JWKS. Guests receive a Guest token the same way, bound to a random, browser-held Guest ID, so the verification API has one path. Every call sends `Authorization: Bearer`. Progress is read with a fetch-based SSE reader, because `EventSource` cannot send headers. In the extension, the reader runs in the side panel page, not in the service worker.
+- **Current session authorization.** [ADR-0013](0013-authentication-roles.md) refines the local-JWT model: every protected request, including reads and further stream output, also checks current session, Account/Owner and permission state with the service. Failed checks deny access; revocation is not delayed until JWT expiry. The existing JWKS validation and five-minute token layer remain.
 - **Online entitlement checks.** Before every entitlement-relevant action, the verification API asks the service online for current permissions and Quota. These actions are: start Structuring, start a Check, start a Re-check and create a Verification report. The answer is not cached per Check. This deliberately couples Check availability to the service.
 - **Quota protocol.** The internal service API offers:
   - `reserve`: Check ID, Owner, count and idempotency key;

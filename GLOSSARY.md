@@ -141,7 +141,7 @@ A user without an account.
 _Avoid_: Anonymous user (as a competing role name)
 
 **Account**:
-A person's registration, confirmed by e-mail, with which they sign in to the extension and the web app; at market launch each account acts for exactly one owner, its own.
+A person's registration, confirmed by e-mail, with which they sign in to the extension and the web app; at market launch each account acts for exactly one owner, its own. Adding or changing a sign-in method keeps the same account.
 _Avoid_: Owner (as a substitute)
 
 **Owner**:
