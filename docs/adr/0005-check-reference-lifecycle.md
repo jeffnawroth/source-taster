@@ -152,9 +152,11 @@ This keeps the deduction equal to the Verdicts the user sees (FA-ERF-08).
   - the original input and the fields;
   - the result and its Verdict;
   - the Scoring rules version;
-  - the opaque Owner ID only. The Operator area maps it to the Account through the service (FA-BTR-08), because at launch each Account has exactly one personal Owner.
-- The copy is exempt from the 24-hour rule and has its own configured retention period. The concrete period is left open for privacy and legal review.
+  - for signed-in submissions, the opaque Owner ID only. The Operator area maps it to the Account through the service (FA-BTR-08), because at launch each Account has exactly one personal Owner. Guest submissions retain only their Guest-context association under ADR-0022 and have no Account mapping.
+- The copy is exempt from the 24-hour rule and has a separately bounded lifetime. [ADR-0022](0022-reported-wrong-verdict-policy.md) records the accepted maximum of 90 days from receipt, earlier withdrawal/deliberate Check/Account/Owner deletion, report-lifetime consent/handling evidence and required legal qualification. Ordinary automatic Check expiry does not itself delete the copy.
 - The Operator area (FA-BTR-08) reads the copy in the browser directly from an Operator-only endpoint of the verification API. The service backend therefore never receives the content (ADR-0003).
+
+[ADR-0022](0022-reported-wrong-verdict-policy.md) refines the copy into an inspectable diagnostic projection of exactly the reported Reference/result, excluding filenames, document context and other References. It also supports Guest-context reports without an Account, a deletion-only Guest removal code, and both-client own-report management. Guest reports are not mapped to an Account or transferred on sign-in. Immutable content remains erasable; notes/status are separate and share the copy's deadline. FA-ERG-15/FA-BTR-08 remain should.
 
 ## Considered options
 

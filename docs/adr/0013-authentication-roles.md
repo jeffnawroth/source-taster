@@ -47,6 +47,8 @@ Web and extension sign in separately to the same Account and can remain signed i
 
 The online check refines ADR-0003: it originally mandated online entitlement checks for starting Structuring/Checks/Re-checks/reports while leaving ordinary JWT verification local. Local JWKS validation remains; online session/authorization status is now additionally required for all protected operations. Measure its extra latency and availability dependency in the existing performance/load gates. No latency target is waived by this decision.
 
+[ADR-0022](0022-reported-wrong-verdict-policy.md) adds a purpose-limited Guest report-removal credential for the should reporting feature. Through the normal current-authorized API entry, the verification API validates this per-report secret as proof for deletion only, even if the original Guest context has expired. It grants no report-content read, Account access or Guest-content migration; protected content still requires the current principal/Owner authority above. Store only a verifier, keep the code out of URLs/logs, and invalidate it with report deletion/expiry. Qualify actual transport, rate controls and restore behavior before feature activation.
+
 ## Logout, streams and worker authorization
 
 Provide **sign out here** and **sign out everywhere**. Revoke the corresponding server sessions; removing a local credential alone is insufficient. Sign-out does not delete the Account, block the Owner, end the Plan or refund Quota. Other authorized sessions remain independent.
