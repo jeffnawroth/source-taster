@@ -64,7 +64,7 @@ The baseline is the approved [requirements specification v3.2](../requirements-s
 
   The hosted Stripe step afterwards only collects the payment means. No provider label or price placement is relied on.
 - **Order.**
-  - Every checkout starts from a server-created Order.
+  - Every purchase starts from a server-created Order.
   - The Order is bound to the Owner and to immutable versions of the catalog entry, the consent text and the terms.
   - Amounts are validated on the server.
   - The browser's success redirect proves nothing.
@@ -74,6 +74,7 @@ The baseline is the approved [requirements specification v3.2](../requirements-s
   - It is the activation gate of ADR-0004.
   - Source Taster sends the confirmation e-mail with the consent and the withdrawal instructions itself.
   - No provider checkout field is relied on.
+- **Activation with consent at ordering.** Activation is immediate: Pro is charged and its first period starts at the order, and a Check pack's Quota and validity start at the order.
 - **Activation without consent.** This answers the billing-date question that ADR-0004 left open.
   - **Pro.** At ordering, the payment means is stored with SCA but not charged.
     - The first charge and the first Pro period start at activation: when the withdrawal period ends, or earlier on later consent.
@@ -83,7 +84,7 @@ The baseline is the approved [requirements specification v3.2](../requirements-s
   - **Check pack.** It is charged at ordering, because a card authorization cannot be held for the withdrawal period.
     - Quota and validity start at activation.
     - A withdrawal is refunded in full.
-- **SCA (FA-KTO-21).** Acceptance uses a test card that forces a 3-D Secure challenge, both on a pack purchase and on the start of a subscription. Renewals need not be challenged. Exemptions and issuer decisions are the bank's.
+- **SCA (FA-KTO-21).** Acceptance uses a test card that forces a 3-D Secure challenge on a pack purchase and on storing the payment means when Pro is ordered. The later first Pro charge and renewals run off-session and need not be challenged. Exemptions and issuer decisions are the bank's.
 - **Payment methods.** Cards and PayPal for both offerings. PayPal for one-time and recurring payments must be enabled on the actual account before launch.
 
 ## Cancellation
@@ -157,6 +158,7 @@ These extend ADR-0004's business-object keys and reconciliation.
 
 - **Paddle Billing as merchant of record**, rejected: it has no EN 16931 evidence (FA-ERW-06), it charges about 10.6 % in USD, the seller to German buyers is UK-based, and its customer data sits with controllers outside the EU.
 - **FastSpring as merchant of record**, rejected for the same FA-ERW-06 gap. It also has quote-only pricing, no invoice checkout for auto-renewing subscriptions and an unclear German-buyer seller.
+- **Stripe invoices alone, without an e-invoicing integration**, rejected because Stripe evidences no EN 16931 output itself (FA-ERW-06).
 - **Mollie as primary**, rejected in favor of Stripe's subscription events, retries and structured purchase-order field. It is kept as the named fallback.
 - **Provider-hosted order and cancellation screens**, rejected: none evidences the exact FA-KTO-22 button and price placement, and portal cancellation does not satisfy FA-KTO-27.
 - **Charging Pro at ordering when activation is delayed**, rejected because the provider period would no longer equal the Pro grant period.
@@ -183,6 +185,7 @@ These extend ADR-0004's business-object keys and reconciliation.
 - **Requirements interpretations and change-request candidates** (none approved; recorded on the map):
   - FA-ERW-06: "provider supports" includes a named integration, with EN 16931 at selection and XRechnung at FA-KTO-25 acceptance;
   - FA-KTO-21: the SCA acceptance reading above;
+  - FA-KTO-26: with Pro as the only recurring Plan at launch, "upgrade, downgrade" is accepted as subscribing to and cancelling Pro;
   - FA-UEB-13: payment data held by providers is governed by the service-provider register;
   - section 19 and FA-KTO-34: the trigger measures net cross-border consumer sales in the current or preceding year, and FA-KTO-34 must be live before the threshold;
   - FA-KTO-04: OSS records need 10 years against the 8 years in FA-KTO-04, once OSS is used;
@@ -200,4 +203,7 @@ These extend ADR-0004's business-object keys and reconciliation.
     - the durable webhook inbox;
     - post-restore payment reconciliation;
     - Stripe and the e-invoicing integration in the service-provider register.
-  - [Authentication and roles](https://github.com/jeffnawroth/source-taster/issues/23): the order page requires a signed-in Account; the cancellation route must not.
+  - [Authentication and roles](https://github.com/jeffnawroth/source-taster/issues/23):
+    - the opaque Owner ID is the customer reference at Stripe;
+    - ordering requires a signed-in Account, because ADR-0004 gives a Guest no purchases;
+    - the cancellation route must work without signing in.
