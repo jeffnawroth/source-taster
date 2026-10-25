@@ -24,6 +24,8 @@ Stripe remains the payment/refund administration; hosting/monitoring keep their 
 
 All product UI/messages follow existing DE/EN and accessibility requirements. The launch interface does not pull vouchers, organizations/API keys, self-service data-export initiation, or the consent-bound wrong-Verdict UI forward. Their existing obligations/triggers remain unchanged. Ordinary administration never exposes Reference titles, files, raw text, Candidates or History content; the existing reported-copy permission remains only its separately scoped architectural hook.
 
+[ADR-0022](0022-reported-wrong-verdict-policy.md) records that hook's accepted purpose, exact diagnostic projection, Guest/Owner associations, 90-day maximum and earlier deletion rules. A future separately authorized Operator browser reads and handles retained reported copies directly in the verification program; private administration/audits stay content-free. Handling notes share the copy's deadline, and closure changes neither the original Verdict nor Quota. No tracker/repository/email/remote-analysis content archive or new launch reporting obligation is introduced.
+
 ## Versioned configuration and safe actions
 
 Use **Draft → validation → activation**. Show exact differences, effective dates, affected scope and validation failures before activation. Persist immutable versions/activation records so the active catalog/configuration and the version used by an Order or result can be recovered. Concurrent changes must not silently overwrite another approved edit.

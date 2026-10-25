@@ -105,6 +105,10 @@ _Avoid_: Cancellation
 A document containing all verdicts of a check as evidence.
 _Avoid_: Report (as the canonical domain name)
 
+**Reported wrong Verdict**:
+A user's report of one result they consider wrong, with a separately consented copy of the affected reference and result for investigation.
+_Avoid_: Verification report (which documents the results of a check)
+
 **History**:
 Stored earlier checks of an owner, limited in the free plan and extended in paid plans.
 
