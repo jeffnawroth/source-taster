@@ -76,6 +76,8 @@ The reported-wrong-Verdict endpoint remains a specifically permissioned, consent
 
 Account deletion, email changes, linking a method and critical Operator actions require renewed proof of control **no older than five minutes**, bound to the requesting session/action. A 30-day session alone is not fresh proof. Reauthentication does not silently prolong the absolute session lifetime.
 
+[ADR-0021](0021-online-dpa-workflow.md) adds DPA conclusion to the fresh-proof actions, tied to the exact party/packet revision. Material changes requiring a new conclusion follow the same action-bound rule. This authenticates the actor; it does not itself prove legal representative authority or approve execution form. Contract records and purpose-limited retrieval never transfer an Account or grant ordinary History access.
+
 For email changes, verify the existing Account access and the new address before replacing the login address; reject collisions instead of merging paid Accounts/Owners. Preserve the Account/Owner IDs. A support request, invoice or knowledge of personal details alone cannot transfer an Account. If no confirmed route remains, recover access to the mailbox first. Mailbox compromise or reassignment remains a risk of email-only sign-in: proof of current mailbox control is not proof of the same natural person. This decision does not claim that an email-only system can distinguish a later mailbox holder. Product MFA remains deferred under FA-KTO-06 and its security-assessment trigger.
 
 For adding Google/Microsoft or a university identity later:
