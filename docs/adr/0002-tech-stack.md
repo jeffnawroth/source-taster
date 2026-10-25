@@ -35,6 +35,8 @@ The client accepted this decision on 24 October 2026 in [Tech stack](https://git
 
 The rule excludes these 0.x packages from core roles: Drizzle ORM, Kysely, PGlite, graphile-worker, WXT and Plasmo.
 
+One narrow exception exists: [ADR-0017](0017-accessible-pdf-reports.md) admits exact-pinned PDFKit 0.20.2 and its 0.x dependencies, only for the Verification report adapter and only after its launch gates pass.
+
 ## Interpretation of the supported platforms
 
 These interpret section 14.6. They do not amend it.
