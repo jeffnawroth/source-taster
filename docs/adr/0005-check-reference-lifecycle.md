@@ -15,7 +15,7 @@ This ADR fixes the conceptual model only, not the storage schema. These belong t
 - the search flow and search-log detail: [Search strategy and latency budget](https://github.com/jeffnawroth/source-taster/issues/16);
 - thresholds, verdict derivation, and which Verdicts carry a Correction suggestion: [Scoring and verdict rules](https://github.com/jeffnawroth/source-taster/issues/17);
 - the round trip of raw BibTeX and RIS: [Non-AI structuring approach](https://github.com/jeffnawroth/source-taster/issues/20). This ADR fixes only the policy that the original input is never replaced;
-- presentation: the "Results presentation" fog item on the map;
+- presentation: [Results presentation and correction workflow](https://github.com/jeffnawroth/source-taster/issues/46), recorded in [ADR-0016](0016-results-presentation-workflow.md);
 - backup lifetime: [Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22).
 
 ## Reference slot
@@ -59,6 +59,8 @@ This ADR fixes the conceptual model only, not the storage schema. These belong t
 - An override is a separate layer bound to exactly one result.
 - Confirming a Verdict is an override with the same Verdict, and is also marked as manual.
 - A Re-check creates a new result to which the override no longer applies. The user sees a notice that the manual verdict was reset by the Re-check. The old override stays attached to the old result.
+
+[ADR-0016](0016-results-presentation-workflow.md) records the client-accepted presentation: list, summary/filter and Verification report use the effective manual Verdict with a manual indication and retain the system Verdict. A running Re-check shows its current Status, with the previous result clearly historical. This changes no result, Score, source identity or billing rule.
 
 ## Status, Verdict and billing
 
@@ -141,6 +143,8 @@ This keeps the deduction equal to the Verdicts the user sees (FA-ERF-08).
 - **Export (FA-ERG-30).**
   - The export always contains the current fields, including the user's own corrections, and leaves out removed slots.
   - "With applied corrections" replaces the fields of each Reference that has a Correction suggestion with the data of the Source found. This happens **only in the export**: nothing is stored, and the original input and revisions stay unchanged.
+
+[ADR-0016](0016-results-presentation-workflow.md) makes export application an explicit transient per-suggestion choice, previews format/style/selected corrections, and separates it from Edit fields/Save and re-check. List-membership changes use a preview while no Check/Reference run is active; ordinary idle-slot field editing retains its existing availability. Open History and Start as a new Check remain visibly separate actions under the unchanged lifecycle above.
 
 ## Reported wrong Verdict (FA-ERG-15, hook only)
 
