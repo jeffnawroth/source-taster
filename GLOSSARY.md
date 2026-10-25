@@ -148,6 +148,12 @@ _Avoid_: Owner (as a substitute)
 The person to whom a quota, plan or stored check is assigned at market launch; later, an owner can also be an organization.
 _Avoid_: Customer, user (as substitutes for ownership)
 
+**Contracting party**:
+The person or legal entity named as a party to an agreement with Source Taster; it may act through an authorized representative and is distinct from the account and owner.
+
+**Data processing agreement (DPA)**:
+An agreement governing the processing of personal data on behalf of a customer, including the parties' responsibilities and the processing arrangements.
+
 **Operator**:
 The role responsible for providing, selling and supporting the service, including plans, customers and quotas.
 _Avoid_: Admin (as a substitute for this role)

@@ -19,6 +19,10 @@ The mail module accepts only these message types:
 3. **Purchase with invoice** for every paid invoice, including each Pro renewal.
 4. **Failed payment**, including a failed first charge at activation (ADR-0004, ADR-0009).
 5. **Cancellation receipt** with the time of receipt and the contract end (FA-KTO-27).
+6. **DPA conclusion receipt** with agreement ID/version and a protected link to the concluded packet, under [ADR-0021](0021-online-dpa-workflow.md).
+7. **Intended subprocessor-change notice** with the reviewed change/objection information, under ADR-0021. Its contractual notice conditions are not established merely by SMTP success.
+
+ADR-0021 explicitly extends the original five-type inventory by these two DPA types; other unlisted types remain disallowed. Both use the existing private outbox and minimal metadata boundary, never verification content or bearer download credentials.
 
 The **withdrawal receipt** is reserved in the catalog, but not active, until the client decides on the change-request candidate below.
 
@@ -29,7 +33,7 @@ Deferred e-mails arrive only with their triggers:
 - the renewal reminder (FA-KTO-51);
 - the trial notice (FA-KTO-30).
 
-The legal content of the order confirmation, cancellation receipt and withdrawal receipt is set by the FA-UEB-23 review.
+The legal content of the order confirmation, cancellation receipt and withdrawal receipt is set by the FA-UEB-23 review. ADR-0021 additionally requires specialist qualification of the DPA receipt and subprocessor notice/recipient/delivery rules; this is not a completed legal assessment or a claim that FA-UEB-23's enumerated list already names them.
 
 ## Withdrawal function (change-request candidate)
 
@@ -59,6 +63,7 @@ It is recorded on the decision map as a change-request candidate. Only the clien
 - **Exceptions:**
   - A sign-in code uses the language of the requesting interface, because an Account may not exist yet.
   - A cancellation receipt requested without sign-in uses the language of the cancellation page.
+  - A DPA conclusion receipt uses the selected agreement language (ADR-0021).
 - **Default:** every other e-mail uses the Account language.
 
 ## Delivery
@@ -90,7 +95,7 @@ No non-essential e-mail exists at launch. Because the mail module accepts only t
 
 ## Acceptance evidence
 
-- Each of the five launch e-mails is produced in DE and EN in the test, with plain-text and HTML parts (FA-KTO-50).
+- Each of the seven selected launch e-mail types is produced in DE and EN in the test, with plain-text and HTML parts. The original FA-KTO-50 acceptance and ADR-0021's DPA receipt/notice evidence remain distinct.
 - The order confirmation contains the consent and withdrawal instructions (FA-KTO-23). The cancellation receipt contains the receipt time and contract end and is sent immediately (FA-KTO-27).
 - Replayed events and a simulated restore produce no duplicate e-mails. An expired code is never sent.
 - A suppressed address shows the Account notice, and the confirmation is still available in the product.
@@ -101,7 +106,7 @@ No non-essential e-mail exists at launch. Because the mail module accepts only t
 ## Considered options
 
 - **Owned templates sent from the private service (chosen):** no extra dependency, one voice and one language rule. Content and delivery stay under Source Taster's control.
-- **React Email or MJML:** both are stable and richer, but add a dependency that five simple e-mails do not need.
+- **React Email or MJML:** both are stable and richer, but add a dependency that the selected simple e-mails do not need.
 - **Stripe customer e-mails for receipts, invoices and dunning:** less work, but they duplicate our e-mails, follow Stripe's own wording and language handling, and cannot carry the consent and withdrawal content.
 - **Sending e-mails from both programs:** would spread SMTP credentials and Account data into the open verification program without need.
 - **Sending directly without an outbox:** simpler, but risks lost or duplicated legal confirmations on crashes, retries and restores.
@@ -113,6 +118,6 @@ No non-essential e-mail exists at launch. Because the mail module accepts only t
 - **Stripe configuration:** customer e-mails are disabled in the Stripe account, and the invoice locale is set from the Account language. Both belong on the release checklist.
 - **Change-request candidate:** the § 356a BGB withdrawal function waits for the client's decision on a specification amendment.
 - **Handed-off interfaces:**
-  - Final technical-concept synthesis and traceability: map the five e-mails, the reserved withdrawal receipt and the FA-UEB-01 evidence to their requirements.
+  - Final technical-concept synthesis and traceability: map the original five e-mails, the two ADR-0021 additions, the reserved withdrawal receipt and the FA-UEB-01 evidence to their requirements.
   - FA-UEB-23 legal review: sets the legal content of the order confirmation, cancellation receipt and withdrawal receipt.
   - [Website, documentation, help and analytics](https://github.com/jeffnawroth/source-taster/issues/54), [ADR-0020](0020-website-documentation-help.md): website/documentation texts join FA-UEB-01 evidence; support Reply-To and the versioned legal-page footer destinations are defined there. Any future newsletter uses the non-essential gate above.

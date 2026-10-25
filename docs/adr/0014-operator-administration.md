@@ -69,6 +69,10 @@ Blocked/deleted Accounts can still have retained data subject to access rights. 
 
 Export fulfilment is not paywalled by Plan/Quota or locked-History presentation rules. Export only data actually retained; do not restore erased data from backups or suspend ordinary deletion deadlines for an export. The 24-hour authorization is a maximum retrieval window, not permission to extend a Check's shorter remaining lifetime. If packaging requires temporary content, it must obey the existing verification-side deletion/encryption rules and must not create a new private-service archive. Revocation, pending deletion and expiry must be rechecked during delivery. Store completion/audit metadata separately from the export content.
 
+### DPA support cases: distinct purposes
+
+[ADR-0021](0021-online-dpa-workflow.md) adds subprocessor-objection cases, verified retrieval of retained contract records after block/deletion, and customer-instructed contractual return/deletion. Track legal/business status and authority without transferring Accounts or exposing verification content. Contractual return may reuse recipient-only transport safeguards, but has its own agreement scope and entitlement; it is not automatically a data-subject export. Complete it before existing deletion deadlines, never extend retention or restore erased data. No general self-service export or ordinary Operator preview is introduced. Actual notice/objection, return timing and retention require legal/deployment qualification.
+
 ## Emergency controls and recovery
 
 Provide clearly scoped controls to pause **new Checks** or **new purchases**, and to cancel affected running Checks where necessary. Name what is paused; do not silently pause the public statutory cancellation route. Apply the existing Check cancellation, reservation release and previously completed-Verdict billing rules; a pause does not fabricate no-match evidence or rewrite results.
