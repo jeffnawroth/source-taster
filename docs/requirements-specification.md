@@ -1,25 +1,25 @@
 # Requirements Specification – Source Taster
 
-*Functional specification without technical implementation details · Version 3.3 draft: target state of the commercial product*
+*Functional specification without technical implementation details · Version 3.3: target state of the commercial product*
 
 25 October 2026 · Jeff Nawroth
 
-> This English document is authoritative. Version 3.3 is a draft consolidating the client-accepted launch Operator interface and workflows of 25 October 2026. Version 3.2 remains the approved working baseline until this draft is approved. Prior versions are preserved in Git history. The superseded German document does not govern this work.
+> This English document is authoritative. The client explicitly approved the consolidated version 3.3 on 25 October 2026, including the launch Operator interface and workflows. Version 3.3 supersedes version 3.2 as the approved working baseline. Prior versions are preserved in Git history. The superseded German document does not govern this work.
 
 **Document information**
 
 | Attribute | Value |
 | --- | --- |
 | Document | Requirements Specification Source Taster |
-| Version | 3.3 draft of 25 October 2026 |
-| Status | Draft for review; Operator design and amendment instruction accepted on 25 October 2026; consolidated wording pending approval |
+| Version | 3.3 of 25 October 2026 |
+| Status | Approved by the client on 25 October 2026, including the consolidated wording |
 | Client | Jeff Nawroth |
 
 **Change history**
 
 | Version | Date | Change |
 | --- | --- | --- |
-| 3.3 draft | 25 October 2026 | Bring the basic private Operator web interface forward to market launch, remove its deferral trigger, and clarify recipient-only fulfilment of Operator-arranged data exports; sections 13 and 19 |
+| 3.3 | 25 October 2026 | Bring the basic private Operator web interface forward to market launch, remove its deferral trigger, and clarify recipient-only fulfilment of Operator-arranged data exports; sections 13 and 19; consolidated wording explicitly approved by the client |
 | 3.2 | 24 October 2026 | Explicit identity evidence, expanded Not verifiable reasons, coverage/DOI precedence, author/date/page and web/archive rules, correction eligibility and numeric precision; sections 8 and 17 |
 | 3.1 | 23 October 2026 | Acceptance criterion of FA-KTO-28 refers to the monthly subscription |
 | 3.0 | 23 October 2026 | First approved version |
