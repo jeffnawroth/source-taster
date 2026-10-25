@@ -64,9 +64,10 @@ A boundary correction re-runs Structuring (ADR-0010). Re-structuring everything 
 
 This fills the ADR-0010 handoff that the parser must reject lines that are not References.
 
-- **When a line is rejected.** A line is rejected when it shows no reference feature: no identifier, no year or "n.d."/"o. J.", and no author–title pattern. Typical examples are headings such as "Literatur", page numbers and running heads.
-- **What the user sees.** Rejected lines appear in a collapsible list "Not recognized as a Reference". One click adopts a line as a Reference, as a new slot under FA-STR-12.
-- **Billing.** A rejected line gets no slot and is not billed.
+- **Joining comes first.** Continuation lines are joined to their entry before any check, so a line such as "Journal of X, 12(3), 45–67." is never rejected on its own. Every check below applies to each joined entry.
+- **When an entry is rejected.** An entry is rejected when it shows no reference feature: no identifier, no year or "n.d."/"o. J.", and no author–title pattern. Typical examples are headings such as "Literatur", page numbers and running heads.
+- **What the user sees.** Rejected entries appear in a collapsible list "Not recognized as a Reference". One click adopts an entry as a Reference, as a new slot under FA-STR-12.
+- **Billing.** A rejected entry gets no slot and is not billed.
 - **Scope.** The rule applies to AI extraction, the parser and the per-chunk fallback alike.
 
 ## Text extraction
@@ -125,14 +126,17 @@ Parser, AI extraction and import all produce the same canonical CSL projection (
 
 One owned mapping table maps the parser result, BibTeX entry types and RIS types to CSL 1.0.2 types, and those to the routes of ADR-0007.
 
+Every one of the 45 CSL 1.0.2 types has a fixed route:
+
 | Route | CSL types |
 |---|---|
-| Articles | `article-journal`, `article-magazine`, `article-newspaper`, `paper-conference`, `article` (preprint), `report`, `thesis` |
-| Books | `book`, `chapter` |
-| Web | `webpage`, `post-weblog` |
-| Outside coverage | `legislation`, `legal_case`, `manuscript` and archival records, `personal_communication` |
+| Articles | `article`, `article-journal`, `article-magazine`, `article-newspaper`, `paper-conference`, `report`, `thesis`, `review`, `review-book`, `periodical`, `dataset`, `software`, `document` |
+| Books | `book`, `chapter`, `entry-dictionary`, `entry-encyclopedia`, `entry`, `classic`, `pamphlet` |
+| Web | `webpage`, `post-weblog`, `post` |
+| Outside coverage | `legislation`, `bill`, `regulation`, `treaty`, `hearing`, `legal_case`, `standard`, `patent`, `manuscript`, `collection`, `personal_communication`, `interview`, `speech`, `broadcast`, `motion_picture`, `song`, `musical_score`, `performance`, `event`, `graphic`, `figure`, `map` |
 
-Unknown types take the article route.
+- **Outside coverage.** These types have no responsible Data source. Following section 17 of the requirements specification, they receive Not verifiable before any coverage search. This makes ADR-0007's "other types take the article route" precise and extends its list of laws, judgments, archival records and personal communications.
+- **Unknown types.** Only a value that is not a CSL 1.0.2 type, or a missing type, takes the article route.
 
 ### Identifiers
 
@@ -172,6 +176,8 @@ Identifiers are normalized while the original stays:
 
 Each of the eleven styles has exactly one pinned CSL file with a fixed locale that does not follow the interface language. The research inspected style commit `d2cc420` and locale commit `8bef426`.
 
+The APA, MLA, Chicago, IEEE, Vancouver and Harvard files set no default locale, so their locale below is fixed by Source Taster. For the other five styles it is the file's own default locale.
+
 | Style | CSL file | Locale |
 |---|---|---|
 | APA | `apa.csl` (7th edition) | en-US |
@@ -199,6 +205,7 @@ Each of the eleven styles has exactly one pinned CSL file with a fixed locale th
   - the citeproc-js version.
 
   Every outcome-affecting change needs a new Quality gate run.
+- **Parser path in every gate run.** Every Quality gate run also measures the parser path (ADR-0006).
 - **Per slot.** Every Reference slot records its Structuring path (parser, AI extraction or import) with the corresponding version, analogous to the Scoring rules version.
 
 ## Considered options
@@ -222,9 +229,10 @@ Each of the eleven styles has exactly one pinned CSL file with a fixed locale th
 - **Requirements interpretations and change-request candidates:**
   - FA-ERF-12 (interpretation): 20 MB means 20 MiB, and the 1,000-Reference limit is counted after Structuring.
   - FA-ERF-02 and section 6 (interpretation): pasted text with a detected bibliography counts as a document, and lists accept joined continuation lines beyond "one per line".
+  - Section 17 (interpretation): every CSL type without a responsible Data source, including bills, regulations, treaties, standards, patents and media types, is outside coverage and receives Not verifiable.
   - FA-ERF-06 (interpretation): "completely imported" means every entry becomes a slot, and every field is mapped or kept as unsupported.
   - FA-ERG-30 (interpretation): BibTeX means traditional BibTeX.
-  - FA-STR-02 and FA-KON-03 (interpretation): the eleven styles are represented by the pinned manifest above, with a locale fixed per style.
+  - FA-STR-02 and FA-KON-03 (interpretation): the eleven styles are represented by the pinned manifest above, with a locale fixed per style; where a file sets no default locale, Source Taster fixes it.
   - FA-STR-01 (interpretation): the original text is exported in CSL-JSON `custom`.
   - ADR-0002 (interpretation): the pre-1.0 rule covers transitive structural dependencies.
   - Change-request candidates if measurement fails:
