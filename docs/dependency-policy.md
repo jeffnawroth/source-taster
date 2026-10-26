@@ -17,6 +17,9 @@ Permissive MIT, Apache-2.0 (including LLVM exception), ISC, BSD, 0BSD, Unlicense
 - `@axe-core/playwright`, `axe-core`: MPL-2.0 accessibility tools, never in the application runtime.
 - `lightningcss` and the explicitly named macOS/Linux native variants in the script: MPL-2.0 CSS build tooling, never in the runtime.
 - `elkjs`: EPL-2.0, pulled into Paraglide's build tools; never combined into the distributed runtime.
+- `mdn-data`: CC0-1.0 CSS reference data used by the Astro website build (#115); never in the application runtime.
+
+The website build excludes Astro's optional `sharp` image service (`ignoredOptionalDependencies`), so the LGPL-3.0 libvips binaries are not installed. The site ships no raster images. Native Rust and bundled WASM components of Astro/Pagefind are not npm packages and are inventoried separately in `apps/website/qualification/` (see `docs/validation-115.md`).
 
 The gate fails if any exception becomes a runtime dependency. These are tool-use scope decisions, not relicensing or a legal-review receipt. Distribution still requires retaining upstream notices and the launch legal/license review of ADR-0002.
 
