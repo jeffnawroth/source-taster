@@ -1,0 +1,7 @@
+---
+import '../style.css';
+---
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><meta name="robots" content="noindex,nofollow"/><meta name="referrer" content="no-referrer"/><title>Source Taster · Sprache / Language</title></head><body><main><h1>Source Taster</h1><p><a href="/de/" lang="de">Deutsch</a> · <a href="/en/" lang="en">English</a></p></main><script>
+const language = navigator.languages[0] ?? navigator.language;
+location.replace(language.toLowerCase().startsWith('de') ? '/de/' : '/en/');
+</script></body></html>

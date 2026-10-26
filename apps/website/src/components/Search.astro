@@ -1,0 +1,18 @@
+---
+import { copy, type Language } from '../content';
+interface Props { language: Language }
+const { language } = Astro.props;
+const t = copy[language];
+---
+<section aria-labelledby="search-heading" data-search data-language={language} data-empty={t.empty} data-loading={t.loading} data-failure={t.failure}>
+  <h2 id="search-heading">{t.search}</h2>
+  <p>{t.searchPrivacy}</p>
+  <form role="search"><label for="query">{t.search}</label><input id="query" type="search" autocomplete="off" aria-describedby="search-prompt"/><button type="submit">{t.submit}</button></form>
+  <p id="search-prompt">{t.prompt}</p>
+  <noscript><p>{t.noScript}</p></noscript>
+  <p id="search-status" role="status" aria-live="polite"></p>
+  <section aria-label={t.results}><ul id="search-results"></ul></section>
+</section>
+<script>
+import '../search';
+</script>

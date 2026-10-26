@@ -36,6 +36,7 @@ import {
   type CitationStyle,
   type Preferences,
 } from "@source-taster/ui/preferences";
+import { InformationLinks } from "@source-taster/ui/information";
 import "./style.css";
 
 type MessageKey = keyof typeof m;
@@ -280,6 +281,7 @@ function Workspace() {
           </div>
         </section>
       )}
+      <InformationLinks language={locale} siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL} />
     </main>
   );
 }

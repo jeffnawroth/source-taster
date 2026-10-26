@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "scope": "Local development preview; no public launch capabilities are asserted",
+  "claims": {
+    "availability": { "requirements": ["FA-EIN-01"], "evidence": ["src/content.ts", "../../docs/adr/0020-website-documentation-help.md"], "state": "development limitations; unavailable features explicitly withheld" },
+    "help": { "requirements": ["FA-UEB-02"], "evidence": ["e2e/website.spec.ts"], "state": "local website and web shared links; extension/private surfaces pending" },
+    "skeleton": { "requirements": ["FA-ERF-01", "FA-UEB-02"], "evidence": ["../server/test/checks.test.ts", "../web/src/main.tsx"], "state": "text input and placeholder Status only; no Verdict" },
+    "preferences": { "requirements": ["FA-KON-01", "FA-KON-03"], "evidence": ["../web/e2e/preferences.spec.ts", "../../docs/adr/0023-user-preferences.md"], "state": "Guest web Preferences integrated in #85; no site storage" },
+    "errors": { "requirements": ["FA-UEB-02"], "evidence": ["../web/src/main.tsx"], "state": "connection guidance and current limitations" },
+    "faq": { "requirements": ["FA-UEB-02"], "evidence": ["e2e/website.spec.ts"], "state": "limits, local search and human decision" },
+    "support": { "requirements": ["FA-UEB-20", "FA-UEB-23"], "evidence": ["../../docs/adr/0020-website-documentation-help.md"], "state": "not available; intended retention requires legal/provider qualification" },
+    "accessibility": { "requirements": ["FA-UEB-04"], "evidence": ["e2e/website.spec.ts"], "state": "automated checks only; manual self-assessment pending" }
+  },
+  "releaseReview": null
+}
