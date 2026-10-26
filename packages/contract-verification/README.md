@@ -40,3 +40,22 @@ server, UI or domain implementation. `./openapi.json` exports the document.
 After editing schemas or the client, run the contract build and commit the updated
 artifacts. CI rejects stale committed artifacts. The service may select MIT for
 this transport package; that choice does not license the implementation under MIT.
+
+## Structuring preview
+
+`POST /v1/structurings` accepts `StructureRequest` and returns `StructuringResponse`
+without creating a Check. It is stateless: repeated requests do not reserve or
+consume Quota and do not need an idempotency key. It requires `structuring:create`.
+Each Reference includes original text, CSL fields, `fieldSources` indexed by CSL
+field path, and parser path/version. Every source span is a half-open UTF-16 range
+in the exact submitted text; use `text.slice(start, end)`. Scalar CSL values and
+name components are as written. `issued.literal` preserves the supplied date
+(including a suffix, partial date or no-date marker); no date or source type is
+inferred. Normalized identifiers, when available, accompany their raw evidence.
+
+Rejected text has no Reference slot. `guidance: "no-references"` asks clients to
+show input hints. `quotaConsumed` is always zero. The configured `referenceLimit`
+is initially 1,000 and counts recognized References after Structuring. Exceeding
+it returns HTTP 400 Problem Details (`reference-limit`, `problem_reference_limit`,
+`limit`), never a truncated success. The existing Check and SSE contracts remain
+unchanged; later Check execution must explicitly adopt the canonical fields.
