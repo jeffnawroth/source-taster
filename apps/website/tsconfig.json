@@ -5,7 +5,8 @@
     "moduleResolution": "bundler",
     "lib": ["es2024", "dom", "dom.iterable"],
     "types": ["node"],
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx"
   },
   "include": ["scripts", "src/**/*.ts", "e2e", "*.ts"]
 }

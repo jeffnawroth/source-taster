@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
+import { informationLinks } from "@source-taster/ui/information";
 
 test("reader opens a documentation deep link and switches to its counterpart", async ({
   page,
@@ -193,4 +194,26 @@ test("publication commands reject incomplete drafts and production cannot serve 
   );
   expect(productionPreview.status).not.toBe(0);
   expect(productionPreview.stderr).toContain("local-only");
+});
+
+test("every link the clients share through the UI seam opens its page in the same language", async ({
+  page,
+}) => {
+  for (const language of ["de", "en"] as const) {
+    const links = informationLinks(language);
+    expect(links.map((link) => link.id)).toEqual([
+      "help",
+      "contact",
+      "legal-notice",
+      "terms",
+      "privacy",
+      "withdrawal",
+    ]);
+    for (const link of links) {
+      const response = await page.goto(link.href);
+      expect(response?.status(), link.href).toBe(200);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await expect(page.getByRole("heading", { level: 1 })).not.toBeEmpty();
+    }
+  }
 });

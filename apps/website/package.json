@@ -21,6 +21,7 @@
     "astro": "7.4.2",
     "pagefind": "1.5.2",
     "@axe-core/playwright": "4.14.0",
-    "@playwright/test": "1.64.1"
+    "@playwright/test": "1.64.1",
+    "@source-taster/ui": "workspace:*"
   }
 }
