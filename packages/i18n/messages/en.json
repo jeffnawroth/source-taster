@@ -51,5 +51,18 @@
   "field_isbn": "ISBN",
   "field_issn": "ISSN",
   "field_pmid": "PMID",
-  "field_pmcid": "PMCID"
+  "field_pmcid": "PMCID",
+  "citation_style_label": "Preferred citation style",
+  "citation_style_reset": "Your saved citation style is no longer available. APA is selected; you can choose another style.",
+  "citation_style_apa": "APA",
+  "citation_style_mla": "MLA",
+  "citation_style_chicago": "Chicago",
+  "citation_style_ieee": "IEEE",
+  "citation_style_vancouver": "Vancouver",
+  "citation_style_harvard": "Harvard",
+  "citation_style_acs": "ACS",
+  "citation_style_ama": "AMA",
+  "citation_style_oxford": "Oxford",
+  "citation_style_springer": "Springer",
+  "citation_style_din_iso_690": "DIN ISO 690"
 }

@@ -7,7 +7,9 @@ for (const language of ["en", "de"] as const) {
     page,
   }) => {
     await page.goto("/");
-    await page.getByRole("combobox").selectOption(language);
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+      .selectOption(language);
     const button = page.getByRole("button", {
       name: language === "en" ? "Check Reference" : "Referenz prüfen",
       exact: true,
@@ -31,12 +33,24 @@ for (const language of ["en", "de"] as const) {
     await expect(page.getByRole("status")).toContainText(
       language === "en" ? "Running" : "Läuft",
     );
+    await page
+      .getByRole("combobox", {
+        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/,
+      })
+      .selectOption("ieee");
     // Switching language while the stream is open keeps the current Check.
     await page
-      .getByRole("combobox")
+      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
       .selectOption(language === "en" ? "de" : "en");
-    await page.getByRole("combobox").selectOption(language);
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+      .selectOption(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);
+    await expect(
+      page.getByRole("combobox", {
+        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/,
+      }),
+    ).toHaveValue("ieee");
     await expect(page.getByRole("status")).toContainText(
       language === "en" ? "Not checked" : "Nicht geprüft",
     );
@@ -72,7 +86,9 @@ test("resumes a prematurely closed event stream without losing Reference Status 
     await route.fulfill({ response, body: `${firstEvent}\n\n` });
   });
   await page.goto("/");
-  await page.getByRole("combobox").selectOption("en");
+  await page
+    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+    .selectOption("en");
   await page
     .getByRole("textbox")
     .fill(

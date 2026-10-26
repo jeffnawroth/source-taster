@@ -7,7 +7,9 @@ for (const language of ["en", "de"] as const) {
     page,
   }) => {
     await page.goto("/");
-    await page.getByRole("combobox").selectOption(language);
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/, exact: true })
+      .selectOption(language);
     const action = page.getByRole("button", {
       name:
         language === "en" ? "Structure References" : "Referenzen strukturieren",
