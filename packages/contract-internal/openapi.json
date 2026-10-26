@@ -81,6 +81,10 @@
           "detail": {
             "type": "string"
           },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
           "code": {
             "type": "string"
           },

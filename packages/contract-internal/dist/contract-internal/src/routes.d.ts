@@ -55,6 +55,7 @@ export declare const createMailRehearsal: {
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -70,6 +71,7 @@ export declare const createMailRehearsal: {
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -85,6 +87,7 @@ export declare const createMailRehearsal: {
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -138,6 +141,7 @@ export declare const getMailRehearsal: {
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -153,6 +157,7 @@ export declare const getMailRehearsal: {
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -219,6 +224,7 @@ export declare const routes: (({
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -234,6 +240,7 @@ export declare const routes: (({
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -249,6 +256,7 @@ export declare const routes: (({
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -301,6 +309,7 @@ export declare const routes: (({
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -316,6 +325,7 @@ export declare const routes: (({
                         title: z.ZodString;
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;

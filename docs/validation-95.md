@@ -17,7 +17,7 @@ Validation on 26 October 2026:
 
 - Frozen pnpm install, full typecheck, ESLint/Prettier, catalog check and build pass.
 - Existing real-PG HTTP/SSE tests pass after merging the local integration tip.
-- All 10 existing Chromium tests pass, including DE/EN, axe and Guest Preferences.
+- All 12 existing Chromium tests pass, including DE/EN, axe, Guest Preferences and Structuring.
   The default API port was occupied by another worktree; this run used the
   existing `SOURCE_TASTER_E2E_API_PORT=3312` and
   `SOURCE_TASTER_E2E_WEB_PORT=5312` overrides without disturbing that process.
@@ -35,3 +35,11 @@ No predecessor code, shared database/container configuration or ports 8000/4567
 were touched. The parent owns integration and review; no open-repository PR is
 created by this ticket branch. Legal and production qualification remain human
 or subsequent-ticket gates.
+
+Final integration synchronization includes `36b703d63a1c942e2e3cbe285344eff886360ede`
+(#72). Full typecheck/lint/catalog/build/real-PG tests and all 12 browser tests
+passed again after that merge. The service/internal packages were rebuilt to
+include the updated shared optional Problem Details limit field. The private
+service intentionally retains its independently validated immutable consumption
+pin `724aa229124aa2de3e57e5a94236fb0464c45007`; it does not require newer optional
+transport fields.
