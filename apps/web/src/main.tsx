@@ -342,7 +342,10 @@ function Workspace() {
           </div>
         </section>
       )}
-      <InformationLinks language={locale} siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL} />
+      <InformationLinks
+        language={locale}
+        siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+      />
     </main>
   );
 }

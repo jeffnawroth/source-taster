@@ -1,8 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "esnext", "moduleResolution": "bundler",
-    "lib": ["es2024", "dom", "dom.iterable"], "types": ["node"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2024", "dom", "dom.iterable"],
+    "types": ["node"],
     "allowImportingTsExtensions": true
   },
   "include": ["scripts", "src/**/*.ts", "e2e", "*.ts"]

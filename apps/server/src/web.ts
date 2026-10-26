@@ -17,9 +17,17 @@ await runMain(async (config) => {
   const websiteMode = process.env.SOURCE_TASTER_WEBSITE_MODE;
   let website: ((request: Request) => Promise<Response>) | undefined;
   if (websiteMode) {
-    if (websiteMode !== 'preview' && websiteMode !== 'publication') throw new Error('Choose website preview or publication explicitly');
-    if (websiteMode === 'preview' && process.env.NODE_ENV === 'production') throw new Error('Draft preview is local-only');
-    website = await openWebsite(resolve(process.env.SOURCE_TASTER_WEBSITE_DIRECTORY ?? `../website/${websiteMode === 'preview' ? 'dist-preview' : 'dist'}`), websiteMode);
+    if (websiteMode !== "preview" && websiteMode !== "publication")
+      throw new Error("Choose website preview or publication explicitly");
+    if (websiteMode === "preview" && process.env.NODE_ENV === "production")
+      throw new Error("Draft preview is local-only");
+    website = await openWebsite(
+      resolve(
+        process.env.SOURCE_TASTER_WEBSITE_DIRECTORY ??
+          `../website/${websiteMode === "preview" ? "dist-preview" : "dist"}`,
+      ),
+      websiteMode,
+    );
   }
   const db = createPrisma(config.databaseUrl);
   const boss = await createQueue(config.databaseUrl);
@@ -31,10 +39,17 @@ await runMain(async (config) => {
     entitlements: standaloneEntitlements,
     checks: createCheckStore(db, boss),
   });
-  if (website) app.get('*', c => website!(c.req.raw));
-  const server = serve({ fetch: app.fetch, port: config.port, ...(websiteMode === 'preview' ? { hostname: '127.0.0.1' } : {}) }, ({ port }) => {
-    console.log(`web listening on http://localhost:${port}`);
-  });
+  if (website) app.get("*", (c) => website!(c.req.raw));
+  const server = serve(
+    {
+      fetch: app.fetch,
+      port: config.port,
+      ...(websiteMode === "preview" ? { hostname: "127.0.0.1" } : {}),
+    },
+    ({ port }) => {
+      console.log(`web listening on http://localhost:${port}`);
+    },
+  );
 
   const shutdown = () => {
     server.close();
