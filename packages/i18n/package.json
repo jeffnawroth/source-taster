@@ -1,0 +1,22 @@
+{
+  "name": "@source-taster/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    ".": "./src/paraglide/messages.js",
+    "./runtime": "./src/paraglide/runtime.js"
+  },
+  "scripts": {
+    "generate": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale",
+    "build": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale",
+    "i18n:check": "node scripts/check.ts",
+    "lint": "eslint scripts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@inlang/paraglide-js": "2.29.1",
+    "@inlang/plugin-message-format": "4.5.5"
+  }
+}

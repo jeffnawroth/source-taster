@@ -1,0 +1,57 @@
+// Tables of the verification service. They live in the `verification` schema,
+// owned by the service's own role (see scripts/db-setup.ts). The job queue
+// lives next to it in `verification_boss`, managed by pg-boss.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  runtime             = "nodejs"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Check {
+  id         String          @id @db.Uuid
+  ownerId    String          @map("owner_id")
+  actorId    String          @map("actor_id")
+  /// Wire value of CheckState.
+  state      String
+  /// Sequence number of the newest CheckEvent.
+  lastSeq    Int             @default(0) @map("last_seq")
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  references ReferenceSlot[]
+  events     CheckEvent[]
+
+  @@index([ownerId])
+  @@map("checks")
+}
+
+model ReferenceSlot {
+  checkId      String @map("check_id") @db.Uuid
+  /// 1-based position within the Check.
+  position     Int
+  originalText String @map("original_text")
+  /// Wire value of ReferenceStatus; a Verdict will get its own columns.
+  status       String
+  check        Check  @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@id([checkId, position])
+  @@map("reference_slots")
+}
+
+model CheckEvent {
+  checkId   String   @map("check_id") @db.Uuid
+  seq       Int
+  type      String
+  /// The event's JSON `data` without the envelope fields seq, type and checkId.
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  check     Check    @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@id([checkId, seq])
+  @@map("check_events")
+}

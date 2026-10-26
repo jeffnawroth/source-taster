@@ -1,0 +1,320 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Source Taster verification API",
+    "version": "1"
+  },
+  "components": {
+    "schemas": {
+      "CheckResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Check"
+          },
+          "quota": {
+            "$ref": "#/components/schemas/Quota"
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "Check": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CheckState"
+          },
+          "lastEventSeq": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReferenceSlot"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "lastEventSeq",
+          "references"
+        ]
+      },
+      "CheckState": {
+        "type": "string",
+        "enum": [
+          "running",
+          "ended"
+        ]
+      },
+      "ReferenceSlot": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "originalText": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ReferenceOutcome"
+          }
+        },
+        "required": [
+          "slot",
+          "originalText",
+          "outcome"
+        ]
+      },
+      "ReferenceOutcome": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "status"
+                ]
+              },
+              "status": {
+                "$ref": "#/components/schemas/ReferenceStatus"
+              }
+            },
+            "required": [
+              "kind",
+              "status"
+            ]
+          }
+        ]
+      },
+      "ReferenceStatus": {
+        "type": "string",
+        "enum": [
+          "running",
+          "cancelled",
+          "failed",
+          "not-checked"
+        ]
+      },
+      "Quota": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "consumed",
+          "remaining"
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
+      "CreateCheckRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "text"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/v1/checks": {
+      "post": {
+        "summary": "Paste References and start a Check",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCheckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Check created; one Reference slot per pasted Reference.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The input is empty or malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/checks/{checkId}": {
+      "get": {
+        "summary": "Read the current snapshot of a Check",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current snapshot, including the newest event sequence.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/checks/{checkId}/events": {
+      "get": {
+        "summary": "Stream Check events (Server-Sent Events)",
+        "description": "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. Send `Last-Event-ID` to receive only events after that sequence. The stream closes after the event that ends the Check.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "last-event-id",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "text/event-stream of CheckEvent",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id or Last-Event-ID is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}
