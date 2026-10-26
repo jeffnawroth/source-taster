@@ -148,6 +148,10 @@ _Avoid_: Anonymous user (as a competing role name)
 A person's registration, confirmed by e-mail, with which they sign in to the extension and the web app; at market launch each account acts for exactly one owner, its own. Adding or changing a sign-in method keeps the same account.
 _Avoid_: Owner (as a substitute)
 
+**Preferences**:
+The interface language and preferred citation style a user chooses; kept with the account when signed in, otherwise separately in each client for a guest.
+_Avoid_: Expert settings (which change verification parameters)
+
 **Owner**:
 The person to whom a quota, plan or stored check is assigned at market launch; later, an owner can also be an organization.
 _Avoid_: Customer, user (as substitutes for ownership)
