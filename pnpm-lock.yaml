@@ -220,6 +220,9 @@ importers:
       '@source-taster/contract-verification':
         specifier: workspace:*
         version: link:../../packages/contract-verification
+      '@source-taster/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@source-taster/website':
         specifier: workspace:*
         version: link:../website
@@ -316,6 +319,30 @@ importers:
         specifier: 4.6.7
         version: 4.6.7
 
+  packages/contract-internal:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: 1.6.3
+        version: 1.6.3(hono@4.13.14)(zod@4.6.7)
+      hono:
+        specifier: 4.13.14
+        version: 4.13.14
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  packages/contract-service:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: 1.6.3
+        version: 1.6.3(hono@4.13.14)(zod@4.6.7)
+      hono:
+        specifier: 4.13.14
+        version: 4.13.14
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
   packages/contract-verification:
     dependencies:
       '@hono/zod-openapi':
@@ -327,6 +354,8 @@ importers:
       zod:
         specifier: 4.6.7
         version: 4.6.7
+
+  packages/core: {}
 
   packages/i18n:
     devDependencies:

@@ -12,6 +12,8 @@ export const ProblemDetails = z
     title: z.string(),
     status: z.number().int(),
     detail: z.string().optional(),
+    /** The applicable configured limit, when the request exceeds one. */
+    limit: z.number().int().positive().optional(),
     code: z.string(),
     i18nKey: z.string(),
 })

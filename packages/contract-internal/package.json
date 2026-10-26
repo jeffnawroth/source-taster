@@ -1,0 +1,35 @@
+{
+  "name": "@source-taster/contract-internal",
+  "version": "0.0.0",
+  "description": "Internal transport skeleton; local-only delivery rehearsal, no entitlement or Quota implementation.",
+  "license": "AGPL-3.0-or-later OR MIT",
+  "type": "module",
+  "files": [
+    "dist",
+    "LICENSE-AGPL",
+    "LICENSE-MIT",
+    "openapi.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/contract-internal/src/index.d.ts",
+      "default": "./dist/contract-internal/src/index.js"
+    },
+    "./routes": {
+      "types": "./dist/contract-internal/src/routes.d.ts",
+      "default": "./dist/contract-internal/src/routes.js"
+    },
+    "./openapi.json": "./openapi.json"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "1.6.3",
+    "hono": "4.13.14",
+    "zod": "4.6.7"
+  },
+  "private": true
+}

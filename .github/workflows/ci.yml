@@ -38,7 +38,7 @@ jobs:
       - run: pnpm i18n:check
       - run: pnpm build
       - name: Check committed transport artifacts
-        run: git diff --exit-code -- packages/contract-common/dist packages/contract-verification/dist packages/contract-verification/openapi.json
+        run: git diff --exit-code -- packages/contract-common/dist packages/contract-verification/dist packages/contract-verification/openapi.json packages/contract-service/dist packages/contract-service/openapi.json packages/contract-internal/dist packages/contract-internal/openapi.json
       - run: pnpm test
       - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
       - run: pnpm test:e2e

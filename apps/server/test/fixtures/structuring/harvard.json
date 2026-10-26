@@ -1,0 +1,26 @@
+{
+  "description": "Owned development fixture: Harvard article and book, with surname particles and truncation.",
+  "text": "de Vries, A. and Müller, B. (2021a) ‘Written exactly’, Journal of Testing, 8(2), pp. 10–19. doi:10.5555/UPPER\n\nSmith, J. et al. (2019) A careful book. Oxford: Example Press.",
+  "expected": [
+    {
+      "author": [
+        { "family": "de Vries", "given": "A." },
+        { "family": "Müller", "given": "B." }
+      ],
+      "issued": { "literal": "2021a" },
+      "title": "Written exactly",
+      "container-title": "Journal of Testing",
+      "volume": "8",
+      "issue": "2",
+      "page": "10–19",
+      "DOI": "10.5555/UPPER"
+    },
+    {
+      "author": [{ "family": "Smith", "given": "J." }],
+      "issued": { "literal": "2019" },
+      "title": "A careful book",
+      "publisher-place": "Oxford",
+      "publisher": "Example Press"
+    }
+  ]
+}

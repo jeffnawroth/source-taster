@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The web process: serves the /v1 HTTP API and the Check event streams.
 
+import { createParser } from "@source-taster/core";
 import { openWebsite } from "@source-taster/website/hosting";
 import { resolve } from "node:path";
 import { serve } from "@hono/node-server";
@@ -24,6 +25,7 @@ await runMain(async (config) => {
   const boss = await createQueue(config.databaseUrl);
   const events = await listenForEvents(config.databaseUrl);
   const app = createApp({
+    structuring: createParser({ referenceLimit: config.referenceLimit }),
     events,
     heartbeatMs: config.sseHeartbeatMs,
     entitlements: standaloneEntitlements,

@@ -3,7 +3,7 @@
 // so browser clients can import the schemas without pulling in Hono.
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { CheckId, CheckResponse, CreateCheckRequest, PROBLEM_CONTENT_TYPE, ProblemDetails, } from "./index.js";
+import { StructureRequest, StructuringResponse, CheckId, CheckResponse, CreateCheckRequest, PROBLEM_CONTENT_TYPE, ProblemDetails, } from "./index.js";
 const problem = (description) => ({
     description,
     content: { [PROBLEM_CONTENT_TYPE]: { schema: ProblemDetails } },
@@ -59,5 +59,26 @@ export const streamCheckEvents = createRoute({
         },
         400: problem("The Check id or Last-Event-ID is malformed."),
         404: problem("No such Check for this Owner."),
+    },
+});
+/** Stateless Structuring preview, independent of placeholder Checks. */
+export const structureReferences = createRoute({
+    method: "post",
+    path: "/v1/structurings",
+    summary: "Structure pasted References without starting a Check or consuming Quota",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: StructureRequest } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Recognized References, field provenance and rejected text.",
+            content: { "application/json": { schema: StructuringResponse } },
+        },
+        400: problem("The input is empty, malformed, or exceeds the Reference limit."),
+        401: problem("Sign-in required."),
+        403: problem("Not permitted."),
     },
 });

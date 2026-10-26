@@ -1,9 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { writeFile } from "node:fs/promises";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { createCheck, getCheck, streamCheckEvents } from "../src/routes.ts";
+import {
+  createCheck,
+  getCheck,
+  streamCheckEvents,
+  structureReferences,
+} from "../src/routes.ts";
 const app = new OpenAPIHono();
-for (const route of [createCheck, getCheck, streamCheckEvents])
+for (const route of [
+  createCheck,
+  getCheck,
+  streamCheckEvents,
+  structureReferences,
+])
   app.openAPIRegistry.registerPath(route);
 const document = app.getOpenAPI31Document({
   openapi: "3.1.0",

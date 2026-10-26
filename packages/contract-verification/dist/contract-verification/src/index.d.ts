@@ -155,3 +155,4 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
 export type CheckEvent = z.infer<typeof CheckEvent>;
 /** The stream closes after the event that moves the Check into this state. */
 export declare function isFinalEvent(event: CheckEvent): boolean;
+export * from "./structuring.ts";

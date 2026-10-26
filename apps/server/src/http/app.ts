@@ -3,10 +3,12 @@
 
 import { OpenAPIHono } from "@hono/zod-openapi";
 import {
+  structureReferences,
   createCheck,
   getCheck,
   streamCheckEvents,
 } from "@source-taster/contract-verification/routes";
+import { ReferenceLimitExceeded, type Structuring } from "@source-taster/core";
 import { streamSSE } from "hono/streaming";
 import type { EventListener } from "../checks/events.ts";
 import { HTTPException } from "hono/http-exception";
@@ -16,6 +18,7 @@ import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
 
 export interface AppDeps {
+  structuring: Structuring;
   entitlements: Entitlements;
   checks: CheckStore;
   events: EventListener;
@@ -23,6 +26,7 @@ export interface AppDeps {
 }
 
 export function createApp({
+  structuring,
   entitlements,
   checks,
   events,
@@ -42,7 +46,9 @@ export function createApp({
     defaultHook: (result) => {
       if (result.success) return;
       const emptyText = result.error.issues.some(
-        (issue) => issue.path[0] === "text" && issue.code === "too_small",
+        (issue) =>
+          issue.path[0] === "text" &&
+          (issue.code === "too_small" || issue.message === "input-empty"),
       );
       return problemResponse(emptyText ? "input-empty" : "invalid-request");
     },
@@ -55,6 +61,22 @@ export function createApp({
   });
 
   app.get("/health", (c) => c.json({ status: "ok" }));
+
+  app.openapi(structureReferences, async (c) => {
+    const principal = await authorize(c.req.raw, "structuring:create");
+    try {
+      const data = structuring.structure(c.req.valid("json").text);
+      return c.json({ data, quota: principal.quota }, 200);
+    } catch (error) {
+      if (error instanceof ReferenceLimitExceeded)
+        fail(
+          "reference-limit",
+          `At most ${error.limit} References can be structured at once.`,
+          error.limit,
+        );
+      throw error;
+    }
+  });
 
   app.openapi(createCheck, async (c) => {
     const principal = await authorize(c.req.raw, "check:create");
