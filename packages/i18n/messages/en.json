@@ -33,7 +33,7 @@
   "structuring_original": "Original text",
   "structuring_rejected": "Not recognized as a Reference",
   "structuring_truncated": "The author list is explicitly truncated in the original text.",
-  "problem_reference_limit": "At most {limit} References can be structured at once. Split your bibliography into smaller lists.",
+  "problem_reference_limit": "At most {limit} References can be processed at once. Split your bibliography into smaller lists.",
   "field_author": "Authors",
   "field_issued": "Date",
   "field_title": "Title",
@@ -64,5 +64,12 @@
   "citation_style_ama": "AMA",
   "citation_style_oxford": "Oxford",
   "citation_style_springer": "Springer",
-  "citation_style_din_iso_690": "DIN ISO 690"
+  "citation_style_din_iso_690": "DIN ISO 690",
+  "information_help": "Help",
+  "information_contact": "Contact",
+  "information_legal_notice": "Legal notice",
+  "information_terms": "Terms",
+  "information_privacy": "Privacy policy",
+  "information_withdrawal": "Withdrawal instructions",
+  "information_navigation": "Help and legal information"
 }

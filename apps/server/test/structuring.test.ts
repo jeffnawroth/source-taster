@@ -299,3 +299,31 @@ it("structures author-date articles whose journal supplies no issue", async () =
     },
   ]);
 });
+
+it("structures independently varied author-date examples with exact bibliographic values", async () => {
+  const fixture = JSON.parse(
+    await readFile(
+      new URL(
+        "./fixtures/structuring/varied-author-date.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ) as { text: string; expected: unknown[] };
+  const response = await structure(fixture.text);
+  expect(response.status).toBe(200);
+  const { data } = StructuringResponse.parse(await response.json());
+  expect(data.references.map((reference) => reference.csl)).toEqual(
+    fixture.expected,
+  );
+  expect(data.rejected).toEqual([]);
+  expect(data.references[0]?.fieldSources.title).toEqual({
+    raw: "Rivers and cities",
+    span: { start: 27, end: 44 },
+  });
+  for (const reference of data.references)
+    for (const source of Object.values(reference.fieldSources))
+      expect(fixture.text.slice(source.span.start, source.span.end)).toBe(
+        source.raw,
+      );
+});

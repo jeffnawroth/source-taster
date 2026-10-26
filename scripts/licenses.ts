@@ -54,6 +54,7 @@ const devExceptions = new Set([
   "lightningcss-linux-x64-musl",
   "lightningcss-darwin-arm64",
   "elkjs",
+  "mdn-data",
 ]);
 const packages = Object.values(all).flat();
 if (!packages.length || !runtimeNames.size)
@@ -63,7 +64,7 @@ for (const pkg of packages) {
   if (
     devExceptions.has(pkg.name) &&
     !runtimeNames.has(pkg.name) &&
-    ["MPL-2.0", "EPL-2.0"].includes(pkg.license)
+    ["MPL-2.0", "EPL-2.0", "CC0-1.0"].includes(pkg.license)
   )
     continue;
   throw new Error(`Unreviewed license: ${pkg.name} ${pkg.license}`);

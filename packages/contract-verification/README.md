@@ -59,3 +59,11 @@ is initially 1,000 and counts recognized References after Structuring. Exceeding
 it returns HTTP 400 Problem Details (`reference-limit`, `problem_reference_limit`,
 `limit`), never a truncated success. The existing Check and SSE contracts remain
 unchanged; later Check execution must explicitly adopt the canonical fields.
+
+`verificationClient({ baseUrl?, client?, fetch? })` from `./client` provides
+`createCheck(text)` and `structureReferences(text)`. Both validate success envelopes
+and throw `ApiError` for HTTP failures, with the status and an optional validated
+Problem. Non-JSON error bodies never leak into user-facing copy. Network errors
+remain distinguishable from HTTP Problems. Check creation enforces the configured
+Reference limit before storing or enqueueing; its placeholder intake still counts
+nonempty lines. Structuring retains its own parser-based count.

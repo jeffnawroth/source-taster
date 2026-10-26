@@ -1,0 +1,14 @@
+{
+  "language": "en",
+  "id": "legal-notice",
+  "version": "draft-2026-10-26.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Legal notice",
+  "summary": "Identity and contact information awaiting legal review.",
+  "paragraphs": [
+    "This is a legal-content draft, version draft-2026-10-26.1. It is not an approved legal notice.",
+    "The legal seller and service operator have not been established for publication. Required name or company, legal form, service address, authorized representative and applicable registration or tax identifiers must be supplied and reviewed.",
+    "The real domain and monitored support address are missing. No address or seller identity has been invented. This preview cannot be used as a live service’s legal notice."
+  ]
+}

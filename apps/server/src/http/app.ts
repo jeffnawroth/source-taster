@@ -23,6 +23,7 @@ export interface AppDeps {
   checks: CheckStore;
   events: EventListener;
   heartbeatMs: number;
+  referenceLimit: number;
 }
 
 export function createApp({
@@ -31,6 +32,7 @@ export function createApp({
   checks,
   events,
   heartbeatMs,
+  referenceLimit,
 }: AppDeps) {
   async function authorize(
     request: Request,
@@ -81,7 +83,14 @@ export function createApp({
   app.openapi(createCheck, async (c) => {
     const principal = await authorize(c.req.raw, "check:create");
     const { text } = c.req.valid("json");
-    const check = await checks.create(principal, splitReferences(text));
+    const references = splitReferences(text);
+    if (references.length > referenceLimit)
+      fail(
+        "reference-limit",
+        `At most ${referenceLimit} References can be checked at once.`,
+        referenceLimit,
+      );
+    const check = await checks.create(principal, references);
     return c.json({ data: check, quota: principal.quota }, 201);
   });
 

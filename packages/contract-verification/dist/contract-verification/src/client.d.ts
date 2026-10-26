@@ -12,6 +12,92 @@ export declare class CheckStreamError extends Error {
     readonly problem: ProblemDetails | undefined;
     constructor(status: number, problem: ProblemDetails | undefined);
 }
+/** Failed HTTP response, including a parsed Problem when the server supplied one. */
+export declare class ApiError extends Error {
+    readonly status: number;
+    readonly problem: ProblemDetails | undefined;
+    constructor(status: number, problem: ProblemDetails | undefined);
+}
+export interface VerificationClientOptions {
+    baseUrl?: string;
+    client?: string;
+    fetch?: typeof globalThis.fetch;
+}
+/** Transport-only API client: schemas and Problems are shared by both clients. */
+export declare function verificationClient(options?: VerificationClientOptions): {
+    createCheck: (text: string) => Promise<{
+        id: string;
+        state: "ended" | "running";
+        lastEventSeq: number;
+        references: {
+            slot: number;
+            originalText: string;
+            outcome: {
+                kind: "status";
+                status: "cancelled" | "failed" | "not-checked" | "running";
+            };
+        }[];
+    }>;
+    structureReferences: (text: string) => Promise<{
+        references: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            csl: {
+                author?: {
+                    family?: string | undefined;
+                    given?: string | undefined;
+                    literal?: string | undefined;
+                }[] | undefined;
+                issued?: {
+                    literal: string;
+                } | undefined;
+                title?: string | undefined;
+                "container-title"?: string | undefined;
+                "container-title-short"?: string | undefined;
+                publisher?: string | undefined;
+                "publisher-place"?: string | undefined;
+                volume?: string | undefined;
+                issue?: string | undefined;
+                page?: string | undefined;
+                "article-number"?: string | undefined;
+                edition?: string | undefined;
+                DOI?: string | undefined;
+                URL?: string | undefined;
+                ISBN?: string | undefined;
+                ISSN?: string | undefined;
+                PMID?: string | undefined;
+                PMCID?: string | undefined;
+            };
+            fieldSources: Record<string, {
+                raw: string;
+                span: {
+                    start: number;
+                    end: number;
+                };
+                normalized?: string | undefined;
+            }>;
+            authorsTruncated?: boolean | undefined;
+            structuring: {
+                path: "parser";
+                version: string;
+            };
+        }[];
+        rejected: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            reason: "no-reference-features";
+        }[];
+        guidance: "no-references" | null;
+        quotaConsumed: 0;
+        referenceLimit: number;
+    }>;
+};
 export interface WatchCheckOptions {
     /** Called once per event, in sequence order, without duplicates. */
     onEvent: (event: CheckEvent) => void;

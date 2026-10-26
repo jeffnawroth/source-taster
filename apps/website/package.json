@@ -1,0 +1,28 @@
+{
+  "name": "@source-taster/website",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    "./hosting": "./hosting.ts",
+    "./metadata": "./src/metadata.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts --preview",
+    "build:publication": "node scripts/build.ts --publication",
+    "publication:check": "node scripts/publication-check.ts",
+    "preview": "node scripts/serve.ts --preview",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "i18n:check": "node scripts/content-check.ts",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "astro": "7.4.2",
+    "pagefind": "1.5.2",
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1",
+    "@source-taster/ui": "workspace:*"
+  }
+}

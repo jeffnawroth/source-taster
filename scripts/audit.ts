@@ -26,6 +26,32 @@ if (
   dbStats.size === 0
 )
   throw new Error("OSV database missing, empty or stale");
+const cratesDatabase = await stat(
+  resolve(cache, "osv-scalibr/crates.io/all.zip"),
+);
+const cratesHeaders = await readFile(
+  resolve(cache, "crates-headers.txt"),
+  "utf8",
+);
+const cratesModified = cratesHeaders.match(/^last-modified:\s*(.+)$/im)?.[1];
+const cratesAge = cratesModified
+  ? Date.now() - Date.parse(cratesModified.trim())
+  : NaN;
+if (
+  !cratesDatabase.size ||
+  !Number.isFinite(cratesAge) ||
+  cratesAge < -300_000 ||
+  cratesAge > maxAgeMs
+)
+  throw new Error("OSV crates.io database missing, empty or stale");
+const nativeLocks = [
+  "pagefind-native",
+  "pagefind-web",
+  "astro-compiler",
+  "satteri",
+].map((name) => `apps/website/qualification/upstream/${name}/Cargo.lock`);
+const bundledLock =
+  "apps/website/qualification/upstream/pagefind-js/package-lock.json";
 await mkdir(new URL("../.tmp/audit", import.meta.url), { recursive: true });
 const output = resolve(".tmp/audit/osv.json");
 const scanner = process.env.OSV_SCANNER_BIN ?? "osv-scanner";
@@ -44,6 +70,7 @@ const scan = spawnSync(
     "--all-packages",
     "--lockfile",
     "pnpm-lock.yaml",
+    ...[...nativeLocks, bundledLock].flatMap((file) => ["--lockfile", file]),
     "--format",
     "json",
     "--output-file",
@@ -81,9 +108,33 @@ const expected = [
   ),
 ];
 const scanned = new Set(
-  packages.map((item) => `${item.package.name}@${item.package.version}`),
+  packages.map(
+    (item) =>
+      `${item.package.ecosystem}:${item.package.name}@${item.package.version}`,
+  ),
 );
-const missing = expected.filter((key) => !scanned.has(key));
+const required = expected.map((key) => `npm:${key}`);
+for (const file of nativeLocks) {
+  const content = await readFile(file, "utf8");
+  const entries = content.split(/^\[\[package\]\]$/m).slice(1);
+  if (!entries.length) throw new Error(`Empty native inventory: ${file}`);
+  for (const entry of entries) {
+    const name = entry.match(/^name = "([^"]+)"$/m)?.[1];
+    const version = entry.match(/^version = "([^"]+)"$/m)?.[1];
+    if (!name || !version)
+      throw new Error(`Unknown native inventory shape: ${file}`);
+    required.push(`crates.io:${name}@${version}`);
+  }
+}
+const bundled = JSON.parse(await readFile(bundledLock, "utf8")) as {
+  packages: Record<string, { name?: string; version: string }>;
+};
+for (const [path, pkg] of Object.entries(bundled.packages)) {
+  if (!path) continue; // workspace root is not an npm dependency; retained in the source lock
+  const name = pkg.name ?? path.split("node_modules/").at(-1);
+  required.push(`npm:${name}@${pkg.version}`);
+}
+const missing = [...new Set(required)].filter((key) => !scanned.has(key));
 if (!expected.length || !packages.length || missing.length)
   throw new Error(
     `Incomplete OSV inventory: ${missing.length} of ${expected.length} packages missing`,
@@ -98,6 +149,8 @@ const evidence = {
   databaseLastModified: modified?.trim(),
   packages: packages.length,
   lockfilePackages: expected.length,
+  nativeAndBundledExpected: new Set(required).size - expected.length,
+  nativeDatabaseLastModified: cratesModified?.trim(),
   findings,
 };
 await writeFile(

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-26",
+  "method": "Each file was fetched from raw.githubusercontent.com at the listed tag and compared byte-for-byte by SHA-256; tag commits resolved with git ls-remote.",
+  "sources": [
+    {
+      "folder": "pagefind-native",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "Cargo.lock",
+      "sha256": "ba1c71466148a0241c2124c02407925af16a0e71028553bb7ff02d7113480b55"
+    },
+    {
+      "folder": "pagefind-web",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "pagefind_web/Cargo.lock",
+      "sha256": "d762f97d4dc284014c284f2b2147d0d29bb4add334df4bdc14eaf4e84201a5c3"
+    },
+    {
+      "folder": "pagefind-js",
+      "file": "package-lock.json",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "pagefind_web_js/package-lock.json",
+      "sha256": "f73ed2a5308157f992cb6979bed5a7275d6fcb6942cd707da204ce49c19c5b2b"
+    },
+    {
+      "folder": ".",
+      "file": "Pagefind-LICENSE",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "LICENSE",
+      "sha256": "4736929bfded122bd969f0621a0d917484b126d981270d68a63ed42cb55503d5"
+    },
+    {
+      "folder": "astro-compiler",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/withastro/compiler-rs",
+      "tag": "@astrojs/compiler-rs@0.5.2",
+      "commit": "342e26603bf6416545a85b506b434d25226e1435",
+      "upstreamPath": "Cargo.lock",
+      "sha256": "7c62ffd73f811f1e13cd78e6ca3aa80fdf13ecdd904f4dce50cb8b427a81025e"
+    },
+    {
+      "folder": "satteri",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/bruits/satteri",
+      "tag": "satteri-v0.10.5",
+      "commit": "b3d38e1e341c809b20b76a655e9b1601d11bd1f0",
+      "upstreamPath": "Cargo.lock",
+      "sha256": "5b3552a37b7ab9b0e267d6c374e477e79261383f2b9e262689079eae589f606b"
+    }
+  ]
+}

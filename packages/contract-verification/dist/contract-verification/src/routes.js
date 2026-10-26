@@ -23,7 +23,7 @@ export const createCheck = createRoute({
             description: "Check created; one Reference slot per pasted Reference.",
             content: { "application/json": { schema: CheckResponse } },
         },
-        400: problem("The input is empty or malformed."),
+        400: problem("The input is empty, malformed, or exceeds the configured Reference limit."),
     },
 });
 const CheckParams = z.object({ checkId: CheckId });

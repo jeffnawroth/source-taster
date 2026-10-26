@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "scope": "Local development preview; no public launch capabilities are asserted",
+  "claims": {
+    "availability": {
+      "requirements": ["FA-EIN-01"],
+      "evidence": [
+        "src/content.ts",
+        "../../docs/adr/0020-website-documentation-help.md"
+      ],
+      "state": "development limitations; unavailable features explicitly withheld"
+    },
+    "help": {
+      "requirements": ["FA-UEB-02"],
+      "evidence": [
+        "e2e/website.spec.ts",
+        "../web/e2e/information.spec.ts",
+        "../../packages/ui/src/information.tsx"
+      ],
+      "state": "local website; web links via the shared UI seam; extension not built yet"
+    },
+    "skeleton": {
+      "requirements": ["FA-ERF-01", "FA-UEB-02"],
+      "evidence": [
+        "../server/test/checks.test.ts",
+        "../web/e2e/paste-and-watch.spec.ts"
+      ],
+      "state": "text input and placeholder Status only; no Verdict"
+    },
+    "structuring": {
+      "requirements": ["FA-ERF-01", "FA-ERF-12", "FA-STR-01"],
+      "evidence": [
+        "../server/test/structuring.test.ts",
+        "../web/e2e/structuring.spec.ts",
+        "../../docs/implementation/72-parser.md"
+      ],
+      "state": "author-date preview (APA, Harvard, Chicago, MLA) only; original text kept, not durable Reference slots; no search, Verdict or Quota"
+    },
+    "preferences": {
+      "requirements": ["FA-KON-01", "FA-KON-03"],
+      "evidence": [
+        "../web/e2e/preferences.spec.ts",
+        "../../docs/adr/0023-user-preferences.md"
+      ],
+      "state": "Guest web Preferences integrated in #85; no site storage"
+    },
+    "errors": {
+      "requirements": ["FA-UEB-02"],
+      "evidence": [
+        "../web/src/main.tsx",
+        "../../packages/contract-verification/src/client.ts",
+        "../server/test/check-events.test.ts"
+      ],
+      "state": "automatic stream reconnect while the page stays open, with last-event resume; permanent client errors stop retries; no reload persistence or cancellation"
+    },
+    "faq": {
+      "requirements": ["FA-UEB-02"],
+      "evidence": ["e2e/website.spec.ts"],
+      "state": "limits, local search and human decision"
+    },
+    "support": {
+      "requirements": ["FA-UEB-20", "FA-UEB-23"],
+      "evidence": ["../../docs/adr/0020-website-documentation-help.md"],
+      "state": "not available; intended retention requires legal/provider qualification"
+    },
+    "accessibility": {
+      "requirements": ["FA-UEB-04"],
+      "evidence": ["e2e/accessibility.spec.ts"],
+      "state": "automated checks only; manual self-assessment pending"
+    }
+  },
+  "releaseReview": null
+}
