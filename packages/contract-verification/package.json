@@ -7,31 +7,33 @@
   "files": [
     "dist",
     "LICENSE-AGPL",
-    "LICENSE-MIT"
+    "LICENSE-MIT",
+    "openapi.json"
   ],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/contract-verification/src/index.d.ts",
+      "default": "./dist/contract-verification/src/index.js"
     },
     "./routes": {
-      "types": "./dist/routes.d.ts",
-      "default": "./dist/routes.js"
+      "types": "./dist/contract-verification/src/routes.d.ts",
+      "default": "./dist/contract-verification/src/routes.js"
     },
     "./client": {
-      "types": "./dist/client.d.ts",
-      "default": "./dist/client.js"
-    }
+      "types": "./dist/contract-verification/src/client.d.ts",
+      "default": "./dist/contract-verification/src/client.js"
+    },
+    "./openapi.json": "./openapi.json"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node scripts/build.ts",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint ."
   },
   "dependencies": {
     "@hono/zod-openapi": "1.6.3",
-    "@source-taster/contract-common": "workspace:*",
     "hono": "4.13.14",
     "zod": "4.6.7"
-  }
+  },
+  "private": true
 }

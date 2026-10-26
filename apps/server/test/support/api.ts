@@ -53,7 +53,7 @@ export async function readEvents(
     headers["last-event-id"] = options.lastEventId;
   const response = await fetch(`${api}/v1/checks/${checkId}/events`, {
     headers,
-    signal: controller.signal,
+    signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
   });
   if (response.status !== 200 || !response.body)
     throw new Error(`event stream returned ${response.status}`);

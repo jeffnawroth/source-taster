@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { randomUUID } from "node:crypto";
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import { fileURLToPath } from "node:url";
@@ -7,13 +8,18 @@ const serverDir = fileURLToPath(new URL("../..", import.meta.url));
 
 /** Test database connections; override in CI via environment. */
 export function testDatabase() {
+  const suffix = randomUUID().replaceAll("-", "").slice(0, 12);
+  const app = new URL(
+    process.env.DATABASE_TEST_URL ??
+      "postgres://verification_test:verification_test@localhost:5433/source_taster_test",
+  );
+  app.username = `verification_test_${suffix}`;
+  app.pathname = `/source_taster_test_${suffix}`;
   return {
     adminUrl:
       process.env.DATABASE_ADMIN_URL ??
       "postgres://postgres:postgres@localhost:5433/postgres",
-    appUrl:
-      process.env.DATABASE_TEST_URL ??
-      "postgres://verification_app:verification_app@localhost:5433/source_taster_test",
+    appUrl: app.toString(),
   };
 }
 

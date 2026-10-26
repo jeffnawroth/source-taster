@@ -13,3 +13,8 @@ apps/web/src/paraglide/
 playwright-report/
 test-results/
 .DS_Store
+
+packages/i18n/src/paraglide/
+
+packages/i18n/project.inlang/.lix/
+packages/i18n/project.inlang/.meta.json

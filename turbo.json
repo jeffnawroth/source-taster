@@ -12,7 +12,7 @@
     },
     "build": {
       "dependsOn": ["^build", "generate"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "openapi.json", "src/paraglide/**"]
     },
     "typecheck": {
       "dependsOn": ["^build", "generate"]

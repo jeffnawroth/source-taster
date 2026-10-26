@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Public transport schemas of the verification API (/v1).
 
-import { envelope } from "@source-taster/contract-common";
+import { envelope } from "../../contract-common/src/index.ts";
 import { z } from "zod";
 
-export * from "@source-taster/contract-common";
+export * from "../../contract-common/src/index.ts";
 
 /**
  * Shown instead of a Verdict (GLOSSARY "Status", ADR-0005). A Status is never

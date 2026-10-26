@@ -9,13 +9,15 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint && prettier --check .",
+    "typecheck": "tsc -p scripts/tsconfig.json && turbo run typecheck",
+    "lint": "eslint scripts && turbo run lint && prettier --check .",
     "format": "prettier --write .",
     "i18n:check": "turbo run i18n:check",
     "db:setup": "pnpm --filter @source-taster/server db:setup",
     "test": "turbo run test",
-    "test:e2e": "turbo run test:e2e"
+    "test:e2e": "turbo run test:e2e",
+    "audit:dependencies": "node scripts/audit.ts",
+    "audit:licenses": "node scripts/licenses.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -27,6 +29,7 @@
     "prettier": "3.9.10",
     "turbo": "2.11.10",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "8.72.0"
+    "typescript-eslint": "8.72.0",
+    "yaml": "2.9.1"
   }
 }
