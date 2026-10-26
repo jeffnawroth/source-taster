@@ -18,23 +18,39 @@
               },
               "language": {
                 "type": "string",
-                "enum": ["de", "en"]
+                "enum": [
+                  "de",
+                  "en"
+                ]
               },
               "status": {
                 "type": "string",
-                "enum": ["queued", "sent"]
+                "enum": [
+                  "queued",
+                  "sent"
+                ]
               }
             },
-            "required": ["id", "language", "status"]
+            "required": [
+              "id",
+              "language",
+              "status"
+            ]
           },
           "quota": {
             "$ref": "#/components/schemas/Quota"
           }
         },
-        "required": ["data", "quota"]
+        "required": [
+          "data",
+          "quota"
+        ]
       },
       "Quota": {
-        "type": ["object", "null"],
+        "type": [
+          "object",
+          "null"
+        ],
         "properties": {
           "consumed": {
             "type": "integer",
@@ -45,7 +61,10 @@
             "minimum": 0
           }
         },
-        "required": ["consumed", "remaining"]
+        "required": [
+          "consumed",
+          "remaining"
+        ]
       },
       "ProblemDetails": {
         "type": "object",
@@ -69,17 +88,28 @@
             "type": "string"
           }
         },
-        "required": ["type", "title", "status", "code", "i18nKey"]
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
       },
       "MailRehearsalRequest": {
         "type": "object",
         "properties": {
           "language": {
             "type": "string",
-            "enum": ["de", "en"]
+            "enum": [
+              "de",
+              "en"
+            ]
           }
         },
-        "required": ["language"],
+        "required": [
+          "language"
+        ],
         "additionalProperties": false
       }
     },

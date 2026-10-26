@@ -14,27 +14,43 @@
             "properties": {
               "program": {
                 "type": "string",
-                "enum": ["service"]
+                "enum": [
+                  "service"
+                ]
               },
               "status": {
                 "type": "string",
-                "enum": ["ready"]
+                "enum": [
+                  "ready"
+                ]
               },
               "authentication": {
                 "type": "string",
-                "enum": ["unavailable"]
+                "enum": [
+                  "unavailable"
+                ]
               }
             },
-            "required": ["program", "status", "authentication"]
+            "required": [
+              "program",
+              "status",
+              "authentication"
+            ]
           },
           "quota": {
             "$ref": "#/components/schemas/Quota"
           }
         },
-        "required": ["data", "quota"]
+        "required": [
+          "data",
+          "quota"
+        ]
       },
       "Quota": {
-        "type": ["object", "null"],
+        "type": [
+          "object",
+          "null"
+        ],
         "properties": {
           "consumed": {
             "type": "integer",
@@ -45,7 +61,10 @@
             "minimum": 0
           }
         },
-        "required": ["consumed", "remaining"]
+        "required": [
+          "consumed",
+          "remaining"
+        ]
       }
     },
     "parameters": {}

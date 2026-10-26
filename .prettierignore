@@ -12,6 +12,6 @@ docs/
 AGENTS.md
 GLOSSARY.md
 
-packages/contract-verification/openapi.json
+packages/contract-*/openapi.json
 packages/i18n/project.inlang/.lix/
 packages/i18n/project.inlang/README.md
