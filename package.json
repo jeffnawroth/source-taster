@@ -17,7 +17,10 @@
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e",
     "audit:dependencies": "node scripts/audit.ts",
-    "audit:licenses": "node scripts/licenses.ts"
+    "audit:licenses": "node scripts/licenses.ts",
+    "pagefind:fetch": "node scripts/pagefind-source.ts fetch",
+    "pagefind:build": "node scripts/pagefind-source.ts build",
+    "pagefind:verify": "node scripts/pagefind-source.ts verify"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

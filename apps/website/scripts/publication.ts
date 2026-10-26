@@ -44,6 +44,8 @@ export async function reviewDigest(root: string): Promise<string> {
     "claims.json",
     "publication.json",
     "../../pnpm-lock.yaml",
+    "../../scripts/pagefind-source.ts",
+    "../../scripts/pagefind-delivery.ts",
   );
   const inputs: [string, string][] = [];
   for (const file of files.sort()) {

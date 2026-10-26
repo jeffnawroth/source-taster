@@ -10,6 +10,8 @@ const mime: Record<string, string> = {
   ".wasm": "application/wasm",
   ".json": "application/json",
   ".svg": "image/svg+xml",
+  ".txt": "text/plain; charset=utf-8",
+  ".gz": "application/gzip",
 };
 /**
  * ADR-0020: the bare apex negotiates from Accept-Language on the server, so

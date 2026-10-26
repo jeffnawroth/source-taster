@@ -5,6 +5,7 @@ packages:
 saveExact: true
 engineStrict: true
 allowBuilds:
+  esbuild: true
   "@prisma/engines": true
   prisma: true
 minimumReleaseAgeExclude:
@@ -14,3 +15,4 @@ minimumReleaseAgeExclude:
 # (LGPL-3.0 native) image service stays out of the graph (#115).
 ignoredOptionalDependencies:
   - sharp
+  - fsevents

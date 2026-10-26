@@ -61,6 +61,7 @@ const site = (id: string) => pathFor(language, { id, section: 'site' });
       <a href={site('privacy')}>{t.privacy}</a>
       <a href={site('withdrawal')}>{t.withdrawal}</a>
       <a href={site('accessibility')}>{t.accessibility}</a>
+      <a href="/third-party/pagefind/index.html">{language === 'de' ? 'Suchlizenzen und Quellcode' : 'Search licenses and source'}</a>
     </nav></footer>
   </body>
 </html>

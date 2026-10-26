@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "pagefind": {
+    "version": "1.5.2",
+    "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+    "url": "https://codeload.github.com/Pagefind/pagefind/tar.gz/bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+    "sha256": "d167959cc2a5acd47c9cb619b10bec7938ec4405622d234524dabd83bfdc62c6"
+  },
+  "rustPatchDerive": {
+    "url": "https://static.crates.io/crates/rust-patch-derive/rust-patch-derive-0.1.3.crate",
+    "sha256": "b9927610a0a7c3e3dece1e89a114c31e435f27db01b1d630e81eb02ecd820f0b"
+  },
+  "rustVersion": "1.99.1",
+  "wasmBindgen": [
+    {
+      "target": "aarch64-apple-darwin",
+      "url": "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.117/wasm-bindgen-0.2.117-aarch64-apple-darwin.tar.gz",
+      "sha256": "d7691b221163d68884ef0a893cb57d3372f1100789dbf0cc2c9260a7f253a497"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "url": "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.117/wasm-bindgen-0.2.117-x86_64-unknown-linux-musl.tar.gz",
+      "sha256": "97f527f7c7956f69a88a4bdb5176142ebc4e255c2dbe3805ec4f373421028240"
+    }
+  ],
+  "vendoredGzip": {
+    "path": "pagefind_web_js/lib/gz.js",
+    "sha256": "7450eb4426973ca026c8d18cfec66f09317fb249f8f7f3ca1d2153b6b71e0158",
+    "license": "MIT",
+    "identity": "fflate-derived upstream vendored file; independent fflate release version unestablished"
+  },
+  "compiler": {
+    "version": "0.5.2",
+    "commit": "342e26603bf6416545a85b506b434d25226e1435",
+    "url": "https://codeload.github.com/withastro/compiler-rs/tar.gz/342e26603bf6416545a85b506b434d25226e1435",
+    "sha256": "2455866699fddb245c400010fd0b5341151ee14d6cf3b076e5dd17f74a336ebf"
+  }
+}

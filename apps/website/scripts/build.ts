@@ -13,33 +13,81 @@ const output = preview ? "dist-preview" : "dist";
 // Remove old publish output on any failed/rejected publication attempt as well.
 await rm(output, { recursive: true, force: true });
 const review = preview ? null : await checkPublication();
-for (const args of [
-  ["exec", "astro", "build"],
-  ...languages.map((language) => [
-    "exec",
-    "pagefind",
-    "--site",
-    output,
-    "--glob",
-    `docs/${language}/**/*.html`,
-    "--output-path",
-    `${output}/pagefind/${language}`,
-    "--force-language",
-    language,
-  ]),
-]) {
-  const result = spawnSync("pnpm", args, {
-    stdio: "inherit",
-    env: {
-      ...process.env,
-      ASTRO_TELEMETRY_DISABLED: "1",
-      DO_NOT_TRACK: "1",
-      SOURCE_TASTER_WEBSITE_PREVIEW: preview ? "1" : "0",
-      SOURCE_TASTER_WEBSITE_OUTPUT: `./${output}`,
+const project = resolve(import.meta.dirname, "../../..");
+const verify = spawnSync(
+  process.execPath,
+  [resolve(project, "scripts/pagefind-source.ts"), "verify"],
+  { stdio: "inherit" },
+);
+if (verify.status !== 0)
+  throw new Error("A current controlled Pagefind source build is required");
+const buildEnvironment = {
+  ...process.env,
+  ASTRO_TELEMETRY_DISABLED: "1",
+  DO_NOT_TRACK: "1",
+  SOURCE_TASTER_COMPILER_PATH: resolve(project, ".tmp/pagefind/bin/astro.node"),
+  SOURCE_TASTER_NATIVE_TRACE: resolve(
+    project,
+    ".tmp/pagefind/native-loads.jsonl",
+  ),
+  NODE_OPTIONS: `--require=${JSON.stringify(resolve(project, "scripts/website-native-trace.cjs"))}`,
+  SOURCE_TASTER_WEBSITE_PREVIEW: preview ? "1" : "0",
+  SOURCE_TASTER_WEBSITE_OUTPUT: `./${output}`,
+};
+await rm(buildEnvironment.SOURCE_TASTER_NATIVE_TRACE, { force: true });
+const astro = spawnSync("pnpm", ["exec", "astro", "build"], {
+  stdio: "inherit",
+  env: buildEnvironment,
+});
+if (astro.status !== 0) process.exit(astro.status ?? 1);
+const awaitCompiler = await readFile(
+  buildEnvironment.SOURCE_TASTER_COMPILER_PATH,
+);
+const loads = (
+  await readFile(buildEnvironment.SOURCE_TASTER_NATIVE_TRACE, "utf8")
+)
+  .trim()
+  .split("\n")
+  .map((line) => JSON.parse(line));
+if (
+  !loads.some(
+    (load) => load.controlled && load.sha256 === digest(awaitCompiler),
+  )
+)
+  throw new Error("Compiler execution evidence missing or changed");
+for (const language of languages) {
+  const result = spawnSync(
+    resolve(project, ".tmp/pagefind/bin/pagefind"),
+    [
+      "--site",
+      output,
+      "--glob",
+      `docs/${language}/**/*.html`,
+      "--output-path",
+      `${output}/pagefind/${language}`,
+      "--force-language",
+      language,
+    ],
+    {
+      stdio: "inherit",
+      // Ambient PAGEFIND_* variables cannot activate another surface/configuration.
+      env: Object.fromEntries(
+        Object.entries(buildEnvironment).filter(
+          ([key]) => !key.startsWith("PAGEFIND_"),
+        ),
+      ),
     },
-  });
+  );
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
+
+const sourceDelivery = spawnSync(
+  process.execPath,
+  [resolve(project, "scripts/pagefind-delivery.ts"), resolve(output)],
+  { stdio: "inherit" },
+);
+if (sourceDelivery.status !== 0)
+  throw new Error("Browser source/notice delivery failed");
 const files: Record<string, string> = {};
 async function inventory(dir: string) {
   for (const entry of await readdir(resolve(output, dir), {

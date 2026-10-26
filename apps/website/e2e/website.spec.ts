@@ -256,3 +256,54 @@ test("retry help describes automatic progress reconnection in both languages", a
     "zuletzt empfangenen Ereignis",
   );
 });
+
+test("readers can download licenses and Corresponding Source bound to the served search WASM", async ({
+  page,
+  request,
+}) => {
+  const { createHash } = await import("node:crypto");
+  await page.goto("/docs/en/");
+  await page
+    .getByRole("link", { name: "Search licenses and source", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/third-party\/pagefind\/index.html$/);
+  await expect(
+    page.getByRole("link", { name: "GNU GPL version 3", exact: true }),
+  ).toBeVisible();
+  const source = await request.get(
+    "/third-party/pagefind/corresponding-source.tar.gz",
+  );
+  expect(source.status()).toBe(200);
+  expect((await source.body()).length).toBeGreaterThan(100_000);
+  const response = await request.get("/third-party/pagefind/manifest.json");
+  expect(response.status()).toBe(200);
+  const manifest = await response.json();
+  expect(manifest.version).toBe("1.5.2");
+  expect(manifest.licenses.microjson).toBe("GPL-3.0-only");
+  expect(manifest.source.sha256).toBe(
+    createHash("sha256")
+      .update(await source.body())
+      .digest("hex"),
+  );
+  for (const path of [
+    "pagefind/de/wasm.de.pagefind",
+    "pagefind/en/wasm.en.pagefind",
+    "pagefind/en/wasm.unknown.pagefind",
+  ]) {
+    const object = await request.get(`/${path}`);
+    expect(object.status()).toBe(200);
+    expect(manifest.objects[path]).toBe(
+      createHash("sha256")
+        .update(await object.body())
+        .digest("hex"),
+    );
+  }
+  for (const path of [
+    "/third-party/pagefind/GPL-3.0.txt",
+    "/third-party/pagefind/NOTICE.txt",
+  ]) {
+    const text = await request.get(path);
+    expect(text.status()).toBe(200);
+    expect((await text.text()).length).toBeGreaterThan(100);
+  }
+});

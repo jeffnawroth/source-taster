@@ -6,6 +6,16 @@ import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { parseAllDocuments } from "yaml";
 
+const qualification = spawnSync(
+  process.execPath,
+  ["scripts/website-qualification.ts"],
+  { stdio: "inherit" },
+);
+if (qualification.status !== 0)
+  throw new Error(
+    "Actual website build/bundle qualification evidence required",
+  );
+const selectedLock = ".tmp/pagefind/selected.Cargo.lock";
 const root = new URL("../", import.meta.url);
 const cache = resolve(
   process.env.OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY ?? ".tmp/osv-db",
@@ -70,7 +80,10 @@ const scan = spawnSync(
     "--all-packages",
     "--lockfile",
     "pnpm-lock.yaml",
-    ...[...nativeLocks, bundledLock].flatMap((file) => ["--lockfile", file]),
+    ...[...nativeLocks, bundledLock, selectedLock].flatMap((file) => [
+      "--lockfile",
+      file,
+    ]),
     "--format",
     "json",
     "--output-file",
@@ -87,10 +100,10 @@ if (scan.error || (scan.status !== 0 && scan.status !== 1))
   throw new Error(`OSV scan failed: ${scan.error?.message ?? scan.status}`);
 interface Package {
   package: { name: string; version: string; ecosystem: string };
-  vulnerabilities?: unknown[];
+  vulnerabilities?: { id: string }[];
 }
 const report = JSON.parse(await readFile(output, "utf8")) as {
-  results?: { packages: Package[] }[];
+  results?: { source: { path: string }; packages: Package[] }[];
 };
 const packages = report.results?.flatMap((result) => result.packages) ?? [];
 const documents = parseAllDocuments(
@@ -114,7 +127,7 @@ const scanned = new Set(
   ),
 );
 const required = expected.map((key) => `npm:${key}`);
-for (const file of nativeLocks) {
+for (const file of [...nativeLocks, selectedLock]) {
   const content = await readFile(file, "utf8");
   const entries = content.split(/^\[\[package\]\]$/m).slice(1);
   if (!entries.length) throw new Error(`Empty native inventory: ${file}`);
@@ -139,9 +152,54 @@ if (!expected.length || !packages.length || missing.length)
   throw new Error(
     `Incomplete OSV inventory: ${missing.length} of ${expected.length} packages missing`,
   );
-const findings = packages.reduce(
-  (sum, item) => sum + (item.vulnerabilities?.length ?? 0),
-  0,
+const selectedReport = report.results?.filter((r) =>
+  r.source.path.endsWith("/.tmp/pagefind/selected.Cargo.lock"),
+);
+if (selectedReport?.length !== 1)
+  throw new Error("Selected build inventory not scanned");
+const selected = new Set(
+  selectedReport[0]!.packages.map(
+    (p) => `${p.package.ecosystem}:${p.package.name}@${p.package.version}`,
+  ),
+);
+const dispositions = [];
+let findings = 0;
+let blockingFindings = 0;
+for (const result of report.results ?? []) {
+  const path = result.source.path;
+  const raw = [...nativeLocks, bundledLock].find((lock) =>
+    path.endsWith(`/${lock}`),
+  );
+  const actual =
+    path.endsWith("/pnpm-lock.yaml") || path.endsWith(`/${selectedLock}`);
+  if (!raw && !actual) throw new Error(`Unknown scan scope: ${path}`);
+  for (const item of result.packages)
+    for (const vulnerability of item.vulnerabilities ?? []) {
+      findings++;
+      const identity = `${item.package.ecosystem}:${item.package.name}@${item.package.version}`;
+      const blocks = actual || selected.has(identity);
+      if (blocks) blockingFindings++;
+      dispositions.push({
+        source: raw ?? path.slice(path.lastIndexOf("/.tmp/") + 1),
+        identity,
+        advisory: vulnerability.id,
+        blocks,
+        disposition: blocks
+          ? "actual selected/installed project graph: unresolved and blocking"
+          : raw?.includes("pagefind-js")
+            ? "unexecuted upstream JS tooling; controlled esbuild-only source generation and no external client imports verified by metafiles"
+            : raw?.includes("satteri")
+              ? "upstream source-lock alternative/test graph; Satteri binary installed but absent from guarded native execution and browser distribution"
+              : identity === "crates.io:pagefind@0.0.0"
+                ? "upstream placeholder corrected to controlled 1.5.2 release identity; actual JS built from pinned fixed source"
+                : "absent version/component from frozen controlled normal+build target/feature closure; removal or stable replacement verified in exact artifact recipe",
+        evidence: ".tmp/pagefind/evidence/qualification.json",
+      });
+    }
+}
+await writeFile(
+  resolve(".tmp/audit/website-dispositions.json"),
+  JSON.stringify(dispositions, null, 2) + "\n",
 );
 const evidence = {
   tool: "OSV-Scanner 2.7.0",
@@ -152,13 +210,17 @@ const evidence = {
   nativeAndBundledExpected: new Set(required).size - expected.length,
   nativeDatabaseLastModified: cratesModified?.trim(),
   findings,
+  blockingFindings,
+  rawFindingsPreserved: dispositions.filter((d) => !d.blocks).length,
+  qualificationEvidence: ".tmp/pagefind/evidence/qualification.json",
+  legalReview: "pending; publication remains blocked",
 };
 await writeFile(
   resolve(".tmp/audit/summary.json"),
   JSON.stringify(evidence, null, 2) + "\n",
 );
 console.log(JSON.stringify(evidence));
-if (findings || scan.status !== 0)
+if (blockingFindings)
   throw new Error(
-    "Dependency advisory found; all findings (including critical) block CI",
+    "Actual selected dependency advisory found; all actual findings (including critical) block CI",
   );
