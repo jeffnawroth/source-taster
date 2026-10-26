@@ -1,24 +1,25 @@
 # Requirements Specification – Source Taster
 
-*Functional specification without technical implementation details · Version 3.3: target state of the commercial product*
+*Functional specification without technical implementation details · Version 3.4: target state of the commercial product*
 
-25 October 2026 · Jeff Nawroth
+26 October 2026 · Jeff Nawroth
 
-> This English document is authoritative. The client explicitly approved the consolidated version 3.3 on 25 October 2026, including the launch Operator interface and workflows. Version 3.3 supersedes version 3.2 as the approved working baseline. Prior versions are preserved in Git history. The superseded German document does not govern this work.
+> This English document is authoritative. The client explicitly approved the consolidated version 3.4 on 26 October 2026, including the bounded acceptance criterion of FA-ERF-03. Version 3.4 supersedes version 3.3 as the approved working baseline. Prior versions are preserved in Git history. The superseded German document does not govern this work.
 
 **Document information**
 
 | Attribute | Value |
 | --- | --- |
 | Document | Requirements Specification Source Taster |
-| Version | 3.3 of 25 October 2026 |
-| Status | Approved by the client on 25 October 2026, including the consolidated wording |
+| Version | 3.4 of 26 October 2026 |
+| Status | Approved by the client on 26 October 2026, including the consolidated wording |
 | Client | Jeff Nawroth |
 
 **Change history**
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 3.4 | 26 October 2026 | Bound the FA-ERF-03 acceptance criterion to pages where the browser offers its context menu for the selection and name the excluded surfaces; section 5; consolidated wording explicitly approved by the client |
 | 3.3 | 25 October 2026 | Bring the basic private Operator web interface forward to market launch, remove its deferral trigger, and clarify recipient-only fulfilment of Operator-arranged data exports; sections 13 and 19; consolidated wording explicitly approved by the client |
 | 3.2 | 24 October 2026 | Explicit identity evidence, expanded Not verifiable reasons, coverage/DOI precedence, author/date/page and web/archive rules, correction eligibility and numeric precision; sections 8 and 17 |
 | 3.1 | 23 October 2026 | Acceptance criterion of FA-KTO-28 refers to the monthly subscription |
@@ -152,7 +153,7 @@ Users must be able to bring in references the way they already work: as text, as
 | --- | --- | --- | --- |
 | FA-ERF-01 | The system must provide a multi-line input field for any text containing one or many references. | A pasted text with 100 references is taken over completely. | must |
 | FA-ERF-02 | The system must accept PDF and Word documents (.pdf, .docx) and extract their text completely. If a PDF contains no text, the system reports this clearly and counts such cases without storing any content. | For 10 test documents of each format, all references of the bibliography are extracted; a scanned PDF without text leads to a clear message and is counted. | must |
-| FA-ERF-03 | The extension must offer the entry "Check selected text" in the context menu for selected text. It opens the side panel and takes over the selection as input. | Selected text on any web page appears as input in the side panel after the entry is chosen. | must |
+| FA-ERF-03 | The extension must offer the entry "Check selected text" in the context menu for selected text. It opens the side panel and takes over the selection as input. | Selected text appears as input in the side panel after the entry is chosen, on any web page where the browser offers its context menu for the selection, including PDFs in the browser's built-in viewer, frames and form fields. Excluded are pages that replace the browser's context menu or render text without a browser selection (e.g. canvas-based editors), password fields, and private windows in which the user has not allowed the extension. | must |
 | FA-ERF-04 | The extension must offer the entry "Open side panel" in the context menu while the side panel is closed. | The entry opens the side panel; while it is open, the entry is disabled. | should |
 | FA-ERF-05 | In entire documents, the system must, in all plans and also without AI, automatically detect the bibliography, split it into individual references and check only the bibliography; users can correct the start and end of the selection. | In at least 19 of 20 test documents, the bibliography is delimited correctly and split into individual references without AI; the selection can be moved. | must |
 | FA-ERF-06 | The system must import reference lists in BibTeX and RIS format. | Exports from Zotero, Citavi and EndNote with 50 entries each are imported completely. | must |
