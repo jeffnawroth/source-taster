@@ -1,0 +1,13 @@
+pnpm-lock.yaml
+**/dist/
+**/src/generated/
+**/src/paraglide/
+**/LICENSE*
+.tmp/
+coverage/
+playwright-report/
+test-results/
+# Prose documents are formatted by hand.
+docs/
+AGENTS.md
+GLOSSARY.md
