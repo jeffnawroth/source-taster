@@ -4,5 +4,18 @@ export default defineConfig({
   outDir: process.env.SOURCE_TASTER_WEBSITE_OUTPUT ?? "./dist-preview",
   trailingSlash: "always",
   build: { inlineStylesheets: "never" },
-  vite: { build: { assetsInlineLimit: 0 } },
+  vite: {
+    build: {
+      assetsInlineLimit: 0,
+      // Route-derived names such as "_..css" from [...route] would be refused
+      // by the hosting boundary's ".." guard; content hashes are enough.
+      rollupOptions: {
+        output: {
+          assetFileNames: "_astro/[hash][extname]",
+          chunkFileNames: "_astro/[hash].js",
+          entryFileNames: "_astro/[hash].js",
+        },
+      },
+    },
+  },
 });

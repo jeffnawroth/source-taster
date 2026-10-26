@@ -157,3 +157,19 @@ li {
     padding-top: 2rem;
   }
 }
+/* WCAG 2.5.8: standalone links are at least 24 by 24 CSS pixels. */
+.brand,
+nav a,
+li > a {
+  display: inline-block;
+  min-height: 24px;
+  min-width: 24px;
+}
+/* WCAG 1.4.10: long German compounds wrap instead of scrolling sideways. */
+h1,
+h2,
+p,
+li {
+  overflow-wrap: break-word;
+  hyphens: auto;
+}

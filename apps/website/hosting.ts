@@ -123,7 +123,7 @@ export async function openWebsite(
     } catch {
       headers.set("Content-Type", "text/html; charset=utf-8");
       return new Response(
-        '<!doctype html><html lang="en"><title>404</title><h1>Page not found / Seite nicht gefunden</h1><a href="/en/">English</a> · <a href="/de/">Deutsch</a></html>',
+        '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>404 · Source Taster</title><main><h1>Page not found / <span lang="de">Seite nicht gefunden</span></h1><p><a href="/en/">English</a> · <a href="/de/" lang="de">Deutsch</a></p></main></html>',
         { status: 404, headers },
       );
     }
