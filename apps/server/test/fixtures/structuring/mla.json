@@ -1,0 +1,22 @@
+{
+  "description": "Owned development fixture: MLA 9 article and book; date follows the container or publisher.",
+  "text": "Smith, Jane. “A careful title.” Journal of Testing, vol. 12, no. 3, 2020, pp. 45–67. https://doi.org/10.5555/MLA\nMorrison, Toni. Beloved. Alfred A. Knopf, 1987.",
+  "expected": [
+    {
+      "author": [{ "family": "Smith", "given": "Jane" }],
+      "issued": { "literal": "2020" },
+      "title": "A careful title",
+      "container-title": "Journal of Testing",
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67",
+      "DOI": "10.5555/MLA"
+    },
+    {
+      "author": [{ "family": "Morrison", "given": "Toni" }],
+      "issued": { "literal": "1987" },
+      "title": "Beloved",
+      "publisher": "Alfred A. Knopf"
+    }
+  ]
+}

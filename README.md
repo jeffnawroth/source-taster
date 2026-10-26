@@ -1,6 +1,6 @@
 # Source Taster
 
-Walking skeleton for [#71](https://github.com/jeffnawroth/source-taster/issues/71), part of [#70](https://github.com/jeffnawroth/source-taster/issues/70). Paste a Reference, create a Check through the verification API, and watch the worker advance its Status over replayable SSE. **No Structuring, search or verification happens yet.** The placeholder finishes with Status **Not checked**, never a Verdict.
+Walking skeleton for [#71](https://github.com/jeffnawroth/source-taster/issues/71), part of [#70](https://github.com/jeffnawroth/source-taster/issues/70). Paste a Reference, create a Check through the verification API, and watch the worker advance its Status over replayable SSE. The separate **Structure References** action previews deterministic Structuring for APA, Harvard, Chicago author-date and MLA ([#72](https://github.com/jeffnawroth/source-taster/issues/72)). **No search or verification happens yet.** The placeholder finishes with Status **Not checked**, never a Verdict.
 
 ## Run locally
 
@@ -33,6 +33,7 @@ Standalone is an **explicit** `SOURCE_TASTER_MODE=standalone` choice. It supplie
 
 - `apps/server`: Hono web process, pg-boss worker, Prisma schema and real PostgreSQL contract tests.
 - `apps/web`: React/Vite, TanStack Router/Query, Tailwind and browser tests.
+- `packages/core`: owned, deterministic Structuring rules behind an application-owned port (AGPL only).
 - `packages/ui`: shared React Aria primitives.
 - `packages/i18n`: DE/EN catalogs compiled by Paraglide; the message-format plugin is an exact-pinned local build dependency. No runtime translation service or analytics.
 - `packages/contract-common`, `packages/contract-verification`: dual-licensed transport contracts, without implementation imports.
@@ -40,6 +41,14 @@ Standalone is an **explicit** `SOURCE_TASTER_MODE=standalone` choice. It supplie
 The schemas, OpenAPI route declarations, generated `openapi.json` and fetch SSE client are the published seam. See [the contract README](packages/contract-verification/README.md) for the commit-pinned **git dependency**, with no registry publishing and no service-side vendored source. Contract build artifacts are intentionally committed so Node can import JavaScript directly after a git install. All other code is AGPL-3.0-or-later.
 
 A Check and its per-Reference jobs commit together. Result Status and ordered event commit together, with per-Check locking and retry-safe updates. LISTEN/NOTIFY wakes each web process; streams read the durable log and use sequence IDs for replay. Disconnecting a stream does not cancel its Check. The full snapshot is `GET /v1/checks/{id}`; reconnect with `Last-Event-ID` at `/events`. No Reference content is placed in URLs, queue payloads or operational logs. The browser holds Check content only in memory; only the selected interface language is stored locally.
+
+## Structuring preview
+
+`POST /v1/structurings` accepts `{ "text": "…" }` and returns a `StructuringResponse`: recognized References with exact original text, CSL fields and field provenance, plus rejected text and no-References guidance. Source spans are half-open UTF-16 offsets into the unmodified request text. Values remain as written; normalized identifiers are separate. Every Reference records parser path/version. Uncertain fields remain absent.
+
+The preview is stateless and consumes no Quota. `SOURCE_TASTER_REFERENCE_LIMIT` is an Operator-configurable positive integer, initially 1,000, counted after Structuring. Over-limit requests return Problem Details with the applicable `limit`; input is never truncated. The web app presents fields and collapsible rejected text in DE/EN.
+
+This endpoint deliberately leaves the existing `/v1/checks` placeholder contract and paste-and-watch behavior intact. A preview does not create Reference slots or start search. Connecting canonical Structuring to durable Check execution belongs to the later lifecycle/search slices. Preferences remain separate (#85). See [implementation scope and validation](docs/implementation/72-parser.md).
 
 ## Validation
 

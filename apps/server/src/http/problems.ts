@@ -10,6 +10,11 @@ import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const problems = {
+  "reference-limit": {
+    status: 400,
+    title: "The Reference limit was exceeded.",
+    i18nKey: "problem_reference_limit",
+  },
   "input-empty": {
     status: 400,
     title: "The input is empty.",
@@ -47,7 +52,11 @@ const problems = {
 
 export type ProblemCode = keyof typeof problems;
 
-export function problemResponse(code: ProblemCode, detail?: string): Response {
+export function problemResponse(
+  code: ProblemCode,
+  detail?: string,
+  limit?: number,
+): Response {
   const { status, title, i18nKey } = problems[code];
   const body: ProblemDetails = {
     type: `urn:source-taster:problem:${code}`,
@@ -56,6 +65,7 @@ export function problemResponse(code: ProblemCode, detail?: string): Response {
     code,
     i18nKey,
     ...(detail ? { detail } : {}),
+    ...(limit === undefined ? {} : { limit }),
   };
   return new Response(JSON.stringify(body), {
     status,
@@ -64,7 +74,11 @@ export function problemResponse(code: ProblemCode, detail?: string): Response {
 }
 
 /** Aborts the request with a problem response (rendered by the app's onError). */
-export function fail(code: ProblemCode, detail?: string): never {
-  const res = problemResponse(code, detail);
+export function fail(
+  code: ProblemCode,
+  detail?: string,
+  limit?: number,
+): never {
+  const res = problemResponse(code, detail, limit);
   throw new HTTPException(res.status as ContentfulStatusCode, { res });
 }
