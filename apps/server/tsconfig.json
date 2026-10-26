@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    // fetch, Request and Response are web APIs that Node provides.
+    "lib": ["es2024", "dom"]
+  },
+  "include": ["src", "scripts", "test", "*.config.ts"]
+}

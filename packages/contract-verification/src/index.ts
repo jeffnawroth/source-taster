@@ -36,8 +36,9 @@ export const ReferenceSlot = z
   .meta({ id: "ReferenceSlot" });
 export type ReferenceSlot = z.infer<typeof ReferenceSlot>;
 
+/** Pre-start states (Structuring, awaiting start) join when they exist. */
 export const CheckState = z
-  .enum(["structuring", "awaiting-start", "running", "ended"])
+  .enum(["running", "ended"])
   .meta({ id: "CheckState" });
 export type CheckState = z.infer<typeof CheckState>;
 

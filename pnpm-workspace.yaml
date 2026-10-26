@@ -4,3 +4,6 @@ packages:
 
 saveExact: true
 engineStrict: true
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
