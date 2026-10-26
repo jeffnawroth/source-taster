@@ -23,5 +23,18 @@
   "problem_forbidden": "Sie haben keine Berechtigung für diese Aktion.",
   "problem_unauthenticated": "Melden Sie sich an, um fortzufahren.",
   "problem_internal": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
-  "problem_connection": "Die Verbindung ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+  "problem_connection": "Die Verbindung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "citation_style_label": "Bevorzugter Zitierstil",
+  "citation_style_reset": "Ihr gespeicherter Zitierstil ist nicht mehr verfügbar. APA ist ausgewählt; Sie können einen anderen Stil wählen.",
+  "citation_style_apa": "APA",
+  "citation_style_mla": "MLA",
+  "citation_style_chicago": "Chicago",
+  "citation_style_ieee": "IEEE",
+  "citation_style_vancouver": "Vancouver",
+  "citation_style_harvard": "Harvard",
+  "citation_style_acs": "ACS",
+  "citation_style_ama": "AMA",
+  "citation_style_oxford": "Oxford",
+  "citation_style_springer": "Springer",
+  "citation_style_din_iso_690": "DIN ISO 690"
 }

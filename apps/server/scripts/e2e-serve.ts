@@ -3,10 +3,14 @@ import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { startTestService } from "../test/support/service.ts";
 
-const service = await startTestService(3102, 3000);
+const service = await startTestService(
+  Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? 3102),
+  3000,
+);
+const webPort = process.env.SOURCE_TASTER_E2E_WEB_PORT ?? "5174";
 const vite = spawn(
   "pnpm",
-  ["--filter", "@source-taster/web", "dev", "--port", "5174", "--strictPort"],
+  ["--filter", "@source-taster/web", "dev", "--port", webPort, "--strictPort"],
   {
     cwd: new URL("../../..", import.meta.url),
     env: { ...process.env, SOURCE_TASTER_API_URL: service.apiUrl },

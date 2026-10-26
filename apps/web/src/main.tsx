@@ -26,22 +26,38 @@ import {
 import { m } from "@source-taster/i18n";
 import { setLocale } from "@source-taster/i18n/runtime";
 import { Button, Label, Text, TextArea, TextField } from "@source-taster/ui";
+import {
+  citationStyles,
+  isCitationStyle,
+  isInterfaceLanguage,
+  loadGuestPreferences,
+  saveGuestPreferences,
+  webPreferenceStorage,
+  type CitationStyle,
+  type Preferences,
+} from "@source-taster/ui/preferences";
 import "./style.css";
 
-type Locale = "de" | "en";
 type MessageKey = keyof typeof m;
-const language = navigator.languages
-  .find((value) => /^(de|en)(-|$)/i.test(value))
-  ?.slice(0, 2)
-  .toLowerCase();
-let initialLocale: Locale = language === "de" ? "de" : "en";
-try {
-  const saved = localStorage.getItem("source-taster-language");
-  if (saved === "de" || saved === "en") initialLocale = saved;
-} catch {
-  /* Browser storage can be disabled. */
-}
-void setLocale(initialLocale, { reload: false });
+const preferenceStorage = webPreferenceStorage();
+const initial = await loadGuestPreferences(
+  preferenceStorage,
+  navigator.languages,
+);
+void setLocale(initial.preferences.language, { reload: false });
+const styleMessages: Record<CitationStyle, MessageKey> = {
+  apa: "citation_style_apa",
+  mla: "citation_style_mla",
+  chicago: "citation_style_chicago",
+  ieee: "citation_style_ieee",
+  vancouver: "citation_style_vancouver",
+  harvard: "citation_style_harvard",
+  acs: "citation_style_acs",
+  ama: "citation_style_ama",
+  oxford: "citation_style_oxford",
+  springer: "citation_style_springer",
+  "din-iso-690": "citation_style_din_iso_690",
+};
 
 class ApiProblem extends Error {
   readonly key: MessageKey;
@@ -76,7 +92,9 @@ const statusMessage: Record<ReferenceStatus, MessageKey> = {
 };
 
 function Workspace() {
-  const [locale, updateLocale] = useState<Locale>(initialLocale);
+  const [preferences, updatePreferences] = useState(initial.preferences);
+  const [styleReset, setStyleReset] = useState(initial.citationStyleReset);
+  const locale = preferences.language;
   const [text, setText] = useState("");
   const [check, setCheck] = useState<Check | null>(null);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);
@@ -137,14 +155,12 @@ function Workspace() {
         ? create.error.key
         : "problem_connection"
       : null);
-  function changeLocale(value: Locale) {
-    void setLocale(value, { reload: false });
-    updateLocale(value);
-    try {
-      localStorage.setItem("source-taster-language", value);
-    } catch {
-      /* Optional preference only. */
-    }
+  function changePreferences(patch: Partial<Preferences>) {
+    const next = { ...preferences, ...patch };
+    void setLocale(next.language, { reload: false });
+    updatePreferences(next);
+    void saveGuestPreferences(preferenceStorage, next);
+    if (patch.citationStyle) setStyleReset(false);
   }
   return (
     <main className="mx-auto max-w-3xl px-6 py-10 sm:py-16">
@@ -158,13 +174,41 @@ function Workspace() {
           <select
             className="rounded-lg border border-slate-500 bg-white p-2"
             value={locale}
-            onChange={(event) => changeLocale(event.target.value as Locale)}
+            onChange={(event) => {
+              if (isInterfaceLanguage(event.target.value))
+                changePreferences({ language: event.target.value });
+            }}
           >
             <option value="de">{m.language_de()}</option>
             <option value="en">{m.language_en()}</option>
           </select>
         </label>
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          {m.citation_style_label()}
+          <select
+            className="rounded-lg border border-slate-500 bg-white p-2"
+            value={preferences.citationStyle}
+            onChange={(event) => {
+              if (isCitationStyle(event.target.value))
+                changePreferences({ citationStyle: event.target.value });
+            }}
+          >
+            {citationStyles.map((style) => (
+              <option key={style.id} value={style.id}>
+                {m[styleMessages[style.id]]()}
+              </option>
+            ))}
+          </select>
+        </label>
       </header>
+      {styleReset && (
+        <p
+          role="status"
+          className="mb-6 rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950"
+        >
+          {m.citation_style_reset()}
+        </p>
+      )}
       <p className="mb-8 rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950">
         {m.skeleton_notice()}
       </p>
