@@ -39,7 +39,14 @@ await runMain(async (config) => {
     entitlements: standaloneEntitlements,
     checks: createCheckStore(db, boss),
   });
-  if (website) app.get("*", (c) => website!(c.req.raw));
+  if (website) {
+    // The website only answers what the API does not own (ADR-0020).
+    const serveWebsite = website;
+    app.get("*", async (c, next) => {
+      if (/^\/(?:v1|health)(?:\/|$)/.test(c.req.path)) return next();
+      return serveWebsite(c.req.raw);
+    });
+  }
   const server = serve(
     {
       fetch: app.fetch,

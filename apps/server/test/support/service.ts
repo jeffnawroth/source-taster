@@ -4,7 +4,11 @@ import { setupDatabase } from "../../scripts/db-setup.ts";
 import { startProcess, testDatabase, waitForHealth } from "./processes.ts";
 
 /** Each run owns a fresh database and role; existing installations are untouched. */
-export async function startTestService(port: number, delayMs = 50) {
+export async function startTestService(
+  port: number,
+  delayMs = 50,
+  extraEnv: Record<string, string> = {},
+) {
   const { adminUrl, appUrl } = testDatabase();
   const owned = new URL(appUrl);
   const cleanDatabase = async () => {
@@ -33,6 +37,7 @@ export async function startTestService(port: number, delayMs = 50) {
     SOURCE_TASTER_PORT: String(port),
     SOURCE_TASTER_PLACEHOLDER_DELAY_MS: String(delayMs),
     SOURCE_TASTER_SSE_HEARTBEAT_MS: "1000",
+    ...extraEnv,
   };
   const web = startProcess("web", env);
   const worker = startProcess("worker", env);

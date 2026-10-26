@@ -59,7 +59,7 @@ test("bare entry follows browser language without changing explicit language URL
     ["DE", "de"],
     ["fr", "en"],
     ["", "en"],
-  ]) {
+  ] as const) {
     const entry = await request.get("/?private-query=do-not-forward", {
       headers: { "accept-language": acceptLanguage },
       maxRedirects: 0,

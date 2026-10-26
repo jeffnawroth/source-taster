@@ -34,6 +34,12 @@ export async function openWebsite(
   directory: string,
   mode: "preview" | "publication",
 ) {
+  // The gate runs before anything is read, so a missing or stale artifact
+  // never hides which publication inputs are still missing.
+  const review =
+    mode === "publication"
+      ? await checkPublication(resolve(directory, ".."))
+      : undefined;
   const root = await realpath(directory);
   const artifact = JSON.parse(
     await readFile(resolve(root, "website-artifact.json"), "utf8"),
@@ -44,8 +50,7 @@ export async function openWebsite(
     );
   if (mode === "preview" && process.env.NODE_ENV === "production")
     throw new Error("Draft preview is local-only");
-  if (mode === "publication") {
-    const review = await checkPublication(resolve(root, ".."));
+  if (review) {
     if (
       review.contentSha256 !== artifact.contentSha256 ||
       !Object.keys(artifact.files).length
