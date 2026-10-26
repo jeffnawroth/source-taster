@@ -1,0 +1,208 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Source Taster internal API",
+    "version": "1"
+  },
+  "components": {
+    "schemas": {
+      "MailRehearsalResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "language": {
+                "type": "string",
+                "enum": ["de", "en"]
+              },
+              "status": {
+                "type": "string",
+                "enum": ["queued", "sent"]
+              }
+            },
+            "required": ["id", "language", "status"]
+          },
+          "quota": {
+            "$ref": "#/components/schemas/Quota"
+          }
+        },
+        "required": ["data", "quota"]
+      },
+      "Quota": {
+        "type": ["object", "null"],
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": ["consumed", "remaining"]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": ["type", "title", "status", "code", "i18nKey"]
+      },
+      "MailRehearsalRequest": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": ["de", "en"]
+          }
+        },
+        "required": ["language"],
+        "additionalProperties": false
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/internal/mail-rehearsals": {
+      "post": {
+        "summary": "Local SMTP rehearsal; fixed sink only, never an Account sign-in",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MailRehearsalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Durable local rehearsal receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailRehearsalResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/mail-rehearsals/{id}": {
+      "get": {
+        "summary": "Read local rehearsal delivery status",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Local rehearsal status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailRehearsalResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

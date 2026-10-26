@@ -1,0 +1,73 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Source Taster service API",
+    "version": "1"
+  },
+  "components": {
+    "schemas": {
+      "ServiceStatusResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "program": {
+                "type": "string",
+                "enum": ["service"]
+              },
+              "status": {
+                "type": "string",
+                "enum": ["ready"]
+              },
+              "authentication": {
+                "type": "string",
+                "enum": ["unavailable"]
+              }
+            },
+            "required": ["program", "status", "authentication"]
+          },
+          "quota": {
+            "$ref": "#/components/schemas/Quota"
+          }
+        },
+        "required": ["data", "quota"]
+      },
+      "Quota": {
+        "type": ["object", "null"],
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": ["consumed", "remaining"]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/v1/status": {
+      "get": {
+        "summary": "Read infrastructure readiness; authentication is not implemented",
+        "responses": {
+          "200": {
+            "description": "Ready; no authorization or Quota is granted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

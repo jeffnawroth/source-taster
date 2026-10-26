@@ -1,0 +1,328 @@
+import { z } from "zod";
+export declare const createMailRehearsal: {
+    method: "post";
+    path: "/internal/mail-rehearsals";
+    summary: string;
+    request: {
+        headers: z.ZodObject<{
+            "idempotency-key": z.ZodString;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        language: z.ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        201: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            language: z.ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            status: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                        }, z.core.$strip>;
+                        quota: z.ZodNullable<z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/mail-rehearsals";
+};
+export declare const getMailRehearsal: {
+    method: "get";
+    path: "/internal/mail-rehearsals/{id}";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodUUID;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            language: z.ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            status: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                        }, z.core.$strip>;
+                        quota: z.ZodNullable<z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/mail-rehearsals/:id";
+};
+export declare const routes: (({
+    method: "post";
+    path: "/internal/mail-rehearsals";
+    summary: string;
+    request: {
+        headers: z.ZodObject<{
+            "idempotency-key": z.ZodString;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        language: z.ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        201: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            language: z.ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            status: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                        }, z.core.$strip>;
+                        quota: z.ZodNullable<z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/mail-rehearsals";
+}) | ({
+    method: "get";
+    path: "/internal/mail-rehearsals/{id}";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodUUID;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            language: z.ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            status: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                        }, z.core.$strip>;
+                        quota: z.ZodNullable<z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/mail-rehearsals/:id";
+}))[];
