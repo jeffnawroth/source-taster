@@ -32,11 +32,13 @@ The website browser tests cover: DE/EN pages and local search (results, empty an
 
 Two defects were found by these tests and fixed: route-derived CSS asset names containing `..` were blocked by the hosting path guard, leaving the site unstyled; and long German words overflowed at 320 px.
 
-## Dependency findings (blocking publication)
+## Dependency findings (blocking CI and publication)
+
+`pnpm audit:dependencies` runs in CI (`.github/workflows/ci.yml`), so this branch does not merge green until the findings are resolved, an exception is decided, or the scope of the upstream-lock scan is changed. That is a project decision, not part of this ticket.
 
 The pnpm lockfile graph has no OSV findings. All 73 findings come from the upstream source locks of native/bundled website build components that `scripts/audit.ts` scans deliberately (`apps/website/qualification/upstream/`, provenance pinned in `provenance.json`):
 
-- **Pagefind CLI (`pagefind-native`, v1.5.2):** advisories in `actix-http`, `quinn-proto`, `rustls`, `rustls-webpki`, `h2`, `tar`, `rand`, `tokio`, `zstd`/`zstd-safe`/`zstd-sys` and several unmaintained crates. The `pagefind 0.0.0` match on GHSA-gprj-6m2f-j9hx is a false positive (workspace placeholder version; fixed in 1.1.1). Most affected code paths (dev server, network fetching) are not used by the build-time indexer, but this has not been qualified.
+- **Pagefind CLI (`pagefind-native`, v1.5.2):** advisories in `actix-http`, `quinn-proto`, `rustls`, `rustls-webpki`, `h2`, `tar`, `rand`, `tokio`, `zstd`/`zstd-safe`/`zstd-sys` and several unmaintained crates. The `pagefind 0.0.0` match on GHSA-gprj-6m2f-j9hx is a false positive (workspace placeholder version; fixed in 1.1.1). Reachability has not been qualified.
 - **Pagefind bundled JS build lock (`pagefind-js`):** `tar`, `brace-expansion`, `js-yaml`, `esbuild`.
 - **Astro compiler (`@astrojs/compiler-rs` 0.5.2):** `anyhow`, `tokio`. **satteri** 0.10.5: unmaintained `bincode`.
 - **Prereleases outside the get-tsconfig decision:** `lightningcss 1.0.0-alpha.72` and `lightningcss-derive 1.0.0-alpha.43` in the Astro compiler's Cargo lock.
