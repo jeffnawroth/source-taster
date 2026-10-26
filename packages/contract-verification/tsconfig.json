@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The client runs in browsers and in Node; both provide these web APIs.
+    "lib": ["es2024", "dom"]
+  },
+  "include": ["src"]
+}
