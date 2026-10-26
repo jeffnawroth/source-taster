@@ -12,13 +12,29 @@
     },
     "help": {
       "requirements": ["FA-UEB-02"],
-      "evidence": ["e2e/website.spec.ts"],
-      "state": "local website and web shared links; extension/private surfaces pending"
+      "evidence": [
+        "e2e/website.spec.ts",
+        "../web/e2e/information.spec.ts",
+        "../../packages/ui/src/information.tsx"
+      ],
+      "state": "local website; web links via the shared UI seam; extension not built yet"
     },
     "skeleton": {
       "requirements": ["FA-ERF-01", "FA-UEB-02"],
-      "evidence": ["../server/test/checks.test.ts", "../web/src/main.tsx"],
+      "evidence": [
+        "../server/test/checks.test.ts",
+        "../web/e2e/paste-and-watch.spec.ts"
+      ],
       "state": "text input and placeholder Status only; no Verdict"
+    },
+    "structuring": {
+      "requirements": ["FA-ERF-01", "FA-ERF-12", "FA-STR-01"],
+      "evidence": [
+        "../server/test/structuring.test.ts",
+        "../web/e2e/structuring.spec.ts",
+        "../../docs/implementation/72-parser.md"
+      ],
+      "state": "author-date preview (APA, Harvard, Chicago, MLA) only; original text kept, not durable Reference slots; no search, Verdict or Quota"
     },
     "preferences": {
       "requirements": ["FA-KON-01", "FA-KON-03"],
@@ -45,7 +61,7 @@
     },
     "accessibility": {
       "requirements": ["FA-UEB-04"],
-      "evidence": ["e2e/website.spec.ts"],
+      "evidence": ["e2e/accessibility.spec.ts"],
       "state": "automated checks only; manual self-assessment pending"
     }
   },

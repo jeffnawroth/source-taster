@@ -217,3 +217,26 @@ test("every link the clients share through the UI seam opens its page in the sam
     }
   }
 });
+
+test("the Structuring preview is documented in both languages and found by search", async ({
+  page,
+}) => {
+  for (const [language, query, title, searchbox] of [
+    ["en", "Harvard", "Structuring References", "Search documentation"],
+    ["de", "Harvard", "Referenzen strukturieren", "Dokumentation durchsuchen"],
+  ] as const) {
+    await page.goto(`/docs/${language}/`);
+    const box = page.getByRole("searchbox", { name: searchbox, exact: true });
+    await box.fill(query);
+    await box.press("Enter");
+    await page
+      .locator("#search-results")
+      .getByRole("link", { name: title, exact: true })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/docs/${language}/structuring/$`));
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+    await expect(page.locator("article")).toContainText(
+      language === "en" ? "not been verified" : "nicht geprüft",
+    );
+  }
+});

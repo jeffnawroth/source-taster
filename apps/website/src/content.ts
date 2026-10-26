@@ -109,11 +109,24 @@ export const pages: Record<Language, Page[]> = {
       title: "How the check works",
       summary: "Understand the distinction between progress and evidence.",
       paragraphs: [
-        "The current local skeleton accepts text with one reference on each line, shows progress, and ends with the Status ‘Not checked’. It does not search Data sources, calculate Scores or produce Verdicts or Correction suggestions.",
+        "The current local skeleton accepts text with one reference on each line, shows progress, and ends with the Status ‘Not checked’. It does not search Data sources, calculate Scores or produce Verdicts or Correction suggestions. The separate Structuring preview shows recognized fields but does not start a Check.",
         "A Status describes progress or an incomplete check. A Verdict describes a fully checked reference. A Verdict is not proof of deception. A human makes the decision and must review the underlying evidence.",
         "Do not use this development version to decide whether a source exists or whether a person fabricated a reference.",
       ],
       claim: "skeleton",
+    },
+    {
+      id: "structuring",
+      section: "docs",
+      title: "Structuring References",
+      summary:
+        "Preview how a pasted bibliography is split into References and fields.",
+      paragraphs: [
+        "In the web workspace, Structure References splits pasted author-date References in APA, Harvard, Chicago author-date and MLA layouts into fields such as authors, year, title, journal and identifiers. It keeps the original text of every Reference and lists text it did not recognize as a Reference.",
+        "Fields are shown exactly as written; uncertain fields stay empty. Structuring consumes no Quota, and the Sources have not been verified: it does not search Data sources and produces no Verdict.",
+        "Other citation styles, file uploads, bibliography detection in whole documents, field editing and AI extraction are not available yet. At most 1,000 References can be structured at once; split longer lists.",
+      ],
+      claim: "structuring",
     },
     {
       id: "preferences",
@@ -158,7 +171,7 @@ export const pages: Record<Language, Page[]> = {
       title: "Frequently asked questions",
       summary: "Answers for this preview.",
       paragraphs: [
-        "Can I check my bibliography here? No. This is an information preview; the local workspace currently ends with ‘Not checked’.",
+        "Can I check my bibliography here? No. This is an information preview; the local workspace can preview Structuring, and a Check currently ends with ‘Not checked’.",
         "Does a Verdict establish misconduct? No. Even a completed future Check needs human review of its evidence.",
         "Where does a documentation search go? It runs locally in your browser over a public index for the selected language. Do not enter private material into a public documentation search.",
         "Can I buy a Plan or install the extension? Neither is available in this wave. The documentation states the actual limits.",
@@ -221,11 +234,24 @@ export const pages: Record<Language, Page[]> = {
       title: "So funktioniert die Prüfung",
       summary: "Fortschritt und Belege sind unterschiedliche Dinge.",
       paragraphs: [
-        "Das aktuelle lokale Entwicklungsgerüst nimmt Text mit einer Literaturangabe pro Zeile an, zeigt den Fortschritt und endet mit dem Status ‚Nicht geprüft‘. Es durchsucht keine Datenquellen, berechnet keine Scores und erzeugt weder Urteile noch Korrekturvorschläge.",
+        "Das aktuelle lokale Entwicklungsgerüst nimmt Text mit einer Literaturangabe pro Zeile an, zeigt den Fortschritt und endet mit dem Status ‚Nicht geprüft‘. Es durchsucht keine Datenquellen, berechnet keine Scores und erzeugt weder Urteile noch Korrekturvorschläge. Die gesonderte Strukturierungsvorschau zeigt erkannte Felder, startet aber keine Prüfung.",
         "Ein Status beschreibt den Fortschritt oder eine unvollständige Prüfung. Ein Urteil beschreibt eine vollständig geprüfte Literaturangabe. Ein Urteil ist kein Beweis für Täuschung. Ein Mensch entscheidet und muss die zugrunde liegenden Belege prüfen.",
         "Verwenden Sie diese Entwicklungsversion nicht, um über die Existenz einer Quelle oder eine erfundene Literaturangabe zu entscheiden.",
       ],
       claim: "skeleton",
+    },
+    {
+      id: "structuring",
+      section: "docs",
+      title: "Referenzen strukturieren",
+      summary:
+        "Vorschau, wie ein eingefügtes Literaturverzeichnis in Referenzen und Felder zerlegt wird.",
+      paragraphs: [
+        "Im Web-Arbeitsbereich zerlegt „Referenzen strukturieren“ eingefügte Autor-Jahr-Referenzen in den Layouts APA, Harvard, Chicago (Autor-Jahr) und MLA in Felder wie Autoren, Jahr, Titel, Zeitschrift und Kennungen. Der Originaltext jeder Referenz bleibt erhalten; nicht als Referenz erkannter Text wird gesondert aufgeführt.",
+        "Felder werden genau wie eingegeben angezeigt; unsichere Felder bleiben leer. Strukturieren verbraucht kein Kontingent, und die Quellen wurden nicht geprüft: Es werden keine Datenquellen durchsucht und kein Urteil erzeugt.",
+        "Weitere Zitierstile, Datei-Uploads, die Erkennung von Literaturverzeichnissen in ganzen Dokumenten, das Bearbeiten von Feldern und KI-Extraktion sind noch nicht verfügbar. Höchstens 1.000 Referenzen können gleichzeitig strukturiert werden; teilen Sie längere Listen auf.",
+      ],
+      claim: "structuring",
     },
     {
       id: "preferences",
@@ -270,7 +296,7 @@ export const pages: Record<Language, Page[]> = {
       title: "Häufige Fragen",
       summary: "Antworten zu dieser Vorschau.",
       paragraphs: [
-        "Kann ich hier mein Literaturverzeichnis prüfen? Nein. Dies ist eine Informationsvorschau; der lokale Arbeitsbereich endet derzeit mit ‚Nicht geprüft‘.",
+        "Kann ich hier mein Literaturverzeichnis prüfen? Nein. Dies ist eine Informationsvorschau; der lokale Arbeitsbereich kann die Strukturierung vorab zeigen, und eine Prüfung endet derzeit mit ‚Nicht geprüft‘.",
         "Belegt ein Urteil wissenschaftliches Fehlverhalten? Nein. Auch eine künftige vollständige Prüfung erfordert eine menschliche Bewertung der Belege.",
         "Wohin geht eine Dokumentationssuche? Sie läuft lokal in Ihrem Browser über einen öffentlichen Index der gewählten Sprache. Geben Sie keine privaten Inhalte in eine öffentliche Dokumentationssuche ein.",
         "Kann ich einen Plan kaufen oder die Erweiterung installieren? Beides ist in dieser Welle nicht verfügbar. Die Dokumentation nennt die tatsächlichen Grenzen.",
