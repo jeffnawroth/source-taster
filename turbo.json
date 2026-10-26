@@ -29,5 +29,6 @@
       "dependsOn": ["^build", "generate"],
       "cache": false
     }
-  }
+  },
+  "globalDependencies": ["packages/contract-common/src/**"]
 }
