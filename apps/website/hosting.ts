@@ -10,6 +10,25 @@ const mime: Record<string, string> = {
   ".json": "application/json",
   ".svg": "image/svg+xml",
 };
+/**
+ * ADR-0020: the bare apex negotiates from Accept-Language on the server, so
+ * readers without scripts land on their language and nothing is stored.
+ * German wins only when the reader prefers it over English; otherwise English.
+ */
+function negotiateLanguage(header: string | null): "de" | "en" {
+  let best: { language: "de" | "en"; q: number } = { language: "en", q: 0 };
+  for (const range of (header ?? "").split(",")) {
+    const [tag = "", ...parameters] = range.split(";");
+    const language = tag.trim().toLowerCase().split("-")[0];
+    if (language !== "de" && language !== "en") continue;
+    const weight = parameters
+      .map((parameter) => parameter.trim().toLowerCase())
+      .find((parameter) => parameter.startsWith("q="));
+    const q = weight === undefined ? 1 : Number(weight.slice(2));
+    if (Number.isFinite(q) && q > best.q && q <= 1) best = { language, q };
+  }
+  return best.language;
+}
 /** Static-file boundary, shared by the verification web process and loopback preview. */
 export async function openWebsite(
   directory: string,
@@ -53,6 +72,15 @@ export async function openWebsite(
     });
     if (!["GET", "HEAD"].includes(request.method))
       return new Response(null, { status: 405, headers });
+    if (url.pathname === "/") {
+      // The query never travels to the language page.
+      headers.set(
+        "Location",
+        `/${negotiateLanguage(request.headers.get("accept-language"))}/`,
+      );
+      headers.set("Vary", "Accept-Language");
+      return new Response(null, { status: 302, headers });
+    }
     let path: string;
     try {
       path = decodeURIComponent(url.pathname);

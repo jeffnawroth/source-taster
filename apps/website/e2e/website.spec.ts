@@ -32,9 +32,13 @@ test("bare entry follows browser language without changing explicit language URL
     ["de-AT", "de"],
     ["fr-FR", "en"],
   ]) {
-    const context = await browser.newContext({ locale });
+    // Negotiation is server-side: it must work without client scripts.
+    const context = await browser.newContext({
+      locale,
+      javaScriptEnabled: false,
+    });
     const page = await context.newPage();
-    await page.goto("/?private-query=do-not-forward#private");
+    await page.goto("/?private-query=do-not-forward");
     await expect(page).toHaveURL(`http://127.0.0.1:53115/${target}/`);
     await page.goto("/en/faq/");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -46,6 +50,25 @@ test("bare entry follows browser language without changing explicit language URL
       })),
     ).toEqual({ local: [], session: [] });
     await context.close();
+  }
+  for (const [acceptLanguage, target] of [
+    ["de-AT,de;q=0.9,en;q=0.8", "de"],
+    ["fr-FR,en;q=0.5,de;q=0.4", "en"],
+    ["fr-CH,de-CH;q=0.7,en;q=0.3", "de"],
+    ["en;q=0,de;q=0.1", "de"],
+    ["DE", "de"],
+    ["fr", "en"],
+    ["", "en"],
+  ]) {
+    const entry = await request.get("/?private-query=do-not-forward", {
+      headers: { "accept-language": acceptLanguage },
+      maxRedirects: 0,
+    });
+    expect(entry.status(), acceptLanguage).toBe(302);
+    expect(entry.headers().location, acceptLanguage).toBe(`/${target}/`);
+    expect(entry.headers().vary).toContain("Accept-Language");
+    expect(entry.headers()["cache-control"]).toBe("no-store");
+    expect(entry.headers()["set-cookie"]).toBeUndefined();
   }
   const canonical = await request.get("/de/faq", { maxRedirects: 0 });
   expect(canonical.status()).toBe(308);

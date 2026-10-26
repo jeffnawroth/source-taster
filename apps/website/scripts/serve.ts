@@ -16,6 +16,11 @@ createServer((req, res) => {
     const response = await fetch(
       new Request(`http://127.0.0.1:${port}${req.url ?? "/"}`, {
         method: req.method,
+        headers: Object.entries(req.headers).flatMap(([name, value]) =>
+          value === undefined
+            ? []
+            : [[name, Array.isArray(value) ? value.join(", ") : value]],
+        ) as [string, string][],
       }),
     );
     res.writeHead(response.status, Object.fromEntries(response.headers));
