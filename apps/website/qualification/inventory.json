@@ -756,627 +756,6 @@
     },
     {
       "ecosystem": "npm",
-      "name": "@img/colour",
-      "version": "1.1.0",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ=="
-      },
-      "engines": {
-        "node": ">=18"
-      },
-      "license": "MIT",
-      "publishedAt": "2026-03-01T10:42:44Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/colour.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-darwin-arm64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-QRUlFQ0WxvdWyqqG/WtI3iupfD5rBzmCHXSdPsY91sAtVtTo7Q4cb6zOccZ3gqEqkr0f1As1ehLqmEpDsRf+lg=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "arm64"
-      ],
-      "os": [
-        "darwin"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:45:21Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-darwin-x64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-+BR255RhDlpygUpOc/Jdt1nT6DQ3XG/ERo5wbcdOf5Q320dKtPCKPLR1LJs9VGXRaMa8l1uUa0tkCNOXiAxZUw=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "x64"
-      ],
-      "os": [
-        "darwin"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:47:07Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-freebsd-wasm32",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-Y/z91nEZ4uIBX5X3nfTovjU9lHNKFYbL2lpHCLVNmXQK03VIZvXBBt0KxbPGp2SdGSF+2mQU4e+hQaWOt86iAw=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "os": [
-        "freebsd"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:45:49Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-darwin-arm64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-5R89nBYiRdUlSWJxPhO+GVtaXzXSxKnRu/xqMn3KTA3L9EB9Oy/P+Nn2f2vlhPuUdy/Zusb2DarbyTpGCfEDuw=="
-      },
-      "cpu": [
-        "arm64"
-      ],
-      "os": [
-        "darwin"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:10:42Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-darwin-x64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-iR2OKH80yi0U+dUplyh3/xdpFvps6YkCwsXenIJxqxR1v9o+xtKTGbS9H7cps+2Vxjc8B1j96p75NmTGjIhtpQ=="
-      },
-      "cpu": [
-        "x64"
-      ],
-      "os": [
-        "darwin"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:10:37Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linux-arm64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-Y3dgX/6lE2QhQb+Gxy0WZxfg9MEm/JBjamZpS2IklP7xIQoKN4hzAm7KcMVGtaVDt3neE9OKBC7vAfonA/Lr1A=="
-      },
-      "cpu": [
-        "arm64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:10:53Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linux-arm",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-LmRtTsOHuvM2+wlO2Db37dx5MiZhB0FvSunciw48YjdOkZz9KAiRbm8ujeMOA1INqmei5NapFxYEK1D1ZSidmw=="
-      },
-      "cpu": [
-        "arm"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:10:47Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linux-ppc64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-Le6boB8Tai0Nis+gIxIpKx68UDVVIqdR8Tin5Yf1z2LJJQLDJvCDRqRu+jC2qCoD+eIomonmOwB4smBRxfVpYQ=="
-      },
-      "cpu": [
-        "ppc64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:11:07Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linux-riscv64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-aHkkIEHPRdQEegJN20MLmGtxYD9R2wQr3Cwpddnu5+YKMt6Uzax7S9h5gpZTo8wyrGuZSlfQ63OevL5mTyOC7Q=="
-      },
-      "cpu": [
-        "riscv64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:11:13Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linux-s390x",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-ra/mB6MikESDUO7Yg+Mi95bFBb9GsObURuhnOv3OqknjGe9sZrG8tCe9q0xSIGrtLgvgw0gKnFWcK4blSgQOuQ=="
-      },
-      "cpu": [
-        "s390x"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:11:18Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linux-x64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-GJ//SSXbnwSDes02umB3nDJLFcQzw8a18V8fyhqr6tV515tOEMdImjjxj1AoafMRz56F3PHgftnj1QEKSU1zkw=="
-      },
-      "cpu": [
-        "x64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:11:24Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linuxmusl-arm64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-hvulFwtjUcagsis6BBxHwGFwWoNZjgYmULGVrZcyfNbjA8hKILbRxGg15/7w5HDyXHXUos/j6baAWqnCyQ2DWA=="
-      },
-      "cpu": [
-        "arm64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "musl"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:10:57Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-libvips-linuxmusl-x64",
-      "version": "1.3.4",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-6zXKeE/p39I1AmA3cJG35eyBGNqNddLnUXjhwBnsGjFPWqf5VKkDBEqaEkPDoTEtkxwi2vv8Tcr2mDyP4So7Fg=="
-      },
-      "cpu": [
-        "x64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "musl"
-      ],
-      "license": "LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T12:11:03Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp-libvips.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linux-arm64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-LYVx5JTsOM2CBzmxreh+nl64/3H6Xb09iSLknqH47z2T2DFFxDeFLP5y4dJwe6H7uGQlHPyEEtIqyo3DYsRwdQ=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "arm64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:45:56Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linux-arm",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-LEaXK2WdXVK5ykcw0buWyPMsmLLL2vpHLD6yrNSW+JGEL3BZPA4tpKN6iaMc4AxTTAoaX/sU1rOL51lcIz48ZQ=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "arm"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:47:45Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linux-ppc64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-QVxAAq8evVRI9ia2vqgwrmWucn5Dfv+JdWzj75pD8omHLPSP7f8p20O8jxzjCcuCEQEOtYOZUmX1hkiZ0kdevA=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "ppc64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:45:59Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linux-riscv64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-LtdreXguaavKODPIfzJ4kffx7UNt1omwtK0rch4EBbbSTXPnxWmYSayXdLJw0fJzQ97kHt1gL/yh4tvU+nCyRQ=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "riscv64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:45:42Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linux-s390x",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-UZasTOFiYzotTsGOCu42BfUzP6Tu6Do/947iRm1RsLKvlllxwGcn4RN27LibGWceix4Y+Pmw3jsnTcCQIgWjqA=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "s390x"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:46:05Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linux-x64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-SxFtLTeJInhAA9Q836kux2vZNeOBQEx658qvbboZScr0wIARym3IcGmW7KpVD5sbVg0Ojy+udFQdayYIZyoNog=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "x64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "glibc"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:45:49Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linuxmusl-arm64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-9HbMclmI1zlNkFRs3z9/eBtDjfD0sGlrX1z6b1qwmiFY5ElDLh4BC0LPBdVp7z1DXFiKlIcznf+ZlsuZzLxQqg=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "arm64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "musl"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:47:04Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-linuxmusl-x64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-4KOphqB035HrVdqLZfCgMzzERrQkkzOwRhl4OAkRO1YCldbaFjySXMaK534Mo0V+LndnlJk+sbUyLeU0ULyD1A=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "x64"
-      ],
-      "os": [
-        "linux"
-      ],
-      "libc": [
-        "musl"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:46:37Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-wasm32",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-Ptsga1su4tQx+LLF1ECS9U6nz5kmrXKo6XVbtR48Ke3ZRxxgaWBu7IDtEe1quo8hiupwm6WFqxVlXaSf7IINGQ=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "license": "Apache-2.0 AND LGPL-3.0-or-later AND MIT",
-      "publishedAt": "2026-09-27T13:46:20Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-webcontainers-wasm32",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-hfhF/FmoQyTUkA0bIKFOtw536BQSeBMe6BF6QyWlrPxT754+TFLaZ7sKKTfvvM0yJgKgaYTwnFCIZ/GuDw5SUA=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "wasm32"
-      ],
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:45:43Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-win32-arm64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-X4t7g+7ZA5DKblCBEXGjUqqemj4vczING/5viFwAL8h4N3qYeyjwdCvRLHi4EdOUI+2Z7UFlp1VM+p/AuEtm6Q=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "arm64"
-      ],
-      "os": [
-        "win32"
-      ],
-      "license": "Apache-2.0 AND LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T13:46:30Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-win32-ia32",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-5Zm82LoBc43nhwNybZlG7Y1KO//Zhsn306fQl29ZOuStHLGTo3BWL83q3cznX0poxSAMuYL1On/BHBxkBeKr6A=="
-      },
-      "engines": {
-        "node": "^20.9.0"
-      },
-      "cpu": [
-        "ia32"
-      ],
-      "os": [
-        "win32"
-      ],
-      "license": "Apache-2.0 AND LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T13:46:35Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "@img/sharp-win32-x64",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-x76eH0vEiHlcMQu8Y8IenntaACtddpT6W0wmXtWrnKcnKI7ME5DdgqhAD6SEWOEl1v2zDvkZDhFA9KnURwpfqg=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "cpu": [
-        "x64"
-      ],
-      "os": [
-        "win32"
-      ],
-      "license": "Apache-2.0 AND LGPL-3.0-or-later",
-      "publishedAt": "2026-09-27T13:47:32Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
       "name": "@jridgewell/sourcemap-codec",
       "version": "1.6.0",
       "scope": "website build/test and platform alternatives",
@@ -4242,49 +3621,6 @@
       "publishedAt": "2026-07-24T18:50:24Z",
       "deprecated": false,
       "repository": "git+ssh://git@github.com/isaacs/sax-js.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "semver",
-      "version": "7.8.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA=="
-      },
-      "engines": {
-        "node": ">=10"
-      },
-      "hasBin": true,
-      "license": "ISC",
-      "publishedAt": "2026-06-19T18:32:48Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/npm/node-semver.git",
-      "metadataStatus": "public version metadata; individual notice/source clearance still required"
-    },
-    {
-      "ecosystem": "npm",
-      "name": "sharp",
-      "version": "0.35.5",
-      "scope": "website build/test and platform alternatives",
-      "resolution": {
-        "integrity": "sha512-Ywn4OnzGukp7CDMrp08RQ50YKmuwG47brZgIVPTvBaaAfQlRlygrRqSrxdCiL9M+LlzLBiJ68IR1QqvzHyjC7g=="
-      },
-      "engines": {
-        "node": ">=20.9.0"
-      },
-      "peerDependencies": {
-        "@types/node": "*"
-      },
-      "peerDependenciesMeta": {
-        "@types/node": {
-          "optional": true
-        }
-      },
-      "license": "Apache-2.0",
-      "publishedAt": "2026-09-27T13:46:24Z",
-      "deprecated": false,
-      "repository": "git+https://github.com/lovell/sharp.git",
       "metadataStatus": "public version metadata; individual notice/source clearance still required"
     },
     {
@@ -20187,11 +19523,6 @@
       "bytes": 6147664
     },
     {
-      "path": "pagefind/de/fragment/de_3d60786.pf_fragment",
-      "sha256": "a3c8cf2071ff61194089d042f75d7cc4f1d27ab603bd788cd0682131664521c3",
-      "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
-    },
-    {
       "path": "pagefind/de/fragment/de_5087cce.pf_fragment",
       "sha256": "adf0e02a2226fb20b138f1f75d8bcbe53086ca6d8559723f9a590d63e94ead2c",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
@@ -20207,13 +19538,23 @@
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
+      "path": "pagefind/de/fragment/de_bf4f4d1.pf_fragment",
+      "sha256": "9113e481f89674154dffed704e763269510c631bc61bf0e2aec89bf9c503eff9",
+      "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
+    },
+    {
       "path": "pagefind/de/fragment/de_ebaee6a.pf_fragment",
       "sha256": "697b78a4a5975355b6182e0fb41ec9fc4a1135eaa121fec01211fc2a764a4971",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
-      "path": "pagefind/de/index/de_c88221b.pf_index",
-      "sha256": "9f122280be06ad1299964f5622d9544b42df24d6ebe3c11b861f5d745c9a6867",
+      "path": "pagefind/de/fragment/de_f6957bd.pf_fragment",
+      "sha256": "97b84203cb397cb477dd86ee33f4b3632f546fd4fa244048fb41f69722733bba",
+      "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
+    },
+    {
+      "path": "pagefind/de/index/de_e81535a.pf_index",
+      "sha256": "3dfff4fd2e5a01384554b6fe5444b7f4f9ee2c41f4ca20ca6cb398f5b1f8bb2f",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
@@ -20228,7 +19569,7 @@
     },
     {
       "path": "pagefind/de/pagefind-entry.json",
-      "sha256": "dddbbc63922b150f76b693cc43d3d0f4ac1ef26c4d04397a8921e9b0cf04b677",
+      "sha256": "c85394923f344a019b01ff98362cf319247a2ac607f268b75cb756c0eb345a35",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
@@ -20262,8 +19603,8 @@
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
-      "path": "pagefind/de/pagefind.de_02f4787e34.pf_meta",
-      "sha256": "5e5420d21b72d116dcd4abb992d55474598b76e57b7195290be779430fa42549",
+      "path": "pagefind/de/pagefind.de_f8a333a013.pf_meta",
+      "sha256": "e366c444694b2758a62b0f952ae8de98f11854a371bad5c59922a80b069377ab",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
@@ -20297,18 +19638,23 @@
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
-      "path": "pagefind/en/fragment/en_9e97de5.pf_fragment",
-      "sha256": "66292fcc527e8eb0c26910994c0d929c3e6b85f67283ab81a487f1a40efd2e0d",
-      "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
-    },
-    {
       "path": "pagefind/en/fragment/en_a737962.pf_fragment",
       "sha256": "2a600fe482161e065e3e0e77f315a3d97275371a0b767e28b0800e2e8e249356",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
-      "path": "pagefind/en/index/en_f2e9aac.pf_index",
-      "sha256": "31a4df9946a8942ad0e14efebc516ecac46305bf3b5a34b78b4bb076a9389fb5",
+      "path": "pagefind/en/fragment/en_cfe4151.pf_fragment",
+      "sha256": "4bece0b4a394e9172bdd40b31f0074846b01b193fbba32fe809b0355ba617427",
+      "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
+    },
+    {
+      "path": "pagefind/en/fragment/en_e2bd24c.pf_fragment",
+      "sha256": "79fd3967bd3e3b9345fe03fc4107ad6340534c79ca8b80ce41b2ffdd1f817d6b",
+      "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
+    },
+    {
+      "path": "pagefind/en/index/en_1a3ef52.pf_index",
+      "sha256": "22d54a0f10a9537c1326a966f775a6c11094f7c0d6a3b0833e7ec3025a4d52b0",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
@@ -20323,7 +19669,7 @@
     },
     {
       "path": "pagefind/en/pagefind-entry.json",
-      "sha256": "0ad2fc9cd47d2fe7ee776b179e1f74a616dd8452c1bd8511375efb54220f9b29",
+      "sha256": "517b626a77b11d27beabf5fa91e59b1640bb7406554ae69b52bae8167606461f",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
@@ -20357,8 +19703,8 @@
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
-      "path": "pagefind/en/pagefind.en_d0a459ae8c.pf_meta",
-      "sha256": "41333be17fef7db517ac05a6ba709a6268579057b70347d9be271ceeda7f0d08",
+      "path": "pagefind/en/pagefind.en_8f89155dd5.pf_meta",
+      "sha256": "73a80d5a4d1e5d5249543d979e255327ed55b7f69a3ac550f1ec68bcd82e9a0c",
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     },
     {
@@ -20377,36 +19723,62 @@
       "component": "locally served Pagefind output (JS/WASM/index/UI alternatives retained)"
     }
   ],
-  "libvips": {
-    "aom": "3.15.1",
-    "archive": "3.8.9",
-    "cairo": "1.18.6",
-    "cgif": "0.5.4",
-    "exif": "0.6.26",
-    "expat": "2.8.5",
-    "ffi": "3.8.0",
-    "fontconfig": "2.18.3",
-    "freetype": "2.14.3",
-    "fribidi": "1.0.17",
-    "glib": "2.90.0",
-    "harfbuzz": "14.5.0",
-    "heif": "1.23.5",
-    "highway": "1.4.0",
-    "imagequant": "2.4.1",
-    "lcms": "2.19.1",
-    "mozjpeg": "0826579",
-    "pango": "1.58.2",
-    "pixman": "0.46.4",
-    "png": "1.6.58",
-    "proxy-libintl": "0.5",
-    "rsvg": "2.63.2",
-    "tiff": "4.7.2",
-    "uhdr": "2.0.2",
-    "vips": "8.18.7",
-    "webp": "1.6.0",
-    "xml2": "2.15.4",
-    "zlib-ng": "2.3.3"
-  },
+  "provenance": [
+    {
+      "folder": "pagefind-native",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "Cargo.lock",
+      "sha256": "ba1c71466148a0241c2124c02407925af16a0e71028553bb7ff02d7113480b55"
+    },
+    {
+      "folder": "pagefind-web",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "pagefind_web/Cargo.lock",
+      "sha256": "d762f97d4dc284014c284f2b2147d0d29bb4add334df4bdc14eaf4e84201a5c3"
+    },
+    {
+      "folder": "pagefind-js",
+      "file": "package-lock.json",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "pagefind_web_js/package-lock.json",
+      "sha256": "f73ed2a5308157f992cb6979bed5a7275d6fcb6942cd707da204ce49c19c5b2b"
+    },
+    {
+      "folder": ".",
+      "file": "Pagefind-LICENSE",
+      "repository": "https://github.com/Pagefind/pagefind",
+      "tag": "v1.5.2",
+      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "upstreamPath": "LICENSE",
+      "sha256": "4736929bfded122bd969f0621a0d917484b126d981270d68a63ed42cb55503d5"
+    },
+    {
+      "folder": "astro-compiler",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/withastro/compiler-rs",
+      "tag": "@astrojs/compiler-rs@0.5.2",
+      "commit": "342e26603bf6416545a85b506b434d25226e1435",
+      "upstreamPath": "Cargo.lock",
+      "sha256": "7c62ffd73f811f1e13cd78e6ca3aa80fdf13ecdd904f4dce50cb8b427a81025e"
+    },
+    {
+      "folder": "satteri",
+      "file": "Cargo.lock",
+      "repository": "https://github.com/bruits/satteri",
+      "tag": "satteri-v0.10.5",
+      "commit": "b3d38e1e341c809b20b76a655e9b1601d11bd1f0",
+      "upstreamPath": "Cargo.lock",
+      "sha256": "5b3552a37b7ab9b0e267d6c374e477e79261383f2b9e262689079eae589f606b"
+    }
+  ],
   "unapprovedPrereleases": [
     {
       "ecosystem": "crates.io",

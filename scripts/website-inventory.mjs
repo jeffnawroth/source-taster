@@ -13,6 +13,8 @@ const lock = Object.fromEntries(
 );
 const visited = new Set();
 function visit(name, version) {
+  // Workspace packages are first-party; their own graphs are audited elsewhere.
+  if (version.startsWith("link:")) return;
   const key = `${name}@${version}`;
   if (visited.has(key)) return;
   const node = lock.snapshots[key];
@@ -175,12 +177,17 @@ for (const [path, sha256] of Object.entries(artifact.files))
       component:
         "locally served Pagefind output (JS/WASM/index/UI alternatives retained)",
     });
-const libvips = JSON.parse(
-  await readFile(
-    "node_modules/.pnpm/@img+sharp-libvips-darwin-arm64@1.3.4/node_modules/@img/sharp-libvips-darwin-arm64/versions.json",
-    "utf8",
-  ),
+// Upstream source locks are pinned to tags and checked byte-for-byte.
+const provenance = JSON.parse(
+  await readFile(`${base}/upstream/provenance.json`, "utf8"),
 );
+for (const source of provenance.sources) {
+  const actual = hash(
+    await readFile(`${base}/upstream/${source.folder}/${source.file}`),
+  );
+  if (actual !== source.sha256)
+    throw new Error(`Upstream lock drifted: ${source.folder}/${source.file}`);
+}
 const report = {
   schemaVersion: 1,
   date: "2026-10-26",
@@ -190,7 +197,7 @@ const report = {
   upstreamNpm,
   cargo,
   binaries,
-  libvips,
+  provenance: provenance.sources,
   unapprovedPrereleases: all.filter(
     (p) =>
       /^\d+\.\d+\.\d+-/.test(p.version) &&
