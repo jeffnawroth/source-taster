@@ -4,9 +4,9 @@ import { rm, writeFile, readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { checkPublication, digest } from "./publication.ts";
 import "./content-check.ts";
+import { assertPreviewAllowed, languages } from "../src/metadata.ts";
 const preview = process.argv.includes("--preview");
-if (preview && process.env.NODE_ENV === "production")
-  throw new Error("Draft preview is local-only");
+assertPreviewAllowed(preview ? "preview" : "publication");
 if (!preview && !process.argv.includes("--publication"))
   throw new Error("Choose --preview or --publication explicitly");
 const output = preview ? "dist-preview" : "dist";
@@ -15,7 +15,7 @@ await rm(output, { recursive: true, force: true });
 const review = preview ? null : await checkPublication();
 for (const args of [
   ["exec", "astro", "build"],
-  ...["de", "en"].map((language) => [
+  ...languages.map((language) => [
     "exec",
     "pagefind",
     "--site",

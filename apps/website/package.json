@@ -5,12 +5,13 @@
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "exports": {
-    "./hosting": "./hosting.ts"
+    "./hosting": "./hosting.ts",
+    "./metadata": "./src/metadata.ts"
   },
   "scripts": {
     "build": "node scripts/build.ts --preview",
     "build:publication": "node scripts/build.ts --publication",
-    "publication:check": "node scripts/publication.ts",
+    "publication:check": "node scripts/publication-check.ts",
     "preview": "node scripts/serve.ts --preview",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",

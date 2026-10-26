@@ -14,7 +14,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "react-aria-components": "1.22.1"
+    "react-aria-components": "1.22.1",
+    "@source-taster/i18n": "workspace:*"
   },
   "peerDependencies": {
     "react": "19.3.1",

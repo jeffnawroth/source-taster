@@ -3,7 +3,13 @@
 // EventSource so it can resume with an explicit Last-Event-ID.
 
 import { ZodError } from "zod";
-import { CheckEvent, isFinalEvent, ProblemDetails } from "./index.ts";
+import {
+  CheckEvent,
+  CheckResponse,
+  StructuringResponse,
+  isFinalEvent,
+  ProblemDetails,
+} from "./index.ts";
 
 export interface SseFrame {
   id?: string;
@@ -66,6 +72,53 @@ export class CheckStreamError extends Error {
     this.status = status;
     this.problem = problem;
   }
+}
+
+/** Failed HTTP response, including a parsed Problem when the server supplied one. */
+export class ApiError extends Error {
+  readonly status: number;
+  readonly problem: ProblemDetails | undefined;
+  constructor(status: number, problem: ProblemDetails | undefined) {
+    super(problem?.title ?? `API request failed with HTTP ${status}`);
+    this.name = "ApiError";
+    this.status = status;
+    this.problem = problem;
+  }
+}
+export interface VerificationClientOptions {
+  baseUrl?: string;
+  client?: string;
+  fetch?: typeof globalThis.fetch;
+}
+/** Transport-only API client: schemas and Problems are shared by both clients. */
+export function verificationClient(options: VerificationClientOptions = {}) {
+  async function post<T>(
+    path: string,
+    text: string,
+    schema: { parse: (input: unknown) => T },
+  ): Promise<T> {
+    const response = await (options.fetch ?? globalThis.fetch)(
+      `${options.baseUrl ?? ""}${path}`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+        },
+        body: JSON.stringify({ text }),
+      },
+    );
+    const body: unknown = await response.json().catch(() => undefined);
+    if (!response.ok)
+      throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+    return schema.parse(body);
+  }
+  return {
+    createCheck: async (text: string) =>
+      (await post("/v1/checks", text, CheckResponse)).data,
+    structureReferences: async (text: string) =>
+      (await post("/v1/structurings", text, StructuringResponse)).data,
+  };
 }
 
 export interface WatchCheckOptions {

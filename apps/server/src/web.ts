@@ -3,7 +3,6 @@
 
 import { createParser } from "@source-taster/core";
 import { openWebsite } from "@source-taster/website/hosting";
-import { resolve } from "node:path";
 import { serve } from "@hono/node-server";
 import { createQueue } from "./checks/queue.ts";
 import { listenForEvents } from "./checks/events.ts";
@@ -14,21 +13,9 @@ import { standaloneEntitlements } from "./entitlements.ts";
 import { createApp } from "./http/app.ts";
 
 await runMain(async (config) => {
-  const websiteMode = process.env.SOURCE_TASTER_WEBSITE_MODE;
-  let website: ((request: Request) => Promise<Response>) | undefined;
-  if (websiteMode) {
-    if (websiteMode !== "preview" && websiteMode !== "publication")
-      throw new Error("Choose website preview or publication explicitly");
-    if (websiteMode === "preview" && process.env.NODE_ENV === "production")
-      throw new Error("Draft preview is local-only");
-    website = await openWebsite(
-      resolve(
-        process.env.SOURCE_TASTER_WEBSITE_DIRECTORY ??
-          `../website/${websiteMode === "preview" ? "dist-preview" : "dist"}`,
-      ),
-      websiteMode,
-    );
-  }
+  const website = config.website
+    ? await openWebsite(config.website.directory, config.website.mode)
+    : undefined;
   const db = createPrisma(config.databaseUrl);
   const boss = await createQueue(config.databaseUrl);
   const events = await listenForEvents(config.databaseUrl);
@@ -36,6 +23,7 @@ await runMain(async (config) => {
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     events,
     heartbeatMs: config.sseHeartbeatMs,
+    referenceLimit: config.referenceLimit,
     entitlements: standaloneEntitlements,
     checks: createCheckStore(db, boss),
   });
@@ -43,7 +31,7 @@ await runMain(async (config) => {
     // The website only answers what the API does not own (ADR-0020).
     const serveWebsite = website;
     app.get("*", async (c, next) => {
-      if (/^\/(?:v1|health)(?:\/|$)/.test(c.req.path)) return next();
+      if (/^\/(?:v\d+|health|internal)(?:\/|$)/.test(c.req.path)) return next();
       return serveWebsite(c.req.raw);
     });
   }
@@ -51,7 +39,7 @@ await runMain(async (config) => {
     {
       fetch: app.fetch,
       port: config.port,
-      ...(websiteMode === "preview" ? { hostname: "127.0.0.1" } : {}),
+      ...(config.website?.mode === "preview" ? { hostname: "127.0.0.1" } : {}),
     },
     ({ port }) => {
       console.log(`web listening on http://localhost:${port}`);

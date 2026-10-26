@@ -3,17 +3,19 @@
 import { createServer } from "node:http";
 import { checkPublication } from "./publication.ts";
 import { openWebsite } from "../hosting.ts";
+import { assertPreviewAllowed } from "../src/metadata.ts";
 const preview = process.argv.includes("--preview");
 if (!preview) await checkPublication();
-if (!preview || process.env.NODE_ENV === "production")
+assertPreviewAllowed(preview ? "preview" : "publication");
+if (!preview)
   throw new Error(
     "Draft preview is local-only; production serving belongs to the existing verification web process",
   );
-const fetch = await openWebsite("dist-preview", "preview");
+const serveWebsite = await openWebsite("dist-preview", "preview");
 const port = Number(process.argv[process.argv.indexOf("--port") + 1] ?? 53115);
 createServer((req, res) => {
   void (async () => {
-    const response = await fetch(
+    const response = await serveWebsite(
       new Request(`http://127.0.0.1:${port}${req.url ?? "/"}`, {
         method: req.method,
         headers: Object.entries(req.headers).flatMap<[string, string]>(

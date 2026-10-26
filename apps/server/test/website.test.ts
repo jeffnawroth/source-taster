@@ -9,9 +9,13 @@ import { startTestService } from "./support/service.ts";
 describe("website mounted in the web process", () => {
   let service: Awaited<ReturnType<typeof startTestService>>;
   beforeAll(async () => {
-    service = await startTestService(3103, 50, {
-      SOURCE_TASTER_WEBSITE_MODE: "preview",
-    });
+    service = await startTestService(
+      Number(process.env.SOURCE_TASTER_TEST_WEBSITE_PORT ?? 3103),
+      50,
+      {
+        SOURCE_TASTER_WEBSITE_MODE: "preview",
+      },
+    );
   });
   afterAll(() => service?.stop());
 
@@ -39,7 +43,12 @@ describe("website mounted in the web process", () => {
     const health = await fetch(`${service.apiUrl}/health`);
     expect(health.status).toBe(200);
     expect(health.headers.get("content-security-policy")).toBeNull();
-    for (const path of ["/v1/unknown", "/v1/checks/unknown/also-unknown"]) {
+    for (const path of [
+      "/v1/unknown",
+      "/v1/checks/unknown/also-unknown",
+      "/internal/unknown",
+      "/v2/unknown",
+    ]) {
       const response = await fetch(`${service.apiUrl}${path}`);
       expect(response.status, path).toBe(404);
       expect(response.headers.get("content-security-policy"), path).toBeNull();

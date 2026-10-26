@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { defineConfig } from "@playwright/test";
+const port = process.env.SOURCE_TASTER_WEBSITE_E2E_PORT ?? "53115";
+const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: "./e2e",
   workers: 1,
-  use: { baseURL: "http://127.0.0.1:53115", trace: "retain-on-failure" },
+  use: { baseURL, trace: "retain-on-failure" },
   webServer: {
-    command: "pnpm build && pnpm preview --port 53115",
-    url: "http://127.0.0.1:53115/en/",
+    command: `pnpm build && pnpm preview --port ${port}`,
+    url: `${baseURL}/en/`,
     reuseExistingServer: false,
     timeout: 120_000,
   },

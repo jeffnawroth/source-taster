@@ -46,8 +46,12 @@
     },
     "errors": {
       "requirements": ["FA-UEB-02"],
-      "evidence": ["../web/src/main.tsx"],
-      "state": "connection guidance and current limitations"
+      "evidence": [
+        "../web/src/main.tsx",
+        "../../packages/contract-verification/src/client.ts",
+        "../server/test/check-events.test.ts"
+      ],
+      "state": "automatic stream reconnect while the page stays open, with last-event resume; permanent client errors stop retries; no reload persistence or cancellation"
     },
     "faq": {
       "requirements": ["FA-UEB-02"],

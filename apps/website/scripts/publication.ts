@@ -2,14 +2,8 @@
 import { createHash } from "node:crypto";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { resolve, relative } from "node:path";
-import { pathToFileURL } from "node:url";
 import type { LegalDocument } from "../src/legal.ts";
-export interface Review {
-  reviewer: string;
-  date: string;
-  evidence: string;
-  sha256: string;
-}
+import { languages, legalIds, type Review } from "../src/metadata.ts";
 export interface Publication {
   schemaVersion: number;
   domain: string | null;
@@ -97,8 +91,8 @@ export async function checkPublication(
     errors.push("monitored support address");
   for (const field of ["name", "address", "country", "legalDetails"] as const)
     if (!valid(config.seller?.[field])) errors.push(`seller ${field}`);
-  for (const language of ["de", "en"])
-    for (const id of ["legal-notice", "terms", "privacy", "withdrawal"]) {
+  for (const language of languages)
+    for (const id of legalIds) {
       const version = config.legalVersions?.[language]?.[id];
       if (!version || !/^[a-zA-Z0-9.-]+$/.test(version)) {
         errors.push(`${language}/${id}: version missing`);
@@ -166,22 +160,4 @@ async function evidence(root: string, path: string) {
     (await stat(resolve(root, path))).size === 0
   )
     throw new Error("Review evidence must be a nonempty local file");
-}
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
-) {
-  const rootArg = process.argv.indexOf("--root");
-  if (process.argv.includes("--digest"))
-    console.log(
-      await reviewDigest(
-        rootArg >= 0 ? resolve(process.argv[rootArg + 1]!) : process.cwd(),
-      ),
-    );
-  else {
-    await checkPublication(
-      rootArg >= 0 ? resolve(process.argv[rootArg + 1]!) : process.cwd(),
-    );
-    console.log("Publication reviews complete");
-  }
 }

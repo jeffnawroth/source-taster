@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { m } from "@source-taster/i18n";
+
 /** Public page identities shared by web and the future extension panel menu.
  * Callers supply only a language and (for another origin) the qualified site URL.
  * No reference text, session, search query or other context is accepted.
@@ -11,32 +13,32 @@ export function informationLinks(language: InformationLanguage, siteUrl = "") {
   return [
     {
       id: "help",
-      label: language === "de" ? "Hilfe" : "Help",
+      label: m.information_help({}, { locale: language }),
       href: `${base}/docs/${language}/`,
     },
     {
       id: "contact",
-      label: language === "de" ? "Kontakt" : "Contact",
+      label: m.information_contact({}, { locale: language }),
       href: `${base}/${language}/contact/`,
     },
     {
       id: "legal-notice",
-      label: language === "de" ? "Impressum" : "Legal notice",
+      label: m.information_legal_notice({}, { locale: language }),
       href: `${base}/${language}/legal-notice/`,
     },
     {
       id: "terms",
-      label: language === "de" ? "Nutzungsbedingungen" : "Terms",
+      label: m.information_terms({}, { locale: language }),
       href: `${base}/${language}/terms/`,
     },
     {
       id: "privacy",
-      label: language === "de" ? "Datenschutz" : "Privacy policy",
+      label: m.information_privacy({}, { locale: language }),
       href: `${base}/${language}/privacy/`,
     },
     {
       id: "withdrawal",
-      label: language === "de" ? "Widerruf" : "Withdrawal instructions",
+      label: m.information_withdrawal({}, { locale: language }),
       href: `${base}/${language}/withdrawal/`,
     },
   ];
@@ -50,11 +52,7 @@ export function InformationLinks({
 }) {
   return (
     <nav
-      aria-label={
-        language === "de"
-          ? "Hilfe und Rechtliches"
-          : "Help and legal information"
-      }
+      aria-label={m.information_navigation({}, { locale: language })}
       className="mt-8 flex flex-wrap gap-4 text-sm"
     >
       {informationLinks(language, siteUrl).map((link) => (

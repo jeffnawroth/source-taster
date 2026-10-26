@@ -1,7 +1,12 @@
 ---
+// SPDX-License-Identifier: AGPL-3.0-or-later
 import { copy, pages, pathFor, type Language, type Page } from '../content';
 import '../style.css';
-interface Props { language: Language; page: Page; legal?: { version: string; status: string } }
+interface Props {
+  language: Language;
+  page: Page;
+  legal?: { version: string; status: string };
+}
 const { language, page, legal } = Astro.props;
 const t = copy[language];
 const preview = process.env.SOURCE_TASTER_WEBSITE_PREVIEW !== '0';
@@ -38,7 +43,16 @@ const site = (id: string) => pathFor(language, { id, section: 'site' });
         {legal && <p class="legal-state">{legal.status === 'draft' ? t.pending : ''} · {t.version}: {legal.version}</p>}
         {page.paragraphs.map(p => <p>{p}</p>)}
       </article>
-      {page.section === 'docs' && <section aria-labelledby="guides"><h2 id="guides">{t.docs}</h2><ul>{pages[language].filter(p => p.section === 'docs' && p.id !== 'index').map(p => <li><a href={pathFor(language,p)}>{p.title}</a></li>)}</ul></section>}
+      {page.section === 'docs' && (
+        <section aria-labelledby="guides">
+          <h2 id="guides">{t.docs}</h2>
+          <ul>
+            {pages[language]
+              .filter(p => p.section === 'docs' && p.id !== 'index')
+              .map(p => <li><a href={pathFor(language, p)}>{p.title}</a></li>)}
+          </ul>
+        </section>
+      )}
       <slot />
     </main>
     <footer><nav aria-label={t.legal}>

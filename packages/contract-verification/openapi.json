@@ -456,7 +456,7 @@
             }
           },
           "400": {
-            "description": "The input is empty or malformed.",
+            "description": "The input is empty, malformed, or exceeds the configured Reference limit.",
             "content": {
               "application/problem+json": {
                 "schema": {

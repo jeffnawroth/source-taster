@@ -1,16 +1,38 @@
 ---
+// SPDX-License-Identifier: AGPL-3.0-or-later
 import Page from '../components/Page.astro';
 import Search from '../components/Search.astro';
 import publication from '../../publication.json';
 import { legalDocuments, legalPage } from '../legal';
 import { languages, pages, pathFor } from '../content';
 export async function getStaticPaths() {
-  const legal = await legalDocuments();
-  return [...languages.flatMap(language => pages[language].map(page => ({
+  const information = languages.flatMap(language => pages[language].map(page => ({
     params: { route: pathFor(language, page).replace(/^\//, '').replace(/\/$/, '') },
     props: { language, page },
-  }))), ...legal.flatMap(doc => [...(publication.legalVersions[doc.language][doc.id as keyof typeof publication.legalVersions.en] === doc.version ? [{ params: { route: `${doc.language}/${doc.id}` }, props: { language: doc.language, page: legalPage(doc), legal: doc } }] : []), { params: { route: `${doc.language}/${doc.id}/versions/${doc.version}` }, props: { language: doc.language, page: {...legalPage(doc), id: `${doc.id}/versions/${doc.version}`}, legal: doc } }])];
+  })));
+  const legal = (await legalDocuments()).flatMap(doc => {
+    const current = publication.legalVersions[doc.language][
+      doc.id as keyof typeof publication.legalVersions.en
+    ] === doc.version;
+    const page = legalPage(doc);
+    const currentRoute = {
+      params: { route: `${doc.language}/${doc.id}` },
+      props: { language: doc.language, page, legal: doc },
+    };
+    const versionRoute = {
+      params: { route: `${doc.language}/${doc.id}/versions/${doc.version}` },
+      props: {
+        language: doc.language,
+        page: { ...page, id: `${doc.id}/versions/${doc.version}` },
+        legal: doc,
+      },
+    };
+    return [...(current ? [currentRoute] : []), versionRoute];
+  });
+  return [...information, ...legal];
 }
 const { language, page, legal } = Astro.props;
 ---
-<Page language={language} page={page} legal={legal}>{page.section === "docs" && <Search language={language} />}</Page>
+<Page language={language} page={page} legal={legal}>
+  {page.section === "docs" && <Search language={language} />}
+</Page>

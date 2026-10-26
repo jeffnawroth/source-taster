@@ -2,25 +2,21 @@
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { Language, Page } from "./content.ts";
-export const legalIds = ["legal-notice", "terms", "privacy", "withdrawal"];
+import { languages, legalIds, type Review } from "./metadata.ts";
+export { legalIds } from "./metadata.ts";
 export interface LegalDocument {
   language: Language;
   id: string;
   version: string;
   status: "draft" | "approved";
-  approval: null | {
-    reviewer: string;
-    date: string;
-    evidence: string;
-    sha256: string;
-  };
+  approval: Review | null;
   title: string;
   summary: string;
   paragraphs: string[];
 }
 export async function legalDocuments(): Promise<LegalDocument[]> {
   const documents: LegalDocument[] = [];
-  for (const language of ["de", "en"])
+  for (const language of languages)
     for (const id of legalIds) {
       // All immutable versions stay addressable, not only the current document.
       const dir = resolve("content/legal", language, id);

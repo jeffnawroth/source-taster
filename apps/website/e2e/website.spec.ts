@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
+const websiteOrigin = `http://127.0.0.1:${process.env.SOURCE_TASTER_WEBSITE_E2E_PORT ?? "53115"}`;
 import { informationLinks } from "@source-taster/ui/information";
 
 test("reader opens a documentation deep link and switches to its counterpart", async ({
@@ -40,7 +41,7 @@ test("bare entry follows browser language without changing explicit language URL
     });
     const page = await context.newPage();
     await page.goto("/?private-query=do-not-forward");
-    await expect(page).toHaveURL(`http://127.0.0.1:53115/${target}/`);
+    await expect(page).toHaveURL(`${websiteOrigin}/${target}/`);
     await page.goto("/en/faq/");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     expect(await context.cookies()).toEqual([]);
@@ -115,9 +116,9 @@ test("documentation search stays local, language-scoped and keyboard accessible"
       .getByRole("region", { name: "Suchergebnisse" })
       .getByRole("link", { name: "Sprache und Zitierstil" }),
   ).toHaveAttribute("href", "/docs/de/preferences/");
-  expect(
-    requests.every((url) => new URL(url).origin === "http://127.0.0.1:53115"),
-  ).toBe(true);
+  expect(requests.every((url) => new URL(url).origin === websiteOrigin)).toBe(
+    true,
+  );
   expect(
     requests.some((url) => /citation|zzzzunique|Zitierstil/.test(url)),
   ).toBe(false);
@@ -239,4 +240,19 @@ test("the Structuring preview is documented in both languages and found by searc
       language === "en" ? "not been verified" : "nicht geprüft",
     );
   }
+});
+
+test("retry help describes automatic progress reconnection in both languages", async ({
+  page,
+}) => {
+  await page.goto("/docs/en/errors-and-retry/");
+  await expect(page.locator("article")).toContainText(
+    "automatically reconnects",
+  );
+  await expect(page.locator("article")).toContainText("last received event");
+  await page.getByRole("link", { name: "Deutsch", exact: true }).click();
+  await expect(page.locator("article")).toContainText("automatisch erneut");
+  await expect(page.locator("article")).toContainText(
+    "zuletzt empfangenen Ereignis",
+  );
 });

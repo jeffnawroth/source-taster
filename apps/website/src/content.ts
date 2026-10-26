@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-export type Language = "de" | "en";
-export const languages: Language[] = ["de", "en"];
+import type { Language } from "./metadata.ts";
+export { languages, type Language } from "./metadata.ts";
 export const copy = {
   en: {
     home: "Home",
@@ -148,7 +148,7 @@ export const pages: Record<Language, Page[]> = {
       summary: "What to do when the local workspace cannot continue.",
       paragraphs: [
         "If the workspace reports a connection error, check that the local verification API is running. Do not repeatedly submit the same input while a Check is still running.",
-        "A disconnected progress display does not prove that a Check stopped. The current workspace does not offer automatic reconnection or cancellation. Reloading can lose the displayed Check; retained History is not yet available.",
+        "A disconnected progress display does not prove that a Check stopped. While the page stays open, the workspace automatically reconnects after a dropped progress stream and resumes after the last received event. A permanent client error stops retries. Cancellation is not available. Reloading can lose the displayed Check; retained History is not yet available.",
         "If no Check started, you may submit the input again after the connection is restored. Do not include reference text or credentials in a support request unless a separately reviewed support process explicitly asks for it.",
       ],
       claim: "errors",
@@ -207,9 +207,9 @@ export const pages: Record<Language, Page[]> = {
     {
       id: "home",
       section: "site",
-      title: "Literaturangaben verdienen einen genaueren Blick",
+      title: "Referenzen verdienen einen genaueren Blick",
       summary:
-        "Source Taster entsteht, um Menschen bei der Prüfung wissenschaftlicher Literaturangaben zu unterstützen.",
+        "Source Taster entsteht, um Menschen bei der Prüfung wissenschaftlicher Referenzen zu unterstützen.",
       paragraphs: [
         "Diese Vorschau stellt den aktuellen Entwicklungsstand vor. Sie ist kein öffentlicher Prüfdienst. Registrierung und Kauf sind hier nicht verfügbar.",
         "Die Dokumentation erklärt, was die aktuelle lokale Version leistet und wo ihre Grenzen liegen. Eine menschliche Prüfung bleibt unverzichtbar.",
@@ -224,7 +224,7 @@ export const pages: Record<Language, Page[]> = {
         "Beginnen Sie mit den Möglichkeiten und Grenzen der aktuellen Version.",
       paragraphs: [
         "Diese Dokumentation beschreibt das lokale Entwicklungsgerüst, nicht das fertige Produkt zum Marktstart.",
-        "Wählen Sie unten eine Anleitung. Hilfe und rechtliche Seiten sind öffentliche Informationen: Sie erfordern keine Anmeldung und benötigen niemals Ihre Literaturangaben.",
+        "Wählen Sie unten eine Anleitung. Hilfe und rechtliche Seiten sind öffentliche Informationen: Sie erfordern keine Anmeldung und benötigen niemals Ihre Referenzen.",
       ],
       claim: "help",
     },
@@ -234,9 +234,9 @@ export const pages: Record<Language, Page[]> = {
       title: "So funktioniert die Prüfung",
       summary: "Fortschritt und Belege sind unterschiedliche Dinge.",
       paragraphs: [
-        "Das aktuelle lokale Entwicklungsgerüst nimmt Text mit einer Literaturangabe pro Zeile an, zeigt den Fortschritt und endet mit dem Status ‚Nicht geprüft‘. Es durchsucht keine Datenquellen, berechnet keine Scores und erzeugt weder Urteile noch Korrekturvorschläge. Die gesonderte Strukturierungsvorschau zeigt erkannte Felder, startet aber keine Prüfung.",
-        "Ein Status beschreibt den Fortschritt oder eine unvollständige Prüfung. Ein Urteil beschreibt eine vollständig geprüfte Literaturangabe. Ein Urteil ist kein Beweis für Täuschung. Ein Mensch entscheidet und muss die zugrunde liegenden Belege prüfen.",
-        "Verwenden Sie diese Entwicklungsversion nicht, um über die Existenz einer Quelle oder eine erfundene Literaturangabe zu entscheiden.",
+        "Das aktuelle lokale Entwicklungsgerüst nimmt Text mit einer Referenz pro Zeile an, zeigt den Fortschritt und endet mit dem Status ‚Nicht geprüft‘. Es durchsucht keine Datenquellen, berechnet keine Scores und erzeugt weder Urteile noch Korrekturvorschläge. Die gesonderte Strukturierungsvorschau zeigt erkannte Felder, startet aber keine Prüfung.",
+        "Ein Status beschreibt den Fortschritt oder eine unvollständige Prüfung. Ein Urteil beschreibt eine vollständig geprüfte Referenz. Ein Urteil ist kein Beweis für Täuschung. Ein Mensch entscheidet und muss die zugrunde liegenden Belege prüfen.",
+        "Verwenden Sie diese Entwicklungsversion nicht, um über die Existenz einer Quelle oder eine erfundene Referenz zu entscheiden.",
       ],
       claim: "skeleton",
     },
@@ -261,7 +261,7 @@ export const pages: Record<Language, Page[]> = {
         "Wählen Sie Deutsch oder Englisch und einen bevorzugten Zitierstil im Web-Arbeitsbereich.",
       paragraphs: [
         "Im Web-Arbeitsbereich kann ein Gast die Oberflächensprache und den bevorzugten Zitierstil wählen. Diese Einstellungen werden lokal in diesem Browser gespeichert. Sie werden nicht mit dieser Informationsseite oder anderen Clients geteilt.",
-        "Das Ändern der Einstellungen verändert keine bestehende Prüfung. Ein bevorzugter Zitierstil bedeutet nicht, dass dieses Entwicklungsgerüst bereits formatierte Literaturangaben erzeugt.",
+        "Das Ändern der Einstellungen verändert keine bestehende Prüfung. Ein bevorzugter Zitierstil bedeutet nicht, dass dieses Entwicklungsgerüst bereits formatierte Referenzen erzeugt.",
         "Auf dieser Website bestimmt die URL die Sprache. Der Sprachlink öffnet die entsprechende Seite; es wird kein Sprachcookie gespeichert.",
       ],
       claim: "preferences",
@@ -273,8 +273,8 @@ export const pages: Record<Language, Page[]> = {
       summary: "Wenn der lokale Arbeitsbereich nicht fortfahren kann.",
       paragraphs: [
         "Meldet der Arbeitsbereich einen Verbindungsfehler, prüfen Sie, ob die lokale Prüf-API läuft. Senden Sie dieselbe Eingabe nicht wiederholt, solange eine Prüfung läuft.",
-        "Eine unterbrochene Fortschrittsanzeige beweist nicht, dass die Prüfung beendet ist. Der aktuelle Arbeitsbereich bietet weder automatische Wiederverbindung noch Abbruch. Beim Neuladen kann die angezeigte Prüfung verloren gehen; ein gespeicherter Verlauf ist noch nicht verfügbar.",
-        "Wenn keine Prüfung gestartet wurde, können Sie die Eingabe nach Wiederherstellung der Verbindung erneut senden. Fügen Sie einer Supportanfrage weder Literaturangaben noch Zugangsdaten bei, außer ein gesondert geprüfter Supportprozess fordert ausdrücklich dazu auf.",
+        "Eine unterbrochene Fortschrittsanzeige beweist nicht, dass die Prüfung beendet ist. Solange die Seite geöffnet bleibt, verbindet sich der Arbeitsbereich nach einem unterbrochenen Fortschrittsstrom automatisch erneut und setzt nach dem zuletzt empfangenen Ereignis fort. Bei einem dauerhaften Clientfehler enden die Wiederholungen. Ein Abbruch ist nicht verfügbar. Beim Neuladen kann die angezeigte Prüfung verloren gehen; ein gespeicherter Verlauf ist noch nicht verfügbar.",
+        "Wenn keine Prüfung gestartet wurde, können Sie die Eingabe nach Wiederherstellung der Verbindung erneut senden. Fügen Sie einer Supportanfrage weder Referenzen noch Zugangsdaten bei, außer ein gesondert geprüfter Supportprozess fordert ausdrücklich dazu auf.",
       ],
       claim: "errors",
     },
@@ -310,7 +310,7 @@ export const pages: Record<Language, Page[]> = {
       summary: "Der Support ist noch nicht eröffnet.",
       paragraphs: [
         "Domain, überwachte Supportadresse und Postfachanbieter sind noch nicht ausgewählt. Eine funktionierende Supportadresse oder Antwortfrist kann noch nicht veröffentlicht werden.",
-        "Bitte senden Sie keine Manuskripte, Literaturangaben, Dokumenttitel, Kontogeheimnisse oder Suchbegriffe. Hilfelinks übermitteln keine dieser Angaben. Es gibt kein Kontaktformular, keinen Chat und keinen automatischen Anhang.",
+        "Bitte senden Sie keine Manuskripte, Referenzen, Dokumenttitel, Kontogeheimnisse oder Suchbegriffe. Hilfelinks übermitteln keine dieser Angaben. Es gibt kein Kontaktformular, keinen Chat und keinen automatischen Anhang.",
         "Die vorgesehene Supportrichtlinie löscht Unterhaltungen zwölf Monate nach der letzten Nachricht. Bestimmte Belege für Abrechnung oder Rechtsansprüche können eine gesonderte Aufbewahrung erfordern. Die abschließende rechtliche Prüfung muss Fristen, Postfachsicherungen und Löschverfahren bestätigen.",
       ],
       claim: "support",

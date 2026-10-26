@@ -44,6 +44,20 @@ test("help, contact and legal links follow the interface language and carry no i
       // Without VITE_SOURCE_TASTER_WEBSITE_URL the site shares the app origin.
       await expect(link).toHaveAttribute("href", path);
       await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+      const opened = page.waitForEvent("popup");
+      await link.click();
+      const destination = await opened;
+      await destination.waitForLoadState();
+      await expect(destination.locator("html")).toHaveAttribute(
+        "lang",
+        language,
+      );
+      await expect(destination.locator("main h1")).toHaveCount(1);
+      await expect(destination.locator(".draft")).toBeVisible();
+      await expect(
+        destination.getByRole("textbox", { name: /References|Referenzen/ }),
+      ).toHaveCount(0);
+      await destination.close();
     }
   }
 });

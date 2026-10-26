@@ -2,6 +2,7 @@
 import { readFile, realpath, stat } from "node:fs/promises";
 import { resolve, sep, extname } from "node:path";
 import { checkPublication, digest } from "./scripts/publication.ts";
+import { assertPreviewAllowed } from "./src/metadata.ts";
 const mime: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript",
@@ -48,8 +49,7 @@ export async function openWebsite(
     throw new Error(
       "Publication gate: draft artifact cannot be served in production",
     );
-  if (mode === "preview" && process.env.NODE_ENV === "production")
-    throw new Error("Draft preview is local-only");
+  assertPreviewAllowed(mode);
   if (review) {
     if (
       review.contentSha256 !== artifact.contentSha256 ||
