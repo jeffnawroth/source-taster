@@ -5,6 +5,7 @@
 
 export interface Config {
   mode: "standalone";
+  referenceLimit: number;
   databaseUrl: string;
   port: number;
   /** Interval of SSE comment frames that keep idle connections open. */
@@ -38,6 +39,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   if (!databaseUrl) throw new ConfigError("DATABASE_URL is not set.");
   return {
     mode,
+    referenceLimit: integer(env, "SOURCE_TASTER_REFERENCE_LIMIT", 1000, 1),
     databaseUrl,
     port: integer(env, "SOURCE_TASTER_PORT", 3100),
     sseHeartbeatMs: integer(env, "SOURCE_TASTER_SSE_HEARTBEAT_MS", 25_000),
@@ -49,13 +51,14 @@ function integer(
   env: NodeJS.ProcessEnv,
   name: string,
   fallback: number,
+  minimum = 0,
 ): number {
   const raw = env[name];
   if (raw === undefined || raw === "") return fallback;
   const value = Number(raw);
-  if (!Number.isInteger(value) || value < 0) {
+  if (!Number.isInteger(value) || value < minimum) {
     throw new ConfigError(
-      `${name} must be a non-negative integer, got "${raw}".`,
+      `${name} must be an integer of at least ${minimum}, got "${raw}".`,
     );
   }
   return value;

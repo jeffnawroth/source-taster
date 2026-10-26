@@ -1,0 +1,16 @@
+{
+  "description": "Owned development fixture: APA 7 article; wrapped line and exact DOI casing. Not a quality-gate corpus.",
+  "text": "  Doe, J. (2020). A study of things.\n  Journal of Studies, 12(3), 45–67. https://doi.org/10.1234/EXAMPLE\n",
+  "expected": [
+    {
+      "author": [{ "family": "Doe", "given": "J." }],
+      "issued": { "literal": "2020" },
+      "title": "A study of things",
+      "container-title": "Journal of Studies",
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67",
+      "DOI": "10.1234/EXAMPLE"
+    }
+  ]
+}

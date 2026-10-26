@@ -14,6 +14,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import {
+  StructuringResponse,
   CheckResponse,
   ProblemDetails,
   type Check,
@@ -26,10 +27,11 @@ import {
 import { m } from "@source-taster/i18n";
 import { setLocale } from "@source-taster/i18n/runtime";
 import { Button, Label, Text, TextArea, TextField } from "@source-taster/ui";
+import { StructuringResults } from "./structuring-results.tsx";
 import "./style.css";
 
 type Locale = "de" | "en";
-type MessageKey = keyof typeof m;
+type MessageKey = Extract<keyof typeof m, `problem_${string}`>;
 const language = navigator.languages
   .find((value) => /^(de|en)(-|$)/i.test(value))
   ?.slice(0, 2)
@@ -45,9 +47,11 @@ void setLocale(initialLocale, { reload: false });
 
 class ApiProblem extends Error {
   readonly key: MessageKey;
-  constructor(key: MessageKey) {
+  readonly limit?: number;
+  constructor(key: MessageKey, limit?: number) {
     super(key);
     this.key = key;
+    this.limit = limit;
   }
 }
 async function startCheck(text: string) {
@@ -63,17 +67,40 @@ async function startCheck(text: string) {
     const problem = ProblemDetails.safeParse(await response.json());
     const key = problem.data?.i18nKey;
     throw new ApiProblem(
-      key && key in m ? (key as MessageKey) : "problem_internal",
+      key?.startsWith("problem_") && key in m
+        ? (key as MessageKey)
+        : "problem_internal",
     );
   }
   return CheckResponse.parse(await response.json()).data;
 }
-const statusMessage: Record<ReferenceStatus, MessageKey> = {
+async function structureText(text: string) {
+  const response = await fetch("/v1/structurings", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "Source-Taster-Client": "web/0.0.0",
+    },
+    body: JSON.stringify({ text }),
+  });
+  if (!response.ok) {
+    const problem = ProblemDetails.safeParse(await response.json());
+    const key = problem.data?.i18nKey;
+    throw new ApiProblem(
+      key?.startsWith("problem_") && key in m
+        ? (key as MessageKey)
+        : "problem_internal",
+      problem.data?.limit,
+    );
+  }
+  return StructuringResponse.parse(await response.json()).data;
+}
+const statusMessage = {
   running: "status_running",
   "not-checked": "status_not_checked",
   failed: "status_failed",
   cancelled: "status_cancelled",
-};
+} as const satisfies Record<ReferenceStatus, keyof typeof m>;
 
 function Workspace() {
   const [locale, updateLocale] = useState<Locale>(initialLocale);
@@ -89,6 +116,7 @@ function Workspace() {
   const create = useMutation({
     mutationFn: startCheck,
     onSuccess: (created) => {
+      structure.reset();
       controller.current?.abort();
       const next = new AbortController();
       controller.current = next;
@@ -124,17 +152,30 @@ function Workspace() {
             ? error.problem?.i18nKey
             : undefined;
         setStreamError(
-          key && key in m ? (key as MessageKey) : "problem_connection",
+          key?.startsWith("problem_") && key in m
+            ? (key as MessageKey)
+            : "problem_connection",
         );
       });
     },
   });
-  const busy = create.isPending || check?.state === "running";
+  const structure = useMutation({
+    mutationFn: structureText,
+    onMutate: () => {
+      controller.current?.abort();
+      setCheck(null);
+      setStreamError(null);
+      create.reset();
+    },
+  });
+  const busy =
+    structure.isPending || create.isPending || check?.state === "running";
+  const requestError = structure.error ?? create.error;
   const errorKey =
     streamError ??
-    (create.error
-      ? create.error instanceof ApiProblem
-        ? create.error.key
+    (requestError
+      ? requestError instanceof ApiProblem
+        ? requestError.key
         : "problem_connection"
       : null);
   function changeLocale(value: Locale) {
@@ -177,7 +218,10 @@ function Workspace() {
       >
         <TextField
           value={text}
-          onChange={setText}
+          onChange={(value) => {
+            setText(value);
+            structure.reset();
+          }}
           isDisabled={busy}
           className="flex flex-col gap-3"
         >
@@ -191,6 +235,16 @@ function Workspace() {
           />
         </TextField>
         <Button
+          type="button"
+          isDisabled={!text.trim() || busy}
+          onPress={() => structure.mutate(text)}
+          className="mt-5 mr-3 rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
+        >
+          {structure.isPending
+            ? m.structuring_pending()
+            : m.structuring_action()}
+        </Button>
+        <Button
           type="submit"
           isDisabled={!text.trim() || busy}
           className="mt-5 rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
@@ -203,9 +257,16 @@ function Workspace() {
           role="alert"
           className="mt-6 rounded-xl border border-red-400 bg-red-50 p-4 text-red-900"
         >
-          {m[errorKey]()}
+          {m[errorKey]({
+            limit: String(
+              requestError instanceof ApiProblem
+                ? (requestError.limit ?? 1000)
+                : 1000,
+            ),
+          })}
         </p>
       )}
+      {structure.data && <StructuringResults result={structure.data} />}
       {check && (
         <section aria-labelledby="results-title" className="mt-10">
           <h2 id="results-title" className="mb-4 text-2xl font-semibold">

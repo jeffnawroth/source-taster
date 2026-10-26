@@ -94,3 +94,5 @@ export type CheckEvent = z.infer<typeof CheckEvent>;
 export function isFinalEvent(event: CheckEvent): boolean {
   return event.type === "check.updated" && event.state === "ended";
 }
+
+export * from "./structuring.ts";

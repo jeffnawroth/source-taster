@@ -1,0 +1,23 @@
+{
+  "description": "Owned development fixture: Chicago author-date article and corporate-author book.",
+  "text": "Smith, John. 2020. “A measured title.” Journal of Testing 12 (3): 45–67. https://doi.org/10.5555/CHICAGO\nWorld Health Organization. 2022. Global health report. Geneva: Example Press.",
+  "expected": [
+    {
+      "author": [{ "family": "Smith", "given": "John" }],
+      "issued": { "literal": "2020" },
+      "title": "A measured title",
+      "container-title": "Journal of Testing",
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67",
+      "DOI": "10.5555/CHICAGO"
+    },
+    {
+      "author": [{ "literal": "World Health Organization" }],
+      "issued": { "literal": "2022" },
+      "title": "Global health report",
+      "publisher-place": "Geneva",
+      "publisher": "Example Press"
+    }
+  ]
+}

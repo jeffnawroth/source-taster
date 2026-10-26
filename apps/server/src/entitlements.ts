@@ -5,7 +5,7 @@
 
 import type { QuotaSlot } from "@source-taster/contract-common";
 
-export type Permission = "check:create" | "check:read";
+export type Permission = "structuring:create" | "check:create" | "check:read";
 
 export interface Principal {
   ownerId: string;

@@ -220,6 +220,9 @@ importers:
       '@source-taster/contract-verification':
         specifier: workspace:*
         version: link:../../packages/contract-verification
+      '@source-taster/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       hono:
         specifier: 4.13.14
         version: 4.13.14
@@ -309,6 +312,8 @@ importers:
       zod:
         specifier: 4.6.7
         version: 4.6.7
+
+  packages/core: {}
 
   packages/i18n:
     devDependencies:
