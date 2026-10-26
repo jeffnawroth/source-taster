@@ -42,6 +42,8 @@ Two purpose-limited exceptions exist:
 
 Within the website exception, the client explicitly admitted exact-pinned `get-tsconfig@5.0.0-beta.6` on 26 October 2026 solely for the Astro 7.4.2 build, conditional on passing build, compatibility, license and security checks. See ADR-0020's build dependency refinement. No other prerelease is admitted by that decision.
 
+The subsequent ADR-0020 refinement admits exactly `lightningcss@1.0.0-alpha.72` and `lightningcss-derive@1.0.0-alpha.43` within compiler-rs 0.5.2 for that website build, with the same qualification conditions. It also selects qualification of a controlled minimal Pagefind 1.5.2 source build and its owned maintenance; it does not exempt further prereleases or security/license obligations.
+
 ## Interpretation of the supported platforms
 
 These interpret section 14.6. They do not amend it.
