@@ -218,12 +218,11 @@ export function createApp({
     const check = await checks.get(principal, checkId);
     if (!check) fail("check-not-found");
     const raw = c.req.header("last-event-id") ?? "0";
-    const seq =
-      raw === "0"
-        ? "0"
-        : raw.startsWith(`${checkId}:`)
-          ? raw.slice(checkId.length + 1)
-          : "invalid";
+    const seq = /^(0|[1-9]\d*)$/.test(raw)
+      ? raw
+      : raw.startsWith(`${checkId}:`)
+        ? raw.slice(checkId.length + 1)
+        : "invalid";
     if (
       !/^(0|[1-9]\d*)$/.test(seq) ||
       !Number.isSafeInteger(Number(seq)) ||
@@ -280,7 +279,9 @@ export function createApp({
                 if (output.ownerId !== principal.ownerId) return;
                 await guarded(output, "check:read", () =>
                   stream.writeSSE({
-                    id: `${checkId}:${event.seq}`,
+                    id: raw.startsWith(`${checkId}:`)
+                      ? `${checkId}:${event.seq}`
+                      : String(event.seq),
                     event: event.type,
                     data: JSON.stringify(event),
                   }),

@@ -49,8 +49,7 @@ export async function readEvents(
 ): Promise<{ events: ReceivedEvent[]; closedByServer: boolean }> {
   const controller = new AbortController();
   const headers: Record<string, string> = { accept: "text/event-stream" };
-  if (options.lastEventId !== undefined)
-    headers["last-event-id"] = options.lastEventId;
+  headers["last-event-id"] = options.lastEventId ?? `${checkId}:0`;
   const response = await fetch(`${api}/v1/checks/${checkId}/events`, {
     headers,
     signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),

@@ -131,8 +131,7 @@ export async function watchCheckEvents(checkId, options) {
                 headers.authorization = `Bearer ${await options.credentials()}`;
             if (options.client)
                 headers["Source-Taster-Client"] = options.client;
-            if (lastSeq > 0)
-                headers["last-event-id"] = `${checkId}:${lastSeq}`;
+            headers["last-event-id"] = `${checkId}:${lastSeq}`;
             const response = await doFetch(url, { headers, signal: options.signal });
             if ((response.status >= 400 && response.status < 500) ||
                 response.status === 503) {

@@ -52,8 +52,8 @@ export const streamCheckEvents = createRoute({
     method: "get",
     path: "/v1/checks/{checkId}/events",
     summary: "Stream Check events (Server-Sent Events)",
-    description: "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. " +
-        "Send the Check-bound `Last-Event-ID` cursor to receive only later events. " +
+    description: "Every event carries a replay cursor as SSE `id` and a CheckEvent as JSON `data`. " +
+        "Send a Check-bound `Last-Event-ID` cursor (including `{checkId}:0` for full replay) to receive Check-bound SSE IDs. Legacy numeric cursors and numeric SSE IDs remain supported; numeric cursors apply only to the authorized Check in the URL. " +
         "The stream closes after the event that ends the Check, or silently on expiry, current denial or authority outage. Every frame and heartbeat requires current authority.",
     request: {
         params: CheckParams,

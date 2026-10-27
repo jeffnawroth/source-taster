@@ -503,3 +503,32 @@ it("keeps a differing supplied URL unverified instead of claiming a confirmed UR
     reasons: ["url-verification-incomplete"],
   });
 });
+
+it("the actual pre-lifecycle /v1 client parses DOI Verdict frames and resumes numeric cursors", async () => {
+  const { snapshot } = await check(physicsReference);
+  const { watchCheckEvents, readSseFrames: legacyFrames } =
+    await import("./fixtures/verification-client-74/dist/contract-verification/src/client.js");
+  const seen: unknown[] = [];
+  await watchCheckEvents(snapshot.id, {
+    baseUrl: service.apiUrl,
+    lastEventSeq: 1,
+    signal: AbortSignal.timeout(10000),
+    onEvent: (event) => seen.push(event),
+  });
+  expect(seen).toContainEqual(
+    expect.objectContaining({
+      type: "reference.updated",
+      reference: expect.objectContaining({
+        outcome: expect.objectContaining({
+          kind: "verdict",
+          verdict: "correct",
+        }),
+      }),
+    }),
+  );
+  const response = await fetch(
+    `${service.apiUrl}/v1/checks/${snapshot.id}/events`,
+  );
+  for await (const frame of legacyFrames(response.body!))
+    expect(Number(frame.id)).toBe(JSON.parse(frame.data).seq);
+});
