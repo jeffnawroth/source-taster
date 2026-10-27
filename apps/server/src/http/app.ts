@@ -12,7 +12,7 @@ import { ReferenceLimitExceeded, type Structuring } from "@source-taster/core";
 import { streamSSE } from "hono/streaming";
 import type { EventListener } from "../checks/events.ts";
 import { HTTPException } from "hono/http-exception";
-import { splitReferences } from "../checks/structuring.ts";
+import type { StructuredReference } from "@source-taster/core";
 import type { CheckStore } from "../checks/store.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
@@ -82,14 +82,56 @@ export function createApp({
 
   app.openapi(createCheck, async (c) => {
     const principal = await authorize(c.req.raw, "check:create");
-    const { text } = c.req.valid("json");
-    const references = splitReferences(text);
+    const input = c.req.valid("json");
+    let references: StructuredReference[];
+    try {
+      const parsed = "text" in input ? structuring.structure(input.text) : null;
+      if (
+        parsed &&
+        parsed.references.length + parsed.rejected.length > referenceLimit
+      )
+        fail(
+          "reference-limit",
+          `At most ${referenceLimit} References can be checked at once.`,
+          referenceLimit,
+        );
+      if (parsed?.rejected.length) fail("invalid-request");
+      references = parsed
+        ? parsed.references
+        : "references" in input
+          ? input.references.map((r) => ({
+              originalText: r.originalText,
+              span: { start: 0, end: r.originalText.length },
+              csl: r.fields,
+              fieldSources: Object.fromEntries(
+                Object.entries(r.fields).map(([key, value]) => [
+                  key,
+                  {
+                    raw:
+                      typeof value === "string" ? value : JSON.stringify(value),
+                  },
+                ]),
+              ),
+              authorsTruncated: r.authorsTruncated,
+              structuring: { path: "user" as const, version: "user-fields-1" },
+            }))
+          : [];
+    } catch (error) {
+      if (error instanceof ReferenceLimitExceeded)
+        fail(
+          "reference-limit",
+          `At most ${error.limit} References can be checked at once.`,
+          error.limit,
+        );
+      throw error;
+    }
     if (references.length > referenceLimit)
       fail(
         "reference-limit",
         `At most ${referenceLimit} References can be checked at once.`,
         referenceLimit,
       );
+    if (!references.length) fail("invalid-request");
     const check = await checks.create(principal, references);
     return c.json({ data: check, quota: principal.quota }, 201);
   });

@@ -75,14 +75,14 @@ export class ApiError extends Error {
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export function verificationClient(options = {}) {
-    async function post(path, text, schema) {
+    async function post(path, requestBody, schema) {
         const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}${path}`, {
             method: "POST",
             headers: {
                 "content-type": "application/json",
                 ...(options.client ? { "Source-Taster-Client": options.client } : {}),
             },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify(requestBody),
         });
         const body = await response.json().catch(() => undefined);
         if (!response.ok)
@@ -90,8 +90,19 @@ export function verificationClient(options = {}) {
         return schema.parse(body);
     }
     return {
-        createCheck: async (text) => (await post("/v1/checks", text, CheckResponse)).data,
-        structureReferences: async (text) => (await post("/v1/structurings", text, StructuringResponse)).data,
+        createCheck: async (input) => (await post("/v1/checks", typeof input === "string" ? { text: input } : input, CheckResponse)).data,
+        getCheck: async (checkId) => {
+            const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`, {
+                headers: options.client
+                    ? { "Source-Taster-Client": options.client }
+                    : {},
+            });
+            const body = await response.json().catch(() => undefined);
+            if (!response.ok)
+                throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+            return CheckResponse.parse(body).data;
+        },
+        structureReferences: async (text) => (await post("/v1/structurings", { text }, StructuringResponse)).data,
     };
 }
 /**

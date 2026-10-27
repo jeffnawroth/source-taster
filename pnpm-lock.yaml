@@ -361,7 +361,11 @@ importers:
         specifier: 4.6.7
         version: 4.6.7
 
-  packages/core: {}
+  packages/core:
+    dependencies:
+      entities:
+        specifier: 4.5.0
+        version: 4.5.0
 
   packages/i18n:
     devDependencies:

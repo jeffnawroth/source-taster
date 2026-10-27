@@ -39,7 +39,9 @@ await runMain(async (config) => {
     {
       fetch: app.fetch,
       port: config.port,
-      ...(config.website?.mode === "preview" ? { hostname: "127.0.0.1" } : {}),
+      ...(config.doiPreview || config.website?.mode === "preview"
+        ? { hostname: "127.0.0.1" }
+        : {}),
     },
     ({ port }) => {
       console.log(`web listening on http://localhost:${port}`);

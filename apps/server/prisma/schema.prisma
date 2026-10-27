@@ -31,13 +31,15 @@ model Check {
 }
 
 model ReferenceSlot {
-  checkId      String @map("check_id") @db.Uuid
+  checkId      String            @map("check_id") @db.Uuid
   /// 1-based position within the Check.
   position     Int
-  originalText String @map("original_text")
-  /// Wire value of ReferenceStatus; a Verdict will get its own columns.
+  originalText String            @map("original_text")
+  /// Current execution Status; final immutable result takes precedence.
   status       String
-  check        Check  @relation(fields: [checkId], references: [id], onDelete: Cascade)
+  structured   Json?
+  results      ReferenceResult[]
+  check        Check             @relation(fields: [checkId], references: [id], onDelete: Cascade)
 
   @@id([checkId, position])
   @@map("reference_slots")
@@ -54,4 +56,33 @@ model CheckEvent {
 
   @@id([checkId, seq])
   @@map("check_events")
+}
+
+// Append-only run content. #81 will add field revisions and cancellation fencing.
+model ReferenceResult {
+  id        String        @id @db.Uuid
+  checkId   String        @map("check_id") @db.Uuid
+  position  Int
+  content   Json
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  reference ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade, map: "reference_results_slot_fkey")
+
+  @@index([checkId, position, createdAt], map: "reference_results_slot_created")
+  @@map("reference_results")
+}
+
+model SourceRate {
+  source String   @id
+  nextAt DateTime @default(now()) @map("next_at") @db.Timestamptz(3)
+
+  @@map("source_rates")
+}
+
+model SourceRequest {
+  id        String   @id @db.Uuid
+  source    String
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+
+  @@index([source, expiresAt], map: "source_requests_source_expiry")
+  @@map("source_requests")
 }

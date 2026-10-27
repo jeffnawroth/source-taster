@@ -13,10 +13,7 @@ import {
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router";
-import {
-  type Check,
-  type ReferenceStatus,
-} from "@source-taster/contract-verification";
+import { type Check } from "@source-taster/contract-verification";
 import {
   CheckStreamError,
   ApiError,
@@ -39,6 +36,7 @@ import {
 import { InformationLinks } from "@source-taster/ui/information";
 import { StructuringResults } from "./structuring-results.tsx";
 import "./style.css";
+import { ReferenceOutcomeView } from "./reference-outcome.tsx";
 
 type MessageKey = Extract<keyof typeof m, `problem_${string}`>;
 const preferenceStorage = webPreferenceStorage();
@@ -73,12 +71,6 @@ function problemKey(error: unknown, fallback: MessageKey): MessageKey {
       ? "problem_internal"
       : fallback;
 }
-const statusMessage = {
-  running: "status_running",
-  "not-checked": "status_not_checked",
-  failed: "status_failed",
-  cancelled: "status_cancelled",
-} as const satisfies Record<ReferenceStatus, keyof typeof m>;
 
 function Workspace() {
   const [preferences, updatePreferences] = useState(initial.preferences);
@@ -282,9 +274,7 @@ function Workspace() {
                   className="rounded-xl bg-slate-100 p-4"
                 >
                   <p className="break-words">{reference.originalText}</p>
-                  <p className="mt-2 font-semibold text-teal-900">
-                    {m[statusMessage[reference.outcome.status]]()}
-                  </p>
+                  <ReferenceOutcomeView outcome={reference.outcome} />
                 </li>
               ))}
             </ol>
