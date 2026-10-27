@@ -1,0 +1,77 @@
+pagefind_web v1.5.2 (/workspace/source-taster/.tmp/pagefind/source/pagefind_web)
+├── bit-set feature "default"
+│   ├── bit-set v0.10.0
+│   │   └── bit-vec v0.9.1
+│   └── bit-set feature "std"
+│       ├── bit-set v0.10.0 (*)
+│       └── bit-vec feature "std"
+│           └── bit-vec v0.9.1
+├── minicbor feature "default"
+│   └── minicbor v2.2.1
+├── pagefind_microjson feature "default"
+│   └── pagefind_microjson v0.1.4
+├── pagefind_stem feature "default"
+│   └── pagefind_stem v1.0.0 (/workspace/source-taster/.tmp/pagefind/source/pagefind_stem)
+├── wasm-bindgen feature "default"
+│   ├── wasm-bindgen v0.2.117
+│   │   ├── once_cell v1.21.4
+│   │   ├── cfg-if feature "default"
+│   │   │   └── cfg-if v1.0.4
+│   │   ├── wasm-bindgen-macro feature "default"
+│   │   │   └── wasm-bindgen-macro v0.2.117 (proc-macro)
+│   │   │       ├── quote feature "default"
+│   │   │       │   ├── quote v1.0.45
+│   │   │       │   │   └── proc-macro2 v1.0.106
+│   │   │       │   │       └── unicode-ident feature "default"
+│   │   │       │   │           └── unicode-ident v1.0.24
+│   │   │       │   └── quote feature "proc-macro"
+│   │   │       │       ├── quote v1.0.45 (*)
+│   │   │       │       └── proc-macro2 feature "proc-macro"
+│   │   │       │           └── proc-macro2 v1.0.106 (*)
+│   │   │       └── wasm-bindgen-macro-support feature "default"
+│   │   │           └── wasm-bindgen-macro-support v0.2.117
+│   │   │               ├── quote feature "default" (*)
+│   │   │               ├── proc-macro2 feature "default"
+│   │   │               │   ├── proc-macro2 v1.0.106 (*)
+│   │   │               │   └── proc-macro2 feature "proc-macro" (*)
+│   │   │               ├── bumpalo feature "default"
+│   │   │               │   └── bumpalo v3.20.2
+│   │   │               ├── syn feature "default"
+│   │   │               │   ├── syn v2.0.117
+│   │   │               │   │   ├── proc-macro2 v1.0.106 (*)
+│   │   │               │   │   ├── quote v1.0.45 (*)
+│   │   │               │   │   └── unicode-ident feature "default" (*)
+│   │   │               │   ├── syn feature "clone-impls"
+│   │   │               │   │   └── syn v2.0.117 (*)
+│   │   │               │   ├── syn feature "derive"
+│   │   │               │   │   └── syn v2.0.117 (*)
+│   │   │               │   ├── syn feature "parsing"
+│   │   │               │   │   └── syn v2.0.117 (*)
+│   │   │               │   ├── syn feature "printing"
+│   │   │               │   │   └── syn v2.0.117 (*)
+│   │   │               │   └── syn feature "proc-macro"
+│   │   │               │       ├── syn v2.0.117 (*)
+│   │   │               │       ├── quote feature "proc-macro" (*)
+│   │   │               │       └── proc-macro2 feature "proc-macro" (*)
+│   │   │               ├── syn feature "extra-traits"
+│   │   │               │   └── syn v2.0.117 (*)
+│   │   │               ├── syn feature "full"
+│   │   │               │   └── syn v2.0.117 (*)
+│   │   │               ├── syn feature "visit"
+│   │   │               │   └── syn v2.0.117 (*)
+│   │   │               ├── syn feature "visit-mut"
+│   │   │               │   └── syn v2.0.117 (*)
+│   │   │               └── wasm-bindgen-shared feature "default"
+│   │   │                   └── wasm-bindgen-shared v0.2.117
+│   │   │                       └── unicode-ident feature "default" (*)
+│   │   └── wasm-bindgen-shared feature "default"
+│   │       └── wasm-bindgen-shared v0.2.117
+│   │           └── unicode-ident feature "default"
+│   │               └── unicode-ident v1.0.24
+│   │   [build-dependencies]
+│   │   └── rustversion feature "default"
+│   │       └── rustversion v1.0.22 (proc-macro)
+│   └── wasm-bindgen feature "std"
+│       └── wasm-bindgen v0.2.117 (*)
+└── write-json feature "default"
+    └── write-json v0.1.4

@@ -2,7 +2,7 @@ name: Walking skeleton
 on:
   pull_request:
   push:
-    branches: [main, spec/70-launch-product]
+    branches: [main, spec/70-launch-product, "t3/website-qualification-*"]
   schedule:
     - cron: "21 5 * * *"
   workflow_dispatch:
@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   checks:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres:18
@@ -33,6 +33,15 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm i18n:check
@@ -46,11 +55,13 @@ jobs:
         if: failure()
         with:
           name: browser-evidence
-          path: apps/web/test-results
+          path: |
+            apps/web/test-results
+            apps/website/test-results
           retention-days: 7
   dependencies:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
@@ -59,6 +70,16 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
+      - run: pnpm --filter @source-taster/website build
       - run: pnpm audit:licenses
       - name: Install checksum-pinned OSV-Scanner
         shell: bash
@@ -73,11 +94,24 @@ jobs:
         env:
           OSV_SCANNER_BIN: .tmp/audit/osv-scanner
         run: pnpm audit:dependencies
+      - name: Pipeline failure and source reproduction controls
+        if: ${{ !cancelled() }}
+        run: node scripts/qualification-controls.ts
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: always()
         with:
           name: dependency-evidence
-          path: .tmp/audit/*.json
+          path: |
+            .tmp/audit/*.json
+            .tmp/pagefind-fetch.log
+            .tmp/pagefind-build.log
+            .tmp/pagefind/receipt.json
+            .tmp/pagefind/graphs.json
+            .tmp/pagefind/*.tree.txt
+            .tmp/pagefind/*loads.jsonl
+            .tmp/pagefind/bundle.json
+            .tmp/pagefind/evidence/*.json
+            apps/website/dist-preview/third-party/pagefind/manifest.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14

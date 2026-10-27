@@ -15,3 +15,6 @@ GLOSSARY.md
 packages/contract-*/openapi.json
 packages/i18n/project.inlang/.lix/
 packages/i18n/project.inlang/README.md
+**/dist-preview/
+**/.astro/
+apps/website/qualification/

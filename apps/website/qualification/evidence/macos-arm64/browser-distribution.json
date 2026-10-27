@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "version": "1.5.2",
+  "modified": "2026-10-26",
+  "target": "aarch64-apple-darwin",
+  "objects": {
+    "pagefind/de/pagefind-worker.js": "a4586d02b7f3f57581bd3a0a3a226afaef59ee0bdc6557f8db5875947a0c32a5",
+    "pagefind/de/pagefind.js": "c35f1e36efcdf5b1ffba4dde41075205e263f0b54d563cb61ec1d08927e21e16",
+    "pagefind/de/wasm.de.pagefind": "9be38f1840da3e66a1ca52851ca8a8cff2da8965a02b56ac50eb478980c77754",
+    "pagefind/de/wasm.unknown.pagefind": "57d4fe27f3ffba60b6746b3de22a5b62e73b660163591f3fc68801f4d4d0f020",
+    "pagefind/en/pagefind-worker.js": "a4586d02b7f3f57581bd3a0a3a226afaef59ee0bdc6557f8db5875947a0c32a5",
+    "pagefind/en/pagefind.js": "c35f1e36efcdf5b1ffba4dde41075205e263f0b54d563cb61ec1d08927e21e16",
+    "pagefind/en/wasm.en.pagefind": "888b8a2cdf0d030ca5539f78110147c692d446ef6fb4b93ef9aeba948ac3e9fe",
+    "pagefind/en/wasm.unknown.pagefind": "57d4fe27f3ffba60b6746b3de22a5b62e73b660163591f3fc68801f4d4d0f020"
+  },
+  "dependencies": [
+    {
+      "name": "bit-set",
+      "version": "0.10.0",
+      "license": "Apache-2.0 OR MIT",
+      "sha256": "09ec2f926cc3060f09db9ebc5b52823d85268d24bb917e472c0c4bea35780a7d"
+    },
+    {
+      "name": "bit-vec",
+      "version": "0.9.1",
+      "license": "Apache-2.0 OR MIT",
+      "sha256": "b71798fca2c1fe1086445a7258a4bc81e6e49dcd24c8d0dd9a1e57395b603f51"
+    },
+    {
+      "name": "bumpalo",
+      "version": "3.20.2",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "5d20789868f4b01b2f2caec9f5c4e0213b41e3e5702a50157d699ae31ced2fcb"
+    },
+    {
+      "name": "cfg-if",
+      "version": "1.0.4",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
+    },
+    {
+      "name": "minicbor",
+      "version": "2.2.1",
+      "license": "BlueOak-1.0.0",
+      "sha256": "e70eae6d4f18f7d76877fe7b13f0bc21f7c2b7239d2041c338335f7b388d0dd7"
+    },
+    {
+      "name": "once_cell",
+      "version": "1.21.4",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
+    },
+    {
+      "name": "pagefind_microjson",
+      "version": "0.1.4",
+      "license": "GPL-3.0-only",
+      "sha256": "8f97aa64cde14e78d6274c473f36cec98d401f0b583282055e953d2df907e210"
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.106",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934"
+    },
+    {
+      "name": "quote",
+      "version": "1.0.45",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924"
+    },
+    {
+      "name": "rustversion",
+      "version": "1.0.22",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
+    },
+    {
+      "name": "syn",
+      "version": "2.0.117",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99"
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.24",
+      "license": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "sha256": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
+    },
+    {
+      "name": "wasm-bindgen",
+      "version": "0.2.117",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "0551fc1bb415591e3372d0bc4780db7e587d84e2a7e79da121051c5c4b89d0b0"
+    },
+    {
+      "name": "wasm-bindgen-macro",
+      "version": "0.2.117",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "7fbdf9a35adf44786aecd5ff89b4563a90325f9da0923236f6104e603c7e86be"
+    },
+    {
+      "name": "wasm-bindgen-macro-support",
+      "version": "0.2.117",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "dca9693ef2bab6d4e6707234500350d8dad079eb508dca05530c85dc3a529ff2"
+    },
+    {
+      "name": "wasm-bindgen-shared",
+      "version": "0.2.117",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "39129a682a6d2d841b6c429d0c51e5cb0ed1a03829d8b3d1e69a011e62cb3d3b"
+    },
+    {
+      "name": "write-json",
+      "version": "0.1.4",
+      "license": "MIT OR Apache-2.0",
+      "sha256": "23f6174b2566cc4a74f95e1367ec343e7fa80c93cc8087f5c4a3d6a1088b2118"
+    }
+  ],
+  "recipeSha256": "f4bc41eca69ae79176b345c79429cb34d94067196f748f799d1a53f92486731d",
+  "licenses": {
+    "pagefind": "MIT",
+    "microjson": "GPL-3.0-only",
+    "gzJs": "MIT"
+  },
+  "legalReview": "pending; no publication approval",
+  "source": {
+    "path": "corresponding-source.tar.gz",
+    "sha256": "5c27691456fa0d239b3c194b2c5550d174ea1c34d6732b8f674c2f3f7cbf1c94"
+  }
+}

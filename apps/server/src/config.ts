@@ -3,7 +3,14 @@
 // mode is chosen explicitly: standalone mode grants every permission, so it
 // must never be the result of a missing setting.
 
+import { resolve } from "node:path";
+import {
+  assertPreviewAllowed,
+  type WebsiteMode,
+} from "@source-taster/website/metadata";
+
 export interface Config {
+  website?: { mode: WebsiteMode; directory: string };
   mode: "standalone";
   referenceLimit: number;
   databaseUrl: string;
@@ -37,8 +44,27 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   const databaseUrl = env.DATABASE_URL;
   if (!databaseUrl) throw new ConfigError("DATABASE_URL is not set.");
+  const websiteMode = env.SOURCE_TASTER_WEBSITE_MODE;
+  let website: Config["website"];
+  if (websiteMode) {
+    if (websiteMode !== "preview" && websiteMode !== "publication")
+      throw new ConfigError("Choose website preview or publication explicitly");
+    try {
+      assertPreviewAllowed(websiteMode, env.NODE_ENV);
+    } catch (error) {
+      throw new ConfigError((error as Error).message);
+    }
+    website = {
+      mode: websiteMode,
+      directory: resolve(
+        env.SOURCE_TASTER_WEBSITE_DIRECTORY ??
+          `../website/${websiteMode === "preview" ? "dist-preview" : "dist"}`,
+      ),
+    };
+  }
   return {
     mode,
+    website,
     referenceLimit: integer(env, "SOURCE_TASTER_REFERENCE_LIMIT", 1000, 1),
     databaseUrl,
     port: integer(env, "SOURCE_TASTER_PORT", 3100),

@@ -8,7 +8,9 @@ declare module "vitest" {
   }
 }
 export default async function setup(project: TestProject) {
-  const service = await startTestService(3101);
+  const service = await startTestService(
+    Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 3101),
+  );
   project.provide("apiUrl", service.apiUrl);
   return service.stop;
 }

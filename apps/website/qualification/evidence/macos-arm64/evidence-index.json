@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-27",
+  "platform": "aarch64-apple-darwin",
+  "receiptRecipeSha256": "f4bc41eca69ae79176b345c79429cb34d94067196f748f799d1a53f92486731d",
+  "sourceFingerprintSha256": "3fc394d3df748fb2cf083007ea8503520c6f04023324ca9f71a124ae39ea8d18",
+  "sourceFingerprintFiles": 102409,
+  "files": {
+    "build-receipt.json": {
+      "originalSha256": "f7a56f5dd006f3afe8a2e3ebd08b8980a4ba1c6206ff07e3e6a14058d07fcf59",
+      "retainedSha256": "f7a56f5dd006f3afe8a2e3ebd08b8980a4ba1c6206ff07e3e6a14058d07fcf59",
+      "source": ".tmp/pagefind/receipt.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "qualification.json": {
+      "originalSha256": "be593fb2ca03c96486aa8747a3c76a5fdb94a8461eae2cbf96b9eeba65f1f39f",
+      "retainedSha256": "be593fb2ca03c96486aa8747a3c76a5fdb94a8461eae2cbf96b9eeba65f1f39f",
+      "source": ".tmp/pagefind/evidence/qualification.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "controls.json": {
+      "originalSha256": "4c199536951f20bfd87efbbe6e431cd5eb81f6e0d420b09d195e8e933abe4b9c",
+      "retainedSha256": "4c199536951f20bfd87efbbe6e431cd5eb81f6e0d420b09d195e8e933abe4b9c",
+      "source": ".tmp/pagefind/evidence/controls.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "bundle.json": {
+      "originalSha256": "f8e6a6c6c972d3faefab75f09ad2ee834905ee78cb2db21234f911d0dd142281",
+      "retainedSha256": "f8e6a6c6c972d3faefab75f09ad2ee834905ee78cb2db21234f911d0dd142281",
+      "source": ".tmp/pagefind/bundle.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "audit-summary.json": {
+      "originalSha256": "67c0d8618a41f38fdbaed85eb1d58a51c04b8f3058b5a9a82eb27cc3e9fbf5a6",
+      "retainedSha256": "67c0d8618a41f38fdbaed85eb1d58a51c04b8f3058b5a9a82eb27cc3e9fbf5a6",
+      "source": ".tmp/audit/summary.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "advisory-dispositions.json": {
+      "originalSha256": "712d22e21de06f5bd1ee9c30b3a6aa2627e75a2568f01ec39da3d435b42fc2e2",
+      "retainedSha256": "712d22e21de06f5bd1ee9c30b3a6aa2627e75a2568f01ec39da3d435b42fc2e2",
+      "source": ".tmp/audit/website-dispositions.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "osv.json": {
+      "originalSha256": "fd6ead284e9323fa5b68e32ad75e8188f63aa57fc543c02a2fc43ccffa6ee1af",
+      "retainedSha256": "042fe1bbcf88256553d9f45ce3c9d75b093f742bab9ecf8edc310c811db6f9d6",
+      "source": ".tmp/audit/osv.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "npm-licenses.json": {
+      "originalSha256": "4db899b158b61aa3b39515fd18933a265050cbe6f6a82d83a01925e7516b0e4a",
+      "retainedSha256": "4db899b158b61aa3b39515fd18933a265050cbe6f6a82d83a01925e7516b0e4a",
+      "source": ".tmp/audit/licenses.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "browser-distribution.json": {
+      "originalSha256": "0e551e98f85f99becdd0d30285cace2d4908086f265c6c1fd4ae38b7484edc23",
+      "retainedSha256": "0e551e98f85f99becdd0d30285cace2d4908086f265c6c1fd4ae38b7484edc23",
+      "source": "apps/website/dist-preview/third-party/pagefind/manifest.json",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "compiler.tree.txt": {
+      "originalSha256": "53d3c52647e0a5406b74c4a6cc676997b1c954a7900c18fa61ad8d05fa4307ac",
+      "retainedSha256": "aba08bf775679a566c106be3950ef036ddd1831d203a0b92ac1b94bdd80869a0",
+      "source": ".tmp/pagefind/compiler.tree.txt",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "native.tree.txt": {
+      "originalSha256": "8eee2f60a941b99c9a5a15604cc558dc3cb072761b38424083ad848ce30fd480",
+      "retainedSha256": "2fa0a976a3891f37d4ed4fd250e4f441b3afdead45a713ff7eb6d3aae539dadb",
+      "source": ".tmp/pagefind/native.tree.txt",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "rolldown.tree.txt": {
+      "originalSha256": "91c20942a87af7ec09858a16e3852c2ef79bfb919cd8a8c0d87fe4a860381ca7",
+      "retainedSha256": "5596bcaf04aef712bfcf5fbd0938715b0a3ca709cf06e757aae8992585360ffa",
+      "source": ".tmp/pagefind/rolldown.tree.txt",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "satteri.tree.txt": {
+      "originalSha256": "e65d5eaf8bdd3773a27213ef17bbb3932713415ebf8ffc9c24cd892e076ce1db",
+      "retainedSha256": "5339bed21b89b6648b63da706bc1aa5d0680c41e53657dc6064c691460c810b8",
+      "source": ".tmp/pagefind/satteri.tree.txt",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "web-de.tree.txt": {
+      "originalSha256": "553b176aa6396d52878c223fa030b45a5eeff448b75df42bf83671fdf1662c93",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "source": ".tmp/pagefind/web-de.tree.txt",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "web-en.tree.txt": {
+      "originalSha256": "553b176aa6396d52878c223fa030b45a5eeff448b75df42bf83671fdf1662c93",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "source": ".tmp/pagefind/web-en.tree.txt",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "web-unknown.tree.txt": {
+      "originalSha256": "553b176aa6396d52878c223fa030b45a5eeff448b75df42bf83671fdf1662c93",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "source": ".tmp/pagefind/web-unknown.tree.txt",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "native-loads.jsonl": {
+      "originalSha256": "47b3d19d5966292653159dd364df2e745de7e9e52a4a095df70e38e744c2d98c",
+      "retainedSha256": "3ebfb32ceaefa2fd1e064bcc6c502ebd6298f28e2e9b717d31a23c71c0951686",
+      "source": ".tmp/pagefind/native-loads.jsonl",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "bundle-loads.jsonl": {
+      "originalSha256": "2b91f8fbbd3ca1a29c667a491d858082ecad77e2927cc6d2e087d277cde720d1",
+      "retainedSha256": "86d9035a7e961251e61ddf14f5155d9f04d5e93aaa321b30cfdb720a2569aa20",
+      "source": ".tmp/pagefind/bundle-loads.jsonl",
+      "normalization": "absolute checkout prefix replaced by /workspace/source-taster; all other bytes retained"
+    }
+  },
+  "status": "Technical behavior and reproduction controls pass. Qualification blocked on 19 native license-policy entries; publication remains unapproved. Bootstrap/toolchain limitations remain explicit."
+}

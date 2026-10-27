@@ -1,0 +1,15 @@
+{
+  "language": "en",
+  "id": "terms",
+  "version": "draft-2026-10-26.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Terms",
+  "summary": "Draft structure for the terms, not a contract offer.",
+  "paragraphs": [
+    "This is a legal-content draft, version draft-2026-10-26.1. No legally approved terms or seller details are available. This preview offers no paid service and cannot conclude an Order.",
+    "The eventual terms must accurately identify the contracting party, available service scope and limitations, applicable language, prices, taxes, Quotas, validity, payment and activation rules. These matters are not supplied by this draft.",
+    "The eventual purchase flow must reference immutable approved terms and consent versions. Replacing a website page must not rewrite an earlier Order’s accepted documents.",
+    "Cancellation, withdrawal, liability, consumer rights and dispute-resolution wording need specialist legal review. A link to these draft terms is not a statutory cancellation or withdrawal function."
+  ]
+}

@@ -69,3 +69,30 @@ for (const language of ["en", "de"] as const) {
     ).toEqual([]);
   });
 }
+
+test("Check and Structuring show a safe localized Problem for a non-JSON server failure", async ({
+  page,
+}) => {
+  await page.route("**/v1/checks", (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: "text/html",
+      body: "upstream unavailable",
+    }),
+  );
+  await page.route("**/v1/structurings", (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: "text/html",
+      body: "upstream unavailable",
+    }),
+  );
+  await page.goto("/");
+  await page.getByRole("textbox").fill("Doe, J. (2020). A study.");
+  for (const name of ["Structure References", "Check Reference"]) {
+    await page.getByRole("button", { name, exact: true }).click();
+    await expect(page.getByRole("alert")).toContainText(
+      "Something went wrong. Please try again.",
+    );
+  }
+});

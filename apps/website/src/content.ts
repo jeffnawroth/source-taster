@@ -1,0 +1,340 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+import type { Language } from "./metadata.ts";
+export { languages, type Language } from "./metadata.ts";
+export const copy = {
+  en: {
+    home: "Home",
+    docs: "Documentation",
+    faq: "FAQ",
+    contact: "Contact",
+    search: "Search documentation",
+    submit: "Search",
+    empty: "No matching pages. Try another word.",
+    loading: "Searching…",
+    failure: "Search could not load. Try again or use the documentation links.",
+    results: "Search results",
+    prompt: "Enter a word to search this language’s public documentation.",
+    skip: "Skip to content",
+    nav: "Main navigation",
+    legal: "Legal information",
+    draft: "Local preview · Content draft v0.1 · Not approved for publication",
+    privacy: "Privacy policy",
+    terms: "Terms",
+    withdrawal: "Withdrawal instructions",
+    notice: "Legal notice",
+    accessibility: "Accessibility",
+    how: "How the check works",
+    retry: "Errors and retrying",
+    limitations: "Availability and limits",
+    preferences: "Language and citation style",
+    searchPrivacy:
+      "Search runs in your browser. Queries are not sent to a server or saved.",
+    noScript:
+      "Search needs JavaScript. All documentation is also linked below.",
+    version: "Document version",
+    pending: "Draft — legal approval pending",
+  },
+  de: {
+    home: "Startseite",
+    docs: "Dokumentation",
+    faq: "Häufige Fragen",
+    contact: "Kontakt",
+    search: "Dokumentation durchsuchen",
+    submit: "Suchen",
+    empty: "Keine passenden Seiten. Versuchen Sie ein anderes Wort.",
+    loading: "Suche läuft…",
+    failure:
+      "Die Suche konnte nicht geladen werden. Versuchen Sie es erneut oder nutzen Sie die Dokumentationslinks.",
+    results: "Suchergebnisse",
+    prompt:
+      "Geben Sie ein Wort ein, um die öffentliche Dokumentation in dieser Sprache zu durchsuchen.",
+    skip: "Zum Inhalt",
+    nav: "Hauptnavigation",
+    legal: "Rechtliche Informationen",
+    draft:
+      "Lokale Vorschau · Inhaltsentwurf v0.1 · Nicht zur Veröffentlichung freigegeben",
+    privacy: "Datenschutzerklärung",
+    terms: "Nutzungsbedingungen",
+    withdrawal: "Widerrufsbelehrung",
+    notice: "Impressum",
+    accessibility: "Barrierefreiheit",
+    how: "So funktioniert die Prüfung",
+    retry: "Fehler und erneute Versuche",
+    limitations: "Verfügbarkeit und Grenzen",
+    preferences: "Sprache und Zitierstil",
+    searchPrivacy:
+      "Die Suche läuft in Ihrem Browser. Suchbegriffe werden weder an einen Server gesendet noch gespeichert.",
+    noScript:
+      "Die Suche benötigt JavaScript. Alle Dokumentationsseiten sind auch unten verlinkt.",
+    version: "Dokumentversion",
+    pending: "Entwurf — rechtliche Freigabe ausstehend",
+  },
+} satisfies Record<Language, Record<string, string>>;
+export type Page = {
+  id: string;
+  section: "site" | "docs";
+  title: string;
+  summary: string;
+  paragraphs: string[];
+  claim?: string;
+};
+export const pages: Record<Language, Page[]> = {
+  en: [
+    {
+      id: "home",
+      section: "site",
+      title: "References deserve a closer look",
+      summary:
+        "Source Taster is being built to help people examine academic references.",
+      paragraphs: [
+        "This preview introduces the current development version. It is not a public checking service. No account registration or purchase is available here.",
+        "Read the documentation for what the current local version does and where it stops. Human review remains essential.",
+      ],
+      claim: "availability",
+    },
+    {
+      id: "index",
+      section: "docs",
+      title: "Documentation",
+      summary: "Start with the current version’s capabilities and limits.",
+      paragraphs: [
+        "This documentation describes the local development skeleton, not the completed launch product.",
+        "Choose a guide below. Help and legal pages are public information: they do not require sign-in and never need your references.",
+      ],
+      claim: "help",
+    },
+    {
+      id: "how-the-check-works",
+      section: "docs",
+      title: "How the check works",
+      summary: "Understand the distinction between progress and evidence.",
+      paragraphs: [
+        "The current local skeleton accepts text with one reference on each line, shows progress, and ends with the Status ‘Not checked’. It does not search Data sources, calculate Scores or produce Verdicts or Correction suggestions. The separate Structuring preview shows recognized fields but does not start a Check.",
+        "A Status describes progress or an incomplete check. A Verdict describes a fully checked reference. A Verdict is not proof of deception. A human makes the decision and must review the underlying evidence.",
+        "Do not use this development version to decide whether a source exists or whether a person fabricated a reference.",
+      ],
+      claim: "skeleton",
+    },
+    {
+      id: "structuring",
+      section: "docs",
+      title: "Structuring References",
+      summary:
+        "Preview how a pasted bibliography is split into References and fields.",
+      paragraphs: [
+        "In the web workspace, Structure References splits pasted author-date References in APA, Harvard, Chicago author-date and MLA layouts into fields such as authors, year, title, journal and identifiers. It keeps the original text of every Reference and lists text it did not recognize as a Reference.",
+        "Fields are shown exactly as written; uncertain fields stay empty. Structuring consumes no Quota, and the Sources have not been verified: it does not search Data sources and produces no Verdict.",
+        "Other citation styles, file uploads, bibliography detection in whole documents, field editing and AI extraction are not available yet. At most 1,000 References can be structured at once; split longer lists.",
+      ],
+      claim: "structuring",
+    },
+    {
+      id: "preferences",
+      section: "docs",
+      title: "Language and citation style",
+      summary:
+        "Choose German or English and a preferred citation style in the web workspace.",
+      paragraphs: [
+        "The web workspace lets a Guest choose the interface language and preferred citation style. These Preferences are saved locally in that browser. They are not shared with this information site or another client.",
+        "Changing Preferences does not change an existing Check. A citation-style preference does not mean that this skeleton already generates formatted references.",
+        "On this site, language is selected by the URL. The language link opens the corresponding page; no language cookie is stored.",
+      ],
+      claim: "preferences",
+    },
+    {
+      id: "errors-and-retry",
+      section: "docs",
+      title: "Errors and retrying",
+      summary: "What to do when the local workspace cannot continue.",
+      paragraphs: [
+        "If the workspace reports a connection error, check that the local verification API is running. Do not repeatedly submit the same input while a Check is still running.",
+        "A disconnected progress display does not prove that a Check stopped. While the page stays open, the workspace automatically reconnects after a dropped progress stream and resumes after the last received event. A permanent client error stops retries. Cancellation is not available. Reloading can lose the displayed Check; retained History is not yet available.",
+        "If no Check started, you may submit the input again after the connection is restored. Do not include reference text or credentials in a support request unless a separately reviewed support process explicitly asks for it.",
+      ],
+      claim: "errors",
+    },
+    {
+      id: "availability",
+      section: "docs",
+      title: "Availability and limits",
+      summary: "What is available in this development wave.",
+      paragraphs: [
+        "There is no public service or extension download in this preview. The local workspace is a development skeleton. Source checking, file imports, AI extraction, exports and Verification reports are not available.",
+        "Hosted Accounts, paid Plans, purchases, Quota enforcement and retained History are not available here. No price, measured accuracy, completion-time guarantee or quality certification is offered.",
+        "No consent-based History retention or expiry workflow is implemented in this version. Do not treat local development storage as a production retention policy.",
+      ],
+      claim: "availability",
+    },
+    {
+      id: "faq",
+      section: "site",
+      title: "Frequently asked questions",
+      summary: "Answers for this preview.",
+      paragraphs: [
+        "Can I check my bibliography here? No. This is an information preview; the local workspace can preview Structuring, and a Check currently ends with ‘Not checked’.",
+        "Does a Verdict establish misconduct? No. Even a completed future Check needs human review of its evidence.",
+        "Where does a documentation search go? It runs locally in your browser over a public index for the selected language. Do not enter private material into a public documentation search.",
+        "Can I buy a Plan or install the extension? Neither is available in this wave. The documentation states the actual limits.",
+      ],
+      claim: "faq",
+    },
+    {
+      id: "contact",
+      section: "site",
+      title: "Contact",
+      summary: "Support is not yet open.",
+      paragraphs: [
+        "The domain, monitored support address and mailbox provider have not been selected. No working support address or response-time promise can be published yet.",
+        "Please do not send manuscripts, references, document titles, account secrets or search queries. Help links attach none of these details. There is no contact form, chat or automatic attachment.",
+        "The intended support policy deletes conversations 12 months after the last message. Specific billing or legal evidence may require separately allocated retention. Final legal review must confirm the periods, mailbox backups and deletion process.",
+      ],
+      claim: "support",
+    },
+    {
+      id: "accessibility",
+      section: "site",
+      title: "Accessibility",
+      summary: "A draft statement based on limited automated checks.",
+      paragraphs: [
+        "This site is designed for keyboard use, visible focus, readable contrast, labelled search and a same-page language switch. Automated accessibility tests cover the built pages and search states.",
+        "A WCAG 2.2 AA self-assessment, screen-reader review and supported-browser qualification are still pending. Automated checks alone do not establish conformance or certification.",
+        "A monitored support address for reporting barriers is not available yet. Publication is blocked until it and the reviewed statement are ready.",
+      ],
+      claim: "accessibility",
+    },
+  ],
+  de: [
+    {
+      id: "home",
+      section: "site",
+      title: "Referenzen verdienen einen genaueren Blick",
+      summary:
+        "Source Taster entsteht, um Menschen bei der Prüfung wissenschaftlicher Referenzen zu unterstützen.",
+      paragraphs: [
+        "Diese Vorschau stellt den aktuellen Entwicklungsstand vor. Sie ist kein öffentlicher Prüfdienst. Registrierung und Kauf sind hier nicht verfügbar.",
+        "Die Dokumentation erklärt, was die aktuelle lokale Version leistet und wo ihre Grenzen liegen. Eine menschliche Prüfung bleibt unverzichtbar.",
+      ],
+      claim: "availability",
+    },
+    {
+      id: "index",
+      section: "docs",
+      title: "Dokumentation",
+      summary:
+        "Beginnen Sie mit den Möglichkeiten und Grenzen der aktuellen Version.",
+      paragraphs: [
+        "Diese Dokumentation beschreibt das lokale Entwicklungsgerüst, nicht das fertige Produkt zum Marktstart.",
+        "Wählen Sie unten eine Anleitung. Hilfe und rechtliche Seiten sind öffentliche Informationen: Sie erfordern keine Anmeldung und benötigen niemals Ihre Referenzen.",
+      ],
+      claim: "help",
+    },
+    {
+      id: "how-the-check-works",
+      section: "docs",
+      title: "So funktioniert die Prüfung",
+      summary: "Fortschritt und Belege sind unterschiedliche Dinge.",
+      paragraphs: [
+        "Das aktuelle lokale Entwicklungsgerüst nimmt Text mit einer Referenz pro Zeile an, zeigt den Fortschritt und endet mit dem Status ‚Nicht geprüft‘. Es durchsucht keine Datenquellen, berechnet keine Scores und erzeugt weder Urteile noch Korrekturvorschläge. Die gesonderte Strukturierungsvorschau zeigt erkannte Felder, startet aber keine Prüfung.",
+        "Ein Status beschreibt den Fortschritt oder eine unvollständige Prüfung. Ein Urteil beschreibt eine vollständig geprüfte Referenz. Ein Urteil ist kein Beweis für Täuschung. Ein Mensch entscheidet und muss die zugrunde liegenden Belege prüfen.",
+        "Verwenden Sie diese Entwicklungsversion nicht, um über die Existenz einer Quelle oder eine erfundene Referenz zu entscheiden.",
+      ],
+      claim: "skeleton",
+    },
+    {
+      id: "structuring",
+      section: "docs",
+      title: "Referenzen strukturieren",
+      summary:
+        "Vorschau, wie ein eingefügtes Literaturverzeichnis in Referenzen und Felder zerlegt wird.",
+      paragraphs: [
+        "Im Web-Arbeitsbereich zerlegt „Referenzen strukturieren“ eingefügte Autor-Jahr-Referenzen in den Layouts APA, Harvard, Chicago (Autor-Jahr) und MLA in Felder wie Autoren, Jahr, Titel, Zeitschrift und Kennungen. Der Originaltext jeder Referenz bleibt erhalten; nicht als Referenz erkannter Text wird gesondert aufgeführt.",
+        "Felder werden genau wie eingegeben angezeigt; unsichere Felder bleiben leer. Strukturieren verbraucht kein Kontingent, und die Quellen wurden nicht geprüft: Es werden keine Datenquellen durchsucht und kein Urteil erzeugt.",
+        "Weitere Zitierstile, Datei-Uploads, die Erkennung von Literaturverzeichnissen in ganzen Dokumenten, das Bearbeiten von Feldern und KI-Extraktion sind noch nicht verfügbar. Höchstens 1.000 Referenzen können gleichzeitig strukturiert werden; teilen Sie längere Listen auf.",
+      ],
+      claim: "structuring",
+    },
+    {
+      id: "preferences",
+      section: "docs",
+      title: "Sprache und Zitierstil",
+      summary:
+        "Wählen Sie Deutsch oder Englisch und einen bevorzugten Zitierstil im Web-Arbeitsbereich.",
+      paragraphs: [
+        "Im Web-Arbeitsbereich kann ein Gast die Oberflächensprache und den bevorzugten Zitierstil wählen. Diese Einstellungen werden lokal in diesem Browser gespeichert. Sie werden nicht mit dieser Informationsseite oder anderen Clients geteilt.",
+        "Das Ändern der Einstellungen verändert keine bestehende Prüfung. Ein bevorzugter Zitierstil bedeutet nicht, dass dieses Entwicklungsgerüst bereits formatierte Referenzen erzeugt.",
+        "Auf dieser Website bestimmt die URL die Sprache. Der Sprachlink öffnet die entsprechende Seite; es wird kein Sprachcookie gespeichert.",
+      ],
+      claim: "preferences",
+    },
+    {
+      id: "errors-and-retry",
+      section: "docs",
+      title: "Fehler und erneute Versuche",
+      summary: "Wenn der lokale Arbeitsbereich nicht fortfahren kann.",
+      paragraphs: [
+        "Meldet der Arbeitsbereich einen Verbindungsfehler, prüfen Sie, ob die lokale Prüf-API läuft. Senden Sie dieselbe Eingabe nicht wiederholt, solange eine Prüfung läuft.",
+        "Eine unterbrochene Fortschrittsanzeige beweist nicht, dass die Prüfung beendet ist. Solange die Seite geöffnet bleibt, verbindet sich der Arbeitsbereich nach einem unterbrochenen Fortschrittsstrom automatisch erneut und setzt nach dem zuletzt empfangenen Ereignis fort. Bei einem dauerhaften Clientfehler enden die Wiederholungen. Ein Abbruch ist nicht verfügbar. Beim Neuladen kann die angezeigte Prüfung verloren gehen; ein gespeicherter Verlauf ist noch nicht verfügbar.",
+        "Wenn keine Prüfung gestartet wurde, können Sie die Eingabe nach Wiederherstellung der Verbindung erneut senden. Fügen Sie einer Supportanfrage weder Referenzen noch Zugangsdaten bei, außer ein gesondert geprüfter Supportprozess fordert ausdrücklich dazu auf.",
+      ],
+      claim: "errors",
+    },
+    {
+      id: "availability",
+      section: "docs",
+      title: "Verfügbarkeit und Grenzen",
+      summary: "Was in dieser Entwicklungswelle verfügbar ist.",
+      paragraphs: [
+        "Diese Vorschau enthält weder einen öffentlichen Dienst noch einen Erweiterungsdownload. Der lokale Arbeitsbereich ist ein Entwicklungsgerüst. Quellenprüfung, Dateiimport, KI-Extraktion, Exporte und Prüfberichte sind nicht verfügbar.",
+        "Gehostete Konten, kostenpflichtige Pläne, Käufe, Kontingentdurchsetzung und ein gespeicherter Verlauf sind hier nicht verfügbar. Es gibt keine Preiszusage, gemessene Genauigkeit, garantierte Fertigstellungszeit oder Qualitätszertifizierung.",
+        "Ein einwilligungsbasierter Verlauf mit Aufbewahrung und Ablauf ist in dieser Version nicht implementiert. Lokale Entwicklungsspeicherung ist keine produktive Aufbewahrungsrichtlinie.",
+      ],
+      claim: "availability",
+    },
+    {
+      id: "faq",
+      section: "site",
+      title: "Häufige Fragen",
+      summary: "Antworten zu dieser Vorschau.",
+      paragraphs: [
+        "Kann ich hier mein Literaturverzeichnis prüfen? Nein. Dies ist eine Informationsvorschau; der lokale Arbeitsbereich kann die Strukturierung vorab zeigen, und eine Prüfung endet derzeit mit ‚Nicht geprüft‘.",
+        "Belegt ein Urteil wissenschaftliches Fehlverhalten? Nein. Auch eine künftige vollständige Prüfung erfordert eine menschliche Bewertung der Belege.",
+        "Wohin geht eine Dokumentationssuche? Sie läuft lokal in Ihrem Browser über einen öffentlichen Index der gewählten Sprache. Geben Sie keine privaten Inhalte in eine öffentliche Dokumentationssuche ein.",
+        "Kann ich einen Plan kaufen oder die Erweiterung installieren? Beides ist in dieser Welle nicht verfügbar. Die Dokumentation nennt die tatsächlichen Grenzen.",
+      ],
+      claim: "faq",
+    },
+    {
+      id: "contact",
+      section: "site",
+      title: "Kontakt",
+      summary: "Der Support ist noch nicht eröffnet.",
+      paragraphs: [
+        "Domain, überwachte Supportadresse und Postfachanbieter sind noch nicht ausgewählt. Eine funktionierende Supportadresse oder Antwortfrist kann noch nicht veröffentlicht werden.",
+        "Bitte senden Sie keine Manuskripte, Referenzen, Dokumenttitel, Kontogeheimnisse oder Suchbegriffe. Hilfelinks übermitteln keine dieser Angaben. Es gibt kein Kontaktformular, keinen Chat und keinen automatischen Anhang.",
+        "Die vorgesehene Supportrichtlinie löscht Unterhaltungen zwölf Monate nach der letzten Nachricht. Bestimmte Belege für Abrechnung oder Rechtsansprüche können eine gesonderte Aufbewahrung erfordern. Die abschließende rechtliche Prüfung muss Fristen, Postfachsicherungen und Löschverfahren bestätigen.",
+      ],
+      claim: "support",
+    },
+    {
+      id: "accessibility",
+      section: "site",
+      title: "Barrierefreiheit",
+      summary:
+        "Ein Erklärungsentwurf auf Basis begrenzter automatisierter Prüfungen.",
+      paragraphs: [
+        "Die Website ist für Tastaturbedienung, sichtbaren Fokus, lesbare Kontraste, eine beschriftete Suche und einen Sprachwechsel zur entsprechenden Seite gestaltet. Automatisierte Barrierefreiheitstests decken die gebauten Seiten und Suchzustände ab.",
+        "Eine Selbsteinschätzung nach WCAG 2.2 AA, eine Screenreader-Prüfung und die Qualifikation unterstützter Browser stehen noch aus. Automatisierte Prüfungen allein belegen weder Konformität noch Zertifizierung.",
+        "Eine überwachte Supportadresse zum Melden von Barrieren ist noch nicht verfügbar. Die Veröffentlichung ist gesperrt, bis diese und die geprüfte Erklärung vorliegen.",
+      ],
+      claim: "accessibility",
+    },
+  ],
+};
+export function pathFor(
+  language: Language,
+  page: Pick<Page, "id" | "section">,
+) {
+  return page.section === "docs"
+    ? `/docs/${language}/${page.id === "index" ? "" : `${page.id}/`}`
+    : `/${language}/${page.id === "home" ? "" : `${page.id}/`}`;
+}

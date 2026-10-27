@@ -1,0 +1,17 @@
+{
+  "language": "en",
+  "id": "privacy",
+  "version": "draft-2026-10-26.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Privacy policy",
+  "summary": "Draft description of this information site and the intended support policy.",
+  "paragraphs": [
+    "This is a legal-content draft, version draft-2026-10-26.1. The responsible controller, contact address, legal bases, recipient register and final retention allocation require legal approval before publication.",
+    "This information site has no analytics, third-party embeds, remote fonts, sign-in or contact form. It sets no cookies and does not save language or search queries. Language is selected by URL; documentation search processes queries in the browser and requests only locally hosted public search assets.",
+    "The hosting provider necessarily handles network requests. The actual provider access logs, security records, deletion periods, processor terms, locations and backup practices must be qualified; this draft does not promise that no server processes an IP address.",
+    "The separate web workspace saves Guest language and citation-style Preferences in its own browser storage. This site neither reads nor writes those Preferences. Future Account, payment and verification processing needs its own accurate disclosures before activation.",
+    "No support mailbox is active. The intended policy deletes support conversations 12 months after their last message. Specific billing or legal evidence follows its own reviewed retention allocation. Mailbox location, backups, deletion and the provider register still need review.",
+    "Before publication, supply the real controller and privacy contact, applicable purposes and legal bases, all actual recipients and transfer safeguards, retention and backup periods, data-subject rights and the competent supervisory authority. Do not send references or private documents with a support request."
+  ]
+}
