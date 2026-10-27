@@ -57,12 +57,19 @@ export function loadHostedSettings(path: string | undefined): HostedSettings {
   const own = createPublicKey(
     createPrivateKey(settings.internalKey.pem),
   ).export({ format: "jwk" });
-  if (
-    new Set(settings.serviceInternalJwks.keys.map((k) => k.kid)).size !==
-      settings.serviceInternalJwks.keys.length ||
-    settings.serviceInternalJwks.keys.some((k) => k.x === own.x)
-  )
-    throw new Error("Distinct peer keys and unique key IDs required");
+  function peerKeys(document: unknown): PublicJwks {
+    const keys = PublicJwks.parse(document);
+    if (
+      !keys.keys.length ||
+      new Set(keys.keys.map((k) => k.kid)).size !== keys.keys.length ||
+      keys.keys.some((k) => decodePart(k.x).length !== 32 || k.x === own.x)
+    )
+      throw new Error(
+        "Distinct canonical peer keys and unique key IDs required",
+      );
+    return keys;
+  }
+  peerKeys(settings.serviceInternalJwks);
   // Internal trust is configured public material, re-read on every assertion.
   // Atomic file replacement permits overlap/removal without an unbounded cache.
   return Object.assign(settings, {
@@ -70,14 +77,7 @@ export function loadHostedSettings(path: string | undefined): HostedSettings {
       const file = JSON.parse(readFileSync(path, "utf8")) as {
         serviceInternalJwks: unknown;
       };
-      const keys = PublicJwks.parse(file.serviceInternalJwks);
-      if (
-        !keys.keys.length ||
-        new Set(keys.keys.map((k) => k.kid)).size !== keys.keys.length ||
-        keys.keys.some((k) => k.x === own.x)
-      )
-        throw new Error("Invalid internal trust");
-      return keys;
+      return peerKeys(file.serviceInternalJwks);
     },
   });
 }

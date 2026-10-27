@@ -971,6 +971,98 @@ test("internal trust rotation removes old keys immediately and unknown keys neve
   expect((await call(both.verificationInternal.key)).status).toBe(401);
   expect((await call(newKey)).status).toBe(200);
 });
+test.each(["verification", "service-access", "service-internal"] as const)(
+  "%s rejects equivalent own-key JWK aliases at trust reload and startup",
+  async (receiver) => {
+    const { createHash, createPrivateKey, sign, randomUUID } =
+      await import("node:crypto");
+    const { readFile, writeFile } = await import("node:fs/promises");
+    const both = await bothPrograms({ startWorker: false });
+    cleanup.push(both.stop);
+    const guest = await both.issue();
+    const claims = JSON.parse(
+      Buffer.from(guest.token.split(".")[1]!, "base64url").toString(),
+    ) as { sub: string; ownerId: string; guestContextId: string };
+    const verification = receiver === "verification";
+    const own = verification
+      ? both.verificationInternal
+      : receiver === "service-access"
+        ? both.access
+        : both.serviceInternal;
+    const peer = verification
+      ? both.serviceInternal
+      : both.verificationInternal;
+    const path = verification
+      ? "/internal/guest-authority/invalidate"
+      : "/internal/guest-authority";
+    const body = JSON.stringify({
+      actorId: claims.sub,
+      ownerId: claims.ownerId,
+      guestContextId: claims.guestContextId,
+      ...(verification
+        ? { version: 1, cancelWork: false }
+        : { permission: "check:read", kind: "request" }),
+    });
+    const iat = Math.floor(both.now() / 1000);
+    const call = (key: { pem: string; kid: string }) => {
+      const header = Buffer.from(
+        JSON.stringify({ alg: "EdDSA", typ: "service+jwt", kid: key.kid }),
+      ).toString("base64url");
+      const payload = Buffer.from(
+        JSON.stringify({
+          iss: verification
+            ? both.serviceConfig.issuer
+            : both.serviceConfig.verificationIssuer,
+          aud: verification
+            ? both.serviceConfig.verificationAudience
+            : both.serviceConfig.issuer,
+          purpose: verification ? "authority-invalidation" : "guest-authority",
+          iat,
+          nbf: iat,
+          exp: iat + 30,
+          jti: randomUUID(),
+          method: "POST",
+          path,
+          bodyHash: createHash("sha256").update(body).digest("base64url"),
+        }),
+      ).toString("base64url");
+      const message = `${header}.${payload}`;
+      const token = `${message}.${sign(null, Buffer.from(message), createPrivateKey(key.pem)).toString("base64url")}`;
+      return fetch(`${verification ? both.apiUrl : both.serviceUrl}${path}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body,
+      });
+    };
+    expect((await call(peer.key)).status).toBe(200);
+    // An Ed25519 x has two unused low bits in its final base64url character.
+    // Changing one preserves the decoded public key and signature verification.
+    const alphabet =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    const x = own.jwk.x!;
+    const alias = `${x.slice(0, -1)}${alphabet[alphabet.indexOf(x.at(-1)!) | 1]}`;
+    const configPath = verification
+      ? both.venv.SOURCE_TASTER_AUTH_CONFIG
+      : both.serviceConfigPath;
+    const config = JSON.parse(await readFile(configPath, "utf8")) as object;
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        ...config,
+        [verification ? "serviceInternalJwks" : "verificationJwks"]: {
+          keys: [{ ...own.jwk, x: alias, kid: "peer-alias" }],
+        },
+      }),
+    );
+    expect((await call({ ...own.key, kid: "peer-alias" })).status).toBe(401);
+    await expect(
+      verification ? both.restartWeb() : both.restartService(),
+    ).rejects.toThrow();
+  },
+);
 test("fetch SSE renews an expired token for the same Guest and reconnects with its cursor and client version", async () => {
   const { verificationClient, watchCheckEvents } =
     await import("@source-taster/contract-verification/client");
