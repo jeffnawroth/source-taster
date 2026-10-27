@@ -27,7 +27,7 @@ pnpm --filter @source-taster/web dev
 
 Open the Vite URL (default port 5173). After `pnpm build`, Vite serves the marked website draft at `/docs/`, `/de/` and `/en/`, so the default help/legal links work locally. Vite binds loopback and production draft serving remains blocked. Vite proxies `/v1` to port 3100; set `SOURCE_TASTER_API_URL` to change the development target. Production builds are in `apps/web/dist` and `apps/server/dist`; run `start:web` and `start:worker` and serve the SPA with a same-origin `/v1` proxy. Both server processes must use the same database URL. `db:setup` provisions a dedicated verification role and the `verification` / `verification_boss` schemas; the app role has no database-wide CREATE privilege. No Redis is needed.
 
-Standalone is an **explicit** `SOURCE_TASTER_MODE=standalone` choice. It supplies one local Owner, every permission and no Quota (`quota: null`). Missing, unknown and hosted mode refuse startup. Hosted authorization and service connectivity are later slices; this build cannot accidentally grant standalone access to a hosted deployment.
+Standalone is an **explicit** `SOURCE_TASTER_MODE=standalone` choice. It supplies one local Owner, every permission and no Quota (`quota: null`). Missing and unknown modes refuse startup. Hosted authority is implemented, but deployable hosted startup remains closed until #94 supplies an eligible exact measurement; it never falls back to standalone. See the [Guest authority handoff](docs/implementation/96-guest-authority.md) for the source-only both-program harness and hosted web bootstrap.
 
 ## Workspace and contracts
 
@@ -67,7 +67,7 @@ OSV_SCANNER_BIN=/path/to/osv-scanner-2.7.0 pnpm audit:dependencies
 
 Tests create a random **database and role per run**, migrate them, run separate web and worker processes, and remove only those owned resources on teardown. They use the admin URL from `.env.example` by default. Override `DATABASE_ADMIN_URL` and `DATABASE_TEST_URL` for another PostgreSQL instance; the latter supplies host/password while the harness generates isolated names. Contract tests use port 3101; browser tests use 3102 and 5174. Do not run two copies on the same ports. Assertions use only HTTP/SSE schemas and browser behavior, with axe on the input and finished page in DE and EN.
 
-CI runs those checks on PostgreSQL 18 and Chromium, plus an offline OSV dependency scan on change and daily. See [dependency policy](docs/dependency-policy.md) for scope, license exceptions and remaining launch qualification. The full release/browser matrix, hosted service, cancellation/leases, content-retention sweeps and full source checking are later tickets. The DOI tracer is uncalibrated; production activation and `pnpm --filter @source-taster/server build:release` refuse it until #94 qualification.
+CI runs those checks on PostgreSQL 18 and Chromium, plus an offline OSV dependency scan on change and daily. See [dependency policy](docs/dependency-policy.md) for scope, license exceptions and remaining launch qualification. Check cancellation/leases and Guest current authority are implemented. The full release/native-browser matrix, Quota/abuse controls, content-retention sweeps and full source checking remain later work. The DOI tracer is uncalibrated; production activation and `pnpm --filter @source-taster/server build:release` refuse it until #94 qualification.
 
 For DOI development, set `SOURCE_TASTER_DOI_PREVIEW=uncalibrated` for both server
 processes. The API then binds loopback; `NODE_ENV=production` refuses this profile.
@@ -77,3 +77,12 @@ CSL fields with user provenance; it never pretends those fields were parsed from
 text. Invalid/unrecognized text must be reviewed in Structuring before checking.
 See [the DOI handoff](docs/implementation/74-doi-tracer.md) for exact tracer limits
 and the #81/#96 composition seams. Hosted mode and website publication stay closed.
+
+The [#96 Guest authority handoff](docs/implementation/96-guest-authority.md)
+documents identity storage, five-minute tokens, current request/output/worker
+authorization, versioned invalidation, exact transport pins and remaining gates.
+Run `pnpm --filter @source-taster/server test:authority` and
+`pnpm --filter @source-taster/web test:guest` with
+`SOURCE_TASTER_SERVICE_WORKTREE` pointing at an explicitly prepared private
+worktree. These additional real-process tests do not replace the normal pipeline
+or provide calibration/native-extension/launch qualification.

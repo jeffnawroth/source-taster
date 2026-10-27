@@ -18,7 +18,10 @@ export declare class ApiError extends Error {
     readonly problem: ProblemDetails | undefined;
     constructor(status: number, problem: ProblemDetails | undefined);
 }
+/** Called for every fetch/reconnect. Tokens must stay in memory. */
+export type CredentialSupplier = () => Promise<string>;
 export interface VerificationClientOptions {
+    credentials?: CredentialSupplier;
     baseUrl?: string;
     client?: string;
     fetch?: typeof globalThis.fetch;
@@ -672,6 +675,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
     }>;
 };
 export interface WatchCheckOptions {
+    credentials?: CredentialSupplier;
+    client?: string;
     /** Called once per event, in sequence order, without duplicates. */
     onEvent: (event: CheckEvent) => void;
     /** Origin of the API; defaults to same-origin relative URLs. */

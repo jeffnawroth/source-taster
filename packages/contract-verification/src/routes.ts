@@ -19,6 +19,13 @@ const problem = (description: string) => ({
   content: { [PROBLEM_CONTENT_TYPE]: { schema: ProblemDetails } },
 });
 
+const authorityProblems = {
+  401: problem("A valid, unexpired verification access token is required."),
+  403: problem("Current service authority denies the named permission."),
+  503: problem(
+    "Current authority or signing-key refresh is unavailable; no fallback.",
+  ),
+};
 export const createCheck = createRoute({
   method: "post",
   path: "/v1/checks",
@@ -30,6 +37,7 @@ export const createCheck = createRoute({
     },
   },
   responses: {
+    ...authorityProblems,
     201: {
       description:
         "Check created; one stable slot per recognized Reference. Explicit fields have user provenance. DOI verification is an opt-in uncalibrated local development preview.",
@@ -49,6 +57,7 @@ export const getCheck = createRoute({
   summary: "Read the current snapshot of a Check",
   request: { params: CheckParams },
   responses: {
+    ...authorityProblems,
     200: {
       description: "Current snapshot, including the newest event sequence.",
       content: { "application/json": { schema: CheckResponse } },
@@ -65,12 +74,13 @@ export const streamCheckEvents = createRoute({
   description:
     "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. " +
     "Send the Check-bound `Last-Event-ID` cursor to receive only later events. " +
-    "The stream closes after the event that ends the Check.",
+    "The stream closes after the event that ends the Check, or silently on expiry, current denial or authority outage. Every frame and heartbeat requires current authority.",
   request: {
     params: CheckParams,
     headers: z.object({ "last-event-id": z.string().optional() }),
   },
   responses: {
+    ...authorityProblems,
     200: {
       description: "text/event-stream of CheckEvent",
       content: { "text/event-stream": { schema: z.string() } },
@@ -93,6 +103,7 @@ export const structureReferences = createRoute({
     },
   },
   responses: {
+    ...authorityProblems,
     200: {
       description: "Recognized References, field provenance and rejected text.",
       content: { "application/json": { schema: StructuringResponse } },
@@ -111,6 +122,7 @@ export const cancelCheck = createRoute({
   summary: "Idempotently cancel a whole Check, retaining finished Verdicts",
   request: { params: CheckParams },
   responses: {
+    ...authorityProblems,
     200: {
       description: "Authoritative snapshot after cancellation",
       content: { "application/json": { schema: CheckResponse } },
@@ -127,6 +139,7 @@ export const renewCheckLease = createRoute({
   summary: "Renew the whole Check client lease; never revive ended work",
   request: { params: CheckParams },
   responses: {
+    ...authorityProblems,
     200: {
       description: "Authoritative snapshot; an expired lease ends the Check",
       content: { "application/json": { schema: CheckResponse } },

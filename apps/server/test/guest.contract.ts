@@ -1,0 +1,1074 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+import { once } from "node:events";
+import { afterEach, expect, test } from "vitest";
+import { CheckResponse } from "@source-taster/contract-verification";
+import { readSseFrames } from "@source-taster/contract-verification/client";
+import { bothPrograms } from "./support/both-programs.ts";
+import { physicsReference } from "./support/doi-fixtures.ts";
+const cleanup: (() => Promise<void>)[] = [];
+afterEach(async () => {
+  await Promise.all(cleanup.splice(0).map((f) => f()));
+});
+test("real Guest authority permits its own real DOI Check and denies foreign Guests", async () => {
+  const both = await bothPrograms();
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const response = await fetch(`${both.apiUrl}/v1/checks`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${guest.token}`,
+    },
+    body: JSON.stringify({ text: physicsReference }),
+  });
+  expect(response.status).toBe(201);
+  const check = CheckResponse.parse(await response.json()).data;
+  expect(check.references[0]?.originalText).toBe(physicsReference);
+  const stream = await fetch(`${both.apiUrl}/v1/checks/${check.id}/events`, {
+    headers: { authorization: `Bearer ${guest.token}` },
+    signal: AbortSignal.timeout(15000),
+  });
+  const events: unknown[] = [];
+  for await (const frame of readSseFrames(stream.body!))
+    events.push(JSON.parse(frame.data));
+  const snapshot = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks/${check.id}`, {
+        headers: { authorization: `Bearer ${guest.token}` },
+      })
+    ).json(),
+  ).data;
+  expect(snapshot.references[0]?.outcome).toMatchObject({
+    kind: "verdict",
+    verdict: "correct",
+    scoringRules: { calibration: "uncalibrated" },
+  });
+  expect(events.length).toBeGreaterThan(1);
+  const foreign = await both.issue();
+  expect(
+    (
+      await fetch(`${both.apiUrl}/v1/checks/${check.id}`, {
+        headers: { authorization: `Bearer ${foreign.token}` },
+      })
+    ).status,
+  ).toBe(404);
+});
+test("a still-signed Guest token loses protected access immediately after current revocation", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    "content-type": "application/json",
+    authorization: `Bearer ${guest.token}`,
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  const command = await both.change(guest.guestId, { revoke: true });
+  expect(command).toMatchObject({ completed: true });
+  const response = await fetch(`${both.apiUrl}/v1/structurings`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${guest.token}`,
+    },
+    body: JSON.stringify({ text: physicsReference }),
+  });
+  expect(response.status).toBe(403);
+  for (const [path, method] of [
+    [`/v1/checks/${created.id}`, "GET"],
+    [`/v1/checks/${created.id}/events`, "GET"],
+    [`/v1/checks/${created.id}/cancel`, "POST"],
+    [`/v1/checks/${created.id}/lease`, "POST"],
+    ["/v1/checks", "POST"],
+  ]) {
+    const denied = await fetch(`${both.apiUrl}${path}`, {
+      method,
+      headers,
+      ...(path === "/v1/checks"
+        ? { body: JSON.stringify({ text: physicsReference }) }
+        : {}),
+    });
+    expect(denied.status, path).toBe(403);
+  }
+});
+test("held old online allow cannot publish a snapshot after a drained revocation", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  const held = both.trap("check:read", "request", 2);
+  const pending = fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers });
+  await held.arrived;
+  expect(await both.change(guest.guestId, { revoke: true })).toMatchObject({
+    completed: true,
+  });
+  held.release();
+  const response = await pending;
+  expect(response.status).toBe(403);
+  expect(await response.text()).not.toContain("Aspelmeyer");
+  await both.restartWeb();
+  expect(
+    (await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })).status,
+  ).toBe(403);
+});
+test("extension-local capability keeps a separate persistent identity and uses actual service tokens", async () => {
+  const { extensionGuestIdentityStorage, guestCredentials } =
+    await import("../../../packages/ui/src/guest-identity.ts");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const values: Record<string, unknown> = {};
+  const local = {
+    get: (key: string) => Promise.resolve({ [key]: values[key] }),
+    set: (items: Record<string, unknown>) => {
+      Object.assign(values, items);
+      return Promise.resolve();
+    },
+  };
+  let serial = Promise.resolve();
+  const exclusive = <T>(operation: () => Promise<T>) => {
+    const result = serial.then(operation);
+    serial = result.then(
+      () => {},
+      () => {},
+    );
+    return result;
+  };
+  const storage = extensionGuestIdentityStorage(local, exclusive);
+  const first = guestCredentials({
+    storage,
+    client: "extension",
+    serviceUrl: both.serviceUrl,
+  });
+  const [a, b] = await Promise.all([first.credentials(), first.credentials()]);
+  expect(a).toBe(b);
+  const id = await storage.identity();
+  const reopened = guestCredentials({
+    storage: extensionGuestIdentityStorage(local, exclusive),
+    client: "extension",
+    serviceUrl: both.serviceUrl,
+  });
+  const next = await reopened.credentials();
+  const claims = (token: string) =>
+    JSON.parse(Buffer.from(token.split(".")[1]!, "base64url").toString()) as {
+      guestId: string;
+      sub: string;
+      client: string;
+    };
+  expect(claims(next)).toMatchObject({
+    guestId: id,
+    sub: claims(a).sub,
+    client: "extension",
+  });
+  const web = await both.issue();
+  expect(claims(web.token).guestId).not.toBe(id);
+  expect(JSON.stringify(values)).not.toContain(a);
+  expect(Object.keys(values)).toEqual(["source-taster-guest-id-v1"]);
+  const response = await fetch(`${both.apiUrl}/v1/structurings`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${next}`,
+    },
+    body: JSON.stringify({ text: physicsReference }),
+  });
+  expect(response.status).toBe(200);
+});
+test("actual 300-second expiry denies while authority allows; single-flight renewal preserves the Guest", async () => {
+  const { guestCredentials, extensionGuestIdentityStorage } =
+    await import("../../../packages/ui/src/guest-identity.ts");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  await both.advance(300_000);
+  const input = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ text: physicsReference }),
+  };
+  expect((await fetch(`${both.apiUrl}/v1/structurings`, input)).status).toBe(
+    401,
+  );
+  const renewed = await both.issue(guest.guestId);
+  const claim = (t: string) =>
+    JSON.parse(Buffer.from(t.split(".")[1]!, "base64url").toString()) as {
+      sub: string;
+      ownerId: string;
+      guestContextId: string;
+    };
+  expect(claim(renewed.token)).toMatchObject({
+    sub: claim(guest.token).sub,
+    ownerId: claim(guest.token).ownerId,
+    guestContextId: claim(guest.token).guestContextId,
+  });
+  expect(
+    (
+      await fetch(`${both.apiUrl}/v1/structurings`, {
+        ...input,
+        headers: { ...headers, authorization: `Bearer ${renewed.token}` },
+      })
+    ).status,
+  ).toBe(200);
+  const stored: Record<string, unknown> = {
+    "source-taster-guest-id-v1": guest.guestId,
+  };
+  let serial = Promise.resolve();
+  const storage = extensionGuestIdentityStorage(
+    {
+      get: (key) => Promise.resolve({ [key]: stored[key] }),
+      set: (data) => {
+        Object.assign(stored, data);
+        return Promise.resolve();
+      },
+    },
+    (operation) => {
+      const result = serial.then(operation);
+      serial = result.then(
+        () => {},
+        () => {},
+      );
+      return result;
+    },
+  );
+  const supplier = guestCredentials({
+    storage,
+    client: "web",
+    serviceUrl: both.serviceUrl,
+    now: both.now,
+  });
+  const issued = await Promise.all([
+    supplier.credentials(),
+    supplier.credentials(),
+    supplier.credentials(),
+  ]);
+  expect(issued.every((t) => t === issued[0])).toBe(true);
+});
+test("strict local JWT validation rejects malformed, substituted, wrong-purpose and invalid-time tokens", async () => {
+  const { sign, createPrivateKey, generateKeyPairSync, randomUUID } =
+    await import("node:crypto");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const original = JSON.parse(
+    Buffer.from(guest.token.split(".")[1]!, "base64url").toString(),
+  ) as Record<string, unknown>;
+  const wrong = generateKeyPairSync("ed25519").privateKey;
+  const signed = (
+    claims: Record<string, unknown>,
+    header: object = { typ: "at+jwt", alg: "EdDSA", kid: "access-1" },
+    key = createPrivateKey(both.access.key.pem),
+  ) => {
+    const a = Buffer.from(JSON.stringify(header)).toString("base64url"),
+      b = Buffer.from(JSON.stringify(claims)).toString("base64url");
+    return `${a}.${b}.${sign(null, Buffer.from(`${a}.${b}`), key).toString("base64url")}`;
+  };
+  for (const [name, token] of [
+    ["malformed", "bad.token"],
+    ["signature", signed(original, undefined, wrong)],
+    ["issuer", signed({ ...original, iss: "https://wrong.invalid" })],
+    ["audience", signed({ ...original, aud: "https://wrong.invalid" })],
+    [
+      "algorithm",
+      signed(original, { typ: "at+jwt", alg: "HS256", kid: "access-1" }),
+    ],
+    ["purpose", signed({ ...original, purpose: "authority-invalidation" })],
+    [
+      "expired",
+      signed({
+        ...original,
+        iat: Number(original.iat) - 301,
+        nbf: Number(original.iat) - 301,
+        exp: Number(original.exp) - 301,
+      }),
+    ],
+    [
+      "future",
+      signed({
+        ...original,
+        iat: Number(original.iat) + 10,
+        nbf: Number(original.iat) + 10,
+        exp: Number(original.exp) + 10,
+      }),
+    ],
+    ["binding", signed({ ...original, sub: randomUUID() })],
+    ["key", signed(original, { typ: "at+jwt", alg: "EdDSA", kid: "unknown" })],
+  ]) {
+    const response = await fetch(`${both.apiUrl}/v1/structurings`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ text: physicsReference }),
+    });
+    expect(response.status, name).toBe(name === "binding" ? 403 : 401);
+  }
+});
+test("access-key rotation is bounded and refresh outage fails closed", async () => {
+  const { generateKeyPairSync } = await import("node:crypto");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const call = (token: string) =>
+    fetch(`${both.apiUrl}/v1/structurings`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ text: physicsReference }),
+    });
+  expect((await call(guest.token)).status).toBe(200);
+  const key = generateKeyPairSync("ed25519");
+  await both.service().command({
+    accessKey: {
+      kid: "access-2",
+      pem: key.privateKey.export({ format: "pem", type: "pkcs8" }).toString(),
+    },
+  });
+  await both.advance(1100);
+  const rotated = await both.issue(guest.guestId);
+  expect((await call(rotated.token)).status).toBe(200);
+  expect((await call(guest.token)).status).toBe(401);
+  await both.advance(30_001);
+  await both.service().stop();
+  expect((await call(rotated.token)).status).toBe(503);
+});
+test("program assertions cannot be replaced by access JWTs or cross-purpose/body/audience assertions", async () => {
+  const { createHash, createPrivateKey, sign, randomUUID } =
+    await import("node:crypto");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const guestClaims = JSON.parse(
+    Buffer.from(guest.token.split(".")[1]!, "base64url").toString(),
+  ) as { sub: string; ownerId: string; guestContextId: string };
+  const body = JSON.stringify({
+    ownerId: guestClaims.ownerId,
+    actorId: guestClaims.sub,
+    guestContextId: guestClaims.guestContextId,
+    permission: "check:read",
+    kind: "request",
+  });
+  const iat = Math.floor(both.now() / 1000);
+  const base = {
+    iss: both.serviceConfig.verificationIssuer,
+    aud: both.serviceConfig.issuer,
+    purpose: "guest-authority",
+    iat,
+    nbf: iat,
+    exp: iat + 30,
+    jti: randomUUID(),
+    method: "POST",
+    path: "/internal/guest-authority",
+    bodyHash: createHash("sha256").update(body).digest("base64url"),
+  };
+  const assertion = (claims: object, typ = "service+jwt") => {
+    const a = Buffer.from(
+        JSON.stringify({
+          alg: "EdDSA",
+          typ,
+          kid: both.verificationInternal.key.kid,
+        }),
+      ).toString("base64url"),
+      b = Buffer.from(JSON.stringify(claims)).toString("base64url");
+    return `${a}.${b}.${sign(null, Buffer.from(`${a}.${b}`), createPrivateKey(both.verificationInternal.key.pem)).toString("base64url")}`;
+  };
+  const call = (token: string) =>
+    fetch(`${both.serviceUrl}/internal/guest-authority`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body,
+    });
+  expect((await call(assertion(base))).status).toBe(200);
+  for (const token of [
+    guest.token,
+    assertion({ ...base, aud: "verification" }),
+    assertion({ ...base, iss: "https://wrong.invalid" }),
+    assertion({ ...base, purpose: "authority-invalidation" }),
+    assertion({ ...base, bodyHash: "wrong" }),
+    assertion({ ...base, exp: iat }),
+    assertion({ ...base, iat: iat + 1, nbf: iat + 1, exp: iat + 31 }),
+    assertion(base, "at+jwt"),
+  ])
+    expect((await call(token)).status).toBe(401);
+  expect(
+    (
+      await fetch(`${both.apiUrl}/internal/guest-authority/invalidate`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${guest.token}`,
+        },
+        body: JSON.stringify({
+          ownerId: guestClaims.ownerId,
+          actorId: guestClaims.sub,
+          guestContextId: guestClaims.guestContextId,
+          version: 2,
+          cancelWork: true,
+        }),
+      })
+    ).status,
+  ).toBe(401);
+});
+test("service outage before worker admission starts no work or progress publication", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  await both.service().stop();
+  const worker = both.worker();
+  await worker.ready;
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await worker.stop();
+  await both.restartService();
+  const snapshot = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })
+    ).json(),
+  ).data;
+  expect(snapshot.lastEventSeq).toBe(created.lastEventSeq);
+  expect(both.fixtures.requests).toHaveLength(0);
+});
+test("revocation between prefetched SSE frames drains output and reconnect is denied", async () => {
+  const both = await bothPrograms();
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  const { eventually } = await import("./support/both-programs.ts");
+  await eventually(
+    async () =>
+      CheckResponse.parse(
+        await (
+          await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })
+        ).json(),
+      ).data.state === "ended",
+  );
+  const held = both.trap("check:read", "request", 4);
+  const events: unknown[] = [];
+  const consume = (async () => {
+    const response = await fetch(
+      `${both.apiUrl}/v1/checks/${created.id}/events`,
+      { headers },
+    );
+    for await (const frame of readSseFrames(response.body!))
+      events.push(JSON.parse(frame.data));
+  })();
+  await held.arrived;
+  await eventually(() => events.length === 1);
+  expect(await both.change(guest.guestId, { revoke: true })).toMatchObject({
+    completed: true,
+  });
+  held.release();
+  await consume;
+  expect(events).toHaveLength(1);
+  expect(
+    (await fetch(`${both.apiUrl}/v1/checks/${created.id}/events`, { headers }))
+      .status,
+  ).toBe(403);
+});
+test("post-source old authority cannot commit a late Verdict across invalidation and restart", async () => {
+  const both = await bothPrograms();
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const source = both.fixtures.hold("/works/10.1038/nphys1170");
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  await source.arrived;
+  const held = both.trap("check:create", "work");
+  source.release();
+  await held.arrived;
+  const { Permission } = await import("@source-taster/contract-internal");
+  expect(
+    await both.change(guest.guestId, {
+      permissions: Permission.options.filter((p) => p !== "check:create"),
+    }),
+  ).toMatchObject({ completed: true });
+  held.release();
+  await both.restartWeb();
+  await both.restartService();
+  const snapshot = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })
+    ).json(),
+  ).data;
+  expect(snapshot.state).toBe("ended");
+  expect(snapshot.references[0]?.outcome).toEqual({
+    kind: "status",
+    status: "cancelled",
+  });
+  const cursor = snapshot.lastEventCursor;
+  const replay = await fetch(`${both.apiUrl}/v1/checks/${created.id}/events`, {
+    headers: { ...headers, "last-event-id": cursor },
+  });
+  expect(await replay.text()).toBe("");
+  expect(
+    (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).status,
+  ).toBe(403);
+});
+test("invalidation remains durably denied while callback is unavailable and retries after restart", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  await both.web().stop();
+  expect(
+    await both.change(
+      guest.guestId,
+      { permissions: ["check:read", "check:renew"] },
+      false,
+    ),
+  ).toMatchObject({ completed: false });
+  await both.restartService();
+  await both.restartWeb();
+  const { eventually } = await import("./support/both-programs.ts");
+  await eventually(
+    async () =>
+      (await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers }))
+        .status === 200,
+  );
+  const snapshot = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })
+    ).json(),
+  ).data;
+  expect(snapshot.references[0]?.outcome).toEqual({
+    kind: "status",
+    status: "cancelled",
+  });
+});
+test("permission removal while a real provider permit is occupied prevents the waiting dispatch", async () => {
+  const both = await bothPrograms();
+  cleanup.push(both.stop);
+  const a = await both.issue(),
+    b = await both.issue();
+  const create = async (token: string) =>
+    CheckResponse.parse(
+      await (
+        await fetch(`${both.apiUrl}/v1/checks`, {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${token}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ text: physicsReference }),
+        })
+      ).json(),
+    ).data;
+  const held = both.fixtures.hold("/works/10.1038/nphys1170");
+  await create(a.token);
+  await held.arrived;
+  const waiting = await create(b.token);
+  const { eventually } = await import("./support/both-programs.ts");
+  await eventually(
+    () =>
+      both.fixtures.requests.filter((r) => r.path.startsWith("/api/handles/"))
+        .length === 2,
+  );
+  const { Permission } = await import("@source-taster/contract-internal");
+  await both.change(b.guestId, {
+    permissions: Permission.options.filter((p) => p !== "check:create"),
+  });
+  held.release();
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  expect(
+    both.fixtures.requests.filter((r) => r.path.startsWith("/works/")),
+  ).toHaveLength(1);
+  const snapshot = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks/${waiting.id}`, {
+        headers: { authorization: `Bearer ${b.token}` },
+      })
+    ).json(),
+  ).data;
+  expect(snapshot.references[0]?.outcome).toEqual({
+    kind: "status",
+    status: "cancelled",
+  });
+});
+test("service failure during a provider Retry-After wait prevents retry and a late Verdict", async () => {
+  const both = await bothPrograms();
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  both.fixtures.respond(
+    "/works/10.1038/nphys1170",
+    429,
+    {},
+    { "retry-after": "1" },
+  );
+  const response = await fetch(`${both.apiUrl}/v1/checks`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${guest.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ text: physicsReference }),
+  });
+  const created = CheckResponse.parse(await response.json()).data;
+  const { eventually } = await import("./support/both-programs.ts");
+  await eventually(() =>
+    both.fixtures.requests.some((r) => r.path.startsWith("/works/")),
+  );
+  await both.service().stop();
+  await new Promise((resolve) => setTimeout(resolve, 1400));
+  expect(
+    both.fixtures.requests.filter((r) => r.path.startsWith("/works/")),
+  ).toHaveLength(1);
+  await both.restartService();
+  const snapshot = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks/${created.id}`, {
+        headers: { authorization: `Bearer ${guest.token}` },
+      })
+    ).json(),
+  ).data;
+  expect(snapshot.references[0]?.outcome.kind).toBe("status");
+});
+test("idle stream closes on current permission loss, stops lease renewal, and refuses reconnect", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  const response = await fetch(
+    `${both.apiUrl}/v1/checks/${created.id}/events`,
+    { headers },
+  );
+  const reader = response.body!.getReader();
+  const first = await reader.read();
+  expect(new TextDecoder().decode(first.value)).toContain("check.updated");
+  await both.change(guest.guestId, {
+    permissions: [
+      "check:create",
+      "check:cancel",
+      "check:renew",
+      "structuring:create",
+    ],
+  });
+  const next = await reader.read();
+  expect(next.done).toBe(true);
+  expect(
+    (await fetch(`${both.apiUrl}/v1/checks/${created.id}/events`, { headers }))
+      .status,
+  ).toBe(403);
+  // No stream-originated keepalive can prolong #81's client acknowledgement lease.
+  await both.advance(76000);
+  await both.change(guest.guestId, {
+    permissions: [
+      "check:create",
+      "check:read",
+      "check:cancel",
+      "check:renew",
+      "structuring:create",
+    ],
+  });
+  const snapshot = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })
+    ).json(),
+  ).data;
+  expect(snapshot.endReason).toBe("lease-expired");
+});
+test("reachable authority and valid Guests cannot activate the deployable unmeasured hosted program", async () => {
+  const { spawn } = await import("node:child_process");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  expect(
+    (
+      await fetch(`${both.apiUrl}/v1/structurings`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${guest.token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).status,
+  ).toBe(200);
+  for (const entry of [
+    "src/web.ts",
+    "src/worker.ts",
+    "dist/web.js",
+    "dist/worker.js",
+  ]) {
+    const child = spawn(process.execPath, [entry], {
+      cwd: new URL("..", import.meta.url),
+      env: {
+        PATH: process.env.PATH,
+        NODE_ENV: "test",
+        ...both.venv,
+        SOURCE_TASTER_MODE: "hosted",
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let output = "";
+    child.stdout.on("data", (b) => {
+      output += String(b);
+    });
+    child.stderr.on("data", (b) => {
+      output += String(b);
+    });
+    const [code] = (await once(child, "exit")) as [
+      number | null,
+      NodeJS.Signals | null,
+    ];
+    expect(code, entry).toBe(78);
+    expect(output, entry).toContain("Measured configuration");
+  }
+});
+for (const failure of ["outage", "expiry"] as const)
+  test(`idle SSE ${failure} closes without another frame or heartbeat`, async () => {
+    const both = await bothPrograms({ startWorker: false });
+    cleanup.push(both.stop);
+    const guest = await both.issue();
+    const headers = {
+      authorization: `Bearer ${guest.token}`,
+      "content-type": "application/json",
+    };
+    const created = CheckResponse.parse(
+      await (
+        await fetch(`${both.apiUrl}/v1/checks`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ text: physicsReference }),
+        })
+      ).json(),
+    ).data;
+    const response = await fetch(
+      `${both.apiUrl}/v1/checks/${created.id}/events`,
+      { headers },
+    );
+    const reader = response.body!.getReader();
+    expect(new TextDecoder().decode((await reader.read()).value)).toContain(
+      "check.updated",
+    );
+    if (failure === "outage") await both.service().stop();
+    else await both.advance(300_000);
+    expect((await reader.read()).done).toBe(true);
+    expect(
+      (
+        await fetch(`${both.apiUrl}/v1/checks/${created.id}/events`, {
+          headers,
+        })
+      ).status,
+    ).toBe(failure === "outage" ? 503 : 401);
+  });
+test("service loss before snapshot output denies protected content", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  const held = both.trap("check:read", "request");
+  const pending = fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers });
+  await held.arrived;
+  await both.service().stop();
+  held.release();
+  const response = await pending;
+  expect(response.status).toBe(503);
+  expect((await response.text()).includes("Aspelmeyer")).toBe(false);
+});
+test("internal trust rotation removes old keys immediately and unknown keys never acquire authority", async () => {
+  const {
+    createHash,
+    createPrivateKey,
+    generateKeyPairSync,
+    sign,
+    randomUUID,
+  } = await import("node:crypto");
+  const { writeFile } = await import("node:fs/promises");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const claims = JSON.parse(
+    Buffer.from(guest.token.split(".")[1]!, "base64url").toString(),
+  ) as { sub: string; ownerId: string; guestContextId: string };
+  const body = JSON.stringify({
+    actorId: claims.sub,
+    ownerId: claims.ownerId,
+    guestContextId: claims.guestContextId,
+    permission: "check:read",
+    kind: "request",
+  });
+  const rotated = generateKeyPairSync("ed25519"),
+    newKey = {
+      kid: "verification-internal-2",
+      pem: rotated.privateKey
+        .export({ format: "pem", type: "pkcs8" })
+        .toString(),
+    };
+  function signed(key: { kid: string; pem: string }) {
+    const iat = Math.floor(both.now() / 1000);
+    const a = Buffer.from(
+        JSON.stringify({ alg: "EdDSA", typ: "service+jwt", kid: key.kid }),
+      ).toString("base64url"),
+      b = Buffer.from(
+        JSON.stringify({
+          iss: both.serviceConfig.verificationIssuer,
+          aud: both.serviceConfig.issuer,
+          purpose: "guest-authority",
+          iat,
+          nbf: iat,
+          exp: iat + 30,
+          jti: randomUUID(),
+          method: "POST",
+          path: "/internal/guest-authority",
+          bodyHash: createHash("sha256").update(body).digest("base64url"),
+        }),
+      ).toString("base64url");
+    return `${a}.${b}.${sign(null, Buffer.from(`${a}.${b}`), createPrivateKey(key.pem)).toString("base64url")}`;
+  }
+  const call = (key: { kid: string; pem: string }) =>
+    fetch(`${both.serviceUrl}/internal/guest-authority`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${signed(key)}`,
+      },
+      body,
+    });
+  expect((await call(newKey)).status).toBe(401);
+  expect((await call(both.verificationInternal.key)).status).toBe(200);
+  await writeFile(
+    both.serviceConfigPath,
+    JSON.stringify({
+      ...both.serviceConfig,
+      verificationJwks: {
+        keys: [
+          {
+            ...rotated.publicKey.export({ format: "jwk" }),
+            kid: newKey.kid,
+            alg: "EdDSA",
+            use: "sig",
+          },
+        ],
+      },
+    }),
+  );
+  expect((await call(both.verificationInternal.key)).status).toBe(401);
+  expect((await call(newKey)).status).toBe(200);
+});
+test("fetch SSE renews an expired token for the same Guest and reconnects with its cursor and client version", async () => {
+  const { verificationClient, watchCheckEvents } =
+    await import("@source-taster/contract-verification/client");
+  const { guestCredentials, extensionGuestIdentityStorage } =
+    await import("../../../packages/ui/src/guest-identity.ts");
+  const both = await bothPrograms({
+    startWorker: false,
+    clientLeaseMs: 600000,
+  });
+  cleanup.push(both.stop);
+  const values: Record<string, unknown> = {};
+  const storage = extensionGuestIdentityStorage(
+    {
+      get: (key) => Promise.resolve({ [key]: values[key] }),
+      set: (items) => {
+        Object.assign(values, items);
+        return Promise.resolve();
+      },
+    },
+    (operation) => operation(),
+  );
+  const supplier = guestCredentials({
+    storage,
+    client: "web",
+    serviceUrl: both.serviceUrl,
+    now: both.now,
+  });
+  const api = verificationClient({
+    baseUrl: both.apiUrl,
+    client: "web/0.0.0",
+    credentials: supplier.credentials,
+  });
+  const created = await api.createCheck(physicsReference);
+  const seen: {
+    cursor: string | null;
+    client: string | null;
+    token: string | null;
+  }[] = [];
+  const fetchEdge: typeof fetch = async (input, init) => {
+    const response = await fetch(input, init);
+    const headers = new Headers(init?.headers);
+    seen.push({
+      cursor: headers.get("last-event-id"),
+      client: headers.get("source-taster-client"),
+      token: headers.get("authorization"),
+    });
+    return response;
+  };
+  const abort = new AbortController();
+  const watched = watchCheckEvents(created.id, {
+    baseUrl: both.apiUrl,
+    client: "web/0.0.0",
+    credentials: supplier.credentials,
+    lastEventSeq: created.lastEventSeq,
+    signal: abort.signal,
+    retryDelayMs: 10,
+    fetch: fetchEdge,
+    onEvent: () => {},
+  });
+  try {
+    const { eventually } = await import("./support/both-programs.ts");
+    await eventually(() => seen.length === 1);
+    const id = await storage.identity();
+    await both.advance(300000);
+    await eventually(() => seen.length >= 2);
+    expect(seen[1]?.cursor).toBe(created.lastEventCursor);
+    expect(seen[1]?.client).toBe("web/0.0.0");
+    expect(seen[1]?.token !== seen[0]?.token).toBe(true);
+    expect((await storage.identity()) === id).toBe(true);
+    await api.cancelCheck(created.id);
+    await watched;
+  } finally {
+    abort.abort();
+    await watched.catch(() => {});
+  }
+});
+test("removing lease permission denies renewal while preserving independently authorized reads and replay", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  await both.change(guest.guestId, {
+    permissions: [
+      "check:create",
+      "check:read",
+      "check:cancel",
+      "structuring:create",
+    ],
+  });
+  expect(
+    (
+      await fetch(`${both.apiUrl}/v1/checks/${created.id}/lease`, {
+        method: "POST",
+        headers,
+      })
+    ).status,
+  ).toBe(403);
+  expect(
+    (await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })).status,
+  ).toBe(200);
+  const response = await fetch(
+    `${both.apiUrl}/v1/checks/${created.id}/events`,
+    { headers },
+  );
+  expect(response.status).toBe(200);
+  const reader = response.body!.getReader();
+  expect(new TextDecoder().decode((await reader.read()).value)).toContain(
+    "check.updated",
+  );
+  await reader.cancel();
+});

@@ -125,5 +125,7 @@
   "reference_checking": "Referenz wird geprüft",
   "reference_source": "Prüfung mit {source}",
   "check_lease_expired": "Die Verbindung wurde nicht rechtzeitig erneuert. Abgeschlossene Urteile bleiben erhalten; unfertige Referenzen wurden abgebrochen.",
-  "check_cleanup_pending": "Der Abbruch konnte nicht bestätigt werden. Dieser Arbeitsbereich erneuert seine Verbindung nicht mehr. Ein anderer aktiver Arbeitsbereich kann die Prüfung weiterlaufen lassen."
+  "check_cleanup_pending": "Der Abbruch konnte nicht bestätigt werden. Dieser Arbeitsbereich erneuert seine Verbindung nicht mehr. Ein anderer aktiver Arbeitsbereich kann die Prüfung weiterlaufen lassen.",
+  "problem_authority_unavailable": "Die aktuelle Berechtigung ist nicht verfügbar. Bitte erneut versuchen.",
+  "problem_guest_identity_storage": "Zum Beibehalten der Gastidentität ist Browserspeicher erforderlich. Lokalen Speicher erlauben und erneut versuchen."
 }

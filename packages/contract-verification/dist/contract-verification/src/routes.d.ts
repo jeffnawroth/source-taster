@@ -49,6 +49,54 @@ export declare const createCheck: {
         };
     };
     responses: {
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         201: {
             description: string;
             content: {
@@ -272,10 +320,12 @@ export declare const createCheck: {
                                 }>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -310,6 +360,54 @@ export declare const getCheck: {
         }, z.core.$strip>;
     };
     responses: {
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         200: {
             description: string;
             content: {
@@ -533,10 +631,12 @@ export declare const getCheck: {
                                 }>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -591,6 +691,54 @@ export declare const streamCheckEvents: {
         }, z.core.$strip>;
     };
     responses: {
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         200: {
             description: string;
             content: {
@@ -653,6 +801,22 @@ export declare const structureReferences: {
         };
     };
     responses: {
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         200: {
             description: string;
             content: {
@@ -722,10 +886,12 @@ export declare const structureReferences: {
                             quotaConsumed: z.ZodLiteral<0>;
                             referenceLimit: z.ZodNumber;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -792,6 +958,22 @@ export declare const cancelCheck: {
         }, z.core.$strip>;
     };
     responses: {
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         200: {
             description: string;
             content: {
@@ -1015,10 +1197,12 @@ export declare const cancelCheck: {
                                 }>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -1101,6 +1285,22 @@ export declare const renewCheckLease: {
         }, z.core.$strip>;
     };
     responses: {
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         200: {
             description: string;
             content: {
@@ -1324,10 +1524,12 @@ export declare const renewCheckLease: {
                                 }>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };

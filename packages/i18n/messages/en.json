@@ -125,5 +125,7 @@
   "reference_checking": "Checking Reference",
   "reference_source": "Checking with {source}",
   "check_lease_expired": "The connection was not renewed in time. Finished Verdicts are kept; unfinished References were cancelled.",
-  "check_cleanup_pending": "Cancellation could not be confirmed. This workspace has stopped renewing its connection. Another active workspace may keep the Check running."
+  "check_cleanup_pending": "Cancellation could not be confirmed. This workspace has stopped renewing its connection. Another active workspace may keep the Check running.",
+  "problem_authority_unavailable": "Current authorization is unavailable. Please try again.",
+  "problem_guest_identity_storage": "Browser storage is required to keep your Guest identity. Allow local storage and try again."
 }

@@ -32,6 +32,11 @@ import {
   type CitationStyle,
   type Preferences,
 } from "@source-taster/ui/preferences";
+import {
+  GuestIdentityError,
+  guestCredentials,
+  webGuestIdentityStorage,
+} from "@source-taster/ui/guest-identity";
 import { InformationLinks } from "@source-taster/ui/information";
 import { StructuringResults } from "./structuring-results.tsx";
 import "./style.css";
@@ -58,8 +63,25 @@ const styleMessages = {
   "din-iso-690": "citation_style_din_iso_690",
 } as const satisfies Record<CitationStyle, keyof typeof m>;
 
-const api = verificationClient({ client: "web/0.0.0" });
+const mode = import.meta.env.VITE_SOURCE_TASTER_MODE ?? "standalone";
+if (mode !== "standalone" && mode !== "hosted")
+  throw new Error("Choose standalone or hosted client mode");
+const serviceUrl = import.meta.env.VITE_SOURCE_TASTER_SERVICE_URL;
+if (mode === "hosted" && !serviceUrl)
+  throw new Error("Hosted client requires a service URL");
+const guest =
+  mode === "hosted"
+    ? guestCredentials({
+        storage: webGuestIdentityStorage(),
+        client: "web",
+        serviceUrl: serviceUrl!,
+      })
+    : undefined;
+const credentials = guest?.credentials;
+const api = verificationClient({ client: "web/0.0.0", credentials });
 function problemKey(error: unknown, fallback: MessageKey): MessageKey {
+  if (error instanceof GuestIdentityError)
+    return "problem_guest_identity_storage";
   const key =
     error instanceof ApiError || error instanceof CheckStreamError
       ? error.problem?.i18nKey
@@ -77,6 +99,7 @@ function Workspace() {
   const locale = preferences.language;
   const [text, setText] = useState("");
   const [check, setCheck] = useState<Check | null>(null);
+  const [accessStopped, setAccessStopped] = useState(false);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
@@ -99,7 +122,9 @@ function Workspace() {
     document.title = m.app_title();
   }, [locale]);
   const activeId =
-    check?.state === "running" && !cancelRequested ? check.id : null;
+    check?.state === "running" && !cancelRequested && !accessStopped
+      ? check.id
+      : null;
   const renewalInterval = check?.leaseRenewAfterMs;
   useEffect(() => {
     if (!activeId || !renewalInterval) return;
@@ -120,9 +145,12 @@ function Workspace() {
               : current,
           );
         })
-        .catch(() => {
-          if (alive && generation.current === token)
-            setStreamError("problem_connection");
+        .catch((error) => {
+          if (alive && generation.current === token) {
+            setAccessStopped(true);
+            controller.current?.abort();
+            setStreamError(problemKey(error, "problem_connection"));
+          }
         })
         .finally(() => {
           renewing = false;
@@ -148,6 +176,7 @@ function Workspace() {
     setStreamError(null);
     setRequestError(null);
     setPending(operation);
+    setAccessStopped(false);
     setCancelRequested(false);
     try {
       if (operation === "structure") {
@@ -164,6 +193,8 @@ function Workspace() {
       controller.current = next;
       setCheck(created);
       void watchCheckEvents(created.id, {
+        credentials,
+        client: "web/0.0.0",
         signal: next.signal,
         lastEventSeq: created.lastEventSeq,
         onEvent: (event) => {
@@ -196,8 +227,10 @@ function Workspace() {
           });
         },
       }).catch((error) => {
-        if (generation.current === token && !next.signal.aborted)
+        if (generation.current === token && !next.signal.aborted) {
+          setAccessStopped(true);
           setStreamError(problemKey(error, "problem_connection"));
+        }
       });
     } catch (error) {
       if (generation.current === token) setRequestError(error);

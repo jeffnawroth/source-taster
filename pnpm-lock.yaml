@@ -220,6 +220,12 @@ importers:
       '@source-taster/contract-common':
         specifier: workspace:*
         version: link:../../packages/contract-common
+      '@source-taster/contract-internal':
+        specifier: workspace:*
+        version: link:../../packages/contract-internal
+      '@source-taster/contract-service':
+        specifier: workspace:*
+        version: link:../../packages/contract-service
       '@source-taster/contract-verification':
         specifier: workspace:*
         version: link:../../packages/contract-verification
@@ -254,6 +260,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@source-taster/contract-service':
+        specifier: workspace:*
+        version: link:../../packages/contract-service
       '@source-taster/contract-verification':
         specifier: workspace:*
         version: link:../../packages/contract-verification
@@ -378,6 +387,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@source-taster/contract-service':
+        specifier: workspace:*
+        version: link:../contract-service
       '@source-taster/i18n':
         specifier: workspace:*
         version: link:../i18n

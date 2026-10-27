@@ -18,6 +18,7 @@ model Check {
   id             String          @id @db.Uuid
   ownerId        String          @map("owner_id")
   actorId        String          @map("actor_id")
+  guestContextId String? @map("guest_context_id") @db.Uuid
   /// Wire value of CheckState.
   state          String
   /// Sequence number of the newest CheckEvent.
@@ -110,4 +111,10 @@ model SettlementIntent {
 
   @@id([checkId, position, generation])
   @@map("settlement_intents")
+}
+
+model AuthorityFence {
+ ownerId String @id @map("owner_id") @db.Uuid
+ version Int
+ @@map("authority_fences")
 }

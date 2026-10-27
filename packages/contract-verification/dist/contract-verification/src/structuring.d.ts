@@ -230,9 +230,11 @@ export declare const StructuringResponse: z.ZodObject<{
         quotaConsumed: z.ZodLiteral<0>;
         referenceLimit: z.ZodNumber;
     }, z.core.$strip>;
-    quota: z.ZodNullable<z.ZodObject<{
+    quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
-    }, z.core.$strip>>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type StructuringResult = z.infer<typeof StructuringResult>;

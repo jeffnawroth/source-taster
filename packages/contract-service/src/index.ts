@@ -10,3 +10,18 @@ export const ServiceStatusResponse = envelope(
     authentication: z.literal("unavailable"),
   }),
 ).meta({ id: "ServiceStatusResponse" });
+
+export const GuestTokenRequest = z.strictObject({
+  guestId: z.uuid(),
+  client: z.enum(["web", "extension"]),
+});
+export type GuestTokenRequest = z.infer<typeof GuestTokenRequest>;
+export const GuestTokenResponse = envelope(
+  z.strictObject({
+    accessToken: z.string().min(1).max(4096),
+    tokenType: z.literal("Bearer"),
+    expiresAt: z.iso.datetime(),
+    expiresIn: z.literal(300),
+  }),
+).meta({ id: "GuestTokenResponse" });
+export type GuestTokenResponse = z.infer<typeof GuestTokenResponse>;

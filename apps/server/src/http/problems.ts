@@ -40,6 +40,11 @@ const problems = {
     title: "Sign-in required.",
     i18nKey: "problem_unauthenticated",
   },
+  "authority-unavailable": {
+    status: 503,
+    title: "Current authority is unavailable.",
+    i18nKey: "problem_authority_unavailable",
+  },
   internal: {
     status: 500,
     title: "Something went wrong on our side.",

@@ -75,12 +75,20 @@ export class ApiError extends Error {
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export function verificationClient(options = {}) {
+    async function headers() {
+        return {
+            ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+            ...(options.credentials
+                ? { Authorization: `Bearer ${await options.credentials()}` }
+                : {}),
+        };
+    }
     async function post(path, requestBody, schema) {
         const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}${path}`, {
             method: "POST",
             headers: {
                 "content-type": "application/json",
-                ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+                ...(await headers()),
             },
             body: JSON.stringify(requestBody),
         });
@@ -95,9 +103,7 @@ export function verificationClient(options = {}) {
         renewCheckLease: async (checkId) => (await post(`/v1/checks/${encodeURIComponent(checkId)}/lease`, undefined, CheckResponse)).data,
         getCheck: async (checkId) => {
             const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`, {
-                headers: options.client
-                    ? { "Source-Taster-Client": options.client }
-                    : {},
+                headers: await headers(),
             });
             const body = await response.json().catch(() => undefined);
             if (!response.ok)
@@ -121,10 +127,15 @@ export async function watchCheckEvents(checkId, options) {
         options.signal?.throwIfAborted();
         try {
             const headers = { accept: "text/event-stream" };
+            if (options.credentials)
+                headers.authorization = `Bearer ${await options.credentials()}`;
+            if (options.client)
+                headers["Source-Taster-Client"] = options.client;
             if (lastSeq > 0)
                 headers["last-event-id"] = `${checkId}:${lastSeq}`;
             const response = await doFetch(url, { headers, signal: options.signal });
-            if (response.status >= 400 && response.status < 500) {
+            if ((response.status >= 400 && response.status < 500) ||
+                response.status === 503) {
                 const body = await response.json().catch(() => undefined);
                 const problem = ProblemDetails.safeParse(body);
                 throw new CheckStreamError(response.status, problem.data);

@@ -13,7 +13,29 @@
             "$ref": "#/components/schemas/Check"
           },
           "quota": {
-            "$ref": "#/components/schemas/Quota"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -724,10 +746,7 @@
         ]
       },
       "Quota": {
-        "type": [
-          "object",
-          "null"
-        ],
+        "type": "object",
         "properties": {
           "consumed": {
             "type": "integer",
@@ -1160,7 +1179,29 @@
             ]
           },
           "quota": {
-            "$ref": "#/components/schemas/Quota"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -1236,6 +1277,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -1304,6 +1355,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -1334,6 +1395,36 @@
           },
           "400": {
             "description": "The input is empty, malformed, or exceeds the configured Reference limit.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1380,8 +1471,38 @@
               }
             }
           },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "404": {
             "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1396,7 +1517,7 @@
     "/v1/checks/{checkId}/events": {
       "get": {
         "summary": "Stream Check events (Server-Sent Events)",
-        "description": "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. Send the Check-bound `Last-Event-ID` cursor to receive only later events. The stream closes after the event that ends the Check.",
+        "description": "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. Send the Check-bound `Last-Event-ID` cursor to receive only later events. The stream closes after the event that ends the Check, or silently on expiry, current denial or authority outage. Every frame and heartbeat requires current authority.",
         "parameters": [
           {
             "schema": {
@@ -1437,8 +1558,38 @@
               }
             }
           },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "404": {
             "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1505,6 +1656,16 @@
           },
           "403": {
             "description": "Not permitted.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
               "application/problem+json": {
                 "schema": {

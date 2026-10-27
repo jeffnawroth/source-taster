@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Entitlement port (ADR-0015): who acts, for which Owner, with which
-// permissions and Quota. The hosted adapter lives in the private service; this
-// repository ships the standalone adapter only.
+// permissions and Quota. This program owns its hosted transport/guard adapter;
+// current Guest policy and signing authority belong to the private service.
 
 import type { QuotaSlot } from "@source-taster/contract-common";
 
@@ -13,6 +13,8 @@ export type Permission =
   | "check:renew";
 
 export interface Principal {
+  guestContextId?: string;
+  expiresAt?: number;
   ownerId: string;
   actorId: string;
   can(permission: Permission): boolean;
@@ -21,6 +23,12 @@ export interface Principal {
 }
 
 export interface Entitlements {
+  /** Online decision followed by a durable Owner fence. No service cycle runs under that fence. */
+  guard?<T>(
+    principal: Principal,
+    permission: Permission,
+    operation: () => Promise<T>,
+  ): Promise<T>;
   /** Resolves the acting Principal, or `null` when the request is not authenticated. */
   resolve(request: Request): Promise<Principal | null>;
 }
