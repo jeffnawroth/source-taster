@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { referenceExecution } from "./checks/verification-runtime.ts";
 import { setTimeout } from "node:timers/promises";
 import {
   createQueue,
@@ -13,6 +14,7 @@ await runMain(async (config) => {
   const db = createPrisma(config.databaseUrl);
   const boss = await createQueue(config.databaseUrl);
   const checks = createCheckStore(db, boss);
+  const verify = referenceExecution(config, db);
   await boss.work<ReferenceJob>(
     REFERENCE_QUEUE,
     {
@@ -22,9 +24,36 @@ await runMain(async (config) => {
     },
     async (jobs) => {
       for (const { data } of jobs) {
+        const startedAt = Date.now();
         await setTimeout(config.placeholderDelayMs);
-        // This skeleton performs no search: Not checked is a Status, never a Verdict.
-        await checks.finishReference(data.checkId, data.slot);
+        const input = await checks.input(data.checkId, data.slot);
+        if (!input) {
+          // Slots queued by the older skeleton have no structured input.
+          // Preserve its honest Not checked outcome rather than stranding them.
+          await checks.finishReference(data.checkId, data.slot, {
+            kind: "status",
+            status: "not-checked",
+          });
+          continue;
+        }
+        try {
+          const outcome = config.doiPreview
+            ? await verify(input, { startedAt })
+            : { kind: "status" as const, status: "not-checked" as const };
+          await checks.finishReference(data.checkId, data.slot, outcome);
+        } catch {
+          console.error(
+            JSON.stringify({
+              code: "reference-failed",
+              checkId: data.checkId,
+              slot: data.slot,
+            }),
+          );
+          await checks.finishReference(data.checkId, data.slot, {
+            kind: "status",
+            status: "failed",
+          });
+        }
       }
     },
   );

@@ -17,7 +17,9 @@
     "e2e:serve": "node scripts/e2e-serve.ts",
     "build": "tsc -p tsconfig.build.json",
     "start:web": "node dist/web.js",
-    "start:worker": "node dist/worker.js"
+    "start:worker": "node dist/worker.js",
+    "release:check": "node scripts/release-check.ts",
+    "build:release": "pnpm release:check && pnpm build"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",

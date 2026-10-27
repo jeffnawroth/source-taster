@@ -32,6 +32,7 @@ export async function startTestService(
     throw error;
   }
   const env = {
+    NODE_ENV: "test",
     SOURCE_TASTER_MODE: "standalone",
     DATABASE_URL: appUrl,
     SOURCE_TASTER_PORT: String(port),

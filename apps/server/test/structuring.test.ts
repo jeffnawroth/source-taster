@@ -46,7 +46,7 @@ it("structures the recorded APA bibliography through HTTP, preserving text and e
       reference.originalText,
     );
     for (const source of Object.values(reference.fieldSources))
-      expect(fixture.text.slice(source.span.start, source.span.end)).toBe(
+      expect(fixture.text.slice(source.span!.start, source.span!.end)).toBe(
         source.raw,
       );
   }
@@ -73,7 +73,7 @@ it.each(["harvard", "chicago", "mla"])(
         reference.originalText,
       );
       for (const source of Object.values(reference.fieldSources))
-        expect(fixture.text.slice(source.span.start, source.span.end)).toBe(
+        expect(fixture.text.slice(source.span!.start, source.span!.end)).toBe(
           source.raw,
         );
     }
@@ -111,7 +111,7 @@ it("keeps uncertain fields empty, distinguishes no date, and lists rejected text
       reference.originalText,
     );
     for (const source of Object.values(reference.fieldSources))
-      expect(text.slice(source.span.start, source.span.end)).toBe(source.raw);
+      expect(text.slice(source.span!.start, source.span!.end)).toBe(source.raw);
   }
 });
 
@@ -186,7 +186,7 @@ it("joins unindented continuations before rejecting, keeps author-title Referenc
     for (const key of Object.keys(reference.csl))
       expect(reference.fieldSources[key]).toBeDefined();
     for (const source of Object.values(reference.fieldSources))
-      expect(text.slice(source.span.start, source.span.end)).toBe(source.raw);
+      expect(text.slice(source.span!.start, source.span!.end)).toBe(source.raw);
   }
 });
 
@@ -217,7 +217,7 @@ it("retains identifier-only References without manufacturing dates and preserves
   expect(data.references[3]?.authorsTruncated).toBe(true);
   for (const reference of data.references)
     for (const source of Object.values(reference.fieldSources))
-      expect(text.slice(source.span.start, source.span.end)).toBe(source.raw);
+      expect(text.slice(source.span!.start, source.span!.end)).toBe(source.raw);
 });
 
 it("keeps corporate names intact and leaves an ambiguous sentence boundary empty", async () => {
@@ -263,7 +263,7 @@ it("retains labeled identifiers as written, validates check digits and separates
   );
   for (const reference of data.references)
     for (const source of Object.values(reference.fieldSources))
-      expect(text.slice(source.span.start, source.span.end)).toBe(source.raw);
+      expect(text.slice(source.span!.start, source.span!.end)).toBe(source.raw);
 });
 
 it("structures author-date articles whose journal supplies no issue", async () => {
@@ -323,7 +323,7 @@ it("structures independently varied author-date examples with exact bibliographi
   });
   for (const reference of data.references)
     for (const source of Object.values(reference.fieldSources))
-      expect(fixture.text.slice(source.span.start, source.span.end)).toBe(
+      expect(fixture.text.slice(source.span!.start, source.span!.end)).toBe(
         source.raw,
       );
 });

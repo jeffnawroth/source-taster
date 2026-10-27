@@ -3,6 +3,9 @@
 
 import { envelope } from "../../contract-common/src/index.ts";
 import { z } from "zod";
+import { VerdictResult } from "./verification.ts";
+import { StructuredCsl } from "./structuring.ts";
+export * from "./verification.ts";
 
 export * from "../../contract-common/src/index.ts";
 
@@ -16,12 +19,12 @@ export const ReferenceStatus = z
 export type ReferenceStatus = z.infer<typeof ReferenceStatus>;
 
 /**
- * Exactly one Status or, once checking exists, one Verdict per Reference slot.
- * Verdicts will join this union as `{ kind: "verdict", ... }`.
+ * Exactly one Status or one immutable Verdict result per Reference slot.
  */
 export const ReferenceOutcome = z
   .discriminatedUnion("kind", [
-    z.object({ kind: z.literal("status"), status: ReferenceStatus }),
+    z.strictObject({ kind: z.literal("status"), status: ReferenceStatus }),
+    VerdictResult.strict(),
   ])
   .meta({ id: "ReferenceOutcome" });
 export type ReferenceOutcome = z.infer<typeof ReferenceOutcome>;
@@ -59,10 +62,20 @@ export const CheckResponse = envelope(Check).meta({ id: "CheckResponse" });
 export type CheckResponse = z.infer<typeof CheckResponse>;
 
 export const CreateCheckRequest = z
-  .object({
-    /** Pasted text with one or more References. */
-    text: z.string().trim().min(1),
-  })
+  .union([
+    z.object({ text: z.string().trim().min(1) }),
+    z.object({
+      references: z
+        .array(
+          z.object({
+            originalText: z.string().min(1),
+            fields: StructuredCsl,
+            authorsTruncated: z.boolean().optional(),
+          }),
+        )
+        .min(1),
+    }),
+  ])
   .meta({ id: "CreateCheckRequest" });
 export type CreateCheckRequest = z.input<typeof CreateCheckRequest>;
 

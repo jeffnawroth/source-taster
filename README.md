@@ -1,6 +1,6 @@
 # Source Taster
 
-Walking skeleton for [#71](https://github.com/jeffnawroth/source-taster/issues/71), part of [#70](https://github.com/jeffnawroth/source-taster/issues/70). Paste a Reference, create a Check through the verification API, and watch the worker advance its Status over replayable SSE. The separate **Structure References** action previews deterministic Structuring for APA, Harvard, Chicago author-date and MLA ([#72](https://github.com/jeffnawroth/source-taster/issues/72)). **No search or verification happens yet.** The placeholder finishes with Status **Not checked**, never a Verdict.
+Development preview for [#70](https://github.com/jeffnawroth/source-taster/issues/70). Paste author-date References, create a Check through the verification API, and follow results over replayable SSE. With explicit `SOURCE_TASTER_DOI_PREVIEW=uncalibrated`, the DOI tracer ([#74](https://github.com/jeffnawroth/source-taster/issues/74)) resolves DOIs through the neutral doi.org Handle API, retrieves Crossref Candidates, and persists field Scores, identity evidence and a Verdict. The UI shows icon, color and text with DE/EN explanations and both raw field values. **This is an uncalibrated local development preview, not qualified for release or decisions.** Other checking routes remain Status **Not checked**. The separate **Structure References** action previews deterministic Structuring for APA, Harvard, Chicago author-date and MLA ([#72](https://github.com/jeffnawroth/source-taster/issues/72)).
 
 ## Run locally
 
@@ -40,7 +40,7 @@ Standalone is an **explicit** `SOURCE_TASTER_MODE=standalone` choice. It supplie
 
 The schemas, OpenAPI route declarations, generated `openapi.json` and fetch SSE client are the published seam. See [the contract README](packages/contract-verification/README.md) for the commit-pinned **git dependency**, with no registry publishing and no service-side vendored source. Contract build artifacts are intentionally committed so Node can import JavaScript directly after a git install. All other code is AGPL-3.0-or-later.
 
-A Check and its per-Reference jobs commit together. Result Status and ordered event commit together, with per-Check locking and retry-safe updates. LISTEN/NOTIFY wakes each web process; streams read the durable log and use sequence IDs for replay. Disconnecting a stream does not cancel its Check. The full snapshot is `GET /v1/checks/{id}`; reconnect with `Last-Event-ID` at `/events`. No Reference content is placed in URLs, queue payloads or operational logs. The browser holds Check content only in memory; only the selected interface language is stored locally.
+A Check and its per-Reference jobs commit together. Immutable result content and ordered event commit together, with per-Check locking and retry-safe updates. LISTEN/NOTIFY wakes each web process; streams read the durable log and use sequence IDs for replay. Disconnecting a stream does not cancel its Check. The full snapshot is `GET /v1/checks/{id}`; reconnect with `Last-Event-ID` at `/events`. Queue payloads and operational logs contain no Reference content. Adapter requests send only identifiers and, for a bounded foreign-DOI probe, bibliographic fields to their responsible source. Search evidence and Candidates remain Check content. The browser holds Check content only in memory; only the selected interface language is stored locally.
 
 ## Structuring preview
 
@@ -67,4 +67,13 @@ OSV_SCANNER_BIN=/path/to/osv-scanner-2.7.0 pnpm audit:dependencies
 
 Tests create a random **database and role per run**, migrate them, run separate web and worker processes, and remove only those owned resources on teardown. They use the admin URL from `.env.example` by default. Override `DATABASE_ADMIN_URL` and `DATABASE_TEST_URL` for another PostgreSQL instance; the latter supplies host/password while the harness generates isolated names. Contract tests use port 3101; browser tests use 3102 and 5174. Do not run two copies on the same ports. Assertions use only HTTP/SSE schemas and browser behavior, with axe on the input and finished page in DE and EN.
 
-CI runs those checks on PostgreSQL 18 and Chromium, plus an offline OSV dependency scan on change and daily. See [dependency policy](docs/dependency-policy.md) for scope, license exceptions and remaining launch qualification. The full release/browser matrix, hosted service, cancellation/leases, content-retention sweeps and real checking are later tickets, not claims made by this skeleton.
+CI runs those checks on PostgreSQL 18 and Chromium, plus an offline OSV dependency scan on change and daily. See [dependency policy](docs/dependency-policy.md) for scope, license exceptions and remaining launch qualification. The full release/browser matrix, hosted service, cancellation/leases, content-retention sweeps and full source checking are later tickets. The DOI tracer is uncalibrated; production activation and `pnpm --filter @source-taster/server build:release` refuse it until #94 qualification.
+
+For DOI development, set `SOURCE_TASTER_DOI_PREVIEW=uncalibrated` for both server
+processes. The API then binds loopback; `NODE_ENV=production` refuses this profile.
+Tests use only local fixture HTTP servers and disposable PostgreSQL roles.
+`POST /v1/checks` also accepts `{references:[{originalText,fields}]}` for explicit
+CSL fields with user provenance; it never pretends those fields were parsed from
+text. Invalid/unrecognized text must be reviewed in Structuring before checking.
+See [the DOI handoff](docs/implementation/74-doi-tracer.md) for exact tracer limits
+and the #81/#96 composition seams. Hosted mode and website publication stay closed.

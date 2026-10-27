@@ -9,6 +9,7 @@ import {
   StructuringResponse,
   isFinalEvent,
   ProblemDetails,
+  type CreateCheckRequest,
 } from "./index.ts";
 
 export interface SseFrame {
@@ -94,7 +95,7 @@ export interface VerificationClientOptions {
 export function verificationClient(options: VerificationClientOptions = {}) {
   async function post<T>(
     path: string,
-    text: string,
+    requestBody: unknown,
     schema: { parse: (input: unknown) => T },
   ): Promise<T> {
     const response = await (options.fetch ?? globalThis.fetch)(
@@ -105,7 +106,7 @@ export function verificationClient(options: VerificationClientOptions = {}) {
           "content-type": "application/json",
           ...(options.client ? { "Source-Taster-Client": options.client } : {}),
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify(requestBody),
       },
     );
     const body: unknown = await response.json().catch(() => undefined);
@@ -114,10 +115,33 @@ export function verificationClient(options: VerificationClientOptions = {}) {
     return schema.parse(body);
   }
   return {
-    createCheck: async (text: string) =>
-      (await post("/v1/checks", text, CheckResponse)).data,
+    createCheck: async (input: string | CreateCheckRequest) =>
+      (
+        await post(
+          "/v1/checks",
+          typeof input === "string" ? { text: input } : input,
+          CheckResponse,
+        )
+      ).data,
+    getCheck: async (checkId: string) => {
+      const response = await (options.fetch ?? globalThis.fetch)(
+        `${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`,
+        {
+          headers: options.client
+            ? { "Source-Taster-Client": options.client }
+            : {},
+        },
+      );
+      const body: unknown = await response.json().catch(() => undefined);
+      if (!response.ok)
+        throw new ApiError(
+          response.status,
+          ProblemDetails.safeParse(body).data,
+        );
+      return CheckResponse.parse(body).data;
+    },
     structureReferences: async (text: string) =>
-      (await post("/v1/structurings", text, StructuringResponse)).data,
+      (await post("/v1/structurings", { text }, StructuringResponse)).data,
   };
 }
 

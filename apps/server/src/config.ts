@@ -17,7 +17,10 @@ export interface Config {
   port: number;
   /** Interval of SSE comment frames that keep idle connections open. */
   sseHeartbeatMs: number;
-  /** Placeholder worker delay per Reference, until real checking exists. */
+  doiPreview: boolean;
+  resolverBase: string;
+  crossrefBase: string;
+  /** Development/test scheduling delay; never a source timeout. */
   placeholderDelayMs: number;
 }
 
@@ -62,8 +65,55 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       ),
     };
   }
+  const doiPreview = env.SOURCE_TASTER_DOI_PREVIEW === "uncalibrated";
+  if (env.SOURCE_TASTER_DOI_PREVIEW && !doiPreview)
+    throw new ConfigError(
+      "Only the uncalibrated DOI development preview exists.",
+    );
+  if (doiPreview && env.NODE_ENV === "production")
+    throw new ConfigError(
+      "Uncalibrated DOI rules cannot be released or activated. #94 qualification is required.",
+    );
+  function endpoint(name: string, fallback: string) {
+    const value = env[name] ?? fallback;
+    let url: URL;
+    try {
+      url = new URL(value);
+    } catch {
+      throw new ConfigError("Data source base is not a valid origin.");
+    }
+    if (
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash ||
+      url.pathname !== "/"
+    )
+      throw new ConfigError(
+        "Data source base must be an origin without credentials.",
+      );
+    if (
+      value !== fallback &&
+      (!doiPreview ||
+        env.NODE_ENV === "production" ||
+        !["127.0.0.1", "localhost", "[::1]"].includes(url.hostname))
+    )
+      throw new ConfigError(
+        "Fixture endpoint overrides are loopback-only in the development preview.",
+      );
+    return url.origin;
+  }
   return {
     mode,
+    doiPreview,
+    resolverBase: endpoint(
+      "SOURCE_TASTER_DOI_RESOLVER_BASE_URL",
+      "https://doi.org",
+    ),
+    crossrefBase: endpoint(
+      "SOURCE_TASTER_CROSSREF_BASE_URL",
+      "https://api.crossref.org",
+    ),
     website,
     referenceLimit: integer(env, "SOURCE_TASTER_REFERENCE_LIMIT", 1000, 1),
     databaseUrl,

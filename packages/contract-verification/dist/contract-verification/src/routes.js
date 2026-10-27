@@ -11,7 +11,7 @@ const problem = (description) => ({
 export const createCheck = createRoute({
     method: "post",
     path: "/v1/checks",
-    summary: "Paste References and start a Check",
+    summary: "Start a Check from pasted or explicitly structured References",
     request: {
         body: {
             required: true,
@@ -20,7 +20,7 @@ export const createCheck = createRoute({
     },
     responses: {
         201: {
-            description: "Check created; one Reference slot per pasted Reference.",
+            description: "Check created; one stable slot per recognized Reference. Explicit fields have user provenance. DOI verification is an opt-in uncalibrated local development preview.",
             content: { "application/json": { schema: CheckResponse } },
         },
         400: problem("The input is empty, malformed, or exceeds the configured Reference limit."),

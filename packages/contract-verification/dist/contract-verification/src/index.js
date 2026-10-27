@@ -2,6 +2,9 @@
 // Public transport schemas of the verification API (/v1).
 import { envelope } from "../../contract-common/src/index.js";
 import { z } from "zod";
+import { VerdictResult } from "./verification.js";
+import { StructuredCsl } from "./structuring.js";
+export * from "./verification.js";
 export * from "../../contract-common/src/index.js";
 /**
  * Shown instead of a Verdict (GLOSSARY "Status", ADR-0005). A Status is never
@@ -11,12 +14,12 @@ export const ReferenceStatus = z
     .enum(["running", "cancelled", "failed", "not-checked"])
     .meta({ id: "ReferenceStatus" });
 /**
- * Exactly one Status or, once checking exists, one Verdict per Reference slot.
- * Verdicts will join this union as `{ kind: "verdict", ... }`.
+ * Exactly one Status or one immutable Verdict result per Reference slot.
  */
 export const ReferenceOutcome = z
     .discriminatedUnion("kind", [
-    z.object({ kind: z.literal("status"), status: ReferenceStatus }),
+    z.strictObject({ kind: z.literal("status"), status: ReferenceStatus }),
+    VerdictResult.strict(),
 ])
     .meta({ id: "ReferenceOutcome" });
 export const ReferenceSlot = z
@@ -43,10 +46,18 @@ export const Check = z
     .meta({ id: "Check" });
 export const CheckResponse = envelope(Check).meta({ id: "CheckResponse" });
 export const CreateCheckRequest = z
-    .object({
-    /** Pasted text with one or more References. */
-    text: z.string().trim().min(1),
-})
+    .union([
+    z.object({ text: z.string().trim().min(1) }),
+    z.object({
+        references: z
+            .array(z.object({
+            originalText: z.string().min(1),
+            fields: StructuredCsl,
+            authorsTruncated: z.boolean().optional(),
+        }))
+            .min(1),
+    }),
+])
     .meta({ id: "CreateCheckRequest" });
 const eventBase = {
     /** Strictly increasing per Check, starting at 1; the SSE event id. */

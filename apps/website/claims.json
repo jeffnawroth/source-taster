@@ -20,12 +20,24 @@
       "state": "local website; web links via the shared UI seam; extension not built yet"
     },
     "skeleton": {
-      "requirements": ["FA-ERF-01", "FA-UEB-02"],
+      "requirements": [
+        "FA-ERF-01",
+        "FA-UEB-02",
+        "FA-SUC-02",
+        "FA-ABG-02",
+        "FA-ABG-06",
+        "FA-ERG-03",
+        "FA-ABG-11",
+        "FA-ABG-14"
+      ],
       "evidence": [
         "../server/test/checks.test.ts",
-        "../web/e2e/paste-and-watch.spec.ts"
+        "../web/e2e/paste-and-watch.spec.ts",
+        "../server/test/doi.test.ts",
+        "../web/e2e/doi.spec.ts",
+        "../../docs/implementation/74-doi-tracer.md"
       ],
-      "state": "text input and placeholder Status only; no Verdict"
+      "state": "opt-in local uncalibrated DOI tracer using neutral doi.org and Crossref; no launch, calibration, quality, source-rights or full-search claim"
     },
     "structuring": {
       "requirements": ["FA-ERF-01", "FA-ERF-12", "FA-STR-01"],
