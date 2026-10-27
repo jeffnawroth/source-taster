@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-27",
+  "platform": "x86_64-unknown-linux-gnu",
+  "ciRun": "https://github.com/jeffnawroth/source-taster/actions/runs/40452770746",
+  "jobId": 122019099430,
+  "commit": "bdde8340130fa523c77956f1d7ca7b646d902407",
+  "receiptRecipeSha256": "f4bc41eca69ae79176b345c79429cb34d94067196f748f799d1a53f92486731d",
+  "files": {
+    "build-receipt.json": {
+      "originalSha256": "e6f804b4db0d2f36ce735e4c537fc24923184d067e4d8bb87fbac3944ec3f411",
+      "retainedSha256": "e6f804b4db0d2f36ce735e4c537fc24923184d067e4d8bb87fbac3944ec3f411",
+      "source": ".tmp/pagefind/receipt.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "qualification.json": {
+      "originalSha256": "7f5b211a7640d4e57375edcbc594e9ea5e9f40a0c34d5a09500aca0415f8a3af",
+      "retainedSha256": "7f5b211a7640d4e57375edcbc594e9ea5e9f40a0c34d5a09500aca0415f8a3af",
+      "source": ".tmp/pagefind/evidence/qualification.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "controls.json": {
+      "originalSha256": "3b531a495dafa204d29a4a915cf91059df37169c1dec7fdc18d1a7d5e58a0738",
+      "retainedSha256": "3b531a495dafa204d29a4a915cf91059df37169c1dec7fdc18d1a7d5e58a0738",
+      "source": ".tmp/pagefind/evidence/controls.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "bundle.json": {
+      "originalSha256": "f8e6a6c6c972d3faefab75f09ad2ee834905ee78cb2db21234f911d0dd142281",
+      "retainedSha256": "f8e6a6c6c972d3faefab75f09ad2ee834905ee78cb2db21234f911d0dd142281",
+      "source": ".tmp/pagefind/bundle.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "audit-summary.json": {
+      "originalSha256": "399e0ab7ccdd0ed026f1dfe96eef49a12318768bc93133dba1544f0426932c60",
+      "retainedSha256": "399e0ab7ccdd0ed026f1dfe96eef49a12318768bc93133dba1544f0426932c60",
+      "source": ".tmp/audit/summary.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "advisory-dispositions.json": {
+      "originalSha256": "712d22e21de06f5bd1ee9c30b3a6aa2627e75a2568f01ec39da3d435b42fc2e2",
+      "retainedSha256": "712d22e21de06f5bd1ee9c30b3a6aa2627e75a2568f01ec39da3d435b42fc2e2",
+      "source": ".tmp/audit/website-dispositions.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "osv.json": {
+      "originalSha256": "b43e4ba1d403a132cfe5950d1005bd99f13f04e80b825e51e7e384354ed5af67",
+      "retainedSha256": "b9f555f1f87441b606647ed86691dbf1af338dcf8e9a0664d1bfb6b24e860e0f",
+      "source": ".tmp/audit/osv.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "npm-licenses.json": {
+      "originalSha256": "f1b38e520454b5b8017732fed6bcaf4e6ff676423ceb53f8422d4156cd2ae1c5",
+      "retainedSha256": "f1b38e520454b5b8017732fed6bcaf4e6ff676423ceb53f8422d4156cd2ae1c5",
+      "source": ".tmp/audit/licenses.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "browser-distribution.json": {
+      "originalSha256": "e69a3a5717fa719a723d11ec8f283c92e6ed929ba084ac1d2a3656bc184938c4",
+      "retainedSha256": "e69a3a5717fa719a723d11ec8f283c92e6ed929ba084ac1d2a3656bc184938c4",
+      "source": "apps/website/dist-preview/third-party/pagefind/manifest.json",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "native-loads.jsonl": {
+      "originalSha256": "54a02ad2347854026e62d4e85dc08802dcf9927708c84be65846cc8657cec4ae",
+      "retainedSha256": "6c2398002cbeb0e19b37c8debd224ac96093875054c47662d18d055d6c8aa541",
+      "source": ".tmp/pagefind/native-loads.jsonl",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "bundle-loads.jsonl": {
+      "originalSha256": "9e4b78060634a3c5d5dbec47ad02f070cc47fab1a376efd06144eed2b56ecbc5",
+      "retainedSha256": "43421d1b6e628e1a74551cc34187bfd129e3599e1f69e341686368fa7d1992a0",
+      "source": ".tmp/pagefind/bundle-loads.jsonl",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "native.tree.txt": {
+      "originalSha256": "ea997e364939484d3e3de4a9b8914c339f36e442b00dc4410f45a2412f12e9af",
+      "retainedSha256": "c614137f5b31b902a6564938e0529185b8362c29f026b0bd0cbcef8c3dc51367",
+      "source": ".tmp/pagefind/native.tree.txt",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "satteri.tree.txt": {
+      "originalSha256": "e50e709a36bc7f3b3cd0c679671649ba19da6ffba0a5ee14ae76ac66af7d1f04",
+      "retainedSha256": "5339bed21b89b6648b63da706bc1aa5d0680c41e53657dc6064c691460c810b8",
+      "source": ".tmp/pagefind/satteri.tree.txt",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "compiler.tree.txt": {
+      "originalSha256": "77a45cd3594531bef9ec1365d295632001cd7e9e1bfb6ae46b0bb616c7336ef4",
+      "retainedSha256": "7323a9d9212841f5fc16400728402f8a1fa8f02b9c78351faef6afeea8146347",
+      "source": ".tmp/pagefind/compiler.tree.txt",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "rolldown.tree.txt": {
+      "originalSha256": "76b6bc014fb05475dea45d0d63179e97e70cdaed7b76345f0dcf6d9a53af65d3",
+      "retainedSha256": "dd9fe144fe3d4d43db7c83d5042cb50bdbaf2dfa4b19102025f1a2fea1648549",
+      "source": ".tmp/pagefind/rolldown.tree.txt",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "web-de.tree.txt": {
+      "originalSha256": "c7e4d89b0a6850df5acd119ae589dfca49813c8f000ad52999c52d7d542d46bb",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "source": ".tmp/pagefind/web-de.tree.txt",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "web-en.tree.txt": {
+      "originalSha256": "c7e4d89b0a6850df5acd119ae589dfca49813c8f000ad52999c52d7d542d46bb",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "source": ".tmp/pagefind/web-en.tree.txt",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    },
+    "web-unknown.tree.txt": {
+      "originalSha256": "c7e4d89b0a6850df5acd119ae589dfca49813c8f000ad52999c52d7d542d46bb",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "source": ".tmp/pagefind/web-unknown.tree.txt",
+      "normalization": "absolute GitHub workspace prefix replaced by /workspace/source-taster; all other bytes retained"
+    }
+  },
+  "status": "Controlled fetch/build/verify, static browser asset generation and 16 source/scanner controls passed. Complete audit refused the same 19 native license-policy entries, with zero actual advisory findings. The additional served-notice corruption control was subsequently demonstrated on macOS. No publication/legal approval."
+}

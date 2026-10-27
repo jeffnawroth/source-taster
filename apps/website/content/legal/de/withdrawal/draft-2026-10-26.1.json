@@ -1,0 +1,15 @@
+{
+  "language": "de",
+  "id": "withdrawal",
+  "version": "draft-2026-10-26.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Widerrufsbelehrung",
+  "summary": "Verbraucherbelehrung und Formular warten auf fachliche Rechtsfreigabe.",
+  "paragraphs": [
+    "Dies ist ein Entwurf rechtlicher Inhalte, Version draft-2026-10-26.1. Er ist keine rechtlich freigegebene Widerrufsbelehrung. In dieser Vorschau ist kein Verbraucherkauf möglich.",
+    "Der tatsächliche Verkäufername, die Anschrift und der Widerrufskontakt fehlen. Die freigegebene Belehrung muss geltende Frist und Fristbeginn, Ausübung, Folgen und Rückzahlung sowie das Muster-Widerrufsformular mit tatsächlichen Empfängerangaben enthalten.",
+    "Die Behandlung sofortiger Aktivierung, ausdrücklicher Zustimmung und eines möglichen Verlusts des Widerrufsrechts für das konkrete Angebot muss rechtlich freigegeben werden. Hier werden weder Verzicht noch Zustimmung erhoben.",
+    "Die erforderlichen Kündigungs- und Widerrufsfunktionen gehören zum privaten Kaufdienst und werden von dieser statischen Seite nicht implementiert. Dieser Entwurf ersetzt sie nicht und verspricht ihre Verfügbarkeit nicht."
+  ]
+}

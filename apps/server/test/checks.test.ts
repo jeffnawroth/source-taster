@@ -61,3 +61,41 @@ describe("POST /v1/checks", () => {
     },
   );
 });
+
+// #71/#72: Check creation must enforce the same configured intake bound.
+it("rejects 1001 Check References with a limit Problem before enqueueing", async () => {
+  const response = await postCheck({
+    text: Array(1001).fill("Doe, J. (2020). A study.").join("\n"),
+  });
+  expect(response.status).toBe(400);
+  expect(ProblemDetails.parse(await response.json())).toMatchObject({
+    code: "reference-limit",
+    i18nKey: "problem_reference_limit",
+    limit: 1000,
+  });
+});
+
+it("uses the Operator-configured Check intake limit", async () => {
+  const { startTestService } = await import("./support/service.ts");
+  const service = await startTestService(
+    Number(process.env.SOURCE_TASTER_TEST_LIMIT_PORT ?? 34176),
+    50,
+    { SOURCE_TASTER_REFERENCE_LIMIT: "2" },
+  );
+  try {
+    const response = await fetch(`${service.apiUrl}/v1/checks`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        text: "One Reference\nTwo References\nThree References",
+      }),
+    });
+    expect(response.status).toBe(400);
+    expect(ProblemDetails.parse(await response.json())).toMatchObject({
+      code: "reference-limit",
+      limit: 2,
+    });
+  } finally {
+    await service.stop();
+  }
+});

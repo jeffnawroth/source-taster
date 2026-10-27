@@ -7,12 +7,26 @@
     "PLAYWRIGHT_BROWSERS_PATH"
   ],
   "tasks": {
+    "@source-taster/website#test:e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "@source-taster/website#build": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "outputs": ["dist-preview/**"]
+    },
     "generate": {
       "outputs": ["src/generated/**", "src/paraglide/**"]
     },
     "build": {
       "dependsOn": ["^build", "generate"],
-      "outputs": ["dist/**", "openapi.json", "src/paraglide/**"]
+      "outputs": [
+        "dist/**",
+        "dist-preview/**",
+        "openapi.json",
+        "src/paraglide/**"
+      ]
     },
     "typecheck": {
       "dependsOn": ["^build", "generate"]

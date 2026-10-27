@@ -25,7 +25,7 @@ pnpm --filter @source-taster/server worker
 pnpm --filter @source-taster/web dev
 ```
 
-Open the Vite URL (default port 5173). Vite proxies `/v1` to port 3100; set `SOURCE_TASTER_API_URL` to change the development target. Production builds are in `apps/web/dist` and `apps/server/dist`; run `start:web` and `start:worker` and serve the SPA with a same-origin `/v1` proxy. Both server processes must use the same database URL. `db:setup` provisions a dedicated verification role and the `verification` / `verification_boss` schemas; the app role has no database-wide CREATE privilege. No Redis is needed.
+Open the Vite URL (default port 5173). After `pnpm build`, Vite serves the marked website draft at `/docs/`, `/de/` and `/en/`, so the default help/legal links work locally. Vite binds loopback and production draft serving remains blocked. Vite proxies `/v1` to port 3100; set `SOURCE_TASTER_API_URL` to change the development target. Production builds are in `apps/web/dist` and `apps/server/dist`; run `start:web` and `start:worker` and serve the SPA with a same-origin `/v1` proxy. Both server processes must use the same database URL. `db:setup` provisions a dedicated verification role and the `verification` / `verification_boss` schemas; the app role has no database-wide CREATE privilege. No Redis is needed.
 
 Standalone is an **explicit** `SOURCE_TASTER_MODE=standalone` choice. It supplies one local Owner, every permission and no Quota (`quota: null`). Missing, unknown and hosted mode refuse startup. Hosted authorization and service connectivity are later slices; this build cannot accidentally grant standalone access to a hosted deployment.
 

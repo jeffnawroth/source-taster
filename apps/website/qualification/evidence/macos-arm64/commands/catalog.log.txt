@@ -1,0 +1,17 @@
+$ turbo run i18n:check
+
+   • turbo 2.11.10
+   • Packages in scope: @source-taster/contract-common, @source-taster/contract-internal, @source-taster/contract-service, @source-taster/contract-verification, @source-taster/core, @source-taster/i18n, @source-taster/server, @source-taster/ui, @source-taster/web, @source-taster/website
+   • Running i18n:check in 10 packages
+   • Remote caching disabled, using shared worktree cache
+
+@source-taster/website:i18n:check: cache miss, executing aef5e09734deda09
+@source-taster/i18n:i18n:check: cache hit, replaying logs 7d4e428d1af95303
+@source-taster/i18n:i18n:check: $ node scripts/check.ts
+@source-taster/i18n:i18n:check: Validated 73 messages in DE and EN
+@source-taster/website:i18n:check: $ node scripts/content-check.ts
+@source-taster/website:i18n:check: DE/EN content complete: 10 paired information pages, 4 paired legal documents, 29 paired UI texts, 8 paired source-access texts; human translation review pending
+
+ Tasks:    2 successful, 2 total
+Cached:    1 cached, 2 total
+  Time:    120ms

@@ -2,7 +2,7 @@
 // Browser and Node client for the Check event stream. Uses fetch rather than
 // EventSource so it can resume with an explicit Last-Event-ID.
 import { ZodError } from "zod";
-import { CheckEvent, isFinalEvent, ProblemDetails } from "./index.js";
+import { CheckEvent, CheckResponse, StructuringResponse, isFinalEvent, ProblemDetails, } from "./index.js";
 /** Splits a text/event-stream body into frames (WHATWG HTML §9.2). */
 export async function* readSseFrames(body) {
     const reader = body.getReader();
@@ -61,6 +61,38 @@ export class CheckStreamError extends Error {
         this.status = status;
         this.problem = problem;
     }
+}
+/** Failed HTTP response, including a parsed Problem when the server supplied one. */
+export class ApiError extends Error {
+    status;
+    problem;
+    constructor(status, problem) {
+        super(problem?.title ?? `API request failed with HTTP ${status}`);
+        this.name = "ApiError";
+        this.status = status;
+        this.problem = problem;
+    }
+}
+/** Transport-only API client: schemas and Problems are shared by both clients. */
+export function verificationClient(options = {}) {
+    async function post(path, text, schema) {
+        const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}${path}`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+            },
+            body: JSON.stringify({ text }),
+        });
+        const body = await response.json().catch(() => undefined);
+        if (!response.ok)
+            throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+        return schema.parse(body);
+    }
+    return {
+        createCheck: async (text) => (await post("/v1/checks", text, CheckResponse)).data,
+        structureReferences: async (text) => (await post("/v1/structurings", text, StructuringResponse)).data,
+    };
 }
 /**
  * Follows a Check's events until the Check ends. Reconnects with

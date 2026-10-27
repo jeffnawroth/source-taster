@@ -1,0 +1,251 @@
+{
+  "date": "2026-10-27T09:43:17.934Z",
+  "platform": "aarch64-apple-darwin",
+  "implementationCommit": "eb2364907266f61b239d47c13b37e71fadb58ecc",
+  "receiptRecipeSha256": "f8ce06b5c8937c0e5a4e98122bcaa65a7810b02858b0c272419d8494ed99b5c7",
+  "sourceFingerprintSha256": "8039a42b56f5f1ffd88a067c9f7eb11bd34dd794cd864d538e518efc25fffdc1",
+  "sourceFingerprintFiles": 102409,
+  "files": {
+    "build-receipt.json": {
+      "source": ".tmp/pagefind/receipt.json",
+      "originalSha256": "27afaf249c5891e798651b86c781caa202e0357b535413369a1d4da7aa338fe9",
+      "retainedSha256": "27afaf249c5891e798651b86c781caa202e0357b535413369a1d4da7aa338fe9",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "graphs.json": {
+      "source": ".tmp/pagefind/graphs.json",
+      "originalSha256": "f1cb2ceaebc140585ebace49d1a030534353a7440975b81be16746a8175c6b85",
+      "retainedSha256": "f1cb2ceaebc140585ebace49d1a030534353a7440975b81be16746a8175c6b85",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "qualification.json": {
+      "source": ".tmp/pagefind/evidence/qualification.json",
+      "originalSha256": "2b259c53cdc7522040d77a5bec9195bd208b28d99fad8a3094e64ee06bd50dbd",
+      "retainedSha256": "2b259c53cdc7522040d77a5bec9195bd208b28d99fad8a3094e64ee06bd50dbd",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "controls.json": {
+      "source": ".tmp/pagefind/evidence/controls.json",
+      "originalSha256": "1ac54143ded052445a94e745ab79d7bc7cc26ac4e764cea47ce2ade3d92e11d5",
+      "retainedSha256": "1ac54143ded052445a94e745ab79d7bc7cc26ac4e764cea47ce2ade3d92e11d5",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "bundle.json": {
+      "source": ".tmp/pagefind/bundle.json",
+      "originalSha256": "f8e6a6c6c972d3faefab75f09ad2ee834905ee78cb2db21234f911d0dd142281",
+      "retainedSha256": "f8e6a6c6c972d3faefab75f09ad2ee834905ee78cb2db21234f911d0dd142281",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "native-loads.jsonl": {
+      "source": ".tmp/pagefind/native-loads.jsonl",
+      "originalSha256": "773116b0536e86c3d9020eaab511229275b2c1e12ac5f43130b510db1c4bfe0f",
+      "retainedSha256": "c00fe589d165df9dbd480e04a3778de7d5f06f1d558b65ae2799adfcc19876a3",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "bundle-loads.jsonl": {
+      "source": ".tmp/pagefind/bundle-loads.jsonl",
+      "originalSha256": "a2f230247af9902870b0b6b9792292c87a236dfc113b8ee73484cfe7c25a546d",
+      "retainedSha256": "6eddd58f8d34e54ea1b3cc057f5cf045edb3c13150db6f984c0dabf8dd056fea",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "audit-summary.json": {
+      "source": ".tmp/audit/summary.json",
+      "originalSha256": "a22dfb863f243353c55beec3c427fc65a339b80a3530148bdb181d54b6ed0ae0",
+      "retainedSha256": "a22dfb863f243353c55beec3c427fc65a339b80a3530148bdb181d54b6ed0ae0",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "advisory-dispositions.json": {
+      "source": ".tmp/audit/website-dispositions.json",
+      "originalSha256": "712d22e21de06f5bd1ee9c30b3a6aa2627e75a2568f01ec39da3d435b42fc2e2",
+      "retainedSha256": "712d22e21de06f5bd1ee9c30b3a6aa2627e75a2568f01ec39da3d435b42fc2e2",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "osv.json": {
+      "source": ".tmp/audit/osv.json",
+      "originalSha256": "ede99d48c4a633a7ed7102409c2a1039edbda11daf9b2ec7ba541aa0a7775243",
+      "retainedSha256": "042fe1bbcf88256553d9f45ce3c9d75b093f742bab9ecf8edc310c811db6f9d6",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "npm-licenses.json": {
+      "source": ".tmp/audit/licenses.json",
+      "originalSha256": "4db899b158b61aa3b39515fd18933a265050cbe6f6a82d83a01925e7516b0e4a",
+      "retainedSha256": "4db899b158b61aa3b39515fd18933a265050cbe6f6a82d83a01925e7516b0e4a",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "native-license-sources.json": {
+      "source": ".tmp/pagefind/license-sources/manifest.json",
+      "originalSha256": "aa5e1e4f819aaca13210cd94d6aa2a28ab0c980834169f6e2db918be7510b58f",
+      "retainedSha256": "aa5e1e4f819aaca13210cd94d6aa2a28ab0c980834169f6e2db918be7510b58f",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "browser-distribution.json": {
+      "source": "apps/website/dist-preview/third-party/pagefind/manifest.json",
+      "originalSha256": "8ce14208683ad804155f268b8361a8b7b6be8496632c78724934c65aa32ba340",
+      "retainedSha256": "8ce14208683ad804155f268b8361a8b7b6be8496632c78724934c65aa32ba340",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "final-regression.json": {
+      "source": ".tmp/final-regression/results.json",
+      "originalSha256": "f041157ca9ac75bf31bb0517dbd7d043602c7d39cedad42856b8e79cdedc6b41",
+      "retainedSha256": "f041157ca9ac75bf31bb0517dbd7d043602c7d39cedad42856b8e79cdedc6b41",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "scanner-stale-red.txt": {
+      "source": ".tmp/scanner-stale-red.log",
+      "originalSha256": "dbc38ec7e6ebf1f427030b13a665ef48312bcadf3a75e47a3e2edd50739b8195",
+      "retainedSha256": "52068c2f2b5501169d1445b7055179c42f194ce301800348585feeddeeae4a56",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "scanner-stale-green.txt": {
+      "source": ".tmp/scanner-stale-green.log",
+      "originalSha256": "3eba5c97dd6a0764dff3988bb925e9e09da871ca83f10abe2b0cdb8a1a4ee186",
+      "retainedSha256": "bf25bd336995b0f8818220c36f4312b6867b0cd09deb8d7dcdd636db188d64b4",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "scanner-no-write-zero-green.txt": {
+      "source": ".tmp/scanner-no-write-zero-green.log",
+      "originalSha256": "3eba5c97dd6a0764dff3988bb925e9e09da871ca83f10abe2b0cdb8a1a4ee186",
+      "retainedSha256": "bf25bd336995b0f8818220c36f4312b6867b0cd09deb8d7dcdd636db188d64b4",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "source-page-red.txt": {
+      "source": ".tmp/source-page-red.log",
+      "originalSha256": "27f70f1a24eb70b2a0cf93894f09bf6c9b015bab9a37fe83b1558893e7451cce",
+      "retainedSha256": "ca803cf3d9cb5ee1755147a2aed02d118588c292566ded4fdd9a320c488f047b",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "source-page-green.txt": {
+      "source": ".tmp/source-page-green.log",
+      "originalSha256": "18d3b61ce227f28fc23b27f50cf10374dccb16d9da8457a53e11cc552edb134e",
+      "retainedSha256": "18d3b61ce227f28fc23b27f50cf10374dccb16d9da8457a53e11cc552edb134e",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "compiler.tree.txt": {
+      "source": ".tmp/pagefind/compiler.tree.txt",
+      "originalSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "retainedSha256": "aba08bf775679a566c106be3950ef036ddd1831d203a0b92ac1b94bdd80869a0",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "native.tree.txt": {
+      "source": ".tmp/pagefind/native.tree.txt",
+      "originalSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "retainedSha256": "2fa0a976a3891f37d4ed4fd250e4f441b3afdead45a713ff7eb6d3aae539dadb",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "rolldown.tree.txt": {
+      "source": ".tmp/pagefind/rolldown.tree.txt",
+      "originalSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "retainedSha256": "5596bcaf04aef712bfcf5fbd0938715b0a3ca709cf06e757aae8992585360ffa",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "satteri.tree.txt": {
+      "source": ".tmp/pagefind/satteri.tree.txt",
+      "originalSha256": "e6ba990e8d5c001073c527cdc69592e3632bb1217a6ed70757d0047757a6e8b5",
+      "retainedSha256": "5339bed21b89b6648b63da706bc1aa5d0680c41e53657dc6064c691460c810b8",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "web-de.tree.txt": {
+      "source": ".tmp/pagefind/web-de.tree.txt",
+      "originalSha256": "a6748d09771320fd80dd6d8b3dc9976296be8d586951f2f2c677b55083bbf463",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "web-en.tree.txt": {
+      "source": ".tmp/pagefind/web-en.tree.txt",
+      "originalSha256": "a6748d09771320fd80dd6d8b3dc9976296be8d586951f2f2c677b55083bbf463",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "web-unknown.tree.txt": {
+      "source": ".tmp/pagefind/web-unknown.tree.txt",
+      "originalSha256": "a6748d09771320fd80dd6d8b3dc9976296be8d586951f2f2c677b55083bbf463",
+      "retainedSha256": "4bfcb7eb830e2ce80ce7e8982069540883371cbbf4088b890898c3796cdcb697",
+      "normalization": "Only this checkout prefix replaced with /workspace/source-taster; all other bytes retained"
+    },
+    "commands/advisories-and-native-licenses.log.txt": {
+      "source": ".tmp/final-regression/advisories-and-native-licenses.log",
+      "originalSha256": "486e1a3f3b6ebda306ae52b00045b29f50275f58940972b77cccdb068bab71bb",
+      "retainedSha256": "459d251ed315fce6ce735631077d7970a2b0c01c6ab6af57bc5d05bf2345e158",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/artifacts.log.txt": {
+      "source": ".tmp/final-regression/artifacts.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retainedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/browser.log.txt": {
+      "source": ".tmp/final-regression/browser.log",
+      "originalSha256": "f3d97571cda0a3a773e53b719c3196245793602865ca712da956a2dc344702f6",
+      "retainedSha256": "2c31a754aa697c5f4c07a73f07522631c206e91025225e0a1355776a141a6d4f",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/build.log.txt": {
+      "source": ".tmp/final-regression/build.log",
+      "originalSha256": "d19f5e69dd6bb1d0fbe0b91f8ca2aa2c243a310798db16433293df56eb17c6c4",
+      "retainedSha256": "d34e46ae428e7949c8af6781cb371928f6a1c30a72e4a38bf53067432bfab8ae",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/catalog.log.txt": {
+      "source": ".tmp/final-regression/catalog.log",
+      "originalSha256": "5042c86e5b80d0d180177c86169cfdc8be92bc685d288fa15dc7b4a531757c47",
+      "retainedSha256": "ae6deebd67e2b3fe6586eff5b3cb3feeee4b795dc856b9ca7f1f4333f55d14b4",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/diff-check.log.txt": {
+      "source": ".tmp/final-regression/diff-check.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retainedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/http.log.txt": {
+      "source": ".tmp/final-regression/http.log",
+      "originalSha256": "6d37cca97d33dd5e6fa65f4f33baa06c31f36d69a64bac3dc4892f29857e2084",
+      "retainedSha256": "6c39f07f5c8b76733c76df6df8bf74f50201c2cbf2abec81694d9aba97061d9a",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/install.log.txt": {
+      "source": ".tmp/final-regression/install.log",
+      "originalSha256": "efff3c57f830026520b34d277c053f26408ee940931d59880ac7988302465993",
+      "retainedSha256": "efff3c57f830026520b34d277c053f26408ee940931d59880ac7988302465993",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/lint.log.txt": {
+      "source": ".tmp/final-regression/lint.log",
+      "originalSha256": "052c1553f4bbc668c47d157fb9ec2247e091c1cfa7a119e1c71a3a6cc36622af",
+      "retainedSha256": "7340d70b793d7471ef74fb9bfeb7c9ba9025bf946c1702ed53db79cc6eb04a42",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/npm-licenses.log.txt": {
+      "source": ".tmp/final-regression/npm-licenses.log",
+      "originalSha256": "45b2238bbea042f529ca4679c9ef87a33ab925a8b1a23d5c327808bc0d7c3622",
+      "retainedSha256": "45b2238bbea042f529ca4679c9ef87a33ab925a8b1a23d5c327808bc0d7c3622",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/operational-controls.log.txt": {
+      "source": ".tmp/final-regression/operational-controls.log",
+      "originalSha256": "073a02d6512e91a69d87127790c01cc2d73f06adfee7d67629d6c5f4cce53121",
+      "retainedSha256": "073a02d6512e91a69d87127790c01cc2d73f06adfee7d67629d6c5f4cce53121",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/post-control-verify.log.txt": {
+      "source": ".tmp/final-regression/post-control-verify.log",
+      "originalSha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51",
+      "retainedSha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/publication-refusal.log.txt": {
+      "source": ".tmp/final-regression/publication-refusal.log",
+      "originalSha256": "7845d359c4a889f2a822665d6925fee6084264cfe7bcde022c38c3ef024aa39c",
+      "retainedSha256": "e4524145c50b7e95babbcf4ef1eb3fd4510bfa2b3e7249c60e71a7666488752d",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    },
+    "commands/typecheck.log.txt": {
+      "source": ".tmp/final-regression/typecheck.log",
+      "originalSha256": "0470122ef325b271d16a1421e39faf8c95739bfa3f13572bd248054fe8f6e3c0",
+      "retainedSha256": "e90b9349983175d916a25ba609edf448f614552f4a573015dbcf13b376eb449f",
+      "normalization": "Checkout prefix replaced with /workspace/source-taster and trailing horizontal log whitespace and terminal empty log lines removed; original SHA-256 retained"
+    }
+  },
+  "status": "Current macOS technical evidence; human legal/publication gates remain closed; Linux current CI pending"
+}

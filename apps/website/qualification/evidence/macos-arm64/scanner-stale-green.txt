@@ -1,0 +1,22 @@
+Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+{"target":"aarch64-apple-darwin","packages":539,"licenseIssues":[],"legalStatus":"BLOCKED: concrete GPL/AGPL boundaries, microjson manifest/header interpretation, source offer and human legal review remain pending; no license waiver"}
+file:///workspace/source-taster/scripts/audit.ts:123
+  throw new Error(
+        ^
+
+Error: Missing current OSV report: scanner returned without readable current output
+    at file:///workspace/source-taster/scripts/audit.ts:123:9
+    at async file:///workspace/source-taster/scripts/audit.ts:122:23 {
+  [cause]: Error: ENOENT: no such file or directory, open '/workspace/source-taster/.tmp/audit/osv.json'
+      at async open (node:internal/fs/promises:637:25)
+      at async readFile (node:internal/fs/promises:1269:14)
+      at async file:///workspace/source-taster/scripts/audit.ts:122:23 {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/workspace/source-taster/.tmp/audit/osv.json'
+  }
+}
+
+Node.js v24.14.0
+Passed: stale clean report cannot satisfy a no-write scan

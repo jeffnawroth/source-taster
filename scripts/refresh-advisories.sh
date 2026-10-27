@@ -9,3 +9,10 @@ curl --fail --silent --show-error --location \
   --dump-header "$cache_dir/headers.txt" \
   https://osv-vulnerabilities.storage.googleapis.com/npm/all.zip \
   --output "$cache_dir/osv-scalibr/npm/all.zip"
+
+# Native Rust components embedded in Astro/Pagefind are not npm packages.
+mkdir -p "$cache_dir/osv-scalibr/crates.io"
+curl --fail --silent --show-error --location \
+  --dump-header "$cache_dir/crates-headers.txt" \
+  https://osv-vulnerabilities.storage.googleapis.com/crates.io/all.zip \
+  --output "$cache_dir/osv-scalibr/crates.io/all.zip"

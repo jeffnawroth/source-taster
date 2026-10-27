@@ -14,14 +14,13 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import {
-  StructuringResponse,
-  CheckResponse,
-  ProblemDetails,
   type Check,
   type ReferenceStatus,
 } from "@source-taster/contract-verification";
 import {
   CheckStreamError,
+  ApiError,
+  verificationClient,
   watchCheckEvents,
 } from "@source-taster/contract-verification/client";
 import { m } from "@source-taster/i18n";
@@ -37,6 +36,7 @@ import {
   type CitationStyle,
   type Preferences,
 } from "@source-taster/ui/preferences";
+import { InformationLinks } from "@source-taster/ui/information";
 import { StructuringResults } from "./structuring-results.tsx";
 import "./style.css";
 
@@ -61,55 +61,17 @@ const styleMessages = {
   "din-iso-690": "citation_style_din_iso_690",
 } as const satisfies Record<CitationStyle, keyof typeof m>;
 
-class ApiProblem extends Error {
-  readonly key: MessageKey;
-  readonly limit?: number;
-  constructor(key: MessageKey, limit?: number) {
-    super(key);
-    this.key = key;
-    this.limit = limit;
-  }
-}
-async function startCheck(text: string) {
-  const response = await fetch("/v1/checks", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "Source-Taster-Client": "web/0.0.0",
-    },
-    body: JSON.stringify({ text }),
-  });
-  if (!response.ok) {
-    const problem = ProblemDetails.safeParse(await response.json());
-    const key = problem.data?.i18nKey;
-    throw new ApiProblem(
-      key?.startsWith("problem_") && key in m
-        ? (key as MessageKey)
-        : "problem_internal",
-    );
-  }
-  return CheckResponse.parse(await response.json()).data;
-}
-async function structureText(text: string) {
-  const response = await fetch("/v1/structurings", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "Source-Taster-Client": "web/0.0.0",
-    },
-    body: JSON.stringify({ text }),
-  });
-  if (!response.ok) {
-    const problem = ProblemDetails.safeParse(await response.json());
-    const key = problem.data?.i18nKey;
-    throw new ApiProblem(
-      key?.startsWith("problem_") && key in m
-        ? (key as MessageKey)
-        : "problem_internal",
-      problem.data?.limit,
-    );
-  }
-  return StructuringResponse.parse(await response.json()).data;
+const api = verificationClient({ client: "web/0.0.0" });
+function problemKey(error: unknown, fallback: MessageKey): MessageKey {
+  const key =
+    error instanceof ApiError || error instanceof CheckStreamError
+      ? error.problem?.i18nKey
+      : undefined;
+  return key?.startsWith("problem_") && key in m
+    ? (key as MessageKey)
+    : error instanceof ApiError
+      ? "problem_internal"
+      : fallback;
 }
 const statusMessage = {
   running: "status_running",
@@ -132,7 +94,7 @@ function Workspace() {
     document.title = m.app_title();
   }, [locale]);
   const create = useMutation({
-    mutationFn: startCheck,
+    mutationFn: api.createCheck,
     onSuccess: (created) => {
       structure.reset();
       controller.current?.abort();
@@ -165,20 +127,12 @@ function Workspace() {
         },
       }).catch((error) => {
         if (next.signal.aborted) return;
-        const key =
-          error instanceof CheckStreamError
-            ? error.problem?.i18nKey
-            : undefined;
-        setStreamError(
-          key?.startsWith("problem_") && key in m
-            ? (key as MessageKey)
-            : "problem_connection",
-        );
+        setStreamError(problemKey(error, "problem_connection"));
       });
     },
   });
   const structure = useMutation({
-    mutationFn: structureText,
+    mutationFn: api.structureReferences,
     onMutate: () => {
       controller.current?.abort();
       setCheck(null);
@@ -191,11 +145,7 @@ function Workspace() {
   const requestError = structure.error ?? create.error;
   const errorKey =
     streamError ??
-    (requestError
-      ? requestError instanceof ApiProblem
-        ? requestError.key
-        : "problem_connection"
-      : null);
+    (requestError ? problemKey(requestError, "problem_connection") : null);
   function changePreferences(patch: Partial<Preferences>) {
     const next = { ...preferences, ...patch };
     void setLocale(next.language, { reload: false });
@@ -303,8 +253,8 @@ function Workspace() {
         >
           {m[errorKey]({
             limit: String(
-              requestError instanceof ApiProblem
-                ? (requestError.limit ?? 1000)
+              requestError instanceof ApiError
+                ? (requestError.problem?.limit ?? 1000)
                 : 1000,
             ),
           })}
@@ -341,6 +291,10 @@ function Workspace() {
           </div>
         </section>
       )}
+      <InformationLinks
+        language={locale}
+        siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+      />
     </main>
   );
 }

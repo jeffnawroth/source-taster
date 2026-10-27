@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "target": "x86_64-unknown-linux-gnu",
+  "version": "1.5.2",
+  "recipeSha256": "f4bc41eca69ae79176b345c79429cb34d94067196f748f799d1a53f92486731d",
+  "recipe": {
+    "inputs.json": "16f474fca7d1fa97130f8434a6ec02c4fd0026ec596bf7af796712933eaf18d9",
+    "toolchain.json": "4fa99fa5519cbb8708fa49aaf132b606f1ec09397eafe2922fcc20b874f3cd65",
+    "patches/minimal-pagefind.patch": "5aed5399b396a2e3b5c0ea9de7bd1e10982d679bb3196f1a1e884e42e556f96a",
+    "patches/rust-patch-diagnostics.patch": "d9955937e52003b59eaddd90047f9b0aba5d361b892a776af6622018f686474d",
+    "locks/native.Cargo.lock": "898b8b9ab11bc86021c9953ce476e4dcb6793724f150d509c4ec6f0cdd42e293",
+    "locks/web.Cargo.lock": "cd51eccc989c568a8af0446d7f027e2fdfc971638faddd3531881a8783713a16",
+    "locks/compiler.Cargo.lock": "d050109696e0768eb8d275974545226103e470686198e3f96fc59c5b6b33fa48",
+    "locks/rolldown.Cargo.lock": "da8b6029b0007daaf0dabb74ca1e9276f1cd434dad6c8c0a002f16663164f4b4",
+    "locks/satteri.Cargo.lock": "5b3552a37b7ab9b0e267d6c374e477e79261383f2b9e262689079eae589f606b",
+    "scripts/pagefind-source.ts": "b496ea70a1a8d3f0212d0ad81f4a17f31984734c4c8e3fe74b0b56142578ebd2",
+    "scripts/pagefind-bundle.ts": "5b07e37ae4b7b4c129555effd218c6e826aa195218d57b6fb33a33779376bca6",
+    "scripts/website-native-trace.ts": "4a77a33dea942c3d3a7e533f72ed5d00ec62e988f0b51b66e1367b3d03c88bc7",
+    "scripts/pagefind-rustc.ts": "7d76f779e06a321901411bbb3cc8d88937238aac7d3122dfb74f516a561e59b0",
+    "pnpm-lock.yaml": "4d524b9b4925c1cf1ccdd8ca625e173167551be6a0add76f52551c7ad4ee2a94"
+  },
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+  "cc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "hostTools": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v24.14.0",
+    "cc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "ccSha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+    "linkerSha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+    "nodeSha256": "e237a2839d0cbdc9a9a2adda1a184afc0f5b20306ffbe923af5686550472d8a8",
+    "actualCcSha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+    "actualLinkerSha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b"
+  },
+  "cmake": "4.4.4",
+  "rolldown": "1.2.15",
+  "nativeFeatures": [],
+  "wasmFeatures": [
+    "de",
+    "en"
+  ],
+  "files": {
+    "bin/pagefind": "1a19745188b0efb0f87274db5246979ed7d7364f5f68eea8e5d910de9ce1d1f1",
+    "bin/astro.node": "647d970ffddd4b85f07456a1fb67359cf492cc4126f4b724c196fa7a5da3d6c9",
+    "bin/rolldown.node": "6e3005f478b2b0c56c5eb93878c1472c03ad9a504845df999c51a0de3ee81322",
+    "bin/satteri.node": "ba9735eef9bb025eb6e0131789cdcc48922aa6f7dd015f22fcc26d43c2d789e9",
+    "bundle.json": "f8e6a6c6c972d3faefab75f09ad2ee834905ee78cb2db21234f911d0dd142281",
+    "graphs.json": "3b06552f4838b0847cb1ccfd18829497c2219ddfc6d88c0af293a42da1d8589b",
+    "native.tree.txt": "ea997e364939484d3e3de4a9b8914c339f36e442b00dc4410f45a2412f12e9af",
+    "compiler.tree.txt": "77a45cd3594531bef9ec1365d295632001cd7e9e1bfb6ae46b0bb616c7336ef4",
+    "rolldown.tree.txt": "76b6bc014fb05475dea45d0d63179e97e70cdaed7b76345f0dcf6d9a53af65d3",
+    "satteri.tree.txt": "e50e709a36bc7f3b3cd0c679671649ba19da6ffba0a5ee14ae76ac66af7d1f04",
+    "web-de.tree.txt": "c7e4d89b0a6850df5acd119ae589dfca49813c8f000ad52999c52d7d542d46bb",
+    "web-en.tree.txt": "c7e4d89b0a6850df5acd119ae589dfca49813c8f000ad52999c52d7d542d46bb",
+    "web-unknown.tree.txt": "c7e4d89b0a6850df5acd119ae589dfca49813c8f000ad52999c52d7d542d46bb",
+    "source/pagefind/vendor/pagefind_public_search_api.1.5.2.js": "23527833d954e15507cee3ce246cf4ef02c4ac4e59294141555fba4c47f3e567",
+    "source/pagefind/vendor/pagefind_web.1.5.2.js": "fc89350bb9fe0b11f393e677d2f3d60741f8bcc5e2d42eeb88f18c2fdfdf3e66",
+    "source/pagefind/vendor/pagefind_worker.1.5.2.js": "848f5d50bc2345d2592d9bb894e0bc11053ac31cc8024b5db5c9412d6bade5d8",
+    "source/pagefind/vendor/wasm/pagefind_web_bg.unknown.1.5.2.wasm.gz": "ebf32682015db72b01d89f0086200ca1875fcc39b28c5c17e87b454619b0d61a",
+    "source/pagefind/vendor/wasm/pagefind_web_bg.de.1.5.2.wasm.gz": "771d894c109e4aa8be202502250221018407c3d3e35fd88f6831ccd224f2dc6c",
+    "source/pagefind/vendor/wasm/pagefind_web_bg.en.1.5.2.wasm.gz": "51ab921ea018c3590d22b72372347b2a9c88ac5da7d4c563e6c8d93dbea68721"
+  }
+}

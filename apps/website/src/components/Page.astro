@@ -1,0 +1,67 @@
+---
+// SPDX-License-Identifier: AGPL-3.0-or-later
+import { copy, pages, pathFor, type Language, type Page } from '../content';
+import '../style.css';
+interface Props {
+  language: Language;
+  page: Page;
+  legal?: { version: string; status: string };
+}
+const { language, page, legal } = Astro.props;
+const t = copy[language];
+const preview = process.env.SOURCE_TASTER_WEBSITE_PREVIEW !== '0';
+const other = language === 'en' ? 'de' : 'en';
+const site = (id: string) => pathFor(language, { id, section: 'site' });
+---
+<!doctype html>
+<html lang={language}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={page.summary} />
+    <meta name="referrer" content="no-referrer" />
+    {preview && <meta name="robots" content="noindex, nofollow" />}
+    <title>{page.title} · Source Taster</title>
+    <link rel="alternate" hreflang={other} href={pathFor(other, page)} />
+  </head>
+  <body>
+    <a class="skip" href="#content">{t.skip}</a>
+    {preview && <div class="draft">{t.draft}</div>}
+    <header>
+      <a class="brand" href={site('home')}>Source Taster</a>
+      <nav aria-label={t.nav}>
+        <a href={pathFor(language, {id:'index',section:'docs'})}>{t.docs}</a>
+        <a href={site('faq')}>{t.faq}</a>
+        <a href={site('contact')}>{t.contact}</a>
+        <a href={pathFor(other, page)} lang={other} hreflang={other}>{other === 'de' ? 'Deutsch' : 'English'}</a>
+      </nav>
+    </header>
+    <main id="content" tabindex="-1">
+      <article data-pagefind-body={page.section === 'docs' ? '' : undefined}>
+        <h1>{page.title}</h1>
+        <p class="summary">{page.summary}</p>
+        {legal && <p class="legal-state">{legal.status === 'draft' ? t.pending : ''} · {t.version}: {legal.version}</p>}
+        {page.paragraphs.map(p => <p>{p}</p>)}
+      </article>
+      {page.section === 'docs' && (
+        <section aria-labelledby="guides">
+          <h2 id="guides">{t.docs}</h2>
+          <ul>
+            {pages[language]
+              .filter(p => p.section === 'docs' && p.id !== 'index')
+              .map(p => <li><a href={pathFor(language, p)}>{p.title}</a></li>)}
+          </ul>
+        </section>
+      )}
+      <slot />
+    </main>
+    <footer><nav aria-label={t.legal}>
+      <a href={site('legal-notice')}>{t.notice}</a>
+      <a href={site('terms')}>{t.terms}</a>
+      <a href={site('privacy')}>{t.privacy}</a>
+      <a href={site('withdrawal')}>{t.withdrawal}</a>
+      <a href={site('accessibility')}>{t.accessibility}</a>
+      <a href={`/third-party/pagefind/${language}/`}>{t.searchLicenses}</a>
+    </nav></footer>
+  </body>
+</html>

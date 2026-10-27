@@ -1,0 +1,6 @@
+Scope: all 11 workspace projects
+Agent skills awaiting approval: @tanstack/react-router.
+Run "pnpm approve" to review them.
+✓ Lockfile passes supply-chain policies (verified 5h ago)
+Lockfile is up to date, resolution step is skipped
+Done in 61ms using pnpm v12.15.0

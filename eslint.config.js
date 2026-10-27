@@ -8,6 +8,8 @@ import tseslint from "typescript-eslint";
 export default defineConfig(
   globalIgnores([
     "**/dist/",
+    "**/dist-preview/",
+    "**/.astro/",
     "**/src/generated/",
     "**/src/paraglide/",
     "**/.tmp/",

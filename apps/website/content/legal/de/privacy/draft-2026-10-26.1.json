@@ -1,0 +1,17 @@
+{
+  "language": "de",
+  "id": "privacy",
+  "version": "draft-2026-10-26.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Datenschutzerklärung",
+  "summary": "Entwurfsbeschreibung dieser Informationsseite und der vorgesehenen Supportrichtlinie.",
+  "paragraphs": [
+    "Dies ist ein Entwurf rechtlicher Inhalte, Version draft-2026-10-26.1. Verantwortlicher, Kontaktadresse, Rechtsgrundlagen, Empfängerverzeichnis und abschließende Aufbewahrungszuordnung müssen vor Veröffentlichung rechtlich freigegeben werden.",
+    "Diese Informationsseite verwendet keine Analysewerkzeuge, fremden Einbettungen, entfernten Schriftarten, Anmeldung oder Kontaktformulare. Sie setzt keine Cookies und speichert weder Sprache noch Suchbegriffe. Die URL bestimmt die Sprache; die Dokumentationssuche verarbeitet Suchbegriffe im Browser und lädt nur lokal gehostete öffentliche Suchdateien.",
+    "Der Hostinganbieter verarbeitet zwangsläufig Netzwerkanfragen. Die tatsächlichen Zugriffsprotokolle, Sicherheitsaufzeichnungen, Löschfristen, Auftragsverarbeitungsbedingungen, Standorte und Sicherungsverfahren müssen qualifiziert werden; dieser Entwurf verspricht nicht, dass kein Server IP-Adressen verarbeitet.",
+    "Der getrennte Web-Arbeitsbereich speichert Sprache und Zitierstil eines Gastes in seinem Browserspeicher. Diese Website liest oder schreibt diese Einstellungen nicht. Künftige Konto-, Zahlungs- und Prüfverarbeitung benötigt vor Aktivierung eigene zutreffende Informationen.",
+    "Ein Supportpostfach ist nicht aktiv. Vorgesehen ist die Löschung von Supportunterhaltungen zwölf Monate nach der letzten Nachricht. Bestimmte Abrechnungs- oder Rechtsbelege folgen einer eigenen geprüften Aufbewahrungszuordnung. Postfachstandort, Sicherungen, Löschung und Dienstleisterverzeichnis sind noch zu prüfen.",
+    "Vor Veröffentlichung sind der tatsächliche Verantwortliche und Datenschutzkontakt, Zwecke und Rechtsgrundlagen, alle tatsächlichen Empfänger und Übermittlungsgarantien, Aufbewahrungs- und Sicherungsfristen, Betroffenenrechte und die zuständige Aufsichtsbehörde zu ergänzen. Senden Sie mit Supportanfragen keine Literaturangaben oder privaten Dokumente."
+  ]
+}

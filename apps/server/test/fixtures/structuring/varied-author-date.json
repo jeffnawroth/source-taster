@@ -1,0 +1,42 @@
+{
+  "description": "Independently written synthetic development examples (not real publications, heldout corpus or quality evidence). Expected fields were transcribed from the supplied text before running the parser.",
+  "text": "Ng, A., & Chen, B. (2018). Rivers and cities. East Press.\n\nO’Neil, C. (2023b) ‘Open archives’, Review of Maps, 7(4), pp. 201–209.\n\nSato, Keiko. 2016. “Coastal records.” Archives Quarterly 9 (2): 81–99.\n\nGarcía, Elena. “Counting stars.” Observatory Notes, vol. 6, no. 1, 2015, pp. 7–18.",
+  "expected": [
+    {
+      "author": [
+        { "family": "Ng", "given": "A." },
+        { "family": "Chen", "given": "B." }
+      ],
+      "issued": { "literal": "2018" },
+      "title": "Rivers and cities",
+      "publisher": "East Press"
+    },
+    {
+      "author": [{ "family": "O’Neil", "given": "C." }],
+      "issued": { "literal": "2023b" },
+      "title": "Open archives",
+      "container-title": "Review of Maps",
+      "volume": "7",
+      "issue": "4",
+      "page": "201–209"
+    },
+    {
+      "author": [{ "family": "Sato", "given": "Keiko" }],
+      "issued": { "literal": "2016" },
+      "title": "Coastal records",
+      "container-title": "Archives Quarterly",
+      "volume": "9",
+      "issue": "2",
+      "page": "81–99"
+    },
+    {
+      "author": [{ "family": "García", "given": "Elena" }],
+      "issued": { "literal": "2015" },
+      "title": "Counting stars",
+      "container-title": "Observatory Notes",
+      "volume": "6",
+      "issue": "1",
+      "page": "7–18"
+    }
+  ]
+}

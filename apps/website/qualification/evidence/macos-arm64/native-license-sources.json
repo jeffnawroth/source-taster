@@ -1,0 +1,1020 @@
+{
+  "policySha256": "0aed405303c1555495beacda7fb46af5c677e18650c757b1c814affc09c9fc62",
+  "evidence": [
+    {
+      "identity": "const_format@0.2.35",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "7faa7469a93a566e9ccc1c73fe783b4a65c274c5ace346038dca9c39fe0030ad",
+      "archiveUrl": "https://static.crates.io/crates/const_format/const_format-0.2.35.crate",
+      "expression": "Zlib",
+      "elected": "Zlib",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "2a351c8279859c0f5ba784f45a63b3a3fbd7651d634e1bf673c13630e9b05f2b",
+        "Cargo.toml.orig": "b819d7be9afe35281d4b0fde3a9780cffce44505705bc51550e3fbf91e1b8f95",
+        "LICENSE-ZLIB.md": "c1e018d60dd011b335b5280b919bd3a75dbba81c6fbe24e2fc90cb235bdb6883",
+        ".cargo_vcs_info.json": "00d756172ccf0833cc9c9a070b9f49b93d3b297344a02bfca1f792251934ed2b"
+      },
+      "obligations": [
+        "Retain copyright, disclaimer and all three restrictions in source copies.",
+        "Do not misrepresent origin; plainly mark any altered source. These registry archives are unmodified."
+      ]
+    },
+    {
+      "identity": "const_format_proc_macros@0.2.34",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "1d57c2eccfb16dbac1f4e61e206105db5820c9d26c3c472bc17c774259ef7744",
+      "archiveUrl": "https://static.crates.io/crates/const_format_proc_macros/const_format_proc_macros-0.2.34.crate",
+      "expression": "Zlib",
+      "elected": "Zlib",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "4e23cf4e642473968fba8718ad8a8f4fbe51b2ea258aa96fa354d5cc51f4d695",
+        "Cargo.toml.orig": "1c14c197ac01ccd21ceed99334aa94c9962ae3f682bef9d1130660eb6c49cabf",
+        "LICENSE-ZLIB.md": "c1e018d60dd011b335b5280b919bd3a75dbba81c6fbe24e2fc90cb235bdb6883",
+        ".cargo_vcs_info.json": "433a4eea65b3dcdf36ed7411e3770b43dda43752df4b0b8012ebde6cae73524e"
+      },
+      "obligations": [
+        "Retain copyright, disclaimer and all three restrictions in source copies.",
+        "Do not misrepresent origin; plainly mark any altered source. These registry archives are unmodified."
+      ]
+    },
+    {
+      "identity": "cssparser@0.36.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2",
+      "archiveUrl": "https://static.crates.io/crates/cssparser/cssparser-0.36.0.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "1a1bf623e831c9015a9c91aac6f960825e2d397be3974fcce56ebf73dd9d7aec",
+        "Cargo.toml.orig": "5ac4e40a687563e07fd9e8988d4ba064ce1453c59c635648e94d3b25b1ba22b5",
+        "LICENSE": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+        "src/color.rs": "e0f43f7fd0e4ef2051e55675ae9ca30215382b403472f3d0ebe84f55899e857d",
+        "src/cow_rc_str.rs": "88edf6a4a1b3d4338885a8eacc29a9e7115d4fae0f227c9a81a4d53c5a546693",
+        "src/from_bytes.rs": "1223c1ccf619735ccf7c28a8d154d516aa117fdbddcf091e2e8952e68fe53a80",
+        "src/lib.rs": "817a739180a561f9e7e45c539b4191af1286ca61e29cb2b8a366cd21bd5c7a9e",
+        "src/macros.rs": "64ad9e506e5cea52767a5177779ac4a1cbdac1b2188abaa1291e9feb8f1653bf",
+        "src/nth.rs": "972cc94275126e747c95621e8c5f56ce5d869924e60bb0dc990f4c98f3d74890",
+        "src/parser.rs": "88dd21884a5f46edcd5687a6f64e5ca83f41562bf536f40704d26455f46b3bcd",
+        "src/rules_and_declarations.rs": "b9e2a9b8b6c52b0fc18237f71432ed37276ba274f1c8257570c704bfc05579a3",
+        "src/serializer.rs": "e3aa3e0ca294d34b3850e54680f4475143aa09fcb85129fa85d7084c4c9ea09e",
+        "src/size_of_tests.rs": "f29de7c5cb681cb36b81d22f6b103df61e3bf1406758fa5606138dbf6b49db58",
+        "src/tests.rs": "e7b0658dfdc13717c55dc2d0305ad3e237c3d9df489619bb69685652b9f7d482",
+        "src/tokenizer.rs": "952c763521e34572590c30539b9673f55cf567ac44cf8fb54dbfb864800f7e1a",
+        "src/unicode_range.rs": "7ea876f64e2c83679e9cecccf9f332bebffe512f487da47a0c06e423c8662110",
+        ".cargo_vcs_info.json": "f0af6c4fb3969fea2c76a982abcec85912c5459244202577dc50daa63652305d"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "cssparser-macros@0.6.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331",
+      "archiveUrl": "https://static.crates.io/crates/cssparser-macros/cssparser-macros-0.6.1.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "d4a43ad31d5048cf19ee80ec38de90fa98b9b9902b97d61e4edc940246806295",
+        "Cargo.toml.orig": "3edb5c90ee723720d1dce0e64ce931bd84244ccf9f3a0be9fc600dde7bc0ef50",
+        "LICENSE": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+        "lib.rs": "10e68d5a92a053ff498cb1caa8290e508f691e32b73222a5a4737ee9a4097ce2",
+        ".cargo_vcs_info.json": "705364eb932e3234e7257532d9c3a92812353a3c7352932bc881334763c23ff0"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "dtoa-short@0.3.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87",
+      "archiveUrl": "https://static.crates.io/crates/dtoa-short/dtoa-short-0.3.5.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "f6316d9ba867b8cdcdc39142bcc1690f769cc54e41c4425b96fe33ee442e11b5",
+        "Cargo.toml.orig": "ed114f7b0c4ad0bed69fa6e793d1c89f8d2cc342fc1dc1319683519e6ef27b28",
+        "LICENSE": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+        "src/lib.rs": "3ab8d9a808725e9bc1972cc385be659ebf786bb17c45f7ad2c3b63fd3973b39d",
+        ".cargo_vcs_info.json": "5b1c95547aaba08b15aac1a0d0bfdf2c27665d4305e89942c30418ec89d57680"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "foldhash@0.2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb",
+      "archiveUrl": "https://static.crates.io/crates/foldhash/foldhash-0.2.0.crate",
+      "expression": "Zlib",
+      "elected": "Zlib",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "0a76cc29da1c33f4bdb505f5828ecdc20859c4cb9faa402e000f5f10511a27cc",
+        "Cargo.toml.orig": "04350078f390441844a35994ad83f2873b685a023c433ecb14eda200a5cb2f90",
+        "LICENSE": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744",
+        ".cargo_vcs_info.json": "5fe3916c8cc3fa6dab42352cec91217e071ece146a4c10d38b8c608de2d2925d"
+      },
+      "obligations": [
+        "Retain copyright, disclaimer and all three restrictions in source copies.",
+        "Do not misrepresent origin; plainly mark any altered source. These registry archives are unmodified."
+      ]
+    },
+    {
+      "identity": "selectors@0.33.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "feef350c36147532e1b79ea5c1f3791373e61cbd9a6a2615413b3807bb164fb7",
+      "archiveUrl": "https://static.crates.io/crates/selectors/selectors-0.33.0.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "aaa975493791920faa23d43daaae4e035f25ffe7e1488491c6ff9a909fc722f5",
+        "Cargo.toml.orig": "7b43a0508c126204728d6687b6e0ca32f199fec5dbd574802726fb6e2ec45a2d",
+        "attr.rs": "cfb9ba3ae47538a05b218ed63cc1360ebcf7ba448cb910f2af638f66244c1ae6",
+        "bloom.rs": "3ce89fe5366a0f3e493ad00cdca426be1d4cdd8fa9d3e995759cb794eb794f33",
+        "build.rs": "36ba09a8d2089d0cae8e310829ecf0e94bcbaa87e775a6578c7d2f0459a5b6ca",
+        "builder.rs": "fa8414e9df4ef875778c79be5bcb4c38ec420b8b5df047e21251a648933ca931",
+        "context.rs": "307f0c47e03cbb949df63e37506bc388b6e72cd0cd9d336d54c431e828ce9109",
+        "kleene_value.rs": "1932450194f7114d89151a09efa79130f34961e2556fb79b92d4c5e174adb823",
+        "lib.rs": "d54c6e13e9e952dac17d209171df8657e3cae93beaddace4906150cdec8d02e9",
+        "matching.rs": "e7ddb8d0647d3f9f690f181f967f1aecc1fd74fa622316ada871b2dfafc3a6d7",
+        "nth_index_cache.rs": "2f4e94a1010c867ce4b96619e90f1574449769fc5f3f419a2b84e4613d4ab39c",
+        "parser.rs": "a495eab352da620d7716407f171b49578ce2ccd98780bd6ccb6ce124e6512dc6",
+        "relative_selector/cache.rs": "c6460f5db8c74421af0890c4c69119450397258f64be169c91d0320e2d8626f4",
+        "relative_selector/filter.rs": "7ea15f5d310fca2254ac36989bfeee06dd0e9897ccec0b886b75b550e0225177",
+        "relative_selector/mod.rs": "29e305635f471d8467a6eca83ef83dcbda769ecc62976a708c98afa418ab76a6",
+        "sink.rs": "34d4cd4127a6e4979eba11f8e6c41dbc527c0a996be78bd2e3167916c025a04b",
+        "tree.rs": "257a2b30dcdd07bcf0d2519301c4e0678b8ae1a0ba22ad122a7a9132027b62ee",
+        "visitor.rs": "3b39f678c2f89c720d2d4fe9bb9064e283609ed49c190cc5a657705522f91dfd",
+        ".cargo_vcs_info.json": "ece7ba01e2f56cda5e1344dac832ae6b23f60beb4e31ce20cc4a1fedc1c1732b"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "unicode-ident@1.0.24",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "archiveUrl": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "native",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "pagefind",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "b6bacb6c3a55816fe44c93fac933443ac7749bddef37fb00cef0846587ee6008",
+      "files": {
+        "Cargo.toml": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+        "Cargo.toml.orig": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "cssparser@0.37.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "8c9cdaae01d5ed7882b04d795e7f752f46ff52d2fa3b50a20d28c464510bba98",
+      "archiveUrl": "https://static.crates.io/crates/cssparser/cssparser-0.37.0.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "0ac783c96e15668a9efd9e43c9218953c49bf1441779ea622d065d7b643c7697",
+        "Cargo.toml.orig": "1b018bdc84c21092d9dfc56f33b722ee0cea01547d59821dd5eec2f3338b90e6",
+        "LICENSE": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+        "src/color.rs": "5d6e933cea7b1eaca4f257a682f8c3597f185e21bc64c53cf77f0c91e6ea9b84",
+        "src/cow_rc_str.rs": "88edf6a4a1b3d4338885a8eacc29a9e7115d4fae0f227c9a81a4d53c5a546693",
+        "src/from_bytes.rs": "1223c1ccf619735ccf7c28a8d154d516aa117fdbddcf091e2e8952e68fe53a80",
+        "src/lib.rs": "0ed4b253cac886f3b365958279c5efa094f7b4bfd4e44896b6ebaf32994d6fa9",
+        "src/macros.rs": "731f263f6a7a1dd41029e522b58f2c8e193ddd3243f814da588635283128cd36",
+        "src/nth.rs": "86b0a3c19ecaac27ca95a97ee0f9f703b0d21f7b14c3e6d2f2ce12af78cb24a2",
+        "src/parser.rs": "c6d56e8921b4cb2f02d7b9620044f0d79fc911350d73199c7797ad690b4cc79f",
+        "src/rules_and_declarations.rs": "b9e2a9b8b6c52b0fc18237f71432ed37276ba274f1c8257570c704bfc05579a3",
+        "src/serializer.rs": "ccc3f0e44189284b46dfad1d48ca5c21860f2c7e1c00540da5cee77e0c891275",
+        "src/size_of_tests.rs": "f29de7c5cb681cb36b81d22f6b103df61e3bf1406758fa5606138dbf6b49db58",
+        "src/tests.rs": "5ed73aa37e42ebb06bccd0860686504d3467ae3ddd75e513812dfaf5a83e926a",
+        "src/tokenizer.rs": "0be69dc2fb909133a4e3148e1f70b5fae4328175ad49634b465f4126f5351ebd",
+        "src/unicode_range.rs": "7ea876f64e2c83679e9cecccf9f332bebffe512f487da47a0c06e423c8662110",
+        ".cargo_vcs_info.json": "f962147af040486a7d5e1159d3724d7e2bd4050cf0265f1e0087a263e2a915e0"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "cssparser-color@0.5.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "bbaa233e1dcd9c13a5d3e3a8a2c0f5a727bac380398345dbcb31db4597edc86b",
+      "archiveUrl": "https://static.crates.io/crates/cssparser-color/cssparser-color-0.5.0.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "ee2bd594e562cdcb1393ad1c9fe977eb9e850b6cb46aa70bdd637caf1f0d498b",
+        "Cargo.toml.orig": "3975b52e378ebbeb7149f271984233c2ece2f986276f26a41966a35c5edf5dd3",
+        "LICENSE": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+        "lib.rs": "ad1e7a0d86bc8723666207d24a415fa8f26d84fb4bf938ffdeb1b89e6eb871db",
+        "tests.rs": "ac8986c813d8ffb2c823794e1d79b5e91c71ebfbab8fa1c8c0156be999511a53",
+        ".cargo_vcs_info.json": "b7828801126787b5d6aa8333199b7790a01df287a4cc4d5415a388c5eac6f7d2"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "cssparser-macros@0.7.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "10a2a99df6e410a8ff4245aa2006499ea662245f967cc7c0a38c83ef8eb44dbf",
+      "archiveUrl": "https://static.crates.io/crates/cssparser-macros/cssparser-macros-0.7.0.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "40668dc2f688436f818ce0e8739b3b4c517afc242e5ce9145db706d1960fbd7e",
+        "Cargo.toml.orig": "41dd3893b2f05015715e6205a4c60f31592790dd6615b7e74aabbb846eb6ca93",
+        "LICENSE": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+        "lib.rs": "ba8fe37213029ab22423da328c53171ce9807882ab9d898bd909383dd9d3803f",
+        ".cargo_vcs_info.json": "fdbe37376e47a3c284309f86ab0b5989e42e4463e3ecede7189baf46e2160a0c"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "dtoa-short@0.3.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87",
+      "archiveUrl": "https://static.crates.io/crates/dtoa-short/dtoa-short-0.3.5.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "f6316d9ba867b8cdcdc39142bcc1690f769cc54e41c4425b96fe33ee442e11b5",
+        "Cargo.toml.orig": "ed114f7b0c4ad0bed69fa6e793d1c89f8d2cc342fc1dc1319683519e6ef27b28",
+        "LICENSE": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+        "src/lib.rs": "3ab8d9a808725e9bc1972cc385be659ebf786bb17c45f7ad2c3b63fd3973b39d",
+        ".cargo_vcs_info.json": "5b1c95547aaba08b15aac1a0d0bfdf2c27665d4305e89942c30418ec89d57680"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "parcel_selectors@0.28.3",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "d05f71e01edca03d245ab0a9f7ce13a974ceb79baaae8faf2ba0b11de6b90913",
+      "archiveUrl": "https://static.crates.io/crates/parcel_selectors/parcel_selectors-0.28.3.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "9531b7f94d097a6abd1e1146cb31c88f013d29111ab7b7c53ed4b7af7d6aae49",
+        "Cargo.toml.orig": "51dba803439430f82e87f463e75f1a4cf709e2df9328451e24d581a5c86da424",
+        "LICENSE": "1af2d2b02d9c86030d29ed77117ca7a1b0e4b6ff35bcf8eeb124867d0f5cb59e",
+        "attr.rs": "83cf2086ea751fd40c405d2205b5f6463dfc55abbf78fd84ad4dba7e96700308",
+        "bloom.rs": "863e88c5c1ae6eaa651a337f68d8b2f1e6b7707318baff566497c4bf1ecdd3f3",
+        "build.rs": "42ab390ffdb074f1d386c660d2b0cf35c88847b6bff335a6784198dc2bb0baac",
+        "builder.rs": "e98de95067b8aa77bb706ca3e113afde4b694961cbabcffa1e1219465fb6d6cf",
+        "context.rs": "85ab9196bfeb474e8a8a010c554294fff6e0dcb1c226b3428aa679b6b364114f",
+        "lib.rs": "bce5db582987827135a178aba673b1faabd96a0c3a1aaaa7ad0112d6a74d4c3c",
+        "matching.rs": "fba60e2f37b8b58c8f1f32604cccdfb1006c9322db38f583475e4c075900c1a8",
+        "nth_index_cache.rs": "7c2f9874c0cdae5bf241221b636ff556dc820fad410def2d270b65be5a175799",
+        "parser.rs": "ee0bbfcc4e8533175c8f1836ba6ba2e2f6d645b4b99f4778d147a0ff82f27608",
+        "serialization.rs": "b496c2eaf2a3a3a7c03e4acbdce59985c07f2e7c8debb2d4ae1c36fa1a6855b3",
+        "sink.rs": "143d5a65dc12cc8910e365fd4b3408f46e499d410bdd1a4d4529f4b85bb00ca8",
+        "tree.rs": "8cb64e963ff23894abd146566e8a0b6a0555fd3d3828b28bacc8d987ec74e7e6",
+        "visitor.rs": "d1f894ad0a2130dec8bed5385fbb8641f32ecd677e57b41d3fbc4668e512ff7c",
+        ".cargo_vcs_info.json": "bc8c1a49a29d64a147671e8212c7e7f49f9139b790c6ea659384674c727f8495"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "static-self@0.1.2",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "f6635404b73efc136af3a7956e53c53d4f34b2f16c95a15c438929add0f69412",
+      "archiveUrl": "https://static.crates.io/crates/static-self/static-self-0.1.2.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "2a22e222d8ad9b1ac5a7aefaa20efee3ad278d07c1013679aa9f84b94bf8cc0d",
+        "Cargo.toml.orig": "cdbb3bbda55b95cc47d80f667a1fbb6a032116eb3248322064905d18773592e9",
+        "src/lib.rs": "4e53b1bebac2fa6ff77d50de3cbccb1d25f2355c1c0fa4ec11f71b09703f853c",
+        ".cargo_vcs_info.json": "761c79875d5750c6a8186234a35447e8dd3309921e1b8bea95e0505e53d0c8fb"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "static-self-derive@0.1.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "5268c96d4b907c558a9a52d8492522d6c7b559651a5e1d8f2d551e461b9425d5",
+      "archiveUrl": "https://static.crates.io/crates/static-self-derive/static-self-derive-0.1.1.crate",
+      "expression": "MPL-2.0",
+      "elected": "MPL-2.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "2f46b9cefa64c3ddf97fa07edd979e5e5ed13be8143c28a497b3f839c31f4859",
+        "Cargo.toml.orig": "75f98452c509388ce25c41489bea09f0c48def32dd94b557c194b08fa3645194",
+        "src/into_owned.rs": "b458457752636314c20ef5a143789210425c3f4884a8e53e59fdb2ca9f1f4332",
+        "src/lib.rs": "6704f9faa6b41d988cb86c73ba31233efe618bdca477d38d7e9d9a5bc6a5300d",
+        ".cargo_vcs_info.json": "e0c42e26be901011c59ea3b0c11b4ea9800a61f0359c2c833960444e012a7605"
+      },
+      "obligations": [
+        "Build tooling only; do not link these crates or generated implementation into browser, verification or private/domain runtime.",
+        "Retain MPL notices and make exact covered source plus MPL text available with any distribution of the build executable (MPL 3.1/3.2/3.4).",
+        "No secondary-license election is used. Original crate archives are unmodified; future covered-file changes require MPL source delivery and renewed qualification."
+      ]
+    },
+    {
+      "identity": "unicode-id-start@1.4.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "81b79ad29b5e19de4260020f8919b443b2ef0277d242ce532ec7b7a2cc8b6007",
+      "archiveUrl": "https://static.crates.io/crates/unicode-id-start/unicode-id-start-1.4.0.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "f601135d588e1001058c2c87d73cc9ddf2b8df4669a7519aedf226cc3074a4de",
+        "Cargo.toml.orig": "33bbf3569cbeaf1001ec2bcfec3e71592473b17e3ed1b402be263c9b41ef441c",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "5acd393a7133f5bee67e32b7d9679431c1ac4d3964c7a89353db825f5e877a48"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "unicode-ident@1.0.24",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "archiveUrl": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "compiler",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "astro_napi",
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a5a97d1ed08c38593fc7ca019b035fb5dcce66f160d7e243e0d77aa362e614a6",
+      "files": {
+        "Cargo.toml": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+        "Cargo.toml.orig": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "foldhash@0.1.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2",
+      "archiveUrl": "https://static.crates.io/crates/foldhash/foldhash-0.1.5.crate",
+      "expression": "Zlib",
+      "elected": "Zlib",
+      "graph": "rolldown",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "rolldown_binding"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "files": {
+        "Cargo.toml": "73f8a9098a796d870371f47aaace67ba93a1786b7d54f93c1122223dced77ea3",
+        "Cargo.toml.orig": "cd107b7c443af91271d3549d0e1c6a2735e834a2c3e0a7afe664ea5791bcf33e",
+        "LICENSE": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744",
+        ".cargo_vcs_info.json": "3182fa3f7fc8b1eb4b5d25d01738c19272560e4e60e125523b85ff14e6644118"
+      },
+      "obligations": [
+        "Retain copyright, disclaimer and all three restrictions in source copies.",
+        "Do not misrepresent origin; plainly mark any altered source. These registry archives are unmodified."
+      ]
+    },
+    {
+      "identity": "foldhash@0.2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb",
+      "archiveUrl": "https://static.crates.io/crates/foldhash/foldhash-0.2.0.crate",
+      "expression": "Zlib",
+      "elected": "Zlib",
+      "graph": "rolldown",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "rolldown_binding"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "files": {
+        "Cargo.toml": "0a76cc29da1c33f4bdb505f5828ecdc20859c4cb9faa402e000f5f10511a27cc",
+        "Cargo.toml.orig": "04350078f390441844a35994ad83f2873b685a023c433ecb14eda200a5cb2f90",
+        "LICENSE": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744",
+        ".cargo_vcs_info.json": "5fe3916c8cc3fa6dab42352cec91217e071ece146a4c10d38b8c608de2d2925d"
+      },
+      "obligations": [
+        "Retain copyright, disclaimer and all three restrictions in source copies.",
+        "Do not misrepresent origin; plainly mark any altered source. These registry archives are unmodified."
+      ]
+    },
+    {
+      "identity": "rolldown-notify@11.0.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "43c65ad424b3737dcd3f32b96820fb77fea1a942fc6c7c54a788c68d7ace872e",
+      "archiveUrl": "https://static.crates.io/crates/rolldown-notify/rolldown-notify-11.0.0.crate",
+      "expression": "CC0-1.0",
+      "elected": "CC0-1.0",
+      "graph": "rolldown",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "rolldown_binding"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "files": {
+        "Cargo.toml": "2e07b77470cb6b7fbcf337ee5061bdb273ba626645431e6c7de07c3f9585d5f0",
+        "Cargo.toml.orig": "5789172f71c2fb9f7aafc26b7e87e5b45b615e35150728cbce0e62c75365bb12",
+        "LICENSE-CC0": "e0456cbab4f7b5e7203e678faff37eadbdfef02e822db3b7a52a1dd9d3dc514a",
+        ".cargo_vcs_info.json": "08bc631801b8bb03ca36e13e19221ac79d290d3416982446e8837d40f56cee6a"
+      },
+      "obligations": [
+        "Retain the actual CC0 text and source identity, including publisher formatting artifacts.",
+        "No trademark or patent permission or warranty is inferred (CC0 4); no endorsement claims."
+      ]
+    },
+    {
+      "identity": "unicode-id-start@1.4.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "81b79ad29b5e19de4260020f8919b443b2ef0277d242ce532ec7b7a2cc8b6007",
+      "archiveUrl": "https://static.crates.io/crates/unicode-id-start/unicode-id-start-1.4.0.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "rolldown",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "rolldown_binding"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "files": {
+        "Cargo.toml": "f601135d588e1001058c2c87d73cc9ddf2b8df4669a7519aedf226cc3074a4de",
+        "Cargo.toml.orig": "33bbf3569cbeaf1001ec2bcfec3e71592473b17e3ed1b402be263c9b41ef441c",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "5acd393a7133f5bee67e32b7d9679431c1ac4d3964c7a89353db825f5e877a48"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "unicode-ident@1.0.24",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "archiveUrl": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "rolldown",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "rolldown_binding"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "files": {
+        "Cargo.toml": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+        "Cargo.toml.orig": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "xxhash-rust@0.8.19",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "550a2b930b62486a393c52d5c3b84bff264b28aa437ed64694d31e93b1757af7",
+      "archiveUrl": "https://static.crates.io/crates/xxhash-rust/xxhash-rust-0.8.19.crate",
+      "expression": "BSL-1.0",
+      "elected": "BSL-1.0",
+      "graph": "rolldown",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "rolldown_binding"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "files": {
+        "Cargo.toml": "018fb77721c913c1789c797abf69ed5b79e3e2a61290036851afb3b92da25fe2",
+        "Cargo.toml.orig": "edb286d82600f3bb79bfb4fe73825bfb8363fcf28e5c256c2fae28d3056932a8",
+        "LICENSE": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+        ".cargo_vcs_info.json": "14f320ce9ef9ac1c186ea3efee01d8aab120f40a8485aa161affeedebfe30534"
+      },
+      "obligations": [
+        "Retain copyright and full Boost grant/restriction/disclaimer in source and derivative source copies.",
+        "No reliance on the object-only notice exception; full text is supplied."
+      ]
+    },
+    {
+      "identity": "zlib-rs@0.6.6",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "b142a20ec14a91d5bc708c1dc21b080c550113d8aa77afa29635673a65dd02c5",
+      "archiveUrl": "https://static.crates.io/crates/zlib-rs/zlib-rs-0.6.6.crate",
+      "expression": "Zlib",
+      "elected": "Zlib",
+      "graph": "rolldown",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "rolldown_binding"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "8109065e7da9affdc6e8549f5015ecf85abf495060f47babd0a485684397227b",
+      "files": {
+        "Cargo.toml": "a23b4929dfa7fabec82da18b074b717762d8181b8668a5b8289735b90f3f44da",
+        "Cargo.toml.orig": "23d9784faacbe6aa6295f4de54f5cf75d0401f9e2e468676f5975d00962931ac",
+        "LICENSE": "e72111c52b7d96ebe25348dee19f0744f444d3c95ae6b1ecb6ccaecc5bce05ba",
+        ".cargo_vcs_info.json": "e6310fadf18beac6ce7f2bc5259bd2ff1a206a8285a7e99289dfad43ec6628ea"
+      },
+      "obligations": [
+        "Retain copyright, disclaimer and all three restrictions in source copies.",
+        "Do not misrepresent origin; plainly mark any altered source. These registry archives are unmodified."
+      ]
+    },
+    {
+      "identity": "unicode-id-start@1.4.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "81b79ad29b5e19de4260020f8919b443b2ef0277d242ce532ec7b7a2cc8b6007",
+      "archiveUrl": "https://static.crates.io/crates/unicode-id-start/unicode-id-start-1.4.0.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "satteri",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "satteri-napi"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "e6ba990e8d5c001073c527cdc69592e3632bb1217a6ed70757d0047757a6e8b5",
+      "files": {
+        "Cargo.toml": "f601135d588e1001058c2c87d73cc9ddf2b8df4669a7519aedf226cc3074a4de",
+        "Cargo.toml.orig": "33bbf3569cbeaf1001ec2bcfec3e71592473b17e3ed1b402be263c9b41ef441c",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "5acd393a7133f5bee67e32b7d9679431c1ac4d3964c7a89353db825f5e877a48"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "unicode-ident@1.0.24",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "archiveUrl": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "satteri",
+      "target": "aarch64-apple-darwin",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--package",
+        "satteri-napi"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "e6ba990e8d5c001073c527cdc69592e3632bb1217a6ed70757d0047757a6e8b5",
+      "files": {
+        "Cargo.toml": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+        "Cargo.toml.orig": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "unicode-ident@1.0.24",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "archiveUrl": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "web-de",
+      "target": "wasm32-unknown-unknown",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--no-default-features",
+        "--features",
+        "de"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a6748d09771320fd80dd6d8b3dc9976296be8d586951f2f2c677b55083bbf463",
+      "files": {
+        "Cargo.toml": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+        "Cargo.toml.orig": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "unicode-ident@1.0.24",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "archiveUrl": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "web-en",
+      "target": "wasm32-unknown-unknown",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--no-default-features",
+        "--features",
+        "en"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a6748d09771320fd80dd6d8b3dc9976296be8d586951f2f2c677b55083bbf463",
+      "files": {
+        "Cargo.toml": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+        "Cargo.toml.orig": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    },
+    {
+      "identity": "unicode-ident@1.0.24",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+      "archiveUrl": "https://static.crates.io/crates/unicode-ident/unicode-ident-1.0.24.crate",
+      "expression": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "elected": "MIT AND Unicode-3.0",
+      "graph": "web-unknown",
+      "target": "wasm32-unknown-unknown",
+      "hostTarget": "aarch64-apple-darwin",
+      "features": [
+        "--no-default-features"
+      ],
+      "edges": [
+        "normal",
+        "build"
+      ],
+      "featureTreeSha256": "a6748d09771320fd80dd6d8b3dc9976296be8d586951f2f2c677b55083bbf463",
+      "files": {
+        "Cargo.toml": "0bb9c0e006a21355cb85c7df72e78dd8ba6fffbb7dc3f1e7a4c19af53cd354da",
+        "Cargo.toml.orig": "8d0abaf7ce10cb78f26edcd613dfe5a47faa4381e6e251c7d1c123608d2e037a",
+        "LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+        "LICENSE-MIT": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+        "LICENSE-UNICODE": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1",
+        ".cargo_vcs_info.json": "9900659dcf16d47a600102bbfd47cf554a0d4db40790983e570f9ecac9822c68"
+      },
+      "obligations": [
+        "Elect MIT AND Unicode-3.0; preserve both complete copyright/permission notices and disclaimers.",
+        "Include Unicode notice with copies or associated documentation; do not use copyright-holder names for promotion without permission.",
+        "Selected browser graphs include host proc-macro/build dependencies; retain terms in browser notices and vendored source conservatively."
+      ]
+    }
+  ],
+  "files": {
+    "const_format-0.2.35.crate": "7faa7469a93a566e9ccc1c73fe783b4a65c274c5ace346038dca9c39fe0030ad",
+    "const_format_proc_macros-0.2.34.crate": "1d57c2eccfb16dbac1f4e61e206105db5820c9d26c3c472bc17c774259ef7744",
+    "cssparser-color-0.5.0.crate": "bbaa233e1dcd9c13a5d3e3a8a2c0f5a727bac380398345dbcb31db4597edc86b",
+    "cssparser-macros-0.6.1.crate": "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331",
+    "cssparser-macros-0.7.0.crate": "10a2a99df6e410a8ff4245aa2006499ea662245f967cc7c0a38c83ef8eb44dbf",
+    "cssparser-0.36.0.crate": "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2",
+    "cssparser-0.37.0.crate": "8c9cdaae01d5ed7882b04d795e7f752f46ff52d2fa3b50a20d28c464510bba98",
+    "dtoa-short-0.3.5.crate": "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87",
+    "foldhash-0.1.5.crate": "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2",
+    "foldhash-0.2.0.crate": "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb",
+    "parcel_selectors-0.28.3.crate": "d05f71e01edca03d245ab0a9f7ce13a974ceb79baaae8faf2ba0b11de6b90913",
+    "rolldown-notify-11.0.0.crate": "43c65ad424b3737dcd3f32b96820fb77fea1a942fc6c7c54a788c68d7ace872e",
+    "selectors-0.33.0.crate": "feef350c36147532e1b79ea5c1f3791373e61cbd9a6a2615413b3807bb164fb7",
+    "static-self-derive-0.1.1.crate": "5268c96d4b907c558a9a52d8492522d6c7b559651a5e1d8f2d551e461b9425d5",
+    "static-self-0.1.2.crate": "f6635404b73efc136af3a7956e53c53d4f34b2f16c95a15c438929add0f69412",
+    "unicode-id-start-1.4.0.crate": "81b79ad29b5e19de4260020f8919b443b2ef0277d242ce532ec7b7a2cc8b6007",
+    "unicode-ident-1.0.24.crate": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+    "xxhash-rust-0.8.19.crate": "550a2b930b62486a393c52d5c3b84bff264b28aa437ed64694d31e93b1757af7",
+    "zlib-rs-0.6.6.crate": "b142a20ec14a91d5bc708c1dc21b080c550113d8aa77afa29635673a65dd02c5",
+    "NOTICE.txt": "7a67a81678c01291420dbf4d6e71c6fbbdb22935e45cecd3177cbc9c375e5b4d",
+    "MPL-2.0.txt": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+    "policy.json": "0aed405303c1555495beacda7fb46af5c677e18650c757b1c814affc09c9fc62"
+  },
+  "legalStatus": "Pending human legal review; publication remains blocked"
+}
