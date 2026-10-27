@@ -2,7 +2,13 @@ name: Walking skeleton
 on:
   pull_request:
   push:
-    branches: [main, spec/70-launch-product, "t3/website-qualification-*"]
+    branches:
+      [
+        main,
+        spec/70-launch-product,
+        "t3/website-qualification-*",
+        "t3/qualify-native-licenses",
+      ]
   schedule:
     - cron: "21 5 * * *"
   workflow_dispatch:
@@ -111,6 +117,7 @@ jobs:
             .tmp/pagefind/*loads.jsonl
             .tmp/pagefind/bundle.json
             .tmp/pagefind/evidence/*.json
+            .tmp/pagefind/license-sources/*
             apps/website/dist-preview/third-party/pagefind/manifest.json
           include-hidden-files: true
           if-no-files-found: error

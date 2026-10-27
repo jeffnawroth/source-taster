@@ -80,5 +80,9 @@ See `docs/implementation/115-controlled-build.md` and `qualification/evidence/`
 for dated command results and limitations. The pinned publisher Rust, CMake and
 wasm-bindgen bootstrap tools have archive provenance, not independently rebuilt
 transitive binary SBOMs. Their trust boundary remains explicit. The current
-native license gate and human publication gates remain closed; no additional
-license, security or prerelease exception is granted by this recipe.
+native license registry is qualified separately by exact source identity and
+normal/build scope in `../licenses/policy.json`, with notices and immutable
+source archives retained in `.tmp/pagefind/license-sources/` and CI artifacts.
+See the dependency policy and primary-source license note. Human legal and
+publication gates remain closed; this recipe grants no security or prerelease
+exception or general runtime license permission.

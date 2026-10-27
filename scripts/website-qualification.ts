@@ -12,6 +12,13 @@ import type {
   WebsiteArtifact,
   SourceProvenance,
 } from "./website-evidence.ts";
+import {
+  elect,
+  qualifyNativeLicense,
+  retainNativeLicenseSources,
+  verifyUnicodeNotice,
+  type LicenseEvidence,
+} from "./website-native-licenses.ts";
 const root = resolve(import.meta.dirname, "..");
 const work = resolve(root, ".tmp/pagefind");
 const hash = (b: Buffer | string) =>
@@ -79,8 +86,7 @@ const permittedPrereleases = new Set([
   "lightningcss@1.0.0-alpha.72",
   "lightningcss-derive@1.0.0-alpha.43",
 ]);
-// Exactly the permissive families of docs/dependency-policy.md. Anything else
-// (including permissive licenses the policy does not name) is reported, not admitted.
+// Baseline policy; additional exact source/scope decisions are validated separately.
 const policyLicenses = new Set([
   "MIT",
   "Apache-2.0",
@@ -98,51 +104,26 @@ const mplBuildTooling = new Set(["lightningcss", "lightningcss-derive"]);
 // GPL browser WASM component of the selected Pagefind route (ADR-0020): delivered
 // with Corresponding Source and notices; legal review remains pending.
 const copyleftWasm = new Set(["pagefind_microjson"]);
-/** SPDX expression → an elected satisfiable license, or undefined. "/" is Cargo's legacy OR. */
-function elect(expression: string, allowed: (id: string) => boolean) {
-  const tokens = expression
-    .replace(/\//g, " OR ")
-    .replace(/([()])/g, " $1 ")
-    .trim()
-    .split(/\s+/);
-  let index = 0;
-  function or(): string | undefined {
-    const options = [and()];
-    while (tokens[index] === "OR") {
-      index++;
-      options.push(and());
-    }
-    return options.find((option) => option !== undefined);
-  }
-  function and(): string | undefined {
-    const terms = [term()];
-    while (tokens[index] === "AND") {
-      index++;
-      terms.push(term());
-    }
-    return terms.every((t) => t !== undefined)
-      ? terms.join(" AND ")
-      : undefined;
-  }
-  function term(): string | undefined {
-    const token = tokens[index++];
-    if (token === "(") {
-      const inner = or();
-      if (tokens[index++] !== ")") throw new Error(`Bad SPDX: ${expression}`);
-      return inner;
-    }
-    if (!token || ["AND", "OR", "WITH", ")"].includes(token))
-      throw new Error(`Bad SPDX: ${expression}`);
-    let id = token;
-    if (tokens[index] === "WITH") id += ` WITH ${tokens[(index += 2) - 1]}`;
-    return allowed(id) ? id : undefined;
-  }
-  const result = or();
-  if (index !== tokens.length) throw new Error(`Bad SPDX: ${expression}`);
-  return result;
-}
 const licenseIssues: string[] = [];
 const electedLicenses: Record<string, string> = {};
+const nativeLicenseEvidence: LicenseEvidence[] = [];
+for (const [name, graph] of Object.entries(graphs)) {
+  for (const pkg of graph.packages) {
+    const evidence = await qualifyNativeLicense(
+      pkg,
+      name,
+      graph,
+      receipt.target,
+      work,
+    );
+    if (evidence) nativeLicenseEvidence.push(evidence);
+  }
+}
+const nativeLicenseSources = await retainNativeLicenseSources(
+  work,
+  graphs,
+  nativeLicenseEvidence,
+);
 for (const pkg of packages) {
   if (
     /^\d+\.\d+\.\d+-/.test(pkg.version) &&
@@ -155,15 +136,18 @@ for (const pkg of packages) {
   )
     throw new Error(`Unknown crate checksum: ${pkg.name}`);
   const identity = `${pkg.name}@${pkg.version}`;
-  const elected = pkg.license
-    ? elect(
-        pkg.license,
-        (id) =>
-          policyLicenses.has(id) ||
-          (id === "MPL-2.0" && mplBuildTooling.has(pkg.name)) ||
-          (id === "GPL-3.0-only" && copyleftWasm.has(pkg.name)),
-      )
-    : undefined;
+  const scoped = nativeLicenseEvidence.find((e) => e.identity === identity);
+  const elected =
+    scoped?.elected ??
+    (pkg.license
+      ? elect(
+          pkg.license,
+          (id) =>
+            policyLicenses.has(id) ||
+            (id === "MPL-2.0" && mplBuildTooling.has(pkg.name)) ||
+            (id === "GPL-3.0-only" && copyleftWasm.has(pkg.name)),
+        )
+      : undefined);
   if (elected) electedLicenses[identity] = elected;
   else
     licenseIssues.push(
@@ -203,6 +187,14 @@ if (
   throw new Error("Website execution receipt changed or missing");
 const manifest = await json<DistributionManifest>(
   resolve(root, "apps/website/dist-preview/third-party/pagefind/manifest.json"),
+);
+await verifyUnicodeNotice(
+  await readFile(
+    resolve(root, "apps/website/dist-preview/third-party/pagefind/NOTICE.txt"),
+    "utf8",
+  ),
+  work,
+  graphs,
 );
 for (const [path, expected] of Object.entries(manifest.objects)) {
   if (
@@ -295,6 +287,8 @@ const proof = {
   sourceDelivery: manifest,
   unqualifiedExecutions,
   electedLicenses,
+  nativeLicenseEvidence,
+  nativeLicenseSources,
   scanLockSha256: hash(scanLock),
   licenseIssues,
   legalStatus:
