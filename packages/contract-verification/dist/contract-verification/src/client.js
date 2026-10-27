@@ -134,7 +134,8 @@ export async function watchCheckEvents(checkId, options) {
             if (lastSeq > 0)
                 headers["last-event-id"] = `${checkId}:${lastSeq}`;
             const response = await doFetch(url, { headers, signal: options.signal });
-            if (response.status >= 400 && response.status < 500) {
+            if ((response.status >= 400 && response.status < 500) ||
+                response.status === 503) {
                 const body = await response.json().catch(() => undefined);
                 const problem = ProblemDetails.safeParse(body);
                 throw new CheckStreamError(response.status, problem.data);
