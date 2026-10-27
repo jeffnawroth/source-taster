@@ -2,9 +2,17 @@
 // Owned third-party build tooling. No global Rust/rustup state is read or changed.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFile, writeFile, mkdir, rm, cp, readdir } from "node:fs/promises";
+import {
+  readFile,
+  writeFile,
+  mkdir,
+  rm,
+  cp,
+  readdir,
+  lstat,
+  readlink,
+} from "node:fs/promises";
 import { resolve, basename } from "node:path";
-import { createRequire } from "node:module";
 import { gzipSync } from "node:zlib";
 
 const root = resolve(import.meta.dirname, "..");
@@ -38,11 +46,17 @@ const inputs = (await json(resolve(policy, "inputs.json"))) as {
   pagefind: Input & { version: string; commit: string };
   rustPatchDerive: Input;
   compiler: Input;
+  rolldown: Input & { version: string; commit: string };
+  satteri: Input & { version: string; commit: string };
   wasmBindgen: (Input & { target: string })[];
+  // Rolldown's mimalloc v3 C sources are configured by CMake (libmimalloc-sys2).
+  cmake: (Input & { target: string; version: string; binary: string })[];
   rustVersion: string;
   vendoredGzip: { path: string; sha256: string };
 };
 const toolchain = (await json(resolve(policy, "toolchain.json"))) as Input[];
+const cmakeInput = inputs.cmake.find((p) => p.target === target);
+if (!cmakeInput) throw new Error(`No pinned CMake for ${target}`);
 const env = {
   // Do not pass user RUSTFLAGS/CARGO_TARGET_*/RUSTC_WRAPPER or Pagefind config.
   PATH: `${tools}/rust/bin:${process.env.PATH}`,
@@ -61,11 +75,21 @@ const env = {
   // Paths differ between CI/local; this removes them from Rust object/debug data.
   RUSTFLAGS: `--remap-path-prefix=${work}=/pagefind-build`,
   DO_NOT_TRACK: "1",
+  // Pinned CMake from the fetch stage, never a host installation.
+  CMAKE: resolve(tools, "cmake", cmakeInput.binary),
+  // Fixed deployment target instead of the host OS version (Rust's aarch64 default).
+  ...(process.platform === "darwin" ? { MACOSX_DEPLOYMENT_TARGET: "11.0" } : {}),
 };
-function run(bin: string, args: string[], cwd = source, capture = false) {
+function run(
+  bin: string,
+  args: string[],
+  cwd = source,
+  capture = false,
+  extraEnv: Record<string, string> = {},
+) {
   const result = spawnSync(bin, args, {
     cwd,
-    env,
+    env: { ...env, ...extraEnv },
     encoding: "utf8",
     maxBuffer: 32 * 1024 * 1024,
     stdio: capture ? "pipe" : "inherit",
@@ -86,13 +110,20 @@ const recipeFiles = [
   "locks/native.Cargo.lock",
   "locks/web.Cargo.lock",
   "locks/compiler.Cargo.lock",
+  "locks/rolldown.Cargo.lock",
+  "locks/satteri.Cargo.lock",
 ];
 const recipe: Record<string, string> = {};
 for (const file of recipeFiles)
   recipe[file] = hash(await readFile(resolve(policy, file)));
-recipe["scripts/pagefind-source.ts"] = hash(
-  await readFile(import.meta.filename),
-);
+for (const script of [
+  "pagefind-source.ts",
+  "pagefind-bundle.ts",
+  "website-native-trace.ts",
+])
+  recipe[`scripts/${script}`] = hash(
+    await readFile(resolve(root, "scripts", script)),
+  );
 recipe["pnpm-lock.yaml"] = hash(
   await readFile(resolve(root, "pnpm-lock.yaml")),
 );
@@ -114,6 +145,13 @@ async function fetchInput(input: Input, name: string) {
     throw new Error(`Source/tool checksum mismatch: ${name}`);
   return path;
 }
+// Upstream test fixtures contain symlinks (including a deliberate loop): pin the link text.
+async function fingerprint(file: string) {
+  const link = await lstat(file);
+  return link.isSymbolicLink()
+    ? `symlink:${await readlink(file)}`
+    : hash(await readFile(file));
+}
 async function snapshot(directory: string): Promise<Record<string, string>> {
   const files: Record<string, string> = {};
   async function visit(path: string) {
@@ -124,7 +162,7 @@ async function snapshot(directory: string): Promise<Record<string, string>> {
         continue;
       const file = resolve(path, entry.name);
       if (entry.isDirectory()) await visit(file);
-      else files[file.slice(work.length + 1)] = hash(await readFile(file));
+      else files[file.slice(work.length + 1)] = await fingerprint(file);
     }
   }
   await visit(directory);
@@ -193,25 +231,46 @@ if (command === "fetch") {
     ["-xzf", await fetchInput(bindgen, "wasm-bindgen.tar.gz"), "-C", tools],
     work,
   );
-  const compiler = resolve(work, "compiler");
-  await rm(compiler, { recursive: true, force: true });
-  await mkdir(compiler, { recursive: true });
+  await rm(resolve(tools, "cmake"), { recursive: true, force: true });
+  await mkdir(resolve(tools, "cmake"), { recursive: true });
   run(
     "tar",
     [
       "-xzf",
-      await fetchInput(inputs.compiler, "compiler.tar.gz"),
+      await fetchInput(cmakeInput, basename(cmakeInput.url)),
       "-C",
-      compiler,
+      resolve(tools, "cmake"),
       "--strip-components=1",
     ],
     work,
   );
-  await cp(
-    resolve(policy, "locks/compiler.Cargo.lock"),
-    resolve(compiler, "Cargo.lock"),
-  );
-  cargo(["fetch", "--locked"], compiler);
+  // Native modules Astro/Vite execute during the website build: exact npm-release tags.
+  const nativeSources = [
+    [inputs.compiler, "compiler"],
+    [inputs.rolldown, "rolldown"],
+    [inputs.satteri, "satteri"],
+  ] as const;
+  for (const [input, name] of nativeSources) {
+    const directory = resolve(work, name);
+    await rm(directory, { recursive: true, force: true });
+    await mkdir(directory, { recursive: true });
+    run(
+      "tar",
+      [
+        "-xzf",
+        await fetchInput(input, `${name}.tar.gz`),
+        "-C",
+        directory,
+        "--strip-components=1",
+      ],
+      work,
+    );
+    await cp(
+      resolve(policy, `locks/${name}.Cargo.lock`),
+      resolve(directory, "Cargo.lock"),
+    );
+    cargo(["fetch", "--locked"], directory);
+  }
   // Fetch all locked alternatives so Cargo vendor/source delivery never needs a network build.
   cargo(["fetch", "--locked"]);
   cargo(["fetch", "--locked", "--manifest-path", "pagefind_web/Cargo.toml"]);
@@ -223,7 +282,9 @@ if (command === "fetch") {
         recipeSha256,
         sourceFiles: {
           ...(await snapshot(source)),
-          ...(await snapshot(compiler)),
+          ...(await snapshot(resolve(work, "compiler"))),
+          ...(await snapshot(resolve(work, "rolldown"))),
+          ...(await snapshot(resolve(work, "satteri"))),
           ...(await snapshot(tools)),
         },
       },
@@ -240,7 +301,7 @@ if (fetched.recipeSha256 !== recipeSha256 || fetched.target !== target)
 for (const [file, expected] of Object.entries(
   fetched.sourceFiles as Record<string, string>,
 )) {
-  if (hash(await readFile(resolve(work, file))) !== expected)
+  if ((await fingerprint(resolve(work, file))) !== expected)
     throw new Error(`Pinned source/tool changed: ${file}`);
 }
 if (command === "verify") {
@@ -259,6 +320,12 @@ if (command === "verify") {
 const rustc = run(env.RUSTC, ["--version", "--verbose"], source, true);
 if (!rustc.startsWith(`rustc ${inputs.rustVersion} `))
   throw new Error("Unexpected Rust compiler");
+if (
+  !run(env.CMAKE, ["--version"], work, true).startsWith(
+    `cmake version ${cmakeInput.version}\n`,
+  )
+)
+  throw new Error("Unexpected CMake");
 const bindgenFolder = basename(
   inputs.wasmBindgen.find((p) => p.target === target)!.url,
 ).replace(/\.tar\.gz$/, "");
@@ -273,37 +340,6 @@ if (
 const vendor = resolve(source, "pagefind/vendor");
 await rm(vendor, { recursive: true, force: true });
 await mkdir(resolve(vendor, "wasm"), { recursive: true });
-// Use only esbuild from the exact project lock. AVA/tsx/mark.js/upstream npm install never run.
-const require = createRequire(resolve(root, "apps/website/package.json"));
-const esbuild =
-  require("esbuild") as typeof import("../apps/website/node_modules/esbuild/lib/main.js");
-if (esbuild.version !== "0.28.1") throw new Error("esbuild 0.28.1 required");
-for (const [entry, format] of [
-  ["public_search_api", "esm"],
-  ["pagefind_worker", "iife"],
-] as const) {
-  const bundled = await esbuild.build({
-    entryPoints: [resolve(source, `pagefind_web_js/lib/${entry}.ts`)],
-    outfile: resolve(
-      vendor,
-      `pagefind_${entry.replace(/^pagefind_/, "")}.1.5.2.js`,
-    ),
-    bundle: true,
-    format,
-    target: "es2020",
-    metafile: true,
-  });
-  if (
-    Object.keys(bundled.metafile!.inputs).some((p) =>
-      p.includes("node_modules"),
-    )
-  )
-    throw new Error("Unexpected external browser input");
-  await writeFile(
-    resolve(work, `${entry}.metafile.json`),
-    JSON.stringify(bundled.metafile, null, 2),
-  );
-}
 for (const language of ["unknown", "de", "en"]) {
   const web = resolve(source, "pagefind_web");
   cargo(
@@ -347,6 +383,78 @@ for (const language of ["unknown", "de", "en"]) {
   )
     throw new Error("Language bindings differ");
 }
+// Native Node-API modules executed by Astro/Vite, built from their npm-release tags.
+// Astro compiler: default system allocator (no optional mimalloc/CMake build).
+// Rolldown/Sätteri: upstream release features; Rolldown's mimalloc C sources are
+// compiled by the host C compiler recorded in the receipt.
+await rm(resolve(work, "bin"), { recursive: true, force: true });
+await mkdir(resolve(work, "bin"), { recursive: true });
+const nativeModules = [
+  ["compiler", "astro_napi", ["--no-default-features"], "astro_napi", "astro.node"],
+  ["rolldown", "rolldown_binding", [], "rolldown_binding", "rolldown.node"],
+  ["satteri", "satteri-napi", [], "satteri_napi", "satteri.node"],
+] as const;
+for (const [directory, pkg, features, library, output] of nativeModules) {
+  cargo(
+    [
+      "build",
+      "--package",
+      pkg,
+      ...features,
+      "--release",
+      "--frozen",
+      "--offline",
+      "--target",
+      target,
+    ],
+    resolve(work, directory),
+  );
+  await cp(
+    resolve(
+      work,
+      `target/${target}/release/lib${library}.${process.platform === "darwin" ? "dylib" : "so"}`,
+    ),
+    resolve(work, "bin", output),
+  );
+}
+const cc = run(
+  process.platform === "darwin" ? "cc" : "gcc",
+  ["--version"],
+  work,
+  true,
+)
+  .split("\n")[0]!
+  .trim();
+// Browser JS: Rolldown JS API, executing only the controlled Rolldown binding.
+const bundleTrace = resolve(work, "bundle-loads.jsonl");
+await rm(bundleTrace, { force: true });
+run(
+  process.execPath,
+  [
+    `--import=${resolve(root, "scripts/website-native-trace.ts")}`,
+    resolve(root, "scripts/pagefind-bundle.ts"),
+    source,
+    vendor,
+    resolve(work, "bundle.json"),
+  ],
+  root,
+  false,
+  {
+    SOURCE_TASTER_CONTROLLED_BIN: resolve(work, "bin"),
+    SOURCE_TASTER_NATIVE_TRACE: bundleTrace,
+  },
+);
+const rolldownBinding = hash(await readFile(resolve(work, "bin/rolldown.node")));
+const bundleLoads = (await readFile(bundleTrace, "utf8"))
+  .trim()
+  .split("\n")
+  .map((line) => JSON.parse(line));
+if (
+  !bundleLoads.some((l) => l.sha256 === rolldownBinding) ||
+  bundleLoads.some((l) => !l.controlled)
+)
+  throw new Error("Browser JS was not bundled by the controlled Rolldown");
+// The native CLI embeds the browser bundles above (include_str!), so it builds last.
 cargo([
   "build",
   "--release",
@@ -358,68 +466,31 @@ cargo([
   "pagefind",
   "--no-default-features",
 ]);
-await mkdir(resolve(work, "bin"), { recursive: true });
 await cp(
   resolve(work, `target/${target}/release/pagefind`),
   resolve(work, "bin/pagefind"),
 );
-// Astro compiler uses its default system allocator: no optional mimalloc/CMake build.
-const compiler = resolve(work, "compiler");
-cargo(
-  [
-    "build",
-    "--package",
-    "astro_napi",
-    "--no-default-features",
-    "--release",
-    "--frozen",
-    "--offline",
-    "--target",
-    target,
-  ],
-  compiler,
-);
-await cp(
-  resolve(
-    work,
-    `target/${target}/release/${process.platform === "darwin" ? "libastro_napi.dylib" : "libastro_napi.so"}`,
-  ),
-  resolve(work, "bin/astro.node"),
-);
 // Selected normal/build closures come from Cargo's feature-aware trees, never metadata closure alone.
 const graphs: Record<string, unknown> = {};
+const web = resolve(source, "pagefind_web");
+const wasm = "wasm32-unknown-unknown";
 for (const [name, cwd, graphTarget, features] of [
-  ["native", source, target, []],
-  ["compiler", compiler, target, []],
-  [
-    "web-de",
-    resolve(source, "pagefind_web"),
-    "wasm32-unknown-unknown",
-    ["--features", "de"],
-  ],
-  [
-    "web-en",
-    resolve(source, "pagefind_web"),
-    "wasm32-unknown-unknown",
-    ["--features", "en"],
-  ],
-  [
-    "web-unknown",
-    resolve(source, "pagefind_web"),
-    "wasm32-unknown-unknown",
-    [],
-  ],
+  ["native", source, target, ["--package", "pagefind", "--no-default-features"]],
+  ["compiler", resolve(work, "compiler"), target, ["--package", "astro_napi", "--no-default-features"]],
+  ["rolldown", resolve(work, "rolldown"), target, ["--package", "rolldown_binding"]],
+  ["satteri", resolve(work, "satteri"), target, ["--package", "satteri-napi"]],
+  ["web-de", web, wasm, ["--no-default-features", "--features", "de"]],
+  ["web-en", web, wasm, ["--no-default-features", "--features", "en"]],
+  ["web-unknown", web, wasm, ["--no-default-features"]],
 ] as [string, string, string, string[]][]) {
   const args = [
     "tree",
     "--frozen",
     "--offline",
-    "--no-default-features",
     "--target",
     graphTarget,
     "--edges",
     "normal,build",
-    ...(name === "compiler" ? ["--package", "astro_napi"] : []),
     ...features,
   ];
   const tree = cargo(
@@ -460,8 +531,8 @@ for (const [name, cwd, graphTarget, features] of [
         "1",
         "--filter-platform",
         graphTarget,
-        "--no-default-features",
-        ...features,
+        // Superset for license/source lookup; the selected set is the feature-aware tree.
+        "--all-features",
       ],
       cwd,
       true,
@@ -513,6 +584,9 @@ const files: Record<string, string> = {};
 for (const file of [
   "bin/pagefind",
   "bin/astro.node",
+  "bin/rolldown.node",
+  "bin/satteri.node",
+  "bundle.json",
   "graphs.json",
   ...Object.keys(graphs).map((n) => `${n}.tree.txt`),
   ...(await readdir(vendor).then((a) =>
@@ -535,7 +609,9 @@ await writeFile(
       recipeSha256,
       recipe,
       rustc,
-      esbuild: esbuild.version,
+      cc,
+      cmake: cmakeInput.version,
+      rolldown: "1.2.15",
       nativeFeatures: [],
       wasmFeatures: ["de", "en"],
       files,

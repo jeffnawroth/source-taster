@@ -56,6 +56,11 @@ await cp(
   resolve(root, "scripts/pagefind-source.ts"),
   resolve(staging, "pagefind-source.ts"),
 );
+await cp(
+  resolve(root, "scripts/pagefind-bundle.ts"),
+  resolve(staging, "pagefind-bundle.ts"),
+);
+await cp(resolve(work, "bundle.json"), resolve(staging, "bundle.json"));
 await cp(import.meta.filename, resolve(staging, "pagefind-delivery.ts"));
 await cp(resolve(work, "receipt.json"), resolve(staging, "build-receipt.json"));
 for (const directory of ["pagefind_web", "pagefind_stem", "pagefind_web_js"]) {
@@ -169,8 +174,8 @@ export CARGO_HOME="$PWD/.offline-cargo-home"
 export CARGO_TARGET_DIR="$PWD/target"
 export CARGO_PROFILE_RELEASE_STRIP=none
 export RUSTFLAGS="--remap-path-prefix=$PWD=/pagefind-build/source --remap-path-prefix=$PWD/vendor=/pagefind-build/cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f"
-rustc --version | rg '^rustc 1\\.99\\.1 '
-"$PAGEFIND_BINDGEN" --version | rg '^wasm-bindgen 0\\.2\\.117$'
+rustc --version | grep -Eq '^rustc 1\\.99\\.1 '
+"$PAGEFIND_BINDGEN" --version | grep -Eq '^wasm-bindgen 0\\.2\\.117$'
 mkdir -p rebuilt
 for language in unknown de en; do
   feature=()
@@ -187,7 +192,7 @@ await writeFile(
 );
 await writeFile(
   resolve(staging, "README.txt"),
-  `Corresponding Source delivery candidate for the browser Pagefind WASM/JS listed in distribution-manifest.json.\n\nOffline WASM reproduction: use build-wasm.sh with the exact Rust 1.99.1 and wasm-bindgen 0.2.117 tools listed in controlled/{inputs,toolchain}.json. Dependency sources and original checksum-bound crate archives are included. The pagefind_stem path patch refers to included source. No nightly, remote dictionary, wasm-pack, wasm-opt or AVA is used. All dependency licenses/notices are retained in vendor/ and NOTICE.txt; microjson's GPL manifest/header discrepancy is retained.\n\nFor JS/native generation: upstream-pagefind.tar.gz contains the complete source. controlled/patches and controlled/locks show the changes. pagefind-source.ts is the actual generator; its recipe, Rust target/features and exact esbuild 0.28.1 pin are in build-receipt.json. JS entries import only included Pagefind code, including the fflate-derived gz.js; esbuild is a generally available build tool, not bundled client code. The site's custom UI source is public AGPL project code; this package does not pretend to determine legal combination boundaries.\n\nThis artifact provides actual local source access; concrete license/legal review and project publication gates remain pending. Build-system qualification covers only Linux amd64 GNU and macOS arm64 when their individual receipts/checks pass. Other targets are not qualified.\n`,
+  `Corresponding Source delivery candidate for the browser Pagefind WASM/JS listed in distribution-manifest.json.\n\nOffline WASM reproduction: use build-wasm.sh with the exact Rust 1.99.1 and wasm-bindgen 0.2.117 tools listed in controlled/{inputs,toolchain}.json. Dependency sources and original checksum-bound crate archives are included. The pagefind_stem path patch refers to included source. No nightly, remote dictionary, wasm-pack, wasm-opt or AVA is used. All dependency licenses/notices are retained in vendor/ and NOTICE.txt; microjson's GPL manifest/header discrepancy is retained.\n\nFor JS/native generation: upstream-pagefind.tar.gz contains the complete source. controlled/patches and controlled/locks show the changes. pagefind-source.ts is the actual generator and pagefind-bundle.ts the browser JS bundler; their recipe, Rust target/features and the exact Rolldown 1.2.15 pin are in build-receipt.json, and bundle.json lists every bundled module. JS entries import only included Pagefind code (pagefind_web_js/lib), including the fflate-derived gz.js; Rolldown is a generally available build tool, not bundled client code. The site's custom UI source is public AGPL project code; this package does not pretend to determine legal combination boundaries.\n\nThis artifact provides actual local source access; concrete license/legal review and project publication gates remain pending. Build-system qualification covers only Linux amd64 GNU and macOS arm64 when their individual receipts/checks pass. Other targets are not qualified.\n`,
 );
 const objects: Record<string, string> = {};
 for (const language of ["de", "en"]) {

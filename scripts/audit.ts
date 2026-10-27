@@ -59,6 +59,7 @@ const nativeLocks = [
   "pagefind-web",
   "astro-compiler",
   "satteri",
+  "rolldown",
 ].map((name) => `apps/website/qualification/upstream/${name}/Cargo.lock`);
 const bundledLock =
   "apps/website/qualification/upstream/pagefind-js/package-lock.json";
@@ -187,12 +188,10 @@ for (const result of report.results ?? []) {
         disposition: blocks
           ? "actual selected/installed project graph: unresolved and blocking"
           : raw?.includes("pagefind-js")
-            ? "unexecuted upstream JS tooling; controlled esbuild-only source generation and no external client imports verified by metafiles"
-            : raw?.includes("satteri")
-              ? "upstream source-lock alternative/test graph; Satteri binary installed but absent from guarded native execution and browser distribution"
-              : identity === "crates.io:pagefind@0.0.0"
-                ? "upstream placeholder corrected to controlled 1.5.2 release identity; actual JS built from pinned fixed source"
-                : "absent version/component from frozen controlled normal+build target/feature closure; removal or stable replacement verified in exact artifact recipe",
+            ? "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)"
+            : identity === "crates.io:pagefind@0.0.0"
+              ? "upstream placeholder corrected to controlled 1.5.2 release identity; actual JS built from pinned fixed source"
+              : "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
         evidence: ".tmp/pagefind/evidence/qualification.json",
       });
     }

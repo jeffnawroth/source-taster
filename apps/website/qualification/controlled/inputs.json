@@ -34,5 +34,35 @@
     "commit": "342e26603bf6416545a85b506b434d25226e1435",
     "url": "https://codeload.github.com/withastro/compiler-rs/tar.gz/342e26603bf6416545a85b506b434d25226e1435",
     "sha256": "2455866699fddb245c400010fd0b5341151ee14d6cf3b076e5dd17f74a336ebf"
-  }
+  },
+  "rolldown": {
+    "version": "1.2.15",
+    "tag": "v1.2.15",
+    "commit": "89d821ca07cf9ccd84dd92bd3f48af0f579ab21a",
+    "url": "https://codeload.github.com/rolldown/rolldown/tar.gz/89d821ca07cf9ccd84dd92bd3f48af0f579ab21a",
+    "sha256": "54437dbfdf9030fc0aca4b1c1d3869147c4f5b49739fd6c4a6af2c7beacaf1ff"
+  },
+  "satteri": {
+    "version": "0.10.5",
+    "tag": "satteri-v0.10.5",
+    "commit": "b3d38e1e341c809b20b76a655e9b1601d11bd1f0",
+    "url": "https://codeload.github.com/bruits/satteri/tar.gz/b3d38e1e341c809b20b76a655e9b1601d11bd1f0",
+    "sha256": "4378026bb4bbaaace7a6c20c47e8e120ad57172a6b2b0e02482865b00a02f9bd"
+  },
+  "cmake": [
+    {
+      "target": "aarch64-apple-darwin",
+      "version": "4.4.4",
+      "url": "https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-macos-universal.tar.gz",
+      "sha256": "4b7b73704b1db9b374e5c9ab8e17ac6148b817b6396ee75cd94a852cbac9d305",
+      "binary": "CMake.app/Contents/bin/cmake"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "version": "4.4.4",
+      "url": "https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-linux-x86_64.tar.gz",
+      "sha256": "e5bb807f7728cb60cd8b27ebc97a2edb469b68655f21e844a600c3575b76f5bb",
+      "binary": "bin/cmake"
+    }
+  ]
 }

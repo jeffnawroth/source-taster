@@ -6,9 +6,11 @@ export default defineConfig({
   trailingSlash: "always",
   build: { inlineStylesheets: "never" },
   vite: {
+    // No optional native CSS tooling (Lightning CSS) and no esbuild: PostCSS
+    // transforms, CSS stays unminified (#115).
     css: { transformer: "postcss" },
     build: {
-      cssMinify: "esbuild",
+      cssMinify: false,
       assetsInlineLimit: 0,
       // Route-derived names such as "_..css" from [...route] would be refused
       // by the hosting boundary's ".." guard; content hashes are enough.

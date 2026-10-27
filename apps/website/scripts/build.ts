@@ -2,6 +2,8 @@
 import { spawnSync } from "node:child_process";
 import { rm, writeFile, readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
 import { checkPublication, digest } from "./publication.ts";
 import "./content-check.ts";
 import { assertPreviewAllowed, languages } from "../src/metadata.ts";
@@ -25,36 +27,54 @@ const buildEnvironment = {
   ...process.env,
   ASTRO_TELEMETRY_DISABLED: "1",
   DO_NOT_TRACK: "1",
-  SOURCE_TASTER_COMPILER_PATH: resolve(project, ".tmp/pagefind/bin/astro.node"),
+  SOURCE_TASTER_CONTROLLED_BIN: resolve(project, ".tmp/pagefind/bin"),
   SOURCE_TASTER_NATIVE_TRACE: resolve(
     project,
     ".tmp/pagefind/native-loads.jsonl",
   ),
-  NODE_OPTIONS: `--require=${JSON.stringify(resolve(project, "scripts/website-native-trace.cjs"))}`,
+  // Every Node process of the build (Astro and any Node children) loads the guard.
+  NODE_OPTIONS: `--import=${JSON.stringify(pathToFileURL(resolve(project, "scripts/website-native-trace.ts")).href)}`,
   SOURCE_TASTER_WEBSITE_PREVIEW: preview ? "1" : "0",
   SOURCE_TASTER_WEBSITE_OUTPUT: `./${output}`,
 };
 await rm(buildEnvironment.SOURCE_TASTER_NATIVE_TRACE, { force: true });
-const astro = spawnSync("pnpm", ["exec", "astro", "build"], {
+// Node runs Astro's CLI directly: no package-manager shim or shell is executed.
+const astroCli = resolve(
+  createRequire(import.meta.url).resolve("astro/package.json"),
+  "../bin/astro.mjs",
+);
+const astro = spawnSync(process.execPath, [astroCli, "build"], {
   stdio: "inherit",
   env: buildEnvironment,
 });
 if (astro.status !== 0) process.exit(astro.status ?? 1);
-const awaitCompiler = await readFile(
-  buildEnvironment.SOURCE_TASTER_COMPILER_PATH,
-);
 const loads = (
   await readFile(buildEnvironment.SOURCE_TASTER_NATIVE_TRACE, "utf8")
 )
   .trim()
   .split("\n")
   .map((line) => JSON.parse(line));
-if (
-  !loads.some(
-    (load) => load.controlled && load.sha256 === digest(awaitCompiler),
+const receipt = JSON.parse(
+  await readFile(resolve(project, ".tmp/pagefind/receipt.json"), "utf8"),
+) as { files: Record<string, string> };
+// Fail closed: any refused native module or process, and every executed
+// controlled module must be the receipt-bound source build.
+const refused = loads.filter((load) => !load.controlled);
+if (refused.length)
+  throw new Error(`Uncontrolled build execution: ${JSON.stringify(refused)}`);
+for (const module of ["astro.node", "rolldown.node", "satteri.node"]) {
+  const expected = receipt.files[`bin/${module}`];
+  if (
+    !expected ||
+    !loads.some(
+      (load) =>
+        load.kind === "native" &&
+        load.path === resolve(project, ".tmp/pagefind/bin", module) &&
+        load.sha256 === expected,
+    )
   )
-)
-  throw new Error("Compiler execution evidence missing or changed");
+    throw new Error(`Controlled ${module} execution evidence missing or changed`);
+}
 for (const language of languages) {
   const result = spawnSync(
     resolve(project, ".tmp/pagefind/bin/pagefind"),
