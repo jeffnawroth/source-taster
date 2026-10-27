@@ -100,7 +100,7 @@
   "evidence_candidate": "Kandidat abgerufen",
   "evidence_no_record": "Kein Datensatz in dieser Datenquelle",
   "evidence_unavailable": "Belege nicht verfügbar",
-  "evidence_limitation": "Technischer Beleggrund",
+  "evidence_limitation": "Einschränkung",
   "evidence_missing": "Nicht angegeben",
   "candidate_label": "Kandidat",
   "reference_label": "Referenz",
@@ -127,5 +127,15 @@
   "check_lease_expired": "Die Verbindung wurde nicht rechtzeitig erneuert. Abgeschlossene Urteile bleiben erhalten; unfertige Referenzen wurden abgebrochen.",
   "check_cleanup_pending": "Der Abbruch konnte nicht bestätigt werden. Dieser Arbeitsbereich erneuert seine Verbindung nicht mehr. Ein anderer aktiver Arbeitsbereich kann die Prüfung weiterlaufen lassen.",
   "problem_authority_unavailable": "Die aktuelle Berechtigung ist nicht verfügbar. Bitte erneut versuchen.",
-  "problem_guest_identity_storage": "Zum Beibehalten der Gastidentität ist Browserspeicher erforderlich. Lokalen Speicher erlauben und erneut versuchen."
+  "problem_guest_identity_storage": "Zum Beibehalten der Gastidentität ist Browserspeicher erforderlich. Lokalen Speicher erlauben und erneut versuchen.",
+  "limitation_deadline": "Die Zeit für diese Referenz ist abgelaufen, bevor die Datenquelle fertig war.",
+  "limitation_rate_budget": "Die Datenquelle ist ausgelastet oder ihr Anfragelimit wurde erreicht. Prüfen Sie diese Referenz später erneut.",
+  "limitation_response_size": "Die Antwort der Datenquelle war zu groß für eine sichere Verarbeitung.",
+  "limitation_request_unavailable": "Die Datenquelle war nicht erreichbar. Prüfen Sie diese Referenz später erneut.",
+  "limitation_invalid_resolver_response": "Der DOI-Dienst hat keine verwertbare Bestätigung für diese DOI geliefert.",
+  "limitation_not_in_crossref": "Crossref enthält keine Metadaten für diese DOI. Das beweist nicht, dass die DOI nicht existiert.",
+  "limitation_invalid_metadata": "Die Datenquelle hat unvollständige oder ungültige Metadaten geliefert.",
+  "limitation_identifier_mismatch": "Die gelieferten Metadaten gehören zu einer anderen DOI.",
+  "limitation_probe_unavailable": "Die Suche nach einer unabhängig passenden Quelle konnte nicht abgeschlossen werden.",
+  "limitation_unknown": "Die Belege der Datenquelle sind unvollständig. Prüfen Sie diese Referenz später erneut."
 }

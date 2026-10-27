@@ -25,6 +25,25 @@ const reasons = {
   identified: "reason_identified",
   "fields-differ": "reason_fields_differ",
 } as const;
+// Evidence reasons are transport diagnostics, never primary product text.
+// Unknown future reasons retain a safe localized explanation.
+const evidenceReasons = {
+  deadline: "limitation_deadline",
+  "rate-budget": "limitation_rate_budget",
+  "response-size": "limitation_response_size",
+  "request-unavailable": "limitation_request_unavailable",
+  "http-error": "limitation_request_unavailable",
+  "invalid-resolver-response": "limitation_invalid_resolver_response",
+  "not-in-crossref": "limitation_not_in_crossref",
+  "invalid-metadata": "limitation_invalid_metadata",
+  "identifier-mismatch": "limitation_identifier_mismatch",
+  "probe-unavailable": "limitation_probe_unavailable",
+} as const satisfies Record<string, keyof typeof m>;
+function limitation(reason: string) {
+  return Object.hasOwn(evidenceReasons, reason)
+    ? m[evidenceReasons[reason as keyof typeof evidenceReasons]]()
+    : m.limitation_unknown();
+}
 const fields = {
   title: "field_title",
   author: "field_author",
@@ -128,7 +147,7 @@ export function ReferenceOutcomeView({
               ({e.observedAt})
               {e.reason && (
                 <p>
-                  {m.evidence_limitation()}: {e.reason}
+                  {m.evidence_limitation()}: {limitation(e.reason)}
                 </p>
               )}
             </li>

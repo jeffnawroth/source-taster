@@ -17,7 +17,7 @@ it("preserves numeric nonzero /v1 replay and numeric output IDs for the actual p
   });
   expect(events[0]?.seq).toBe(check.lastEventSeq + 1);
   const response = await fetch(`${api}/v1/checks/${check.id}/events`, {
-    headers: { "last-event-id": "1" },
+    headers: { "last-event-id": "0001" },
   });
   expect(response.status).toBe(200);
   const ids: string[] = [];

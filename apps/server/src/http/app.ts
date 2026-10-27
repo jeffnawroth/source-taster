@@ -218,8 +218,8 @@ export function createApp({
     const check = await checks.get(principal, checkId);
     if (!check) fail("check-not-found");
     const raw = c.req.header("last-event-id") ?? "0";
-    const seq = /^(0|[1-9]\d*)$/.test(raw)
-      ? raw
+    const seq = /^\d+$/.test(raw)
+      ? String(Number(raw))
       : raw.startsWith(`${checkId}:`)
         ? raw.slice(checkId.length + 1)
         : "invalid";

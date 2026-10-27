@@ -67,3 +67,56 @@ for (const language of ["en", "de"] as const) {
     await expect(result).toContainText(reference);
   });
 }
+
+for (const language of ["en", "de"] as const)
+  for (const limitation of ["unavailable", "invalid"] as const)
+    test(`explains ${limitation} upstream evidence in ${language} without raw codes`, async ({
+      page,
+    }) => {
+      await page.goto("/");
+      await page
+        .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+        .selectOption(language);
+      await page
+        .getByRole("textbox")
+        .fill(
+          `Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.5555/browser-${limitation}`,
+        );
+      await page
+        .getByRole("button", {
+          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          exact: true,
+        })
+        .click();
+      const result = page.getByRole("status");
+      await expect(
+        result.getByText(
+          language === "en" ? "Not verifiable" : "Nicht verifizierbar",
+          { exact: true },
+        ),
+      ).toBeVisible({ timeout: 15000 });
+      await result
+        .getByText(
+          language === "en"
+            ? "Explanation and source evidence"
+            : "Erklärung und Quellenbelege",
+          { exact: true },
+        )
+        .click();
+      await expect(
+        result.getByText(
+          language === "en"
+            ? limitation === "invalid"
+              ? "The data source returned incomplete or invalid metadata."
+              : "The data source could not be reached. Try this Reference again later."
+            : limitation === "invalid"
+              ? "Die Datenquelle hat unvollständige oder ungültige Metadaten geliefert."
+              : "Die Datenquelle war nicht erreichbar. Prüfen Sie diese Referenz später erneut.",
+          { exact: false },
+        ),
+      ).toBeVisible();
+      await expect(result).not.toContainText(
+        /request-unavailable|invalid-metadata|http-error|invalid-resolver-response/,
+      );
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    });

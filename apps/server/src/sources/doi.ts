@@ -7,12 +7,21 @@ import type {
   RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
+export interface SourceDispatch {
+  pending: Promise<Response>;
+}
+export interface SourcePermit {
+  dispatch(
+    send: (timeoutMs: number) => Promise<Response>,
+  ): Promise<SourceDispatch | null>;
+  release(): Promise<void>;
+}
 export interface SourceBudget {
   acquire: (
     source: "doi.org" | "crossref",
     operation: "doi" | "combined",
     deadline: number,
-  ) => Promise<(() => Promise<void>) | null>;
+  ) => Promise<SourcePermit | null>;
   defer: (source: "doi.org" | "crossref", delayMs: number) => Promise<void>;
 }
 const crossrefRecord = z.object({
@@ -65,7 +74,9 @@ export function createDoiAdapters(options: {
   budget: SourceBudget;
   clock?: SourceClock;
   signal?: AbortSignal;
-  dispatch?: (send: () => Promise<Response>) => Promise<Response>;
+  dispatch?: (
+    send: () => Promise<SourceDispatch | null>,
+  ) => Promise<SourceDispatch | null>;
   beforeRequest?: (source: "doi.org" | "crossref") => Promise<void>;
 }) {
   const clock = options.clock ?? systemSourceClock;
@@ -85,13 +96,21 @@ export function createDoiAdapters(options: {
       if (clock.now() >= deadline) break;
       await options.beforeRequest?.(source);
       options.signal?.throwIfAborted();
-      const release = await options.budget.acquire(source, operation, deadline);
-      if (!release) {
+      const permit = await options.budget.acquire(source, operation, deadline);
+      if (!permit) {
         reason = "rate-budget";
         break;
       }
       let retry = false,
         delay = 0;
+      const requestAbort = new AbortController();
+      let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+      let requestTimer: ReturnType<typeof setTimeout> | undefined;
+      const cancelRequest = () => {
+        requestAbort.abort(options.signal?.reason);
+        void reader?.cancel(requestAbort.signal.reason).catch(() => {});
+      };
+
       try {
         if (clock.now() >= deadline) {
           reason = "deadline";
@@ -99,42 +118,70 @@ export function createDoiAdapters(options: {
         }
         options.signal?.throwIfAborted();
         await options.beforeRequest?.(source);
-        attempts++;
-        const send = () =>
-          fetch(url, {
+        const send = (timeoutMs: number) => {
+          attempts++;
+          options.signal?.throwIfAborted();
+          options.signal?.addEventListener("abort", cancelRequest, {
+            once: true,
+          });
+          // Own the timeout until body completion, rather than relying on a
+          // fetch/timeout signal whose lifetime can end with response headers.
+          requestTimer = setTimeout(
+            () => {
+              requestAbort.abort(
+                new DOMException("Source request timed out", "TimeoutError"),
+              );
+              // Also cancel the owned reader: fetch's signal alone may no longer
+              // interrupt a body after headers/Request collection in Node.
+              void reader?.cancel(requestAbort.signal.reason).catch(() => {});
+            },
+            Math.max(1, timeoutMs),
+          );
+          const pending = fetch(url, {
             headers: {
               accept: "application/json",
               "user-agent":
                 "Source-Taster/0.0.0 (uncalibrated development preview)",
             },
             redirect: "error",
-            signal: AbortSignal.any([
-              AbortSignal.timeout(
-                Math.max(
-                  1,
-                  Math.min(
-                    doiTracerLimits.requestTimeoutMs,
-                    deadline - clock.now(),
-                  ),
-                ),
-              ),
-              ...(options.signal ? [options.signal] : []),
-            ]),
+            signal: requestAbort.signal,
+          }).then((response) => {
+            // Own the reader as soon as headers arrive, even if releasing the
+            // invocation guard is delayed. The timer can then cancel body I/O.
+            reader = response.body?.getReader();
+            if (requestAbort.signal.aborted) {
+              void reader?.cancel(requestAbort.signal.reason).catch(() => {});
+              requestAbort.signal.throwIfAborted();
+            }
+            return response;
           });
-        const response = await (options.dispatch
-          ? options.dispatch(send)
-          : send());
+          // A response can fail while the short invocation guard is releasing.
+          // Keep the rejection observed; the adapter still classifies it below.
+          void pending.catch(() => {});
+          return pending;
+        };
+        const invoke = () => permit.dispatch(send);
+        const dispatched = await (options.dispatch
+          ? options.dispatch(invoke)
+          : invoke());
+        if (!dispatched) {
+          // Pacing/cooldown can change during authority checks. Reacquire
+          // outside the Owner guard; no HTTP attempt has been consumed.
+          attempt--;
+          continue;
+        }
+        const response = await dispatched.pending;
         status = response.status;
         // Bound streaming bytes after decompression as well as the declared wire size.
         if (
           Number(response.headers.get("content-length") ?? 0) >
           doiTracerLimits.maxResponseBytes
         ) {
-          await response.body?.cancel();
+          await reader?.cancel();
           reason = "response-size";
           break;
         }
-        const reader = response.body?.getReader();
+        requestAbort.signal.throwIfAborted();
         const chunks: Uint8Array[] = [];
         let length = 0;
         if (reader)
@@ -148,6 +195,7 @@ export function createDoiAdapters(options: {
             }
             chunks.push(next.value);
           }
+        requestAbort.signal.throwIfAborted();
         const bytes = new Uint8Array(length);
         let offset = 0;
         for (const chunk of chunks) {
@@ -185,9 +233,16 @@ export function createDoiAdapters(options: {
           error instanceof Error && error.message === "response-size"
             ? "response-size"
             : "request-unavailable";
-        retry = error instanceof Error && error.name === "TimeoutError";
+        retry =
+          (error instanceof Error && error.name === "TimeoutError") ||
+          (requestAbort.signal.reason instanceof DOMException &&
+            requestAbort.signal.reason.name === "TimeoutError");
       } finally {
-        await release();
+        clearTimeout(requestTimer);
+        options.signal?.removeEventListener("abort", cancelRequest);
+        requestAbort.abort();
+        await reader?.cancel().catch(() => {});
+        await permit.release();
       }
       if (
         !retry ||

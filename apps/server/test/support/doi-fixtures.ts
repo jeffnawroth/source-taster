@@ -19,19 +19,29 @@ export async function startDoiFixtures() {
     string,
     { status: number; body: unknown; headers?: Record<string, string> }
   >();
-  const requests: { path: string; at: number }[] = [];
+  const requests: { path: string; at: number; completedAt?: number }[] = [];
   const holds = new Map<
     string,
-    { entered: () => void; release: Promise<void> }
+    { entered: () => void; release: Promise<void>; body: boolean }
   >();
   const server = createServer((req, res) => {
     void (async () => {
-      requests.push({
+      const request = {
         path: decodeURIComponent(req.url ?? ""),
         at: Date.now(),
+        completedAt: undefined as number | undefined,
+      };
+      requests.push(request);
+      res.once("close", () => {
+        request.completedAt = Date.now();
       });
       const hold = holds.get(decodeURIComponent(req.url ?? ""));
       if (hold) {
+        if (hold.body) {
+          res.setHeader("content-type", "application/json");
+          res.flushHeaders();
+          res.write(" ");
+        }
         hold.entered();
         await hold.release;
       }
@@ -60,7 +70,7 @@ export async function startDoiFixtures() {
   const base = `http://127.0.0.1:${address.port}`;
   return {
     requests,
-    hold(path: string) {
+    hold(path: string, body = false) {
       let entered!: () => void;
       let release!: () => void;
       const arrived = new Promise<void>((resolve) => {
@@ -69,7 +79,7 @@ export async function startDoiFixtures() {
       const gate = new Promise<void>((resolve) => {
         release = resolve;
       });
-      holds.set(path, { entered, release: gate });
+      holds.set(path, { entered, release: gate, body });
       return { arrived, release };
     },
     reset: () => responses.clear(),

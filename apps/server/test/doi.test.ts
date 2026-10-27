@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { readFile } from "node:fs/promises";
 import { afterAll, beforeAll, expect, it } from "vitest";
-import { CheckResponse } from "@source-taster/contract-verification";
+import {
+  CheckResponse,
+  CheckEvent,
+} from "@source-taster/contract-verification";
 import { readSseFrames } from "@source-taster/contract-verification/client";
 import { startTestService } from "./support/service.ts";
 import { physicsReference, startDoiFixtures } from "./support/doi-fixtures.ts";
@@ -518,8 +521,8 @@ it("the actual pre-lifecycle /v1 client parses DOI Verdict frames and resumes nu
   expect(seen).toContainEqual(
     expect.objectContaining({
       type: "reference.updated",
-      reference: expect.objectContaining({
-        outcome: expect.objectContaining({
+      reference: matching({
+        outcome: matching({
           kind: "verdict",
           verdict: "correct",
         }),
@@ -530,5 +533,5 @@ it("the actual pre-lifecycle /v1 client parses DOI Verdict frames and resumes nu
     `${service.apiUrl}/v1/checks/${snapshot.id}/events`,
   );
   for await (const frame of legacyFrames(response.body!))
-    expect(Number(frame.id)).toBe(JSON.parse(frame.data).seq);
+    expect(Number(frame.id)).toBe(CheckEvent.parse(JSON.parse(frame.data)).seq);
 });

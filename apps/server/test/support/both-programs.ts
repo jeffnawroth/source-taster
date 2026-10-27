@@ -177,6 +177,8 @@ export async function bothPrograms(
     serviceUrl = `http://127.0.0.1:${servicePort}`;
   // Adapter-edge transport barrier: forwards to the REAL service, then can hold
   // one authentic response. No authority return value is manufactured here.
+  let workDelayMs = 0;
+  let workGate: { arrived(): void; wait: Promise<void> } | undefined;
   let trap:
     | undefined
     | {
@@ -208,6 +210,12 @@ export async function bothPrograms(
         const input = body
           ? (JSON.parse(body) as { permission?: string; kind?: string })
           : {};
+        if (input.kind === "work" && workGate) {
+          workGate.arrived();
+          await workGate.wait;
+        }
+        if (input.kind === "work" && workDelayMs)
+          await new Promise((resolve) => setTimeout(resolve, workDelayMs));
         if (
           trap &&
           req.url === "/internal/guest-authority" &&
@@ -381,6 +389,29 @@ export async function bothPrograms(
           return result.completed;
         }, 5000);
       return result;
+    },
+    holdWork: () => {
+      let arrived!: () => void, release!: () => void;
+      const gate = {
+        arrived: () => arrived(),
+        wait: new Promise<void>((r) => {
+          release = r;
+        }),
+      };
+      const waiting = new Promise<void>((r) => {
+        arrived = r;
+      });
+      workGate = gate;
+      return {
+        arrived: waiting,
+        release: () => {
+          workGate = undefined;
+          release();
+        },
+      };
+    },
+    delayWork: (ms: number) => {
+      workDelayMs = ms;
     },
     trap: (permission?: string, kind?: string, skip = 0) => {
       let hit!: () => void, release!: () => void;

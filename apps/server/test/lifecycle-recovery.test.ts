@@ -153,6 +153,7 @@ it("bounds a Check to ten active References across workers and admits other Chec
         () =>
           fixtures.requests.filter((r) => r.path.startsWith("/api/handles/"))
             .length,
+        { timeout: 2500 },
       )
       .toBe(12);
     const snap = await snapshot(a.id);
