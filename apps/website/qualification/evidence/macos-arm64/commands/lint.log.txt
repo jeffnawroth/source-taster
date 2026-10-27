@@ -1,0 +1,165 @@
+$ eslint scripts && turbo run lint && prettier --check .
+
+   • turbo 2.11.10
+   • Packages in scope: @source-taster/contract-common, @source-taster/contract-internal, @source-taster/contract-service, @source-taster/contract-verification, @source-taster/core, @source-taster/i18n, @source-taster/server, @source-taster/ui, @source-taster/web, @source-taster/website
+   • Running lint in 10 packages
+   • Remote caching disabled, using shared worktree cache
+
+@source-taster/server:generate: cache hit, replaying logs 069ee4dc746fd7d8
+@source-taster/core:build: cache hit, replaying logs f600f05924ff225e
+@source-taster/contract-common:build: cache hit, replaying logs 67b736a5a343083f
+@source-taster/server:generate: $ prisma generate
+@source-taster/server:generate: Loaded Prisma config from prisma.config.ts.
+@source-taster/server:generate:
+@source-taster/server:generate: Prisma schema loaded from prisma/schema.prisma.
+@source-taster/server:generate:
+@source-taster/server:generate: ✔ Generated Prisma Client (7.10.1) to ./src/generated/prisma in 27ms
+@source-taster/server:generate:
+@source-taster/core:build: $ tsc -p tsconfig.build.json
+@source-taster/contract-verification:build: cache hit, replaying logs 37241e21087dfec7
+@source-taster/contract-common:build: $ tsc -p tsconfig.build.json
+@source-taster/contract-verification:build: $ node scripts/build.ts
+@source-taster/contract-verification:lint: cache hit, replaying logs 3de6b75c3330d63b
+@source-taster/contract-verification:lint: $ eslint .
+@source-taster/contract-service:lint: cache hit, replaying logs 4e605bc6a81fd7ef
+@source-taster/contract-service:lint: $ eslint .
+@source-taster/contract-common:lint: cache hit, replaying logs 6e332576c078f526
+@source-taster/contract-common:lint: $ eslint .
+@source-taster/contract-internal:lint: cache hit, replaying logs 9cc67e7665940ac9
+@source-taster/contract-internal:lint: $ eslint .
+@source-taster/core:lint: cache hit, replaying logs c00a7ba0fdcca02b
+@source-taster/core:lint: $ eslint .
+@source-taster/i18n:generate: cache hit, replaying logs 8f1f3fc95822881b
+@source-taster/i18n:generate: $ paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale
+@source-taster/i18n:generate: ℹ [paraglide-js] Compiling inlang project ...
+@source-taster/i18n:generate: ✔ [paraglide-js] Successfully compiled inlang project.
+@source-taster/i18n:lint: cache hit, replaying logs 5d3442c9801b30a9
+@source-taster/i18n:lint: $ eslint scripts
+@source-taster/i18n:build: cache hit, replaying logs d1c673a2671cba77
+@source-taster/i18n:build: $ paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale
+@source-taster/i18n:build: ℹ [paraglide-js] Compiling inlang project ...
+@source-taster/i18n:build: ✔ [paraglide-js] Successfully compiled inlang project.
+@source-taster/website:lint: cache miss, executing 1c9d26270e4167ce
+@source-taster/website:build: cache bypass, force executing 9d758be089b4b423
+@source-taster/ui:lint: cache hit, replaying logs 980a944be9a781c2
+@source-taster/ui:lint: $ eslint .
+@source-taster/website:lint: $ eslint .
+@source-taster/website:build: $ node scripts/build.ts --preview
+@source-taster/website:build: DE/EN content complete: 10 paired information pages, 4 paired legal documents, 29 paired UI texts, 8 paired source-access texts; human translation review pending
+@source-taster/website:build: Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+@source-taster/website:build: 10:36:46 [types] Generated 19ms
+@source-taster/website:build: 10:36:46 [build] output: "static"
+@source-taster/website:build: 10:36:46 [build] mode: "static"
+@source-taster/website:build: 10:36:46 [build] directory: /workspace/source-taster/apps/website/dist-preview/
+@source-taster/website:build: 10:36:46 [build] Collecting build info...
+@source-taster/website:build: 10:36:46 [build] ✓ Completed in 29ms.
+@source-taster/website:build: 10:36:46 [build] Building static entrypoints...
+@source-taster/website:build: 10:36:46 [vite] ✓ built in 58ms
+@source-taster/website:build: 10:36:46 [vite] ✓ built in 7ms
+@source-taster/website:build: 10:36:46 [build] Rearranging server assets...
+@source-taster/website:build:
+@source-taster/website:build:  generating static routes
+@source-taster/website:build: 10:36:46   ├─ /de/index.html (+5ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/de/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/de/how-the-check-works/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/de/structuring/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/de/preferences/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/de/errors-and-retry/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/de/availability/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/faq/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /de/contact/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /de/accessibility/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /en/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/en/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/en/how-the-check-works/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/en/structuring/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/en/preferences/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/en/errors-and-retry/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /docs/en/availability/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/faq/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/contact/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/accessibility/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/legal-notice/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/legal-notice/versions/draft-2026-10-26.1/index.html (+1ms)
+@source-taster/website:build: 10:36:46   ├─ /de/terms/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/terms/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/privacy/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/privacy/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/withdrawal/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /de/withdrawal/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/legal-notice/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/legal-notice/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/terms/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/terms/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/privacy/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/privacy/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/withdrawal/index.html (+0ms)
+@source-taster/website:build: 10:36:46   ├─ /en/withdrawal/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:36:46 ✓ Completed in 32ms.
+@source-taster/website:build:
+@source-taster/website:build: 10:36:46 [build] ✓ Completed in 113ms.
+@source-taster/website:build: 10:36:46 [build] 36 page(s) built in 143ms
+@source-taster/website:build: 10:36:46 [build] Complete!
+@source-taster/website:build:
+@source-taster/website:build: Running Pagefind v1.5.2
+@source-taster/website:build: Running from: "/workspace/source-taster/apps/website"
+@source-taster/website:build: Source:       "dist-preview"
+@source-taster/website:build: Output:       "dist-preview/pagefind/de"
+@source-taster/website:build:
+@source-taster/website:build: [Walking source directory]
+@source-taster/website:build: Found 6 files matching docs/de/**/*.html
+@source-taster/website:build:
+@source-taster/website:build: [Parsing files]
+@source-taster/website:build: Found a data-pagefind-body element on the site.
+@source-taster/website:build: ↳ Ignoring pages without this tag.
+@source-taster/website:build:
+@source-taster/website:build: [Reading languages]
+@source-taster/website:build: Discovered 1 language: de
+@source-taster/website:build:
+@source-taster/website:build: [Building search indexes]
+@source-taster/website:build: Total:
+@source-taster/website:build:   Indexed 1 language
+@source-taster/website:build:   Indexed 6 pages
+@source-taster/website:build:   Indexed 268 words
+@source-taster/website:build:   Indexed 0 filters
+@source-taster/website:build:   Indexed 0 sorts
+@source-taster/website:build:
+@source-taster/website:build: Finished in 0.007 seconds
+@source-taster/website:build:
+@source-taster/website:build: Running Pagefind v1.5.2
+@source-taster/website:build: Running from: "/workspace/source-taster/apps/website"
+@source-taster/website:build: Source:       "dist-preview"
+@source-taster/website:build: Output:       "dist-preview/pagefind/en"
+@source-taster/website:build:
+@source-taster/website:build: [Walking source directory]
+@source-taster/website:build: Found 6 files matching docs/en/**/*.html
+@source-taster/website:build:
+@source-taster/website:build: [Parsing files]
+@source-taster/website:build: Found a data-pagefind-body element on the site.
+@source-taster/website:build: ↳ Ignoring pages without this tag.
+@source-taster/website:build:
+@source-taster/website:build: [Reading languages]
+@source-taster/website:build: Discovered 1 language: en
+@source-taster/website:build:
+@source-taster/website:build: [Building search indexes]
+@source-taster/website:build: Total:
+@source-taster/website:build:   Indexed 1 language
+@source-taster/website:build:   Indexed 6 pages
+@source-taster/website:build:   Indexed 265 words
+@source-taster/website:build:   Indexed 0 filters
+@source-taster/website:build:   Indexed 0 sorts
+@source-taster/website:build:
+@source-taster/website:build: Finished in 0.005 seconds
+@source-taster/website:build: Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+@source-taster/website:build: Delivered hash-bound browser source/notice package: 17 registry source packages
+@source-taster/web:lint: cache miss, executing 5f2a9d79a4b4b79d
+@source-taster/server:lint: cache miss, executing 2645bd6178416dea
+@source-taster/server:lint: $ eslint .
+@source-taster/web:lint: $ eslint .
+
+ Tasks:    17 successful, 17 total
+Cached:    13 cached, 17 total
+  Time:    20.14s
+
+Checking formatting...
+All matched files use Prettier code style!

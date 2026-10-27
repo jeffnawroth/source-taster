@@ -1,0 +1,2 @@
+$ node scripts/pagefind-source.ts verify
+Verified controlled Pagefind 1.5.2: aarch64-apple-darwin

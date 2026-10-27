@@ -1,0 +1,16 @@
+$ node scripts/audit.ts
+Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+{"target":"aarch64-apple-darwin","packages":539,"licenseIssues":[],"legalStatus":"BLOCKED: concrete GPL/AGPL boundaries, microjson manifest/header interpretation, source offer and human legal review remain pending; no license waiver"}
+Starting filesystem walk for root: /
+Scanned /workspace/source-taster/pnpm-lock.yaml file and found 687 packages
+Scanned /workspace/source-taster/apps/website/qualification/upstream/pagefind-native/Cargo.lock file and found 406 packages
+Scanned /workspace/source-taster/apps/website/qualification/upstream/pagefind-web/Cargo.lock file and found 22 packages
+Scanned /workspace/source-taster/apps/website/qualification/upstream/astro-compiler/Cargo.lock file and found 297 packages
+Scanned /workspace/source-taster/apps/website/qualification/upstream/satteri/Cargo.lock file and found 185 packages
+Scanned /workspace/source-taster/apps/website/qualification/upstream/rolldown/Cargo.lock file and found 409 packages
+Scanned /workspace/source-taster/apps/website/qualification/upstream/pagefind-js/package-lock.json file and found 202 packages
+Scanned /workspace/source-taster/.tmp/pagefind/selected/Cargo.lock file and found 539 packages
+End status: 0 dirs visited, 8 inodes visited, 8 Extract calls, 20.805583ms elapsed, 20.806ms wall time
+Loaded npm local db from /workspace/source-taster/.tmp/osv-db/osv-scalibr/npm/all.zip
+Loaded crates.io local db from /workspace/source-taster/.tmp/osv-db/osv-scalibr/crates.io/all.zip
+{"tool":"OSV-Scanner 2.7.0","matchedOffline":true,"databaseLastModified":"Tue, 27 Oct 2026 08:48:32 GMT","packages":2746,"lockfilePackages":687,"nativeAndBundledExpected":1169,"nativeDatabaseLastModified":"Mon, 26 Oct 2026 14:18:55 GMT","findings":79,"blockingFindings":0,"rawFindingsPreserved":79,"qualificationEvidence":".tmp/pagefind/evidence/qualification.json","legalReview":"pending; publication remains blocked","licenseIssues":[]}

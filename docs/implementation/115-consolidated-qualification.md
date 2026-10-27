@@ -54,7 +54,8 @@ source-page navigation, all five download paths, WCAG 2.2 AA axe and reflow at
 The catalog reports 73 app messages, 10 paired information pages, four paired
 legal documents, 29 paired website UI texts and eight paired source-access texts.
 
-`pnpm audit:licenses` passes the installed npm license inventory. The real
+`pnpm audit:licenses` passes **526 installed npm package licenses**, including
+**67 runtime packages**. The real
 `OSV_SCANNER_BIN=.tmp/audit/osv-scanner pnpm audit:dependencies` now **passes**,
 with **539 selected Rust identities**, **2,746 scanned occurrences**, **687 npm
 lock identities**, **zero native license issues**, **zero actual-target advisory

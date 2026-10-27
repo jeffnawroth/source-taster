@@ -1,0 +1,223 @@
+$ turbo run test
+
+   • turbo 2.11.10
+   • Packages in scope: @source-taster/contract-common, @source-taster/contract-internal, @source-taster/contract-service, @source-taster/contract-verification, @source-taster/core, @source-taster/i18n, @source-taster/server, @source-taster/ui, @source-taster/web, @source-taster/website
+   • Running test in 10 packages
+   • Remote caching disabled, using shared worktree cache
+
+@source-taster/core:build: cache hit, replaying logs f600f05924ff225e
+@source-taster/server:generate: cache hit, replaying logs 069ee4dc746fd7d8
+@source-taster/contract-verification:build: cache hit, replaying logs 37241e21087dfec7
+@source-taster/core:build: $ tsc -p tsconfig.build.json
+@source-taster/contract-common:build: cache hit, replaying logs 67b736a5a343083f
+@source-taster/server:generate: $ prisma generate
+@source-taster/server:generate: Loaded Prisma config from prisma.config.ts.
+@source-taster/server:generate:
+@source-taster/server:generate: Prisma schema loaded from prisma/schema.prisma.
+@source-taster/server:generate:
+@source-taster/server:generate: ✔ Generated Prisma Client (7.10.1) to ./src/generated/prisma in 27ms
+@source-taster/server:generate:
+@source-taster/contract-verification:build: $ node scripts/build.ts
+@source-taster/contract-common:build: $ tsc -p tsconfig.build.json
+@source-taster/i18n:generate: cache hit, replaying logs 8f1f3fc95822881b
+@source-taster/i18n:generate: $ paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale
+@source-taster/i18n:generate: ℹ [paraglide-js] Compiling inlang project ...
+@source-taster/i18n:generate: ✔ [paraglide-js] Successfully compiled inlang project.
+@source-taster/i18n:build: cache hit, replaying logs d1c673a2671cba77
+@source-taster/i18n:build: $ paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale
+@source-taster/i18n:build: ℹ [paraglide-js] Compiling inlang project ...
+@source-taster/i18n:build: ✔ [paraglide-js] Successfully compiled inlang project.
+@source-taster/website:build: cache bypass, force executing 9d758be089b4b423
+@source-taster/website:build: $ node scripts/build.ts --preview
+@source-taster/website:build: DE/EN content complete: 10 paired information pages, 4 paired legal documents, 29 paired UI texts, 8 paired source-access texts; human translation review pending
+@source-taster/website:build: Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+@source-taster/website:build: 10:37:27 [types] Generated 20ms
+@source-taster/website:build: 10:37:27 [build] output: "static"
+@source-taster/website:build: 10:37:27 [build] mode: "static"
+@source-taster/website:build: 10:37:27 [build] directory: /workspace/source-taster/apps/website/dist-preview/
+@source-taster/website:build: 10:37:27 [build] Collecting build info...
+@source-taster/website:build: 10:37:27 [build] ✓ Completed in 31ms.
+@source-taster/website:build: 10:37:27 [build] Building static entrypoints...
+@source-taster/website:build: 10:37:27 [vite] ✓ built in 59ms
+@source-taster/website:build: 10:37:27 [vite] ✓ built in 7ms
+@source-taster/website:build: 10:37:27 [build] Rearranging server assets...
+@source-taster/website:build:
+@source-taster/website:build:  generating static routes
+@source-taster/website:build: 10:37:27   ├─ /de/index.html (+5ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/de/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/de/how-the-check-works/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/de/structuring/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/de/preferences/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/de/errors-and-retry/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/de/availability/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/faq/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/contact/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /de/accessibility/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /en/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/en/index.html (+1ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/en/how-the-check-works/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/en/structuring/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/en/preferences/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/en/errors-and-retry/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /docs/en/availability/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/faq/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/contact/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/accessibility/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/legal-notice/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/legal-notice/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/terms/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/terms/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/privacy/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/privacy/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/withdrawal/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /de/withdrawal/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/legal-notice/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/legal-notice/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/terms/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/terms/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/privacy/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/privacy/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/withdrawal/index.html (+0ms)
+@source-taster/website:build: 10:37:27   ├─ /en/withdrawal/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:27 ✓ Completed in 31ms.
+@source-taster/website:build:
+@source-taster/website:build: 10:37:27 [build] ✓ Completed in 114ms.
+@source-taster/website:build: 10:37:27 [build] 36 page(s) built in 146ms
+@source-taster/website:build: 10:37:27 [build] Complete!
+@source-taster/website:build:
+@source-taster/website:build: Running Pagefind v1.5.2
+@source-taster/website:build: Running from: "/workspace/source-taster/apps/website"
+@source-taster/website:build: Source:       "dist-preview"
+@source-taster/website:build: Output:       "dist-preview/pagefind/de"
+@source-taster/website:build:
+@source-taster/website:build: [Walking source directory]
+@source-taster/website:build: Found 6 files matching docs/de/**/*.html
+@source-taster/website:build:
+@source-taster/website:build: [Parsing files]
+@source-taster/website:build: Found a data-pagefind-body element on the site.
+@source-taster/website:build: ↳ Ignoring pages without this tag.
+@source-taster/website:build:
+@source-taster/website:build: [Reading languages]
+@source-taster/website:build: Discovered 1 language: de
+@source-taster/website:build:
+@source-taster/website:build: [Building search indexes]
+@source-taster/website:build: Total:
+@source-taster/website:build:   Indexed 1 language
+@source-taster/website:build:   Indexed 6 pages
+@source-taster/website:build:   Indexed 268 words
+@source-taster/website:build:   Indexed 0 filters
+@source-taster/website:build:   Indexed 0 sorts
+@source-taster/website:build:
+@source-taster/website:build: Finished in 0.007 seconds
+@source-taster/website:build:
+@source-taster/website:build: Running Pagefind v1.5.2
+@source-taster/website:build: Running from: "/workspace/source-taster/apps/website"
+@source-taster/website:build: Source:       "dist-preview"
+@source-taster/website:build: Output:       "dist-preview/pagefind/en"
+@source-taster/website:build:
+@source-taster/website:build: [Walking source directory]
+@source-taster/website:build: Found 6 files matching docs/en/**/*.html
+@source-taster/website:build:
+@source-taster/website:build: [Parsing files]
+@source-taster/website:build: Found a data-pagefind-body element on the site.
+@source-taster/website:build: ↳ Ignoring pages without this tag.
+@source-taster/website:build:
+@source-taster/website:build: [Reading languages]
+@source-taster/website:build: Discovered 1 language: en
+@source-taster/website:build:
+@source-taster/website:build: [Building search indexes]
+@source-taster/website:build: Total:
+@source-taster/website:build:   Indexed 1 language
+@source-taster/website:build:   Indexed 6 pages
+@source-taster/website:build:   Indexed 265 words
+@source-taster/website:build:   Indexed 0 filters
+@source-taster/website:build:   Indexed 0 sorts
+@source-taster/website:build:
+@source-taster/website:build: Finished in 0.006 seconds
+@source-taster/website:build: Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+@source-taster/website:build: Delivered hash-bound browser source/notice package: 17 registry source packages
+@source-taster/server:test: cache bypass, force executing bc5c2a794c742ca6
+@source-taster/server:test: $ vitest run
+@source-taster/server:test:
+@source-taster/server:test:  RUN  v5.0.5 /workspace/source-taster/apps/server
+@source-taster/server:test:
+@source-taster/server:test: Loaded Prisma config from prisma.config.ts.
+@source-taster/server:test:
+@source-taster/server:test: Prisma schema loaded from prisma/schema.prisma.
+@source-taster/server:test: Datasource "db": PostgreSQL database "source_taster_test_31eee43b3dd1", schema "verification" at "localhost:5433"
+@source-taster/server:test:
+@source-taster/server:test: 1 migration found in prisma/migrations
+@source-taster/server:test:
+@source-taster/server:test: Applying migration `20261026000000_init`
+@source-taster/server:test:
+@source-taster/server:test: The following migration(s) have been applied:
+@source-taster/server:test:
+@source-taster/server:test: migrations/
+@source-taster/server:test:   └─ 20261026000000_init/
+@source-taster/server:test:     └─ migration.sql
+@source-taster/server:test:
+@source-taster/server:test: All migrations have been successfully applied.
+@source-taster/server:test:  ✓ test/structuring.test.ts (15 tests) 75ms
+@source-taster/server:test: Loaded Prisma config from prisma.config.ts.
+@source-taster/server:test:
+@source-taster/server:test: Prisma schema loaded from prisma/schema.prisma.
+@source-taster/server:test: Datasource "db": PostgreSQL database "source_taster_test_94a822af9910", schema "verification" at "localhost:5433"
+@source-taster/server:test:
+@source-taster/server:test: 1 migration found in prisma/migrations
+@source-taster/server:test:
+@source-taster/server:test: Applying migration `20261026000000_init`
+@source-taster/server:test:
+@source-taster/server:test: ┌─────────────────────────────────────────────────────────┐
+@source-taster/server:test: │  Update available 7.10.1 -> 8.0.0-rc.27                 │
+@source-taster/server:test: │                                                         │
+@source-taster/server:test: │  This is a major update - please follow the guide at    │
+@source-taster/server:test: │  https://pris.ly/d/major-version-upgrade                │
+@source-taster/server:test: │                                                         │
+@source-taster/server:test: │  Run the following to update                            │
+@source-taster/server:test: │    npm i --save-dev prisma@latest                       │
+@source-taster/server:test: │    npm i @prisma/client@latest                          │
+@source-taster/server:test: └─────────────────────────────────────────────────────────┘
+@source-taster/server:test: The following migration(s) have been applied:
+@source-taster/server:test:
+@source-taster/server:test: migrations/
+@source-taster/server:test:   └─ 20261026000000_init/
+@source-taster/server:test:     └─ migration.sql
+@source-taster/server:test:
+@source-taster/server:test: All migrations have been successfully applied.
+@source-taster/server:test:  ✓ test/website.test.ts (4 tests) 1725ms
+@source-taster/server:test: Loaded Prisma config from prisma.config.ts.
+@source-taster/server:test:
+@source-taster/server:test: Prisma schema loaded from prisma/schema.prisma.
+@source-taster/server:test: Datasource "db": PostgreSQL database "source_taster_test_a6b70b6c07f5", schema "verification" at "localhost:5433"
+@source-taster/server:test:
+@source-taster/server:test: 1 migration found in prisma/migrations
+@source-taster/server:test:
+@source-taster/server:test: Applying migration `20261026000000_init`
+@source-taster/server:test:
+@source-taster/server:test: The following migration(s) have been applied:
+@source-taster/server:test:
+@source-taster/server:test: migrations/
+@source-taster/server:test:   └─ 20261026000000_init/
+@source-taster/server:test:     └─ migration.sql
+@source-taster/server:test:
+@source-taster/server:test: All migrations have been successfully applied.
+@source-taster/server:test:  ✓ test/checks.test.ts (5 tests) 1166ms
+@source-taster/server:test:    ✓ uses the Operator-configured Check intake limit 1068ms
+@source-taster/server:test:  ✓ test/check-events.test.ts (3 tests) 1789ms
+@source-taster/server:test:    ✓ GET /v1/checks/{checkId}/events (3)
+@source-taster/server:test:      ✓ streams the Check in order until it ends, with a Status for every Reference 607ms
+@source-taster/server:test:      ✓ replays only the missed events to a client resuming with Last-Event-ID 593ms
+@source-taster/server:test:      ✓ closes at once for a client that already has the final event 587ms
+@source-taster/server:test:  ✓ test/snapshot.test.ts (8 tests) 675ms
+@source-taster/server:test:    ✓ Check snapshots and replay validation (8)
+@source-taster/server:test:      ✓ reopens a finished Check with the same References and final sequence 619ms
+@source-taster/server:test:
+@source-taster/server:test:  Test Files  5 passed (5)
+@source-taster/server:test:       Tests  35 passed (35)
+@source-taster/server:test:    Start at  10:37:37
+@source-taster/server:test:    Duration  7.99s (tests 97%, import 3%, transform 1%)
+@source-taster/server:test:
+
+ Tasks:    8 successful, 8 total
+Cached:    6 cached, 8 total
+  Time:    26.571s

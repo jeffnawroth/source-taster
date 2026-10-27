@@ -1,0 +1,158 @@
+[
+  {
+    "name": "install",
+    "command": [
+      "pnpm",
+      "install",
+      "--frozen-lockfile"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 0.15,
+    "log": ".tmp/final-regression/install.log"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 19.231,
+    "log": ".tmp/final-regression/typecheck.log"
+  },
+  {
+    "name": "lint",
+    "command": [
+      "pnpm",
+      "lint"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 23.364,
+    "log": ".tmp/final-regression/lint.log"
+  },
+  {
+    "name": "catalog",
+    "command": [
+      "pnpm",
+      "i18n:check"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 0.219,
+    "log": ".tmp/final-regression/catalog.log"
+  },
+  {
+    "name": "build",
+    "command": [
+      "pnpm",
+      "build"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 18.942,
+    "log": ".tmp/final-regression/build.log"
+  },
+  {
+    "name": "artifacts",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "--",
+      "packages/contract-common/dist",
+      "packages/contract-verification/dist",
+      "packages/contract-verification/openapi.json",
+      "packages/contract-service/dist",
+      "packages/contract-service/openapi.json",
+      "packages/contract-internal/dist",
+      "packages/contract-internal/openapi.json"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 0.021,
+    "log": ".tmp/final-regression/artifacts.log"
+  },
+  {
+    "name": "http",
+    "command": [
+      "pnpm",
+      "test"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 26.676,
+    "log": ".tmp/final-regression/http.log"
+  },
+  {
+    "name": "browser",
+    "command": [
+      "pnpm",
+      "test:e2e"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 49.633,
+    "log": ".tmp/final-regression/browser.log"
+  },
+  {
+    "name": "npm-licenses",
+    "command": [
+      "pnpm",
+      "audit:licenses"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 0.326,
+    "log": ".tmp/final-regression/npm-licenses.log"
+  },
+  {
+    "name": "advisories-and-native-licenses",
+    "command": [
+      "pnpm",
+      "audit:dependencies"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 20.723,
+    "log": ".tmp/final-regression/advisories-and-native-licenses.log"
+  },
+  {
+    "name": "operational-controls",
+    "command": [
+      "node",
+      "scripts/qualification-controls.ts"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 120.374,
+    "log": ".tmp/final-regression/operational-controls.log"
+  },
+  {
+    "name": "publication-refusal",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@source-taster/website",
+      "publication:check"
+    ],
+    "status": 1,
+    "passed": true,
+    "elapsedSeconds": 0.237,
+    "log": ".tmp/final-regression/publication-refusal.log"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "status": 0,
+    "passed": true,
+    "elapsedSeconds": 0.012,
+    "log": ".tmp/final-regression/diff-check.log"
+  }
+]

@@ -1,0 +1,52 @@
+[WebServer] (node:36556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] $ node scripts/serve.ts --preview --port 61315
+[WebServer] (node:36571) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:36572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/website.spec.ts:317:1 › source-access pages follow footer language, switch counterparts and serve every download (5.4s)
+
+
+  1) [chromium] › e2e/website.spec.ts:317:1 › source-access pages follow footer language, switch counterparts and serve every download
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/third-party\/pagefind\/de\/$/
+    Received string:  "http://127.0.0.1:61315/third-party/pagefind/index.html"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="en">…</html>
+           - unexpected value "http://127.0.0.1:61315/third-party/pagefind/index.html"
+
+
+      322 |     await page.goto(`/docs/${language}/`);
+      323 |     await page.getByRole("link", { name: title, exact: true }).click();
+    > 324 |     await expect(page).toHaveURL(new RegExp(`/third-party/pagefind/${language}/$`));
+          |                        ^
+      325 |     await expect(page.locator("html")).toHaveAttribute("lang", language);
+      326 |     await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+      327 |     await expect(page).toHaveTitle(`${title} · Source Taster`);
+        at /workspace/source-taster/apps/website/e2e/website.spec.ts:324:24
+
+    Error Context: test-results/website-source-access-page-03434-ts-and-serve-every-download-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-source-access-page-03434-ts-and-serve-every-download-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/website-source-access-page-03434-ts-and-serve-every-download-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/website.spec.ts:317:1 › source-access pages follow footer language, switch counterparts and serve every download
+Error: ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL
+
+  × "pnpm recursive exec" failed in /Users/jeffnawroth/.t3/worktrees/source-
+  │ taster/t3-df18e2cf/apps/website

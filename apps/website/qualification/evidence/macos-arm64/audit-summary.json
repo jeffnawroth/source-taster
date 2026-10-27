@@ -1,0 +1,15 @@
+{
+  "tool": "OSV-Scanner 2.7.0",
+  "matchedOffline": true,
+  "databaseLastModified": "Tue, 27 Oct 2026 08:48:32 GMT",
+  "packages": 2746,
+  "lockfilePackages": 687,
+  "nativeAndBundledExpected": 1169,
+  "nativeDatabaseLastModified": "Mon, 26 Oct 2026 14:18:55 GMT",
+  "findings": 79,
+  "blockingFindings": 0,
+  "rawFindingsPreserved": 79,
+  "qualificationEvidence": ".tmp/pagefind/evidence/qualification.json",
+  "legalReview": "pending; publication remains blocked",
+  "licenseIssues": []
+}

@@ -1,0 +1,11 @@
+Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+{"target":"aarch64-apple-darwin","packages":539,"licenseIssues":[],"legalStatus":"BLOCKED: concrete GPL/AGPL boundaries, microjson manifest/header interpretation, source offer and human legal review remain pending; no license waiver"}
+{"tool":"OSV-Scanner 2.7.0","matchedOffline":true,"databaseLastModified":"Tue, 27 Oct 2026 08:48:32 GMT","packages":2746,"lockfilePackages":687,"nativeAndBundledExpected":1169,"nativeDatabaseLastModified":"Mon, 26 Oct 2026 14:18:55 GMT","findings":0,"blockingFindings":0,"rawFindingsPreserved":0,"qualificationEvidence":".tmp/pagefind/evidence/qualification.json","legalReview":"pending; publication remains blocked","licenseIssues":[]}
+file:///workspace/source-taster/.tmp/scanner-stale-control.mjs:15
+  if(result.status===0)throw new Error('STALE SCAN ACCEPTED: exit 1/no current output reused complete clean report');
+                             ^
+
+Error: STALE SCAN ACCEPTED: exit 1/no current output reused complete clean report
+    at file:///workspace/source-taster/.tmp/scanner-stale-control.mjs:15:30
+
+Node.js v24.14.0
