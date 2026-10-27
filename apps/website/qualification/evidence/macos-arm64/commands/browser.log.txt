@@ -1,0 +1,286 @@
+$ turbo run test:e2e
+
+   • turbo 2.11.10
+   • Packages in scope: @source-taster/contract-common, @source-taster/contract-internal, @source-taster/contract-service, @source-taster/contract-verification, @source-taster/core, @source-taster/i18n, @source-taster/server, @source-taster/ui, @source-taster/web, @source-taster/website
+   • Running test:e2e in 10 packages
+   • Remote caching disabled, using shared worktree cache
+
+@source-taster/server:generate: cache hit, replaying logs 069ee4dc746fd7d8
+@source-taster/core:build: cache hit, replaying logs f600f05924ff225e
+@source-taster/contract-verification:build: cache hit, replaying logs 37241e21087dfec7
+@source-taster/contract-common:build: cache hit, replaying logs 67b736a5a343083f
+@source-taster/server:generate: $ prisma generate
+@source-taster/server:generate: Loaded Prisma config from prisma.config.ts.
+@source-taster/server:generate:
+@source-taster/server:generate: Prisma schema loaded from prisma/schema.prisma.
+@source-taster/server:generate:
+@source-taster/server:generate: ✔ Generated Prisma Client (7.10.1) to ./src/generated/prisma in 27ms
+@source-taster/server:generate:
+@source-taster/contract-verification:build: $ node scripts/build.ts
+@source-taster/contract-common:build: $ tsc -p tsconfig.build.json
+@source-taster/core:build: $ tsc -p tsconfig.build.json
+@source-taster/i18n:generate: cache hit, replaying logs 8f1f3fc95822881b
+@source-taster/i18n:generate: $ paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale
+@source-taster/i18n:generate: ℹ [paraglide-js] Compiling inlang project ...
+@source-taster/i18n:generate: ✔ [paraglide-js] Successfully compiled inlang project.
+@source-taster/i18n:build: cache hit, replaying logs d1c673a2671cba77
+@source-taster/i18n:build: $ paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale
+@source-taster/i18n:build: ℹ [paraglide-js] Compiling inlang project ...
+@source-taster/i18n:build: ✔ [paraglide-js] Successfully compiled inlang project.
+@source-taster/website:build: cache bypass, force executing 9d758be089b4b423
+@source-taster/website:build: $ node scripts/build.ts --preview
+@source-taster/website:build: DE/EN content complete: 10 paired information pages, 4 paired legal documents, 29 paired UI texts, 8 paired source-access texts; human translation review pending
+@source-taster/website:build: Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+@source-taster/website:build: 10:37:54 [types] Generated 19ms
+@source-taster/website:build: 10:37:54 [build] output: "static"
+@source-taster/website:build: 10:37:54 [build] mode: "static"
+@source-taster/website:build: 10:37:54 [build] directory: /workspace/source-taster/apps/website/dist-preview/
+@source-taster/website:build: 10:37:54 [build] Collecting build info...
+@source-taster/website:build: 10:37:54 [build] ✓ Completed in 30ms.
+@source-taster/website:build: 10:37:54 [build] Building static entrypoints...
+@source-taster/website:build: 10:37:54 [vite] ✓ built in 58ms
+@source-taster/website:build: 10:37:54 [vite] ✓ built in 7ms
+@source-taster/website:build: 10:37:54 [build] Rearranging server assets...
+@source-taster/website:build:
+@source-taster/website:build:  generating static routes
+@source-taster/website:build: 10:37:54   ├─ /de/index.html (+5ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/de/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/de/how-the-check-works/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/de/structuring/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/de/preferences/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/de/errors-and-retry/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/de/availability/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /de/faq/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/contact/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /de/accessibility/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /en/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/en/index.html (+1ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/en/how-the-check-works/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/en/structuring/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/en/preferences/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/en/errors-and-retry/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /docs/en/availability/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/faq/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/contact/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/accessibility/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/legal-notice/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/legal-notice/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/terms/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/terms/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/privacy/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/privacy/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/withdrawal/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /de/withdrawal/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/legal-notice/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/legal-notice/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/terms/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/terms/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/privacy/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/privacy/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/withdrawal/index.html (+0ms)
+@source-taster/website:build: 10:37:54   ├─ /en/withdrawal/versions/draft-2026-10-26.1/index.html (+0ms)
+@source-taster/website:build: 10:37:54 ✓ Completed in 32ms.
+@source-taster/website:build:
+@source-taster/website:build: 10:37:54 [build] ✓ Completed in 113ms.
+@source-taster/website:build: 10:37:54 [build] 36 page(s) built in 144ms
+@source-taster/website:build: 10:37:54 [build] Complete!
+@source-taster/website:build:
+@source-taster/website:build: Running Pagefind v1.5.2
+@source-taster/website:build: Running from: "/workspace/source-taster/apps/website"
+@source-taster/website:build: Source:       "dist-preview"
+@source-taster/website:build: Output:       "dist-preview/pagefind/de"
+@source-taster/website:build:
+@source-taster/website:build: [Walking source directory]
+@source-taster/website:build: Found 6 files matching docs/de/**/*.html
+@source-taster/website:build:
+@source-taster/website:build: [Parsing files]
+@source-taster/website:build: Found a data-pagefind-body element on the site.
+@source-taster/website:build: ↳ Ignoring pages without this tag.
+@source-taster/website:build:
+@source-taster/website:build: [Reading languages]
+@source-taster/website:build: Discovered 1 language: de
+@source-taster/website:build:
+@source-taster/website:build: [Building search indexes]
+@source-taster/website:build: Total:
+@source-taster/website:build:   Indexed 1 language
+@source-taster/website:build:   Indexed 6 pages
+@source-taster/website:build:   Indexed 268 words
+@source-taster/website:build:   Indexed 0 filters
+@source-taster/website:build:   Indexed 0 sorts
+@source-taster/website:build:
+@source-taster/website:build: Finished in 0.007 seconds
+@source-taster/website:build:
+@source-taster/website:build: Running Pagefind v1.5.2
+@source-taster/website:build: Running from: "/workspace/source-taster/apps/website"
+@source-taster/website:build: Source:       "dist-preview"
+@source-taster/website:build: Output:       "dist-preview/pagefind/en"
+@source-taster/website:build:
+@source-taster/website:build: [Walking source directory]
+@source-taster/website:build: Found 6 files matching docs/en/**/*.html
+@source-taster/website:build:
+@source-taster/website:build: [Parsing files]
+@source-taster/website:build: Found a data-pagefind-body element on the site.
+@source-taster/website:build: ↳ Ignoring pages without this tag.
+@source-taster/website:build:
+@source-taster/website:build: [Reading languages]
+@source-taster/website:build: Discovered 1 language: en
+@source-taster/website:build:
+@source-taster/website:build: [Building search indexes]
+@source-taster/website:build: Total:
+@source-taster/website:build:   Indexed 1 language
+@source-taster/website:build:   Indexed 6 pages
+@source-taster/website:build:   Indexed 265 words
+@source-taster/website:build:   Indexed 0 filters
+@source-taster/website:build:   Indexed 0 sorts
+@source-taster/website:build:
+@source-taster/website:build: Finished in 0.006 seconds
+@source-taster/website:build: Verified controlled Pagefind 1.5.2: aarch64-apple-darwin
+@source-taster/website:build: Delivered hash-bound browser source/notice package: 17 registry source packages
+@source-taster/web:test:e2e: cache bypass, force executing 3db6e3602b129802
+@source-taster/website:test:e2e: cache bypass, force executing ce47dafd38afdc83
+@source-taster/website:test:e2e: $ playwright test
+@source-taster/web:test:e2e: $ playwright test
+@source-taster/website:test:e2e: [WebServer] (node:57792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/website:test:e2e: [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/website:test:e2e: [WebServer] $ node scripts/serve.ts --preview --port 61325
+@source-taster/web:test:e2e: [WebServer] (node:57793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/web:test:e2e: [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/web:test:e2e: [WebServer] $ node scripts/e2e-serve.ts
+@source-taster/website:test:e2e: [WebServer] (node:57809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/website:test:e2e: [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/web:test:e2e: [WebServer] (node:57833) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/web:test:e2e: [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/website:test:e2e:
+@source-taster/website:test:e2e: Running 92 tests using 1 worker
+@source-taster/website:test:e2e:
+@source-taster/website:test:e2e: (node:57857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/website:test:e2e: (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/web:test:e2e: [WebServer] Loaded Prisma config from prisma.config.ts.
+@source-taster/web:test:e2e: [WebServer]
+@source-taster/web:test:e2e: [WebServer] Prisma schema loaded from prisma/schema.prisma.
+@source-taster/web:test:e2e: [WebServer] (node:57825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/web:test:e2e: [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/web:test:e2e: [WebServer] (node:57874) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/web:test:e2e: [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/web:test:e2e: [WebServer] $ vite --host 127.0.0.1 --port 61324 --strictPort
+@source-taster/web:test:e2e: [WebServer] (node:57891) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/web:test:e2e: [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/website:test:e2e:   ✓   1 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/ passes WCAG 2.2 AA and reflow at 320px (541ms)
+@source-taster/web:test:e2e:
+@source-taster/web:test:e2e: Running 14 tests using 1 worker
+@source-taster/web:test:e2e:
+@source-taster/website:test:e2e:   ✓   2 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/accessibility/ passes WCAG 2.2 AA and reflow at 320px (334ms)
+@source-taster/web:test:e2e: (node:57902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+@source-taster/web:test:e2e: (Use `node --trace-warnings ...` to show where the warning was created)
+@source-taster/website:test:e2e:   ✓   3 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/contact/ passes WCAG 2.2 AA and reflow at 320px (348ms)
+@source-taster/website:test:e2e:   ✓   4 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/faq/ passes WCAG 2.2 AA and reflow at 320px (323ms)
+@source-taster/website:test:e2e:   ✓   5 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/legal-notice/ passes WCAG 2.2 AA and reflow at 320px (305ms)
+@source-taster/website:test:e2e:   ✓   6 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/legal-notice/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (310ms)
+@source-taster/website:test:e2e:   ✓   7 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/privacy/ passes WCAG 2.2 AA and reflow at 320px (325ms)
+@source-taster/web:test:e2e:   ✓   1 [chromium] › e2e/information.spec.ts:6:1 › help, contact and legal links follow the interface language and carry no input (1.7s)
+@source-taster/website:test:e2e:   ✓   8 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/privacy/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (312ms)
+@source-taster/website:test:e2e:   ✓   9 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/terms/ passes WCAG 2.2 AA and reflow at 320px (311ms)
+@source-taster/website:test:e2e:   ✓  10 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/terms/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (292ms)
+@source-taster/website:test:e2e:   ✓  11 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/withdrawal/ passes WCAG 2.2 AA and reflow at 320px (299ms)
+@source-taster/website:test:e2e:   ✓  12 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/withdrawal/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (278ms)
+@source-taster/website:test:e2e:   ✓  13 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/ passes WCAG 2.2 AA and reflow at 320px (300ms)
+@source-taster/website:test:e2e:   ✓  14 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/availability/ passes WCAG 2.2 AA and reflow at 320px (298ms)
+@source-taster/website:test:e2e:   ✓  15 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/errors-and-retry/ passes WCAG 2.2 AA and reflow at 320px (306ms)
+@source-taster/website:test:e2e:   ✓  16 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/how-the-check-works/ passes WCAG 2.2 AA and reflow at 320px (302ms)
+@source-taster/website:test:e2e:   ✓  17 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/preferences/ passes WCAG 2.2 AA and reflow at 320px (299ms)
+@source-taster/website:test:e2e:   ✓  18 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/structuring/ passes WCAG 2.2 AA and reflow at 320px (308ms)
+@source-taster/website:test:e2e:   ✓  19 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/ passes WCAG 2.2 AA and reflow at 320px (306ms)
+@source-taster/website:test:e2e:   ✓  20 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/availability/ passes WCAG 2.2 AA and reflow at 320px (299ms)
+@source-taster/website:test:e2e:   ✓  21 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/errors-and-retry/ passes WCAG 2.2 AA and reflow at 320px (302ms)
+@source-taster/website:test:e2e:   ✓  22 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/how-the-check-works/ passes WCAG 2.2 AA and reflow at 320px (308ms)
+@source-taster/web:test:e2e:   ✓   2 [chromium] › e2e/paste-and-watch.spec.ts:6:3 › pastes a Reference and watches its Status in en, with an accessible page (4.4s)
+@source-taster/website:test:e2e:   ✓  23 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/preferences/ passes WCAG 2.2 AA and reflow at 320px (337ms)
+@source-taster/website:test:e2e:   ✓  24 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/structuring/ passes WCAG 2.2 AA and reflow at 320px (325ms)
+@source-taster/website:test:e2e:   ✓  25 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/ passes WCAG 2.2 AA and reflow at 320px (293ms)
+@source-taster/website:test:e2e:   ✓  26 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/accessibility/ passes WCAG 2.2 AA and reflow at 320px (291ms)
+@source-taster/website:test:e2e:   ✓  27 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/contact/ passes WCAG 2.2 AA and reflow at 320px (271ms)
+@source-taster/website:test:e2e:   ✓  28 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/faq/ passes WCAG 2.2 AA and reflow at 320px (280ms)
+@source-taster/website:test:e2e:   ✓  29 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/legal-notice/ passes WCAG 2.2 AA and reflow at 320px (276ms)
+@source-taster/website:test:e2e:   ✓  30 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/legal-notice/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (274ms)
+@source-taster/website:test:e2e:   ✓  31 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/privacy/ passes WCAG 2.2 AA and reflow at 320px (278ms)
+@source-taster/website:test:e2e:   ✓  32 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/privacy/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (286ms)
+@source-taster/website:test:e2e:   ✓  33 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/terms/ passes WCAG 2.2 AA and reflow at 320px (276ms)
+@source-taster/website:test:e2e:   ✓  34 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/terms/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (275ms)
+@source-taster/website:test:e2e:   ✓  35 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/withdrawal/ passes WCAG 2.2 AA and reflow at 320px (280ms)
+@source-taster/website:test:e2e:   ✓  36 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/withdrawal/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 320px (283ms)
+@source-taster/website:test:e2e:   ✓  37 [chromium] › e2e/accessibility.spec.ts:35:5 › /third-party/pagefind/ passes WCAG 2.2 AA and reflow at 320px (263ms)
+@source-taster/web:test:e2e:   ✓   3 [chromium] › e2e/paste-and-watch.spec.ts:6:3 › pastes a Reference and watches its Status in de, with an accessible page (4.4s)
+@source-taster/website:test:e2e:   ✓  38 [chromium] › e2e/accessibility.spec.ts:35:5 › /third-party/pagefind/de/ passes WCAG 2.2 AA and reflow at 320px (283ms)
+@source-taster/website:test:e2e:   ✓  39 [chromium] › e2e/accessibility.spec.ts:35:5 › /third-party/pagefind/en/ passes WCAG 2.2 AA and reflow at 320px (283ms)
+@source-taster/website:test:e2e:   ✓  40 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/ passes WCAG 2.2 AA and reflow at 1280px (286ms)
+@source-taster/website:test:e2e:   ✓  41 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/accessibility/ passes WCAG 2.2 AA and reflow at 1280px (267ms)
+@source-taster/website:test:e2e:   ✓  42 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/contact/ passes WCAG 2.2 AA and reflow at 1280px (267ms)
+@source-taster/website:test:e2e:   ✓  43 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/faq/ passes WCAG 2.2 AA and reflow at 1280px (273ms)
+@source-taster/website:test:e2e:   ✓  44 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/legal-notice/ passes WCAG 2.2 AA and reflow at 1280px (271ms)
+@source-taster/website:test:e2e:   ✓  45 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/legal-notice/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (267ms)
+@source-taster/website:test:e2e:   ✓  46 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/privacy/ passes WCAG 2.2 AA and reflow at 1280px (275ms)
+@source-taster/website:test:e2e:   ✓  47 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/privacy/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (277ms)
+@source-taster/website:test:e2e:   ✓  48 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/terms/ passes WCAG 2.2 AA and reflow at 1280px (276ms)
+@source-taster/website:test:e2e:   ✓  49 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/terms/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (270ms)
+@source-taster/website:test:e2e:   ✓  50 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/withdrawal/ passes WCAG 2.2 AA and reflow at 1280px (280ms)
+@source-taster/website:test:e2e:   ✓  51 [chromium] › e2e/accessibility.spec.ts:35:5 › /de/withdrawal/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (286ms)
+@source-taster/website:test:e2e:   ✓  52 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/ passes WCAG 2.2 AA and reflow at 1280px (301ms)
+@source-taster/website:test:e2e:   ✓  53 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/availability/ passes WCAG 2.2 AA and reflow at 1280px (313ms)
+@source-taster/website:test:e2e:   ✓  54 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/errors-and-retry/ passes WCAG 2.2 AA and reflow at 1280px (303ms)
+@source-taster/website:test:e2e:   ✓  55 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/how-the-check-works/ passes WCAG 2.2 AA and reflow at 1280px (299ms)
+@source-taster/website:test:e2e:   ✓  56 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/preferences/ passes WCAG 2.2 AA and reflow at 1280px (300ms)
+@source-taster/website:test:e2e:   ✓  57 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/de/structuring/ passes WCAG 2.2 AA and reflow at 1280px (305ms)
+@source-taster/website:test:e2e:   ✓  58 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/ passes WCAG 2.2 AA and reflow at 1280px (305ms)
+@source-taster/website:test:e2e:   ✓  59 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/availability/ passes WCAG 2.2 AA and reflow at 1280px (297ms)
+@source-taster/website:test:e2e:   ✓  60 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/errors-and-retry/ passes WCAG 2.2 AA and reflow at 1280px (307ms)
+@source-taster/website:test:e2e:   ✓  61 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/how-the-check-works/ passes WCAG 2.2 AA and reflow at 1280px (299ms)
+@source-taster/website:test:e2e:   ✓  62 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/preferences/ passes WCAG 2.2 AA and reflow at 1280px (293ms)
+@source-taster/website:test:e2e:   ✓  63 [chromium] › e2e/accessibility.spec.ts:35:5 › /docs/en/structuring/ passes WCAG 2.2 AA and reflow at 1280px (305ms)
+@source-taster/website:test:e2e:   ✓  64 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/ passes WCAG 2.2 AA and reflow at 1280px (267ms)
+@source-taster/web:test:e2e:   ✓   4 [chromium] › e2e/paste-and-watch.spec.ts:71:1 › resumes a prematurely closed event stream without losing Reference Status updates (7.9s)
+@source-taster/website:test:e2e:   ✓  65 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/accessibility/ passes WCAG 2.2 AA and reflow at 1280px (284ms)
+@source-taster/website:test:e2e:   ✓  66 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/contact/ passes WCAG 2.2 AA and reflow at 1280px (291ms)
+@source-taster/website:test:e2e:   ✓  67 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/faq/ passes WCAG 2.2 AA and reflow at 1280px (298ms)
+@source-taster/website:test:e2e:   ✓  68 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/legal-notice/ passes WCAG 2.2 AA and reflow at 1280px (290ms)
+@source-taster/web:test:e2e:   ✓   5 [chromium] › e2e/preferences.spec.ts:5:1 › Guest language and citation style persist independently without losing input (1.2s)
+@source-taster/website:test:e2e:   ✓  69 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/legal-notice/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (302ms)
+@source-taster/website:test:e2e:   ✓  70 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/privacy/ passes WCAG 2.2 AA and reflow at 1280px (304ms)
+@source-taster/web:test:e2e:   ✓   6 [chromium] › e2e/preferences.spec.ts:50:3 › first use respects browser languages de-DE, en-GB (520ms)
+@source-taster/website:test:e2e:   ✓  71 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/privacy/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (306ms)
+@source-taster/website:test:e2e:   ✓  72 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/terms/ passes WCAG 2.2 AA and reflow at 1280px (285ms)
+@source-taster/web:test:e2e:   ✓   7 [chromium] › e2e/preferences.spec.ts:50:3 › first use respects browser languages fr-FR, de-AT, en-US (524ms)
+@source-taster/website:test:e2e:   ✓  73 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/terms/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (312ms)
+@source-taster/web:test:e2e:   ✓   8 [chromium] › e2e/preferences.spec.ts:50:3 › first use respects browser languages en-GB, de-DE (519ms)
+@source-taster/website:test:e2e:   ✓  74 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/withdrawal/ passes WCAG 2.2 AA and reflow at 1280px (293ms)
+@source-taster/website:test:e2e:   ✓  75 [chromium] › e2e/accessibility.spec.ts:35:5 › /en/withdrawal/versions/draft-2026-10-26.1/ passes WCAG 2.2 AA and reflow at 1280px (300ms)
+@source-taster/web:test:e2e:   ✓   9 [chromium] › e2e/preferences.spec.ts:50:3 › first use respects browser languages fr-FR, it-IT (520ms)
+@source-taster/website:test:e2e:   ✓  76 [chromium] › e2e/accessibility.spec.ts:35:5 › /third-party/pagefind/ passes WCAG 2.2 AA and reflow at 1280px (286ms)
+@source-taster/website:test:e2e:   ✓  77 [chromium] › e2e/accessibility.spec.ts:35:5 › /third-party/pagefind/de/ passes WCAG 2.2 AA and reflow at 1280px (286ms)
+@source-taster/web:test:e2e:   ✓  10 [chromium] › e2e/preferences.spec.ts:69:1 › a removed stored style falls back to APA with a translated notice (549ms)
+@source-taster/website:test:e2e:   ✓  78 [chromium] › e2e/accessibility.spec.ts:35:5 › /third-party/pagefind/en/ passes WCAG 2.2 AA and reflow at 1280px (294ms)
+@source-taster/website:test:e2e:   ✓  79 [chromium] › e2e/accessibility.spec.ts:58:1 › the not-found page is accessible in both languages (274ms)
+@source-taster/website:test:e2e:   ✓  80 [chromium] › e2e/accessibility.spec.ts:69:1 › search results, empty and failure states are accessible (1.4s)
+@source-taster/website:test:e2e:   ✓  81 [chromium] › e2e/privacy.spec.ts:14:1 › the built site references no third-party resource, embed or requirement ID (2ms)
+@source-taster/website:test:e2e:   ✓  82 [chromium] › e2e/privacy.spec.ts:48:1 › reading every page stays on this origin and stores nothing (321ms)
+@source-taster/website:test:e2e:   ✓  83 [chromium] › e2e/website.spec.ts:6:1 › reader opens a documentation deep link and switches to its counterpart (132ms)
+@source-taster/website:test:e2e:   ✓  84 [chromium] › e2e/website.spec.ts:29:1 › bare entry follows browser language without changing explicit language URLs or storing Preferences (175ms)
+@source-taster/website:test:e2e:   ✓  85 [chromium] › e2e/website.spec.ts:81:1 › documentation search stays local, language-scoped and keyboard accessible (411ms)
+@source-taster/website:test:e2e:   ✓  86 [chromium] › e2e/website.spec.ts:134:1 › every information page has a translated counterpart and versioned legal drafts (548ms)
+@source-taster/website:test:e2e:   ✓  87 [chromium] › e2e/website.spec.ts:172:1 › publication commands reject incomplete drafts and production cannot serve the preview (216ms)
+@source-taster/web:test:e2e:   ✓  11 [chromium] › e2e/preferences.spec.ts:104:1 › disabled browser storage still allows Preferences and a Check (3.9s)
+@source-taster/website:test:e2e:   ✓  88 [chromium] › e2e/website.spec.ts:200:1 › every link the clients share through the UI seam opens its page in the same language (251ms)
+@source-taster/website:test:e2e:   ✓  89 [chromium] › e2e/website.spec.ts:222:1 › the Structuring preview is documented in both languages and found by search (450ms)
+@source-taster/website:test:e2e:   ✓  90 [chromium] › e2e/website.spec.ts:245:1 › retry help describes automatic progress reconnection in both languages (115ms)
+@source-taster/website:test:e2e:   ✓  91 [chromium] › e2e/website.spec.ts:260:1 › readers can download licenses and Corresponding Source bound to the served search WASM (148ms)
+@source-taster/website:test:e2e:   ✓  92 [chromium] › e2e/website.spec.ts:316:1 › source-access pages follow footer language, switch counterparts and serve every download (353ms)
+@source-taster/web:test:e2e:   ✓  12 [chromium] › e2e/structuring.spec.ts:6:3 › structures References and shows original text, fields, rejected entries and guidance accessibly in en (1.2s)
+@source-taster/website:test:e2e:
+@source-taster/website:test:e2e:   92 passed (29.8s)
+@source-taster/web:test:e2e:   ✓  13 [chromium] › e2e/structuring.spec.ts:6:3 › structures References and shows original text, fields, rejected entries and guidance accessibly in de (1.1s)
+@source-taster/web:test:e2e:   ✓  14 [chromium] › e2e/structuring.spec.ts:73:1 › Check and Structuring show a safe localized Problem for a non-JSON server failure (581ms)
+@source-taster/web:test:e2e:
+@source-taster/web:test:e2e:   14 passed (31.5s)
+
+ Tasks:    9 successful, 9 total
+Cached:    6 cached, 9 total
+  Time:    49.531s

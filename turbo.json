@@ -1,0 +1,48 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalPassThroughEnv": [
+    "CI",
+    "DATABASE_*",
+    "SOURCE_TASTER_*",
+    "PLAYWRIGHT_BROWSERS_PATH"
+  ],
+  "tasks": {
+    "@source-taster/website#test:e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "@source-taster/website#build": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "outputs": ["dist-preview/**"]
+    },
+    "generate": {
+      "outputs": ["src/generated/**", "src/paraglide/**"]
+    },
+    "build": {
+      "dependsOn": ["^build", "generate"],
+      "outputs": [
+        "dist/**",
+        "dist-preview/**",
+        "openapi.json",
+        "src/paraglide/**"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": ["^build", "generate"]
+    },
+    "lint": {
+      "dependsOn": ["^build", "generate"]
+    },
+    "i18n:check": {},
+    "test": {
+      "dependsOn": ["^build", "generate"],
+      "cache": false
+    },
+    "test:e2e": {
+      "dependsOn": ["^build", "generate"],
+      "cache": false
+    }
+  },
+  "globalDependencies": ["packages/contract-common/src/**"]
+}

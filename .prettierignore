@@ -1,0 +1,20 @@
+pnpm-lock.yaml
+**/dist/
+**/src/generated/
+**/src/paraglide/
+**/LICENSE*
+.tmp/
+coverage/
+playwright-report/
+test-results/
+# Prose documents are formatted by hand.
+docs/
+AGENTS.md
+GLOSSARY.md
+
+packages/contract-*/openapi.json
+packages/i18n/project.inlang/.lix/
+packages/i18n/project.inlang/README.md
+**/dist-preview/
+**/.astro/
+apps/website/qualification/

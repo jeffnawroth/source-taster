@@ -1,0 +1,2 @@
+$ node scripts/licenses.ts
+Reviewed 526 installed package licenses; 67 runtime packages

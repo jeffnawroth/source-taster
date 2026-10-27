@@ -1,0 +1,15 @@
+{
+  "language": "en",
+  "id": "withdrawal",
+  "version": "draft-2026-10-26.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Withdrawal instructions",
+  "summary": "Consumer instructions and form awaiting specialist legal approval.",
+  "paragraphs": [
+    "This is a legal-content draft, version draft-2026-10-26.1. It is not a legally approved withdrawal notice. No consumer purchase can be made through this preview.",
+    "The real seller name, service address and withdrawal contact are missing. The approved notice must state the applicable deadline and its beginning, how to exercise withdrawal, consequences and repayment, and the model withdrawal form with real recipient details.",
+    "The treatment of immediate activation, express consent and any loss of withdrawal rights for the actual offering must be approved by a legal reviewer. No waiver or consent is collected here.",
+    "The mandatory cancellation and withdrawal functions belong to the private purchase service and are not implemented by this static page. This draft does not replace them or promise their availability."
+  ]
+}

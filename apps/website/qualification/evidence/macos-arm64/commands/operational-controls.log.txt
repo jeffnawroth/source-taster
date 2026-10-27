@@ -1,0 +1,22 @@
+Passed: Passed descendant process controls: 12
+Passed: Passed publication recipe controls: 3
+Passed: Verified controlled Pagefind
+Passed: Controlled Pagefind artifact changed
+Passed: Pinned source/tool changed
+Passed: Pinned source/tool changed
+Passed: Website artifact changed
+Passed: Passed exact native license controls
+Passed: Refused uncontrolled executable
+Passed: Refused uncontrolled native module
+Passed: OSV scan failed
+Passed: Missing current OSV report
+Passed: Missing current OSV report
+Passed: JSON
+Passed: JSON
+Passed: Incomplete OSV
+Passed: Incomplete OSV source inventory
+Passed: Actual selected dependency advisory found
+Passed: OSV database missing, empty or stale
+Passed: Delivered hash-bound browser source/notice package
+Passed: Source checksum mismatch
+{"results":["Passed descendant process controls: 12","Passed publication recipe controls: 3","Verified controlled Pagefind","Controlled Pagefind artifact changed","Pinned source/tool changed","Pinned source/tool changed","Website artifact changed","Passed exact native license controls","Refused uncontrolled executable","Refused uncontrolled native module","OSV scan failed","Missing current OSV report","Missing current OSV report","JSON","JSON","Incomplete OSV","Incomplete OSV source inventory","Actual selected dependency advisory found","OSV database missing, empty or stale","Delivered hash-bound browser source/notice package","Source delivery is reproducible from identical inputs","Source checksum mismatch","Delivered source reproduces all three shipped WASM objects"],"wasm":{"unknown":"57d4fe27f3ffba60b6746b3de22a5b62e73b660163591f3fc68801f4d4d0f020","de":"9be38f1840da3e66a1ca52851ca8a8cff2da8965a02b56ac50eb478980c77754","en":"888b8a2cdf0d030ca5539f78110147c692d446ef6fb4b93ef9aeba948ac3e9fe"}}

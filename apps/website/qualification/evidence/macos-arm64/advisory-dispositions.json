@@ -1,0 +1,634 @@
+[
+  {
+    "source": "apps/website/qualification/upstream/astro-compiler/Cargo.lock",
+    "identity": "crates.io:anyhow@1.0.102",
+    "advisory": "RUSTSEC-2026-0190",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/astro-compiler/Cargo.lock",
+    "identity": "crates.io:tokio@1.52.3",
+    "advisory": "RUSTSEC-2026-0386",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:brace-expansion@5.0.5",
+    "advisory": "GHSA-3jxr-9vmj-r5cp",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:brace-expansion@5.0.5",
+    "advisory": "GHSA-6j4f-fj2g-mc7p",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:brace-expansion@5.0.5",
+    "advisory": "GHSA-jxxr-4gwj-5jf2",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:brace-expansion@5.0.5",
+    "advisory": "GHSA-mh99-v99m-4gvg",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:brace-expansion@5.0.5",
+    "advisory": "GHSA-q2hr-2g5m-vwhr",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:brace-expansion@5.0.5",
+    "advisory": "GHSA-qhr7-859c-m2p7",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:brace-expansion@5.0.5",
+    "advisory": "GHSA-rgw5-rvv9-x895",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:esbuild@0.27.7",
+    "advisory": "GHSA-g7r4-m6w7-qqqr",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:esbuild@0.28.0",
+    "advisory": "GHSA-g7r4-m6w7-qqqr",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:js-yaml@3.14.2",
+    "advisory": "GHSA-2883-xcg3-v3hh",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:js-yaml@3.14.2",
+    "advisory": "GHSA-52cp-r559-cp3m",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:js-yaml@3.14.2",
+    "advisory": "GHSA-5p4m-2wfm-xmqj",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:js-yaml@3.14.2",
+    "advisory": "GHSA-h67p-54hq-rp68",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:tar@7.5.13",
+    "advisory": "GHSA-23hp-3jrh-7fpw",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:tar@7.5.13",
+    "advisory": "GHSA-8x88-c5mf-7j5w",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:tar@7.5.13",
+    "advisory": "GHSA-gvwx-54wh-qm9j",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:tar@7.5.13",
+    "advisory": "GHSA-r292-9mhp-454m",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:tar@7.5.13",
+    "advisory": "GHSA-vmf3-w455-68vh",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-js/package-lock.json",
+    "identity": "npm:tar@7.5.13",
+    "advisory": "GHSA-w8wr-v893-vjvp",
+    "blocks": false,
+    "disposition": "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:actix-http@3.12.0",
+    "advisory": "GHSA-xhj4-vrgc-hr34",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:anyhow@1.0.102",
+    "advisory": "RUSTSEC-2026-0190",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:bincode@2.0.1",
+    "advisory": "RUSTSEC-2025-0141",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:core2@0.4.0",
+    "advisory": "RUSTSEC-2026-0105",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:crossbeam-epoch@0.9.18",
+    "advisory": "RUSTSEC-2026-0204",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:encoding@0.2.33",
+    "advisory": "RUSTSEC-2021-0153",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:h2@0.3.27",
+    "advisory": "RUSTSEC-2026-0258",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:pagefind@0.0.0",
+    "advisory": "GHSA-gprj-6m2f-j9hx",
+    "blocks": false,
+    "disposition": "upstream placeholder corrected to controlled 1.5.2 release identity; actual JS built from pinned fixed source",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:proc-macro-error@1.0.4",
+    "advisory": "RUSTSEC-2024-0370",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:proc-macro-error2@2.0.1",
+    "advisory": "RUSTSEC-2026-0173",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:quinn-proto@0.11.14",
+    "advisory": "RUSTSEC-2026-0185",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:quinn-proto@0.11.14",
+    "advisory": "RUSTSEC-2026-0338",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:quinn-proto@0.11.14",
+    "advisory": "RUSTSEC-2026-0339",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:quinn-proto@0.11.14",
+    "advisory": "RUSTSEC-2026-0340",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:quinn-proto@0.11.14",
+    "advisory": "RUSTSEC-2026-0342",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:quinn-proto@0.11.14",
+    "advisory": "GHSA-4w2j-m93h-cj5j",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rand@0.8.5",
+    "advisory": "RUSTSEC-2026-0097",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rand@0.8.5",
+    "advisory": "GHSA-cq8v-f236-94qc",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rand@0.9.2",
+    "advisory": "RUSTSEC-2026-0097",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rand@0.9.2",
+    "advisory": "GHSA-cq8v-f236-94qc",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls@0.23.37",
+    "advisory": "RUSTSEC-2026-0285",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls@0.23.37",
+    "advisory": "RUSTSEC-2026-0346",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls@0.23.37",
+    "advisory": "RUSTSEC-2026-0348",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls@0.23.37",
+    "advisory": "RUSTSEC-2026-0349",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls@0.23.37",
+    "advisory": "GHSA-2mjx-qc3c-rqvc",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls-webpki@0.103.10",
+    "advisory": "RUSTSEC-2026-0098",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls-webpki@0.103.10",
+    "advisory": "RUSTSEC-2026-0099",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls-webpki@0.103.10",
+    "advisory": "RUSTSEC-2026-0104",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls-webpki@0.103.10",
+    "advisory": "RUSTSEC-2026-0382",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls-webpki@0.103.10",
+    "advisory": "GHSA-82j2-j2ch-gfr8",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls-webpki@0.103.10",
+    "advisory": "GHSA-965h-392x-2mh5",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:rustls-webpki@0.103.10",
+    "advisory": "GHSA-xgp8-3hg3-c2mh",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:tar@0.4.45",
+    "advisory": "GHSA-3pv8-6f4r-ffg2",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:tokio@1.50.0",
+    "advisory": "RUSTSEC-2026-0386",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:unsafe-libyaml@0.2.11",
+    "advisory": "RUSTSEC-2024-0449",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:webpki-roots@1.0.6",
+    "advisory": "RUSTSEC-2026-0381",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:yaml-rust@0.4.5",
+    "advisory": "RUSTSEC-2024-0320",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd@0.13.3",
+    "advisory": "RUSTSEC-2026-0391",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0395",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0396",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0397",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0398",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0399",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0400",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0401",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0402",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0403",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0404",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0405",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-safe@7.2.4",
+    "advisory": "RUSTSEC-2026-0406",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/pagefind-native/Cargo.lock",
+    "identity": "crates.io:zstd-sys@2.0.16+zstd.1.5.7",
+    "advisory": "RUSTSEC-2026-0410",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/rolldown/Cargo.lock",
+    "identity": "crates.io:event-listener@5.4.1",
+    "advisory": "RUSTSEC-2026-0221",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/rolldown/Cargo.lock",
+    "identity": "crates.io:generator@0.1.0",
+    "advisory": "RUSTSEC-2019-0020",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/rolldown/Cargo.lock",
+    "identity": "crates.io:generator@0.1.0",
+    "advisory": "RUSTSEC-2020-0151",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/rolldown/Cargo.lock",
+    "identity": "crates.io:generator@0.1.0",
+    "advisory": "GHSA-6c65-xcf5-299x",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/rolldown/Cargo.lock",
+    "identity": "crates.io:generator@0.1.0",
+    "advisory": "GHSA-w3g5-2848-2v8r",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/rolldown/Cargo.lock",
+    "identity": "crates.io:tokio@1.53.2",
+    "advisory": "RUSTSEC-2026-0386",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  },
+  {
+    "source": "apps/website/qualification/upstream/satteri/Cargo.lock",
+    "identity": "crates.io:bincode@2.0.1",
+    "advisory": "RUSTSEC-2025-0141",
+    "blocks": false,
+    "disposition": "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
+    "evidence": ".tmp/pagefind/evidence/qualification.json"
+  }
+]

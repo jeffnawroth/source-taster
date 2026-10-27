@@ -1,0 +1,27 @@
+{
+  "name": "@source-taster/ui",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./preferences": "./src/preferences.ts",
+    "./information": "./src/information.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react-aria-components": "1.22.1",
+    "@source-taster/i18n": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14"
+  }
+}

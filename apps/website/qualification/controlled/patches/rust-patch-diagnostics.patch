@@ -1,0 +1,78 @@
+--- a/rust-patch-derive-0.1.3/Cargo.toml
++++ b/rust-patch-derive-0.1.3/Cargo.toml
+@@ -30,9 +30,6 @@
+ [lib]
+ proc-macro = true
+ 
+-[dependencies.proc-macro-error]
+-version = "1"
+-
+ [dependencies.proc-macro2]
+ version = "1"
+ 
+--- a/rust-patch-derive-0.1.3/src/lib.rs
++++ b/rust-patch-derive-0.1.3/src/lib.rs
+@@ -1,5 +1,4 @@
+ use proc_macro2::{Group, Ident, Literal, Span, TokenStream, TokenTree};
+-use proc_macro_error::{abort, abort_call_site, proc_macro_error};
+ use quote::quote;
+ use syn::{
+     parenthesized,
+@@ -8,6 +7,18 @@
+     spanned::Spanned,
+     token, Attribute, Data, DataStruct, DeriveInput, Fields, Token, Type, TypePath,
+ };
++
++// Owned diagnostic replacement: preserve errors using syn's stable compile_error output.
++macro_rules! abort {
++    ($span:expr, $($message:tt)*) => {
++        return syn::Error::new_spanned($span, format!($($message)*)).to_compile_error().into()
++    };
++}
++macro_rules! abort_span {
++    ($span:expr, $($message:tt)*) => {
++        return syn::Error::new($span, format!($($message)*)).to_compile_error().into()
++    };
++}
+ 
+ struct PatchEqAttr {
+     _eq_token: Token![=],
+@@ -39,12 +50,11 @@
+ }
+ 
+ #[proc_macro_derive(Patch, attributes(patch))]
+-#[proc_macro_error]
+ pub fn derive_patch(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+     let input = parse_macro_input!(item as DeriveInput);
+ 
+     let ident = input.ident;
+-    let Data::Struct(DataStruct { fields, ..}) = input.data else { abort_call_site!("Patch can only be derived on structs") };
++    let Data::Struct(DataStruct { fields, ..}) = input.data else { abort_span!(Span::call_site(), "Patch can only be derived on structs") };
+     let fields = match fields {
+         Fields::Named(f) => f
+             .named
+@@ -71,7 +81,7 @@
+     let mut targets = Vec::new();
+     for patch_target in get_patch_attrs(input.attrs) {
+         let span = patch_target.span();
+-        let Ok(PatchEqAttr { path, ..}) = syn::parse2(patch_target) else { abort!(span, r#"Patch target must be specified in the form `#[patch = "path::to::Type"]`"#) };
++        let Ok(PatchEqAttr { path, ..}) = syn::parse2(patch_target) else { abort_span!(span, r#"Patch target must be specified in the form `#[patch = "path::to::Type"]`"#) };
+         targets.push(path);
+     }
+ 
+@@ -85,13 +95,13 @@
+             let span = attr.span();
+             let content = match syn::parse2(attr) {
+                 Ok(PatchParenAttr { content, .. }) => content,
+-                Err(e) => abort!(span, "Failed parsing attribute: {}", e),
++                Err(e) => abort_span!(span, "Failed parsing attribute: {}", e),
+             };
+             match content.to_string().as_str() {
+                 "direct" => direct = true,
+                 "as_option" => as_option = true,
+                 a => {
+-                    abort!(span, "Unknown attribute `{}`", a)
++                    abort_span!(span, "Unknown attribute `{}`", a)
+                 }
+             }
+         }

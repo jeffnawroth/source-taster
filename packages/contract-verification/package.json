@@ -1,0 +1,39 @@
+{
+  "name": "@source-taster/contract-verification",
+  "version": "0.0.0",
+  "description": "Public transport contract of the Source Taster verification API (/v1): schemas, routes and client.",
+  "license": "AGPL-3.0-or-later OR MIT",
+  "type": "module",
+  "files": [
+    "dist",
+    "LICENSE-AGPL",
+    "LICENSE-MIT",
+    "openapi.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/contract-verification/src/index.d.ts",
+      "default": "./dist/contract-verification/src/index.js"
+    },
+    "./routes": {
+      "types": "./dist/contract-verification/src/routes.d.ts",
+      "default": "./dist/contract-verification/src/routes.js"
+    },
+    "./client": {
+      "types": "./dist/contract-verification/src/client.d.ts",
+      "default": "./dist/contract-verification/src/client.js"
+    },
+    "./openapi.json": "./openapi.json"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "1.6.3",
+    "hono": "4.13.14",
+    "zod": "4.6.7"
+  },
+  "private": true
+}

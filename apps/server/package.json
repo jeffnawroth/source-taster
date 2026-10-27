@@ -1,0 +1,41 @@
+{
+  "name": "@source-taster/server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Verification API: the web process (HTTP + SSE) and the worker process.",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "generate": "prisma generate",
+    "db:setup": "node scripts/db-setup.ts",
+    "db:migrate": "prisma migrate deploy",
+    "web": "node src/web.ts",
+    "worker": "node src/worker.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "e2e:serve": "node scripts/e2e-serve.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start:web": "node dist/web.js",
+    "start:worker": "node dist/worker.js"
+  },
+  "devDependencies": {
+    "@types/pg": "8.23.1",
+    "prisma": "7.10.1",
+    "vitest": "5.0.5"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.5",
+    "@hono/zod-openapi": "1.6.3",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "@source-taster/contract-common": "workspace:*",
+    "@source-taster/contract-verification": "workspace:*",
+    "hono": "4.13.14",
+    "pg": "8.23.1",
+    "pg-boss": "12.38.0",
+    "zod": "4.6.7",
+    "@source-taster/core": "workspace:*",
+    "@source-taster/website": "workspace:*"
+  }
+}

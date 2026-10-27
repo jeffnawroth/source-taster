@@ -40,6 +40,10 @@ Two purpose-limited exceptions exist:
 - [ADR-0017](0017-accessible-pdf-reports.md) admits exact-pinned PDFKit 0.20.2 and its 0.x dependencies, only for the Verification report adapter and only after its launch gates pass.
 - [ADR-0020](0020-website-documentation-help.md), F12 accepted on 25 October 2026, permits reviewed 0.x dependencies of the selected static website build and bundled local documentation search. Use requires a complete pinned inventory (including native/WASM/bundled code), maintenance/compatibility evidence, license/notices and the existing security/output gates. This does not qualify the current graph, automatically admit prereleases or unknown components, add a production service or extend the exception to verification, authentication, billing or unrelated tooling. Other maturity rules remain unchanged.
 
+Within the website exception, the client explicitly admitted exact-pinned `get-tsconfig@5.0.0-beta.6` on 26 October 2026 solely for the Astro 7.4.2 build, conditional on passing build, compatibility, license and security checks. See ADR-0020's build dependency refinement. No other prerelease is admitted by that decision.
+
+The subsequent ADR-0020 refinement admits exactly `lightningcss@1.0.0-alpha.72` and `lightningcss-derive@1.0.0-alpha.43` within compiler-rs 0.5.2 for that website build, with the same qualification conditions. It also selects qualification of a controlled minimal Pagefind 1.5.2 source build and its owned maintenance; it does not exempt further prereleases or security/license obligations.
+
 ## Interpretation of the supported platforms
 
 These interpret section 14.6. They do not amend it.

@@ -1,0 +1,27 @@
+{
+  "name": "@source-taster/contract-common",
+  "version": "0.0.0",
+  "description": "Shared transport conventions of the Source Taster APIs: Problem Details, Quota slot.",
+  "license": "AGPL-3.0-or-later OR MIT",
+  "type": "module",
+  "files": [
+    "dist",
+    "LICENSE-AGPL",
+    "LICENSE-MIT"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
+  "private": true
+}

@@ -1,0 +1,825 @@
+satteri-napi v0.5.4 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-napi-binding)
+├── satteri-ast v0.5.3 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-ast)
+│   ├── rustc-hash feature "default"
+│   │   ├── rustc-hash v2.1.3
+│   │   └── rustc-hash feature "std"
+│   │       └── rustc-hash v2.1.3
+│   ├── satteri-arena feature "default"
+│   │   └── satteri-arena v0.3.1 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-arena)
+│   │       ├── memchr feature "default"
+│   │       │   ├── memchr v2.8.3
+│   │       │   └── memchr feature "std"
+│   │       │       ├── memchr v2.8.3
+│   │       │       └── memchr feature "alloc"
+│   │       │           └── memchr v2.8.3
+│   │       └── rustc-hash feature "default" (*)
+│   ├── html5ever feature "default"
+│   │   └── html5ever v0.39.0
+│   │       ├── log feature "default"
+│   │       │   └── log v0.4.33
+│   │       └── markup5ever feature "default"
+│   │           └── markup5ever v0.39.0
+│   │               ├── log feature "default" (*)
+│   │               ├── tendril feature "default"
+│   │               │   └── tendril v0.5.1
+│   │               │       └── new_debug_unreachable feature "default"
+│   │               │           └── new_debug_unreachable v1.0.6
+│   │               └── web_atoms feature "default"
+│   │                   └── web_atoms v0.2.6
+│   │                       ├── string_cache v0.9.0
+│   │                       │   ├── new_debug_unreachable feature "default" (*)
+│   │                       │   ├── phf_shared feature "default"
+│   │                       │   │   ├── phf_shared v0.13.1
+│   │                       │   │   │   └── siphasher feature "default"
+│   │                       │   │   │       ├── siphasher v1.0.3
+│   │                       │   │   │       └── siphasher feature "std"
+│   │                       │   │   │           └── siphasher v1.0.3
+│   │                       │   │   └── phf_shared feature "std"
+│   │                       │   │       └── phf_shared v0.13.1 (*)
+│   │                       │   ├── parking_lot feature "default"
+│   │                       │   │   └── parking_lot v0.12.5
+│   │                       │   │       ├── lock_api feature "default"
+│   │                       │   │       │   ├── lock_api v0.4.14
+│   │                       │   │       │   │   └── scopeguard v1.2.0
+│   │                       │   │       │   └── lock_api feature "atomic_usize"
+│   │                       │   │       │       └── lock_api v0.4.14 (*)
+│   │                       │   │       └── parking_lot_core feature "default"
+│   │                       │   │           └── parking_lot_core v0.9.12
+│   │                       │   │               ├── libc feature "default"
+│   │                       │   │               │   ├── libc v0.2.189
+│   │                       │   │               │   └── libc feature "std"
+│   │                       │   │               │       └── libc v0.2.189
+│   │                       │   │               ├── cfg-if feature "default"
+│   │                       │   │               │   └── cfg-if v1.0.4
+│   │                       │   │               └── smallvec feature "default"
+│   │                       │   │                   └── smallvec v1.15.2
+│   │                       │   └── precomputed-hash feature "default"
+│   │                       │       └── precomputed-hash v0.1.1
+│   │                       └── phf feature "default"
+│   │                           ├── phf v0.13.1
+│   │                           │   ├── phf_shared v0.13.1 (*)
+│   │                           │   └── phf_macros feature "default"
+│   │                           │       └── phf_macros v0.13.1 (proc-macro)
+│   │                           │           ├── phf_shared v0.13.1
+│   │                           │           │   └── siphasher feature "default"
+│   │                           │           │       ├── siphasher v1.0.3
+│   │                           │           │       └── siphasher feature "std"
+│   │                           │           │           └── siphasher v1.0.3
+│   │                           │           ├── proc-macro2 feature "default"
+│   │                           │           │   ├── proc-macro2 v1.0.107
+│   │                           │           │   │   └── unicode-ident feature "default"
+│   │                           │           │   │       └── unicode-ident v1.0.24
+│   │                           │           │   └── proc-macro2 feature "proc-macro"
+│   │                           │           │       └── proc-macro2 v1.0.107 (*)
+│   │                           │           ├── quote feature "default"
+│   │                           │           │   ├── quote v1.0.47
+│   │                           │           │   │   └── proc-macro2 v1.0.107 (*)
+│   │                           │           │   └── quote feature "proc-macro"
+│   │                           │           │       ├── quote v1.0.47 (*)
+│   │                           │           │       └── proc-macro2 feature "proc-macro" (*)
+│   │                           │           ├── syn feature "default"
+│   │                           │           │   ├── syn v2.0.119
+│   │                           │           │   │   ├── proc-macro2 v1.0.107 (*)
+│   │                           │           │   │   ├── quote v1.0.47 (*)
+│   │                           │           │   │   └── unicode-ident feature "default" (*)
+│   │                           │           │   ├── syn feature "clone-impls"
+│   │                           │           │   │   └── syn v2.0.119 (*)
+│   │                           │           │   ├── syn feature "derive"
+│   │                           │           │   │   └── syn v2.0.119 (*)
+│   │                           │           │   ├── syn feature "parsing"
+│   │                           │           │   │   └── syn v2.0.119 (*)
+│   │                           │           │   ├── syn feature "printing"
+│   │                           │           │   │   └── syn v2.0.119 (*)
+│   │                           │           │   └── syn feature "proc-macro"
+│   │                           │           │       ├── syn v2.0.119 (*)
+│   │                           │           │       ├── proc-macro2 feature "proc-macro" (*)
+│   │                           │           │       └── quote feature "proc-macro" (*)
+│   │                           │           ├── syn feature "full"
+│   │                           │           │   └── syn v2.0.119 (*)
+│   │                           │           └── phf_generator feature "default"
+│   │                           │               └── phf_generator v0.13.1
+│   │                           │                   ├── fastrand v2.5.0
+│   │                           │                   └── phf_shared v0.13.1 (*)
+│   │                           └── phf feature "std"
+│   │                               ├── phf v0.13.1 (*)
+│   │                               └── phf_shared feature "std" (*)
+│   │                       [build-dependencies]
+│   │                       ├── phf_codegen feature "default"
+│   │                       │   └── phf_codegen v0.13.1
+│   │                       │       ├── phf_generator feature "default" (*)
+│   │                       │       └── phf_shared feature "default"
+│   │                       │           ├── phf_shared v0.13.1 (*)
+│   │                       │           └── phf_shared feature "std"
+│   │                       │               └── phf_shared v0.13.1 (*)
+│   │                       └── string_cache_codegen feature "default"
+│   │                           └── string_cache_codegen v0.6.1
+│   │                               ├── proc-macro2 feature "default" (*)
+│   │                               ├── quote feature "default" (*)
+│   │                               ├── phf_generator feature "default" (*)
+│   │                               └── phf_shared feature "default" (*)
+│   ├── satteri-property-info feature "default"
+│   │   └── satteri-property-info v0.2.0 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-property-info)
+│   ├── serde feature "default"
+│   │   ├── serde v1.0.229
+│   │   │   ├── serde_core feature "result"
+│   │   │   │   └── serde_core v1.0.229
+│   │   │   └── serde_derive feature "default"
+│   │   │       └── serde_derive v1.0.229 (proc-macro)
+│   │   │           ├── proc-macro2 feature "proc-macro" (*)
+│   │   │           ├── quote feature "proc-macro" (*)
+│   │   │           ├── syn feature "clone-impls"
+│   │   │           │   └── syn v3.0.3
+│   │   │           │       ├── proc-macro2 v1.0.107 (*)
+│   │   │           │       ├── quote v1.0.47 (*)
+│   │   │           │       └── unicode-ident feature "default" (*)
+│   │   │           ├── syn feature "derive"
+│   │   │           │   └── syn v3.0.3 (*)
+│   │   │           ├── syn feature "parsing"
+│   │   │           │   └── syn v3.0.3 (*)
+│   │   │           ├── syn feature "printing"
+│   │   │           │   └── syn v3.0.3 (*)
+│   │   │           └── syn feature "proc-macro"
+│   │   │               ├── syn v3.0.3 (*)
+│   │   │               ├── proc-macro2 feature "proc-macro" (*)
+│   │   │               └── quote feature "proc-macro" (*)
+│   │   └── serde feature "std"
+│   │       ├── serde v1.0.229 (*)
+│   │       └── serde_core feature "std"
+│   │           └── serde_core v1.0.229
+│   ├── serde feature "derive"
+│   │   ├── serde v1.0.229 (*)
+│   │   └── serde feature "serde_derive"
+│   │       └── serde v1.0.229 (*)
+│   ├── serde_json feature "default"
+│   │   ├── serde_json v1.0.151
+│   │   │   ├── memchr v2.8.3
+│   │   │   ├── serde_core v1.0.229
+│   │   │   ├── indexmap feature "default"
+│   │   │   │   ├── indexmap v2.14.0
+│   │   │   │   │   ├── equivalent v1.0.2
+│   │   │   │   │   └── hashbrown v0.17.1
+│   │   │   │   └── indexmap feature "std"
+│   │   │   │       └── indexmap v2.14.0 (*)
+│   │   │   ├── itoa feature "default"
+│   │   │   │   └── itoa v1.0.18
+│   │   │   └── zmij feature "default"
+│   │   │       └── zmij v1.0.23
+│   │   └── serde_json feature "std"
+│   │       ├── serde_json v1.0.151 (*)
+│   │       ├── serde_core feature "std" (*)
+│   │       └── memchr feature "std" (*)
+│   ├── serde_json feature "preserve_order"
+│   │   ├── serde_json v1.0.151 (*)
+│   │   ├── serde_json feature "indexmap"
+│   │   │   └── serde_json v1.0.151 (*)
+│   │   └── serde_json feature "std" (*)
+│   └── stacker feature "default"
+│       └── stacker v0.1.25
+│           ├── libc feature "default" (*)
+│           ├── cfg-if feature "default" (*)
+│           └── psm feature "default"
+│               └── psm v0.1.32
+│                   [build-dependencies]
+│                   ├── cc feature "default"
+│                   │   └── cc v1.4.3
+│                   │       ├── find-msvc-tools feature "default"
+│                   │       │   └── find-msvc-tools v0.1.11
+│                   │       └── shlex feature "default"
+│                   │           ├── shlex v2.0.1
+│                   │           └── shlex feature "std"
+│                   │               └── shlex v2.0.1
+│                   └── ar_archive_writer feature "default"
+│                       └── ar_archive_writer v0.5.3
+│                           ├── object feature "read"
+│                           │   ├── object v0.39.1
+│                           │   │   └── memchr v2.8.3
+│                           │   ├── object feature "archive"
+│                           │   │   └── object v0.39.1 (*)
+│                           │   ├── object feature "coff"
+│                           │   │   └── object v0.39.1 (*)
+│                           │   ├── object feature "elf"
+│                           │   │   └── object v0.39.1 (*)
+│                           │   ├── object feature "macho"
+│                           │   │   └── object v0.39.1 (*)
+│                           │   ├── object feature "pe"
+│                           │   │   ├── object v0.39.1 (*)
+│                           │   │   └── object feature "coff" (*)
+│                           │   ├── object feature "read_core"
+│                           │   │   └── object v0.39.1 (*)
+│                           │   └── object feature "xcoff"
+│                           │       └── object v0.39.1 (*)
+│                           └── object feature "std"
+│                               ├── object v0.39.1 (*)
+│                               └── memchr feature "std"
+│                                   ├── memchr v2.8.3
+│                                   └── memchr feature "alloc"
+│                                       └── memchr v2.8.3
+│           [build-dependencies]
+│           └── cc feature "default" (*)
+├── satteri-plugin-api v0.5.3 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-plugin-api)
+│   ├── satteri-ast v0.5.3 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-ast) (*)
+│   ├── rustc-hash feature "default" (*)
+│   ├── satteri-arena feature "default" (*)
+│   ├── serde feature "default" (*)
+│   ├── serde feature "derive" (*)
+│   └── serde_json feature "default" (*)
+├── napi feature "napi8"
+│   ├── napi v3.12.1
+│   │   ├── ctor v1.0.13
+│   │   ├── napi-sys v3.3.0
+│   │   │   └── libloading feature "default"
+│   │   │       ├── libloading v0.9.0
+│   │   │       │   └── cfg-if feature "default" (*)
+│   │   │       └── libloading feature "std"
+│   │   │           └── libloading v0.9.0 (*)
+│   │   ├── bitflags feature "default"
+│   │   │   └── bitflags v2.13.1
+│   │   │       └── serde_core v1.0.229
+│   │   ├── futures feature "default"
+│   │   │   ├── futures v0.3.34
+│   │   │   │   ├── futures-core v0.3.34
+│   │   │   │   ├── futures-executor v0.3.34
+│   │   │   │   │   ├── futures-core v0.3.34
+│   │   │   │   │   ├── futures-task v0.3.34
+│   │   │   │   │   └── futures-util v0.3.34
+│   │   │   │   │       ├── futures-core v0.3.34
+│   │   │   │   │       ├── futures-macro v0.3.34 (proc-macro)
+│   │   │   │   │       │   ├── proc-macro2 feature "default" (*)
+│   │   │   │   │       │   ├── quote feature "default" (*)
+│   │   │   │   │       │   ├── syn feature "default"
+│   │   │   │   │       │   │   ├── syn v3.0.3 (*)
+│   │   │   │   │       │   │   ├── syn feature "clone-impls" (*)
+│   │   │   │   │       │   │   ├── syn feature "derive" (*)
+│   │   │   │   │       │   │   ├── syn feature "parsing" (*)
+│   │   │   │   │       │   │   ├── syn feature "printing" (*)
+│   │   │   │   │       │   │   └── syn feature "proc-macro" (*)
+│   │   │   │   │       │   └── syn feature "full"
+│   │   │   │   │       │       └── syn v3.0.3 (*)
+│   │   │   │   │       ├── futures-sink v0.3.34
+│   │   │   │   │       ├── futures-task v0.3.34
+│   │   │   │   │       ├── slab v0.4.12
+│   │   │   │   │       ├── futures-channel feature "std"
+│   │   │   │   │       │   ├── futures-channel v0.3.34
+│   │   │   │   │       │   │   ├── futures-core v0.3.34
+│   │   │   │   │       │   │   └── futures-sink v0.3.34
+│   │   │   │   │       │   ├── futures-channel feature "alloc"
+│   │   │   │   │       │   │   ├── futures-channel v0.3.34 (*)
+│   │   │   │   │       │   │   └── futures-core feature "alloc"
+│   │   │   │   │       │   │       └── futures-core v0.3.34
+│   │   │   │   │       │   └── futures-core feature "std"
+│   │   │   │   │       │       ├── futures-core v0.3.34
+│   │   │   │   │       │       └── futures-core feature "alloc" (*)
+│   │   │   │   │       ├── futures-io feature "std"
+│   │   │   │   │       │   └── futures-io v0.3.34
+│   │   │   │   │       ├── memchr feature "default" (*)
+│   │   │   │   │       └── pin-project-lite feature "default"
+│   │   │   │   │           └── pin-project-lite v0.2.17
+│   │   │   │   ├── futures-io v0.3.34
+│   │   │   │   ├── futures-sink v0.3.34
+│   │   │   │   ├── futures-task v0.3.34
+│   │   │   │   ├── futures-channel feature "sink"
+│   │   │   │   │   ├── futures-channel v0.3.34 (*)
+│   │   │   │   │   └── futures-channel feature "futures-sink"
+│   │   │   │   │       └── futures-channel v0.3.34 (*)
+│   │   │   │   └── futures-util feature "sink"
+│   │   │   │       ├── futures-util v0.3.34 (*)
+│   │   │   │       └── futures-util feature "futures-sink"
+│   │   │   │           └── futures-util v0.3.34 (*)
+│   │   │   ├── futures feature "async-await"
+│   │   │   │   ├── futures v0.3.34 (*)
+│   │   │   │   ├── futures-util feature "async-await"
+│   │   │   │   │   └── futures-util v0.3.34 (*)
+│   │   │   │   └── futures-util feature "async-await-macro"
+│   │   │   │       ├── futures-util v0.3.34 (*)
+│   │   │   │       ├── futures-util feature "async-await" (*)
+│   │   │   │       └── futures-util feature "futures-macro"
+│   │   │   │           └── futures-util v0.3.34 (*)
+│   │   │   ├── futures feature "executor"
+│   │   │   │   ├── futures v0.3.34 (*)
+│   │   │   │   ├── futures feature "futures-executor"
+│   │   │   │   │   └── futures v0.3.34 (*)
+│   │   │   │   ├── futures feature "std"
+│   │   │   │   │   ├── futures v0.3.34 (*)
+│   │   │   │   │   ├── futures feature "alloc"
+│   │   │   │   │   │   ├── futures v0.3.34 (*)
+│   │   │   │   │   │   ├── futures-channel feature "alloc" (*)
+│   │   │   │   │   │   ├── futures-core feature "alloc" (*)
+│   │   │   │   │   │   ├── futures-sink feature "alloc"
+│   │   │   │   │   │   │   └── futures-sink v0.3.34
+│   │   │   │   │   │   ├── futures-task feature "alloc"
+│   │   │   │   │   │   │   └── futures-task v0.3.34
+│   │   │   │   │   │   └── futures-util feature "alloc"
+│   │   │   │   │   │       ├── futures-util v0.3.34 (*)
+│   │   │   │   │   │       ├── futures-core feature "alloc" (*)
+│   │   │   │   │   │       ├── futures-task feature "alloc" (*)
+│   │   │   │   │   │       └── futures-util feature "slab"
+│   │   │   │   │   │           └── futures-util v0.3.34 (*)
+│   │   │   │   │   ├── futures-core feature "std" (*)
+│   │   │   │   │   ├── futures-sink feature "std"
+│   │   │   │   │   │   ├── futures-sink v0.3.34
+│   │   │   │   │   │   └── futures-sink feature "alloc" (*)
+│   │   │   │   │   ├── futures-task feature "std"
+│   │   │   │   │   │   ├── futures-task v0.3.34
+│   │   │   │   │   │   └── futures-task feature "alloc" (*)
+│   │   │   │   │   ├── futures-util feature "channel"
+│   │   │   │   │   │   ├── futures-util v0.3.34 (*)
+│   │   │   │   │   │   ├── futures-util feature "futures-channel"
+│   │   │   │   │   │   │   └── futures-util v0.3.34 (*)
+│   │   │   │   │   │   └── futures-util feature "std"
+│   │   │   │   │   │       ├── futures-util v0.3.34 (*)
+│   │   │   │   │   │       ├── futures-core feature "std" (*)
+│   │   │   │   │   │       ├── futures-task feature "std" (*)
+│   │   │   │   │   │       ├── futures-util feature "alloc" (*)
+│   │   │   │   │   │       ├── futures-util feature "slab" (*)
+│   │   │   │   │   │       └── slab feature "std"
+│   │   │   │   │   │           └── slab v0.4.12
+│   │   │   │   │   ├── futures-util feature "io"
+│   │   │   │   │   │   ├── futures-util v0.3.34 (*)
+│   │   │   │   │   │   ├── futures-util feature "futures-io"
+│   │   │   │   │   │   │   └── futures-util v0.3.34 (*)
+│   │   │   │   │   │   ├── futures-util feature "memchr"
+│   │   │   │   │   │   │   └── futures-util v0.3.34 (*)
+│   │   │   │   │   │   └── futures-util feature "std" (*)
+│   │   │   │   │   ├── futures-util feature "std" (*)
+│   │   │   │   │   └── futures-io feature "std" (*)
+│   │   │   │   └── futures-executor feature "std"
+│   │   │   │       ├── futures-executor v0.3.34 (*)
+│   │   │   │       ├── futures-core feature "std" (*)
+│   │   │   │       ├── futures-task feature "std" (*)
+│   │   │   │       └── futures-util feature "std" (*)
+│   │   │   └── futures feature "std" (*)
+│   │   ├── libc feature "default" (*)
+│   │   ├── nohash-hasher feature "default"
+│   │   │   ├── nohash-hasher v0.2.0
+│   │   │   └── nohash-hasher feature "std"
+│   │   │       └── nohash-hasher v0.2.0
+│   │   └── rustc-hash feature "default" (*)
+│   │   [build-dependencies]
+│   │   └── napi-build feature "default"
+│   │       └── napi-build v2.4.1
+│   ├── napi feature "napi7"
+│   │   ├── napi v3.12.1 (*)
+│   │   ├── napi feature "napi6"
+│   │   │   ├── napi v3.12.1 (*)
+│   │   │   ├── napi feature "napi5"
+│   │   │   │   ├── napi v3.12.1 (*)
+│   │   │   │   ├── napi feature "napi4"
+│   │   │   │   │   ├── napi v3.12.1 (*)
+│   │   │   │   │   ├── napi feature "napi3"
+│   │   │   │   │   │   ├── napi v3.12.1 (*)
+│   │   │   │   │   │   ├── napi feature "napi2"
+│   │   │   │   │   │   │   ├── napi v3.12.1 (*)
+│   │   │   │   │   │   │   ├── napi feature "napi1"
+│   │   │   │   │   │   │   │   └── napi v3.12.1 (*)
+│   │   │   │   │   │   │   └── napi-sys feature "napi2"
+│   │   │   │   │   │   │       ├── napi-sys v3.3.0 (*)
+│   │   │   │   │   │   │       └── napi-sys feature "napi1"
+│   │   │   │   │   │   │           └── napi-sys v3.3.0 (*)
+│   │   │   │   │   │   └── napi-sys feature "napi3"
+│   │   │   │   │   │       ├── napi-sys v3.3.0 (*)
+│   │   │   │   │   │       └── napi-sys feature "napi2" (*)
+│   │   │   │   │   └── napi-sys feature "napi4"
+│   │   │   │   │       ├── napi-sys v3.3.0 (*)
+│   │   │   │   │       └── napi-sys feature "napi3" (*)
+│   │   │   │   └── napi-sys feature "napi5"
+│   │   │   │       ├── napi-sys v3.3.0 (*)
+│   │   │   │       └── napi-sys feature "napi4" (*)
+│   │   │   └── napi-sys feature "napi6"
+│   │   │       ├── napi-sys v3.3.0 (*)
+│   │   │       └── napi-sys feature "napi5" (*)
+│   │   └── napi-sys feature "napi7"
+│   │       ├── napi-sys v3.3.0 (*)
+│   │       └── napi-sys feature "napi6" (*)
+│   └── napi-sys feature "napi8"
+│       ├── napi-sys v3.3.0 (*)
+│       └── napi-sys feature "napi7" (*)
+├── napi-derive feature "default"
+│   ├── napi-derive v3.6.3 (proc-macro)
+│   │   ├── ctor v1.0.13
+│   │   ├── proc-macro2 feature "default" (*)
+│   │   ├── quote feature "default" (*)
+│   │   ├── convert_case feature "default"
+│   │   │   └── convert_case v0.11.0
+│   │   │       └── unicode-segmentation feature "default"
+│   │   │           └── unicode-segmentation v1.13.3
+│   │   ├── napi-derive-backend feature "default"
+│   │   │   └── napi-derive-backend v6.1.2
+│   │   │       ├── proc-macro2 feature "default" (*)
+│   │   │       ├── quote feature "default" (*)
+│   │   │       ├── convert_case feature "default" (*)
+│   │   │       ├── semver feature "default"
+│   │   │       │   ├── semver v1.0.28
+│   │   │       │   └── semver feature "std"
+│   │   │       │       └── semver v1.0.28
+│   │   │       ├── syn feature "default" (*)
+│   │   │       ├── syn feature "extra-traits"
+│   │   │       │   └── syn v2.0.119 (*)
+│   │   │       ├── syn feature "fold"
+│   │   │       │   └── syn v2.0.119 (*)
+│   │   │       └── syn feature "full" (*)
+│   │   ├── syn feature "default" (*)
+│   │   ├── syn feature "extra-traits" (*)
+│   │   ├── syn feature "fold" (*)
+│   │   └── syn feature "full" (*)
+│   ├── napi-derive feature "strict"
+│   │   ├── napi-derive v3.6.3 (proc-macro) (*)
+│   │   └── napi-derive-backend feature "strict"
+│   │       └── napi-derive-backend v6.1.2 (*)
+│   └── napi-derive feature "type-def"
+│       ├── napi-derive v3.6.3 (proc-macro) (*)
+│       ├── napi-derive feature "ctor"
+│       │   └── napi-derive v3.6.3 (proc-macro) (*)
+│       └── napi-derive-backend feature "type-def"
+│           ├── napi-derive-backend v6.1.2 (*)
+│           └── napi-derive-backend feature "semver"
+│               └── napi-derive-backend v6.1.2 (*)
+├── satteri-arena feature "default" (*)
+├── satteri-mdxjs feature "default"
+│   └── satteri-mdxjs v0.3.13 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-mdxjs-rs)
+│       ├── rustc-hash feature "default" (*)
+│       ├── satteri-arena feature "default" (*)
+│       ├── satteri-ast feature "mdx"
+│       │   └── satteri-ast v0.5.3 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-ast) (*)
+│       ├── serde feature "default" (*)
+│       ├── serde feature "derive" (*)
+│       ├── oxc_allocator feature "default"
+│       │   └── oxc_allocator v0.121.0
+│       │       ├── rustc-hash feature "default" (*)
+│       │       ├── serde feature "default" (*)
+│       │       ├── allocator-api2 feature "default"
+│       │       │   ├── allocator-api2 v0.2.21
+│       │       │   └── allocator-api2 feature "std"
+│       │       │       ├── allocator-api2 v0.2.21
+│       │       │       └── allocator-api2 feature "alloc"
+│       │       │           └── allocator-api2 v0.2.21
+│       │       ├── hashbrown feature "allocator-api2"
+│       │       │   └── hashbrown v0.16.1
+│       │       │       └── allocator-api2 feature "alloc" (*)
+│       │       ├── hashbrown feature "inline-more"
+│       │       │   └── hashbrown v0.16.1 (*)
+│       │       ├── oxc_data_structures feature "assert_unchecked"
+│       │       │   └── oxc_data_structures v0.121.0
+│       │       ├── oxc_data_structures feature "default"
+│       │       │   └── oxc_data_structures v0.121.0
+│       │       ├── oxc_data_structures feature "stack"
+│       │       │   └── oxc_data_structures v0.121.0
+│       │       └── oxc_estree feature "default"
+│       │           └── oxc_estree v0.121.0
+│       │               ├── itoa feature "default" (*)
+│       │               ├── oxc_data_structures feature "code_buffer"
+│       │               │   ├── oxc_data_structures v0.121.0
+│       │               │   └── oxc_data_structures feature "assert_unchecked" (*)
+│       │               ├── oxc_data_structures feature "default" (*)
+│       │               ├── oxc_data_structures feature "slice_iter"
+│       │               │   ├── oxc_data_structures v0.121.0
+│       │               │   └── oxc_data_structures feature "assert_unchecked" (*)
+│       │               ├── oxc_data_structures feature "stack" (*)
+│       │               └── dragonbox_ecma feature "default"
+│       │                   ├── dragonbox_ecma v0.1.12
+│       │                   └── dragonbox_ecma feature "ecma"
+│       │                       └── dragonbox_ecma v0.1.12
+│       ├── oxc_estree feature "default" (*)
+│       ├── oxc_estree feature "serialize"
+│       │   └── oxc_estree v0.121.0 (*)
+│       ├── oxc_ast feature "default"
+│       │   └── oxc_ast v0.121.0
+│       │       ├── bitflags feature "default" (*)
+│       │       ├── oxc_allocator feature "default" (*)
+│       │       ├── oxc_data_structures feature "default" (*)
+│       │       ├── oxc_data_structures feature "inline_string"
+│       │       │   ├── oxc_data_structures v0.121.0
+│       │       │   └── oxc_data_structures feature "assert_unchecked" (*)
+│       │       ├── oxc_estree feature "default" (*)
+│       │       ├── oxc_ast_macros feature "default"
+│       │       │   └── oxc_ast_macros v0.121.0 (proc-macro)
+│       │       │       ├── proc-macro2 feature "default" (*)
+│       │       │       ├── quote feature "default" (*)
+│       │       │       ├── syn feature "clone-impls" (*)
+│       │       │       ├── syn feature "full" (*)
+│       │       │       ├── syn feature "parsing" (*)
+│       │       │       ├── syn feature "printing" (*)
+│       │       │       ├── syn feature "proc-macro" (*)
+│       │       │       └── phf feature "default"
+│       │       │           ├── phf v0.13.1
+│       │       │           │   └── phf_shared v0.13.1 (*)
+│       │       │           └── phf feature "std"
+│       │       │               ├── phf v0.13.1 (*)
+│       │       │               └── phf_shared feature "std" (*)
+│       │       ├── oxc_diagnostics feature "default"
+│       │       │   └── oxc_diagnostics v0.121.0
+│       │       │       ├── cow-utils feature "default"
+│       │       │       │   └── cow-utils v0.1.3
+│       │       │       ├── oxc-miette feature "default"
+│       │       │       │   ├── oxc-miette v2.7.1
+│       │       │       │   │   ├── cfg-if feature "default" (*)
+│       │       │       │   │   ├── owo-colors feature "default"
+│       │       │       │   │   │   └── owo-colors v4.3.0
+│       │       │       │   │   ├── oxc-miette-derive feature "default"
+│       │       │       │   │   │   └── oxc-miette-derive v2.7.1 (proc-macro)
+│       │       │       │   │   │       ├── proc-macro2 feature "default" (*)
+│       │       │       │   │   │       ├── quote feature "default" (*)
+│       │       │       │   │   │       └── syn feature "default" (*)
+│       │       │       │   │   ├── textwrap feature "default"
+│       │       │       │   │   │   ├── textwrap v0.16.2
+│       │       │       │   │   │   │   ├── smawk feature "default"
+│       │       │       │   │   │   │   │   └── smawk v0.3.3
+│       │       │       │   │   │   │   ├── unicode-linebreak feature "default"
+│       │       │       │   │   │   │   │   └── unicode-linebreak v0.1.5
+│       │       │       │   │   │   │   └── unicode-width feature "default"
+│       │       │       │   │   │   │       ├── unicode-width v0.2.2
+│       │       │       │   │   │   │       └── unicode-width feature "cjk"
+│       │       │       │   │   │   │           └── unicode-width v0.2.2
+│       │       │       │   │   │   ├── textwrap feature "smawk"
+│       │       │       │   │   │   │   └── textwrap v0.16.2 (*)
+│       │       │       │   │   │   ├── textwrap feature "unicode-linebreak"
+│       │       │       │   │   │   │   └── textwrap v0.16.2 (*)
+│       │       │       │   │   │   └── textwrap feature "unicode-width"
+│       │       │       │   │   │       └── textwrap v0.16.2 (*)
+│       │       │       │   │   ├── unicode-width feature "default" (*)
+│       │       │       │   │   ├── thiserror feature "default"
+│       │       │       │   │   │   ├── thiserror v2.0.20
+│       │       │       │   │   │   │   └── thiserror-impl feature "default"
+│       │       │       │   │   │   │       └── thiserror-impl v2.0.20 (proc-macro)
+│       │       │       │   │   │   │           ├── proc-macro2 feature "default" (*)
+│       │       │       │   │   │   │           ├── quote feature "default" (*)
+│       │       │       │   │   │   │           └── syn feature "default" (*)
+│       │       │       │   │   │   └── thiserror feature "std"
+│       │       │       │   │   │       └── thiserror v2.0.20 (*)
+│       │       │       │   │   └── unicode-segmentation feature "default"
+│       │       │       │   │       └── unicode-segmentation v1.13.3
+│       │       │       │   └── oxc-miette feature "derive"
+│       │       │       │       ├── oxc-miette v2.7.1 (*)
+│       │       │       │       └── oxc-miette feature "oxc-miette-derive"
+│       │       │       │           └── oxc-miette v2.7.1 (*)
+│       │       │       ├── oxc-miette feature "fancy-no-syscall"
+│       │       │       │   ├── oxc-miette v2.7.1 (*)
+│       │       │       │   └── oxc-miette feature "fancy-base"
+│       │       │       │       ├── oxc-miette v2.7.1 (*)
+│       │       │       │       ├── oxc-miette feature "owo-colors"
+│       │       │       │       │   └── oxc-miette v2.7.1 (*)
+│       │       │       │       └── oxc-miette feature "textwrap"
+│       │       │       │           └── oxc-miette v2.7.1 (*)
+│       │       │       └── percent-encoding feature "default"
+│       │       │           ├── percent-encoding v2.3.2
+│       │       │           └── percent-encoding feature "std"
+│       │       │               ├── percent-encoding v2.3.2
+│       │       │               └── percent-encoding feature "alloc"
+│       │       │                   └── percent-encoding v2.3.2
+│       │       ├── oxc_regular_expression feature "default"
+│       │       │   └── oxc_regular_expression v0.121.0
+│       │       │       ├── bitflags feature "default" (*)
+│       │       │       ├── rustc-hash feature "default" (*)
+│       │       │       ├── phf feature "default" (*)
+│       │       │       ├── phf feature "macros"
+│       │       │       │   ├── phf v0.13.1 (*)
+│       │       │       │   └── phf feature "phf_macros"
+│       │       │       │       └── phf v0.13.1 (*)
+│       │       │       ├── oxc_allocator feature "default" (*)
+│       │       │       ├── oxc_ast_macros feature "default" (*)
+│       │       │       ├── oxc_diagnostics feature "default" (*)
+│       │       │       ├── oxc_span feature "default"
+│       │       │       │   └── oxc_span v0.121.0
+│       │       │       │       ├── serde feature "default" (*)
+│       │       │       │       ├── oxc_allocator feature "default" (*)
+│       │       │       │       ├── oxc_estree feature "default" (*)
+│       │       │       │       ├── oxc_ast_macros feature "default" (*)
+│       │       │       │       ├── oxc-miette feature "default" (*)
+│       │       │       │       ├── oxc-miette feature "fancy-no-syscall" (*)
+│       │       │       │       ├── compact_str feature "default"
+│       │       │       │       │   ├── compact_str v0.9.1
+│       │       │       │       │   │   ├── cfg-if feature "default" (*)
+│       │       │       │       │   │   ├── serde feature "alloc"
+│       │       │       │       │   │   │   ├── serde v1.0.229 (*)
+│       │       │       │       │   │   │   └── serde_core feature "alloc"
+│       │       │       │       │   │   │       └── serde_core v1.0.229
+│       │       │       │       │   │   ├── serde feature "derive" (*)
+│       │       │       │       │   │   ├── itoa feature "default" (*)
+│       │       │       │       │   │   ├── castaway feature "alloc"
+│       │       │       │       │   │   │   └── castaway v0.2.4
+│       │       │       │       │   │   │       └── rustversion feature "default"
+│       │       │       │       │   │   │           └── rustversion v1.0.23 (proc-macro)
+│       │       │       │       │   │   ├── rustversion feature "default" (*)
+│       │       │       │       │   │   ├── ryu feature "default"
+│       │       │       │       │   │   │   └── ryu v1.0.23
+│       │       │       │       │   │   └── static_assertions feature "default"
+│       │       │       │       │   │       └── static_assertions v1.1.0
+│       │       │       │       │   └── compact_str feature "std"
+│       │       │       │       │       └── compact_str v0.9.1 (*)
+│       │       │       │       └── oxc_str feature "default"
+│       │       │       │           └── oxc_str v0.121.0
+│       │       │       │               ├── hashbrown v0.16.1 (*)
+│       │       │       │               ├── serde feature "default" (*)
+│       │       │       │               ├── oxc_allocator feature "default" (*)
+│       │       │       │               ├── oxc_estree feature "default" (*)
+│       │       │       │               └── compact_str feature "default" (*)
+│       │       │       └── unicode-id-start feature "default"
+│       │       │           └── unicode-id-start v1.4.0
+│       │       ├── oxc_span feature "default" (*)
+│       │       └── oxc_syntax feature "default"
+│       │           └── oxc_syntax v0.121.0
+│       │               ├── bitflags feature "default" (*)
+│       │               ├── phf feature "default" (*)
+│       │               ├── phf feature "macros" (*)
+│       │               ├── serde feature "default" (*)
+│       │               ├── serde feature "derive" (*)
+│       │               ├── oxc_allocator feature "default" (*)
+│       │               ├── oxc_estree feature "default" (*)
+│       │               ├── dragonbox_ecma feature "default" (*)
+│       │               ├── oxc_ast_macros feature "default" (*)
+│       │               ├── cow-utils feature "default" (*)
+│       │               ├── oxc_span feature "default" (*)
+│       │               ├── unicode-id-start feature "default" (*)
+│       │               ├── nonmax feature "default"
+│       │               │   ├── nonmax v0.5.5
+│       │               │   └── nonmax feature "std"
+│       │               │       └── nonmax v0.5.5
+│       │               ├── oxc_index feature "default"
+│       │               │   └── oxc_index v4.1.0
+│       │               │       ├── serde feature "default" (*)
+│       │               │       └── nonmax feature "default" (*)
+│       │               ├── oxc_index feature "nonmax"
+│       │               │   └── oxc_index v4.1.0 (*)
+│       │               └── oxc_index feature "serde"
+│       │                   └── oxc_index v4.1.0 (*)
+│       ├── oxc_ast feature "serialize"
+│       │   ├── oxc_ast v0.121.0 (*)
+│       │   ├── oxc_allocator feature "serialize"
+│       │   │   ├── oxc_allocator v0.121.0 (*)
+│       │   │   ├── oxc_allocator feature "oxc_estree"
+│       │   │   │   └── oxc_allocator v0.121.0 (*)
+│       │   │   └── oxc_estree feature "serialize" (*)
+│       │   ├── oxc_estree feature "serialize" (*)
+│       │   ├── oxc_span feature "serialize"
+│       │   │   ├── oxc_span v0.121.0 (*)
+│       │   │   ├── oxc_estree feature "serialize" (*)
+│       │   │   ├── compact_str feature "serde"
+│       │   │   │   └── compact_str v0.9.1 (*)
+│       │   │   └── oxc_str feature "serialize"
+│       │   │       ├── oxc_str v0.121.0 (*)
+│       │   │       ├── oxc_estree feature "serialize" (*)
+│       │   │       └── compact_str feature "serde" (*)
+│       │   └── oxc_syntax feature "serialize"
+│       │       ├── oxc_syntax v0.121.0 (*)
+│       │       ├── bitflags feature "serde"
+│       │       │   ├── bitflags v2.13.1 (*)
+│       │       │   └── bitflags feature "serde_core"
+│       │       │       └── bitflags v2.13.1 (*)
+│       │       └── oxc_estree feature "serialize" (*)
+│       ├── oxc_span feature "default" (*)
+│       ├── unicode-id-start feature "default" (*)
+│       ├── oxc_syntax feature "default" (*)
+│       ├── oxc_ast_visit feature "default"
+│       │   └── oxc_ast_visit v0.121.0
+│       │       ├── oxc_allocator feature "default" (*)
+│       │       ├── oxc_ast feature "default" (*)
+│       │       ├── oxc_span feature "default" (*)
+│       │       └── oxc_syntax feature "default" (*)
+│       ├── oxc_codegen feature "default"
+│       │   ├── oxc_codegen v0.121.0
+│       │   │   ├── bitflags feature "default" (*)
+│       │   │   ├── rustc-hash feature "default" (*)
+│       │   │   ├── itoa feature "default" (*)
+│       │   │   ├── oxc_allocator feature "default" (*)
+│       │   │   ├── oxc_data_structures feature "code_buffer" (*)
+│       │   │   ├── oxc_data_structures feature "default" (*)
+│       │   │   ├── oxc_data_structures feature "slice_iter" (*)
+│       │   │   ├── oxc_data_structures feature "stack" (*)
+│       │   │   ├── dragonbox_ecma feature "default" (*)
+│       │   │   ├── oxc_ast feature "default" (*)
+│       │   │   ├── cow-utils feature "default" (*)
+│       │   │   ├── oxc_span feature "default" (*)
+│       │   │   ├── oxc_syntax feature "default" (*)
+│       │   │   ├── oxc_index feature "default" (*)
+│       │   │   ├── oxc_index feature "nonmax" (*)
+│       │   │   ├── oxc_index feature "serde" (*)
+│       │   │   ├── oxc_semantic feature "default"
+│       │   │   │   └── oxc_semantic v0.121.0
+│       │   │   │       ├── memchr feature "default" (*)
+│       │   │   │       ├── rustc-hash feature "default" (*)
+│       │   │   │       ├── oxc_allocator feature "default" (*)
+│       │   │   │       ├── oxc_ast feature "default" (*)
+│       │   │   │       ├── oxc_diagnostics feature "default" (*)
+│       │   │   │       ├── oxc_span feature "default" (*)
+│       │   │   │       ├── oxc_syntax feature "default" (*)
+│       │   │   │       ├── oxc_index feature "default" (*)
+│       │   │   │       ├── oxc_index feature "nonmax" (*)
+│       │   │   │       ├── oxc_index feature "serde" (*)
+│       │   │   │       ├── oxc_ast_visit feature "default" (*)
+│       │   │   │       ├── itertools feature "default"
+│       │   │   │       │   ├── itertools v0.14.0
+│       │   │   │       │   │   └── either v1.17.0
+│       │   │   │       │   └── itertools feature "use_std"
+│       │   │   │       │       ├── itertools v0.14.0 (*)
+│       │   │   │       │       ├── itertools feature "use_alloc"
+│       │   │   │       │       │   └── itertools v0.14.0 (*)
+│       │   │   │       │       └── either feature "use_std"
+│       │   │   │       │           ├── either v1.17.0
+│       │   │   │       │           └── either feature "std"
+│       │   │   │       │               └── either v1.17.0
+│       │   │   │       ├── oxc_ecmascript feature "default"
+│       │   │   │       │   └── oxc_ecmascript v0.121.0
+│       │   │   │       │       ├── oxc_allocator feature "default" (*)
+│       │   │   │       │       ├── oxc_ast feature "default" (*)
+│       │   │   │       │       ├── cow-utils feature "default" (*)
+│       │   │   │       │       ├── oxc_regular_expression feature "default" (*)
+│       │   │   │       │       ├── oxc_span feature "default" (*)
+│       │   │   │       │       ├── oxc_syntax feature "default" (*)
+│       │   │   │       │       ├── oxc_syntax feature "to_js_string"
+│       │   │   │       │       │   └── oxc_syntax v0.121.0 (*)
+│       │   │   │       │       ├── num-bigint feature "default"
+│       │   │   │       │       │   ├── num-bigint v0.4.8
+│       │   │   │       │       │   │   ├── num-integer feature "i128"
+│       │   │   │       │       │   │   │   └── num-integer v0.1.47
+│       │   │   │       │       │   │   │       └── num-traits feature "i128"
+│       │   │   │       │       │   │   │           └── num-traits v0.2.19
+│       │   │   │       │       │   │   │               [build-dependencies]
+│       │   │   │       │       │   │   │               └── autocfg feature "default"
+│       │   │   │       │       │   │   │                   └── autocfg v1.5.1
+│       │   │   │       │       │   │   └── num-traits feature "i128" (*)
+│       │   │   │       │       │   └── num-bigint feature "std"
+│       │   │   │       │       │       ├── num-bigint v0.4.8 (*)
+│       │   │   │       │       │       ├── num-integer feature "std"
+│       │   │   │       │       │       │   ├── num-integer v0.1.47 (*)
+│       │   │   │       │       │       │   └── num-traits feature "std"
+│       │   │   │       │       │       │       └── num-traits v0.2.19 (*)
+│       │   │   │       │       │       └── num-traits feature "std" (*)
+│       │   │   │       │       └── num-traits feature "default"
+│       │   │   │       │           ├── num-traits v0.2.19 (*)
+│       │   │   │       │           └── num-traits feature "std" (*)
+│       │   │   │       └── self_cell feature "default"
+│       │   │   │           └── self_cell v1.3.0
+│       │   │   └── oxc_sourcemap feature "default"
+│       │   │       └── oxc_sourcemap v6.1.1
+│       │   │           ├── rustc-hash feature "default" (*)
+│       │   │           ├── serde feature "default" (*)
+│       │   │           ├── serde feature "derive" (*)
+│       │   │           ├── serde_json feature "default" (*)
+│       │   │           ├── base64-simd feature "default"
+│       │   │           │   ├── base64-simd v0.8.0
+│       │   │           │   │   ├── outref feature "default"
+│       │   │           │   │   │   └── outref v0.5.2
+│       │   │           │   │   └── vsimd feature "default"
+│       │   │           │   │       └── vsimd v0.8.0
+│       │   │           │   ├── base64-simd feature "detect"
+│       │   │           │   │   ├── base64-simd v0.8.0 (*)
+│       │   │           │   │   └── vsimd feature "detect"
+│       │   │           │   │       ├── vsimd v0.8.0
+│       │   │           │   │       └── vsimd feature "std"
+│       │   │           │   │           ├── vsimd v0.8.0
+│       │   │           │   │           └── vsimd feature "alloc"
+│       │   │           │   │               └── vsimd v0.8.0
+│       │   │           │   └── base64-simd feature "std"
+│       │   │           │       ├── base64-simd v0.8.0 (*)
+│       │   │           │       ├── base64-simd feature "alloc"
+│       │   │           │       │   ├── base64-simd v0.8.0 (*)
+│       │   │           │       │   └── vsimd feature "alloc" (*)
+│       │   │           │       └── vsimd feature "std" (*)
+│       │   │           └── json-escape-simd feature "default"
+│       │   │               └── json-escape-simd v3.1.1
+│       │   └── oxc_codegen feature "sourcemap"
+│       │       └── oxc_codegen v0.121.0 (*)
+│       ├── oxc_parser feature "default"
+│       │   ├── oxc_parser v0.121.0
+│       │   │   ├── bitflags feature "default" (*)
+│       │   │   ├── memchr feature "default" (*)
+│       │   │   ├── rustc-hash feature "default" (*)
+│       │   │   ├── oxc_allocator feature "default" (*)
+│       │   │   ├── oxc_data_structures feature "assert_unchecked" (*)
+│       │   │   ├── oxc_data_structures feature "default" (*)
+│       │   │   ├── oxc_data_structures feature "fieldless_enum"
+│       │   │   │   └── oxc_data_structures v0.121.0
+│       │   │   ├── oxc_ast feature "default" (*)
+│       │   │   ├── oxc_diagnostics feature "default" (*)
+│       │   │   ├── cow-utils feature "default" (*)
+│       │   │   ├── oxc_regular_expression feature "default" (*)
+│       │   │   ├── oxc_span feature "default" (*)
+│       │   │   ├── oxc_syntax feature "default" (*)
+│       │   │   ├── oxc_ecmascript feature "default" (*)
+│       │   │   ├── num-bigint feature "default" (*)
+│       │   │   ├── num-traits feature "default" (*)
+│       │   │   └── seq-macro feature "default"
+│       │   │       └── seq-macro v0.3.6 (proc-macro)
+│       │   └── oxc_parser feature "regular_expression"
+│       │       └── oxc_parser v0.121.0 (*)
+│       ├── satteri-pulldown-cmark feature "mdx"
+│       │   ├── satteri-pulldown-cmark v0.6.3 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-pulldown-cmark)
+│       │   │   ├── memchr v2.8.3
+│       │   │   ├── satteri-ast v0.5.3 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-ast) (*)
+│       │   │   ├── bitflags feature "default" (*)
+│       │   │   ├── rustc-hash feature "default" (*)
+│       │   │   ├── satteri-arena feature "default" (*)
+│       │   │   ├── oxc_allocator feature "default" (*)
+│       │   │   ├── oxc_ast feature "default" (*)
+│       │   │   ├── oxc_span feature "default" (*)
+│       │   │   ├── unicode-id-start feature "default" (*)
+│       │   │   ├── oxc_ast_visit feature "default" (*)
+│       │   │   ├── oxc_parser feature "default" (*)
+│       │   │   └── unicase feature "default"
+│       │   │       └── unicase v2.9.0
+│       │   └── satteri-ast feature "mdx" (*)
+│       └── satteri-pulldown-cmark feature "std"
+│           ├── satteri-pulldown-cmark v0.6.3 (/workspace/source-taster/.tmp/pagefind/satteri/crates/satteri-pulldown-cmark) (*)
+│           └── memchr feature "std" (*)
+└── satteri-pulldown-cmark feature "std" (*)
+[build-dependencies]
+└── napi-build feature "default" (*)

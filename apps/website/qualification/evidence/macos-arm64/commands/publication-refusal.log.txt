@@ -1,0 +1,34 @@
+$ node scripts/publication-check.ts
+file:///workspace/source-taster/apps/website/scripts/publication.ts:154
+    throw new Error(`Publication blocked:\n- ${errors.join("\n- ")}`);
+          ^
+
+Error: Publication blocked:
+- real HTTPS domain
+- monitored support address
+- seller name
+- seller address
+- seller country
+- seller legalDetails
+- de/legal-notice: approved legal version required
+- de/terms: approved legal version required
+- de/privacy: approved legal version required
+- de/withdrawal: approved legal version required
+- en/legal-notice: approved legal version required
+- en/terms: approved legal version required
+- en/privacy: approved legal version required
+- en/withdrawal: approved legal version required
+- legal: current release review required
+- claims: current release review required
+- dependencies: current release review required
+- accessibility: current release review required
+- translation: current release review required
+    at checkPublication (file:///workspace/source-taster/apps/website/scripts/publication.ts:154:11)
+    at async file:///workspace/source-taster/apps/website/scripts/publication-check.ts:8:3
+
+Node.js v24.14.0
+[ELIFECYCLE] Command failed with exit code 1.
+Error: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL
+
+  × "pnpm recursive run" failed in /Users/jeffnawroth/.t3/worktrees/source-
+  │ taster/t3-df18e2cf/apps/website
