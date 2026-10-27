@@ -6,6 +6,8 @@ import { startTestService } from "../test/support/service.ts";
 
 const fixtures = await startDoiFixtures();
 const held = fixtures.hold("/api/handles/10.5555/browser-held");
+fixtures.respond("/api/handles/10.5555/browser-unavailable", 503, {});
+fixtures.respond("/works/10.5555/browser-invalid", 200, { message: {} });
 const service = await startTestService(
   Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? 3102),
   3000,

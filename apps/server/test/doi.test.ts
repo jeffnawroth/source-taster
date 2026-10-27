@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { readFile } from "node:fs/promises";
 import { afterAll, beforeAll, expect, it } from "vitest";
-import { CheckResponse } from "@source-taster/contract-verification";
+import {
+  CheckResponse,
+  CheckEvent,
+} from "@source-taster/contract-verification";
 import { readSseFrames } from "@source-taster/contract-verification/client";
 import { startTestService } from "./support/service.ts";
 import { physicsReference, startDoiFixtures } from "./support/doi-fixtures.ts";
@@ -502,4 +505,33 @@ it("keeps a differing supplied URL unverified instead of claiming a confirmed UR
     verdict: "not-verifiable",
     reasons: ["url-verification-incomplete"],
   });
+});
+
+it("the actual pre-lifecycle /v1 client parses DOI Verdict frames and resumes numeric cursors", async () => {
+  const { snapshot } = await check(physicsReference);
+  const { watchCheckEvents, readSseFrames: legacyFrames } =
+    await import("./fixtures/verification-client-74/dist/contract-verification/src/client.js");
+  const seen: unknown[] = [];
+  await watchCheckEvents(snapshot.id, {
+    baseUrl: service.apiUrl,
+    lastEventSeq: 1,
+    signal: AbortSignal.timeout(10000),
+    onEvent: (event) => seen.push(event),
+  });
+  expect(seen).toContainEqual(
+    expect.objectContaining({
+      type: "reference.updated",
+      reference: matching({
+        outcome: matching({
+          kind: "verdict",
+          verdict: "correct",
+        }),
+      }),
+    }),
+  );
+  const response = await fetch(
+    `${service.apiUrl}/v1/checks/${snapshot.id}/events`,
+  );
+  for await (const frame of legacyFrames(response.body!))
+    expect(Number(frame.id)).toBe(CheckEvent.parse(JSON.parse(frame.data)).seq);
 });

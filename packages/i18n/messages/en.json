@@ -100,7 +100,7 @@
   "evidence_candidate": "Candidate retrieved",
   "evidence_no_record": "No record in this Data source",
   "evidence_unavailable": "Evidence unavailable",
-  "evidence_limitation": "Technical evidence reason",
+  "evidence_limitation": "Limitation",
   "evidence_missing": "Not provided",
   "candidate_label": "Candidate",
   "reference_label": "Reference",
@@ -127,5 +127,15 @@
   "check_lease_expired": "The connection was not renewed in time. Finished Verdicts are kept; unfinished References were cancelled.",
   "check_cleanup_pending": "Cancellation could not be confirmed. This workspace has stopped renewing its connection. Another active workspace may keep the Check running.",
   "problem_authority_unavailable": "Current authorization is unavailable. Please try again.",
-  "problem_guest_identity_storage": "Browser storage is required to keep your Guest identity. Allow local storage and try again."
+  "problem_guest_identity_storage": "Browser storage is required to keep your Guest identity. Allow local storage and try again.",
+  "limitation_deadline": "The time limit for this Reference was reached before the data source could finish.",
+  "limitation_rate_budget": "The data source is busy or its request limit was reached. Try this Reference again later.",
+  "limitation_response_size": "The data source response was too large to process safely.",
+  "limitation_request_unavailable": "The data source could not be reached. Try this Reference again later.",
+  "limitation_invalid_resolver_response": "The DOI resolver did not return usable confirmation for this DOI.",
+  "limitation_not_in_crossref": "Crossref has no metadata record for this DOI. This does not prove that the DOI does not exist.",
+  "limitation_invalid_metadata": "The data source returned incomplete or invalid metadata.",
+  "limitation_identifier_mismatch": "The returned metadata belongs to a different DOI.",
+  "limitation_probe_unavailable": "The search for an independently matching Source could not be completed.",
+  "limitation_unknown": "The data source evidence is incomplete. Try this Reference again later."
 }

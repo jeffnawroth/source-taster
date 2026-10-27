@@ -8,6 +8,7 @@ import {
   createDoiAdapters,
   systemSourceClock,
   type SourceClock,
+  type SourceDispatch,
 } from "../sources/doi.ts";
 import { sourceBudget } from "../sources/budget.ts";
 export function referenceExecution(
@@ -16,7 +17,9 @@ export function referenceExecution(
   context: {
     clock?: SourceClock;
     signal?: AbortSignal;
-    dispatchSource?: (send: () => Promise<Response>) => Promise<Response>;
+    dispatchSource?: (
+      send: () => Promise<SourceDispatch | null>,
+    ) => Promise<SourceDispatch | null>;
     beforeSource?: (source: "doi.org" | "crossref") => Promise<void>;
   } = {},
 ) {

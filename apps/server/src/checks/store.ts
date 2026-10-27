@@ -54,6 +54,25 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
     })),
   };
 }
+// Shared attempt eligibility only. Callers retain their Check lock/lease and
+// cancellation checks; the read-only abort probe remains an optimization.
+function eligibleAttempt<
+  T extends {
+    status: string;
+    generation: number;
+    revision: number;
+    claimUntil: Date | null;
+  },
+>(slot: T | null, attempt: ReferenceAttempt, now: number): slot is T {
+  return (
+    !!slot &&
+    slot.status === "running" &&
+    slot.generation === attempt.generation &&
+    slot.revision === attempt.revision &&
+    !!slot.claimUntil &&
+    slot.claimUntil.getTime() > now
+  );
+}
 type Tx = Prisma.TransactionClient;
 type EventPayload =
   | Omit<Extract<CheckEvent, { type: "check.updated" }>, "seq" | "checkId">
@@ -338,11 +357,14 @@ export function createCheckStore(
           { id: string }[]
         >`SELECT c.id FROM verification.checks c
           WHERE c.state='running' AND c.lease_expires_at>${new Date(now)}
-          AND (${candidateId ?? null}::uuid IS NULL OR c.id=${candidateId ?? null}::uuid)
           AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
           AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<10
           ORDER BY c.dispatch_order,c.created_at,c.id LIMIT 1`;
-        if (!rows[0]) return null;
+        if (
+          !rows[0] ||
+          (candidateId !== undefined && rows[0].id !== candidateId)
+        )
+          return null;
         const check = await lock(tx, rows[0].id);
         if (
           !check ||
@@ -411,15 +433,7 @@ export function createCheckStore(
             },
           },
         });
-        if (
-          !slot ||
-          slot.status !== "running" ||
-          slot.generation !== attempt.generation ||
-          slot.revision !== attempt.revision ||
-          !slot.claimUntil ||
-          slot.claimUntil.getTime() <= clock.now()
-        )
-          return false;
+        if (!eligibleAttempt(slot, attempt, clock.now())) return false;
         if (slot.progress !== progress) {
           await tx.referenceSlot.update({
             where: {
@@ -453,12 +467,7 @@ export function createCheckStore(
         include: { check: true },
       });
       return (
-        !!row &&
-        row.status === "running" &&
-        row.generation === attempt.generation &&
-        row.revision === attempt.revision &&
-        !!row.claimUntil &&
-        row.claimUntil.getTime() > clock.now() &&
+        eligibleAttempt(row, attempt, clock.now()) &&
         row.check.state === "running" &&
         row.check.leaseExpiresAt.getTime() > clock.now()
       );
@@ -483,15 +492,7 @@ export function createCheckStore(
             },
           },
         });
-        if (
-          !slot ||
-          slot.status !== "running" ||
-          slot.generation !== attempt.generation ||
-          slot.revision !== attempt.revision ||
-          !slot.claimUntil ||
-          slot.claimUntil.getTime() <= clock.now()
-        )
-          return;
+        if (!eligibleAttempt(slot, attempt, clock.now())) return;
         await record(
           tx,
           check.id,

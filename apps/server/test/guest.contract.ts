@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { once } from "node:events";
 import { afterEach, expect, test } from "vitest";
-import { CheckResponse } from "@source-taster/contract-verification";
+import {
+  CheckResponse,
+  type Check,
+} from "@source-taster/contract-verification";
 import { readSseFrames } from "@source-taster/contract-verification/client";
 import { bothPrograms } from "./support/both-programs.ts";
 import { physicsReference } from "./support/doi-fixtures.ts";
@@ -701,6 +704,25 @@ test("service failure during a provider Retry-After wait prevents retry and a la
     ).json(),
   ).data;
   expect(snapshot.references[0]?.outcome.kind).toBe("status");
+  // A recovered authority outage is a technical failure, never a zero-attempt
+  // billable source Verdict after the original Reference deadline.
+  await both.advance(45001);
+  const { eventually: recovered } = await import("./support/both-programs.ts");
+  let terminal = snapshot;
+  await recovered(async () => {
+    terminal = CheckResponse.parse(
+      await (
+        await fetch(`${both.apiUrl}/v1/checks/${created.id}`, {
+          headers: { authorization: `Bearer ${guest.token}` },
+        })
+      ).json(),
+    ).data;
+    return terminal.state === "ended";
+  });
+  expect(terminal.references[0]?.outcome).toEqual({
+    kind: "status",
+    status: "failed",
+  });
 });
 test("idle stream closes on current permission loss, stops lease renewal, and refuses reconnect", async () => {
   const both = await bothPrograms({ startWorker: false });
@@ -1072,3 +1094,174 @@ test("removing lease permission denies renewal while preserving independently au
   );
   await reader.cancel();
 });
+
+test("source timeouts retain real attempts and publish incomplete evidence before the Reference deadline", async () => {
+  const both = await bothPrograms();
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  both.fixtures.hold("/api/handles/10.1038/nphys1170");
+  both.fixtures.hold("/works/10.1038/nphys1170");
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = CheckResponse.parse(
+    await (
+      await fetch(`${both.apiUrl}/v1/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  const began = Date.now();
+  const { eventually } = await import("./support/both-programs.ts");
+  let snapshot = created;
+  await eventually(async () => {
+    snapshot = CheckResponse.parse(
+      await (
+        await fetch(`${both.apiUrl}/v1/checks/${created.id}`, { headers })
+      ).json(),
+    ).data;
+    return snapshot.state === "ended";
+  }, 28000);
+  expect(Date.now() - began).toBeLessThan(30000);
+  expect(snapshot.references[0]?.outcome).toMatchObject({
+    kind: "verdict",
+    verdict: "not-verifiable",
+    evidence: [
+      {
+        source: "doi.org",
+        outcome: "unavailable",
+        attempts: 2,
+        reason: "request-unavailable",
+      },
+      {
+        source: "crossref",
+        outcome: "unavailable",
+        attempts: 2,
+        reason: "request-unavailable",
+      },
+    ],
+  });
+  expect(
+    both.fixtures.requests.filter((r) => r.path.startsWith("/api/handles/")),
+  ).toHaveLength(2);
+  expect(
+    both.fixtures.requests.filter((r) => r.path.startsWith("/works/")),
+  ).toHaveLength(2);
+}, 40000);
+
+test("delayed current authority cannot expire a held provider reservation or compress actual dispatch pacing", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const path = "/works/10.1038/nphys1170";
+  const held = both.fixtures.hold(path, true);
+  for (let i = 0; i < 2; i++)
+    expect(
+      (
+        await fetch(`${both.apiUrl}/v1/checks`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ text: physicsReference }),
+        })
+      ).status,
+    ).toBe(201);
+  both.delayWork(850);
+  await Promise.all([both.worker().ready, both.worker().ready]);
+  await held.arrived;
+  both.delayWork(0);
+  const { eventually } = await import("./support/both-programs.ts");
+  await eventually(
+    () => both.fixtures.requests.filter((r) => r.path === path).length >= 2,
+    26000,
+  );
+  const sent = both.fixtures.requests.filter((r) => r.path === path);
+  expect(sent[0]?.completedAt).toBeDefined();
+  expect(sent[1]!.at).toBeGreaterThanOrEqual(sent[0]!.completedAt!);
+  expect(sent[1]!.at - sent[0]!.at).toBeGreaterThanOrEqual(200);
+}, 40000);
+
+test("hosted concurrent workers revalidate the global turn before admitting either eligible Check", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const checks: Check[] = [];
+  for (const name of ["a", "b"]) {
+    const references = Array.from({ length: 12 }, (_, i) => {
+      const DOI = `10.5555/hosted-fair-${name}${i}`;
+      both.fixtures.hold(`/api/handles/${DOI}`);
+      return { originalText: DOI, fields: { DOI } };
+    });
+    checks.push(
+      CheckResponse.parse(
+        await (
+          await fetch(`${both.apiUrl}/v1/checks`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ references }),
+          })
+        ).json(),
+      ).data,
+    );
+  }
+  const admission = both.holdWork();
+  both.delayWork(500);
+  await Promise.all([both.worker().ready, both.worker().ready]);
+  await admission.arrived;
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  admission.release();
+  const { eventually } = await import("./support/both-programs.ts");
+  let admitted: number[] = [];
+  await eventually(async () => {
+    admitted = await Promise.all(
+      checks.map(async (check) => {
+        const snapshot = CheckResponse.parse(
+          await (
+            await fetch(`${both.apiUrl}/v1/checks/${check.id}`, { headers })
+          ).json(),
+        ).data;
+        return snapshot.references.filter((r) => r.progress !== "queued")
+          .length;
+      }),
+    );
+    return admitted.reduce((a, b) => a + b, 0) >= 10;
+  });
+  expect(admitted, "first admission wave must share the global turns").toEqual([
+    5, 5,
+  ]);
+  both.delayWork(0);
+  // A stale-turn loser must not consume the last wake-up or stall the next turn.
+  await eventually(async () =>
+    (
+      await Promise.all(
+        checks.map(
+          async (check) =>
+            CheckResponse.parse(
+              await (
+                await fetch(`${both.apiUrl}/v1/checks/${check.id}`, { headers })
+              ).json(),
+            ).data.references.filter((r) => r.progress !== "queued").length,
+        ),
+      )
+    ).every((n) => n === 10),
+  );
+  for (const check of checks)
+    expect(
+      (
+        await fetch(`${both.apiUrl}/v1/checks/${check.id}/cancel`, {
+          method: "POST",
+          headers,
+        })
+      ).status,
+    ).toBe(200);
+}, 40000);

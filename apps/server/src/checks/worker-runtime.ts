@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Injectable composition root, also used by real-PG HTTP/SSE lifecycle tests.
 import { setTimeout } from "node:timers/promises";
+import { doiTracerLimits } from "@source-taster/core";
 import type { PgBoss } from "pg-boss";
 import type { Config } from "../config.ts";
 import type { Db } from "../db/prisma.ts";
@@ -76,17 +77,19 @@ export async function startWorkerRuntime(
     },
     async () => {
       if (stopped) return;
-      let attempt: ReferenceAttempt | null;
+      let attempt: ReferenceAttempt | null = null;
       if (options.authority) {
-        const subject = await checks.peekWork();
-        if (!subject) return;
-        try {
-          attempt = await guard(subject, "dispatch", () =>
-            checks.claimNext(subject.checkId),
-          );
-        } catch {
-          await checks.deferAdmission(subject.checkId);
-          return;
+        while (!attempt && !stopped) {
+          const subject = await checks.peekWork();
+          if (!subject) return;
+          try {
+            attempt = await guard(subject, "dispatch", () =>
+              checks.claimNext(subject.checkId),
+            );
+          } catch {
+            await checks.deferAdmission(subject.checkId);
+            return;
+          }
         }
       } else attempt = await checks.claimNext();
       if (!attempt) return;
@@ -121,33 +124,44 @@ export async function startWorkerRuntime(
           clock,
           signal: abort.signal,
           beforeSource: async (source) => {
-            await guard(attempt, "source", async () => {
-              if (!(await checks.progress(attempt, source))) {
-                abort.abort();
-                abort.signal.throwIfAborted();
-              }
-            });
+            try {
+              await guard(attempt, "source", async () => {
+                if (!(await checks.progress(attempt, source))) {
+                  abort.abort();
+                  abort.signal.throwIfAborted();
+                }
+              });
+            } catch (error) {
+              abort.abort();
+              throw error;
+            }
           },
           dispatchSource: async (send) => {
             try {
               // Invocation is guarded, response I/O is outside the lock. A late
               // response cannot commit across invalidation and cannot deadlock it.
-              const dispatched = await guard(attempt, "source", async () => {
+              return await guard(attempt, "source", async () => {
                 if (!(await checks.isCurrent(attempt))) {
                   abort.abort();
                   abort.signal.throwIfAborted();
                 }
-                return { pending: send() };
+                return send();
               });
-              return await dispatched.pending;
             } catch (error) {
               abort.abort();
               throw error;
             }
           },
         });
-        const outcome =
-          config.doiPreview && attempt.input
+        // Recovery after an interrupted worker/authority operation cannot
+        // manufacture a billable source failure from an already expired run.
+        const expiredRecovery =
+          attempt.generation > 1 &&
+          clock.now() >=
+            attempt.startedAt + doiTracerLimits.referenceDeadlineMs;
+        const outcome = expiredRecovery
+          ? { kind: "status" as const, status: "failed" as const }
+          : config.doiPreview && attempt.input
             ? await verify(attempt.input, { startedAt: attempt.startedAt })
             : { kind: "status" as const, status: "not-checked" as const };
         await guard(attempt, "commit", () =>
@@ -156,7 +170,7 @@ export async function startWorkerRuntime(
             outcome.kind === "verdict"
               ? {
                   ...outcome,
-                  searchStrategyVersion: `${outcome.searchStrategyVersion}/lifecycle-1${options.authority ? "/guest-authority-1" : ""}`,
+                  searchStrategyVersion: `${outcome.searchStrategyVersion}/lifecycle-2${options.authority ? "/guest-authority-1" : ""}`,
                   searchConfiguration: {
                     ...outcome.searchConfiguration,
                     ...(options.authority
@@ -166,7 +180,9 @@ export async function startWorkerRuntime(
                         }
                       : {}),
                     maxActiveReferencesPerCheck: 10,
-                    scheduling: "round-robin-checks-1",
+                    scheduling: "round-robin-checks-2",
+                    sourceReservation: "deadline-then-request-1",
+                    sourceDispatchMarginMs: 100,
                     workerClaimMs: settings.claimMs,
                     clientLeaseMs: settings.clientLeaseMs,
                     maxWorkerAttempts: settings.maxAttempts,

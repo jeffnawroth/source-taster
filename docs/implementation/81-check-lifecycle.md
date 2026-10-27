@@ -71,15 +71,16 @@ settlement intent (`verdict` or `release`) in the same database transaction.
 These intents are neither fabricated debits nor balances; Status is free.
 
 Snapshots take the same Check lock across the parent/slot/result reads. They
-return a consistent `lastEventSeq` and Check-bound `lastEventCursor`. SSE IDs are
-now `{checkId}:{seq}`; clients send that opaque cursor as Last-Event-ID (`0` starts
-full replay). Malformed, future and foreign cursors are rejected. Durable replay
+return a consistent `lastEventSeq` and Check-bound `lastEventCursor`. Clients opt into Check-bound SSE IDs with `{checkId}:{seq}` as Last-Event-ID
+(`{checkId}:0` starts full replay). Numeric Last-Event-ID and numeric output IDs
+remain compatible with existing `/v1` consumers; absent cursors use numeric IDs. Malformed, future and foreign cursors are rejected. Durable replay
 is paged at 100 events, ordered, subscribe-before-query, and drains through the
 terminal sequence before closing. Clients validate Check identity, cursor and
 contiguous sequences and ignore already applied frames. Generated JS,
 declarations and OpenAPI accompany the dual-licensed transport/client changes.
-Numeric nonzero cursors from the earlier development contract must be replaced
-with the new cursor; this is an intentional development transport change.
+The review correction restores additive-only `/v1` compatibility (ADR-0003).
+Numeric cursors remain scoped to the currently authorized Check in the URL;
+new clients use bound cursors to detect accidental cross-Check reuse.
 
 The DE/EN workspace keeps stable slot order, source/queued/checking progress,
 terminal Status versus Verdict, and overall completed/total progress. A polite
