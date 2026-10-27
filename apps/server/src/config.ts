@@ -3,6 +3,7 @@
 // mode is chosen explicitly: standalone mode grants every permission, so it
 // must never be the result of a missing setting.
 
+import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
 import { resolve } from "node:path";
 import {
   assertPreviewAllowed,
@@ -11,7 +12,8 @@ import {
 
 export interface Config {
   website?: { mode: WebsiteMode; directory: string };
-  mode: "standalone";
+  mode: "standalone" | "hosted";
+  hosted?: HostedSettings;
   referenceLimit: number;
   databaseUrl: string;
   port: number;
@@ -38,8 +40,15 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     );
   }
   if (mode === "hosted") {
+    try {
+      loadHostedSettings(env.SOURCE_TASTER_AUTH_CONFIG);
+    } catch {
+      throw new ConfigError(
+        "Hosted mode needs a valid SOURCE_TASTER_AUTH_CONFIG with distinct internal signing and service public keys.",
+      );
+    }
     throw new ConfigError(
-      "SOURCE_TASTER_MODE=hosted needs the hosted service configuration, which is not available yet.",
+      "Hosted activation requires an eligible exact Measured configuration (#94). Uncalibrated or absent measurements cannot serve users.",
     );
   }
   if (mode !== "standalone") {

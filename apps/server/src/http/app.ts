@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // HTTP surface of the web process: the published /v1 contract.
 
+import type { Context, TypedResponse } from "hono";
+import type { JSONParsed } from "hono/utils/types";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import {
   structureReferences,
@@ -11,7 +13,7 @@ import {
   streamCheckEvents,
 } from "@source-taster/contract-verification/routes";
 import { ReferenceLimitExceeded, type Structuring } from "@source-taster/core";
-import { streamSSE } from "hono/streaming";
+import { stream, streamSSE } from "hono/streaming";
 import type { EventListener } from "../checks/events.ts";
 import { HTTPException } from "hono/http-exception";
 import type { StructuredReference } from "@source-taster/core";
@@ -26,6 +28,7 @@ export interface AppDeps {
   events: EventListener;
   heartbeatMs: number;
   referenceLimit: number;
+  clock?: { now(): number };
 }
 
 export function createApp({
@@ -35,6 +38,7 @@ export function createApp({
   events,
   heartbeatMs,
   referenceLimit,
+  clock = { now: Date.now },
 }: AppDeps) {
   async function authorize(
     request: Request,
@@ -43,9 +47,51 @@ export function createApp({
     const principal = await entitlements.resolve(request);
     if (!principal) fail("unauthenticated");
     if (!principal.can(permission)) fail("forbidden");
+    await guarded(principal, permission, () => Promise.resolve());
     return principal;
   }
 
+  function guarded<T>(
+    principal: Principal,
+    permission: Permission,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    return entitlements.guard
+      ? entitlements.guard(principal, permission, operation)
+      : operation();
+  }
+  async function output<T, S extends 200 | 201>(
+    c: Context,
+    principal: Principal,
+    permission: Permission,
+    data: T,
+    status: S,
+  ) {
+    // Check again after the database/parser work, before response headers. The
+    // transport write itself drains under the same durable Owner guard as commits.
+    await guarded(principal, permission, () => Promise.resolve());
+    c.status(status);
+    c.header("Content-Type", "application/json");
+    c.header("Cache-Control", "no-store");
+    const response = stream(c, async (writer) => {
+      try {
+        await guarded(principal, permission, () =>
+          writer.write(JSON.stringify({ data, quota: principal.quota })),
+        );
+      } catch {
+        writer.abort();
+      }
+    });
+    return response as Response &
+      TypedResponse<
+        JSONParsed<{
+          data: T;
+          quota: Principal["quota"];
+        }>,
+        S,
+        "json"
+      >;
+  }
   const app = new OpenAPIHono({
     defaultHook: (result) => {
       if (result.success) return;
@@ -70,7 +116,7 @@ export function createApp({
     const principal = await authorize(c.req.raw, "structuring:create");
     try {
       const data = structuring.structure(c.req.valid("json").text);
-      return c.json({ data, quota: principal.quota }, 200);
+      return output(c, principal, "structuring:create", data, 200);
     } catch (error) {
       if (error instanceof ReferenceLimitExceeded)
         fail(
@@ -134,28 +180,36 @@ export function createApp({
         referenceLimit,
       );
     if (!references.length) fail("invalid-request");
-    const check = await checks.create(principal, references);
-    return c.json({ data: check, quota: principal.quota }, 201);
+    const check = await guarded(principal, "check:create", () =>
+      checks.create(principal, references),
+    );
+    return output(c, principal, "check:create", check, 201);
   });
 
   app.openapi(getCheck, async (c) => {
     const principal = await authorize(c.req.raw, "check:read");
-    const check = await checks.get(principal, c.req.valid("param").checkId);
+    const check = await guarded(principal, "check:read", () =>
+      checks.get(principal, c.req.valid("param").checkId),
+    );
     if (!check) fail("check-not-found");
-    return c.json({ data: check, quota: principal.quota }, 200);
+    return output(c, principal, "check:read", check, 200);
   });
 
   app.openapi(cancelCheck, async (c) => {
     const principal = await authorize(c.req.raw, "check:cancel");
-    const check = await checks.cancel(principal, c.req.valid("param").checkId);
+    const check = await guarded(principal, "check:cancel", () =>
+      checks.cancel(principal, c.req.valid("param").checkId),
+    );
     if (!check) fail("check-not-found");
-    return c.json({ data: check, quota: principal.quota }, 200);
+    return output(c, principal, "check:cancel", check, 200);
   });
   app.openapi(renewCheckLease, async (c) => {
     const principal = await authorize(c.req.raw, "check:renew");
-    const check = await checks.renew(principal, c.req.valid("param").checkId);
+    const check = await guarded(principal, "check:renew", () =>
+      checks.renew(principal, c.req.valid("param").checkId),
+    );
     if (!check) fail("check-not-found");
-    return c.json({ data: check, quota: principal.quota }, 200);
+    return output(c, principal, "check:renew", check, 200);
   });
 
   app.openapi(streamCheckEvents, async (c) => {
@@ -178,7 +232,18 @@ export function createApp({
       fail("invalid-request");
     // A fresh client request proves liveness once; heartbeats are server output,
     // not client acknowledgements. Further renewal is an explicit mutation.
-    if (principal.can("check:renew")) await checks.renew(principal, checkId);
+    if (principal.can("check:renew")) {
+      try {
+        await guarded(principal, "check:renew", () =>
+          checks.renew(principal, checkId),
+        );
+      } catch (error) {
+        // Read and lease permissions are independent. A forbidden optional
+        // renewal cannot grant a lease or suppress an otherwise authorized read.
+        if (!(error instanceof HTTPException) || error.status !== 403)
+          throw error;
+      }
+    }
     let after = Number(seq);
     c.header("Cache-Control", "no-cache, no-transform");
     c.header("X-Accel-Buffering", "no");
@@ -187,40 +252,61 @@ export function createApp({
       async (stream) => {
         const lifetime = new AbortController();
         stream.onAbort(() => lifetime.abort());
-        while (!stream.aborted) {
-          const cycle = new AbortController();
-          const abort = () => cycle.abort();
-          lifetime.signal.addEventListener("abort", abort, { once: true });
-          // Subscribe before replay to close the replay/live notification race.
-          const wake = events.wait(cycle.signal, heartbeatMs);
-          try {
-            const current = await authorize(c.req.raw, "check:read");
-            const snapshot = await checks.get(current, checkId);
-            if (!snapshot) return;
-            const batch = await checks.events(checkId, after);
-            for (const event of batch) {
-              const output = await authorize(c.req.raw, "check:read");
-              if (output.ownerId !== principal.ownerId) return;
-              await stream.writeSSE({
-                id: `${checkId}:${event.seq}`,
-                event: event.type,
-                data: JSON.stringify(event),
-              });
-              after = event.seq;
-            }
-            if (snapshot.state === "ended" && after >= snapshot.lastEventSeq)
-              return;
-            if (batch.length) continue;
-            await wake;
-            if (!stream.aborted) {
+        try {
+          while (!stream.aborted) {
+            const cycle = new AbortController();
+            const abort = () => cycle.abort();
+            lifetime.signal.addEventListener("abort", abort, { once: true });
+            // Subscribe before replay to close the replay/live notification race.
+            const wake = events.wait(
+              cycle.signal,
+              Math.max(
+                1,
+                Math.min(
+                  heartbeatMs,
+                  principal.expiresAt === undefined
+                    ? heartbeatMs
+                    : principal.expiresAt - clock.now(),
+                ),
+              ),
+            );
+            try {
               const current = await authorize(c.req.raw, "check:read");
-              if (current.ownerId !== principal.ownerId) return;
-              await stream.write(": heartbeat\n\n");
+              const snapshot = await checks.get(current, checkId);
+              if (!snapshot) return;
+              const batch = await checks.events(checkId, after);
+              for (const event of batch) {
+                const output = await authorize(c.req.raw, "check:read");
+                if (output.ownerId !== principal.ownerId) return;
+                await guarded(output, "check:read", () =>
+                  stream.writeSSE({
+                    id: `${checkId}:${event.seq}`,
+                    event: event.type,
+                    data: JSON.stringify(event),
+                  }),
+                );
+                after = event.seq;
+              }
+              if (snapshot.state === "ended" && after >= snapshot.lastEventSeq)
+                return;
+              if (batch.length) continue;
+              await wake;
+              if (!stream.aborted) {
+                const current = await authorize(c.req.raw, "check:read");
+                if (current.ownerId !== principal.ownerId) return;
+                await guarded(current, "check:read", () =>
+                  stream.write(": heartbeat\n\n"),
+                );
+              }
+            } finally {
+              lifetime.signal.removeEventListener("abort", abort);
+              cycle.abort();
             }
-          } finally {
-            lifetime.signal.removeEventListener("abort", abort);
-            cycle.abort();
           }
+        } catch {
+          /* Denial closes silently. Hono's outer error handler emits an SSE error frame. */
+        } finally {
+          lifetime.abort();
         }
       },
       () => {

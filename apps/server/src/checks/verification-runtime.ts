@@ -16,6 +16,7 @@ export function referenceExecution(
   context: {
     clock?: SourceClock;
     signal?: AbortSignal;
+    dispatchSource?: (send: () => Promise<Response>) => Promise<Response>;
     beforeSource?: (source: "doi.org" | "crossref") => Promise<void>;
   } = {},
 ) {
@@ -26,6 +27,7 @@ export function referenceExecution(
       crossrefBase: config.crossrefBase,
       budget: sourceBudget(db, context.signal, clock),
       beforeRequest: context.beforeSource,
+      dispatch: context.dispatchSource,
       clock,
       signal: context.signal,
     }),

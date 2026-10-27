@@ -92,6 +92,7 @@ export const defaultLifecycleSettings: LifecycleSettings = {
   maxAttempts: 3,
 };
 export interface ReferenceAttempt {
+  guestContextId?: string;
   checkId: string;
   slot: number;
   generation: number;
@@ -101,6 +102,10 @@ export interface ReferenceAttempt {
   startedAt: number;
   input: StructuredReference | null;
 }
+export type WorkSubject = Pick<
+  ReferenceAttempt,
+  "checkId" | "ownerId" | "actorId" | "guestContextId"
+>;
 export function createCheckStore(
   db: Db,
   boss: PgBoss,
@@ -255,6 +260,7 @@ export function createCheckStore(
             id: randomUUID(),
             ownerId: principal.ownerId,
             actorId: principal.actorId,
+            guestContextId: principal.guestContextId,
             state: "running",
             leaseExpiresAt: new Date(clock.now() + settings.clientLeaseMs),
             references: {
@@ -301,7 +307,28 @@ export function createCheckStore(
         }),
       );
     },
-    async claimNext(): Promise<ReferenceAttempt | null> {
+    async peekWork(): Promise<WorkSubject | null> {
+      const rows = await db.$queryRaw<
+        {
+          checkId: string;
+          ownerId: string;
+          actorId: string;
+          guestContextId: string | null;
+        }[]
+      >`SELECT c.id AS "checkId",c.owner_id AS "ownerId",c.actor_id AS "actorId",c.guest_context_id AS "guestContextId" FROM verification.checks c
+        WHERE c.state='running' AND c.lease_expires_at>${new Date(clock.now())}
+        AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
+        AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<10
+        ORDER BY c.dispatch_order,c.created_at,c.id LIMIT 1`;
+      const row = rows[0];
+      return row
+        ? { ...row, guestContextId: row.guestContextId ?? undefined }
+        : null;
+    },
+    async deferAdmission(id: string) {
+      await db.$executeRaw`UPDATE verification.checks SET dispatch_order=nextval('verification.dispatch_order') WHERE id=${id}::uuid AND state='running'`;
+    },
+    async claimNext(candidateId?: string): Promise<ReferenceAttempt | null> {
       return db.$transaction(async (tx) => {
         // One durable round-robin order across all processes. Admission and the
         // ten-per-Check cap commit together; queue delivery is only a wake-up.
@@ -311,6 +338,7 @@ export function createCheckStore(
           { id: string }[]
         >`SELECT c.id FROM verification.checks c
           WHERE c.state='running' AND c.lease_expires_at>${new Date(now)}
+          AND (${candidateId ?? null}::uuid IS NULL OR c.id=${candidateId ?? null}::uuid)
           AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
           AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<10
           ORDER BY c.dispatch_order,c.created_at,c.id LIMIT 1`;
@@ -353,6 +381,9 @@ export function createCheckStore(
           slot: slot.position,
           ownerId: check.ownerId,
           actorId: check.actorId,
+          ...(check.guestContextId
+            ? { guestContextId: check.guestContextId }
+            : {}),
           generation: claimed.generation,
           revision: claimed.revision,
           startedAt: claimed.startedAt!.getTime(),
@@ -477,6 +508,19 @@ export function createCheckStore(
           await end(tx, check.id, "completed", clock.now());
         else await wake(tx, check.id);
       });
+    },
+    async invalidateOwner(ownerId: string) {
+      // Caller holds the Owner fence; all result/response guards drain before ack.
+      const running = await db.check.findMany({
+        where: { ownerId, state: "running" },
+        select: { id: true },
+      });
+      for (const { id } of running)
+        await db.$transaction(async (tx) => {
+          const row = await lock(tx, id);
+          if (row?.state === "running")
+            await cancelLocked(tx, id, "cancelled", clock.now());
+        });
     },
     async maintain() {
       const running = await db.check.findMany({

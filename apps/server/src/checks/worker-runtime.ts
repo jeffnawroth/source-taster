@@ -9,17 +9,17 @@ import { referenceExecution } from "./verification-runtime.ts";
 import {
   createCheckStore,
   type ReferenceAttempt,
+  type WorkSubject,
   type LifecycleClock,
   type LifecycleSettings,
 } from "./store.ts";
 import { systemSourceClock } from "../sources/doi.ts";
 export interface WorkAuthority {
-  // #96 supplies current hosted authority at dispatch and commit. No credentials
-  // in jobs; standalone allows its one local Owner. This is not hosted auth.
-  allowed(
-    attempt: ReferenceAttempt,
+  run<T>(
+    attempt: WorkSubject,
     boundary: "dispatch" | "source" | "commit",
-  ): Promise<boolean>;
+    operation: () => Promise<T>,
+  ): Promise<T>;
 }
 export async function startWorkerRuntime(
   config: Config,
@@ -42,6 +42,15 @@ export async function startWorkerRuntime(
     ...systemSourceClock,
     now: () => (options.clock ? options.clock.now() : Date.now()),
   };
+  function guard<T>(
+    attempt: WorkSubject,
+    boundary: "dispatch" | "source" | "commit",
+    operation: () => Promise<T>,
+  ) {
+    return options.authority
+      ? options.authority.run(attempt, boundary, operation)
+      : operation();
+  }
   const active = new Set<AbortController>();
   let stopped = false;
   let timer: ReturnType<typeof globalThis.setTimeout>;
@@ -67,7 +76,19 @@ export async function startWorkerRuntime(
     },
     async () => {
       if (stopped) return;
-      const attempt = await checks.claimNext();
+      let attempt: ReferenceAttempt | null;
+      if (options.authority) {
+        const subject = await checks.peekWork();
+        if (!subject) return;
+        try {
+          attempt = await guard(subject, "dispatch", () =>
+            checks.claimNext(subject.checkId),
+          );
+        } catch {
+          await checks.deferAdmission(subject.checkId);
+          return;
+        }
+      } else attempt = await checks.claimNext();
       if (!attempt) return;
       const abort = new AbortController();
       active.add(abort);
@@ -87,11 +108,12 @@ export async function startWorkerRuntime(
           });
       }, 100);
       try {
-        if (
-          options.authority &&
-          !(await options.authority.allowed(attempt, "dispatch"))
-        )
-          return;
+        await guard(attempt, "dispatch", async () => {
+          if (!(await checks.isCurrent(attempt))) {
+            abort.abort();
+            abort.signal.throwIfAborted();
+          }
+        });
         await setTimeout(config.placeholderDelayMs, undefined, {
           signal: abort.signal,
         });
@@ -99,16 +121,28 @@ export async function startWorkerRuntime(
           clock,
           signal: abort.signal,
           beforeSource: async (source) => {
-            if (
-              options.authority &&
-              !(await options.authority.allowed(attempt, "source"))
-            ) {
+            await guard(attempt, "source", async () => {
+              if (!(await checks.progress(attempt, source))) {
+                abort.abort();
+                abort.signal.throwIfAborted();
+              }
+            });
+          },
+          dispatchSource: async (send) => {
+            try {
+              // Invocation is guarded, response I/O is outside the lock. A late
+              // response cannot commit across invalidation and cannot deadlock it.
+              const dispatched = await guard(attempt, "source", async () => {
+                if (!(await checks.isCurrent(attempt))) {
+                  abort.abort();
+                  abort.signal.throwIfAborted();
+                }
+                return { pending: send() };
+              });
+              return await dispatched.pending;
+            } catch (error) {
               abort.abort();
-              abort.signal.throwIfAborted();
-            }
-            if (!(await checks.progress(attempt, source))) {
-              abort.abort();
-              abort.signal.throwIfAborted();
+              throw error;
             }
           },
         });
@@ -116,27 +150,30 @@ export async function startWorkerRuntime(
           config.doiPreview && attempt.input
             ? await verify(attempt.input, { startedAt: attempt.startedAt })
             : { kind: "status" as const, status: "not-checked" as const };
-        if (
-          options.authority &&
-          !(await options.authority.allowed(attempt, "commit"))
-        )
-          return;
-        await checks.finishReference(
-          attempt,
-          outcome.kind === "verdict"
-            ? {
-                ...outcome,
-                searchStrategyVersion: `${outcome.searchStrategyVersion}/lifecycle-1`,
-                searchConfiguration: {
-                  ...outcome.searchConfiguration,
-                  maxActiveReferencesPerCheck: 10,
-                  scheduling: "round-robin-checks-1",
-                  workerClaimMs: settings.claimMs,
-                  clientLeaseMs: settings.clientLeaseMs,
-                  maxWorkerAttempts: settings.maxAttempts,
-                },
-              }
-            : outcome,
+        await guard(attempt, "commit", () =>
+          checks.finishReference(
+            attempt,
+            outcome.kind === "verdict"
+              ? {
+                  ...outcome,
+                  searchStrategyVersion: `${outcome.searchStrategyVersion}/lifecycle-1${options.authority ? "/guest-authority-1" : ""}`,
+                  searchConfiguration: {
+                    ...outcome.searchConfiguration,
+                    ...(options.authority
+                      ? {
+                          authorityProtocol: "guest-authority-1",
+                          authorityDecisionTimeoutMs: 2000,
+                        }
+                      : {}),
+                    maxActiveReferencesPerCheck: 10,
+                    scheduling: "round-robin-checks-1",
+                    workerClaimMs: settings.claimMs,
+                    clientLeaseMs: settings.clientLeaseMs,
+                    maxWorkerAttempts: settings.maxAttempts,
+                  },
+                }
+              : outcome,
+          ),
         );
       } catch {
         if (!abort.signal.aborted) {
@@ -147,10 +184,12 @@ export async function startWorkerRuntime(
               slot: attempt.slot,
             }),
           );
-          await checks.finishReference(attempt, {
-            kind: "status",
-            status: "failed",
-          });
+          await guard(attempt, "commit", () =>
+            checks.finishReference(attempt, {
+              kind: "status",
+              status: "failed",
+            }),
+          ).catch(() => {});
         }
       } finally {
         clearInterval(probe);

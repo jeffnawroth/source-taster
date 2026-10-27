@@ -20,3 +20,5 @@ packages/i18n/project.inlang/.lix/
 packages/i18n/project.inlang/.meta.json
 apps/website/.astro/
 apps/website/dist-preview/
+
+test-results-guest/

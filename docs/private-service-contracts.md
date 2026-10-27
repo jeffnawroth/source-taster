@@ -1,16 +1,17 @@
 # Private service skeleton contracts (#95)
 
 Only transport schemas, OpenAPI routes and their built JS/declarations live here.
-`contract-service` exposes infrastructure status without granting identity, permissions
-or Quota. `contract-internal` describes an explicitly enabled, loopback-only SMTP
+`contract-service` exposes infrastructure status, Guest token issuance and public
+JWKS. `contract-internal` describes signed current Guest authority/invalidation
+and an explicitly enabled, loopback-only SMTP
 rehearsal. The diagnostic accepts only DE/EN and an idempotency key: never recipients,
 mail bodies or verification content. It is unavailable by default. Its receipt is
 not an Account, sign-in challenge or entitlement.
 
 The independently implemented proprietary program lives in the private repository
 `jeffnawroth/source-taster-service`. No server, worker, UI, persistence, mail template
-or catalog implementation belongs in this open checkout. Authentication and signed
-internal entitlement/Quota endpoints remain for their subsequent tickets.
+or catalog implementation belongs in this open checkout. Account authentication and the actual hosted Quota journal remain subsequent
+work. Guest authority is distinct from both.
 
 ## Distribution
 

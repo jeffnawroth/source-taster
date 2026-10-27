@@ -65,6 +65,7 @@ export function createDoiAdapters(options: {
   budget: SourceBudget;
   clock?: SourceClock;
   signal?: AbortSignal;
+  dispatch?: (send: () => Promise<Response>) => Promise<Response>;
   beforeRequest?: (source: "doi.org" | "crossref") => Promise<void>;
 }) {
   const clock = options.clock ?? systemSourceClock;
@@ -99,26 +100,30 @@ export function createDoiAdapters(options: {
         options.signal?.throwIfAborted();
         await options.beforeRequest?.(source);
         attempts++;
-        const response = await fetch(url, {
-          headers: {
-            accept: "application/json",
-            "user-agent":
-              "Source-Taster/0.0.0 (uncalibrated development preview)",
-          },
-          redirect: "error",
-          signal: AbortSignal.any([
-            AbortSignal.timeout(
-              Math.max(
-                1,
-                Math.min(
-                  doiTracerLimits.requestTimeoutMs,
-                  deadline - clock.now(),
+        const send = () =>
+          fetch(url, {
+            headers: {
+              accept: "application/json",
+              "user-agent":
+                "Source-Taster/0.0.0 (uncalibrated development preview)",
+            },
+            redirect: "error",
+            signal: AbortSignal.any([
+              AbortSignal.timeout(
+                Math.max(
+                  1,
+                  Math.min(
+                    doiTracerLimits.requestTimeoutMs,
+                    deadline - clock.now(),
+                  ),
                 ),
               ),
-            ),
-            ...(options.signal ? [options.signal] : []),
-          ]),
-        });
+              ...(options.signal ? [options.signal] : []),
+            ]),
+          });
+        const response = await (options.dispatch
+          ? options.dispatch(send)
+          : send());
         status = response.status;
         // Bound streaming bytes after decompression as well as the declared wire size.
         if (
