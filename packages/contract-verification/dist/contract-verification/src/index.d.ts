@@ -208,6 +208,20 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
     retraction: z.ZodLiteral<"unknown">;
 }, z.core.$strict>], "kind">;
 export type ReferenceOutcome = z.infer<typeof ReferenceOutcome>;
+export declare const ReferenceProgress: z.ZodEnum<{
+    checking: "checking";
+    crossref: "crossref";
+    "doi.org": "doi.org";
+    ended: "ended";
+    queued: "queued";
+}>;
+export type ReferenceProgress = z.infer<typeof ReferenceProgress>;
+export declare const CheckEndReason: z.ZodEnum<{
+    cancelled: "cancelled";
+    completed: "completed";
+    "lease-expired": "lease-expired";
+}>;
+export type CheckEndReason = z.infer<typeof CheckEndReason>;
 export declare const ReferenceSlot: z.ZodObject<{
     slot: z.ZodNumber;
     originalText: z.ZodString;
@@ -403,6 +417,13 @@ export declare const ReferenceSlot: z.ZodObject<{
         }>>;
         retraction: z.ZodLiteral<"unknown">;
     }, z.core.$strict>], "kind">;
+    progress: z.ZodEnum<{
+        checking: "checking";
+        crossref: "crossref";
+        "doi.org": "doi.org";
+        ended: "ended";
+        queued: "queued";
+    }>;
 }, z.core.$strip>;
 export type ReferenceSlot = z.infer<typeof ReferenceSlot>;
 /** Pre-start states (Structuring, awaiting start) join when they exist. */
@@ -419,6 +440,13 @@ export declare const Check: z.ZodObject<{
         running: "running";
     }>;
     lastEventSeq: z.ZodNumber;
+    lastEventCursor: z.ZodString;
+    leaseRenewAfterMs: z.ZodNumber;
+    endReason: z.ZodNullable<z.ZodEnum<{
+        cancelled: "cancelled";
+        completed: "completed";
+        "lease-expired": "lease-expired";
+    }>>;
     references: z.ZodArray<z.ZodObject<{
         slot: z.ZodNumber;
         originalText: z.ZodString;
@@ -614,6 +642,13 @@ export declare const Check: z.ZodObject<{
             }>>;
             retraction: z.ZodLiteral<"unknown">;
         }, z.core.$strict>], "kind">;
+        progress: z.ZodEnum<{
+            checking: "checking";
+            crossref: "crossref";
+            "doi.org": "doi.org";
+            ended: "ended";
+            queued: "queued";
+        }>;
     }, z.core.$strip>>;
 }, z.core.$strip>;
 export type Check = z.infer<typeof Check>;
@@ -625,6 +660,13 @@ export declare const CheckResponse: z.ZodObject<{
             running: "running";
         }>;
         lastEventSeq: z.ZodNumber;
+        lastEventCursor: z.ZodString;
+        leaseRenewAfterMs: z.ZodNumber;
+        endReason: z.ZodNullable<z.ZodEnum<{
+            cancelled: "cancelled";
+            completed: "completed";
+            "lease-expired": "lease-expired";
+        }>>;
         references: z.ZodArray<z.ZodObject<{
             slot: z.ZodNumber;
             originalText: z.ZodString;
@@ -820,6 +862,13 @@ export declare const CheckResponse: z.ZodObject<{
                 }>>;
                 retraction: z.ZodLiteral<"unknown">;
             }, z.core.$strict>], "kind">;
+            progress: z.ZodEnum<{
+                checking: "checking";
+                crossref: "crossref";
+                "doi.org": "doi.org";
+                ended: "ended";
+                queued: "queued";
+            }>;
         }, z.core.$strip>>;
     }, z.core.$strip>;
     quota: z.ZodNullable<z.ZodObject<{
@@ -873,6 +922,11 @@ export declare const CheckUpdatedEvent: z.ZodObject<{
         ended: "ended";
         running: "running";
     }>;
+    endReason: z.ZodNullable<z.ZodEnum<{
+        cancelled: "cancelled";
+        completed: "completed";
+        "lease-expired": "lease-expired";
+    }>>;
 }, z.core.$strip>;
 export declare const ReferenceUpdatedEvent: z.ZodObject<{
     seq: z.ZodNumber;
@@ -1072,6 +1126,13 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
             }>>;
             retraction: z.ZodLiteral<"unknown">;
         }, z.core.$strict>], "kind">;
+        progress: z.ZodEnum<{
+            checking: "checking";
+            crossref: "crossref";
+            "doi.org": "doi.org";
+            ended: "ended";
+            queued: "queued";
+        }>;
     }, z.core.$strip>;
 }, z.core.$strip>;
 /** The `data` of every SSE event on `GET /v1/checks/{id}/events`. */
@@ -1083,6 +1144,11 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
         ended: "ended";
         running: "running";
     }>;
+    endReason: z.ZodNullable<z.ZodEnum<{
+        cancelled: "cancelled";
+        completed: "completed";
+        "lease-expired": "lease-expired";
+    }>>;
 }, z.core.$strip>, z.ZodObject<{
     seq: z.ZodNumber;
     checkId: z.ZodUUID;
@@ -1281,6 +1347,13 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
             }>>;
             retraction: z.ZodLiteral<"unknown">;
         }, z.core.$strict>], "kind">;
+        progress: z.ZodEnum<{
+            checking: "checking";
+            crossref: "crossref";
+            "doi.org": "doi.org";
+            ended: "ended";
+            queued: "queued";
+        }>;
     }, z.core.$strip>;
 }, z.core.$strip>], "type">;
 export type CheckEvent = z.infer<typeof CheckEvent>;

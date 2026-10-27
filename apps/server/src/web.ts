@@ -19,13 +19,32 @@ await runMain(async (config) => {
   const db = createPrisma(config.databaseUrl);
   const boss = await createQueue(config.databaseUrl);
   const events = await listenForEvents(config.databaseUrl);
+  const checks = createCheckStore(db, boss, {
+    settings: {
+      clientLeaseMs: config.clientLeaseMs,
+      claimMs: config.workerClaimMs,
+    },
+  });
+  let maintaining = false;
+  const maintenance = setInterval(() => {
+    if (maintaining) return;
+    maintaining = true;
+    void checks
+      .maintain()
+      .catch(() =>
+        console.error(JSON.stringify({ code: "lifecycle-maintenance-failed" })),
+      )
+      .finally(() => {
+        maintaining = false;
+      });
+  }, 1000);
   const app = createApp({
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     events,
     heartbeatMs: config.sseHeartbeatMs,
     referenceLimit: config.referenceLimit,
     entitlements: standaloneEntitlements,
-    checks: createCheckStore(db, boss),
+    checks,
   });
   if (website) {
     // The website only answers what the API does not own (ADR-0020).
@@ -49,6 +68,7 @@ await runMain(async (config) => {
   );
 
   const shutdown = () => {
+    clearInterval(maintenance);
     server.close();
     void Promise.all([boss.stop(), events.close(), db.$disconnect()]).finally(
       () => process.exit(0),

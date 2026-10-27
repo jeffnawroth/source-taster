@@ -35,6 +35,25 @@
             "type": "integer",
             "minimum": 0
           },
+          "lastEventCursor": {
+            "type": "string"
+          },
+          "leaseRenewAfterMs": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "endReason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "completed",
+              "cancelled",
+              "lease-expired",
+              null
+            ]
+          },
           "references": {
             "type": "array",
             "items": {
@@ -46,6 +65,9 @@
           "id",
           "state",
           "lastEventSeq",
+          "lastEventCursor",
+          "leaseRenewAfterMs",
+          "endReason",
           "references"
         ]
       },
@@ -68,12 +90,23 @@
           },
           "outcome": {
             "$ref": "#/components/schemas/ReferenceOutcome"
+          },
+          "progress": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "checking",
+              "doi.org",
+              "crossref",
+              "ended"
+            ]
           }
         },
         "required": [
           "slot",
           "originalText",
-          "outcome"
+          "outcome",
+          "progress"
         ]
       },
       "ReferenceOutcome": {
@@ -1139,6 +1172,142 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/checks/{checkId}/cancel": {
+      "post": {
+        "summary": "Idempotently cancel a whole Check, retaining finished Verdicts",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative snapshot after cancellation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Check id",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign-in required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not permitted",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/checks/{checkId}/lease": {
+      "post": {
+        "summary": "Renew the whole Check client lease; never revive ended work",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative snapshot; an expired lease ends the Check",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Check id",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign-in required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not permitted",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/checks": {
       "post": {
         "summary": "Start a Check from pasted or explicitly structured References",
@@ -1227,7 +1396,7 @@
     "/v1/checks/{checkId}/events": {
       "get": {
         "summary": "Stream Check events (Server-Sent Events)",
-        "description": "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. Send `Last-Event-ID` to receive only events after that sequence. The stream closes after the event that ends the Check.",
+        "description": "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. Send the Check-bound `Last-Event-ID` cursor to receive only later events. The stream closes after the event that ends the Check.",
         "parameters": [
           {
             "schema": {

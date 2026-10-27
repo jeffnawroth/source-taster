@@ -115,5 +115,15 @@
   "field_missing_reference": "Missing from the Reference; not scored.",
   "field_missing_candidate": "Missing from the Candidate; not scored.",
   "field_resource_limit": "A comparison resource limit was reached; the field was not scored.",
-  "reason_url_incomplete": "The supplied URL requires verification that is not available in this DOI preview."
+  "reason_url_incomplete": "The supplied URL requires verification that is not available in this DOI preview.",
+  "check_cancel": "Cancel Check",
+  "check_cancelling": "Cancelling…",
+  "check_reset": "Reset",
+  "check_progress": "{completed} of {total} References finished",
+  "check_progress_label": "Overall Check progress",
+  "reference_queued": "Waiting to start",
+  "reference_checking": "Checking Reference",
+  "reference_source": "Checking with {source}",
+  "check_lease_expired": "The connection was not renewed in time. Finished Verdicts are kept; unfinished References were cancelled.",
+  "check_cleanup_pending": "Cancellation could not be confirmed. This workspace has stopped renewing its connection. Another active workspace may keep the Check running."
 }

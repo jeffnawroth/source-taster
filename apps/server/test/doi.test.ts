@@ -66,7 +66,11 @@ it("streams and persists a Correct DOI result with independent resolution, raw C
   expect(events).toContainEqual(
     matching({
       type: "reference.updated",
-      reference: { slot: 1, outcome: snapshot.references[0]!.outcome },
+      reference: {
+        slot: 1,
+        outcome: snapshot.references[0]!.outcome,
+        progress: "ended",
+      },
     }),
   );
 });

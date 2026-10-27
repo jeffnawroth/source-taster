@@ -91,6 +91,8 @@ export function verificationClient(options = {}) {
     }
     return {
         createCheck: async (input) => (await post("/v1/checks", typeof input === "string" ? { text: input } : input, CheckResponse)).data,
+        cancelCheck: async (checkId) => (await post(`/v1/checks/${encodeURIComponent(checkId)}/cancel`, undefined, CheckResponse)).data,
+        renewCheckLease: async (checkId) => (await post(`/v1/checks/${encodeURIComponent(checkId)}/lease`, undefined, CheckResponse)).data,
         getCheck: async (checkId) => {
             const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`, {
                 headers: options.client
@@ -120,7 +122,7 @@ export async function watchCheckEvents(checkId, options) {
         try {
             const headers = { accept: "text/event-stream" };
             if (lastSeq > 0)
-                headers["last-event-id"] = String(lastSeq);
+                headers["last-event-id"] = `${checkId}:${lastSeq}`;
             const response = await doFetch(url, { headers, signal: options.signal });
             if (response.status >= 400 && response.status < 500) {
                 const body = await response.json().catch(() => undefined);
@@ -130,8 +132,13 @@ export async function watchCheckEvents(checkId, options) {
             if (response.ok && response.body) {
                 for await (const frame of readSseFrames(response.body)) {
                     const event = CheckEvent.parse(JSON.parse(frame.data));
+                    if (event.checkId !== checkId ||
+                        frame.id !== `${checkId}:${event.seq}`)
+                        throw new SyntaxError("Invalid Check event cursor");
                     if (event.seq <= lastSeq)
                         continue;
+                    if (event.seq !== lastSeq + 1)
+                        throw new SyntaxError("Check event sequence gap");
                     lastSeq = event.seq;
                     options.onEvent(event);
                     if (isFinalEvent(event))

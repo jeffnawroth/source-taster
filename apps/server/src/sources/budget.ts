@@ -6,28 +6,24 @@ import type { Db } from "../db/prisma.ts";
 import type { SourceBudget } from "./doi.ts";
 // Shared across workers: separate Crossref single/search pacing and a common
 // provider public-pool one-request ceiling (below ADR polite-pool maxima). No accumulated bursts. Retry-After blocks all workers.
-export function sourceBudget(db: Db, signal?: AbortSignal): SourceBudget {
+export function sourceBudget(
+  db: Db,
+  signal?: AbortSignal,
+  clock: { now(): number } = { now: Date.now },
+): SourceBudget {
   return {
     defer: async (source, delayMs) => {
       await db.$executeRaw`UPDATE verification.source_rates SET next_at=GREATEST(next_at,clock_timestamp()+${delayMs}*interval '1 millisecond') WHERE source=${source}`;
     },
     acquire: async (source, operation, deadline) => {
       const key = `${source}:${operation}`;
-      while (Date.now() < deadline) {
+      while (clock.now() < deadline) {
         signal?.throwIfAborted();
         const id = randomUUID();
         const acquired = await db.$transaction(async (tx) => {
-          await tx.sourceRate.upsert({
-            where: { source },
-            create: { source },
-            update: {},
-          });
+          await tx.$executeRaw`INSERT INTO verification.source_rates(source) VALUES (${source}) ON CONFLICT DO NOTHING`;
           await tx.$queryRaw`SELECT source FROM verification.source_rates WHERE source=${source} FOR UPDATE`;
-          await tx.sourceRate.upsert({
-            where: { source: key },
-            create: { source: key },
-            update: {},
-          });
+          await tx.$executeRaw`INSERT INTO verification.source_rates(source) VALUES (${key}) ON CONFLICT DO NOTHING`;
           const [clock] = await tx.$queryRaw<
             { now: Date }[]
           >`SELECT clock_timestamp() AS now`;
@@ -69,7 +65,7 @@ export function sourceBudget(db: Db, signal?: AbortSignal): SourceBudget {
             await db.sourceRequest.deleteMany({ where: { id } });
           };
         await setTimeout(
-          Math.min(25, Math.max(1, deadline - Date.now())),
+          Math.min(25, Math.max(1, deadline - clock.now())),
           undefined,
           { signal },
         );
