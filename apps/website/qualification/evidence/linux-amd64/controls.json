@@ -1,0 +1,27 @@
+{
+  "target": "x86_64-unknown-linux-gnu",
+  "recipeSha256": "f4bc41eca69ae79176b345c79429cb34d94067196f748f799d1a53f92486731d",
+  "results": [
+    "Verified controlled Pagefind",
+    "Controlled Pagefind artifact changed",
+    "Pinned source/tool changed",
+    "Pinned source/tool changed",
+    "Refused uncontrolled executable",
+    "Refused uncontrolled native module",
+    "OSV scan failed",
+    "JSON",
+    "Incomplete OSV",
+    "Incomplete OSV source inventory",
+    "Actual selected dependency advisory found",
+    "OSV database missing, empty or stale",
+    "Delivered hash-bound browser source/notice package",
+    "Source delivery is reproducible from identical inputs",
+    "Source checksum mismatch",
+    "Delivered source reproduces all three shipped WASM objects"
+  ],
+  "wasm": {
+    "unknown": "ebf32682015db72b01d89f0086200ca1875fcc39b28c5c17e87b454619b0d61a",
+    "de": "771d894c109e4aa8be202502250221018407c3d3e35fd88f6831ccd224f2dc6c",
+    "en": "51ab921ea018c3590d22b72372347b2a9c88ac5da7d4c563e6c8d93dbea68721"
+  }
+}

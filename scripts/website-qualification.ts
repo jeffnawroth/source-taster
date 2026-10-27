@@ -184,6 +184,15 @@ await writeFile(resolve(work, "selected/Cargo.lock"), scanLock);
 const artifact = await json<WebsiteArtifact>(
   resolve(root, "apps/website/dist-preview/website-artifact.json"),
 );
+for (const [path, expected] of Object.entries(artifact.files)) {
+  if (
+    path.startsWith("/") ||
+    path.includes("..") ||
+    hash(await readFile(resolve(root, "apps/website/dist-preview", path))) !==
+      expected
+  )
+    throw new Error(`Website artifact changed: ${path}`);
+}
 if (
   artifact.controlledBuild?.receiptSha256 !==
     hash(await readFile(resolve(work, "receipt.json"))) ||
@@ -215,31 +224,27 @@ if (
   ) !== manifest.source.sha256
 )
   throw new Error("Source delivery drift");
-const installedNative = [];
-for (const directory of await readdir(resolve(root, "node_modules/.pnpm"))) {
-  const scope = directory.match(
-    /^@(astrojs|bruits|rolldown)\+(?:compiler-binding|satteri|binding)-/,
-  )?.[1];
-  if (!scope) continue;
-  const parts = resolve(
-    root,
-    "node_modules/.pnpm",
-    directory,
-    "node_modules",
-    `@${scope}`,
-  );
-  for (const pkg of await readdir(parts)) {
-    const folder = resolve(parts, pkg);
-    for (const name of await readdir(folder))
-      if (name.endsWith(".node"))
-        installedNative.push({
-          path: relative(root, resolve(folder, name)),
-          sha256: hash(await readFile(resolve(folder, name))),
-          execution:
-            "installed prebuilt binary; the guarded website build redirects it to the controlled source build or refuses it",
-        });
+const installedNative: { path: string; sha256: string; execution: string }[] =
+  [];
+async function inventoryInstalledNative(directory: string) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name);
+    // pnpm's physical packages contain the host bindings. Do not follow its
+    // package-link graph (or count one linked file repeatedly).
+    if (entry.isDirectory()) await inventoryInstalledNative(path);
+    else if (entry.isFile() && entry.name.endsWith(".node"))
+      installedNative.push({
+        path: relative(root, path),
+        sha256: hash(await readFile(path)),
+        execution:
+          "installed publisher Node-API binary; website guard redirects recognized bindings to controlled builds and refuses every other native load",
+      });
   }
 }
+await inventoryInstalledNative(resolve(root, "node_modules/.pnpm"));
+installedNative.sort((a, b) =>
+  a.path < b.path ? -1 : a.path > b.path ? 1 : 0,
+);
 const proof = {
   schemaVersion: 1,
   target: receipt.target,

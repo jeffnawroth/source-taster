@@ -1,0 +1,2716 @@
+rolldown_binding v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_binding)
+├── arcstr v1.2.0
+├── anyhow feature "default"
+│   ├── anyhow v1.0.104
+│   └── anyhow feature "std"
+│       └── anyhow v1.0.104
+├── async-channel feature "default"
+│   ├── async-channel v2.5.0
+│   │   ├── concurrent-queue v2.5.0
+│   │   │   └── crossbeam-utils v0.8.22
+│   │   ├── event-listener-strategy v0.5.4
+│   │   │   ├── event-listener v5.4.2
+│   │   │   │   ├── parking feature "default"
+│   │   │   │   │   └── parking v2.2.1
+│   │   │   │   └── pin-project-lite feature "default"
+│   │   │   │       └── pin-project-lite v0.2.17
+│   │   │   └── pin-project-lite feature "default" (*)
+│   │   ├── futures-core v0.3.34
+│   │   └── pin-project-lite feature "default" (*)
+│   └── async-channel feature "std"
+│       ├── async-channel v2.5.0 (*)
+│       ├── concurrent-queue feature "std"
+│       │   └── concurrent-queue v2.5.0 (*)
+│       └── event-listener-strategy feature "std"
+│           ├── event-listener-strategy v0.5.4 (*)
+│           └── event-listener feature "std"
+│               ├── event-listener v5.4.2 (*)
+│               └── event-listener feature "parking"
+│                   └── event-listener v5.4.2 (*)
+├── dashmap feature "default"
+│   └── dashmap v6.2.1
+│       ├── crossbeam-utils feature "default"
+│       │   ├── crossbeam-utils v0.8.22
+│       │   └── crossbeam-utils feature "std"
+│       │       └── crossbeam-utils v0.8.22
+│       ├── cfg-if feature "default"
+│       │   └── cfg-if v1.0.4
+│       ├── hashbrown feature "raw"
+│       │   └── hashbrown v0.14.5
+│       ├── lock_api feature "default"
+│       │   ├── lock_api v0.4.14
+│       │   │   └── scopeguard v1.2.0
+│       │   └── lock_api feature "atomic_usize"
+│       │       └── lock_api v0.4.14 (*)
+│       ├── once_cell feature "default"
+│       │   ├── once_cell v1.21.4
+│       │   └── once_cell feature "std"
+│       │       ├── once_cell v1.21.4
+│       │       └── once_cell feature "alloc"
+│       │           ├── once_cell v1.21.4
+│       │           └── once_cell feature "race"
+│       │               └── once_cell v1.21.4
+│       └── parking_lot_core feature "default"
+│           └── parking_lot_core v0.9.12
+│               ├── cfg-if feature "default" (*)
+│               ├── libc feature "default"
+│               │   ├── libc v0.2.186
+│               │   └── libc feature "std"
+│               │       └── libc v0.2.186
+│               └── smallvec feature "default"
+│                   └── smallvec v1.16.2
+│                       └── serde v1.0.229
+│                           ├── serde_core feature "result"
+│                           │   └── serde_core v1.0.229
+│                           └── serde_derive feature "default"
+│                               └── serde_derive v1.0.229 (proc-macro)
+│                                   ├── proc-macro2 feature "proc-macro"
+│                                   │   └── proc-macro2 v1.0.107
+│                                   │       └── unicode-ident feature "default"
+│                                   │           └── unicode-ident v1.0.24
+│                                   ├── quote feature "proc-macro"
+│                                   │   ├── quote v1.0.47
+│                                   │   │   └── proc-macro2 v1.0.107 (*)
+│                                   │   └── proc-macro2 feature "proc-macro" (*)
+│                                   ├── syn feature "clone-impls"
+│                                   │   └── syn v3.0.6
+│                                   │       ├── proc-macro2 v1.0.107 (*)
+│                                   │       ├── quote v1.0.47 (*)
+│                                   │       └── unicode-ident feature "default" (*)
+│                                   ├── syn feature "derive"
+│                                   │   └── syn v3.0.6 (*)
+│                                   ├── syn feature "parsing"
+│                                   │   └── syn v3.0.6 (*)
+│                                   ├── syn feature "printing"
+│                                   │   └── syn v3.0.6 (*)
+│                                   └── syn feature "proc-macro"
+│                                       ├── syn v3.0.6 (*)
+│                                       ├── proc-macro2 feature "proc-macro" (*)
+│                                       └── quote feature "proc-macro" (*)
+├── serde feature "default"
+│   ├── serde v1.0.229 (*)
+│   └── serde feature "std"
+│       ├── serde v1.0.229 (*)
+│       └── serde_core feature "std"
+│           └── serde_core v1.0.229
+├── serde feature "derive"
+│   ├── serde v1.0.229 (*)
+│   └── serde feature "serde_derive"
+│       └── serde v1.0.229 (*)
+├── derive_more feature "debug"
+│   ├── derive_more v2.1.1
+│   │   └── derive_more-impl feature "default"
+│   │       └── derive_more-impl v2.1.1 (proc-macro)
+│   │           ├── proc-macro2 feature "default"
+│   │           │   ├── proc-macro2 v1.0.107 (*)
+│   │           │   └── proc-macro2 feature "proc-macro" (*)
+│   │           ├── quote feature "default"
+│   │           │   ├── quote v1.0.47 (*)
+│   │           │   └── quote feature "proc-macro" (*)
+│   │           ├── syn feature "default"
+│   │           │   ├── syn v2.0.119
+│   │           │   │   ├── proc-macro2 v1.0.107 (*)
+│   │           │   │   ├── quote v1.0.47 (*)
+│   │           │   │   └── unicode-ident feature "default" (*)
+│   │           │   ├── syn feature "clone-impls"
+│   │           │   │   └── syn v2.0.119 (*)
+│   │           │   ├── syn feature "derive"
+│   │           │   │   └── syn v2.0.119 (*)
+│   │           │   ├── syn feature "parsing"
+│   │           │   │   └── syn v2.0.119 (*)
+│   │           │   ├── syn feature "printing"
+│   │           │   │   └── syn v2.0.119 (*)
+│   │           │   └── syn feature "proc-macro"
+│   │           │       ├── syn v2.0.119 (*)
+│   │           │       ├── proc-macro2 feature "proc-macro" (*)
+│   │           │       └── quote feature "proc-macro" (*)
+│   │           └── unicode-xid feature "default"
+│   │               └── unicode-xid v0.2.6
+│   │           [build-dependencies]
+│   │           └── rustc_version feature "default"
+│   │               └── rustc_version v0.4.1
+│   │                   └── semver feature "default"
+│   │                       ├── semver v1.0.28
+│   │                       └── semver feature "std"
+│   │                           └── semver v1.0.28
+│   └── derive_more-impl feature "debug"
+│       ├── derive_more-impl v2.1.1 (proc-macro) (*)
+│       └── syn feature "extra-traits"
+│           └── syn v2.0.119 (*)
+├── derive_more feature "default"
+│   ├── derive_more v2.1.1 (*)
+│   └── derive_more feature "std"
+│       └── derive_more v2.1.1 (*)
+├── futures feature "default"
+│   ├── futures v0.3.34
+│   │   ├── futures-core v0.3.34
+│   │   ├── futures-executor v0.3.34
+│   │   │   ├── futures-core v0.3.34
+│   │   │   ├── futures-task v0.3.34
+│   │   │   └── futures-util v0.3.34
+│   │   │       ├── futures-core v0.3.34
+│   │   │       ├── futures-macro v0.3.34 (proc-macro)
+│   │   │       │   ├── proc-macro2 feature "default" (*)
+│   │   │       │   ├── quote feature "default" (*)
+│   │   │       │   ├── syn feature "default"
+│   │   │       │   │   ├── syn v3.0.6 (*)
+│   │   │       │   │   ├── syn feature "clone-impls" (*)
+│   │   │       │   │   ├── syn feature "derive" (*)
+│   │   │       │   │   ├── syn feature "parsing" (*)
+│   │   │       │   │   ├── syn feature "printing" (*)
+│   │   │       │   │   └── syn feature "proc-macro" (*)
+│   │   │       │   └── syn feature "full"
+│   │   │       │       └── syn v3.0.6 (*)
+│   │   │       ├── futures-sink v0.3.34
+│   │   │       ├── futures-task v0.3.34
+│   │   │       ├── slab v0.4.12
+│   │   │       ├── pin-project-lite feature "default" (*)
+│   │   │       ├── futures-channel feature "std"
+│   │   │       │   ├── futures-channel v0.3.34
+│   │   │       │   │   ├── futures-core v0.3.34
+│   │   │       │   │   └── futures-sink v0.3.34
+│   │   │       │   ├── futures-core feature "std"
+│   │   │       │   │   ├── futures-core v0.3.34
+│   │   │       │   │   └── futures-core feature "alloc"
+│   │   │       │   │       └── futures-core v0.3.34
+│   │   │       │   └── futures-channel feature "alloc"
+│   │   │       │       ├── futures-channel v0.3.34 (*)
+│   │   │       │       └── futures-core feature "alloc" (*)
+│   │   │       ├── futures-io feature "std"
+│   │   │       │   └── futures-io v0.3.34
+│   │   │       └── memchr feature "default"
+│   │   │           ├── memchr v2.8.3
+│   │   │           └── memchr feature "std"
+│   │   │               ├── memchr v2.8.3
+│   │   │               └── memchr feature "alloc"
+│   │   │                   └── memchr v2.8.3
+│   │   ├── futures-io v0.3.34
+│   │   ├── futures-sink v0.3.34
+│   │   ├── futures-task v0.3.34
+│   │   ├── futures-channel feature "sink"
+│   │   │   ├── futures-channel v0.3.34 (*)
+│   │   │   └── futures-channel feature "futures-sink"
+│   │   │       └── futures-channel v0.3.34 (*)
+│   │   └── futures-util feature "sink"
+│   │       ├── futures-util v0.3.34 (*)
+│   │       └── futures-util feature "futures-sink"
+│   │           └── futures-util v0.3.34 (*)
+│   ├── futures feature "async-await"
+│   │   ├── futures v0.3.34 (*)
+│   │   ├── futures-util feature "async-await"
+│   │   │   └── futures-util v0.3.34 (*)
+│   │   └── futures-util feature "async-await-macro"
+│   │       ├── futures-util v0.3.34 (*)
+│   │       ├── futures-util feature "async-await" (*)
+│   │       └── futures-util feature "futures-macro"
+│   │           └── futures-util v0.3.34 (*)
+│   ├── futures feature "executor"
+│   │   ├── futures v0.3.34 (*)
+│   │   ├── futures feature "futures-executor"
+│   │   │   └── futures v0.3.34 (*)
+│   │   ├── futures feature "std"
+│   │   │   ├── futures v0.3.34 (*)
+│   │   │   ├── futures-core feature "std" (*)
+│   │   │   ├── futures feature "alloc"
+│   │   │   │   ├── futures v0.3.34 (*)
+│   │   │   │   ├── futures-core feature "alloc" (*)
+│   │   │   │   ├── futures-channel feature "alloc" (*)
+│   │   │   │   ├── futures-sink feature "alloc"
+│   │   │   │   │   └── futures-sink v0.3.34
+│   │   │   │   ├── futures-task feature "alloc"
+│   │   │   │   │   └── futures-task v0.3.34
+│   │   │   │   └── futures-util feature "alloc"
+│   │   │   │       ├── futures-util v0.3.34 (*)
+│   │   │   │       ├── futures-core feature "alloc" (*)
+│   │   │   │       ├── futures-task feature "alloc" (*)
+│   │   │   │       └── futures-util feature "slab"
+│   │   │   │           └── futures-util v0.3.34 (*)
+│   │   │   ├── futures-sink feature "std"
+│   │   │   │   ├── futures-sink v0.3.34
+│   │   │   │   └── futures-sink feature "alloc" (*)
+│   │   │   ├── futures-task feature "std"
+│   │   │   │   ├── futures-task v0.3.34
+│   │   │   │   └── futures-task feature "alloc" (*)
+│   │   │   ├── futures-util feature "channel"
+│   │   │   │   ├── futures-util v0.3.34 (*)
+│   │   │   │   ├── futures-util feature "futures-channel"
+│   │   │   │   │   └── futures-util v0.3.34 (*)
+│   │   │   │   └── futures-util feature "std"
+│   │   │   │       ├── futures-util v0.3.34 (*)
+│   │   │   │       ├── futures-core feature "std" (*)
+│   │   │   │       ├── futures-task feature "std" (*)
+│   │   │   │       ├── futures-util feature "alloc" (*)
+│   │   │   │       ├── futures-util feature "slab" (*)
+│   │   │   │       └── slab feature "std"
+│   │   │   │           └── slab v0.4.12
+│   │   │   ├── futures-util feature "io"
+│   │   │   │   ├── futures-util v0.3.34 (*)
+│   │   │   │   ├── futures-util feature "futures-io"
+│   │   │   │   │   └── futures-util v0.3.34 (*)
+│   │   │   │   ├── futures-util feature "memchr"
+│   │   │   │   │   └── futures-util v0.3.34 (*)
+│   │   │   │   └── futures-util feature "std" (*)
+│   │   │   ├── futures-util feature "std" (*)
+│   │   │   └── futures-io feature "std" (*)
+│   │   └── futures-executor feature "std"
+│   │       ├── futures-executor v0.3.34 (*)
+│   │       ├── futures-core feature "std" (*)
+│   │       ├── futures-task feature "std" (*)
+│   │       └── futures-util feature "std" (*)
+│   └── futures feature "std" (*)
+├── indexmap feature "default"
+│   ├── indexmap v2.14.2
+│   │   ├── equivalent v1.0.2
+│   │   ├── hashbrown v0.17.1
+│   │   │   └── allocator-api2 feature "alloc"
+│   │   │       └── allocator-api2 v0.2.21
+│   │   └── serde_core v1.0.229
+│   └── indexmap feature "std"
+│       └── indexmap v2.14.2 (*)
+├── itertools feature "default"
+│   ├── itertools v0.15.0
+│   │   └── either v1.16.0
+│   └── itertools feature "use_std"
+│       ├── itertools v0.15.0 (*)
+│       ├── itertools feature "use_alloc"
+│       │   └── itertools v0.15.0 (*)
+│       └── either feature "use_std"
+│           ├── either v1.16.0
+│           └── either feature "std"
+│               └── either v1.16.0
+├── mimalloc-safe feature "default"
+│   └── mimalloc-safe v0.1.67
+│       └── libmimalloc-sys2 v0.1.63
+│           └── libc feature "default" (*)
+│           [build-dependencies]
+│           ├── cc feature "default"
+│           │   └── cc v1.3.0
+│           │       ├── find-msvc-tools feature "default"
+│           │       │   └── find-msvc-tools v0.1.9
+│           │       └── shlex feature "default"
+│           │           ├── shlex v2.0.1
+│           │           └── shlex feature "std"
+│           │               └── shlex v2.0.1
+│           └── cmake feature "default"
+│               └── cmake v0.1.58
+│                   └── cc feature "default" (*)
+├── mimalloc-safe feature "local_dynamic_tls"
+│   ├── mimalloc-safe v0.1.67 (*)
+│   └── libmimalloc-sys2 feature "local_dynamic_tls"
+│       └── libmimalloc-sys2 v0.1.63 (*)
+├── mimalloc-safe feature "skip_collect_on_exit"
+│   ├── mimalloc-safe v0.1.67 (*)
+│   └── libmimalloc-sys2 feature "skip_collect_on_exit"
+│       └── libmimalloc-sys2 v0.1.63 (*)
+├── mimalloc-safe feature "v3"
+│   ├── mimalloc-safe v0.1.67 (*)
+│   └── libmimalloc-sys2 feature "v3"
+│       └── libmimalloc-sys2 v0.1.63 (*)
+├── napi feature "anyhow"
+│   └── napi v3.14.2
+│       ├── ctor v1.0.9
+│       ├── napi-sys v3.4.0
+│       │   └── libloading feature "default"
+│       │       ├── libloading v0.9.0
+│       │       │   └── cfg-if feature "default" (*)
+│       │       └── libloading feature "std"
+│       │           └── libloading v0.9.0 (*)
+│       ├── anyhow feature "default" (*)
+│       ├── libc feature "default" (*)
+│       ├── serde feature "default" (*)
+│       ├── futures feature "default" (*)
+│       ├── indexmap feature "default" (*)
+│       ├── bitflags feature "default"
+│       │   └── bitflags v2.13.2
+│       │       └── serde_core v1.0.229
+│       ├── nohash-hasher feature "default"
+│       │   ├── nohash-hasher v0.2.0
+│       │   └── nohash-hasher feature "std"
+│       │       └── nohash-hasher v0.2.0
+│       ├── rustc-hash feature "default"
+│       │   ├── rustc-hash v2.1.3
+│       │   └── rustc-hash feature "std"
+│       │       └── rustc-hash v2.1.3
+│       ├── serde_json feature "default"
+│       │   ├── serde_json v1.0.151
+│       │   │   ├── memchr v2.8.3
+│       │   │   ├── serde_core v1.0.229
+│       │   │   ├── indexmap feature "default" (*)
+│       │   │   ├── itoa feature "default"
+│       │   │   │   └── itoa v1.0.18
+│       │   │   └── zmij feature "default"
+│       │   │       └── zmij v1.0.23
+│       │   └── serde_json feature "std"
+│       │       ├── serde_json v1.0.151 (*)
+│       │       ├── serde_core feature "std" (*)
+│       │       └── memchr feature "std" (*)
+│       ├── tokio feature "default"
+│       │   └── tokio v1.53.3
+│       │       ├── pin-project-lite feature "default" (*)
+│       │       └── tokio-macros feature "default"
+│       │           └── tokio-macros v2.7.1 (proc-macro)
+│       │               ├── proc-macro2 feature "default" (*)
+│       │               ├── quote feature "default" (*)
+│       │               ├── syn feature "default" (*)
+│       │               └── syn feature "full"
+│       │                   └── syn v2.0.119 (*)
+│       ├── tokio feature "rt"
+│       │   └── tokio v1.53.3 (*)
+│       ├── tokio feature "rt-multi-thread"
+│       │   ├── tokio v1.53.3 (*)
+│       │   └── tokio feature "rt" (*)
+│       ├── tokio feature "sync"
+│       │   └── tokio v1.53.3 (*)
+│       └── tracing feature "default"
+│           ├── tracing v0.1.44
+│           │   ├── tracing-core v0.1.36
+│           │   │   └── once_cell feature "default" (*)
+│           │   ├── pin-project-lite feature "default" (*)
+│           │   └── tracing-attributes feature "default"
+│           │       └── tracing-attributes v0.1.31 (proc-macro)
+│           │           ├── proc-macro2 feature "default" (*)
+│           │           ├── quote feature "default" (*)
+│           │           ├── syn feature "clone-impls" (*)
+│           │           ├── syn feature "extra-traits" (*)
+│           │           ├── syn feature "full" (*)
+│           │           ├── syn feature "parsing" (*)
+│           │           ├── syn feature "printing" (*)
+│           │           ├── syn feature "proc-macro" (*)
+│           │           └── syn feature "visit-mut"
+│           │               └── syn v2.0.119 (*)
+│           ├── tracing feature "attributes"
+│           │   ├── tracing v0.1.44 (*)
+│           │   └── tracing feature "tracing-attributes"
+│           │       └── tracing v0.1.44 (*)
+│           └── tracing feature "std"
+│               ├── tracing v0.1.44 (*)
+│               └── tracing-core feature "std"
+│                   ├── tracing-core v0.1.36 (*)
+│                   └── tracing-core feature "once_cell"
+│                       └── tracing-core v0.1.36 (*)
+│       [build-dependencies]
+│       ├── napi-build feature "default"
+│       │   └── napi-build v2.6.0
+│       └── napi-build feature "wasi-heap-sync"
+│           └── napi-build v2.6.0
+├── napi feature "async"
+│   ├── napi v3.14.2 (*)
+│   └── napi feature "tokio_rt"
+│       ├── napi v3.14.2 (*)
+│       ├── napi feature "napi4"
+│       │   ├── napi v3.14.2 (*)
+│       │   ├── napi feature "napi3"
+│       │   │   ├── napi v3.14.2 (*)
+│       │   │   ├── napi feature "napi2"
+│       │   │   │   ├── napi v3.14.2 (*)
+│       │   │   │   ├── napi feature "napi1"
+│       │   │   │   │   └── napi v3.14.2 (*)
+│       │   │   │   └── napi-sys feature "napi2"
+│       │   │   │       ├── napi-sys v3.4.0 (*)
+│       │   │   │       └── napi-sys feature "napi1"
+│       │   │   │           └── napi-sys v3.4.0 (*)
+│       │   │   └── napi-sys feature "napi3"
+│       │   │       ├── napi-sys v3.4.0 (*)
+│       │   │       └── napi-sys feature "napi2" (*)
+│       │   └── napi-sys feature "napi4"
+│       │       ├── napi-sys v3.4.0 (*)
+│       │       └── napi-sys feature "napi3" (*)
+│       └── napi feature "tokio"
+│           └── napi v3.14.2 (*)
+├── napi feature "default"
+│   ├── napi v3.14.2 (*)
+│   ├── napi feature "dyn-symbols"
+│   │   ├── napi v3.14.2 (*)
+│   │   └── napi-sys feature "dyn-symbols"
+│   │       └── napi-sys v3.4.0 (*)
+│   └── napi feature "napi4" (*)
+├── napi feature "object_indexmap"
+│   ├── napi v3.14.2 (*)
+│   └── napi feature "indexmap"
+│       └── napi v3.14.2 (*)
+├── napi feature "tracing"
+│   └── napi v3.14.2 (*)
+├── rustc-hash feature "default" (*)
+├── serde_json feature "default" (*)
+├── tracing feature "default" (*)
+├── napi-derive feature "tracing"
+│   ├── napi-derive v3.6.12 (proc-macro)
+│   │   ├── ctor v1.0.9
+│   │   ├── proc-macro2 feature "default" (*)
+│   │   ├── quote feature "default" (*)
+│   │   ├── syn feature "default" (*)
+│   │   ├── syn feature "extra-traits"
+│   │   │   └── syn v3.0.6 (*)
+│   │   ├── syn feature "fold"
+│   │   │   └── syn v3.0.6 (*)
+│   │   ├── syn feature "full" (*)
+│   │   ├── convert_case feature "default"
+│   │   │   └── convert_case v0.12.0
+│   │   │       └── unicode-segmentation feature "default"
+│   │   │           └── unicode-segmentation v1.13.3
+│   │   └── napi-derive-backend feature "default"
+│   │       └── napi-derive-backend v6.1.5
+│   │           ├── proc-macro2 feature "default" (*)
+│   │           ├── quote feature "default" (*)
+│   │           ├── syn feature "default" (*)
+│   │           ├── syn feature "extra-traits" (*)
+│   │           ├── syn feature "fold" (*)
+│   │           ├── syn feature "full" (*)
+│   │           ├── semver feature "default" (*)
+│   │           └── convert_case feature "default" (*)
+│   └── napi-derive-backend feature "tracing"
+│       └── napi-derive-backend v6.1.5 (*)
+├── napi-derive feature "type-def"
+│   ├── napi-derive v3.6.12 (proc-macro) (*)
+│   ├── napi-derive feature "ctor"
+│   │   └── napi-derive v3.6.12 (proc-macro) (*)
+│   └── napi-derive-backend feature "type-def"
+│       ├── napi-derive-backend v6.1.5 (*)
+│       └── napi-derive-backend feature "semver"
+│           └── napi-derive-backend v6.1.5 (*)
+├── num_cpus feature "default"
+│   └── num_cpus v1.17.0
+│       └── libc feature "default" (*)
+├── oxc feature "ast_visit"
+│   ├── oxc v0.155.0
+│   │   ├── oxc_codegen v0.155.0
+│   │   │   ├── smallvec feature "default" (*)
+│   │   │   ├── smallvec feature "serde"
+│   │   │   │   └── smallvec v1.16.2 (*)
+│   │   │   ├── smallvec feature "union"
+│   │   │   │   └── smallvec v1.16.2 (*)
+│   │   │   ├── bitflags feature "default" (*)
+│   │   │   ├── rustc-hash feature "default" (*)
+│   │   │   ├── oxc_allocator feature "default"
+│   │   │   │   └── oxc_allocator v0.155.0
+│   │   │   │       ├── serde feature "default" (*)
+│   │   │   │       ├── hashbrown feature "allocator-api2"
+│   │   │   │       │   └── hashbrown v0.17.1 (*)
+│   │   │   │       ├── hashbrown feature "inline-more"
+│   │   │   │       │   └── hashbrown v0.17.1 (*)
+│   │   │   │       ├── allocator-api2 feature "default"
+│   │   │   │       │   ├── allocator-api2 v0.2.21
+│   │   │   │       │   └── allocator-api2 feature "std"
+│   │   │   │       │       ├── allocator-api2 v0.2.21
+│   │   │   │       │       └── allocator-api2 feature "alloc" (*)
+│   │   │   │       ├── rustc-hash feature "default" (*)
+│   │   │   │       ├── oxc_data_structures feature "assert_unchecked"
+│   │   │   │       │   └── oxc_data_structures v0.155.0
+│   │   │   │       │       └── ropey feature "default"
+│   │   │   │       │           ├── ropey v1.6.1
+│   │   │   │       │           │   ├── str_indices v0.4.4
+│   │   │   │       │           │   └── smallvec feature "default" (*)
+│   │   │   │       │           ├── ropey feature "simd"
+│   │   │   │       │           │   ├── ropey v1.6.1 (*)
+│   │   │   │       │           │   └── str_indices feature "simd"
+│   │   │   │       │           │       └── str_indices v0.4.4
+│   │   │   │       │           └── ropey feature "unicode_lines"
+│   │   │   │       │               ├── ropey v1.6.1 (*)
+│   │   │   │       │               └── ropey feature "cr_lines"
+│   │   │   │       │                   └── ropey v1.6.1 (*)
+│   │   │   │       ├── oxc_data_structures feature "default"
+│   │   │   │       │   └── oxc_data_structures v0.155.0 (*)
+│   │   │   │       ├── oxc_data_structures feature "stack"
+│   │   │   │       │   └── oxc_data_structures v0.155.0 (*)
+│   │   │   │       └── oxc_estree feature "default"
+│   │   │   │           └── oxc_estree v0.155.0
+│   │   │   │               ├── itoa feature "default" (*)
+│   │   │   │               ├── oxc_data_structures feature "code_buffer"
+│   │   │   │               │   ├── oxc_data_structures v0.155.0 (*)
+│   │   │   │               │   └── oxc_data_structures feature "assert_unchecked" (*)
+│   │   │   │               ├── oxc_data_structures feature "default" (*)
+│   │   │   │               ├── oxc_data_structures feature "slice_iter"
+│   │   │   │               │   ├── oxc_data_structures v0.155.0 (*)
+│   │   │   │               │   └── oxc_data_structures feature "assert_unchecked" (*)
+│   │   │   │               ├── oxc_data_structures feature "stack" (*)
+│   │   │   │               └── dragonbox_ecma feature "default"
+│   │   │   │                   ├── dragonbox_ecma v0.1.12
+│   │   │   │                   └── dragonbox_ecma feature "ecma"
+│   │   │   │                       └── dragonbox_ecma v0.1.12
+│   │   │   ├── oxc_data_structures feature "code_buffer" (*)
+│   │   │   ├── oxc_data_structures feature "default" (*)
+│   │   │   ├── oxc_data_structures feature "slice_iter" (*)
+│   │   │   ├── oxc_data_structures feature "stack" (*)
+│   │   │   ├── oxc_ast feature "default"
+│   │   │   │   └── oxc_ast v0.155.0
+│   │   │   │       ├── bitflags feature "default" (*)
+│   │   │   │       ├── oxc_allocator feature "default" (*)
+│   │   │   │       ├── oxc_data_structures feature "default" (*)
+│   │   │   │       ├── oxc_data_structures feature "inline_string"
+│   │   │   │       │   ├── oxc_data_structures v0.155.0 (*)
+│   │   │   │       │   └── oxc_data_structures feature "assert_unchecked" (*)
+│   │   │   │       ├── oxc_estree feature "default" (*)
+│   │   │   │       ├── oxc_ast_macros feature "default"
+│   │   │   │       │   └── oxc_ast_macros v0.155.0 (proc-macro)
+│   │   │   │       │       ├── proc-macro2 feature "default" (*)
+│   │   │   │       │       ├── quote feature "default" (*)
+│   │   │   │       │       ├── syn feature "clone-impls" (*)
+│   │   │   │       │       ├── syn feature "full" (*)
+│   │   │   │       │       ├── syn feature "parsing" (*)
+│   │   │   │       │       ├── syn feature "printing" (*)
+│   │   │   │       │       ├── syn feature "proc-macro" (*)
+│   │   │   │       │       └── phf feature "default"
+│   │   │   │       │           ├── phf v0.14.0
+│   │   │   │       │           │   └── phf_shared v0.14.0
+│   │   │   │       │           │       └── siphasher feature "default"
+│   │   │   │       │           │           ├── siphasher v1.0.3
+│   │   │   │       │           │           └── siphasher feature "std"
+│   │   │   │       │           │               └── siphasher v1.0.3
+│   │   │   │       │           └── phf feature "std"
+│   │   │   │       │               ├── phf v0.14.0 (*)
+│   │   │   │       │               └── phf_shared feature "std"
+│   │   │   │       │                   └── phf_shared v0.14.0 (*)
+│   │   │   │       ├── oxc_diagnostics feature "default"
+│   │   │   │       │   └── oxc_diagnostics v0.155.0
+│   │   │   │       │       ├── smallvec feature "default" (*)
+│   │   │   │       │       ├── smallvec feature "serde" (*)
+│   │   │   │       │       ├── smallvec feature "union" (*)
+│   │   │   │       │       ├── memchr feature "default" (*)
+│   │   │   │       │       ├── itoa feature "default" (*)
+│   │   │   │       │       ├── bytecount feature "default"
+│   │   │   │       │       │   └── bytecount v0.6.9
+│   │   │   │       │       ├── cow-utils feature "default"
+│   │   │   │       │       │   └── cow-utils v0.1.3
+│   │   │   │       │       ├── oxc_span feature "default"
+│   │   │   │       │       │   └── oxc_span v0.155.0
+│   │   │   │       │       │       ├── serde feature "default" (*)
+│   │   │   │       │       │       ├── oxc_allocator feature "default" (*)
+│   │   │   │       │       │       ├── oxc_estree feature "default" (*)
+│   │   │   │       │       │       ├── oxc_ast_macros feature "default" (*)
+│   │   │   │       │       │       ├── compact_str feature "default"
+│   │   │   │       │       │       │   ├── compact_str v0.10.0
+│   │   │   │       │       │       │   │   ├── cfg-if feature "default" (*)
+│   │   │   │       │       │       │   │   ├── serde feature "alloc"
+│   │   │   │       │       │       │   │   │   ├── serde v1.0.229 (*)
+│   │   │   │       │       │       │   │   │   └── serde_core feature "alloc"
+│   │   │   │       │       │       │   │   │       └── serde_core v1.0.229
+│   │   │   │       │       │       │   │   ├── serde feature "derive" (*)
+│   │   │   │       │       │       │   │   ├── itoa feature "default" (*)
+│   │   │   │       │       │       │   │   ├── zmij feature "default" (*)
+│   │   │   │       │       │       │   │   ├── castaway feature "alloc"
+│   │   │   │       │       │       │   │   │   └── castaway v0.2.4
+│   │   │   │       │       │       │   │   │       └── rustversion feature "default"
+│   │   │   │       │       │       │   │   │           └── rustversion v1.0.23 (proc-macro)
+│   │   │   │       │       │       │   │   └── static_assertions feature "default"
+│   │   │   │       │       │       │   │       └── static_assertions v1.1.0
+│   │   │   │       │       │       │   └── compact_str feature "std"
+│   │   │   │       │       │       │       └── compact_str v0.10.0 (*)
+│   │   │   │       │       │       └── oxc_str feature "default"
+│   │   │   │       │       │           └── oxc_str v0.155.0
+│   │   │   │       │       │               ├── serde feature "default" (*)
+│   │   │   │       │       │               ├── memchr feature "default" (*)
+│   │   │   │       │       │               ├── hashbrown feature "inline-more" (*)
+│   │   │   │       │       │               ├── oxc_allocator feature "default" (*)
+│   │   │   │       │       │               ├── oxc_estree feature "default" (*)
+│   │   │   │       │       │               └── compact_str feature "default" (*)
+│   │   │   │       │       ├── percent-encoding feature "default"
+│   │   │   │       │       │   ├── percent-encoding v2.3.2
+│   │   │   │       │       │   └── percent-encoding feature "std"
+│   │   │   │       │       │       ├── percent-encoding v2.3.2
+│   │   │   │       │       │       └── percent-encoding feature "alloc"
+│   │   │   │       │       │           └── percent-encoding v2.3.2
+│   │   │   │       │       ├── textwrap feature "default"
+│   │   │   │       │       │   ├── textwrap v0.16.2
+│   │   │   │       │       │   │   ├── smawk feature "default"
+│   │   │   │       │       │   │   │   └── smawk v0.3.3
+│   │   │   │       │       │   │   ├── unicode-linebreak feature "default"
+│   │   │   │       │       │   │   │   └── unicode-linebreak v0.1.5
+│   │   │   │       │       │   │   └── unicode-width feature "default"
+│   │   │   │       │       │   │       ├── unicode-width v0.2.2
+│   │   │   │       │       │   │       └── unicode-width feature "cjk"
+│   │   │   │       │       │   │           └── unicode-width v0.2.2
+│   │   │   │       │       │   ├── textwrap feature "smawk"
+│   │   │   │       │       │   │   └── textwrap v0.16.2 (*)
+│   │   │   │       │       │   ├── textwrap feature "unicode-linebreak"
+│   │   │   │       │       │   │   └── textwrap v0.16.2 (*)
+│   │   │   │       │       │   └── textwrap feature "unicode-width"
+│   │   │   │       │       │       └── textwrap v0.16.2 (*)
+│   │   │   │       │       ├── unicode-width feature "default" (*)
+│   │   │   │       │       └── unicode-segmentation feature "default"
+│   │   │   │       │           └── unicode-segmentation v1.13.3
+│   │   │   │       ├── oxc_span feature "default" (*)
+│   │   │   │       ├── oxc_str feature "default" (*)
+│   │   │   │       ├── oxc_regular_expression feature "default"
+│   │   │   │       │   └── oxc_regular_expression v0.155.0
+│   │   │   │       │       ├── bitflags feature "default" (*)
+│   │   │   │       │       ├── rustc-hash feature "default" (*)
+│   │   │   │       │       ├── oxc_allocator feature "default" (*)
+│   │   │   │       │       ├── oxc_ast_macros feature "default" (*)
+│   │   │   │       │       ├── oxc_diagnostics feature "default" (*)
+│   │   │   │       │       ├── oxc_span feature "default" (*)
+│   │   │   │       │       ├── oxc_str feature "default" (*)
+│   │   │   │       │       ├── phf feature "default"
+│   │   │   │       │       │   ├── phf v0.14.0
+│   │   │   │       │       │   │   ├── phf_shared v0.14.0
+│   │   │   │       │       │   │   │   └── siphasher feature "default"
+│   │   │   │       │       │   │   │       ├── siphasher v1.0.3
+│   │   │   │       │       │   │   │       └── siphasher feature "std"
+│   │   │   │       │       │   │   │           └── siphasher v1.0.3
+│   │   │   │       │       │   │   └── phf_macros feature "default"
+│   │   │   │       │       │   │       └── phf_macros v0.14.0 (proc-macro)
+│   │   │   │       │       │   │           ├── phf_shared v0.14.0 (*)
+│   │   │   │       │       │   │           ├── proc-macro2 feature "default" (*)
+│   │   │   │       │       │   │           ├── quote feature "default" (*)
+│   │   │   │       │       │   │           ├── syn feature "default" (*)
+│   │   │   │       │       │   │           ├── syn feature "full" (*)
+│   │   │   │       │       │   │           └── phf_generator feature "default"
+│   │   │   │       │       │   │               └── phf_generator v0.14.0
+│   │   │   │       │       │   │                   ├── fastrand v2.5.0
+│   │   │   │       │       │   │                   └── phf_shared v0.14.0 (*)
+│   │   │   │       │       │   └── phf feature "std"
+│   │   │   │       │       │       ├── phf v0.14.0 (*)
+│   │   │   │       │       │       └── phf_shared feature "std"
+│   │   │   │       │       │           └── phf_shared v0.14.0 (*)
+│   │   │   │       │       ├── phf feature "macros"
+│   │   │   │       │       │   ├── phf v0.14.0 (*)
+│   │   │   │       │       │   └── phf feature "phf_macros"
+│   │   │   │       │       │       └── phf v0.14.0 (*)
+│   │   │   │       │       └── unicode-id-start feature "default"
+│   │   │   │       │           └── unicode-id-start v1.4.0
+│   │   │   │       └── oxc_syntax feature "default"
+│   │   │   │           └── oxc_syntax v0.155.0
+│   │   │   │               ├── serde feature "default" (*)
+│   │   │   │               ├── serde feature "derive" (*)
+│   │   │   │               ├── bitflags feature "default" (*)
+│   │   │   │               ├── oxc_allocator feature "default" (*)
+│   │   │   │               ├── oxc_estree feature "default" (*)
+│   │   │   │               ├── dragonbox_ecma feature "default" (*)
+│   │   │   │               ├── oxc_ast_macros feature "default" (*)
+│   │   │   │               ├── cow-utils feature "default" (*)
+│   │   │   │               ├── oxc_span feature "default" (*)
+│   │   │   │               ├── oxc_str feature "default" (*)
+│   │   │   │               ├── phf feature "default" (*)
+│   │   │   │               ├── phf feature "macros" (*)
+│   │   │   │               ├── unicode-id-start feature "default" (*)
+│   │   │   │               ├── nonmax feature "default"
+│   │   │   │               │   ├── nonmax v0.5.5
+│   │   │   │               │   └── nonmax feature "std"
+│   │   │   │               │       └── nonmax v0.5.5
+│   │   │   │               ├── oxc_index feature "default"
+│   │   │   │               │   └── oxc_index v5.0.0
+│   │   │   │               │       ├── serde feature "default" (*)
+│   │   │   │               │       ├── nonmax feature "default" (*)
+│   │   │   │               │       └── rayon feature "default"
+│   │   │   │               │           └── rayon v1.12.0
+│   │   │   │               │               ├── either v1.16.0
+│   │   │   │               │               └── rayon-core feature "default"
+│   │   │   │               │                   └── rayon-core v1.13.0
+│   │   │   │               │                       ├── crossbeam-utils feature "default" (*)
+│   │   │   │               │                       └── crossbeam-deque feature "default"
+│   │   │   │               │                           ├── crossbeam-deque v0.8.7
+│   │   │   │               │                           │   ├── crossbeam-epoch v0.9.20
+│   │   │   │               │                           │   │   └── crossbeam-utils v0.8.22
+│   │   │   │               │                           │   └── crossbeam-utils v0.8.22
+│   │   │   │               │                           └── crossbeam-deque feature "std"
+│   │   │   │               │                               ├── crossbeam-deque v0.8.7 (*)
+│   │   │   │               │                               ├── crossbeam-utils feature "std" (*)
+│   │   │   │               │                               └── crossbeam-epoch feature "std"
+│   │   │   │               │                                   ├── crossbeam-epoch v0.9.20 (*)
+│   │   │   │               │                                   ├── crossbeam-utils feature "std" (*)
+│   │   │   │               │                                   └── crossbeam-epoch feature "alloc"
+│   │   │   │               │                                       └── crossbeam-epoch v0.9.20 (*)
+│   │   │   │               ├── oxc_index feature "nonmax"
+│   │   │   │               │   └── oxc_index v5.0.0 (*)
+│   │   │   │               └── oxc_index feature "serde"
+│   │   │   │                   └── oxc_index v5.0.0 (*)
+│   │   │   ├── cow-utils feature "default" (*)
+│   │   │   ├── oxc_span feature "default" (*)
+│   │   │   ├── oxc_str feature "default" (*)
+│   │   │   ├── oxc_syntax feature "default" (*)
+│   │   │   ├── oxc_index feature "default" (*)
+│   │   │   ├── oxc_index feature "nonmax" (*)
+│   │   │   ├── oxc_index feature "serde" (*)
+│   │   │   ├── oxc_ecmascript feature "default"
+│   │   │   │   └── oxc_ecmascript v0.155.0
+│   │   │   │       ├── smallvec feature "default" (*)
+│   │   │   │       ├── smallvec feature "serde" (*)
+│   │   │   │       ├── smallvec feature "union" (*)
+│   │   │   │       ├── itoa feature "default" (*)
+│   │   │   │       ├── oxc_allocator feature "default" (*)
+│   │   │   │       ├── oxc_data_structures feature "default" (*)
+│   │   │   │       ├── oxc_data_structures feature "inline_string" (*)
+│   │   │   │       ├── dragonbox_ecma feature "default" (*)
+│   │   │   │       ├── oxc_ast feature "default" (*)
+│   │   │   │       ├── cow-utils feature "default" (*)
+│   │   │   │       ├── oxc_span feature "default" (*)
+│   │   │   │       ├── oxc_str feature "default" (*)
+│   │   │   │       ├── oxc_regular_expression feature "default" (*)
+│   │   │   │       ├── oxc_syntax feature "default" (*)
+│   │   │   │       ├── oxc_syntax feature "to_js_string"
+│   │   │   │       │   └── oxc_syntax v0.155.0 (*)
+│   │   │   │       ├── num-bigint feature "default"
+│   │   │   │       │   ├── num-bigint v0.5.1
+│   │   │   │       │   │   ├── num-integer feature "i128"
+│   │   │   │       │   │   │   └── num-integer v0.1.46
+│   │   │   │       │   │   │       └── num-traits feature "i128"
+│   │   │   │       │   │   │           └── num-traits v0.2.19
+│   │   │   │       │   │   │               [build-dependencies]
+│   │   │   │       │   │   │               └── autocfg feature "default"
+│   │   │   │       │   │   │                   └── autocfg v1.5.1
+│   │   │   │       │   │   └── num-traits feature "i128" (*)
+│   │   │   │       │   └── num-bigint feature "std"
+│   │   │   │       │       ├── num-bigint v0.5.1 (*)
+│   │   │   │       │       ├── num-integer feature "std"
+│   │   │   │       │       │   ├── num-integer v0.1.46 (*)
+│   │   │   │       │       │   └── num-traits feature "std"
+│   │   │   │       │       │       └── num-traits v0.2.19 (*)
+│   │   │   │       │       └── num-traits feature "std" (*)
+│   │   │   │       ├── num-traits feature "default"
+│   │   │   │       │   ├── num-traits v0.2.19 (*)
+│   │   │   │       │   └── num-traits feature "std" (*)
+│   │   │   │       └── oxc_compat feature "default"
+│   │   │   │           └── oxc_compat v0.155.0
+│   │   │   │               ├── serde feature "default" (*)
+│   │   │   │               ├── serde feature "derive" (*)
+│   │   │   │               ├── rustc-hash feature "default" (*)
+│   │   │   │               ├── cow-utils feature "default" (*)
+│   │   │   │               ├── oxc_syntax feature "default" (*)
+│   │   │   │               └── oxc-browserslist feature "default"
+│   │   │   │                   └── oxc-browserslist v5.0.1
+│   │   │   │                       ├── libc feature "default" (*)
+│   │   │   │                       ├── serde feature "default" (*)
+│   │   │   │                       ├── serde feature "derive" (*)
+│   │   │   │                       ├── rustc-hash feature "default" (*)
+│   │   │   │                       ├── miniz_oxide feature "default"
+│   │   │   │                       │   ├── miniz_oxide v0.9.1
+│   │   │   │                       │   │   ├── adler2 v2.0.1
+│   │   │   │                       │   │   └── simd-adler32 v0.3.10
+│   │   │   │                       │   └── miniz_oxide feature "with-alloc"
+│   │   │   │                       │       └── miniz_oxide v0.9.1 (*)
+│   │   │   │                       ├── postcard feature "alloc"
+│   │   │   │                       │   ├── postcard v1.1.3
+│   │   │   │                       │   │   ├── cobs v0.3.0
+│   │   │   │                       │   │   │   └── thiserror v2.0.21
+│   │   │   │                       │   │   │       └── thiserror-impl feature "default"
+│   │   │   │                       │   │   │           └── thiserror-impl v2.0.21 (proc-macro)
+│   │   │   │                       │   │   │               ├── proc-macro2 feature "default" (*)
+│   │   │   │                       │   │   │               ├── quote feature "default" (*)
+│   │   │   │                       │   │   │               └── syn feature "default" (*)
+│   │   │   │                       │   │   └── serde feature "derive" (*)
+│   │   │   │                       │   └── serde feature "alloc" (*)
+│   │   │   │                       └── thiserror feature "default"
+│   │   │   │                           ├── thiserror v2.0.21 (*)
+│   │   │   │                           └── thiserror feature "std"
+│   │   │   │                               └── thiserror v2.0.21 (*)
+│   │   │   ├── oxc_semantic feature "default"
+│   │   │   │   └── oxc_semantic v0.155.0
+│   │   │   │       ├── smallvec feature "default" (*)
+│   │   │   │       ├── smallvec feature "serde" (*)
+│   │   │   │       ├── smallvec feature "union" (*)
+│   │   │   │       ├── memchr feature "default" (*)
+│   │   │   │       ├── itertools feature "default" (*)
+│   │   │   │       ├── rustc-hash feature "default" (*)
+│   │   │   │       ├── oxc_allocator feature "bitset"
+│   │   │   │       │   └── oxc_allocator v0.155.0 (*)
+│   │   │   │       ├── oxc_allocator feature "default" (*)
+│   │   │   │       ├── oxc_data_structures feature "default" (*)
+│   │   │   │       ├── oxc_ast feature "default" (*)
+│   │   │   │       ├── oxc_diagnostics feature "default" (*)
+│   │   │   │       ├── oxc_span feature "default" (*)
+│   │   │   │       ├── oxc_str feature "default" (*)
+│   │   │   │       ├── oxc_syntax feature "default" (*)
+│   │   │   │       ├── oxc_syntax feature "to_js_string" (*)
+│   │   │   │       ├── oxc_index feature "default" (*)
+│   │   │   │       ├── oxc_index feature "nonmax" (*)
+│   │   │   │       ├── oxc_index feature "serde" (*)
+│   │   │   │       ├── oxc_ast_visit feature "default"
+│   │   │   │       │   └── oxc_ast_visit v0.155.0
+│   │   │   │       │       ├── oxc_allocator feature "default" (*)
+│   │   │   │       │       ├── oxc_ast feature "default" (*)
+│   │   │   │       │       ├── oxc_span feature "default" (*)
+│   │   │   │       │       └── oxc_syntax feature "default" (*)
+│   │   │   │       ├── oxc_ecmascript feature "default" (*)
+│   │   │   │       └── self_cell feature "default"
+│   │   │   │           └── self_cell v1.3.0
+│   │   │   └── oxc_sourcemap feature "default"
+│   │   │       └── oxc_sourcemap v9.0.0
+│   │   │           ├── serde feature "default" (*)
+│   │   │           ├── serde feature "derive" (*)
+│   │   │           ├── napi feature "default" (*)
+│   │   │           ├── rustc-hash feature "default" (*)
+│   │   │           ├── serde_json feature "default" (*)
+│   │   │           ├── napi-derive feature "default"
+│   │   │           │   ├── napi-derive v3.6.12 (proc-macro) (*)
+│   │   │           │   ├── napi-derive feature "strict"
+│   │   │           │   │   ├── napi-derive v3.6.12 (proc-macro) (*)
+│   │   │           │   │   └── napi-derive-backend feature "strict"
+│   │   │           │   │       └── napi-derive-backend v6.1.5 (*)
+│   │   │           │   └── napi-derive feature "type-def" (*)
+│   │   │           ├── base64-simd feature "default"
+│   │   │           │   ├── base64-simd v0.8.0
+│   │   │           │   │   ├── outref feature "default"
+│   │   │           │   │   │   └── outref v0.5.2
+│   │   │           │   │   └── vsimd feature "default"
+│   │   │           │   │       └── vsimd v0.8.0
+│   │   │           │   ├── base64-simd feature "detect"
+│   │   │           │   │   ├── base64-simd v0.8.0 (*)
+│   │   │           │   │   └── vsimd feature "detect"
+│   │   │           │   │       ├── vsimd v0.8.0
+│   │   │           │   │       └── vsimd feature "std"
+│   │   │           │   │           ├── vsimd v0.8.0
+│   │   │           │   │           └── vsimd feature "alloc"
+│   │   │           │   │               └── vsimd v0.8.0
+│   │   │           │   └── base64-simd feature "std"
+│   │   │           │       ├── base64-simd v0.8.0 (*)
+│   │   │           │       ├── base64-simd feature "alloc"
+│   │   │           │       │   ├── base64-simd v0.8.0 (*)
+│   │   │           │       │   └── vsimd feature "alloc" (*)
+│   │   │           │       └── vsimd feature "std" (*)
+│   │   │           └── json-escape-simd feature "default"
+│   │   │               └── json-escape-simd v3.1.2
+│   │   │                   ├── escape-simd feature "default"
+│   │   │                   │   └── escape-simd v0.1.0
+│   │   │                   └── escape-simd feature "json"
+│   │   │                       └── escape-simd v0.1.0
+│   │   │           [build-dependencies]
+│   │   │           └── napi-build feature "default" (*)
+│   │   ├── oxc_allocator feature "default" (*)
+│   │   ├── oxc_ast feature "default" (*)
+│   │   ├── oxc_diagnostics feature "default" (*)
+│   │   ├── oxc_span feature "default" (*)
+│   │   ├── oxc_str feature "default" (*)
+│   │   ├── oxc_regular_expression feature "default" (*)
+│   │   ├── oxc_syntax feature "default" (*)
+│   │   ├── oxc_ast_visit feature "default" (*)
+│   │   ├── oxc_semantic feature "default" (*)
+│   │   ├── oxc_isolated_declarations feature "default"
+│   │   │   └── oxc_isolated_declarations v0.155.0
+│   │   │       ├── bitflags feature "default" (*)
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── oxc_allocator feature "default" (*)
+│   │   │       ├── oxc_ast feature "default" (*)
+│   │   │       ├── oxc_diagnostics feature "default" (*)
+│   │   │       ├── oxc_span feature "default" (*)
+│   │   │       ├── oxc_str feature "default" (*)
+│   │   │       ├── oxc_syntax feature "default" (*)
+│   │   │       ├── oxc_syntax feature "to_js_string" (*)
+│   │   │       ├── oxc_ast_visit feature "default" (*)
+│   │   │       └── oxc_ecmascript feature "default" (*)
+│   │   ├── oxc_mangler feature "default"
+│   │   │   └── oxc_mangler v0.155.0
+│   │   │       ├── itertools feature "default" (*)
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── oxc_allocator feature "bitset" (*)
+│   │   │       ├── oxc_allocator feature "default" (*)
+│   │   │       ├── oxc_data_structures feature "default" (*)
+│   │   │       ├── oxc_data_structures feature "inline_string" (*)
+│   │   │       ├── oxc_ast feature "default" (*)
+│   │   │       ├── oxc_span feature "default" (*)
+│   │   │       ├── oxc_str feature "default" (*)
+│   │   │       ├── oxc_syntax feature "default" (*)
+│   │   │       ├── oxc_index feature "default" (*)
+│   │   │       ├── oxc_index feature "nonmax" (*)
+│   │   │       ├── oxc_index feature "serde" (*)
+│   │   │       ├── oxc_ecmascript feature "default" (*)
+│   │   │       └── oxc_semantic feature "default" (*)
+│   │   ├── oxc_minifier feature "default"
+│   │   │   └── oxc_minifier v0.155.0
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── itoa feature "default" (*)
+│   │   │       ├── oxc_allocator feature "default" (*)
+│   │   │       ├── oxc_data_structures feature "default" (*)
+│   │   │       ├── oxc_data_structures feature "stack" (*)
+│   │   │       ├── oxc_ast feature "default" (*)
+│   │   │       ├── cow-utils feature "default" (*)
+│   │   │       ├── oxc_span feature "default" (*)
+│   │   │       ├── oxc_str feature "default" (*)
+│   │   │       ├── oxc_syntax feature "default" (*)
+│   │   │       ├── oxc_index feature "default" (*)
+│   │   │       ├── oxc_index feature "nonmax" (*)
+│   │   │       ├── oxc_index feature "serde" (*)
+│   │   │       ├── oxc_ast_visit feature "default" (*)
+│   │   │       ├── oxc_ecmascript feature "constant_evaluation"
+│   │   │       │   ├── oxc_ecmascript v0.155.0 (*)
+│   │   │       │   └── oxc_ecmascript feature "side_effects"
+│   │   │       │       └── oxc_ecmascript v0.155.0 (*)
+│   │   │       ├── oxc_ecmascript feature "default" (*)
+│   │   │       ├── oxc_compat feature "default" (*)
+│   │   │       ├── oxc_semantic feature "default" (*)
+│   │   │       ├── oxc_mangler feature "default" (*)
+│   │   │       ├── lazy-regex feature "default"
+│   │   │       │   ├── lazy-regex v3.6.1
+│   │   │       │   │   ├── regex v1.13.1
+│   │   │       │   │   │   ├── aho-corasick v1.1.4
+│   │   │       │   │   │   │   └── memchr v2.8.3
+│   │   │       │   │   │   ├── memchr v2.8.3
+│   │   │       │   │   │   ├── regex-syntax v0.8.11
+│   │   │       │   │   │   ├── regex-automata feature "alloc"
+│   │   │       │   │   │   │   └── regex-automata v0.4.18
+│   │   │       │   │   │   │       ├── aho-corasick v1.1.4 (*)
+│   │   │       │   │   │   │       ├── memchr v2.8.3
+│   │   │       │   │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │   │   ├── regex-automata feature "meta"
+│   │   │       │   │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │   │   │   ├── regex-automata feature "nfa-pikevm"
+│   │   │       │   │   │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │   │   │   │   └── regex-automata feature "nfa-thompson"
+│   │   │       │   │   │   │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │   │   │   │   │       └── regex-automata feature "alloc" (*)
+│   │   │       │   │   │   │   └── regex-automata feature "syntax"
+│   │   │       │   │   │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │   │   │   │       └── regex-automata feature "alloc" (*)
+│   │   │       │   │   │   ├── regex-automata feature "nfa-pikevm" (*)
+│   │   │       │   │   │   └── regex-automata feature "syntax" (*)
+│   │   │       │   │   ├── once_cell feature "default" (*)
+│   │   │       │   │   └── lazy-regex-proc_macros feature "default"
+│   │   │       │   │       └── lazy-regex-proc_macros v3.6.1 (proc-macro)
+│   │   │       │   │           ├── proc-macro2 feature "default" (*)
+│   │   │       │   │           ├── quote feature "default" (*)
+│   │   │       │   │           ├── syn feature "default" (*)
+│   │   │       │   │           ├── syn feature "full" (*)
+│   │   │       │   │           └── regex feature "default"
+│   │   │       │   │               ├── regex v1.13.1
+│   │   │       │   │               │   ├── aho-corasick v1.1.4
+│   │   │       │   │               │   │   └── memchr v2.8.3
+│   │   │       │   │               │   ├── memchr v2.8.3
+│   │   │       │   │               │   ├── regex-syntax v0.8.11
+│   │   │       │   │               │   ├── regex-automata feature "alloc"
+│   │   │       │   │               │   │   └── regex-automata v0.4.18
+│   │   │       │   │               │   │       ├── aho-corasick v1.1.4 (*)
+│   │   │       │   │               │   │       ├── memchr v2.8.3
+│   │   │       │   │               │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   ├── regex-automata feature "meta"
+│   │   │       │   │               │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "nfa-pikevm"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-automata feature "nfa-thompson"
+│   │   │       │   │               │   │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │       └── regex-automata feature "alloc" (*)
+│   │   │       │   │               │   │   └── regex-automata feature "syntax"
+│   │   │       │   │               │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │       └── regex-automata feature "alloc" (*)
+│   │   │       │   │               │   ├── regex-automata feature "nfa-pikevm" (*)
+│   │   │       │   │               │   └── regex-automata feature "syntax" (*)
+│   │   │       │   │               ├── regex feature "perf"
+│   │   │       │   │               │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   ├── regex feature "perf-backtrack"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   └── regex-automata feature "nfa-backtrack"
+│   │   │       │   │               │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │       └── regex-automata feature "nfa-thompson" (*)
+│   │   │       │   │               │   ├── regex feature "perf-cache"
+│   │   │       │   │               │   │   └── regex v1.13.1 (*)
+│   │   │       │   │               │   ├── regex feature "perf-dfa"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   └── regex-automata feature "hybrid"
+│   │   │       │   │               │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │       ├── regex-automata feature "alloc" (*)
+│   │   │       │   │               │   │       └── regex-automata feature "nfa-thompson" (*)
+│   │   │       │   │               │   ├── regex feature "perf-inline"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   └── regex-automata feature "perf-inline"
+│   │   │       │   │               │   │       └── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   ├── regex feature "perf-literal"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   └── regex-automata feature "perf-literal"
+│   │   │       │   │               │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │       ├── regex-automata feature "perf-literal-multisubstring"
+│   │   │       │   │               │   │       │   └── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │       └── regex-automata feature "perf-literal-substring"
+│   │   │       │   │               │   │           ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │           └── aho-corasick feature "perf-literal"
+│   │   │       │   │               │   │               └── aho-corasick v1.1.4 (*)
+│   │   │       │   │               │   └── regex feature "perf-onepass"
+│   │   │       │   │               │       ├── regex v1.13.1 (*)
+│   │   │       │   │               │       └── regex-automata feature "dfa-onepass"
+│   │   │       │   │               │           ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │           └── regex-automata feature "nfa-thompson" (*)
+│   │   │       │   │               ├── regex feature "std"
+│   │   │       │   │               │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   ├── aho-corasick feature "std"
+│   │   │       │   │               │   │   ├── aho-corasick v1.1.4 (*)
+│   │   │       │   │               │   │   └── memchr feature "std"
+│   │   │       │   │               │   │       ├── memchr v2.8.3
+│   │   │       │   │               │   │       └── memchr feature "alloc"
+│   │   │       │   │               │   │           └── memchr v2.8.3
+│   │   │       │   │               │   ├── memchr feature "std" (*)
+│   │   │       │   │               │   ├── regex-automata feature "std"
+│   │   │       │   │               │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   ├── aho-corasick feature "std" (*)
+│   │   │       │   │               │   │   ├── memchr feature "std" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "alloc" (*)
+│   │   │       │   │               │   │   └── regex-syntax feature "std"
+│   │   │       │   │               │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   └── regex-syntax feature "std" (*)
+│   │   │       │   │               ├── regex feature "unicode"
+│   │   │       │   │               │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   ├── regex feature "unicode-age"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-age"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-syntax feature "unicode-age"
+│   │   │       │   │               │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode-age" (*)
+│   │   │       │   │               │   ├── regex feature "unicode-bool"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-bool"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-syntax feature "unicode-bool"
+│   │   │       │   │               │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode-bool" (*)
+│   │   │       │   │               │   ├── regex feature "unicode-case"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-case"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-syntax feature "unicode-case"
+│   │   │       │   │               │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode-case" (*)
+│   │   │       │   │               │   ├── regex feature "unicode-gencat"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-gencat"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-syntax feature "unicode-gencat"
+│   │   │       │   │               │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode-gencat" (*)
+│   │   │       │   │               │   ├── regex feature "unicode-perl"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-perl"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-syntax feature "unicode-perl"
+│   │   │       │   │               │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-word-boundary"
+│   │   │       │   │               │   │   │   └── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode-perl" (*)
+│   │   │       │   │               │   ├── regex feature "unicode-script"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-script"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-syntax feature "unicode-script"
+│   │   │       │   │               │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode-script" (*)
+│   │   │       │   │               │   ├── regex feature "unicode-segment"
+│   │   │       │   │               │   │   ├── regex v1.13.1 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-segment"
+│   │   │       │   │               │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   │   └── regex-syntax feature "unicode-segment"
+│   │   │       │   │               │   │   │       └── regex-syntax v0.8.11
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode-segment" (*)
+│   │   │       │   │               │   ├── regex-automata feature "unicode"
+│   │   │       │   │               │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-age" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-bool" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-case" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-gencat" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-perl" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-script" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-segment" (*)
+│   │   │       │   │               │   │   ├── regex-automata feature "unicode-word-boundary" (*)
+│   │   │       │   │               │   │   └── regex-syntax feature "unicode"
+│   │   │       │   │               │   │       ├── regex-syntax v0.8.11
+│   │   │       │   │               │   │       ├── regex-syntax feature "unicode-age" (*)
+│   │   │       │   │               │   │       ├── regex-syntax feature "unicode-bool" (*)
+│   │   │       │   │               │   │       ├── regex-syntax feature "unicode-case" (*)
+│   │   │       │   │               │   │       ├── regex-syntax feature "unicode-gencat" (*)
+│   │   │       │   │               │   │       ├── regex-syntax feature "unicode-perl" (*)
+│   │   │       │   │               │   │       ├── regex-syntax feature "unicode-script" (*)
+│   │   │       │   │               │   │       └── regex-syntax feature "unicode-segment" (*)
+│   │   │       │   │               │   └── regex-syntax feature "unicode" (*)
+│   │   │       │   │               └── regex-syntax feature "default"
+│   │   │       │   │                   ├── regex-syntax v0.8.11
+│   │   │       │   │                   ├── regex-syntax feature "std" (*)
+│   │   │       │   │                   └── regex-syntax feature "unicode" (*)
+│   │   │       │   ├── lazy-regex feature "regex"
+│   │   │       │   │   └── lazy-regex v3.6.1 (*)
+│   │   │       │   └── regex feature "default"
+│   │   │       │       ├── regex v1.13.1 (*)
+│   │   │       │       ├── regex feature "perf"
+│   │   │       │       │   ├── regex v1.13.1 (*)
+│   │   │       │       │   ├── regex feature "perf-backtrack"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   └── regex-automata feature "nfa-backtrack"
+│   │   │       │       │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │       └── regex-automata feature "nfa-thompson" (*)
+│   │   │       │       │   ├── regex feature "perf-cache"
+│   │   │       │       │   │   └── regex v1.13.1 (*)
+│   │   │       │       │   ├── regex feature "perf-dfa"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   └── regex-automata feature "hybrid"
+│   │   │       │       │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │       ├── regex-automata feature "alloc" (*)
+│   │   │       │       │   │       └── regex-automata feature "nfa-thompson" (*)
+│   │   │       │       │   ├── regex feature "perf-inline"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   └── regex-automata feature "perf-inline"
+│   │   │       │       │   │       └── regex-automata v0.4.18 (*)
+│   │   │       │       │   ├── regex feature "perf-literal"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   └── regex-automata feature "perf-literal"
+│   │   │       │       │   │       ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │       ├── regex-automata feature "perf-literal-multisubstring"
+│   │   │       │       │   │       │   └── regex-automata v0.4.18 (*)
+│   │   │       │       │   │       └── regex-automata feature "perf-literal-substring"
+│   │   │       │       │   │           ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │           └── aho-corasick feature "perf-literal"
+│   │   │       │       │   │               └── aho-corasick v1.1.4 (*)
+│   │   │       │       │   └── regex feature "perf-onepass"
+│   │   │       │       │       ├── regex v1.13.1 (*)
+│   │   │       │       │       └── regex-automata feature "dfa-onepass"
+│   │   │       │       │           ├── regex-automata v0.4.18 (*)
+│   │   │       │       │           └── regex-automata feature "nfa-thompson" (*)
+│   │   │       │       ├── regex feature "std"
+│   │   │       │       │   ├── regex v1.13.1 (*)
+│   │   │       │       │   ├── memchr feature "std" (*)
+│   │   │       │       │   ├── aho-corasick feature "std"
+│   │   │       │       │   │   ├── aho-corasick v1.1.4 (*)
+│   │   │       │       │   │   └── memchr feature "std" (*)
+│   │   │       │       │   ├── regex-automata feature "std"
+│   │   │       │       │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   ├── memchr feature "std" (*)
+│   │   │       │       │   │   ├── aho-corasick feature "std" (*)
+│   │   │       │       │   │   ├── regex-automata feature "alloc" (*)
+│   │   │       │       │   │   └── regex-syntax feature "std"
+│   │   │       │       │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   └── regex-syntax feature "std" (*)
+│   │   │       │       ├── regex feature "unicode"
+│   │   │       │       │   ├── regex v1.13.1 (*)
+│   │   │       │       │   ├── regex feature "unicode-age"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-age"
+│   │   │       │       │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   │   └── regex-syntax feature "unicode-age"
+│   │   │       │       │   │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   │   └── regex-syntax feature "unicode-age" (*)
+│   │   │       │       │   ├── regex feature "unicode-bool"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-bool"
+│   │   │       │       │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   │   └── regex-syntax feature "unicode-bool"
+│   │   │       │       │   │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   │   └── regex-syntax feature "unicode-bool" (*)
+│   │   │       │       │   ├── regex feature "unicode-case"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-case"
+│   │   │       │       │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   │   └── regex-syntax feature "unicode-case"
+│   │   │       │       │   │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   │   └── regex-syntax feature "unicode-case" (*)
+│   │   │       │       │   ├── regex feature "unicode-gencat"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-gencat"
+│   │   │       │       │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   │   └── regex-syntax feature "unicode-gencat"
+│   │   │       │       │   │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   │   └── regex-syntax feature "unicode-gencat" (*)
+│   │   │       │       │   ├── regex feature "unicode-perl"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-perl"
+│   │   │       │       │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   │   └── regex-syntax feature "unicode-perl"
+│   │   │       │       │   │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   │   ├── regex-automata feature "unicode-word-boundary"
+│   │   │       │       │   │   │   └── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   └── regex-syntax feature "unicode-perl" (*)
+│   │   │       │       │   ├── regex feature "unicode-script"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-script"
+│   │   │       │       │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   │   └── regex-syntax feature "unicode-script"
+│   │   │       │       │   │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   │   └── regex-syntax feature "unicode-script" (*)
+│   │   │       │       │   ├── regex feature "unicode-segment"
+│   │   │       │       │   │   ├── regex v1.13.1 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-segment"
+│   │   │       │       │   │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   │   └── regex-syntax feature "unicode-segment"
+│   │   │       │       │   │   │       └── regex-syntax v0.8.11
+│   │   │       │       │   │   └── regex-syntax feature "unicode-segment" (*)
+│   │   │       │       │   ├── regex-automata feature "unicode"
+│   │   │       │       │   │   ├── regex-automata v0.4.18 (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-age" (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-bool" (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-case" (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-gencat" (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-perl" (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-script" (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-segment" (*)
+│   │   │       │       │   │   ├── regex-automata feature "unicode-word-boundary" (*)
+│   │   │       │       │   │   └── regex-syntax feature "unicode"
+│   │   │       │       │   │       ├── regex-syntax v0.8.11
+│   │   │       │       │   │       ├── regex-syntax feature "unicode-age" (*)
+│   │   │       │       │   │       ├── regex-syntax feature "unicode-bool" (*)
+│   │   │       │       │   │       ├── regex-syntax feature "unicode-case" (*)
+│   │   │       │       │   │       ├── regex-syntax feature "unicode-gencat" (*)
+│   │   │       │       │   │       ├── regex-syntax feature "unicode-perl" (*)
+│   │   │       │       │   │       ├── regex-syntax feature "unicode-script" (*)
+│   │   │       │       │   │       └── regex-syntax feature "unicode-segment" (*)
+│   │   │       │       │   └── regex-syntax feature "unicode" (*)
+│   │   │       │       └── regex-syntax feature "default"
+│   │   │       │           ├── regex-syntax v0.8.11
+│   │   │       │           ├── regex-syntax feature "std" (*)
+│   │   │       │           └── regex-syntax feature "unicode" (*)
+│   │   │       ├── oxc_parser feature "default"
+│   │   │       │   ├── oxc_parser v0.155.0
+│   │   │       │   │   ├── memchr feature "default" (*)
+│   │   │       │   │   ├── bitflags feature "default" (*)
+│   │   │       │   │   ├── rustc-hash feature "default" (*)
+│   │   │       │   │   ├── oxc_allocator feature "default" (*)
+│   │   │       │   │   ├── oxc_data_structures feature "assert_unchecked" (*)
+│   │   │       │   │   ├── oxc_data_structures feature "branch_hints"
+│   │   │       │   │   │   └── oxc_data_structures v0.155.0 (*)
+│   │   │       │   │   ├── oxc_data_structures feature "default" (*)
+│   │   │       │   │   ├── oxc_data_structures feature "fieldless_enum"
+│   │   │       │   │   │   └── oxc_data_structures v0.155.0 (*)
+│   │   │       │   │   ├── oxc_ast feature "default" (*)
+│   │   │       │   │   ├── oxc_diagnostics feature "default" (*)
+│   │   │       │   │   ├── cow-utils feature "default" (*)
+│   │   │       │   │   ├── oxc_span feature "default" (*)
+│   │   │       │   │   ├── oxc_str feature "default" (*)
+│   │   │       │   │   ├── oxc_regular_expression feature "default" (*)
+│   │   │       │   │   ├── oxc_syntax feature "default" (*)
+│   │   │       │   │   ├── oxc_ecmascript feature "default" (*)
+│   │   │       │   │   ├── num-bigint feature "default" (*)
+│   │   │       │   │   ├── num-traits feature "default" (*)
+│   │   │       │   │   └── seq-macro feature "default"
+│   │   │       │   │       └── seq-macro v0.3.6 (proc-macro)
+│   │   │       │   └── oxc_parser feature "regular_expression"
+│   │   │       │       └── oxc_parser v0.155.0 (*)
+│   │   │       ├── oxc_parser feature "regular_expression" (*)
+│   │   │       └── oxc_traverse feature "default"
+│   │   │           └── oxc_traverse v0.155.0
+│   │   │               ├── rustc-hash feature "default" (*)
+│   │   │               ├── itoa feature "default" (*)
+│   │   │               ├── oxc_allocator feature "default" (*)
+│   │   │               ├── oxc_data_structures feature "default" (*)
+│   │   │               ├── oxc_data_structures feature "stack" (*)
+│   │   │               ├── oxc_data_structures feature "string_ext"
+│   │   │               │   ├── oxc_data_structures v0.155.0 (*)
+│   │   │               │   └── oxc_data_structures feature "assert_unchecked" (*)
+│   │   │               ├── oxc_ast feature "default" (*)
+│   │   │               ├── oxc_span feature "default" (*)
+│   │   │               ├── oxc_str feature "default" (*)
+│   │   │               ├── oxc_syntax feature "default" (*)
+│   │   │               ├── oxc_ast_visit feature "default" (*)
+│   │   │               ├── oxc_ecmascript feature "default" (*)
+│   │   │               └── oxc_semantic feature "default" (*)
+│   │   ├── oxc_parser feature "default" (*)
+│   │   ├── oxc_parser feature "regular_expression" (*)
+│   │   ├── oxc_transformer feature "default"
+│   │   │   └── oxc_transformer v0.155.0
+│   │   │       ├── serde feature "default" (*)
+│   │   │       ├── serde feature "derive" (*)
+│   │   │       ├── memchr feature "default" (*)
+│   │   │       ├── indexmap feature "default" (*)
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── serde_json feature "default" (*)
+│   │   │       ├── itoa feature "default" (*)
+│   │   │       ├── oxc_allocator feature "default" (*)
+│   │   │       ├── oxc_data_structures feature "assert_unchecked" (*)
+│   │   │       ├── oxc_data_structures feature "default" (*)
+│   │   │       ├── oxc_data_structures feature "inline_string" (*)
+│   │   │       ├── oxc_data_structures feature "rope"
+│   │   │       │   └── oxc_data_structures v0.155.0 (*)
+│   │   │       ├── oxc_data_structures feature "slice_iter" (*)
+│   │   │       ├── oxc_data_structures feature "stack" (*)
+│   │   │       ├── oxc_ast feature "default" (*)
+│   │   │       ├── oxc_diagnostics feature "default" (*)
+│   │   │       ├── oxc_span feature "default" (*)
+│   │   │       ├── compact_str feature "default" (*)
+│   │   │       ├── oxc_str feature "default" (*)
+│   │   │       ├── oxc_regular_expression feature "default" (*)
+│   │   │       ├── oxc_syntax feature "default" (*)
+│   │   │       ├── oxc_syntax feature "to_js_string" (*)
+│   │   │       ├── oxc_ast_visit feature "default" (*)
+│   │   │       ├── oxc_ecmascript feature "default" (*)
+│   │   │       ├── oxc_compat feature "default" (*)
+│   │   │       ├── oxc_semantic feature "default" (*)
+│   │   │       ├── oxc_traverse feature "default" (*)
+│   │   │       ├── base64 feature "default"
+│   │   │       │   ├── base64 v0.23.0
+│   │   │       │   ├── base64 feature "simd-unsafe"
+│   │   │       │   │   └── base64 v0.23.0
+│   │   │       │   └── base64 feature "std"
+│   │   │       │       ├── base64 v0.23.0
+│   │   │       │       └── base64 feature "alloc"
+│   │   │       │           └── base64 v0.23.0
+│   │   │       └── hmac-sha1-compact feature "default"
+│   │   │           └── hmac-sha1-compact v1.1.7
+│   │   └── oxc_transformer_plugins feature "default"
+│   │       └── oxc_transformer_plugins v0.155.0
+│   │           ├── rustc-hash feature "default" (*)
+│   │           ├── itoa feature "default" (*)
+│   │           ├── oxc_allocator feature "default" (*)
+│   │           ├── oxc_ast feature "default" (*)
+│   │           ├── oxc_diagnostics feature "default" (*)
+│   │           ├── cow-utils feature "default" (*)
+│   │           ├── oxc_span feature "default" (*)
+│   │           ├── oxc_str feature "default" (*)
+│   │           ├── oxc_syntax feature "default" (*)
+│   │           ├── oxc_syntax feature "to_js_string" (*)
+│   │           ├── oxc_ast_visit feature "default" (*)
+│   │           ├── oxc_ecmascript feature "default" (*)
+│   │           ├── oxc_semantic feature "default" (*)
+│   │           ├── oxc_parser feature "default" (*)
+│   │           ├── oxc_parser feature "regular_expression" (*)
+│   │           ├── oxc_traverse feature "default" (*)
+│   │           └── oxc_transformer feature "default" (*)
+│   └── oxc feature "oxc_ast_visit"
+│       └── oxc v0.155.0 (*)
+├── oxc feature "codegen"
+│   ├── oxc v0.155.0 (*)
+│   ├── oxc feature "oxc_codegen"
+│   │   └── oxc v0.155.0 (*)
+│   └── oxc_codegen feature "sourcemap"
+│       └── oxc_codegen v0.155.0 (*)
+├── oxc feature "default"
+│   ├── oxc v0.155.0 (*)
+│   └── oxc feature "regular_expression"
+│       ├── oxc v0.155.0 (*)
+│       ├── oxc feature "oxc_regular_expression"
+│       │   └── oxc v0.155.0 (*)
+│       └── oxc_parser feature "regular_expression" (*)
+├── oxc feature "isolated_declarations"
+│   ├── oxc v0.155.0 (*)
+│   └── oxc feature "oxc_isolated_declarations"
+│       └── oxc v0.155.0 (*)
+├── oxc feature "mangler"
+│   ├── oxc v0.155.0 (*)
+│   └── oxc feature "oxc_mangler"
+│       └── oxc v0.155.0 (*)
+├── oxc feature "minifier"
+│   ├── oxc v0.155.0 (*)
+│   ├── oxc feature "oxc_mangler" (*)
+│   └── oxc feature "oxc_minifier"
+│       └── oxc v0.155.0 (*)
+├── oxc feature "regular_expression" (*)
+├── oxc feature "semantic"
+│   ├── oxc v0.155.0 (*)
+│   └── oxc feature "oxc_semantic"
+│       └── oxc v0.155.0 (*)
+├── oxc feature "serialize"
+│   ├── oxc v0.155.0 (*)
+│   ├── oxc feature "oxc_ast_visit" (*)
+│   ├── oxc_allocator feature "from_raw_parts"
+│   │   └── oxc_allocator v0.155.0 (*)
+│   ├── oxc_ast feature "serialize"
+│   │   ├── oxc_ast v0.155.0 (*)
+│   │   ├── oxc_allocator feature "serialize"
+│   │   │   ├── oxc_allocator v0.155.0 (*)
+│   │   │   ├── oxc_allocator feature "oxc_estree"
+│   │   │   │   └── oxc_allocator v0.155.0 (*)
+│   │   │   └── oxc_estree feature "serialize"
+│   │   │       └── oxc_estree v0.155.0 (*)
+│   │   ├── oxc_estree feature "serialize" (*)
+│   │   ├── oxc_span feature "serialize"
+│   │   │   ├── oxc_span v0.155.0 (*)
+│   │   │   ├── oxc_estree feature "serialize" (*)
+│   │   │   ├── compact_str feature "serde"
+│   │   │   │   └── compact_str v0.10.0 (*)
+│   │   │   └── oxc_str feature "serialize"
+│   │   │       ├── oxc_str v0.155.0 (*)
+│   │   │       ├── oxc_estree feature "serialize" (*)
+│   │   │       └── compact_str feature "serde" (*)
+│   │   └── oxc_syntax feature "serialize"
+│   │       ├── oxc_syntax v0.155.0 (*)
+│   │       ├── bitflags feature "serde"
+│   │       │   ├── bitflags v2.13.2 (*)
+│   │       │   └── bitflags feature "serde_core"
+│   │       │       └── bitflags v2.13.2 (*)
+│   │       └── oxc_estree feature "serialize" (*)
+│   ├── oxc_span feature "serialize" (*)
+│   ├── oxc_syntax feature "serialize" (*)
+│   ├── oxc_ast_visit feature "serialize"
+│   │   ├── oxc_ast_visit v0.155.0 (*)
+│   │   ├── oxc_allocator feature "serialize" (*)
+│   │   ├── oxc_ast feature "serialize" (*)
+│   │   ├── oxc_span feature "serialize" (*)
+│   │   └── oxc_syntax feature "serialize" (*)
+│   └── oxc_semantic feature "serialize"
+│       ├── oxc_semantic v0.155.0 (*)
+│       ├── oxc_span feature "serialize" (*)
+│       └── oxc_syntax feature "serialize" (*)
+├── oxc feature "transformer"
+│   ├── oxc v0.155.0 (*)
+│   ├── oxc feature "oxc_transformer"
+│   │   └── oxc v0.155.0 (*)
+│   └── oxc feature "oxc_transformer_plugins"
+│       └── oxc v0.155.0 (*)
+├── oxc_sourcemap feature "default" (*)
+├── regex feature "perf" (*)
+├── regex feature "std" (*)
+├── regex feature "unicode-case" (*)
+├── regex feature "unicode-perl" (*)
+├── oxc_minify_napi feature "default"
+│   └── oxc_minify_napi v0.155.0
+│       ├── napi feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── napi-derive feature "default" (*)
+│       ├── oxc_allocator feature "default" (*)
+│       ├── oxc_diagnostics feature "default" (*)
+│       ├── oxc_span feature "default" (*)
+│       ├── oxc_str feature "default" (*)
+│       ├── oxc_codegen feature "sourcemap" (*)
+│       ├── oxc_compat feature "default" (*)
+│       ├── oxc_sourcemap feature "default" (*)
+│       ├── oxc_sourcemap feature "napi"
+│       │   └── oxc_sourcemap v9.0.0 (*)
+│       ├── oxc_minifier feature "default" (*)
+│       ├── lazy-regex feature "default" (*)
+│       ├── oxc_parser feature "default" (*)
+│       ├── oxc_parser feature "regular_expression" (*)
+│       └── oxc_napi feature "default"
+│           └── oxc_napi v0.155.0
+│               ├── napi feature "default" (*)
+│               ├── napi-derive feature "default" (*)
+│               ├── oxc_ast feature "default" (*)
+│               ├── oxc_diagnostics feature "default" (*)
+│               ├── oxc_span feature "default" (*)
+│               ├── oxc_syntax feature "default" (*)
+│               ├── oxc_ast_visit feature "default" (*)
+│               └── oxc_ast_visit feature "serialize" (*)
+│               [build-dependencies]
+│               └── napi-build feature "default" (*)
+│       [build-dependencies]
+│       └── napi-build feature "default" (*)
+├── oxc_napi feature "default" (*)
+├── oxc_parser_napi feature "default"
+│   └── oxc_parser_napi v0.155.0
+│       ├── napi feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── napi-derive feature "default" (*)
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc_estree feature "default" (*)
+│       ├── oxc_ast_macros feature "default" (*)
+│       ├── oxc_str feature "default" (*)
+│       └── oxc_napi feature "default" (*)
+│       [build-dependencies]
+│       └── napi-build feature "default" (*)
+├── oxc_resolver feature "default"
+│   └── oxc_resolver v11.24.3
+│       ├── dashmap feature "default" (*)
+│       ├── dashmap feature "raw-api"
+│       │   └── dashmap v6.2.1 (*)
+│       ├── once_cell feature "default" (*)
+│       ├── serde feature "default" (*)
+│       ├── serde feature "derive" (*)
+│       ├── memchr feature "default" (*)
+│       ├── indexmap feature "default" (*)
+│       ├── indexmap feature "serde"
+│       │   └── indexmap v2.14.2 (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── serde_json feature "default" (*)
+│       ├── serde_json feature "preserve_order"
+│       │   ├── serde_json v1.0.151 (*)
+│       │   ├── serde_json feature "indexmap"
+│       │   │   └── serde_json v1.0.151 (*)
+│       │   └── serde_json feature "std" (*)
+│       ├── tracing feature "default" (*)
+│       ├── compact_str feature "default" (*)
+│       ├── percent-encoding feature "default" (*)
+│       ├── thiserror feature "default" (*)
+│       ├── self_cell feature "default" (*)
+│       ├── fast-glob feature "default"
+│       │   └── fast-glob v1.1.2
+│       │       └── arrayvec feature "default"
+│       │           ├── arrayvec v0.7.8
+│       │           └── arrayvec feature "std"
+│       │               └── arrayvec v0.7.8
+│       ├── json-strip-comments feature "default"
+│       │   └── json-strip-comments v3.1.2
+│       │       └── memchr feature "default" (*)
+│       ├── nodejs-built-in-modules feature "default"
+│       │   └── nodejs-built-in-modules v1.0.0
+│       ├── pnp feature "default"
+│       │   └── pnp v0.12.12
+│       │       ├── serde feature "default" (*)
+│       │       ├── serde feature "derive" (*)
+│       │       ├── indexmap feature "default" (*)
+│       │       ├── rustc-hash feature "default" (*)
+│       │       ├── serde_json feature "default" (*)
+│       │       ├── thiserror feature "default" (*)
+│       │       ├── nodejs-built-in-modules feature "default" (*)
+│       │       ├── byteorder feature "default"
+│       │       │   ├── byteorder v1.5.0
+│       │       │   └── byteorder feature "std"
+│       │       │       └── byteorder v1.5.0
+│       │       ├── concurrent_lru feature "default"
+│       │       │   └── concurrent_lru v0.2.0
+│       │       │       └── once_cell feature "default" (*)
+│       │       ├── flate2 feature "zlib-rs"
+│       │       │   ├── flate2 v1.1.10
+│       │       │   │   ├── crc32fast v1.5.0
+│       │       │   │   │   └── cfg-if feature "default" (*)
+│       │       │   │   ├── miniz_oxide feature "default" (*)
+│       │       │   │   ├── miniz_oxide feature "simd"
+│       │       │   │   │   ├── miniz_oxide v0.9.1 (*)
+│       │       │   │   │   └── miniz_oxide feature "simd-adler32"
+│       │       │   │   │       └── miniz_oxide v0.9.1 (*)
+│       │       │   │   └── zlib-rs feature "rust-allocator"
+│       │       │   │       └── zlib-rs v0.6.6
+│       │       │   └── flate2 feature "any_zlib"
+│       │       │       ├── flate2 v1.1.10 (*)
+│       │       │       └── flate2 feature "any_impl"
+│       │       │           └── flate2 v1.1.10 (*)
+│       │       ├── pathdiff feature "default"
+│       │       │   └── pathdiff v0.2.3
+│       │       ├── radix_trie feature "default"
+│       │       │   └── radix_trie v0.3.0
+│       │       │       ├── endian-type feature "default"
+│       │       │       │   └── endian-type v0.2.0
+│       │       │       └── nibble_vec feature "default"
+│       │       │           └── nibble_vec v0.1.0
+│       │       │               └── smallvec feature "default" (*)
+│       │       └── regress feature "default"
+│       │           ├── regress v0.12.0
+│       │           │   └── memchr v2.8.3
+│       │           ├── regress feature "backend-pikevm"
+│       │           │   └── regress v0.12.0 (*)
+│       │           └── regress feature "std"
+│       │               ├── regress v0.12.0 (*)
+│       │               └── memchr feature "std" (*)
+│       ├── rustix feature "default"
+│       │   ├── rustix v1.1.4
+│       │   │   ├── bitflags v2.13.2 (*)
+│       │   │   ├── linux-raw-sys feature "auxvec"
+│       │   │   │   └── linux-raw-sys v0.12.1
+│       │   │   ├── linux-raw-sys feature "elf"
+│       │   │   │   └── linux-raw-sys v0.12.1
+│       │   │   ├── linux-raw-sys feature "errno"
+│       │   │   │   └── linux-raw-sys v0.12.1
+│       │   │   ├── linux-raw-sys feature "general"
+│       │   │   │   └── linux-raw-sys v0.12.1
+│       │   │   ├── linux-raw-sys feature "ioctl"
+│       │   │   │   └── linux-raw-sys v0.12.1
+│       │   │   └── linux-raw-sys feature "no_std"
+│       │   │       └── linux-raw-sys v0.12.1
+│       │   └── rustix feature "std"
+│       │       ├── rustix v1.1.4 (*)
+│       │       ├── bitflags feature "std"
+│       │       │   └── bitflags v2.13.2 (*)
+│       │       └── rustix feature "alloc"
+│       │           └── rustix v1.1.4 (*)
+│       ├── rustix feature "fs"
+│       │   └── rustix v1.1.4 (*)
+│       ├── simd-json feature "runtime-detection"
+│       │   ├── simd-json v0.18.1
+│       │   │   ├── halfbrown feature "default"
+│       │   │   │   └── halfbrown v0.4.0
+│       │   │   │       └── hashbrown feature "default"
+│       │   │   │           ├── hashbrown v0.16.1
+│       │   │   │           │   ├── equivalent v1.0.2
+│       │   │   │           │   ├── foldhash v0.2.0
+│       │   │   │           │   └── allocator-api2 feature "alloc" (*)
+│       │   │   │           ├── hashbrown feature "allocator-api2"
+│       │   │   │           │   └── hashbrown v0.16.1 (*)
+│       │   │   │           ├── hashbrown feature "default-hasher"
+│       │   │   │           │   └── hashbrown v0.16.1 (*)
+│       │   │   │           ├── hashbrown feature "equivalent"
+│       │   │   │           │   └── hashbrown v0.16.1 (*)
+│       │   │   │           ├── hashbrown feature "inline-more"
+│       │   │   │           │   └── hashbrown v0.16.1 (*)
+│       │   │   │           └── hashbrown feature "raw-entry"
+│       │   │   │               └── hashbrown v0.16.1 (*)
+│       │   │   ├── ref-cast feature "default"
+│       │   │   │   └── ref-cast v1.0.26
+│       │   │   │       └── ref-cast-impl feature "default"
+│       │   │   │           └── ref-cast-impl v1.0.26 (proc-macro)
+│       │   │   │               ├── proc-macro2 feature "default" (*)
+│       │   │   │               ├── quote feature "default" (*)
+│       │   │   │               └── syn feature "default" (*)
+│       │   │   ├── simdutf8 feature "aarch64_neon"
+│       │   │   │   └── simdutf8 v0.1.5
+│       │   │   ├── simdutf8 feature "default"
+│       │   │   │   ├── simdutf8 v0.1.5
+│       │   │   │   └── simdutf8 feature "std"
+│       │   │   │       └── simdutf8 v0.1.5
+│       │   │   ├── simdutf8 feature "public_imp"
+│       │   │   │   └── simdutf8 v0.1.5
+│       │   │   └── value-trait feature "default"
+│       │   │       ├── value-trait v0.12.2
+│       │   │       │   ├── itoa feature "default" (*)
+│       │   │       │   ├── halfbrown feature "default" (*)
+│       │   │       │   ├── float-cmp feature "default"
+│       │   │       │   │   ├── float-cmp v0.10.0
+│       │   │       │   │   │   └── num-traits v0.2.19 (*)
+│       │   │       │   │   └── float-cmp feature "ratio"
+│       │   │       │   │       ├── float-cmp v0.10.0 (*)
+│       │   │       │   │       └── float-cmp feature "num-traits"
+│       │   │       │   │           └── float-cmp v0.10.0 (*)
+│       │   │       │   └── ryu feature "default"
+│       │   │       │       └── ryu v1.0.23
+│       │   │       ├── value-trait feature "custom-types"
+│       │   │       │   └── value-trait v0.12.2 (*)
+│       │   │       ├── value-trait feature "halfbrown"
+│       │   │       │   └── value-trait v0.12.2 (*)
+│       │   │       └── value-trait feature "runtime-detection"
+│       │   │           └── value-trait v0.12.2 (*)
+│       │   └── value-trait feature "runtime-detection" (*)
+│       └── simdutf8 feature "default" (*)
+├── oxc_resolver feature "yarn_pnp"
+│   ├── oxc_resolver v11.24.3 (*)
+│   └── oxc_resolver feature "pnp"
+│       └── oxc_resolver v11.24.3 (*)
+├── oxc_resolver_napi feature "yarn_pnp"
+│   ├── oxc_resolver_napi v11.24.3
+│   │   ├── napi feature "napi3" (*)
+│   │   ├── napi feature "serde-json"
+│   │   │   ├── napi v3.14.2 (*)
+│   │   │   ├── napi feature "serde"
+│   │   │   │   └── napi v3.14.2 (*)
+│   │   │   └── napi feature "serde_json"
+│   │   │       └── napi v3.14.2 (*)
+│   │   ├── napi-derive feature "default" (*)
+│   │   ├── oxc_resolver feature "default" (*)
+│   │   └── regress feature "default" (*)
+│   │   [build-dependencies]
+│   │   └── napi-build feature "default" (*)
+│   └── oxc_resolver feature "yarn_pnp" (*)
+├── oxc_transform_napi feature "default"
+│   └── oxc_transform_napi v0.155.0
+│       ├── napi feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── napi-derive feature "default" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "full"
+│       │   ├── oxc v0.155.0 (*)
+│       │   ├── oxc feature "ast_visit" (*)
+│       │   ├── oxc feature "codegen" (*)
+│       │   ├── oxc feature "isolated_declarations" (*)
+│       │   ├── oxc feature "mangler" (*)
+│       │   ├── oxc feature "minifier" (*)
+│       │   ├── oxc feature "regular_expression" (*)
+│       │   ├── oxc feature "semantic" (*)
+│       │   └── oxc feature "transformer" (*)
+│       ├── oxc_sourcemap feature "default" (*)
+│       ├── oxc_sourcemap feature "napi" (*)
+│       └── oxc_napi feature "default" (*)
+│       [build-dependencies]
+│       └── napi-build feature "default" (*)
+├── rolldown feature "default"
+│   ├── rolldown v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown)
+│   │   ├── arcstr v1.2.0
+│   │   ├── anyhow feature "default" (*)
+│   │   ├── dashmap feature "default" (*)
+│   │   ├── smallvec feature "default" (*)
+│   │   ├── smallvec feature "union" (*)
+│   │   ├── serde feature "default" (*)
+│   │   ├── serde feature "derive" (*)
+│   │   ├── futures feature "default" (*)
+│   │   ├── memchr feature "default" (*)
+│   │   ├── indexmap feature "default" (*)
+│   │   ├── itertools feature "default" (*)
+│   │   ├── bitflags feature "default" (*)
+│   │   ├── rustc-hash feature "default" (*)
+│   │   ├── serde_json feature "default" (*)
+│   │   ├── serde_json feature "preserve_order" (*)
+│   │   ├── itoa feature "default" (*)
+│   │   ├── tokio feature "macros"
+│   │   │   ├── tokio v1.53.3 (*)
+│   │   │   └── tokio feature "tokio-macros"
+│   │   │       └── tokio v1.53.3 (*)
+│   │   ├── tokio feature "rt" (*)
+│   │   ├── tokio feature "sync" (*)
+│   │   ├── tokio feature "time"
+│   │   │   └── tokio v1.53.3 (*)
+│   │   ├── tracing feature "default" (*)
+│   │   ├── oxc feature "ast_visit" (*)
+│   │   ├── oxc feature "codegen" (*)
+│   │   ├── oxc feature "default" (*)
+│   │   ├── oxc feature "isolated_declarations" (*)
+│   │   ├── oxc feature "mangler" (*)
+│   │   ├── oxc feature "minifier" (*)
+│   │   ├── oxc feature "regular_expression" (*)
+│   │   ├── oxc feature "semantic" (*)
+│   │   ├── oxc feature "serialize" (*)
+│   │   ├── oxc feature "transformer" (*)
+│   │   ├── oxc_allocator feature "default" (*)
+│   │   ├── oxc_allocator feature "pool"
+│   │   │   └── oxc_allocator v0.155.0 (*)
+│   │   ├── oxc_str feature "default" (*)
+│   │   ├── oxc_index feature "default" (*)
+│   │   ├── oxc_index feature "rayon"
+│   │   │   └── oxc_index v5.0.0 (*)
+│   │   ├── oxc_index feature "serde" (*)
+│   │   ├── rayon feature "default" (*)
+│   │   ├── oxc_ecmascript feature "default" (*)
+│   │   ├── json-escape-simd feature "default" (*)
+│   │   ├── oxc_traverse feature "default" (*)
+│   │   ├── append-only-vec feature "default"
+│   │   │   └── append-only-vec v0.1.8
+│   │   ├── petgraph feature "default"
+│   │   │   ├── petgraph v0.8.3
+│   │   │   │   ├── fixedbitset v0.5.7
+│   │   │   │   ├── indexmap v2.14.2 (*)
+│   │   │   │   ├── hashbrown feature "default-hasher"
+│   │   │   │   │   └── hashbrown v0.15.5
+│   │   │   │   │       └── foldhash v0.1.5
+│   │   │   │   └── hashbrown feature "inline-more"
+│   │   │   │       └── hashbrown v0.15.5 (*)
+│   │   │   ├── petgraph feature "graphmap"
+│   │   │   │   └── petgraph v0.8.3 (*)
+│   │   │   ├── petgraph feature "matrix_graph"
+│   │   │   │   └── petgraph v0.8.3 (*)
+│   │   │   ├── petgraph feature "stable_graph"
+│   │   │   │   └── petgraph v0.8.3 (*)
+│   │   │   └── petgraph feature "std"
+│   │   │       ├── petgraph v0.8.3 (*)
+│   │   │       └── indexmap feature "std" (*)
+│   │   ├── rolldown_common feature "default"
+│   │   │   ├── rolldown_common v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_common)
+│   │   │   │   ├── arcstr v1.2.0
+│   │   │   │   ├── tokio v1.53.3 (*)
+│   │   │   │   ├── anyhow feature "default" (*)
+│   │   │   │   ├── dashmap feature "default" (*)
+│   │   │   │   ├── smallvec feature "default" (*)
+│   │   │   │   ├── smallvec feature "union" (*)
+│   │   │   │   ├── serde feature "default" (*)
+│   │   │   │   ├── serde feature "derive" (*)
+│   │   │   │   ├── derive_more feature "debug" (*)
+│   │   │   │   ├── derive_more feature "default" (*)
+│   │   │   │   ├── itertools feature "default" (*)
+│   │   │   │   ├── bitflags feature "default" (*)
+│   │   │   │   ├── rustc-hash feature "default" (*)
+│   │   │   │   ├── serde_json feature "arbitrary_precision"
+│   │   │   │   │   └── serde_json v1.0.151 (*)
+│   │   │   │   ├── serde_json feature "default" (*)
+│   │   │   │   ├── oxc feature "ast_visit" (*)
+│   │   │   │   ├── oxc feature "codegen" (*)
+│   │   │   │   ├── oxc feature "default" (*)
+│   │   │   │   ├── oxc feature "isolated_declarations" (*)
+│   │   │   │   ├── oxc feature "mangler" (*)
+│   │   │   │   ├── oxc feature "minifier" (*)
+│   │   │   │   ├── oxc feature "regular_expression" (*)
+│   │   │   │   ├── oxc feature "semantic" (*)
+│   │   │   │   ├── oxc feature "serialize" (*)
+│   │   │   │   ├── oxc feature "transformer" (*)
+│   │   │   │   ├── oxc_str feature "default" (*)
+│   │   │   │   ├── oxc_index feature "default" (*)
+│   │   │   │   ├── oxc_index feature "rayon" (*)
+│   │   │   │   ├── oxc_index feature "serde" (*)
+│   │   │   │   ├── oxc_ecmascript feature "default" (*)
+│   │   │   │   ├── num-bigint feature "default" (*)
+│   │   │   │   ├── oxc_sourcemap feature "default" (*)
+│   │   │   │   ├── json-escape-simd feature "default" (*)
+│   │   │   │   ├── oxc_resolver feature "default" (*)
+│   │   │   │   ├── oxc_resolver feature "yarn_pnp" (*)
+│   │   │   │   ├── fast-glob feature "default" (*)
+│   │   │   │   ├── simdutf8 feature "default" (*)
+│   │   │   │   ├── rolldown_ecmascript feature "default"
+│   │   │   │   │   └── rolldown_ecmascript v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_ecmascript)
+│   │   │   │   │       ├── arcstr v1.2.0
+│   │   │   │   │       ├── oxc feature "ast_visit" (*)
+│   │   │   │   │       ├── oxc feature "codegen" (*)
+│   │   │   │   │       ├── oxc feature "default" (*)
+│   │   │   │   │       ├── oxc feature "isolated_declarations" (*)
+│   │   │   │   │       ├── oxc feature "mangler" (*)
+│   │   │   │   │       ├── oxc feature "minifier" (*)
+│   │   │   │   │       ├── oxc feature "regular_expression" (*)
+│   │   │   │   │       ├── oxc feature "semantic" (*)
+│   │   │   │   │       ├── oxc feature "serialize" (*)
+│   │   │   │   │       ├── oxc feature "transformer" (*)
+│   │   │   │   │       ├── oxc_str feature "default" (*)
+│   │   │   │   │       ├── self_cell feature "default" (*)
+│   │   │   │   │       ├── oxc_sourcemap feature "default" (*)
+│   │   │   │   │       └── rolldown_error feature "default"
+│   │   │   │   │           └── rolldown_error v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_error)
+│   │   │   │   │               ├── arcstr v1.2.0
+│   │   │   │   │               ├── anyhow feature "default" (*)
+│   │   │   │   │               ├── derive_more feature "debug" (*)
+│   │   │   │   │               ├── derive_more feature "default" (*)
+│   │   │   │   │               ├── napi feature "anyhow" (*)
+│   │   │   │   │               ├── napi feature "async" (*)
+│   │   │   │   │               ├── napi feature "default" (*)
+│   │   │   │   │               ├── napi feature "object_indexmap" (*)
+│   │   │   │   │               ├── napi feature "tracing" (*)
+│   │   │   │   │               ├── bitflags feature "default" (*)
+│   │   │   │   │               ├── rustc-hash feature "default" (*)
+│   │   │   │   │               ├── oxc feature "ast_visit" (*)
+│   │   │   │   │               ├── oxc feature "codegen" (*)
+│   │   │   │   │               ├── oxc feature "default" (*)
+│   │   │   │   │               ├── oxc feature "isolated_declarations" (*)
+│   │   │   │   │               ├── oxc feature "mangler" (*)
+│   │   │   │   │               ├── oxc feature "minifier" (*)
+│   │   │   │   │               ├── oxc feature "regular_expression" (*)
+│   │   │   │   │               ├── oxc feature "semantic" (*)
+│   │   │   │   │               ├── oxc feature "serialize" (*)
+│   │   │   │   │               ├── oxc feature "transformer" (*)
+│   │   │   │   │               ├── oxc_resolver feature "default" (*)
+│   │   │   │   │               ├── oxc_resolver feature "yarn_pnp" (*)
+│   │   │   │   │               ├── heck feature "default"
+│   │   │   │   │               │   └── heck v0.5.0
+│   │   │   │   │               ├── rolldown-ariadne feature "default"
+│   │   │   │   │               │   └── rolldown-ariadne v0.6.0
+│   │   │   │   │               │       ├── unicode-width feature "default" (*)
+│   │   │   │   │               │       └── yansi feature "default"
+│   │   │   │   │               │           ├── yansi v1.0.1
+│   │   │   │   │               │           └── yansi feature "std"
+│   │   │   │   │               │               ├── yansi v1.0.1
+│   │   │   │   │               │               └── yansi feature "alloc"
+│   │   │   │   │               │                   └── yansi v1.0.1
+│   │   │   │   │               ├── sugar_path feature "cached_current_dir"
+│   │   │   │   │               │   └── sugar_path v3.0.0
+│   │   │   │   │               │       ├── smallvec feature "default" (*)
+│   │   │   │   │               │       └── memchr feature "default" (*)
+│   │   │   │   │               └── sugar_path feature "default"
+│   │   │   │   │                   └── sugar_path v3.0.0 (*)
+│   │   │   │   ├── rolldown_error feature "default" (*)
+│   │   │   │   ├── sugar_path feature "cached_current_dir" (*)
+│   │   │   │   ├── sugar_path feature "default" (*)
+│   │   │   │   ├── rolldown_fs feature "default"
+│   │   │   │   │   └── rolldown_fs v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_fs)
+│   │   │   │   │       ├── oxc_resolver feature "default" (*)
+│   │   │   │   │       ├── oxc_resolver feature "yarn_pnp" (*)
+│   │   │   │   │       └── vfs feature "default"
+│   │   │   │   │           └── vfs v0.13.0
+│   │   │   │   │               └── filetime feature "default"
+│   │   │   │   │                   └── filetime v0.2.29
+│   │   │   │   │                       ├── cfg-if feature "default" (*)
+│   │   │   │   │                       └── libc feature "default" (*)
+│   │   │   │   ├── rolldown_fs feature "os"
+│   │   │   │   │   └── rolldown_fs v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_fs) (*)
+│   │   │   │   ├── rolldown_sourcemap feature "default"
+│   │   │   │   │   └── rolldown_sourcemap v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_sourcemap)
+│   │   │   │   │       ├── memchr feature "default" (*)
+│   │   │   │   │       ├── oxc feature "ast_visit" (*)
+│   │   │   │   │       ├── oxc feature "codegen" (*)
+│   │   │   │   │       ├── oxc feature "default" (*)
+│   │   │   │   │       ├── oxc feature "isolated_declarations" (*)
+│   │   │   │   │       ├── oxc feature "mangler" (*)
+│   │   │   │   │       ├── oxc feature "minifier" (*)
+│   │   │   │   │       ├── oxc feature "regular_expression" (*)
+│   │   │   │   │       ├── oxc feature "semantic" (*)
+│   │   │   │   │       ├── oxc feature "serialize" (*)
+│   │   │   │   │       ├── oxc feature "transformer" (*)
+│   │   │   │   │       └── oxc_sourcemap feature "default" (*)
+│   │   │   │   ├── rolldown_std_utils feature "default"
+│   │   │   │   │   └── rolldown_std_utils v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_std_utils)
+│   │   │   │   │       ├── regex feature "perf" (*)
+│   │   │   │   │       ├── regex feature "std" (*)
+│   │   │   │   │       ├── regex feature "unicode-case" (*)
+│   │   │   │   │       ├── regex feature "unicode-perl" (*)
+│   │   │   │   │       ├── sugar_path feature "cached_current_dir" (*)
+│   │   │   │   │       └── sugar_path feature "default" (*)
+│   │   │   │   ├── rolldown_utils feature "default"
+│   │   │   │   │   └── rolldown_utils v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_utils)
+│   │   │   │   │       ├── arcstr v1.2.0
+│   │   │   │   │       ├── infer v0.22.0
+│   │   │   │   │       ├── tokio v1.53.3 (*)
+│   │   │   │   │       ├── anyhow feature "default" (*)
+│   │   │   │   │       ├── dashmap feature "default" (*)
+│   │   │   │   │       ├── futures feature "default" (*)
+│   │   │   │   │       ├── memchr feature "default" (*)
+│   │   │   │   │       ├── indexmap feature "default" (*)
+│   │   │   │   │       ├── indexmap feature "serde" (*)
+│   │   │   │   │       ├── rustc-hash feature "default" (*)
+│   │   │   │   │       ├── itoa feature "default" (*)
+│   │   │   │   │       ├── oxc feature "ast_visit" (*)
+│   │   │   │   │       ├── oxc feature "codegen" (*)
+│   │   │   │   │       ├── oxc feature "default" (*)
+│   │   │   │   │       ├── oxc feature "isolated_declarations" (*)
+│   │   │   │   │       ├── oxc feature "mangler" (*)
+│   │   │   │   │       ├── oxc feature "minifier" (*)
+│   │   │   │   │       ├── oxc feature "regular_expression" (*)
+│   │   │   │   │       ├── oxc feature "semantic" (*)
+│   │   │   │   │       ├── oxc feature "serialize" (*)
+│   │   │   │   │       ├── oxc feature "transformer" (*)
+│   │   │   │   │       ├── cow-utils feature "default" (*)
+│   │   │   │   │       ├── oxc_str feature "default" (*)
+│   │   │   │   │       ├── oxc_index feature "default" (*)
+│   │   │   │   │       ├── oxc_index feature "rayon" (*)
+│   │   │   │   │       ├── oxc_index feature "serde" (*)
+│   │   │   │   │       ├── rayon feature "default" (*)
+│   │   │   │   │       ├── base64-simd feature "default" (*)
+│   │   │   │   │       ├── json-escape-simd feature "default" (*)
+│   │   │   │   │       ├── regex feature "perf" (*)
+│   │   │   │   │       ├── regex feature "std" (*)
+│   │   │   │   │       ├── regex feature "unicode-case" (*)
+│   │   │   │   │       ├── regex feature "unicode-perl" (*)
+│   │   │   │   │       ├── fast-glob feature "default" (*)
+│   │   │   │   │       ├── regress feature "default" (*)
+│   │   │   │   │       ├── simdutf8 feature "default" (*)
+│   │   │   │   │       ├── rolldown_error feature "default" (*)
+│   │   │   │   │       ├── sugar_path feature "cached_current_dir" (*)
+│   │   │   │   │       ├── sugar_path feature "default" (*)
+│   │   │   │   │       ├── rolldown_std_utils feature "default" (*)
+│   │   │   │   │       ├── async-scoped feature "default"
+│   │   │   │   │       │   └── async-scoped v0.9.0
+│   │   │   │   │       │       ├── futures feature "default" (*)
+│   │   │   │   │       │       ├── tokio feature "default" (*)
+│   │   │   │   │       │       ├── tokio feature "macros" (*)
+│   │   │   │   │       │       ├── tokio feature "rt-multi-thread" (*)
+│   │   │   │   │       │       ├── tokio feature "sync" (*)
+│   │   │   │   │       │       └── pin-project feature "default"
+│   │   │   │   │       │           └── pin-project v1.1.13
+│   │   │   │   │       │               └── pin-project-internal feature "default"
+│   │   │   │   │       │                   └── pin-project-internal v1.1.13 (proc-macro)
+│   │   │   │   │       │                       ├── proc-macro2 feature "default" (*)
+│   │   │   │   │       │                       ├── quote feature "default" (*)
+│   │   │   │   │       │                       ├── syn feature "clone-impls" (*)
+│   │   │   │   │       │                       ├── syn feature "full" (*)
+│   │   │   │   │       │                       ├── syn feature "parsing" (*)
+│   │   │   │   │       │                       ├── syn feature "printing" (*)
+│   │   │   │   │       │                       ├── syn feature "proc-macro" (*)
+│   │   │   │   │       │                       └── syn feature "visit-mut" (*)
+│   │   │   │   │       ├── async-scoped feature "use-tokio"
+│   │   │   │   │       │   ├── async-scoped v0.9.0 (*)
+│   │   │   │   │       │   └── async-scoped feature "tokio"
+│   │   │   │   │       │       └── async-scoped v0.9.0 (*)
+│   │   │   │   │       ├── base-encode feature "default"
+│   │   │   │   │       │   └── base-encode v0.3.1
+│   │   │   │   │       ├── form_urlencoded feature "default"
+│   │   │   │   │       │   ├── form_urlencoded v1.2.2
+│   │   │   │   │       │   │   └── percent-encoding v2.3.2
+│   │   │   │   │       │   └── form_urlencoded feature "std"
+│   │   │   │   │       │       ├── form_urlencoded v1.2.2 (*)
+│   │   │   │   │       │       ├── percent-encoding feature "std" (*)
+│   │   │   │   │       │       └── form_urlencoded feature "alloc"
+│   │   │   │   │       │           ├── form_urlencoded v1.2.2 (*)
+│   │   │   │   │       │           └── percent-encoding feature "alloc" (*)
+│   │   │   │   │       ├── mime feature "default"
+│   │   │   │   │       │   └── mime v0.3.17
+│   │   │   │   │       ├── nom feature "default"
+│   │   │   │   │       │   ├── nom v8.0.0
+│   │   │   │   │       │   │   └── memchr v2.8.3
+│   │   │   │   │       │   └── nom feature "std"
+│   │   │   │   │       │       ├── nom v8.0.0 (*)
+│   │   │   │   │       │       ├── memchr feature "std" (*)
+│   │   │   │   │       │       └── nom feature "alloc"
+│   │   │   │   │       │           └── nom v8.0.0 (*)
+│   │   │   │   │       ├── uuid feature "default"
+│   │   │   │   │       │   ├── uuid v1.27.0
+│   │   │   │   │       │   │   └── getrandom feature "default"
+│   │   │   │   │       │   │       └── getrandom v0.4.3
+│   │   │   │   │       │   │           ├── libc v0.2.186
+│   │   │   │   │       │   │           └── cfg-if feature "default" (*)
+│   │   │   │   │       │   └── uuid feature "std"
+│   │   │   │   │       │       └── uuid v1.27.0 (*)
+│   │   │   │   │       ├── uuid feature "v4"
+│   │   │   │   │       │   ├── uuid v1.27.0 (*)
+│   │   │   │   │       │   └── uuid feature "rng"
+│   │   │   │   │       │       └── uuid v1.27.0 (*)
+│   │   │   │   │       ├── xxhash-rust feature "default"
+│   │   │   │   │       │   └── xxhash-rust v0.8.19
+│   │   │   │   │       └── xxhash-rust feature "xxh3"
+│   │   │   │   │           └── xxhash-rust v0.8.19
+│   │   │   │   ├── string_wizard feature "default"
+│   │   │   │   │   ├── string_wizard v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/string_wizard)
+│   │   │   │   │   │   ├── serde feature "default" (*)
+│   │   │   │   │   │   ├── serde feature "derive" (*)
+│   │   │   │   │   │   ├── memchr feature "default" (*)
+│   │   │   │   │   │   ├── rustc-hash feature "default" (*)
+│   │   │   │   │   │   ├── oxc_index feature "default" (*)
+│   │   │   │   │   │   ├── oxc_index feature "rayon" (*)
+│   │   │   │   │   │   ├── oxc_index feature "serde" (*)
+│   │   │   │   │   │   ├── oxc_sourcemap feature "default" (*)
+│   │   │   │   │   │   ├── regex feature "perf" (*)
+│   │   │   │   │   │   ├── regex feature "std" (*)
+│   │   │   │   │   │   ├── regex feature "unicode-case" (*)
+│   │   │   │   │   │   └── regex feature "unicode-perl" (*)
+│   │   │   │   │   ├── string_wizard feature "serde"
+│   │   │   │   │   │   ├── string_wizard v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/string_wizard) (*)
+│   │   │   │   │   │   └── oxc_index feature "serde" (*)
+│   │   │   │   │   └── string_wizard feature "sourcemap"
+│   │   │   │   │       └── string_wizard v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/string_wizard) (*)
+│   │   │   │   └── string_wizard feature "serde" (*)
+│   │   │   └── rolldown_common feature "serde"
+│   │   │       ├── rolldown_common v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_common) (*)
+│   │   │       └── oxc_index feature "serde" (*)
+│   │   ├── rolldown_ecmascript feature "default" (*)
+│   │   ├── rolldown_error feature "default" (*)
+│   │   ├── sugar_path feature "cached_current_dir" (*)
+│   │   ├── sugar_path feature "default" (*)
+│   │   ├── rolldown_fs feature "default" (*)
+│   │   ├── rolldown_fs feature "os" (*)
+│   │   ├── rolldown_sourcemap feature "default" (*)
+│   │   ├── rolldown_std_utils feature "default" (*)
+│   │   ├── rolldown_utils feature "default" (*)
+│   │   ├── xxhash-rust feature "default" (*)
+│   │   ├── xxhash-rust feature "xxh3" (*)
+│   │   ├── string_wizard feature "default" (*)
+│   │   ├── string_wizard feature "serde" (*)
+│   │   ├── rolldown_dev_common feature "default"
+│   │   │   └── rolldown_dev_common v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_dev_common)
+│   │   │       ├── derive_more feature "debug" (*)
+│   │   │       ├── derive_more feature "default" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       ├── rolldown_error feature "default" (*)
+│   │   │       └── rolldown_utils feature "default" (*)
+│   │   ├── rolldown_devtools feature "default"
+│   │   │   └── rolldown_devtools v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_devtools)
+│   │   │       ├── serde feature "default" (*)
+│   │   │       ├── serde feature "derive" (*)
+│   │   │       ├── serde feature "rc"
+│   │   │       │   ├── serde v1.0.229 (*)
+│   │   │       │   └── serde_core feature "rc"
+│   │   │       │       └── serde_core v1.0.229
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── serde_json feature "default" (*)
+│   │   │       ├── tracing feature "default" (*)
+│   │   │       ├── blake3 feature "default"
+│   │   │       │   ├── blake3 v1.8.7
+│   │   │       │   │   ├── arrayvec v0.7.8
+│   │   │       │   │   ├── constant_time_eq v0.4.2
+│   │   │       │   │   ├── cfg-if feature "default" (*)
+│   │   │       │   │   └── cpufeatures feature "default"
+│   │   │       │   │       └── cpufeatures v0.3.0
+│   │   │       │   │   [build-dependencies]
+│   │   │       │   │   └── cc feature "default" (*)
+│   │   │       │   └── blake3 feature "std"
+│   │   │       │       ├── blake3 v1.8.7 (*)
+│   │   │       │       └── constant_time_eq feature "std"
+│   │   │       │           └── constant_time_eq v0.4.2
+│   │   │       ├── rolldown_devtools_action feature "default"
+│   │   │       │   └── rolldown_devtools_action v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_devtools_action)
+│   │   │       │       ├── serde feature "default" (*)
+│   │   │       │       ├── serde feature "derive" (*)
+│   │   │       │       └── ts-rs feature "default"
+│   │   │       │           ├── ts-rs v12.0.1
+│   │   │       │           │   ├── thiserror feature "default" (*)
+│   │   │       │           │   └── ts-rs-macros feature "default"
+│   │   │       │           │       └── ts-rs-macros v12.0.1 (proc-macro)
+│   │   │       │           │           ├── proc-macro2 feature "default" (*)
+│   │   │       │           │           ├── quote feature "default" (*)
+│   │   │       │           │           ├── syn feature "default" (*)
+│   │   │       │           │           ├── syn feature "extra-traits" (*)
+│   │   │       │           │           ├── syn feature "full" (*)
+│   │   │       │           │           └── termcolor feature "default"
+│   │   │       │           │               └── termcolor v1.4.1
+│   │   │       │           └── ts-rs feature "serde-compat"
+│   │   │       │               ├── ts-rs v12.0.1 (*)
+│   │   │       │               └── ts-rs-macros feature "serde-compat"
+│   │   │       │                   ├── ts-rs-macros v12.0.1 (proc-macro) (*)
+│   │   │       │                   └── ts-rs-macros feature "termcolor"
+│   │   │       │                       └── ts-rs-macros v12.0.1 (proc-macro) (*)
+│   │   │       ├── tracing-subscriber feature "fmt"
+│   │   │       │   ├── tracing-subscriber v0.3.23
+│   │   │       │   │   ├── tracing-core v0.1.36 (*)
+│   │   │       │   │   ├── serde feature "default" (*)
+│   │   │       │   │   ├── serde_json feature "default" (*)
+│   │   │       │   │   ├── nu-ansi-term feature "default"
+│   │   │       │   │   │   ├── nu-ansi-term v0.50.3
+│   │   │       │   │   │   └── nu-ansi-term feature "std"
+│   │   │       │   │   │       └── nu-ansi-term v0.50.3
+│   │   │       │   │   ├── sharded-slab feature "default"
+│   │   │       │   │   │   └── sharded-slab v0.1.7
+│   │   │       │   │   │       └── lazy_static feature "default"
+│   │   │       │   │   │           └── lazy_static v1.5.0
+│   │   │       │   │   ├── thread_local feature "default"
+│   │   │       │   │   │   └── thread_local v1.1.10
+│   │   │       │   │   │       └── cfg-if feature "default" (*)
+│   │   │       │   │   └── tracing-serde feature "default"
+│   │   │       │   │       └── tracing-serde v0.2.0
+│   │   │       │   │           ├── serde feature "default" (*)
+│   │   │       │   │           └── tracing-core feature "default"
+│   │   │       │   │               ├── tracing-core v0.1.36 (*)
+│   │   │       │   │               └── tracing-core feature "std" (*)
+│   │   │       │   ├── tracing-subscriber feature "registry"
+│   │   │       │   │   ├── tracing-subscriber v0.3.23 (*)
+│   │   │       │   │   ├── tracing-subscriber feature "sharded-slab"
+│   │   │       │   │   │   └── tracing-subscriber v0.3.23 (*)
+│   │   │       │   │   ├── tracing-subscriber feature "std"
+│   │   │       │   │   │   ├── tracing-subscriber v0.3.23 (*)
+│   │   │       │   │   │   ├── tracing-core feature "std" (*)
+│   │   │       │   │   │   └── tracing-subscriber feature "alloc"
+│   │   │       │   │   │       └── tracing-subscriber v0.3.23 (*)
+│   │   │       │   │   └── tracing-subscriber feature "thread_local"
+│   │   │       │   │       └── tracing-subscriber v0.3.23 (*)
+│   │   │       │   └── tracing-subscriber feature "std" (*)
+│   │   │       ├── tracing-subscriber feature "json"
+│   │   │       │   ├── tracing-subscriber v0.3.23 (*)
+│   │   │       │   ├── tracing-subscriber feature "serde"
+│   │   │       │   │   └── tracing-subscriber v0.3.23 (*)
+│   │   │       │   ├── tracing-subscriber feature "serde_json"
+│   │   │       │   │   └── tracing-subscriber v0.3.23 (*)
+│   │   │       │   └── tracing-subscriber feature "tracing-serde"
+│   │   │       │       └── tracing-subscriber v0.3.23 (*)
+│   │   │       └── tracing-subscriber feature "std" (*)
+│   │   ├── rolldown_ecmascript_utils feature "default"
+│   │   │   └── rolldown_ecmascript_utils v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_ecmascript_utils)
+│   │   │       ├── memchr feature "default" (*)
+│   │   │       ├── oxc feature "ast_visit" (*)
+│   │   │       ├── oxc feature "codegen" (*)
+│   │   │       ├── oxc feature "default" (*)
+│   │   │       ├── oxc feature "isolated_declarations" (*)
+│   │   │       ├── oxc feature "mangler" (*)
+│   │   │       ├── oxc feature "minifier" (*)
+│   │   │       ├── oxc feature "regular_expression" (*)
+│   │   │       ├── oxc feature "semantic" (*)
+│   │   │       ├── oxc feature "serialize" (*)
+│   │   │       ├── oxc feature "transformer" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       └── rolldown_utils feature "default" (*)
+│   │   ├── rolldown_plugin feature "default"
+│   │   │   ├── rolldown_plugin v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin)
+│   │   │   │   ├── arcstr v1.2.0
+│   │   │   │   ├── anyhow feature "default" (*)
+│   │   │   │   ├── dashmap feature "default" (*)
+│   │   │   │   ├── serde feature "default" (*)
+│   │   │   │   ├── serde feature "derive" (*)
+│   │   │   │   ├── derive_more feature "debug" (*)
+│   │   │   │   ├── derive_more feature "default" (*)
+│   │   │   │   ├── bitflags feature "default" (*)
+│   │   │   │   ├── rustc-hash feature "default" (*)
+│   │   │   │   ├── serde_json feature "default" (*)
+│   │   │   │   ├── tokio feature "sync" (*)
+│   │   │   │   ├── tracing feature "default" (*)
+│   │   │   │   ├── tracing feature "valuable"
+│   │   │   │   │   ├── tracing v0.1.44 (*)
+│   │   │   │   │   └── tracing-core feature "valuable"
+│   │   │   │   │       └── tracing-core v0.1.36 (*)
+│   │   │   │   ├── oxc_index feature "default" (*)
+│   │   │   │   ├── oxc_index feature "rayon" (*)
+│   │   │   │   ├── oxc_index feature "serde" (*)
+│   │   │   │   ├── nodejs-built-in-modules feature "default" (*)
+│   │   │   │   ├── rolldown_common feature "default" (*)
+│   │   │   │   ├── rolldown_ecmascript feature "default" (*)
+│   │   │   │   ├── rolldown_error feature "default" (*)
+│   │   │   │   ├── sugar_path feature "cached_current_dir" (*)
+│   │   │   │   ├── sugar_path feature "default" (*)
+│   │   │   │   ├── rolldown_fs feature "default" (*)
+│   │   │   │   ├── rolldown_sourcemap feature "default" (*)
+│   │   │   │   ├── rolldown_utils feature "default" (*)
+│   │   │   │   ├── string_wizard feature "default" (*)
+│   │   │   │   ├── string_wizard feature "serde" (*)
+│   │   │   │   ├── rolldown_devtools feature "default" (*)
+│   │   │   │   ├── rolldown_resolver feature "default"
+│   │   │   │   │   └── rolldown_resolver v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_resolver)
+│   │   │   │   │       ├── arcstr v1.2.0
+│   │   │   │   │       ├── anyhow feature "default" (*)
+│   │   │   │   │       ├── dashmap feature "default" (*)
+│   │   │   │   │       ├── itertools feature "default" (*)
+│   │   │   │   │       ├── oxc_resolver feature "default" (*)
+│   │   │   │   │       ├── oxc_resolver feature "yarn_pnp" (*)
+│   │   │   │   │       ├── rolldown_common feature "default" (*)
+│   │   │   │   │       ├── sugar_path feature "cached_current_dir" (*)
+│   │   │   │   │       ├── sugar_path feature "default" (*)
+│   │   │   │   │       ├── rolldown_fs feature "default" (*)
+│   │   │   │   │       ├── rolldown_fs feature "os" (*)
+│   │   │   │   │       └── rolldown_utils feature "default" (*)
+│   │   │   │   └── typedmap feature "default"
+│   │   │   │       └── typedmap v0.6.0
+│   │   │   └── rolldown_plugin feature "serde"
+│   │   │       ├── rolldown_plugin v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin) (*)
+│   │   │       └── oxc_index feature "serde" (*)
+│   │   ├── rolldown_resolver feature "default" (*)
+│   │   ├── rolldown_plugin_asset_module feature "default"
+│   │   │   └── rolldown_plugin_asset_module v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_asset_module)
+│   │   │       ├── anyhow feature "default" (*)
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       ├── rolldown_utils feature "default" (*)
+│   │   │       ├── rolldown_plugin feature "default" (*)
+│   │   │       └── rolldown_plugin_utils feature "default"
+│   │   │           └── rolldown_plugin_utils v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_utils)
+│   │   │               ├── arcstr v1.2.0
+│   │   │               ├── anyhow feature "default" (*)
+│   │   │               ├── memchr feature "default" (*)
+│   │   │               ├── serde_json feature "default" (*)
+│   │   │               ├── tokio feature "fs"
+│   │   │               │   └── tokio v1.53.3 (*)
+│   │   │               ├── oxc feature "ast_visit" (*)
+│   │   │               ├── oxc feature "codegen" (*)
+│   │   │               ├── oxc feature "default" (*)
+│   │   │               ├── oxc feature "isolated_declarations" (*)
+│   │   │               ├── oxc feature "mangler" (*)
+│   │   │               ├── oxc feature "minifier" (*)
+│   │   │               ├── oxc feature "regular_expression" (*)
+│   │   │               ├── oxc feature "semantic" (*)
+│   │   │               ├── oxc feature "serialize" (*)
+│   │   │               ├── oxc feature "transformer" (*)
+│   │   │               ├── json-escape-simd feature "default" (*)
+│   │   │               ├── rolldown_common feature "default" (*)
+│   │   │               ├── rolldown_std_utils feature "default" (*)
+│   │   │               ├── rolldown_utils feature "default" (*)
+│   │   │               ├── string_wizard feature "default" (*)
+│   │   │               ├── string_wizard feature "serde" (*)
+│   │   │               └── rolldown_plugin feature "default" (*)
+│   │   ├── rolldown_plugin_chunk_import_map feature "default"
+│   │   │   └── rolldown_plugin_chunk_import_map v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_chunk_import_map)
+│   │   │       ├── arcstr v1.2.0
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── serde_json feature "default" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       ├── rolldown_utils feature "default" (*)
+│   │   │       ├── xxhash-rust feature "default" (*)
+│   │   │       ├── xxhash-rust feature "xxh3" (*)
+│   │   │       └── rolldown_plugin feature "default" (*)
+│   │   ├── rolldown_plugin_copy_module feature "default"
+│   │   │   └── rolldown_plugin_copy_module v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_copy_module)
+│   │   │       ├── arcstr v1.2.0
+│   │   │       ├── anyhow feature "default" (*)
+│   │   │       ├── rustc-hash feature "default" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       ├── rolldown_utils feature "default" (*)
+│   │   │       ├── rolldown_plugin feature "default" (*)
+│   │   │       └── rolldown_plugin_utils feature "default" (*)
+│   │   ├── rolldown_plugin_data_url feature "default"
+│   │   │   └── rolldown_plugin_data_url v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_data_url)
+│   │   │       ├── arcstr v1.2.0
+│   │   │       ├── percent-encoding feature "default" (*)
+│   │   │       ├── base64-simd feature "default" (*)
+│   │   │       ├── simdutf8 feature "default" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       ├── rolldown_utils feature "default" (*)
+│   │   │       └── rolldown_plugin feature "default" (*)
+│   │   ├── rolldown_plugin_hmr feature "default"
+│   │   │   └── rolldown_plugin_hmr v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_hmr)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       └── rolldown_plugin feature "default" (*)
+│   │   ├── rolldown_plugin_lazy_compilation feature "default"
+│   │   │   └── rolldown_plugin_lazy_compilation v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_lazy_compilation)
+│   │   │       ├── arcstr v1.2.0
+│   │   │       ├── anyhow feature "default" (*)
+│   │   │       ├── serde_json feature "default" (*)
+│   │   │       ├── oxc feature "ast_visit" (*)
+│   │   │       ├── oxc feature "codegen" (*)
+│   │   │       ├── oxc feature "default" (*)
+│   │   │       ├── oxc feature "isolated_declarations" (*)
+│   │   │       ├── oxc feature "mangler" (*)
+│   │   │       ├── oxc feature "minifier" (*)
+│   │   │       ├── oxc feature "regular_expression" (*)
+│   │   │       ├── oxc feature "semantic" (*)
+│   │   │       ├── oxc feature "serialize" (*)
+│   │   │       ├── oxc feature "transformer" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       ├── rolldown_utils feature "default" (*)
+│   │   │       └── rolldown_plugin feature "default" (*)
+│   │   ├── rolldown_plugin_oxc_runtime feature "default"
+│   │   │   └── rolldown_plugin_oxc_runtime v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_oxc_runtime)
+│   │   │       ├── arcstr v1.2.0
+│   │   │       ├── phf feature "default" (*)
+│   │   │       ├── phf feature "macros" (*)
+│   │   │       ├── rolldown_common feature "default" (*)
+│   │   │       ├── rolldown_utils feature "default" (*)
+│   │   │       └── rolldown_plugin feature "default" (*)
+│   │   ├── rolldown_tracing feature "default"
+│   │   │   └── rolldown_tracing v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_tracing)
+│   │   │       ├── tracing feature "default" (*)
+│   │   │       ├── tracing feature "valuable" (*)
+│   │   │       ├── tracing-subscriber feature "ansi"
+│   │   │       │   ├── tracing-subscriber v0.3.23 (*)
+│   │   │       │   ├── tracing-subscriber feature "fmt" (*)
+│   │   │       │   └── tracing-subscriber feature "nu-ansi-term"
+│   │   │       │       └── tracing-subscriber v0.3.23 (*)
+│   │   │       └── tracing-subscriber feature "fmt" (*)
+│   │   └── url feature "default"
+│   │       ├── url v2.5.8
+│   │       │   ├── percent-encoding feature "alloc" (*)
+│   │       │   ├── form_urlencoded feature "alloc" (*)
+│   │       │   ├── idna feature "alloc"
+│   │       │   │   └── idna v1.1.0
+│   │       │   │       ├── smallvec feature "const_generics"
+│   │       │   │       │   └── smallvec v1.16.2 (*)
+│   │       │   │       ├── smallvec feature "default" (*)
+│   │       │   │       ├── idna_adapter feature "default"
+│   │       │   │       │   └── idna_adapter v1.0.0
+│   │       │   │       └── utf8_iter feature "default"
+│   │       │   │           └── utf8_iter v1.0.4
+│   │       │   └── idna feature "compiled_data"
+│   │       │       ├── idna v1.1.0 (*)
+│   │       │       └── idna_adapter feature "compiled_data"
+│   │       │           └── idna_adapter v1.0.0
+│   │       └── url feature "std"
+│   │           ├── url v2.5.8 (*)
+│   │           ├── percent-encoding feature "std" (*)
+│   │           ├── form_urlencoded feature "std" (*)
+│   │           └── idna feature "std"
+│   │               ├── idna v1.1.0 (*)
+│   │               └── idna feature "alloc" (*)
+│   └── rolldown feature "serde"
+│       ├── rolldown v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown) (*)
+│       └── oxc_index feature "serde" (*)
+├── rolldown feature "experimental"
+│   └── rolldown v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown) (*)
+├── rolldown_common feature "default" (*)
+├── rolldown_error feature "default" (*)
+├── rolldown_error feature "napi"
+│   └── rolldown_error v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_error) (*)
+├── sugar_path feature "cached_current_dir" (*)
+├── sugar_path feature "default" (*)
+├── rolldown_sourcemap feature "default" (*)
+├── rolldown_utils feature "default" (*)
+├── string_wizard feature "default" (*)
+├── string_wizard feature "serde" (*)
+├── rolldown_devtools feature "default" (*)
+├── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_utils feature "default" (*)
+├── rolldown_plugin_oxc_runtime feature "default" (*)
+├── rolldown_tracing feature "default" (*)
+├── url feature "default" (*)
+├── rolldown_dev feature "default"
+│   └── rolldown_dev v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_dev)
+│       ├── arcstr v1.2.0
+│       ├── anyhow feature "default" (*)
+│       ├── futures feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── tokio feature "macros" (*)
+│       ├── tokio feature "rt" (*)
+│       ├── tokio feature "sync" (*)
+│       ├── tokio feature "time" (*)
+│       ├── tracing feature "default" (*)
+│       ├── rolldown feature "default" (*)
+│       ├── rolldown feature "experimental" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_error feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       ├── rolldown_dev_common feature "default" (*)
+│       └── rolldown_fs_watcher feature "default"
+│           └── rolldown_fs_watcher v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_fs_watcher)
+│               ├── rustc-hash feature "default" (*)
+│               ├── tracing feature "default" (*)
+│               ├── rolldown_common feature "default" (*)
+│               ├── rolldown_error feature "default" (*)
+│               ├── rolldown_utils feature "default" (*)
+│               ├── globstar feature "default"
+│               │   └── globstar v0.0.4
+│               ├── rolldown-notify feature "default"
+│               │   ├── rolldown-notify v11.0.0
+│               │   │   ├── inotify v0.11.4
+│               │   │   │   ├── libc feature "default" (*)
+│               │   │   │   ├── bitflags feature "default" (*)
+│               │   │   │   └── inotify-sys feature "default"
+│               │   │   │       └── inotify-sys v0.1.8
+│               │   │   │           └── libc feature "default" (*)
+│               │   │   ├── libc feature "default" (*)
+│               │   │   ├── rustc-hash feature "default" (*)
+│               │   │   ├── tracing feature "default" (*)
+│               │   │   ├── mio feature "default"
+│               │   │   │   ├── mio v1.2.2
+│               │   │   │   │   ├── libc feature "default" (*)
+│               │   │   │   │   └── log feature "default"
+│               │   │   │   │       └── log v0.4.33
+│               │   │   │   └── mio feature "log"
+│               │   │   │       └── mio v1.2.2 (*)
+│               │   │   ├── mio feature "os-ext"
+│               │   │   │   ├── mio v1.2.2 (*)
+│               │   │   │   └── mio feature "os-poll"
+│               │   │   │       └── mio v1.2.2 (*)
+│               │   │   ├── rolldown-notify-types feature "default"
+│               │   │   │   └── rolldown-notify-types v2.0.3
+│               │   │   └── walkdir feature "default"
+│               │   │       └── walkdir v2.5.0
+│               │   │           └── same-file feature "default"
+│               │   │               └── same-file v1.0.6
+│               │   └── rolldown-notify feature "macos_fsevent"
+│               │       └── rolldown-notify v11.0.0 (*)
+│               ├── walkdir feature "default" (*)
+│               └── rolldown-notify-debouncer-full feature "default"
+│                   ├── rolldown-notify-debouncer-full v0.8.0
+│                   │   ├── rustc-hash feature "default" (*)
+│                   │   ├── tracing feature "default" (*)
+│                   │   ├── rolldown-notify feature "default" (*)
+│                   │   ├── rolldown-notify-types feature "default" (*)
+│                   │   ├── walkdir feature "default" (*)
+│                   │   └── rolldown-file-id feature "default"
+│                   │       └── rolldown-file-id v0.2.11
+│                   └── rolldown-notify-debouncer-full feature "macos_fsevent"
+│                       ├── rolldown-notify-debouncer-full v0.8.0 (*)
+│                       └── rolldown-notify feature "macos_fsevent" (*)
+├── rolldown_plugin_bundle_analyzer feature "default"
+│   └── rolldown_plugin_bundle_analyzer v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_bundle_analyzer)
+│       ├── arcstr v1.2.0
+│       ├── serde feature "default" (*)
+│       ├── serde feature "derive" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── serde_json feature "default" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_std_utils feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_esm_external_require feature "default"
+│   └── rolldown_plugin_esm_external_require v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_esm_external_require)
+│       ├── rustc-hash feature "default" (*)
+│       ├── nodejs-built-in-modules feature "default" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_isolated_declaration feature "default"
+│   └── rolldown_plugin_isolated_declaration v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_isolated_declaration)
+│       ├── arcstr v1.2.0
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "codegen" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "isolated_declarations" (*)
+│       ├── oxc feature "mangler" (*)
+│       ├── oxc feature "minifier" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc feature "transformer" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_error feature "default" (*)
+│       ├── sugar_path feature "cached_current_dir" (*)
+│       ├── sugar_path feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_replace feature "default"
+│   └── rolldown_plugin_replace v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_replace)
+│       ├── anyhow feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "codegen" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "isolated_declarations" (*)
+│       ├── oxc feature "mangler" (*)
+│       ├── oxc feature "minifier" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc feature "transformer" (*)
+│       ├── regex feature "perf" (*)
+│       ├── regex feature "std" (*)
+│       ├── regex feature "unicode-case" (*)
+│       ├── regex feature "unicode-perl" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       ├── string_wizard feature "default" (*)
+│       ├── string_wizard feature "serde" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_vite_alias feature "default"
+│   └── rolldown_plugin_vite_alias v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_alias)
+│       ├── cow-utils feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_vite_build_import_analysis feature "default"
+│   └── rolldown_plugin_vite_build_import_analysis v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_build_import_analysis)
+│       ├── arcstr v1.2.0
+│       ├── derive_more feature "debug" (*)
+│       ├── derive_more feature "default" (*)
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "codegen" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "isolated_declarations" (*)
+│       ├── oxc feature "mangler" (*)
+│       ├── oxc feature "minifier" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc feature "transformer" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_ecmascript_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_vite_dynamic_import_vars feature "default"
+│   └── rolldown_plugin_vite_dynamic_import_vars v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_dynamic_import_vars)
+│       ├── arcstr v1.2.0
+│       ├── anyhow feature "default" (*)
+│       ├── derive_more feature "debug" (*)
+│       ├── derive_more feature "default" (*)
+│       ├── memchr feature "default" (*)
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "codegen" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "isolated_declarations" (*)
+│       ├── oxc feature "mangler" (*)
+│       ├── oxc feature "minifier" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc feature "transformer" (*)
+│       ├── cow-utils feature "default" (*)
+│       ├── sugar_path feature "cached_current_dir" (*)
+│       ├── sugar_path feature "default" (*)
+│       ├── rolldown_std_utils feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       ├── string_wizard feature "default" (*)
+│       ├── string_wizard feature "serde" (*)
+│       ├── rolldown_plugin feature "default" (*)
+│       └── rolldown_plugin_utils feature "default" (*)
+├── rolldown_plugin_vite_import_glob feature "default"
+│   └── rolldown_plugin_vite_import_glob v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_import_glob)
+│       ├── arcstr v1.2.0
+│       ├── anyhow feature "default" (*)
+│       ├── itoa feature "default" (*)
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "codegen" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "isolated_declarations" (*)
+│       ├── oxc feature "mangler" (*)
+│       ├── oxc feature "minifier" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc feature "transformer" (*)
+│       ├── fast-glob feature "default" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── sugar_path feature "cached_current_dir" (*)
+│       ├── sugar_path feature "default" (*)
+│       ├── rolldown_std_utils feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       ├── string_wizard feature "default" (*)
+│       ├── string_wizard feature "serde" (*)
+│       ├── rolldown_ecmascript_utils feature "default" (*)
+│       ├── rolldown_plugin feature "default" (*)
+│       ├── rolldown_plugin_utils feature "default" (*)
+│       ├── globstar feature "default" (*)
+│       ├── walkdir feature "default" (*)
+│       └── path-posix feature "default"
+│           └── path-posix v0.0.1
+│               └── memchr feature "default" (*)
+├── rolldown_plugin_vite_json feature "default"
+│   └── rolldown_plugin_vite_json v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_json)
+│       ├── memchr feature "default" (*)
+│       ├── serde_json feature "default" (*)
+│       ├── json-escape-simd feature "default" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_sourcemap feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       ├── rolldown_plugin feature "default" (*)
+│       └── rolldown_plugin_utils feature "default" (*)
+├── rolldown_plugin_vite_load_fallback feature "default"
+│   └── rolldown_plugin_vite_load_fallback v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_load_fallback)
+│       ├── memchr feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_vite_manifest feature "default"
+│   └── rolldown_plugin_vite_manifest v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_manifest)
+│       ├── arcstr v1.2.0
+│       ├── anyhow feature "default" (*)
+│       ├── serde feature "default" (*)
+│       ├── serde feature "derive" (*)
+│       ├── serde feature "rc" (*)
+│       ├── derive_more feature "debug" (*)
+│       ├── derive_more feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── serde_json feature "default" (*)
+│       ├── cow-utils feature "default" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_vite_module_preload_polyfill feature "default"
+│   └── rolldown_plugin_vite_module_preload_polyfill v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_module_preload_polyfill)
+│       ├── arcstr v1.2.0
+│       ├── rolldown_common feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_vite_react_refresh_wrapper feature "default"
+│   └── rolldown_plugin_vite_react_refresh_wrapper v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_react_refresh_wrapper)
+│       ├── arcstr v1.2.0
+│       ├── memchr feature "default" (*)
+│       ├── regex feature "perf" (*)
+│       ├── regex feature "std" (*)
+│       ├── regex feature "unicode-case" (*)
+│       ├── regex feature "unicode-perl" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       ├── rolldown_plugin feature "default" (*)
+│       └── rolldown_plugin_utils feature "default" (*)
+├── rolldown_plugin_vite_reporter feature "default"
+│   └── rolldown_plugin_vite_reporter v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_reporter)
+│       ├── anyhow feature "default" (*)
+│       ├── derive_more feature "debug" (*)
+│       ├── derive_more feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── itoa feature "default" (*)
+│       ├── cow-utils feature "default" (*)
+│       ├── rayon feature "default" (*)
+│       ├── flate2 feature "default"
+│       │   ├── flate2 v1.1.10 (*)
+│       │   ├── flate2 feature "runtime_detection"
+│       │   │   ├── flate2 v1.1.10 (*)
+│       │   │   ├── crc32fast feature "std"
+│       │   │   │   └── crc32fast v1.5.0 (*)
+│       │   │   └── zlib-rs feature "std"
+│       │   │       ├── zlib-rs v0.6.6
+│       │   │       └── zlib-rs feature "rust-allocator" (*)
+│       │   └── flate2 feature "rust_backend"
+│       │       ├── flate2 v1.1.10 (*)
+│       │       ├── flate2 feature "any_impl" (*)
+│       │       └── flate2 feature "miniz_oxide"
+│       │           ├── flate2 v1.1.10 (*)
+│       │           └── flate2 feature "any_impl" (*)
+│       ├── flate2 feature "zlib-rs" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── sugar_path feature "cached_current_dir" (*)
+│       ├── sugar_path feature "default" (*)
+│       ├── rolldown_std_utils feature "default" (*)
+│       ├── rolldown_plugin feature "default" (*)
+│       ├── owo-colors feature "default"
+│       │   └── owo-colors v4.4.0
+│       ├── supports-color feature "default"
+│       │   └── supports-color v3.0.2
+│       │       └── is_ci feature "default"
+│       │           └── is_ci v1.2.0
+│       └── terminal_size feature "default"
+│           └── terminal_size v0.4.4
+│               ├── rustix feature "default" (*)
+│               └── rustix feature "termios"
+│                   └── rustix v1.1.4 (*)
+├── rolldown_plugin_vite_resolve feature "default"
+│   └── rolldown_plugin_vite_resolve v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_resolve)
+│       ├── arcstr v1.2.0
+│       ├── anyhow feature "default" (*)
+│       ├── dashmap feature "default" (*)
+│       ├── serde feature "default" (*)
+│       ├── serde feature "derive" (*)
+│       ├── derive_more feature "debug" (*)
+│       ├── derive_more feature "default" (*)
+│       ├── rustc-hash feature "default" (*)
+│       ├── serde_json feature "default" (*)
+│       ├── cow-utils feature "default" (*)
+│       ├── percent-encoding feature "default" (*)
+│       ├── oxc_resolver feature "default" (*)
+│       ├── oxc_resolver feature "yarn_pnp" (*)
+│       ├── fast-glob feature "default" (*)
+│       ├── nodejs-built-in-modules feature "default" (*)
+│       ├── pnp feature "default" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── sugar_path feature "cached_current_dir" (*)
+│       ├── sugar_path feature "default" (*)
+│       ├── rolldown_std_utils feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       ├── rolldown_plugin feature "default" (*)
+│       ├── rolldown_plugin_utils feature "default" (*)
+│       ├── url feature "default" (*)
+│       ├── idna_adapter feature "default" (*)
+│       ├── owo-colors feature "default" (*)
+│       └── parking_lot feature "default"
+│           └── parking_lot v0.12.5
+│               ├── lock_api feature "default" (*)
+│               └── parking_lot_core feature "default" (*)
+├── rolldown_plugin_vite_transform feature "default"
+│   └── rolldown_plugin_vite_transform v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_transform)
+│       ├── anyhow feature "default" (*)
+│       ├── memchr feature "default" (*)
+│       ├── itertools feature "default" (*)
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "codegen" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "isolated_declarations" (*)
+│       ├── oxc feature "mangler" (*)
+│       ├── oxc feature "minifier" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc feature "transformer" (*)
+│       ├── oxc_resolver feature "default" (*)
+│       ├── oxc_resolver feature "yarn_pnp" (*)
+│       ├── rolldown_common feature "default" (*)
+│       ├── rolldown_ecmascript feature "default" (*)
+│       ├── rolldown_error feature "default" (*)
+│       ├── rolldown_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+├── rolldown_plugin_vite_web_worker_post feature "default"
+│   └── rolldown_plugin_vite_web_worker_post v0.1.0 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_plugin_vite_web_worker_post)
+│       ├── oxc feature "ast_visit" (*)
+│       ├── oxc feature "codegen" (*)
+│       ├── oxc feature "default" (*)
+│       ├── oxc feature "isolated_declarations" (*)
+│       ├── oxc feature "mangler" (*)
+│       ├── oxc feature "minifier" (*)
+│       ├── oxc feature "regular_expression" (*)
+│       ├── oxc feature "semantic" (*)
+│       ├── oxc feature "serialize" (*)
+│       ├── oxc feature "transformer" (*)
+│       ├── rolldown_ecmascript_utils feature "default" (*)
+│       └── rolldown_plugin feature "default" (*)
+└── rolldown_watcher feature "default"
+    └── rolldown_watcher v1.2.15 (/workspace/source-taster/.tmp/pagefind/rolldown/crates/rolldown_watcher)
+        ├── arcstr v1.2.0
+        ├── anyhow feature "default" (*)
+        ├── futures feature "default" (*)
+        ├── tokio feature "macros" (*)
+        ├── tokio feature "rt" (*)
+        ├── tokio feature "sync" (*)
+        ├── tokio feature "time" (*)
+        ├── tracing feature "default" (*)
+        ├── oxc_index feature "default" (*)
+        ├── oxc_index feature "rayon" (*)
+        ├── oxc_index feature "serde" (*)
+        ├── rolldown feature "default" (*)
+        ├── rolldown feature "experimental" (*)
+        ├── rolldown_common feature "default" (*)
+        ├── rolldown_error feature "default" (*)
+        ├── rolldown_utils feature "default" (*)
+        └── rolldown_fs_watcher feature "default" (*)
+[build-dependencies]
+└── napi-build feature "default" (*)

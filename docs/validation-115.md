@@ -1,5 +1,10 @@
 # Issue #115 implementation evidence
 
+Historical 2026-10-26 snapshot. The approved compiler exceptions, controlled
+source build and current validation are recorded in
+[the controlled-build continuation](implementation/115-controlled-build.md).
+The findings below remain historical evidence, not current approval requests.
+
 Validated locally on 2026-10-26 on `feat/115-static-website`, based on integration `spec/70-launch-product`. The work continues an earlier partial commit (`680338f`); its content, legal drafts and publication gate were kept, the remaining gaps were closed test-first.
 
 ## Behavior

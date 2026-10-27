@@ -1,0 +1,20 @@
+{
+  "rolldown": "1.2.15",
+  "modules": {
+    "public_search_api": [
+      "pagefind_web_js/lib/coupled_search.ts",
+      "pagefind_web_js/lib/excerpt.ts",
+      "pagefind_web_js/lib/gz.js",
+      "pagefind_web_js/lib/public_search_api.ts",
+      "pagefind_web_js/lib/search_wrapper.ts",
+      "pagefind_web_js/lib/sub_results.ts"
+    ],
+    "pagefind_worker": [
+      "pagefind_web_js/lib/coupled_search.ts",
+      "pagefind_web_js/lib/excerpt.ts",
+      "pagefind_web_js/lib/gz.js",
+      "pagefind_web_js/lib/pagefind_worker.ts",
+      "pagefind_web_js/lib/sub_results.ts"
+    ]
+  }
+}

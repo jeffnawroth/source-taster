@@ -28,32 +28,32 @@ async function expectAccessible(page: Page, label: string) {
   ).toEqual([]);
 }
 
-test("every built page passes the automated WCAG 2.2 AA rules at 320 and 1280 pixels", async ({
-  page,
-}) => {
-  expect(routes.length).toBeGreaterThanOrEqual(34);
-  const failed: string[] = [];
-  page.on("response", (response) => {
-    if (response.status() >= 400)
-      failed.push(`${response.status()} ${response.url()}`);
-  });
-  page.on("requestfailed", (request) => failed.push(`failed ${request.url()}`));
-  for (const width of [320, 1280]) {
-    await page.setViewportSize({ width, height: 800 });
-    for (const route of routes) {
+// Each page/viewport is its own browser case. A single whole-site loop can
+// exhaust Playwright's 30-second test budget on CI before all pages are assessed.
+for (const width of [320, 1280])
+  for (const route of routes)
+    test(`${route} passes WCAG 2.2 AA and reflow at ${width}px`, async ({
+      page,
+    }) => {
+      expect(routes.length).toBeGreaterThanOrEqual(34);
+      const failed: string[] = [];
+      page.on("response", (response) => {
+        if (response.status() >= 400)
+          failed.push(`${response.status()} ${response.url()}`);
+      });
+      page.on("requestfailed", (request) =>
+        failed.push(`failed ${request.url()}`),
+      );
+      await page.setViewportSize({ width, height: 800 });
       const response = await page.goto(route);
       expect(response?.status(), route).toBe(200);
       await expectAccessible(page, `${route} @ ${width}px`);
-      // Reflow (WCAG 1.4.10): nothing scrolls sideways at 320 CSS pixels.
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth),
         `${route} @ ${width}px`,
       ).toBeLessThanOrEqual(width);
-    }
-  }
-  // Styles and scripts must actually load under the hosting boundary.
-  expect(failed).toEqual([]);
-});
+      expect(failed).toEqual([]);
+    });
 
 test("the not-found page is accessible in both languages", async ({ page }) => {
   const response = await page.goto("/docs/en/missing/");

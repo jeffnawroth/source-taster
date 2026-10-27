@@ -62,6 +62,24 @@ try {
 } finally {
   await rm(unknownInput, { force: true });
 }
+const noticeFile = resolve(
+  root,
+  "apps/website/dist-preview/third-party/pagefind/NOTICE.txt",
+);
+const originalNotice = await readFile(noticeFile);
+try {
+  await writeFile(
+    noticeFile,
+    Buffer.concat([originalNotice, Buffer.from("\nchanged notice\n")]),
+  );
+  requireResult(
+    run(["scripts/website-qualification.ts"]),
+    false,
+    "Website artifact changed",
+  );
+} finally {
+  await writeFile(noticeFile, originalNotice);
+}
 const guardEnv = {
   ...process.env,
   SOURCE_TASTER_CONTROLLED_BIN: resolve(work, "bin"),

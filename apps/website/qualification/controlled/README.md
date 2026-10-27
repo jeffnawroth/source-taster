@@ -44,6 +44,15 @@ The compiler uses `astro_napi --no-default-features`; Rolldown and Sätteri use
 their upstream release feature selection. Every selected normal/build closure
 and feature tree is recorded in `.tmp/pagefind/graphs.json` and `*.tree.txt`.
 
+WASM uses a clean target directory and the owned `pagefind-rustc.ts` wrapper.
+Cargo otherwise salts the two local path-crate identities with their filesystem
+locations, changing symbol identity and linked bytes when readers extract the
+source elsewhere. The wrapper replaces only Cargo's metadata salt for
+`pagefind_web` 1.5.2 and `pagefind_stem` 1.0.0 with their name, version and exact
+selected feature list; it preserves every other compiler argument. Registry
+crates and all native builds keep their normal handling. The same wrapper is
+included and used by the delivered offline reproduction script.
+
 Pagefind JS is bundled through the frozen Rolldown 1.2.15 API and its controlled
 binding. ES2022 preserves class fields without injected runtime helpers; the
 classic worker explicitly uses the existing base-path fallback. Module lists
