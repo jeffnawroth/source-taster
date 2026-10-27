@@ -123,6 +123,22 @@ export function verificationClient(options: VerificationClientOptions = {}) {
           CheckResponse,
         )
       ).data,
+    cancelCheck: async (checkId: string) =>
+      (
+        await post(
+          `/v1/checks/${encodeURIComponent(checkId)}/cancel`,
+          undefined,
+          CheckResponse,
+        )
+      ).data,
+    renewCheckLease: async (checkId: string) =>
+      (
+        await post(
+          `/v1/checks/${encodeURIComponent(checkId)}/lease`,
+          undefined,
+          CheckResponse,
+        )
+      ).data,
     getCheck: async (checkId: string) => {
       const response = await (options.fetch ?? globalThis.fetch)(
         `${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`,
@@ -176,7 +192,7 @@ export async function watchCheckEvents(
     options.signal?.throwIfAborted();
     try {
       const headers: Record<string, string> = { accept: "text/event-stream" };
-      if (lastSeq > 0) headers["last-event-id"] = String(lastSeq);
+      if (lastSeq > 0) headers["last-event-id"] = `${checkId}:${lastSeq}`;
       const response = await doFetch(url, { headers, signal: options.signal });
       if (response.status >= 400 && response.status < 500) {
         const body: unknown = await response.json().catch(() => undefined);
@@ -186,7 +202,14 @@ export async function watchCheckEvents(
       if (response.ok && response.body) {
         for await (const frame of readSseFrames(response.body)) {
           const event = CheckEvent.parse(JSON.parse(frame.data));
+          if (
+            event.checkId !== checkId ||
+            frame.id !== `${checkId}:${event.seq}`
+          )
+            throw new SyntaxError("Invalid Check event cursor");
           if (event.seq <= lastSeq) continue;
+          if (event.seq !== lastSeq + 1)
+            throw new SyntaxError("Check event sequence gap");
           lastSeq = event.seq;
           options.onEvent(event);
           if (isFinalEvent(event)) return;

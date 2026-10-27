@@ -13,14 +13,19 @@ import { sourceBudget } from "../sources/budget.ts";
 export function referenceExecution(
   config: Config,
   db: Db,
-  context: { clock?: SourceClock; signal?: AbortSignal } = {},
+  context: {
+    clock?: SourceClock;
+    signal?: AbortSignal;
+    beforeSource?: (source: "doi.org" | "crossref") => Promise<void>;
+  } = {},
 ) {
   const clock = context.clock ?? systemSourceClock;
   return createDoiVerification({
     ...createDoiAdapters({
       resolverBase: config.resolverBase,
       crossrefBase: config.crossrefBase,
-      budget: sourceBudget(db, context.signal),
+      budget: sourceBudget(db, context.signal, clock),
+      beforeRequest: context.beforeSource,
       clock,
       signal: context.signal,
     }),

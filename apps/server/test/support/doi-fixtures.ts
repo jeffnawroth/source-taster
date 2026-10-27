@@ -19,22 +19,38 @@ export async function startDoiFixtures() {
     string,
     { status: number; body: unknown; headers?: Record<string, string> }
   >();
+  const requests: { path: string; at: number }[] = [];
+  const holds = new Map<
+    string,
+    { entered: () => void; release: Promise<void> }
+  >();
   const server = createServer((req, res) => {
-    res.setHeader("content-type", "application/json");
-    const override =
-      responses.get(decodeURIComponent(req.url ?? "")) ??
-      responses.get(new URL(req.url ?? "/", "http://fixture").pathname);
-    if (override) {
-      res.writeHead(override.status, override.headers);
-      res.end(JSON.stringify(override.body));
-      return;
-    }
-    if (req.url?.startsWith("/api/handles/")) res.end(handle);
-    else if (req.url?.startsWith("/works/")) res.end(crossref);
-    else {
-      res.statusCode = 404;
-      res.end("{}");
-    }
+    void (async () => {
+      requests.push({
+        path: decodeURIComponent(req.url ?? ""),
+        at: Date.now(),
+      });
+      const hold = holds.get(decodeURIComponent(req.url ?? ""));
+      if (hold) {
+        hold.entered();
+        await hold.release;
+      }
+      res.setHeader("content-type", "application/json");
+      const override =
+        responses.get(decodeURIComponent(req.url ?? "")) ??
+        responses.get(new URL(req.url ?? "/", "http://fixture").pathname);
+      if (override) {
+        res.writeHead(override.status, override.headers);
+        res.end(JSON.stringify(override.body));
+        return;
+      }
+      if (req.url?.startsWith("/api/handles/")) res.end(handle);
+      else if (req.url?.startsWith("/works/")) res.end(crossref);
+      else {
+        res.statusCode = 404;
+        res.end("{}");
+      }
+    })().catch(() => res.destroy());
   });
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
@@ -43,6 +59,19 @@ export async function startDoiFixtures() {
     throw new Error("fixture-address");
   const base = `http://127.0.0.1:${address.port}`;
   return {
+    requests,
+    hold(path: string) {
+      let entered!: () => void;
+      let release!: () => void;
+      const arrived = new Promise<void>((resolve) => {
+        entered = resolve;
+      });
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      holds.set(path, { entered, release: gate });
+      return { arrived, release };
+    },
     reset: () => responses.clear(),
     respond: (
       path: string,

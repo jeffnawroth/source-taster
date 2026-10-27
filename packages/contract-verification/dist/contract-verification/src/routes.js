@@ -46,7 +46,7 @@ export const streamCheckEvents = createRoute({
     path: "/v1/checks/{checkId}/events",
     summary: "Stream Check events (Server-Sent Events)",
     description: "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. " +
-        "Send `Last-Event-ID` to receive only events after that sequence. " +
+        "Send the Check-bound `Last-Event-ID` cursor to receive only later events. " +
         "The stream closes after the event that ends the Check.",
     request: {
         params: CheckParams,
@@ -80,5 +80,37 @@ export const structureReferences = createRoute({
         400: problem("The input is empty, malformed, or exceeds the Reference limit."),
         401: problem("Sign-in required."),
         403: problem("Not permitted."),
+    },
+});
+export const cancelCheck = createRoute({
+    method: "post",
+    path: "/v1/checks/{checkId}/cancel",
+    summary: "Idempotently cancel a whole Check, retaining finished Verdicts",
+    request: { params: CheckParams },
+    responses: {
+        200: {
+            description: "Authoritative snapshot after cancellation",
+            content: { "application/json": { schema: CheckResponse } },
+        },
+        400: problem("Invalid Check id"),
+        401: problem("Sign-in required"),
+        403: problem("Not permitted"),
+        404: problem("No such Check for this Owner"),
+    },
+});
+export const renewCheckLease = createRoute({
+    method: "post",
+    path: "/v1/checks/{checkId}/lease",
+    summary: "Renew the whole Check client lease; never revive ended work",
+    request: { params: CheckParams },
+    responses: {
+        200: {
+            description: "Authoritative snapshot; an expired lease ends the Check",
+            content: { "application/json": { schema: CheckResponse } },
+        },
+        400: problem("Invalid Check id"),
+        401: problem("Sign-in required"),
+        403: problem("Not permitted"),
+        404: problem("No such Check for this Owner"),
     },
 });

@@ -2,58 +2,65 @@
 import { describe, expect, it } from "vitest";
 import { createCheck, readEvents } from "./support/api.ts";
 
-const notChecked = { kind: "status", status: "not-checked" } as const;
-
 describe("GET /v1/checks/{checkId}/events", () => {
-  it("streams the Check in order until it ends, with a Status for every Reference", async () => {
+  it("streams ordered progress and exactly one terminal Status per Reference", async () => {
     const check = await createCheck();
-
     const { events, closedByServer } = await readEvents(check.id);
-
     expect(closedByServer).toBe(true);
-    expect(events.map((e) => e.event)).toEqual([
-      { seq: 1, checkId: check.id, type: "check.updated", state: "running" },
-      {
-        seq: 2,
-        checkId: check.id,
-        type: "reference.updated",
-        reference: { slot: 1, outcome: notChecked },
-      },
-      {
-        seq: 3,
-        checkId: check.id,
-        type: "reference.updated",
-        reference: { slot: 2, outcome: notChecked },
-      },
-      { seq: 4, checkId: check.id, type: "check.updated", state: "ended" },
-    ]);
-    for (const { id, type, event } of events) {
-      expect(id).toBe(String(event.seq));
+    expect(events[0]!.event).toMatchObject({
+      checkId: check.id,
+      type: "check.updated",
+      state: "running",
+      endReason: null,
+    });
+    expect(events.at(-1)!.event).toMatchObject({
+      type: "check.updated",
+      state: "ended",
+      endReason: "completed",
+    });
+    const finished = events
+      .map((e) => e.event)
+      .filter(
+        (e) =>
+          e.type === "reference.updated" && e.reference.progress === "ended",
+      );
+    expect(finished).toHaveLength(2);
+    expect(finished).toEqual(
+      expect.arrayContaining(
+        [1, 2].map(
+          (slot) =>
+            expect.objectContaining({
+              type: "reference.updated",
+              reference: {
+                slot,
+                progress: "ended",
+                outcome: { kind: "status", status: "not-checked" },
+              },
+            }) as unknown,
+        ),
+      ),
+    );
+    events.forEach(({ id, type, event }, index) => {
+      expect(event.seq).toBe(index + 1);
+      expect(id).toBe(`${check.id}:${event.seq}`);
       expect(type).toBe(event.type);
-    }
+    });
   });
-
-  it("replays only the missed events to a client resuming with Last-Event-ID", async () => {
+  it("replays only missed events after disconnect and closes at the terminal cursor", async () => {
     const check = await createCheck();
     const first = await readEvents(check.id, { stopAfter: 2 });
-    expect(first.closedByServer).toBe(false);
-
     const resumed = await readEvents(check.id, {
       lastEventId: first.events.at(-1)!.id,
     });
-
+    expect(first.closedByServer).toBe(false);
     expect(resumed.closedByServer).toBe(true);
-    expect(resumed.events.map((e) => e.event.seq)).toEqual([3, 4]);
-  });
-
-  it("closes at once for a client that already has the final event", async () => {
-    const check = await createCheck();
-    await readEvents(check.id);
-
-    const started = Date.now();
-    const resumed = await readEvents(check.id, { lastEventId: "4" });
-
-    expect(resumed).toEqual({ events: [], closedByServer: true });
-    expect(Date.now() - started).toBeLessThan(2_000);
+    expect(resumed.events[0]!.event.seq).toBe(3);
+    const all = [...first.events, ...resumed.events];
+    expect(all.map((e) => e.event.seq)).toEqual(
+      Array.from({ length: all.length }, (_, i) => i + 1),
+    );
+    expect(await readEvents(check.id, { lastEventId: all.at(-1)!.id })).toEqual(
+      { events: [], closedByServer: true },
+    );
   });
 });

@@ -29,12 +29,28 @@ export const ReferenceOutcome = z
   .meta({ id: "ReferenceOutcome" });
 export type ReferenceOutcome = z.infer<typeof ReferenceOutcome>;
 
+export const ReferenceProgress = z.enum([
+  "queued",
+  "checking",
+  "doi.org",
+  "crossref",
+  "ended",
+]);
+export type ReferenceProgress = z.infer<typeof ReferenceProgress>;
+export const CheckEndReason = z.enum([
+  "completed",
+  "cancelled",
+  "lease-expired",
+]);
+export type CheckEndReason = z.infer<typeof CheckEndReason>;
+
 export const ReferenceSlot = z
   .object({
     /** 1-based, stable position of the Reference within its Check. */
     slot: z.number().int().positive(),
     originalText: z.string(),
     outcome: ReferenceOutcome,
+    progress: ReferenceProgress,
   })
   .meta({ id: "ReferenceSlot" });
 export type ReferenceSlot = z.infer<typeof ReferenceSlot>;
@@ -53,6 +69,11 @@ export const Check = z
     state: CheckState,
     /** Sequence number of the newest event; attach to the stream from here. */
     lastEventSeq: z.number().int().nonnegative(),
+    /** Opaque, Check-bound replay cursor. */
+    lastEventCursor: z.string(),
+    /** Client acknowledgement interval. Server output alone never renews a lease. */
+    leaseRenewAfterMs: z.number().int().positive(),
+    endReason: CheckEndReason.nullable(),
     references: z.array(ReferenceSlot),
   })
   .meta({ id: "Check" });
@@ -86,14 +107,23 @@ const eventBase = {
 };
 
 export const CheckUpdatedEvent = z
-  .object({ ...eventBase, type: z.literal("check.updated"), state: CheckState })
+  .object({
+    ...eventBase,
+    type: z.literal("check.updated"),
+    state: CheckState,
+    endReason: CheckEndReason.nullable(),
+  })
   .meta({ id: "CheckUpdatedEvent" });
 
 export const ReferenceUpdatedEvent = z
   .object({
     ...eventBase,
     type: z.literal("reference.updated"),
-    reference: ReferenceSlot.pick({ slot: true, outcome: true }),
+    reference: ReferenceSlot.pick({
+      slot: true,
+      outcome: true,
+      progress: true,
+    }),
   })
   .meta({ id: "ReferenceUpdatedEvent" });
 

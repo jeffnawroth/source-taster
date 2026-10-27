@@ -5,6 +5,8 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import {
   structureReferences,
   createCheck,
+  cancelCheck,
+  renewCheckLease,
   getCheck,
   streamCheckEvents,
 } from "@source-taster/contract-verification/routes";
@@ -143,19 +145,41 @@ export function createApp({
     return c.json({ data: check, quota: principal.quota }, 200);
   });
 
+  app.openapi(cancelCheck, async (c) => {
+    const principal = await authorize(c.req.raw, "check:cancel");
+    const check = await checks.cancel(principal, c.req.valid("param").checkId);
+    if (!check) fail("check-not-found");
+    return c.json({ data: check, quota: principal.quota }, 200);
+  });
+  app.openapi(renewCheckLease, async (c) => {
+    const principal = await authorize(c.req.raw, "check:renew");
+    const check = await checks.renew(principal, c.req.valid("param").checkId);
+    if (!check) fail("check-not-found");
+    return c.json({ data: check, quota: principal.quota }, 200);
+  });
+
   app.openapi(streamCheckEvents, async (c) => {
     const principal = await authorize(c.req.raw, "check:read");
     const checkId = c.req.valid("param").checkId;
     const check = await checks.get(principal, checkId);
     if (!check) fail("check-not-found");
     const raw = c.req.header("last-event-id") ?? "0";
+    const seq =
+      raw === "0"
+        ? "0"
+        : raw.startsWith(`${checkId}:`)
+          ? raw.slice(checkId.length + 1)
+          : "invalid";
     if (
-      !/^\d+$/.test(raw) ||
-      !Number.isSafeInteger(Number(raw)) ||
-      Number(raw) > check.lastEventSeq
+      !/^(0|[1-9]\d*)$/.test(seq) ||
+      !Number.isSafeInteger(Number(seq)) ||
+      Number(seq) > check.lastEventSeq
     )
       fail("invalid-request");
-    let after = Number(raw);
+    // A fresh client request proves liveness once; heartbeats are server output,
+    // not client acknowledgements. Further renewal is an explicit mutation.
+    if (principal.can("check:renew")) await checks.renew(principal, checkId);
+    let after = Number(seq);
     c.header("Cache-Control", "no-cache, no-transform");
     c.header("X-Accel-Buffering", "no");
     return streamSSE(
@@ -175,8 +199,10 @@ export function createApp({
             if (!snapshot) return;
             const batch = await checks.events(checkId, after);
             for (const event of batch) {
+              const output = await authorize(c.req.raw, "check:read");
+              if (output.ownerId !== principal.ownerId) return;
               await stream.writeSSE({
-                id: String(event.seq),
+                id: `${checkId}:${event.seq}`,
                 event: event.type,
                 data: JSON.stringify(event),
               });
@@ -186,7 +212,11 @@ export function createApp({
               return;
             if (batch.length) continue;
             await wake;
-            if (!stream.aborted) await stream.write(": heartbeat\n\n");
+            if (!stream.aborted) {
+              const current = await authorize(c.req.raw, "check:read");
+              if (current.ownerId !== principal.ownerId) return;
+              await stream.write(": heartbeat\n\n");
+            }
           } finally {
             lifetime.signal.removeEventListener("abort", abort);
             cycle.abort();

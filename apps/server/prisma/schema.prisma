@@ -15,16 +15,20 @@ datasource db {
 }
 
 model Check {
-  id         String          @id @db.Uuid
-  ownerId    String          @map("owner_id")
-  actorId    String          @map("actor_id")
+  id             String          @id @db.Uuid
+  ownerId        String          @map("owner_id")
+  actorId        String          @map("actor_id")
   /// Wire value of CheckState.
-  state      String
+  state          String
   /// Sequence number of the newest CheckEvent.
-  lastSeq    Int             @default(0) @map("last_seq")
-  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
-  references ReferenceSlot[]
-  events     CheckEvent[]
+  lastSeq        Int             @default(0) @map("last_seq")
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  leaseExpiresAt DateTime        @default(dbgenerated("(CURRENT_TIMESTAMP + interval '75 seconds')")) @map("lease_expires_at") @db.Timestamptz(3)
+  endedAt        DateTime?       @map("ended_at") @db.Timestamptz(3)
+  endReason      String?         @map("end_reason")
+  dispatchOrder  BigInt          @default(0) @map("dispatch_order")
+  references     ReferenceSlot[]
+  events         CheckEvent[]
 
   @@index([ownerId])
   @@map("checks")
@@ -38,6 +42,12 @@ model ReferenceSlot {
   /// Current execution Status; final immutable result takes precedence.
   status       String
   structured   Json?
+  generation   Int               @default(0)
+  revision     Int               @default(1)
+  attempts     Int               @default(0)
+  claimUntil   DateTime?         @map("claim_until") @db.Timestamptz(3)
+  startedAt    DateTime?         @map("started_at") @db.Timestamptz(3)
+  progress     String            @default("queued")
   results      ReferenceResult[]
   check        Check             @relation(fields: [checkId], references: [id], onDelete: Cascade)
 
@@ -60,13 +70,16 @@ model CheckEvent {
 
 // Append-only run content. #81 will add field revisions and cancellation fencing.
 model ReferenceResult {
-  id        String        @id @db.Uuid
-  checkId   String        @map("check_id") @db.Uuid
-  position  Int
-  content   Json
-  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
-  reference ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade, map: "reference_results_slot_fkey")
+  id         String        @id @db.Uuid
+  checkId    String        @map("check_id") @db.Uuid
+  position   Int
+  generation Int           @default(0)
+  revision   Int           @default(1)
+  content    Json
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  reference  ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade, map: "reference_results_slot_fkey")
 
+  @@unique([checkId, position, generation])
   @@index([checkId, position, createdAt], map: "reference_results_slot_created")
   @@map("reference_results")
 }
@@ -85,4 +98,16 @@ model SourceRequest {
 
   @@index([source, expiresAt], map: "source_requests_source_expiry")
   @@map("source_requests")
+}
+
+// Durable, idempotent handoff for #99. No balances, grants or debits here.
+model SettlementIntent {
+  checkId    String   @map("check_id") @db.Uuid
+  position   Int
+  generation Int
+  outcome    String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@id([checkId, position, generation])
+  @@map("settlement_intents")
 }

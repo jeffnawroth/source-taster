@@ -115,5 +115,15 @@
   "field_missing_reference": "Fehlt in der Referenz; nicht bewertet.",
   "field_missing_candidate": "Fehlt beim Kandidaten; nicht bewertet.",
   "field_resource_limit": "Eine Ressourcengrenze beim Vergleich wurde erreicht; das Feld wurde nicht bewertet.",
-  "reason_url_incomplete": "Die angegebene URL erfordert eine Prüfung, die in dieser DOI-Vorschau nicht verfügbar ist."
+  "reason_url_incomplete": "Die angegebene URL erfordert eine Prüfung, die in dieser DOI-Vorschau nicht verfügbar ist.",
+  "check_cancel": "Prüfung abbrechen",
+  "check_cancelling": "Wird abgebrochen…",
+  "check_reset": "Zurücksetzen",
+  "check_progress": "{completed} von {total} Referenzen abgeschlossen",
+  "check_progress_label": "Gesamtfortschritt der Prüfung",
+  "reference_queued": "Wartet auf den Start",
+  "reference_checking": "Referenz wird geprüft",
+  "reference_source": "Prüfung mit {source}",
+  "check_lease_expired": "Die Verbindung wurde nicht rechtzeitig erneuert. Abgeschlossene Urteile bleiben erhalten; unfertige Referenzen wurden abgebrochen.",
+  "check_cleanup_pending": "Der Abbruch konnte nicht bestätigt werden. Dieser Arbeitsbereich erneuert seine Verbindung nicht mehr. Ein anderer aktiver Arbeitsbereich kann die Prüfung weiterlaufen lassen."
 }

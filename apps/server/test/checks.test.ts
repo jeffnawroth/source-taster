@@ -35,12 +35,14 @@ describe("POST /v1/checks", () => {
         originalText:
           "Doe, J. (2020). A study of things. Journal of Studies, 1(2), 3-4.",
         outcome: { kind: "status", status: "running" },
+        progress: "queued",
       },
       {
         slot: 2,
         originalText:
           "Roe, R. (2021). Another study. Proceedings of Testing, 5-6.",
         outcome: { kind: "status", status: "running" },
+        progress: "queued",
       },
     ]);
   });

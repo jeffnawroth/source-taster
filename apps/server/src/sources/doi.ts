@@ -65,6 +65,7 @@ export function createDoiAdapters(options: {
   budget: SourceBudget;
   clock?: SourceClock;
   signal?: AbortSignal;
+  beforeRequest?: (source: "doi.org" | "crossref") => Promise<void>;
 }) {
   const clock = options.clock ?? systemSourceClock;
   async function request(
@@ -81,6 +82,8 @@ export function createDoiAdapters(options: {
     for (let attempt = 0; attempt <= doiTracerLimits.maxRetries; attempt++) {
       options.signal?.throwIfAborted();
       if (clock.now() >= deadline) break;
+      await options.beforeRequest?.(source);
+      options.signal?.throwIfAborted();
       const release = await options.budget.acquire(source, operation, deadline);
       if (!release) {
         reason = "rate-budget";
@@ -93,6 +96,8 @@ export function createDoiAdapters(options: {
           reason = "deadline";
           break;
         }
+        options.signal?.throwIfAborted();
+        await options.beforeRequest?.(source);
         attempts++;
         const response = await fetch(url, {
           headers: {
@@ -144,6 +149,12 @@ export function createDoiAdapters(options: {
           bytes.set(chunk, offset);
           offset += chunk.length;
         }
+        if (clock.now() >= deadline) {
+          body = undefined;
+          reason = "deadline";
+          break;
+        }
+        options.signal?.throwIfAborted();
         try {
           body = JSON.parse(new TextDecoder().decode(bytes));
         } catch {
