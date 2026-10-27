@@ -15,6 +15,7 @@ import {
 } from "node:fs/promises";
 import { resolve, basename, dirname } from "node:path";
 import { gzipSync } from "node:zlib";
+import { websiteRecipe } from "./website-recipe.ts";
 import type { BuildReceipt, NativeLoad } from "./website-evidence.ts";
 
 const root = resolve(import.meta.dirname, "..");
@@ -111,31 +112,10 @@ function run(
 const cargo = (args: string[], cwd = source, capture = false) =>
   run(resolve(tools, "rust/bin/cargo"), args, cwd, capture);
 const patches = (await readdir(resolve(policy, "patches"))).sort();
-const recipeFiles = [
-  "inputs.json",
-  "toolchain.json",
-  ...patches.map((p) => `patches/${p}`),
-  "locks/native.Cargo.lock",
-  "locks/web.Cargo.lock",
-  "locks/compiler.Cargo.lock",
-  "locks/rolldown.Cargo.lock",
-  "locks/satteri.Cargo.lock",
-];
-const recipe: Record<string, string> = {};
-for (const file of recipeFiles)
-  recipe[file] = hash(await readFile(resolve(policy, file)));
-for (const script of [
-  "pagefind-source.ts",
-  "pagefind-bundle.ts",
-  "website-native-trace.ts",
-  "pagefind-rustc.ts",
-])
-  recipe[`scripts/${script}`] = hash(
-    await readFile(resolve(root, "scripts", script)),
-  );
-recipe["pnpm-lock.yaml"] = hash(
-  await readFile(resolve(root, "pnpm-lock.yaml")),
-);
+const recipe = await websiteRecipe(root);
+const recipeFiles = Object.keys(recipe)
+  .filter((p) => p.startsWith("apps/website/qualification/controlled/"))
+  .map((p) => p.slice("apps/website/qualification/controlled/".length));
 const recipeSha256 = hash(JSON.stringify(recipe));
 await mkdir(work, { recursive: true });
 async function fetchInput(input: Input, name: string) {

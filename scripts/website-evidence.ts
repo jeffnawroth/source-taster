@@ -3,6 +3,7 @@
 export interface BuildReceipt {
   target: string;
   recipeSha256: string;
+  recipe: Record<string, string>;
   files: Record<string, string>;
 }
 export interface SourcePackage {

@@ -276,3 +276,47 @@ export async function retainNativeLicenseSources(
     files: sources,
   };
 }
+
+// Operational inspection boundary for an exact-policy subset of actual Cargo
+// graphs. The full website gate separately checks baseline licenses and receipt.
+if (process.argv[1] && resolve(process.argv[1]) === import.meta.filename) {
+  const [command, graphFile, hostTarget, work, noticeFile] =
+    process.argv.slice(2);
+  if (command !== "verify-exact" || !graphFile || !hostTarget || !work)
+    throw new Error(
+      "Usage: website-native-licenses.ts verify-exact graphs.json host-target work [browser-NOTICE.txt]",
+    );
+  const graphs = JSON.parse(await readFile(graphFile, "utf8")) as Record<
+    string,
+    BuildGraph
+  >;
+  const evidence: LicenseEvidence[] = [];
+  for (const [name, graph] of Object.entries(graphs)) {
+    for (const pkg of graph.packages) {
+      const qualified = await qualifyNativeLicense(
+        pkg,
+        name,
+        graph,
+        hostTarget,
+        work,
+      );
+      if (!qualified)
+        throw new Error(
+          `Unknown exact native license qualification: ${pkg.name}@${pkg.version}`,
+        );
+      evidence.push(qualified);
+    }
+  }
+  if (!evidence.length) throw new Error("Empty exact native license inventory");
+  if (noticeFile)
+    await verifyUnicodeNotice(await readFile(noticeFile, "utf8"), work, graphs);
+  console.log(
+    JSON.stringify({
+      elected: evidence.map((e) => ({
+        identity: e.identity,
+        graph: e.graph,
+        license: e.elected,
+      })),
+    }),
+  );
+}

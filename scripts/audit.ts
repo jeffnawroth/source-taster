@@ -72,6 +72,15 @@ const bundledLock =
   "apps/website/qualification/upstream/pagefind-js/package-lock.json";
 await mkdir(new URL("../.tmp/audit", import.meta.url), { recursive: true });
 const output = resolve(".tmp/audit/osv.json");
+// An accepted exit status does not prove that this invocation wrote a report.
+// Clear both raw and derived prior evidence before even checking the scanner.
+await Promise.all(
+  [
+    output,
+    resolve(".tmp/audit/summary.json"),
+    resolve(".tmp/audit/website-dispositions.json"),
+  ].map((file) => rm(file, { force: true })),
+);
 const scanner = process.env.OSV_SCANNER_BIN ?? "osv-scanner";
 const version = spawnSync(scanner, ["--version"], { encoding: "utf8" });
 if (
@@ -110,7 +119,13 @@ interface Package {
   package: { name: string; version: string; ecosystem: string };
   vulnerabilities?: { id: string }[];
 }
-const report = JSON.parse(await readFile(output, "utf8")) as {
+const currentOutput = await readFile(output, "utf8").catch((cause: unknown) => {
+  throw new Error(
+    "Missing current OSV report: scanner returned without readable current output",
+    { cause },
+  );
+});
+const report = JSON.parse(currentOutput) as {
   results?: { source: { path: string }; packages: Package[] }[];
 };
 const packages = report.results?.flatMap((result) => result.packages) ?? [];

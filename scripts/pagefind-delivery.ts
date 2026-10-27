@@ -13,6 +13,7 @@ import { resolve, dirname, basename, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { gzipSync } from "node:zlib";
+import { sourceAccess } from "../apps/website/src/source-access.ts";
 import type { BuildReceipt } from "./website-evidence.ts";
 const root = resolve(import.meta.dirname, "..");
 const work = resolve(root, ".tmp/pagefind");
@@ -71,8 +72,24 @@ await cp(
 );
 await cp(resolve(root, "pnpm-lock.yaml"), resolve(staging, "pnpm-lock.yaml"));
 await cp(resolve(work, "bundle.json"), resolve(staging, "bundle.json"));
+await cp(
+  resolve(root, "scripts/website-recipe.ts"),
+  resolve(staging, "website-recipe.ts"),
+);
 await cp(import.meta.filename, resolve(staging, "pagefind-delivery.ts"));
 await cp(resolve(work, "receipt.json"), resolve(staging, "build-receipt.json"));
+// Ship the complete input set actually fingerprinted by the shared recipe,
+// including qualification scripts/policies needed to inspect this build.
+for (const [file, expected] of Object.entries(receipt.recipe)) {
+  if (file.startsWith("/") || file.split("/").includes(".."))
+    throw new Error(`Unsafe recipe path: ${file}`);
+  const bytes = await readFile(resolve(root, file));
+  if (hash(bytes) !== expected)
+    throw new Error(`Recipe input changed during delivery: ${file}`);
+  const destination = resolve(staging, "build-recipe", file);
+  await mkdir(dirname(destination), { recursive: true });
+  await writeFile(destination, bytes);
+}
 // Rust's standard library is linked into the WASM too. Preserve its publisher
 // copyright report and license catalogue, alongside the explicit Cargo crates.
 const rustNotices = resolve(work, "tools/rust/share/doc/rust");
@@ -230,7 +247,7 @@ await writeFile(
 );
 await writeFile(
   resolve(staging, "README.txt"),
-  `Corresponding Source delivery candidate for the browser Pagefind WASM/JS listed in distribution-manifest.json.\n\nOffline WASM reproduction: use build-wasm.sh with the exact Rust 1.99.1 and wasm-bindgen 0.2.117 tools listed in controlled/{inputs,toolchain}.json. Dependency sources and original checksum-bound crate archives are included. The pagefind_stem path patch refers to included source. No nightly, remote dictionary, wasm-pack, wasm-opt or AVA is used. All dependency licenses/notices are retained in vendor/ and NOTICE.txt; microjson's GPL manifest/header discrepancy is retained.\n\nFor JS/native generation: upstream-pagefind.tar.gz contains the complete source. controlled/patches and controlled/locks show the changes. pagefind-source.ts is the actual generator and pagefind-bundle.ts the browser JS bundler; their recipe, Rust target/features and the exact Rolldown 1.2.15 pin are in build-receipt.json, and bundle.json lists every bundled module. JS entries import only included Pagefind code (pagefind_web_js/lib), including the fflate-derived gz.js; Rolldown is a generally available build tool, not bundled client code. The site's custom UI source is public AGPL project code; this package does not pretend to determine legal combination boundaries.\n\nThis artifact provides actual local source access; concrete license/legal review and project publication gates remain pending. Build-system qualification covers only Linux amd64 GNU and macOS arm64 when their individual receipts/checks pass. Other targets are not qualified.\n`,
+  `Corresponding Source delivery candidate for the browser Pagefind WASM/JS listed in distribution-manifest.json.\n\nOffline WASM reproduction: use build-wasm.sh with the exact Rust 1.99.1 and wasm-bindgen 0.2.117 tools listed in controlled/{inputs,toolchain}.json. Dependency sources and original checksum-bound crate archives are included. The pagefind_stem path patch refers to included source. No nightly, remote dictionary, wasm-pack, wasm-opt or AVA is used. All dependency licenses/notices are retained in vendor/ and NOTICE.txt; microjson's GPL manifest/header discrepancy is retained.\n\nFor JS/native generation: upstream-pagefind.tar.gz contains the complete source. controlled/patches and controlled/locks show the changes. pagefind-source.ts is the actual generator and pagefind-bundle.ts the browser JS bundler; their recipe, Rust target/features and the exact Rolldown 1.2.15 pin are in build-receipt.json, and bundle.json lists every bundled module. The complete fingerprinted build/qualification inputs are included in build-recipe/ in their repository layout; build-receipt.json records their hashes. For full native generation, run those tools in the public project checkout with its frozen workspace install. The offline WASM script below is self-contained apart from the pinned bootstrap tools. JS entries import only included Pagefind code (pagefind_web_js/lib), including the fflate-derived gz.js; Rolldown is a generally available build tool, not bundled client code. The site's custom UI source is public AGPL project code; this package does not pretend to determine legal combination boundaries.\n\nThis artifact provides actual local source access; concrete license/legal review and project publication gates remain pending. Build-system qualification covers only Linux amd64 GNU and macOS arm64 when their individual receipts/checks pass. Other targets are not qualified.\n`,
 );
 const objects: Record<string, string> = {};
 for (const language of ["de", "en"]) {
@@ -337,10 +354,22 @@ await writeFile(
   resolve(delivery, "style.css"),
   "*{box-sizing:border-box}body{font:1rem/1.5 system-ui,sans-serif;color:#181818;background:#fff;margin:auto;padding:1rem;max-width:70ch;overflow-wrap:anywhere}a{display:inline-block;min-height:24px;padding:.5rem 0}li{margin:.25rem 0}.languages{display:flex;gap:1.5rem}a:focus-visible{outline:3px solid #1559b7;outline-offset:3px}\n",
 );
-await writeFile(
-  resolve(delivery, "index.html"),
-  `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Search licenses and source · Source Taster</title><link rel="stylesheet" href="style.css"><main><h1>Search licenses and source</h1><p>Modified Pagefind 1.5.2 browser search. Includes GPL-covered pagefind_microjson 0.1.4 and MIT-covered Pagefind and fflate-derived code. This preview awaits concrete legal review.</p><ul><li><a href="corresponding-source.tar.gz">Download Corresponding Source and build scripts</a></li><li><a href="GPL-3.0.txt">GNU GPL version 3</a></li><li><a href="NOTICE.txt">Copyright and third-party notices</a></li><li><a href="RUST-COPYRIGHT-library.txt">Rust standard library copyright report</a></li><li><a href="manifest.json">Exact distributed object and source hashes</a></li></ul><p class="languages"><a href="/en/">English</a><a href="/de/" lang="de">Deutsch</a></p></main></html>`,
-);
+for (const language of ["de", "en"] as const) {
+  const t = sourceAccess[language];
+  const other = language === "de" ? "en" : "de";
+  const links = [
+    ["corresponding-source.tar.gz", t.source],
+    ["GPL-3.0.txt", t.gpl],
+    ["NOTICE.txt", t.notice],
+    ["RUST-COPYRIGHT-library.txt", t.rust],
+    ["manifest.json", t.manifest],
+  ];
+  const html = `<!doctype html><html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="description" content="${t.description}"><meta name="robots" content="noindex, nofollow"><title>${t.title} · Source Taster</title><link rel="alternate" hreflang="${other}" href="/third-party/pagefind/${other}/"><link rel="stylesheet" href="/third-party/pagefind/style.css"></head><body><main><h1>${t.title}</h1><p>${t.summary}</p><ul>${links.map(([file, label]) => `<li><a href="/third-party/pagefind/${file}">${label}</a></li>`).join("")}</ul><p class="languages"><a href="/third-party/pagefind/en/" lang="en" hreflang="en">English</a><a href="/third-party/pagefind/de/" lang="de" hreflang="de">Deutsch</a></p></main></body></html>`;
+  await mkdir(resolve(delivery, language), { recursive: true });
+  await writeFile(resolve(delivery, language, "index.html"), html);
+  // Keep the original download landing URL useful, with counterpart navigation.
+  if (language === "en") await writeFile(resolve(delivery, "index.html"), html);
+}
 console.log(
   `Delivered hash-bound browser source/notice package: ${dependencies.length} registry source packages`,
 );

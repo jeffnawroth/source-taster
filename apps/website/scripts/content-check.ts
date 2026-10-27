@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
+import { sourceAccess } from "../src/source-access.ts";
 import { languages, copy, pages } from "../src/content.ts";
 import { legalDocuments, legalIds } from "../src/legal.ts";
 import type { Publication } from "./publication.ts";
@@ -20,6 +21,11 @@ const config = JSON.parse(
 ) as Publication;
 const docs = await legalDocuments();
 for (const language of languages) {
+  for (const key of Object.keys(
+    sourceAccess.en,
+  ) as (keyof typeof sourceAccess.en)[])
+    if (!sourceAccess[language][key]?.trim())
+      throw new Error(`Missing ${language} source-access text: ${key}`);
   for (const [key, value] of Object.entries(copy.en)) {
     if (!value.trim() || !copy[language][key as keyof typeof copy.en]?.trim())
       throw new Error(`Missing ${language} UI text: ${key}`);
@@ -67,5 +73,5 @@ for (const [id, claim] of Object.entries(claims.claims)) {
       throw new Error(`Missing claim evidence: ${file}`);
 }
 console.log(
-  `DE/EN content complete: ${pages.en.length} paired information pages, ${legalIds.length} paired legal documents, ${Object.keys(copy.en).length} paired UI texts; human translation review pending`,
+  `DE/EN content complete: ${pages.en.length} paired information pages, ${legalIds.length} paired legal documents, ${Object.keys(copy.en).length} paired UI texts, ${Object.keys(sourceAccess.en).length} paired source-access texts; human translation review pending`,
 );

@@ -266,7 +266,7 @@ test("readers can download licenses and Corresponding Source bound to the served
   await page
     .getByRole("link", { name: "Search licenses and source", exact: true })
     .click();
-  await expect(page).toHaveURL(/\/third-party\/pagefind\/index.html$/);
+  await expect(page).toHaveURL(/\/third-party\/pagefind\/en\/$/);
   await expect(
     page.getByRole("link", { name: "GNU GPL version 3", exact: true }),
   ).toBeVisible();
@@ -310,5 +310,38 @@ test("readers can download licenses and Corresponding Source bound to the served
     const text = await request.get(path);
     expect(text.status()).toBe(200);
     expect((await text.text()).length).toBeGreaterThan(100);
+  }
+});
+
+test("source-access pages follow footer language, switch counterparts and serve every download", async ({
+  page,
+  request,
+}) => {
+  for (const [language, title, other, counterpart] of [
+    ["de", "Suchlizenzen und Quellcode", "en", "English"],
+    ["en", "Search licenses and source", "de", "Deutsch"],
+  ] as const) {
+    await page.goto(`/docs/${language}/`);
+    await page.getByRole("link", { name: title, exact: true }).click();
+    await expect(page).toHaveURL(
+      new RegExp(`/third-party/pagefind/${language}/$`),
+    );
+    await expect(page.locator("html")).toHaveAttribute("lang", language);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+    await expect(page).toHaveTitle(`${title} · Source Taster`);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      /.+/,
+    );
+    for (const link of await page.locator("main ul a").all()) {
+      const response = await request.get((await link.getAttribute("href"))!);
+      expect(response.status()).toBe(200);
+      expect((await response.body()).length).toBeGreaterThan(100);
+    }
+    await page.getByRole("link", { name: counterpart, exact: true }).click();
+    await expect(page).toHaveURL(
+      new RegExp(`/third-party/pagefind/${other}/$`),
+    );
+    await expect(page.locator("html")).toHaveAttribute("lang", other);
   }
 });

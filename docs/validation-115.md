@@ -57,3 +57,8 @@ The pnpm lockfile graph has no OSV findings. All 73 findings come from the upstr
 - Legal texts are drafts and need legal review plus real seller, domain and support details before publication.
 - The extension links depend on #92 rendering the shared information component.
 - Unknown `/v1/*` paths return Hono's default plain-text 404, not a problem document; this predates #115.
+
+Current controlled-build review fixes and exact native-license qualification are
+recorded in [the consolidated handoff](implementation/115-consolidated-qualification.md).
+Older command results and license refusals are historical; use the receipt and
+target specified in that handoff for the current implementation.

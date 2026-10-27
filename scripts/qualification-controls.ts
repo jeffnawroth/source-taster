@@ -3,14 +3,9 @@
 // sequentially against a completed build; every temporary mutation is restored.
 import { spawnSync } from "node:child_process";
 import { readFile, writeFile, mkdir, rm, chmod } from "node:fs/promises";
-import { resolve, basename, dirname } from "node:path";
+import { resolve, basename } from "node:path";
 import { createHash } from "node:crypto";
-import type { BuildReceipt, BuildGraph } from "./website-evidence.ts";
-import {
-  elect,
-  qualifyNativeLicense,
-  verifyUnicodeNotice,
-} from "./website-native-licenses.ts";
+import type { BuildReceipt } from "./website-evidence.ts";
 const root = resolve(import.meta.dirname, "..");
 const work = resolve(root, ".tmp/pagefind");
 const control = resolve(root, ".tmp/qualification-controls");
@@ -39,6 +34,16 @@ function requireResult(
   results.push(message);
   console.log(`Passed: ${message}`);
 }
+requireResult(
+  run(["scripts/native-trace-controls.ts"]),
+  true,
+  "Passed descendant process controls: 12",
+);
+requireResult(
+  run(["scripts/publication-recipe-controls.ts"]),
+  true,
+  "Passed publication recipe controls: 3",
+);
 const verify = ["scripts/pagefind-source.ts", "verify"];
 requireResult(run(verify), true, "Verified controlled Pagefind");
 for (const [path, error] of [
@@ -85,157 +90,9 @@ try {
 } finally {
   await writeFile(noticeFile, originalNotice);
 }
-// Exercise the same source/scope qualifier used by the actual gate. No fake
-// scanner result or license-name recognition can satisfy these identity checks.
-const graphs = JSON.parse(
-  await readFile(resolve(work, "graphs.json"), "utf8"),
-) as Record<string, BuildGraph>;
-const hostTarget = (
-  JSON.parse(
-    await readFile(resolve(work, "receipt.json"), "utf8"),
-  ) as BuildReceipt
-).target;
-async function licenseControl(
-  name: string,
-  action: () => unknown,
-  error?: string,
-) {
-  let failure: unknown;
-  try {
-    await action();
-  } catch (caught) {
-    failure = caught;
-  }
-  if (
-    error
-      ? !(failure instanceof Error && failure.message.includes(error))
-      : failure !== undefined
-  )
-    throw new Error(`License control failed: ${name}: ${String(failure)}`);
-  results.push(name);
-  console.log(`Passed: ${name}`);
-}
-const compiler = graphs.compiler;
-const mpl = compiler.packages.find((p) => p.name === "cssparser")!;
-const qualify = (
-  pkg = mpl,
-  name = "compiler",
-  graph = compiler,
-  target = hostTarget,
-) => qualifyNativeLicense(pkg, name, graph, target, work);
-await licenseControl("Exact MPL source/build scope qualifies", async () => {
-  if ((await qualify())?.elected !== "MPL-2.0")
-    throw new Error("Missing qualification");
-});
-await licenseControl(
-  "MPL browser scope refused",
-  () => qualify(mpl, "web-en", graphs["web-en"]),
-  "Native license scope mismatch",
-);
-await licenseControl(
-  "Unqualified host target refused",
-  () => qualify(mpl, "compiler", compiler, "unknown-target"),
-  "Native license scope mismatch",
-);
-await licenseControl(
-  "Expanded build features refused",
-  () =>
-    qualify(mpl, "compiler", {
-      ...compiler,
-      features: [...compiler.features, "--all-features"],
-    }),
-  "Native license scope mismatch",
-);
-await licenseControl(
-  "Changed crate checksum refused",
-  () => qualify({ ...mpl, checksum: "0".repeat(64) }),
-  "Native license identity mismatch",
-);
-await licenseControl(
-  "Changed crate source refused",
-  () => qualify({ ...mpl, source: "registry+https://example.invalid/index" }),
-  "Native license identity mismatch",
-);
-await licenseControl(
-  "Changed license expression refused",
-  () => qualify({ ...mpl, license: "MIT" }),
-  "Native license identity mismatch",
-);
-await licenseControl("Unknown MPL version remains unqualified", async () => {
-  if (await qualify({ ...mpl, version: "999.0.0" }))
-    throw new Error("Unknown version qualified");
-  if (elect("MPL-2.0", (id) => id === "MIT"))
-    throw new Error("Unexpected baseline permission");
-});
-await licenseControl("Unicode election retains conjunctive term", () => {
-  if (
-    elect("(MIT OR Apache-2.0) AND Unicode-3.0", (id) =>
-      ["MIT", "Unicode-3.0"].includes(id),
-    ) !== "MIT AND Unicode-3.0"
-  )
-    throw new Error("Unicode dropped");
-  if (
-    elect("(MIT OR Apache-2.0) AND Unicode-3.0", (id) => id === "MIT") !==
-    undefined
-  )
-    throw new Error("Unicode term waived");
-});
-await licenseControl("Unknown license remains unqualified", () => {
-  if (elect("LicenseRef-Unknown", (id) => id === "MIT"))
-    throw new Error("Unknown license qualified");
-});
-await licenseControl(
-  "Malformed SPDX refused",
-  () => elect("MIT OR (Apache-2.0 AND)", () => true),
-  "Bad SPDX",
-);
-const mplDirectory = dirname(resolve(work, mpl.manifestPath));
-const mplArchive = resolve(
-  work,
-  "cargo-home/registry/cache",
-  basename(dirname(mplDirectory)),
-  `${mpl.name}-${mpl.version}.crate`,
-);
-for (const [file, name, error] of [
-  [
-    mplArchive,
-    "Corrupt exact crate archive refused",
-    "Native license archive mismatch",
-  ],
-  [
-    resolve(mplDirectory, "LICENSE"),
-    "Corrupt exact license text refused",
-    "Native license text mismatch",
-  ],
-] as const) {
-  const original = await readFile(file);
-  try {
-    await writeFile(
-      file,
-      Buffer.concat([original, Buffer.from("\nlicense-control\n")]),
-    );
-    await licenseControl(name, () => qualify(), error);
-  } finally {
-    await writeFile(file, original);
-  }
-}
-const unicode = graphs["web-en"]!.packages.find(
-  (p) => p.name === "unicode-ident",
-)!;
-const unicodeText = await readFile(
-  resolve(dirname(resolve(work, unicode.manifestPath)), "LICENSE-UNICODE"),
-  "utf8",
-);
-await licenseControl(
-  "Dropped Unicode delivery term refused",
-  () =>
-    verifyUnicodeNotice(
-      originalNotice.toString().replace(unicodeText, ""),
-      work,
-      graphs,
-    ),
-  "Missing conjunctive Unicode notice",
-);
+// Exact-policy licensing is also exercised through its operational CLI.
+const licenseControls = run(["scripts/license-qualification-controls.ts"]);
+requireResult(licenseControls, true, "Passed exact native license controls");
 const guardEnv = {
   ...process.env,
   SOURCE_TASTER_CONTROLLED_BIN: resolve(work, "bin"),
@@ -271,6 +128,14 @@ const reports = ["osv.json", "summary.json", "website-dispositions.json"];
 const originalReports = await Promise.all(
   reports.map((p) => readFile(resolve(root, ".tmp/audit", p))),
 );
+const auditSummary = JSON.parse(originalReports[1]!.toString()) as {
+  licenseIssues: string[];
+  blockingFindings: number;
+};
+if (auditSummary.licenseIssues.length || auditSummary.blockingFindings)
+  throw new Error(
+    "Scanner refusal controls require a passing real license/advisory scan",
+  );
 const scanner = resolve(control, "scanner.mjs");
 const report = JSON.parse(originalReports[0]!.toString()) as {
   results: {
@@ -278,6 +143,11 @@ const report = JSON.parse(originalReports[0]!.toString()) as {
     packages: { vulnerabilities?: { id: string }[] }[];
   }[];
 };
+// Preseed a complete clean historical report before each scanner invocation.
+// No-write controls must fail on freshness, independently of license refusal.
+const cleanReport = structuredClone(report);
+for (const result of cleanReport.results)
+  for (const pkg of result.packages) delete pkg.vulnerabilities;
 const selected = report.results.find((r: { source: { path: string } }) =>
   r.source.path.endsWith("/.tmp/pagefind/selected/Cargo.lock"),
 );
@@ -298,6 +168,9 @@ await writeFile(
 try {
   for (const [body, error] of [
     ["process.exit(2);", "OSV scan failed"],
+    ["process.exit(0);", "Missing current OSV report"],
+    ["process.exit(1);", "Missing current OSV report"],
+    ["writeFileSync(output, '');", "JSON"],
     ["writeFileSync(output, '{');", "JSON"],
     ["writeFileSync(output, JSON.stringify({results: []}));", "Incomplete OSV"],
     [
@@ -309,6 +182,10 @@ try {
       "Actual selected dependency advisory found",
     ],
   ]) {
+    await writeFile(
+      resolve(root, ".tmp/audit/osv.json"),
+      JSON.stringify(cleanReport),
+    );
     await writeFile(
       scanner,
       `#!/usr/bin/env node\nimport {writeFileSync,readFileSync} from 'node:fs'; if(process.argv.includes('--version')) { console.log('osv-scanner version: 2.7.0'); process.exit(0); } const output=process.argv[process.argv.indexOf('--output-file')+1]; ${body}\n`,

@@ -63,7 +63,7 @@ verification/domain programs, and changes no maturity, prerelease or advisory ru
 `website-native-licenses.ts` retains the complete, unmodified 19 crate archives,
 full notices, exact per-scope evidence and supplemental MPL text in
 `.tmp/pagefind/license-sources/`. CI includes these in `dependency-evidence`.
-The `selectors` and `static-self` crates omit a standalone license file; their
+The `selectors`, `static-self` and `static-self-derive` crates omit a standalone license file; their
 immutable manifests declare MPL-2.0, source headers are retained where present,
 and the full MPL text is supplied separately without altering upstream archives.
 Retain source notices and mark any future modifications. Any distribution of a

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { websiteRecipe } from "../../../scripts/website-recipe.ts";
 import { createHash } from "node:crypto";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { resolve, relative } from "node:path";
@@ -43,11 +44,10 @@ export async function reviewDigest(root: string): Promise<string> {
     "package.json",
     "claims.json",
     "publication.json",
-    "../../pnpm-lock.yaml",
-    "../../scripts/pagefind-source.ts",
-    "../../scripts/pagefind-delivery.ts",
   );
-  const inputs: [string, string][] = [];
+  const inputs: [string, string][] = Object.entries(
+    await websiteRecipe(resolve(root, "../..")),
+  );
   for (const file of files.sort()) {
     if (file === "publication.json") {
       const config = JSON.parse(

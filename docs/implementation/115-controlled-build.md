@@ -1,5 +1,10 @@
 # #115 controlled build continuation
 
+Historical continuation evidence for `cb04e23`. The later license qualification and
+four review fixes are recorded in [the consolidated handoff](115-consolidated-qualification.md).
+The old receipts are preserved under `qualification/evidence/historical/cb04e23/`
+and do not qualify that later recipe.
+
 Continuation on 2026-10-27 in an isolated worktree based on parent integration
 `f3be5dd`. The clean preserved `t3/pagefind-source-qualification` tip `20f18ba`
 was fast-forwarded into this branch, preserving #115, the first-wave review
