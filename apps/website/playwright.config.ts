@@ -7,7 +7,9 @@ export default defineConfig({
   workers: 1,
   use: { baseURL, trace: "retain-on-failure" },
   webServer: {
-    command: `pnpm build && pnpm preview --port ${port}`,
+    // Turbo owns the single build dependency. A second build here races the
+    // app's website dependency and destroys shared source-delivery staging.
+    command: `pnpm preview --port ${port}`,
     url: `${baseURL}/en/`,
     reuseExistingServer: false,
     timeout: 120_000,

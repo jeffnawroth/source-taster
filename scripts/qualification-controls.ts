@@ -206,22 +206,43 @@ const bindgen = inputs.wasmBindgen.find(
   (p: { target: string }) => p.target === receipt.target,
 );
 if (!bindgen) throw new Error("Missing bindgen input");
-const rebuilt = spawnSync("bash", ["build-wasm.sh"], {
-  cwd: reproduction,
-  env: {
-    PATH: process.env.PATH,
-    HOME: process.env.HOME,
-    PAGEFIND_RUST_BIN: resolve(work, "tools/rust/bin"),
-    PAGEFIND_BINDGEN: resolve(
-      work,
-      "tools",
-      basename(bindgen.url).replace(/\.tar\.gz$/, ""),
-      "wasm-bindgen",
-    ),
-  },
-  encoding: "utf8",
-  maxBuffer: 32 * 1024 * 1024,
-});
+const rebuild = () =>
+  spawnSync("bash", ["build-wasm.sh"], {
+    cwd: reproduction,
+    env: {
+      PATH: process.env.PATH,
+      HOME: process.env.HOME,
+      PAGEFIND_RUST_BIN: resolve(work, "tools/rust/bin"),
+      PAGEFIND_BINDGEN: resolve(
+        work,
+        "tools",
+        basename(bindgen.url).replace(/\.tar\.gz$/, ""),
+        "wasm-bindgen",
+      ),
+    },
+    encoding: "utf8",
+    maxBuffer: 32 * 1024 * 1024,
+  });
+const deliveredLib = resolve(reproduction, "pagefind_web/src/lib.rs");
+const originalLib = await readFile(deliveredLib);
+try {
+  await writeFile(
+    deliveredLib,
+    Buffer.concat([originalLib, Buffer.from("\nchanged source\n")]),
+  );
+  const rejected = rebuild();
+  requireResult(
+    {
+      status: rejected.status,
+      output: `${rejected.stdout}\n${rejected.stderr}`,
+    },
+    false,
+    "Source checksum mismatch",
+  );
+} finally {
+  await writeFile(deliveredLib, originalLib);
+}
+const rebuilt = rebuild();
 await writeFile(
   resolve(control, "reproduction.log"),
   `${rebuilt.stdout}\n${rebuilt.stderr}`,

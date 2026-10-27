@@ -7,6 +7,10 @@
     "PLAYWRIGHT_BROWSERS_PATH"
   ],
   "tasks": {
+    "@source-taster/website#test:e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
     "@source-taster/website#build": {
       "cache": false,
       "dependsOn": ["^build"],

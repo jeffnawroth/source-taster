@@ -13,7 +13,7 @@ import {
   readlink,
   realpath,
 } from "node:fs/promises";
-import { resolve, basename } from "node:path";
+import { resolve, basename, dirname } from "node:path";
 import { gzipSync } from "node:zlib";
 import type { BuildReceipt, NativeLoad } from "./website-evidence.ts";
 
@@ -128,6 +128,7 @@ for (const script of [
   "pagefind-source.ts",
   "pagefind-bundle.ts",
   "website-native-trace.ts",
+  "pagefind-rustc.ts",
 ])
   recipe[`scripts/${script}`] = hash(
     await readFile(resolve(root, "scripts", script)),
@@ -439,11 +440,16 @@ if (
 )
   throw new Error("Vendored gzip source changed");
 const vendor = resolve(source, "pagefind/vendor");
+// A clean WASM target prevents older Cargo cache entries predating the owned
+// identity wrapper from masquerading as reproducible outputs.
+const wasmTarget = resolve(work, "wasm-target");
+await rm(wasmTarget, { recursive: true, force: true });
 await rm(vendor, { recursive: true, force: true });
 await mkdir(resolve(vendor, "wasm"), { recursive: true });
 for (const language of ["unknown", "de", "en"]) {
   const web = resolve(source, "pagefind_web");
-  cargo(
+  run(
+    resolve(tools, "rust/bin/cargo"),
     [
       "build",
       "--release",
@@ -455,6 +461,12 @@ for (const language of ["unknown", "de", "en"]) {
       ...(language === "unknown" ? [] : ["--features", language]),
     ],
     web,
+    false,
+    {
+      CARGO_TARGET_DIR: wasmTarget,
+      RUSTC_WRAPPER: resolve(root, "scripts/pagefind-rustc.ts"),
+      PATH: `${dirname(process.execPath)}:${env.PATH}`,
+    },
   );
   run(
     bindgen,
@@ -465,7 +477,7 @@ for (const language of ["unknown", "de", "en"]) {
       "pkg",
       "--out-name",
       "pagefind_web",
-      resolve(work, "target/wasm32-unknown-unknown/release/pagefind_web.wasm"),
+      resolve(wasmTarget, "wasm32-unknown-unknown/release/pagefind_web.wasm"),
     ],
     web,
   );

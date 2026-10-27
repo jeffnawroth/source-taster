@@ -34,9 +34,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
-        run: pnpm pagefind:fetch
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
       - name: Build controlled native tools and DE/EN WASM offline
-        run: pnpm pagefind:build
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
       - run: pnpm pagefind:verify
       - run: pnpm typecheck
       - run: pnpm lint
@@ -67,9 +71,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
-        run: pnpm pagefind:fetch
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
       - name: Build controlled native tools and DE/EN WASM offline
-        run: pnpm pagefind:build
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
       - run: pnpm pagefind:verify
       - run: pnpm --filter @source-taster/website build
       - run: pnpm audit:licenses
@@ -95,6 +103,8 @@ jobs:
           name: dependency-evidence
           path: |
             .tmp/audit/*.json
+            .tmp/pagefind-fetch.log
+            .tmp/pagefind-build.log
             .tmp/pagefind/receipt.json
             .tmp/pagefind/graphs.json
             .tmp/pagefind/*.tree.txt

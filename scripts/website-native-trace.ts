@@ -54,7 +54,10 @@ process.dlopen = function (
     throw new Error(`Refused uncontrolled native module: ${requested}`);
   }
   const path = realpathSync(resolve(bin, match[1]));
-  dlopen(module, path, flags);
+  // Linux distinguishes an omitted flags argument from an explicit undefined.
+  // Preserve the loader's argument count when redirecting the binary.
+  if (arguments.length > 2) dlopen(module, path, flags);
+  else dlopen(module, path);
   record({
     kind: "native",
     requested,
