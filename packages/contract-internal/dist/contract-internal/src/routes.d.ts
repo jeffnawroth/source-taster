@@ -38,10 +38,12 @@ export declare const createMailRehearsal: {
                                 sent: "sent";
                             }>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -124,10 +126,12 @@ export declare const getMailRehearsal: {
                                 sent: "sent";
                             }>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -168,6 +172,190 @@ export declare const getMailRehearsal: {
 } & {
     getRoutingPath(): "/internal/mail-rehearsals/:id";
 };
+export declare const authorizeGuest: {
+    method: "post";
+    path: "/internal/guest-authority";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        guestContextId: z.ZodUUID;
+                        ownerId: z.ZodUUID;
+                        actorId: z.ZodUUID;
+                        permission: z.ZodEnum<{
+                            "check:cancel": "check:cancel";
+                            "check:create": "check:create";
+                            "check:read": "check:read";
+                            "check:renew": "check:renew";
+                            "structuring:create": "structuring:create";
+                        }>;
+                        kind: z.ZodEnum<{
+                            request: "request";
+                            work: "work";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                        allowed: z.ZodLiteral<true>;
+                        version: z.ZodNumber;
+                    }, z.core.$strict>, z.ZodObject<{
+                        allowed: z.ZodLiteral<false>;
+                        reason: z.ZodEnum<{
+                            forbidden: "forbidden";
+                            revoked: "revoked";
+                            unknown: "unknown";
+                        }>;
+                    }, z.core.$strict>], "allowed">;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/guest-authority";
+};
+export declare const invalidateGuest: {
+    method: "post";
+    path: "/internal/guest-authority/invalidate";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        guestContextId: z.ZodUUID;
+                        ownerId: z.ZodUUID;
+                        actorId: z.ZodUUID;
+                        version: z.ZodNumber;
+                        cancelWork: z.ZodBoolean;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        ownerId: z.ZodUUID;
+                        version: z.ZodNumber;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/guest-authority/invalidate";
+};
 export declare const routes: (({
     method: "post";
     path: "/internal/mail-rehearsals";
@@ -207,10 +395,12 @@ export declare const routes: (({
                                 sent: "sent";
                             }>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -292,10 +482,12 @@ export declare const routes: (({
                                 sent: "sent";
                             }>;
                         }, z.core.$strip>;
-                        quota: z.ZodNullable<z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
-                        }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
             };
@@ -335,4 +527,186 @@ export declare const routes: (({
     };
 } & {
     getRoutingPath(): "/internal/mail-rehearsals/:id";
+}) | ({
+    method: "post";
+    path: "/internal/guest-authority";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        guestContextId: z.ZodUUID;
+                        ownerId: z.ZodUUID;
+                        actorId: z.ZodUUID;
+                        permission: z.ZodEnum<{
+                            "check:cancel": "check:cancel";
+                            "check:create": "check:create";
+                            "check:read": "check:read";
+                            "check:renew": "check:renew";
+                            "structuring:create": "structuring:create";
+                        }>;
+                        kind: z.ZodEnum<{
+                            request: "request";
+                            work: "work";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                        allowed: z.ZodLiteral<true>;
+                        version: z.ZodNumber;
+                    }, z.core.$strict>, z.ZodObject<{
+                        allowed: z.ZodLiteral<false>;
+                        reason: z.ZodEnum<{
+                            forbidden: "forbidden";
+                            revoked: "revoked";
+                            unknown: "unknown";
+                        }>;
+                    }, z.core.$strict>], "allowed">;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/guest-authority";
+}) | ({
+    method: "post";
+    path: "/internal/guest-authority/invalidate";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        guestContextId: z.ZodUUID;
+                        ownerId: z.ZodUUID;
+                        actorId: z.ZodUUID;
+                        version: z.ZodNumber;
+                        cancelWork: z.ZodBoolean;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        ownerId: z.ZodUUID;
+                        version: z.ZodNumber;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/guest-authority/invalidate";
 }))[];

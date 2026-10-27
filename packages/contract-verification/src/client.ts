@@ -86,13 +86,24 @@ export class ApiError extends Error {
     this.problem = problem;
   }
 }
+/** Called for every fetch/reconnect. Tokens must stay in memory. */
+export type CredentialSupplier = () => Promise<string>;
 export interface VerificationClientOptions {
+  credentials?: CredentialSupplier;
   baseUrl?: string;
   client?: string;
   fetch?: typeof globalThis.fetch;
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export function verificationClient(options: VerificationClientOptions = {}) {
+  async function headers() {
+    return {
+      ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+      ...(options.credentials
+        ? { Authorization: `Bearer ${await options.credentials()}` }
+        : {}),
+    };
+  }
   async function post<T>(
     path: string,
     requestBody: unknown,
@@ -104,7 +115,7 @@ export function verificationClient(options: VerificationClientOptions = {}) {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+          ...(await headers()),
         },
         body: JSON.stringify(requestBody),
       },
@@ -143,9 +154,7 @@ export function verificationClient(options: VerificationClientOptions = {}) {
       const response = await (options.fetch ?? globalThis.fetch)(
         `${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`,
         {
-          headers: options.client
-            ? { "Source-Taster-Client": options.client }
-            : {},
+          headers: await headers(),
         },
       );
       const body: unknown = await response.json().catch(() => undefined);
@@ -162,6 +171,8 @@ export function verificationClient(options: VerificationClientOptions = {}) {
 }
 
 export interface WatchCheckOptions {
+  credentials?: CredentialSupplier;
+  client?: string;
   /** Called once per event, in sequence order, without duplicates. */
   onEvent: (event: CheckEvent) => void;
   /** Origin of the API; defaults to same-origin relative URLs. */
@@ -192,6 +203,9 @@ export async function watchCheckEvents(
     options.signal?.throwIfAborted();
     try {
       const headers: Record<string, string> = { accept: "text/event-stream" };
+      if (options.credentials)
+        headers.authorization = `Bearer ${await options.credentials()}`;
+      if (options.client) headers["Source-Taster-Client"] = options.client;
       if (lastSeq > 0) headers["last-event-id"] = `${checkId}:${lastSeq}`;
       const response = await doFetch(url, { headers, signal: options.signal });
       if (response.status >= 400 && response.status < 500) {

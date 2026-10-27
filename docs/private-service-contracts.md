@@ -25,3 +25,20 @@ no implementation code is included. The SHA is recorded by the private lockfile.
 Build and check these artifacts before pushing the contract branch. The private
 service can consume that reviewed commit before the parent merges integration.
 Legal qualification of the overall boundary remains a human gate (FA-UEB-23).
+
+## Guest authority (#96)
+
+The transport additions describe five-minute Guest issuance, public Ed25519 JWKS,
+current Guest binding/permission decisions, and signed versioned Owner invalidation
+with a drained acknowledgement. Implementations and cryptographic policy remain
+owned independently by each program. Access tokens never authenticate internal
+calls. Internal assertions bind the method, path and exact body digest to a short
+expiry and a separately purposed audience. No verification content crosses these
+contracts. The `not-implemented` Quota slot explicitly records that authentication
+supplies no Guest allowance; #99 owns the journal. `null` remains standalone/no
+Quota, not hosted authorization evidence.
+
+The service client is transport only. The verification client accepts a credential
+supplier for each request and SSE reconnect; identity storage and renewal policy
+remain outside the narrow license exception. The implementation handoff records
+the exact reachable public contract SHA consumed by the private lockfile.

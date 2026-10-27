@@ -871,10 +871,12 @@ export declare const CheckResponse: z.ZodObject<{
             }>;
         }, z.core.$strip>>;
     }, z.core.$strip>;
-    quota: z.ZodNullable<z.ZodObject<{
+    quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
-    }, z.core.$strip>>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type CheckResponse = z.infer<typeof CheckResponse>;
 export declare const CreateCheckRequest: z.ZodUnion<readonly [z.ZodObject<{

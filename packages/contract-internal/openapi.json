@@ -38,7 +38,29 @@
             ]
           },
           "quota": {
-            "$ref": "#/components/schemas/Quota"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -47,10 +69,7 @@
         ]
       },
       "Quota": {
-        "type": [
-          "object",
-          "null"
-        ],
+        "type": "object",
         "properties": {
           "consumed": {
             "type": "integer",
@@ -115,6 +134,54 @@
           "language"
         ],
         "additionalProperties": false
+      },
+      "AuthorityResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "allowed",
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "revoked",
+                  "forbidden",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "allowed",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        ]
       }
     },
     "parameters": {}
@@ -225,6 +292,203 @@
             }
           },
           "404": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/guest-authority": {
+      "post": {
+        "summary": "Check current Guest binding and named permission (signed verification assertion)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "guestContextId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "ownerId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "actorId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "permission": {
+                    "type": "string",
+                    "enum": [
+                      "structuring:create",
+                      "check:create",
+                      "check:read",
+                      "check:cancel",
+                      "check:renew"
+                    ]
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "request",
+                      "work"
+                    ]
+                  }
+                },
+                "required": [
+                  "guestContextId",
+                  "ownerId",
+                  "actorId",
+                  "permission",
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current authority, never a cacheable allowance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/guest-authority/invalidate": {
+      "post": {
+        "summary": "Install/drain a versioned Owner fence (signed service assertion)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "guestContextId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "ownerId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "actorId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "cancelWork": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "guestContextId",
+                  "ownerId",
+                  "actorId",
+                  "version",
+                  "cancelWork"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable drained fence acknowledgement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    }
+                  },
+                  "required": [
+                    "ownerId",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Problem Details; the local diagnostic is unavailable by default",
             "content": {
               "application/problem+json": {
