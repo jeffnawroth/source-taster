@@ -6,6 +6,12 @@ import { once } from "node:events";
 
 export const physicsReference =
   "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
+interface FixtureResponse {
+  status: number;
+  body: unknown;
+  headers?: Record<string, string>;
+  incompleteBody?: boolean;
+}
 export async function startDoiFixtures() {
   const crossref = await readFile(
     new URL("../fixtures/doi/crossref-nphys1170.json", import.meta.url),
@@ -15,10 +21,7 @@ export async function startDoiFixtures() {
     new URL("../fixtures/doi/handle-nphys1170.json", import.meta.url),
     "utf8",
   );
-  const responses = new Map<
-    string,
-    { status: number; body: unknown; headers?: Record<string, string> }
-  >();
+  const responses = new Map<string, FixtureResponse[]>();
   const requests: { path: string; at: number; completedAt?: number }[] = [];
   const holds = new Map<
     string,
@@ -46,11 +49,18 @@ export async function startDoiFixtures() {
         await hold.release;
       }
       res.setHeader("content-type", "application/json");
-      const override =
+      const sequence =
         responses.get(decodeURIComponent(req.url ?? "")) ??
         responses.get(new URL(req.url ?? "/", "http://fixture").pathname);
+      const override =
+        sequence && (sequence.length > 1 ? sequence.shift() : sequence[0]);
       if (override) {
         res.writeHead(override.status, override.headers);
+        if (override.incompleteBody) {
+          res.flushHeaders();
+          res.write(" ");
+          return;
+        }
         res.end(JSON.stringify(override.body));
         return;
       }
@@ -83,12 +93,14 @@ export async function startDoiFixtures() {
       return { arrived, release };
     },
     reset: () => responses.clear(),
+    respondSequence: (path: string, sequence: FixtureResponse[]) =>
+      responses.set(path, [...sequence]),
     respond: (
       path: string,
       status: number,
       body: unknown,
       headers?: Record<string, string>,
-    ) => responses.set(path, { status, body, headers }),
+    ) => responses.set(path, [{ status, body, headers }]),
     env: {
       SOURCE_TASTER_DOI_PREVIEW: "uncalibrated",
       SOURCE_TASTER_CROSSREF_BASE_URL: base,

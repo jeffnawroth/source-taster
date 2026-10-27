@@ -2,6 +2,7 @@
 // SOURCE-ONLY loopback integration. Never imported by src, scripts or build.
 // Real uncalibrated DOI/core + lifecycle + service authority. No gate receipt.
 import { serve } from "@hono/node-server";
+import { once } from "node:events";
 import { createParser } from "@source-taster/core";
 import { createQueue } from "../../src/checks/queue.ts";
 import { createCheckStore } from "../../src/checks/store.ts";
@@ -63,6 +64,7 @@ if (process.argv[2] === "worker") {
     hostname: "127.0.0.1",
     port: config.port,
   });
+  await once(server, "listening");
   stop = async () => {
     server.close();
     await events.close();

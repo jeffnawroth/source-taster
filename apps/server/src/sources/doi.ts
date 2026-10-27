@@ -208,12 +208,16 @@ export function createDoiAdapters(options: {
           break;
         }
         options.signal?.throwIfAborted();
+        let responseBody: unknown;
         try {
-          body = JSON.parse(new TextDecoder().decode(bytes));
+          responseBody = JSON.parse(new TextDecoder().decode(bytes));
         } catch {
-          body = undefined;
+          responseBody = undefined;
         }
         if (response.ok || response.status === 404) {
+          // Only a completed response from this attempt can supply evidence.
+          // Error-response payloads must not survive into a later retry.
+          body = responseBody;
           reason = "response";
           break;
         }
@@ -287,6 +291,7 @@ export function createDoiAdapters(options: {
         .safeParse(body);
       if (
         parsed.success &&
+        evidence.reason === "response" &&
         parsed.data.responseCode === 1 &&
         evidence.status === 200 &&
         parsed.data.handle?.toLowerCase() === doi
@@ -294,6 +299,7 @@ export function createDoiAdapters(options: {
         return { ...evidence, outcome: "exists", reason: undefined };
       if (
         parsed.success &&
+        evidence.reason === "response" &&
         parsed.data.responseCode === 100 &&
         parsed.data.handle?.toLowerCase() === doi &&
         (evidence.status === 200 || evidence.status === 404)
@@ -367,7 +373,7 @@ export function createDoiAdapters(options: {
         new URL(`/works/${encodeURIComponent(doi)}`, options.crossrefBase),
         deadline,
       );
-      if (evidence.status === 404)
+      if (evidence.status === 404 && evidence.reason === "response")
         return {
           evidence: {
             ...evidence,
@@ -379,7 +385,11 @@ export function createDoiAdapters(options: {
       const candidate = parsed.success
         ? project(parsed.data.message, "doi", evidence.observedAt)
         : null;
-      if (evidence.status !== 200 || !candidate)
+      if (
+        evidence.status !== 200 ||
+        evidence.reason !== "response" ||
+        !candidate
+      )
         return {
           evidence: {
             ...evidence,
@@ -426,7 +436,11 @@ export function createDoiAdapters(options: {
       const parsed = z
         .object({ message: z.object({ items: z.array(z.unknown()) }) })
         .safeParse(body);
-      if (evidence.status !== 200 || !parsed.success)
+      if (
+        evidence.status !== 200 ||
+        evidence.reason !== "response" ||
+        !parsed.success
+      )
         return {
           candidates: [],
           evidence: { ...evidence, reason: "probe-unavailable" },

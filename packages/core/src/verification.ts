@@ -134,7 +134,7 @@ export function createDoiVerification(ports: {
       verdict: "not-verifiable",
       reference,
       scoringRules: ports.rules,
-      searchStrategyVersion: "doi-crossref-public-tracer-2-uncalibrated",
+      searchStrategyVersion: "doi-crossref-public-tracer-3-uncalibrated",
       searchConfiguration: { ...doiTracerLimits, ...comparisonLimits },
       identity: { kind: "unresolved" },
       bestMatchId: null,

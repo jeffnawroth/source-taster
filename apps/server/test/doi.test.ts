@@ -92,6 +92,66 @@ it("does not accept a nonexistent response for a different Handle as DOI nonexis
   });
 });
 
+it("does not confirm DOI nonexistence from an earlier failed response when its successful retry body is oversized", async () => {
+  const doi = "10.5555/retry-body-isolation";
+  fixtures.respondSequence(`/api/handles/${doi}`, [
+    { status: 503, body: { responseCode: 100, handle: doi } },
+    { status: 200, body: {}, headers: { "content-length": "6000000" } },
+  ]);
+  fixtures.respond(`/works/${doi}`, 404, {});
+  const { snapshot } = await check(`doi:${doi}`);
+  expect(snapshot.references[0]!.outcome).toMatchObject({
+    kind: "verdict",
+    verdict: "not-verifiable",
+    evidence: containing([
+      matching({
+        source: "doi.org",
+        outcome: "unavailable",
+        reason: "response-size",
+        status: 200,
+        attempts: 2,
+      }),
+    ]),
+  });
+});
+
+it("does not promote failed Crossref metadata when the retry body times out", async () => {
+  const doi = "10.5555/retry-metadata-isolation";
+  fixtures.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  fixtures.respondSequence(`/works/${doi}`, [
+    {
+      status: 503,
+      body: { message: { DOI: doi, title: ["Retry isolation"] } },
+    },
+    { status: 200, body: {}, incompleteBody: true },
+  ]);
+  const { snapshot } = await check({
+    references: [
+      {
+        originalText: "Synthetic retry metadata isolation",
+        fields: { DOI: doi, title: "Retry isolation" },
+      },
+    ],
+  });
+  expect(snapshot.references[0]!.outcome).toMatchObject({
+    kind: "verdict",
+    verdict: "not-verifiable",
+    candidates: [],
+    evidence: containing([
+      matching({
+        source: "crossref",
+        outcome: "unavailable",
+        reason: "request-unavailable",
+        status: 200,
+        attempts: 2,
+      }),
+    ]),
+  });
+});
+
 it("confirms a foreign DOI only with independent bibliographic evidence for the intended different Source", async () => {
   const record = JSON.parse(
     await readFile(
