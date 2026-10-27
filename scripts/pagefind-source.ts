@@ -11,9 +11,11 @@ import {
   readdir,
   lstat,
   readlink,
+  realpath,
 } from "node:fs/promises";
 import { resolve, basename } from "node:path";
 import { gzipSync } from "node:zlib";
+import type { BuildReceipt, NativeLoad } from "./website-evidence.ts";
 
 const root = resolve(import.meta.dirname, "..");
 const policy = resolve(root, "apps/website/qualification/controlled");
@@ -35,14 +37,15 @@ if (!["fetch", "build", "verify"].includes(command ?? ""))
   throw new Error("Usage: node scripts/pagefind-source.ts fetch|build|verify");
 const hash = (b: Uint8Array | string) =>
   createHash("sha256").update(b).digest("hex");
-const json = async (path: string) => JSON.parse(await readFile(path, "utf8"));
+const json = async <T = unknown>(path: string): Promise<T> =>
+  JSON.parse(await readFile(path, "utf8")) as T;
 interface Input {
   url: string;
   sha256: string;
   target?: string;
   name?: string;
 }
-const inputs = (await json(resolve(policy, "inputs.json"))) as {
+interface BuildInputs {
   pagefind: Input & { version: string; commit: string };
   rustPatchDerive: Input;
   compiler: Input;
@@ -53,13 +56,14 @@ const inputs = (await json(resolve(policy, "inputs.json"))) as {
   cmake: (Input & { target: string; version: string; binary: string })[];
   rustVersion: string;
   vendoredGzip: { path: string; sha256: string };
-};
-const toolchain = (await json(resolve(policy, "toolchain.json"))) as Input[];
+}
+const inputs = await json<BuildInputs>(resolve(policy, "inputs.json"));
+const toolchain = await json<Input[]>(resolve(policy, "toolchain.json"));
 const cmakeInput = inputs.cmake.find((p) => p.target === target);
 if (!cmakeInput) throw new Error(`No pinned CMake for ${target}`);
 const env = {
   // Do not pass user RUSTFLAGS/CARGO_TARGET_*/RUSTC_WRAPPER or Pagefind config.
-  PATH: `${tools}/rust/bin:${process.env.PATH}`,
+  PATH: `${tools}/rust/bin:/usr/bin:/bin:/usr/sbin:/sbin`,
   HOME: process.env.HOME,
   TMPDIR: process.env.TMPDIR,
   SystemRoot: process.env.SystemRoot,
@@ -74,11 +78,15 @@ const env = {
   SOURCE_DATE_EPOCH: "1774742400",
   // Paths differ between CI/local; this removes them from Rust object/debug data.
   RUSTFLAGS: `--remap-path-prefix=${work}=/pagefind-build`,
+  CFLAGS: `-ffile-prefix-map=${work}=/pagefind-build`,
+  CXXFLAGS: `-ffile-prefix-map=${work}=/pagefind-build`,
   DO_NOT_TRACK: "1",
   // Pinned CMake from the fetch stage, never a host installation.
   CMAKE: resolve(tools, "cmake", cmakeInput.binary),
   // Fixed deployment target instead of the host OS version (Rust's aarch64 default).
-  ...(process.platform === "darwin" ? { MACOSX_DEPLOYMENT_TARGET: "11.0" } : {}),
+  ...(process.platform === "darwin"
+    ? { MACOSX_DEPLOYMENT_TARGET: "11.0" }
+    : {}),
 };
 function run(
   bin: string,
@@ -157,7 +165,8 @@ async function snapshot(directory: string): Promise<Record<string, string>> {
   async function visit(path: string) {
     for (const entry of await readdir(path, { withFileTypes: true })) {
       if (
-        ["target", "vendor", "pkg", "node_modules", ".git"].includes(entry.name)
+        ["target", "pkg", "node_modules", ".git"].includes(entry.name) ||
+        resolve(path, entry.name) === resolve(source, "pagefind/vendor")
       )
         continue;
       const file = resolve(path, entry.name);
@@ -205,6 +214,7 @@ if (command === "fetch") {
     resolve(policy, "locks/web.Cargo.lock"),
     resolve(source, "pagefind_web/Cargo.lock"),
   );
+  await rm(resolve(tools, "rust"), { recursive: true, force: true });
   for (const input of toolchain.filter(
     (p) => p.target === target || p.target === "wasm32-unknown-unknown",
   )) {
@@ -274,6 +284,76 @@ if (command === "fetch") {
   // Fetch all locked alternatives so Cargo vendor/source delivery never needs a network build.
   cargo(["fetch", "--locked"]);
   cargo(["fetch", "--locked", "--manifest-path", "pagefind_web/Cargo.toml"]);
+  // A reused task cache is an optimization, never trusted source. Re-extract
+  // registry sources from lock-checksummed archives before fingerprinting them.
+  const registry = resolve(work, "cargo-home/registry");
+  const archives = (await readdir(resolve(registry, "cache"))).sort();
+  const checked = new Set<string>();
+  for (const file of recipeFiles.filter((p) => p.startsWith("locks/"))) {
+    const lock = await readFile(resolve(policy, file), "utf8");
+    for (const entry of lock.split(/^\[\[package\]\]$/m).slice(1)) {
+      if (!entry.includes('source = "registry+')) continue;
+      const name = entry.match(/^name = "([^"]+)"$/m)?.[1];
+      const version = entry.match(/^version = "([^"]+)"$/m)?.[1];
+      const checksum = entry.match(/^checksum = "([a-f0-9]{64})"$/m)?.[1];
+      if (!name || !version || !checksum)
+        throw new Error("Unknown registry input");
+      const id = `${name}-${version}`;
+      if (checked.has(id)) continue;
+      checked.add(id);
+      let found = false;
+      for (const registryId of archives) {
+        const archive = resolve(registry, "cache", registryId, `${id}.crate`);
+        let bytes: Buffer;
+        try {
+          bytes = await readFile(archive);
+        } catch {
+          continue;
+        }
+        if (hash(bytes) !== checksum)
+          throw new Error(`Crate cache checksum mismatch: ${id}`);
+        const extracted = resolve(registry, "src", registryId);
+        await rm(resolve(extracted, id), { recursive: true, force: true });
+        await mkdir(extracted, { recursive: true });
+        run("tar", ["-xzf", archive, "-C", extracted], work);
+        await writeFile(resolve(extracted, id, ".cargo-ok"), '{"v":1}');
+        found = true;
+      }
+      if (!found) throw new Error(`Missing frozen crate archive: ${id}`);
+    }
+  }
+  // Cargo's git checkout must agree with the immutable revision in its lock.
+  const gitSources = resolve(work, "cargo-home/git/checkouts");
+  for (const repository of await readdir(gitSources))
+    for (const checkout of await readdir(resolve(gitSources, repository))) {
+      const directory = resolve(gitSources, repository, checkout);
+      const revision = run(
+        "git",
+        ["rev-parse", "HEAD"],
+        directory,
+        true,
+      ).trim();
+      const locks = await Promise.all(
+        recipeFiles
+          .filter((p) => p.startsWith("locks/"))
+          .map((p) => readFile(resolve(policy, p), "utf8")),
+      );
+      if (!locks.some((lock) => lock.includes(`#${revision}"`)))
+        throw new Error(`Unknown git checkout: ${repository}@${revision}`);
+      run("git", ["diff", "--exit-code", "HEAD", "--"], directory, true);
+      if (
+        run(
+          "git",
+          ["ls-files", "--others", "--exclude-standard"],
+          directory,
+          true,
+        )
+          .trim()
+          .split("\n")
+          .some((file) => file && file !== ".cargo-ok")
+      )
+        throw new Error(`Untracked git build input: ${repository}`);
+    }
   await writeFile(
     resolve(work, "fetched.json"),
     JSON.stringify(
@@ -286,6 +366,8 @@ if (command === "fetch") {
           ...(await snapshot(resolve(work, "rolldown"))),
           ...(await snapshot(resolve(work, "satteri"))),
           ...(await snapshot(tools)),
+          ...(await snapshot(resolve(registry, "src"))),
+          ...(await snapshot(gitSources)),
         },
       },
       null,
@@ -295,17 +377,36 @@ if (command === "fetch") {
   console.log(`Pinned source fetch complete: ${target}`);
   process.exit(0);
 }
-const fetched = await json(resolve(work, "fetched.json"));
+const fetched = await json<{
+  target: string;
+  recipeSha256: string;
+  sourceFiles: Record<string, string>;
+}>(resolve(work, "fetched.json"));
 if (fetched.recipeSha256 !== recipeSha256 || fetched.target !== target)
   throw new Error("Source recipe changed or missing; run pagefind:fetch");
-for (const [file, expected] of Object.entries(
-  fetched.sourceFiles as Record<string, string>,
-)) {
-  if ((await fingerprint(resolve(work, file))) !== expected)
+const currentSourceFiles = Object.assign(
+  {},
+  ...(await Promise.all(
+    [
+      source,
+      resolve(work, "compiler"),
+      resolve(work, "rolldown"),
+      resolve(work, "satteri"),
+      tools,
+      resolve(work, "cargo-home/registry/src"),
+      resolve(work, "cargo-home/git/checkouts"),
+    ].map(snapshot),
+  )),
+) as Record<string, string>;
+for (const file of new Set([
+  ...Object.keys(fetched.sourceFiles),
+  ...Object.keys(currentSourceFiles),
+])) {
+  if (currentSourceFiles[file] !== fetched.sourceFiles[file])
     throw new Error(`Pinned source/tool changed: ${file}`);
 }
 if (command === "verify") {
-  const receipt = await json(resolve(work, "receipt.json"));
+  const receipt = await json<BuildReceipt>(resolve(work, "receipt.json"));
   if (receipt.recipeSha256 !== recipeSha256 || receipt.target !== target)
     throw new Error("Controlled Pagefind build is stale; run pagefind:build");
   for (const [file, expected] of Object.entries(receipt.files)) {
@@ -390,7 +491,13 @@ for (const language of ["unknown", "de", "en"]) {
 await rm(resolve(work, "bin"), { recursive: true, force: true });
 await mkdir(resolve(work, "bin"), { recursive: true });
 const nativeModules = [
-  ["compiler", "astro_napi", ["--no-default-features"], "astro_napi", "astro.node"],
+  [
+    "compiler",
+    "astro_napi",
+    ["--no-default-features"],
+    "astro_napi",
+    "astro.node",
+  ],
   ["rolldown", "rolldown_binding", [], "rolldown_binding", "rolldown.node"],
   ["satteri", "satteri-napi", [], "satteri_napi", "satteri.node"],
 ] as const;
@@ -425,6 +532,40 @@ const cc = run(
 )
   .split("\n")[0]!
   .trim();
+const hostTools = {
+  platform: process.platform,
+  arch: process.arch,
+  node: process.version,
+  cc,
+  ccSha256: hash(await readFile(await realpath("/usr/bin/cc"))),
+  linkerSha256: hash(await readFile(await realpath("/usr/bin/ld"))),
+  nodeSha256: hash(await readFile(process.execPath)),
+  actualCcSha256: hash(
+    await readFile(
+      process.platform === "darwin"
+        ? run("/usr/bin/xcrun", ["--find", "clang"], work, true).trim()
+        : await realpath("/usr/bin/cc"),
+    ),
+  ),
+  actualLinkerSha256: hash(
+    await readFile(
+      process.platform === "darwin"
+        ? run("/usr/bin/xcrun", ["--find", "ld"], work, true).trim()
+        : await realpath("/usr/bin/ld"),
+    ),
+  ),
+  ...(process.platform === "darwin"
+    ? {
+        sdk: run("/usr/bin/xcrun", ["--show-sdk-version"], work, true).trim(),
+        developer: run(
+          "/usr/bin/xcode-select",
+          ["--print-path"],
+          work,
+          true,
+        ).trim(),
+      }
+    : {}),
+};
 // Browser JS: Rolldown JS API, executing only the controlled Rolldown binding.
 const bundleTrace = resolve(work, "bundle-loads.jsonl");
 await rm(bundleTrace, { force: true });
@@ -444,11 +585,13 @@ run(
     SOURCE_TASTER_NATIVE_TRACE: bundleTrace,
   },
 );
-const rolldownBinding = hash(await readFile(resolve(work, "bin/rolldown.node")));
+const rolldownBinding = hash(
+  await readFile(resolve(work, "bin/rolldown.node")),
+);
 const bundleLoads = (await readFile(bundleTrace, "utf8"))
   .trim()
   .split("\n")
-  .map((line) => JSON.parse(line));
+  .map((line) => JSON.parse(line) as NativeLoad);
 if (
   !bundleLoads.some((l) => l.sha256 === rolldownBinding) ||
   bundleLoads.some((l) => !l.controlled)
@@ -475,9 +618,24 @@ const graphs: Record<string, unknown> = {};
 const web = resolve(source, "pagefind_web");
 const wasm = "wasm32-unknown-unknown";
 for (const [name, cwd, graphTarget, features] of [
-  ["native", source, target, ["--package", "pagefind", "--no-default-features"]],
-  ["compiler", resolve(work, "compiler"), target, ["--package", "astro_napi", "--no-default-features"]],
-  ["rolldown", resolve(work, "rolldown"), target, ["--package", "rolldown_binding"]],
+  [
+    "native",
+    source,
+    target,
+    ["--package", "pagefind", "--no-default-features"],
+  ],
+  [
+    "compiler",
+    resolve(work, "compiler"),
+    target,
+    ["--package", "astro_napi", "--no-default-features"],
+  ],
+  [
+    "rolldown",
+    resolve(work, "rolldown"),
+    target,
+    ["--package", "rolldown_binding"],
+  ],
   ["satteri", resolve(work, "satteri"), target, ["--package", "satteri-napi"]],
   ["web-de", web, wasm, ["--no-default-features", "--features", "de"]],
   ["web-en", web, wasm, ["--no-default-features", "--features", "en"]],
@@ -537,7 +695,15 @@ for (const [name, cwd, graphTarget, features] of [
       cwd,
       true,
     ),
-  );
+  ) as {
+    packages: {
+      name: string;
+      version: string;
+      license: string;
+      source: string | null;
+      manifest_path: string;
+    }[];
+  };
   const lock = await readFile(resolve(cwd, "Cargo.lock"), "utf8");
   const checksums = new Map(
     lock
@@ -610,6 +776,7 @@ await writeFile(
       recipe,
       rustc,
       cc,
+      hostTools,
       cmake: cmakeInput.version,
       rolldown: "1.2.15",
       nativeFeatures: [],

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-10-26",
-  "qualification": "BLOCKED — unapproved compiler prereleases and unresolved native security/license/source evidence",
+  "qualification": "Historical 2026-10-26 upstream source-lock upper bound, not a controlled build receipt. See controlled/evidence and docs/implementation/115-controlled-build.md for actual target evidence and blocking decisions.",
   "npm": [
     {
       "ecosystem": "npm",
@@ -19808,5 +19808,6 @@
       "repository": "https://github.com/parcel-bundler/lightningcss",
       "metadataStatus": "public version metadata; individual notice/source clearance still required"
     }
-  ]
+  ],
+  "historicalSnapshot": true
 }

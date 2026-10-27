@@ -277,7 +277,12 @@ test("readers can download licenses and Corresponding Source bound to the served
   expect((await source.body()).length).toBeGreaterThan(100_000);
   const response = await request.get("/third-party/pagefind/manifest.json");
   expect(response.status()).toBe(200);
-  const manifest = await response.json();
+  const manifest = (await response.json()) as {
+    version: string;
+    licenses: { microjson: string };
+    source: { sha256: string };
+    objects: Record<string, string>;
+  };
   expect(manifest.version).toBe("1.5.2");
   expect(manifest.licenses.microjson).toBe("GPL-3.0-only");
   expect(manifest.source.sha256).toBe(

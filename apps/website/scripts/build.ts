@@ -7,6 +7,7 @@ import { createRequire } from "node:module";
 import { checkPublication, digest } from "./publication.ts";
 import "./content-check.ts";
 import { assertPreviewAllowed, languages } from "../src/metadata.ts";
+import type { NativeLoad } from "../../../scripts/website-evidence.ts";
 const preview = process.argv.includes("--preview");
 assertPreviewAllowed(preview ? "preview" : "publication");
 if (!preview && !process.argv.includes("--publication"))
@@ -53,7 +54,7 @@ const loads = (
 )
   .trim()
   .split("\n")
-  .map((line) => JSON.parse(line));
+  .map((line) => JSON.parse(line) as NativeLoad);
 const receipt = JSON.parse(
   await readFile(resolve(project, ".tmp/pagefind/receipt.json"), "utf8"),
 ) as { files: Record<string, string> };
@@ -62,7 +63,14 @@ const receipt = JSON.parse(
 const refused = loads.filter((load) => !load.controlled);
 if (refused.length)
   throw new Error(`Uncontrolled build execution: ${JSON.stringify(refused)}`);
-for (const module of ["astro.node", "rolldown.node", "satteri.node"]) {
+// This site's Astro pages require compiler + bundler. Sätteri is lazy Markdown
+// tooling: its controlled replacement is checked if loaded, never forced to run.
+for (const load of loads.filter((load) => load.kind === "native")) {
+  const module = load.path?.split("/").at(-1);
+  if (!module || load.sha256 !== receipt.files[`bin/${module}`])
+    throw new Error(`Unexpected native execution: ${JSON.stringify(load)}`);
+}
+for (const module of ["astro.node", "rolldown.node"]) {
   const expected = receipt.files[`bin/${module}`];
   if (
     !expected ||
@@ -73,7 +81,9 @@ for (const module of ["astro.node", "rolldown.node", "satteri.node"]) {
         load.sha256 === expected,
     )
   )
-    throw new Error(`Controlled ${module} execution evidence missing or changed`);
+    throw new Error(
+      `Controlled ${module} execution evidence missing or changed`,
+    );
 }
 for (const language of languages) {
   const result = spawnSync(
@@ -124,6 +134,19 @@ await writeFile(
   JSON.stringify(
     {
       mode: preview ? "preview" : "publication",
+      controlledBuild: {
+        receiptSha256: digest(
+          await readFile(resolve(project, ".tmp/pagefind/receipt.json")),
+        ),
+        nativeTraceSha256: digest(
+          await readFile(buildEnvironment.SOURCE_TASTER_NATIVE_TRACE),
+        ),
+        indexer: {
+          sha256: receipt.files["bin/pagefind"],
+          languages,
+          features: [],
+        },
+      },
       contentSha256: review?.contentSha256,
       files,
     },

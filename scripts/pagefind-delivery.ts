@@ -13,6 +13,7 @@ import { resolve, dirname, basename, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { gzipSync } from "node:zlib";
+import type { BuildReceipt } from "./website-evidence.ts";
 const root = resolve(import.meta.dirname, "..");
 const work = resolve(root, ".tmp/pagefind");
 const source = resolve(work, "source");
@@ -28,7 +29,7 @@ interface Package {
 }
 const receipt = JSON.parse(
   await readFile(resolve(work, "receipt.json"), "utf8"),
-);
+) as BuildReceipt;
 const graphs = JSON.parse(
   await readFile(resolve(work, "graphs.json"), "utf8"),
 ) as Record<string, { packages: Package[] }>;
@@ -60,6 +61,11 @@ await cp(
   resolve(root, "scripts/pagefind-bundle.ts"),
   resolve(staging, "pagefind-bundle.ts"),
 );
+await cp(
+  resolve(root, "scripts/website-native-trace.ts"),
+  resolve(staging, "website-native-trace.ts"),
+);
+await cp(resolve(root, "pnpm-lock.yaml"), resolve(staging, "pnpm-lock.yaml"));
 await cp(resolve(work, "bundle.json"), resolve(staging, "bundle.json"));
 await cp(import.meta.filename, resolve(staging, "pagefind-delivery.ts"));
 await cp(resolve(work, "receipt.json"), resolve(staging, "build-receipt.json"));
@@ -123,11 +129,13 @@ for (const pkg of packages) {
     `${packageId}.crate`,
   );
   const bytes = await readFile(archive);
-  const checksum = JSON.parse(
-    await readFile(
-      resolve(staging, "vendor", packageId, ".cargo-checksum.json"),
-      "utf8",
-    ),
+  const checksum = (
+    JSON.parse(
+      await readFile(
+        resolve(staging, "vendor", packageId, ".cargo-checksum.json"),
+        "utf8",
+      ),
+    ) as { package: string }
   ).package;
   if (!checksum || hash(bytes) !== checksum)
     throw new Error(`Dependency archive drift: ${packageId}`);
@@ -167,6 +175,7 @@ await writeFile(
   `#!/usr/bin/env bash
 set -eo pipefail
 cd "$(dirname "$0")"
+node --input-type=module -e 'import{readFileSync}from"node:fs";import{createHash}from"node:crypto";for(const[path,expected]of Object.entries(JSON.parse(readFileSync("source-files.json","utf8"))))if(createHash("sha256").update(readFileSync(path)).digest("hex")!==expected)throw new Error("Source checksum mismatch: "+path);'
 : "\u0024{PAGEFIND_RUST_BIN:?Set to the bin directory of pinned stable Rust 1.99.1 with wasm32-unknown-unknown std}"
 : "\u0024{PAGEFIND_BINDGEN:?Set to checksum-pinned wasm-bindgen 0.2.117 executable}"
 export PATH="$PAGEFIND_RUST_BIN:$PATH"
@@ -223,7 +232,7 @@ await writeFile(
 const sourceFiles: Record<string, string> = {};
 async function collect(dir: string) {
   for (const file of (await readdir(dir, { withFileTypes: true })).sort(
-    (a, b) => a.name.localeCompare(b.name),
+    (a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
   )) {
     const path = resolve(dir, file.name);
     if (file.isDirectory()) await collect(path);
@@ -238,10 +247,44 @@ await writeFile(
   JSON.stringify(sourceFiles, null, 2),
 );
 const archive = resolve(delivery, "corresponding-source.tar.gz");
-const tar = spawnSync("tar", ["-czf", archive, "-C", staging, "."], {
-  encoding: "utf8",
-});
-if (tar.status !== 0) throw new Error(tar.stderr);
+// POSIX ustar with fixed metadata, stable ordering and gzip mtime=0. Host tar
+// implementations otherwise embed file/directory timestamps and user IDs.
+const tarBlocks: Buffer[] = [];
+for (const path of [...Object.keys(sourceFiles), "source-files.json"].sort()) {
+  const bytes = await readFile(resolve(staging, path));
+  const header = Buffer.alloc(512);
+  const split = path.length <= 100 ? -1 : path.lastIndexOf("/");
+  const name = split < 0 ? path : path.slice(split + 1);
+  const prefix = split < 0 ? "" : path.slice(0, split);
+  if (Buffer.byteLength(name) > 100 || Buffer.byteLength(prefix) > 155)
+    throw new Error(`Source path exceeds ustar bounds: ${path}`);
+  header.write(name, 0, 100);
+  const octal = (value: number, offset: number, length: number) => {
+    const valueText = value.toString(8).padStart(length - 1, "0") + "\0";
+    if (valueText.length !== length)
+      throw new Error("Source archive field overflow");
+    header.write(valueText, offset, length);
+  };
+  octal(path.endsWith(".sh") ? 0o755 : 0o644, 100, 8);
+  octal(0, 108, 8);
+  octal(0, 116, 8);
+  octal(bytes.length, 124, 12);
+  octal(1774742400, 136, 12);
+  header.fill(32, 148, 156);
+  header.write("0", 156);
+  header.write("ustar\0", 257);
+  header.write("00", 263);
+  header.write(prefix, 345, 155);
+  const checksum = header.reduce((sum, byte) => sum + byte, 0);
+  header.write(checksum.toString(8).padStart(6, "0") + "\0 ", 148, 8);
+  tarBlocks.push(
+    header,
+    bytes,
+    Buffer.alloc((512 - (bytes.length % 512)) % 512),
+  );
+}
+tarBlocks.push(Buffer.alloc(1024));
+await writeFile(archive, gzipSync(Buffer.concat(tarBlocks), { level: 9 }));
 const manifest = {
   schemaVersion: 1,
   version: "1.5.2",

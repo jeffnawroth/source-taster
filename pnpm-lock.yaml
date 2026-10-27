@@ -187,6 +187,9 @@ importers:
       prettier:
         specifier: 3.9.10
         version: 3.9.10
+      rolldown:
+        specifier: 1.2.15
+        version: 1.2.15
       turbo:
         specifier: 2.11.10
         version: 2.11.10

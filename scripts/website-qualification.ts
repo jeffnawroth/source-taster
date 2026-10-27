@@ -4,11 +4,20 @@ import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { resolve, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import type {
+  BuildReceipt,
+  BuildGraph,
+  NativeLoad,
+  DistributionManifest,
+  WebsiteArtifact,
+  SourceProvenance,
+} from "./website-evidence.ts";
 const root = resolve(import.meta.dirname, "..");
 const work = resolve(root, ".tmp/pagefind");
 const hash = (b: Buffer | string) =>
   createHash("sha256").update(b).digest("hex");
-const json = async (p: string) => JSON.parse(await readFile(p, "utf8"));
+const json = async <T = unknown>(p: string): Promise<T> =>
+  JSON.parse(await readFile(p, "utf8")) as T;
 const verify = spawnSync(
   process.execPath,
   [resolve(root, "scripts/pagefind-source.ts"), "verify"],
@@ -16,24 +25,10 @@ const verify = spawnSync(
 );
 if (verify.status !== 0)
   throw new Error("Current controlled build evidence required");
-interface Package {
-  name: string;
-  version: string;
-  license: string;
-  source: string | null;
-  checksum?: string;
-  manifestPath: string;
-}
-const receipt = await json(resolve(work, "receipt.json"));
-const graphs = (await json(resolve(work, "graphs.json"))) as Record<
-  string,
-  {
-    packages: Package[];
-    target: string;
-    features: string[];
-    featureTreeSha256: string;
-  }
->;
+const receipt = await json<BuildReceipt>(resolve(work, "receipt.json"));
+const graphs = await json<Record<string, BuildGraph>>(
+  resolve(work, "graphs.json"),
+);
 if (
   [
     "native",
@@ -43,9 +38,7 @@ if (
     "web-de",
     "web-en",
     "web-unknown",
-  ].some(
-    (n) => !graphs[n]?.packages.length,
-  )
+  ].some((n) => !graphs[n]?.packages.length)
 )
   throw new Error("Missing actual build graph");
 const nativeLoads = (
@@ -53,7 +46,7 @@ const nativeLoads = (
 )
   .trim()
   .split("\n")
-  .map((l) => JSON.parse(l));
+  .map((l) => JSON.parse(l) as NativeLoad);
 // Fail closed: a refused native module or process is never qualified, and each
 // native module the website build executes must be its receipt-bound source build.
 const controlledModules = ["astro.node", "rolldown.node", "satteri.node"];
@@ -63,6 +56,7 @@ if (unqualifiedExecutions.length)
     `Uncontrolled website build execution: ${JSON.stringify(unqualifiedExecutions)}`,
   );
 for (const load of nativeLoads.filter((l) => l.kind === "native")) {
+  if (!load.path) throw new Error("Missing native module path");
   const module = relative(resolve(work, "bin"), load.path);
   if (
     !controlledModules.includes(module) ||
@@ -71,7 +65,7 @@ for (const load of nativeLoads.filter((l) => l.kind === "native")) {
   )
     throw new Error(`Unexpected native execution evidence: ${load.path}`);
 }
-for (const module of controlledModules)
+for (const module of ["astro.node", "rolldown.node"])
   if (!nativeLoads.some((l) => l.path === resolve(work, "bin", module)))
     throw new Error(`Missing ${module} execution evidence`);
 const packages = [
@@ -126,7 +120,9 @@ function elect(expression: string, allowed: (id: string) => boolean) {
       index++;
       terms.push(term());
     }
-    return terms.every((t) => t !== undefined) ? terms.join(" AND ") : undefined;
+    return terms.every((t) => t !== undefined)
+      ? terms.join(" AND ")
+      : undefined;
   }
   function term(): string | undefined {
     const token = tokens[index++];
@@ -183,11 +179,20 @@ const scanLock =
         `[[package]]\nname = ${JSON.stringify(p.name)}\nversion = ${JSON.stringify(p.version)}\n`,
     )
     .join("\n");
-await writeFile(resolve(work, "selected.Cargo.lock"), scanLock);
-const artifact = await json(
+await mkdir(resolve(work, "selected"), { recursive: true });
+await writeFile(resolve(work, "selected/Cargo.lock"), scanLock);
+const artifact = await json<WebsiteArtifact>(
   resolve(root, "apps/website/dist-preview/website-artifact.json"),
 );
-const manifest = await json(
+if (
+  artifact.controlledBuild?.receiptSha256 !==
+    hash(await readFile(resolve(work, "receipt.json"))) ||
+  artifact.controlledBuild?.nativeTraceSha256 !==
+    hash(await readFile(resolve(work, "native-loads.jsonl"))) ||
+  artifact.controlledBuild?.indexer.sha256 !== receipt.files["bin/pagefind"]
+)
+  throw new Error("Website execution receipt changed or missing");
+const manifest = await json<DistributionManifest>(
   resolve(root, "apps/website/dist-preview/third-party/pagefind/manifest.json"),
 );
 for (const [path, expected] of Object.entries(manifest.objects)) {
@@ -243,7 +248,44 @@ const proof = {
   nativeLoads: nativeLoads.map((l) => ({
     ...l,
     path: l.path && relative(root, l.path),
+    requested: l.requested?.startsWith(root)
+      ? relative(root, l.requested)
+      : l.requested,
   })),
+  graphSurfaces: Object.fromEntries(
+    Object.keys(graphs).map((name) => [
+      name,
+      {
+        built: true,
+        executedDuringWebsiteBuild:
+          name === "native" ||
+          nativeLoads.some(
+            (l) =>
+              l.path ===
+              resolve(
+                work,
+                "bin",
+                `${name === "compiler" ? "astro" : name}.node`,
+              ),
+          ),
+        distributed: name.startsWith("web-"),
+        note: name.startsWith("web-")
+          ? "browser WASM and its host build dependencies; browser execution is demonstrated separately by DE/EN search tests"
+          : "build-only native graph; never served to readers",
+      },
+    ]),
+  ),
+  controlledBuild: artifact.controlledBuild,
+  toolchainInputs: {
+    sourceInputs: await json(
+      resolve(root, "apps/website/qualification/controlled/inputs.json"),
+    ),
+    rustDistributions: await json(
+      resolve(root, "apps/website/qualification/controlled/toolchain.json"),
+    ),
+    trustBoundary:
+      "Pinned publisher Rust/CMake/wasm-bindgen tools are bootstrap tools, not website modules or distributed client code. Their archive hashes and targets are recorded. Transitive binary SBOMs and independent source-rebuild attestations for those publisher tools are not established by Cargo graph scans; see the qualification limitations.",
+  },
   installedNative,
   sourceDelivery: manifest,
   unqualifiedExecutions,
@@ -252,10 +294,10 @@ const proof = {
   licenseIssues,
   legalStatus:
     "BLOCKED: concrete GPL/AGPL boundaries, microjson manifest/header interpretation, source offer and human legal review remain pending; no license waiver",
-  sourceLocks: await json(
+  sourceLocks: await json<SourceProvenance>(
     resolve(root, "apps/website/qualification/upstream/provenance.json"),
   ),
-  qualifiedPlatforms: [receipt.target],
+  inventoriedPlatforms: [receipt.target],
 };
 for (const source of proof.sourceLocks.sources)
   if (

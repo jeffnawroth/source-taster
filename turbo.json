@@ -7,6 +7,11 @@
     "PLAYWRIGHT_BROWSERS_PATH"
   ],
   "tasks": {
+    "@source-taster/website#build": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "outputs": ["dist-preview/**"]
+    },
     "generate": {
       "outputs": ["src/generated/**", "src/paraglide/**"]
     },

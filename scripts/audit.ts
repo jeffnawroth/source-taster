@@ -1,21 +1,28 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Offline matching after a separate, public-data-only refresh. Any finding
 // blocks this skeleton gate (and therefore every critical finding blocks).
-import { readFile, stat, mkdir, writeFile } from "node:fs/promises";
+import { readFile, stat, mkdir, writeFile, rm } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { parseAllDocuments } from "yaml";
 
+const proofPath = ".tmp/pagefind/evidence/qualification.json";
+await rm(proofPath, { force: true });
 const qualification = spawnSync(
   process.execPath,
   ["scripts/website-qualification.ts"],
   { stdio: "inherit" },
 );
-if (qualification.status !== 0)
+// A license refusal must not hide advisory results. Only a newly generated,
+// structurally complete proof permits scanning; the refusal still blocks below.
+const qualificationProof = JSON.parse(await readFile(proofPath, "utf8")) as {
+  licenseIssues: string[];
+};
+if (qualification.status !== 0 && !qualificationProof.licenseIssues?.length)
   throw new Error(
     "Actual website build/bundle qualification evidence required",
   );
-const selectedLock = ".tmp/pagefind/selected.Cargo.lock";
+const selectedLock = ".tmp/pagefind/selected/Cargo.lock";
 const root = new URL("../", import.meta.url);
 const cache = resolve(
   process.env.OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY ?? ".tmp/osv-db",
@@ -128,7 +135,11 @@ const scanned = new Set(
   ),
 );
 const required = expected.map((key) => `npm:${key}`);
+const requiredByLock = new Map<string, string[]>([
+  ["pnpm-lock.yaml", [...required]],
+]);
 for (const file of [...nativeLocks, selectedLock]) {
+  const lockRequired: string[] = [];
   const content = await readFile(file, "utf8");
   const entries = content.split(/^\[\[package\]\]$/m).slice(1);
   if (!entries.length) throw new Error(`Empty native inventory: ${file}`);
@@ -138,15 +149,37 @@ for (const file of [...nativeLocks, selectedLock]) {
     if (!name || !version)
       throw new Error(`Unknown native inventory shape: ${file}`);
     required.push(`crates.io:${name}@${version}`);
+    lockRequired.push(`crates.io:${name}@${version}`);
   }
+  requiredByLock.set(file, lockRequired);
 }
 const bundled = JSON.parse(await readFile(bundledLock, "utf8")) as {
   packages: Record<string, { name?: string; version: string }>;
 };
+const bundledRequired: string[] = [];
 for (const [path, pkg] of Object.entries(bundled.packages)) {
   if (!path) continue; // workspace root is not an npm dependency; retained in the source lock
   const name = pkg.name ?? path.split("node_modules/").at(-1);
   required.push(`npm:${name}@${pkg.version}`);
+  bundledRequired.push(`npm:${name}@${pkg.version}`);
+}
+requiredByLock.set(bundledLock, bundledRequired);
+for (const [lock, identities] of requiredByLock) {
+  const results = report.results?.filter((r) =>
+    r.source.path.endsWith(`/${lock}`),
+  );
+  if (results?.length !== 1)
+    throw new Error(`Incomplete OSV source inventory: ${lock}`);
+  const actual = new Set(
+    results[0]!.packages.map(
+      (p) => `${p.package.ecosystem}:${p.package.name}@${p.package.version}`,
+    ),
+  );
+  const missing = identities.filter((id) => !actual.has(id));
+  if (!actual.size || missing.length)
+    throw new Error(
+      `Incomplete OSV inventory for ${lock}: ${missing.join(", ")}`,
+    );
 }
 const missing = [...new Set(required)].filter((key) => !scanned.has(key));
 if (!expected.length || !packages.length || missing.length)
@@ -154,7 +187,7 @@ if (!expected.length || !packages.length || missing.length)
     `Incomplete OSV inventory: ${missing.length} of ${expected.length} packages missing`,
   );
 const selectedReport = report.results?.filter((r) =>
-  r.source.path.endsWith("/.tmp/pagefind/selected.Cargo.lock"),
+  r.source.path.endsWith("/.tmp/pagefind/selected/Cargo.lock"),
 );
 if (selectedReport?.length !== 1)
   throw new Error("Selected build inventory not scanned");
@@ -213,6 +246,7 @@ const evidence = {
   rawFindingsPreserved: dispositions.filter((d) => !d.blocks).length,
   qualificationEvidence: ".tmp/pagefind/evidence/qualification.json",
   legalReview: "pending; publication remains blocked",
+  licenseIssues: qualificationProof.licenseIssues,
 };
 await writeFile(
   resolve(".tmp/audit/summary.json"),
@@ -222,4 +256,8 @@ console.log(JSON.stringify(evidence));
 if (blockingFindings)
   throw new Error(
     "Actual selected dependency advisory found; all actual findings (including critical) block CI",
+  );
+if (qualification.status !== 0)
+  throw new Error(
+    "Actual website license qualification failed; advisory evidence retained",
   );

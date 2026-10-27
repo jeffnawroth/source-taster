@@ -258,7 +258,7 @@ const report = {
   schemaVersion: 1,
   date: "2026-10-26",
   qualification:
-    "BLOCKED — unapproved compiler prereleases and unresolved native security/license/source evidence",
+    "Source-lock upper bound only, not a controlled target receipt; see controlled/evidence and docs/implementation/115-controlled-build.md",
   npm,
   upstreamNpm,
   cargo,

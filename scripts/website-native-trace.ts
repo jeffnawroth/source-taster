@@ -19,7 +19,10 @@ if (!bin || !trace)
 /** Installed prebuilt Node-API module → controlled replacement in `bin`. */
 export const controlledModules: [RegExp, string][] = [
   [/\/@astrojs\/compiler-binding-[^/]+\/astro\.[^/]+\.node$/, "astro.node"],
-  [/\/@rolldown\/binding-[^/]+\/rolldown-binding\.[^/]+\.node$/, "rolldown.node"],
+  [
+    /\/@rolldown\/binding-[^/]+\/rolldown-binding\.[^/]+\.node$/,
+    "rolldown.node",
+  ],
   [/\/@bruits\/satteri-[^/]+\/satteri_napi\.[^/]+\.node$/, "satteri.node"],
 ];
 // The Pagefind CLI is absent while its own browser bundles are built.
@@ -37,8 +40,13 @@ const sha256 = (path: string) =>
 const record = (entry: Record<string, unknown>) =>
   appendFileSync(trace, JSON.stringify({ pid: process.pid, ...entry }) + "\n");
 
-const dlopen = process.dlopen;
-process.dlopen = function (module: unknown, filename: string, ...rest: unknown[]) {
+const dlopen = process.dlopen.bind(process);
+process.dlopen = function (
+  this: NodeJS.Process,
+  module: object,
+  filename: string,
+  flags?: number,
+) {
   const requested = realpathSync(filename);
   const match = controlledModules.find(([pattern]) => pattern.test(requested));
   if (!match) {
@@ -46,7 +54,7 @@ process.dlopen = function (module: unknown, filename: string, ...rest: unknown[]
     throw new Error(`Refused uncontrolled native module: ${requested}`);
   }
   const path = realpathSync(resolve(bin, match[1]));
-  const result = Reflect.apply(dlopen, this, [module, path, ...rest]);
+  dlopen(module, path, flags);
   record({
     kind: "native",
     requested,
@@ -55,8 +63,7 @@ process.dlopen = function (module: unknown, filename: string, ...rest: unknown[]
     sha256: sha256(path),
     loaded: true,
   });
-  return result;
-} as typeof process.dlopen;
+};
 
 function locate(name: string): string | undefined {
   const candidates = name.includes("/")
@@ -75,9 +82,17 @@ function guard(file: unknown, shell: unknown) {
   const path = locate(requested);
   const controlled =
     !shell && path !== undefined && controlledExecutables.has(path);
-  record({ kind: "process", requested, path, shell: Boolean(shell), controlled });
+  record({
+    kind: "process",
+    requested,
+    path,
+    shell: Boolean(shell),
+    controlled,
+  });
   if (!controlled)
-    throw new Error(`Refused uncontrolled executable during build: ${requested}`);
+    throw new Error(
+      `Refused uncontrolled executable during build: ${requested}`,
+    );
 }
 type Options = { shell?: unknown } | undefined;
 const optionsOf = (args: unknown[]): Options =>
@@ -85,7 +100,12 @@ const optionsOf = (args: unknown[]): Options =>
     (value): value is { shell?: unknown } =>
       typeof value === "object" && value !== null && !Array.isArray(value),
   );
-for (const method of ["spawn", "spawnSync", "execFile", "execFileSync"] as const) {
+for (const method of [
+  "spawn",
+  "spawnSync",
+  "execFile",
+  "execFileSync",
+] as const) {
   const original = childProcess[method] as (...args: unknown[]) => unknown;
   (childProcess as Record<string, unknown>)[method] = function (
     this: unknown,
@@ -100,8 +120,10 @@ const fork = childProcess.fork;
 childProcess.fork = function (this: unknown, ...args: unknown[]) {
   const options = optionsOf(args) as { execPath?: string } | undefined;
   guard(options?.execPath ?? process.execPath, false);
-  return Reflect.apply(fork, this, args);
-} as typeof childProcess.fork;
+  return Reflect.apply(fork, this, args) as ReturnType<
+    typeof childProcess.fork
+  >;
+};
 for (const method of ["exec", "execSync"] as const)
   (childProcess as Record<string, unknown>)[method] = (command: unknown) => {
     record({ kind: "process", requested: String(command), controlled: false });
