@@ -111,7 +111,7 @@ export const pages: Record<Language, Page[]> = {
       title: "How the check works",
       summary: "Understand the distinction between progress and evidence.",
       paragraphs: [
-        "The current local skeleton accepts text with one reference on each line, shows progress, and ends with the Status ‘Not checked’. It does not search Data sources, calculate Scores or produce Verdicts or Correction suggestions. The separate Structuring preview shows recognized fields but does not start a Check.",
+        "The local development preview can resolve a supplied DOI through doi.org and compare Crossref metadata when the uncalibrated DOI preview is explicitly enabled. It shows a Verdict with icon, color and text, field differences and source evidence. Missing Crossref metadata or unavailable mandatory DOI resolution gives Not verifiable. Other paths remain Not checked. Correction suggestions are not available. The separate Structuring action does not start a Check.",
         "A Status describes progress or an incomplete check. A Verdict describes a fully checked reference. A Verdict is not proof of deception. A human makes the decision and must review the underlying evidence.",
         "Do not use this development version to decide whether a source exists or whether a person fabricated a reference.",
       ],
@@ -161,7 +161,7 @@ export const pages: Record<Language, Page[]> = {
       title: "Availability and limits",
       summary: "What is available in this development wave.",
       paragraphs: [
-        "There is no public service or extension download in this preview. The local workspace is a development skeleton. Source checking, file imports, AI extraction, exports and Verification reports are not available.",
+        "There is no public service or extension download in this preview. Only the opt-in, uncalibrated DOI path is available locally; its rules are not qualified for release or decisions. Full source checking, file imports, AI extraction, exports and Verification reports are not available.",
         "Hosted Accounts, paid Plans, purchases, Quota enforcement and retained History are not available here. No price, measured accuracy, completion-time guarantee or quality certification is offered.",
         "No consent-based History retention or expiry workflow is implemented in this version. Do not treat local development storage as a production retention policy.",
       ],
@@ -236,7 +236,7 @@ export const pages: Record<Language, Page[]> = {
       title: "So funktioniert die Prüfung",
       summary: "Fortschritt und Belege sind unterschiedliche Dinge.",
       paragraphs: [
-        "Das aktuelle lokale Entwicklungsgerüst nimmt Text mit einer Referenz pro Zeile an, zeigt den Fortschritt und endet mit dem Status ‚Nicht geprüft‘. Es durchsucht keine Datenquellen, berechnet keine Scores und erzeugt weder Urteile noch Korrekturvorschläge. Die gesonderte Strukturierungsvorschau zeigt erkannte Felder, startet aber keine Prüfung.",
+        "Die lokale Entwicklungsvorschau kann eine angegebene DOI über doi.org auflösen und Crossref-Metadaten vergleichen, wenn die unkalibrierte DOI-Vorschau ausdrücklich aktiviert wurde. Sie zeigt ein Urteil mit Symbol, Farbe und Text, Feldabweichungen und Quellenbelegen. Fehlende Crossref-Metadaten oder eine nicht verfügbare erforderliche DOI-Auflösung ergeben Nicht verifizierbar. Andere Prüfpfade bleiben Nicht geprüft. Korrekturvorschläge sind nicht verfügbar. Die gesonderte Strukturierung startet keine Prüfung.",
         "Ein Status beschreibt den Fortschritt oder eine unvollständige Prüfung. Ein Urteil beschreibt eine vollständig geprüfte Referenz. Ein Urteil ist kein Beweis für Täuschung. Ein Mensch entscheidet und muss die zugrunde liegenden Belege prüfen.",
         "Verwenden Sie diese Entwicklungsversion nicht, um über die Existenz einer Quelle oder eine erfundene Referenz zu entscheiden.",
       ],
@@ -286,7 +286,7 @@ export const pages: Record<Language, Page[]> = {
       title: "Verfügbarkeit und Grenzen",
       summary: "Was in dieser Entwicklungswelle verfügbar ist.",
       paragraphs: [
-        "Diese Vorschau enthält weder einen öffentlichen Dienst noch einen Erweiterungsdownload. Der lokale Arbeitsbereich ist ein Entwicklungsgerüst. Quellenprüfung, Dateiimport, KI-Extraktion, Exporte und Prüfberichte sind nicht verfügbar.",
+        "Diese Vorschau enthält weder einen öffentlichen Dienst noch einen Erweiterungsdownload. Lokal ist nur der ausdrücklich aktivierte, unkalibrierte DOI-Prüfpfad verfügbar; seine Regeln sind nicht für eine Veröffentlichung oder Entscheidungen qualifiziert. Die vollständige Quellenprüfung, Dateiimport, KI-Extraktion, Exporte und Prüfberichte sind nicht verfügbar.",
         "Gehostete Konten, kostenpflichtige Pläne, Käufe, Kontingentdurchsetzung und ein gespeicherter Verlauf sind hier nicht verfügbar. Es gibt keine Preiszusage, gemessene Genauigkeit, garantierte Fertigstellungszeit oder Qualitätszertifizierung.",
         "Ein einwilligungsbasierter Verlauf mit Aufbewahrung und Ablauf ist in dieser Version nicht implementiert. Lokale Entwicklungsspeicherung ist keine produktive Aufbewahrungsrichtlinie.",
       ],

@@ -7,5 +7,5 @@
     "lib": ["es2024", "dom", "dom.iterable"],
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "e2e", "*.ts"]
+  "include": ["src", "e2e", "*.ts", "guest.playwright.config.ts", "e2e-guest"]
 }

@@ -2,6 +2,10 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import {
+  AuthorityRequest,
+  AuthorityResponse,
+  AuthorityInvalidation,
+  AuthorityInvalidationAck,
   MailRehearsalRequest,
   MailRehearsalResponse,
   MailRehearsalParams,
@@ -47,4 +51,50 @@ export const getMailRehearsal = createRoute({
     404: problem,
   },
 });
-export const routes = [createMailRehearsal, getMailRehearsal];
+export const authorizeGuest = createRoute({
+  method: "post",
+  path: "/internal/guest-authority",
+  summary:
+    "Check current Guest binding and named permission (signed verification assertion)",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: AuthorityRequest } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Current authority, never a cacheable allowance",
+      content: { "application/json": { schema: AuthorityResponse } },
+    },
+    400: problem,
+    401: problem,
+    503: problem,
+  },
+});
+export const invalidateGuest = createRoute({
+  method: "post",
+  path: "/internal/guest-authority/invalidate",
+  summary: "Install/drain a versioned Owner fence (signed service assertion)",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: AuthorityInvalidation } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Durable drained fence acknowledgement",
+      content: { "application/json": { schema: AuthorityInvalidationAck } },
+    },
+    400: problem,
+    401: problem,
+    503: problem,
+  },
+});
+export const routes = [
+  createMailRehearsal,
+  getMailRehearsal,
+  authorizeGuest,
+  invalidateGuest,
+];

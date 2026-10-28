@@ -8,10 +8,15 @@ const problem = (description) => ({
     description,
     content: { [PROBLEM_CONTENT_TYPE]: { schema: ProblemDetails } },
 });
+const authorityProblems = {
+    401: problem("A valid, unexpired verification access token is required."),
+    403: problem("Current service authority denies the named permission."),
+    503: problem("Current authority or signing-key refresh is unavailable; no fallback."),
+};
 export const createCheck = createRoute({
     method: "post",
     path: "/v1/checks",
-    summary: "Paste References and start a Check",
+    summary: "Start a Check from pasted or explicitly structured References",
     request: {
         body: {
             required: true,
@@ -19,8 +24,9 @@ export const createCheck = createRoute({
         },
     },
     responses: {
+        ...authorityProblems,
         201: {
-            description: "Check created; one Reference slot per pasted Reference.",
+            description: "Check created; one stable slot per recognized Reference. Explicit fields have user provenance. DOI verification is an opt-in uncalibrated local development preview.",
             content: { "application/json": { schema: CheckResponse } },
         },
         400: problem("The input is empty, malformed, or exceeds the configured Reference limit."),
@@ -33,6 +39,7 @@ export const getCheck = createRoute({
     summary: "Read the current snapshot of a Check",
     request: { params: CheckParams },
     responses: {
+        ...authorityProblems,
         200: {
             description: "Current snapshot, including the newest event sequence.",
             content: { "application/json": { schema: CheckResponse } },
@@ -45,14 +52,15 @@ export const streamCheckEvents = createRoute({
     method: "get",
     path: "/v1/checks/{checkId}/events",
     summary: "Stream Check events (Server-Sent Events)",
-    description: "Every event carries its sequence number as SSE `id` and a CheckEvent as JSON `data`. " +
-        "Send `Last-Event-ID` to receive only events after that sequence. " +
-        "The stream closes after the event that ends the Check.",
+    description: "Every event carries a replay cursor as SSE `id` and a CheckEvent as JSON `data`. " +
+        "Send a Check-bound `Last-Event-ID` cursor (including `{checkId}:0` for full replay) to receive Check-bound SSE IDs. Legacy numeric cursors and numeric SSE IDs remain supported; numeric cursors apply only to the authorized Check in the URL. " +
+        "The stream closes after the event that ends the Check, or silently on expiry, current denial or authority outage. Every frame and heartbeat requires current authority.",
     request: {
         params: CheckParams,
         headers: z.object({ "last-event-id": z.string().optional() }),
     },
     responses: {
+        ...authorityProblems,
         200: {
             description: "text/event-stream of CheckEvent",
             content: { "text/event-stream": { schema: z.string() } },
@@ -73,6 +81,7 @@ export const structureReferences = createRoute({
         },
     },
     responses: {
+        ...authorityProblems,
         200: {
             description: "Recognized References, field provenance and rejected text.",
             content: { "application/json": { schema: StructuringResponse } },
@@ -80,5 +89,39 @@ export const structureReferences = createRoute({
         400: problem("The input is empty, malformed, or exceeds the Reference limit."),
         401: problem("Sign-in required."),
         403: problem("Not permitted."),
+    },
+});
+export const cancelCheck = createRoute({
+    method: "post",
+    path: "/v1/checks/{checkId}/cancel",
+    summary: "Idempotently cancel a whole Check, retaining finished Verdicts",
+    request: { params: CheckParams },
+    responses: {
+        ...authorityProblems,
+        200: {
+            description: "Authoritative snapshot after cancellation",
+            content: { "application/json": { schema: CheckResponse } },
+        },
+        400: problem("Invalid Check id"),
+        401: problem("Sign-in required"),
+        403: problem("Not permitted"),
+        404: problem("No such Check for this Owner"),
+    },
+});
+export const renewCheckLease = createRoute({
+    method: "post",
+    path: "/v1/checks/{checkId}/lease",
+    summary: "Renew the whole Check client lease; never revive ended work",
+    request: { params: CheckParams },
+    responses: {
+        ...authorityProblems,
+        200: {
+            description: "Authoritative snapshot; an expired lease ends the Check",
+            content: { "application/json": { schema: CheckResponse } },
+        },
+        400: problem("Invalid Check id"),
+        401: problem("Sign-in required"),
+        403: problem("Not permitted"),
+        404: problem("No such Check for this Owner"),
     },
 });

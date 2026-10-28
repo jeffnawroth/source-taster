@@ -75,14 +75,22 @@ export class ApiError extends Error {
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export function verificationClient(options = {}) {
-    async function post(path, text, schema) {
+    async function headers() {
+        return {
+            ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+            ...(options.credentials
+                ? { Authorization: `Bearer ${await options.credentials()}` }
+                : {}),
+        };
+    }
+    async function post(path, requestBody, schema) {
         const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}${path}`, {
             method: "POST",
             headers: {
                 "content-type": "application/json",
-                ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+                ...(await headers()),
             },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify(requestBody),
         });
         const body = await response.json().catch(() => undefined);
         if (!response.ok)
@@ -90,8 +98,19 @@ export function verificationClient(options = {}) {
         return schema.parse(body);
     }
     return {
-        createCheck: async (text) => (await post("/v1/checks", text, CheckResponse)).data,
-        structureReferences: async (text) => (await post("/v1/structurings", text, StructuringResponse)).data,
+        createCheck: async (input) => (await post("/v1/checks", typeof input === "string" ? { text: input } : input, CheckResponse)).data,
+        cancelCheck: async (checkId) => (await post(`/v1/checks/${encodeURIComponent(checkId)}/cancel`, undefined, CheckResponse)).data,
+        renewCheckLease: async (checkId) => (await post(`/v1/checks/${encodeURIComponent(checkId)}/lease`, undefined, CheckResponse)).data,
+        getCheck: async (checkId) => {
+            const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`, {
+                headers: await headers(),
+            });
+            const body = await response.json().catch(() => undefined);
+            if (!response.ok)
+                throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+            return CheckResponse.parse(body).data;
+        },
+        structureReferences: async (text) => (await post("/v1/structurings", { text }, StructuringResponse)).data,
     };
 }
 /**
@@ -108,10 +127,14 @@ export async function watchCheckEvents(checkId, options) {
         options.signal?.throwIfAborted();
         try {
             const headers = { accept: "text/event-stream" };
-            if (lastSeq > 0)
-                headers["last-event-id"] = String(lastSeq);
+            if (options.credentials)
+                headers.authorization = `Bearer ${await options.credentials()}`;
+            if (options.client)
+                headers["Source-Taster-Client"] = options.client;
+            headers["last-event-id"] = `${checkId}:${lastSeq}`;
             const response = await doFetch(url, { headers, signal: options.signal });
-            if (response.status >= 400 && response.status < 500) {
+            if ((response.status >= 400 && response.status < 500) ||
+                response.status === 503) {
                 const body = await response.json().catch(() => undefined);
                 const problem = ProblemDetails.safeParse(body);
                 throw new CheckStreamError(response.status, problem.data);
@@ -119,8 +142,13 @@ export async function watchCheckEvents(checkId, options) {
             if (response.ok && response.body) {
                 for await (const frame of readSseFrames(response.body)) {
                     const event = CheckEvent.parse(JSON.parse(frame.data));
+                    if (event.checkId !== checkId ||
+                        frame.id !== `${checkId}:${event.seq}`)
+                        throw new SyntaxError("Invalid Check event cursor");
                     if (event.seq <= lastSeq)
                         continue;
+                    if (event.seq !== lastSeq + 1)
+                        throw new SyntaxError("Check event sequence gap");
                     lastSeq = event.seq;
                     options.onEvent(event);
                     if (isFinalEvent(event))

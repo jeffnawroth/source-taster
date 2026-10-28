@@ -6,15 +6,18 @@ export interface Span {
 }
 export interface FieldSource {
   raw: string;
-  span: Span;
+  /** Only parser-derived fields have offsets in original text. */
+  span?: Span;
   normalized?: string;
 }
 export interface Name {
   family?: string;
+  "non-dropping-particle"?: string;
   given?: string;
   literal?: string;
 }
 export interface Csl {
+  type?: string;
   author?: Name[];
   issued?: { literal: string };
   title?: string;
@@ -40,7 +43,7 @@ export interface StructuredReference {
   csl: Csl;
   fieldSources: Record<string, FieldSource>;
   authorsTruncated?: boolean;
-  structuring: { path: "parser"; version: string };
+  structuring: { path: "parser" | "user"; version: string };
 }
 export interface StructuringResult {
   references: StructuredReference[];

@@ -7,7 +7,8 @@
   "exports": {
     ".": "./src/index.tsx",
     "./preferences": "./src/preferences.ts",
-    "./information": "./src/information.tsx"
+    "./information": "./src/information.tsx",
+    "./guest-identity": "./src/guest-identity.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
@@ -15,7 +16,8 @@
   },
   "dependencies": {
     "react-aria-components": "1.22.1",
-    "@source-taster/i18n": "workspace:*"
+    "@source-taster/i18n": "workspace:*",
+    "@source-taster/contract-service": "workspace:*"
   },
   "peerDependencies": {
     "react": "19.3.1",

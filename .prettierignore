@@ -18,3 +18,6 @@ packages/i18n/project.inlang/README.md
 **/dist-preview/
 **/.astro/
 apps/website/qualification/
+
+# Preserve recorded external HTTP responses byte for byte.
+apps/server/test/fixtures/doi/*.json

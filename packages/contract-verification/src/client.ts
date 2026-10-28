@@ -9,6 +9,7 @@ import {
   StructuringResponse,
   isFinalEvent,
   ProblemDetails,
+  type CreateCheckRequest,
 } from "./index.ts";
 
 export interface SseFrame {
@@ -85,16 +86,27 @@ export class ApiError extends Error {
     this.problem = problem;
   }
 }
+/** Called for every fetch/reconnect. Tokens must stay in memory. */
+export type CredentialSupplier = () => Promise<string>;
 export interface VerificationClientOptions {
+  credentials?: CredentialSupplier;
   baseUrl?: string;
   client?: string;
   fetch?: typeof globalThis.fetch;
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export function verificationClient(options: VerificationClientOptions = {}) {
+  async function headers() {
+    return {
+      ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+      ...(options.credentials
+        ? { Authorization: `Bearer ${await options.credentials()}` }
+        : {}),
+    };
+  }
   async function post<T>(
     path: string,
-    text: string,
+    requestBody: unknown,
     schema: { parse: (input: unknown) => T },
   ): Promise<T> {
     const response = await (options.fetch ?? globalThis.fetch)(
@@ -103,9 +115,9 @@ export function verificationClient(options: VerificationClientOptions = {}) {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+          ...(await headers()),
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify(requestBody),
       },
     );
     const body: unknown = await response.json().catch(() => undefined);
@@ -114,14 +126,53 @@ export function verificationClient(options: VerificationClientOptions = {}) {
     return schema.parse(body);
   }
   return {
-    createCheck: async (text: string) =>
-      (await post("/v1/checks", text, CheckResponse)).data,
+    createCheck: async (input: string | CreateCheckRequest) =>
+      (
+        await post(
+          "/v1/checks",
+          typeof input === "string" ? { text: input } : input,
+          CheckResponse,
+        )
+      ).data,
+    cancelCheck: async (checkId: string) =>
+      (
+        await post(
+          `/v1/checks/${encodeURIComponent(checkId)}/cancel`,
+          undefined,
+          CheckResponse,
+        )
+      ).data,
+    renewCheckLease: async (checkId: string) =>
+      (
+        await post(
+          `/v1/checks/${encodeURIComponent(checkId)}/lease`,
+          undefined,
+          CheckResponse,
+        )
+      ).data,
+    getCheck: async (checkId: string) => {
+      const response = await (options.fetch ?? globalThis.fetch)(
+        `${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`,
+        {
+          headers: await headers(),
+        },
+      );
+      const body: unknown = await response.json().catch(() => undefined);
+      if (!response.ok)
+        throw new ApiError(
+          response.status,
+          ProblemDetails.safeParse(body).data,
+        );
+      return CheckResponse.parse(body).data;
+    },
     structureReferences: async (text: string) =>
-      (await post("/v1/structurings", text, StructuringResponse)).data,
+      (await post("/v1/structurings", { text }, StructuringResponse)).data,
   };
 }
 
 export interface WatchCheckOptions {
+  credentials?: CredentialSupplier;
+  client?: string;
   /** Called once per event, in sequence order, without duplicates. */
   onEvent: (event: CheckEvent) => void;
   /** Origin of the API; defaults to same-origin relative URLs. */
@@ -152,9 +203,15 @@ export async function watchCheckEvents(
     options.signal?.throwIfAborted();
     try {
       const headers: Record<string, string> = { accept: "text/event-stream" };
-      if (lastSeq > 0) headers["last-event-id"] = String(lastSeq);
+      if (options.credentials)
+        headers.authorization = `Bearer ${await options.credentials()}`;
+      if (options.client) headers["Source-Taster-Client"] = options.client;
+      headers["last-event-id"] = `${checkId}:${lastSeq}`;
       const response = await doFetch(url, { headers, signal: options.signal });
-      if (response.status >= 400 && response.status < 500) {
+      if (
+        (response.status >= 400 && response.status < 500) ||
+        response.status === 503
+      ) {
         const body: unknown = await response.json().catch(() => undefined);
         const problem = ProblemDetails.safeParse(body);
         throw new CheckStreamError(response.status, problem.data);
@@ -162,7 +219,14 @@ export async function watchCheckEvents(
       if (response.ok && response.body) {
         for await (const frame of readSseFrames(response.body)) {
           const event = CheckEvent.parse(JSON.parse(frame.data));
+          if (
+            event.checkId !== checkId ||
+            frame.id !== `${checkId}:${event.seq}`
+          )
+            throw new SyntaxError("Invalid Check event cursor");
           if (event.seq <= lastSeq) continue;
+          if (event.seq !== lastSeq + 1)
+            throw new SyntaxError("Check event sequence gap");
           lastSeq = event.seq;
           options.onEvent(event);
           if (isFinalEvent(event)) return;

@@ -1,4 +1,4 @@
-import { CheckEvent, ProblemDetails } from "./index.ts";
+import { CheckEvent, ProblemDetails, type CreateCheckRequest } from "./index.ts";
 export interface SseFrame {
     id?: string;
     event?: string;
@@ -18,24 +18,598 @@ export declare class ApiError extends Error {
     readonly problem: ProblemDetails | undefined;
     constructor(status: number, problem: ProblemDetails | undefined);
 }
+/** Called for every fetch/reconnect. Tokens must stay in memory. */
+export type CredentialSupplier = () => Promise<string>;
 export interface VerificationClientOptions {
+    credentials?: CredentialSupplier;
     baseUrl?: string;
     client?: string;
     fetch?: typeof globalThis.fetch;
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export declare function verificationClient(options?: VerificationClientOptions): {
-    createCheck: (text: string) => Promise<{
+    createCheck: (input: string | CreateCheckRequest) => Promise<{
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
+        lastEventCursor: string;
+        leaseRenewAfterMs: number;
+        endReason: "cancelled" | "completed" | "lease-expired" | null;
         references: {
             slot: number;
             originalText: string;
             outcome: {
                 kind: "status";
                 status: "cancelled" | "failed" | "not-checked" | "running";
+            } | {
+                kind: "verdict";
+                verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
+                reference: {
+                    originalText: string;
+                    span: {
+                        start: number;
+                        end: number;
+                    };
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    fieldSources: Record<string, {
+                        raw: string;
+                        span?: {
+                            start: number;
+                            end: number;
+                        } | undefined;
+                        normalized?: string | undefined;
+                    }>;
+                    authorsTruncated?: boolean | undefined;
+                    structuring: {
+                        path: "parser" | "user";
+                        version: string;
+                    };
+                };
+                scoringRules: {
+                    version: string;
+                    calibration: "uncalibrated";
+                    unicode: string;
+                    icu: string;
+                    profile: Record<string, number>;
+                };
+                searchStrategyVersion: string;
+                searchConfiguration: Record<string, string | number>;
+                identity: {
+                    kind: "independent-bibliography" | "supplied-doi" | "unresolved";
+                    candidateId?: string | undefined;
+                };
+                bestMatchId: string | null;
+                candidates: {
+                    id: string;
+                    source: "crossref";
+                    origin: "authors-year" | "combined" | "doi" | "title";
+                    slot: number;
+                    retrievedAt: string;
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    raw: unknown;
+                    fields: {
+                        field: string;
+                        reference: unknown;
+                        candidate: unknown;
+                        score: {
+                            value: number;
+                            fullAgreement: boolean;
+                        } | null;
+                        reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                    }[];
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
+                }[];
+                evidence: {
+                    source: "crossref" | "doi.org";
+                    operation: "authors-year" | "combined" | "doi" | "title";
+                    outcome: "candidate" | "exists" | "no-record" | "nonexistent" | "unavailable";
+                    reason?: string | undefined;
+                    status?: number | undefined;
+                    durationMs: number;
+                    attempts: number;
+                    observedAt: string;
+                    raw?: unknown;
+                }[];
+                reasons: ("development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "outside-coverage" | "url-verification-incomplete")[];
+                failedSources: ("crossref" | "doi.org")[];
+                retraction: "unknown";
             };
+            progress: "checking" | "crossref" | "doi.org" | "ended" | "queued";
+        }[];
+    }>;
+    cancelCheck: (checkId: string) => Promise<{
+        id: string;
+        state: "ended" | "running";
+        lastEventSeq: number;
+        lastEventCursor: string;
+        leaseRenewAfterMs: number;
+        endReason: "cancelled" | "completed" | "lease-expired" | null;
+        references: {
+            slot: number;
+            originalText: string;
+            outcome: {
+                kind: "status";
+                status: "cancelled" | "failed" | "not-checked" | "running";
+            } | {
+                kind: "verdict";
+                verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
+                reference: {
+                    originalText: string;
+                    span: {
+                        start: number;
+                        end: number;
+                    };
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    fieldSources: Record<string, {
+                        raw: string;
+                        span?: {
+                            start: number;
+                            end: number;
+                        } | undefined;
+                        normalized?: string | undefined;
+                    }>;
+                    authorsTruncated?: boolean | undefined;
+                    structuring: {
+                        path: "parser" | "user";
+                        version: string;
+                    };
+                };
+                scoringRules: {
+                    version: string;
+                    calibration: "uncalibrated";
+                    unicode: string;
+                    icu: string;
+                    profile: Record<string, number>;
+                };
+                searchStrategyVersion: string;
+                searchConfiguration: Record<string, string | number>;
+                identity: {
+                    kind: "independent-bibliography" | "supplied-doi" | "unresolved";
+                    candidateId?: string | undefined;
+                };
+                bestMatchId: string | null;
+                candidates: {
+                    id: string;
+                    source: "crossref";
+                    origin: "authors-year" | "combined" | "doi" | "title";
+                    slot: number;
+                    retrievedAt: string;
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    raw: unknown;
+                    fields: {
+                        field: string;
+                        reference: unknown;
+                        candidate: unknown;
+                        score: {
+                            value: number;
+                            fullAgreement: boolean;
+                        } | null;
+                        reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                    }[];
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
+                }[];
+                evidence: {
+                    source: "crossref" | "doi.org";
+                    operation: "authors-year" | "combined" | "doi" | "title";
+                    outcome: "candidate" | "exists" | "no-record" | "nonexistent" | "unavailable";
+                    reason?: string | undefined;
+                    status?: number | undefined;
+                    durationMs: number;
+                    attempts: number;
+                    observedAt: string;
+                    raw?: unknown;
+                }[];
+                reasons: ("development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "outside-coverage" | "url-verification-incomplete")[];
+                failedSources: ("crossref" | "doi.org")[];
+                retraction: "unknown";
+            };
+            progress: "checking" | "crossref" | "doi.org" | "ended" | "queued";
+        }[];
+    }>;
+    renewCheckLease: (checkId: string) => Promise<{
+        id: string;
+        state: "ended" | "running";
+        lastEventSeq: number;
+        lastEventCursor: string;
+        leaseRenewAfterMs: number;
+        endReason: "cancelled" | "completed" | "lease-expired" | null;
+        references: {
+            slot: number;
+            originalText: string;
+            outcome: {
+                kind: "status";
+                status: "cancelled" | "failed" | "not-checked" | "running";
+            } | {
+                kind: "verdict";
+                verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
+                reference: {
+                    originalText: string;
+                    span: {
+                        start: number;
+                        end: number;
+                    };
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    fieldSources: Record<string, {
+                        raw: string;
+                        span?: {
+                            start: number;
+                            end: number;
+                        } | undefined;
+                        normalized?: string | undefined;
+                    }>;
+                    authorsTruncated?: boolean | undefined;
+                    structuring: {
+                        path: "parser" | "user";
+                        version: string;
+                    };
+                };
+                scoringRules: {
+                    version: string;
+                    calibration: "uncalibrated";
+                    unicode: string;
+                    icu: string;
+                    profile: Record<string, number>;
+                };
+                searchStrategyVersion: string;
+                searchConfiguration: Record<string, string | number>;
+                identity: {
+                    kind: "independent-bibliography" | "supplied-doi" | "unresolved";
+                    candidateId?: string | undefined;
+                };
+                bestMatchId: string | null;
+                candidates: {
+                    id: string;
+                    source: "crossref";
+                    origin: "authors-year" | "combined" | "doi" | "title";
+                    slot: number;
+                    retrievedAt: string;
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    raw: unknown;
+                    fields: {
+                        field: string;
+                        reference: unknown;
+                        candidate: unknown;
+                        score: {
+                            value: number;
+                            fullAgreement: boolean;
+                        } | null;
+                        reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                    }[];
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
+                }[];
+                evidence: {
+                    source: "crossref" | "doi.org";
+                    operation: "authors-year" | "combined" | "doi" | "title";
+                    outcome: "candidate" | "exists" | "no-record" | "nonexistent" | "unavailable";
+                    reason?: string | undefined;
+                    status?: number | undefined;
+                    durationMs: number;
+                    attempts: number;
+                    observedAt: string;
+                    raw?: unknown;
+                }[];
+                reasons: ("development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "outside-coverage" | "url-verification-incomplete")[];
+                failedSources: ("crossref" | "doi.org")[];
+                retraction: "unknown";
+            };
+            progress: "checking" | "crossref" | "doi.org" | "ended" | "queued";
+        }[];
+    }>;
+    getCheck: (checkId: string) => Promise<{
+        id: string;
+        state: "ended" | "running";
+        lastEventSeq: number;
+        lastEventCursor: string;
+        leaseRenewAfterMs: number;
+        endReason: "cancelled" | "completed" | "lease-expired" | null;
+        references: {
+            slot: number;
+            originalText: string;
+            outcome: {
+                kind: "status";
+                status: "cancelled" | "failed" | "not-checked" | "running";
+            } | {
+                kind: "verdict";
+                verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
+                reference: {
+                    originalText: string;
+                    span: {
+                        start: number;
+                        end: number;
+                    };
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    fieldSources: Record<string, {
+                        raw: string;
+                        span?: {
+                            start: number;
+                            end: number;
+                        } | undefined;
+                        normalized?: string | undefined;
+                    }>;
+                    authorsTruncated?: boolean | undefined;
+                    structuring: {
+                        path: "parser" | "user";
+                        version: string;
+                    };
+                };
+                scoringRules: {
+                    version: string;
+                    calibration: "uncalibrated";
+                    unicode: string;
+                    icu: string;
+                    profile: Record<string, number>;
+                };
+                searchStrategyVersion: string;
+                searchConfiguration: Record<string, string | number>;
+                identity: {
+                    kind: "independent-bibliography" | "supplied-doi" | "unresolved";
+                    candidateId?: string | undefined;
+                };
+                bestMatchId: string | null;
+                candidates: {
+                    id: string;
+                    source: "crossref";
+                    origin: "authors-year" | "combined" | "doi" | "title";
+                    slot: number;
+                    retrievedAt: string;
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                    };
+                    raw: unknown;
+                    fields: {
+                        field: string;
+                        reference: unknown;
+                        candidate: unknown;
+                        score: {
+                            value: number;
+                            fullAgreement: boolean;
+                        } | null;
+                        reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                    }[];
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
+                }[];
+                evidence: {
+                    source: "crossref" | "doi.org";
+                    operation: "authors-year" | "combined" | "doi" | "title";
+                    outcome: "candidate" | "exists" | "no-record" | "nonexistent" | "unavailable";
+                    reason?: string | undefined;
+                    status?: number | undefined;
+                    durationMs: number;
+                    attempts: number;
+                    observedAt: string;
+                    raw?: unknown;
+                }[];
+                reasons: ("development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "outside-coverage" | "url-verification-incomplete")[];
+                failedSources: ("crossref" | "doi.org")[];
+                retraction: "unknown";
+            };
+            progress: "checking" | "crossref" | "doi.org" | "ended" | "queued";
         }[];
     }>;
     structureReferences: (text: string) => Promise<{
@@ -46,8 +620,10 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 end: number;
             };
             csl: {
+                type?: string | undefined;
                 author?: {
                     family?: string | undefined;
+                    "non-dropping-particle"?: string | undefined;
                     given?: string | undefined;
                     literal?: string | undefined;
                 }[] | undefined;
@@ -73,15 +649,15 @@ export declare function verificationClient(options?: VerificationClientOptions):
             };
             fieldSources: Record<string, {
                 raw: string;
-                span: {
+                span?: {
                     start: number;
                     end: number;
-                };
+                } | undefined;
                 normalized?: string | undefined;
             }>;
             authorsTruncated?: boolean | undefined;
             structuring: {
-                path: "parser";
+                path: "parser" | "user";
                 version: string;
             };
         }[];
@@ -99,6 +675,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
     }>;
 };
 export interface WatchCheckOptions {
+    credentials?: CredentialSupplier;
+    client?: string;
     /** Called once per event, in sequence order, without duplicates. */
     onEvent: (event: CheckEvent) => void;
     /** Origin of the API; defaults to same-origin relative URLs. */

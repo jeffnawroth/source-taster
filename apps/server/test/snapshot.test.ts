@@ -10,7 +10,7 @@ import { api, createCheck, readEvents } from "./support/api.ts";
 describe("Check snapshots and replay validation", () => {
   it("reopens a finished Check with the same References and final sequence", async () => {
     const created = await createCheck();
-    await readEvents(created.id);
+    const replay = await readEvents(created.id);
     const response = await fetch(`${api}/v1/checks/${created.id}`);
     expect(response.status).toBe(200);
     const snapshot = CheckResponse.parse(await response.json());
@@ -18,15 +18,18 @@ describe("Check snapshots and replay validation", () => {
     expect(snapshot.data).toEqual({
       ...created,
       state: "ended",
-      lastEventSeq: 4,
+      endReason: "completed",
+      lastEventSeq: replay.events.at(-1)!.event.seq,
+      lastEventCursor: replay.events.at(-1)!.id,
       references: created.references.map((reference) => ({
         ...reference,
+        progress: "ended",
         outcome: { kind: "status", status: "not-checked" },
       })),
     });
   });
 
-  it.each(["-1", "1.5", "NaN", "9007199254740993", "999"])(
+  it.each(["-1", "1.5", "NaN", "9007199254740993", "999", "foreign:1"])(
     "rejects an invalid replay cursor %s",
     async (lastEventId) => {
       const created = await createCheck();

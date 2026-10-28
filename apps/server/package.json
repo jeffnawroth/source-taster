@@ -17,7 +17,10 @@
     "e2e:serve": "node scripts/e2e-serve.ts",
     "build": "tsc -p tsconfig.build.json",
     "start:web": "node dist/web.js",
-    "start:worker": "node dist/worker.js"
+    "start:worker": "node dist/worker.js",
+    "release:check": "node scripts/release-check.ts",
+    "build:release": "pnpm release:check && pnpm build",
+    "test:authority": "vitest run --config guest.vitest.config.ts"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",
@@ -36,6 +39,8 @@
     "pg-boss": "12.38.0",
     "zod": "4.6.7",
     "@source-taster/core": "workspace:*",
-    "@source-taster/website": "workspace:*"
+    "@source-taster/website": "workspace:*",
+    "@source-taster/contract-service": "workspace:*",
+    "@source-taster/contract-internal": "workspace:*"
   }
 }

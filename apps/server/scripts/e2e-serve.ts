@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { spawn } from "node:child_process";
 import { once } from "node:events";
+import { startDoiFixtures } from "../test/support/doi-fixtures.ts";
 import { startTestService } from "../test/support/service.ts";
 
+const fixtures = await startDoiFixtures();
+const held = fixtures.hold("/api/handles/10.5555/browser-held");
+fixtures.respond("/api/handles/10.5555/browser-unavailable", 503, {});
+fixtures.respond("/works/10.5555/browser-invalid", 200, { message: {} });
 const service = await startTestService(
   Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? 3102),
   3000,
+  { ...fixtures.env, SOURCE_TASTER_CLIENT_LEASE_MS: "1500" },
 );
 const webPort = process.env.SOURCE_TASTER_E2E_WEB_PORT ?? "5174";
 const vite = spawn(
@@ -23,6 +29,8 @@ async function stop(code = 0) {
   stopping = true;
   vite.kill("SIGTERM");
   await service.stop();
+  held.release();
+  await fixtures.stop();
   process.exit(code);
 }
 process.once("SIGTERM", () => {

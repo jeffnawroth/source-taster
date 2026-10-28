@@ -2,6 +2,9 @@
 // Public transport schemas of the verification API (/v1).
 import { envelope } from "../../contract-common/src/index.js";
 import { z } from "zod";
+import { VerdictResult } from "./verification.js";
+import { StructuredCsl } from "./structuring.js";
+export * from "./verification.js";
 export * from "../../contract-common/src/index.js";
 /**
  * Shown instead of a Verdict (GLOSSARY "Status", ADR-0005). A Status is never
@@ -11,20 +14,33 @@ export const ReferenceStatus = z
     .enum(["running", "cancelled", "failed", "not-checked"])
     .meta({ id: "ReferenceStatus" });
 /**
- * Exactly one Status or, once checking exists, one Verdict per Reference slot.
- * Verdicts will join this union as `{ kind: "verdict", ... }`.
+ * Exactly one Status or one immutable Verdict result per Reference slot.
  */
 export const ReferenceOutcome = z
     .discriminatedUnion("kind", [
-    z.object({ kind: z.literal("status"), status: ReferenceStatus }),
+    z.strictObject({ kind: z.literal("status"), status: ReferenceStatus }),
+    VerdictResult.strict(),
 ])
     .meta({ id: "ReferenceOutcome" });
+export const ReferenceProgress = z.enum([
+    "queued",
+    "checking",
+    "doi.org",
+    "crossref",
+    "ended",
+]);
+export const CheckEndReason = z.enum([
+    "completed",
+    "cancelled",
+    "lease-expired",
+]);
 export const ReferenceSlot = z
     .object({
     /** 1-based, stable position of the Reference within its Check. */
     slot: z.number().int().positive(),
     originalText: z.string(),
     outcome: ReferenceOutcome,
+    progress: ReferenceProgress,
 })
     .meta({ id: "ReferenceSlot" });
 /** Pre-start states (Structuring, awaiting start) join when they exist. */
@@ -38,15 +54,28 @@ export const Check = z
     state: CheckState,
     /** Sequence number of the newest event; attach to the stream from here. */
     lastEventSeq: z.number().int().nonnegative(),
+    /** Opaque, Check-bound replay cursor. */
+    lastEventCursor: z.string(),
+    /** Client acknowledgement interval. Server output alone never renews a lease. */
+    leaseRenewAfterMs: z.number().int().positive(),
+    endReason: CheckEndReason.nullable(),
     references: z.array(ReferenceSlot),
 })
     .meta({ id: "Check" });
 export const CheckResponse = envelope(Check).meta({ id: "CheckResponse" });
 export const CreateCheckRequest = z
-    .object({
-    /** Pasted text with one or more References. */
-    text: z.string().trim().min(1),
-})
+    .union([
+    z.object({ text: z.string().trim().min(1) }),
+    z.object({
+        references: z
+            .array(z.object({
+            originalText: z.string().min(1),
+            fields: StructuredCsl,
+            authorsTruncated: z.boolean().optional(),
+        }))
+            .min(1),
+    }),
+])
     .meta({ id: "CreateCheckRequest" });
 const eventBase = {
     /** Strictly increasing per Check, starting at 1; the SSE event id. */
@@ -54,13 +83,22 @@ const eventBase = {
     checkId: CheckId,
 };
 export const CheckUpdatedEvent = z
-    .object({ ...eventBase, type: z.literal("check.updated"), state: CheckState })
+    .object({
+    ...eventBase,
+    type: z.literal("check.updated"),
+    state: CheckState,
+    endReason: CheckEndReason.nullable(),
+})
     .meta({ id: "CheckUpdatedEvent" });
 export const ReferenceUpdatedEvent = z
     .object({
     ...eventBase,
     type: z.literal("reference.updated"),
-    reference: ReferenceSlot.pick({ slot: true, outcome: true }),
+    reference: ReferenceSlot.pick({
+        slot: true,
+        outcome: true,
+        progress: true,
+    }),
 })
     .meta({ id: "ReferenceUpdatedEvent" });
 /** The `data` of every SSE event on `GET /v1/checks/{id}/events`. */

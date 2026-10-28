@@ -10,11 +10,13 @@ export const SourceSpan = z.object({
 });
 export const CslName = z.object({
   family: z.string().optional(),
+  "non-dropping-particle": z.string().optional(),
   given: z.string().optional(),
   literal: z.string().optional(),
 });
 /** Absent fields are unknown; no source type is inferred from punctuation. */
 export const StructuredCsl = z.object({
+  type: z.string().optional(),
   author: z.array(CslName).optional(),
   issued: z.object({ literal: z.string() }).optional(),
   title: z.string().optional(),
@@ -36,7 +38,8 @@ export const StructuredCsl = z.object({
 });
 export const FieldSource = z.object({
   raw: z.string(),
-  span: SourceSpan,
+  /** Present only when the field came from a span of the original text. */
+  span: SourceSpan.optional(),
   /** Separate from the as-written CSL value, never substituted for it. */
   normalized: z.string().optional(),
 });
@@ -47,7 +50,10 @@ export const StructuredReference = z.object({
   /** CSL field paths, including author.0.family / author.0.given. */
   fieldSources: z.record(z.string(), FieldSource),
   authorsTruncated: z.boolean().optional(),
-  structuring: z.object({ path: z.literal("parser"), version: z.string() }),
+  structuring: z.object({
+    path: z.enum(["parser", "user"]),
+    version: z.string(),
+  }),
 });
 export const StructuringResult = z.object({
   references: z.array(StructuredReference),

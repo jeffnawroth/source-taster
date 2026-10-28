@@ -2,6 +2,8 @@
 import { writeFile } from "node:fs/promises";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import {
+  cancelCheck,
+  renewCheckLease,
   createCheck,
   getCheck,
   streamCheckEvents,
@@ -9,6 +11,8 @@ import {
 } from "../src/routes.ts";
 const app = new OpenAPIHono();
 for (const route of [
+  cancelCheck,
+  renewCheckLease,
   createCheck,
   getCheck,
   streamCheckEvents,

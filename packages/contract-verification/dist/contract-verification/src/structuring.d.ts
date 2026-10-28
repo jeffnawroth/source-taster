@@ -6,13 +6,16 @@ export declare const SourceSpan: z.ZodObject<{
 }, z.core.$strip>;
 export declare const CslName: z.ZodObject<{
     family: z.ZodOptional<z.ZodString>;
+    "non-dropping-particle": z.ZodOptional<z.ZodString>;
     given: z.ZodOptional<z.ZodString>;
     literal: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
 /** Absent fields are unknown; no source type is inferred from punctuation. */
 export declare const StructuredCsl: z.ZodObject<{
+    type: z.ZodOptional<z.ZodString>;
     author: z.ZodOptional<z.ZodArray<z.ZodObject<{
         family: z.ZodOptional<z.ZodString>;
+        "non-dropping-particle": z.ZodOptional<z.ZodString>;
         given: z.ZodOptional<z.ZodString>;
         literal: z.ZodOptional<z.ZodString>;
     }, z.core.$strip>>>;
@@ -38,10 +41,10 @@ export declare const StructuredCsl: z.ZodObject<{
 }, z.core.$strip>;
 export declare const FieldSource: z.ZodObject<{
     raw: z.ZodString;
-    span: z.ZodObject<{
+    span: z.ZodOptional<z.ZodObject<{
         start: z.ZodNumber;
         end: z.ZodNumber;
-    }, z.core.$strip>;
+    }, z.core.$strip>>;
     normalized: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
 export declare const StructuredReference: z.ZodObject<{
@@ -51,8 +54,10 @@ export declare const StructuredReference: z.ZodObject<{
         end: z.ZodNumber;
     }, z.core.$strip>;
     csl: z.ZodObject<{
+        type: z.ZodOptional<z.ZodString>;
         author: z.ZodOptional<z.ZodArray<z.ZodObject<{
             family: z.ZodOptional<z.ZodString>;
+            "non-dropping-particle": z.ZodOptional<z.ZodString>;
             given: z.ZodOptional<z.ZodString>;
             literal: z.ZodOptional<z.ZodString>;
         }, z.core.$strip>>>;
@@ -78,15 +83,18 @@ export declare const StructuredReference: z.ZodObject<{
     }, z.core.$strip>;
     fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
         raw: z.ZodString;
-        span: z.ZodObject<{
+        span: z.ZodOptional<z.ZodObject<{
             start: z.ZodNumber;
             end: z.ZodNumber;
-        }, z.core.$strip>;
+        }, z.core.$strip>>;
         normalized: z.ZodOptional<z.ZodString>;
     }, z.core.$strip>>;
     authorsTruncated: z.ZodOptional<z.ZodBoolean>;
     structuring: z.ZodObject<{
-        path: z.ZodLiteral<"parser">;
+        path: z.ZodEnum<{
+            parser: "parser";
+            user: "user";
+        }>;
         version: z.ZodString;
     }, z.core.$strip>;
 }, z.core.$strip>;
@@ -98,8 +106,10 @@ export declare const StructuringResult: z.ZodObject<{
             end: z.ZodNumber;
         }, z.core.$strip>;
         csl: z.ZodObject<{
+            type: z.ZodOptional<z.ZodString>;
             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
                 family: z.ZodOptional<z.ZodString>;
+                "non-dropping-particle": z.ZodOptional<z.ZodString>;
                 given: z.ZodOptional<z.ZodString>;
                 literal: z.ZodOptional<z.ZodString>;
             }, z.core.$strip>>>;
@@ -125,15 +135,18 @@ export declare const StructuringResult: z.ZodObject<{
         }, z.core.$strip>;
         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
             raw: z.ZodString;
-            span: z.ZodObject<{
+            span: z.ZodOptional<z.ZodObject<{
                 start: z.ZodNumber;
                 end: z.ZodNumber;
-            }, z.core.$strip>;
+            }, z.core.$strip>>;
             normalized: z.ZodOptional<z.ZodString>;
         }, z.core.$strip>>;
         authorsTruncated: z.ZodOptional<z.ZodBoolean>;
         structuring: z.ZodObject<{
-            path: z.ZodLiteral<"parser">;
+            path: z.ZodEnum<{
+                parser: "parser";
+                user: "user";
+            }>;
             version: z.ZodString;
         }, z.core.$strip>;
     }, z.core.$strip>>;
@@ -161,8 +174,10 @@ export declare const StructuringResponse: z.ZodObject<{
                 end: z.ZodNumber;
             }, z.core.$strip>;
             csl: z.ZodObject<{
+                type: z.ZodOptional<z.ZodString>;
                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
                     family: z.ZodOptional<z.ZodString>;
+                    "non-dropping-particle": z.ZodOptional<z.ZodString>;
                     given: z.ZodOptional<z.ZodString>;
                     literal: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>>>;
@@ -188,15 +203,18 @@ export declare const StructuringResponse: z.ZodObject<{
             }, z.core.$strip>;
             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                 raw: z.ZodString;
-                span: z.ZodObject<{
+                span: z.ZodOptional<z.ZodObject<{
                     start: z.ZodNumber;
                     end: z.ZodNumber;
-                }, z.core.$strip>;
+                }, z.core.$strip>>;
                 normalized: z.ZodOptional<z.ZodString>;
             }, z.core.$strip>>;
             authorsTruncated: z.ZodOptional<z.ZodBoolean>;
             structuring: z.ZodObject<{
-                path: z.ZodLiteral<"parser">;
+                path: z.ZodEnum<{
+                    parser: "parser";
+                    user: "user";
+                }>;
                 version: z.ZodString;
             }, z.core.$strip>;
         }, z.core.$strip>>;
@@ -212,9 +230,11 @@ export declare const StructuringResponse: z.ZodObject<{
         quotaConsumed: z.ZodLiteral<0>;
         referenceLimit: z.ZodNumber;
     }, z.core.$strip>;
-    quota: z.ZodNullable<z.ZodObject<{
+    quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
-    }, z.core.$strip>>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type StructuringResult = z.infer<typeof StructuringResult>;
