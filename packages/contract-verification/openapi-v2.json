@@ -464,8 +464,15 @@
               "retraction": {
                 "type": "string",
                 "enum": [
-                  "unknown"
+                  "unknown",
+                  "retracted"
                 ]
+              },
+              "retractionEvidence": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RetractionEvidenceV2"
+                }
               }
             },
             "required": [
@@ -641,6 +648,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "retractionEvidence": {
+            "$ref": "#/components/schemas/RetractionEvidenceV2"
           }
         },
         "required": [
@@ -701,6 +711,29 @@
         "required": [
           "value",
           "fullAgreement"
+        ]
+      },
+      "RetractionEvidenceV2": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "crossref",
+              "openalex"
+            ]
+          },
+          "candidateId": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "candidateId",
+          "observedAt"
         ]
       },
       "SourceEvidenceV2": {

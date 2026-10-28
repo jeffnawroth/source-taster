@@ -1,5 +1,13 @@
 import { z } from "zod";
 export * from "./index.ts";
+export declare const RetractionEvidence: z.ZodObject<{
+    source: z.ZodEnum<{
+        crossref: "crossref";
+        openalex: "openalex";
+    }>;
+    candidateId: z.ZodString;
+    observedAt: z.ZodString;
+}, z.core.$strip>;
 export declare const Candidate: z.ZodObject<{
     id: z.ZodString;
     slot: z.ZodNumber;
@@ -67,6 +75,14 @@ export declare const Candidate: z.ZodObject<{
         title: "title";
     }>;
     identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    retractionEvidence: z.ZodOptional<z.ZodObject<{
+        source: z.ZodEnum<{
+            crossref: "crossref";
+            openalex: "openalex";
+        }>;
+        candidateId: z.ZodString;
+        observedAt: z.ZodString;
+    }, z.core.$strip>>;
 }, z.core.$strip>;
 export declare const SourceEvidence: z.ZodObject<{
     reason: z.ZodOptional<z.ZodString>;
@@ -172,7 +188,6 @@ export declare const VerdictResult: z.ZodObject<{
     searchStrategyVersion: z.ZodString;
     searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
     bestMatchId: z.ZodNullable<z.ZodString>;
-    retraction: z.ZodLiteral<"unknown">;
     identity: z.ZodObject<{
         candidateId: z.ZodOptional<z.ZodString>;
         kind: z.ZodEnum<{
@@ -249,6 +264,14 @@ export declare const VerdictResult: z.ZodObject<{
             title: "title";
         }>;
         identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        retractionEvidence: z.ZodOptional<z.ZodObject<{
+            source: z.ZodEnum<{
+                crossref: "crossref";
+                openalex: "openalex";
+            }>;
+            candidateId: z.ZodString;
+            observedAt: z.ZodString;
+        }, z.core.$strip>>;
     }, z.core.$strip>>;
     evidence: z.ZodArray<z.ZodObject<{
         reason: z.ZodOptional<z.ZodString>;
@@ -304,6 +327,18 @@ export declare const VerdictResult: z.ZodObject<{
         "doi.org": "doi.org";
         openalex: "openalex";
     }>>;
+    retraction: z.ZodEnum<{
+        retracted: "retracted";
+        unknown: "unknown";
+    }>;
+    retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        source: z.ZodEnum<{
+            crossref: "crossref";
+            openalex: "openalex";
+        }>;
+        candidateId: z.ZodString;
+        observedAt: z.ZodString;
+    }, z.core.$strip>>>;
 }, z.core.$strip>;
 export type VerdictResult = z.infer<typeof VerdictResult>;
 export type Candidate = z.infer<typeof Candidate>;
@@ -387,7 +422,6 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
     searchStrategyVersion: z.ZodString;
     searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
     bestMatchId: z.ZodNullable<z.ZodString>;
-    retraction: z.ZodLiteral<"unknown">;
     identity: z.ZodObject<{
         candidateId: z.ZodOptional<z.ZodString>;
         kind: z.ZodEnum<{
@@ -464,6 +498,14 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
             title: "title";
         }>;
         identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        retractionEvidence: z.ZodOptional<z.ZodObject<{
+            source: z.ZodEnum<{
+                crossref: "crossref";
+                openalex: "openalex";
+            }>;
+            candidateId: z.ZodString;
+            observedAt: z.ZodString;
+        }, z.core.$strip>>;
     }, z.core.$strip>>;
     evidence: z.ZodArray<z.ZodObject<{
         reason: z.ZodOptional<z.ZodString>;
@@ -519,6 +561,18 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
         "doi.org": "doi.org";
         openalex: "openalex";
     }>>;
+    retraction: z.ZodEnum<{
+        retracted: "retracted";
+        unknown: "unknown";
+    }>;
+    retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        source: z.ZodEnum<{
+            crossref: "crossref";
+            openalex: "openalex";
+        }>;
+        candidateId: z.ZodString;
+        observedAt: z.ZodString;
+    }, z.core.$strip>>>;
 }, z.core.$strict>], "kind">;
 export type ReferenceOutcome = z.infer<typeof ReferenceOutcome>;
 export declare const ReferenceProgress: z.ZodEnum<{
@@ -612,7 +666,6 @@ export declare const ReferenceSlot: z.ZodObject<{
         searchStrategyVersion: z.ZodString;
         searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
         bestMatchId: z.ZodNullable<z.ZodString>;
-        retraction: z.ZodLiteral<"unknown">;
         identity: z.ZodObject<{
             candidateId: z.ZodOptional<z.ZodString>;
             kind: z.ZodEnum<{
@@ -689,6 +742,14 @@ export declare const ReferenceSlot: z.ZodObject<{
                 title: "title";
             }>;
             identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+            retractionEvidence: z.ZodOptional<z.ZodObject<{
+                source: z.ZodEnum<{
+                    crossref: "crossref";
+                    openalex: "openalex";
+                }>;
+                candidateId: z.ZodString;
+                observedAt: z.ZodString;
+            }, z.core.$strip>>;
         }, z.core.$strip>>;
         evidence: z.ZodArray<z.ZodObject<{
             reason: z.ZodOptional<z.ZodString>;
@@ -744,6 +805,18 @@ export declare const ReferenceSlot: z.ZodObject<{
             "doi.org": "doi.org";
             openalex: "openalex";
         }>>;
+        retraction: z.ZodEnum<{
+            retracted: "retracted";
+            unknown: "unknown";
+        }>;
+        retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            source: z.ZodEnum<{
+                crossref: "crossref";
+                openalex: "openalex";
+            }>;
+            candidateId: z.ZodString;
+            observedAt: z.ZodString;
+        }, z.core.$strip>>>;
     }, z.core.$strict>], "kind">;
     progress: z.ZodEnum<{
         checking: "checking";
@@ -851,7 +924,6 @@ export declare const Check: z.ZodObject<{
             searchStrategyVersion: z.ZodString;
             searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
             bestMatchId: z.ZodNullable<z.ZodString>;
-            retraction: z.ZodLiteral<"unknown">;
             identity: z.ZodObject<{
                 candidateId: z.ZodOptional<z.ZodString>;
                 kind: z.ZodEnum<{
@@ -928,6 +1000,14 @@ export declare const Check: z.ZodObject<{
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                retractionEvidence: z.ZodOptional<z.ZodObject<{
+                    source: z.ZodEnum<{
+                        crossref: "crossref";
+                        openalex: "openalex";
+                    }>;
+                    candidateId: z.ZodString;
+                    observedAt: z.ZodString;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
             evidence: z.ZodArray<z.ZodObject<{
                 reason: z.ZodOptional<z.ZodString>;
@@ -983,6 +1063,18 @@ export declare const Check: z.ZodObject<{
                 "doi.org": "doi.org";
                 openalex: "openalex";
             }>>;
+            retraction: z.ZodEnum<{
+                retracted: "retracted";
+                unknown: "unknown";
+            }>;
+            retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodEnum<{
+                    crossref: "crossref";
+                    openalex: "openalex";
+                }>;
+                candidateId: z.ZodString;
+                observedAt: z.ZodString;
+            }, z.core.$strip>>>;
         }, z.core.$strict>], "kind">;
         progress: z.ZodEnum<{
             checking: "checking";
@@ -1098,7 +1190,6 @@ export declare const CheckResponse: z.ZodObject<{
                 searchStrategyVersion: z.ZodString;
                 searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
                 bestMatchId: z.ZodNullable<z.ZodString>;
-                retraction: z.ZodLiteral<"unknown">;
                 identity: z.ZodObject<{
                     candidateId: z.ZodOptional<z.ZodString>;
                     kind: z.ZodEnum<{
@@ -1175,6 +1266,14 @@ export declare const CheckResponse: z.ZodObject<{
                         title: "title";
                     }>;
                     identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                    retractionEvidence: z.ZodOptional<z.ZodObject<{
+                        source: z.ZodEnum<{
+                            crossref: "crossref";
+                            openalex: "openalex";
+                        }>;
+                        candidateId: z.ZodString;
+                        observedAt: z.ZodString;
+                    }, z.core.$strip>>;
                 }, z.core.$strip>>;
                 evidence: z.ZodArray<z.ZodObject<{
                     reason: z.ZodOptional<z.ZodString>;
@@ -1230,6 +1329,18 @@ export declare const CheckResponse: z.ZodObject<{
                     "doi.org": "doi.org";
                     openalex: "openalex";
                 }>>;
+                retraction: z.ZodEnum<{
+                    retracted: "retracted";
+                    unknown: "unknown";
+                }>;
+                retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                    source: z.ZodEnum<{
+                        crossref: "crossref";
+                        openalex: "openalex";
+                    }>;
+                    candidateId: z.ZodString;
+                    observedAt: z.ZodString;
+                }, z.core.$strip>>>;
             }, z.core.$strict>], "kind">;
             progress: z.ZodEnum<{
                 checking: "checking";
@@ -1328,7 +1439,6 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
             searchStrategyVersion: z.ZodString;
             searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
             bestMatchId: z.ZodNullable<z.ZodString>;
-            retraction: z.ZodLiteral<"unknown">;
             identity: z.ZodObject<{
                 candidateId: z.ZodOptional<z.ZodString>;
                 kind: z.ZodEnum<{
@@ -1405,6 +1515,14 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                retractionEvidence: z.ZodOptional<z.ZodObject<{
+                    source: z.ZodEnum<{
+                        crossref: "crossref";
+                        openalex: "openalex";
+                    }>;
+                    candidateId: z.ZodString;
+                    observedAt: z.ZodString;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
             evidence: z.ZodArray<z.ZodObject<{
                 reason: z.ZodOptional<z.ZodString>;
@@ -1460,6 +1578,18 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                 "doi.org": "doi.org";
                 openalex: "openalex";
             }>>;
+            retraction: z.ZodEnum<{
+                retracted: "retracted";
+                unknown: "unknown";
+            }>;
+            retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodEnum<{
+                    crossref: "crossref";
+                    openalex: "openalex";
+                }>;
+                candidateId: z.ZodString;
+                observedAt: z.ZodString;
+            }, z.core.$strip>>>;
         }, z.core.$strict>], "kind">;
         progress: z.ZodEnum<{
             checking: "checking";
@@ -1569,7 +1699,6 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
             searchStrategyVersion: z.ZodString;
             searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
             bestMatchId: z.ZodNullable<z.ZodString>;
-            retraction: z.ZodLiteral<"unknown">;
             identity: z.ZodObject<{
                 candidateId: z.ZodOptional<z.ZodString>;
                 kind: z.ZodEnum<{
@@ -1646,6 +1775,14 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                retractionEvidence: z.ZodOptional<z.ZodObject<{
+                    source: z.ZodEnum<{
+                        crossref: "crossref";
+                        openalex: "openalex";
+                    }>;
+                    candidateId: z.ZodString;
+                    observedAt: z.ZodString;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
             evidence: z.ZodArray<z.ZodObject<{
                 reason: z.ZodOptional<z.ZodString>;
@@ -1701,6 +1838,18 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 "doi.org": "doi.org";
                 openalex: "openalex";
             }>>;
+            retraction: z.ZodEnum<{
+                retracted: "retracted";
+                unknown: "unknown";
+            }>;
+            retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                source: z.ZodEnum<{
+                    crossref: "crossref";
+                    openalex: "openalex";
+                }>;
+                candidateId: z.ZodString;
+                observedAt: z.ZodString;
+            }, z.core.$strip>>>;
         }, z.core.$strict>], "kind">;
         progress: z.ZodEnum<{
             checking: "checking";

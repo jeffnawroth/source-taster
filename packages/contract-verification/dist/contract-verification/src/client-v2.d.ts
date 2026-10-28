@@ -77,7 +77,6 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 searchStrategyVersion: string;
                 searchConfiguration: Record<string, string | number>;
                 bestMatchId: string | null;
-                retraction: "unknown";
                 identity: {
                     candidateId?: string | undefined;
                     kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
@@ -132,6 +131,11 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
+                    retractionEvidence?: {
+                        source: "crossref" | "openalex";
+                        candidateId: string;
+                        observedAt: string;
+                    } | undefined;
                 }[];
                 evidence: {
                     reason?: string | undefined;
@@ -148,6 +152,12 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 }[];
                 reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "url-verification-incomplete")[];
                 failedSources: ("crossref" | "doi.org" | "openalex")[];
+                retraction: "retracted" | "unknown";
+                retractionEvidence?: {
+                    source: "crossref" | "openalex";
+                    candidateId: string;
+                    observedAt: string;
+                }[] | undefined;
             };
             progress: "checking" | "crossref" | "doi.org" | "ended" | "openalex" | "queued";
         }[];
@@ -226,7 +236,6 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 searchStrategyVersion: string;
                 searchConfiguration: Record<string, string | number>;
                 bestMatchId: string | null;
-                retraction: "unknown";
                 identity: {
                     candidateId?: string | undefined;
                     kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
@@ -281,6 +290,11 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
+                    retractionEvidence?: {
+                        source: "crossref" | "openalex";
+                        candidateId: string;
+                        observedAt: string;
+                    } | undefined;
                 }[];
                 evidence: {
                     reason?: string | undefined;
@@ -297,6 +311,12 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 }[];
                 reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "url-verification-incomplete")[];
                 failedSources: ("crossref" | "doi.org" | "openalex")[];
+                retraction: "retracted" | "unknown";
+                retractionEvidence?: {
+                    source: "crossref" | "openalex";
+                    candidateId: string;
+                    observedAt: string;
+                }[] | undefined;
             };
             progress: "checking" | "crossref" | "doi.org" | "ended" | "openalex" | "queued";
         }[];
@@ -375,7 +395,6 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 searchStrategyVersion: string;
                 searchConfiguration: Record<string, string | number>;
                 bestMatchId: string | null;
-                retraction: "unknown";
                 identity: {
                     candidateId?: string | undefined;
                     kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
@@ -430,6 +449,11 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
+                    retractionEvidence?: {
+                        source: "crossref" | "openalex";
+                        candidateId: string;
+                        observedAt: string;
+                    } | undefined;
                 }[];
                 evidence: {
                     reason?: string | undefined;
@@ -446,6 +470,12 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 }[];
                 reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "url-verification-incomplete")[];
                 failedSources: ("crossref" | "doi.org" | "openalex")[];
+                retraction: "retracted" | "unknown";
+                retractionEvidence?: {
+                    source: "crossref" | "openalex";
+                    candidateId: string;
+                    observedAt: string;
+                }[] | undefined;
             };
             progress: "checking" | "crossref" | "doi.org" | "ended" | "openalex" | "queued";
         }[];
@@ -524,7 +554,6 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 searchStrategyVersion: string;
                 searchConfiguration: Record<string, string | number>;
                 bestMatchId: string | null;
-                retraction: "unknown";
                 identity: {
                     candidateId?: string | undefined;
                     kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
@@ -579,6 +608,11 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
+                    retractionEvidence?: {
+                        source: "crossref" | "openalex";
+                        candidateId: string;
+                        observedAt: string;
+                    } | undefined;
                 }[];
                 evidence: {
                     reason?: string | undefined;
@@ -595,6 +629,12 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 }[];
                 reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "url-verification-incomplete")[];
                 failedSources: ("crossref" | "doi.org" | "openalex")[];
+                retraction: "retracted" | "unknown";
+                retractionEvidence?: {
+                    source: "crossref" | "openalex";
+                    candidateId: string;
+                    observedAt: string;
+                }[] | undefined;
             };
             progress: "checking" | "crossref" | "doi.org" | "ended" | "openalex" | "queued";
         }[];

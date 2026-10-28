@@ -30,6 +30,12 @@ export interface Evidence {
   skippedDuplicates?: string[];
   unusedSlots?: number;
 }
+/** An affirmative report already received from a Data source, never a verified negative. */
+export interface RetractionEvidence {
+  source: "crossref" | "openalex";
+  candidateId: string;
+  observedAt: string;
+}
 export interface RetrievedCandidate {
   id: string;
   source: "crossref" | "openalex";
@@ -38,6 +44,7 @@ export interface RetrievedCandidate {
   retrievedAt: string;
   csl: Csl;
   raw: unknown;
+  retractionEvidence?: RetractionEvidence;
 }
 export interface Candidate extends RetrievedCandidate {
   slot: number;
@@ -118,7 +125,8 @@ export interface VerdictResult {
     | "insufficient-search"
   )[];
   failedSources: ("doi.org" | "crossref" | "openalex")[];
-  retraction: "unknown";
+  retraction: "unknown" | "retracted";
+  retractionEvidence?: RetractionEvidence[];
 }
 export const outside = new Set([
   "legislation",

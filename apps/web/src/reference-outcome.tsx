@@ -122,6 +122,12 @@ export function ReferenceOutcomeView({
         <span aria-hidden="true">{icon} </span>
         <span>{m[key]()}</span>
       </p>
+      {outcome.retraction === "retracted" && (
+        <div className="border-l-4 border-amber-700 bg-amber-50 p-3 text-slate-900">
+          <p className="font-semibold">{m.retraction_reported()}</p>
+          <p>{m.retraction_independent()}</p>
+        </div>
+      )}
       <p className="text-sm font-semibold">{m.doi_uncalibrated()}</p>
       {outcome.reasons.map((reason) => (
         <p key={reason}>{m[reasons[reason]]()}</p>
@@ -136,6 +142,18 @@ export function ReferenceOutcomeView({
         <p className="break-words text-sm">
           {m.search_strategy_label()}: {outcome.searchStrategyVersion}
         </p>
+        {outcome.retractionEvidence?.map((evidence) => (
+          <p
+            className="break-words text-sm"
+            key={`${evidence.source}:${evidence.candidateId}`}
+          >
+            {m.retraction_provenance({
+              source: evidence.source === "openalex" ? "OpenAlex" : "Crossref",
+              candidateId: evidence.candidateId,
+              observedAt: evidence.observedAt,
+            })}
+          </p>
+        ))}
         <p className="text-sm">
           Unicode {outcome.scoringRules.unicode} / ICU{" "}
           {outcome.scoringRules.icu}

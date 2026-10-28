@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { normalizePmcid } from "@source-taster/core";
 import type {
   BibliographicSource,
   Csl,
@@ -16,6 +17,7 @@ const record = z.object({
   id: z.string().regex(/^https:\/\/openalex\.org\/W\d+$/u),
   title: z.string().nullable().optional(),
   doi: z.string().nullable().optional(),
+  is_retracted: z.boolean().nullable().optional(),
   publication_year: z.number().int().nullable().optional(),
   publication_date: z.string().nullable().optional(),
   ids: z
@@ -65,12 +67,22 @@ function project(
     origin,
     retrievedAt,
     raw: body,
+    ...(m.is_retracted === true
+      ? {
+          retractionEvidence: {
+            source: "openalex" as const,
+            candidateId: m.id,
+            observedAt: retrievedAt,
+          },
+        }
+      : {}),
     csl: {
       ...(m.title ? { title: m.title } : {}),
       ...(m.doi ? { DOI: m.doi.replace(/^https?:\/\/doi\.org\//iu, "") } : {}),
       ...(m.ids?.pmid
         ? { PMID: m.ids.pmid.replace(/\/$/u, "").split("/").pop()! }
         : {}),
+      ...(m.ids?.pmcid ? { PMCID: normalizePmcid(m.ids.pmcid) } : {}),
       ...(m.authorships
         ? {
             author: m.authorships.map((a) => {

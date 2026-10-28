@@ -54,6 +54,16 @@ export async function startBibliographicFixtures() {
               authorships: [{ author: { display_name: "A Alpha" } }],
             },
       ];
+    if (filters.includes("Synthetic retracted article"))
+      results = [
+        {
+          id: "https://openalex.org/W77901",
+          title: "Synthetic retracted article",
+          publication_year: 2021,
+          authorships: [{ author: { display_name: "A Alpha" } }],
+          is_retracted: true,
+        },
+      ];
     res.end(JSON.stringify({ results }));
   });
   server.listen(0, "127.0.0.1");

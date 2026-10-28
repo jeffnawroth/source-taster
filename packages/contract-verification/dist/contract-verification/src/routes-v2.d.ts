@@ -220,7 +220,6 @@ export declare const createCheck: {
                                     searchStrategyVersion: import("zod").ZodString;
                                     searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
                                     bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    retraction: import("zod").ZodLiteral<"unknown">;
                                     identity: import("zod").ZodObject<{
                                         candidateId: import("zod").ZodOptional<import("zod").ZodString>;
                                         kind: import("zod").ZodEnum<{
@@ -297,6 +296,14 @@ export declare const createCheck: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
+                                        retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
+                                            source: import("zod").ZodEnum<{
+                                                crossref: "crossref";
+                                                openalex: "openalex";
+                                            }>;
+                                            candidateId: import("zod").ZodString;
+                                            observedAt: import("zod").ZodString;
+                                        }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>>;
                                     evidence: import("zod").ZodArray<import("zod").ZodObject<{
                                         reason: import("zod").ZodOptional<import("zod").ZodString>;
@@ -352,6 +359,18 @@ export declare const createCheck: {
                                         "doi.org": "doi.org";
                                         openalex: "openalex";
                                     }>>;
+                                    retraction: import("zod").ZodEnum<{
+                                        retracted: "retracted";
+                                        unknown: "unknown";
+                                    }>;
+                                    retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                        source: import("zod").ZodEnum<{
+                                            crossref: "crossref";
+                                            openalex: "openalex";
+                                        }>;
+                                        candidateId: import("zod").ZodString;
+                                        observedAt: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
                                     checking: "checking";
@@ -569,7 +588,6 @@ export declare const getCheck: {
                                     searchStrategyVersion: import("zod").ZodString;
                                     searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
                                     bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    retraction: import("zod").ZodLiteral<"unknown">;
                                     identity: import("zod").ZodObject<{
                                         candidateId: import("zod").ZodOptional<import("zod").ZodString>;
                                         kind: import("zod").ZodEnum<{
@@ -646,6 +664,14 @@ export declare const getCheck: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
+                                        retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
+                                            source: import("zod").ZodEnum<{
+                                                crossref: "crossref";
+                                                openalex: "openalex";
+                                            }>;
+                                            candidateId: import("zod").ZodString;
+                                            observedAt: import("zod").ZodString;
+                                        }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>>;
                                     evidence: import("zod").ZodArray<import("zod").ZodObject<{
                                         reason: import("zod").ZodOptional<import("zod").ZodString>;
@@ -701,6 +727,18 @@ export declare const getCheck: {
                                         "doi.org": "doi.org";
                                         openalex: "openalex";
                                     }>>;
+                                    retraction: import("zod").ZodEnum<{
+                                        retracted: "retracted";
+                                        unknown: "unknown";
+                                    }>;
+                                    retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                        source: import("zod").ZodEnum<{
+                                            crossref: "crossref";
+                                            openalex: "openalex";
+                                        }>;
+                                        candidateId: import("zod").ZodString;
+                                        observedAt: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
                                     checking: "checking";
@@ -918,7 +956,6 @@ export declare const cancelCheck: {
                                     searchStrategyVersion: import("zod").ZodString;
                                     searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
                                     bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    retraction: import("zod").ZodLiteral<"unknown">;
                                     identity: import("zod").ZodObject<{
                                         candidateId: import("zod").ZodOptional<import("zod").ZodString>;
                                         kind: import("zod").ZodEnum<{
@@ -995,6 +1032,14 @@ export declare const cancelCheck: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
+                                        retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
+                                            source: import("zod").ZodEnum<{
+                                                crossref: "crossref";
+                                                openalex: "openalex";
+                                            }>;
+                                            candidateId: import("zod").ZodString;
+                                            observedAt: import("zod").ZodString;
+                                        }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>>;
                                     evidence: import("zod").ZodArray<import("zod").ZodObject<{
                                         reason: import("zod").ZodOptional<import("zod").ZodString>;
@@ -1050,6 +1095,18 @@ export declare const cancelCheck: {
                                         "doi.org": "doi.org";
                                         openalex: "openalex";
                                     }>>;
+                                    retraction: import("zod").ZodEnum<{
+                                        retracted: "retracted";
+                                        unknown: "unknown";
+                                    }>;
+                                    retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                        source: import("zod").ZodEnum<{
+                                            crossref: "crossref";
+                                            openalex: "openalex";
+                                        }>;
+                                        candidateId: import("zod").ZodString;
+                                        observedAt: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
                                     checking: "checking";
@@ -1267,7 +1324,6 @@ export declare const renewCheckLease: {
                                     searchStrategyVersion: import("zod").ZodString;
                                     searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
                                     bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    retraction: import("zod").ZodLiteral<"unknown">;
                                     identity: import("zod").ZodObject<{
                                         candidateId: import("zod").ZodOptional<import("zod").ZodString>;
                                         kind: import("zod").ZodEnum<{
@@ -1344,6 +1400,14 @@ export declare const renewCheckLease: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
+                                        retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
+                                            source: import("zod").ZodEnum<{
+                                                crossref: "crossref";
+                                                openalex: "openalex";
+                                            }>;
+                                            candidateId: import("zod").ZodString;
+                                            observedAt: import("zod").ZodString;
+                                        }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>>;
                                     evidence: import("zod").ZodArray<import("zod").ZodObject<{
                                         reason: import("zod").ZodOptional<import("zod").ZodString>;
@@ -1399,6 +1463,18 @@ export declare const renewCheckLease: {
                                         "doi.org": "doi.org";
                                         openalex: "openalex";
                                     }>>;
+                                    retraction: import("zod").ZodEnum<{
+                                        retracted: "retracted";
+                                        unknown: "unknown";
+                                    }>;
+                                    retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                        source: import("zod").ZodEnum<{
+                                            crossref: "crossref";
+                                            openalex: "openalex";
+                                        }>;
+                                        candidateId: import("zod").ZodString;
+                                        observedAt: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
                                     checking: "checking";

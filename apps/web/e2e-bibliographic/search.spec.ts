@@ -2,6 +2,60 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
 for (const language of ["en", "de"] as const)
+  test(`shows an independent retraction notice with provenance in ${language}`, async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
+      .selectOption(language);
+    await page
+      .getByRole("textbox")
+      .fill(
+        "Alpha, A. (2021). Synthetic retracted article. Journal of Testing, 1, 1–2.",
+      );
+    await page
+      .getByRole("button", {
+        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        exact: true,
+      })
+      .click();
+    const result = page.getByRole("status");
+    await expect(
+      result.getByText(language === "en" ? "Correct" : "Korrekt", {
+        exact: true,
+      }),
+    ).toBeVisible({ timeout: 15000 });
+    await expect(
+      result.getByText(
+        language === "en"
+          ? "This Source is reported as retracted."
+          : "Diese Quelle wird als zurückgezogen gemeldet.",
+        { exact: true },
+      ),
+    ).toBeVisible({ timeout: 5000 });
+    await result
+      .getByText(
+        language === "en"
+          ? "Explanation and source evidence"
+          : "Erklärung und Quellenbelege",
+        { exact: true },
+      )
+      .click();
+    await expect(
+      result.getByText(
+        /(?:Retraction report from|Rücknahmemeldung von) OpenAlex:/u,
+      ),
+    ).toContainText("https://openalex.org/W77901");
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+  });
+for (const language of ["en", "de"] as const)
   test(`shows bibliographic OpenAlex identity, score, fields and provenance in ${language}`, async ({
     page,
   }) => {

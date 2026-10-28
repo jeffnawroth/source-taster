@@ -157,5 +157,8 @@
   "identity_identifier": "Verified supplied identifier",
   "limitation_identifier_capability": "This identifier lookup is not currently supported. It was not sent and is not evidence that the Source is absent.",
   "limitation_missing_query_fields": "The fields required for this search were not supplied.",
-  "candidate_record": "Data source record"
+  "candidate_record": "Data source record",
+  "retraction_reported": "This Source is reported as retracted.",
+  "retraction_independent": "The retraction notice is independent of the citation Verdict.",
+  "retraction_provenance": "Retraction report from {source}: {candidateId} ({observedAt})."
 }

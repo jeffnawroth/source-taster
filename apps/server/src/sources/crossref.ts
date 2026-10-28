@@ -16,10 +16,31 @@ export function crossrefAdapter(
     observedAt: string,
   ) => RetrievedCandidate | null,
 ): BibliographicSource {
-  const identified = (c: RetrievedCandidate) => ({
-    ...c,
-    id: `crossref:${c.id}`,
+  const updates = z.object({
+    "updated-by": z.array(z.object({ type: z.string() })).optional(),
   });
+  const identified = (c: RetrievedCandidate): RetrievedCandidate => {
+    const id = `crossref:${c.id}`;
+    const parsed = updates.safeParse(c.raw);
+    // updated-by describes notices about this Source. update-to describes
+    // the Source a notice updates and does not retract the notice itself.
+    const retracted =
+      parsed.success &&
+      parsed.data["updated-by"]?.some((update) => update.type === "retraction");
+    return {
+      ...c,
+      id,
+      ...(retracted
+        ? {
+            retractionEvidence: {
+              source: "crossref",
+              candidateId: id,
+              observedAt: c.retrievedAt,
+            },
+          }
+        : {}),
+    };
+  };
   return {
     name: "crossref",
     identifiers: ["doi"],

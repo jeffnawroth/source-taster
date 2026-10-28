@@ -157,5 +157,8 @@
   "identity_identifier": "Verifizierte angegebene Kennung",
   "limitation_identifier_capability": "Diese Kennungsabfrage wird derzeit nicht unterstützt. Sie wurde nicht gesendet und belegt nicht, dass die Quelle fehlt.",
   "limitation_missing_query_fields": "Die für diese Suche benötigten Felder wurden nicht angegeben.",
-  "candidate_record": "Datensatz der Datenquelle"
+  "candidate_record": "Datensatz der Datenquelle",
+  "retraction_reported": "Diese Quelle wird als zurückgezogen gemeldet.",
+  "retraction_independent": "Die Rücknahmemeldung ist unabhängig vom Prüfergebnis der Referenz.",
+  "retraction_provenance": "Rücknahmemeldung von {source}: {candidateId} ({observedAt})."
 }

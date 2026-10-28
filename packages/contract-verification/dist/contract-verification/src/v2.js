@@ -3,10 +3,18 @@
 import { z } from "zod";
 import * as v1 from "./index.js";
 export * from "./index.js";
+export const RetractionEvidence = z
+    .object({
+    source: z.enum(["crossref", "openalex"]),
+    candidateId: z.string(),
+    observedAt: z.string(),
+})
+    .meta({ id: "RetractionEvidenceV2" });
 export const Candidate = v1.Candidate.extend({
     source: z.enum(["crossref", "openalex"]),
     origin: z.enum(["doi", "pmid", "pmcid", "combined", "title", "authors-year"]),
     identifiers: z.array(z.string()).optional(),
+    retractionEvidence: RetractionEvidence.optional(),
 }).meta({ id: "CandidateV2" });
 export const SourceEvidence = v1.SourceEvidence.extend({
     source: z.enum(["doi.org", "crossref", "openalex"]),
@@ -50,6 +58,8 @@ export const VerdictResult = v1.VerdictResult.extend({
         "insufficient-search",
     ])),
     failedSources: z.array(z.enum(["doi.org", "crossref", "openalex"])),
+    retraction: z.enum(["unknown", "retracted"]),
+    retractionEvidence: z.array(RetractionEvidence).optional(),
 }).meta({ id: "VerdictResultV2" });
 export const ReferenceOutcome = z
     .discriminatedUnion("kind", [

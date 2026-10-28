@@ -49,6 +49,7 @@ export const articleSearchConfiguration = Object.freeze({
   negativeCoverage:
     "development-openalex-and-crossref-complete-title-author-year",
   nameProjection: "openalex-display-name-last-token-family-1",
+  receivedEvidence: "normalized-pmcid-affirmative-retraction-1",
 });
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 const normalizePmid = (value: string) =>
@@ -56,13 +57,26 @@ const normalizePmid = (value: string) =>
     .trim()
     .replace(/\/+$/u, "")
     .replace(/^(?:https?:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/|pmid:\s*)/iu, "");
-function sameSource(a: Candidate, b: Candidate) {
+export const normalizePmcid = (value: string) =>
+  value
+    .trim()
+    .replace(/\/+$/u, "")
+    .replace(
+      /^(?:https?:\/\/(?:(?:www\.)?ncbi\.nlm\.nih\.gov\/pmc|pmc\.ncbi\.nlm\.nih\.gov)\/articles\/|pmcid:\s*)/iu,
+      "",
+    )
+    .toUpperCase();
+function sameSource(a: RetrievedCandidate, b: RetrievedCandidate) {
   // Conflicting known identifiers distinguish Sources, even if another key agrees.
   let shared = false;
   for (const key of ["DOI", "PMID", "PMCID"] as const) {
     if (!a.csl[key] || !b.csl[key]) continue;
     const normalize =
-      key === "DOI" ? normalizeDoi : (value: string) => value.toLowerCase();
+      key === "DOI"
+        ? normalizeDoi
+        : key === "PMCID"
+          ? normalizePmcid
+          : (value: string) => value.toLowerCase();
     if (normalize(a.csl[key]) !== normalize(b.csl[key])) return false;
     shared = true;
   }
@@ -96,7 +110,7 @@ export function createBibliographicVerification(ports: {
       verdict: "not-verifiable",
       reference,
       scoringRules: ports.rules,
-      searchStrategyVersion: `article-search-77-2-supported-identifiers-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-77-3-received-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         enabledSources: ports.sources.map((s) => s.name).join(","),
@@ -164,6 +178,15 @@ export function createBibliographicVerification(ports: {
         },
       ]),
     );
+    const retractionCandidates = new Map<string, RetrievedCandidate>();
+    function rememberRetractions(received: RetrievedCandidate[]) {
+      for (const candidate of received)
+        if (candidate.retractionEvidence) {
+          const key = JSON.stringify([candidate.source, candidate.id]);
+          if (!retractionCandidates.has(key))
+            retractionCandidates.set(key, candidate);
+        }
+    }
     function add(retrieved: RetrievedCandidate, identifiers: string[] = []) {
       const state = states.get(retrieved.source)!;
       const existing = state.candidates.find((c) => c.id === retrieved.id);
@@ -264,7 +287,9 @@ export function createBibliographicVerification(ports: {
             typeof f.candidate === "string" &&
             (f.field === "PMID"
               ? normalizePmid(f.reference) !== normalizePmid(f.candidate)
-              : f.reference !== f.candidate)),
+              : f.field === "PMCID"
+                ? normalizePmcid(f.reference) !== normalizePmcid(f.candidate)
+                : f.reference !== f.candidate)),
       );
       result.verdict = differs ? "exists-with-deviations" : "correct";
       result.reasons = [differs ? "fields-differ" : "identified"];
@@ -279,6 +304,20 @@ export function createBibliographicVerification(ports: {
       return true;
     };
     function finish(early = false) {
+      const best = result.candidates.find(
+        (candidate) => candidate.id === result.bestMatchId,
+      );
+      const retractions = best
+        ? [...retractionCandidates.values()].filter((candidate) =>
+            sameSource(candidate, best),
+          )
+        : [];
+      if (retractions.length) {
+        result.retraction = "retracted";
+        result.retractionEvidence = retractions.map(
+          (candidate) => candidate.retractionEvidence!,
+        );
+      }
       if (early)
         for (const state of states.values())
           if (!result.evidence.some((e) => e.source === state.source.name))
@@ -327,7 +366,7 @@ export function createBibliographicVerification(ports: {
         kind === "pmid"
           ? normalizePmid(raw)
           : kind === "pmcid"
-            ? raw.toUpperCase().replace(/^.*\//u, "")
+            ? normalizePmcid(raw)
             : raw;
       for (const state of states.values()) {
         if (
@@ -354,6 +393,7 @@ export function createBibliographicVerification(ports: {
         if (response.evidence.outcome === "unavailable") state.complete = false;
         const retrieved = response.candidate;
         if (retrieved) {
+          rememberRetractions([retrieved]);
           if (state.candidates.some((c) => c.id === retrieved.id))
             response.evidence.skippedDuplicates = [retrieved.id];
           add(retrieved, [`${kind}:${value}`]);
@@ -393,6 +433,7 @@ export function createBibliographicVerification(ports: {
                   ),
                 };
             received.evidence.skippedDuplicates = [];
+            rememberRetractions(received.candidates);
             received.evidence.unusedSlots = 0;
             result.evidence.push(received.evidence);
             state.received.set(kind, received);

@@ -146,6 +146,239 @@ const oa = (n: number, title = `Unrelated ${n}`, author = "Beta") => ({
   authorships: [{ author: { display_name: author } }],
   publication_year: 2021,
 });
+it.each([
+  ["PMC999", "exists-with-deviations"],
+  ["https://pmc.ncbi.nlm.nih.gov/articles/PMC123/", "correct"],
+  ["https://www.ncbi.nlm.nih.gov/pmc/articles/PMC123/", "correct"],
+  ["pmcid: pmc123", "correct"],
+])(
+  "compares received PMCID with %s without a PMCID lookup",
+  async (PMCID, verdict) => {
+    const doi = "10.5555/received-pmcid";
+    crossref.respond(`/api/handles/${doi}`, 200, {
+      responseCode: 1,
+      handle: doi,
+    });
+    openalex.respond(`/works/doi:${doi}`, 200, {
+      ...oa(77123, "Synthetic article", "Alpha"),
+      doi: `https://doi.org/${doi}`,
+      ids: { pmcid: "https://pmc.ncbi.nlm.nih.gov/articles/PMC123/" },
+    });
+    const { outcome } = await run({
+      DOI: doi,
+      PMCID,
+      title: "Synthetic article",
+      author: [{ family: "Alpha" }],
+      issued: { literal: "2021" },
+    });
+    expect(outcome.verdict).toBe(verdict);
+    expect(outcome.searchStrategyVersion).toContain(
+      "article-search-77-3-received-evidence-",
+    );
+    expect(outcome.candidates[0]!.score).toEqual({
+      value: 100000000,
+      fullAgreement: true,
+    });
+    expect(outcome.candidates[0]!.csl.PMCID).toBe("PMC123");
+    expect(
+      outcome.candidates[0]!.fields.find((f) => f.field === "PMCID"),
+    ).toMatchObject({
+      reference: PMCID,
+      candidate: "PMC123",
+      reason: "unweighted",
+      score: null,
+    });
+    expect(openalex.requests).toHaveLength(1);
+    expect(crossref.requests).toHaveLength(1);
+  },
+);
+it("retains an affirmative OpenAlex retraction on the Best match independently of a Correct Verdict", async () => {
+  openalex.respond("/works", 200, {
+    results: [
+      { ...oa(77124, "Synthetic article", "Alpha"), is_retracted: true },
+    ],
+  });
+  const { outcome } = await run({
+    title: "Synthetic article",
+    author: [{ family: "Alpha" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    retraction: "retracted",
+    retractionEvidence: [
+      {
+        source: "openalex",
+        candidateId: "https://openalex.org/W77124",
+        observedAt: outcome.candidates[0]!.retrievedAt,
+      },
+    ],
+  });
+  expect(outcome.candidates[0]!.raw).toMatchObject({ is_retracted: true });
+  expect(openalex.requests).toHaveLength(1);
+  expect(crossref.requests).toHaveLength(0);
+});
+it.each([false, undefined])(
+  "keeps %s retraction data unknown instead of inventing a verified negative",
+  async (is_retracted) => {
+    openalex.respond("/works", 200, {
+      results: [
+        {
+          ...oa(77125, "Synthetic article", "Alpha"),
+          ...(is_retracted === undefined ? {} : { is_retracted }),
+        },
+      ],
+    });
+    const { outcome } = await run({
+      title: "Synthetic article",
+      author: [{ family: "Alpha" }],
+      issued: { literal: "2021" },
+    });
+    expect(outcome).toMatchObject({
+      verdict: "correct",
+      retraction: "unknown",
+    });
+    expect(outcome.retractionEvidence).toBeUndefined();
+  },
+);
+it("does not attach a different Source's retraction to the Best match", async () => {
+  openalex.respondSequence("/works", [
+    { status: 200, body: { results: [{ ...oa(77126), is_retracted: true }] } },
+    {
+      status: 200,
+      body: { results: [oa(77127, "Synthetic article", "Alpha")] },
+    },
+  ]);
+  const { outcome } = await run({
+    title: "Synthetic article",
+    author: [{ family: "Alpha" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome).toMatchObject({
+    bestMatchId: "https://openalex.org/W77127",
+    verdict: "correct",
+    retraction: "unknown",
+  });
+  expect(outcome.retractionEvidence).toBeUndefined();
+});
+it("retains a received Crossref retraction report without requesting enrichment", async () => {
+  openalex.respond("/works", 200, { results: [] });
+  crossref.respond("/works", 200, {
+    message: {
+      items: [
+        {
+          DOI: "10.5555/crossref-retracted",
+          title: ["Synthetic article"],
+          author: [{ family: "Alpha" }],
+          published: { "date-parts": [[2021]] },
+          "updated-by": [
+            {
+              type: "retraction",
+              source: "retraction-watch",
+              DOI: "10.5555/retraction-notice",
+            },
+          ],
+        },
+      ],
+    },
+  });
+  const { outcome } = await run({
+    title: "Synthetic article",
+    author: [{ family: "Alpha" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    retraction: "retracted",
+    retractionEvidence: [
+      {
+        source: "crossref",
+        candidateId: "crossref:10.5555/crossref-retracted",
+        observedAt: outcome.candidates[0]!.retrievedAt,
+      },
+    ],
+  });
+  expect(crossref.requests).toHaveLength(1);
+});
+it.each([
+  { "updated-by": [{ type: "correction", source: "publisher" }] },
+  {
+    "update-to": [
+      { type: "retraction", source: "publisher", DOI: "10.5555/original" },
+    ],
+  },
+])(
+  "does not retract a correction or a notice's updated Source: %j",
+  async (updates) => {
+    openalex.respond("/works", 200, { results: [] });
+    crossref.respond("/works", 200, {
+      message: {
+        items: [
+          {
+            DOI: "10.5555/not-retracted",
+            title: ["Synthetic article"],
+            author: [{ family: "Alpha" }],
+            published: { "date-parts": [[2021]] },
+            ...updates,
+          },
+        ],
+      },
+    });
+    const { outcome } = await run({
+      title: "Synthetic article",
+      author: [{ family: "Alpha" }],
+      issued: { literal: "2021" },
+    });
+    expect(outcome).toMatchObject({
+      verdict: "correct",
+      retraction: "unknown",
+    });
+    expect(outcome.retractionEvidence).toBeUndefined();
+  },
+);
+it("retains retraction evidence in a received duplicate without evaluating the record twice", async () => {
+  const doi = "10.5555/retraction-duplicate";
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: {
+        results: [{ ...oa(77128, "Synthetic article", "Andreas Alpha"), doi }],
+      },
+    },
+    {
+      status: 200,
+      body: {
+        results: [
+          {
+            ...oa(77128, "Synthetic article", "Andreas Alpha"),
+            doi,
+            is_retracted: true,
+          },
+          { ...oa(77129, "Synthetic article", "Anna Alpha"), doi },
+        ],
+      },
+    },
+  ]);
+  const { outcome } = await run({
+    title: "Synthetic article",
+    author: [{ family: "Alpha", given: "Anna" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    retraction: "retracted",
+    retractionEvidence: [
+      { source: "openalex", candidateId: "https://openalex.org/W77128" },
+    ],
+  });
+  expect(outcome.candidates).toHaveLength(2);
+  expect(outcome.evidence).toContainEqual(
+    matching({
+      source: "openalex",
+      skippedDuplicates: ["https://openalex.org/W77128"],
+    }),
+  );
+});
 it("shares five evaluated unique slots across combined, title and author queries in provider order", async () => {
   openalex.respondSequence("/works", [
     { status: 200, body: { results: [oa(1), oa(9)] } },

@@ -1,5 +1,9 @@
 # #77 bibliographic article search
 
+Follow-up review corrections and current received-evidence behavior are recorded
+in [77-review-corrections.md](77-review-corrections.md). The receipt below
+describes the original implementation commit.
+
 This implementation is scoped to #77 under the explicitly invoked implement-spec
 workflow and TDD skill. The existing T3-bound worktree is
 `/Users/jeffnawroth/.t3/worktrees/source-taster/t3-903cb16c`, on
