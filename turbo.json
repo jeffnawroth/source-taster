@@ -25,7 +25,8 @@
         "dist/**",
         "dist-preview/**",
         "openapi.json",
-        "src/paraglide/**"
+        "src/paraglide/**",
+        "openapi-v2.json"
       ]
     },
     "typecheck": {

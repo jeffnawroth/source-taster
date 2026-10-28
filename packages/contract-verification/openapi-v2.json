@@ -1,0 +1,1356 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Source Taster verification API",
+    "version": "2"
+  },
+  "components": {
+    "schemas": {
+      "CheckResponseV2": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CheckV2"
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "CheckV2": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CheckState"
+          },
+          "lastEventSeq": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lastEventCursor": {
+            "type": "string"
+          },
+          "leaseRenewAfterMs": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "endReason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "completed",
+              "cancelled",
+              "lease-expired",
+              null
+            ]
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReferenceSlotV2"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "lastEventSeq",
+          "lastEventCursor",
+          "leaseRenewAfterMs",
+          "endReason",
+          "references"
+        ]
+      },
+      "CheckState": {
+        "type": "string",
+        "enum": [
+          "running",
+          "ended"
+        ]
+      },
+      "ReferenceSlotV2": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "originalText": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ReferenceOutcomeV2"
+          },
+          "progress": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "checking",
+              "doi.org",
+              "crossref",
+              "ended",
+              "openalex"
+            ]
+          }
+        },
+        "required": [
+          "slot",
+          "originalText",
+          "outcome",
+          "progress"
+        ]
+      },
+      "ReferenceOutcomeV2": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "status"
+                ]
+              },
+              "status": {
+                "$ref": "#/components/schemas/ReferenceStatus"
+              }
+            },
+            "required": [
+              "kind",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "verdict"
+                ]
+              },
+              "verdict": {
+                "$ref": "#/components/schemas/Verdict"
+              },
+              "reference": {
+                "type": "object",
+                "properties": {
+                  "originalText": {
+                    "type": "string"
+                  },
+                  "span": {
+                    "type": "object",
+                    "properties": {
+                      "start": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "start",
+                      "end"
+                    ]
+                  },
+                  "csl": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "author": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "family": {
+                              "type": "string"
+                            },
+                            "non-dropping-particle": {
+                              "type": "string"
+                            },
+                            "given": {
+                              "type": "string"
+                            },
+                            "literal": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "issued": {
+                        "type": "object",
+                        "properties": {
+                          "literal": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "literal"
+                        ]
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "container-title": {
+                        "type": "string"
+                      },
+                      "container-title-short": {
+                        "type": "string"
+                      },
+                      "publisher": {
+                        "type": "string"
+                      },
+                      "publisher-place": {
+                        "type": "string"
+                      },
+                      "volume": {
+                        "type": "string"
+                      },
+                      "issue": {
+                        "type": "string"
+                      },
+                      "page": {
+                        "type": "string"
+                      },
+                      "article-number": {
+                        "type": "string"
+                      },
+                      "edition": {
+                        "type": "string"
+                      },
+                      "DOI": {
+                        "type": "string"
+                      },
+                      "URL": {
+                        "type": "string"
+                      },
+                      "ISBN": {
+                        "type": "string"
+                      },
+                      "ISSN": {
+                        "type": "string"
+                      },
+                      "PMID": {
+                        "type": "string"
+                      },
+                      "PMCID": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "fieldSources": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "raw": {
+                          "type": "string"
+                        },
+                        "span": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "end": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end"
+                          ]
+                        },
+                        "normalized": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "raw"
+                      ]
+                    }
+                  },
+                  "authorsTruncated": {
+                    "type": "boolean"
+                  },
+                  "structuring": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "enum": [
+                          "parser",
+                          "user"
+                        ]
+                      },
+                      "version": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "version"
+                    ]
+                  }
+                },
+                "required": [
+                  "originalText",
+                  "span",
+                  "csl",
+                  "fieldSources",
+                  "structuring"
+                ]
+              },
+              "scoringRules": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "calibration": {
+                    "type": "string",
+                    "enum": [
+                      "uncalibrated"
+                    ]
+                  },
+                  "unicode": {
+                    "type": "string"
+                  },
+                  "icu": {
+                    "type": "string"
+                  },
+                  "profile": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "required": [
+                  "version",
+                  "calibration",
+                  "unicode",
+                  "icu",
+                  "profile"
+                ]
+              },
+              "searchStrategyVersion": {
+                "type": "string"
+              },
+              "searchConfiguration": {
+                "type": "object",
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              },
+              "identity": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "supplied-doi",
+                      "supplied-identifier",
+                      "independent-bibliography",
+                      "unresolved"
+                    ]
+                  },
+                  "candidateId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              "bestMatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "candidates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CandidateV2"
+                },
+                "maxItems": 10
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SourceEvidenceV2"
+                }
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "outside-coverage",
+                    "doi-nonexistent",
+                    "foreign-doi",
+                    "mandatory-resolution-incomplete",
+                    "metadata-unavailable",
+                    "url-verification-incomplete",
+                    "identity-unresolved",
+                    "development-route-incomplete",
+                    "identified",
+                    "fields-differ",
+                    "mixed-components",
+                    "search-completed",
+                    "ambiguous-identity",
+                    "insufficient-search"
+                  ]
+                }
+              },
+              "failedSources": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "doi.org",
+                    "crossref",
+                    "openalex"
+                  ]
+                }
+              },
+              "retraction": {
+                "type": "string",
+                "enum": [
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "verdict",
+              "reference",
+              "scoringRules",
+              "searchStrategyVersion",
+              "searchConfiguration",
+              "identity",
+              "bestMatchId",
+              "candidates",
+              "evidence",
+              "reasons",
+              "failedSources",
+              "retraction"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ReferenceStatus": {
+        "type": "string",
+        "enum": [
+          "running",
+          "cancelled",
+          "failed",
+          "not-checked"
+        ]
+      },
+      "Verdict": {
+        "type": "string",
+        "enum": [
+          "correct",
+          "exists-with-deviations",
+          "mixed-citation",
+          "doi-conflict",
+          "not-found",
+          "not-verifiable"
+        ]
+      },
+      "CandidateV2": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "crossref",
+              "openalex"
+            ]
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "doi",
+              "pmid",
+              "pmcid",
+              "combined",
+              "title",
+              "authors-year"
+            ]
+          },
+          "slot": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "retrievedAt": {
+            "type": "string"
+          },
+          "csl": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "author": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "family": {
+                      "type": "string"
+                    },
+                    "non-dropping-particle": {
+                      "type": "string"
+                    },
+                    "given": {
+                      "type": "string"
+                    },
+                    "literal": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "issued": {
+                "type": "object",
+                "properties": {
+                  "literal": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "literal"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "container-title": {
+                "type": "string"
+              },
+              "container-title-short": {
+                "type": "string"
+              },
+              "publisher": {
+                "type": "string"
+              },
+              "publisher-place": {
+                "type": "string"
+              },
+              "volume": {
+                "type": "string"
+              },
+              "issue": {
+                "type": "string"
+              },
+              "page": {
+                "type": "string"
+              },
+              "article-number": {
+                "type": "string"
+              },
+              "edition": {
+                "type": "string"
+              },
+              "DOI": {
+                "type": "string"
+              },
+              "URL": {
+                "type": "string"
+              },
+              "ISBN": {
+                "type": "string"
+              },
+              "ISSN": {
+                "type": "string"
+              },
+              "PMID": {
+                "type": "string"
+              },
+              "PMCID": {
+                "type": "string"
+              }
+            }
+          },
+          "raw": {},
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldComparison"
+            }
+          },
+          "score": {
+            "$ref": "#/components/schemas/Score"
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "origin",
+          "slot",
+          "retrievedAt",
+          "csl",
+          "fields",
+          "score"
+        ]
+      },
+      "FieldComparison": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "reference": {},
+          "candidate": {},
+          "score": {
+            "$ref": "#/components/schemas/Score"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "compared",
+              "missing-reference",
+              "missing-candidate",
+              "not-determinable",
+              "unweighted",
+              "resource-limit"
+            ]
+          }
+        },
+        "required": [
+          "field",
+          "score",
+          "reason"
+        ]
+      },
+      "Score": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "value": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "fullAgreement": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "value",
+          "fullAgreement"
+        ]
+      },
+      "SourceEvidenceV2": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "doi.org",
+              "crossref",
+              "openalex"
+            ]
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "doi",
+              "pmid",
+              "pmcid",
+              "combined",
+              "title",
+              "authors-year"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "exists",
+              "nonexistent",
+              "candidate",
+              "no-record",
+              "unavailable",
+              "disabled",
+              "skipped",
+              "unsupported"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "durationMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "observedAt": {
+            "type": "string"
+          },
+          "raw": {},
+          "skippedDuplicates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unusedSlots": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "source",
+          "operation",
+          "outcome",
+          "durationMs",
+          "attempts",
+          "observedAt"
+        ]
+      },
+      "Quota": {
+        "type": "object",
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "consumed",
+          "remaining"
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
+      "CreateCheckRequest": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "text"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "originalText": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "fields": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "author": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "family": {
+                                "type": "string"
+                              },
+                              "non-dropping-particle": {
+                                "type": "string"
+                              },
+                              "given": {
+                                "type": "string"
+                              },
+                              "literal": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "issued": {
+                          "type": "object",
+                          "properties": {
+                            "literal": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "literal"
+                          ]
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "container-title": {
+                          "type": "string"
+                        },
+                        "container-title-short": {
+                          "type": "string"
+                        },
+                        "publisher": {
+                          "type": "string"
+                        },
+                        "publisher-place": {
+                          "type": "string"
+                        },
+                        "volume": {
+                          "type": "string"
+                        },
+                        "issue": {
+                          "type": "string"
+                        },
+                        "page": {
+                          "type": "string"
+                        },
+                        "article-number": {
+                          "type": "string"
+                        },
+                        "edition": {
+                          "type": "string"
+                        },
+                        "DOI": {
+                          "type": "string"
+                        },
+                        "URL": {
+                          "type": "string"
+                        },
+                        "ISBN": {
+                          "type": "string"
+                        },
+                        "ISSN": {
+                          "type": "string"
+                        },
+                        "PMID": {
+                          "type": "string"
+                        },
+                        "PMCID": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "authorsTruncated": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "originalText",
+                    "fields"
+                  ]
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "references"
+            ]
+          }
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/v2/checks/{checkId}/cancel": {
+      "post": {
+        "summary": "Idempotently cancel a whole Check, retaining finished Verdicts",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative snapshot after cancellation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Check id",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign-in required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not permitted",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/lease": {
+      "post": {
+        "summary": "Renew the whole Check client lease; never revive ended work",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative snapshot; an expired lease ends the Check",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Check id",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign-in required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not permitted",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks": {
+      "post": {
+        "summary": "Start a Check from pasted or explicitly structured References",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCheckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Check created. Article search in OpenAlex and Crossref is an explicitly enabled, uncalibrated development profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The input is empty, malformed, or exceeds the configured Reference limit.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}": {
+      "get": {
+        "summary": "Read the current snapshot of a Check",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current snapshot, including the newest event sequence.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/events": {
+      "get": {
+        "summary": "Stream Check events (Server-Sent Events)",
+        "description": "Every event carries a replay cursor as SSE `id` and a CheckEvent as JSON `data`. Send a Check-bound `Last-Event-ID` cursor (including `{checkId}:0` for full replay) to receive Check-bound SSE IDs. Legacy numeric cursors and numeric SSE IDs remain supported; numeric cursors apply only to the authorized Check in the URL. The stream closes after the event that ends the Check, or silently on expiry, current denial or authority outage. Every frame and heartbeat requires current authority.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "last-event-id",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "text/event-stream of CheckEvent",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id or Last-Event-ID is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

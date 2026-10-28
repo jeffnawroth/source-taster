@@ -8,7 +8,7 @@ import {
   type CheckEndReason,
   type ReferenceProgress,
   type ReferenceStatus,
-} from "@source-taster/contract-verification";
+} from "@source-taster/contract-verification/v2";
 import type { StructuredReference } from "@source-taster/core";
 import type { PgBoss } from "pg-boss";
 import type { Prisma } from "../generated/prisma/client.ts";
@@ -119,6 +119,7 @@ export interface ReferenceAttempt {
   ownerId: string;
   actorId: string;
   startedAt: number;
+  apiVersion?: number;
   input: StructuredReference | null;
 }
 export type WorkSubject = Pick<
@@ -243,10 +244,16 @@ export function createCheckStore(
     principal: Principal,
     checkId: string,
     action: "read" | "cancel" | "renew",
+    apiVersion = 1,
   ) {
     return db.$transaction(async (tx) => {
       const row = await lock(tx, checkId);
-      if (!row || row.ownerId !== principal.ownerId) return null;
+      if (
+        !row ||
+        row.ownerId !== principal.ownerId ||
+        (apiVersion === 1 && row.apiVersion !== 1)
+      )
+        return null;
       const now = clock.now();
       const expired = await expireLocked(tx, row, now);
       if (!expired && row.state === "running") {
@@ -272,11 +279,13 @@ export function createCheckStore(
     async create(
       principal: Principal,
       references: StructuredReference[],
+      apiVersion = 1,
     ): Promise<Check> {
       return db.$transaction(async (tx) => {
         const row = await tx.check.create({
           data: {
             id: randomUUID(),
+            apiVersion,
             ownerId: principal.ownerId,
             actorId: principal.actorId,
             guestContextId: principal.guestContextId,
@@ -305,12 +314,12 @@ export function createCheckStore(
         return toCheck({ ...row, lastSeq: 1 }, renewalInterval);
       });
     },
-    get: (principal: Principal, id: string) =>
-      ownerOperation(principal, id, "read"),
-    cancel: (principal: Principal, id: string) =>
-      ownerOperation(principal, id, "cancel"),
-    renew: (principal: Principal, id: string) =>
-      ownerOperation(principal, id, "renew"),
+    get: (principal: Principal, id: string, version = 1) =>
+      ownerOperation(principal, id, "read", version),
+    cancel: (principal: Principal, id: string, version = 1) =>
+      ownerOperation(principal, id, "cancel", version),
+    renew: (principal: Principal, id: string, version = 1) =>
+      ownerOperation(principal, id, "renew", version),
     async events(checkId: string, after: number): Promise<CheckEvent[]> {
       const rows = await db.checkEvent.findMany({
         where: { checkId, seq: { gt: after } },
@@ -399,6 +408,7 @@ export function createCheckStore(
           },
         });
         return {
+          apiVersion: check.apiVersion,
           checkId: check.id,
           slot: slot.position,
           ownerId: check.ownerId,

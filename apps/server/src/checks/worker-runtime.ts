@@ -122,6 +122,7 @@ export async function startWorkerRuntime(
         });
         const verify = referenceExecution(config, db, {
           clock,
+          apiVersion: attempt.apiVersion,
           signal: abort.signal,
           beforeSource: async (source) => {
             try {

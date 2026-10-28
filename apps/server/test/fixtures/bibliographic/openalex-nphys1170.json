@@ -1,0 +1,32 @@
+{
+  "id": "https://openalex.org/W4289253527",
+  "doi": "https://doi.org/10.1038/nphys1170",
+  "title": "Measured measurement",
+  "publication_year": 2009,
+  "publication_date": "2009-01-01",
+  "ids": {
+    "openalex": "https://openalex.org/W4289253527",
+    "doi": "https://doi.org/10.1038/nphys1170"
+  },
+  "biblio": {
+    "volume": "5",
+    "issue": "1",
+    "first_page": "11",
+    "last_page": "12"
+  },
+  "authorships": [
+    {
+      "author": {
+        "id": "https://openalex.org/A5073463154",
+        "display_name": "Markus Aspelmeyer",
+        "orcid": "https://orcid.org/0000-0003-4499-7335",
+        "observed_orcids": ["https://orcid.org/0000-0003-4499-7335"]
+      }
+    }
+  ],
+  "primary_location": {
+    "source": {
+      "display_name": "Nature Physics"
+    }
+  }
+}

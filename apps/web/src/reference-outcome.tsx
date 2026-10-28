@@ -3,7 +3,7 @@ import type {
   ReferenceOutcome,
   Score,
   Verdict,
-} from "@source-taster/contract-verification";
+} from "@source-taster/contract-verification/v2";
 import { m } from "@source-taster/i18n";
 const verdicts = {
   correct: ["✓", "text-green-900", "verdict_correct"],
@@ -24,6 +24,10 @@ const reasons = {
   "development-route-incomplete": "reason_route_incomplete",
   identified: "reason_identified",
   "fields-differ": "reason_fields_differ",
+  "mixed-components": "reason_mixed_components",
+  "search-completed": "reason_search_completed",
+  "ambiguous-identity": "reason_ambiguous_identity",
+  "insufficient-search": "reason_insufficient_search",
 } as const;
 // Evidence reasons are transport diagnostics, never primary product text.
 // Unknown future reasons retain a safe localized explanation.
@@ -38,6 +42,10 @@ const evidenceReasons = {
   "invalid-metadata": "limitation_invalid_metadata",
   "identifier-mismatch": "limitation_identifier_mismatch",
   "probe-unavailable": "limitation_probe_unavailable",
+  "identifier-capability-unavailable": "limitation_identifier_capability",
+  "missing-query-fields": "limitation_missing_query_fields",
+  "operator-disabled": "evidence_disabled",
+  "early-termination": "evidence_skipped",
 } as const satisfies Record<string, keyof typeof m>;
 function limitation(reason: string) {
   return Object.hasOwn(evidenceReasons, reason)
@@ -58,6 +66,14 @@ const fields = {
   PMID: "field_pmid",
   PMCID: "field_pmcid",
   URL: "field_url",
+} as const;
+const origins = {
+  doi: "origin_doi",
+  pmid: "origin_pmid",
+  pmcid: "origin_pmcid",
+  combined: "origin_combined",
+  title: "origin_title",
+  "authors-year": "origin_authors_year",
 } as const;
 function raw(value: unknown): string {
   if (value === null || value === undefined) return m.evidence_missing();
@@ -130,12 +146,14 @@ export function ReferenceOutcomeView({
             ? m.identity_unresolved()
             : outcome.identity.kind === "supplied-doi"
               ? m.identity_doi()
-              : m.identity_bibliography()}
+              : outcome.identity.kind === "supplied-identifier"
+                ? m.identity_identifier()
+                : m.identity_bibliography()}
         </p>
         <ul>
           {outcome.evidence.map((e, i) => (
             <li className="my-3 break-words" key={i}>
-              <strong>{e.source}</strong>:{" "}
+              <strong>{e.source}</strong> · {m[origins[e.operation]]()}:{" "}
               {m[
                 `evidence_${e.outcome.replaceAll("-", "_")}` as
                   | "evidence_exists"
@@ -143,6 +161,9 @@ export function ReferenceOutcomeView({
                   | "evidence_candidate"
                   | "evidence_no_record"
                   | "evidence_unavailable"
+                  | "evidence_disabled"
+                  | "evidence_skipped"
+                  | "evidence_unsupported"
               ]()}{" "}
               ({e.observedAt})
               {e.reason && (
@@ -162,6 +183,18 @@ export function ReferenceOutcomeView({
               {m.candidate_label()}: {candidate.csl.title ?? candidate.id} (
               {candidate.source})
             </h3>
+            <p>
+              {m.candidate_origin()}: {m[origins[candidate.origin]]()} ·{" "}
+              {m.candidate_slot({ slot: candidate.slot })}
+            </p>
+            <p className="break-words">
+              {m.candidate_record()}: {candidate.id}
+            </p>
+            {!!candidate.identifiers?.length && (
+              <p className="break-words">
+                {m.candidate_identifiers()}: {candidate.identifiers.join(", ")}
+              </p>
+            )}
             <p>
               {m.score_label()}:{" "}
               {candidate.score

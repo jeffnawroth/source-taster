@@ -75,6 +75,10 @@ export class ApiError extends Error {
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export function verificationClient(options = {}) {
+    return createVerificationClient(options, "/v1", CheckResponse);
+}
+/** Shared transport across majors; policies and verification remain server-owned. */
+export function createVerificationClient(options, prefix, responseSchema) {
     async function headers() {
         return {
             ...(options.client ? { "Source-Taster-Client": options.client } : {}),
@@ -98,17 +102,17 @@ export function verificationClient(options = {}) {
         return schema.parse(body);
     }
     return {
-        createCheck: async (input) => (await post("/v1/checks", typeof input === "string" ? { text: input } : input, CheckResponse)).data,
-        cancelCheck: async (checkId) => (await post(`/v1/checks/${encodeURIComponent(checkId)}/cancel`, undefined, CheckResponse)).data,
-        renewCheckLease: async (checkId) => (await post(`/v1/checks/${encodeURIComponent(checkId)}/lease`, undefined, CheckResponse)).data,
+        createCheck: async (input) => (await post(`${prefix}/checks`, typeof input === "string" ? { text: input } : input, responseSchema)).data,
+        cancelCheck: async (checkId) => (await post(`${prefix}/checks/${encodeURIComponent(checkId)}/cancel`, undefined, responseSchema)).data,
+        renewCheckLease: async (checkId) => (await post(`${prefix}/checks/${encodeURIComponent(checkId)}/lease`, undefined, responseSchema)).data,
         getCheck: async (checkId) => {
-            const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`, {
+            const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}${prefix}/checks/${encodeURIComponent(checkId)}`, {
                 headers: await headers(),
             });
             const body = await response.json().catch(() => undefined);
             if (!response.ok)
                 throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
-            return CheckResponse.parse(body).data;
+            return responseSchema.parse(body).data;
         },
         structureReferences: async (text) => (await post("/v1/structurings", { text }, StructuringResponse)).data,
     };
@@ -119,8 +123,12 @@ export function verificationClient(options = {}) {
  * Resolves after the final event; rejects with CheckStreamError on 4xx.
  */
 export async function watchCheckEvents(checkId, options) {
+    return watchContractEvents(checkId, options, "/v1", CheckEvent, isFinalEvent);
+}
+/** Shared cursor/reconnect transport, with a major-specific event schema. */
+export async function watchContractEvents(checkId, options, prefix, schema, final) {
     const doFetch = options.fetch ?? globalThis.fetch;
-    const url = `${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}/events`;
+    const url = `${options.baseUrl ?? ""}${prefix}/checks/${encodeURIComponent(checkId)}/events`;
     let lastSeq = options.lastEventSeq ?? 0;
     let retryDelayMs = options.retryDelayMs ?? 1000;
     for (;;) {
@@ -141,7 +149,7 @@ export async function watchCheckEvents(checkId, options) {
             }
             if (response.ok && response.body) {
                 for await (const frame of readSseFrames(response.body)) {
-                    const event = CheckEvent.parse(JSON.parse(frame.data));
+                    const event = schema.parse(JSON.parse(frame.data));
                     if (event.checkId !== checkId ||
                         frame.id !== `${checkId}:${event.seq}`)
                         throw new SyntaxError("Invalid Check event cursor");
@@ -151,7 +159,7 @@ export async function watchCheckEvents(checkId, options) {
                         throw new SyntaxError("Check event sequence gap");
                     lastSeq = event.seq;
                     options.onEvent(event);
-                    if (isFinalEvent(event))
+                    if (final(event))
                         return;
                 }
             }

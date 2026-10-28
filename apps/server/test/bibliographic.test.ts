@@ -1,0 +1,731 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Explicitly synthetic protocol witnesses; real PG and public HTTP/SSE only.
+import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
+import {
+  CheckResponse,
+  CheckEvent,
+  type CreateCheckRequest,
+} from "@source-taster/contract-verification/v2";
+import { readSseFrames } from "@source-taster/contract-verification/client";
+import { startTestService } from "./support/service.ts";
+import { startDoiFixtures } from "./support/doi-fixtures.ts";
+let openalex: Awaited<ReturnType<typeof startDoiFixtures>>;
+let crossref: Awaited<ReturnType<typeof startDoiFixtures>>;
+let service: Awaited<ReturnType<typeof startTestService>>;
+const matching = (value: unknown): unknown =>
+  expect.objectContaining(value) as unknown;
+beforeAll(async () => {
+  openalex = await startDoiFixtures();
+  crossref = await startDoiFixtures();
+  service = await startTestService(54777, 0, {
+    ...crossref.env,
+    SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+    SOURCE_TASTER_OPENALEX_ENABLED: "true",
+    SOURCE_TASTER_OPENALEX_BASE_URL:
+      openalex.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+  });
+});
+afterAll(async () => {
+  await service?.stop();
+  await openalex?.stop();
+  await crossref?.stop();
+});
+beforeEach(() => {
+  openalex.reset();
+  crossref.reset();
+  openalex.requests.length = 0;
+  crossref.requests.length = 0;
+});
+it("identifies an article without a DOI in OpenAlex before querying Crossref", async () => {
+  openalex.respond("/works", 200, {
+    meta: { count: 1 },
+    results: [
+      {
+        id: "https://openalex.org/W77",
+        title: "Synthetic article",
+        publication_year: 2021,
+        authorships: [{ author: { display_name: "Alpha" } }],
+        ids: {},
+      },
+    ],
+  });
+  crossref.respond("/works", 500, { sentinel: "must remain uncontacted" });
+  const response = await fetch(`${service.apiUrl}/v2/checks`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      references: [
+        {
+          originalText: "Synthetic Alpha (2021). Synthetic article.",
+          fields: {
+            type: "article-journal",
+            title: "Synthetic article",
+            author: [{ family: "Alpha" }],
+            issued: { literal: "2021" },
+          },
+        },
+      ],
+    }),
+  });
+  expect(response.status).toBe(201);
+  const created = (await response.json()) as { data: { id: string } };
+  const stream = await fetch(
+    `${service.apiUrl}/v2/checks/${created.data.id}/events`,
+  );
+  const frames = [];
+  for await (const frame of readSseFrames(stream.body!))
+    frames.push(JSON.parse(frame.data) as unknown);
+  const snapshot = (await (
+    await fetch(`${service.apiUrl}/v2/checks/${created.data.id}`)
+  ).json()) as {
+    data: {
+      references: {
+        outcome: {
+          verdict: string;
+          candidates: {
+            source: string;
+            slot: number;
+            score: { value: number };
+          }[];
+        };
+      }[];
+    };
+  };
+  expect(snapshot.data.references[0]!.outcome.verdict).toBe("correct");
+  expect(snapshot.data.references[0]!.outcome.candidates).toMatchObject([
+    { source: "openalex", slot: 1, score: { value: 100000000 } },
+  ]);
+  expect(frames).toContainEqual(
+    expect.objectContaining({
+      type: "reference.updated",
+      reference: matching({
+        outcome: snapshot.data.references[0]!.outcome,
+      }),
+    }),
+  );
+  expect(crossref.requests).toHaveLength(0);
+});
+
+type Fields = Extract<
+  CreateCheckRequest,
+  { references: unknown }
+>["references"][number]["fields"];
+async function run(fields: Fields) {
+  const response = await fetch(`${service.apiUrl}/v2/checks`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      references: [{ originalText: "Synthetic protocol witness", fields }],
+    }),
+  });
+  expect(response.status).toBe(201);
+  const created = CheckResponse.parse(await response.json()).data;
+  const stream = await fetch(
+    `${service.apiUrl}/v2/checks/${created.id}/events`,
+    { signal: AbortSignal.timeout(35000) },
+  );
+  const events = [];
+  for await (const frame of readSseFrames(stream.body!))
+    events.push(CheckEvent.parse(JSON.parse(frame.data)));
+  const snapshot = CheckResponse.parse(
+    await (await fetch(`${service.apiUrl}/v2/checks/${created.id}`)).json(),
+  ).data;
+  const outcome = snapshot.references[0]!.outcome;
+  if (outcome.kind !== "verdict") throw new Error("Expected Verdict");
+  expect(events).toContainEqual(
+    expect.objectContaining({
+      type: "reference.updated",
+      reference: matching({ outcome }),
+    }),
+  );
+  return { outcome, snapshot };
+}
+const oa = (n: number, title = `Unrelated ${n}`, author = "Beta") => ({
+  id: `https://openalex.org/W${n}`,
+  title,
+  authorships: [{ author: { display_name: author } }],
+  publication_year: 2021,
+});
+it("shares five evaluated unique slots across combined, title and author queries in provider order", async () => {
+  openalex.respondSequence("/works", [
+    { status: 200, body: { results: [oa(1), oa(9)] } },
+    { status: 200, body: { results: [oa(1), oa(2), oa(3), oa(8)] } },
+    { status: 200, body: { results: [oa(2), oa(4), oa(5), oa(7)] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({
+    title: "Synthetic article",
+    author: [{ family: "Alpha" }],
+    issued: { literal: "2021" },
+  });
+  expect(
+    outcome.candidates
+      .toSorted((a, b) => a.slot - b.slot)
+      .map((c) => [c.id, c.slot, c.origin]),
+  ).toEqual([
+    ["https://openalex.org/W1", 1, "combined"],
+    ["https://openalex.org/W2", 2, "title"],
+    ["https://openalex.org/W4", 3, "authors-year"],
+    ["https://openalex.org/W3", 4, "title"],
+    ["https://openalex.org/W5", 5, "authors-year"],
+  ]);
+  expect(outcome.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "openalex",
+      operation: "title",
+      skippedDuplicates: ["https://openalex.org/W1"],
+    }),
+  );
+});
+it("does not call a known existent DOI Not found when both metadata indexes lack its record", async () => {
+  const doi = "10.5555/known-existence";
+  crossref.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  crossref.respond(`/works/${doi}`, 404, {});
+  openalex.respond(`/works/doi:${doi}`, 404, {});
+  openalex.respond("/works", 200, { results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({
+    DOI: doi,
+    title: "Synthetic unknown",
+    author: [{ family: "Zed" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.reasons).toContain("identity-unresolved");
+});
+for (const count of [1, 2])
+  it(`allocates the remaining bibliographic slots after ${count} distinct supported identifier records`, async () => {
+    const doi = `10.5555/slots-${count}`;
+    crossref.respond(`/api/handles/${doi}`, 200, {
+      responseCode: 1,
+      handle: doi,
+    });
+    crossref.respond(`/works/${doi}`, 404, {});
+    openalex.respond(`/works/doi:${doi}`, 200, {
+      ...oa(101),
+      doi: `https://doi.org/${doi}`,
+    });
+    openalex.respond("/works/pmid:77002", 200, {
+      ...oa(102),
+      ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/77002" },
+    });
+    openalex.respondSequence("/works", [
+      { status: 200, body: { results: [oa(104)] } },
+      { status: 200, body: { results: [oa(105), oa(106)] } },
+      { status: 200, body: { results: [oa(107), oa(108)] } },
+    ]);
+    crossref.respond("/works", 200, { message: { items: [] } });
+    const { outcome } = await run({
+      DOI: doi,
+      ...(count > 1 ? { PMID: "77002" } : {}),
+      title: "Synthetic article",
+      author: [{ family: "Alpha" }],
+      issued: { literal: "2021" },
+    });
+    const candidates = outcome.candidates
+      .filter((c) => c.source === "openalex")
+      .toSorted((a, b) => a.slot - b.slot);
+    expect(candidates.map((c) => c.origin)).toEqual(
+      count === 1
+        ? ["doi", "combined", "title", "authors-year", "title"]
+        : ["doi", "pmid", "combined", "title", "authors-year"],
+    );
+    expect(candidates.map((c) => c.slot)).toEqual([1, 2, 3, 4, 5]);
+    expect(candidates[0]!.identifiers).toEqual([`doi:${doi}`]);
+  });
+it("carries unused combined capacity into title results without another request or page", async () => {
+  openalex.respondSequence("/works", [
+    { status: 200, body: { results: [] } },
+    {
+      status: 200,
+      body: { results: [oa(10), oa(11), oa(12), oa(13), oa(14)] },
+    },
+    { status: 200, body: { results: [] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const began = openalex.requests.length;
+  const { outcome } = await run({
+    title: "Synthetic article",
+    author: [{ family: "Alpha" }],
+    issued: { literal: "2021" },
+  });
+  expect(
+    outcome.candidates
+      .toSorted((a, b) => a.slot - b.slot)
+      .map((c) => [c.slot, c.origin]),
+  ).toEqual([
+    [1, "title"],
+    [2, "title"],
+    [3, "title"],
+    [4, "title"],
+  ]);
+  expect(outcome.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "openalex",
+      operation: "combined",
+      unusedSlots: 1,
+    }),
+  );
+  expect(openalex.requests.slice(began)).toHaveLength(3);
+});
+it("deduplicates identifiers already carried by an evaluated record and preserves all identifier provenance", async () => {
+  const doi = "10.5555/carried";
+  crossref.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  crossref.respond(`/works/${doi}`, 404, {});
+  openalex.respond(`/works/doi:${doi}`, 200, {
+    ...oa(110),
+    doi,
+    ids: {
+      pmid: "https://pubmed.ncbi.nlm.nih.gov/77002",
+    },
+  });
+  openalex.respond("/works", 200, { results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const began = openalex.requests.length;
+  const { outcome } = await run({
+    DOI: doi,
+    PMID: "77002",
+    title: "Synthetic article",
+    author: [{ family: "Alpha" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome.candidates).toHaveLength(1);
+  expect(outcome.candidates[0]!.identifiers).toEqual([
+    `doi:${doi}`,
+    "pmid:77002",
+  ]);
+  expect(
+    openalex.requests
+      .slice(began)
+      .some((r) => /\/works\/(pmid|pmcid):/u.test(r.path)),
+  ).toBe(false);
+});
+it("does not infer nonexistence from high Scores with missing identity fields", async () => {
+  openalex.respond("/works", 200, {
+    results: [{ id: "https://openalex.org/W999", publication_year: 2021 }],
+  });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({
+    title: "Synthetic unknown",
+    author: [{ family: "Zed" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome.candidates[0]!.score?.value).toBe(100000000);
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.reasons).toContain("ambiguous-identity");
+});
+const article = {
+  title: "Synthetic article",
+  author: [{ family: "Alpha" }],
+  issued: { literal: "2021" },
+};
+const cr = (doi: string, title = "Synthetic article", author = "Alpha") => ({
+  DOI: doi,
+  title: [title],
+  author: [{ family: author }],
+  published: { "date-parts": [[2021]] },
+});
+it("reaches Mixed citation from independently opposing title and author components", async () => {
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: { results: [oa(201, "Synthetic article", "Zzzzzz")] },
+    },
+    {
+      status: 200,
+      body: { results: [oa(201, "Synthetic article", "Zzzzzz")] },
+    },
+    { status: 200, body: { results: [oa(202, "ZZZZZZZZZZZZZZZZZ", "Alpha")] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(outcome.verdict).toBe("mixed-citation");
+  expect(outcome.reasons).toEqual(["mixed-components"]);
+  expect(outcome.candidates.map((c) => c.score?.value)).toEqual([
+    64285714, 57142857,
+  ]);
+  expect(
+    outcome.candidates[0]!.fields.find((f) => f.field === "title"),
+  ).toMatchObject({
+    reference: "Synthetic article",
+    candidate: "Synthetic article",
+    score: { value: 100000000 },
+  });
+});
+it("keeps mandatory DOI failure ahead of independently received Mixed evidence", async () => {
+  const doi = "10.5555/mandatory";
+  crossref.respond(`/api/handles/${doi}`, 503, {});
+  crossref.respond(`/works/${doi}`, 404, {});
+  openalex.respond(`/works/doi:${doi}`, 404, {});
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: { results: [oa(201, "Synthetic article", "Zzzzzz")] },
+    },
+    {
+      status: 200,
+      body: { results: [oa(201, "Synthetic article", "Zzzzzz")] },
+    },
+    { status: 200, body: { results: [oa(202, "ZZZZZZZZZZZZZZZZZ", "Alpha")] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({ ...article, DOI: doi });
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.reasons).toEqual(["mandatory-resolution-incomplete"]);
+  expect(outcome.candidates).toHaveLength(2);
+  expect(outcome.failedSources).toContain("doi.org");
+});
+it("keeps confirmed DOI nonexistence ahead of Mixed evidence", async () => {
+  const doi = "10.5555/nonexistent";
+  crossref.respond(`/api/handles/${doi}`, 404, {
+    responseCode: 100,
+    handle: doi,
+  });
+  crossref.respond(`/works/${doi}`, 404, {});
+  openalex.respond(`/works/doi:${doi}`, 404, {});
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: { results: [oa(201, "Synthetic article", "Zzzzzz")] },
+    },
+    {
+      status: 200,
+      body: { results: [oa(201, "Synthetic article", "Zzzzzz")] },
+    },
+    { status: 200, body: { results: [oa(202, "ZZZZZZZZZZZZZZZZZ", "Alpha")] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({ ...article, DOI: doi });
+  expect(outcome.verdict).toBe("doi-conflict");
+  expect(outcome.reasons).toEqual(["doi-nonexistent"]);
+  expect(outcome.candidates).toHaveLength(2);
+});
+it("establishes an intended different Source independently before reporting a foreign DOI", async () => {
+  const doi = "10.5555/foreign";
+  crossref.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  openalex.respond(`/works/doi:${doi}`, 200, {
+    ...oa(203, "ZZZZZZZZZZZZZZZZZ", "Zzzzzz"),
+    doi,
+  });
+  crossref.respond(`/works/${doi}`, 404, {});
+  openalex.respond("/works", 200, {
+    results: [
+      { ...oa(204, "Synthetic article", "Alpha"), doi: "10.5555/intended" },
+    ],
+  });
+  const { outcome } = await run({ ...article, DOI: doi });
+  expect(outcome.verdict).toBe("doi-conflict");
+  expect(outcome.reasons).toEqual(["foreign-doi"]);
+  expect(outcome.bestMatchId).toBe("https://openalex.org/W204");
+});
+it("continues to Crossref after an OpenAlex failure and distinguishes that failure from authority loss", async () => {
+  openalex.respond("/works", 503, {});
+  crossref.respond("/works", 200, {
+    message: { items: [cr("10.5555/crossref-match")] },
+  });
+  const { outcome } = await run(article);
+  expect(outcome.verdict).toBe("correct");
+  expect(outcome.failedSources).toEqual(["openalex"]);
+  expect(outcome.candidates).toMatchObject([
+    {
+      source: "crossref",
+      id: "crossref:10.5555/crossref-match",
+      score: { value: 100000000 },
+    },
+  ]);
+  expect(
+    outcome.evidence
+      .filter((e) => e.source === "openalex")
+      .every((e) => e.outcome === "unavailable" && e.attempts === 2),
+  ).toBe(true);
+});
+it("requires completed searches in both explicitly enabled development indexes for Not found", async () => {
+  openalex.respond("/works", 200, { results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(outcome.verdict).toBe("not-found");
+  expect(outcome.reasons).toEqual(["search-completed"]);
+  expect(
+    outcome.evidence.filter((e) => e.outcome === "no-record"),
+  ).toHaveLength(6);
+  expect(openalex.requests).toHaveLength(3);
+  expect(crossref.requests).toHaveLength(3);
+});
+it("does not present malformed completed metadata as a successful empty search", async () => {
+  openalex.respond("/works", 200, {
+    results: [{ title: "invalid without record ID" }],
+  });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.failedSources).toEqual(["openalex"]);
+  expect(outcome.evidence[0]).toMatchObject({
+    outcome: "unavailable",
+    reason: "invalid-metadata",
+    raw: { results: [{ title: "invalid without record ID" }] },
+  });
+});
+it("leaves equal top Scores for different Sources ambiguous", async () => {
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: {
+        results: [
+          {
+            id: "https://openalex.org/W301",
+            title: "Synthetic article",
+            doi: "10.5555/one",
+          },
+        ],
+      },
+    },
+    {
+      status: 200,
+      body: {
+        results: [
+          { ...oa(302, "Synthetic article", "Alpha"), doi: "10.5555/two" },
+        ],
+      },
+    },
+    { status: 200, body: { results: [] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(outcome.candidates.map((c) => c.score?.value)).toEqual([
+    100000000, 100000000,
+  ]);
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.reasons).toEqual(["ambiguous-identity"]);
+});
+it("does not contact another source when exact identifier identity is settled, and compares remaining supplied identifiers", async () => {
+  const doi = "10.5555/identifier-stop";
+  crossref.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  openalex.respond(`/works/doi:${doi}`, 200, {
+    ...oa(303, "Synthetic article", "Alpha"),
+    doi,
+    ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/123" },
+  });
+  const { outcome } = await run({ ...article, DOI: doi, PMID: "999" });
+  expect(outcome.verdict).toBe("exists-with-deviations");
+  expect(outcome.identity.kind).toBe("supplied-doi");
+  expect(openalex.requests).toHaveLength(1);
+  expect(crossref.requests).toHaveLength(1);
+  expect(
+    outcome.candidates[0]!.fields.find((f) => f.field === "PMID"),
+  ).toMatchObject({ reference: "999", candidate: "123", reason: "unweighted" });
+});
+it("preserves frozen /v1 creates, snapshots and numeric SSE while /v2 reads stored legacy results", async () => {
+  const { CheckResponse: frozen } =
+    await import("./fixtures/verification-client-74/dist/contract-verification/src/index.js");
+  const response = await fetch(`${service.apiUrl}/v1/checks`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      text: "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+    }),
+  });
+  const created = frozen.parse(await response.json()).data;
+  const stream = await fetch(
+    `${service.apiUrl}/v1/checks/${created.id}/events`,
+    { headers: { "last-event-id": "0001" } },
+  );
+  const { CheckEvent: oldEvent } =
+    await import("./fixtures/verification-client-74/dist/contract-verification/src/index.js");
+  for await (const frame of readSseFrames(stream.body!)) {
+    expect(frame.id).toMatch(/^\d+$/u);
+    oldEvent.parse(JSON.parse(frame.data));
+  }
+  const legacy = frozen.parse(
+    await (await fetch(`${service.apiUrl}/v1/checks/${created.id}`)).json(),
+  ).data;
+  const modern = CheckResponse.parse(
+    await (await fetch(`${service.apiUrl}/v2/checks/${created.id}`)).json(),
+  ).data;
+  expect(frozen.parse({ data: modern, quota: null }).data).toEqual(legacy);
+  expect(openalex.requests).toHaveLength(0);
+});
+it("keeps /v2-only results out of frozen /v1 routes", async () => {
+  openalex.respond("/works", 200, {
+    results: [oa(304, "Synthetic article", "Alpha")],
+  });
+  const { snapshot } = await run(article);
+  for (const [suffix, method] of [
+    ["", "GET"],
+    ["/events", "GET"],
+    ["/cancel", "POST"],
+    ["/lease", "POST"],
+  ])
+    expect(
+      (
+        await fetch(`${service.apiUrl}/v1/checks/${snapshot.id}${suffix}`, {
+          method,
+        })
+      ).status,
+    ).toBe(404);
+});
+it("does not collapse conflicting known identifiers just because another identifier agrees", async () => {
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: {
+        results: [
+          {
+            id: "https://openalex.org/W402",
+            title: "Synthetic article",
+            doi: "10.5555/shared",
+            ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/111" },
+          },
+        ],
+      },
+    },
+    {
+      status: 200,
+      body: {
+        results: [
+          {
+            ...oa(401, "Synthetic article", "Alpha"),
+            doi: "10.5555/shared",
+            ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/222" },
+          },
+        ],
+      },
+    },
+    { status: 200, body: { results: [] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.reasons).toEqual(["ambiguous-identity"]);
+});
+it("publishes separate OpenAPI majors with the frozen v1 source and cap", async () => {
+  const { readFile } = await import("node:fs/promises");
+  for (const version of [1, 2]) {
+    const actual: unknown = await (
+      await fetch(`${service.apiUrl}/v${version}/openapi.json`)
+    ).json();
+    const expected: unknown = JSON.parse(
+      await readFile(
+        new URL(
+          `../../../packages/contract-verification/openapi${version === 2 ? "-v2" : ""}.json`,
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    expect(actual).toEqual(expected);
+  }
+});
+it("records supplied PMID identity separately from independent bibliographic proof", async () => {
+  openalex.respond("/works/pmid:77002", 200, {
+    ...oa(501, "Synthetic article", "Alpha"),
+    ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/77002" },
+  });
+  const { outcome } = await run({ ...article, PMID: "77002" });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    identity: {
+      kind: "supplied-identifier",
+      candidateId: "https://openalex.org/W501",
+    },
+  });
+  expect(openalex.requests).toHaveLength(1);
+  expect(crossref.requests).toHaveLength(0);
+});
+it("records unsupported PMCID capability without inventing a lookup or negative evidence", async () => {
+  openalex.respond("/works", 200, { results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({ ...article, PMCID: "PMC5815332" });
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.failedSources).toEqual([]);
+  expect(outcome.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "openalex",
+      operation: "pmcid",
+      outcome: "unsupported",
+      attempts: 0,
+    }),
+  );
+  expect(openalex.requests.some((r) => r.path.includes("/works/pmcid:"))).toBe(
+    false,
+  );
+});
+it("does not resolve competing identity using a Score with an excluded resource-limited comparison", async () => {
+  openalex.respondSequence("/works", [
+    { status: 200, body: { results: [oa(601, "Z".repeat(120000), "Zzzzzz")] } },
+    { status: 200, body: { results: [oa(602, "Synthetic article", "Alpha")] } },
+    { status: 200, body: { results: [] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(
+    outcome.candidates.find((c) => c.id === "https://openalex.org/W601")
+      ?.fields,
+  ).toContainEqual(
+    expect.objectContaining({
+      field: "title",
+      reason: "resource-limit",
+      score: null,
+    }),
+  );
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.reasons).toContain("development-route-incomplete");
+});
+it("normalizes a supplied PMID URL while preserving the raw field and exact Score", async () => {
+  openalex.respond("/works/pmid:77002", 200, {
+    ...oa(701, "Synthetic article", "Alpha"),
+    ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/77002" },
+  });
+  const { outcome } = await run({
+    ...article,
+    PMID: "https://pubmed.ncbi.nlm.nih.gov/77002/",
+  });
+  expect(outcome.verdict).toBe("correct");
+  expect(outcome.candidates[0]!.score?.value).toBe(100000000);
+  expect(outcome.candidates[0]!.fields).toContainEqual(
+    expect.objectContaining({
+      field: "PMID",
+      reference: "https://pubmed.ncbi.nlm.nih.gov/77002/",
+      candidate: "77002",
+    }),
+  );
+});
+it("logs a repeated source record reached by different identifiers without evaluating it twice", async () => {
+  const doi = "10.5555/repeated-record";
+  crossref.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  openalex.respond(`/works/doi:${doi}`, 200, { ...oa(801), doi });
+  openalex.respond("/works/pmid:77002", 200, {
+    ...oa(801),
+    doi,
+    ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/77002" },
+  });
+  openalex.respond("/works", 200, { results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({ ...article, DOI: doi, PMID: "77002" });
+  expect(outcome.candidates).toHaveLength(1);
+  expect(outcome.candidates[0]!.identifiers).toEqual([
+    `doi:${doi}`,
+    "pmid:77002",
+  ]);
+  expect(outcome.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "openalex",
+      operation: "pmid",
+      skippedDuplicates: ["https://openalex.org/W801"],
+    }),
+  );
+});

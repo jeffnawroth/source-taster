@@ -10,20 +10,31 @@ import {
   type ComparisonProfile,
 } from "./comparison.ts";
 export interface Evidence {
-  source: "doi.org" | "crossref";
-  operation: "doi" | "combined" | "title" | "authors-year";
-  outcome: "exists" | "nonexistent" | "candidate" | "no-record" | "unavailable";
+  source: "doi.org" | "crossref" | "openalex";
+  operation: "doi" | "pmid" | "pmcid" | "combined" | "title" | "authors-year";
+  outcome:
+    | "exists"
+    | "nonexistent"
+    | "candidate"
+    | "no-record"
+    | "unavailable"
+    | "disabled"
+    | "skipped"
+    | "unsupported";
   reason?: string;
   status?: number;
   durationMs: number;
   attempts: number;
   observedAt: string;
   raw?: unknown;
+  skippedDuplicates?: string[];
+  unusedSlots?: number;
 }
 export interface RetrievedCandidate {
   id: string;
-  source: "crossref";
-  origin: "doi" | "combined" | "title" | "authors-year";
+  source: "crossref" | "openalex";
+  origin: "doi" | "pmid" | "pmcid" | "combined" | "title" | "authors-year";
+  identifiers?: string[];
   retrievedAt: string;
   csl: Csl;
   raw: unknown;
@@ -69,13 +80,22 @@ export const doiTracerLimits = Object.freeze({
 export interface VerdictResult {
   kind: "verdict";
   verdict:
-    "correct" | "exists-with-deviations" | "doi-conflict" | "not-verifiable";
+    | "correct"
+    | "exists-with-deviations"
+    | "doi-conflict"
+    | "not-verifiable"
+    | "mixed-citation"
+    | "not-found";
   reference: StructuredReference;
   scoringRules: ScoringRules;
   searchStrategyVersion: string;
   searchConfiguration: Record<string, string | number>;
   identity: {
-    kind: "supplied-doi" | "independent-bibliography" | "unresolved";
+    kind:
+      | "supplied-doi"
+      | "supplied-identifier"
+      | "independent-bibliography"
+      | "unresolved";
     candidateId?: string;
   };
   bestMatchId: string | null;
@@ -92,11 +112,15 @@ export interface VerdictResult {
     | "development-route-incomplete"
     | "identified"
     | "fields-differ"
+    | "mixed-components"
+    | "search-completed"
+    | "ambiguous-identity"
+    | "insufficient-search"
   )[];
-  failedSources: ("doi.org" | "crossref")[];
+  failedSources: ("doi.org" | "crossref" | "openalex")[];
   retraction: "unknown";
 }
-const outside = new Set([
+export const outside = new Set([
   "legislation",
   "bill",
   "regulation",
