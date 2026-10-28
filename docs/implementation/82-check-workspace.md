@@ -300,3 +300,5 @@ original dated scope; this task rebuilt/verified current controlled artifacts an
 reran relevant app/public-information access, not the separate 92-case website
 browser suite or every pipeline tamper/reproduction control. No quality or
 publication gate was opened.
+
+The validated source/test tree is committed as `d5761c1a272c48c2d10ad6488054a3d270dc991c`. The final handoff commit adds this ancestry receipt to this evidence document only; its HEAD is supplied in the handoff and local receipt. Both descend from the required and final integration tip `7d1487caf6df45d53aa87d6cbcef0561f850e57c`.
