@@ -2,6 +2,63 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
 for (const language of ["en", "de"] as const)
+  test(`opens a Candidate without DOI at its provider record in ${language}`, async ({
+    page,
+  }) => {
+    const recordUrl = "https://openalex.org/W77902";
+    await page.context().route(recordUrl, (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: "<h1>Synthetic Source record</h1>",
+      }),
+    );
+    await page.goto("/");
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
+      .selectOption(language);
+    await page
+      .getByRole("textbox")
+      .fill(
+        "Alpha, A. (2021). Source link witness. Journal of Testing, 1, 1–2.",
+      );
+    await page
+      .getByRole("button", {
+        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        exact: true,
+      })
+      .click();
+    const result = page.getByRole("status");
+    await expect(
+      result.getByText(language === "en" ? "Correct" : "Korrekt", {
+        exact: true,
+      }),
+    ).toBeVisible({ timeout: 15000 });
+    await result
+      .getByText(
+        language === "en"
+          ? "Explanation and source evidence"
+          : "Erklärung und Quellenbelege",
+        { exact: true },
+      )
+      .click();
+    const link = result.getByRole("link", {
+      name: language === "en" ? "Open Source" : "Quelle öffnen",
+      exact: true,
+    });
+    await expect(link).toHaveAttribute("href", recordUrl);
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    const opened = page.context().waitForEvent("page");
+    await link.click();
+    const source = await opened;
+    await expect(source).toHaveURL(recordUrl);
+    await expect(
+      source.getByRole("heading", { name: "Synthetic Source record" }),
+    ).toBeVisible();
+    expect(await source.evaluate(() => window.opener === null)).toBe(true);
+    await source.close();
+  });
+for (const language of ["en", "de"] as const)
   test(`shows an independent retraction notice with provenance in ${language}`, async ({
     page,
   }) => {

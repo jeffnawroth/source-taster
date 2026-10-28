@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type {
   ReferenceOutcome,
+  Candidate,
   Score,
   Verdict,
 } from "@source-taster/contract-verification/v2";
@@ -92,9 +93,13 @@ function percent(s: Score) {
   const capped = !s.fullAgreement && units >= 10000n ? 9999n : units;
   return `${capped / 100n}.${String(capped % 100n).padStart(2, "0")} %`;
 }
-function sourceLink(doi: string | undefined) {
-  return doi && /^10\.\d{4,9}\/\S+$/iu.test(doi)
-    ? `https://doi.org/${encodeURIComponent(doi)}`
+function sourceLink(candidate: Candidate) {
+  const doi = candidate.csl.DOI;
+  if (doi && /^10\.\d{4,9}\/\S+$/iu.test(doi))
+    return `https://doi.org/${encodeURIComponent(doi)}`;
+  return candidate.source === "openalex" &&
+    /^https:\/\/openalex\.org\/W\d+$/u.test(candidate.id)
+    ? candidate.id
     : null;
 }
 export function ReferenceOutcomeView({
@@ -222,12 +227,12 @@ export function ReferenceOutcomeView({
             {candidate.id === outcome.bestMatchId && (
               <p>{m.best_match_label()}</p>
             )}
-            {sourceLink(candidate.csl.DOI) && (
+            {sourceLink(candidate) && (
               <a
                 className="inline-block py-2 underline"
                 target="_blank"
                 rel="noopener noreferrer"
-                href={sourceLink(candidate.csl.DOI)!}
+                href={sourceLink(candidate)!}
               >
                 {m.source_open()}
               </a>

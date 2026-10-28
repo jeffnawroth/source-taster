@@ -50,6 +50,7 @@ export const articleSearchConfiguration = Object.freeze({
     "development-openalex-and-crossref-complete-title-author-year",
   nameProjection: "openalex-display-name-last-token-family-1",
   receivedEvidence: "normalized-pmcid-affirmative-retraction-1",
+  identityEvidence: "consistent-connected-groups-complete-comparisons-1",
 });
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 const normalizePmid = (value: string) =>
@@ -66,9 +67,9 @@ export const normalizePmcid = (value: string) =>
       "",
     )
     .toUpperCase();
-function sameSource(a: RetrievedCandidate, b: RetrievedCandidate) {
-  // Conflicting known identifiers distinguish Sources, even if another key agrees.
-  let shared = false;
+function sourceRelation(a: RetrievedCandidate, b: RetrievedCandidate) {
+  let shared = a.source === b.source && a.id === b.id;
+  let conflicting = false;
   for (const key of ["DOI", "PMID", "PMCID"] as const) {
     if (!a.csl[key] || !b.csl[key]) continue;
     const normalize =
@@ -77,13 +78,40 @@ function sameSource(a: RetrievedCandidate, b: RetrievedCandidate) {
         : key === "PMCID"
           ? normalizePmcid
           : (value: string) => value.toLowerCase();
-    if (normalize(a.csl[key]) !== normalize(b.csl[key])) return false;
-    shared = true;
+    if (normalize(a.csl[key]) !== normalize(b.csl[key])) conflicting = true;
+    else shared = true;
   }
-  return shared || (a.source === b.source && a.id === b.id);
+  return { shared, conflicting };
+}
+function sameSource(a: RetrievedCandidate, b: RetrievedCandidate) {
+  const relation = sourceRelation(a, b);
+  return relation.shared && !relation.conflicting;
+}
+function identityGroup(candidate: Candidate, records: readonly Candidate[]) {
+  // Shared keys connect records, but a bridge cannot erase contradictions
+  // elsewhere in the connected group. Only evaluated Candidates enter this group.
+  const members = new Set([candidate]);
+  const pending = [candidate];
+  while (pending.length) {
+    const current = pending.pop()!;
+    for (const record of records)
+      if (!members.has(record) && sourceRelation(current, record).shared) {
+        members.add(record);
+        pending.push(record);
+      }
+  }
+  const group = [...members];
+  const conflicting = group.some((record, i) =>
+    group
+      .slice(i + 1)
+      .some((other) => sourceRelation(record, other).conflicting),
+  );
+  return { members, conflicting };
 }
 const fieldScore = (c: Candidate, field: string) =>
   c.fields.find((f) => f.field === field)?.score?.value;
+const incompleteIdentity = (c: Candidate) =>
+  ["title", "author"].some((field) => fieldScore(c, field) === undefined);
 const unsafe = (c: Candidate) =>
   c.fields.some(
     (f) =>
@@ -110,7 +138,7 @@ export function createBibliographicVerification(ports: {
       verdict: "not-verifiable",
       reference,
       scoringRules: ports.rules,
-      searchStrategyVersion: `article-search-77-3-received-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-77-4-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         enabledSources: ports.sources.map((s) => s.name).join(","),
@@ -211,7 +239,8 @@ export function createBibliographicVerification(ports: {
           a.source.localeCompare(b.source) ||
           a.id.localeCompare(b.id),
       );
-      result.bestMatchId = result.candidates[0]?.id ?? null;
+      const best = result.candidates[0];
+      result.bestMatchId = best?.score ? best.id : null;
       return candidate;
     }
     const strong = (c: Candidate) =>
@@ -226,6 +255,10 @@ export function createBibliographicVerification(ports: {
         const score = fieldScore(c, f);
         return score !== undefined && score < profile.counterevidence;
       });
+    const unresolvedComparison = (candidate: Candidate) => {
+      const group = identityGroup(candidate, result.candidates);
+      return group.conflicting || [...group.members].every(incompleteIdentity);
+    };
     function identity(): Candidate | undefined {
       const top = result.candidates[0];
       if (!top || result.candidates.some(unsafe) || ports.now() >= deadline)
@@ -241,13 +274,27 @@ export function createBibliographicVerification(ports: {
           ),
       );
       const provedTop = proven.filter((c) => valueOf(c) === valueOf(top));
+      if (provedTop.length) {
+        const group = identityGroup(provedTop[0]!, result.candidates);
+        if (provedTop.every((candidate) => group.members.has(candidate))) {
+          if (group.conflicting) return;
+          return provedTop[0];
+        }
+      }
+      const group = identityGroup(top, result.candidates);
       if (
-        provedTop.length &&
-        provedTop.every((c) => sameSource(c, provedTop[0]!))
+        group.conflicting ||
+        tied.some((c) => !group.members.has(c)) ||
+        !strong(top)
       )
-        return provedTop[0];
-      if (tied.some((c) => !sameSource(c, top)) || !strong(top)) return;
-      const competitor = result.candidates.find((c) => !sameSource(c, top));
+        return;
+      const competitors = result.candidates.filter(
+        (c) => !group.members.has(c),
+      );
+      // An unavailable comparison is not a low competing Score. Verified
+      // identifier proof above remains separate from bibliographic lead evidence.
+      if (competitors.some(unresolvedComparison)) return;
+      const competitor = competitors[0];
       if (competitor && valueOf(top) - valueOf(competitor) < profile.lead)
         return;
       return top;
@@ -307,9 +354,15 @@ export function createBibliographicVerification(ports: {
       const best = result.candidates.find(
         (candidate) => candidate.id === result.bestMatchId,
       );
+      const conflicting = best
+        ? identityGroup(best, result.candidates).conflicting
+        : false;
       const retractions = best
-        ? [...retractionCandidates.values()].filter((candidate) =>
-            sameSource(candidate, best),
+        ? [...retractionCandidates.values()].filter(
+            (candidate) =>
+              sameSource(candidate, best) &&
+              (!conflicting ||
+                (candidate.source === best.source && candidate.id === best.id)),
           )
         : [];
       if (retractions.length) {
@@ -485,10 +538,21 @@ export function createBibliographicVerification(ports: {
       identified(chosen);
       return finish();
     }
+    if (
+      result.candidates[0] &&
+      identityGroup(result.candidates[0], result.candidates).conflicting
+    ) {
+      result.reasons = ["ambiguous-identity"];
+      return finish();
+    }
+    if (!chosen && result.candidates.some(unresolvedComparison)) {
+      result.reasons = ["insufficient-search"];
+      return finish();
+    }
     const mixed = result.candidates.some((a) =>
       result.candidates.some(
         (b) =>
-          !sameSource(a, b) &&
+          !identityGroup(a, result.candidates).members.has(b) &&
           !unsafe(a) &&
           !unsafe(b) &&
           (fieldScore(a, "title") ?? -1) >= profile.mixedComponent &&

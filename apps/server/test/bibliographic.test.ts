@@ -173,7 +173,7 @@ it.each([
     });
     expect(outcome.verdict).toBe(verdict);
     expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-3-received-evidence-",
+      "article-search-77-4-identity-evidence-",
     );
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
@@ -379,6 +379,168 @@ it("retains retraction evidence in a received duplicate without evaluating the r
     }),
   );
 });
+it.each([
+  { partial: true, conflict: true },
+  { partial: true, conflict: false },
+  { partial: false, conflict: true },
+  { partial: false, conflict: false },
+])(
+  "does not launder conflicting identities through a third record: %j",
+  async ({ partial, conflict }) => {
+    const title = partial ? "Synthetic article" : "a".repeat(20);
+    const family = partial ? "Alpha" : "a".repeat(50);
+    const doi = "10.5555/identity-bridge";
+    const indexed = (n: number, pmid: string) => ({
+      id: `https://openalex.org/W${n}`,
+      title,
+      doi,
+      publication_year: 2021,
+      ids: { pmid: `https://pubmed.ncbi.nlm.nih.gov/${pmid}` },
+      ...(partial
+        ? {}
+        : {
+            authorships: [
+              { author: { display_name: "b".repeat(5) + "a".repeat(45) } },
+            ],
+          }),
+    });
+    openalex.respondSequence("/works", [
+      { status: 200, body: { results: [indexed(77801, "111")] } },
+      {
+        status: 200,
+        body: { results: [indexed(77802, conflict ? "222" : "111")] },
+      },
+      { status: 200, body: { results: [] } },
+    ]);
+    crossref.respond("/works", 200, {
+      message: {
+        items: [
+          {
+            DOI: doi,
+            title: [partial ? title : "b" + "a".repeat(19)],
+            author: [
+              { family: partial ? family : "b".repeat(2) + "a".repeat(48) },
+            ],
+            published: { "date-parts": [[2021]] },
+          },
+        ],
+      },
+    });
+    const { outcome } = await run({
+      title,
+      author: [{ family }],
+      issued: { literal: "2021" },
+    });
+    // Complete fields: OA title/author=100/90; Crossref=95/96. Both weighted means are 96.428571%.
+    expect(outcome.candidates.map((c) => c.score?.value)).toEqual(
+      Array(3).fill(partial ? 100000000 : 96428571),
+    );
+    expect(outcome.verdict).toBe(
+      conflict
+        ? "not-verifiable"
+        : partial
+          ? "correct"
+          : "exists-with-deviations",
+    );
+    if (conflict) {
+      expect(outcome.identity.kind).toBe("unresolved");
+      expect(outcome.reasons).toContain("ambiguous-identity");
+    }
+  },
+);
+it.each([
+  {},
+  { title: "Unrelated metadata" },
+  { authorships: [{ author: { display_name: "Zed" } }] },
+  { publication_year: 1900 },
+])(
+  "retains incomplete identity comparisons as insufficient evidence: %j",
+  async (metadata) => {
+    openalex.respond("/works", 200, {
+      results: [{ id: "https://openalex.org/W77803", ...metadata }],
+    });
+    crossref.respond("/works", 200, { message: { items: [] } });
+    const { outcome } = await run({
+      title: "Synthetic article",
+      author: [{ family: "Alpha" }],
+      issued: { literal: "2021" },
+    });
+    expect(outcome).toMatchObject({
+      verdict: "not-verifiable",
+      reasons: ["insufficient-search"],
+      identity: { kind: "unresolved" },
+      failedSources: [],
+    });
+    expect(outcome.candidates).toHaveLength(1);
+    if (Object.keys(metadata).length === 0)
+      expect(outcome.bestMatchId).toBeNull();
+  },
+);
+it("does not manufacture a lead over a different Source with missing identity comparisons", async () => {
+  openalex.respondSequence("/works", [
+    { status: 200, body: { results: [{ id: "https://openalex.org/W77804" }] } },
+    {
+      status: 200,
+      body: { results: [oa(77805, "Synthetic article", "Alpha")] },
+    },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run({
+    title: "Synthetic article",
+    author: [{ family: "Alpha" }],
+    issued: { literal: "2021" },
+  });
+  expect(outcome).toMatchObject({
+    verdict: "not-verifiable",
+    reasons: ["insufficient-search"],
+    identity: { kind: "unresolved" },
+  });
+  expect(outcome.candidates.map((c) => c.score?.value ?? null)).toEqual([
+    100000000,
+    null,
+  ]);
+});
+it.each(["unknown", "same-source", "transitive"] as const)(
+  "does not manufacture Mixed citation from incomplete or bridged records: %s",
+  async (scenario) => {
+    const first = {
+      ...oa(77806, "Synthetic article", "Beta"),
+      doi: "10.5555/title-component",
+    };
+    const second = {
+      ...oa(77807, "ZZZZZZZZZZ", "Alpha"),
+      ...(scenario === "transitive"
+        ? { ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/111" } }
+        : { doi: "10.5555/author-component" }),
+    };
+    const third = {
+      id: "https://openalex.org/W77808",
+      ...(scenario === "unknown" ? {} : { doi: "10.5555/title-component" }),
+      ...(scenario === "transitive"
+        ? {
+            ids: { pmid: "https://pubmed.ncbi.nlm.nih.gov/111" },
+            publication_year: 2021,
+          }
+        : {}),
+    };
+    openalex.respondSequence(
+      "/works",
+      [first, second, third].map((record) => ({
+        status: 200,
+        body: { results: [record] },
+      })),
+    );
+    crossref.respond("/works", 200, { message: { items: [] } });
+    const { outcome } = await run({
+      title: "Synthetic article",
+      author: [{ family: "Alpha" }],
+      issued: { literal: "2021" },
+    });
+    expect(outcome.verdict).toBe(
+      scenario === "same-source" ? "mixed-citation" : "not-verifiable",
+    );
+  },
+);
 it("shares five evaluated unique slots across combined, title and author queries in provider order", async () => {
   openalex.respondSequence("/works", [
     { status: 200, body: { results: [oa(1), oa(9)] } },
@@ -551,7 +713,7 @@ it("does not infer nonexistence from high Scores with missing identity fields", 
   });
   expect(outcome.candidates[0]!.score?.value).toBe(100000000);
   expect(outcome.verdict).toBe("not-verifiable");
-  expect(outcome.reasons).toContain("ambiguous-identity");
+  expect(outcome.reasons).toContain("insufficient-search");
 });
 const article = {
   title: "Synthetic article",

@@ -64,6 +64,15 @@ export async function startBibliographicFixtures() {
           is_retracted: true,
         },
       ];
+    if (filters.includes("Source link witness"))
+      results = [
+        {
+          id: "https://openalex.org/W77902",
+          title: "Source link witness",
+          publication_year: 2021,
+          authorships: [{ author: { display_name: "A Alpha" } }],
+        },
+      ];
     res.end(JSON.stringify({ results }));
   });
   server.listen(0, "127.0.0.1");

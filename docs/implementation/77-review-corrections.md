@@ -1,9 +1,10 @@
 # #77 review corrections
 
-The first independent Standards review of `7a89b9c...d1b7aac` found two P2
-received-evidence gaps. The parent implements this response on
+The independent Standards and Spec reviews of `7a89b9c...d1b7aac` found five
+unique defects: two P1 identity/evidence defects, received PMCID loss, affirmative
+retraction loss, and missing Source links. The parent implements the response on
 `fix/77-review-corrections`, based on `d1b7aac`; the original implementation
-checkout stays frozen while the first Spec review continues.
+checkout remains frozen for independent comparison.
 
 ## Received PMCID remains comparable
 
@@ -133,3 +134,71 @@ stages, and no claim of launch throughput or a general load fix follows from
 these passing functional checks. The original #77 website, license, advisory and
 controlled-source results retain their original scope; they were not relabeled
 as new runs of this correction.
+
+
+## Spec corrections: identity groups and sufficient evidence
+
+The first Spec review reproduced two tied OpenAlex records sharing a DOI but
+carrying conflicting PMIDs. A DOI-only Crossref record previously appeared
+pairwise equivalent to each record and erased that conflict. Shared provider
+record IDs or normalized DOI/PMID/PMCID keys now connect an identity group; every
+pair in the group is checked for conflicting known identifiers. Neither an
+identifier route nor stable display ordering can make a conflicting group an
+unambiguous Source. Its result remains Not verifiable with ambiguous identity.
+Retraction evidence from another record is not transferred through that conflict;
+a direct report about the displayed Best match remains attributable to it.
+
+Four HTTP/SSE witnesses cover the reported sparse bridge and a complete-field
+bridge, each with consistent-identity controls. The complete-field case gives
+all three records the same stored Score of 96.428571% through independently
+worked title/author pairs (100/90 and 95/96). Conflict, rather than absent fields
+or a differing Score, must prevent identification. Both conflicting cases were
+RED before the group correction and GREEN afterward.
+
+The second P1 concerns records whose title/author comparisons are unavailable.
+Missing comparisons remain distinct from numerical zero. An ID-only, title-only,
+author-only or year-only record cannot establish a completed negative search,
+and an otherwise strong later match cannot manufacture a sufficient lead over
+an unknown different Source. Records with no scored fields have no Best match.
+A sparse record linked consistently to a fully comparable record of the same
+Source does not itself introduce an unknown competing Source. Verified supplied
+identifier proof retains its separate identity route and DOI conflict and
+mandatory-verification precedence remain unchanged.
+
+Five HTTP/SSE witnesses demonstrated false Not found/Correct outcomes before
+this correction. The related Mixed citation slice then demonstrated two more
+false positives: an unknown sparse competitor and a consistent transitive bridge
+between the purported component Sources. Mixed citation now requires distinct
+consistent identity groups; unresolved comparison groups cannot be used as
+negative evidence. A sparse record of an already-known Source preserves a valid
+Mixed citation control. These tests retain the exact fixed #75 comparison rules
+and configured thresholds rather than tuning around the witnesses.
+
+The first post-edit Mixed/group run accidentally used the previous compiled core
+package and reproduced the two RED cases; its transcript is retained as
+`identity-completeness-mixed-stale-build.log`, not reported as a new product
+regression. The core was rebuilt before the corrected run. Functional suites
+below run serially after build/artifact checks.
+
+## Spec correction: usable Source links
+
+Candidates without DOI now link to their validated OpenAlex record ID. The
+fallback accepts only an HTTPS `openalex.org/W` record with a numeric ID; arbitrary
+metadata URLs do not become clickable Source destinations. Existing DOI links,
+new-tab behavior and `noopener noreferrer` remain. Two DE/EN browser witnesses
+were RED without the anchor and GREEN after the correction; they open the
+synthetic external destination and check that it has no opener.
+
+## Consolidated version and validation
+
+The current Search strategy prefix is `article-search-77-4-identity-evidence`,
+with `identityEvidence: consistent-connected-groups-complete-comparisons-1` and
+the prior received-evidence configuration recorded in each immutable result.
+Scoring rules, algorithms, parameters, source budgets, deadlines, Candidate slots,
+transport schemas, dependencies and the private contract pin are unchanged by
+this second correction. The earlier checkpoint above describes commit `6bbe991`;
+its results are not substituted for final-head runs.
+
+Final validation and independent rechecks follow below. The owned PostgreSQL
+fixture for the Spec corrections is `st77-spec-fix-pg-20261028` on loopback 55478.
+All existing release, calibration, native-browser and publication limits remain.
