@@ -390,6 +390,9 @@ importers:
       '@source-taster/contract-service':
         specifier: workspace:*
         version: link:../contract-service
+      '@source-taster/contract-verification':
+        specifier: workspace:*
+        version: link:../contract-verification
       '@source-taster/i18n':
         specifier: workspace:*
         version: link:../i18n

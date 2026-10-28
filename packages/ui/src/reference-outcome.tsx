@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type {
   ReferenceOutcome,
+  VerdictResult,
   Candidate,
   Score,
   Verdict,
@@ -67,6 +68,11 @@ const fields = {
   PMID: "field_pmid",
   PMCID: "field_pmcid",
   URL: "field_url",
+  publisher: "field_publisher",
+  "publisher-place": "field_place",
+  "article-number": "field_article_number",
+  edition: "field_edition",
+  ISSN: "field_issn",
 } as const;
 const origins = {
   doi: "origin_doi",
@@ -77,7 +83,13 @@ const origins = {
   "authors-year": "origin_authors_year",
 } as const;
 function raw(value: unknown): string {
-  if (value === null || value === undefined) return m.evidence_missing();
+  if (
+    value === null ||
+    value === undefined ||
+    value === "" ||
+    (Array.isArray(value) && !value.length)
+  )
+    return m.workspace_unknown();
   if (typeof value === "string") return value;
   if (Array.isArray(value)) return value.map(raw).join("; ");
   if (typeof value === "object") return Object.values(value).map(raw).join(" ");
@@ -102,7 +114,7 @@ function sourceLink(candidate: Candidate) {
     ? candidate.id
     : null;
 }
-export function ReferenceOutcomeView({
+export function ReferenceOutcomeSummary({
   outcome,
 }: {
   outcome: ReferenceOutcome;
@@ -114,10 +126,38 @@ export function ReferenceOutcomeView({
       failed: "status_failed",
       "not-checked": "status_not_checked",
     } as const;
+    return <p className="mt-2 font-semibold">{m[keys[outcome.status]]()}</p>;
+  }
+  const [icon, color, key] = verdicts[outcome.verdict];
+  return (
+    <p className={`mt-2 ${color}`}>
+      <span aria-hidden="true">{icon} </span>
+      {m[key]()} ·{" "}
+      {outcome.reasons.map((reason) => m[reasons[reason]]()).join(" ")}
+    </p>
+  );
+}
+export function ReferenceOutcomeView({
+  outcome,
+  originalText,
+}: {
+  outcome: ReferenceOutcome;
+  originalText?: string;
+}) {
+  if (outcome.kind === "status") {
+    const keys = {
+      running: "status_running",
+      cancelled: "status_cancelled",
+      failed: "status_failed",
+      "not-checked": "status_not_checked",
+    } as const;
     return (
-      <p className="mt-2 font-semibold text-teal-900">
-        {m[keys[outcome.status]]()}
-      </p>
+      <div>
+        <p className="mt-2 font-semibold text-teal-900">
+          {m[keys[outcome.status]]()}
+        </p>
+        {originalText !== undefined && <OriginalInput text={originalText} />}
+      </div>
     );
   }
   const [icon, color, key] = verdicts[outcome.verdict];
@@ -137,6 +177,8 @@ export function ReferenceOutcomeView({
       {outcome.reasons.map((reason) => (
         <p key={reason}>{m[reasons[reason]]()}</p>
       ))}
+      {originalText !== undefined && <OriginalInput text={originalText} />}
+      <BestMatchComparison outcome={outcome} />
       <details>
         <summary className="cursor-pointer py-2 font-semibold">
           {m.evidence_details()}
@@ -197,6 +239,7 @@ export function ReferenceOutcomeView({
             </li>
           ))}
         </ul>
+        {/* /v2 supplies descending internal Scores and stable ties. Display rounding never orders Candidates. */}
         {outcome.candidates.map((candidate) => (
           <section
             key={candidate.id}
@@ -286,5 +329,106 @@ export function ReferenceOutcomeView({
         ))}
       </details>
     </div>
+  );
+}
+
+function OriginalInput({ text }: { text: string }) {
+  return (
+    <div className="my-4">
+      <h3 className="font-semibold">{m.structuring_original()}</h3>
+      <p className="whitespace-pre-wrap break-words">{text}</p>
+    </div>
+  );
+}
+/** Find the recorded Best match by ID. A tied, evidenced representative may be displayed later. */
+function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
+  const best = outcome.candidates.find(
+    (candidate) => candidate.id === outcome.bestMatchId,
+  );
+  return (
+    <section aria-label={m.workspace_comparison()}>
+      {best ? (
+        <>
+          <p className="font-semibold">{m.best_match_label()}</p>
+          <p className="break-words">
+            {m.candidate_record()}: {best.id}
+          </p>
+        </>
+      ) : (
+        <p>{m.workspace_no_best()}</p>
+      )}
+      {outcome.identity.kind === "unresolved" && (
+        <p>{m.identity_unresolved()}</p>
+      )}
+      {best && sourceLink(best) && (
+        <a
+          className="inline-block py-2 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={sourceLink(best)!}
+        >
+          {m.source_open()}
+        </a>
+      )}
+      <table className="check-comparison">
+        <caption className="text-left font-semibold">
+          {m.workspace_comparison()}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">{m.reference_label()}</th>
+            <th scope="col">{m.workspace_best()}</th>
+          </tr>
+        </thead>
+        {(Object.keys(fields) as (keyof typeof fields)[]).map((field) => {
+          const comparison = best?.fields.find(
+            (value) => value.field === field,
+          );
+          const deviates = comparison?.score && !comparison.score.fullAgreement;
+          return (
+            <tbody key={field} data-deviates={!!deviates}>
+              <tr>
+                <th scope="rowgroup" colSpan={2}>
+                  {m[fields[field]]()}:{" "}
+                  <span className="font-normal">
+                    {comparison?.score
+                      ? comparison.score.fullAgreement
+                        ? m.field_agrees()
+                        : m.field_differs()
+                      : m.field_excluded()}{" "}
+                    ·{" "}
+                    {comparison?.score
+                      ? percent(comparison.score)
+                      : comparison?.reason === "missing-reference"
+                        ? m.field_missing_reference()
+                        : comparison?.reason === "missing-candidate"
+                          ? m.field_missing_candidate()
+                          : comparison?.reason === "not-determinable"
+                            ? m.field_not_determinable()
+                            : comparison?.reason === "resource-limit"
+                              ? m.field_resource_limit()
+                              : comparison?.reason === "unweighted"
+                                ? m.field_unweighted()
+                                : m.workspace_not_compared()}
+                  </span>
+                </th>
+              </tr>
+              <tr>
+                <td>
+                  {raw(
+                    comparison
+                      ? comparison.reference
+                      : outcome.reference.csl[field],
+                  )}
+                </td>
+                <td>
+                  {raw(comparison ? comparison.candidate : best?.csl[field])}
+                </td>
+              </tr>
+            </tbody>
+          );
+        })}
+      </table>
+    </section>
   );
 }

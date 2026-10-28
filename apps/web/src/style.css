@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
 @import "tailwindcss";
+@import "@source-taster/ui/workspace.css";
 @source "../../../packages/ui/src";
 :root {
   font-family: ui-sans-serif, system-ui, sans-serif;

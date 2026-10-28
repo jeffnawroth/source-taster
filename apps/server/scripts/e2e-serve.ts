@@ -50,6 +50,11 @@ fixtures.respond("/works/10.5555/browser-authors", 200, {
 const held = fixtures.hold("/api/handles/10.5555/browser-held");
 fixtures.respond("/api/handles/10.5555/browser-unavailable", 503, {});
 fixtures.respond("/works/10.5555/browser-invalid", 200, { message: {} });
+fixtures.respond("/api/handles/10.5555/workspace-nonexistent", 404, {
+  responseCode: 100,
+  handle: "10.5555/workspace-nonexistent",
+});
+fixtures.respond("/works/10.5555/workspace-nonexistent", 404, {});
 const service = await startTestService(
   Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? 3102),
   3000,

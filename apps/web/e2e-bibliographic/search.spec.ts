@@ -27,7 +27,10 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    const result = page.getByRole("status");
+    const result = page.getByRole("region", {
+      name: /^(Reference detail|Referenzdetails)$/,
+      exact: true,
+    });
     await expect(
       result.getByText(language === "en" ? "Correct" : "Korrekt", {
         exact: true,
@@ -41,10 +44,12 @@ for (const language of ["en", "de"] as const)
         { exact: true },
       )
       .click();
-    const link = result.getByRole("link", {
-      name: language === "en" ? "Open Source" : "Quelle öffnen",
-      exact: true,
-    });
+    const link = result
+      .getByRole("link", {
+        name: language === "en" ? "Open Source" : "Quelle öffnen",
+        exact: true,
+      })
+      .first();
     await expect(link).toHaveAttribute("href", recordUrl);
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveAttribute("rel", "noopener noreferrer");
@@ -77,7 +82,10 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    const result = page.getByRole("status");
+    const result = page.getByRole("region", {
+      name: /^(Reference detail|Referenzdetails)$/,
+      exact: true,
+    });
     await expect(
       result.getByText(language === "en" ? "Correct" : "Korrekt", {
         exact: true,
@@ -131,7 +139,10 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    const result = page.getByRole("status");
+    const result = page.getByRole("region", {
+      name: /^(Reference detail|Referenzdetails)$/,
+      exact: true,
+    });
     await expect(
       result.getByText(language === "en" ? "Correct" : "Korrekt", {
         exact: true,
@@ -185,7 +196,10 @@ for (const language of ["en", "de"] as const)
           exact: true,
         })
         .click();
-      const result = page.getByRole("status");
+      const result = page.getByRole("region", {
+        name: /^(Reference detail|Referenzdetails)$/,
+        exact: true,
+      });
       const expected =
         scenario === "mixed"
           ? language === "en"
@@ -201,6 +215,20 @@ for (const language of ["en", "de"] as const)
       await expect(result.getByText(expected, { exact: true })).toBeVisible({
         timeout: 15000,
       });
+      const filter = page.getByRole("button", {
+        name: `${expected}: 1`,
+        exact: true,
+      });
+      await filter.click();
+      await expect(filter).toHaveAttribute("aria-pressed", "true");
+      await expect(
+        page
+          .getByRole("list", {
+            name: language === "en" ? "References" : "Referenzen",
+            exact: true,
+          })
+          .getByRole("listitem"),
+      ).toHaveCount(1);
       await result
         .getByText(
           language === "en"
@@ -210,7 +238,9 @@ for (const language of ["en", "de"] as const)
         )
         .click();
       if (scenario !== "missing") {
-        await expect(result.getByRole("heading", { level: 3 })).toHaveCount(2);
+        await expect(
+          result.locator("details").getByRole("heading", { level: 3 }),
+        ).toHaveCount(2);
         await expect(result).toContainText("openalex");
         await expect(result).toContainText(
           language === "en" ? "Title" : "Titel",

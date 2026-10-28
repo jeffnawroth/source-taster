@@ -73,6 +73,47 @@ export async function startBibliographicFixtures() {
           authorships: [{ author: { display_name: "A Alpha" } }],
         },
       ];
+    if (
+      filters.includes("Workspace tied article") ||
+      (authorOnly && filters.includes("WorkspaceTie"))
+    )
+      results = [
+        {
+          id: authorOnly
+            ? "https://openalex.org/W82002"
+            : "https://openalex.org/W82001",
+          title: "Workspace tied article",
+          publication_year: 2021,
+          doi: "10.5555/workspace-tied",
+          ...(authorOnly
+            ? { authorships: [{ author: { display_name: "A WorkspaceTie" } }] }
+            : {}),
+        },
+      ];
+    if (
+      filters.includes("Workspace ranked article") ||
+      (authorOnly && filters.includes("WorkspaceRanked"))
+    )
+      results = [
+        {
+          id: "https://openalex.org/W82011",
+          title: "ZZZZZZZZZZZZZZZZZZZZZZZZ",
+          publication_year: 2021,
+          authorships: [{ author: { display_name: "Z Zed" } }],
+        },
+        {
+          id: "https://openalex.org/W82012",
+          title: "Workspace ranked article",
+          publication_year: 2021,
+          authorships: [{ author: { display_name: "Z Zed" } }],
+        },
+        {
+          id: "https://openalex.org/W82013",
+          title: "Workspace ranked article",
+          publication_year: 2021,
+          authorships: [{ author: { display_name: "R WorkspaceRanked" } }],
+        },
+      ];
     res.end(JSON.stringify({ results }));
   });
   server.listen(0, "127.0.0.1");

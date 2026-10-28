@@ -18,7 +18,10 @@ for (const language of ["en", "de"] as const) {
         exact: true,
       })
       .click();
-    const result = page.getByRole("status");
+    const result = page.getByRole("region", {
+      name: /^(Reference detail|Referenzdetails)$/,
+      exact: true,
+    });
     const verdict = result.getByText(
       language === "en"
         ? "Exists, with deviations"
@@ -26,6 +29,23 @@ for (const language of ["en", "de"] as const) {
       { exact: true },
     );
     await expect(verdict).toBeVisible({ timeout: 15000 });
+    const filter = page.getByRole("button", {
+      name:
+        language === "en"
+          ? "Exists, with deviations: 1"
+          : "Existiert, mit Abweichungen: 1",
+      exact: true,
+    });
+    await filter.click();
+    await expect(filter).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      page
+        .getByRole("list", {
+          name: language === "en" ? "References" : "Referenzen",
+          exact: true,
+        })
+        .getByRole("listitem"),
+    ).toHaveCount(1);
     await expect(
       verdict.locator("..").locator('span[aria-hidden="true"]'),
     ).toHaveText("△");
@@ -44,9 +64,11 @@ for (const language of ["en", "de"] as const) {
     await expect(result).toContainText("2009-01");
     await expect(result).toContainText("50.00 %");
     await expect(
-      result.getByRole("link", {
-        name: language === "en" ? "Open Source" : "Quelle öffnen",
-      }),
+      result
+        .getByRole("link", {
+          name: language === "en" ? "Open Source" : "Quelle öffnen",
+        })
+        .first(),
     ).toHaveAttribute("href", "https://doi.org/10.1038%2Fnphys1170");
     expect(
       (
@@ -88,7 +110,10 @@ for (const language of ["en", "de"] as const)
           exact: true,
         })
         .click();
-      const result = page.getByRole("status");
+      const result = page.getByRole("region", {
+        name: /^(Reference detail|Referenzdetails)$/,
+        exact: true,
+      });
       await expect(
         result.getByText(
           language === "en" ? "Not verifiable" : "Nicht verifizierbar",

@@ -39,7 +39,10 @@ for (const c of cases)
       .getByRole("button", { name: "Check Reference", exact: true })
       .click();
     const created = CheckResponse.parse(await (await creation).json()).data;
-    const result = page.getByRole("status");
+    const result = page.getByRole("region", {
+      name: /^(Reference detail|Referenzdetails)$/,
+      exact: true,
+    });
     await expect(
       result.getByText(
         c.value === 100000000 ? "Correct" : "Exists, with deviations",
@@ -103,7 +106,10 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    const result = page.getByRole("status");
+    const result = page.getByRole("region", {
+      name: /^(Reference detail|Referenzdetails)$/,
+      exact: true,
+    });
     await expect(
       result.getByText(
         language === "en"

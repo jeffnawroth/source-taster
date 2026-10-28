@@ -212,6 +212,8 @@ test("an unconfirmed Cancel reports uncertainty and stops this workspace renewin
   await page.getByRole("button", { name: "Cancel Check", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("could not be confirmed");
   await expect(
-    page.getByRole("status").getByText("Cancelled", { exact: true }),
+    page
+      .getByRole("list", { name: "References", exact: true })
+      .getByText("Cancelled", { exact: true }),
   ).toBeVisible({ timeout: 4000 });
 });
