@@ -345,3 +345,44 @@ All #75 algorithms/parameters, source budgets/deadlines, lifecycle/authority
 fences, transport schemas, dependencies and private pin stay unchanged.
 
 Final focused, broad and independent-recheck results follow after execution.
+
+
+## Final independent rechecks and executed validation
+
+**Standards:** the full `7a89b9c...d81e092` review found no new material breach;
+the subsequent `d81e092...8545986` recheck also found none. PMCID, retraction and
+article-rule version findings remain closed. This was independent read-only
+source/document review, not independent execution of the parent's broad suites.
+
+**Spec:** the full review found the same-Source representative defect described
+above. The fresh narrow recheck accepts its correction at `8545986` with no new
+material finding. It independently reproduced the old sparse-first failure,
+confirmed both corrected ID orders and checked eight limits: lower Score,
+different-Source tie, conflicting identifiers, absent authors, unknown competitor,
+resource refusal, mandatory DOI failure and expired deadline. These were actual
+core TypeScript probes with synthetic in-memory ports, not PostgreSQL, browser,
+live-provider, calibration or release acceptance.
+
+Both review axes have zero outstanding actionable findings in their reviewed
+scope. The parent separately executes the approved real PostgreSQL HTTP/SSE and
+browser seams on unchanged code `8545986`. Current executed results:
+
+| Check | Result / transcript under `.tmp/st77-review/` |
+| --- | --- |
+| Same-Source/order/conflict/transitive focused HTTP/SSE | **12 passed**, `r7-same-source-green.log` |
+| Full server HTTP/SSE | **224 passed / 12 files**, `r7-server-full.log` |
+| Full Authority against actual private peer | **31 passed**, `r7-authority.log` |
+| Normal then bibliographic DE/EN web/axe | **38 + 12 passed**, `r7-web.log` |
+| Hosted Guest browser | **5 passed**, `r7-guest.log` |
+| Contract rebuild and generated artifact freshness | Passed, `r7-contracts.log`, `r7-artifacts.log` |
+| Core/server/web builds, typechecks, scoped lint | Passed, `r7-build.log`, `r7-types.log`, `r7-lint.log` |
+| DE/EN catalogs | Passed, **162** paired app messages, `r7-catalog.log` |
+| Legacy transport inventory vs original `d1b7aac` | **70 files identical**, `r7-legacy-inventory.json` |
+| Direct release guard | Expected refusal **78**, `r7-release-refusal.log` |
+
+The existing Vite chunk advisory remains. Dependencies, lockfile, native website
+recipe/content and private peer/pin are unchanged. Their earlier website,
+license, advisory, source-reproduction and security-control evidence retains its
+recorded dates and scope; this correction does not claim fresh execution of
+those unchanged qualifications. #82/#92 native acceptance, calibration, live/load,
+human and legal publication gates remain separate and closed.
