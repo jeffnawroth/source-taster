@@ -173,10 +173,10 @@ it.each([
     });
     expect(outcome.verdict).toBe(verdict);
     expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-7-identity-evidence-",
+      "article-search-77-8-identity-evidence-",
     );
     // Article Verdict derivation is part of the recorded Scoring rules version.
-    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-7$/u);
+    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-8$/u);
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
       fullAgreement: true,
@@ -919,8 +919,46 @@ it("does not build Mixed citation from a conflicting identity group", async () =
     expect(
       record.fields.find((f) => f.field === field)?.score?.value,
     ).toBeGreaterThanOrEqual(50000000);
-  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome).toMatchObject({
+    verdict: "not-verifiable",
+    reasons: ["ambiguous-identity"],
+  });
 });
+it.each([
+  [77826, 77827, 77828],
+  [77829, 77827, 77828],
+])(
+  "keeps an equal top Score tie with a conflicting group ambiguous regardless of order: W%i",
+  async (consistent, first, second) => {
+    // Identical complete metadata, so all three Scores tie; only the IDs differ.
+    const record = (n: number, doi: string, pmid?: string) => ({
+      id: `https://openalex.org/W${n}`,
+      title: "Synthetic article review",
+      authorships: [
+        { author: { display_name: "Alpha" } },
+        { author: { display_name: "Beta" } },
+      ],
+      publication_year: 2015,
+      doi,
+      ...(pmid ? { ids: { pmid } } : {}),
+    });
+    openalex.respondSequence(
+      "/works",
+      [
+        record(consistent, "10.5555/consistent"),
+        record(first, "10.5555/conflict", "1"),
+        record(second, "10.5555/conflict", "2"),
+      ].map((r) => ({ status: 200, body: { results: [r] } })),
+    );
+    crossref.respond("/works", 200, { message: { items: [] } });
+    const { outcome } = await run(article);
+    expect(new Set(outcome.candidates.map((c) => c.score?.value)).size).toBe(1);
+    expect(outcome).toMatchObject({
+      verdict: "not-verifiable",
+      reasons: ["ambiguous-identity"],
+    });
+  },
+);
 it("keeps mandatory DOI failure ahead of independently received Mixed evidence", async () => {
   const doi = "10.5555/mandatory";
   crossref.respond(`/api/handles/${doi}`, 503, {});

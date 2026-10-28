@@ -86,8 +86,8 @@ for (const language of ["en", "de"] as const)
     await expect(
       result.getByText(
         language === "en"
-          ? "This Source is reported as retracted."
-          : "Diese Quelle wird als zurückgezogen gemeldet.",
+          ? "The Best match is reported as retracted."
+          : "Der beste Treffer wird als zurückgezogen gemeldet.",
         { exact: true },
       ),
     ).toBeVisible({ timeout: 5000 });

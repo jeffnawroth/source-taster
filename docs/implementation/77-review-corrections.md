@@ -259,24 +259,35 @@ sufficient search with only complete, non-matching conflicting records now
 reaches Not found rather than insufficient search, per ADR-0008. Both outcome
 changes are covered by `article-verdict-77-7`.
 
-Known follow-up, not changed here: ADR-0007 places the retraction marker on the
-Best match independently of the Verdict, so a Not found or otherwise unidentified
-result can carry it. The current copy, "This Source is reported as retracted",
-then reads as if the cited Source were identified, which ADR-0016 asks the
-results view to avoid. Whether to gate the marker or adjust its copy for
-unidentified results is a presentation decision outside these corrections.
+ADR-0007 places the retraction marker on the Best match independently of the
+Verdict, so a Not found or otherwise unidentified result can carry it. The DE/EN
+copy now names the Best match explicitly, avoiding the earlier implication that
+the cited Source had been identified. Retraction attribution and the independent
+flag are preserved; the existing DE/EN browser assertions check the precise copy.
+
+## Display ordering cannot choose a negative Verdict
+
+The next review probe found equal highest Scores in a consistent group and a
+conflicting group. The old guard inspected only the first displayed Candidate;
+changing an unrelated record ID moved the same evidence from ambiguous identity
+to Not found. The guard now checks every top-scoring Candidate's identity group.
+Two HTTP/SSE witnesses differ only in the consistent record's ID and must both
+remain Not verifiable with ambiguous identity. The first was RED on `b89ffb0`;
+both are GREEN after the correction, alongside the conflicting Mixed-component
+regression (`r5-red-tie-order.log`, `r6-green-tie-order.log`). Scores and stable
+display ordering themselves are unchanged.
 
 ## Consolidated version and validation
 
 The Standards review noted that Verdict derivation changed while the Scoring
 rules version did not. ADR-0008 requires a new version for every outcome-changing
-rule. The article Verdict rules are therefore versioned as `article-verdict-77-7`
+rule. The article Verdict rules are therefore versioned as `article-verdict-77-8`
 and appended to the #75 Scoring rules version recorded in each result; the #75
 comparison algorithms, parameters and thresholds themselves are unchanged. The
 earlier statement that Scoring rules were unchanged by the identity correction
 is superseded.
 
-The current Search strategy prefix is `article-search-77-7-identity-evidence`,
+The current Search strategy prefix is `article-search-77-8-identity-evidence`,
 with `identityEvidence: consistent-connected-groups-counterevidence-4` and the
 prior received-evidence configuration recorded in each immutable result. Source
 budgets, deadlines, Candidate slots, transport schemas, dependencies and the
@@ -285,7 +296,7 @@ private contract pin are unchanged. The English retraction note now says
 catalog. The earlier checkpoint above describes commit `6bbe991`; its results are
 not substituted for final-head runs.
 
-Final-head validation runs serially against the owned PostgreSQL fixture
+The previous `b89ffb0` checkpoint ran serially against the owned PostgreSQL fixture
 `st77-spec-fix-pg-20261028` on loopback 55478:
 
 | Check | Result / transcript under `.tmp/st77-review/` |
@@ -298,3 +309,9 @@ Final-head validation runs serially against the owned PostgreSQL fixture
 | Hosted Guest browser | **5 passed**, `r5-guest.log` |
 
 All existing release, calibration, native-browser and publication limits remain.
+
+
+Final-head `77-8` validation is recorded separately below after execution. The
+previous checkpoint is not relabeled as current-head evidence. The change keeps
+all #75 algorithms/parameters, source budgets/deadlines, lifecycle/authority
+fences, transport schemas and private pin unchanged.
