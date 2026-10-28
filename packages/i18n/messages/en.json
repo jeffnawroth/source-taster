@@ -159,6 +159,6 @@
   "limitation_missing_query_fields": "The fields required for this search were not supplied.",
   "candidate_record": "Data source record",
   "retraction_reported": "This Source is reported as retracted.",
-  "retraction_independent": "The retraction notice is independent of the citation Verdict.",
+  "retraction_independent": "The retraction report is independent of the citation Verdict.",
   "retraction_provenance": "Retraction report from {source}: {candidateId} ({observedAt})."
 }

@@ -180,8 +180,9 @@ does not depend on completeness, so the insufficient-evidence reason applies
 only when no such tie exists. A low equal-Score tie between sparse different
 Sources remains insufficient search. The first full server run after the group
 correction caught that precedence change in the existing equal-Score witness;
-the decision now falls through to the pre-existing reason cascade, which leaves
-Mixed citation and the DOI identity-unresolved branch unchanged. A new HTTP/SSE
+the decision then falls through to the reason cascade. That cascade was later
+changed by the second review round below; this paragraph does not claim Mixed
+citation or the DOI identity-unresolved branch were unaffected. A new HTTP/SSE
 witness covers the low-Score tie.
 
 The first post-edit Mixed/group run accidentally used the previous compiled core
@@ -199,16 +200,66 @@ new-tab behavior and `noopener noreferrer` remain. Two DE/EN browser witnesses
 were RED without the anchor and GREEN after the correction; they open the
 synthetic external destination and check that it has no opener.
 
+## Second review round: counterevidence and identity-group retraction
+
+The second Spec review showed that the completeness correction over-corrected.
+A single author-less unrelated record turned Correct, Mixed citation, Not found
+and a foreign-DOI case into insufficient search. A different Source is now
+settled by counterevidence in an available comparison: a title or author Field
+score below the configured counterevidence threshold. Unavailable comparisons
+alone are still never negative evidence. A consistent identity group is
+unresolved only when no member carries counterevidence and every member lacks a
+title or author comparison. Members of a conflicting group may be different
+Sources, so that group is unresolved unless every member carries
+counterevidence; a conflict between two unrelated low records therefore no
+longer unsettles a strong match.
+
+Retraction attribution now follows the Best match's identity group, built from
+the evaluated Candidates plus the received retraction records. A report about a
+transitively equivalent record reaches the Best match; a conflicting group keeps
+only the Best match record's own report. Received PMIDs now share one
+normalization in the OpenAlex projection and identity comparison.
+
+Five HTTP/SSE witnesses cover these cases: two sparse-different-Source
+counterevidence cases, the author-less unrelated record, the unrelated conflict
+pair and the transitive retraction. All five fail on `84b29d5` and pass with
+the correction (`r2-red.log`, `r2-red-conflict-pair.log`). The conflict-pair
+witness initially passed on the old core because both records arrived in one
+response; it now receives them in separate responses so the old early decision
+is reachable. The low equal-Score
+tie witness now uses a title scoring 70.83%, between the counterevidence and
+overall thresholds, so it still exercises a tie with no counterevidence.
+
 ## Consolidated version and validation
 
-The current Search strategy prefix is `article-search-77-4-identity-evidence`,
-with `identityEvidence: consistent-connected-groups-complete-comparisons-1` and
-the prior received-evidence configuration recorded in each immutable result.
-Scoring rules, algorithms, parameters, source budgets, deadlines, Candidate slots,
-transport schemas, dependencies and the private contract pin are unchanged by
-this second correction. The earlier checkpoint above describes commit `6bbe991`;
-its results are not substituted for final-head runs.
+The Standards review noted that Verdict derivation changed while the Scoring
+rules version did not. ADR-0008 requires a new version for every outcome-changing
+rule. The article Verdict rules are therefore versioned as `article-verdict-77-5`
+and appended to the #75 Scoring rules version recorded in each result; the #75
+comparison algorithms, parameters and thresholds themselves are unchanged. The
+earlier statement that Scoring rules were unchanged by the identity correction
+is superseded.
 
-Final validation and independent rechecks follow below. The owned PostgreSQL
-fixture for the Spec corrections is `st77-spec-fix-pg-20261028` on loopback 55478.
+The current Search strategy prefix is `article-search-77-5-identity-evidence`,
+with `identityEvidence: consistent-connected-groups-counterevidence-2` and the
+prior received-evidence configuration recorded in each immutable result. Source
+budgets, deadlines, Candidate slots, transport schemas, dependencies and the
+private contract pin are unchanged. The English retraction note now says
+"retraction report" and the German note says "Urteil", matching the rest of the
+catalog. The earlier checkpoint above describes commit `6bbe991`; its results are
+not substituted for final-head runs.
+
+Final-head validation runs serially against the owned PostgreSQL fixture
+`st77-spec-fix-pg-20261028` on loopback 55478:
+
+| Check | Result / transcript under `.tmp/st77-review/` |
+| --- | --- |
+| Full server HTTP/SSE | **217 passed / 12 files**, `r2-server-full.log` |
+| Bibliographic file after the final comment-only core edit | **54 passed**, `r3-bibliographic.log` |
+| Core/server/web typechecks, scoped ESLint, Prettier, whitespace | Passed, `r2-static.log` |
+| i18n, server and web builds | Passed, `r3-build.log`; existing Vite chunk advisory only |
+| Full Authority, run alone | **31 passed**, `r3-authority.log` |
+| Normal then bibliographic web/axe | **38 + 12 passed**, `r3-web.log` |
+| Hosted Guest browser | **5 passed**, `r3-guest.log` |
+
 All existing release, calibration, native-browser and publication limits remain.

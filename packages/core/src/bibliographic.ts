@@ -50,10 +50,14 @@ export const articleSearchConfiguration = Object.freeze({
     "development-openalex-and-crossref-complete-title-author-year",
   nameProjection: "openalex-display-name-last-token-family-1",
   receivedEvidence: "normalized-pmcid-affirmative-retraction-1",
-  identityEvidence: "consistent-connected-groups-complete-comparisons-1",
+  identityEvidence: "consistent-connected-groups-counterevidence-2",
 });
+// Article Verdict derivation (identity groups, missing comparisons and
+// counterevidence, tie and Mixed citation precedence) beyond the shared #75
+// comparison rules. Every outcome-changing edit needs a new value.
+export const articleVerdictRules = "article-verdict-77-5";
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
-const normalizePmid = (value: string) =>
+export const normalizePmid = (value: string) =>
   value
     .trim()
     .replace(/\/+$/u, "")
@@ -77,19 +81,18 @@ function sourceRelation(a: RetrievedCandidate, b: RetrievedCandidate) {
         ? normalizeDoi
         : key === "PMCID"
           ? normalizePmcid
-          : (value: string) => value.toLowerCase();
+          : normalizePmid;
     if (normalize(a.csl[key]) !== normalize(b.csl[key])) conflicting = true;
     else shared = true;
   }
   return { shared, conflicting };
 }
-function sameSource(a: RetrievedCandidate, b: RetrievedCandidate) {
-  const relation = sourceRelation(a, b);
-  return relation.shared && !relation.conflicting;
-}
-function identityGroup(candidate: Candidate, records: readonly Candidate[]) {
+function identityGroup<T extends RetrievedCandidate>(
+  candidate: T,
+  records: readonly T[],
+) {
   // Shared keys connect records, but a bridge cannot erase contradictions
-  // elsewhere in the connected group. Only evaluated Candidates enter this group.
+  // elsewhere in the connected group. Only the given records enter this group.
   const members = new Set([candidate]);
   const pending = [candidate];
   while (pending.length) {
@@ -137,8 +140,11 @@ export function createBibliographicVerification(ports: {
       kind: "verdict",
       verdict: "not-verifiable",
       reference,
-      scoringRules: ports.rules,
-      searchStrategyVersion: `article-search-77-4-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      scoringRules: {
+        ...ports.rules,
+        version: `${ports.rules.version}-${articleVerdictRules}`,
+      },
+      searchStrategyVersion: `article-search-77-5-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         enabledSources: ports.sources.map((s) => s.name).join(","),
@@ -275,9 +281,16 @@ export function createBibliographicVerification(ports: {
       const group = identityGroup(top, result.candidates);
       return others.some((c) => !group.members.has(c));
     };
+    // A different Source is settled by counterevidence in an available
+    // comparison; unavailable comparisons alone are never negative evidence.
+    // Members of a conflicting group may be different Sources, so each one
+    // needs its own counterevidence.
     const unresolvedComparison = (candidate: Candidate) => {
       const group = identityGroup(candidate, result.candidates);
-      return group.conflicting || [...group.members].every(incompleteIdentity);
+      const members = [...group.members];
+      return group.conflicting
+        ? !members.every(counter)
+        : !members.some(counter) && members.every(incompleteIdentity);
     };
     function identity(): Candidate | undefined {
       const top = result.candidates[0];
@@ -374,15 +387,19 @@ export function createBibliographicVerification(ports: {
       const best = result.candidates.find(
         (candidate) => candidate.id === result.bestMatchId,
       );
-      const conflicting = best
-        ? identityGroup(best, result.candidates).conflicting
-        : false;
-      const retractions = best
-        ? [...retractionCandidates.values()].filter(
-            (candidate) =>
-              sameSource(candidate, best) &&
-              (!conflicting ||
-                (candidate.source === best.source && candidate.id === best.id)),
+      // Reports reach the Best match through its consistent identity group;
+      // a conflicting group only keeps the Best match record's own report.
+      const records = [...result.candidates, ...retractionCandidates.values()];
+      const group = best ? identityGroup(best, records) : undefined;
+      const retractions = group
+        ? [...retractionCandidates.values()].filter((candidate) =>
+            group.conflicting
+              ? candidate.source === best!.source && candidate.id === best!.id
+              : [...group.members].some(
+                  (member) =>
+                    member.source === candidate.source &&
+                    member.id === candidate.id,
+                ),
           )
         : [];
       if (retractions.length) {

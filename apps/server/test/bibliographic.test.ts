@@ -173,7 +173,7 @@ it.each([
     });
     expect(outcome.verdict).toBe(verdict);
     expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-4-identity-evidence-",
+      "article-search-77-5-identity-evidence-",
     );
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
@@ -448,13 +448,8 @@ it.each([
     }
   },
 );
-it.each([
-  {},
-  { title: "Unrelated metadata" },
-  { authorships: [{ author: { display_name: "Zed" } }] },
-  { publication_year: 1900 },
-])(
-  "retains incomplete identity comparisons as insufficient evidence: %j",
+it.each([{}, { publication_year: 1900 }])(
+  "retains unavailable identity comparisons as insufficient evidence: %j",
   async (metadata) => {
     openalex.respond("/works", 200, {
       results: [{ id: "https://openalex.org/W77803", ...metadata }],
@@ -476,6 +471,108 @@ it.each([
       expect(outcome.bestMatchId).toBeNull();
   },
 );
+it.each([
+  { title: "Unrelated metadata" },
+  { authorships: [{ author: { display_name: "Zed" } }] },
+])(
+  "settles a sparse different Source by available counterevidence: %j",
+  async (metadata) => {
+    openalex.respond("/works", 200, {
+      results: [{ id: "https://openalex.org/W77803", ...metadata }],
+    });
+    crossref.respond("/works", 200, { message: { items: [] } });
+    const { outcome } = await run(article);
+    expect(outcome).toMatchObject({
+      verdict: "not-found",
+      reasons: ["search-completed"],
+      identity: { kind: "unresolved" },
+    });
+  },
+);
+it("identifies a strong match despite an author-less unrelated record", async () => {
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: {
+        results: [{ id: "https://openalex.org/W77810", title: "Maize yields" }],
+      },
+    },
+    {
+      status: 200,
+      body: { results: [oa(77811, "Synthetic article", "Alpha")] },
+    },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    bestMatchId: "https://openalex.org/W77811",
+  });
+});
+it("does not let a conflict between unrelated records unsettle a strong match", async () => {
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: {
+        results: [{ ...oa(77812), doi: "10.5555/x", ids: { pmid: "1" } }],
+      },
+    },
+    {
+      status: 200,
+      body: {
+        results: [{ ...oa(77813), doi: "10.5555/x", ids: { pmid: "2" } }],
+      },
+    },
+    {
+      status: 200,
+      body: { results: [oa(77814, "Synthetic article", "Alpha")] },
+    },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    bestMatchId: "https://openalex.org/W77814",
+  });
+});
+it("attaches a retraction reported for a transitively equivalent record", async () => {
+  const pmid = "https://pubmed.ncbi.nlm.nih.gov/77";
+  const sparse = (n: number) => ({
+    id: `https://openalex.org/W${n}`,
+    title: "Synthetic article",
+  });
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: {
+        results: [{ ...sparse(77817), ids: { pmid }, is_retracted: true }],
+      },
+    },
+    {
+      status: 200,
+      body: {
+        results: [{ ...sparse(77816), doi: "10.5555/r", ids: { pmid } }],
+      },
+    },
+    {
+      status: 200,
+      body: {
+        results: [
+          { ...oa(77815, "Synthetic article", "Alpha"), doi: "10.5555/r" },
+        ],
+      },
+    },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  // The Best match shares no identifier with the reported record directly.
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    bestMatchId: "https://openalex.org/W77815",
+    retraction: "retracted",
+    retractionEvidence: [{ candidateId: "https://openalex.org/W77817" }],
+  });
+});
 it("does not manufacture a lead over a different Source with missing identity comparisons", async () => {
   openalex.respondSequence("/works", [
     { status: 200, body: { results: [{ id: "https://openalex.org/W77804" }] } },
@@ -909,7 +1006,7 @@ it("keeps a low equal Score tie with missing identity comparisons insufficient",
         results: [
           {
             id: "https://openalex.org/W303",
-            title: "Unrelated metadata",
+            title: "Synthetic article review",
             doi: "10.5555/three",
           },
         ],
@@ -921,7 +1018,7 @@ it("keeps a low equal Score tie with missing identity comparisons insufficient",
         results: [
           {
             id: "https://openalex.org/W304",
-            title: "Unrelated metadata",
+            title: "Synthetic article review",
             doi: "10.5555/four",
           },
         ],
@@ -933,7 +1030,8 @@ it("keeps a low equal Score tie with missing identity comparisons insufficient",
   const { outcome } = await run(article);
   const [first, second] = outcome.candidates.map((c) => c.score?.value);
   expect(first).toBe(second);
-  // Below the synthetic 85% overall and 95% strong-field thresholds.
+  // Between the synthetic 50% counterevidence and 85% overall thresholds.
+  expect(first).toBeGreaterThanOrEqual(50000000);
   expect(first).toBeLessThan(85000000);
   expect(outcome.verdict).toBe("not-verifiable");
   expect(outcome.reasons).toEqual(["insufficient-search"]);

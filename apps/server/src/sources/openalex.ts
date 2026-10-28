@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { normalizePmcid } from "@source-taster/core";
+import { normalizePmcid, normalizePmid } from "@source-taster/core";
 import type {
   BibliographicSource,
   Csl,
@@ -79,9 +79,7 @@ function project(
     csl: {
       ...(m.title ? { title: m.title } : {}),
       ...(m.doi ? { DOI: m.doi.replace(/^https?:\/\/doi\.org\//iu, "") } : {}),
-      ...(m.ids?.pmid
-        ? { PMID: m.ids.pmid.replace(/\/$/u, "").split("/").pop()! }
-        : {}),
+      ...(m.ids?.pmid ? { PMID: normalizePmid(m.ids.pmid) } : {}),
       ...(m.ids?.pmcid ? { PMCID: normalizePmcid(m.ids.pmcid) } : {}),
       ...(m.authorships
         ? {
