@@ -55,7 +55,7 @@ export const articleSearchConfiguration = Object.freeze({
 // Article Verdict derivation (identity groups, missing comparisons and
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
-export const articleVerdictRules = "article-verdict-77-8";
+export const articleVerdictRules = "article-verdict-77-9";
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 export const normalizePmid = (value: string) =>
   value
@@ -144,7 +144,7 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-77-8-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-77-9-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         enabledSources: ports.sources.map((s) => s.name).join(","),
@@ -317,10 +317,13 @@ export function createBibliographicVerification(ports: {
         }
       }
       const group = identityGroup(top, result.candidates);
+      // Display order cannot hide sufficient evidence from a tied record of
+      // this same Source. A lower-scoring record never supplies the Best match.
+      const representative = tied.find(strong);
       if (
         group.conflicting ||
         tied.some((c) => !group.members.has(c)) ||
-        !strong(top)
+        !representative
       )
         return;
       const competitors = result.candidates.filter(
@@ -332,7 +335,7 @@ export function createBibliographicVerification(ports: {
       const competitor = competitors[0];
       if (competitor && valueOf(top) - valueOf(competitor) < profile.lead)
         return;
-      return top;
+      return representative;
     }
     function identified(candidate: Candidate) {
       result.bestMatchId = candidate.id;

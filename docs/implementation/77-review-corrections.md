@@ -281,13 +281,13 @@ display ordering themselves are unchanged.
 
 The Standards review noted that Verdict derivation changed while the Scoring
 rules version did not. ADR-0008 requires a new version for every outcome-changing
-rule. The article Verdict rules are therefore versioned as `article-verdict-77-8`
+rule. The article Verdict rules are therefore versioned as `article-verdict-77-9`
 and appended to the #75 Scoring rules version recorded in each result; the #75
 comparison algorithms, parameters and thresholds themselves are unchanged. The
 earlier statement that Scoring rules were unchanged by the identity correction
 is superseded.
 
-The current Search strategy prefix is `article-search-77-8-identity-evidence`,
+The current Search strategy prefix is `article-search-77-9-identity-evidence`,
 with `identityEvidence: consistent-connected-groups-counterevidence-4` and the
 prior received-evidence configuration recorded in each immutable result. Source
 budgets, deadlines, Candidate slots, transport schemas, dependencies and the
@@ -311,7 +311,37 @@ The previous `b89ffb0` checkpoint ran serially against the owned PostgreSQL fixt
 All existing release, calibration, native-browser and publication limits remain.
 
 
-Final-head `77-8` validation is recorded separately below after execution. The
-previous checkpoint is not relabeled as current-head evidence. The change keeps
-all #75 algorithms/parameters, source budgets/deadlines, lifecycle/authority
-fences, transport schemas and private pin unchanged.
+The `d81e092` / `77-8` checkpoint passed **221 HTTP/SSE cases / 12 files**
+(`r6-server-full.log`), with rebuilt/fresh contract artifacts, scoped builds,
+types, lint, catalogs and formatting. All **70** tracked non-v2 transport files
+remain byte-identical to `d1b7aac` (`r6-legacy-inventory.log`). The direct Node
+release guard returns **78** (`r6-release-refusal-direct.log`); pnpm wraps that
+refusal in its own failure exit. This checkpoint is not relabeled as final-head
+evidence after the next correction.
+
+## Final independent review: representative of a tied Source
+
+The full-range independent Standards review accepted `7a89b9c...d81e092` with no
+new material finding and closed its prior PMCID, retraction and versioning
+findings. The independent Spec review found a separate ordering defect, also
+present in the original implementation: a sparse first record and a complete
+record of the same Source can both score 100%, but `strong(top)` ignored the
+complete tied record when the sparse record's ID sorted first. Swapping only
+the IDs changed Correct and early termination to Not verifiable and unnecessary
+Crossref work.
+
+The coordinator now chooses a sufficiently evidenced representative among tied
+highest-Score records only after confirming that all tied records belong to one
+consistent identity group. It does not borrow evidence from a different Source
+or promote a lower Score. The representative becomes the recorded Best match
+and identity Candidate; display order and stored Scores remain unchanged.
+
+Three public HTTP/SSE cases cover both ID orders and a complete but lower-scoring
+same-Source record. The sparse-first equal-Score case was RED on `d81e092`, while
+the other order and lower-Score control passed (`r7-same-source-red.log`). The
+correction retains conflict, competitor, mandatory DOI, resource and deadline
+guards. The article Verdict and Search strategy versions advance to `77-9`.
+All #75 algorithms/parameters, source budgets/deadlines, lifecycle/authority
+fences, transport schemas, dependencies and private pin stay unchanged.
+
+Final focused, broad and independent-recheck results follow after execution.

@@ -173,10 +173,10 @@ it.each([
     });
     expect(outcome.verdict).toBe(verdict);
     expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-8-identity-evidence-",
+      "article-search-77-9-identity-evidence-",
     );
     // Article Verdict derivation is part of the recorded Scoring rules version.
-    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-8$/u);
+    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-9$/u);
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
       fullAgreement: true,
@@ -608,6 +608,75 @@ it("attaches a retraction reported for a transitively equivalent record", async 
     retractionEvidence: [{ candidateId: "https://openalex.org/W77817" }],
   });
 });
+it.each([
+  { completeFirst: false, lowerScore: false },
+  { completeFirst: true, lowerScore: false },
+  { completeFirst: false, lowerScore: true },
+])(
+  "uses complete same-Source evidence only at a tied highest Score: %j",
+  async ({ completeFirst, lowerScore }) => {
+    const sparseId = completeFirst ? 77831 : 77830;
+    const completeId = completeFirst ? 77830 : 77831;
+    const doi = "10.5555/same-source-tie";
+    openalex.respondSequence("/works", [
+      {
+        status: 200,
+        body: {
+          results: [
+            {
+              id: `https://openalex.org/W${sparseId}`,
+              title: "Synthetic article",
+              publication_year: 2021,
+              doi,
+            },
+          ],
+        },
+      },
+      {
+        status: 200,
+        body: {
+          results: [
+            {
+              ...oa(
+                completeId,
+                lowerScore ? "Synthetic articlf" : "Synthetic article",
+                "Alpha",
+              ),
+              doi,
+            },
+          ],
+        },
+      },
+      { status: 200, body: { results: [] } },
+    ]);
+    crossref.respond("/works", 200, { message: { items: [] } });
+    const { outcome } = await run(article);
+    expect(outcome.candidates).toHaveLength(2);
+    if (lowerScore) {
+      expect(outcome.candidates[0]!.score!.value).toBe(100000000);
+      expect(outcome.candidates[1]!.score!.value).toBeLessThan(100000000);
+      expect(outcome).toMatchObject({
+        verdict: "not-verifiable",
+        identity: { kind: "unresolved" },
+        bestMatchId: `https://openalex.org/W${sparseId}`,
+      });
+    } else {
+      expect(outcome.candidates.map((c) => c.score?.value)).toEqual([
+        100000000, 100000000,
+      ]);
+      expect(outcome).toMatchObject({
+        verdict: "correct",
+        identity: {
+          kind: "independent-bibliography",
+          candidateId: `https://openalex.org/W${completeId}`,
+        },
+        bestMatchId: `https://openalex.org/W${completeId}`,
+      });
+      expect(openalex.requests).toHaveLength(2);
+      expect(crossref.requests).toHaveLength(0);
+    }
+  },
+);
 it("does not manufacture a lead over a different Source with missing identity comparisons", async () => {
   openalex.respondSequence("/works", [
     { status: 200, body: { results: [{ id: "https://openalex.org/W77804" }] } },
