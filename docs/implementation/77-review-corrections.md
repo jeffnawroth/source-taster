@@ -174,6 +174,16 @@ negative evidence. A sparse record of an already-known Source preserves a valid
 Mixed citation control. These tests retain the exact fixed #75 comparison rules
 and configured thresholds rather than tuning around the witnesses.
 
+Equal sufficiently matching top Scores across different identity groups keep
+the reason ambiguous identity, even when a tied record is sparse. The tie rule
+does not depend on completeness, so the insufficient-evidence reason applies
+only when no such tie exists. A low equal-Score tie between sparse different
+Sources remains insufficient search. The first full server run after the group
+correction caught that precedence change in the existing equal-Score witness;
+the decision now falls through to the pre-existing reason cascade, which leaves
+Mixed citation and the DOI identity-unresolved branch unchanged. A new HTTP/SSE
+witness covers the low-Score tie.
+
 The first post-edit Mixed/group run accidentally used the previous compiled core
 package and reproduced the two RED cases; its transcript is retained as
 `identity-completeness-mixed-stale-build.log`, not reported as a new product

@@ -901,6 +901,43 @@ it("leaves equal top Scores for different Sources ambiguous", async () => {
   expect(outcome.verdict).toBe("not-verifiable");
   expect(outcome.reasons).toEqual(["ambiguous-identity"]);
 });
+it("keeps a low equal Score tie with missing identity comparisons insufficient", async () => {
+  openalex.respondSequence("/works", [
+    {
+      status: 200,
+      body: {
+        results: [
+          {
+            id: "https://openalex.org/W303",
+            title: "Unrelated metadata",
+            doi: "10.5555/three",
+          },
+        ],
+      },
+    },
+    {
+      status: 200,
+      body: {
+        results: [
+          {
+            id: "https://openalex.org/W304",
+            title: "Unrelated metadata",
+            doi: "10.5555/four",
+          },
+        ],
+      },
+    },
+    { status: 200, body: { results: [] } },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  const [first, second] = outcome.candidates.map((c) => c.score?.value);
+  expect(first).toBe(second);
+  // Below the synthetic 85% overall and 95% strong-field thresholds.
+  expect(first).toBeLessThan(85000000);
+  expect(outcome.verdict).toBe("not-verifiable");
+  expect(outcome.reasons).toEqual(["insufficient-search"]);
+});
 it("does not contact another source when exact identifier identity is settled, and compares remaining supplied identifiers", async () => {
   const doi = "10.5555/identifier-stop";
   crossref.respond(`/api/handles/${doi}`, 200, {

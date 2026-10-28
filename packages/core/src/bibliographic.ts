@@ -255,6 +255,26 @@ export function createBibliographicVerification(ports: {
         const score = fieldScore(c, f);
         return score !== undefined && score < profile.counterevidence;
       });
+    const matching = (c: Candidate) =>
+      (c.score?.value ?? -1) >= profile.overallScore ||
+      strong(c) ||
+      ["title", "author"].some(
+        (f) => (fieldScore(c, f) ?? -1) >= profile.strongField,
+      );
+    const topTie = () => {
+      const top = result.candidates[0];
+      return result.candidates.filter(
+        (c) => top && valueOf(c) === valueOf(top),
+      );
+    };
+    // Equal sufficiently matching top Scores across different Sources stay
+    // ambiguous, independent of whether every tied comparison is complete.
+    const matchingTopTieAcrossSources = () => {
+      const [top, ...others] = topTie();
+      if (!top || !matching(top)) return false;
+      const group = identityGroup(top, result.candidates);
+      return others.some((c) => !group.members.has(c));
+    };
     const unresolvedComparison = (candidate: Candidate) => {
       const group = identityGroup(candidate, result.candidates);
       return group.conflicting || [...group.members].every(incompleteIdentity);
@@ -263,7 +283,7 @@ export function createBibliographicVerification(ports: {
       const top = result.candidates[0];
       if (!top || result.candidates.some(unsafe) || ports.now() >= deadline)
         return;
-      const tied = result.candidates.filter((c) => valueOf(c) === valueOf(top));
+      const tied = topTie();
       // Only supported supplied identifiers actually retrieved on their exact path count as proof.
       const proven = result.candidates.filter(
         (c) =>
@@ -545,7 +565,11 @@ export function createBibliographicVerification(ports: {
       result.reasons = ["ambiguous-identity"];
       return finish();
     }
-    if (!chosen && result.candidates.some(unresolvedComparison)) {
+    if (
+      !chosen &&
+      !matchingTopTieAcrossSources() &&
+      result.candidates.some(unresolvedComparison)
+    ) {
       result.reasons = ["insufficient-search"];
       return finish();
     }
@@ -571,17 +595,7 @@ export function createBibliographicVerification(ports: {
       result.reasons = ["identity-unresolved"];
     else if (!article || reference.csl.ISBN)
       result.reasons = ["development-route-incomplete"];
-    else if (
-      result.candidates.some(
-        (c) =>
-          unsafe(c) ||
-          (c.score?.value ?? -1) >= profile.overallScore ||
-          strong(c) ||
-          ["title", "author"].some(
-            (f) => (fieldScore(c, f) ?? -1) >= profile.strongField,
-          ),
-      )
-    )
+    else if (result.candidates.some((c) => unsafe(c) || matching(c)))
       result.reasons = ["ambiguous-identity"];
     else if (
       !unsupportedIdentifier &&
