@@ -50,12 +50,12 @@ export const articleSearchConfiguration = Object.freeze({
     "development-openalex-and-crossref-complete-title-author-year",
   nameProjection: "openalex-display-name-last-token-family-1",
   receivedEvidence: "normalized-pmcid-affirmative-retraction-1",
-  identityEvidence: "consistent-connected-groups-counterevidence-2",
+  identityEvidence: "consistent-connected-groups-counterevidence-3",
 });
 // Article Verdict derivation (identity groups, missing comparisons and
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
-export const articleVerdictRules = "article-verdict-77-5";
+export const articleVerdictRules = "article-verdict-77-6";
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 export const normalizePmid = (value: string) =>
   value
@@ -144,7 +144,7 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-77-5-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-77-6-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         enabledSources: ports.sources.map((s) => s.name).join(","),
@@ -256,7 +256,7 @@ export function createBibliographicVerification(ports: {
       ["title", "author"].every(
         (f) => (fieldScore(c, f) ?? -1) >= profile.strongField,
       );
-    const counter = (c: Candidate) =>
+    const hasCounterevidence = (c: Candidate) =>
       ["title", "author"].some((f) => {
         const score = fieldScore(c, f);
         return score !== undefined && score < profile.counterevidence;
@@ -281,16 +281,18 @@ export function createBibliographicVerification(ports: {
       const group = identityGroup(top, result.candidates);
       return others.some((c) => !group.members.has(c));
     };
-    // A different Source is settled by counterevidence in an available
-    // comparison; unavailable comparisons alone are never negative evidence.
-    // Members of a conflicting group may be different Sources, so each one
-    // needs its own counterevidence.
+    // A different Source is settled by counterevidence or by complete title and
+    // author comparisons; unavailable comparisons alone are never negative
+    // evidence. Members of a conflicting group may be different Sources, so
+    // each one must be settled on its own.
+    const unsettled = (c: Candidate) =>
+      !hasCounterevidence(c) && incompleteIdentity(c);
     const unresolvedComparison = (candidate: Candidate) => {
       const group = identityGroup(candidate, result.candidates);
       const members = [...group.members];
       return group.conflicting
-        ? !members.every(counter)
-        : !members.some(counter) && members.every(incompleteIdentity);
+        ? members.some(unsettled)
+        : members.every(unsettled);
     };
     function identity(): Candidate | undefined {
       const top = result.candidates[0];
@@ -301,7 +303,7 @@ export function createBibliographicVerification(ports: {
       const proven = result.candidates.filter(
         (c) =>
           !unsafe(c) &&
-          !counter(c) &&
+          !hasCounterevidence(c) &&
           c.identifiers?.some((id) =>
             id.startsWith("doi:") ? resolution?.outcome === "exists" : true,
           ),

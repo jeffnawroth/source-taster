@@ -173,8 +173,10 @@ it.each([
     });
     expect(outcome.verdict).toBe(verdict);
     expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-5-identity-evidence-",
+      "article-search-77-6-identity-evidence-",
     );
+    // Article Verdict derivation is part of the recorded Scoring rules version.
+    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-6$/u);
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
       fullAgreement: true,
@@ -533,6 +535,39 @@ it("does not let a conflict between unrelated records unsettle a strong match", 
   expect(outcome).toMatchObject({
     verdict: "correct",
     bestMatchId: "https://openalex.org/W77814",
+  });
+});
+it("does not let a fully compared conflicting group unsettle a strong match", async () => {
+  const medium = (n: number, doi: string) => ({
+    ...oa(n, "Synthetic article review", "Alpha"),
+    doi,
+    ids: { pmid: "77" },
+  });
+  openalex.respondSequence("/works", [
+    { status: 200, body: { results: [medium(77818, "10.5555/m1")] } },
+    { status: 200, body: { results: [medium(77819, "10.5555/m2")] } },
+    {
+      status: 200,
+      body: { results: [oa(77820, "Synthetic article", "Alpha")] },
+    },
+  ]);
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  const conflicting = outcome.candidates.filter((c) =>
+    ["https://openalex.org/W77818", "https://openalex.org/W77819"].includes(
+      c.id,
+    ),
+  );
+  expect(conflicting).toHaveLength(2);
+  // Both records are complete and neither carries counterevidence.
+  for (const candidate of conflicting)
+    for (const field of ["title", "author"])
+      expect(
+        candidate.fields.find((f) => f.field === field)?.score?.value,
+      ).toBeGreaterThanOrEqual(50000000);
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    bestMatchId: "https://openalex.org/W77820",
   });
 });
 it("attaches a retraction reported for a transitively equivalent record", async () => {

@@ -230,18 +230,36 @@ is reachable. The low equal-Score
 tie witness now uses a title scoring 70.83%, between the counterevidence and
 overall thresholds, so it still exercises a tie with no counterevidence.
 
+## Third review round: fully compared conflicting groups
+
+The recheck of `842e353` found a remaining band of the conflicting-pair defect.
+Two fully compared records with title and author scores at or above the
+counterevidence threshold, sharing a PMID but carrying different DOIs, still
+made a strong exact match Not verifiable. A complete record is not an unknown
+comparison, whether it stands alone or sits in a conflicting group. A record is
+now unsettled only when it has neither counterevidence nor complete title and
+author comparisons. A consistent group is unresolved when every member is
+unsettled; a conflicting group, whose members may be different Sources, is
+unresolved when any member is unsettled. A conflicting group led by the top
+Candidate keeps its separate ambiguous-identity result.
+
+The new HTTP/SSE witness asserts that both conflicting records are complete and
+free of counterevidence, then expects Correct for the exact match. It failed on
+`842e353` (`r3-red-conflict-band.log`) and passes with the correction. The
+recorded Scoring rules version suffix is now also asserted directly.
+
 ## Consolidated version and validation
 
 The Standards review noted that Verdict derivation changed while the Scoring
 rules version did not. ADR-0008 requires a new version for every outcome-changing
-rule. The article Verdict rules are therefore versioned as `article-verdict-77-5`
+rule. The article Verdict rules are therefore versioned as `article-verdict-77-6`
 and appended to the #75 Scoring rules version recorded in each result; the #75
 comparison algorithms, parameters and thresholds themselves are unchanged. The
 earlier statement that Scoring rules were unchanged by the identity correction
 is superseded.
 
-The current Search strategy prefix is `article-search-77-5-identity-evidence`,
-with `identityEvidence: consistent-connected-groups-counterevidence-2` and the
+The current Search strategy prefix is `article-search-77-6-identity-evidence`,
+with `identityEvidence: consistent-connected-groups-counterevidence-3` and the
 prior received-evidence configuration recorded in each immutable result. Source
 budgets, deadlines, Candidate slots, transport schemas, dependencies and the
 private contract pin are unchanged. The English retraction note now says
@@ -254,12 +272,11 @@ Final-head validation runs serially against the owned PostgreSQL fixture
 
 | Check | Result / transcript under `.tmp/st77-review/` |
 | --- | --- |
-| Full server HTTP/SSE | **217 passed / 12 files**, `r2-server-full.log` |
-| Bibliographic file after the final comment-only core edit | **54 passed**, `r3-bibliographic.log` |
-| Core/server/web typechecks, scoped ESLint, Prettier, whitespace | Passed, `r2-static.log` |
-| i18n, server and web builds | Passed, `r3-build.log`; existing Vite chunk advisory only |
-| Full Authority, run alone | **31 passed**, `r3-authority.log` |
-| Normal then bibliographic web/axe | **38 + 12 passed**, `r3-web.log` |
-| Hosted Guest browser | **5 passed**, `r3-guest.log` |
+| Full server HTTP/SSE | **218 passed / 12 files**, `r3-server-full.log` |
+| Core/server/web typechecks, scoped ESLint, Prettier, whitespace | Passed, `r3-static.log` |
+| Server and web builds | Passed, `r4-build.log`; existing Vite chunk advisory only |
+| Full Authority, run alone | **31 passed**, `r4-authority.log` |
+| Normal then bibliographic web/axe | **38 + 12 passed**, `r4-web.log` |
+| Hosted Guest browser | **5 passed**, `r4-guest.log` |
 
 All existing release, calibration, native-browser and publication limits remain.
