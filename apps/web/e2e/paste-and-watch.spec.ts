@@ -101,7 +101,9 @@ test("resumes a prematurely closed event stream without losing Reference Status 
     timeout: 15_000,
   });
   await expect(
-    page.getByRole("status").getByText("Not checked", { exact: true }),
+    page
+      .getByRole("list", { name: "References", exact: true })
+      .getByText("Not checked", { exact: true }),
   ).toHaveCount(2);
   await expect(page.getByRole("status")).toContainText("The Descent of Man");
 });
