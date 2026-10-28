@@ -24,7 +24,7 @@ export async function lifecycleService(env: Record<string, string>) {
       {
         cwd: new URL("../..", import.meta.url),
         env: {
-          ...process.env,
+          PATH: process.env.PATH,
           ...env,
           NODE_ENV: "test",
           SOURCE_TASTER_MODE: "standalone",

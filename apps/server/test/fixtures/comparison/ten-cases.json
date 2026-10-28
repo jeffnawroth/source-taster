@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "doi": "10.5555/profile-1",
+    "field": "title",
+    "supplied": "Jouranl",
+    "metadata": "Journal",
+    "value": 85714286,
+    "overall": 89285715,
+    "fieldDisplay": "85.71 %",
+    "scoreDisplay": "89.29 %",
+    "text": "Müller, A. B. (2021). Jouranl. Journal of Testing, 12, 123–128. https://doi.org/10.5555/profile-1"
+  },
+  {
+    "id": 2,
+    "doi": "10.5555/profile-2",
+    "field": "title",
+    "supplied": "ABC",
+    "metadata": "ABD",
+    "value": 66666667,
+    "overall": 75000000,
+    "fieldDisplay": "66.67 %",
+    "scoreDisplay": "75.00 %",
+    "text": "Müller, A. B. (2021). ABC. Journal of Testing, 12, 123–128. https://doi.org/10.5555/profile-2"
+  },
+  {
+    "id": 3,
+    "doi": "10.5555/profile-3",
+    "field": "title",
+    "supplied": "Müller",
+    "metadata": "Mueller",
+    "value": 100000000,
+    "overall": 100000000,
+    "fieldDisplay": "100.00 %",
+    "scoreDisplay": "100.00 %",
+    "text": "Müller, A. B. (2021). Müller. Journal of Testing, 12, 123–128. https://doi.org/10.5555/profile-3"
+  },
+  {
+    "id": 4,
+    "doi": "10.5555/profile-4",
+    "field": "title",
+    "supplied": "Mueller",
+    "metadata": "Muller",
+    "value": 85714286,
+    "overall": 89285715,
+    "fieldDisplay": "85.71 %",
+    "scoreDisplay": "89.29 %",
+    "text": "Müller, A. B. (2021). Mueller. Journal of Testing, 12, 123–128. https://doi.org/10.5555/profile-4"
+  },
+  {
+    "id": 5,
+    "doi": "10.5555/profile-5",
+    "field": "title",
+    "supplied": "MÃ¼ller",
+    "metadata": "Muller",
+    "value": 100000000,
+    "overall": 100000000,
+    "fieldDisplay": "100.00 %",
+    "scoreDisplay": "100.00 %",
+    "text": "Müller, A. B. (2021). MÃ¼ller. Journal of Testing, 12, 123–128. https://doi.org/10.5555/profile-5"
+  },
+  {
+    "id": 6,
+    "doi": "10.5555/profile-6",
+    "field": "page",
+    "supplied": "125–126",
+    "metadata": "123–128",
+    "value": 100000000,
+    "overall": 100000000,
+    "fieldDisplay": "100.00 %",
+    "scoreDisplay": "100.00 %",
+    "text": "Müller, A. B. (2021). Comparison example. Journal of Testing, 12, 125–126. https://doi.org/10.5555/profile-6"
+  },
+  {
+    "id": 7,
+    "doi": "10.5555/profile-7",
+    "field": "page",
+    "supplied": "127–130",
+    "metadata": "123–128",
+    "value": 50000000,
+    "overall": 91666667,
+    "fieldDisplay": "50.00 %",
+    "scoreDisplay": "91.67 %",
+    "text": "Müller, A. B. (2021). Comparison example. Journal of Testing, 12, 127–130. https://doi.org/10.5555/profile-7"
+  },
+  {
+    "id": 8,
+    "doi": "10.5555/profile-8",
+    "field": "page",
+    "supplied": "123–8",
+    "metadata": "123–128",
+    "value": 100000000,
+    "overall": 100000000,
+    "fieldDisplay": "100.00 %",
+    "scoreDisplay": "100.00 %",
+    "text": "Müller, A. B. (2021). Comparison example. Journal of Testing, 12, 123–8. https://doi.org/10.5555/profile-8"
+  },
+  {
+    "id": 9,
+    "doi": "10.5555/profile-9",
+    "field": "page",
+    "supplied": "1–200000000",
+    "metadata": "1–199999999",
+    "value": 99999999,
+    "overall": 99999999,
+    "fieldDisplay": "99.99 %",
+    "scoreDisplay": "99.99 %",
+    "text": "Müller, A. B. (2021). Comparison example. Journal of Testing, 12, 1–200000000. https://doi.org/10.5555/profile-9"
+  },
+  {
+    "id": 10,
+    "doi": "10.5555/profile-10",
+    "field": "container-title",
+    "supplied": "Journal of Testing (JOT)",
+    "metadata": "Journal of Testing",
+    "value": 100000000,
+    "overall": 100000000,
+    "fieldDisplay": "100.00 %",
+    "scoreDisplay": "100.00 %",
+    "text": "Müller, A. B. (2021). Comparison example. Journal of Testing (JOT), 12, 123–128. https://doi.org/10.5555/profile-10"
+  }
+]

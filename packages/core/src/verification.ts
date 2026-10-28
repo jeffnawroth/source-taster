@@ -7,6 +7,7 @@ import {
   normalizeDoi,
   type FieldComparison,
   type Score,
+  type ComparisonProfile,
 } from "./comparison.ts";
 export interface Evidence {
   source: "doi.org" | "crossref";
@@ -124,7 +125,9 @@ export function createDoiVerification(ports: {
   source: DataSource;
   now: () => number;
   rules: ScoringRules;
+  parameters?: ComparisonProfile;
 }) {
+  const profile = ports.parameters ?? developmentProfile;
   return async (
     reference: StructuredReference,
     execution?: { startedAt: number },
@@ -164,7 +167,7 @@ export function createDoiVerification(ports: {
       const candidate: Candidate = {
         ...metadata.candidate,
         slot: 1,
-        ...compare(reference, metadata.candidate.csl),
+        ...compare(reference, metadata.candidate.csl, profile),
       };
       result.candidates.push(candidate);
       result.bestMatchId = candidate.id;
@@ -194,7 +197,7 @@ export function createDoiVerification(ports: {
       (f) =>
         ["title", "author"].includes(f.field) &&
         f.score &&
-        f.score.value < developmentProfile.counterevidence,
+        f.score.value < profile.counterevidence,
     );
     if (contradiction || normalizeDoi(candidate.csl.DOI ?? "") !== doi) {
       // A bounded combined probe is solely for independent foreign-DOI proof.
@@ -212,7 +215,7 @@ export function createDoiVerification(ports: {
           const scored: Candidate = {
             ...other,
             slot: 2,
-            ...compare(reference, other.csl),
+            ...compare(reference, other.csl, profile),
           };
           result.candidates.push(scored);
           result.candidates.sort(
@@ -223,7 +226,7 @@ export function createDoiVerification(ports: {
               (f) =>
                 f.field === field &&
                 f.score &&
-                f.score.value >= developmentProfile.strongField,
+                f.score.value >= profile.strongField,
             ),
           );
           const top =
@@ -235,8 +238,7 @@ export function createDoiVerification(ports: {
             strong &&
             top &&
             ports.now() < deadline &&
-            scored.score!.value - candidate.score!.value >=
-              developmentProfile.lead &&
+            scored.score!.value - candidate.score!.value >= profile.lead &&
             normalizeDoi(scored.csl.DOI ?? "") !== doi
           ) {
             result.verdict = "doi-conflict";
