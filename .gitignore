@@ -22,3 +22,5 @@ apps/website/.astro/
 apps/website/dist-preview/
 
 test-results-guest/
+
+test-results-bibliographic/

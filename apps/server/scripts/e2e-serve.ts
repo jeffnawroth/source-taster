@@ -2,10 +2,16 @@
 import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { once } from "node:events";
+import { startBibliographicFixtures } from "../test/support/bibliographic-fixtures.ts";
 import { startDoiFixtures } from "../test/support/doi-fixtures.ts";
 import { startTestService } from "../test/support/service.ts";
 
 const fixtures = await startDoiFixtures();
+const bibliographic =
+  process.env.SOURCE_TASTER_E2E_BIBLIOGRAPHIC === "true"
+    ? await startBibliographicFixtures()
+    : undefined;
+if (bibliographic) fixtures.respond("/works", 200, { message: { items: [] } });
 // Exact development comparison witnesses, served only by the owned HTTP edge.
 const comparisonCases = JSON.parse(
   await readFile(
@@ -47,7 +53,11 @@ fixtures.respond("/works/10.5555/browser-invalid", 200, { message: {} });
 const service = await startTestService(
   Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? 3102),
   3000,
-  { ...fixtures.env, SOURCE_TASTER_CLIENT_LEASE_MS: "1500" },
+  {
+    ...fixtures.env,
+    ...bibliographic?.env,
+    SOURCE_TASTER_CLIENT_LEASE_MS: "1500",
+  },
 );
 const webPort = process.env.SOURCE_TASTER_E2E_WEB_PORT ?? "5174";
 const vite = spawn(
@@ -67,6 +77,7 @@ async function stop(code = 0) {
   await service.stop();
   held.release();
   await fixtures.stop();
+  await bibliographic?.stop();
   process.exit(code);
 }
 process.once("SIGTERM", () => {

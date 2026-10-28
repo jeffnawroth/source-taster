@@ -33,7 +33,7 @@ for (const c of cases)
       .selectOption("en");
     await page.getByRole("textbox").fill(c.text);
     const creation = page.waitForResponse(
-      (r) => r.url().endsWith("/v1/checks") && r.request().method() === "POST",
+      (r) => r.url().endsWith("/v2/checks") && r.request().method() === "POST",
     );
     await page
       .getByRole("button", { name: "Check Reference", exact: true })
@@ -62,7 +62,7 @@ for (const c of cases)
     await expect(term.locator("..")).toContainText(c.supplied);
     await expect(term.locator("..")).toContainText(c.metadata);
     const stored = CheckResponse.parse(
-      await (await page.request.get(`/v1/checks/${created.id}`)).json(),
+      await (await page.request.get(`/v2/checks/${created.id}`)).json(),
     ).data;
     const outcome = stored.references[0]!.outcome;
     if (outcome?.kind !== "verdict") throw new Error("Expected Verdict");
@@ -79,7 +79,7 @@ for (const c of cases)
     await expect(result).toContainText(c.scoreDisplay);
     await expect(result).toContainText(c.fieldDisplay);
     const reread = CheckResponse.parse(
-      await (await page.request.get(`/v1/checks/${created.id}`)).json(),
+      await (await page.request.get(`/v2/checks/${created.id}`)).json(),
     ).data;
     expect(reread).toEqual(stored);
   });

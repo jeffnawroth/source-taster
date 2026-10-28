@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type {
   ReferenceOutcome,
+  Candidate,
   Score,
   Verdict,
-} from "@source-taster/contract-verification";
+} from "@source-taster/contract-verification/v2";
 import { m } from "@source-taster/i18n";
 const verdicts = {
   correct: ["✓", "text-green-900", "verdict_correct"],
@@ -24,6 +25,10 @@ const reasons = {
   "development-route-incomplete": "reason_route_incomplete",
   identified: "reason_identified",
   "fields-differ": "reason_fields_differ",
+  "mixed-components": "reason_mixed_components",
+  "search-completed": "reason_search_completed",
+  "ambiguous-identity": "reason_ambiguous_identity",
+  "insufficient-search": "reason_insufficient_search",
 } as const;
 // Evidence reasons are transport diagnostics, never primary product text.
 // Unknown future reasons retain a safe localized explanation.
@@ -38,6 +43,10 @@ const evidenceReasons = {
   "invalid-metadata": "limitation_invalid_metadata",
   "identifier-mismatch": "limitation_identifier_mismatch",
   "probe-unavailable": "limitation_probe_unavailable",
+  "identifier-capability-unavailable": "limitation_identifier_capability",
+  "missing-query-fields": "limitation_missing_query_fields",
+  "operator-disabled": "evidence_disabled",
+  "early-termination": "evidence_skipped",
 } as const satisfies Record<string, keyof typeof m>;
 function limitation(reason: string) {
   return Object.hasOwn(evidenceReasons, reason)
@@ -59,6 +68,14 @@ const fields = {
   PMCID: "field_pmcid",
   URL: "field_url",
 } as const;
+const origins = {
+  doi: "origin_doi",
+  pmid: "origin_pmid",
+  pmcid: "origin_pmcid",
+  combined: "origin_combined",
+  title: "origin_title",
+  "authors-year": "origin_authors_year",
+} as const;
 function raw(value: unknown): string {
   if (value === null || value === undefined) return m.evidence_missing();
   if (typeof value === "string") return value;
@@ -76,9 +93,13 @@ function percent(s: Score) {
   const capped = !s.fullAgreement && units >= 10000n ? 9999n : units;
   return `${capped / 100n}.${String(capped % 100n).padStart(2, "0")} %`;
 }
-function sourceLink(doi: string | undefined) {
-  return doi && /^10\.\d{4,9}\/\S+$/iu.test(doi)
-    ? `https://doi.org/${encodeURIComponent(doi)}`
+function sourceLink(candidate: Candidate) {
+  const doi = candidate.csl.DOI;
+  if (doi && /^10\.\d{4,9}\/\S+$/iu.test(doi))
+    return `https://doi.org/${encodeURIComponent(doi)}`;
+  return candidate.source === "openalex" &&
+    /^https:\/\/openalex\.org\/W\d+$/u.test(candidate.id)
+    ? candidate.id
     : null;
 }
 export function ReferenceOutcomeView({
@@ -106,6 +127,12 @@ export function ReferenceOutcomeView({
         <span aria-hidden="true">{icon} </span>
         <span>{m[key]()}</span>
       </p>
+      {outcome.retraction === "retracted" && (
+        <div className="border-l-4 border-amber-700 bg-amber-50 p-3 text-slate-900">
+          <p className="font-semibold">{m.retraction_reported()}</p>
+          <p>{m.retraction_independent()}</p>
+        </div>
+      )}
       <p className="text-sm font-semibold">{m.doi_uncalibrated()}</p>
       {outcome.reasons.map((reason) => (
         <p key={reason}>{m[reasons[reason]]()}</p>
@@ -120,6 +147,18 @@ export function ReferenceOutcomeView({
         <p className="break-words text-sm">
           {m.search_strategy_label()}: {outcome.searchStrategyVersion}
         </p>
+        {outcome.retractionEvidence?.map((evidence) => (
+          <p
+            className="break-words text-sm"
+            key={`${evidence.source}:${evidence.candidateId}`}
+          >
+            {m.retraction_provenance({
+              source: evidence.source === "openalex" ? "OpenAlex" : "Crossref",
+              candidateId: evidence.candidateId,
+              observedAt: evidence.observedAt,
+            })}
+          </p>
+        ))}
         <p className="text-sm">
           Unicode {outcome.scoringRules.unicode} / ICU{" "}
           {outcome.scoringRules.icu}
@@ -130,12 +169,14 @@ export function ReferenceOutcomeView({
             ? m.identity_unresolved()
             : outcome.identity.kind === "supplied-doi"
               ? m.identity_doi()
-              : m.identity_bibliography()}
+              : outcome.identity.kind === "supplied-identifier"
+                ? m.identity_identifier()
+                : m.identity_bibliography()}
         </p>
         <ul>
           {outcome.evidence.map((e, i) => (
             <li className="my-3 break-words" key={i}>
-              <strong>{e.source}</strong>:{" "}
+              <strong>{e.source}</strong> · {m[origins[e.operation]]()}:{" "}
               {m[
                 `evidence_${e.outcome.replaceAll("-", "_")}` as
                   | "evidence_exists"
@@ -143,6 +184,9 @@ export function ReferenceOutcomeView({
                   | "evidence_candidate"
                   | "evidence_no_record"
                   | "evidence_unavailable"
+                  | "evidence_disabled"
+                  | "evidence_skipped"
+                  | "evidence_unsupported"
               ]()}{" "}
               ({e.observedAt})
               {e.reason && (
@@ -163,6 +207,18 @@ export function ReferenceOutcomeView({
               {candidate.source})
             </h3>
             <p>
+              {m.candidate_origin()}: {m[origins[candidate.origin]]()} ·{" "}
+              {m.candidate_slot({ slot: candidate.slot })}
+            </p>
+            <p className="break-words">
+              {m.candidate_record()}: {candidate.id}
+            </p>
+            {!!candidate.identifiers?.length && (
+              <p className="break-words">
+                {m.candidate_identifiers()}: {candidate.identifiers.join(", ")}
+              </p>
+            )}
+            <p>
               {m.score_label()}:{" "}
               {candidate.score
                 ? percent(candidate.score)
@@ -171,12 +227,12 @@ export function ReferenceOutcomeView({
             {candidate.id === outcome.bestMatchId && (
               <p>{m.best_match_label()}</p>
             )}
-            {sourceLink(candidate.csl.DOI) && (
+            {sourceLink(candidate) && (
               <a
                 className="inline-block py-2 underline"
                 target="_blank"
                 rel="noopener noreferrer"
-                href={sourceLink(candidate.csl.DOI)!}
+                href={sourceLink(candidate)!}
               >
                 {m.source_open()}
               </a>

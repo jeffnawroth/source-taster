@@ -1,0 +1,1 @@
+ALTER TABLE "checks" ADD COLUMN "api_version" INTEGER NOT NULL DEFAULT 1;

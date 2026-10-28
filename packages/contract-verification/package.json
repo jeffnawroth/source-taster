@@ -8,7 +8,8 @@
     "dist",
     "LICENSE-AGPL",
     "LICENSE-MIT",
-    "openapi.json"
+    "openapi.json",
+    "openapi-v2.json"
   ],
   "exports": {
     ".": {
@@ -23,7 +24,20 @@
       "types": "./dist/contract-verification/src/client.d.ts",
       "default": "./dist/contract-verification/src/client.js"
     },
-    "./openapi.json": "./openapi.json"
+    "./openapi.json": "./openapi.json",
+    "./v2": {
+      "types": "./dist/contract-verification/src/v2.d.ts",
+      "default": "./dist/contract-verification/src/v2.js"
+    },
+    "./routes-v2": {
+      "types": "./dist/contract-verification/src/routes-v2.d.ts",
+      "default": "./dist/contract-verification/src/routes-v2.js"
+    },
+    "./client-v2": {
+      "types": "./dist/contract-verification/src/client-v2.d.ts",
+      "default": "./dist/contract-verification/src/client-v2.js"
+    },
+    "./openapi-v2.json": "./openapi-v2.json"
   },
   "scripts": {
     "build": "node scripts/build.ts",

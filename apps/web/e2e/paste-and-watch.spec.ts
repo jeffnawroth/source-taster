@@ -72,7 +72,7 @@ test("resumes a prematurely closed event stream without losing Reference Status 
   page,
 }) => {
   let interrupted = false;
-  await page.route("**/v1/checks/*/events", async (route) => {
+  await page.route("**/v2/checks/*/events", async (route) => {
     if (interrupted) {
       await route.continue();
       return;

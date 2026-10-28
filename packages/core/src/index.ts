@@ -7,3 +7,4 @@ export {
   comparisonLimits,
   type ComparisonProfile,
 } from "./comparison.ts";
+export * from "./bibliographic.ts";

@@ -1357,3 +1357,183 @@ test("hosted concurrent workers revalidate the global turn before admitting eith
       ).status,
     ).toBe(200);
 }, 40000);
+
+test("v2 bibliographic execution retains current Guest authority through source waits and late body cancellation", async () => {
+  const { CheckResponse: V2 } =
+    await import("@source-taster/contract-verification/v2");
+  const { startDoiFixtures } = await import("./support/doi-fixtures.ts");
+  const oa = await startDoiFixtures();
+  const held = oa.hold("/works", true);
+  oa.respond("/works", 200, {
+    results: [
+      {
+        id: "https://openalex.org/W77",
+        title: "Synthetic article",
+        authorships: [{ author: { display_name: "Alpha" } }],
+      },
+    ],
+  });
+  const both = await bothPrograms({
+    verificationEnv: {
+      SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+      SOURCE_TASTER_OPENALEX_ENABLED: "true",
+      SOURCE_TASTER_OPENALEX_BASE_URL: oa.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+    },
+  });
+  cleanup.push(async () => {
+    held.release();
+    await both.stop();
+    await oa.stop();
+  });
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = V2.parse(
+    await (
+      await fetch(`${both.apiUrl}/v2/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          references: [
+            {
+              originalText: "Synthetic article",
+              fields: {
+                title: "Synthetic article",
+                author: [{ family: "Alpha" }],
+              },
+            },
+          ],
+        }),
+      })
+    ).json(),
+  ).data;
+  await held.arrived;
+  await both.change(guest.guestId, { revoke: true });
+  held.release();
+  for (const [suffix, method] of [
+    ["", "GET"],
+    ["/events", "GET"],
+    ["/cancel", "POST"],
+    ["/lease", "POST"],
+  ])
+    expect(
+      (
+        await fetch(`${both.apiUrl}/v2/checks/${created.id}${suffix}`, {
+          method,
+          headers,
+        })
+      ).status,
+    ).toBe(403);
+  expect(oa.requests).toHaveLength(1);
+  expect(both.fixtures.requests).toHaveLength(0);
+});
+
+test("v2 output cannot publish a prefetched bibliographic snapshot after drained authority invalidation", async () => {
+  const { CheckResponse: V2 } =
+    await import("@source-taster/contract-verification/v2");
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = V2.parse(
+    await (
+      await fetch(`${both.apiUrl}/v2/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text: physicsReference }),
+      })
+    ).json(),
+  ).data;
+  const held = both.trap("check:read", "request", 2);
+  const pending = fetch(`${both.apiUrl}/v2/checks/${created.id}`, { headers });
+  await held.arrived;
+  await both.change(guest.guestId, { revoke: true });
+  held.release();
+  const response = await pending;
+  expect(response.status).toBe(403);
+  expect(await response.text()).not.toContain("Aspelmeyer");
+});
+
+test("v2 completed OpenAlex evidence cannot commit through a stale precommit authority decision", async () => {
+  const { CheckResponse: V2 } =
+    await import("@source-taster/contract-verification/v2");
+  const { startDoiFixtures } = await import("./support/doi-fixtures.ts");
+  const { Permission } = await import("@source-taster/contract-internal");
+  const oa = await startDoiFixtures();
+  const source = oa.hold("/works");
+  oa.respond("/works", 200, {
+    results: [
+      {
+        id: "https://openalex.org/W77",
+        title: "Synthetic article",
+        authorships: [{ author: { display_name: "Alpha" } }],
+      },
+    ],
+  });
+  const both = await bothPrograms({
+    verificationEnv: {
+      SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+      SOURCE_TASTER_OPENALEX_ENABLED: "true",
+      SOURCE_TASTER_OPENALEX_BASE_URL: oa.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+    },
+  });
+  cleanup.push(async () => {
+    source.release();
+    await both.stop();
+    await oa.stop();
+  });
+  const guest = await both.issue();
+  const headers = {
+    authorization: `Bearer ${guest.token}`,
+    "content-type": "application/json",
+  };
+  const created = V2.parse(
+    await (
+      await fetch(`${both.apiUrl}/v2/checks`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          references: [
+            {
+              originalText: "Synthetic article",
+              fields: {
+                title: "Synthetic article",
+                author: [{ family: "Alpha" }],
+              },
+            },
+          ],
+        }),
+      })
+    ).json(),
+  ).data;
+  await source.arrived;
+  const held = both.trap("check:create", "work");
+  source.release();
+  await held.arrived;
+  expect(
+    await both.change(guest.guestId, {
+      permissions: Permission.options.filter((p) => p !== "check:create"),
+    }),
+  ).toMatchObject({ completed: true });
+  held.release();
+  await both.restartWeb();
+  const snapshot = V2.parse(
+    await (
+      await fetch(`${both.apiUrl}/v2/checks/${created.id}`, { headers })
+    ).json(),
+  ).data;
+  expect(snapshot.references[0]!.outcome).toEqual({
+    kind: "status",
+    status: "cancelled",
+  });
+  const replay = await fetch(`${both.apiUrl}/v2/checks/${created.id}/events`, {
+    headers: { ...headers, "last-event-id": snapshot.lastEventCursor },
+  });
+  expect(await replay.text()).toBe("");
+  expect(oa.requests).toHaveLength(1);
+});

@@ -12,13 +12,13 @@ import {
 import {
   type Check,
   type StructuringResult,
-} from "@source-taster/contract-verification";
+} from "@source-taster/contract-verification/v2";
 import {
   CheckStreamError,
   ApiError,
   verificationClient,
   watchCheckEvents,
-} from "@source-taster/contract-verification/client";
+} from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
 import { setLocale } from "@source-taster/i18n/runtime";
 import { Button, Label, Text, TextArea, TextField } from "@source-taster/ui";
@@ -476,12 +476,15 @@ function Workspace() {
                         {reference.progress === "queued"
                           ? m.reference_queued()
                           : reference.progress === "doi.org" ||
-                              reference.progress === "crossref"
+                              reference.progress === "crossref" ||
+                              reference.progress === "openalex"
                             ? m.reference_source({
                                 source:
                                   reference.progress === "doi.org"
                                     ? "doi.org"
-                                    : "Crossref",
+                                    : reference.progress === "openalex"
+                                      ? "OpenAlex"
+                                      : "Crossref",
                               })
                             : m.reference_checking()}
                       </p>

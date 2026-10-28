@@ -17,7 +17,7 @@ for (const language of ["en", "de"] as const) {
       );
     const creation = page.waitForResponse(
       (response) =>
-        response.url().endsWith("/v1/checks") &&
+        response.url().endsWith("/v2/checks") &&
         response.request().method() === "POST",
     );
     await page
@@ -65,7 +65,7 @@ for (const language of ["en", "de"] as const) {
     await expect(page.getByRole("textbox")).toBeFocused();
     await expect(page.locator("#results-title")).toHaveCount(0);
     const retained = CheckResponse.parse(
-      await (await page.request.get(`/v1/checks/${created.id}`)).json(),
+      await (await page.request.get(`/v2/checks/${created.id}`)).json(),
     ).data;
     expect(retained.references[0]!.outcome).toMatchObject({
       kind: "verdict",
@@ -94,14 +94,17 @@ for (const operation of ["checks", "structurings"] as const) {
       entered = resolve;
     });
     let checkId: string | undefined;
-    await page.route(`**/v1/${operation}`, async (route) => {
-      const response = await route.fetch();
-      if (operation === "checks")
-        checkId = CheckResponse.parse(await response.json()).data.id;
-      entered();
-      await gate;
-      await route.fulfill({ response });
-    });
+    await page.route(
+      `**/${operation === "checks" ? "v2" : "v1"}/${operation}`,
+      async (route) => {
+        const response = await route.fetch();
+        if (operation === "checks")
+          checkId = CheckResponse.parse(await response.json()).data.id;
+        entered();
+        await gate;
+        await route.fulfill({ response });
+      },
+    );
     await page.goto("/");
     await page
       .getByRole("combobox", { name: /^(Language|Sprache)$/ })
@@ -126,7 +129,7 @@ for (const operation of ["checks", "structurings"] as const) {
         .poll(
           async () =>
             CheckResponse.parse(
-              await (await request.get(`/v1/checks/${checkId}`)).json(),
+              await (await request.get(`/v2/checks/${checkId}`)).json(),
             ).data.endReason,
         )
         .toBe("cancelled");
@@ -151,7 +154,7 @@ test("late stream frames after Reset cannot replace a newer Check", async ({
     delivered = resolve;
   });
   let first = true;
-  await page.route("**/v1/checks/*/events", async (route) => {
+  await page.route("**/v2/checks/*/events", async (route) => {
     if (!first) {
       await route.continue();
       return;
@@ -193,7 +196,7 @@ test("late stream frames after Reset cannot replace a newer Check", async ({
 test("an unconfirmed Cancel reports uncertainty and stops this workspace renewing the lease", async ({
   page,
 }) => {
-  await page.route("**/v1/checks/*/cancel", (route) =>
+  await page.route("**/v2/checks/*/cancel", (route) =>
     route.fulfill({ status: 503, contentType: "application/json", body: "{}" }),
   );
   await page.goto("/");
