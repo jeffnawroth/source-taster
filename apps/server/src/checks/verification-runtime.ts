@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Composition seam for #81 clock/abort and #96 dispatch/commit authority. This
 // module supplies no cancellation, lease or hosted authorization policy itself.
-import { createDoiVerification, developmentProfile } from "@source-taster/core";
+import { createDoiVerification, comparisonLimits } from "@source-taster/core";
+import { createHash } from "node:crypto";
 import type { Db } from "../db/prisma.ts";
 import type { Config } from "../config.ts";
 import {
@@ -35,12 +36,24 @@ export function referenceExecution(
       signal: context.signal,
     }),
     now: clock.now,
+    parameters: config.comparisonProfile,
     rules: {
-      version: `doi-tracer-1-entities-4.5.0-uncalibrated-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
+      version: `comparison-75-2-lexicographic-ties-20261028-entities-4.5.0-uncalibrated-${createHash(
+        "sha256",
+      )
+        .update(
+          JSON.stringify({
+            parameters: config.comparisonProfile,
+            limits: comparisonLimits,
+          }),
+        )
+        .digest(
+          "hex",
+        )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
       calibration: "uncalibrated",
       unicode: process.versions.unicode!,
       icu: process.versions.icu!,
-      profile: developmentProfile,
+      profile: { ...config.comparisonProfile },
     },
   });
 }

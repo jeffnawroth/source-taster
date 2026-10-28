@@ -4,6 +4,10 @@
 // must never be the result of a missing setting.
 
 import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
+import {
+  createDevelopmentProfile,
+  type ComparisonProfile,
+} from "@source-taster/core";
 import { resolve } from "node:path";
 import {
   assertPreviewAllowed,
@@ -20,6 +24,7 @@ export interface Config {
   /** Interval of SSE comment frames that keep idle connections open. */
   sseHeartbeatMs: number;
   doiPreview: boolean;
+  comparisonProfile: ComparisonProfile;
   resolverBase: string;
   crossrefBase: string;
   /** Development/test scheduling delay; never a source timeout. */
@@ -85,6 +90,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new ConfigError(
       "Uncalibrated DOI rules cannot be released or activated. #94 qualification is required.",
     );
+  let comparisonProfile: ComparisonProfile;
+  try {
+    comparisonProfile = createDevelopmentProfile(
+      env.SOURCE_TASTER_COMPARISON_PARAMETERS
+        ? (JSON.parse(env.SOURCE_TASTER_COMPARISON_PARAMETERS) as unknown)
+        : {},
+    );
+  } catch {
+    throw new ConfigError(
+      "Invalid ADR-0025 development comparison parameters.",
+    );
+  }
   function endpoint(name: string, fallback: string) {
     const value = env[name] ?? fallback;
     let url: URL;
@@ -117,6 +134,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   return {
     mode,
     doiPreview,
+    comparisonProfile,
     resolverBase: endpoint(
       "SOURCE_TASTER_DOI_RESOLVER_BASE_URL",
       "https://doi.org",

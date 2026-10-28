@@ -40,8 +40,8 @@ export async function startTestService(
     SOURCE_TASTER_SSE_HEARTBEAT_MS: "1000",
     ...extraEnv,
   };
-  const web = startProcess("web", env);
-  const worker = startProcess("worker", env);
+  let web = startProcess("web", env);
+  let worker = startProcess("worker", env);
   const stop = async () => {
     await Promise.all([web.stop(), worker.stop()]);
     await cleanDatabase();
@@ -67,5 +67,16 @@ export async function startTestService(
     console.error(String(error));
     throw error;
   }
-  return { apiUrl, stop };
+  return {
+    apiUrl,
+    stop,
+    // Actual process restart, retaining only this fixture's owned database.
+    restart: async (changes: Record<string, string> = {}) => {
+      await Promise.all([web.stop(), worker.stop()]);
+      Object.assign(env, changes);
+      web = startProcess("web", env);
+      worker = startProcess("worker", env);
+      await waitForHealth(apiUrl);
+    },
+  };
 }

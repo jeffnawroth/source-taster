@@ -37,10 +37,12 @@ export function startProcess(
   env: Record<string, string | undefined>,
   options: { inheritEnv?: boolean } = {},
 ): RunningProcess {
+  // Provisioning credentials must not reach the application runtime. Full
+  // environment inheritance is an explicit opt-in, never the fixture default.
   const baseEnv: Record<string, string | undefined> =
-    options.inheritEnv === false
-      ? { PATH: process.env.PATH }
-      : { ...process.env };
+    options.inheritEnv === true
+      ? { ...process.env }
+      : { PATH: process.env.PATH };
   const child = spawn(process.execPath, [`src/${entry}.ts`], {
     cwd: serverDir,
     env: { ...baseEnv, ...env },
