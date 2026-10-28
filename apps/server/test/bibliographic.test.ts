@@ -173,10 +173,10 @@ it.each([
     });
     expect(outcome.verdict).toBe(verdict);
     expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-6-identity-evidence-",
+      "article-search-77-7-identity-evidence-",
     );
     // Article Verdict derivation is part of the recorded Scoring rules version.
-    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-6$/u);
+    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-7$/u);
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
       fullAgreement: true,
@@ -884,6 +884,42 @@ it("reaches Mixed citation from independently opposing title and author componen
     candidate: "Synthetic article",
     score: { value: 100000000 },
   });
+});
+it("does not build Mixed citation from a conflicting identity group", async () => {
+  // The author component shares a DOI with a complete record but conflicts on PMID.
+  const author = {
+    ...oa(77825, "ZZZZZZZZZZZZZZZZZ", "Alpha"),
+    doi: "10.5555/author-component",
+    ids: { pmid: "5" },
+  };
+  const conflicting = {
+    id: "https://openalex.org/W77824",
+    title: "Synthetic article review",
+    authorships: [
+      { author: { display_name: "Alpha" } },
+      { author: { display_name: "Beta" } },
+    ],
+    publication_year: 2015,
+    doi: "10.5555/author-component",
+    ids: { pmid: "6" },
+  };
+  openalex.respondSequence(
+    "/works",
+    [oa(77823, "Synthetic article", "Zzzzzz"), conflicting, author].map(
+      (record) => ({ status: 200, body: { results: [record] } }),
+    ),
+  );
+  crossref.respond("/works", 200, { message: { items: [] } });
+  const { outcome } = await run(article);
+  // The conflicting record is complete and carries no counterevidence.
+  const record = outcome.candidates.find(
+    (c) => c.id === "https://openalex.org/W77824",
+  )!;
+  for (const field of ["title", "author"])
+    expect(
+      record.fields.find((f) => f.field === field)?.score?.value,
+    ).toBeGreaterThanOrEqual(50000000);
+  expect(outcome.verdict).toBe("not-verifiable");
 });
 it("keeps mandatory DOI failure ahead of independently received Mixed evidence", async () => {
   const doi = "10.5555/mandatory";

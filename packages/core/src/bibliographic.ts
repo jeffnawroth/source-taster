@@ -50,12 +50,12 @@ export const articleSearchConfiguration = Object.freeze({
     "development-openalex-and-crossref-complete-title-author-year",
   nameProjection: "openalex-display-name-last-token-family-1",
   receivedEvidence: "normalized-pmcid-affirmative-retraction-1",
-  identityEvidence: "consistent-connected-groups-counterevidence-3",
+  identityEvidence: "consistent-connected-groups-counterevidence-4",
 });
 // Article Verdict derivation (identity groups, missing comparisons and
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
-export const articleVerdictRules = "article-verdict-77-6";
+export const articleVerdictRules = "article-verdict-77-7";
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 export const normalizePmid = (value: string) =>
   value
@@ -144,7 +144,7 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-77-6-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-77-7-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         enabledSources: ports.sources.map((s) => s.name).join(","),
@@ -592,10 +592,15 @@ export function createBibliographicVerification(ports: {
       result.reasons = ["insufficient-search"];
       return finish();
     }
+    // Mixed components must be distinct, consistently identified Sources.
+    const consistent = (c: Candidate) =>
+      !identityGroup(c, result.candidates).conflicting;
     const mixed = result.candidates.some((a) =>
       result.candidates.some(
         (b) =>
           !identityGroup(a, result.candidates).members.has(b) &&
+          consistent(a) &&
+          consistent(b) &&
           !unsafe(a) &&
           !unsafe(b) &&
           (fieldScore(a, "title") ?? -1) >= profile.mixedComponent &&

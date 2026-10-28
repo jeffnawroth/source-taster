@@ -248,18 +248,36 @@ free of counterevidence, then expects Correct for the exact match. It failed on
 `842e353` (`r3-red-conflict-band.log`) and passes with the correction. The
 recorded Scoring rules version suffix is now also asserted directly.
 
+Relaxing that guard exposed the Mixed citation predicate, which had relied on
+it to keep conflicting groups out. A complete record sharing a DOI with the
+author component but conflicting on PMID produced Mixed citation on `4befb70`
+(`r4-red-mixed-conflict.log`). Mixed components must now each belong to a
+consistent identity group, as the first Spec correction intended; the new
+HTTP/SSE witness is GREEN and the existing Mixed controls are unchanged. Where
+no unresolved comparison and no Mixed or ambiguous evidence remain, a completed
+sufficient search with only complete, non-matching conflicting records now
+reaches Not found rather than insufficient search, per ADR-0008. Both outcome
+changes are covered by `article-verdict-77-7`.
+
+Known follow-up, not changed here: ADR-0007 places the retraction marker on the
+Best match independently of the Verdict, so a Not found or otherwise unidentified
+result can carry it. The current copy, "This Source is reported as retracted",
+then reads as if the cited Source were identified, which ADR-0016 asks the
+results view to avoid. Whether to gate the marker or adjust its copy for
+unidentified results is a presentation decision outside these corrections.
+
 ## Consolidated version and validation
 
 The Standards review noted that Verdict derivation changed while the Scoring
 rules version did not. ADR-0008 requires a new version for every outcome-changing
-rule. The article Verdict rules are therefore versioned as `article-verdict-77-6`
+rule. The article Verdict rules are therefore versioned as `article-verdict-77-7`
 and appended to the #75 Scoring rules version recorded in each result; the #75
 comparison algorithms, parameters and thresholds themselves are unchanged. The
 earlier statement that Scoring rules were unchanged by the identity correction
 is superseded.
 
-The current Search strategy prefix is `article-search-77-6-identity-evidence`,
-with `identityEvidence: consistent-connected-groups-counterevidence-3` and the
+The current Search strategy prefix is `article-search-77-7-identity-evidence`,
+with `identityEvidence: consistent-connected-groups-counterevidence-4` and the
 prior received-evidence configuration recorded in each immutable result. Source
 budgets, deadlines, Candidate slots, transport schemas, dependencies and the
 private contract pin are unchanged. The English retraction note now says
@@ -272,11 +290,11 @@ Final-head validation runs serially against the owned PostgreSQL fixture
 
 | Check | Result / transcript under `.tmp/st77-review/` |
 | --- | --- |
-| Full server HTTP/SSE | **218 passed / 12 files**, `r3-server-full.log` |
-| Core/server/web typechecks, scoped ESLint, Prettier, whitespace | Passed, `r3-static.log` |
-| Server and web builds | Passed, `r4-build.log`; existing Vite chunk advisory only |
-| Full Authority, run alone | **31 passed**, `r4-authority.log` |
-| Normal then bibliographic web/axe | **38 + 12 passed**, `r4-web.log` |
-| Hosted Guest browser | **5 passed**, `r4-guest.log` |
+| Full server HTTP/SSE | **219 passed / 12 files**, `r5-server-full.log` |
+| Core/server/web typechecks, scoped ESLint, Prettier, whitespace | Passed, `r5-static.log` |
+| Server and web builds | Passed, `r5-build.log`; existing Vite chunk advisory only |
+| Full Authority, run alone | **31 passed**, `r5-authority.log` |
+| Normal then bibliographic web/axe | **38 + 12 passed**, `r5-web.log` |
+| Hosted Guest browser | **5 passed**, `r5-guest.log` |
 
 All existing release, calibration, native-browser and publication limits remain.
