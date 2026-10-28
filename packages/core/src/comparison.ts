@@ -907,10 +907,21 @@ function dateParts(value: string): (string | undefined)[] | null {
     "november",
     "dezember",
   ];
-  const month =
-    /\b(january|february|march|april|may|june|july|august|september|october|november|december|januar|februar|märz|mai|juni|juli|oktober|dezember)\b(?:\s+(\d{1,2})\b)?/iu.exec(
-      value,
-    );
+  const monthNames = [...new Set([...months, ...german])].join("|");
+  const monthMatches = [
+    ...value.matchAll(
+      new RegExp(`\\b(${monthNames})\\b(?:\\s+(\\d{1,2})\\b)?`, "giu"),
+    ),
+  ];
+  // A range has no single month/day to compare. Recognize it before selecting
+  // the first named month; the exact ISO single-date form was handled above.
+  if (
+    /\b\d{1,2}\.?\s*(?:[-/]|to\b|bis\b)\s*\d{1,2}\b/iu.test(value) ||
+    /\s[-/]\s|\b(?:to|bis)\b/iu.test(value) ||
+    (monthMatches.length > 1 && /[-/]/u.test(value))
+  )
+    return ["", year[1]];
+  const month = monthMatches[0];
   if (month) {
     const token = month[1]!.toLowerCase();
     const index =

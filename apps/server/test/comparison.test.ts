@@ -340,6 +340,25 @@ it("compares the written day before English or German month names and excludes n
     reason: "not-determinable",
   });
 });
+it.each([
+  "15 June – 16 July 2021",
+  "June 15–July 16, 2021",
+  "15.–17. Juni 2021",
+  "June 15–17, 2021",
+  "15 June to 16 July 2021",
+  "15. Juni bis 16. Juli 2021",
+  "June–July 2021",
+  "2021-06-15/2021-07-16",
+])("compares only the year of the date range %s", async (literal) => {
+  const { candidate } = await compare(
+    { issued: { literal } },
+    { published: { "date-parts": [[2021, 6, 17]] } },
+  );
+  expect(candidate.fields.find((f) => f.field === "issued")).toMatchObject({
+    reference: { literal },
+    score: { value: 100000000, fullAgreement: true },
+  });
+});
 it("applies normalization in the fixed order on Unicode code points and preserves both raw values", async () => {
   const cases = [
     ["<i>M&Atilde;&frac14;ller</i>", "Muller", 100000000],
@@ -592,7 +611,7 @@ it("uses shorter Reference-position prefixes before Candidate-position ties and 
   });
   expect(candidate.score).toEqual({ value: 52380952, fullAgreement: false });
   expect(outcome.scoringRules.version).toContain(
-    "comparison-75-2-lexicographic-ties-20261028",
+    "comparison-75-3-date-ranges-20261028",
   );
 });
 it("scores only received attested journal abbreviations and respects canonical qualifier evidence", async () => {

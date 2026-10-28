@@ -1,5 +1,9 @@
 # #75 comparison profile implementation
 
+Follow-up review corrections and the current Scoring rules version are recorded
+in [75-review-corrections.md](75-review-corrections.md). The evidence below
+describes the original implementation commit.
+
 This work is confined to #75 under the explicitly invoked implement-spec
 workflow and TDD skill. The bound worktree is
 `/Users/jeffnawroth/.t3/worktrees/source-taster/t3-ddfeabc7`, branch
