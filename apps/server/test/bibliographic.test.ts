@@ -17,13 +17,17 @@ const matching = (value: unknown): unknown =>
 beforeAll(async () => {
   openalex = await startDoiFixtures();
   crossref = await startDoiFixtures();
-  service = await startTestService(54777, 0, {
-    ...crossref.env,
-    SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
-    SOURCE_TASTER_OPENALEX_ENABLED: "true",
-    SOURCE_TASTER_OPENALEX_BASE_URL:
-      openalex.env.SOURCE_TASTER_CROSSREF_BASE_URL,
-  });
+  service = await startTestService(
+    Number(process.env.SOURCE_TASTER_TEST_BIBLIOGRAPHIC_PORT ?? 54777),
+    0,
+    {
+      ...crossref.env,
+      SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+      SOURCE_TASTER_OPENALEX_ENABLED: "true",
+      SOURCE_TASTER_OPENALEX_BASE_URL:
+        openalex.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+    },
+  );
 });
 afterAll(async () => {
   await service?.stop();

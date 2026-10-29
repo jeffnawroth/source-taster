@@ -113,3 +113,44 @@ failed before their fix and passed afterward. Logs are retained locally as
 `/tmp/source-taster-73-ieee-{red,green}.log`. After both fixes and the author-rule
 cleanup, **all 46 Structuring HTTP tests pass** against real PostgreSQL 18.
 No search/scoring rule, public CSL type, timeout or budget was changed.
+
+### Parallel-test isolation
+
+An unchanged `main` (`ebb8681`) run passed all **61 bibliographic HTTP tests**.
+A subsequent integration run exposed a concrete test-environment collision:
+port 54777 was served by a Node process whose working directory belonged to the
+concurrent #78 worktree. Tests expecting the existing source contract received
+additional Data sources. That run was stopped and is not final regression
+evidence. This demonstrates the collision in that run; it does not prove that
+every earlier assertion failure had the same cause.
+
+The bibliographic test service now accepts
+`SOURCE_TASTER_TEST_BIBLIOGRAPHIC_PORT`, preserving its existing default 54777,
+like the other configurable test services. Integration validation uses port
+54773 and its dedicated PostgreSQL on 55473. The listening process's working
+directory was verified as this integration checkout. No #78 process, source
+adapter, test assertion, request budget or timeout was changed.
+
+### Final integration validation
+
+The complete HTTP/SSE run on the final parser and configurable test port passed
+**255 tests in all 12 files**, including all 61 bibliographic tests, all 76
+comparison tests and all 46 Structuring tests. No tests were skipped or
+expectations relaxed. The run used the existing service-port overrides plus
+`SOURCE_TASTER_TEST_BIBLIOGRAPHIC_PORT=54773`; its transcript is retained in
+`.tmp/73-evidence/integration-http.log`. The unchanged-main comparison transcript
+is retained as `.tmp/73-evidence/main-bibliographic.log`.
+
+The integration checkout also passed the controlled tool verification, full
+build, root typecheck, root lint/formatting and localization checks after the
+parser review fixes. Server typecheck and lint passed with the test-port
+override. Dependency and transport artifacts remain unchanged. The original
+158 browser and four native-extension results above retain their implementation
+handoff scope; no new browser result is claimed for the later review fixes.
+
+All two Spec findings and the optional Standards finding are addressed. The
+implementer worktree was removed after preserving its evidence locally; the
+integration branch and PR retain its commit. The dedicated integration test
+container is removed after validation. PR #130 closes only #73 when merged;
+the parent launch spec and the separate Measured configuration gates remain
+open.
