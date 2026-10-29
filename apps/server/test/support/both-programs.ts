@@ -390,6 +390,8 @@ export async function bothPrograms(
           result = (await service.command({
             guestId,
             status: true,
+            // Completion is per Guest and client, like the change itself.
+            client: (change as { client?: string }).client,
           })) as typeof result;
           return result.completed;
         }, 5000);
