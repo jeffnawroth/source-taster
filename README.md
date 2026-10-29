@@ -6,8 +6,13 @@ Development preview for [#70](https://github.com/jeffnawroth/source-taster/issue
 
 Use Node 24 LTS (`.nvmrc`, the ADR-0002 fallback until Node 26 becomes LTS and is qualified) and pnpm 12.15.0. PostgreSQL 18 listens on **5433**. Existing containers on 8000 and 4567 are unrelated.
 
+The full workspace build includes controlled native website tools and supports **macOS arm64** and **Linux amd64 GNU**. Install a host C/C++ compiler, linker and platform SDK first (Xcode Command Line Tools on macOS; GCC/G++ and the development headers on Linux). The fetch step downloads checksum-pinned sources and build tools, including a local Rust toolchain under `.tmp/pagefind/tools`; it does not use or change a global Rust installation. See the [controlled website build instructions](apps/website/qualification/controlled/README.md) for the recipe and qualification limits.
+
 ```sh
 pnpm install --frozen-lockfile
+pnpm pagefind:fetch
+pnpm pagefind:build
+pnpm pagefind:verify
 pnpm build
 # Start this service only if PostgreSQL is not already available on 5433:
 docker compose up -d postgres
