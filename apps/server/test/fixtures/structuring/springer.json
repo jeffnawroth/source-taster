@@ -1,0 +1,41 @@
+{
+  "description": "Synthetic Springer Basic development bibliography with colon-delimited authors and late dates.",
+  "text": "Doe, J., de Vries, A.: Signal maps. J. Test. 12(3), 45–67 (2020). doi:10.5555/SPRINGER\nMüller, A.: Ein sorgfältiges Buch. Beispielverlag, Berlin (2019).",
+  "expected": [
+    {
+      "author": [
+        {
+          "family": "Doe",
+          "given": "J."
+        },
+        {
+          "family": "de Vries",
+          "given": "A."
+        }
+      ],
+      "title": "Signal maps",
+      "container-title-short": "J. Test.",
+      "issued": {
+        "literal": "2020"
+      },
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67",
+      "DOI": "10.5555/SPRINGER"
+    },
+    {
+      "author": [
+        {
+          "family": "Müller",
+          "given": "A."
+        }
+      ],
+      "title": "Ein sorgfältiges Buch",
+      "publisher": "Beispielverlag",
+      "publisher-place": "Berlin",
+      "issued": {
+        "literal": "2019"
+      }
+    }
+  ]
+}

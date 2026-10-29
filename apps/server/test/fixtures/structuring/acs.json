@@ -1,0 +1,46 @@
+{
+  "description": "Synthetic ACS development bibliography with semicolon-separated names and journal punctuation.",
+  "text": "(1) Doe, J.; Müller, A. Signal Maps. J. Test. Chem. 2020, 12 (3), 45–67. doi:10.5555/ACS\n(2) O’Neil, C.; Sato, K. Open Archives. Archives Quarterly 2021, 8, e1234.",
+  "expected": [
+    {
+      "author": [
+        {
+          "family": "Doe",
+          "given": "J."
+        },
+        {
+          "family": "Müller",
+          "given": "A."
+        }
+      ],
+      "title": "Signal Maps",
+      "container-title-short": "J. Test. Chem.",
+      "issued": {
+        "literal": "2020"
+      },
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67",
+      "DOI": "10.5555/ACS"
+    },
+    {
+      "author": [
+        {
+          "family": "O’Neil",
+          "given": "C."
+        },
+        {
+          "family": "Sato",
+          "given": "K."
+        }
+      ],
+      "title": "Open Archives",
+      "container-title": "Archives Quarterly",
+      "issued": {
+        "literal": "2021"
+      },
+      "volume": "8",
+      "article-number": "e1234"
+    }
+  ]
+}
