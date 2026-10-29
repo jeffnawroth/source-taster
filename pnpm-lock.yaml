@@ -203,6 +203,55 @@ importers:
         specifier: 2.9.1
         version: 2.9.1
 
+  apps/extension:
+    dependencies:
+      '@source-taster/contract-service':
+        specifier: workspace:*
+        version: link:../../packages/contract-service
+      '@source-taster/contract-verification':
+        specifier: workspace:*
+        version: link:../../packages/contract-verification
+      '@source-taster/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@source-taster/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: 19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: 19.3.1
+        version: 19.3.1(react@19.3.1)
+    devDependencies:
+      '@axe-core/playwright':
+        specifier: 4.14.0
+        version: 4.14.0(playwright-core@1.64.1)
+      '@playwright/test':
+        specifier: 1.64.1
+        version: 1.64.1
+      '@tailwindcss/vite':
+        specifier: 4.3.3
+        version: 4.3.3(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@types/react':
+        specifier: 19.2.14
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: 6.1.2
+        version: 6.1.2(vite@8.3.5(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
+      axe-core:
+        specifier: 4.14.0
+        version: 4.14.0
+      tailwindcss:
+        specifier: 4.3.3
+        version: 4.3.3
+      vite:
+        specifier: 8.3.5
+        version: 8.3.5(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
+
   apps/server:
     dependencies:
       '@hono/node-server':

@@ -57,6 +57,8 @@ jobs:
       - run: pnpm test
       - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
       - run: pnpm test:e2e
+      - name: Native Chromium side panel
+        run: pnpm --filter @source-taster/extension test:native
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: failure()
         with:
@@ -65,6 +67,7 @@ jobs:
             apps/web/test-results
             apps/web/test-results-bibliographic
             apps/website/test-results
+            apps/extension/test-results
           retention-days: 7
   dependencies:
     runs-on: ubuntu-24.04
