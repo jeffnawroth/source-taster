@@ -20,6 +20,7 @@ import {
   expireIssuedTokensIn,
   startHostedWeb,
   type Both,
+  withoutCheckCreation,
 } from "../e2e/support/hosted.ts";
 
 const identityKey = "source-taster-guest-id-v1";
@@ -222,6 +223,16 @@ test("web and extension keep separate Guest IDs and Preferences in the same nati
 
 test("an expiring Guest token is renewed for the same extension Guest ID and the protected event stream uses the current token", async () => {
   await native(async (browser) => {
+    try {
+      await renewal(browser);
+    } finally {
+      // Later cases start from a clock matching real time again.
+      await both.advance(Date.now() - both.now());
+    }
+  });
+});
+async function renewal(browser: NativeChromium) {
+  {
     const panel = await browser.openPanel();
     // Tokens issued now expire 40 s from now, inside the 30 s renewal margin
     // after about 10 s.
@@ -256,10 +267,10 @@ test("an expiring Guest token is renewed for the same extension Guest ID and the
       "The protected event stream was not accepted",
     );
     expect((await browser.storage())[identityKey]).toBe(ids[0]!.guestId);
-  });
-});
+  }
+}
 
-test("revocation and denial stop the native panel without replacing the extension Guest ID", async () => {
+test("revocation stops lease renewal and later Checks fail closed without replacing the extension Guest ID", async () => {
   await native(async (browser) => {
     const panel = await browser.openPanel();
     await panel.select("combobox", "Language", "de");
@@ -336,8 +347,46 @@ test("revocation and denial stop the native panel without replacing the extensio
       .info()
       .annotations.push(
         { type: "revocation alert", description: alert },
-        { type: "denial alert", description: denied },
+        { type: "refused token alert", description: denied },
       );
+  });
+});
+
+test("a Guest without Check creation permission is refused by the API in the native panel, keeping the same Guest ID", async () => {
+  await native(async (browser) => {
+    const panel = await browser.openPanel();
+    await check(panel);
+    await results(panel);
+    const id = issued(panel)[0]!.guestId;
+    await both.change(id, {
+      permissions: withoutCheckCreation,
+      client: "extension",
+    });
+    await panel.click("button", "Reset");
+    const mark = panel.responses.length;
+    await check(panel);
+    await until(
+      () =>
+        panel.responses
+          .slice(mark)
+          .some(
+            (r) => r.url === `${both.apiUrl}/v2/checks` && r.status === 403,
+          ),
+      "The API accepted a Check without permission",
+    );
+    await until(
+      async () =>
+        (await alerts(panel)).includes(
+          "You do not have permission for this action.",
+        ),
+      "The refused Check was not reported",
+    );
+    expect(issued(panel).every((r) => r.guestId === id)).toBe(true);
+    expect((await browser.storage())[identityKey]).toBe(id);
+    expect(
+      await panel.evaluate(`document.getElementById("results-title") === null`),
+    ).toBe(true);
+    expect(await panel.axe()).toEqual([]);
   });
 });
 

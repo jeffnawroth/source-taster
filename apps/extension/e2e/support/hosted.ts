@@ -8,6 +8,7 @@ import {
   eventually,
   freePort,
 } from "../../../server/test/support/both-programs.ts";
+import { Permission } from "../../../../packages/contract-common/src/index.ts";
 
 export type Both = Awaited<ReturnType<typeof bothPrograms>>;
 export { bothPrograms };
@@ -71,3 +72,8 @@ export async function startHostedWeb(both: Both) {
 export async function expireIssuedTokensIn(both: Both, ms: number) {
   await both.advance(Date.now() + ms - 300_000 - both.now());
 }
+
+/** Every Guest permission except starting a Check. */
+export const withoutCheckCreation = Permission.options.filter(
+  (permission) => permission !== "check:create",
+);
