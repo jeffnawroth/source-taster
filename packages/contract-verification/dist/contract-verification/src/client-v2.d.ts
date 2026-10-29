@@ -114,6 +114,10 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                     };
                     raw: unknown;
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
                     fields: {
                         field: string;
                         reference: unknown;
@@ -123,11 +127,19 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             fullAgreement: boolean;
                         } | null;
                         reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                        journalAbbreviation?: {
+                            outcome: "different" | "match" | "not-determinable";
+                            reason: "attested-match" | "attested-other-journal" | "no-attestation";
+                            attestations: {
+                                source: "crossref" | "europepmc" | "nlm" | "semanticscholar";
+                                role: "candidate" | "reference";
+                                journalTitle: string;
+                                abbreviation: string;
+                                nlmId?: string | undefined;
+                                snapshotDate?: string | undefined;
+                            }[];
+                        } | undefined;
                     }[];
-                    score: {
-                        value: number;
-                        fullAgreement: boolean;
-                    } | null;
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
@@ -273,6 +285,10 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                     };
                     raw: unknown;
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
                     fields: {
                         field: string;
                         reference: unknown;
@@ -282,11 +298,19 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             fullAgreement: boolean;
                         } | null;
                         reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                        journalAbbreviation?: {
+                            outcome: "different" | "match" | "not-determinable";
+                            reason: "attested-match" | "attested-other-journal" | "no-attestation";
+                            attestations: {
+                                source: "crossref" | "europepmc" | "nlm" | "semanticscholar";
+                                role: "candidate" | "reference";
+                                journalTitle: string;
+                                abbreviation: string;
+                                nlmId?: string | undefined;
+                                snapshotDate?: string | undefined;
+                            }[];
+                        } | undefined;
                     }[];
-                    score: {
-                        value: number;
-                        fullAgreement: boolean;
-                    } | null;
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
@@ -432,6 +456,10 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                     };
                     raw: unknown;
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
                     fields: {
                         field: string;
                         reference: unknown;
@@ -441,11 +469,19 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             fullAgreement: boolean;
                         } | null;
                         reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                        journalAbbreviation?: {
+                            outcome: "different" | "match" | "not-determinable";
+                            reason: "attested-match" | "attested-other-journal" | "no-attestation";
+                            attestations: {
+                                source: "crossref" | "europepmc" | "nlm" | "semanticscholar";
+                                role: "candidate" | "reference";
+                                journalTitle: string;
+                                abbreviation: string;
+                                nlmId?: string | undefined;
+                                snapshotDate?: string | undefined;
+                            }[];
+                        } | undefined;
                     }[];
-                    score: {
-                        value: number;
-                        fullAgreement: boolean;
-                    } | null;
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
@@ -591,6 +627,10 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                     };
                     raw: unknown;
+                    score: {
+                        value: number;
+                        fullAgreement: boolean;
+                    } | null;
                     fields: {
                         field: string;
                         reference: unknown;
@@ -600,11 +640,19 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             fullAgreement: boolean;
                         } | null;
                         reason: "compared" | "missing-candidate" | "missing-reference" | "not-determinable" | "resource-limit" | "unweighted";
+                        journalAbbreviation?: {
+                            outcome: "different" | "match" | "not-determinable";
+                            reason: "attested-match" | "attested-other-journal" | "no-attestation";
+                            attestations: {
+                                source: "crossref" | "europepmc" | "nlm" | "semanticscholar";
+                                role: "candidate" | "reference";
+                                journalTitle: string;
+                                abbreviation: string;
+                                nlmId?: string | undefined;
+                                snapshotDate?: string | undefined;
+                            }[];
+                        } | undefined;
                     }[];
-                    score: {
-                        value: number;
-                        fullAgreement: boolean;
-                    } | null;
                     source: "crossref" | "openalex";
                     origin: "authors-year" | "combined" | "doi" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;

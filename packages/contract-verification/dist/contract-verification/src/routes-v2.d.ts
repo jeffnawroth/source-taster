@@ -262,6 +262,10 @@ export declare const createCheck: {
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         raw: import("zod").ZodUnknown;
+                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
+                                            value: import("zod").ZodNumber;
+                                            fullAgreement: import("zod").ZodBoolean;
+                                        }, import("zod/v4/core").$strip>>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -278,10 +282,34 @@ export declare const createCheck: {
                                                 "resource-limit": "resource-limit";
                                                 unweighted: "unweighted";
                                             }>;
-                                        }, import("zod/v4/core").$strip>>;
-                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
-                                            value: import("zod").ZodNumber;
-                                            fullAgreement: import("zod").ZodBoolean;
+                                            journalAbbreviation: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                outcome: import("zod").ZodEnum<{
+                                                    different: "different";
+                                                    match: "match";
+                                                    "not-determinable": "not-determinable";
+                                                }>;
+                                                reason: import("zod").ZodEnum<{
+                                                    "attested-match": "attested-match";
+                                                    "attested-other-journal": "attested-other-journal";
+                                                    "no-attestation": "no-attestation";
+                                                }>;
+                                                attestations: import("zod").ZodArray<import("zod").ZodObject<{
+                                                    source: import("zod").ZodEnum<{
+                                                        crossref: "crossref";
+                                                        europepmc: "europepmc";
+                                                        nlm: "nlm";
+                                                        semanticscholar: "semanticscholar";
+                                                    }>;
+                                                    role: import("zod").ZodEnum<{
+                                                        candidate: "candidate";
+                                                        reference: "reference";
+                                                    }>;
+                                                    journalTitle: import("zod").ZodString;
+                                                    abbreviation: import("zod").ZodString;
+                                                    nlmId: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    snapshotDate: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>;
+                                            }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";
@@ -630,6 +658,10 @@ export declare const getCheck: {
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         raw: import("zod").ZodUnknown;
+                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
+                                            value: import("zod").ZodNumber;
+                                            fullAgreement: import("zod").ZodBoolean;
+                                        }, import("zod/v4/core").$strip>>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -646,10 +678,34 @@ export declare const getCheck: {
                                                 "resource-limit": "resource-limit";
                                                 unweighted: "unweighted";
                                             }>;
-                                        }, import("zod/v4/core").$strip>>;
-                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
-                                            value: import("zod").ZodNumber;
-                                            fullAgreement: import("zod").ZodBoolean;
+                                            journalAbbreviation: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                outcome: import("zod").ZodEnum<{
+                                                    different: "different";
+                                                    match: "match";
+                                                    "not-determinable": "not-determinable";
+                                                }>;
+                                                reason: import("zod").ZodEnum<{
+                                                    "attested-match": "attested-match";
+                                                    "attested-other-journal": "attested-other-journal";
+                                                    "no-attestation": "no-attestation";
+                                                }>;
+                                                attestations: import("zod").ZodArray<import("zod").ZodObject<{
+                                                    source: import("zod").ZodEnum<{
+                                                        crossref: "crossref";
+                                                        europepmc: "europepmc";
+                                                        nlm: "nlm";
+                                                        semanticscholar: "semanticscholar";
+                                                    }>;
+                                                    role: import("zod").ZodEnum<{
+                                                        candidate: "candidate";
+                                                        reference: "reference";
+                                                    }>;
+                                                    journalTitle: import("zod").ZodString;
+                                                    abbreviation: import("zod").ZodString;
+                                                    nlmId: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    snapshotDate: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>;
+                                            }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";
@@ -998,6 +1054,10 @@ export declare const cancelCheck: {
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         raw: import("zod").ZodUnknown;
+                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
+                                            value: import("zod").ZodNumber;
+                                            fullAgreement: import("zod").ZodBoolean;
+                                        }, import("zod/v4/core").$strip>>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -1014,10 +1074,34 @@ export declare const cancelCheck: {
                                                 "resource-limit": "resource-limit";
                                                 unweighted: "unweighted";
                                             }>;
-                                        }, import("zod/v4/core").$strip>>;
-                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
-                                            value: import("zod").ZodNumber;
-                                            fullAgreement: import("zod").ZodBoolean;
+                                            journalAbbreviation: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                outcome: import("zod").ZodEnum<{
+                                                    different: "different";
+                                                    match: "match";
+                                                    "not-determinable": "not-determinable";
+                                                }>;
+                                                reason: import("zod").ZodEnum<{
+                                                    "attested-match": "attested-match";
+                                                    "attested-other-journal": "attested-other-journal";
+                                                    "no-attestation": "no-attestation";
+                                                }>;
+                                                attestations: import("zod").ZodArray<import("zod").ZodObject<{
+                                                    source: import("zod").ZodEnum<{
+                                                        crossref: "crossref";
+                                                        europepmc: "europepmc";
+                                                        nlm: "nlm";
+                                                        semanticscholar: "semanticscholar";
+                                                    }>;
+                                                    role: import("zod").ZodEnum<{
+                                                        candidate: "candidate";
+                                                        reference: "reference";
+                                                    }>;
+                                                    journalTitle: import("zod").ZodString;
+                                                    abbreviation: import("zod").ZodString;
+                                                    nlmId: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    snapshotDate: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>;
+                                            }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";
@@ -1366,6 +1450,10 @@ export declare const renewCheckLease: {
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         raw: import("zod").ZodUnknown;
+                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
+                                            value: import("zod").ZodNumber;
+                                            fullAgreement: import("zod").ZodBoolean;
+                                        }, import("zod/v4/core").$strip>>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -1382,10 +1470,34 @@ export declare const renewCheckLease: {
                                                 "resource-limit": "resource-limit";
                                                 unweighted: "unweighted";
                                             }>;
-                                        }, import("zod/v4/core").$strip>>;
-                                        score: import("zod").ZodNullable<import("zod").ZodObject<{
-                                            value: import("zod").ZodNumber;
-                                            fullAgreement: import("zod").ZodBoolean;
+                                            journalAbbreviation: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                outcome: import("zod").ZodEnum<{
+                                                    different: "different";
+                                                    match: "match";
+                                                    "not-determinable": "not-determinable";
+                                                }>;
+                                                reason: import("zod").ZodEnum<{
+                                                    "attested-match": "attested-match";
+                                                    "attested-other-journal": "attested-other-journal";
+                                                    "no-attestation": "no-attestation";
+                                                }>;
+                                                attestations: import("zod").ZodArray<import("zod").ZodObject<{
+                                                    source: import("zod").ZodEnum<{
+                                                        crossref: "crossref";
+                                                        europepmc: "europepmc";
+                                                        nlm: "nlm";
+                                                        semanticscholar: "semanticscholar";
+                                                    }>;
+                                                    role: import("zod").ZodEnum<{
+                                                        candidate: "candidate";
+                                                        reference: "reference";
+                                                    }>;
+                                                    journalTitle: import("zod").ZodString;
+                                                    abbreviation: import("zod").ZodString;
+                                                    nlmId: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    snapshotDate: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>;
+                                            }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";

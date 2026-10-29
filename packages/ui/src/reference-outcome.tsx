@@ -7,6 +7,7 @@ import type {
   Verdict,
 } from "@source-taster/contract-verification/v2";
 import { m } from "@source-taster/i18n";
+import { JournalAbbreviationExplanation } from "./journal-abbreviation.tsx";
 const verdicts = {
   correct: ["✓", "text-green-900", "verdict_correct"],
   "exists-with-deviations": ["△", "text-amber-950", "verdict_exists"],
@@ -322,6 +323,11 @@ export function ReferenceOutcomeView({
                               ? m.field_missing_candidate()
                               : m.field_unweighted()}
                   </dd>
+                  {field.journalAbbreviation && (
+                    <JournalAbbreviationExplanation
+                      evidence={field.journalAbbreviation}
+                    />
+                  )}
                 </div>
               ))}
             </dl>

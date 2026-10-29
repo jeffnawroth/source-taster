@@ -8,3 +8,4 @@ export {
   type ComparisonProfile,
 } from "./comparison.ts";
 export * from "./bibliographic.ts";
+export { journalAbbreviationRules } from "./journal-abbreviations.ts";

@@ -179,5 +179,9 @@
   "workspace_help": "How the check works",
   "workspace_human": "A Verdict is not proof of deception. A human makes the decision.",
   "workspace_method": "References are structured into fields, searched in enabled Data sources and compared with Candidates. The server supplies the Verdict, its explanation and the Best match. A Score measures field agreement, not the probability that a Source exists.",
-  "workspace_limits": "Unknown or missing evidence is not agreement or a zero Score. Incomplete verification is explained separately from a completed search with no match. Retraction reports concern the Best match and are independent of the Verdict."
+  "workspace_limits": "Unknown or missing evidence is not agreement or a zero Score. Incomplete verification is explained separately from a completed search with no match. Retraction reports concern the Best match and are independent of the Verdict.",
+  "journal_abbreviation_match": "The journal abbreviation is attested for this Candidate’s journal.",
+  "journal_abbreviation_different": "The abbreviation is attested for another journal. The Candidate’s journal has a different attested abbreviation.",
+  "journal_abbreviation_unknown": "The journal abbreviation cannot be reliably assigned to this Candidate’s journal. This field is unscored; the remaining weights are renormalized.",
+  "journal_nlm_snapshot": "NLM snapshot: {date}. This pinned snapshot may not reflect the most current NLM data."
 }
