@@ -238,8 +238,9 @@ const sourceSettings = z.strictObject({
 });
 const searchSettingsPatch = z.strictObject({
   requestTimeoutMs: z.number().int().min(100).max(30000).optional(),
-  maxRetries: z.number().int().min(0).max(3).optional(),
-  retryAfterMaxMs: z.number().int().min(0).max(30000).optional(),
+  // ADR-0007 bounds: at most one retry, after a Retry-After of at most 2 s.
+  maxRetries: z.number().int().min(0).max(1).optional(),
+  retryAfterMaxMs: z.number().int().min(0).max(2000).optional(),
   activeReferencesPerCheck: z.number().int().min(1).max(1000).optional(),
   workerConcurrency: z.number().int().min(1).max(1000).optional(),
   sources: z

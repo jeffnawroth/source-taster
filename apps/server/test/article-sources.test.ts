@@ -511,7 +511,9 @@ it("versions the Operator's search operating settings with the Search strategy",
 
 it.each([
   { requestTimeoutMs: 0 },
-  { maxRetries: 9 },
+  // ADR-0007: at most one retry, honouring a Retry-After of at most 2 s.
+  { maxRetries: 2 },
+  { retryAfterMaxMs: 2001 },
   { sources: { arxiv: { concurrency: 0 } } },
   { sources: { unknown: { intervalMs: 1 } } },
   { fairness: "first-come" },
