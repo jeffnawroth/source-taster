@@ -47,6 +47,21 @@ fixtures.respond("/works/10.5555/browser-authors", 200, {
     ],
   },
 });
+fixtures.respond("/api/handles/10.5555/browser-journal", 200, {
+  responseCode: 1,
+  handle: "10.5555/browser-journal",
+});
+fixtures.respond("/works/10.5555/browser-journal", 200, {
+  message: {
+    DOI: "10.5555/browser-journal",
+    title: ["Synthetic journal evidence"],
+    author: [{ family: "Smith", given: "Anna" }],
+    "container-title": ["The Journal of biological chemistry"],
+    published: { "date-parts": [[2021]] },
+    volume: "1",
+    page: "1-2",
+  },
+});
 const held = fixtures.hold("/api/handles/10.5555/browser-held");
 fixtures.respond("/api/handles/10.5555/browser-unavailable", 503, {});
 fixtures.respond("/works/10.5555/browser-invalid", 200, { message: {} });

@@ -10,7 +10,30 @@ export const RetractionEvidence = z
     observedAt: z.string(),
   })
   .meta({ id: "RetractionEvidenceV2" });
+export const FieldComparison = v1.FieldComparison.extend({
+  journalAbbreviation: z
+    .object({
+      outcome: z.enum(["match", "different", "not-determinable"]),
+      reason: z.enum([
+        "attested-match",
+        "attested-other-journal",
+        "no-attestation",
+      ]),
+      attestations: z.array(
+        z.object({
+          source: z.enum(["nlm", "crossref", "europepmc", "semanticscholar"]),
+          role: z.enum(["candidate", "reference"]),
+          journalTitle: z.string(),
+          abbreviation: z.string(),
+          nlmId: z.string().optional(),
+          snapshotDate: z.string().optional(),
+        }),
+      ),
+    })
+    .optional(),
+}).meta({ id: "FieldComparisonV2" });
 export const Candidate = v1.Candidate.extend({
+  fields: z.array(FieldComparison),
   source: z.enum(["crossref", "openalex"]),
   origin: z.enum(["doi", "pmid", "pmcid", "combined", "title", "authors-year"]),
   identifiers: z.array(z.string()).optional(),
