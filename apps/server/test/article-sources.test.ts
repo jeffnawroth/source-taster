@@ -379,8 +379,15 @@ it("continues past a failing, a timed-out and a rate-limited source and names ea
         }),
       ]),
     );
-    // A failed source is not asked again for this Reference.
-    expect(openalex.requests).toHaveLength(2);
+    // An HTTP error is retried once per call; each later search kind of that
+    // source is still asked (ADR-0007). A timed-out or rate-limited source is
+    // not asked again for this Reference.
+    expect(openalex.requests).toHaveLength(6);
+    expect(
+      outcome.evidence.filter(
+        (e) => e.source === "openalex" && e.reason === "after-source-failure",
+      ),
+    ).toEqual([]);
     expect(crossref.requests).toHaveLength(2);
     expect(europepmc.requests).toHaveLength(1);
     expect(semanticscholar.requests).toHaveLength(1);

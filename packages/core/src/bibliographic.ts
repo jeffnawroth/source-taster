@@ -84,12 +84,11 @@ export const articleSearchConfiguration = Object.freeze({
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
 export const articleVerdictRules = "article-verdict-78-1";
-const transportFailures = new Set([
-  "timeout",
-  "rate-budget",
-  "http-error",
-  "request-unavailable",
-]);
+// ADR-0007 per-call rule: an HTTP error or unreachable source is retried at
+// most once per call, and later operations of that source still run. Only a
+// timeout or an exhausted rate budget makes a Data source unavailable for the
+// rest of the Reference, so one slow source cannot spend the whole deadline.
+const sourceExhausted = new Set(["timeout", "rate-budget"]);
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 export const normalizePmid = (value: string) =>
   value
@@ -265,9 +264,9 @@ export function createBibliographicVerification(ports: {
           >(),
           offsets: new Map<QueryKind, number>(),
           complete: true,
-          // A rate-budget failure skips this source's remaining calls, so a
-          // congested source cannot consume the other sources' deadline.
-          limited: false,
+          // Set after a timeout or rate-budget failure: this source's
+          // remaining calls are recorded as after-source-failure, not sent.
+          exhausted: false,
         },
       ]),
     );
@@ -506,13 +505,13 @@ export function createBibliographicVerification(ports: {
     function attempted(state: State, evidence: Evidence) {
       result.evidence.push(evidence);
       if (evidence.outcome === "unavailable") state.complete = false;
-      // A source that timed out, was rate-limited or failed is not asked again
-      // for this Reference; the search continues with the other sources.
+      // A source that timed out or was rate-limited is not asked again for
+      // this Reference; the search continues with the other sources.
       if (
         evidence.outcome === "unavailable" &&
-        transportFailures.has(evidence.reason ?? "")
+        sourceExhausted.has(evidence.reason ?? "")
       )
-        state.limited = true;
+        state.exhausted = true;
     }
     // DOI handling precedes the other identifiers (ADR-0007).
     const identifiers: [IdentifierKind, string | undefined][] = [
@@ -553,7 +552,7 @@ export function createBibliographicVerification(ports: {
           ];
           continue;
         }
-        const response = state.limited
+        const response = state.exhausted
           ? {
               evidence: note(name, kind, "unavailable", "after-source-failure"),
             }
@@ -601,7 +600,7 @@ export function createBibliographicVerification(ports: {
                     "missing-query-fields",
                   ),
                 }
-              : state.limited
+              : state.exhausted
                 ? {
                     candidates: [],
                     evidence: note(

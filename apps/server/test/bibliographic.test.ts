@@ -1120,23 +1120,13 @@ it("continues to Crossref after an OpenAlex failure and distinguishes that failu
       score: { value: 100000000 },
     },
   ]);
-  // #78: the failed source is named once, with its retried attempt; later
-  // OpenAlex operations send nothing and say why.
-  const [failed, ...later] = outcome.evidence.filter(
-    (e) => e.source === "openalex",
-  );
-  expect(failed).toMatchObject({
-    outcome: "unavailable",
-    reason: "http-error",
-    attempts: 2,
-  });
-  for (const e of later)
-    expect(e).toMatchObject({
-      outcome: "unavailable",
-      reason: "after-source-failure",
-      attempts: 0,
-    });
-  expect(openalex.requests).toHaveLength(2);
+  // ADR-0007 per-call rule: an HTTP error is retried once per call and does not
+  // stop the source's later operations.
+  expect(
+    outcome.evidence
+      .filter((e) => e.source === "openalex")
+      .every((e) => e.outcome === "unavailable" && e.attempts === 2),
+  ).toBe(true);
 });
 it("requires completed searches in both explicitly enabled development indexes for Not found", async () => {
   openalex.respond("/works", 200, { results: [] });
