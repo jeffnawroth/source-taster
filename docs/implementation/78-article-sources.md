@@ -123,7 +123,7 @@ HTTP is replaced by loopback fixtures; no internal call is mocked.
 
 | Criterion | Tests |
 | --- | --- |
-| Europe PMC, Semantic Scholar, arXiv (identifier only) adapters with recorded fixtures; DOI first | `article-sources.test.ts`: "identifies a PMCID through Europe PMC…", "handles a supplied DOI before the PMCID and arXiv routes", "identifies an arXiv identifier through the Semantic Scholar index…", "falls back to the arXiv API, identifier only…" |
+| Europe PMC, Semantic Scholar, arXiv (identifier only) adapters with recorded fixtures; DOI first. **Partially met:** Semantic Scholar has no recorded fixture (see below) | `article-sources.test.ts`: "identifies a PMCID through Europe PMC…", "handles a supplied DOI before the PMCID and arXiv routes", "identifies an arXiv identifier through the Semantic Scholar index…", "falls back to the arXiv API, identifier only…" |
 | A timeout, rate-limit wait or error lets the search continue and is named | "continues past a failing, a timed-out and a rate-limited source and names each"; browser `e2e-bibliographic/search.spec.ts` "names a failed Data source instead of reporting Not found" (EN/DE, axe) |
 | All responsible sources fail: Not verifiable naming them, never Not found | "is Not verifiable naming every source when all responsible sources fail"; "blocks Not found while one responsible source has failed"; "reaches Not found only when every enabled search source completed" |
 | Per-source budgets, timeouts and Owner fairness are versioned operating settings | "versions the Operator's search operating settings with the Search strategy"; five startup-refusal cases; `article-fairness.test.ts` "alternates between Owners…" and "caps running References per Check…" |
@@ -168,6 +168,17 @@ Existing #77 tests changed in three ways:
   is unresolved (research note), and no Semantic Scholar payload is stored.
 - **Deadline not a setting.** The 30-second Reference deadline remains the
   ADR-0007 constant.
+- **Timeout is global.** The criterion names per-source timeouts, but only one
+  `requestTimeoutMs` exists and it applies to every source. The per-source
+  settings are interval, concurrency and maximum permit wait.
+- **Fairness is not switchable.** `fairness` is recorded and hashed but has one
+  value and is not accepted in the `SOURCE_TASTER_SEARCH_SETTINGS` patch. The
+  operator-tunable fairness settings are `activeReferencesPerCheck` and
+  `workerConcurrency`.
+- **No Semantic Scholar fixture (open decision).** Criterion 1 asks for
+  recorded fixtures; Semantic Scholar has only synthetic ones. Recording a
+  sanitized payload, or accepting synthetic-only, depends on the unresolved
+  licence and is left to the parent.
 - **Changed #77 evidence.** A failed source's later operations now read
   `after-source-failure`. Previously each was attempted again and recorded as
   `rate-budget` or `deadline`.
@@ -216,5 +227,10 @@ implementation tree:
     admission-observation change in `lifecycle-recovery` is included.
   - `bibliographic.test.ts` passes 61/61 as an uncommitted temporary copy that
     differs only in using port 54879. The copy was deleted after the run.
+- **Final tree.** Server `tsc` and `eslint` and root `prettier --check .`
+  pass again after the merge and the test changes.
+- **Extension.** `pnpm test:native` in `apps/extension` passed 4/4 (native side
+  panel, web parity in EN and DE, Preferences with axe). It ran against the same
+  stub website artifact, which was removed afterwards.
 - **Not run.** `test:authority` needs the private peer service, and the website
   build needs Pagefind.
