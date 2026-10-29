@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Native #96 Guest acceptance: a real loaded extension, its real side panel,
 // actual browser.storage.local and the actual API/worker/PostgreSQL/peer authority.
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
@@ -352,6 +352,113 @@ test("revocation stops lease renewal and later Checks fail closed without replac
   });
 });
 
+for (const language of ["en", "de"] as const) {
+  const deniedText =
+    language === "en"
+      ? "You do not have permission for this action."
+      : "Sie haben keine Berechtigung für diese Aktion.";
+  const checkName = language === "en" ? "Check Reference" : "Referenz prüfen";
+  const structureName =
+    language === "en" ? "Structure References" : "Referenzen strukturieren";
+  const resetName = language === "en" ? "Reset" : "Zurücksetzen";
+  test(`native extension ${language} token refusal is readable and latched without replacing identity`, async () => {
+    await native(async (browser) => {
+      const panel = await browser.openPanel();
+      await panel.select("combobox", "Language", language);
+      await check(panel, structureName);
+      await panel.locate(
+        `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
+        20_000,
+      );
+      const id = issued(panel)[0]!.guestId;
+      await both.change(id, { revoke: true, client: "extension" });
+      await panel.reload();
+      const mark = panel.requests.length;
+      await check(panel, checkName);
+      await until(
+        async () => (await alerts(panel)).includes(deniedText),
+        "The token refusal was not explained",
+        10_000,
+      );
+      expect(
+        panel.responses.some(
+          (r) =>
+            r.url === `${both.serviceUrl}/v1/guest-tokens` && r.status === 403,
+        ),
+      ).toBe(true);
+      await panel.click("button", resetName);
+      expect(await alerts(panel)).toEqual([]);
+      await check(panel, checkName);
+      await until(
+        async () => (await alerts(panel)).includes(deniedText),
+        "The latched refusal was not explained",
+        10_000,
+      );
+      expect(issued(panel)).toEqual([
+        { guestId: id, client: "extension" },
+        { guestId: id, client: "extension" },
+      ]);
+      expect(
+        panel.requests.slice(mark).filter((r) => r.url.startsWith(both.apiUrl)),
+      ).toEqual([]);
+      expect((await browser.storage())[identityKey]).toBe(id);
+      expect(await panel.query("region", "Your Check")).toEqual([]);
+      expect(await panel.axe()).toEqual([]);
+      await panel.screenshot(
+        evidence(`chromium-token-refused-${language}.png`),
+      );
+    });
+  });
+  test(`hosted web ${language} token refusal is readable and latched without replacing identity`, async ({
+    page,
+  }) => {
+    const posts: { guestId: string; client: string }[] = [];
+    const apiRequests: string[] = [];
+    page.on("request", (r) => {
+      if (
+        r.url() === `${both.serviceUrl}/v1/guest-tokens` &&
+        r.method() === "POST"
+      )
+        posts.push(r.postDataJSON() as { guestId: string; client: string });
+      if (r.url().startsWith(`${web.url}/v`)) apiRequests.push(r.url());
+    });
+    await page.goto(web.url);
+    await page
+      .getByRole("combobox", { name: "Language" })
+      .selectOption(language);
+    await page.getByRole("textbox").fill(physicsReference);
+    await page
+      .getByRole("button", { name: structureName, exact: true })
+      .click();
+    await expect(
+      page.getByText("Measured measurement", { exact: true }),
+    ).toBeVisible();
+    const id = posts[0]!.guestId;
+    await both.change(id, { revoke: true, client: "web" });
+    await page.reload();
+    const mark = apiRequests.length;
+    await page.getByRole("textbox").fill(physicsReference);
+    await page.getByRole("button", { name: checkName, exact: true }).click();
+    await expect(page.getByRole("alert")).toHaveText(deniedText);
+    await page.getByRole("button", { name: resetName, exact: true }).click();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await page.getByRole("textbox").fill(physicsReference);
+    await page.getByRole("button", { name: checkName, exact: true }).click();
+    await expect(page.getByRole("alert")).toHaveText(deniedText);
+    expect(posts).toEqual([
+      { guestId: id, client: "web" },
+      { guestId: id, client: "web" },
+    ]);
+    expect(apiRequests.slice(mark)).toEqual([]);
+    expect(
+      await page.evaluate(() =>
+        localStorage.getItem("source-taster-guest-id-v1"),
+      ),
+    ).toBe(id);
+    await expect(page.locator("#results-title")).toHaveCount(0);
+  });
+}
+
 test("a Guest without Check creation permission is refused by the API in the native panel, keeping the same Guest ID", async () => {
   await native(async (browser) => {
     const panel = await browser.openPanel();
@@ -447,28 +554,94 @@ for (const failure of ["corrupt", "full"] as const)
     });
   });
 
+test("the production background denies extension-local storage to a test-only untrusted content script", async () => {
+  const probe = await buildExtension("chromium", {
+    SOURCE_TASTER_EXTENSION_MODE: "hosted",
+    SOURCE_TASTER_EXTENSION_API_URL: both.apiUrl,
+    SOURCE_TASTER_EXTENSION_SERVICE_URL: both.serviceUrl,
+    SOURCE_TASTER_EXTENSION_WEBSITE_URL: web.url,
+  });
+  try {
+    const manifestPath = join(probe.outDir, "manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Record<
+      string,
+      unknown
+    >;
+    expect(manifest.content_scripts).toBeUndefined();
+    // Counterfactual probe only: production bundles/manifest contain no content
+    // script. This owned temporary build adds one untrusted context so the real
+    // background's restriction must deny an actual browser.storage operation.
+    const target = new URL(web.url);
+    manifest.content_scripts = [
+      {
+        matches: [`${target.protocol}//${target.hostname}/*`],
+        js: ["untrusted-storage-probe.js"],
+      },
+    ];
+    await writeFile(manifestPath, JSON.stringify(manifest));
+    await writeFile(
+      join(probe.outDir, "untrusted-storage-probe.js"),
+      `
+      void (async () => {
+        let result;
+        try {
+          await chrome.storage.local.get("source-taster-guest-id-v1");
+          result = "readable";
+        } catch {
+          result = "denied";
+        }
+        document.documentElement.dataset.st92StorageProbe = result;
+      })();
+    `,
+    );
+    await withProfile(async (profile) => {
+      const browser = await launchChromium(probe.outDir, profile);
+      try {
+        await allowOrigins(both, [web.url, browser.origin]);
+        const panel = await browser.openPanel();
+        await check(panel, "Structure References");
+        await panel.locate(
+          `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
+          20_000,
+        );
+        expect((await browser.storage())[identityKey]).toMatch(uuid);
+        const page = await browser.context.newPage();
+        await page.goto(web.url);
+        await expect
+          .poll(() =>
+            page.evaluate(
+              () => document.documentElement.dataset.st92StorageProbe,
+            ),
+          )
+          .toBe("denied");
+      } finally {
+        await browser.close();
+      }
+    });
+  } finally {
+    await allowOrigins(both, [web.url, origin]);
+    await probe.remove();
+  }
+});
+
 test("extension storage and pages stay in trusted extension contexts", async () => {
   await native(async (browser) => {
     const panel = await browser.openPanel();
     await check(panel);
     await results(panel);
     const worker = await browser.serviceWorker();
-    // The access level the background requests is supported by this browser.
+    // Observe persistence and available contexts without setting access policy.
     expect(
       await worker.evaluate(async () => {
         const chrome = (
           globalThis as unknown as {
             chrome: {
               storage: {
-                local: { setAccessLevel(o: object): Promise<void> };
                 sync: { get(k: null): Promise<object> };
               };
             };
           }
         ).chrome;
-        await chrome.storage.local.setAccessLevel({
-          accessLevel: "TRUSTED_CONTEXTS",
-        });
         return chrome.storage.sync.get(null);
       }),
     ).toEqual({});

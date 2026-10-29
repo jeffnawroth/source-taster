@@ -12,6 +12,7 @@ import {
   type VerificationClientOptions,
 } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
+import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
 import { Button, Label, Text, TextArea, TextField } from "./index.tsx";
 import {
@@ -46,7 +47,9 @@ function problemKey(error: unknown, fallback: MessageKey): MessageKey {
   if (error instanceof GuestIdentityError)
     return "problem_guest_identity_storage";
   const key =
-    error instanceof ApiError || error instanceof CheckStreamError
+    error instanceof ApiError ||
+    error instanceof CheckStreamError ||
+    error instanceof GuestTokenError
       ? error.problem?.i18nKey
       : undefined;
   return key?.startsWith("problem_") && key in m

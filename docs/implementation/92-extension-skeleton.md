@@ -1,5 +1,8 @@
 # #92 Extension skeleton and native #96 Guest acceptance
 
+This receipt records the original `8f81a43` checkpoint. Current review corrections
+and native denial/storage evidence are in [92-review-corrections.md](92-review-corrections.md).
+
 This delivery adds explicit Chromium and Firefox extension targets built by Vite
 from one codebase (`apps/extension`). It also covers the remaining native
 extension acceptance of #96. It is the final implementation ticket of the
@@ -100,8 +103,10 @@ connection-failure message and no fallback. That case was not executed.
 
 - **Chromium.** The background calls
   `storage.local.setAccessLevel({ accessLevel: "TRUSTED_CONTEXTS" })`. The
-  native test also observes that call resolving, an empty `storage.sync`, and
-  only `BACKGROUND` and `SIDE_PANEL` contexts. From an ordinary web page it
+  original native test called that API itself, proving support rather than
+  production enforcement; the review correction replaces that side effect and
+  adds a discriminating untrusted-context probe. It also observes an empty
+  `storage.sync` and only `BACKGROUND` and `SIDE_PANEL` contexts. From an ordinary web page it
   observes no `chrome.runtime.id`, no `chrome.storage`, and blocked fetches of
   `panel.html` and `manifest.json`.
 - **Firefox.** It has no `setAccessLevel`. The restriction rests on the
@@ -245,6 +250,9 @@ The #92 slices ran RED→GREEN:
 
 ### Cross-repo finding: denied Guest issuance is unreadable by browsers
 
+This is the original discovery. Its correction and current browser-level
+acceptance are recorded in [92-review-corrections.md](92-review-corrections.md).
+
 The private service's `POST /v1/guest-tokens` sends no
 `Access-Control-Allow-Origin`, `Vary` or `Cache-Control` headers on its 403
 problem response, **even for an allowlisted Origin**. The 200 response carries
@@ -384,7 +392,7 @@ dist exists, and none was added: publication is closed.
 - **Native supported-browser/OS gate: not passed.**
   - Only Chrome for Testing 156 and Firefox Developer Edition 160.0b1 on macOS
     27.2 arm64, headless, were executed.
-  - Not executed: branded Chrome, Edge, Firefox release, Firefox ESR 128/140,
+  - Not executed: branded Chrome, Edge, Firefox release, Firefox ESR 128/140/153,
     Safari, Windows, Linux and headed or assistive-technology runs.
   - Chromium is not the whole native gate.
 - **Firefox coverage is a standalone smoke.**
@@ -400,8 +408,9 @@ dist exists, and none was added: publication is closed.
 - **Accessibility.** Automated axe checks cover only the tested Chromium DE/EN
   scope. Human WCAG, translation, security, privacy and legal reviews remain
   pending.
-- **Issuance denial in browsers is blocked by the peer CORS defect above.** The
-  permanent-denial latch has no browser-level evidence.
+- **At this original checkpoint, issuance denial was blocked by peer CORS.**
+  Current denial/latch evidence is recorded in the review correction; this old
+  checkpoint is not relabeled as passing that condition.
 - **Remaining gates.**
   - Calibration (release check exit 78) and production or hosted activation
     remain closed. No qualification receipt was produced.
