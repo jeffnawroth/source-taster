@@ -35,12 +35,10 @@ async function opened(firefox: NativeFirefox, open: boolean) {
 test("the toolbar button opens the real Firefox sidebar, which checks a Reference against the actual API", async () => {
   const firefox = await launchFirefox(build.outDir);
   try {
-    test
-      .info()
-      .annotations.push({
-        type: "browser",
-        description: `Firefox ${firefox.version}`,
-      });
+    test.info().annotations.push({
+      type: "browser",
+      description: `Firefox ${firefox.version}`,
+    });
     await firefox.clickToolbarButton();
     await opened(firefox, true);
     const witness = witnesses[0]!;

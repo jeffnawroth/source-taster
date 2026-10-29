@@ -217,10 +217,21 @@ evidence. Final command results and exact clean branch SHAs accompany the handof
 
 ## Outstanding acceptance and human gates
 
-Native extension Guest acceptance depends on #92: actual manifest, protected
-storage access, panel lifecycle, browser-store/native Firefox/ESR/Safari and
-50-Reference parity evidence are not delivered or relabeled as ordinary web
-coverage. Downloads are future consumers of the shared output guard, with no
+Native Chromium extension Guest acceptance is recorded in
+`92-extension-skeleton.md`. It covers:
+
+- the actual manifest and trusted-context storage access
+- extension-local persistence across panel close, reopen, reload and restart
+- separate web identity and Preferences
+- renewal with protected SSE
+- revocation and permission refusal
+- storage failure without fallback
+- origin refusal
+
+Browser-level issuance denial is blocked by a private-service CORS defect,
+described there. Native Firefox, ESR and Safari Guest coverage, browser-store
+availability and 50-Reference parity evidence are not delivered. They are not
+relabeled as ordinary web or Chromium coverage. Downloads are future consumers of the shared output guard, with no
 fictitious download test. Account/Better Auth, Quota (#99), abuse controls (#100),
 History, full search/comparison, calibration/measurement and Operator activation
 remain outside this slice. Existing legal/publication gates, exact dependency
