@@ -1,0 +1,42 @@
+{
+  "description": "Synthetic AMA development bibliography with explicit truncated authors, single page and DOI.",
+  "text": "1. Ng A, Chen BC, et al. Rivers and cities. J Urban Med. 2018;6(2):201-209. doi:10.5555/AMA\n2. Roe D. A short report. Clinical Reports. 2023;4:7.",
+  "expected": [
+    {
+      "author": [
+        {
+          "family": "Ng",
+          "given": "A"
+        },
+        {
+          "family": "Chen",
+          "given": "BC"
+        }
+      ],
+      "title": "Rivers and cities",
+      "container-title-short": "J Urban Med",
+      "issued": {
+        "literal": "2018"
+      },
+      "volume": "6",
+      "issue": "2",
+      "page": "201-209",
+      "DOI": "10.5555/AMA"
+    },
+    {
+      "author": [
+        {
+          "family": "Roe",
+          "given": "D"
+        }
+      ],
+      "title": "A short report",
+      "container-title": "Clinical Reports",
+      "issued": {
+        "literal": "2023"
+      },
+      "volume": "4",
+      "page": "7"
+    }
+  ]
+}

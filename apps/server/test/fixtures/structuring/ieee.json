@@ -1,0 +1,41 @@
+{
+  "description": "Synthetic IEEE development bibliography, transcribed expected values; not a quality-gate corpus.",
+  "text": "  [1] J. Doe and A. de Vries, “Signal maps,” IEEE Trans. Signal Process., vol. 12, no. 3, pp. 45–67, 2020. doi:10.5555/IEEE\r\n[2] A. Roe, Careful Systems. Berlin: Example Press, 2019.",
+  "expected": [
+    {
+      "author": [
+        {
+          "given": "J.",
+          "family": "Doe"
+        },
+        {
+          "given": "A.",
+          "family": "de Vries"
+        }
+      ],
+      "title": "Signal maps",
+      "container-title-short": "IEEE Trans. Signal Process.",
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67",
+      "issued": {
+        "literal": "2020"
+      },
+      "DOI": "10.5555/IEEE"
+    },
+    {
+      "author": [
+        {
+          "given": "A.",
+          "family": "Roe"
+        }
+      ],
+      "title": "Careful Systems",
+      "publisher-place": "Berlin",
+      "publisher": "Example Press",
+      "issued": {
+        "literal": "2019"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "description": "Synthetic Oxford bibliography and numbered note form. Full unmarked personal names remain literal.",
+  "text": "Doe, Jane, ‘Signal maps’, Journal of Testing, 12/3 (2020), 45–67.\nRoe, Alex, Careful Systems (Oxford: Example Press, 2019).\n¹ Jane Doe, ‘Open archives’, Archives Quarterly, 8 (2021), 101–109.",
+  "expected": [
+    {
+      "author": [
+        {
+          "family": "Doe",
+          "given": "Jane"
+        }
+      ],
+      "title": "Signal maps",
+      "container-title": "Journal of Testing",
+      "issued": {
+        "literal": "2020"
+      },
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67"
+    },
+    {
+      "author": [
+        {
+          "family": "Roe",
+          "given": "Alex"
+        }
+      ],
+      "title": "Careful Systems",
+      "publisher-place": "Oxford",
+      "publisher": "Example Press",
+      "issued": {
+        "literal": "2019"
+      }
+    },
+    {
+      "author": [
+        {
+          "literal": "Jane Doe"
+        }
+      ],
+      "title": "Open archives",
+      "container-title": "Archives Quarterly",
+      "issued": {
+        "literal": "2021"
+      },
+      "volume": "8",
+      "page": "101–109"
+    }
+  ]
+}
