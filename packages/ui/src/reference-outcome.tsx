@@ -5,6 +5,7 @@ import type {
   Candidate,
   Score,
   Verdict,
+  SourceEvidence,
 } from "@source-taster/contract-verification/v2";
 import { m } from "@source-taster/i18n";
 const verdicts = {
@@ -30,11 +31,23 @@ const reasons = {
   "search-completed": "reason_search_completed",
   "ambiguous-identity": "reason_ambiguous_identity",
   "insufficient-search": "reason_insufficient_search",
+  "sources-unavailable": "reason_sources_unavailable",
 } as const;
+/** Display names of Data sources; evidence keeps the stable identifiers. */
+export const sourceNames = {
+  "doi.org": "doi.org",
+  crossref: "Crossref",
+  openalex: "OpenAlex",
+  europepmc: "Europe PMC",
+  semanticscholar: "Semantic Scholar",
+  arxiv: "arXiv",
+} as const satisfies Record<SourceEvidence["source"], string>;
 // Evidence reasons are transport diagnostics, never primary product text.
 // Unknown future reasons retain a safe localized explanation.
 const evidenceReasons = {
   deadline: "limitation_deadline",
+  timeout: "limitation_timeout",
+  "after-source-failure": "limitation_after_source_failure",
   "rate-budget": "limitation_rate_budget",
   "response-size": "limitation_response_size",
   "request-unavailable": "limitation_request_unavailable",
@@ -81,6 +94,7 @@ const origins = {
   combined: "origin_combined",
   title: "origin_title",
   "authors-year": "origin_authors_year",
+  arxiv: "origin_arxiv",
 } as const;
 function raw(value: unknown): string {
   if (
@@ -109,10 +123,40 @@ function sourceLink(candidate: Candidate) {
   const doi = candidate.csl.DOI;
   if (doi && /^10\.\d{4,9}\/\S+$/iu.test(doi))
     return `https://doi.org/${encodeURIComponent(doi)}`;
-  return candidate.source === "openalex" &&
+  if (
+    candidate.source === "openalex" &&
     /^https:\/\/openalex\.org\/W\d+$/u.test(candidate.id)
-    ? candidate.id
+  )
+    return candidate.id;
+  const europepmc = /^(MED|PMC):(PMC\d+|\d+)$/u.exec(candidate.id);
+  if (candidate.source === "europepmc" && europepmc)
+    return `https://europepmc.org/article/${europepmc[1]}/${europepmc[2]}`;
+  const arxiv = /^arXiv:([\w./-]+)$/u.exec(candidate.id);
+  if (candidate.source === "arxiv" && arxiv)
+    return `https://arxiv.org/abs/${arxiv[1]}`;
+  const s2 = /^S2:([0-9a-f]{40})$/u.exec(candidate.id);
+  return candidate.source === "semanticscholar" && s2
+    ? `https://www.semanticscholar.org/paper/${s2[1]}`
     : null;
+}
+/** The first transport failure explains why a failed Data source is named. */
+function failureCause(
+  outcome: VerdictResult,
+  source: SourceEvidence["source"],
+) {
+  const reason = outcome.evidence.find(
+    (e) =>
+      e.source === source &&
+      e.outcome === "unavailable" &&
+      e.reason !== "after-source-failure",
+  )?.reason;
+  return reason === "timeout"
+    ? m.failure_timeout()
+    : reason === "rate-budget"
+      ? m.failure_rate_limit()
+      : reason === "deadline"
+        ? m.failure_deadline()
+        : m.failure_error();
 }
 export function ReferenceOutcomeSummary({
   outcome,
@@ -177,6 +221,18 @@ export function ReferenceOutcomeView({
       {outcome.reasons.map((reason) => (
         <p key={reason}>{m[reasons[reason]]()}</p>
       ))}
+      {!!outcome.failedSources.length && (
+        <section aria-label={m.failed_sources_heading()}>
+          <p className="font-semibold">{m.failed_sources_heading()}</p>
+          <ul className="list-disc pl-6">
+            {outcome.failedSources.map((source) => (
+              <li key={source}>
+                {sourceNames[source]}: {failureCause(outcome, source)}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {originalText !== undefined && <OriginalInput text={originalText} />}
       <BestMatchComparison outcome={outcome} />
       <details>
@@ -195,7 +251,7 @@ export function ReferenceOutcomeView({
             key={`${evidence.source}:${evidence.candidateId}`}
           >
             {m.retraction_provenance({
-              source: evidence.source === "openalex" ? "OpenAlex" : "Crossref",
+              source: sourceNames[evidence.source],
               candidateId: evidence.candidateId,
               observedAt: evidence.observedAt,
             })}
@@ -218,7 +274,8 @@ export function ReferenceOutcomeView({
         <ul>
           {outcome.evidence.map((e, i) => (
             <li className="my-3 break-words" key={i}>
-              <strong>{e.source}</strong> · {m[origins[e.operation]]()}:{" "}
+              <strong>{sourceNames[e.source]}</strong> ·{" "}
+              {m[origins[e.operation]]()}:{" "}
               {m[
                 `evidence_${e.outcome.replaceAll("-", "_")}` as
                   | "evidence_exists"
@@ -247,7 +304,7 @@ export function ReferenceOutcomeView({
           >
             <h3 className="font-semibold">
               {m.candidate_label()}: {candidate.csl.title ?? candidate.id} (
-              {candidate.source})
+              {sourceNames[candidate.source]})
             </h3>
             <p>
               {m.candidate_origin()}: {m[origins[candidate.origin]]()} ·{" "}

@@ -1,0 +1,539 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// #78 article Data sources. Real PG and public HTTP/SSE only; every provider
+// is a loopback fixture. Recorded payloads are listed in
+// fixtures/article-sources/README.md; all other bodies are synthetic witnesses.
+import { readFile } from "node:fs/promises";
+import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
+import {
+  CheckResponse,
+  CheckEvent,
+  type CreateCheckRequest,
+} from "@source-taster/contract-verification/v2";
+import { readSseFrames } from "@source-taster/contract-verification/client";
+import { startTestService } from "./support/service.ts";
+import { startDoiFixtures } from "./support/doi-fixtures.ts";
+type Fixture = Awaited<ReturnType<typeof startDoiFixtures>>;
+let openalex: Fixture,
+  crossref: Fixture,
+  europepmc: Fixture,
+  semanticscholar: Fixture,
+  arxiv: Fixture;
+let service: Awaited<ReturnType<typeof startTestService>>;
+const fixture = (name: string) =>
+  readFile(
+    new URL(`fixtures/article-sources/${name}`, import.meta.url),
+    "utf8",
+  );
+const epmcSearch = "/europepmc/webservices/rest/search";
+const sourceEnv = () => ({
+  ...crossref.env,
+  SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+  SOURCE_TASTER_OPENALEX_ENABLED: "true",
+  SOURCE_TASTER_OPENALEX_BASE_URL: openalex.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+  SOURCE_TASTER_EUROPEPMC_ENABLED: "true",
+  SOURCE_TASTER_EUROPEPMC_BASE_URL:
+    europepmc.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+  SOURCE_TASTER_SEMANTICSCHOLAR_ENABLED: "true",
+  SOURCE_TASTER_SEMANTICSCHOLAR_BASE_URL:
+    semanticscholar.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+  SOURCE_TASTER_ARXIV_ENABLED: "true",
+  SOURCE_TASTER_ARXIV_BASE_URL: arxiv.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+});
+beforeAll(async () => {
+  [openalex, crossref, europepmc, semanticscholar, arxiv] = await Promise.all([
+    startDoiFixtures(),
+    startDoiFixtures(),
+    startDoiFixtures(),
+    startDoiFixtures(),
+    startDoiFixtures(),
+  ]);
+  service = await startTestService(54878, 0, sourceEnv());
+});
+afterAll(async () => {
+  await service?.stop();
+  await Promise.all(
+    [openalex, crossref, europepmc, semanticscholar, arxiv].map((f) =>
+      f?.stop(),
+    ),
+  );
+});
+beforeEach(() => {
+  for (const f of [openalex, crossref, europepmc, semanticscholar, arxiv]) {
+    f.reset();
+    f.requests.length = 0;
+  }
+});
+type Fields = Extract<
+  CreateCheckRequest,
+  { references: unknown }
+>["references"][number]["fields"];
+async function run(fields: Fields) {
+  const response = await fetch(`${service.apiUrl}/v2/checks`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      references: [{ originalText: "Article source witness", fields }],
+    }),
+  });
+  expect(response.status).toBe(201);
+  const created = CheckResponse.parse(await response.json()).data;
+  const stream = await fetch(
+    `${service.apiUrl}/v2/checks/${created.id}/events`,
+    { signal: AbortSignal.timeout(40000) },
+  );
+  const events = [];
+  for await (const frame of readSseFrames(stream.body!))
+    events.push(CheckEvent.parse(JSON.parse(frame.data)));
+  const snapshot = CheckResponse.parse(
+    await (await fetch(`${service.apiUrl}/v2/checks/${created.id}`)).json(),
+  ).data;
+  const outcome = snapshot.references[0]!.outcome;
+  if (outcome.kind !== "verdict") throw new Error("Expected Verdict");
+  expect(events).toContainEqual(
+    expect.objectContaining({
+      type: "reference.updated",
+      reference: expect.objectContaining({ outcome }) as unknown,
+    }),
+  );
+  const progress = events.flatMap((e) =>
+    e.type === "reference.updated" ? [e.reference.progress] : [],
+  );
+  return { outcome, progress };
+}
+// Reference fields as cited from the recorded Europe PMC record.
+const stateOfOa = {
+  type: "article-journal",
+  title:
+    "The state of OA: a large-scale analysis of the prevalence and impact of Open Access articles",
+  author: [
+    ["Piwowar", "Heather"],
+    ["Priem", "Jason"],
+    ["Larivière", "Vincent"],
+    ["Alperin", "Juan Pablo"],
+    ["Matthias", "Lisa"],
+    ["Norlander", "Bree"],
+    ["Farley", "Ashley"],
+    ["West", "Jevin"],
+    ["Haustein", "Stefanie"],
+  ].map(([family, given]) => ({ family: family!, given: given! })),
+  issued: { literal: "2018" },
+  "container-title": "PeerJ",
+  volume: "6",
+  page: "e4375",
+} satisfies Fields;
+
+it("identifies a PMCID through Europe PMC, the responsible identifier source", async () => {
+  const record = await fixture("europepmc-pmc5815332.json");
+  europepmc.route((url) =>
+    url.pathname === epmcSearch &&
+    url.searchParams.get("query") === "PMCID:PMC5815332"
+      ? { status: 200, body: JSON.parse(record) as unknown }
+      : undefined,
+  );
+  const { outcome, progress } = await run({
+    ...stateOfOa,
+    PMCID: "PMC5815332",
+  });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    reasons: ["identified"],
+    identity: { kind: "supplied-identifier" },
+    failedSources: [],
+    // No affirmative report was received: unknown, never "not retracted".
+    retraction: "unknown",
+  });
+  expect(outcome.retractionEvidence).toBeUndefined();
+  expect(outcome.candidates).toMatchObject([
+    {
+      source: "europepmc",
+      origin: "pmcid",
+      id: "MED:29456894",
+      identifiers: ["pmcid:PMC5815332"],
+      csl: { PMID: "29456894", PMCID: "PMC5815332", DOI: "10.7717/peerj.4375" },
+    },
+  ]);
+  expect(outcome.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "europepmc",
+      operation: "pmcid",
+      outcome: "candidate",
+    }),
+  );
+  expect(progress).toContain("europepmc");
+  // Early termination: no bibliographic search anywhere after identification.
+  expect(europepmc.requests).toHaveLength(1);
+  for (const other of [openalex, crossref, semanticscholar, arxiv])
+    expect(other.requests).toHaveLength(0);
+});
+
+it("handles a supplied DOI before the PMCID and arXiv routes", async () => {
+  const doi = "10.7717/peerj.4375";
+  crossref.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  // Synthetic OpenAlex DOI record for the recorded Europe PMC article.
+  openalex.respond(`/works/doi:${doi}`, 200, {
+    id: "https://openalex.org/W78000001",
+    doi: `https://doi.org/${doi}`,
+    title: stateOfOa.title,
+    publication_year: 2018,
+    ids: { pmcid: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5815332" },
+    authorships: stateOfOa.author.map((a) => ({
+      author: { display_name: `${a.given} ${a.family}` },
+    })),
+  });
+  const { outcome } = await run({
+    ...stateOfOa,
+    DOI: doi,
+    PMCID: "PMC5815332",
+    arXiv: "1706.03762",
+  });
+  expect(outcome).toMatchObject({
+    identity: { kind: "supplied-doi" },
+    failedSources: [],
+  });
+  expect(outcome.evidence[0]).toMatchObject({
+    source: "doi.org",
+    operation: "doi",
+    outcome: "exists",
+  });
+  expect(crossref.requests.map((r) => r.path)).toEqual([`/api/handles/${doi}`]);
+  expect(openalex.requests).toHaveLength(1);
+  expect(crossref.requests[0]!.at).toBeLessThanOrEqual(
+    openalex.requests[0]!.at,
+  );
+  for (const other of [europepmc, semanticscholar, arxiv])
+    expect(other.requests).toHaveLength(0);
+});
+
+// Synthetic Semantic Scholar witness (no live payload is committed; see README).
+const attention = {
+  type: "article-journal",
+  title: "Attention Is All You Need",
+  author: [
+    ["Vaswani", "Ashish"],
+    ["Shazeer", "Noam"],
+    ["Parmar", "Niki"],
+    ["Uszkoreit", "Jakob"],
+    ["Jones", "Llion"],
+    ["Gomez", "Aidan N."],
+    ["Kaiser", "Lukasz"],
+    ["Polosukhin", "Illia"],
+  ].map(([family, given]) => ({ family: family!, given: given! })),
+  issued: { literal: "2017" },
+} satisfies Fields;
+const s2Paper = {
+  paperId: "s2-synthetic-attention",
+  externalIds: { ArXiv: "1706.03762", DBLP: "journals/corr/VaswaniSPUJGKP17" },
+  title: "Attention Is All You Need",
+  authors: attention.author.map((a) => ({ name: `${a.given} ${a.family}` })),
+  year: 2017,
+  venue: "Neural Information Processing Systems",
+  publicationDate: "2017-06-12",
+  journal: null,
+};
+
+it("identifies an arXiv identifier through the Semantic Scholar index before arXiv itself", async () => {
+  semanticscholar.route((url) =>
+    url.pathname === "/graph/v1/paper/ARXIV:1706.03762"
+      ? { status: 200, body: s2Paper }
+      : undefined,
+  );
+  const { outcome, progress } = await run({
+    ...attention,
+    arXiv: "arXiv:1706.03762v5",
+  });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    reasons: ["identified"],
+    identity: { kind: "supplied-identifier" },
+    failedSources: [],
+  });
+  expect(outcome.candidates).toMatchObject([
+    {
+      source: "semanticscholar",
+      origin: "arxiv",
+      id: "S2:s2-synthetic-attention",
+      identifiers: ["arxiv:1706.03762"],
+      csl: { arXiv: "1706.03762", title: "Attention Is All You Need" },
+    },
+  ]);
+  expect(outcome.reference.csl.arXiv).toBe("arXiv:1706.03762v5");
+  expect(progress).toContain("semanticscholar");
+  expect(semanticscholar.requests).toHaveLength(1);
+  for (const other of [openalex, crossref, europepmc, arxiv])
+    expect(other.requests).toHaveLength(0);
+});
+
+it("falls back to the arXiv API, identifier only, when the index has no record", async () => {
+  const atom = await fixture("arxiv-1706.03762.xml");
+  semanticscholar.route((url) =>
+    url.pathname.startsWith("/graph/v1/paper/ARXIV:")
+      ? { status: 404, body: { error: "Paper not found" } }
+      : undefined,
+  );
+  arxiv.route((url) =>
+    url.pathname === "/api/query" &&
+    url.searchParams.get("id_list") === "1706.03762"
+      ? { status: 200, body: atom, contentType: "application/atom+xml" }
+      : undefined,
+  );
+  const { outcome, progress } = await run({
+    ...attention,
+    arXiv: "https://arxiv.org/abs/1706.03762v7",
+  });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    reasons: ["identified"],
+    identity: { kind: "supplied-identifier" },
+    failedSources: [],
+  });
+  expect(outcome.candidates).toMatchObject([
+    {
+      source: "arxiv",
+      origin: "arxiv",
+      id: "arXiv:1706.03762",
+      identifiers: ["arxiv:1706.03762"],
+      csl: { arXiv: "1706.03762", issued: { literal: "2017-06-12" } },
+    },
+  ]);
+  expect(
+    outcome.evidence.map((e) => [e.source, e.operation, e.outcome]),
+  ).toEqual(
+    expect.arrayContaining([
+      ["semanticscholar", "arxiv", "no-record"],
+      ["arxiv", "arxiv", "candidate"],
+    ]),
+  );
+  expect(progress).toEqual(
+    expect.arrayContaining(["semanticscholar", "arxiv"]),
+  );
+  expect(arxiv.requests).toHaveLength(1);
+  for (const other of [openalex, crossref, europepmc])
+    expect(other.requests).toHaveLength(0);
+});
+
+// Synthetic Semantic Scholar search witness for the recorded Europe PMC record.
+const s2StateOfOa = {
+  paperId: "s2-synthetic-state-of-oa",
+  externalIds: {
+    DOI: "10.7717/peerj.4375",
+    PubMed: "29456894",
+    PubMedCentral: "5815332",
+  },
+  title: stateOfOa.title,
+  authors: stateOfOa.author.map((a) => ({ name: `${a.given} ${a.family}` })),
+  year: 2018,
+  venue: "PeerJ",
+  publicationDate: "2018-02-13",
+  journal: { name: "PeerJ", volume: "6", pages: "e4375" },
+};
+
+it("continues past a failing, a timed-out and a rate-limited source and names each", async () => {
+  openalex.respond("/works", 500, { sentinel: "error" });
+  const held = crossref.hold("/works");
+  europepmc.respond(epmcSearch, 429, {}, { "retry-after": "3" });
+  semanticscholar.route((url) =>
+    url.pathname === "/graph/v1/paper/search"
+      ? { status: 200, body: { total: 1, data: [s2StateOfOa] } }
+      : undefined,
+  );
+  try {
+    const { outcome } = await run(stateOfOa);
+    expect(outcome).toMatchObject({
+      verdict: "correct",
+      reasons: ["identified"],
+      identity: {
+        kind: "independent-bibliography",
+        candidateId: "S2:s2-synthetic-state-of-oa",
+      },
+    });
+    expect(outcome.failedSources).toEqual([
+      "openalex",
+      "crossref",
+      "europepmc",
+    ]);
+    const failures = outcome.evidence.filter((e) => e.attempts > 0);
+    expect(failures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "openalex",
+          outcome: "unavailable",
+          reason: "http-error",
+          status: 500,
+          attempts: 2,
+        }),
+        expect.objectContaining({
+          source: "crossref",
+          outcome: "unavailable",
+          reason: "timeout",
+          attempts: 2,
+        }),
+        expect.objectContaining({
+          source: "europepmc",
+          outcome: "unavailable",
+          reason: "rate-budget",
+          status: 429,
+          attempts: 1,
+        }),
+      ]),
+    );
+    // A failed source is not asked again for this Reference.
+    expect(openalex.requests).toHaveLength(2);
+    expect(crossref.requests).toHaveLength(2);
+    expect(europepmc.requests).toHaveLength(1);
+    expect(semanticscholar.requests).toHaveLength(1);
+  } finally {
+    held.release();
+  }
+});
+
+it("blocks Not found while one responsible source has failed", async () => {
+  openalex.respond("/works", 200, { meta: { count: 0 }, results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  europepmc.respond(epmcSearch, 503, {});
+  semanticscholar.respond("/graph/v1/paper/search", 200, { total: 0 });
+  const { outcome } = await run(stateOfOa);
+  expect(outcome).toMatchObject({
+    verdict: "not-verifiable",
+    reasons: ["insufficient-search"],
+    failedSources: ["europepmc"],
+  });
+});
+
+it("is Not verifiable naming every source when all responsible sources fail", async () => {
+  openalex.respond("/works", 500, {});
+  crossref.respond("/works", 502, {});
+  europepmc.respond(epmcSearch, 503, {});
+  semanticscholar.respond("/graph/v1/paper/search", 500, {});
+  const { outcome } = await run(stateOfOa);
+  expect(outcome).toMatchObject({
+    verdict: "not-verifiable",
+    reasons: ["sources-unavailable"],
+    failedSources: ["openalex", "crossref", "europepmc", "semanticscholar"],
+  });
+});
+
+it("reaches Not found only when every enabled search source completed", async () => {
+  openalex.respond("/works", 200, { meta: { count: 0 }, results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  europepmc.respond(epmcSearch, 200, {
+    hitCount: 0,
+    resultList: { result: [] },
+  });
+  semanticscholar.respond("/graph/v1/paper/search", 200, { total: 0 });
+  const { outcome } = await run(stateOfOa);
+  expect(outcome).toMatchObject({
+    verdict: "not-found",
+    reasons: ["search-completed"],
+    failedSources: [],
+  });
+  for (const source of ["openalex", "crossref", "europepmc", "semanticscholar"])
+    expect(outcome.evidence).toContainEqual(
+      expect.objectContaining({ source, outcome: "no-record" }),
+    );
+});
+
+it("records a Europe PMC retraction report already received, without an extra request", async () => {
+  // Synthetic variant of the recorded record: MEDLINE publication type added.
+  const record = JSON.parse(await fixture("europepmc-pmc5815332.json")) as {
+    resultList: { result: { pubTypeList: { pubType: string[] } }[] };
+  };
+  record.resultList.result[0]!.pubTypeList.pubType.push(
+    "Retracted Publication",
+  );
+  europepmc.route((url) =>
+    url.pathname === epmcSearch &&
+    url.searchParams.get("query") === "PMCID:PMC5815332"
+      ? { status: 200, body: record }
+      : undefined,
+  );
+  const { outcome } = await run({ ...stateOfOa, PMCID: "PMC5815332" });
+  // The hook is independent of the Verdict.
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    retraction: "retracted",
+    retractionEvidence: [{ source: "europepmc", candidateId: "MED:29456894" }],
+  });
+  expect(europepmc.requests).toHaveLength(1);
+  for (const other of [openalex, crossref, semanticscholar, arxiv])
+    expect(other.requests).toHaveLength(0);
+});
+
+it("versions the Operator's search operating settings with the Search strategy", async () => {
+  const record = await fixture("europepmc-pmc5815332.json");
+  const identify = async () => {
+    europepmc.route((url) =>
+      url.pathname === epmcSearch
+        ? { status: 200, body: JSON.parse(record) as unknown }
+        : undefined,
+    );
+    return (await run({ ...stateOfOa, PMCID: "PMC5815332" })).outcome;
+  };
+  const initial = await identify();
+  // ADR-0007 initial values, recorded with every article result.
+  expect(initial.searchConfiguration).toMatchObject({
+    "settings.requestTimeoutMs": 3000,
+    "settings.maxRetries": 1,
+    "settings.retryAfterMaxMs": 2000,
+    "settings.activeReferencesPerCheck": 10,
+    "settings.fairness": "owner-then-check-round-robin",
+    "settings.europepmc.intervalMs": 100,
+    "settings.semanticscholar.intervalMs": 1000,
+    "settings.semanticscholar.concurrency": 1,
+    "settings.arxiv.intervalMs": 3000,
+    "settings.arxiv.concurrency": 1,
+  });
+  await service.restart({
+    SOURCE_TASTER_SEARCH_SETTINGS: JSON.stringify({
+      requestTimeoutMs: 2500,
+      sources: { europepmc: { maxWaitMs: 5000 } },
+    }),
+  });
+  try {
+    const changed = await identify();
+    expect(changed.searchConfiguration).toMatchObject({
+      "settings.requestTimeoutMs": 2500,
+      "settings.europepmc.maxWaitMs": 5000,
+      "settings.europepmc.intervalMs": 100,
+    });
+    expect(changed.searchStrategyVersion).not.toBe(
+      initial.searchStrategyVersion,
+    );
+  } finally {
+    await service.restart({ SOURCE_TASTER_SEARCH_SETTINGS: "" });
+  }
+  expect((await identify()).searchStrategyVersion).toBe(
+    initial.searchStrategyVersion,
+  );
+});
+
+it.each([
+  { requestTimeoutMs: 0 },
+  { maxRetries: 9 },
+  { sources: { arxiv: { concurrency: 0 } } },
+  { sources: { unknown: { intervalMs: 1 } } },
+  { fairness: "first-come" },
+])(
+  "refuses invalid search operating settings %j at startup",
+  async (settings) => {
+    const { startProcess } = await import("./support/processes.ts");
+    const process = startProcess(
+      "worker",
+      {
+        SOURCE_TASTER_MODE: "standalone",
+        DATABASE_URL: "postgres://unused:unused@127.0.0.1:1/unused",
+        SOURCE_TASTER_DOI_PREVIEW: "uncalibrated",
+        SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+        SOURCE_TASTER_SEARCH_SETTINGS: JSON.stringify(settings),
+      },
+      { inheritEnv: false },
+    );
+    try {
+      expect(await process.exited).toBe(78);
+    } finally {
+      await process.stop();
+    }
+  },
+);

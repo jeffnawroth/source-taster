@@ -12,6 +12,7 @@ export type SourceRequest = (
   url: URL,
   deadline: number,
   operation?: Evidence["operation"],
+  format?: "json" | "atom",
 ) => Promise<{ body?: unknown; evidence: Evidence }>;
 const record = z.object({
   id: z.string().regex(/^https:\/\/openalex\.org\/W\d+$/u),

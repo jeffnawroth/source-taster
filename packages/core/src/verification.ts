@@ -9,9 +9,13 @@ import {
   type Score,
   type ComparisonProfile,
 } from "./comparison.ts";
+export type RecordSource =
+  "crossref" | "openalex" | "europepmc" | "semanticscholar" | "arxiv";
+export type SourceName = "doi.org" | RecordSource;
 export interface Evidence {
-  source: "doi.org" | "crossref" | "openalex";
-  operation: "doi" | "pmid" | "pmcid" | "combined" | "title" | "authors-year";
+  source: SourceName;
+  operation:
+    "doi" | "pmid" | "pmcid" | "arxiv" | "combined" | "title" | "authors-year";
   outcome:
     | "exists"
     | "nonexistent"
@@ -32,14 +36,14 @@ export interface Evidence {
 }
 /** An affirmative report already received from a Data source, never a verified negative. */
 export interface RetractionEvidence {
-  source: "crossref" | "openalex";
+  source: "crossref" | "openalex" | "europepmc";
   candidateId: string;
   observedAt: string;
 }
 export interface RetrievedCandidate {
   id: string;
-  source: "crossref" | "openalex";
-  origin: "doi" | "pmid" | "pmcid" | "combined" | "title" | "authors-year";
+  source: RecordSource;
+  origin: Evidence["operation"];
   identifiers?: string[];
   retrievedAt: string;
   csl: Csl;
@@ -123,8 +127,9 @@ export interface VerdictResult {
     | "search-completed"
     | "ambiguous-identity"
     | "insufficient-search"
+    | "sources-unavailable"
   )[];
-  failedSources: ("doi.org" | "crossref" | "openalex")[];
+  failedSources: SourceName[];
   retraction: "unknown" | "retracted";
   retractionEvidence?: RetractionEvidence[];
 }

@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { doiTracerLimits } from "@source-taster/core";
+import { defaultSearchSettings, doiTracerLimits } from "@source-taster/core";
 import type {
   DataSource,
   DoiResolver,
   Evidence,
   RetrievedCandidate,
+  SearchSettings,
+  SourceName,
 } from "@source-taster/core";
 import { z } from "zod";
 export interface SourceDispatch {
@@ -18,14 +20,11 @@ export interface SourcePermit {
 }
 export interface SourceBudget {
   acquire: (
-    source: "doi.org" | "crossref" | "openalex",
+    source: SourceName,
     operation: Evidence["operation"],
     deadline: number,
   ) => Promise<SourcePermit | null>;
-  defer: (
-    source: "doi.org" | "crossref" | "openalex",
-    delayMs: number,
-  ) => Promise<void>;
+  defer: (source: SourceName, delayMs: number) => Promise<void>;
 }
 const crossrefRecord = z.object({
   DOI: z.string(),
@@ -76,28 +75,32 @@ export function createDoiAdapters(options: {
   crossrefBase: string;
   openalexBase?: string;
   budget: SourceBudget;
+  /** Version 1 keeps the defaults; article searches pass Operator settings. */
+  settings?: SearchSettings;
+  /** Version 1 reports a timeout as request-unavailable; v2 names it. */
+  timeoutReason?: string;
   clock?: SourceClock;
   signal?: AbortSignal;
   dispatch?: (
     send: () => Promise<SourceDispatch | null>,
   ) => Promise<SourceDispatch | null>;
-  beforeRequest?: (
-    source: "doi.org" | "crossref" | "openalex",
-  ) => Promise<void>;
+  beforeRequest?: (source: SourceName) => Promise<void>;
 }) {
   const clock = options.clock ?? systemSourceClock;
+  const settings = options.settings ?? defaultSearchSettings;
   async function request(
-    source: "doi.org" | "crossref" | "openalex",
+    source: SourceName,
     url: URL,
     deadline: number,
     operation: Evidence["operation"] = "doi",
+    format: "json" | "atom" = "json",
   ): Promise<{ body?: unknown; evidence: Evidence }> {
     const began = clock.now();
     let attempts = 0,
       status: number | undefined,
       body: unknown,
       reason = "deadline";
-    for (let attempt = 0; attempt <= doiTracerLimits.maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= settings.maxRetries; attempt++) {
       options.signal?.throwIfAborted();
       if (clock.now() >= deadline) break;
       await options.beforeRequest?.(source);
@@ -145,7 +148,8 @@ export function createDoiAdapters(options: {
           );
           const pending = fetch(url, {
             headers: {
-              accept: "application/json",
+              accept:
+                format === "atom" ? "application/atom+xml" : "application/json",
               "user-agent":
                 "Source-Taster/0.0.0 (uncalibrated development preview)",
             },
@@ -216,7 +220,8 @@ export function createDoiAdapters(options: {
         options.signal?.throwIfAborted();
         let responseBody: unknown;
         try {
-          responseBody = JSON.parse(new TextDecoder().decode(bytes));
+          const text = new TextDecoder().decode(bytes);
+          responseBody = format === "atom" ? text : JSON.parse(text);
         } catch {
           responseBody = undefined;
         }
@@ -234,19 +239,21 @@ export function createDoiAdapters(options: {
             ? Math.ceil(seconds * 1000)
             : Math.max(0, Date.parse(after) - clock.now());
           if (Number.isFinite(delay)) await options.budget.defer(source, delay);
-          retry = Number.isFinite(delay) && delay <= 2000;
+          retry = Number.isFinite(delay) && delay <= settings.retryAfterMaxMs;
         } else if (response.status >= 500) retry = true;
         reason = response.status === 429 ? "rate-budget" : "http-error";
       } catch (error) {
         options.signal?.throwIfAborted();
-        reason =
-          error instanceof Error && error.message === "response-size"
-            ? "response-size"
-            : "request-unavailable";
         retry =
           (error instanceof Error && error.name === "TimeoutError") ||
           (requestAbort.signal.reason instanceof DOMException &&
             requestAbort.signal.reason.name === "TimeoutError");
+        reason =
+          error instanceof Error && error.message === "response-size"
+            ? "response-size"
+            : retry
+              ? (options.timeoutReason ?? "request-unavailable")
+              : "request-unavailable";
       } finally {
         clearTimeout(requestTimer);
         options.signal?.removeEventListener("abort", cancelRequest);
@@ -256,7 +263,7 @@ export function createDoiAdapters(options: {
       }
       if (
         !retry ||
-        attempt === doiTracerLimits.maxRetries ||
+        attempt === settings.maxRetries ||
         clock.now() + delay >= deadline
       )
         break;

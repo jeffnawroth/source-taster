@@ -10,6 +10,7 @@ import { CheckSummary } from "./check-summary.tsx";
 import {
   ReferenceOutcomeSummary,
   ReferenceOutcomeView,
+  sourceNames,
 } from "./reference-outcome.tsx";
 
 function RunningStep({ reference }: { reference: ReferenceSlot }) {
@@ -22,14 +23,10 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
     <p>
       {reference.progress === "queued"
         ? m.reference_queued()
-        : ["doi.org", "crossref", "openalex"].includes(reference.progress)
+        : Object.hasOwn(sourceNames, reference.progress)
           ? m.reference_source({
               source:
-                reference.progress === "doi.org"
-                  ? "doi.org"
-                  : reference.progress === "openalex"
-                    ? "OpenAlex"
-                    : "Crossref",
+                sourceNames[reference.progress as keyof typeof sourceNames],
             })
           : m.reference_checking()}
     </p>

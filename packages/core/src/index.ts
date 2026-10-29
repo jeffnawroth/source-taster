@@ -8,3 +8,4 @@ export {
   type ComparisonProfile,
 } from "./comparison.ts";
 export * from "./bibliographic.ts";
+export * from "./search-settings.ts";

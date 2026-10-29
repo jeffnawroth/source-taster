@@ -11,6 +11,8 @@ interface FixtureResponse {
   body: unknown;
   headers?: Record<string, string>;
   incompleteBody?: boolean;
+  /** A string body sent verbatim with its own content type, e.g. Atom XML. */
+  contentType?: string;
 }
 export async function startDoiFixtures() {
   const crossref = await readFile(
@@ -22,6 +24,8 @@ export async function startDoiFixtures() {
     "utf8",
   );
   const responses = new Map<string, FixtureResponse[]>();
+  // Query-aware routes for providers that keep one path for several operations.
+  const routes: ((url: URL) => FixtureResponse | undefined)[] = [];
   const requests: { path: string; at: number; completedAt?: number }[] = [];
   const holds = new Map<
     string,
@@ -54,16 +58,26 @@ export async function startDoiFixtures() {
       const sequence =
         responses.get(decodeURIComponent(req.url ?? "")) ??
         responses.get(new URL(req.url ?? "/", "http://fixture").pathname);
+      const routed = routes
+        .map((route) => route(new URL(req.url ?? "/", "http://fixture")))
+        .find(Boolean);
       const override =
-        sequence && (sequence.length > 1 ? sequence.shift() : sequence[0]);
+        routed ??
+        (sequence && (sequence.length > 1 ? sequence.shift() : sequence[0]));
       if (override) {
+        if (override.contentType)
+          res.setHeader("content-type", override.contentType);
         res.writeHead(override.status, override.headers);
         if (override.incompleteBody) {
           res.flushHeaders();
           res.write(" ");
           return;
         }
-        res.end(JSON.stringify(override.body));
+        res.end(
+          override.contentType && typeof override.body === "string"
+            ? override.body
+            : JSON.stringify(override.body),
+        );
         return;
       }
       if (req.url?.startsWith("/api/handles/")) res.end(handle);
@@ -94,7 +108,13 @@ export async function startDoiFixtures() {
       holds.set(path, { entered, release: gate, body });
       return { arrived, release };
     },
-    reset: () => responses.clear(),
+    reset: () => {
+      responses.clear();
+      routes.length = 0;
+      holds.clear();
+    },
+    route: (handler: (url: URL) => FixtureResponse | undefined) =>
+      routes.push(handler),
     respondSequence: (path: string, sequence: FixtureResponse[]) =>
       responses.set(path, [...sequence]),
     respond: (

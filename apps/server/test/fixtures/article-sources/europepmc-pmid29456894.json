@@ -1,0 +1,94 @@
+{
+  "version": "6.9",
+  "hitCount": 1,
+  "request": {
+    "queryString": "EXT_ID:29456894 AND SRC:MED",
+    "resultType": "CORE"
+  },
+  "resultList": {
+    "result": [
+      {
+        "id": "29456894",
+        "source": "MED",
+        "pmid": "29456894",
+        "pmcid": "PMC5815332",
+        "doi": "10.7717/peerj.4375",
+        "title": "The state of OA: a large-scale analysis of the prevalence and impact of Open Access articles.",
+        "pubYear": "2018",
+        "pageInfo": "e4375",
+        "firstPublicationDate": "2018-02-13",
+        "authorList": {
+          "author": [
+            {
+              "fullName": "Piwowar H",
+              "lastName": "Piwowar",
+              "firstName": "Heather",
+              "initials": "H"
+            },
+            {
+              "fullName": "Priem J",
+              "lastName": "Priem",
+              "firstName": "Jason",
+              "initials": "J"
+            },
+            {
+              "fullName": "Larivière V",
+              "lastName": "Larivière",
+              "firstName": "Vincent",
+              "initials": "V"
+            },
+            {
+              "fullName": "Alperin JP",
+              "lastName": "Alperin",
+              "firstName": "Juan Pablo",
+              "initials": "JP"
+            },
+            {
+              "fullName": "Matthias L",
+              "lastName": "Matthias",
+              "firstName": "Lisa",
+              "initials": "L"
+            },
+            {
+              "fullName": "Norlander B",
+              "lastName": "Norlander",
+              "firstName": "Bree",
+              "initials": "B"
+            },
+            {
+              "fullName": "Farley A",
+              "lastName": "Farley",
+              "firstName": "Ashley",
+              "initials": "A"
+            },
+            {
+              "fullName": "West J",
+              "lastName": "West",
+              "firstName": "Jevin",
+              "initials": "J"
+            },
+            {
+              "fullName": "Haustein S",
+              "lastName": "Haustein",
+              "firstName": "Stefanie",
+              "initials": "S"
+            }
+          ]
+        },
+        "journalInfo": {
+          "volume": "6",
+          "yearOfPublication": 2018,
+          "journal": {
+            "title": "PeerJ"
+          }
+        },
+        "pubTypeList": {
+          "pubType": [
+            "research-article",
+            "Journal Article"
+          ]
+        }
+      }
+    ]
+  }
+}

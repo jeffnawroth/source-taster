@@ -172,11 +172,9 @@ it.each([
       issued: { literal: "2021" },
     });
     expect(outcome.verdict).toBe(verdict);
-    expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-9-identity-evidence-",
-    );
+    expect(outcome.searchStrategyVersion).toContain("article-search-78-1-");
     // Article Verdict derivation is part of the recorded Scoring rules version.
-    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-9$/u);
+    expect(outcome.scoringRules.version).toMatch(/-article-verdict-78-1$/u);
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
       fullAgreement: true,
@@ -488,7 +486,17 @@ it.each([
       verdict: "not-found",
       reasons: ["search-completed"],
       identity: { kind: "unresolved" },
+      failedSources: [],
     });
+    // #78: Operator-disabled sources are recorded, never failed (ADR-0007).
+    for (const source of ["europepmc", "semanticscholar"])
+      expect(outcome.evidence).toContainEqual(
+        expect.objectContaining({
+          source,
+          outcome: "disabled",
+          reason: "operator-disabled",
+        }),
+      );
   },
 );
 it("identifies a strong match despite an author-less unrelated record", async () => {
@@ -1112,11 +1120,23 @@ it("continues to Crossref after an OpenAlex failure and distinguishes that failu
       score: { value: 100000000 },
     },
   ]);
-  expect(
-    outcome.evidence
-      .filter((e) => e.source === "openalex")
-      .every((e) => e.outcome === "unavailable" && e.attempts === 2),
-  ).toBe(true);
+  // #78: the failed source is named once, with its retried attempt; later
+  // OpenAlex operations send nothing and say why.
+  const [failed, ...later] = outcome.evidence.filter(
+    (e) => e.source === "openalex",
+  );
+  expect(failed).toMatchObject({
+    outcome: "unavailable",
+    reason: "http-error",
+    attempts: 2,
+  });
+  for (const e of later)
+    expect(e).toMatchObject({
+      outcome: "unavailable",
+      reason: "after-source-failure",
+      attempts: 0,
+    });
+  expect(openalex.requests).toHaveLength(2);
 });
 it("requires completed searches in both explicitly enabled development indexes for Not found", async () => {
   openalex.respond("/works", 200, { results: [] });

@@ -36,6 +36,8 @@ export interface Csl {
   ISSN?: string;
   PMID?: string;
   PMCID?: string;
+  /** Native arXiv identifier; never inferred from an arXiv DOI (ADR-0011). */
+  arXiv?: string;
 }
 export interface StructuredReference {
   originalText: string;

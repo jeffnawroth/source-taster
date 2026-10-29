@@ -104,11 +104,14 @@ export interface LifecycleSettings {
   clientLeaseMs: number;
   claimMs: number;
   maxAttempts: number;
+  /** ADR-0007 search operating setting: running References per Check. */
+  activeReferencesPerCheck: number;
 }
 export const defaultLifecycleSettings: LifecycleSettings = {
   clientLeaseMs: 75_000,
   claimMs: 45_000,
   maxAttempts: 3,
+  activeReferencesPerCheck: 10,
 };
 export interface ReferenceAttempt {
   guestContextId?: string;
@@ -346,8 +349,8 @@ export function createCheckStore(
       >`SELECT c.id AS "checkId",c.owner_id AS "ownerId",c.actor_id AS "actorId",c.guest_context_id AS "guestContextId" FROM verification.checks c
         WHERE c.state='running' AND c.lease_expires_at>${new Date(clock.now())}
         AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
-        AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<10
-        ORDER BY c.dispatch_order,c.created_at,c.id LIMIT 1`;
+        AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<${settings.activeReferencesPerCheck}
+        ORDER BY (SELECT max(o.dispatch_order) FROM verification.checks o WHERE o.owner_id=c.owner_id AND o.state='running'),c.dispatch_order,c.created_at,c.id LIMIT 1`;
       const row = rows[0];
       return row
         ? { ...row, guestContextId: row.guestContextId ?? undefined }
@@ -358,8 +361,10 @@ export function createCheckStore(
     },
     async claimNext(candidateId?: string): Promise<ReferenceAttempt | null> {
       return db.$transaction(async (tx) => {
-        // One durable round-robin order across all processes. Admission and the
-        // ten-per-Check cap commit together; queue delivery is only a wake-up.
+        // One durable round-robin order across all processes: Owners first (the
+        // Owner whose latest dispatch is oldest), then that Owner's Checks.
+        // Admission and the per-Check cap commit together; queue delivery is
+        // only a wake-up.
         await tx.$queryRaw`SELECT pg_advisory_xact_lock(810070)::text`;
         const now = clock.now();
         const rows = await tx.$queryRaw<
@@ -367,8 +372,8 @@ export function createCheckStore(
         >`SELECT c.id FROM verification.checks c
           WHERE c.state='running' AND c.lease_expires_at>${new Date(now)}
           AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
-          AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<10
-          ORDER BY c.dispatch_order,c.created_at,c.id LIMIT 1`;
+          AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<${settings.activeReferencesPerCheck}
+          ORDER BY (SELECT max(o.dispatch_order) FROM verification.checks o WHERE o.owner_id=c.owner_id AND o.state='running'),c.dispatch_order,c.created_at,c.id LIMIT 1`;
         if (
           !rows[0] ||
           (candidateId !== undefined && rows[0].id !== candidateId)

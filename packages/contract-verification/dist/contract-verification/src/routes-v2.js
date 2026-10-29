@@ -2,14 +2,20 @@
 // Same lifecycle/authority protocol, with an explicitly versioned result schema.
 import { createRoute } from "@hono/zod-openapi";
 import * as v1 from "./routes.js";
-import { CheckResponse } from "./v2.js";
+import { CheckResponse, CreateCheckRequest } from "./v2.js";
 export const createCheck = createRoute({
     ...v1.createCheck,
     path: "/v2/checks",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: CreateCheckRequest } },
+        },
+    },
     responses: {
         ...v1.createCheck.responses,
         201: {
-            description: "Check created. Article search in OpenAlex and Crossref is an explicitly enabled, uncalibrated development profile.",
+            description: "Check created. Article search in OpenAlex, Crossref, Europe PMC and Semantic Scholar, with identifier-only arXiv access, is an explicitly enabled, uncalibrated development profile. Operator-disabled sources are recorded, never reported as failed.",
             content: { "application/json": { schema: CheckResponse } },
         },
     },

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import {
+  defaultSearchSettings,
   doiTracerLimits,
-  articleSearchConfiguration,
+  type SearchSettings,
 } from "@source-taster/core";
 import { randomUUID } from "node:crypto";
 import { setTimeout } from "node:timers/promises";
@@ -19,6 +20,7 @@ export function sourceBudget(
   db: Db,
   signal?: AbortSignal,
   clock: { now(): number } = { now: Date.now },
+  settings: SearchSettings = defaultSearchSettings,
 ): SourceBudget {
   return {
     defer: async (source, delayMs) => {
@@ -26,18 +28,18 @@ export function sourceBudget(
     },
     acquire: async (source, operation, deadline) => {
       const key =
-        source === "openalex"
-          ? "openalex:all"
-          : `${source}:${operation === "doi" ? "doi" : "combined"}`;
+        source === "doi.org" || source === "crossref"
+          ? `${source}:${operation === "doi" ? "doi" : "combined"}`
+          : `${source}:all`;
+      const limits = settings.sources[source];
       const interval =
-        source === "openalex"
-          ? 1000 / articleSearchConfiguration.openalexRequestsPerSecond
-          : source === "doi.org"
-            ? 1000 / doiTracerLimits.doiRequestsPerSecond
-            : operation === "doi"
-              ? 1000 / doiTracerLimits.crossrefSingleRequestsPerSecond
-              : doiTracerLimits.crossrefSearchIntervalMs;
-      while (clock.now() < deadline) {
+        source === "crossref" && operation !== "doi"
+          ? (limits.searchIntervalMs ?? limits.intervalMs)
+          : limits.intervalMs;
+      // A source whose permit is not granted within its wait budget becomes
+      // unavailable (rate-budget); the search continues with other sources.
+      const waitUntil = Math.min(deadline, clock.now() + limits.maxWaitMs);
+      while (clock.now() < waitUntil) {
         signal?.throwIfAborted();
         const id = randomUUID();
         const acquired = await db.$transaction(async (tx) => {
@@ -60,11 +62,9 @@ export function sourceBudget(
           if (
             rate.nextAt > now ||
             cooldown.nextAt > now ||
-            ((source === "crossref" || source === "openalex") &&
+            (limits.concurrency !== undefined &&
               (await tx.sourceRequest.count({ where: { source } })) >=
-                (source === "openalex"
-                  ? articleSearchConfiguration.openalexConcurrency
-                  : doiTracerLimits.crossrefConcurrency))
+                limits.concurrency)
           )
             return false;
           await tx.sourceRequest.create({
@@ -122,7 +122,7 @@ export function sourceBudget(
                   return null;
                 signal?.throwIfAborted();
                 const timeoutMs = Math.min(
-                  doiTracerLimits.requestTimeoutMs,
+                  settings.requestTimeoutMs,
                   remaining,
                 );
                 await tx.sourceRequest.update({
@@ -152,7 +152,7 @@ export function sourceBudget(
             },
           };
         await setTimeout(
-          Math.min(25, Math.max(1, deadline - clock.now())),
+          Math.min(25, Math.max(1, waitUntil - clock.now())),
           undefined,
           { signal },
         );

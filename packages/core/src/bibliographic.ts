@@ -13,49 +13,83 @@ import {
   type Candidate,
   type DoiResolver,
   type Evidence,
+  type RecordSource,
   type RetrievedCandidate,
   type ScoringRules,
   type VerdictResult,
 } from "./verification.ts";
+import {
+  flattenSearchSettings,
+  type SearchSettings,
+} from "./search-settings.ts";
 export type QueryKind = "combined" | "title" | "authors-year";
-export type IdentifierKind = "doi" | "pmid" | "pmcid";
+export type IdentifierKind = "doi" | "pmid" | "pmcid" | "arxiv";
 export interface BibliographicSource {
-  name: "openalex" | "crossref";
+  name: RecordSource;
   identifiers: readonly IdentifierKind[];
   lookup(
     kind: IdentifierKind,
     value: string,
     deadline: number,
   ): Promise<{ candidate?: RetrievedCandidate; evidence: Evidence }>;
-  search(
+  /** Absent for identifier-only access such as direct arXiv. */
+  search?(
     reference: Csl,
     kind: QueryKind,
     deadline: number,
   ): Promise<{ candidates: RetrievedCandidate[]; evidence: Evidence }>;
 }
+// ADR-0007 article route. Each identifier goes to its responsible sources in
+// order; a later source is asked only while no earlier one supplied the record.
+export const identifierRoutes: Readonly<
+  Record<IdentifierKind, readonly RecordSource[]>
+> = Object.freeze({
+  doi: ["openalex", "crossref"],
+  pmid: ["openalex", "europepmc"],
+  pmcid: ["openalex", "europepmc"],
+  arxiv: ["semanticscholar", "arxiv"],
+});
+export const searchOrder: readonly RecordSource[] = [
+  "openalex",
+  "crossref",
+  "europepmc",
+  "semanticscholar",
+];
 export const articleSearchConfiguration = Object.freeze({
-  ...doiTracerLimits,
+  referenceDeadlineMs: doiTracerLimits.referenceDeadlineMs,
+  maxResponseBytes: doiTracerLimits.maxResponseBytes,
+  candidateBudget: doiTracerLimits.candidateBudget,
   ...comparisonLimits,
-  openalexRequestsPerSecond: 1,
-  openalexConcurrency: 1,
   openalexPool: "unauthenticated-development",
-  providerOrder: "openalex,crossref",
+  semanticscholarPool: "unauthenticated-development",
+  providerOrder: searchOrder.join(","),
   candidateAllocation:
     "identifier(0-3),combined,title,authors-year,title,authors-year;carry-forward-received-only",
-  identifierOrder: "DOI,PMID,PMCID",
-  implementedIdentifierRoutes: "openalex:DOI,PMID;crossref:DOI",
+  identifierOrder: "DOI,PMID,PMCID,arXiv",
+  identifierRoutes:
+    "DOI:openalex,crossref;PMID:openalex,europepmc;PMCID:openalex,europepmc;arXiv:semanticscholar,arxiv",
+  implementedIdentifierRoutes:
+    "openalex:DOI,PMID;crossref:DOI;europepmc:PMID,PMCID;semanticscholar:arXiv;arxiv:arXiv",
   unimplementedCapabilities:
-    "PMCID,arXiv,ISBN,book,web,Europe-PMC,Semantic-Scholar",
+    "ISBN,book,web,arXiv-cross-check-batching,Semantic-Scholar-batching",
   negativeCoverage:
-    "development-openalex-and-crossref-complete-title-author-year",
+    "development-openalex-and-crossref-and-every-enabled-search-source-complete-title-author-year",
+  failureHandling:
+    "continue-and-name-failed;rate-budget-skips-remaining-source-calls;all-applicable-failed-not-verifiable",
   nameProjection: "openalex-display-name-last-token-family-1",
-  receivedEvidence: "normalized-pmcid-affirmative-retraction-1",
+  receivedEvidence: "normalized-pmcid-arxiv-affirmative-retraction-2",
   identityEvidence: "consistent-connected-groups-counterevidence-4",
 });
 // Article Verdict derivation (identity groups, missing comparisons and
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
-export const articleVerdictRules = "article-verdict-77-9";
+export const articleVerdictRules = "article-verdict-78-1";
+const transportFailures = new Set([
+  "timeout",
+  "rate-budget",
+  "http-error",
+  "request-unavailable",
+]);
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 export const normalizePmid = (value: string) =>
   value
@@ -71,17 +105,35 @@ export const normalizePmcid = (value: string) =>
       "",
     )
     .toUpperCase();
+/** Version-free native arXiv identifier (new and old schemes). */
+export const normalizeArxiv = (value: string) =>
+  value
+    .trim()
+    .replace(/\/+$/u, "")
+    .replace(
+      /^(?:https?:\/\/(?:www\.|export\.)?arxiv\.org\/(?:abs|pdf)\/|arxiv:\s*)/iu,
+      "",
+    )
+    .replace(/\.pdf$/iu, "")
+    .replace(/v\d+$/u, "");
+const identifierKeys = {
+  doi: "DOI",
+  pmid: "PMID",
+  pmcid: "PMCID",
+  arxiv: "arXiv",
+} as const;
+const normalizers = {
+  DOI: normalizeDoi,
+  PMID: normalizePmid,
+  PMCID: normalizePmcid,
+  arXiv: normalizeArxiv,
+} as const;
 function sourceRelation(a: RetrievedCandidate, b: RetrievedCandidate) {
   let shared = a.source === b.source && a.id === b.id;
   let conflicting = false;
-  for (const key of ["DOI", "PMID", "PMCID"] as const) {
+  for (const key of ["DOI", "PMID", "PMCID", "arXiv"] as const) {
     if (!a.csl[key] || !b.csl[key]) continue;
-    const normalize =
-      key === "DOI"
-        ? normalizeDoi
-        : key === "PMCID"
-          ? normalizePmcid
-          : normalizePmid;
+    const normalize = normalizers[key];
     if (normalize(a.csl[key]) !== normalize(b.csl[key])) conflicting = true;
     else shared = true;
   }
@@ -127,6 +179,9 @@ export function createBibliographicVerification(ports: {
   now(): number;
   rules: ScoringRules;
   parameters: ComparisonProfile;
+  settings: SearchSettings;
+  /** Identity of the exact settings, computed by the composition root. */
+  settingsVersion: string;
 }) {
   return async (
     reference: StructuredReference,
@@ -144,9 +199,10 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-77-9-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-78-1-${ports.sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
+        ...flattenSearchSettings(ports.settings),
         enabledSources: ports.sources.map((s) => s.name).join(","),
       },
       identity: { kind: "unresolved" },
@@ -209,6 +265,9 @@ export function createBibliographicVerification(ports: {
           >(),
           offsets: new Map<QueryKind, number>(),
           complete: true,
+          // A rate-budget failure skips this source's remaining calls, so a
+          // congested source cannot consume the other sources' deadline.
+          limited: false,
         },
       ]),
     );
@@ -424,9 +483,15 @@ export function createBibliographicVerification(ports: {
                 "early-termination",
               ),
             );
-      if (!states.has("openalex"))
+      // Disabled is not failed: recorded, never part of the failure set.
+      for (const name of searchOrder)
+        if (!states.has(name))
+          result.evidence.push(
+            note(name, "combined", "disabled", "operator-disabled"),
+          );
+      if (reference.csl.arXiv && !states.has("arxiv"))
         result.evidence.push(
-          note("openalex", "combined", "disabled", "operator-disabled"),
+          note("arxiv", "arxiv", "disabled", "operator-disabled"),
         );
       result.failedSources = [
         ...new Set(
@@ -437,45 +502,50 @@ export function createBibliographicVerification(ports: {
       ];
       return result;
     }
+    type State = NonNullable<ReturnType<typeof states.get>>;
+    function attempted(state: State, evidence: Evidence) {
+      result.evidence.push(evidence);
+      if (evidence.outcome === "unavailable") state.complete = false;
+      // A source that timed out, was rate-limited or failed is not asked again
+      // for this Reference; the search continues with the other sources.
+      if (
+        evidence.outcome === "unavailable" &&
+        transportFailures.has(evidence.reason ?? "")
+      )
+        state.limited = true;
+    }
+    // DOI handling precedes the other identifiers (ADR-0007).
     const identifiers: [IdentifierKind, string | undefined][] = [
       ["doi", doi],
       ["pmid", reference.csl.PMID],
       ["pmcid", reference.csl.PMCID],
+      ["arxiv", reference.csl.arXiv],
     ];
     let unsupportedIdentifier = false;
     for (const [kind, raw] of identifiers) {
       if (!raw) continue;
-      if (!ports.sources.some((source) => source.identifiers.includes(kind))) {
-        unsupportedIdentifier = true;
-        result.evidence.push(
-          note(
-            "openalex",
-            kind,
-            "unsupported",
-            "identifier-capability-unavailable",
-          ),
-        );
-        continue;
-      }
-      const value =
-        kind === "pmid"
-          ? normalizePmid(raw)
-          : kind === "pmcid"
-            ? normalizePmcid(raw)
-            : raw;
-      for (const state of states.values()) {
-        if (
-          !state.source.identifiers.includes(kind) ||
-          state.candidates.length >= 3
-        )
+      const key = identifierKeys[kind];
+      const value = kind === "doi" ? raw : normalizers[key](raw);
+      let routed = false;
+      for (const name of identifierRoutes[kind]) {
+        const state = states.get(name);
+        // Operator-disabled sources are noted once by finish().
+        if (!state) continue;
+        if (!state.source.identifiers.includes(kind)) {
+          result.evidence.push(
+            note(
+              name,
+              kind,
+              "unsupported",
+              "identifier-capability-unavailable",
+            ),
+          );
           continue;
-        const key = kind === "doi" ? "DOI" : kind === "pmid" ? "PMID" : "PMCID";
+        }
+        routed = true;
+        if (state.candidates.length >= 3) continue;
         const carried = result.candidates.find(
-          (c) =>
-            c.csl[key] &&
-            (kind === "doi"
-              ? normalizeDoi(c.csl[key]) === value
-              : c.csl[key].toLowerCase() === value.toLowerCase()),
+          (c) => c.csl[key] && normalizers[key](c.csl[key]) === value,
         );
         if (carried) {
           carried.identifiers = [
@@ -483,9 +553,12 @@ export function createBibliographicVerification(ports: {
           ];
           continue;
         }
-        const response = await state.source.lookup(kind, value, deadline);
-        result.evidence.push(response.evidence);
-        if (response.evidence.outcome === "unavailable") state.complete = false;
+        const response = state.limited
+          ? {
+              evidence: note(name, kind, "unavailable", "after-source-failure"),
+            }
+          : await state.source.lookup(kind, value, deadline);
+        attempted(state, response.evidence);
         const retrieved = response.candidate;
         if (retrieved) {
           rememberRetractions([retrieved]);
@@ -495,9 +568,11 @@ export function createBibliographicVerification(ports: {
         }
         if (stop()) return finish(true);
       }
+      if (!routed) unsupportedIdentifier = true;
     }
     if (article)
       for (const state of states.values()) {
+        if (!state.source.search) continue;
         let carry = 0;
         for (const kind of [
           "combined",
@@ -516,9 +591,8 @@ export function createBibliographicVerification(ports: {
                 : kind === "authors-year"
                   ? !!reference.csl.author?.length
                   : !!reference.csl.title || !!reference.csl.author?.length;
-            received = usable
-              ? await state.source.search(reference.csl, kind, deadline)
-              : {
+            received = !usable
+              ? {
                   candidates: [],
                   evidence: note(
                     state.source.name,
@@ -526,11 +600,22 @@ export function createBibliographicVerification(ports: {
                     "unsupported",
                     "missing-query-fields",
                   ),
-                };
+                }
+              : state.limited
+                ? {
+                    candidates: [],
+                    evidence: note(
+                      state.source.name,
+                      kind,
+                      "unavailable",
+                      "after-source-failure",
+                    ),
+                  }
+                : await state.source.search(reference.csl, kind, deadline);
             received.evidence.skippedDuplicates = [];
             rememberRetractions(received.candidates);
             received.evidence.unusedSlots = 0;
-            result.evidence.push(received.evidence);
+            attempted(state, received.evidence);
             state.received.set(kind, received);
             if (!["candidate", "no-record"].includes(received.evidence.outcome))
               state.complete = false;
@@ -558,6 +643,27 @@ export function createBibliographicVerification(ports: {
     if (resolution?.outcome === "nonexistent") {
       result.verdict = "doi-conflict";
       result.reasons = ["doi-nonexistent"];
+      return finish();
+    }
+    // A total outage of every applicable enabled source is Not verifiable,
+    // never Not found (ADR-0007/0008). Notes are not source responses.
+    const contacted = [...states.values()].map((state) =>
+      result.evidence.filter(
+        (e) =>
+          e.source === state.source.name &&
+          !["skipped", "disabled", "unsupported"].includes(e.outcome),
+      ),
+    );
+    const applicable = contacted.filter((evidence) => evidence.length);
+    if (
+      applicable.length &&
+      applicable.every((evidence) =>
+        evidence.every((e) => e.outcome === "unavailable"),
+      )
+    ) {
+      result.reasons = mandatoryComplete()
+        ? ["sources-unavailable"]
+        : ["sources-unavailable", "mandatory-resolution-incomplete"];
       return finish();
     }
     if (!mandatoryComplete()) {
@@ -627,8 +733,11 @@ export function createBibliographicVerification(ports: {
       result.reasons = ["ambiguous-identity"];
     else if (
       !unsupportedIdentifier &&
-      states.size === 2 &&
-      [...states.values()].every((s) => s.complete && s.received.size === 3) &&
+      states.has("openalex") &&
+      states.has("crossref") &&
+      [...states.values()].every(
+        (s) => s.complete && (!s.source.search || s.received.size === 3),
+      ) &&
       reference.csl.title &&
       reference.csl.author?.length &&
       reference.csl.issued?.literal.match(/\b[12]\d{3}\b/u) &&

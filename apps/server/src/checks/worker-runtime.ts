@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Injectable composition root, also used by real-PG HTTP/SSE lifecycle tests.
 import { setTimeout } from "node:timers/promises";
-import { doiTracerLimits } from "@source-taster/core";
+import { defaultSearchSettings, doiTracerLimits } from "@source-taster/core";
 import type { PgBoss } from "pg-boss";
 import type { Config } from "../config.ts";
 import type { Db } from "../db/prisma.ts";
@@ -36,6 +36,9 @@ export async function startWorkerRuntime(
     clientLeaseMs: config.clientLeaseMs,
     claimMs: config.workerClaimMs,
     maxAttempts: 3,
+    activeReferencesPerCheck:
+      config.searchSettings?.activeReferencesPerCheck ??
+      defaultSearchSettings.activeReferencesPerCheck,
     ...options.settings,
   };
   const checks = createCheckStore(db, boss, { ...options, settings });
@@ -71,7 +74,9 @@ export async function startWorkerRuntime(
     REFERENCE_QUEUE,
     {
       batchSize: 1,
-      localConcurrency: 20,
+      localConcurrency:
+        config.searchSettings?.workerConcurrency ??
+        defaultSearchSettings.workerConcurrency,
       pollingIntervalSeconds: 0.5,
       notifyPollingIntervalSeconds: 0.5,
     },
