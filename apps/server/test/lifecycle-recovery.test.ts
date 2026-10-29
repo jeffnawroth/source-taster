@@ -148,14 +148,18 @@ it("bounds a Check to ten active References across workers and admits other Chec
     second = service.worker();
   try {
     await Promise.all([first.ready, second.ready]);
+    // Admission precedes globally paced source I/O. Observe the published Check
+    // progress so this scheduler test does not time the source rate limiter.
     await expect
       .poll(
-        () =>
-          fixtures.requests.filter((r) => r.path.startsWith("/api/handles/"))
-            .length,
+        async () =>
+          (await Promise.all([snapshot(a.id), snapshot(b.id)])).map(
+            (check) =>
+              check.references.filter((r) => r.progress !== "queued").length,
+          ),
         { timeout: 2500 },
       )
-      .toBe(12);
+      .toEqual([10, 2]);
     const snap = await snapshot(a.id);
     expect(snap.references.filter((r) => r.progress !== "queued")).toHaveLength(
       10,
