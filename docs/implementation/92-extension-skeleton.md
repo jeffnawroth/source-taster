@@ -12,10 +12,14 @@ download or production availability.
 | Point | Commit |
 | --- | --- |
 | Required baseline (`spec/70-shared-workspace-extension`, includes reviewed #82) | `d9a9dec25e14089b795d832f784f1ffcaedd3acb` |
-| Integration tip after `git fetch origin` at final reconciliation | `d9a9dec25e14089b795d832f784f1ffcaedd3acb`, unchanged; nothing to merge |
+| Integration tip at final reconciliation, just before push | `d9a9dec25e14089b795d832f784f1ffcaedd3acb` |
 
-The baseline was confirmed as an ancestor (`git merge-base --is-ancestor`)
-before work and again at handoff. The root integration checkout was not changed.
+Before push, `git fetch origin` showed the local and remote integration branch
+both at that tip. `git merge --no-edit origin/spec/70-shared-workspace-extension`
+returned "Already up to date" (`.tmp/st92/fetch-final.log`,
+`.tmp/st92/merge-final.log`). The baseline was confirmed as an ancestor
+(`git merge-base --is-ancestor`) before work. The root integration checkout was
+not changed.
 
 ## Design
 
@@ -58,7 +62,7 @@ before work and again at handoff. The root integration checkout was not changed.
 | `permissions` | `sidePanel`, `storage` | `storage` | Native panel; extension-local Guest ID and Preferences |
 | `host_permissions` | `http://127.0.0.1:3100/*` (API origin only) | `http://127.0.0.1/*` | The verification API sends no CORS headers, so the panel needs host access to it. The Guest service answers CORS for configured extension origins and gets no host permission. |
 | CSP | `script-src 'self'; object-src 'self'` | same | All executable code is packaged; no remote code |
-| Minimum | `minimum_chrome_version` 116 (`sidePanel.open`/side panel API) | `strict_min_version` 128.0 | See below |
+| Minimum (declared, not executed) | `minimum_chrome_version` 116 | `strict_min_version` 128.0 | See below |
 
 There are no content scripts, `web_accessible_resources`,
 `externally_connectable`, `scripting`, `tabs`, `contextMenus` or broad host
@@ -70,14 +74,27 @@ doesn't support the inclusion of a port number due to (Firefox bug 1362809)
 and (Firefox bug 1468162)." The Firefox pattern is therefore host-scoped to the
 configured API host, whose loopback host is `127.0.0.1`.
 
-MV3 `host_permissions` were not shown in the Firefox install prompt before
-Firefox 127. MDN, *Firefox 127 release notes*: "host_permissions for Manifest
-V3 extensions are now displayed to users during installation (Firefox bug
-1889402)". Before 127 these permissions are effectively optional. The original
-115.0 floor was therefore unsupported and was raised to 128.0, the first ESR
-after 127. **Firefox 128 ESR itself was not executed.** Only Developer Edition
-160.0b1 ran (see Limits). A user who revokes the host permission gets the
-explicit connection-failure message. There is no fallback.
+Chromium floor: Chrome's `sidePanel` reference lists the API as "Chrome 114+"
+and `sidePanel.open()` as "Chrome 116+". It gives no separate availability for
+`setPanelBehavior`, which the background uses. `storage.local.setAccessLevel`
+predates 114. 116 is therefore a conservative declared floor, not a measured
+one.
+
+Firefox floor: before Firefox 127, MV3 `host_permissions` were not granted or
+shown at install.
+
+- MDN, *Firefox 127 release notes*: "host_permissions for Manifest V3
+  extensions are now displayed to users during installation (Firefox bug
+  1889402)".
+- That bug is titled "Grant origin permissions during install for mv3".
+
+Before 127 these permissions are effectively optional, so the original 115.0
+floor was unsupported. It was raised to 128.0, the first ESR after 127.
+
+**Neither declared floor was executed.** Only Chrome for Testing 156 and Firefox
+Developer Edition 160.0b1 ran (see Limits). If a user revokes the host
+permission, the API fetch should fail like any network failure, with the
+connection-failure message and no fallback. That case was not executed.
 
 ### Trusted extension storage
 
@@ -231,8 +248,38 @@ The #92 slices ran RED→GREEN:
 The private service's `POST /v1/guest-tokens` sends no
 `Access-Control-Allow-Origin`, `Vary` or `Cache-Control` headers on its 403
 problem response, **even for an allowlisted Origin**. The 200 response carries
-all three. Reproduced against the actual peer with
-`node .tmp/st92/cors-repro.ts` (`.tmp/st92/cors-repro.log`):
+all three. Reproduced against the actual peer by saving this script as
+`.tmp/st92/cors-repro.ts` in this checkout. Run it with the owned
+`DATABASE_*` and `SOURCE_TASTER_SERVICE_WORKTREE` environment above:
+`node .tmp/st92/cors-repro.ts`. The transcript is `.tmp/st92/cors-repro.log`.
+
+```ts
+// Repro: the private service's 403 on Guest issuance lacks CORS headers for an allowed Origin.
+import { bothPrograms } from "../../apps/server/test/support/both-programs.ts";
+import { allowOrigins } from "../../apps/extension/e2e/support/hosted.ts";
+const origin = "chrome-extension://abcdefghijklmnopabcdefghijklmnop";
+const both = await bothPrograms({ startWorker: false });
+try {
+  await allowOrigins(both, [origin]);
+  const post = (guestId: string) =>
+    fetch(`${both.serviceUrl}/v1/guest-tokens`, {
+      method: "POST",
+      headers: { "content-type": "application/json", origin },
+      body: JSON.stringify({ guestId, client: "extension" }),
+    });
+  const show = async (label: string, r: Response) =>
+    console.log(label, r.status, JSON.stringify(Object.fromEntries(r.headers)),
+      (await r.text()).slice(0, 120));
+  const { guestId } = await both.issue(undefined, "extension");
+  await show("allowed-200", await post(guestId));
+  await both.change(guestId, { revoke: true, client: "extension" } as never);
+  await show("allowed-403", await post(guestId));
+} finally {
+  await both.stop();
+}
+```
+
+Output (token body elided):
 
 ```
 allowed-200 200 {"access-control-allow-origin":"chrome-extension://abcd…","cache-control":"no-store",…,"vary":"Origin"}
@@ -365,15 +412,24 @@ dist exists, and none was added: publication is closed.
 
 ## Owned-resource cleanup
 
-At handoff:
+The following cleanup ran after all suites and the CORS repro:
 
-- The owned test build directories and profiles (`$TMPDIR/st92-*`) are removed.
-  Every native test deletes its profile and build on close; leftovers from
-  aborted probes are removed by exact `st92-` prefix.
-- Container `st92-native-pg-20261029-89f1` is stopped and removed with
-  `docker stop` then `docker rm`, without force.
+- Owned leftovers from aborted probes in `$TMPDIR` were removed by exact path:
+  one empty `st92-chromium-*` build directory and three
+  `st92-chromium-profile-*` directories. Completed native tests delete their
+  own profiles and builds.
+- `docker stop st92-native-pg-20261029-89f1` and then
+  `docker rm st92-native-pg-20261029-89f1` succeeded, without force.
 
-Unrelated containers, including `source-taster-demo-k60piqfh` and
-`st-verification-dev-postgres-1`, as well as other worktrees, `.claude`,
-services and ports 8000/4567 were not touched. The private peer remains clean
-at `cc316900…`. Ignored local transcripts stay in `.tmp/st92/` for review.
+`.tmp/st92/resource-cleanup.json` records the state afterwards:
+
+- no `st92` container and no `$TMPDIR/st92-*` entry
+- no listener on 55492, 54921–54928, 3192 or 5192
+- the private peer at `cc316900eedde83c5e21f23383d3fa4c940937c9` with no dirty
+  entries
+- the unrelated containers `source-taster-demo-k60piqfh` and
+  `st-verification-dev-postgres-1` still present and untouched
+
+Other worktrees, `.claude`, services and ports 8000/4567 were not touched.
+Ignored local transcripts, the CORS repro script and the built
+`apps/extension/dist` remain for review.

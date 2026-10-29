@@ -100,8 +100,8 @@ export function manifest(target: Target, config: ExtensionConfig) {
         browser_specific_settings: {
           gecko: {
             id: "development@source-taster.invalid",
-            // MV3 host permissions are shown and granted at install from
-            // Firefox 127 (bug 1889402); 128 is the first ESR after that.
+            // Firefox 127 grants and shows MV3 host permissions at install
+            // (bug 1889402); 128 is the first ESR after that.
             strict_min_version: "128.0",
           },
         },
