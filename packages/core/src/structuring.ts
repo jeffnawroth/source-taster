@@ -73,7 +73,7 @@ const date =
 const entryMarker =
   /^(?:(?:\[\d+\]|\(\d+\)|\d+[.)])\s+|[¹²³⁴⁵⁶⁷⁸⁹⁰]+\s*|[*†‡]+\s*)/u;
 const ieeeAuthors =
-  /^((?:\p{Lu}\.\s*)+[\p{L}\p{M}’' -]+(?:(?:,\s*(?:(?:and|&)\s+)?|\s+(?:and|&)\s+)(?:\p{Lu}\.\s*)+[\p{L}\p{M}’' -]+)*),\s+/du;
+  /^((?:\p{Lu}\.\s*)+[\p{L}\p{M}’' -]+(?:(?:,\s*(?:(?:and|&)\s+)?|\s+(?:and|&)\s+)(?:\p{Lu}\.\s*)+[\p{L}\p{M}’' -]+)*(?:,?\s+et al\.)?),\s+/du;
 const acsAuthors =
   /^([\p{L}\p{M}’' -]+,\s*(?:\p{Lu}\.\s*)*\p{Lu}\.(?:;\s*[\p{L}\p{M}’' -]+,\s*(?:\p{Lu}\.\s*)*\p{Lu}\.)*)\s+/du;
 const springerAuthors =
@@ -83,10 +83,44 @@ const compactAuthors =
 const heading =
   /^(?:references|bibliography|works cited|literatur(?:verzeichnis)?|quellen(?:verzeichnis)?)\s*:?$/iu;
 
+type AuthorSyntax = "family-given" | "initial-first" | "compact";
+const authorSyntaxes: Record<
+  AuthorSyntax,
+  {
+    split: (raw: string) => string[];
+    person: RegExp;
+    familyGroup: 1 | 2;
+    givenGroup: 1 | 2;
+  }
+> = {
+  "family-given": {
+    split: (raw) =>
+      raw
+        .split(/;\s*|,?\s+(?:&|and|und)\s+/u)
+        .flatMap((part) => part.split(/,\s*(?=[\p{L} -]+,)/u)),
+    person: /^([^,]+),\s*([^,]+)$/du,
+    familyGroup: 1,
+    givenGroup: 2,
+  },
+  "initial-first": {
+    split: (raw) => raw.split(/,?\s+(?:and|&)\s+|,\s*/u),
+    person: /^((?:\p{Lu}\.\s*)+)([\p{L}\p{M}’' -]+)$/du,
+    familyGroup: 2,
+    givenGroup: 1,
+  },
+  compact: {
+    split: (raw) => raw.split(/,\s*/u),
+    person: /^(.+?) (\p{Lu}{1,4})$/du,
+    familyGroup: 1,
+    givenGroup: 2,
+  },
+};
+
 function oxfordOpening(text: string) {
-  const match = /^([\p{L}\p{M}.’' -]+(?:,\s*[\p{L}\p{M}.’' -]+)?),\s+/du.exec(
-    text,
-  );
+  const match =
+    /^([\p{L}\p{M}.’' -]+(?:,\s*(?!(?:and|&)\s)[\p{L}\p{M}.’' -]+)?(?:,?\s+(?:and|&)\s+[\p{L}\p{M}.’' -]+)?),\s+/du.exec(
+      text,
+    );
   return match?.[1] &&
     (/^[“"‘']/u.test(text.slice(match[0].length)) ||
       /\([^():]+:\s*[^()]+,\s*[12]\d{3}[a-z]?\)/u.test(text))
@@ -351,7 +385,7 @@ function parse(text: string, span: Span): StructuredReference | null {
   function authors(
     raw: string,
     offset: number,
-    syntax: "family-given" | "initial-first" | "compact" = "family-given",
+    syntax: AuthorSyntax = "family-given",
   ) {
     const truncation = /(?:et al\.|u\.\s*a\.)/du.exec(raw);
     if (truncation) {
@@ -378,29 +412,16 @@ function parse(text: string, span: Span): StructuredReference | null {
     }
     const names: Name[] = [];
     let cursor = 0;
-    const parts =
-      syntax === "compact"
-        ? raw.split(/,\s*/u)
-        : syntax === "initial-first"
-          ? raw.split(/,?\s+(?:and|&)\s+|,\s*/u)
-          : raw
-              .split(/;\s*|,?\s+(?:&|and|und)\s+/u)
-              .flatMap((part) => part.split(/,\s*(?=[\p{L} -]+,)/u));
-    for (const part of parts) {
+    const authorSyntax = authorSyntaxes[syntax];
+    for (const part of authorSyntax.split(raw)) {
       const clean = part.trim().replace(/,$/u, "");
       if (!clean) continue;
       const position = raw.indexOf(clean, cursor);
       cursor = position + clean.length;
-      const person =
-        syntax === "initial-first"
-          ? /^((?:\p{Lu}\.\s*)+)([\p{L}\p{M}’' -]+)$/du.exec(clean)
-          : syntax === "compact"
-            ? /^(.+?) (\p{Lu}{1,4})$/du.exec(clean)
-            : /^([^,]+),\s*([^,]+)$/du.exec(clean);
+      const person = authorSyntax.person.exec(clean);
       const index = names.length;
       if (person?.[1] && person[2]) {
-        const familyGroup = syntax === "initial-first" ? 2 : 1;
-        const givenGroup = syntax === "initial-first" ? 1 : 2;
+        const { familyGroup, givenGroup } = authorSyntax;
         const family = person[familyGroup]!;
         const given = person[givenGroup]!.trimEnd();
         names.push({ family, given });

@@ -79,3 +79,37 @@ An earlier full-suite attempt failed during service startup before executing tes
 - No public CSL type was edited, and no change was made to #78's branch/worktree. There is no shared CSL type migration to integrate from #73.
 
 The integration target remained `spec/70-73-parser` at `75dca7caf22c7396f81c1b61dec1579c74274b37` throughout validation. The implementation branch must retain that ancestry at handoff. No PR, push, issue closure or merge into integration/main is part of this ticket's handoff.
+
+## Integration and independent review
+
+The parent integrated the implementation into `spec/70-73-parser` and merged
+current `main` (`ebb86810c587a2c97e4a4257b426f4a66a33529e`) without conflicts.
+Draft PR #130 contains this ticket only; parent spec #70 stays open.
+
+### Standards
+
+The independent Standards review found **zero documented-standard violations**
+and one optional Repeated Switches finding: author syntax independently selected
+the splitting rule, person pattern and capture ordering. These choices now live
+together in one typed descriptor per syntax. Existing HTTP tests cover the
+behavior without asserting on the descriptor.
+
+### Spec
+
+The independent Spec review found **two defects**, both corrected:
+
+- An Oxford multi-author book moved `and Alex Roe` into its title. The author
+  opening now consumes the explicit conjunction before the title. The HTTP
+  regression preserves ordered authors, keeps the unmarked full name literal,
+  and verifies the original input and every evidence span.
+- IEEE `et al.` author lists selected the wrong layout, losing or corrupting
+  journal metadata. The IEEE opening now consumes explicit truncation with or
+  without its preceding comma. Two HTTP regressions verify complete fields,
+  truncation evidence and exact spans.
+
+The Oxford test failed before its fix and passed afterward. Both IEEE variants
+failed before their fix and passed afterward. Logs are retained locally as
+`/tmp/source-taster-73-oxford-{red,green}.log` and
+`/tmp/source-taster-73-ieee-{red,green}.log`. After both fixes and the author-rule
+cleanup, **all 46 Structuring HTTP tests pass** against real PostgreSQL 18.
+No search/scoring rule, public CSL type, timeout or budget was changed.

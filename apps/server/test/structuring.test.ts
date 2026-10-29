@@ -15,6 +15,54 @@ function structure(text: string) {
   });
 }
 
+it("keeps every Oxford book author separate from the title", async () => {
+  const text =
+    "Doe, Jane, and Alex Roe, Careful Systems (Oxford: Example Press, 2019).";
+  const response = await structure(text);
+  expect(response.status).toBe(200);
+  const { data } = StructuringResponse.parse(await response.json());
+  expect(data.references.map((reference) => reference.csl)).toEqual([
+    {
+      author: [{ family: "Doe", given: "Jane" }, { literal: "Alex Roe" }],
+      title: "Careful Systems",
+      "publisher-place": "Oxford",
+      publisher: "Example Press",
+      issued: { literal: "2019" },
+    },
+  ]);
+  expect(data.references[0]?.originalText).toBe(text);
+  for (const source of Object.values(data.references[0]!.fieldSources))
+    expect(text.slice(source.span!.start, source.span!.end)).toBe(source.raw);
+});
+
+it.each([" et al.", ", et al."])(
+  "structures truncated IEEE authors with %j without changing the layout",
+  async (truncation) => {
+    const text = `[1] J. Doe${truncation}, “Signal maps,” IEEE Trans. Signal Process., vol. 12, no. 3, pp. 45–67, 2020.`;
+    const response = await structure(text);
+    expect(response.status).toBe(200);
+    const { data } = StructuringResponse.parse(await response.json());
+    expect(data.references.map((reference) => reference.csl)).toEqual([
+      {
+        author: [{ given: "J.", family: "Doe" }],
+        title: "Signal maps",
+        "container-title-short": "IEEE Trans. Signal Process.",
+        volume: "12",
+        issue: "3",
+        page: "45–67",
+        issued: { literal: "2020" },
+      },
+    ]);
+    expect(data.references[0]).toMatchObject({
+      originalText: text,
+      authorsTruncated: true,
+      fieldSources: { authorsTruncated: { raw: "et al." } },
+    });
+    for (const source of Object.values(data.references[0]!.fieldSources))
+      expect(text.slice(source.span!.start, source.span!.end)).toBe(source.raw);
+  },
+);
+
 it("structures the recorded APA bibliography through HTTP, preserving text and every field's evidence", async () => {
   const fixture = JSON.parse(
     await readFile(
