@@ -674,11 +674,83 @@ export declare function verificationClient(options?: VerificationClientOptions):
         referenceLimit: number;
     }>;
 };
-export interface WatchCheckOptions {
+/** Shared transport across majors; policies and verification remain server-owned. */
+export declare function createVerificationClient<T>(options: VerificationClientOptions, prefix: string, responseSchema: {
+    parse(input: unknown): {
+        data: T;
+    };
+}): {
+    createCheck: (input: string | CreateCheckRequest) => Promise<T>;
+    cancelCheck: (checkId: string) => Promise<T>;
+    renewCheckLease: (checkId: string) => Promise<T>;
+    getCheck: (checkId: string) => Promise<T>;
+    structureReferences: (text: string) => Promise<{
+        references: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            csl: {
+                type?: string | undefined;
+                author?: {
+                    family?: string | undefined;
+                    "non-dropping-particle"?: string | undefined;
+                    given?: string | undefined;
+                    literal?: string | undefined;
+                }[] | undefined;
+                issued?: {
+                    literal: string;
+                } | undefined;
+                title?: string | undefined;
+                "container-title"?: string | undefined;
+                "container-title-short"?: string | undefined;
+                publisher?: string | undefined;
+                "publisher-place"?: string | undefined;
+                volume?: string | undefined;
+                issue?: string | undefined;
+                page?: string | undefined;
+                "article-number"?: string | undefined;
+                edition?: string | undefined;
+                DOI?: string | undefined;
+                URL?: string | undefined;
+                ISBN?: string | undefined;
+                ISSN?: string | undefined;
+                PMID?: string | undefined;
+                PMCID?: string | undefined;
+            };
+            fieldSources: Record<string, {
+                raw: string;
+                span?: {
+                    start: number;
+                    end: number;
+                } | undefined;
+                normalized?: string | undefined;
+            }>;
+            authorsTruncated?: boolean | undefined;
+            structuring: {
+                path: "parser" | "user";
+                version: string;
+            };
+        }[];
+        rejected: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            reason: "no-reference-features";
+        }[];
+        guidance: "no-references" | null;
+        quotaConsumed: 0;
+        referenceLimit: number;
+    }>;
+};
+export interface WatchOptions<Event> {
     credentials?: CredentialSupplier;
     client?: string;
     /** Called once per event, in sequence order, without duplicates. */
-    onEvent: (event: CheckEvent) => void;
+    onEvent: (event: Event) => void;
     /** Origin of the API; defaults to same-origin relative URLs. */
     baseUrl?: string;
     /** Resume after this sequence number, e.g. a snapshot's lastEventSeq. */
@@ -688,9 +760,17 @@ export interface WatchCheckOptions {
     retryDelayMs?: number;
     fetch?: typeof globalThis.fetch;
 }
+export type WatchCheckOptions = WatchOptions<CheckEvent>;
 /**
  * Follows a Check's events until the Check ends. Reconnects with
  * Last-Event-ID after dropped connections, so no event is lost or repeated.
  * Resolves after the final event; rejects with CheckStreamError on 4xx.
  */
 export declare function watchCheckEvents(checkId: string, options: WatchCheckOptions): Promise<void>;
+/** Shared cursor/reconnect transport, with a major-specific event schema. */
+export declare function watchContractEvents<Event extends {
+    checkId: string;
+    seq: number;
+}>(checkId: string, options: WatchOptions<Event>, prefix: string, schema: {
+    parse(input: unknown): Event;
+}, final: (event: Event) => boolean): Promise<void>;

@@ -96,6 +96,14 @@ export interface VerificationClientOptions {
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export function verificationClient(options: VerificationClientOptions = {}) {
+  return createVerificationClient(options, "/v1", CheckResponse);
+}
+/** Shared transport across majors; policies and verification remain server-owned. */
+export function createVerificationClient<T>(
+  options: VerificationClientOptions,
+  prefix: string,
+  responseSchema: { parse(input: unknown): { data: T } },
+) {
   async function headers() {
     return {
       ...(options.client ? { "Source-Taster-Client": options.client } : {}),
@@ -129,30 +137,30 @@ export function verificationClient(options: VerificationClientOptions = {}) {
     createCheck: async (input: string | CreateCheckRequest) =>
       (
         await post(
-          "/v1/checks",
+          `${prefix}/checks`,
           typeof input === "string" ? { text: input } : input,
-          CheckResponse,
+          responseSchema,
         )
       ).data,
     cancelCheck: async (checkId: string) =>
       (
         await post(
-          `/v1/checks/${encodeURIComponent(checkId)}/cancel`,
+          `${prefix}/checks/${encodeURIComponent(checkId)}/cancel`,
           undefined,
-          CheckResponse,
+          responseSchema,
         )
       ).data,
     renewCheckLease: async (checkId: string) =>
       (
         await post(
-          `/v1/checks/${encodeURIComponent(checkId)}/lease`,
+          `${prefix}/checks/${encodeURIComponent(checkId)}/lease`,
           undefined,
-          CheckResponse,
+          responseSchema,
         )
       ).data,
     getCheck: async (checkId: string) => {
       const response = await (options.fetch ?? globalThis.fetch)(
-        `${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}`,
+        `${options.baseUrl ?? ""}${prefix}/checks/${encodeURIComponent(checkId)}`,
         {
           headers: await headers(),
         },
@@ -163,18 +171,18 @@ export function verificationClient(options: VerificationClientOptions = {}) {
           response.status,
           ProblemDetails.safeParse(body).data,
         );
-      return CheckResponse.parse(body).data;
+      return responseSchema.parse(body).data;
     },
     structureReferences: async (text: string) =>
       (await post("/v1/structurings", { text }, StructuringResponse)).data,
   };
 }
 
-export interface WatchCheckOptions {
+export interface WatchOptions<Event> {
   credentials?: CredentialSupplier;
   client?: string;
   /** Called once per event, in sequence order, without duplicates. */
-  onEvent: (event: CheckEvent) => void;
+  onEvent: (event: Event) => void;
   /** Origin of the API; defaults to same-origin relative URLs. */
   baseUrl?: string;
   /** Resume after this sequence number, e.g. a snapshot's lastEventSeq. */
@@ -185,6 +193,8 @@ export interface WatchCheckOptions {
   fetch?: typeof globalThis.fetch;
 }
 
+export type WatchCheckOptions = WatchOptions<CheckEvent>;
+
 /**
  * Follows a Check's events until the Check ends. Reconnects with
  * Last-Event-ID after dropped connections, so no event is lost or repeated.
@@ -194,8 +204,20 @@ export async function watchCheckEvents(
   checkId: string,
   options: WatchCheckOptions,
 ): Promise<void> {
+  return watchContractEvents(checkId, options, "/v1", CheckEvent, isFinalEvent);
+}
+/** Shared cursor/reconnect transport, with a major-specific event schema. */
+export async function watchContractEvents<
+  Event extends { checkId: string; seq: number },
+>(
+  checkId: string,
+  options: WatchOptions<Event>,
+  prefix: string,
+  schema: { parse(input: unknown): Event },
+  final: (event: Event) => boolean,
+): Promise<void> {
   const doFetch = options.fetch ?? globalThis.fetch;
-  const url = `${options.baseUrl ?? ""}/v1/checks/${encodeURIComponent(checkId)}/events`;
+  const url = `${options.baseUrl ?? ""}${prefix}/checks/${encodeURIComponent(checkId)}/events`;
   let lastSeq = options.lastEventSeq ?? 0;
   let retryDelayMs = options.retryDelayMs ?? 1000;
 
@@ -218,7 +240,7 @@ export async function watchCheckEvents(
       }
       if (response.ok && response.body) {
         for await (const frame of readSseFrames(response.body)) {
-          const event = CheckEvent.parse(JSON.parse(frame.data));
+          const event = schema.parse(JSON.parse(frame.data));
           if (
             event.checkId !== checkId ||
             frame.id !== `${checkId}:${event.seq}`
@@ -229,7 +251,7 @@ export async function watchCheckEvents(
             throw new SyntaxError("Check event sequence gap");
           lastSeq = event.seq;
           options.onEvent(event);
-          if (isFinalEvent(event)) return;
+          if (final(event)) return;
         }
       }
     } catch (error) {

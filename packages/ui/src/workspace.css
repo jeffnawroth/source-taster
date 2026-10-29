@@ -1,0 +1,90 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+.check-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+.check-list {
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  padding: 0.25rem;
+}
+.check-detail {
+  overflow-wrap: anywhere;
+}
+.check-back {
+  display: none;
+}
+@media (max-width: 47.99rem) {
+  .check-panes {
+    display: block;
+  }
+  .check-panes .check-detail {
+    display: none;
+  }
+  .check-panes[data-detail-open="true"] .check-list {
+    display: none;
+  }
+  .check-panes[data-detail-open="true"] .check-detail {
+    display: block;
+  }
+  .check-back {
+    display: inline-block;
+  }
+}
+.check-comparison {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+.check-comparison th,
+.check-comparison td {
+  width: 50%;
+  vertical-align: top;
+  text-align: left;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid #94a3b8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.check-comparison tbody[data-deviates="true"] {
+  background: #fffbeb;
+}
+.check-comparison tbody[data-deviates="true"] th {
+  border-left: 4px solid #b45309;
+}
+.check-workspace {
+  overflow-wrap: anywhere;
+}
+.check-workspace :where(label, input, textarea, select, button) {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 47.99rem) {
+  .check-workspace {
+    padding-inline: 0.75rem;
+  }
+  .check-workspace form {
+    padding: 0.75rem;
+  }
+}
+.check-workspace :focus-visible {
+  outline: 3px solid #0f766e;
+  outline-offset: 3px;
+}
+
+.check-comparison th[colspan] {
+  width: auto;
+}
+@media (max-width: 47.99rem) {
+  .check-workspace {
+    padding-inline: 12px;
+  }
+  .check-workspace .check-status,
+  .check-workspace .check-detail {
+    padding: 8px;
+  }
+}

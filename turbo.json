@@ -16,6 +16,11 @@
       "dependsOn": ["^build"],
       "outputs": ["dist-preview/**"]
     },
+    "@source-taster/extension#build": {
+      "dependsOn": ["^build", "generate"],
+      "env": ["SOURCE_TASTER_EXTENSION_*"],
+      "outputs": ["dist/**"]
+    },
     "generate": {
       "outputs": ["src/generated/**", "src/paraglide/**"]
     },
@@ -25,7 +30,8 @@
         "dist/**",
         "dist-preview/**",
         "openapi.json",
-        "src/paraglide/**"
+        "src/paraglide/**",
+        "openapi-v2.json"
       ]
     },
     "typecheck": {

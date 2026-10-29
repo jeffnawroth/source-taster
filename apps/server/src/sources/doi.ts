@@ -18,11 +18,14 @@ export interface SourcePermit {
 }
 export interface SourceBudget {
   acquire: (
-    source: "doi.org" | "crossref",
-    operation: "doi" | "combined",
+    source: "doi.org" | "crossref" | "openalex",
+    operation: Evidence["operation"],
     deadline: number,
   ) => Promise<SourcePermit | null>;
-  defer: (source: "doi.org" | "crossref", delayMs: number) => Promise<void>;
+  defer: (
+    source: "doi.org" | "crossref" | "openalex",
+    delayMs: number,
+  ) => Promise<void>;
 }
 const crossrefRecord = z.object({
   DOI: z.string(),
@@ -71,20 +74,23 @@ export const systemSourceClock: SourceClock = {
 export function createDoiAdapters(options: {
   resolverBase: string;
   crossrefBase: string;
+  openalexBase?: string;
   budget: SourceBudget;
   clock?: SourceClock;
   signal?: AbortSignal;
   dispatch?: (
     send: () => Promise<SourceDispatch | null>,
   ) => Promise<SourceDispatch | null>;
-  beforeRequest?: (source: "doi.org" | "crossref") => Promise<void>;
+  beforeRequest?: (
+    source: "doi.org" | "crossref" | "openalex",
+  ) => Promise<void>;
 }) {
   const clock = options.clock ?? systemSourceClock;
   async function request(
-    source: "doi.org" | "crossref",
+    source: "doi.org" | "crossref" | "openalex",
     url: URL,
     deadline: number,
-    operation: "doi" | "combined" = "doi",
+    operation: Evidence["operation"] = "doi",
   ): Promise<{ body?: unknown; evidence: Evidence }> {
     const began = clock.now();
     let attempts = 0,
@@ -316,7 +322,7 @@ export function createDoiAdapters(options: {
   };
   function project(
     body: unknown,
-    origin: "doi" | "combined",
+    origin: RetrievedCandidate["origin"],
     observedAt: string,
   ): RetrievedCandidate | null {
     const parsed = crossrefRecord.safeParse(body);
@@ -467,5 +473,5 @@ export function createDoiAdapters(options: {
       };
     },
   };
-  return { resolver, source };
+  return { resolver, source, request, project };
 }

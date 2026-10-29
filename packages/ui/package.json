@@ -8,7 +8,9 @@
     ".": "./src/index.tsx",
     "./preferences": "./src/preferences.ts",
     "./information": "./src/information.tsx",
-    "./guest-identity": "./src/guest-identity.ts"
+    "./guest-identity": "./src/guest-identity.ts",
+    "./check-workspace": "./src/check-workspace.tsx",
+    "./workspace.css": "./src/workspace.css"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
@@ -17,7 +19,8 @@
   "dependencies": {
     "react-aria-components": "1.22.1",
     "@source-taster/i18n": "workspace:*",
-    "@source-taster/contract-service": "workspace:*"
+    "@source-taster/contract-service": "workspace:*",
+    "@source-taster/contract-verification": "workspace:*"
   },
   "peerDependencies": {
     "react": "19.3.1",

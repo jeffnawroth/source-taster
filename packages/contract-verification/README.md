@@ -1,6 +1,6 @@
 # @source-taster/contract-verification
 
-Public transport contract of the verification API (`/v1`).
+Public transport contracts of the verification API (`/v1` and `/v2`).
 
 | Subpath    | Contents                                                       |
 | ---------- | -------------------------------------------------------------- |
@@ -65,5 +65,33 @@ unchanged; later Check execution must explicitly adopt the canonical fields.
 and throw `ApiError` for HTTP failures, with the status and an optional validated
 Problem. Non-JSON error bodies never leak into user-facing copy. Network errors
 remain distinguishable from HTTP Problems. Check creation enforces the configured
-Reference limit before storing or enqueueing; its placeholder intake still counts
-nonempty lines. Structuring retains its own parser-based count.
+Reference limit before storing or enqueueing; it uses the same parser or accepts explicit structured References.
+
+## Version 2 article-search contract
+
+New clients use `./v2` schemas, `./client-v2` and `./routes-v2`, with
+`./openapi-v2.json`. The web app and later extension share this same intended
+contract. Structuring remains the compatible `/v1/structurings` operation.
+
+`/v2/checks` and its snapshot, events, cancel and lease routes reuse the existing
+Owner/current-authority, lifecycle and cursor protocol. Version 2 adds OpenAlex,
+supported identifier provenance, per-source slots, query evidence, additional
+reasons and up to ten scored Candidates (at most five per source). A supplied
+PMID has `identity.kind: supplied-identifier`, separately from DOI proof and
+independent bibliography. Similarity alone is never identity proof.
+
+Version 1 schemas and routes keep their Crossref literal, five-Candidate result
+cap and existing reason/progress enums. Creating through `/v1` keeps the prior
+DOI-tracer execution even when bibliographic development search is enabled.
+Checks persist their creation major (existing rows default to 1). `/v2` can read
+legacy snapshots/results/events unchanged; `/v1` returns 404 for Version 2 Checks,
+including streams and mutations, so a frozen client never receives an incompatible
+result. Old immutable results retain their own versions and evidence.
+
+Both majors accept legacy numeric replay cursors and emit numeric SSE IDs for
+those requests. Check-bound cursors opt into `{checkId}:{seq}` IDs; clients check
+identity, sequence continuity and duplicates. The shared transport implementation
+handles credentials, errors, lease calls and reconnects for both schema versions.
+No scoring, authority policy, adapter, secret or AGPL implementation enters this
+package. Production/hosted activation remains subject to the separate measured
+configuration gate; these transport additions grant no activation permission.

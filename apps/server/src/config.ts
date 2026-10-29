@@ -4,6 +4,10 @@
 // must never be the result of a missing setting.
 
 import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
+import {
+  createDevelopmentProfile,
+  type ComparisonProfile,
+} from "@source-taster/core";
 import { resolve } from "node:path";
 import {
   assertPreviewAllowed,
@@ -20,6 +24,10 @@ export interface Config {
   /** Interval of SSE comment frames that keep idle connections open. */
   sseHeartbeatMs: number;
   doiPreview: boolean;
+  bibliographicPreview?: boolean;
+  openalexEnabled?: boolean;
+  openalexBase?: string;
+  comparisonProfile: ComparisonProfile;
   resolverBase: string;
   crossrefBase: string;
   /** Development/test scheduling delay; never a source timeout. */
@@ -85,6 +93,33 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new ConfigError(
       "Uncalibrated DOI rules cannot be released or activated. #94 qualification is required.",
     );
+  const bibliographicPreview =
+    env.SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW === "uncalibrated";
+  if (env.SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW && !bibliographicPreview)
+    throw new ConfigError(
+      "Only the uncalibrated bibliographic development preview exists.",
+    );
+  if (bibliographicPreview && (!doiPreview || env.NODE_ENV === "production"))
+    throw new ConfigError(
+      "Bibliographic search requires the uncalibrated development profile.",
+    );
+  if (
+    env.SOURCE_TASTER_OPENALEX_ENABLED &&
+    !["true", "false"].includes(env.SOURCE_TASTER_OPENALEX_ENABLED)
+  )
+    throw new ConfigError("OpenAlex enablement must be true or false.");
+  let comparisonProfile: ComparisonProfile;
+  try {
+    comparisonProfile = createDevelopmentProfile(
+      env.SOURCE_TASTER_COMPARISON_PARAMETERS
+        ? (JSON.parse(env.SOURCE_TASTER_COMPARISON_PARAMETERS) as unknown)
+        : {},
+    );
+  } catch {
+    throw new ConfigError(
+      "Invalid ADR-0025 development comparison parameters.",
+    );
+  }
   function endpoint(name: string, fallback: string) {
     const value = env[name] ?? fallback;
     let url: URL;
@@ -117,6 +152,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   return {
     mode,
     doiPreview,
+    bibliographicPreview,
+    openalexEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_OPENALEX_ENABLED === "true",
+    openalexBase: endpoint(
+      "SOURCE_TASTER_OPENALEX_BASE_URL",
+      "https://api.openalex.org",
+    ),
+    comparisonProfile,
     resolverBase: endpoint(
       "SOURCE_TASTER_DOI_RESOLVER_BASE_URL",
       "https://doi.org",

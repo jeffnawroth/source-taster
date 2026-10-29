@@ -13,6 +13,7 @@ AGENTS.md
 GLOSSARY.md
 
 packages/contract-*/openapi.json
+packages/contract-*/openapi-v2.json
 packages/i18n/project.inlang/.lix/
 packages/i18n/project.inlang/README.md
 **/dist-preview/
@@ -21,3 +22,4 @@ apps/website/qualification/
 
 # Preserve recorded external HTTP responses byte for byte.
 apps/server/test/fixtures/doi/*.json
+apps/server/test/fixtures/bibliographic/*.json

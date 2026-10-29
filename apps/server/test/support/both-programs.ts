@@ -30,7 +30,11 @@ export async function eventually(
   }
 }
 export async function bothPrograms(
-  options: { startWorker?: boolean; clientLeaseMs?: number } = {},
+  options: {
+    startWorker?: boolean;
+    clientLeaseMs?: number;
+    verificationEnv?: Record<string, string>;
+  } = {},
 ) {
   const privatePath = process.env.SOURCE_TASTER_SERVICE_WORKTREE;
   if (!privatePath)
@@ -299,6 +303,7 @@ export async function bothPrograms(
     SOURCE_TASTER_PLACEHOLDER_DELAY_MS: "0",
     SOURCE_TASTER_CLIENT_LEASE_MS: String(options.clientLeaseMs ?? 75000),
     ...fixtures.env,
+    ...options.verificationEnv,
   };
   const senv = {
     DATABASE_URL: urls[1]!,
@@ -385,6 +390,8 @@ export async function bothPrograms(
           result = (await service.command({
             guestId,
             status: true,
+            // Completion is per Guest and client, like the change itself.
+            client: (change as { client?: string }).client,
           })) as typeof result;
           return result.completed;
         }, 5000);

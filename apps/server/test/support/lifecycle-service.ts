@@ -6,6 +6,7 @@ import { setupDatabase } from "../../scripts/db-setup.ts";
 import { testDatabase } from "./processes.ts";
 export async function lifecycleService(env: Record<string, string>) {
   const { adminUrl, appUrl } = testDatabase();
+  const port = process.env.SOURCE_TASTER_TEST_LIFECYCLE_PORT ?? "54182";
   await setupDatabase(adminUrl, appUrl);
   let now = Date.now(),
     sequence = 0;
@@ -24,12 +25,12 @@ export async function lifecycleService(env: Record<string, string>) {
       {
         cwd: new URL("../..", import.meta.url),
         env: {
-          ...process.env,
+          PATH: process.env.PATH,
           ...env,
           NODE_ENV: "test",
           SOURCE_TASTER_MODE: "standalone",
           DATABASE_URL: appUrl,
-          SOURCE_TASTER_PORT: "54182",
+          SOURCE_TASTER_PORT: port,
           SOURCE_TASTER_PLACEHOLDER_DELAY_MS: "0",
           TEST_CLOCK: String(now),
         },
@@ -81,7 +82,7 @@ export async function lifecycleService(env: Record<string, string>) {
   const web = launch("web");
   await web.ready;
   return {
-    apiUrl: "http://127.0.0.1:54182",
+    apiUrl: `http://127.0.0.1:${port}`,
     worker: () => launch("worker"),
     web,
     advance: async (ms: number, except: (typeof web)[] = []) => {

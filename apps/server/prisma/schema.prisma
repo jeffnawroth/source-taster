@@ -16,6 +16,7 @@ datasource db {
 
 model Check {
   id             String          @id @db.Uuid
+  apiVersion     Int             @default(1) @map("api_version")
   ownerId        String          @map("owner_id")
   actorId        String          @map("actor_id")
   guestContextId String? @map("guest_context_id") @db.Uuid

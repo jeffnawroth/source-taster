@@ -73,7 +73,7 @@ for (const language of ["en", "de"] as const) {
 test("Check and Structuring show a safe localized Problem for a non-JSON server failure", async ({
   page,
 }) => {
-  await page.route("**/v1/checks", (route) =>
+  await page.route("**/v2/checks", (route) =>
     route.fulfill({
       status: 502,
       contentType: "text/html",

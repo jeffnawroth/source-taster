@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Test composition only: a real process with an IPC-controlled domain clock.
+import { once } from "node:events";
 import { serve } from "@hono/node-server";
 import { createParser } from "@source-taster/core";
 import { createQueue } from "../../src/checks/queue.ts";
@@ -51,6 +52,7 @@ if (process.argv[2] === "worker") {
     hostname: "127.0.0.1",
     port: config.port,
   });
+  await once(server, "listening");
   stop = async () => {
     server.close();
     await events.close();

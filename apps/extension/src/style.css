@@ -1,0 +1,20 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+@import "tailwindcss";
+@import "@source-taster/ui/workspace.css";
+@source "../../../packages/ui/src";
+:root {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+*:focus-visible {
+  outline: 3px solid #0f766e;
+  outline-offset: 3px;
+}
+button,
+select {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}

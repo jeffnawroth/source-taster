@@ -38,7 +38,9 @@ export async function startDoiFixtures() {
       res.once("close", () => {
         request.completedAt = Date.now();
       });
-      const hold = holds.get(decodeURIComponent(req.url ?? ""));
+      const hold =
+        holds.get(decodeURIComponent(req.url ?? "")) ??
+        holds.get(new URL(req.url ?? "/", "http://fixture").pathname);
       if (hold) {
         if (hold.body) {
           res.setHeader("content-type", "application/json");

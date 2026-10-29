@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { doiTracerLimits } from "@source-taster/core";
+import {
+  doiTracerLimits,
+  articleSearchConfiguration,
+} from "@source-taster/core";
 import { randomUUID } from "node:crypto";
 import { setTimeout } from "node:timers/promises";
 import type { Db } from "../db/prisma.ts";
@@ -22,13 +25,18 @@ export function sourceBudget(
       await db.$executeRaw`UPDATE verification.source_rates SET next_at=GREATEST(next_at,clock_timestamp()+${delayMs}*interval '1 millisecond') WHERE source=${source}`;
     },
     acquire: async (source, operation, deadline) => {
-      const key = `${source}:${operation}`;
+      const key =
+        source === "openalex"
+          ? "openalex:all"
+          : `${source}:${operation === "doi" ? "doi" : "combined"}`;
       const interval =
-        source === "doi.org"
-          ? 1000 / doiTracerLimits.doiRequestsPerSecond
-          : operation === "doi"
-            ? 1000 / doiTracerLimits.crossrefSingleRequestsPerSecond
-            : doiTracerLimits.crossrefSearchIntervalMs;
+        source === "openalex"
+          ? 1000 / articleSearchConfiguration.openalexRequestsPerSecond
+          : source === "doi.org"
+            ? 1000 / doiTracerLimits.doiRequestsPerSecond
+            : operation === "doi"
+              ? 1000 / doiTracerLimits.crossrefSingleRequestsPerSecond
+              : doiTracerLimits.crossrefSearchIntervalMs;
       while (clock.now() < deadline) {
         signal?.throwIfAborted();
         const id = randomUUID();
@@ -52,9 +60,11 @@ export function sourceBudget(
           if (
             rate.nextAt > now ||
             cooldown.nextAt > now ||
-            (source === "crossref" &&
+            ((source === "crossref" || source === "openalex") &&
               (await tx.sourceRequest.count({ where: { source } })) >=
-                doiTracerLimits.crossrefConcurrency)
+                (source === "openalex"
+                  ? articleSearchConfiguration.openalexConcurrency
+                  : doiTracerLimits.crossrefConcurrency))
           )
             return false;
           await tx.sourceRequest.create({
