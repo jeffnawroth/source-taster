@@ -33,15 +33,20 @@ export interface JournalAbbreviation {
   attestations: JournalAttestation[];
 }
 const forms = (raw: string, abbreviation = false) => {
-  const prepared = clean(raw, true);
+  return preparedForms(clean(raw, true), abbreviation);
+};
+function preparedForms(prepared: string, abbreviation = false) {
   return [false, true].map((extended) => {
     const value = foldClean(prepared, extended);
     return abbreviation ? value.replace(/\s/gu, "") : value;
   });
-};
+}
 function equal(a: string, b: string, abbreviation = false) {
-  const x = forms(a, abbreviation),
-    y = forms(b, abbreviation);
+  return equalPrepared(clean(a, true), clean(b, true), abbreviation);
+}
+function equalPrepared(a: string, b: string, abbreviation = false) {
+  const x = preparedForms(a, abbreviation),
+    y = preparedForms(b, abbreviation);
   return x.some((value, i) => value !== "" && value === y[i]);
 }
 function qualifier(raw: string) {
@@ -167,11 +172,24 @@ export function compareJournalAbbreviation(
       ? lookup(byNlmId, [...strings(journal.nlmid), ...strings(journal.nlmId)])
       : [];
   const identifiedByIssn = lookup(byIssn, issns.map(issnKey));
-  const journals = identifiedById.length
+  const identifiedByTitle = lookup(
+    byTitle,
+    forms(candidate["container-title"] ?? ""),
+  );
+  const identified = identifiedById.length
     ? identifiedById
     : identifiedByIssn.length
       ? identifiedByIssn
-      : lookup(byTitle, forms(candidate["container-title"] ?? ""));
+      : identifiedByTitle;
+  // Historical titles can share an ISSN. A full title can disambiguate that
+  // catalog set, while an already unique identifier remains authoritative.
+  const titleIntersection = identified.filter((j) =>
+    identifiedByTitle.includes(j),
+  );
+  const journals =
+    identified.length > 1 && titleIntersection.length
+      ? titleIntersection
+      : identified;
   const attestations = [
     ...journals.flatMap((j) =>
       j.abbreviations.map((a) => nlmAttestation(j, a, "candidate")),
@@ -186,7 +204,7 @@ export function compareJournalAbbreviation(
     if (
       reference.qualifier &&
       attested.qualifier &&
-      !equal(reference.qualifier, attested.qualifier)
+      !equalPrepared(reference.qualifier, attested.qualifier)
     )
       return false;
     if (a.source === "nlm") {
@@ -196,21 +214,21 @@ export function compareJournalAbbreviation(
       return (
         !reference.qualifier &&
         Boolean(attested.qualifier) &&
-        equal(reference.base, attested.base, true)
+        equalPrepared(reference.base, attested.base, true)
       );
     }
     const qualifiersAgree = [reference.qualifier, attested.qualifier].every(
       (q) =>
         q === undefined ||
         canonical.qualifier === undefined ||
-        equal(q, canonical.qualifier),
+        equalPrepared(q, canonical.qualifier),
     );
     if (!qualifiersAgree) return false;
     if (equal(supplied, a.abbreviation, true)) return true;
     return (
       Boolean(canonical.qualifier) &&
       Boolean(reference.qualifier || attested.qualifier) &&
-      equal(reference.base, attested.base, true)
+      equalPrepared(reference.base, attested.base, true)
     );
   });
   if (matches.length)
@@ -227,7 +245,9 @@ export function compareJournalAbbreviation(
       (journals.length > 0 ||
         !equal(j.title, candidate["container-title"] ?? "")),
   );
-  if (attestations.length && others.length)
+  // An ambiguous Candidate journal cannot prove a differing abbreviation,
+  // even if the supplied abbreviation is also attested outside that group.
+  if (journals.length <= 1 && attestations.length && others.length)
     return {
       outcome: "different",
       reason: "attested-other-journal",

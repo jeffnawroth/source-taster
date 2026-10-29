@@ -137,7 +137,7 @@ it("scores a demonstrably different journal only when both journal abbreviations
           role: "reference",
           nlmId: "0255562",
         }),
-      ]),
+      ]) as unknown,
     },
   });
   // Only the DOI (weight 10, full) and journal (weight 15, zero) participate.
@@ -271,5 +271,53 @@ it("distinguishes homonymous journals when the received ISSN proves the other ca
   ).toMatchObject({
     score: { value: 0, fullAgreement: false },
     journalAbbreviation: { outcome: "different" },
+  });
+});
+it("uses the full title to resolve a shared catalog ISSN without losing its attested abbreviation", async () => {
+  const { candidate } = await compare(
+    { "container-title-short": "Adv Enzymol Relat Areas Mol Biol" },
+    {
+      "container-title": [
+        "Advances in enzymology and related areas of molecular biology",
+      ],
+      ISSN: ["0065-258X"],
+    },
+  );
+  expect(
+    candidate.fields.find((f) => f.field === "container-title"),
+  ).toMatchObject({
+    score: { value: 100000000, fullAgreement: true },
+    journalAbbreviation: {
+      outcome: "match",
+      attestations: [expect.objectContaining({ nlmId: "0337243" })],
+    },
+  });
+});
+it("keeps an ambiguous Candidate journal unscored even when an outside journal attests the same abbreviation", async () => {
+  const { candidate } = await compare(
+    { "container-title-short": "Biol Med" },
+    { "container-title": ["Biologie medicale"] },
+  );
+  expect(
+    candidate.fields.find((f) => f.field === "container-title"),
+  ).toMatchObject({
+    score: null,
+    reason: "not-determinable",
+    journalAbbreviation: { outcome: "not-determinable" },
+  });
+});
+it("applies provider cleanup once when comparing an abbreviation with an omitted qualifier", async () => {
+  const { candidate } = await compare(
+    { "container-title-short": "J &amp;amp; Q" },
+    {
+      "container-title": ["Journal of Qualification (Basel)"],
+      "short-container-title": ["J &amp; Q (Basel)"],
+    },
+  );
+  expect(
+    candidate.fields.find((f) => f.field === "container-title"),
+  ).toMatchObject({
+    score: null,
+    journalAbbreviation: { outcome: "not-determinable" },
   });
 });

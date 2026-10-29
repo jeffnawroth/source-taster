@@ -57,14 +57,60 @@ not calibration or Reference test set evidence.
 
 - Red → green: absent NLM attestation; ISSN-only Candidate; ambiguous same-title
   catalog journals; distinct same-title journals identified by ISSN.
-- Nine journal HTTP/SSE cases pass. They also cover unscored renormalization,
+- Twelve journal HTTP/SSE cases pass. They also cover unscored renormalization,
   proven deviation, all received Crossref aliases, repeated full titles, shared
   abbreviations, acronyms, diacritics, qualifiers and unchanged full-title OSA.
-- The existing 76-case comparison file passes.
+- The existing 76-case comparison file passes, including an isolated rerun after
+  the final review corrections.
 - Four focused Chromium cases pass in DE/EN, including axe and the exact NLM
   attribution, date and non-current-data notice.
-- First comprehensive typecheck and focused ESLint/format checks pass.
+- Complete typechecking, workspace ESLint, formatting and DE/EN catalog checks pass.
+- Full browser suites pass: 92 website, 52 web workspace and 18 bibliographic
+  workspace cases (162 total).
+- The full server suite passes: 13 files, 267 tests, including the final 12-case
+  journal file. No failed or skipped test in the completed full run.
+- Local logs: `.tmp/76/test-full-final.log`, `.tmp/76/e2e-full.log`,
+  `.tmp/76/comparison-verified-final.log`, `.tmp/76/typecheck-complete.log`,
+  `.tmp/76/lint-complete.log`, `.tmp/76/format-complete.log`,
+  `.tmp/76/i18n-complete.log`.
 
 One attempt to run top-level test/typecheck/lint commands concurrently caused
 colliding website/Pagefind build outputs (`EEXIST`); those commands share build
-side effects. Final comprehensive commands are run sequentially.
+side effects. Build-producing commands were then run sequentially. The full
+server test-only command reuses those built dependencies (`pnpm test --only`).
+One overlapping focused comparison run also refused its already occupied test
+port; its isolated final rerun uses an explicit independent port.
+
+## Standards
+
+Independent review of `git diff 0dfc5dd...14ebe65`: no actionable Standards
+findings. The reviewer inspected documented standards, source, generated v2
+artifacts, tests and the 38,097-row snapshot structure. v1 is unchanged; tests
+use the approved public HTTP/SSE and browser seams. No substantive baseline
+smell finding.
+
+## Spec
+
+Independent review found two incorrectly implemented requirements in the initial
+commit, with no substantive scope creep:
+
+1. **Ambiguous journals could produce a false deviation.** ADR-0018: “Not
+   determinable: every other case.” `Biol Med` against `Biologie medicale` can
+   denote either of two catalog journals and must not become a zero score merely
+   because another journal also attests `Biol Med`. **Fixed:** unresolved multiple
+   Candidate-journal identities cannot establish a differing abbreviation. The
+   concrete HTTP/SSE counterexample failed before the fix and passes afterward.
+2. **A shared ISSN could override an identifying full title.** ADR-0018 permits
+   journal identification “by ISSN, NLM ID or full title.” Two historical journals
+   share `0065-258X`; the title `Advances in enzymology and related areas of
+   molecular biology` identifies NLM `0337243`. **Fixed:** intersect an ambiguous
+   identifier set with available exact title evidence. A uniquely identified
+   journal remains authoritative. The counterexample failed before the fix and
+   passes afterward with full journal agreement.
+
+A further regression covers provider entity/markup cleanup exactly once in the
+omitted-qualifier path; already prepared qualifier/base text no longer passes
+through the cleanup stage again.
+
+Review summary: Standards 0 findings; Spec 2 findings, both corrected and verified
+through the public API. No outstanding review finding.
