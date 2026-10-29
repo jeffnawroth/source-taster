@@ -188,11 +188,12 @@ implementation tree:
 - **Server `vitest run`.** 239 passed, 2 skipped, in 13 of 14 files.
   `website.test.ts` fails because `apps/website/dist-preview` is missing; that
   file needs the controlled Pagefind website build, which is unavailable here.
-- **Earlier full server run.** It also showed 60 `ECONNREFUSED` failures in
-  `bibliographic.test.ts`, where the test service on port 54777 was no longer
-  reachable. The cause is not established. That run used the stub website
-  artifact, and an unrelated test file was edited during it. The file passes in
-  isolation (61/61) and in the clean full re-run above.
+- **Earlier full server runs.** These also showed about 60 failures in
+  `bibliographic.test.ts`: `ECONNREFUSED`, or Verdicts belonging to other
+  fixtures. Their cause is a collision on the fixed test port 54777. Another
+  session in the main checkout was running the same file at the same time
+  (process listing). The failures are not from this change. The file passes
+  61/61 in isolation and in the clean full run above.
 - **Same run, one real failure.** The #77 case "continues to Crossref after an
   OpenAlex failure…" failed and was updated to the intended
   `after-source-failure` evidence (two OpenAlex requests in total).
@@ -206,5 +207,14 @@ implementation tree:
   `pnpm i18n:check` validated 190 messages in DE and EN.
 - **Build.** The contract-verification build reproduces the committed `dist`
   and `openapi-v2.json`.
+- **After merging** `origin/spec/70-78-article-sources` at `ebb8681`:
+  - The full server run passed every file except `website.test.ts` (Pagefind,
+    as above) and `bibliographic.test.ts`. The latter hit the port collision
+    again: the other session was still running.
+  - Re-run separately, `article-sources`, `article-fairness`,
+    `bibliographic-lifecycle` and `lifecycle-recovery` pass. The merged
+    admission-observation change in `lifecycle-recovery` is included.
+  - `bibliographic.test.ts` passes 61/61 as an uncommitted temporary copy that
+    differs only in using port 54879. The copy was deleted after the run.
 - **Not run.** `test:authority` needs the private peer service, and the website
   build needs Pagefind.
