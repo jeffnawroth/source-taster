@@ -91,3 +91,56 @@ full supported-browser/OS, frozen corpus parity, human, live/load, calibration,
 production and publication qualifications remain separate and closed.
 
 Final broad execution and independent correction-review results follow below.
+
+
+## Final executed correction checks
+
+The final source changes are public `81db82d` and private `a7b5d88`; the subsequent
+private `2b2604c` changes only the existing queue-test clock setup and its record.
+All runtime stages ran serially against owned PostgreSQL18 on loopback55494.
+
+| Check | Result / transcript |
+| --- | --- |
+| Public full forced build | **12 tasks passed**, `build-final.log` |
+| Public types / lint / catalogs / committed transports | **20 / 20 tasks passed**, 181 DE/EN messages, artifacts unchanged |
+| Current native Guest and hosted-web denial suite | **14 passed**: 12 actual-native cases + 2 hosted-web denial cases, `native-guest-final.log` |
+| Current native Chromium standalone/parity suite | **4 passed**, `native-chromium-final.log` |
+| Current native Firefox standalone smoke | **1 passed**, `native-firefox-final.log` |
+| Existing web Guest suite | **5 passed**, `web-guest-final.log` |
+| Both-program authority | **31 passed**, `authority-final.log` |
+| Private full HTTP source | **15 passed**, private `http-full-source-final.log` |
+| Private full HTTP compiled mode | **15 passed**, private `http-full-compiled-final.log` |
+
+Current native images, including readable DE/EN issuance denial, are retained in
+`.tmp/st92-review/screenshots/`. Parent inspected the German denial image. The
+browser versions and OS are the same as the original92 receipt; no wider browser
+or OS claim follows. The unchanged public224HTTP/SSE and66ordinary/article web
+cases retain their earlier92-checkpoint scope; current-head CI runs them again.
+
+The first private full run and isolated baseline control exposed an existing
+queue-test timing assumption, not a CORS regression. Its fake clock reached the
+first30-second maintenance pass only near the end of a4-second wall assertion
+window. The fixture now drives that startup interval explicitly first. The same
+4-second window, claims, SMTP delay, polling/retry settings and all production
+code remain unchanged. The original faulty-worker fixture still fails with the
+receipt queued. Fresh independent Standards and Spec reviews accepted this
+narrow setup correction; private `docs/review-guest-denial-cors.md` retains the
+RED, diagnosis and source/compiled results.
+
+## Independent final wave review
+
+**Standards:** zero new material breaches or actionable smells over public
+`29bfec1...81db82d` and private `cc316900...a7b5d88`; the earlier P3 evidence gap
+is closed. The subsequent private test-only range `a7b5d88...2b2604c` was accepted
+separately with zero findings.
+
+**Spec:** zero new material findings over those full wave ranges. Independent
+actual-source probes verified the corrected Guest-response middleware, selected
+#75 fixed comparison witnesses and the #77 same-Source highest-score correction.
+The private test-only clock change was accepted separately; its old-worker
+negative control still discriminates the original bug.
+
+Reviews were independent source/spec/retained-evidence checks and bounded
+in-memory probes. The parent owns the runtime results above; the reviewers did
+not rerun database or browser suites. Production release, store, publication,
+human, frozen parity and broader live/load/browser/OS gates remain closed.
