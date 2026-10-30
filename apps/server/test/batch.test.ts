@@ -187,7 +187,13 @@ it("does not pass an unsent carrier's failure to members that joined later", asy
 function permitted(grant: Promise<void>, takesMs: number) {
   const sent: string[][] = [];
   const carry: BatchCarrier = async (ids, deadline, handover) => {
-    await Promise.race([grant, clock.sleep(60_000, handover)]);
+    const waited = new AbortController();
+    const waiting = clock.sleep(
+      60_000,
+      AbortSignal.any([handover, waited.signal]),
+    );
+    waiting.catch(() => {});
+    await Promise.race([grant, waiting]).finally(() => waited.abort());
     const chosen = ids();
     sent.push(chosen);
     const left = deadline - Date.now();

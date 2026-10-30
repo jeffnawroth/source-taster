@@ -364,10 +364,11 @@ it("sends arXiv lookups collected across Checks in one id_list request", async (
   try {
     const primer = run(preprint("0704.0001"));
     await held.arrived;
-    const batched = Promise.all([
-      run(preprint("1706.03762")),
-      run(preprint("1810.04805")),
-    ]);
+    // The later Check's lookup has the later deadline, so it takes the send
+    // over from the first lookup's permit wait (handover before the send).
+    const first = run(preprint("1706.03762"));
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    const batched = Promise.all([first, run(preprint("1810.04805"))]);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     held.release();
     await primer;
@@ -383,6 +384,11 @@ it("sends arXiv lookups collected across Checks in one id_list request", async (
     expect(queries[1]!.get("max_results")).toBe("2");
     // Demultiplexed: each run receives only its own record.
     for (const [index, id] of ["1706.03762", "1810.04805"].entries()) {
+      // The handed-over permit wait is no source failure.
+      expect(outcomes[index]!.failedSources).toEqual([]);
+      expect(outcomes[index]!.evidence).not.toContainEqual(
+        expect.objectContaining({ reason: "request-unavailable" }),
+      );
       expect(
         outcomes[index]!.candidates.filter((c) => c.source === "arxiv"),
       ).toMatchObject([{ id: `arXiv:${id}`, csl: { arXiv: id } }]);
