@@ -646,7 +646,7 @@ it("versions the Operator's search operating settings with the Search strategy",
     "settings.arxiv.batchSize": 100,
     "settings.arxiv.batchWindowMs": 0,
     identifierBatching:
-      "process-local;semanticscholar-window-then-permit;arxiv-until-permit;entry-demultiplexed-1",
+      "process-local;semanticscholar-window-then-permit;arxiv-until-permit-latest-deadline-carrier;arxiv-record-form-only;entry-demultiplexed-2",
     maxActiveReferencesPerCheck: 10,
     scheduling: "owner-then-check-round-robin-3",
   });

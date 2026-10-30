@@ -101,8 +101,9 @@ sources. An invalid patch, or settings without the bibliographic preview, refuse
 startup (exit 78). Each Version 2 article result records the flattened settings
 in its Search configuration. A 16-hex SHA-256 over their canonical form enters the
 Search strategy version:
-`article-search-78-2-<sources>-settings-<hash>-uncalibrated`. The verdict rules
-suffix is `article-verdict-78-2` (78-1 before the review corrections).
+`article-search-78-3-<sources>-settings-<hash>-uncalibrated` (78-2 before the
+batching review corrections). The verdict rules suffix is `article-verdict-78-2`
+(78-1 before the review corrections).
 
 The budget reads per-source settings. The Check store applies
 `activeReferencesPerCheck` and orders dispatch by the Owner's latest running

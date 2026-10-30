@@ -73,7 +73,7 @@ export const articleSearchConfiguration = Object.freeze({
     "openalex:DOI,PMID;crossref:DOI;europepmc:PMID,PMCID;semanticscholar:arXiv;arxiv:arXiv",
   unimplementedCapabilities: "ISBN,book,web,cross-process-identifier-batching",
   identifierBatching:
-    "process-local;semanticscholar-window-then-permit;arxiv-until-permit;entry-demultiplexed-1",
+    "process-local;semanticscholar-window-then-permit;arxiv-until-permit-latest-deadline-carrier;arxiv-record-form-only;entry-demultiplexed-2",
   negativeCoverage:
     "development-openalex-and-crossref-and-every-enabled-search-source-complete-title-author-year",
   failureHandling:
@@ -218,7 +218,7 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-78-2-${ports.sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
+      searchStrategyVersion: `article-search-78-3-${ports.sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         ...flattenSearchSettings(ports.settings),
