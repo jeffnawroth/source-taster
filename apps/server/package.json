@@ -40,8 +40,11 @@
     "@source-taster/website": "workspace:*",
     "citeproc": "2.4.63",
     "hono": "4.13.14",
+    "jszip": "3.10.2",
+    "pdfjs-dist": "6.4.299",
     "pg": "8.23.1",
     "pg-boss": "12.38.0",
+    "saxes": "6.0.0",
     "zod": "4.6.7"
   }
 }
