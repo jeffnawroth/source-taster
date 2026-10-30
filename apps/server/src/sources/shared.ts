@@ -22,14 +22,59 @@ export type SourceBatch = (
   target: (ids: string[]) => SourceTarget,
   format?: "json" | "atom",
 ) => Promise<BatchResponse>;
+/** The archives of old-scheme arXiv identifiers (archive/YYMMNNN). */
+const arxivArchives = [
+  "acc-phys",
+  "adap-org",
+  "alg-geom",
+  "ao-sci",
+  "astro-ph",
+  "atom-ph",
+  "bayes-an",
+  "chao-dyn",
+  "chem-ph",
+  "cmp-lg",
+  "comp-gas",
+  "cond-mat",
+  "cs",
+  "dg-ga",
+  "funct-an",
+  "gr-qc",
+  "hep-ex",
+  "hep-lat",
+  "hep-ph",
+  "hep-th",
+  "math",
+  "math-ph",
+  "mtrl-th",
+  "nlin",
+  "nucl-ex",
+  "nucl-th",
+  "patt-sol",
+  "physics",
+  "plasm-ph",
+  "q-alg",
+  "q-bio",
+  "quant-ph",
+  "solv-int",
+  "supr-con",
+];
+const oldScheme = new RegExp(
+  `^(?:${arxivArchives.join("|")})/(?:91(?:0[89]|1[0-2])|9[2-9](?:0[1-9]|1[0-2])|0[0-6](?:0[1-9]|1[0-2])|070[1-3])\\d{3}$`,
+  "u",
+);
 /**
- * A syntactically valid version-free arXiv identifier. An invalid identifier
- * makes arXiv answer the whole request with an error, so it is never batched.
+ * A version-free arXiv identifier in the form arXiv returns as its record
+ * identifier. An identifier with an unknown archive makes arXiv answer the
+ * whole request with an error (HTTP 400), so only these are batched. Only
+ * for these does a complete answer without the record mean no record: arXiv
+ * silently omits an old-scheme identifier with a subject class
+ * (math.GT/0309136) or in upper case, although the record exists.
  */
 export const batchableArxiv = (value: string) =>
   /^(?:(?:07(?:0[4-9]|1[0-2])|(?:0[89]|1[0-4])(?:0[1-9]|1[0-2]))\.\d{4}|(?:1[5-9]|[2-9]\d)(?:0[1-9]|1[0-2])\.\d{5})$/u.test(
     value,
-  ) || /^[a-z]+(?:-[a-z]+)*(?:\.[a-z]{2})?\/\d{7}$/iu.test(value);
+  ) || oldScheme.test(value);
 /** The request completed with HTTP 200, so its body can supply records. */
 export const answered = (evidence: Evidence) =>
   evidence.reason === "response" && evidence.status === 200;

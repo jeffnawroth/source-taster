@@ -253,13 +253,23 @@ it.each([
   ["1501.00001", true],
   ["1706.03762", true],
   ["hep-th/9901001", true],
-  ["math.GT/0309136", true],
+  ["hep-th/9108001", true],
+  ["math/0309136", true],
+  ["cond-mat/0703001", true],
   ["0701.1234", false],
   ["0703.0001", false],
   ["1501.0001", false],
   ["1412.00001", false],
   ["1713.03762", false],
   ["hep-th/990100", false],
+  // Old-scheme identifiers: a known archive in lower case, 9108 to 0703.
+  // A subject class is not part of the record identifier arXiv returns.
+  ["math.GT/0309136", false],
+  ["HEP-TH/9901001", false],
+  ["foo/9913001", false],
+  ["hep-th/9913001", false],
+  ["hep-th/9107001", false],
+  ["hep-th/0704001", false],
 ])("batches arXiv identifier %s: %s", (id, batchable) => {
   expect(batchableArxiv(id)).toBe(batchable);
 });
