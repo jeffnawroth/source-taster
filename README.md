@@ -63,8 +63,8 @@ and bibliographic preview flags, explicitly enable
 `SOURCE_TASTER_OPENLIBRARY_ENABLED=true`, `SOURCE_TASTER_GOOGLEBOOKS_ENABLED=true`
 and `SOURCE_TASTER_OPENALEX_ENABLED=true` in both server processes. See
 [the implementation and fixture qualification](docs/implementation/79-books.md)
-for routing, catalog budgets, edition ambiguity and the outstanding successful
-Google Books recording. The existing development/activation gates apply.
+for routing, catalog budgets, edition ambiguity and the outstanding rights-cleared
+private catalog recordings. The existing development/activation gates apply.
 
 ## Validation
 

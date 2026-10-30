@@ -1,35 +1,39 @@
-# Book Data source fixtures
+# Synthetic book Data source fixtures
 
-Recorded on 2026-10-30 without credentials or user content:
+Every JSON file in this directory is an independently authored synthetic protocol
+witness. Titles, names, publishers and source-record IDs are invented; ISBN values
+exercise checksum/ISBN-10-to-13 behavior and do not claim a real publication.
+They are not sanitized, relabelled or recorded provider responses.
 
-- `openlibrary-9780131103627.json`: HTTP 200 from
-  `https://openlibrary.org/api/books?bibkeys=ISBN:9780131103627&format=json&jscmd=data`.
-  Bibliographic fields are preserved; subjects, excerpts, covers and other unused
-  fields are omitted. The edition carries the equivalent ISBN-10 `0131103628`.
-- `openlibrary-search.json`: HTTP 200 from
-  `https://openlibrary.org/search.json?title=The%20C%20Programming%20Language&author=Kernighan&limit=5&fields=key,title,author_name,publish_year`.
-- `googlebooks-rate-limit.json`: HTTP 429 from
-  `https://www.googleapis.com/books/v1/volumes?q=isbn%3A9780131103627&maxResults=5`.
-  The public API reported an exhausted daily quota. No key, address rotation or
-  retry around that limit was used. A successful live Google Books recording
-  remains outstanding.
+- `synthetic-openlibrary-isbn.json`: an edition carrying equivalent ISBN-10 and
+  ISBN-13 identity, with invented bibliographic metadata.
+- `synthetic-openlibrary-search.json`: one invented work spanning multiple
+  publication years, so aggregate work identity cannot silently settle edition
+  identity.
+- `synthetic-googlebooks-rate-limit.json`: a minimal invented HTTP 429 body.
+  The actual retry/cooldown behavior is supplied through the fixture HTTP status
+  and `Retry-After` header, not real quota or consumer/project identifiers.
 
-Google Books success payloads, chapter records, ambiguity, Candidate allocation,
-and other failure cases in `books.test.ts` are explicitly synthetic protocol
-witnesses. None is a quality measurement or provider-rights clearance.
+The other Google Books success, chapter, ambiguity, Candidate allocation and
+failure witnesses in `books.test.ts` are synthetic too. This project-authored data
+follows the repository's AGPL-3.0-or-later license. No provider content license or
+successful live qualification is implied. Tests never call live Data sources.
 
-Adapters use Open Library's documented Books/Search APIs and Google Books'
-Volumes list API. Source terms and paid-service, fixture-storage and cache rights
-still belong to the source qualification in ADR-0007/Q04. Tests never call a live
-Data source. No cache is added.
+## Recorded fixture qualification
 
-## Rights and repository-policy status
+ADR-0006 requires Open Library and Google Books response recordings to remain
+private and unpublished. ADR-0007 separately requires source-specific storage
+rights. Successful rights-cleared recordings for both adapters remain an
+unfulfilled acceptance criterion of #79; synthetic tests do not replace it.
 
-These provenance notes do not establish permission to retain or publish a
-response. See the [Google Books fixture-rights investigation](../../../../../docs/research/google-books-fixture-rights.md).
-ADR-0006 requires Open Library and Google Books responses to be stored privately
-and never published. The current public Open Library recordings and Google 429
-body need a documented resolution before merge; their presence is not a precedent
-for further publication. Google success recordings additionally need a durable
-storage basis before acquisition for retention, and an API key/quota increase
-alone does not supply it. No fixture exception or rights clearance is claimed.
+See the [rights investigation](../../../../../docs/research/google-books-fixture-rights.md).
+A Google API key or quota increase is not evidence of permanent-storage rights.
+A suitable rights basis must exist before acquiring a response for durable
+retention. No caching is implemented here.
+
+Earlier unmerged PR commits contained real Open Library responses and a Google
+quota-error body. Those files have been removed from the current tree; that does
+not erase existing Git objects, published commit URLs or downstream copies.
+A squash merge would keep those earlier commits out of Main ancestry, but is not
+represented as a purge of the hosting service's retained history. Their earlier
+publication remains part of the documented rights review.

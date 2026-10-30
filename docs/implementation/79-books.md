@@ -65,10 +65,13 @@ adapters remain in AGPL code. No dependency or migration is added.
 The user confirmed real PostgreSQL and the public `/v2` HTTP/SSE boundary as the
 test seam, and the branch's starting commit as the independent review base.
 `books.test.ts` uses real web/worker processes and local external-HTTP fixtures.
-The fixture README distinguishes actual Open Library recordings, the recorded
-Google Books 429, and synthetic successful Google Books responses. Successful
-live Google Books recording remains outstanding because its public quota was
-exhausted; this is not claimed as passed source qualification.
+All public catalog fixtures are now independently authored synthetic protocol
+witnesses, with invented bibliographic values and no real quota/project IDs. The
+fixture README explicitly distinguishes these from the earlier recordings and
+from the still-missing real-source qualification. The rights/publication review
+below records why source recordings cannot be treated as complete acceptance
+evidence. A real Google Books response additionally remains unavailable under
+the observed public quota.
 
 Quality-gate calibration/activation, provider-rights approvals and live capacity
 measurement remain the execution qualifications excluded by #70. Production
@@ -93,8 +96,9 @@ Independent review findings and corrections are recorded in
 - Native Chromium extension suite: **5/5 passed**, including DE/EN parity, axe
   checks, Preferences persistence and Correction suggestion/export behavior.
 
-The successful Google Books fixture gap above is retained separately from these
-synthetic/offline regression results.
+Rights-cleared private recorded fixtures for both book catalogs remain a separate
+unfulfilled acceptance criterion; the public synthetic/offline results above do
+not satisfy it.
 
 ### Fixture-rights clarification after review
 
@@ -107,13 +111,22 @@ restricts permanent copies and distribution unless content-owner permission or
 applicable law permits them; the Books-specific Fees clause separately addresses
 paid applications. No legal clearance is claimed.
 
-**Merge blockers:** record a rights basis for any durable Google success fixture,
-and use storage/publication consistent with ADR-0006. That ADR currently says
-Open Library and Google Books responses are stored privately and never published.
-The existing public Open Library recordings and Google quota-error body therefore
-need a documented resolution before merge. The error body has no book content,
-but no express error-response exception was found; assess it separately. This
-note neither changes the ADR nor treats private storage as automatic permission.
+**Merge blockers:** record a rights basis for durable source fixtures and use
+storage/publication consistent with ADR-0006. That ADR says Open Library and
+Google Books responses are stored privately and never published. The public
+recorded files have been removed from the current tree and replaced with newly
+authored synthetic witnesses. This does not erase earlier PR commits or public
+host caches. A squash merge would keep those prior commits out of Main ancestry;
+it is not a claim that historical copies have been purged. No history rewrite,
+ADR change or provider permission is asserted. The error body had no book
+content, but no express error-response exception was found.
+
+The user confirmed that no Google agreement or reviewed legal basis is currently
+available. The original #79 criterion explicitly requires adapters with recorded
+fixtures; meeting it requires rights-cleared private recordings. Any alternative
+implementation/qualification split must be an explicit client decision recorded
+in #79, which remains the current acceptance source. Merely moving the requirement
+to an unapproved follow-up does not satisfy it.
 
 The recommended route under the existing ADR is independently authored synthetic
 fixtures in the public repository and rights-cleared recordings in the prescribed
@@ -122,3 +135,12 @@ not treat a normal file deletion as removal from existing Git history. If public
 recordings are desired instead, an explicit ADR decision and an adequate rights
 basis are required. The earlier statement that all provider approvals could wait
 until launch was too broad: recording/publication rights must precede those acts.
+
+### Public-fixture cleanup verification
+
+After replacing the public recordings with independently authored synthetic
+witnesses, `books.test.ts` passes **22/22** again through the same real-PG `/v2`
+seam. Server typechecking, ESLint, Prettier and `git diff --check` pass. No
+application implementation or transport contract is changed by this cleanup.
+The earlier complete 300-test receipt remains the pre-cleanup full-suite record;
+required CI must validate the final merge head.

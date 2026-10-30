@@ -19,7 +19,7 @@ let gb: typeof ol;
 let oa: typeof ol;
 let cr: typeof ol;
 let service: Awaited<ReturnType<typeof startTestService>>;
-let recorded: unknown;
+let isbnFixture: unknown;
 beforeAll(async () => {
   [ol, gb, oa, cr] = await Promise.all([
     startDoiFixtures(),
@@ -27,10 +27,10 @@ beforeAll(async () => {
     startDoiFixtures(),
     startDoiFixtures(),
   ]);
-  recorded = JSON.parse(
+  isbnFixture = JSON.parse(
     await readFile(
       new URL(
-        "./fixtures/books/openlibrary-9780131103627.json",
+        "./fixtures/books/synthetic-openlibrary-isbn.json",
         import.meta.url,
       ),
       "utf8",
@@ -70,11 +70,11 @@ beforeEach(() => {
 });
 const book: Csl = {
   type: "book",
-  title: "The C Programming Language",
-  author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+  title: "Catalog routing witness",
+  author: [{ family: "Example" }, { family: "Witness" }],
   issued: { literal: "1988" },
-  ISBN: "978-0-13-110362-7",
-  publisher: "Prentice Hall",
+  ISBN: "978-0-00-000001-9",
+  publisher: "Fixture Press",
 };
 async function run(fields: Csl, apiMajor = 2): Promise<VerdictResult> {
   const response = await fetch(`${service.apiUrl}/v${apiMajor}/checks`, {
@@ -102,8 +102,8 @@ async function run(fields: Csl, apiMajor = 2): Promise<VerdictResult> {
   if (outcome.kind !== "verdict") throw new Error("Expected Verdict");
   return outcome;
 }
-it("identifies a book by its exact ISBN from the recorded Open Library edition and stops", async () => {
-  ol.respond("/api/books", 200, recorded);
+it("identifies a book by its exact ISBN from the synthetic Open Library edition and stops", async () => {
+  ol.respond("/api/books", 200, isbnFixture);
   const result = await run(book);
   expect(result.verdict).toBe("correct");
   expect(result.identity.kind).toBe("supplied-identifier");
@@ -112,23 +112,23 @@ it("identifies a book by its exact ISBN from the recorded Open Library edition a
       source: "openlibrary",
       origin: "isbn",
       slot: 1,
-      identifiers: ["isbn:9780131103627"],
-      csl: { title: "The C Programming Language" },
+      identifiers: ["isbn:9780000000019"],
+      csl: { title: "Catalog routing witness" },
     },
   ]);
   expect(gb.requests).toHaveLength(0);
   expect(oa.requests).toHaveLength(0);
   expect(cr.requests).toHaveLength(0);
 });
-// Synthetic Google Books success response; the live recording returned 429.
+// Independently authored synthetic protocol witnesses, never live recordings.
 const googleVolume = {
   id: "book79",
   volumeInfo: {
-    title: "The C Programming Language",
-    authors: ["Brian W. Kernighan", "Dennis M. Ritchie"],
+    title: "Catalog routing witness",
+    authors: ["Ada Example", "Ben Witness"],
     publishedDate: "1988",
-    publisher: "Prentice Hall",
-    industryIdentifiers: [{ type: "ISBN_13", identifier: "9780131103627" }],
+    publisher: "Fixture Press",
+    industryIdentifiers: [{ type: "ISBN_13", identifier: "9780000000019" }],
   },
 };
 it("falls back from an absent Open Library ISBN to Google Books and explains differing fields", async () => {
@@ -143,7 +143,7 @@ it("falls back from an absent Open Library ISBN to Google Books and explains dif
       source: "googlebooks",
       origin: "isbn",
       slot: 1,
-      csl: { ISBN: "9780131103627" },
+      csl: { ISBN: "9780000000019" },
     },
   ]);
   expect(result.candidates[0]!.fields).toContainEqual(
@@ -165,8 +165,8 @@ it("falls back from an absent Open Library ISBN to Google Books and explains dif
   expect(cr.requests).toHaveLength(0);
 });
 it("verifies a chapter bibliographically after ISBN catalogs return only its containing book", async () => {
-  ol.respond("/api/books", 200, recorded);
-  const title = "Pointers and Arrays";
+  ol.respond("/api/books", 200, isbnFixture);
+  const title = "Synthetic chapter identity";
   cr.respond("/works", 200, {
     message: {
       items: [
@@ -174,11 +174,11 @@ it("verifies a chapter bibliographically after ISBN catalogs return only its con
           DOI: "10.5555/chapter79",
           type: "book-chapter",
           title: [title],
-          author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+          author: [{ family: "Example" }, { family: "Witness" }],
           published: { "date-parts": [[1988]] },
-          "container-title": ["The C Programming Language"],
-          ISBN: ["9780131103627"],
-          publisher: "Prentice Hall",
+          "container-title": ["Catalog routing witness"],
+          ISBN: ["9780000000019"],
+          publisher: "Fixture Press",
           page: "93-124",
         },
       ],
@@ -188,7 +188,7 @@ it("verifies a chapter bibliographically after ISBN catalogs return only its con
     ...book,
     type: "chapter",
     title,
-    "container-title": "The C Programming Language",
+    "container-title": "Catalog routing witness",
     page: "93-124",
   });
   expect(result.verdict).toBe("correct");
@@ -197,8 +197,8 @@ it("verifies a chapter bibliographically after ISBN catalogs return only its con
     result.candidates.find((c) => c.id === result.bestMatchId)?.csl,
   ).toMatchObject({
     type: "chapter",
-    ISBN: "9780131103627",
-    publisher: "Prentice Hall",
+    ISBN: "9780000000019",
+    publisher: "Fixture Press",
     page: "93-124",
   });
   expect(
@@ -213,10 +213,13 @@ it("verifies a chapter bibliographically after ISBN catalogs return only its con
     ["crossref", "combined"],
   ]);
 });
-it("searches books without ISBN bibliographically and preserves the recorded Open Library edition ambiguity", async () => {
+it("searches books without ISBN bibliographically and preserves the synthetic Open Library edition ambiguity", async () => {
   const search: unknown = JSON.parse(
     await readFile(
-      new URL("./fixtures/books/openlibrary-search.json", import.meta.url),
+      new URL(
+        "./fixtures/books/synthetic-openlibrary-search.json",
+        import.meta.url,
+      ),
       "utf8",
     ),
   );
@@ -251,7 +254,7 @@ it("searches books without ISBN bibliographically and preserves the recorded Ope
   expect(gb.requests).toHaveLength(3);
 });
 it("does not use a containing book ISBN to prove a chapter even with matching title and authors", async () => {
-  ol.respond("/api/books", 200, recorded);
+  ol.respond("/api/books", 200, isbnFixture);
   const result = await run({ ...book, type: "chapter" });
   expect(result.verdict).toBe("not-verifiable");
   expect(result.identity.kind).toBe("unresolved");
@@ -273,10 +276,13 @@ it("keeps multiple exact Google Books ISBN editions ambiguous and logs unevaluat
   );
   expect(result.candidates.filter((c) => c.origin === "isbn")).toHaveLength(1);
 });
-it("continues after the recorded Google Books 429 and names the failed Data source", async () => {
+it("continues after a synthetic Google Books 429 and names the failed Data source", async () => {
   const failure: unknown = JSON.parse(
     await readFile(
-      new URL("./fixtures/books/googlebooks-rate-limit.json", import.meta.url),
+      new URL(
+        "./fixtures/books/synthetic-googlebooks-rate-limit.json",
+        import.meta.url,
+      ),
       "utf8",
     ),
   );
@@ -288,8 +294,8 @@ it("continues after the recorded Google Books 429 and names the failed Data sour
         title: book.title,
         publication_year: 1988,
         authorships: [
-          { author: { display_name: "Brian W. Kernighan" } },
-          { author: { display_name: "Dennis M. Ritchie" } },
+          { author: { display_name: "Ada Example" } },
+          { author: { display_name: "Ben Witness" } },
         ],
       },
     ],
@@ -410,8 +416,8 @@ it("resolves a supplied DOI before the book's ISBN and stops after its unambiguo
       DOI: doi,
       type: "book",
       title: [book.title],
-      ISBN: ["0131103628"],
-      author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+      ISBN: ["0000000019"],
+      author: [{ family: "Example" }, { family: "Witness" }],
       published: { "date-parts": [[1988]] },
     },
   });
@@ -440,7 +446,7 @@ it("includes an ISBN Candidate in the same five slots as Google Books bibliograp
     },
   }));
   gb.respond(
-    "/books/v1/volumes?q=isbn:9780131103627&maxResults=5&printType=books",
+    "/books/v1/volumes?q=isbn:9780000000019&maxResults=5&printType=books",
     200,
     {
       totalItems: 1,
@@ -474,7 +480,7 @@ it("includes an ISBN Candidate in the same five slots as Google Books bibliograp
   ).toHaveLength(4);
 });
 it("records Operator catalog rate changes in a new Search strategy version", async () => {
-  ol.respond("/api/books", 200, recorded);
+  ol.respond("/api/books", 200, isbnFixture);
   const initial = await run(book);
   try {
     await service.restart({
@@ -518,14 +524,14 @@ it("marks a confirmed wrong ISBN as a field deviation when bibliography independ
           DOI: "10.5555/intended-book79",
           type: "book",
           title: [book.title],
-          ISBN: ["9780131103627"],
-          author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+          ISBN: ["9780000000019"],
+          author: [{ family: "Example" }, { family: "Witness" }],
           published: { "date-parts": [[1988]] },
         },
       ],
     },
   });
-  const result = await run({ ...book, ISBN: "9780262033848" });
+  const result = await run({ ...book, ISBN: "9780000000026" });
   expect(result.verdict).toBe("exists-with-deviations");
   expect(result.identity.kind).toBe("independent-bibliography");
   expect(
@@ -533,8 +539,8 @@ it("marks a confirmed wrong ISBN as a field deviation when bibliography independ
   ).toContainEqual(
     expect.objectContaining({
       field: "ISBN",
-      reference: "9780262033848",
-      candidate: "9780131103627",
+      reference: "9780000000026",
+      candidate: "9780000000019",
       agreement: false,
     }),
   );
@@ -548,8 +554,8 @@ it("does not identify an article as a book merely because title and authors agre
         title: book.title,
         publication_year: 1988,
         authorships: [
-          { author: { display_name: "Brian W. Kernighan" } },
-          { author: { display_name: "Dennis M. Ritchie" } },
+          { author: { display_name: "Ada Example" } },
+          { author: { display_name: "Ben Witness" } },
         ],
       },
     ],
@@ -569,8 +575,8 @@ it("compares a known edition deviation without changing weighted Scores", async 
       type: "book",
       title: [book.title],
       edition: "2",
-      ISBN: ["9780131103627"],
-      author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+      ISBN: ["9780000000019"],
+      author: [{ family: "Example" }, { family: "Witness" }],
       published: { "date-parts": [[1988]] },
     },
   });
@@ -595,7 +601,7 @@ it("reuses an ISBN carried by an evaluated DOI Candidate without another catalog
       DOI: doi,
       type: "book",
       title: ["ZZZZ foreign book"],
-      ISBN: ["0131103628"],
+      ISBN: ["0000000019"],
       author: [{ family: "Other" }],
       published: { "date-parts": [[1970]] },
     },
@@ -624,15 +630,15 @@ it.each([
         DOI: doi,
         type: "book",
         title: [book.title],
-        ISBN: ["9780131103627"],
+        ISBN: ["9780000000019"],
         edition: "2",
         publisher: "Different publisher",
-        author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+        author: [{ family: "Example" }, { family: "Witness" }],
         published: { "date-parts": [[1988]] },
       },
     });
     const result = await run(
-      { ...book, type, DOI: doi, ISBN: "0131103628", edition: "1" },
+      { ...book, type, DOI: doi, ISBN: "0000000019", edition: "1" },
       apiMajor,
     );
     expect(result.verdict).toBe("correct");
@@ -653,7 +659,7 @@ it.each([
       DOI: doi,
       type: crossrefType,
       title: [book.title],
-      author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+      author: [{ family: "Example" }, { family: "Witness" }],
       published: { "date-parts": [[1988]] },
     },
   });

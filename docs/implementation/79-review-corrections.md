@@ -77,3 +77,18 @@ be read as requiring both authorized access and an appropriate storage basis;
 quota alone is insufficient. Public publication would additionally require an
 explicit ADR decision and redistribution rights. No code, fixtures or ADRs are
 changed by this clarification.
+
+## Public-fixture remediation
+
+The later cleanup removes all three recorded catalog response files from the
+current public tree. Their replacements are independently authored, minimal
+synthetic Open Library ISBN/search and Google rate-limit witnesses. Tests use
+invented titles, authors, publishers and source-record IDs, with checksum-valid
+ISBN protocol values, rather than relabelling the original records.
+
+The original 22 API behaviors remain under test. This removes recorded provider
+content from the proposed merge tree, but is not a purge of historical PR
+commits/caches and does not meet the original recorded-fixture acceptance
+criterion. That criterion remains unresolved without appropriate private
+recordings or an explicit client-approved acceptance change. No Google agreement
+or reviewed legal basis is available according to the user.
