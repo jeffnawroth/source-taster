@@ -879,7 +879,14 @@ export function createCheckStore(
     ) {
       return db.$transaction(async (tx) => {
         const check = await lock(tx, attempt.checkId);
-        if (!check || (await expireLocked(tx, check, clock.now())) || (await tx.referenceSlot.count({where: {checkId: check.id, status: "running"}})) === 0) return;
+        if (
+          !check ||
+          (await expireLocked(tx, check, clock.now())) ||
+          (await tx.referenceSlot.count({
+            where: { checkId: check.id, status: "running" },
+          })) === 0
+        )
+          return;
         const slot = await tx.referenceSlot.findUnique({
           where: {
             checkId_position: {
@@ -915,7 +922,13 @@ export function createCheckStore(
       for (const { id } of running)
         await db.$transaction(async (tx) => {
           const row = await lock(tx, id);
-          if (row && await tx.referenceSlot.count({where: {checkId: id, status: "running"}}) > 0) await cancelLocked(tx, id, "cancelled", clock.now());
+          if (
+            row &&
+            (await tx.referenceSlot.count({
+              where: { checkId: id, status: "running" },
+            })) > 0
+          )
+            await cancelLocked(tx, id, "cancelled", clock.now());
         });
     },
     async maintain() {
@@ -926,7 +939,14 @@ export function createCheckStore(
       for (const { id } of running)
         await db.$transaction(async (tx) => {
           const check = await lock(tx, id);
-          if (!check || (await expireLocked(tx, check, clock.now())) || (await tx.referenceSlot.count({where: {checkId: check.id, status: "running"}})) === 0) return;
+          if (
+            !check ||
+            (await expireLocked(tx, check, clock.now())) ||
+            (await tx.referenceSlot.count({
+              where: { checkId: check.id, status: "running" },
+            })) === 0
+          )
+            return;
           const expired = await tx.referenceSlot.findMany({
             where: {
               checkId: id,

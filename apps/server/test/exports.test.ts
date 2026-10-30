@@ -249,7 +249,7 @@ it("exports the committed field revision, unbinds earlier corrections and omits 
     fetch(`${service.apiUrl}/v2/checks/${id}/bibliography`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ style: "apa", includeBibliography: false }),
+      body: JSON.stringify({ style: "apa", includeBibliography: true }),
     }).then(async (r) => BibliographyResponse.parse(await r.json()).data);
   const token = (await bibliography(check.id)).entries[0]!.resultToken!;
   const saved = await fetch(
@@ -284,6 +284,9 @@ it("exports the committed field revision, unbinds earlier corrections and omits 
   expect(
     (await bibliography(check.id)).entries[0]!.resultToken,
   ).toBeUndefined();
+  expect((await bibliography(check.id)).bibliography?.text).toContain(
+    "Edited by the user",
+  );
   const edited = await fetch(
     `${service.apiUrl}/v2/checks/${check.id}/references`,
     {

@@ -58,12 +58,26 @@ for (const language of ["en", "de"] as const)
       ).toHaveLength(0);
       await panel.click(
         "button",
-        language === "en" ? "Save and re-check" : "Speichern und erneut prüfen",
+        language === "en" ? "Save fields only" : "Nur Felder speichern",
       );
       await panel.waitForText(
         "region",
         language === "en" ? "Reference detail" : "Referenzdetails",
         language === "en" ? "Field revision 2" : "Feldrevision 2",
+      );
+      await panel.waitForText(
+        "region",
+        language === "en" ? "Reference detail" : "Referenzdetails",
+        language === "en" ? "Not checked" : "Nicht geprüft",
+      );
+      expect(
+        panel.requests.filter((r) => r.url.endsWith("/recheck")),
+      ).toHaveLength(0);
+      await panel.click(
+        "button",
+        language === "en"
+          ? "Re-check this Reference"
+          : "Diese Referenz erneut prüfen",
       );
       await panel.waitForText(
         "region",
@@ -80,6 +94,9 @@ for (const language of ["en", "de"] as const)
       ).toContain(original);
       expect(
         panel.requests.filter((r) => r.url.endsWith("/revisions")),
+      ).toHaveLength(1);
+      expect(
+        panel.requests.filter((r) => r.url.endsWith("/recheck")),
       ).toHaveLength(1);
       await until(
         async () =>
