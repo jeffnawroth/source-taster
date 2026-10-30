@@ -81,8 +81,26 @@ export declare const StructuredReference: z.ZodObject<{
         PMCID: z.ZodOptional<z.ZodString>;
         arXiv: z.ZodOptional<z.ZodString>;
     }, z.core.$strip>;
+    imported: z.ZodOptional<z.ZodObject<{
+        format: z.ZodEnum<{
+            bibtex: "bibtex";
+            ris: "ris";
+        }>;
+        unsupported: z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            value: z.ZodString;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
 }, z.core.$strip>;
 export declare const CreateCheckRequest: z.ZodUnion<readonly [z.ZodObject<{
+    library: z.ZodObject<{
+        format: z.ZodEnum<{
+            bibtex: "bibtex";
+            ris: "ris";
+        }>;
+        text: z.ZodString;
+    }, z.core.$strict>;
+}, z.core.$strip>, z.ZodObject<{
     text: z.ZodString;
 }, z.core.$strip>, z.ZodObject<{
     references: z.ZodArray<z.ZodObject<{
@@ -402,6 +420,16 @@ export declare const VerdictResult: z.ZodObject<{
             PMCID: z.ZodOptional<z.ZodString>;
             arXiv: z.ZodOptional<z.ZodString>;
         }, z.core.$strip>;
+        imported: z.ZodOptional<z.ZodObject<{
+            format: z.ZodEnum<{
+                bibtex: "bibtex";
+                ris: "ris";
+            }>;
+            unsupported: z.ZodArray<z.ZodObject<{
+                name: z.ZodString;
+                value: z.ZodString;
+            }, z.core.$strip>>;
+        }, z.core.$strip>>;
     }, z.core.$strip>;
     identity: z.ZodObject<{
         candidateId: z.ZodOptional<z.ZodString>;
@@ -691,6 +719,16 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
             PMCID: z.ZodOptional<z.ZodString>;
             arXiv: z.ZodOptional<z.ZodString>;
         }, z.core.$strip>;
+        imported: z.ZodOptional<z.ZodObject<{
+            format: z.ZodEnum<{
+                bibtex: "bibtex";
+                ris: "ris";
+            }>;
+            unsupported: z.ZodArray<z.ZodObject<{
+                name: z.ZodString;
+                value: z.ZodString;
+            }, z.core.$strip>>;
+        }, z.core.$strip>>;
     }, z.core.$strip>;
     identity: z.ZodObject<{
         candidateId: z.ZodOptional<z.ZodString>;
@@ -995,6 +1033,16 @@ export declare const ReferenceSlot: z.ZodObject<{
                 PMCID: z.ZodOptional<z.ZodString>;
                 arXiv: z.ZodOptional<z.ZodString>;
             }, z.core.$strip>;
+            imported: z.ZodOptional<z.ZodObject<{
+                format: z.ZodEnum<{
+                    bibtex: "bibtex";
+                    ris: "ris";
+                }>;
+                unsupported: z.ZodArray<z.ZodObject<{
+                    name: z.ZodString;
+                    value: z.ZodString;
+                }, z.core.$strip>>;
+            }, z.core.$strip>>;
         }, z.core.$strip>;
         identity: z.ZodObject<{
             candidateId: z.ZodOptional<z.ZodString>;
@@ -1313,6 +1361,16 @@ export declare const Check: z.ZodObject<{
                     PMCID: z.ZodOptional<z.ZodString>;
                     arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
+                imported: z.ZodOptional<z.ZodObject<{
+                    format: z.ZodEnum<{
+                        bibtex: "bibtex";
+                        ris: "ris";
+                    }>;
+                    unsupported: z.ZodArray<z.ZodObject<{
+                        name: z.ZodString;
+                        value: z.ZodString;
+                    }, z.core.$strip>>;
+                }, z.core.$strip>>;
             }, z.core.$strip>;
             identity: z.ZodObject<{
                 candidateId: z.ZodOptional<z.ZodString>;
@@ -1639,6 +1697,16 @@ export declare const CheckResponse: z.ZodObject<{
                         PMCID: z.ZodOptional<z.ZodString>;
                         arXiv: z.ZodOptional<z.ZodString>;
                     }, z.core.$strip>;
+                    imported: z.ZodOptional<z.ZodObject<{
+                        format: z.ZodEnum<{
+                            bibtex: "bibtex";
+                            ris: "ris";
+                        }>;
+                        unsupported: z.ZodArray<z.ZodObject<{
+                            name: z.ZodString;
+                            value: z.ZodString;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>>;
                 }, z.core.$strip>;
                 identity: z.ZodObject<{
                     candidateId: z.ZodOptional<z.ZodString>;
@@ -1948,6 +2016,16 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                     PMCID: z.ZodOptional<z.ZodString>;
                     arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
+                imported: z.ZodOptional<z.ZodObject<{
+                    format: z.ZodEnum<{
+                        bibtex: "bibtex";
+                        ris: "ris";
+                    }>;
+                    unsupported: z.ZodArray<z.ZodObject<{
+                        name: z.ZodString;
+                        value: z.ZodString;
+                    }, z.core.$strip>>;
+                }, z.core.$strip>>;
             }, z.core.$strip>;
             identity: z.ZodObject<{
                 candidateId: z.ZodOptional<z.ZodString>;
@@ -2268,6 +2346,16 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                     PMCID: z.ZodOptional<z.ZodString>;
                     arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
+                imported: z.ZodOptional<z.ZodObject<{
+                    format: z.ZodEnum<{
+                        bibtex: "bibtex";
+                        ris: "ris";
+                    }>;
+                    unsupported: z.ZodArray<z.ZodObject<{
+                        name: z.ZodString;
+                        value: z.ZodString;
+                    }, z.core.$strip>>;
+                }, z.core.$strip>>;
             }, z.core.$strip>;
             identity: z.ZodObject<{
                 candidateId: z.ZodOptional<z.ZodString>;

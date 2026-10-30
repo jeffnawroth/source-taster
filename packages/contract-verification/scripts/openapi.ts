@@ -35,6 +35,7 @@ const { renderBibliography } = await import("../src/bibliography-routes.ts");
 for (const route of [
   renderBibliography,
   exportReferences,
+  v2.importReferences,
   v2.cancelCheck,
   v2.renewCheckLease,
   v2.createCheck,

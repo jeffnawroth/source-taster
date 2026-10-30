@@ -29,9 +29,11 @@ export const StructuredCsl = v1.StructuredCsl.extend({
 }).meta({ id: "StructuredCslV2" });
 export const StructuredReference = v1.StructuredReference.extend({
     csl: StructuredCsl,
+    imported: z.object({ format: z.enum(["bibtex", "ris"]), unsupported: z.array(z.object({ name: z.string(), value: z.string() })) }).optional(),
 }).meta({ id: "StructuredReferenceV2" });
 export const CreateCheckRequest = z
     .union([
+    z.object({ library: z.strictObject({ format: z.enum(["bibtex", "ris"]), text: z.string().min(1).max(20 * 1024 * 1024) }) }),
     z.object({ text: z.string().trim().min(1) }),
     z.object({
         references: z

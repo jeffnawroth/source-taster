@@ -41,6 +41,7 @@ export interface Csl {
 }
 export interface StructuredReference {
   originalText: string;
+  imported?: { format: "bibtex" | "ris"; unsupported: { name: string; value: string }[] };
   span: Span;
   csl: Csl;
   fieldSources: Record<string, FieldSource>;

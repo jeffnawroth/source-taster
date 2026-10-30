@@ -77,6 +77,13 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -253,6 +260,13 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -429,6 +443,13 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -605,6 +626,13 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;

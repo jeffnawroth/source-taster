@@ -3,6 +3,7 @@ import type { Csl } from "@source-taster/core";
 import type { ExportFormat } from "@source-taster/contract-verification/export";
 import { bibtex } from "./bibtex.ts";
 export interface ExportReference {
+  imported?: {format:"bibtex"|"ris"};
   authorsTruncated?: boolean;
   id: string;
   originalText: string;
@@ -38,8 +39,10 @@ const cslJson: ReferenceExporter = {
     JSON.stringify(references.map(cslItem), null, 2) + "\n",
 };
 // New adapters (including the future RIS exporter) join this owned port.
-const exporters: readonly ReferenceExporter[] = [cslJson, bibtex];
-export function referenceExporter(format: ExportFormat): ReferenceExporter {
+const original: ReferenceExporter = {format:"import-original",contentType:"application/x-bibtex; charset=utf-8",filename:"source-taster-references.bib",serialize:(references)=> references.map(r=>r.originalText).join("")};
+const exporters: readonly ReferenceExporter[] = [cslJson, bibtex, original];
+export function referenceExporter(format: ExportFormat, references?: readonly ExportReference[]): ReferenceExporter {
+  if(format === "import-original" && references?.[0]?.imported?.format === "ris") return {...original,contentType:"application/x-research-info-systems; charset=utf-8",filename:"source-taster-references.ris"};
   const exporter = exporters.find((entry) => entry.format === format);
   if (!exporter) throw new Error("export-format-unavailable");
   return exporter;

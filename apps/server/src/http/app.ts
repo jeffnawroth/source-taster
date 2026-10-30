@@ -14,6 +14,7 @@ import {
 } from "@source-taster/contract-verification/routes";
 import { exportReferences } from "@source-taster/contract-verification/export-routes";
 import { suggestionFields, suggestionToken } from "../citations/suggestion.ts";
+import { importLibrary } from "../imports/library.ts";
 import { referenceExporter } from "../exports/references.ts";
 import { renderBibliography } from "@source-taster/contract-verification/bibliography-routes";
 import {
@@ -143,6 +144,12 @@ export function createApp(
       }
     });
 
+  if (apiVersion === 2) app.openapi(v2.importReferences, async (c) => {
+    const principal = await authorize(c.req.raw, "structuring:create");
+    const data = importLibrary(c.req.valid("json"), referenceLimit);
+    return output(c, principal, "structuring:create", data, 200);
+  });
+
   app.openapi(
     (apiVersion === 2 ? v2.createCheck : createCheck) as typeof v2.createCheck,
     async (c) => {
@@ -151,7 +158,7 @@ export function createApp(
       let references: StructuredReference[];
       try {
         const parsed =
-          "text" in input ? structuring.structure(input.text) : null;
+          "library" in input ? importLibrary(input.library, referenceLimit) : "text" in input ? structuring.structure(input.text) : null;
         if (
           parsed &&
           parsed.references.length + parsed.rejected.length > referenceLimit
@@ -161,7 +168,7 @@ export function createApp(
             `At most ${referenceLimit} References can be checked at once.`,
             referenceLimit,
           );
-        if (parsed?.rejected.length) fail("invalid-request");
+        if (parsed?.rejected.length && !("library" in input)) fail("invalid-request");
         references = parsed
           ? parsed.references
           : "references" in input
@@ -279,7 +286,7 @@ export function createApp(
         if (!fields) fail("invalid-request");
         replacements.set(choice.slot, fields);
       }
-      const exporter = referenceExporter(request.format);
+      const exporter = referenceExporter(request.format, snapshot.references);
       const body = exporter.serialize(
         snapshot.references.map((reference) => ({
           ...reference,
