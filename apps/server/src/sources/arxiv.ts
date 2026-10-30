@@ -6,6 +6,7 @@ import type {
   BibliographicSource,
   RetrievedCandidate,
 } from "@source-taster/core";
+import type { BatchResponse } from "./batch.ts";
 import {
   answered,
   batchableArxiv,
@@ -50,18 +51,30 @@ const element = (xml: string, name: string) => {
   return match ? text(match[1]!) : undefined;
 };
 /**
- * The Atom entries of a bounded response by version-free identifier. An error
- * entry carries no arXiv record identifier.
+ * The Atom entries of a bounded response by version-free identifier, and
+ * whether the feed is a complete answer to the identifiers sent: closed, from
+ * the first result, with a result count equal to its entries, and only
+ * records that were sent. arXiv omits an identifier without a record from
+ * the results; an error entry carries no record identifier.
  */
-function entries(atom: string) {
+function entries(atom: string, sent: string[]) {
   const records = new Map<string, string>();
-  let error = false;
-  for (const [entry] of atom.matchAll(/<entry>[\s\S]*?<\/entry>/gu)) {
+  const listed = [...atom.matchAll(/<entry>[\s\S]*?<\/entry>/gu)];
+  let complete =
+    /<\/feed>\s*$/u.test(atom) &&
+    element(atom, "opensearch:startIndex") === "0" &&
+    element(atom, "opensearch:totalResults") === String(listed.length);
+  for (const [entry] of listed) {
     const match = element(entry, "id")?.match(/arxiv\.org\/abs\/(.+)$/u);
-    if (match) records.set(normalizeArxiv(match[1]!), entry);
-    else error = true;
+    if (!match) {
+      complete = false;
+      continue;
+    }
+    const id = normalizeArxiv(match[1]!);
+    if (!sent.includes(id)) complete = false;
+    records.set(id, entry);
   }
-  return { records, error };
+  return { records, complete };
 }
 /** One Atom entry; its raw value is the entry alone, never other lookups. */
 function project(
@@ -109,7 +122,7 @@ export function arxivAdapter(
     async lookup(kind, value, deadline) {
       // ADR-0007: lookups collected across Checks until the next
       // three-second opportunity share one id_list request.
-      const { body, evidence } = batchableArxiv(value)
+      const { body, evidence, ids }: BatchResponse = batchableArxiv(value)
         ? await batched(
             "arxiv",
             kind,
@@ -122,14 +135,15 @@ export function arxivAdapter(
         : await request("arxiv", query(base, [value]), deadline, kind, "atom");
       if (!answered(evidence) || typeof body !== "string")
         return { evidence: unreadable(evidence) };
-      const { records, error } = entries(body);
+      const { records, complete } = entries(body, ids ?? [value]);
       const entry = records.get(value);
       if (!entry)
-        // An error for a well-formed batch answers none of its identifiers;
-        // it is not an absence. A malformed identifier has no record.
-        return error && batchableArxiv(value)
-          ? { evidence: unreadable(evidence) }
-          : noRecord(evidence);
+        // Absence is no record only in a complete answer, and only for an
+        // identifier in arXiv's record form; arXiv silently omits other forms
+        // of existing records (math.GT/0309136, HEP-TH/9901001).
+        return complete && batchableArxiv(value)
+          ? noRecord(evidence)
+          : { evidence: unreadable(evidence) };
       const own = { ...evidence, raw: entry };
       return lookupResult(
         own,
