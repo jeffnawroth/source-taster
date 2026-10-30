@@ -427,3 +427,33 @@ which already matched #78's Retry-After rule.
   (`docs/research/google-books-fixture-rights.md`), like Semantic Scholar's.
 - **Earlier Candidate ceiling.** #78's ceiling of 10 was already below its own
   article route's 20 search slots. The merged ceiling of 25 fixes this.
+
+### Completed merged-head verification (2026-10-30)
+
+The continuation verified merge head `d95371c` without further implementation
+changes. The controlled Pagefind/website preview build is present, so the full
+server suite includes `website.test.ts` rather than excluding it.
+
+- `pnpm typecheck`: all 20 Turbo tasks passed.
+- `pnpm lint`: all 20 Turbo tasks and the repository-wide Prettier check passed.
+- `pnpm i18n:check`: 211 messages validated in DE and EN.
+- `pnpm --filter @source-taster/contract-verification build`, followed by
+  `git diff --exit-code -- packages/contract-verification/dist
+  packages/contract-verification/openapi-v2.json`: passed, no artifact drift.
+- `pnpm --filter @source-taster/server test`: **19 files, 363 tests passed**
+  against a fresh, dedicated PostgreSQL 18 container (614.71 s). This includes
+  article adapters, batching, Owner fairness, book catalogs, bibliographic
+  comparison, Check lifecycle and website mounting.
+- `pnpm --filter @source-taster/web exec playwright test --config
+  bibliographic.playwright.config.ts`: **20 tests passed** (2.5 min), including
+  failed-source explanations in EN/DE, retraction notices, source links,
+  Candidate ordering and axe checks.
+
+The test commands used both `DATABASE_ADMIN_URL` and `DATABASE_TEST_URL` for
+the isolated container; the global test API and browser API/web ports were
+overridden to avoid other worktrees. Both the earlier merge container and the
+continuation's test container were removed after verification.
+
+Private-peer `test:authority` was not run locally. GitHub CI is a separate
+check of the published PR head. The remaining Semantic Scholar licensing and
+journal-name projection work is tracked in #136 and #137.
