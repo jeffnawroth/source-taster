@@ -183,5 +183,16 @@
   "journal_abbreviation_match": "The journal abbreviation is attested for this Candidate’s journal.",
   "journal_abbreviation_different": "The abbreviation is attested for another journal. The Candidate’s journal has a different attested abbreviation.",
   "journal_abbreviation_unknown": "The journal abbreviation cannot be reliably assigned to this Candidate’s journal. This field is unscored; the remaining weights are renormalized.",
-  "journal_nlm_snapshot": "NLM snapshot: {date}. This pinned snapshot may not reflect the most current NLM data."
+  "journal_nlm_snapshot": "NLM snapshot: {date}. This pinned snapshot may not reflect the most current NLM data.",
+  "correction_heading": "Correction suggestion",
+  "correction_copy": "Copy suggestion",
+  "correction_apply": "Apply for export only",
+  "correction_export_hint": "Export selections apply only to the formatted bibliography. Original input, fields and Verdicts stay unchanged.",
+  "correction_copied": "Copied.",
+  "correction_copy_failed": "Copying failed. Please select and copy the text, or download the RTF file.",
+  "correction_unavailable": "Formatting is unavailable. Please try again.",
+  "bibliography_heading": "Formatted bibliography",
+  "bibliography_copy": "Copy formatted bibliography",
+  "bibliography_download": "Download formatted bibliography (RTF)",
+  "correction_retry": "Retry formatting"
 }

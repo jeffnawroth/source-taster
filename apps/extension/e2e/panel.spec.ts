@@ -154,3 +154,53 @@ test("closing, reopening and reloading the native panel keeps only validated Pre
     await panel.screenshot(evidence("chromium-panel-en-result.png"));
   });
 });
+
+test("native panel renders a Correction suggestion and keeps export choices local", async () => {
+  await native("en-GB", async (browser) => {
+    const panel = await browser.openPanel();
+    const original =
+      "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
+    await checkInPanel(panel, "en", {
+      name: "correction export",
+      text: original,
+      marker: "10.1038/nphys1170",
+      verdict: "exists",
+      scores: [],
+    });
+    const region = await panel.find("region", "Correction suggestion");
+    expect(
+      await panel.call<string>(
+        region,
+        "function () { return this.innerText; }",
+      ),
+    ).toContain("Aspelmeyer, M. (2009).");
+    await panel.click("checkbox", "Apply for export only");
+    expect(
+      await panel.call<boolean>(
+        await panel.find("checkbox", "Apply for export only"),
+        "function () { return this.checked; }",
+      ),
+    ).toBe(true);
+    await panel.select("combobox", "Preferred citation style", "ieee");
+    await until(async () => {
+      const [suggestion] = await panel.query("region", "Correction suggestion");
+      if (!suggestion) return false;
+      return (
+        await panel.call<string>(
+          suggestion,
+          "function () { return this.innerText; }",
+        )
+      ).includes("M. Aspelmeyer");
+    }, "The panel did not re-render the IEEE suggestion");
+    expect(
+      await panel.call<string>(
+        await panel.find("textbox", "Reference"),
+        "function () { return this.value; }",
+      ),
+    ).toBe(original);
+    expect(Object.keys(await browser.storage())).toEqual([
+      "source-taster-guest-preferences-v1",
+    ]);
+    expect(await panel.axe()).toEqual([]);
+  });
+});

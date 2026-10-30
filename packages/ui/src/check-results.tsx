@@ -5,6 +5,13 @@ import type {
   ReferenceSlot,
   Verdict,
 } from "@source-taster/contract-verification/v2";
+import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
+import type { CitationStyle } from "./preferences.ts";
+import {
+  useBibliography,
+  BibliographyActions,
+  CorrectionSuggestion,
+} from "./correction-suggestions.tsx";
 import { m } from "@source-taster/i18n";
 import { CheckSummary } from "./check-summary.tsx";
 import {
@@ -39,10 +46,15 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
 export function CheckResults({
   check,
   completed,
+  citationStyle,
+  transport,
 }: {
   check: Check;
   completed: number;
+  citationStyle: CitationStyle;
+  transport: VerificationClientOptions;
 }) {
+  const bibliography = useBibliography(check, citationStyle, transport);
   const [helpOpen, setHelpOpen] = useState(false);
   const [filter, setFilter] = useState<Verdict | null>(null);
   const [selectedSlot, selectSlot] = useState(check.references[0]?.slot);
@@ -108,6 +120,7 @@ export function CheckResults({
           setDetailOpen(false);
         }}
       />
+      <BibliographyActions key={citationStyle} rendered={bibliography} />
       <div className="check-panes" data-detail-open={detailOpen && !!selected}>
         <div ref={list} className="check-list">
           <ol aria-label={m.workspace_references()} className="space-y-4">
@@ -165,6 +178,11 @@ export function CheckResults({
           {selected ? (
             <>
               <RunningStep reference={selected} />
+              <CorrectionSuggestion
+                key={`${selected.slot}:${citationStyle}`}
+                slot={selected.slot}
+                rendered={bibliography}
+              />
               <ReferenceOutcomeView
                 outcome={selected.outcome}
                 originalText={selected.originalText}
