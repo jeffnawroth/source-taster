@@ -48,6 +48,7 @@ export interface Config {
   crossrefBase: string;
   /** Development/test scheduling delay; never a source timeout. */
   placeholderDelayMs: number;
+  contentRetentionMs: number;
   clientLeaseMs: number;
   workerClaimMs: number;
 }
@@ -246,6 +247,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     port: integer(env, "SOURCE_TASTER_PORT", 3100),
     sseHeartbeatMs: integer(env, "SOURCE_TASTER_SSE_HEARTBEAT_MS", 25_000),
     placeholderDelayMs: integer(env, "SOURCE_TASTER_PLACEHOLDER_DELAY_MS", 500),
+    contentRetentionMs: integer(
+      env,
+      "SOURCE_TASTER_CONTENT_RETENTION_MS",
+      86_400_000,
+      1000,
+    ),
     clientLeaseMs: integer(env, "SOURCE_TASTER_CLIENT_LEASE_MS", 75_000, 1000),
     workerClaimMs: integer(
       env,

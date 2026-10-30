@@ -50,6 +50,16 @@ const problems = {
     title: "Formatting is temporarily unavailable.",
     i18nKey: "correction_unavailable",
   },
+  "reference-conflict": {
+    status: 409,
+    title: "The Reference changed or is running.",
+    i18nKey: "problem_reference_conflict",
+  },
+  "check-expired": {
+    status: 410,
+    title: "The Check expired.",
+    i18nKey: "problem_check_expired",
+  },
   internal: {
     status: 500,
     title: "Something went wrong on our side.",
