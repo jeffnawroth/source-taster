@@ -3,14 +3,14 @@
 import { z } from "zod";
 import * as v1 from "./index.ts";
 export * from "./index.ts";
-const RecordSource = z.enum([
+const CandidateDataSource = z.enum([
   "crossref",
   "openalex",
   "europepmc",
   "semanticscholar",
   "arxiv",
 ]);
-const SourceName = z.enum(["doi.org", ...RecordSource.options]);
+const SourceName = z.enum(["doi.org", ...CandidateDataSource.options]);
 const Operation = z.enum([
   "doi",
   "pmid",
@@ -53,7 +53,7 @@ export const RetractionEvidence = z
   .meta({ id: "RetractionEvidenceV2" });
 export const Candidate = v1.Candidate.extend({
   csl: StructuredCsl,
-  source: RecordSource,
+  source: CandidateDataSource,
   origin: Operation,
   identifiers: z.array(z.string()).optional(),
   retractionEvidence: RetractionEvidence.optional(),

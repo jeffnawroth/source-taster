@@ -7,6 +7,7 @@ import type {
   RetrievedCandidate,
   SearchSettings,
   SourceName,
+  TransportFailure,
 } from "@source-taster/core";
 import { z } from "zod";
 export interface SourceDispatch {
@@ -78,7 +79,7 @@ export function createDoiAdapters(options: {
   /** Version 1 keeps the defaults; article searches pass Operator settings. */
   settings?: SearchSettings;
   /** Version 1 reports a timeout as request-unavailable; v2 names it. */
-  timeoutReason?: string;
+  timeoutReason?: TransportFailure;
   clock?: SourceClock;
   signal?: AbortSignal;
   dispatch?: (

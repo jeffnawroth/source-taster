@@ -6,7 +6,14 @@ import type {
   BibliographicSource,
   RetrievedCandidate,
 } from "@source-taster/core";
-import type { SourceRequest } from "./openalex.ts";
+import {
+  answered,
+  displayName,
+  lookupResult,
+  noRecord,
+  unreadable,
+  type SourceRequest,
+} from "./shared.ts";
 const entities: Record<string, string> = {
   amp: "&",
   lt: "<",
@@ -57,13 +64,7 @@ function project(
   const authors = [...entry.matchAll(/<author>([\s\S]*?)<\/author>/gu)]
     .map((a) => element(a[1]!, "name"))
     .filter((name): name is string => !!name)
-    .map((name) => {
-      const parts = name.split(" ");
-      return {
-        family: parts.pop()!,
-        ...(parts.length ? { given: parts.join(" ") } : {}),
-      };
-    });
+    .map(displayName);
   return {
     id: `arXiv:${arXiv}`,
     source: "arxiv",
@@ -98,31 +99,11 @@ export function arxivAdapter(
         kind,
         "atom",
       );
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        typeof body !== "string"
-      )
-        return {
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
+      if (!answered(evidence) || typeof body !== "string")
+        return { evidence: unreadable(evidence) };
       const candidate = project(body, evidence.observedAt);
-      if (!candidate)
-        return {
-          evidence: { ...evidence, outcome: "no-record", reason: undefined },
-        };
-      if (candidate.csl.arXiv !== value)
-        return { evidence: { ...evidence, reason: "identifier-mismatch" } };
-      return {
-        candidate,
-        evidence: { ...evidence, outcome: "candidate", reason: undefined },
-      };
+      if (!candidate) return noRecord(evidence);
+      return lookupResult(evidence, candidate, (c) => c.csl.arXiv === value);
     },
   };
 }

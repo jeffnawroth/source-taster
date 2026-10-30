@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Europe PMC REST search (ADR-0007): responsible PMCID source, PMID fallback
 // after OpenAlex, and the third bibliographic search source.
-import { normalizePmcid, normalizePmid } from "@source-taster/core";
+import { issuedYear, normalizePmcid, normalizePmid } from "@source-taster/core";
 import type {
   BibliographicSource,
   Csl,
@@ -9,7 +9,12 @@ import type {
   RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
-import type { SourceRequest } from "./openalex.ts";
+import {
+  mismatch,
+  queryTerms,
+  searchResult,
+  type SourceRequest,
+} from "./shared.ts";
 const record = z.object({
   id: z.string(),
   source: z.string(),
@@ -45,11 +50,7 @@ const page = z.object({
   resultList: z.object({ result: z.array(z.unknown()) }),
 });
 // Phrase values cannot carry Europe PMC query operators or quotes.
-const phrase = (text: string) =>
-  `"${text
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/gu, " ")
-    .trim()}"`;
+const phrase = (text: string) => `"${queryTerms(text)}"`;
 function project(
   body: unknown,
   origin: RetrievedCandidate["origin"],
@@ -125,38 +126,11 @@ export function europepmcAdapter(
       deadline,
       operation,
     );
-    const parsed = page.safeParse(body);
-    const candidates = parsed.success
-      ? parsed.data.resultList.result
-          .slice(0, size)
-          .map((m) => project(m, operation, evidence.observedAt))
-      : [];
-    if (
-      evidence.reason !== "response" ||
-      evidence.status !== 200 ||
-      !parsed.success ||
-      candidates.some((c) => !c)
-    )
-      return {
-        candidates: [],
-        evidence: {
-          ...evidence,
-          reason:
-            evidence.reason === "response"
-              ? "invalid-metadata"
-              : evidence.reason,
-        },
-      };
-    return {
-      candidates: candidates as RetrievedCandidate[],
-      evidence: {
-        ...evidence,
-        outcome: candidates.length
-          ? ("candidate" as const)
-          : ("no-record" as const),
-        reason: undefined,
-      },
-    };
+    return searchResult(
+      evidence,
+      page.safeParse(body).data?.resultList.result.slice(0, size),
+      (m) => project(m, operation, evidence.observedAt),
+    );
   }
   return {
     name: "europepmc",
@@ -174,13 +148,7 @@ export function europepmcAdapter(
       if (!candidate) return { evidence };
       const key = kind === "pmid" ? "PMID" : "PMCID";
       if (candidate.csl[key]?.toUpperCase() !== value.toUpperCase())
-        return {
-          evidence: {
-            ...evidence,
-            outcome: "unavailable",
-            reason: "identifier-mismatch",
-          },
-        };
+        return mismatch(evidence);
       return { candidate, evidence };
     },
     search(reference: Csl, kind, deadline) {
@@ -192,7 +160,7 @@ export function europepmcAdapter(
           const name = a.family ?? a.literal;
           if (name) parts.push(`AUTH:${phrase(name)}`);
         }
-      const year = reference.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
+      const year = issuedYear(reference);
       if (kind !== "title" && year) parts.push(`PUB_YEAR:${year}`);
       return query(parts.join(" AND "), 5, kind, deadline);
     },

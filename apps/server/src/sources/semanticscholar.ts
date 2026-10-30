@@ -2,6 +2,7 @@
 // Semantic Scholar Academic Graph (ADR-0007): the indexed arXiv lookup and the
 // last bibliographic search source. Its records carry no retraction field.
 import {
+  issuedYear,
   normalizeArxiv,
   normalizePmcid,
   normalizePmid,
@@ -12,7 +13,14 @@ import type {
   RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
-import type { SourceRequest } from "./openalex.ts";
+import {
+  displayName,
+  lookupResult,
+  noRecord,
+  queryTerms,
+  searchResult,
+  type SourceRequest,
+} from "./shared.ts";
 const fields = "title,authors,year,venue,externalIds,publicationDate,journal";
 const record = z.object({
   paperId: z.string().min(1),
@@ -42,12 +50,6 @@ const record = z.object({
     .nullable()
     .optional(),
 });
-// Query text cannot carry Semantic Scholar's search syntax (+ | - " * ( ) ~).
-const terms = (text: string) =>
-  text
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/gu, " ")
-    .trim();
 function project(
   body: unknown,
   origin: RetrievedCandidate["origin"],
@@ -78,16 +80,10 @@ function project(
       ...(ids.ArXiv ? { arXiv: normalizeArxiv(ids.ArXiv) } : {}),
       ...(m.authors
         ? {
-            author: m.authors.flatMap((a) => {
-              const parts = (a.name ?? "").trim().split(/\s+/u).filter(Boolean);
-              if (!parts.length) return [];
-              return [
-                {
-                  family: parts.pop()!,
-                  ...(parts.length ? { given: parts.join(" ") } : {}),
-                },
-              ];
-            }),
+            // Unlike OpenAlex, empty author names are dropped.
+            author: m.authors.flatMap((a) =>
+              a.name?.trim() ? [displayName(a.name)] : [],
+            ),
           }
         : {}),
       ...(container ? { "container-title": container } : {}),
@@ -121,44 +117,27 @@ export function semanticscholarAdapter(
         kind,
       );
       if (evidence.reason === "response" && evidence.status === 404)
-        return {
-          evidence: { ...evidence, outcome: "no-record", reason: undefined },
-        };
-      const candidate = project(body, kind, evidence.observedAt);
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        !candidate
-      )
-        return {
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
-      if (candidate.csl.arXiv !== value)
-        return { evidence: { ...evidence, reason: "identifier-mismatch" } };
-      return {
-        candidate,
-        evidence: { ...evidence, outcome: "candidate", reason: undefined },
-      };
+        return noRecord(evidence);
+      return lookupResult(
+        evidence,
+        project(body, kind, evidence.observedAt),
+        (c) => c.csl.arXiv === value,
+      );
     },
     async search(reference: Csl, kind, deadline) {
+      // Query text cannot carry the search syntax (+ | - " * ( ) ~).
       const parts = [];
       if (kind !== "authors-year" && reference.title)
-        parts.push(terms(reference.title));
+        parts.push(queryTerms(reference.title));
       if (kind !== "title")
         parts.push(
           ...(reference.author ?? [])
             .slice(0, 3)
-            .map((a) => terms(a.family ?? a.literal ?? "")),
+            .map((a) => queryTerms(a.family ?? a.literal ?? "")),
         );
       const url = new URL("/graph/v1/paper/search", base);
       url.searchParams.set("query", parts.filter(Boolean).join(" "));
-      const year = reference.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
+      const year = issuedYear(reference);
       if (kind !== "title" && year) url.searchParams.set("year", year);
       url.searchParams.set("limit", "5");
       url.searchParams.set("fields", fields);
@@ -171,37 +150,12 @@ export function semanticscholarAdapter(
       const parsed = z
         .object({ data: z.array(z.unknown()).optional() })
         .safeParse(body);
-      const candidates = parsed.success
-        ? (parsed.data.data ?? [])
-            .slice(0, 5)
-            .map((m) => project(m, kind, evidence.observedAt))
-        : [];
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        !parsed.success ||
-        candidates.some((c) => !c)
-      )
-        return {
-          candidates: [],
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
-      return {
-        candidates: candidates as RetrievedCandidate[],
-        evidence: {
-          ...evidence,
-          outcome: candidates.length
-            ? ("candidate" as const)
-            : ("no-record" as const),
-          reason: undefined,
-        },
-      };
+      // A page without data is a completed empty result.
+      return searchResult(
+        evidence,
+        parsed.success ? (parsed.data.data ?? []).slice(0, 5) : undefined,
+        (m) => project(m, kind, evidence.observedAt),
+      );
     },
   };
 }

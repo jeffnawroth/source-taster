@@ -13,9 +13,18 @@ import {
   defaultSearchSettings,
   referenceDeadlineMs,
 } from "./search-settings.ts";
-export type RecordSource =
+/** Data sources that return Candidates; doi.org only resolves existence. */
+export type CandidateDataSource =
   "crossref" | "openalex" | "europepmc" | "semanticscholar" | "arxiv";
-export type SourceName = "doi.org" | RecordSource;
+export type SourceName = "doi.org" | CandidateDataSource;
+/** Evidence reasons that make a Data source failed (ADR-0007). */
+export type TransportFailure =
+  | "timeout"
+  | "rate-budget"
+  | "http-error"
+  | "request-unavailable"
+  | "deadline"
+  | "after-source-failure";
 export interface Evidence {
   source: SourceName;
   operation:
@@ -46,7 +55,7 @@ export interface RetractionEvidence {
 }
 export interface RetrievedCandidate {
   id: string;
-  source: RecordSource;
+  source: CandidateDataSource;
   origin: Evidence["operation"];
   identifiers?: string[];
   retrievedAt: string;

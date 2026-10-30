@@ -13,7 +13,8 @@ import {
   type Candidate,
   type DoiResolver,
   type Evidence,
-  type RecordSource,
+  type CandidateDataSource,
+  type TransportFailure,
   type RetrievedCandidate,
   type ScoringRules,
   type VerdictResult,
@@ -25,7 +26,7 @@ import {
 export type QueryKind = "combined" | "title" | "authors-year";
 export type IdentifierKind = "doi" | "pmid" | "pmcid" | "arxiv";
 export interface BibliographicSource {
-  name: RecordSource;
+  name: CandidateDataSource;
   identifiers: readonly IdentifierKind[];
   lookup(
     kind: IdentifierKind,
@@ -42,14 +43,14 @@ export interface BibliographicSource {
 // ADR-0007 article route. Each identifier goes to its responsible sources in
 // order; a later source is asked only while no earlier one supplied the record.
 export const identifierRoutes: Readonly<
-  Record<IdentifierKind, readonly RecordSource[]>
+  Record<IdentifierKind, readonly CandidateDataSource[]>
 > = Object.freeze({
   doi: ["openalex", "crossref"],
   pmid: ["openalex", "europepmc"],
   pmcid: ["openalex", "europepmc"],
   arxiv: ["semanticscholar", "arxiv"],
 });
-export const searchOrder: readonly RecordSource[] = [
+export const searchOrder: readonly CandidateDataSource[] = [
   "openalex",
   "crossref",
   "europepmc",
@@ -92,17 +93,22 @@ const sourceExhausted = new Set(["timeout", "rate-budget"]);
 // Only transport failures make a Data source failed. A data finding such as
 // identifier-mismatch or invalid-metadata still blocks Not found, but the
 // source answered and is never named as failed (ADR-0007).
-export const transportFailures: ReadonlySet<string> = new Set([
-  "timeout",
-  "rate-budget",
-  "http-error",
-  "request-unavailable",
-  "deadline",
-  "after-source-failure",
-]);
+export const transportFailures: ReadonlySet<string> = new Set<TransportFailure>(
+  [
+    "timeout",
+    "rate-budget",
+    "http-error",
+    "request-unavailable",
+    "deadline",
+    "after-source-failure",
+  ],
+);
 const failed = (e: Evidence) =>
   e.outcome === "unavailable" && transportFailures.has(e.reason ?? "");
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
+/** A four-digit publication year in the issued date, if any. */
+export const issuedYear = (csl: Csl) =>
+  csl.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
 export const normalizePmid = (value: string) =>
   value
     .trim()
@@ -743,7 +749,7 @@ export function createBibliographicVerification(ports: {
       ) &&
       reference.csl.title &&
       reference.csl.author?.length &&
-      reference.csl.issued?.literal.match(/\b[12]\d{3}\b/u) &&
+      issuedYear(reference.csl) &&
       ports.now() < deadline
     ) {
       result.verdict = "not-found";
