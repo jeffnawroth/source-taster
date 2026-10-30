@@ -162,3 +162,26 @@ re-confirmed, because the sub-agent had no channel to the user.
   fixtures. The licence for storing a Semantic Scholar payload is unresolved, so
   this remains an open deviation for the parent.
 - **Batching is per process** (see above).
+
+## Validation
+
+Node 24, macOS arm64, with an owned PostgreSQL container
+`st78-review-pg-20261029` on loopback 55678. `origin/spec/70-78-article-sources`
+had no commits beyond the base `9f91718`, so no merge was needed.
+
+- **Server `vitest run`.** 269 passed, 2 skipped, in 14 of 15 files.
+  `website.test.ts` fails because `apps/website/dist-preview` is missing; it
+  needs the controlled Pagefind website build, which is unavailable here.
+- **Browser, bibliographic config.** 20/20 passed, including the failed-source
+  case in English and German with axe.
+- **Browser, main config.** 47 passed, 1 failed: `information.spec.ts`.
+  Both browser runs used a minimal, git-ignored `apps/website/dist-preview`
+  stub (an index page and an empty preview manifest), removed afterwards; the
+  information page needs the real website artifact.
+- **Static checks.** `eslint scripts`, and `lint` and `typecheck` in every
+  package except the website, pass. `prettier --check .` passes.
+  `pnpm i18n:check` validated 190 messages in DE and EN. The root `pnpm lint`
+  and turbo `typecheck` stop at the website build (Pagefind).
+- **Build.** Rebuilding core and contract-verification reproduces the committed
+  `dist` and `openapi` artifacts.
+- **Not run.** `test:authority` needs the private peer service.
