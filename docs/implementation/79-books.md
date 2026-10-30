@@ -76,3 +76,22 @@ activation remains closed by the existing uncalibrated-profile gates.
 
 Independent review findings and corrections are recorded in
 [79-review-corrections.md](79-review-corrections.md).
+
+### Verification receipt
+
+- Full `pnpm test`: **300/300 passed**, 15 test files, including all **22** book
+  API witnesses. The earlier full run was interrupted to apply review fixes;
+  this complete run is on the corrected implementation.
+- Full `pnpm typecheck`, `pnpm lint` (including Prettier) and `pnpm i18n:check`
+  pass. The DE/EN catalog contains 205 paired messages.
+- Server, web, Chromium extension and Firefox extension builds pass. The exact
+  controlled Pagefind inputs/artifacts verify; the normal website build passes.
+- Bibliographic browser suite: **18/18 passed**. In the first primary browser
+  run, 54/55 passed; comparison case 7 remained Running during concurrent
+  database-backed tests. It passed alone once those tests stopped, and the clean
+  serial primary rerun passed **55/55**.
+- Native Chromium extension suite: **5/5 passed**, including DE/EN parity, axe
+  checks, Preferences persistence and Correction suggestion/export behavior.
+
+The successful Google Books fixture gap above is retained separately from these
+synthetic/offline regression results.
