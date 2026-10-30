@@ -75,9 +75,10 @@ contract. Structuring remains the compatible `/v1/structurings` operation.
 
 `/v2/checks` and its snapshot, events, cancel and lease routes reuse the existing
 Owner/current-authority, lifecycle and cursor protocol. Version 2 adds OpenAlex,
-Open Library and Google Books, supported identifier provenance, per-source slots,
-query evidence, additional reasons and up to twenty scored Candidates (at most
-five per source). Supplied PMID and ISBN proof uses
+Europe PMC, Semantic Scholar, arXiv, Open Library and Google Books, supported
+identifier provenance, per-source slots, query evidence, additional reasons and
+up to 25 scored Candidates (at most five per source, for the five article
+sources). Supplied PMID, PMCID, arXiv and ISBN proof uses
 `identity.kind: supplied-identifier`, separately from DOI proof and independent
 bibliography. Similarity alone is never identity proof.
 

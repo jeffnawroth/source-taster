@@ -9,10 +9,39 @@ import {
   type Score,
   type ComparisonProfile,
 } from "./comparison.ts";
+import {
+  defaultSearchSettings,
+  referenceDeadlineMs,
+} from "./search-settings.ts";
+/** Data sources that return Candidates; doi.org only resolves existence. */
+export type CandidateDataSource =
+  | "crossref"
+  | "openalex"
+  | "europepmc"
+  | "semanticscholar"
+  | "arxiv"
+  | "openlibrary"
+  | "googlebooks";
+export type SourceName = "doi.org" | CandidateDataSource;
+/** Evidence reasons that make a Data source failed (ADR-0007). */
+export type TransportFailure =
+  | "timeout"
+  | "rate-budget"
+  | "http-error"
+  | "request-unavailable"
+  | "deadline"
+  | "after-source-failure";
 export interface Evidence {
-  source: "doi.org" | "crossref" | "openalex" | "openlibrary" | "googlebooks";
+  source: SourceName;
   operation:
-    "doi" | "pmid" | "pmcid" | "isbn" | "combined" | "title" | "authors-year";
+    | "doi"
+    | "pmid"
+    | "pmcid"
+    | "arxiv"
+    | "isbn"
+    | "combined"
+    | "title"
+    | "authors-year";
   outcome:
     | "exists"
     | "nonexistent"
@@ -34,15 +63,14 @@ export interface Evidence {
 }
 /** An affirmative report already received from a Data source, never a verified negative. */
 export interface RetractionEvidence {
-  source: "crossref" | "openalex";
+  source: "crossref" | "openalex" | "europepmc";
   candidateId: string;
   observedAt: string;
 }
 export interface RetrievedCandidate {
   id: string;
-  source: "crossref" | "openalex" | "openlibrary" | "googlebooks";
-  origin:
-    "doi" | "pmid" | "pmcid" | "isbn" | "combined" | "title" | "authors-year";
+  source: CandidateDataSource;
+  origin: Evidence["operation"];
   identifiers?: string[];
   identityAmbiguous?: boolean;
   retrievedAt: string;
@@ -76,15 +104,18 @@ export interface ScoringRules {
   icu: string;
   profile: Record<string, number>;
 }
+const { "doi.org": doiOrg, crossref } = defaultSearchSettings.sources;
+// Version 1 records these limits; they are derived from the search operating
+// defaults that Version 1 actually runs, so both cannot drift apart.
 export const doiTracerLimits = Object.freeze({
-  requestTimeoutMs: 3000,
-  referenceDeadlineMs: 30000,
-  doiRequestsPerSecond: 20,
-  crossrefSingleRequestsPerSecond: 5,
-  crossrefSearchIntervalMs: 1000,
-  crossrefConcurrency: 1,
+  requestTimeoutMs: doiOrg.requestTimeoutMs,
+  referenceDeadlineMs,
+  doiRequestsPerSecond: 1000 / doiOrg.intervalMs,
+  crossrefSingleRequestsPerSecond: 1000 / crossref.intervalMs,
+  crossrefSearchIntervalMs: crossref.searchIntervalMs!,
+  crossrefConcurrency: crossref.concurrency!,
   maxResponseBytes: 5242880,
-  maxRetries: 1,
+  maxRetries: defaultSearchSettings.maxRetries,
   pool: "public",
   candidateBudget: 5,
 });
@@ -129,9 +160,7 @@ export interface VerdictResult {
     | "insufficient-search"
     | "sources-unavailable"
   )[];
-  failedSources: (
-    "doi.org" | "crossref" | "openalex" | "openlibrary" | "googlebooks"
-  )[];
+  failedSources: SourceName[];
   retraction: "unknown" | "retracted";
   retractionEvidence?: RetractionEvidence[];
 }

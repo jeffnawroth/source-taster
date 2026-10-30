@@ -28,12 +28,15 @@ ISBN and edition differences affect the Verdict without changing weighted Scores
 adds optional unweighted-field `agreement` for the shared clients' field-level
 explanation and highlighting. Original and Candidate values stay intact.
 
-A failed book Data source stops further requests to that source for this run;
-remaining sources continue. Timeouts, malformed metadata and rate-budget loss
-are unavailable evidence, never negative evidence. All enabled responsible
-sources failing yields Not verifiable (`sources-unavailable`), naming each.
-One failed or disabled mandatory source prevents a complete negative search.
-Disabled catalogs are separately recorded and are not reported as failed.
+Book Data sources follow the #78 source-failure rules (ADR-0007/ADR-0008), as
+reconciled in the "Merge with main (#79)" section of
+`78-review-corrections.md`. Only a timeout or a lost rate budget makes a source
+unavailable for the rest of the Reference. An HTTP error or an unavailable
+request affects only that call. Malformed metadata is never negative evidence
+and never a failed source. All enabled responsible sources failing yields Not
+verifiable (`sources-unavailable`), naming each. One failed or disabled
+mandatory source prevents a complete negative search. Disabled catalogs are
+separately recorded and are not reported as failed.
 
 ## Configuration and compatibility
 
@@ -47,16 +50,20 @@ SOURCE_TASTER_OPENLIBRARY_ENABLED=true
 SOURCE_TASTER_GOOGLEBOOKS_ENABLED=true
 ```
 
-Optional positive `SOURCE_TASTER_OPENLIBRARY_REQUESTS_PER_SECOND` (initially 3)
-and `SOURCE_TASTER_GOOGLEBOOKS_REQUESTS_PER_SECOND` (initially 1, conservative
-local-development cap pending provider allowance) control PostgreSQL-backed
-budgets shared across workers. Enablement and rates are recorded in the Search
-strategy version/configuration. Existing request/body limits, retries, deadlines,
+Catalog rates, timeouts and permit waits are per-source ADR-0007 search
+settings (`openlibrary`, `googlebooks` in `SOURCE_TASTER_SEARCH_SETTINGS`). Open
+Library starts at 334 ms (3/s). Google Books starts at 1000 ms, a conservative
+local-development cap pending a provider allowance. They control
+PostgreSQL-backed budgets shared across workers. The former
+`SOURCE_TASTER_{OPENLIBRARY,GOOGLEBOOKS}_REQUESTS_PER_SECOND` variables refuse
+startup. Enablement and settings are recorded in the Search strategy
+version/configuration. Existing request/body limits, retries, deadlines,
 lease/cancellation and authority checks apply. Provider limits remain binding.
 
 Version 1 stays frozen. Version 2 adds the catalog sources, ISBN origin/progress,
 ambiguity evidence, unavailable-source reason and optional field agreement;
-its Candidate ceiling grows from 10 to 20 (four sources × five). Generated
+its Candidate ceiling grows from 10 to 20 (four sources × five); the merge with
+#78 raises it to 25. Generated
 contract JavaScript/declarations and OpenAPI are committed. Algorithms and
 adapters remain in AGPL code. No dependency or migration is added.
 

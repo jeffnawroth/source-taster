@@ -176,11 +176,9 @@ it.each([
       issued: { literal: "2021" },
     });
     expect(outcome.verdict).toBe(verdict);
-    expect(outcome.searchStrategyVersion).toContain(
-      "article-search-77-9-identity-evidence-",
-    );
+    expect(outcome.searchStrategyVersion).toContain("article-search-78-4-");
     // Article Verdict derivation is part of the recorded Scoring rules version.
-    expect(outcome.scoringRules.version).toMatch(/-article-verdict-77-9$/u);
+    expect(outcome.scoringRules.version).toMatch(/-article-verdict-78-2$/u);
     expect(outcome.candidates[0]!.score).toEqual({
       value: 100000000,
       fullAgreement: true,
@@ -492,7 +490,17 @@ it.each([
       verdict: "not-found",
       reasons: ["search-completed"],
       identity: { kind: "unresolved" },
+      failedSources: [],
     });
+    // #78: Operator-disabled sources are recorded, never failed (ADR-0007).
+    for (const source of ["europepmc", "semanticscholar"])
+      expect(outcome.evidence).toContainEqual(
+        expect.objectContaining({
+          source,
+          outcome: "disabled",
+          reason: "operator-disabled",
+        }),
+      );
   },
 );
 it("identifies a strong match despite an author-less unrelated record", async () => {
@@ -1116,6 +1124,8 @@ it("continues to Crossref after an OpenAlex failure and distinguishes that failu
       score: { value: 100000000 },
     },
   ]);
+  // ADR-0007 per-call rule: an HTTP error is retried once per call and does not
+  // stop the source's later operations.
   expect(
     outcome.evidence
       .filter((e) => e.source === "openalex")
@@ -1141,7 +1151,10 @@ it("does not present malformed completed metadata as a successful empty search",
   crossref.respond("/works", 200, { message: { items: [] } });
   const { outcome } = await run(article);
   expect(outcome.verdict).toBe("not-verifiable");
-  expect(outcome.failedSources).toEqual(["openalex"]);
+  // Malformed metadata blocks Not found, but OpenAlex answered: a data
+  // finding, not a failed Data source (#78).
+  expect(outcome.reasons).toEqual(["insufficient-search"]);
+  expect(outcome.failedSources).toEqual([]);
   expect(outcome.evidence[0]).toMatchObject({
     outcome: "unavailable",
     reason: "invalid-metadata",

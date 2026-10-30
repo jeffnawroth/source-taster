@@ -1,12 +1,25 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { doiTracerLimits, normalizeIsbn } from "@source-taster/core";
+import {
+  defaultSearchSettings,
+  doiTracerLimits,
+  normalizeIsbn,
+} from "@source-taster/core";
 import type {
   DataSource,
   DoiResolver,
   Evidence,
   RetrievedCandidate,
+  SearchSettings,
+  SourceName,
+  TransportFailure,
 } from "@source-taster/core";
 import { z } from "zod";
+import { identifierBatches, type IdentifierBatches } from "./batch.ts";
+/** A request target; a JSON body makes it a POST. */
+export interface SourceTarget {
+  url: URL;
+  json?: unknown;
+}
 export interface SourceDispatch {
   pending: Promise<Response>;
 }
@@ -18,11 +31,13 @@ export interface SourcePermit {
 }
 export interface SourceBudget {
   acquire: (
-    source: Evidence["source"],
+    source: SourceName,
     operation: Evidence["operation"],
     deadline: number,
+    /** Ends the permit wait early (a batch handing its send to another run). */
+    handover?: AbortSignal,
   ) => Promise<SourcePermit | null>;
-  defer: (source: Evidence["source"], delayMs: number) => Promise<void>;
+  defer: (source: SourceName, delayMs: number) => Promise<void>;
 }
 const crossrefRecord = z.object({
   DOI: z.string(),
@@ -77,31 +92,55 @@ export function createDoiAdapters(options: {
   crossrefBase: string;
   openalexBase?: string;
   budget: SourceBudget;
+  /** Version 1 keeps the defaults; article searches pass Operator settings. */
+  settings?: SearchSettings;
+  /** Version 1 reports a timeout as request-unavailable; v2 names it. */
+  timeoutReason?: TransportFailure;
   clock?: SourceClock;
   signal?: AbortSignal;
   dispatch?: (
     send: () => Promise<SourceDispatch | null>,
   ) => Promise<SourceDispatch | null>;
-  beforeRequest?: (source: Evidence["source"]) => Promise<void>;
+  beforeRequest?: (source: SourceName) => Promise<void>;
+  /** Process-wide identifier batches shared by concurrent runs. */
+  batches?: IdentifierBatches;
 }) {
   const clock = options.clock ?? systemSourceClock;
+  const settings = options.settings ?? defaultSearchSettings;
+  const batches = options.batches ?? identifierBatches();
+  /**
+   * One source call. A target function is evaluated once, when the first
+   * attempt is sent, so a batch chooses its identifiers at permit grant; a
+   * retry sends the same target. A handover ends the call with its reason
+   * until the target is sent, never after.
+   */
   async function request(
-    source: Evidence["source"],
-    url: URL,
+    source: SourceName,
+    to: URL | (() => SourceTarget),
     deadline: number,
     operation: Evidence["operation"] = "doi",
+    format: "json" | "atom" = "json",
+    handover?: AbortSignal,
   ): Promise<{ body?: unknown; evidence: Evidence }> {
     const began = clock.now();
+    let target: SourceTarget | undefined;
+    const handedOver = () => target === undefined && !!handover?.aborted;
     let attempts = 0,
       status: number | undefined,
       body: unknown,
       reason = "deadline";
-    for (let attempt = 0; attempt <= doiTracerLimits.maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= settings.maxRetries; attempt++) {
       options.signal?.throwIfAborted();
+      if (handedOver()) handover!.throwIfAborted();
       if (clock.now() >= deadline) break;
       await options.beforeRequest?.(source);
       options.signal?.throwIfAborted();
-      const permit = await options.budget.acquire(source, operation, deadline);
+      const permit = await options.budget.acquire(
+        source,
+        operation,
+        deadline,
+        target === undefined ? handover : undefined,
+      );
       if (!permit) {
         reason = "rate-budget";
         break;
@@ -123,6 +162,8 @@ export function createDoiAdapters(options: {
         }
         options.signal?.throwIfAborted();
         await options.beforeRequest?.(source);
+        // The last point to hand over: dispatch consumes the permit's slot.
+        if (handedOver()) handover!.throwIfAborted();
         const send = (timeoutMs: number) => {
           attempts++;
           options.signal?.throwIfAborted();
@@ -142,9 +183,17 @@ export function createDoiAdapters(options: {
             },
             Math.max(1, timeoutMs),
           );
-          const pending = fetch(url, {
+          target ??= typeof to === "function" ? to() : { url: to };
+          const pending = fetch(target.url, {
+            ...(target.json === undefined
+              ? {}
+              : { method: "POST", body: JSON.stringify(target.json) }),
             headers: {
-              accept: "application/json",
+              accept:
+                format === "atom" ? "application/atom+xml" : "application/json",
+              ...(target.json === undefined
+                ? {}
+                : { "content-type": "application/json" }),
               "user-agent":
                 "Source-Taster/0.0.0 (uncalibrated development preview)",
             },
@@ -215,7 +264,8 @@ export function createDoiAdapters(options: {
         options.signal?.throwIfAborted();
         let responseBody: unknown;
         try {
-          responseBody = JSON.parse(new TextDecoder().decode(bytes));
+          const text = new TextDecoder().decode(bytes);
+          responseBody = format === "atom" ? text : JSON.parse(text);
         } catch {
           responseBody = undefined;
         }
@@ -233,19 +283,22 @@ export function createDoiAdapters(options: {
             ? Math.ceil(seconds * 1000)
             : Math.max(0, Date.parse(after) - clock.now());
           if (Number.isFinite(delay)) await options.budget.defer(source, delay);
-          retry = Number.isFinite(delay) && delay <= 2000;
+          retry = Number.isFinite(delay) && delay <= settings.retryAfterMaxMs;
         } else if (response.status >= 500) retry = true;
         reason = response.status === 429 ? "rate-budget" : "http-error";
       } catch (error) {
         options.signal?.throwIfAborted();
-        reason =
-          error instanceof Error && error.message === "response-size"
-            ? "response-size"
-            : "request-unavailable";
+        if (handedOver()) throw error;
         retry =
           (error instanceof Error && error.name === "TimeoutError") ||
           (requestAbort.signal.reason instanceof DOMException &&
             requestAbort.signal.reason.name === "TimeoutError");
+        reason =
+          error instanceof Error && error.message === "response-size"
+            ? "response-size"
+            : retry
+              ? (options.timeoutReason ?? "request-unavailable")
+              : "request-unavailable";
       } finally {
         clearTimeout(requestTimer);
         options.signal?.removeEventListener("abort", cancelRequest);
@@ -255,7 +308,7 @@ export function createDoiAdapters(options: {
       }
       if (
         !retry ||
-        attempt === doiTracerLimits.maxRetries ||
+        attempt === settings.maxRetries ||
         clock.now() + delay >= deadline
       )
         break;
@@ -503,5 +556,42 @@ export function createDoiAdapters(options: {
       };
     },
   };
-  return { resolver, source, request, project };
+  /**
+   * An identifier lookup sent in a shared batch (ADR-0007). The run records
+   * its own source progress before joining; the batch is sent by one member.
+   */
+  async function batched(
+    source: SourceName,
+    operation: Evidence["operation"],
+    value: string,
+    deadline: number,
+    untilSend: boolean,
+    target: (ids: string[]) => SourceTarget,
+    format: "json" | "atom" = "json",
+  ) {
+    const { batchSize = 1, batchWindowMs = 0 } = settings.sources[source];
+    options.signal?.throwIfAborted();
+    await options.beforeRequest?.(source);
+    return batches.join(
+      source,
+      { size: batchSize, windowMs: batchWindowMs, untilSend },
+      {
+        value,
+        operation,
+        deadline,
+        clock,
+        ...(options.signal ? { signal: options.signal } : {}),
+        carry: (ids, carrierDeadline, handover) =>
+          request(
+            source,
+            () => target(ids()),
+            carrierDeadline,
+            operation,
+            format,
+            handover,
+          ),
+      },
+    );
+  }
+  return { resolver, source, request, batched, project };
 }

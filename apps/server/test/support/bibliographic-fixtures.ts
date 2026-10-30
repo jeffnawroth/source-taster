@@ -16,6 +16,19 @@ export async function startBibliographicFixtures() {
   const server = createServer((req, res) => {
     const url = new URL(req.url ?? "/", "http://fixture");
     res.setHeader("content-type", "application/json");
+    // Europe PMC answers an empty page, except for the synthetic failure witness.
+    if (url.pathname === "/europepmc/webservices/rest/search") {
+      const failed = (url.searchParams.get("query") ?? "").includes(
+        "Synthetic unavailable article",
+      );
+      res.writeHead(failed ? 503 : 200);
+      res.end(
+        failed
+          ? "{}"
+          : JSON.stringify({ hitCount: 0, resultList: { result: [] } }),
+      );
+      return;
+    }
     if (url.pathname !== "/works") {
       res.writeHead(404);
       res.end("{}");
@@ -126,6 +139,8 @@ export async function startBibliographicFixtures() {
       SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
       SOURCE_TASTER_OPENALEX_ENABLED: "true",
       SOURCE_TASTER_OPENALEX_BASE_URL: `http://127.0.0.1:${address.port}`,
+      SOURCE_TASTER_EUROPEPMC_ENABLED: "true",
+      SOURCE_TASTER_EUROPEPMC_BASE_URL: `http://127.0.0.1:${address.port}`,
     },
     stop: () =>
       new Promise<void>((resolve, reject) => {

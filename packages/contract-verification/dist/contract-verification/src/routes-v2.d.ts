@@ -2,6 +2,7 @@ export declare const createCheck: {
     getRoutingPath(): "/v1/checks";
     method: "post";
     summary: string;
+    path: "/v2/checks";
     request: {
         body: {
             required: true;
@@ -39,6 +40,7 @@ export declare const createCheck: {
                                 ISSN: import("zod").ZodOptional<import("zod").ZodString>;
                                 PMID: import("zod").ZodOptional<import("zod").ZodString>;
                                 PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                arXiv: import("zod").ZodOptional<import("zod").ZodString>;
                             }, import("zod/v4/core").$strip>;
                             authorsTruncated: import("zod").ZodOptional<import("zod").ZodBoolean>;
                         }, import("zod/v4/core").$strip>>;
@@ -47,7 +49,6 @@ export declare const createCheck: {
             };
         };
     };
-    path: "/v2/checks";
     responses: {
         401: {
             description: string;
@@ -159,39 +160,21 @@ export declare const createCheck: {
                                         "not-found": "not-found";
                                         "not-verifiable": "not-verifiable";
                                     }>;
+                                    scoringRules: import("zod").ZodObject<{
+                                        version: import("zod").ZodString;
+                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
+                                        unicode: import("zod").ZodString;
+                                        icu: import("zod").ZodString;
+                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
+                                    }, import("zod/v4/core").$strip>;
+                                    searchStrategyVersion: import("zod").ZodString;
+                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
+                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
                                     reference: import("zod").ZodObject<{
                                         originalText: import("zod").ZodString;
                                         span: import("zod").ZodObject<{
                                             start: import("zod").ZodNumber;
                                             end: import("zod").ZodNumber;
-                                        }, import("zod/v4/core").$strip>;
-                                        csl: import("zod").ZodObject<{
-                                            type: import("zod").ZodOptional<import("zod").ZodString>;
-                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
-                                                family: import("zod").ZodOptional<import("zod").ZodString>;
-                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
-                                                given: import("zod").ZodOptional<import("zod").ZodString>;
-                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
-                                            }, import("zod/v4/core").$strip>>>;
-                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
-                                                literal: import("zod").ZodString;
-                                            }, import("zod/v4/core").$strip>>;
-                                            title: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
-                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
-                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
-                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
-                                            page: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
-                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
-                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
-                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         fieldSources: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodObject<{
                                             raw: import("zod").ZodString;
@@ -209,30 +192,6 @@ export declare const createCheck: {
                                             }>;
                                             version: import("zod").ZodString;
                                         }, import("zod/v4/core").$strip>;
-                                    }, import("zod/v4/core").$strip>;
-                                    scoringRules: import("zod").ZodObject<{
-                                        version: import("zod").ZodString;
-                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
-                                        unicode: import("zod").ZodString;
-                                        icu: import("zod").ZodString;
-                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
-                                    }, import("zod/v4/core").$strip>;
-                                    searchStrategyVersion: import("zod").ZodString;
-                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
-                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    identity: import("zod").ZodObject<{
-                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
-                                        kind: import("zod").ZodEnum<{
-                                            "independent-bibliography": "independent-bibliography";
-                                            "supplied-doi": "supplied-doi";
-                                            "supplied-identifier": "supplied-identifier";
-                                            unresolved: "unresolved";
-                                        }>;
-                                    }, import("zod/v4/core").$strip>;
-                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
-                                        id: import("zod").ZodString;
-                                        slot: import("zod").ZodNumber;
-                                        retrievedAt: import("zod").ZodString;
                                         csl: import("zod").ZodObject<{
                                             type: import("zod").ZodOptional<import("zod").ZodString>;
                                             author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
@@ -260,12 +219,56 @@ export declare const createCheck: {
                                             ISSN: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMID: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
+                                    }, import("zod/v4/core").$strip>;
+                                    identity: import("zod").ZodObject<{
+                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
+                                        kind: import("zod").ZodEnum<{
+                                            "independent-bibliography": "independent-bibliography";
+                                            "supplied-doi": "supplied-doi";
+                                            "supplied-identifier": "supplied-identifier";
+                                            unresolved: "unresolved";
+                                        }>;
+                                    }, import("zod/v4/core").$strip>;
+                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
+                                        id: import("zod").ZodString;
+                                        slot: import("zod").ZodNumber;
+                                        retrievedAt: import("zod").ZodString;
                                         raw: import("zod").ZodUnknown;
                                         score: import("zod").ZodNullable<import("zod").ZodObject<{
                                             value: import("zod").ZodNumber;
                                             fullAgreement: import("zod").ZodBoolean;
                                         }, import("zod/v4/core").$strip>>;
+                                        csl: import("zod").ZodObject<{
+                                            type: import("zod").ZodOptional<import("zod").ZodString>;
+                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>>>;
+                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                literal: import("zod").ZodString;
+                                            }, import("zod/v4/core").$strip>>;
+                                            title: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                            page: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                        }, import("zod/v4/core").$strip>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -313,12 +316,16 @@ export declare const createCheck: {
                                             }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         origin: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -332,6 +339,7 @@ export declare const createCheck: {
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";
+                                                europepmc: "europepmc";
                                                 openalex: "openalex";
                                             }>;
                                             candidateId: import("zod").ZodString;
@@ -346,13 +354,17 @@ export declare const createCheck: {
                                         observedAt: import("zod").ZodString;
                                         raw: import("zod").ZodOptional<import("zod").ZodUnknown>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
                                             "doi.org": "doi.org";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         operation: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -393,11 +405,14 @@ export declare const createCheck: {
                                         "url-verification-incomplete": "url-verification-incomplete";
                                     }>>;
                                     failedSources: import("zod").ZodArray<import("zod").ZodEnum<{
+                                        arxiv: "arxiv";
                                         crossref: "crossref";
                                         "doi.org": "doi.org";
+                                        europepmc: "europepmc";
                                         googlebooks: "googlebooks";
                                         openalex: "openalex";
                                         openlibrary: "openlibrary";
+                                        semanticscholar: "semanticscholar";
                                     }>>;
                                     retraction: import("zod").ZodEnum<{
                                         retracted: "retracted";
@@ -406,6 +421,7 @@ export declare const createCheck: {
                                     retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             openalex: "openalex";
                                         }>;
                                         candidateId: import("zod").ZodString;
@@ -413,14 +429,17 @@ export declare const createCheck: {
                                     }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
+                                    arxiv: "arxiv";
                                     checking: "checking";
                                     crossref: "crossref";
                                     "doi.org": "doi.org";
                                     ended: "ended";
+                                    europepmc: "europepmc";
                                     googlebooks: "googlebooks";
                                     openalex: "openalex";
                                     openlibrary: "openlibrary";
                                     queued: "queued";
+                                    semanticscholar: "semanticscholar";
                                 }>;
                             }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>;
@@ -569,39 +588,21 @@ export declare const getCheck: {
                                         "not-found": "not-found";
                                         "not-verifiable": "not-verifiable";
                                     }>;
+                                    scoringRules: import("zod").ZodObject<{
+                                        version: import("zod").ZodString;
+                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
+                                        unicode: import("zod").ZodString;
+                                        icu: import("zod").ZodString;
+                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
+                                    }, import("zod/v4/core").$strip>;
+                                    searchStrategyVersion: import("zod").ZodString;
+                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
+                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
                                     reference: import("zod").ZodObject<{
                                         originalText: import("zod").ZodString;
                                         span: import("zod").ZodObject<{
                                             start: import("zod").ZodNumber;
                                             end: import("zod").ZodNumber;
-                                        }, import("zod/v4/core").$strip>;
-                                        csl: import("zod").ZodObject<{
-                                            type: import("zod").ZodOptional<import("zod").ZodString>;
-                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
-                                                family: import("zod").ZodOptional<import("zod").ZodString>;
-                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
-                                                given: import("zod").ZodOptional<import("zod").ZodString>;
-                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
-                                            }, import("zod/v4/core").$strip>>>;
-                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
-                                                literal: import("zod").ZodString;
-                                            }, import("zod/v4/core").$strip>>;
-                                            title: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
-                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
-                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
-                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
-                                            page: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
-                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
-                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
-                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         fieldSources: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodObject<{
                                             raw: import("zod").ZodString;
@@ -619,30 +620,6 @@ export declare const getCheck: {
                                             }>;
                                             version: import("zod").ZodString;
                                         }, import("zod/v4/core").$strip>;
-                                    }, import("zod/v4/core").$strip>;
-                                    scoringRules: import("zod").ZodObject<{
-                                        version: import("zod").ZodString;
-                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
-                                        unicode: import("zod").ZodString;
-                                        icu: import("zod").ZodString;
-                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
-                                    }, import("zod/v4/core").$strip>;
-                                    searchStrategyVersion: import("zod").ZodString;
-                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
-                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    identity: import("zod").ZodObject<{
-                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
-                                        kind: import("zod").ZodEnum<{
-                                            "independent-bibliography": "independent-bibliography";
-                                            "supplied-doi": "supplied-doi";
-                                            "supplied-identifier": "supplied-identifier";
-                                            unresolved: "unresolved";
-                                        }>;
-                                    }, import("zod/v4/core").$strip>;
-                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
-                                        id: import("zod").ZodString;
-                                        slot: import("zod").ZodNumber;
-                                        retrievedAt: import("zod").ZodString;
                                         csl: import("zod").ZodObject<{
                                             type: import("zod").ZodOptional<import("zod").ZodString>;
                                             author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
@@ -670,12 +647,56 @@ export declare const getCheck: {
                                             ISSN: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMID: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
+                                    }, import("zod/v4/core").$strip>;
+                                    identity: import("zod").ZodObject<{
+                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
+                                        kind: import("zod").ZodEnum<{
+                                            "independent-bibliography": "independent-bibliography";
+                                            "supplied-doi": "supplied-doi";
+                                            "supplied-identifier": "supplied-identifier";
+                                            unresolved: "unresolved";
+                                        }>;
+                                    }, import("zod/v4/core").$strip>;
+                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
+                                        id: import("zod").ZodString;
+                                        slot: import("zod").ZodNumber;
+                                        retrievedAt: import("zod").ZodString;
                                         raw: import("zod").ZodUnknown;
                                         score: import("zod").ZodNullable<import("zod").ZodObject<{
                                             value: import("zod").ZodNumber;
                                             fullAgreement: import("zod").ZodBoolean;
                                         }, import("zod/v4/core").$strip>>;
+                                        csl: import("zod").ZodObject<{
+                                            type: import("zod").ZodOptional<import("zod").ZodString>;
+                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>>>;
+                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                literal: import("zod").ZodString;
+                                            }, import("zod/v4/core").$strip>>;
+                                            title: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                            page: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                        }, import("zod/v4/core").$strip>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -723,12 +744,16 @@ export declare const getCheck: {
                                             }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         origin: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -742,6 +767,7 @@ export declare const getCheck: {
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";
+                                                europepmc: "europepmc";
                                                 openalex: "openalex";
                                             }>;
                                             candidateId: import("zod").ZodString;
@@ -756,13 +782,17 @@ export declare const getCheck: {
                                         observedAt: import("zod").ZodString;
                                         raw: import("zod").ZodOptional<import("zod").ZodUnknown>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
                                             "doi.org": "doi.org";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         operation: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -803,11 +833,14 @@ export declare const getCheck: {
                                         "url-verification-incomplete": "url-verification-incomplete";
                                     }>>;
                                     failedSources: import("zod").ZodArray<import("zod").ZodEnum<{
+                                        arxiv: "arxiv";
                                         crossref: "crossref";
                                         "doi.org": "doi.org";
+                                        europepmc: "europepmc";
                                         googlebooks: "googlebooks";
                                         openalex: "openalex";
                                         openlibrary: "openlibrary";
+                                        semanticscholar: "semanticscholar";
                                     }>>;
                                     retraction: import("zod").ZodEnum<{
                                         retracted: "retracted";
@@ -816,6 +849,7 @@ export declare const getCheck: {
                                     retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             openalex: "openalex";
                                         }>;
                                         candidateId: import("zod").ZodString;
@@ -823,14 +857,17 @@ export declare const getCheck: {
                                     }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
+                                    arxiv: "arxiv";
                                     checking: "checking";
                                     crossref: "crossref";
                                     "doi.org": "doi.org";
                                     ended: "ended";
+                                    europepmc: "europepmc";
                                     googlebooks: "googlebooks";
                                     openalex: "openalex";
                                     openlibrary: "openlibrary";
                                     queued: "queued";
+                                    semanticscholar: "semanticscholar";
                                 }>;
                             }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>;
@@ -979,39 +1016,21 @@ export declare const cancelCheck: {
                                         "not-found": "not-found";
                                         "not-verifiable": "not-verifiable";
                                     }>;
+                                    scoringRules: import("zod").ZodObject<{
+                                        version: import("zod").ZodString;
+                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
+                                        unicode: import("zod").ZodString;
+                                        icu: import("zod").ZodString;
+                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
+                                    }, import("zod/v4/core").$strip>;
+                                    searchStrategyVersion: import("zod").ZodString;
+                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
+                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
                                     reference: import("zod").ZodObject<{
                                         originalText: import("zod").ZodString;
                                         span: import("zod").ZodObject<{
                                             start: import("zod").ZodNumber;
                                             end: import("zod").ZodNumber;
-                                        }, import("zod/v4/core").$strip>;
-                                        csl: import("zod").ZodObject<{
-                                            type: import("zod").ZodOptional<import("zod").ZodString>;
-                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
-                                                family: import("zod").ZodOptional<import("zod").ZodString>;
-                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
-                                                given: import("zod").ZodOptional<import("zod").ZodString>;
-                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
-                                            }, import("zod/v4/core").$strip>>>;
-                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
-                                                literal: import("zod").ZodString;
-                                            }, import("zod/v4/core").$strip>>;
-                                            title: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
-                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
-                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
-                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
-                                            page: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
-                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
-                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
-                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         fieldSources: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodObject<{
                                             raw: import("zod").ZodString;
@@ -1029,30 +1048,6 @@ export declare const cancelCheck: {
                                             }>;
                                             version: import("zod").ZodString;
                                         }, import("zod/v4/core").$strip>;
-                                    }, import("zod/v4/core").$strip>;
-                                    scoringRules: import("zod").ZodObject<{
-                                        version: import("zod").ZodString;
-                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
-                                        unicode: import("zod").ZodString;
-                                        icu: import("zod").ZodString;
-                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
-                                    }, import("zod/v4/core").$strip>;
-                                    searchStrategyVersion: import("zod").ZodString;
-                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
-                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    identity: import("zod").ZodObject<{
-                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
-                                        kind: import("zod").ZodEnum<{
-                                            "independent-bibliography": "independent-bibliography";
-                                            "supplied-doi": "supplied-doi";
-                                            "supplied-identifier": "supplied-identifier";
-                                            unresolved: "unresolved";
-                                        }>;
-                                    }, import("zod/v4/core").$strip>;
-                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
-                                        id: import("zod").ZodString;
-                                        slot: import("zod").ZodNumber;
-                                        retrievedAt: import("zod").ZodString;
                                         csl: import("zod").ZodObject<{
                                             type: import("zod").ZodOptional<import("zod").ZodString>;
                                             author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
@@ -1080,12 +1075,56 @@ export declare const cancelCheck: {
                                             ISSN: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMID: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
+                                    }, import("zod/v4/core").$strip>;
+                                    identity: import("zod").ZodObject<{
+                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
+                                        kind: import("zod").ZodEnum<{
+                                            "independent-bibliography": "independent-bibliography";
+                                            "supplied-doi": "supplied-doi";
+                                            "supplied-identifier": "supplied-identifier";
+                                            unresolved: "unresolved";
+                                        }>;
+                                    }, import("zod/v4/core").$strip>;
+                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
+                                        id: import("zod").ZodString;
+                                        slot: import("zod").ZodNumber;
+                                        retrievedAt: import("zod").ZodString;
                                         raw: import("zod").ZodUnknown;
                                         score: import("zod").ZodNullable<import("zod").ZodObject<{
                                             value: import("zod").ZodNumber;
                                             fullAgreement: import("zod").ZodBoolean;
                                         }, import("zod/v4/core").$strip>>;
+                                        csl: import("zod").ZodObject<{
+                                            type: import("zod").ZodOptional<import("zod").ZodString>;
+                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>>>;
+                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                literal: import("zod").ZodString;
+                                            }, import("zod/v4/core").$strip>>;
+                                            title: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                            page: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                        }, import("zod/v4/core").$strip>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -1133,12 +1172,16 @@ export declare const cancelCheck: {
                                             }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         origin: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -1152,6 +1195,7 @@ export declare const cancelCheck: {
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";
+                                                europepmc: "europepmc";
                                                 openalex: "openalex";
                                             }>;
                                             candidateId: import("zod").ZodString;
@@ -1166,13 +1210,17 @@ export declare const cancelCheck: {
                                         observedAt: import("zod").ZodString;
                                         raw: import("zod").ZodOptional<import("zod").ZodUnknown>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
                                             "doi.org": "doi.org";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         operation: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -1213,11 +1261,14 @@ export declare const cancelCheck: {
                                         "url-verification-incomplete": "url-verification-incomplete";
                                     }>>;
                                     failedSources: import("zod").ZodArray<import("zod").ZodEnum<{
+                                        arxiv: "arxiv";
                                         crossref: "crossref";
                                         "doi.org": "doi.org";
+                                        europepmc: "europepmc";
                                         googlebooks: "googlebooks";
                                         openalex: "openalex";
                                         openlibrary: "openlibrary";
+                                        semanticscholar: "semanticscholar";
                                     }>>;
                                     retraction: import("zod").ZodEnum<{
                                         retracted: "retracted";
@@ -1226,6 +1277,7 @@ export declare const cancelCheck: {
                                     retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             openalex: "openalex";
                                         }>;
                                         candidateId: import("zod").ZodString;
@@ -1233,14 +1285,17 @@ export declare const cancelCheck: {
                                     }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
+                                    arxiv: "arxiv";
                                     checking: "checking";
                                     crossref: "crossref";
                                     "doi.org": "doi.org";
                                     ended: "ended";
+                                    europepmc: "europepmc";
                                     googlebooks: "googlebooks";
                                     openalex: "openalex";
                                     openlibrary: "openlibrary";
                                     queued: "queued";
+                                    semanticscholar: "semanticscholar";
                                 }>;
                             }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>;
@@ -1389,39 +1444,21 @@ export declare const renewCheckLease: {
                                         "not-found": "not-found";
                                         "not-verifiable": "not-verifiable";
                                     }>;
+                                    scoringRules: import("zod").ZodObject<{
+                                        version: import("zod").ZodString;
+                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
+                                        unicode: import("zod").ZodString;
+                                        icu: import("zod").ZodString;
+                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
+                                    }, import("zod/v4/core").$strip>;
+                                    searchStrategyVersion: import("zod").ZodString;
+                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
+                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
                                     reference: import("zod").ZodObject<{
                                         originalText: import("zod").ZodString;
                                         span: import("zod").ZodObject<{
                                             start: import("zod").ZodNumber;
                                             end: import("zod").ZodNumber;
-                                        }, import("zod/v4/core").$strip>;
-                                        csl: import("zod").ZodObject<{
-                                            type: import("zod").ZodOptional<import("zod").ZodString>;
-                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
-                                                family: import("zod").ZodOptional<import("zod").ZodString>;
-                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
-                                                given: import("zod").ZodOptional<import("zod").ZodString>;
-                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
-                                            }, import("zod/v4/core").$strip>>>;
-                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
-                                                literal: import("zod").ZodString;
-                                            }, import("zod/v4/core").$strip>>;
-                                            title: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
-                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
-                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
-                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
-                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
-                                            page: import("zod").ZodOptional<import("zod").ZodString>;
-                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
-                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
-                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
-                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
-                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
                                         fieldSources: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodObject<{
                                             raw: import("zod").ZodString;
@@ -1439,30 +1476,6 @@ export declare const renewCheckLease: {
                                             }>;
                                             version: import("zod").ZodString;
                                         }, import("zod/v4/core").$strip>;
-                                    }, import("zod/v4/core").$strip>;
-                                    scoringRules: import("zod").ZodObject<{
-                                        version: import("zod").ZodString;
-                                        calibration: import("zod").ZodLiteral<"uncalibrated">;
-                                        unicode: import("zod").ZodString;
-                                        icu: import("zod").ZodString;
-                                        profile: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodNumber>;
-                                    }, import("zod/v4/core").$strip>;
-                                    searchStrategyVersion: import("zod").ZodString;
-                                    searchConfiguration: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodUnion<readonly [import("zod").ZodString, import("zod").ZodNumber]>>;
-                                    bestMatchId: import("zod").ZodNullable<import("zod").ZodString>;
-                                    identity: import("zod").ZodObject<{
-                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
-                                        kind: import("zod").ZodEnum<{
-                                            "independent-bibliography": "independent-bibliography";
-                                            "supplied-doi": "supplied-doi";
-                                            "supplied-identifier": "supplied-identifier";
-                                            unresolved: "unresolved";
-                                        }>;
-                                    }, import("zod/v4/core").$strip>;
-                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
-                                        id: import("zod").ZodString;
-                                        slot: import("zod").ZodNumber;
-                                        retrievedAt: import("zod").ZodString;
                                         csl: import("zod").ZodObject<{
                                             type: import("zod").ZodOptional<import("zod").ZodString>;
                                             author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
@@ -1490,12 +1503,56 @@ export declare const renewCheckLease: {
                                             ISSN: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMID: import("zod").ZodOptional<import("zod").ZodString>;
                                             PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
                                         }, import("zod/v4/core").$strip>;
+                                    }, import("zod/v4/core").$strip>;
+                                    identity: import("zod").ZodObject<{
+                                        candidateId: import("zod").ZodOptional<import("zod").ZodString>;
+                                        kind: import("zod").ZodEnum<{
+                                            "independent-bibliography": "independent-bibliography";
+                                            "supplied-doi": "supplied-doi";
+                                            "supplied-identifier": "supplied-identifier";
+                                            unresolved: "unresolved";
+                                        }>;
+                                    }, import("zod/v4/core").$strip>;
+                                    candidates: import("zod").ZodArray<import("zod").ZodObject<{
+                                        id: import("zod").ZodString;
+                                        slot: import("zod").ZodNumber;
+                                        retrievedAt: import("zod").ZodString;
                                         raw: import("zod").ZodUnknown;
                                         score: import("zod").ZodNullable<import("zod").ZodObject<{
                                             value: import("zod").ZodNumber;
                                             fullAgreement: import("zod").ZodBoolean;
                                         }, import("zod/v4/core").$strip>>;
+                                        csl: import("zod").ZodObject<{
+                                            type: import("zod").ZodOptional<import("zod").ZodString>;
+                                            author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>>>;
+                                            issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                literal: import("zod").ZodString;
+                                            }, import("zod/v4/core").$strip>>;
+                                            title: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                            "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                            publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                            volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                            issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                            page: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                            edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                            DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                            URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                            arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                        }, import("zod/v4/core").$strip>;
                                         fields: import("zod").ZodArray<import("zod").ZodObject<{
                                             field: import("zod").ZodString;
                                             reference: import("zod").ZodUnknown;
@@ -1543,12 +1600,16 @@ export declare const renewCheckLease: {
                                             }, import("zod/v4/core").$strip>>;
                                         }, import("zod/v4/core").$strip>>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         origin: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -1562,6 +1623,7 @@ export declare const renewCheckLease: {
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";
+                                                europepmc: "europepmc";
                                                 openalex: "openalex";
                                             }>;
                                             candidateId: import("zod").ZodString;
@@ -1576,13 +1638,17 @@ export declare const renewCheckLease: {
                                         observedAt: import("zod").ZodString;
                                         raw: import("zod").ZodOptional<import("zod").ZodUnknown>;
                                         source: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             crossref: "crossref";
                                             "doi.org": "doi.org";
+                                            europepmc: "europepmc";
                                             googlebooks: "googlebooks";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
                                         }>;
                                         operation: import("zod").ZodEnum<{
+                                            arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
                                             doi: "doi";
@@ -1623,11 +1689,14 @@ export declare const renewCheckLease: {
                                         "url-verification-incomplete": "url-verification-incomplete";
                                     }>>;
                                     failedSources: import("zod").ZodArray<import("zod").ZodEnum<{
+                                        arxiv: "arxiv";
                                         crossref: "crossref";
                                         "doi.org": "doi.org";
+                                        europepmc: "europepmc";
                                         googlebooks: "googlebooks";
                                         openalex: "openalex";
                                         openlibrary: "openlibrary";
+                                        semanticscholar: "semanticscholar";
                                     }>>;
                                     retraction: import("zod").ZodEnum<{
                                         retracted: "retracted";
@@ -1636,6 +1705,7 @@ export declare const renewCheckLease: {
                                     retractionEvidence: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
                                         source: import("zod").ZodEnum<{
                                             crossref: "crossref";
+                                            europepmc: "europepmc";
                                             openalex: "openalex";
                                         }>;
                                         candidateId: import("zod").ZodString;
@@ -1643,14 +1713,17 @@ export declare const renewCheckLease: {
                                     }, import("zod/v4/core").$strip>>>;
                                 }, import("zod/v4/core").$strict>], "kind">;
                                 progress: import("zod").ZodEnum<{
+                                    arxiv: "arxiv";
                                     checking: "checking";
                                     crossref: "crossref";
                                     "doi.org": "doi.org";
                                     ended: "ended";
+                                    europepmc: "europepmc";
                                     googlebooks: "googlebooks";
                                     openalex: "openalex";
                                     openlibrary: "openlibrary";
                                     queued: "queued";
+                                    semanticscholar: "semanticscholar";
                                 }>;
                             }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>;

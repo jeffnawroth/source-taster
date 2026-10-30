@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { normalizePmcid, normalizePmid } from "@source-taster/core";
+import { issuedYear, normalizePmcid, normalizePmid } from "@source-taster/core";
 import type {
   BibliographicSource,
   Csl,
-  Evidence,
   RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
-import { projectDisplayName } from "./names.ts";
-export type SourceRequest = (
-  source: Evidence["source"],
-  url: URL,
-  deadline: number,
-  operation?: Evidence["operation"],
-) => Promise<{ body?: unknown; evidence: Evidence }>;
+import {
+  displayName,
+  lookupResult,
+  noRecord,
+  queryTerms,
+  searchResult,
+  type SourceRequest,
+} from "./shared.ts";
 const record = z.object({
   id: z.string().regex(/^https:\/\/openalex\.org\/W\d+$/u),
   title: z.string().nullable().optional(),
@@ -49,12 +49,6 @@ const record = z.object({
     })
     .optional(),
 });
-// Filter values cannot inject OpenAlex's comma/pipe/colon query operators.
-const terms = (text: string) =>
-  text
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/gu, " ")
-    .trim();
 function project(
   body: unknown,
   origin: RetrievedCandidate["origin"],
@@ -97,7 +91,7 @@ function project(
       ...(m.authorships
         ? {
             author: m.authorships.map((a) =>
-              projectDisplayName(a.author.display_name),
+              displayName(a.author.display_name),
             ),
           }
         : {}),
@@ -151,42 +145,25 @@ export function openalexAdapter(
         kind,
       );
       if (evidence.reason === "response" && evidence.status === 404)
-        return {
-          evidence: { ...evidence, outcome: "no-record", reason: undefined },
-        };
-      const candidate = project(body, kind, evidence.observedAt, bookMetadata);
+        return noRecord(evidence);
       const key = kind === "doi" ? "DOI" : kind === "pmid" ? "PMID" : "PMCID";
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        !candidate
-      )
-        return {
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
-      if (candidate.csl[key]?.toLowerCase() !== value.toLowerCase())
-        return { evidence: { ...evidence, reason: "identifier-mismatch" } };
-      return {
-        candidate,
-        evidence: { ...evidence, outcome: "candidate", reason: undefined },
-      };
+      return lookupResult(
+        evidence,
+        project(body, kind, evidence.observedAt, bookMetadata),
+        (c) => c.csl[key]?.toLowerCase() === value.toLowerCase(),
+      );
     },
     async search(reference: Csl, kind, deadline) {
       const url = new URL("/works", base);
+      // Filter values cannot inject OpenAlex's comma/pipe/colon operators.
       const filters = [];
       if (kind !== "authors-year" && reference.title)
-        filters.push(`title.search:${terms(reference.title)}`);
+        filters.push(`title.search:${queryTerms(reference.title)}`);
       if (kind !== "title" && reference.author?.length)
         filters.push(
-          `raw_author_name.search:${terms(reference.author.map((a) => a.literal ?? [a.given, a.family].filter(Boolean).join(" ")).join(" "))}`,
+          `raw_author_name.search:${queryTerms(reference.author.map((a) => a.literal ?? [a.given, a.family].filter(Boolean).join(" ")).join(" "))}`,
         );
-      const year = reference.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
+      const year = issuedYear(reference);
       if (kind !== "title" && year) filters.push(`publication_year:${year}`);
       url.searchParams.set("filter", filters.join(","));
       url.searchParams.set("per_page", "5");
@@ -194,35 +171,9 @@ export function openalexAdapter(
       const parsed = z
         .object({ results: z.array(z.unknown()) })
         .safeParse(body);
-      const candidates = parsed.success
-        ? parsed.data.results.map((m) =>
-            project(m, kind, evidence.observedAt, bookMetadata),
-          )
-        : [];
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        !parsed.success ||
-        candidates.some((c) => !c)
-      )
-        return {
-          candidates: [],
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
-      return {
-        candidates: candidates as RetrievedCandidate[],
-        evidence: {
-          ...evidence,
-          outcome: candidates.length ? "candidate" : "no-record",
-          reason: undefined,
-        },
-      };
+      return searchResult(evidence, parsed.data?.results, (m) =>
+        project(m, kind, evidence.observedAt, bookMetadata),
+      );
     },
   };
 }

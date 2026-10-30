@@ -173,6 +173,9 @@
               "crossref",
               "ended",
               "openalex",
+              "europepmc",
+              "semanticscholar",
+              "arxiv",
               "openlibrary",
               "googlebooks"
             ]
@@ -219,179 +222,7 @@
                 "$ref": "#/components/schemas/Verdict"
               },
               "reference": {
-                "type": "object",
-                "properties": {
-                  "originalText": {
-                    "type": "string"
-                  },
-                  "span": {
-                    "type": "object",
-                    "properties": {
-                      "start": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "end": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": [
-                      "start",
-                      "end"
-                    ]
-                  },
-                  "csl": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string"
-                      },
-                      "author": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "family": {
-                              "type": "string"
-                            },
-                            "non-dropping-particle": {
-                              "type": "string"
-                            },
-                            "given": {
-                              "type": "string"
-                            },
-                            "literal": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      },
-                      "issued": {
-                        "type": "object",
-                        "properties": {
-                          "literal": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "literal"
-                        ]
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "container-title": {
-                        "type": "string"
-                      },
-                      "container-title-short": {
-                        "type": "string"
-                      },
-                      "publisher": {
-                        "type": "string"
-                      },
-                      "publisher-place": {
-                        "type": "string"
-                      },
-                      "volume": {
-                        "type": "string"
-                      },
-                      "issue": {
-                        "type": "string"
-                      },
-                      "page": {
-                        "type": "string"
-                      },
-                      "article-number": {
-                        "type": "string"
-                      },
-                      "edition": {
-                        "type": "string"
-                      },
-                      "DOI": {
-                        "type": "string"
-                      },
-                      "URL": {
-                        "type": "string"
-                      },
-                      "ISBN": {
-                        "type": "string"
-                      },
-                      "ISSN": {
-                        "type": "string"
-                      },
-                      "PMID": {
-                        "type": "string"
-                      },
-                      "PMCID": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "fieldSources": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "object",
-                      "properties": {
-                        "raw": {
-                          "type": "string"
-                        },
-                        "span": {
-                          "type": "object",
-                          "properties": {
-                            "start": {
-                              "type": "integer",
-                              "minimum": 0
-                            },
-                            "end": {
-                              "type": "integer",
-                              "minimum": 0
-                            }
-                          },
-                          "required": [
-                            "start",
-                            "end"
-                          ]
-                        },
-                        "normalized": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "raw"
-                      ]
-                    }
-                  },
-                  "authorsTruncated": {
-                    "type": "boolean"
-                  },
-                  "structuring": {
-                    "type": "object",
-                    "properties": {
-                      "path": {
-                        "type": "string",
-                        "enum": [
-                          "parser",
-                          "user"
-                        ]
-                      },
-                      "version": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "path",
-                      "version"
-                    ]
-                  }
-                },
-                "required": [
-                  "originalText",
-                  "span",
-                  "csl",
-                  "fieldSources",
-                  "structuring"
-                ]
+                "$ref": "#/components/schemas/StructuredReferenceV2"
               },
               "scoringRules": {
                 "type": "object",
@@ -473,7 +304,7 @@
                 "items": {
                   "$ref": "#/components/schemas/CandidateV2"
                 },
-                "maxItems": 20
+                "maxItems": 25
               },
               "evidence": {
                 "type": "array",
@@ -512,6 +343,9 @@
                     "doi.org",
                     "crossref",
                     "openalex",
+                    "europepmc",
+                    "semanticscholar",
+                    "arxiv",
                     "openlibrary",
                     "googlebooks"
                   ]
@@ -570,6 +404,187 @@
           "not-verifiable"
         ]
       },
+      "StructuredReferenceV2": {
+        "type": "object",
+        "properties": {
+          "originalText": {
+            "type": "string"
+          },
+          "span": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ]
+          },
+          "csl": {
+            "$ref": "#/components/schemas/StructuredCslV2"
+          },
+          "fieldSources": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "raw": {
+                  "type": "string"
+                },
+                "span": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "end": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ]
+                },
+                "normalized": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "raw"
+              ]
+            }
+          },
+          "authorsTruncated": {
+            "type": "boolean"
+          },
+          "structuring": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "enum": [
+                  "parser",
+                  "user"
+                ]
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "version"
+            ]
+          }
+        },
+        "required": [
+          "originalText",
+          "span",
+          "csl",
+          "fieldSources",
+          "structuring"
+        ]
+      },
+      "StructuredCslV2": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "author": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "family": {
+                  "type": "string"
+                },
+                "non-dropping-particle": {
+                  "type": "string"
+                },
+                "given": {
+                  "type": "string"
+                },
+                "literal": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "issued": {
+            "type": "object",
+            "properties": {
+              "literal": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "literal"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "container-title": {
+            "type": "string"
+          },
+          "container-title-short": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "publisher-place": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          },
+          "page": {
+            "type": "string"
+          },
+          "article-number": {
+            "type": "string"
+          },
+          "edition": {
+            "type": "string"
+          },
+          "DOI": {
+            "type": "string"
+          },
+          "URL": {
+            "type": "string"
+          },
+          "ISBN": {
+            "type": "string"
+          },
+          "ISSN": {
+            "type": "string"
+          },
+          "PMID": {
+            "type": "string"
+          },
+          "PMCID": {
+            "type": "string"
+          },
+          "arXiv": {
+            "type": "string"
+          }
+        }
+      },
       "CandidateV2": {
         "type": "object",
         "properties": {
@@ -581,6 +596,9 @@
             "enum": [
               "crossref",
               "openalex",
+              "europepmc",
+              "semanticscholar",
+              "arxiv",
               "openlibrary",
               "googlebooks"
             ]
@@ -591,6 +609,7 @@
               "doi",
               "pmid",
               "pmcid",
+              "arxiv",
               "isbn",
               "combined",
               "title",
@@ -606,91 +625,7 @@
             "type": "string"
           },
           "csl": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string"
-              },
-              "author": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "family": {
-                      "type": "string"
-                    },
-                    "non-dropping-particle": {
-                      "type": "string"
-                    },
-                    "given": {
-                      "type": "string"
-                    },
-                    "literal": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "issued": {
-                "type": "object",
-                "properties": {
-                  "literal": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "literal"
-                ]
-              },
-              "title": {
-                "type": "string"
-              },
-              "container-title": {
-                "type": "string"
-              },
-              "container-title-short": {
-                "type": "string"
-              },
-              "publisher": {
-                "type": "string"
-              },
-              "publisher-place": {
-                "type": "string"
-              },
-              "volume": {
-                "type": "string"
-              },
-              "issue": {
-                "type": "string"
-              },
-              "page": {
-                "type": "string"
-              },
-              "article-number": {
-                "type": "string"
-              },
-              "edition": {
-                "type": "string"
-              },
-              "DOI": {
-                "type": "string"
-              },
-              "URL": {
-                "type": "string"
-              },
-              "ISBN": {
-                "type": "string"
-              },
-              "ISSN": {
-                "type": "string"
-              },
-              "PMID": {
-                "type": "string"
-              },
-              "PMCID": {
-                "type": "string"
-              }
-            }
+            "$ref": "#/components/schemas/StructuredCslV2"
           },
           "raw": {},
           "fields": {
@@ -853,7 +788,8 @@
             "type": "string",
             "enum": [
               "crossref",
-              "openalex"
+              "openalex",
+              "europepmc"
             ]
           },
           "candidateId": {
@@ -878,6 +814,9 @@
               "doi.org",
               "crossref",
               "openalex",
+              "europepmc",
+              "semanticscholar",
+              "arxiv",
               "openlibrary",
               "googlebooks"
             ]
@@ -888,6 +827,7 @@
               "doi",
               "pmid",
               "pmcid",
+              "arxiv",
               "isbn",
               "combined",
               "title",
@@ -952,7 +892,7 @@
           "observedAt"
         ]
       },
-      "CreateCheckRequest": {
+      "CreateCheckRequestV2": {
         "anyOf": [
           {
             "type": "object",
@@ -979,91 +919,7 @@
                       "minLength": 1
                     },
                     "fields": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string"
-                        },
-                        "author": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "family": {
-                                "type": "string"
-                              },
-                              "non-dropping-particle": {
-                                "type": "string"
-                              },
-                              "given": {
-                                "type": "string"
-                              },
-                              "literal": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        },
-                        "issued": {
-                          "type": "object",
-                          "properties": {
-                            "literal": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "literal"
-                          ]
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "container-title": {
-                          "type": "string"
-                        },
-                        "container-title-short": {
-                          "type": "string"
-                        },
-                        "publisher": {
-                          "type": "string"
-                        },
-                        "publisher-place": {
-                          "type": "string"
-                        },
-                        "volume": {
-                          "type": "string"
-                        },
-                        "issue": {
-                          "type": "string"
-                        },
-                        "page": {
-                          "type": "string"
-                        },
-                        "article-number": {
-                          "type": "string"
-                        },
-                        "edition": {
-                          "type": "string"
-                        },
-                        "DOI": {
-                          "type": "string"
-                        },
-                        "URL": {
-                          "type": "string"
-                        },
-                        "ISBN": {
-                          "type": "string"
-                        },
-                        "ISSN": {
-                          "type": "string"
-                        },
-                        "PMID": {
-                          "type": "string"
-                        },
-                        "PMCID": {
-                          "type": "string"
-                        }
-                      }
+                      "$ref": "#/components/schemas/StructuredCslV2"
                     },
                     "authorsTruncated": {
                       "type": "boolean"
@@ -1596,14 +1452,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateCheckRequest"
+                "$ref": "#/components/schemas/CreateCheckRequestV2"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Check created. Article search in OpenAlex and Crossref is an explicitly enabled, uncalibrated development profile.",
+            "description": "Check created. Article search in OpenAlex, Crossref, Europe PMC and Semantic Scholar, with identifier-only arXiv access, is an explicitly enabled, uncalibrated development profile. Operator-disabled sources are recorded, never reported as failed.",
             "content": {
               "application/json": {
                 "schema": {

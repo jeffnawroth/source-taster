@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import {
+  issuedYear,
   normalizeIsbn,
   type BibliographicSource,
   type RetrievedCandidate,
@@ -7,8 +8,13 @@ import {
   type Csl,
 } from "@source-taster/core";
 import { z } from "zod";
-import { projectDisplayName } from "./names.ts";
-import type { SourceRequest } from "./openalex.ts";
+import {
+  answered,
+  displayName,
+  mismatch,
+  unreadable,
+  type SourceRequest,
+} from "./shared.ts";
 const volume = z.object({
   id: z.string().regex(/^[\w-]+$/u),
   volumeInfo: z.object({
@@ -49,7 +55,7 @@ function project(
       title: [v.title, v.subtitle].filter(Boolean).join(": "),
       ...(v.authors
         ? {
-            author: v.authors.map(projectDisplayName),
+            author: v.authors.map(displayName),
           }
         : {}),
       ...(v.publishedDate ? { issued: { literal: v.publishedDate } } : {}),
@@ -81,21 +87,11 @@ export function googlebooksAdapter(
     );
     const parsed = response.safeParse(body);
     if (
-      evidence.reason !== "response" ||
-      evidence.status !== 200 ||
+      !answered(evidence) ||
       !parsed.success ||
       (parsed.data.totalItems > 0 && !parsed.data.items?.length)
     )
-      return {
-        items: [],
-        evidence: {
-          ...evidence,
-          reason:
-            evidence.reason === "response"
-              ? "invalid-metadata"
-              : evidence.reason,
-        },
-      };
+      return { items: [], evidence: unreadable(evidence) };
     return {
       items: (parsed.data.items ?? []).slice(0, 5),
       evidence: {
@@ -124,14 +120,7 @@ export function googlebooksAdapter(
             normalizeIsbn(i.identifier) === value,
         ),
       );
-      if (!exact.length)
-        return {
-          evidence: {
-            ...evidence,
-            outcome: "unavailable",
-            reason: "identifier-mismatch",
-          },
-        };
+      if (!exact.length) return mismatch(evidence);
       const candidate = project(exact[0]!, "isbn", evidence.observedAt, value);
       const alternatives = [...new Set(exact.map((m) => m.id))].slice(1);
       if (alternatives.length) candidate.identityAmbiguous = true;
@@ -159,7 +148,7 @@ export function googlebooksAdapter(
             `inauthor:${quoted(a.literal ?? [a.given, a.family].filter(Boolean).join(" "))}`,
           );
         // Google Books has no publication-year filter: include a plain query term.
-        const year = reference.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
+        const year = issuedYear(reference);
         if (year) terms.push(year);
       }
       const { items, evidence } = await retrieve(

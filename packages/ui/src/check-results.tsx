@@ -13,11 +13,11 @@ import {
   CorrectionSuggestion,
 } from "./correction-suggestions.tsx";
 import { m } from "@source-taster/i18n";
-import { dataSourceNames, dataSourceName } from "./data-source.ts";
 import { CheckSummary } from "./check-summary.tsx";
 import {
   ReferenceOutcomeSummary,
   ReferenceOutcomeView,
+  sourceNames,
 } from "./reference-outcome.tsx";
 
 function RunningStep({ reference }: { reference: ReferenceSlot }) {
@@ -30,8 +30,11 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
     <p>
       {reference.progress === "queued"
         ? m.reference_queued()
-        : dataSourceNames[reference.progress]
-          ? m.reference_source({ source: dataSourceName(reference.progress) })
+        : Object.hasOwn(sourceNames, reference.progress)
+          ? m.reference_source({
+              source:
+                sourceNames[reference.progress as keyof typeof sourceNames],
+            })
           : m.reference_checking()}
     </p>
   );

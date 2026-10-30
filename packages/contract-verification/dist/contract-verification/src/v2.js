@@ -3,9 +3,50 @@
 import { z } from "zod";
 import * as v1 from "./index.js";
 export * from "./index.js";
+const CandidateDataSource = z.enum([
+    "crossref",
+    "openalex",
+    "europepmc",
+    "semanticscholar",
+    "arxiv",
+    "openlibrary",
+    "googlebooks",
+]);
+const SourceName = z.enum(["doi.org", ...CandidateDataSource.options]);
+const Operation = z.enum([
+    "doi",
+    "pmid",
+    "pmcid",
+    "arxiv",
+    "isbn",
+    "combined",
+    "title",
+    "authors-year",
+]);
+/** Version 2 accepts a native arXiv identifier; Version 1 stays unchanged. */
+export const StructuredCsl = v1.StructuredCsl.extend({
+    arXiv: z.string().optional(),
+}).meta({ id: "StructuredCslV2" });
+export const StructuredReference = v1.StructuredReference.extend({
+    csl: StructuredCsl,
+}).meta({ id: "StructuredReferenceV2" });
+export const CreateCheckRequest = z
+    .union([
+    z.object({ text: z.string().trim().min(1) }),
+    z.object({
+        references: z
+            .array(z.object({
+            originalText: z.string().min(1),
+            fields: StructuredCsl,
+            authorsTruncated: z.boolean().optional(),
+        }))
+            .min(1),
+    }),
+])
+    .meta({ id: "CreateCheckRequestV2" });
 export const RetractionEvidence = z
     .object({
-    source: z.enum(["crossref", "openalex"]),
+    source: z.enum(["crossref", "openalex", "europepmc"]),
     candidateId: z.string(),
     observedAt: z.string(),
 })
@@ -32,38 +73,17 @@ export const FieldComparison = v1.FieldComparison.extend({
         .optional(),
 }).meta({ id: "FieldComparisonV2" });
 export const Candidate = v1.Candidate.extend({
+    csl: StructuredCsl,
     fields: z.array(FieldComparison),
-    source: z.enum(["crossref", "openalex", "openlibrary", "googlebooks"]),
-    origin: z.enum([
-        "doi",
-        "pmid",
-        "pmcid",
-        "isbn",
-        "combined",
-        "title",
-        "authors-year",
-    ]),
+    source: CandidateDataSource,
+    origin: Operation,
     identifiers: z.array(z.string()).optional(),
     identityAmbiguous: z.boolean().optional(),
     retractionEvidence: RetractionEvidence.optional(),
 }).meta({ id: "CandidateV2" });
 export const SourceEvidence = v1.SourceEvidence.extend({
-    source: z.enum([
-        "doi.org",
-        "crossref",
-        "openalex",
-        "openlibrary",
-        "googlebooks",
-    ]),
-    operation: z.enum([
-        "doi",
-        "pmid",
-        "pmcid",
-        "isbn",
-        "combined",
-        "title",
-        "authors-year",
-    ]),
+    source: SourceName,
+    operation: Operation,
     outcome: z.enum([
         "exists",
         "nonexistent",
@@ -79,6 +99,7 @@ export const SourceEvidence = v1.SourceEvidence.extend({
     identifierAmbiguity: z.array(z.string()).optional(),
 }).meta({ id: "SourceEvidenceV2" });
 export const VerdictResult = v1.VerdictResult.extend({
+    reference: StructuredReference,
     identity: v1.VerdictResult.shape.identity.extend({
         kind: z.enum([
             "supplied-doi",
@@ -87,7 +108,9 @@ export const VerdictResult = v1.VerdictResult.extend({
             "unresolved",
         ]),
     }),
-    candidates: z.array(Candidate).max(20),
+    // Five Candidate slots for each Data source of the widest route (article:
+    // OpenAlex, Crossref, Europe PMC, Semantic Scholar, arXiv).
+    candidates: z.array(Candidate).max(25),
     evidence: z.array(SourceEvidence),
     reasons: z.array(z.enum([
         ...v1.VerdictResult.shape.reasons.element.options,
@@ -97,7 +120,7 @@ export const VerdictResult = v1.VerdictResult.extend({
         "insufficient-search",
         "sources-unavailable",
     ])),
-    failedSources: z.array(z.enum(["doi.org", "crossref", "openalex", "openlibrary", "googlebooks"])),
+    failedSources: z.array(SourceName),
     retraction: z.enum(["unknown", "retracted"]),
     retractionEvidence: z.array(RetractionEvidence).optional(),
 }).meta({ id: "VerdictResultV2" });
@@ -110,6 +133,9 @@ export const ReferenceOutcome = z
 export const ReferenceProgress = z.enum([
     ...v1.ReferenceProgress.options,
     "openalex",
+    "europepmc",
+    "semanticscholar",
+    "arxiv",
     "openlibrary",
     "googlebooks",
 ]);

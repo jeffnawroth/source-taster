@@ -14,10 +14,16 @@ import {
   type Candidate,
   type DoiResolver,
   type Evidence,
+  type CandidateDataSource,
+  type TransportFailure,
   type RetrievedCandidate,
   type ScoringRules,
   type VerdictResult,
 } from "./verification.ts";
+import {
+  flattenSearchSettings,
+  type SearchSettings,
+} from "./search-settings.ts";
 const bookTypes = new Set([
   "book",
   "chapter",
@@ -29,64 +35,120 @@ const bookTypes = new Set([
 ]);
 export const isBookReference = (type?: string) => bookTypes.has(type ?? "");
 export type QueryKind = "combined" | "title" | "authors-year";
-export type IdentifierKind = "doi" | "pmid" | "pmcid" | "isbn";
+export type IdentifierKind = "doi" | "pmid" | "pmcid" | "arxiv" | "isbn";
 export interface BibliographicSource {
-  name: "openalex" | "crossref" | "openlibrary" | "googlebooks";
+  name: CandidateDataSource;
   identifiers: readonly IdentifierKind[];
   lookup(
     kind: IdentifierKind,
     value: string,
     deadline: number,
   ): Promise<{ candidate?: RetrievedCandidate; evidence: Evidence }>;
-  search(
+  /** Absent for identifier-only access such as direct arXiv. */
+  search?(
     reference: Csl,
     kind: QueryKind,
     deadline: number,
   ): Promise<{ candidates: RetrievedCandidate[]; evidence: Evidence }>;
 }
+// ADR-0007 article route. Each identifier goes to its responsible sources in
+// order; a later source is asked only while no earlier one supplied the record.
+export const identifierRoutes: Readonly<
+  Record<IdentifierKind, readonly CandidateDataSource[]>
+> = Object.freeze({
+  doi: ["openalex", "crossref"],
+  pmid: ["openalex", "europepmc"],
+  pmcid: ["openalex", "europepmc"],
+  arxiv: ["semanticscholar", "arxiv"],
+  isbn: ["openlibrary", "googlebooks"],
+});
+export const searchOrder: readonly CandidateDataSource[] = [
+  "openalex",
+  "crossref",
+  "europepmc",
+  "semanticscholar",
+];
+/** ADR-0007 book route: bibliographic searches after DOI and ISBN lookup. */
+export const bookSearchOrder: readonly CandidateDataSource[] = [
+  "openalex",
+  "crossref",
+  "openlibrary",
+  "googlebooks",
+];
+const articleSources: readonly CandidateDataSource[] = [
+  ...searchOrder,
+  "arxiv",
+];
 export const articleSearchConfiguration = Object.freeze({
-  ...doiTracerLimits,
+  referenceDeadlineMs: doiTracerLimits.referenceDeadlineMs,
+  maxResponseBytes: doiTracerLimits.maxResponseBytes,
+  candidateBudget: doiTracerLimits.candidateBudget,
   ...comparisonLimits,
-  openalexRequestsPerSecond: 1,
-  openalexConcurrency: 1,
   openalexPool: "unauthenticated-development",
-  providerOrder: "openalex,crossref",
+  semanticscholarPool: "unauthenticated-development",
+  providerOrder: searchOrder.join(","),
   candidateAllocation:
     "identifier(0-3),combined,title,authors-year,title,authors-year;carry-forward-received-only",
-  identifierOrder: "DOI,PMID,PMCID",
-  implementedIdentifierRoutes: "openalex:DOI,PMID;crossref:DOI",
-  unimplementedCapabilities:
-    "PMCID,arXiv,ISBN,book,web,Europe-PMC,Semantic-Scholar",
+  identifierOrder: "DOI,PMID,PMCID,arXiv",
+  identifierRoutes:
+    "DOI:openalex,crossref;PMID:openalex,europepmc;PMCID:openalex,europepmc;arXiv:semanticscholar,arxiv",
+  implementedIdentifierRoutes:
+    "openalex:DOI,PMID;crossref:DOI;europepmc:PMID,PMCID;semanticscholar:arXiv;arxiv:arXiv",
+  unimplementedCapabilities: "ISBN,book,web,cross-process-identifier-batching",
+  identifierBatching:
+    "process-local;semanticscholar-window-then-permit;arxiv-until-permit-latest-deadline-carrier;arxiv-record-form-only;entry-demultiplexed-2",
   negativeCoverage:
-    "development-openalex-and-crossref-complete-title-author-year",
+    "development-openalex-and-crossref-and-every-enabled-search-source-complete-title-author-year",
+  failureHandling:
+    "continue-and-name-transport-failed;http-error-per-call;timeout-or-rate-budget-skips-remaining-source-calls;data-findings-not-failed;all-applicable-transport-failed-not-verifiable",
   nameProjection: "openalex-display-name-last-token-family-1",
-  receivedEvidence: "normalized-pmcid-affirmative-retraction-1",
+  receivedEvidence: "normalized-pmcid-arxiv-affirmative-retraction-2",
   identityEvidence: "consistent-connected-groups-counterevidence-4",
 });
 // Article Verdict derivation (identity groups, missing comparisons and
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
-export const articleVerdictRules = "article-verdict-77-9";
+export const articleVerdictRules = "article-verdict-78-2";
+// ADR-0007 per-call rule: an HTTP error or unreachable source is retried at
+// most once per call, and later operations of that source still run. Only a
+// timeout or an exhausted rate budget makes a Data source unavailable for the
+// rest of the Reference, so one slow source cannot spend the whole deadline.
+const sourceExhausted = new Set(["timeout", "rate-budget"]);
+// Only transport failures make a Data source failed. A data finding such as
+// identifier-mismatch or invalid-metadata still blocks Not found, but the
+// source answered and is never named as failed (ADR-0007).
+export const transportFailures: ReadonlySet<string> = new Set<TransportFailure>(
+  [
+    "timeout",
+    "rate-budget",
+    "http-error",
+    "request-unavailable",
+    "deadline",
+    "after-source-failure",
+  ],
+);
+const failed = (e: Evidence) =>
+  e.outcome === "unavailable" && transportFailures.has(e.reason ?? "");
 export const bookSearchConfiguration = Object.freeze({
   route: "book",
   identifierOrder: "DOI,ISBN",
+  identifierRoutes: "DOI:openalex,crossref;ISBN:openlibrary,googlebooks",
   identifierSources: "openlibrary,googlebooks",
-  providerOrder: "openalex,crossref,openlibrary,googlebooks",
+  providerOrder: bookSearchOrder.join(","),
   implementedIdentifierRoutes:
     "openalex:DOI;crossref:DOI;openlibrary:ISBN;googlebooks:ISBN",
-  unimplementedCapabilities: "PMCID,arXiv,web,Europe-PMC,Semantic-Scholar",
+  unimplementedCapabilities:
+    "PMID,PMCID,arXiv,web,Europe-PMC,Semantic-Scholar,cross-process-identifier-batching",
+  identifierBatching: "none",
   negativeCoverage: "all-four-book-sources-complete-title-author-year",
   isbnNormalization: "validated-isbn13-1",
-  openlibraryRequestsPerSecond: 3,
-  googlebooksRequestsPerSecond: 1,
-  sourceFailurePolicy: "stop-failed-source-1",
 });
-export interface CatalogRates {
-  openlibrary: number;
-  googlebooks: number;
-}
-
+// Book Verdict derivation (ISBN/edition identity) beyond the article rules.
+export const bookVerdictRules = "book-verdict-79-3-isbn-edition";
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
+/** A four-digit publication year in the issued date, if any. */
+export const issuedYear = (csl: Csl) =>
+  csl.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
 export const normalizePmid = (value: string) =>
   value
     .trim()
@@ -101,17 +163,38 @@ export const normalizePmcid = (value: string) =>
       "",
     )
     .toUpperCase();
+/** Version-free native arXiv identifier (new and old schemes). */
+export const normalizeArxiv = (value: string) =>
+  value
+    .trim()
+    .replace(/\/+$/u, "")
+    .replace(
+      /^(?:https?:\/\/(?:www\.|export\.)?arxiv\.org\/(?:abs|pdf)\/|arxiv:\s*)/iu,
+      "",
+    )
+    .replace(/\.pdf$/iu, "")
+    .replace(/v\d+$/u, "");
+const identifierKeys = {
+  doi: "DOI",
+  pmid: "PMID",
+  pmcid: "PMCID",
+  arxiv: "arXiv",
+  isbn: "ISBN",
+} as const;
+const normalizers = {
+  DOI: normalizeDoi,
+  PMID: normalizePmid,
+  PMCID: normalizePmcid,
+  arXiv: normalizeArxiv,
+  // Canonical ISBN-13; an invalid checksum normalizes to no identifier.
+  ISBN: (value: string) => normalizeIsbn(value) ?? "",
+} as const;
 function sourceRelation(a: RetrievedCandidate, b: RetrievedCandidate) {
   let shared = a.source === b.source && a.id === b.id;
   let conflicting = false;
-  for (const key of ["DOI", "PMID", "PMCID"] as const) {
+  for (const key of ["DOI", "PMID", "PMCID", "arXiv"] as const) {
     if (!a.csl[key] || !b.csl[key]) continue;
-    const normalize =
-      key === "DOI"
-        ? normalizeDoi
-        : key === "PMCID"
-          ? normalizePmcid
-          : normalizePmid;
+    const normalize = normalizers[key];
     if (normalize(a.csl[key]) !== normalize(b.csl[key])) conflicting = true;
     else shared = true;
   }
@@ -165,24 +248,24 @@ export function createBibliographicVerification(ports: {
   now(): number;
   rules: ScoringRules;
   parameters: ComparisonProfile;
-  catalogRates?: CatalogRates;
+  settings: SearchSettings;
+  /** Identity of the exact settings, computed by the composition root. */
+  settingsVersion: string;
 }) {
   return async (
     reference: StructuredReference,
     execution?: { startedAt: number },
   ): Promise<VerdictResult> => {
     const profile = ports.parameters;
-    const catalogRates = ports.catalogRates ?? {
-      openlibrary: bookSearchConfiguration.openlibraryRequestsPerSecond,
-      googlebooks: bookSearchConfiguration.googlebooksRequestsPerSecond,
-    };
     const deadline =
       (execution?.startedAt ?? ports.now()) +
       doiTracerLimits.referenceDeadlineMs;
     const book = isBookReference(reference.csl.type);
-    const sources = ports.sources.filter(
-      (s) => book || !["openlibrary", "googlebooks"].includes(s.name),
-    );
+    // ADR-0007 routes: each route only asks its own Data sources.
+    const routeSources: readonly CandidateDataSource[] = book
+      ? bookSearchOrder
+      : articleSources;
+    const sources = ports.sources.filter((s) => routeSources.includes(s.name));
     const result: VerdictResult = {
       kind: "verdict",
       verdict: "not-verifiable",
@@ -191,9 +274,10 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-77-9-identity-evidence-${sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-78-4-${sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
+        ...flattenSearchSettings(ports.settings),
         enabledSources: sources.map((s) => s.name).join(","),
       },
       identity: { kind: "unresolved" },
@@ -223,12 +307,9 @@ export function createBibliographicVerification(ports: {
       return result;
     }
     if (book) {
-      result.scoringRules.version += "-book-verdict-79-2-isbn-edition";
-      result.searchStrategyVersion = `book-search-79-3-${sources.map((s) => s.name).join("-")}-${catalogRates.openlibrary}-${catalogRates.googlebooks}-uncalibrated`;
-      Object.assign(result.searchConfiguration, bookSearchConfiguration, {
-        openlibraryRequestsPerSecond: catalogRates.openlibrary,
-        googlebooksRequestsPerSecond: catalogRates.googlebooks,
-      });
+      result.scoringRules.version += `-${bookVerdictRules}`;
+      result.searchStrategyVersion = `book-search-79-4-${sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`;
+      Object.assign(result.searchConfiguration, bookSearchConfiguration);
     }
     const doi = reference.csl.DOI ? normalizeDoi(reference.csl.DOI) : undefined;
     let resolution: Evidence | undefined;
@@ -255,7 +336,9 @@ export function createBibliographicVerification(ports: {
           >(),
           offsets: new Map<QueryKind, number>(),
           complete: true,
-          failed: false,
+          // Set after a timeout or rate-budget failure: this source's
+          // remaining calls are recorded as after-source-failure, not sent.
+          exhausted: false,
         },
       ]),
     );
@@ -527,87 +610,74 @@ export function createBibliographicVerification(ports: {
                 "early-termination",
               ),
             );
-      if (book)
-        for (const source of ["openlibrary", "googlebooks"] as const)
-          if (!states.has(source))
-            result.evidence.push(
-              note(source, "combined", "disabled", "operator-disabled"),
-            );
-      if (!states.has("openalex"))
+      // Disabled is not failed: recorded, never part of the failure set.
+      for (const name of book ? bookSearchOrder : searchOrder)
+        if (!states.has(name))
+          result.evidence.push(
+            note(name, "combined", "disabled", "operator-disabled"),
+          );
+      if (!book && reference.csl.arXiv && !states.has("arxiv"))
         result.evidence.push(
-          note("openalex", "combined", "disabled", "operator-disabled"),
+          note("arxiv", "arxiv", "disabled", "operator-disabled"),
         );
       result.failedSources = [
-        ...new Set(
-          result.evidence
-            .filter((e) => e.outcome === "unavailable")
-            .map((e) => e.source),
-        ),
+        ...new Set(result.evidence.filter(failed).map((e) => e.source)),
       ];
       return result;
     }
+    type State = NonNullable<ReturnType<typeof states.get>>;
+    function attempted(state: State, evidence: Evidence) {
+      result.evidence.push(evidence);
+      if (evidence.outcome === "unavailable") state.complete = false;
+      // A source that timed out or was rate-limited is not asked again for
+      // this Reference; the search continues with the other sources.
+      if (failed(evidence) && sourceExhausted.has(evidence.reason!))
+        state.exhausted = true;
+    }
+    // DOI handling precedes the other identifiers (ADR-0007).
     const identifiers: [IdentifierKind, string | undefined][] = [
       ["doi", doi],
-      ...(!book
-        ? ([
-            ["pmid", reference.csl.PMID],
-            ["pmcid", reference.csl.PMCID],
-          ] as [IdentifierKind, string | undefined][])
-        : ([["isbn", reference.csl.ISBN]] as [
+      ...(book
+        ? ([["isbn", reference.csl.ISBN]] as [
             IdentifierKind,
             string | undefined,
-          ][])),
+          ][])
+        : ([
+            ["pmid", reference.csl.PMID],
+            ["pmcid", reference.csl.PMCID],
+            ["arxiv", reference.csl.arXiv],
+          ] as [IdentifierKind, string | undefined][])),
     ];
     let unsupportedIdentifier = false;
     for (const [kind, raw] of identifiers) {
       if (!raw) continue;
-      if (!sources.some((source) => source.identifiers.includes(kind))) {
-        unsupportedIdentifier = true;
-        result.evidence.push(
-          note(
-            "openalex",
-            kind,
-            "unsupported",
-            "identifier-capability-unavailable",
-          ),
-        );
-        continue;
-      }
-      const value =
-        kind === "pmid"
-          ? normalizePmid(raw)
-          : kind === "pmcid"
-            ? normalizePmcid(raw)
-            : kind === "isbn"
-              ? normalizeIsbn(raw)
-              : raw;
+      const key = identifierKeys[kind];
+      const value = kind === "doi" ? raw : normalizers[key](raw);
+      // A malformed or checksum-invalid identifier cannot be looked up.
       if (!value) {
         unsupportedIdentifier = true;
         continue;
       }
-      for (const state of states.values()) {
-        if (
-          (book && state.failed) ||
-          !state.source.identifiers.includes(kind) ||
-          state.candidates.length >= 3
-        )
+      let routed = false;
+      for (const name of identifierRoutes[kind]) {
+        const state = states.get(name);
+        // Operator-disabled sources are noted once by finish().
+        if (!state) continue;
+        if (!state.source.identifiers.includes(kind)) {
+          result.evidence.push(
+            note(
+              name,
+              kind,
+              "unsupported",
+              "identifier-capability-unavailable",
+            ),
+          );
           continue;
-        const key =
-          kind === "doi"
-            ? "DOI"
-            : kind === "pmid"
-              ? "PMID"
-              : kind === "pmcid"
-                ? "PMCID"
-                : "ISBN";
+        }
+        routed = true;
+        if (state.candidates.length >= 3) continue;
         const carried = result.candidates.find(
-          (c) =>
-            c.csl[key] &&
-            (kind === "doi"
-              ? normalizeDoi(c.csl[key]) === value
-              : kind === "isbn"
-                ? normalizeIsbn(c.csl[key]) === value
-                : c.csl[key].toLowerCase() === value.toLowerCase()),
+          (c) => c.csl[key] && normalizers[key](c.csl[key]) === value,
         );
         if (carried) {
           carried.identifiers = [
@@ -615,12 +685,12 @@ export function createBibliographicVerification(ports: {
           ];
           continue;
         }
-        const response = await state.source.lookup(kind, value, deadline);
-        result.evidence.push(response.evidence);
-        if (response.evidence.outcome === "unavailable") {
-          state.complete = false;
-          state.failed = true;
-        }
+        const response = state.exhausted
+          ? {
+              evidence: note(name, kind, "unavailable", "after-source-failure"),
+            }
+          : await state.source.lookup(kind, value, deadline);
+        attempted(state, response.evidence);
         const retrieved = response.candidate;
         if (retrieved) {
           rememberRetractions([retrieved]);
@@ -630,9 +700,11 @@ export function createBibliographicVerification(ports: {
         }
         if (stop()) return finish(true);
       }
+      if (!routed) unsupportedIdentifier = true;
     }
     if (article || book)
       for (const state of states.values()) {
+        if (!state.source.search) continue;
         let carry = 0;
         for (const kind of [
           "combined",
@@ -651,37 +723,34 @@ export function createBibliographicVerification(ports: {
                 : kind === "authors-year"
                   ? !!reference.csl.author?.length
                   : !!reference.csl.title || !!reference.csl.author?.length;
-            received =
-              book && state.failed
+            received = !usable
+              ? {
+                  candidates: [],
+                  evidence: note(
+                    state.source.name,
+                    kind,
+                    "unsupported",
+                    "missing-query-fields",
+                  ),
+                }
+              : state.exhausted
                 ? {
                     candidates: [],
                     evidence: note(
                       state.source.name,
                       kind,
-                      "skipped",
+                      "unavailable",
                       "after-source-failure",
                     ),
                   }
-                : usable
-                  ? await state.source.search(reference.csl, kind, deadline)
-                  : {
-                      candidates: [],
-                      evidence: note(
-                        state.source.name,
-                        kind,
-                        "unsupported",
-                        "missing-query-fields",
-                      ),
-                    };
+                : await state.source.search(reference.csl, kind, deadline);
             received.evidence.skippedDuplicates = [];
             rememberRetractions(received.candidates);
             received.evidence.unusedSlots = 0;
-            result.evidence.push(received.evidence);
+            attempted(state, received.evidence);
             state.received.set(kind, received);
             if (!["candidate", "no-record"].includes(received.evidence.outcome))
               state.complete = false;
-            if (received.evidence.outcome === "unavailable")
-              state.failed = true;
           }
           let filled = 0,
             offset = state.offsets.get(kind) ?? 0;
@@ -708,16 +777,27 @@ export function createBibliographicVerification(ports: {
       result.reasons = ["doi-nonexistent"];
       return finish();
     }
-    if (!mandatoryComplete()) {
-      result.reasons = ["mandatory-resolution-incomplete"];
+    // A total outage of every applicable enabled source is Not verifiable,
+    // never Not found (ADR-0007/0008). Notes are not source responses.
+    const contacted = [...states.values()].map((state) =>
+      result.evidence.filter(
+        (e) =>
+          e.source === state.source.name &&
+          !["skipped", "disabled", "unsupported"].includes(e.outcome),
+      ),
+    );
+    const applicable = contacted.filter((evidence) => evidence.length);
+    if (
+      applicable.length &&
+      applicable.every((evidence) => evidence.every(failed))
+    ) {
+      result.reasons = mandatoryComplete()
+        ? ["sources-unavailable"]
+        : ["sources-unavailable", "mandatory-resolution-incomplete"];
       return finish();
     }
-    if (
-      book &&
-      states.size > 0 &&
-      [...states.values()].every((s) => s.failed)
-    ) {
-      result.reasons = ["sources-unavailable"];
+    if (!mandatoryComplete()) {
+      result.reasons = ["mandatory-resolution-incomplete"];
       return finish();
     }
     if (result.candidates.some(unsafe)) {
@@ -784,15 +864,17 @@ export function createBibliographicVerification(ports: {
       result.reasons = ["ambiguous-identity"];
     else if (
       !unsupportedIdentifier &&
-      (book
-        ? ["openalex", "crossref", "openlibrary", "googlebooks"].every((name) =>
-            sources.some((s) => s.name === name),
-          )
-        : states.size === 2) &&
-      [...states.values()].every((s) => s.complete && s.received.size === 3) &&
+      // Route-specific negative coverage: articles need OpenAlex and
+      // Crossref, books all four book sources; every enabled one completes.
+      (book ? bookSearchOrder : ["openalex", "crossref"]).every((name) =>
+        states.has(name as CandidateDataSource),
+      ) &&
+      [...states.values()].every(
+        (s) => s.complete && (!s.source.search || s.received.size === 3),
+      ) &&
       reference.csl.title &&
       reference.csl.author?.length &&
-      reference.csl.issued?.literal.match(/\b[12]\d{3}\b/u) &&
+      issuedYear(reference.csl) &&
       ports.now() < deadline
     ) {
       result.verdict = "not-found";

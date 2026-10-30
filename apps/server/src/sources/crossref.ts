@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { issuedYear } from "@source-taster/core";
 import type {
   BibliographicSource,
   DataSource,
   RetrievedCandidate,
 } from "@source-taster/core";
-import type { SourceRequest } from "./openalex.ts";
+import { searchResult, type SourceRequest } from "./shared.ts";
 import { z } from "zod";
 export function crossrefAdapter(
   request: SourceRequest,
@@ -69,7 +70,7 @@ export function crossrefAdapter(
         url.searchParams.set("query.title", reference.title!);
       else {
         url.searchParams.set("query.author", authors);
-        const year = reference.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
+        const year = issuedYear(reference);
         if (year)
           url.searchParams.set(
             "filter",
@@ -81,35 +82,10 @@ export function crossrefAdapter(
       const parsed = z
         .object({ message: z.object({ items: z.array(z.unknown()) }) })
         .safeParse(body);
-      const candidates = parsed.success
-        ? parsed.data.message.items.map((m) =>
-            project(m, kind, evidence.observedAt),
-          )
-        : [];
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        !parsed.success ||
-        candidates.some((c) => !c)
-      )
-        return {
-          candidates: [],
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
-      return {
-        candidates: (candidates as RetrievedCandidate[]).map(identified),
-        evidence: {
-          ...evidence,
-          outcome: candidates.length ? "candidate" : "no-record",
-          reason: undefined,
-        },
-      };
+      const page = searchResult(evidence, parsed.data?.message.items, (m) =>
+        project(m, kind, evidence.observedAt),
+      );
+      return { ...page, candidates: page.candidates.map(identified) };
     },
   };
 }

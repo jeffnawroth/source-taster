@@ -6,10 +6,12 @@
 import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
 import {
   createDevelopmentProfile,
+  defaultSearchSettings,
+  referenceDeadlineMs,
   type ComparisonProfile,
-  type CatalogRates,
-  bookSearchConfiguration,
+  type SearchSettings,
 } from "@source-taster/core";
+import { z } from "zod";
 import { resolve } from "node:path";
 import {
   assertPreviewAllowed,
@@ -29,11 +31,18 @@ export interface Config {
   bibliographicPreview?: boolean;
   openalexEnabled?: boolean;
   openalexBase?: string;
+  europepmcEnabled?: boolean;
+  europepmcBase?: string;
+  semanticscholarEnabled?: boolean;
+  semanticscholarBase?: string;
+  arxivEnabled?: boolean;
+  arxivBase?: string;
   openlibraryEnabled?: boolean;
   openlibraryBase?: string;
   googlebooksEnabled?: boolean;
   googlebooksBase?: string;
-  catalogRates?: CatalogRates;
+  /** Operator-changeable search operating settings (spec #70, ADR-0007). */
+  searchSettings: SearchSettings;
   comparisonProfile: ComparisonProfile;
   resolverBase: string;
   crossrefBase: string;
@@ -110,17 +119,35 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new ConfigError(
       "Bibliographic search requires the uncalibrated development profile.",
     );
-  if (
-    env.SOURCE_TASTER_OPENALEX_ENABLED &&
-    !["true", "false"].includes(env.SOURCE_TASTER_OPENALEX_ENABLED)
-  )
-    throw new ConfigError("OpenAlex enablement must be true or false.");
+  for (const [name, label] of [
+    ["OPENALEX", "OpenAlex"],
+    ["EUROPEPMC", "Europe PMC"],
+    ["SEMANTICSCHOLAR", "Semantic Scholar"],
+    ["ARXIV", "arXiv"],
+    ["OPENLIBRARY", "Open Library"],
+    ["GOOGLEBOOKS", "Google Books"],
+  ] as const) {
+    const value = env[`SOURCE_TASTER_${name}_ENABLED`];
+    if (value && !["true", "false"].includes(value))
+      throw new ConfigError(`${label} enablement must be true or false.`);
+  }
+  let searchSettings: SearchSettings;
+  try {
+    searchSettings = parseSearchSettings(env.SOURCE_TASTER_SEARCH_SETTINGS);
+  } catch {
+    throw new ConfigError("Invalid ADR-0007 search operating settings.");
+  }
+  if (env.SOURCE_TASTER_SEARCH_SETTINGS && !bibliographicPreview)
+    throw new ConfigError(
+      "Search operating settings require the bibliographic development preview.",
+    );
+  // The catalog rates are search operating settings; a separate rate variable
+  // would be a second, silently ignored mechanism.
   for (const name of ["OPENLIBRARY", "GOOGLEBOOKS"])
-    if (
-      env[`SOURCE_TASTER_${name}_ENABLED`] &&
-      !["true", "false"].includes(env[`SOURCE_TASTER_${name}_ENABLED`]!)
-    )
-      throw new ConfigError(`${name} enablement must be true or false.`);
+    if (env[`SOURCE_TASTER_${name}_REQUESTS_PER_SECOND`] !== undefined)
+      throw new ConfigError(
+        `SOURCE_TASTER_${name}_REQUESTS_PER_SECOND is replaced by intervalMs in SOURCE_TASTER_SEARCH_SETTINGS.`,
+      );
   let comparisonProfile: ComparisonProfile;
   try {
     comparisonProfile = createDevelopmentProfile(
@@ -172,6 +199,25 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       "SOURCE_TASTER_OPENALEX_BASE_URL",
       "https://api.openalex.org",
     ),
+    europepmcEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_EUROPEPMC_ENABLED === "true",
+    europepmcBase: endpoint(
+      "SOURCE_TASTER_EUROPEPMC_BASE_URL",
+      "https://www.ebi.ac.uk",
+    ),
+    semanticscholarEnabled:
+      bibliographicPreview &&
+      env.SOURCE_TASTER_SEMANTICSCHOLAR_ENABLED === "true",
+    semanticscholarBase: endpoint(
+      "SOURCE_TASTER_SEMANTICSCHOLAR_BASE_URL",
+      "https://api.semanticscholar.org",
+    ),
+    arxivEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_ARXIV_ENABLED === "true",
+    arxivBase: endpoint(
+      "SOURCE_TASTER_ARXIV_BASE_URL",
+      "https://export.arxiv.org",
+    ),
     openlibraryEnabled:
       bibliographicPreview && env.SOURCE_TASTER_OPENLIBRARY_ENABLED === "true",
     openlibraryBase: endpoint(
@@ -184,18 +230,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       "SOURCE_TASTER_GOOGLEBOOKS_BASE_URL",
       "https://www.googleapis.com",
     ),
-    catalogRates: {
-      openlibrary: positiveRate(
-        env,
-        "SOURCE_TASTER_OPENLIBRARY_REQUESTS_PER_SECOND",
-        bookSearchConfiguration.openlibraryRequestsPerSecond,
-      ),
-      googlebooks: positiveRate(
-        env,
-        "SOURCE_TASTER_GOOGLEBOOKS_REQUESTS_PER_SECOND",
-        bookSearchConfiguration.googlebooksRequestsPerSecond,
-      ),
-    },
+    searchSettings,
     comparisonProfile,
     resolverBase: endpoint(
       "SOURCE_TASTER_DOI_RESOLVER_BASE_URL",
@@ -221,12 +256,75 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   };
 }
 
-function positiveRate(env: NodeJS.ProcessEnv, name: string, fallback: number) {
-  const value = env[name] === undefined ? fallback : Number(env[name]);
-  if (!Number.isFinite(value) || value <= 0)
-    throw new ConfigError(`${name} must be a positive finite number.`);
-  return value;
+// A request and a permit wait both stay within the Reference deadline.
+const sourceSettings = z.strictObject({
+  requestTimeoutMs: z
+    .number()
+    .int()
+    .min(100)
+    .max(referenceDeadlineMs)
+    .optional(),
+  intervalMs: z.number().int().min(0).max(60000).optional(),
+  searchIntervalMs: z.number().int().min(0).max(60000).optional(),
+  concurrency: z.number().int().min(1).max(100).optional(),
+  maxWaitMs: z.number().int().min(0).max(referenceDeadlineMs).optional(),
+});
+// Identifier batching only exists for the sources that batch (ADR-0007).
+const batchedSettings = {
+  semanticscholar: sourceSettings.extend({
+    // API bound: 500 identifiers; ADR-0007: collect for at most 200 ms.
+    batchSize: z.number().int().min(1).max(500).optional(),
+    batchWindowMs: z.number().int().min(0).max(200).optional(),
+  }),
+  arxiv: sourceSettings.extend({
+    // API bound: at most 2000 results per request.
+    batchSize: z.number().int().min(1).max(2000).optional(),
+    batchWindowMs: z.number().int().min(0).max(3000).optional(),
+  }),
+} as Record<string, typeof sourceSettings>;
+const searchSettingsPatch = z.strictObject({
+  // ADR-0007 bounds: at most one retry, after a Retry-After of at most 2 s.
+  maxRetries: z.number().int().min(0).max(1).optional(),
+  retryAfterMaxMs: z.number().int().min(0).max(2000).optional(),
+  activeReferencesPerCheck: z.number().int().min(1).max(1000).optional(),
+  workerConcurrency: z.number().int().min(1).max(1000).optional(),
+  sources: z
+    .strictObject(
+      Object.fromEntries(
+        Object.keys(defaultSearchSettings.sources).map((name) => [
+          name,
+          (batchedSettings[name] ?? sourceSettings).optional(),
+        ]),
+      ),
+    )
+    .optional(),
+});
+/** Partial JSON overrides merged over the default search settings. */
+function parseSearchSettings(raw: string | undefined): SearchSettings {
+  const patch = searchSettingsPatch.parse(raw ? JSON.parse(raw) : {});
+  const { sources = {}, ...rest } = patch;
+  const merged = Object.fromEntries(
+    Object.entries(defaultSearchSettings.sources).map(([name, values]) => [
+      name,
+      {
+        ...values,
+        ...Object.fromEntries(
+          Object.entries(sources[name] ?? {}).filter(
+            ([, v]) => v !== undefined,
+          ),
+        ),
+      },
+    ]),
+  ) as SearchSettings["sources"];
+  return {
+    ...defaultSearchSettings,
+    ...Object.fromEntries(
+      Object.entries(rest).filter(([, v]) => v !== undefined),
+    ),
+    sources: merged,
+  };
 }
+
 function integer(
   env: NodeJS.ProcessEnv,
   name: string,

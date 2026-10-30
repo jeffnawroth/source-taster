@@ -267,3 +267,57 @@ for (const language of ["en", "de"] as const)
         ).violations,
       ).toEqual([]);
     });
+for (const language of ["en", "de"] as const)
+  test(`names a failed Data source instead of reporting Not found in ${language}`, async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
+      .selectOption(language);
+    await page
+      .getByRole("textbox")
+      .fill(
+        "Zed, Z. (2021). Synthetic unavailable article. Synthetic Journal, 1, 1–2.",
+      );
+    await page
+      .getByRole("button", {
+        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        exact: true,
+      })
+      .click();
+    const result = page.getByRole("region", {
+      name: /^(Reference detail|Referenzdetails)$/,
+      exact: true,
+    });
+    await expect(
+      result.getByText(
+        language === "en" ? "Not verifiable" : "Nicht verifizierbar",
+        { exact: true },
+      ),
+    ).toBeVisible({ timeout: 15000 });
+    await expect(
+      result.getByText(language === "en" ? "Not found" : "Nicht gefunden", {
+        exact: true,
+      }),
+    ).toHaveCount(0);
+    const failed = result.getByRole("region", {
+      name:
+        language === "en"
+          ? "Data sources that failed"
+          : "Ausgefallene Datenquellen",
+      exact: true,
+    });
+    await expect(failed.getByRole("listitem")).toHaveText([
+      language === "en"
+        ? "Europe PMC: returned an error or could not be reached"
+        : "Europe PMC: hat einen Fehler gemeldet oder war nicht erreichbar",
+    ]);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+  });

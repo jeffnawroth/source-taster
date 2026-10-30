@@ -89,7 +89,7 @@ async function run(fields: Csl, apiMajor = 2): Promise<VerdictResult> {
   const stream = await fetch(
     `${service.apiUrl}/v${apiMajor}/checks/${check.id}/events`,
     {
-      signal: AbortSignal.timeout(35000),
+      signal: AbortSignal.timeout(40000),
     },
   );
   for await (const frame of readSseFrames(stream.body!)) JSON.parse(frame.data);
@@ -313,8 +313,11 @@ it("continues after a synthetic Google Books 429 and names the failed Data sourc
   );
   expect(gb.requests).toHaveLength(1);
 });
+// #78 rules: a 503 is a per-call http-error, so every operation of every
+// book source is attempted (with one retry) before the total outage counts.
 it("returns Not verifiable and names every Data source when all responsible sources fail", async () => {
   ol.respond("/api/books", 503, {});
+  ol.respond("/search.json", 503, {});
   gb.respond("/books/v1/volumes", 503, {});
   oa.respond("/works", 503, {});
   cr.respond("/works", 503, {});
@@ -327,13 +330,17 @@ it("returns Not verifiable and names every Data source when all responsible sour
     "openalex",
     "crossref",
   ]);
-  expect(result.evidence.filter((e) => e.attempts > 0)).toHaveLength(4);
+  const contacted = result.evidence.filter((e) => e.attempts > 0);
+  expect(contacted).toHaveLength(14);
   expect(
-    result.evidence
-      .filter((e) => e.outcome === "unavailable")
-      .every((e) => e.attempts === 2),
+    contacted.every(
+      (e) =>
+        e.outcome === "unavailable" &&
+        e.reason === "http-error" &&
+        e.attempts === 2,
+    ),
   ).toBe(true);
-});
+}, 45_000);
 it("never treats one catalog outage as a completed negative search", async () => {
   ol.respond("/api/books", 503, {});
   const result = await run(book);
@@ -342,10 +349,18 @@ it("never treats one catalog outage as a completed negative search", async () =>
   expect(result.evidence).toContainEqual(
     expect.objectContaining({
       source: "openlibrary",
+      operation: "isbn",
+      outcome: "unavailable",
+      reason: "http-error",
+      attempts: 2,
+    }),
+  );
+  // An http-error is per call (#78): the source's searches still run.
+  expect(result.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "openlibrary",
       operation: "combined",
-      outcome: "skipped",
-      reason: "after-source-failure",
-      attempts: 0,
+      outcome: "no-record",
     }),
   );
 });
@@ -479,23 +494,50 @@ it("includes an ISBN Candidate in the same five slots as Google Books bibliograp
     result.evidence.filter((e) => e.source === "googlebooks" && e.attempts > 0),
   ).toHaveLength(4);
 });
+// Catalog rates are ADR-0007 per-source settings (#78), not separate env vars.
 it("records Operator catalog rate changes in a new Search strategy version", async () => {
   ol.respond("/api/books", 200, isbnFixture);
   const initial = await run(book);
   try {
     await service.restart({
-      SOURCE_TASTER_OPENLIBRARY_REQUESTS_PER_SECOND: "2",
+      SOURCE_TASTER_SEARCH_SETTINGS: JSON.stringify({
+        sources: { openlibrary: { intervalMs: 500 } },
+      }),
     });
     const changed = await run(book);
-    expect(changed.searchConfiguration.openlibraryRequestsPerSecond).toBe(2);
-    expect(initial.searchConfiguration.openlibraryRequestsPerSecond).toBe(3);
+    expect(changed.searchConfiguration["settings.openlibrary.intervalMs"]).toBe(
+      500,
+    );
+    expect(initial.searchConfiguration["settings.openlibrary.intervalMs"]).toBe(
+      334,
+    );
     expect(changed.searchStrategyVersion).not.toBe(
       initial.searchStrategyVersion,
     );
   } finally {
-    await service.restart({
-      SOURCE_TASTER_OPENLIBRARY_REQUESTS_PER_SECOND: "3",
-    });
+    await service.restart({ SOURCE_TASTER_SEARCH_SETTINGS: "" });
+  }
+});
+it.each([
+  "SOURCE_TASTER_OPENLIBRARY_REQUESTS_PER_SECOND",
+  "SOURCE_TASTER_GOOGLEBOOKS_REQUESTS_PER_SECOND",
+])("refuses the replaced catalog rate variable %s at startup", async (name) => {
+  const { startProcess } = await import("./support/processes.ts");
+  const process = startProcess(
+    "worker",
+    {
+      SOURCE_TASTER_MODE: "standalone",
+      DATABASE_URL: "postgres://unused:unused@127.0.0.1:1/unused",
+      SOURCE_TASTER_DOI_PREVIEW: "uncalibrated",
+      SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+      [name]: "2",
+    },
+    { inheritEnv: false },
+  );
+  try {
+    expect(await process.exited).toBe(78);
+  } finally {
+    await process.stop();
   }
 });
 it("excludes Operator-disabled catalogs from failures without inventing complete negative coverage", async () => {

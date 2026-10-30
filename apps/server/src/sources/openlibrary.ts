@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import {
+  issuedYear,
   normalizeIsbn,
   type BibliographicSource,
   type Csl,
   type RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
-import { projectDisplayName } from "./names.ts";
-import type { SourceRequest } from "./openalex.ts";
+import {
+  answered,
+  displayName,
+  mismatch,
+  noRecord,
+  unreadable,
+  type SourceRequest,
+} from "./shared.ts";
 const edition = z.object({
   key: z.string().regex(/^\/books\/OL\d+M$/u),
   title: z.string(),
@@ -49,29 +56,10 @@ export function openlibraryAdapter(
       const response = z.record(z.string(), z.unknown()).safeParse(body);
       const raw = response.success ? response.data[`ISBN:${value}`] : undefined;
       const parsed = edition.safeParse(raw);
-      if (
-        evidence.reason === "response" &&
-        evidence.status === 200 &&
-        response.success &&
-        raw === undefined
-      )
-        return {
-          evidence: { ...evidence, outcome: "no-record", reason: undefined },
-        };
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        !parsed.success
-      )
-        return {
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
+      if (answered(evidence) && response.success && raw === undefined)
+        return noRecord(evidence);
+      if (!answered(evidence) || !parsed.success)
+        return { evidence: unreadable(evidence) };
       const m = parsed.data;
       if (
         ![
@@ -79,13 +67,13 @@ export function openlibraryAdapter(
           ...(m.identifiers?.isbn_13 ?? []),
         ].some((isbn) => normalizeIsbn(isbn) === value)
       )
-        return { evidence: { ...evidence, reason: "identifier-mismatch" } };
+        return mismatch(evidence);
       const csl: Csl = {
         type: "book",
         title: m.title,
         ISBN: value,
         ...(m.authors
-          ? { author: m.authors.map((a) => projectDisplayName(a.name)) }
+          ? { author: m.authors.map((a) => displayName(a.name)) }
           : {}),
         ...(m.publish_date ? { issued: { literal: m.publish_date } } : {}),
         ...(m.publishers?.[0] ? { publisher: m.publishers[0].name } : {}),
@@ -118,7 +106,7 @@ export function openlibraryAdapter(
             )
             .join(" "),
         );
-      const year = reference.issued?.literal.match(/\b[12]\d{3}\b/u)?.[0];
+      const year = issuedYear(reference);
       if (kind !== "title" && year) url.searchParams.set("publish_year", year);
       url.searchParams.set("limit", "5");
       url.searchParams.set("fields", "key,title,author_name,publish_year");
@@ -129,21 +117,8 @@ export function openlibraryAdapter(
         kind,
       );
       const parsed = z.object({ docs: z.array(work) }).safeParse(body);
-      if (
-        evidence.reason !== "response" ||
-        evidence.status !== 200 ||
-        !parsed.success
-      )
-        return {
-          candidates: [],
-          evidence: {
-            ...evidence,
-            reason:
-              evidence.reason === "response"
-                ? "invalid-metadata"
-                : evidence.reason,
-          },
-        };
+      if (!answered(evidence) || !parsed.success)
+        return { candidates: [], evidence: unreadable(evidence) };
       const candidates: RetrievedCandidate[] = parsed.data.docs
         .slice(0, 5)
         .map((m) => ({
@@ -159,7 +134,7 @@ export function openlibraryAdapter(
             type: "book",
             title: m.title,
             ...(m.author_name
-              ? { author: m.author_name.map(projectDisplayName) }
+              ? { author: m.author_name.map(displayName) }
               : {}),
             ...(m.publish_year?.length === 1
               ? { issued: { literal: String(m.publish_year[0]) } }
