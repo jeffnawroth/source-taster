@@ -95,3 +95,30 @@ Independent review findings and corrections are recorded in
 
 The successful Google Books fixture gap above is retained separately from these
 synthetic/offline regression results.
+
+### Fixture-rights clarification after review
+
+The [source-based rights investigation](../research/google-books-fixture-rights.md)
+found no express recorded-test-fixture exception in the checked Google terms.
+API allowance, durable private storage, public redistribution and permission to
+charge for the application are separate questions. A successful request or API
+key does not settle the latter questions. The general API terms' section 5(e)
+restricts permanent copies and distribution unless content-owner permission or
+applicable law permits them; the Books-specific Fees clause separately addresses
+paid applications. No legal clearance is claimed.
+
+**Merge blockers:** record a rights basis for any durable Google success fixture,
+and use storage/publication consistent with ADR-0006. That ADR currently says
+Open Library and Google Books responses are stored privately and never published.
+The existing public Open Library recordings and Google quota-error body therefore
+need a documented resolution before merge. The error body has no book content,
+but no express error-response exception was found; assess it separately. This
+note neither changes the ADR nor treats private storage as automatic permission.
+
+The recommended route under the existing ADR is independently authored synthetic
+fixtures in the public repository and rights-cleared recordings in the prescribed
+private fixture storage. Do not relabel copied recordings as synthetic, and do
+not treat a normal file deletion as removal from existing Git history. If public
+recordings are desired instead, an explicit ADR decision and an adequate rights
+basis are required. The earlier statement that all provider approvals could wait
+until launch was too broad: recording/publication rights must precede those acts.

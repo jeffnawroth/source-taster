@@ -22,3 +22,14 @@ Adapters use Open Library's documented Books/Search APIs and Google Books'
 Volumes list API. Source terms and paid-service, fixture-storage and cache rights
 still belong to the source qualification in ADR-0007/Q04. Tests never call a live
 Data source. No cache is added.
+
+## Rights and repository-policy status
+
+These provenance notes do not establish permission to retain or publish a
+response. See the [Google Books fixture-rights investigation](../../../../../docs/research/google-books-fixture-rights.md).
+ADR-0006 requires Open Library and Google Books responses to be stored privately
+and never published. The current public Open Library recordings and Google 429
+body need a documented resolution before merge; their presence is not a precedent
+for further publication. Google success recordings additionally need a durable
+storage basis before acquisition for retention, and an API key/quota increase
+alone does not supply it. No fixture exception or rights clearance is claimed.

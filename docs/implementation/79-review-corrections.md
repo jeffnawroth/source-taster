@@ -64,3 +64,16 @@ routes; the new API compatibility witnesses cover it.
 Spec total: four findings; three implementation defects addressed, one
 successful-live-recording gap remains. No unrequested scope was found. The
 outstanding item is the Google Books fixture qualification above.
+
+## Post-review rights finding
+
+The subsequent [Google Books rights investigation](../research/google-books-fixture-rights.md)
+adds a separate merge blocker to the recorded-success gap: no suitable fixture
+storage/redistribution basis has been established, and ADR-0006 requires Open
+Library and Google Books responses to remain private and unpublished. This also
+requires resolving the existing public Open Library recordings and Google 429
+body. The earlier recommendation to obtain an authorized Google recording must
+be read as requiring both authorized access and an appropriate storage basis;
+quota alone is insufficient. Public publication would additionally require an
+explicit ADR decision and redistribution rights. No code, fixtures or ADRs are
+changed by this clarification.
