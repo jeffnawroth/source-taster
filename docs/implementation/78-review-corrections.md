@@ -229,7 +229,11 @@ uphold the #78 invariant: a Data source failure or an unreliable response is
     the carrier's deadline, the latest among them.
   - Tests in `batch.test.ts`: "gives the request the latest deadline among the
     members at send" (RED: `timeout`) and "sends a burst of later members once"
-    (guards against repeated sends).
+    (guards against repeated sends). The public test "sends arXiv lookups
+    collected across Checks in one id_list request" now starts the second
+    Check 400 ms later. Its later deadline takes the send over through the real
+    permit wait, and neither outcome names a failed source. This guards the
+    mechanics: replacing the relaunch with a failure makes the test fail.
 - **Record form only.** `batchableArxiv` accepted old-scheme identifiers with
   any archive letters, in any case, and with any YYMM. Old-scheme identifiers
   are now batched only with a known archive in lower case and a YYMM from 9108
@@ -275,3 +279,18 @@ Versions:
   `process-local;semanticscholar-window-then-permit;arxiv-until-permit-latest-deadline-carrier;arxiv-record-form-only;entry-demultiplexed-2`.
 - `article-verdict-78-2` is unchanged, because no verdict rule changed.
 - No contract artifact changed.
+
+Validation: Node 24, macOS arm64, owned PostgreSQL container
+`st78-batching-pg-20261030` (removed afterwards).
+
+- **Server `vitest run`.** 337 passed, 2 skipped, in 17 of 18 files.
+  `website.test.ts` fails because `apps/website/dist-preview` is missing, as in
+  the validation above.
+- **Static checks.** `typecheck` and `lint` pass in every package and in the
+  server. `prettier --check .` and `pnpm i18n:check` pass.
+- **Build.** Rebuilding the packages changes no tracked artifact.
+- **Not run.** `test:authority` was not run.
+- **Test-first.** These were RED first: the latest-deadline test, the six
+  tightened identifier rows, the two empty-answer cases, the incomplete-feed
+  case and the version expectations. The burst test and the complete
+  old-scheme batch test are regression guards that passed before the fix.
