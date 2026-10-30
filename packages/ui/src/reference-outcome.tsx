@@ -140,23 +140,24 @@ function sourceLink(candidate: Candidate) {
     : null;
 }
 /** The first transport failure explains why a failed Data source is named. */
+// Data findings (invalid metadata, identifier mismatch) never name a source
+// as failed, so only transport reasons explain a failed source.
+const failureCauses: Partial<Record<string, () => string>> = {
+  timeout: m.failure_timeout,
+  "rate-budget": m.failure_rate_limit,
+  deadline: m.failure_deadline,
+  "http-error": m.failure_error,
+  "request-unavailable": m.failure_error,
+};
 function failureCause(
   outcome: VerdictResult,
   source: SourceEvidence["source"],
 ) {
-  const reason = outcome.evidence.find(
-    (e) =>
-      e.source === source &&
-      e.outcome === "unavailable" &&
-      e.reason !== "after-source-failure",
-  )?.reason;
-  return reason === "timeout"
-    ? m.failure_timeout()
-    : reason === "rate-budget"
-      ? m.failure_rate_limit()
-      : reason === "deadline"
-        ? m.failure_deadline()
-        : m.failure_error();
+  const cause = outcome.evidence
+    .filter((e) => e.source === source && e.outcome === "unavailable")
+    .map((e) => failureCauses[e.reason ?? ""])
+    .find(Boolean);
+  return (cause ?? m.failure_error)();
 }
 export function ReferenceOutcomeSummary({
   outcome,
