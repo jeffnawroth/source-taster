@@ -1147,7 +1147,10 @@ it("does not present malformed completed metadata as a successful empty search",
   crossref.respond("/works", 200, { message: { items: [] } });
   const { outcome } = await run(article);
   expect(outcome.verdict).toBe("not-verifiable");
-  expect(outcome.failedSources).toEqual(["openalex"]);
+  // Malformed metadata blocks Not found, but OpenAlex answered: a data
+  // finding, not a failed Data source (#78).
+  expect(outcome.reasons).toEqual(["insufficient-search"]);
+  expect(outcome.failedSources).toEqual([]);
   expect(outcome.evidence[0]).toMatchObject({
     outcome: "unavailable",
     reason: "invalid-metadata",
