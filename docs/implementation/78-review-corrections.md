@@ -185,3 +185,22 @@ had no commits beyond the base `9f91718`, so no merge was needed.
 - **Build.** Rebuilding core and contract-verification reproduces the committed
   `dist` and `openapi` artifacts.
 - **Not run.** `test:authority` needs the private peer service.
+
+## Merge with main
+
+`origin/main` at `3855cc6` (#73 parser, #76 journal abbreviations) was merged
+on `merge/78-main`. Both sides' behavior is kept; the conflicts were additive
+(imports, exports, messages, `.prettierignore`). The v2 Candidate combines #78's
+`csl`, `source` and `origin` with #76's `fields` (`FieldComparisonV2`); `dist`
+and `openapi-v2.json` were regenerated.
+
+No version identifier was changed on both sides, so none was given a new value:
+the Search strategy (`article-search-78-2-…`) and `article-verdict-78-2` come
+from #78, the comparison rules (`…-journal-76-1-…`) from #76, and parser
+provenance `citation-styles/2` from #73. `journal-76-1` already binds the
+Europe PMC and Semantic Scholar attestation selection.
+
+Europe PMC records now reach #76's journal attestation through their raw record.
+Semantic Scholar `publicationVenue.alternate_names` stays unreachable: the
+adapter does not request `publicationVenue`. Adding it changes #78's request
+URLs and batch body, so it is left as an open follow-up.
