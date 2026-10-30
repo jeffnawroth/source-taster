@@ -100,13 +100,19 @@ export function identifierBatches() {
       return;
     }
     close(source, batch);
+    const sent = batch.ids;
+    if (!sent) {
+      // Nothing was sent (the carrier's permit wait or deadline ended). That
+      // is the carrier's outcome only; the others wait within their own
+      // deadlines in a new batch.
+      carrier.settle(response);
+      for (const member of live(batch)) add(source, policy, member);
+      return;
+    }
     // A member that joined after the identifiers were chosen was not sent.
     for (const member of live(batch))
-      if (!batch.ids || batch.ids.includes(member.value))
-        member.settle({
-          ...response,
-          ...(batch.ids ? { ids: batch.ids } : {}),
-        });
+      if (sent.includes(member.value))
+        member.settle({ ...response, ids: sent });
       else add(source, policy, member);
   }
   return {

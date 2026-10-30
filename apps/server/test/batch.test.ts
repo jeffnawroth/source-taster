@@ -5,6 +5,7 @@ import { expect, it } from "vitest";
 import type { Evidence } from "@source-taster/core";
 import { identifierBatches, type BatchCarrier } from "../src/sources/batch.ts";
 import { systemSourceClock } from "../src/sources/doi.ts";
+import { batchableArxiv } from "../src/sources/shared.ts";
 const clock = systemSourceClock;
 const window = { size: 500, windowMs: 50, untilSend: false };
 const answer = (): Evidence => ({
@@ -148,4 +149,51 @@ it("sends again for the others when the carrying run is cancelled", async () => 
   expect((await staying).ids).toEqual(["b"]);
   expect(carriers).toEqual(["a", "b"]);
   expect(sent).toEqual([["b"]]);
+});
+
+it("does not pass an unsent carrier's failure to members that joined later", async () => {
+  const batches = identifierBatches();
+  const policy = { size: 100, windowMs: 0, untilSend: true };
+  const sent: string[][] = [];
+  let calls = 0;
+  const carry: BatchCarrier = async (ids) => {
+    // The first carrier's permit wait ends without a send (rate budget).
+    if (calls++ === 0) {
+      await clock.sleep(50);
+      return { evidence: { ...answer(), reason: "rate-budget", attempts: 0 } };
+    }
+    sent.push(ids());
+    return { body: "batch", evidence: answer() };
+  };
+  const first = join(
+    batches,
+    "a",
+    carry,
+    { deadline: Date.now() + 9000 },
+    policy,
+  );
+  await clock.sleep(20);
+  const second = join(batches, "b", carry, {}, policy);
+  expect((await first).evidence.reason).toBe("rate-budget");
+  expect((await second).ids).toEqual(["b"]);
+  expect(sent).toEqual([["b"]]);
+});
+
+// arXiv answers a whole request with an error for one malformed identifier;
+// the new scheme began with 0704 (four digits) and 1501 (five digits).
+it.each([
+  ["0704.0001", true],
+  ["1412.9999", true],
+  ["1501.00001", true],
+  ["1706.03762", true],
+  ["hep-th/9901001", true],
+  ["math.GT/0309136", true],
+  ["0701.1234", false],
+  ["0703.0001", false],
+  ["1501.0001", false],
+  ["1412.00001", false],
+  ["1713.03762", false],
+  ["hep-th/990100", false],
+])("batches arXiv identifier %s: %s", (id, batchable) => {
+  expect(batchableArxiv(id)).toBe(batchable);
 });

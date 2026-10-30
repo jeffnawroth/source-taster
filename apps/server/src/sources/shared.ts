@@ -27,7 +27,7 @@ export type SourceBatch = (
  * makes arXiv answer the whole request with an error, so it is never batched.
  */
 export const batchableArxiv = (value: string) =>
-  /^(?:(?:0[7-9]|1[0-4])(?:0[1-9]|1[0-2])\.\d{4}|(?:1[5-9]|[2-9]\d)(?:0[1-9]|1[0-2])\.\d{5})$/u.test(
+  /^(?:(?:07(?:0[4-9]|1[0-2])|(?:0[89]|1[0-4])(?:0[1-9]|1[0-2]))\.\d{4}|(?:1[5-9]|[2-9]\d)(?:0[1-9]|1[0-2])\.\d{5})$/u.test(
     value,
   ) || /^[a-z]+(?:-[a-z]+)*(?:\.[a-z]{2})?\/\d{7}$/iu.test(value);
 /** The request completed with HTTP 200, so its body can supply records. */
