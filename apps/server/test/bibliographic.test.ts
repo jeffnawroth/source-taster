@@ -176,7 +176,7 @@ it.each([
       issued: { literal: "2021" },
     });
     expect(outcome.verdict).toBe(verdict);
-    expect(outcome.searchStrategyVersion).toContain("article-search-78-3-");
+    expect(outcome.searchStrategyVersion).toContain("article-search-78-4-");
     // Article Verdict derivation is part of the recorded Scoring rules version.
     expect(outcome.scoringRules.version).toMatch(/-article-verdict-78-2$/u);
     expect(outcome.candidates[0]!.score).toEqual({
