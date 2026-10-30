@@ -10,3 +10,4 @@ export {
 export * from "./bibliographic.ts";
 export * from "./search-settings.ts";
 export { journalAbbreviationRules } from "./journal-abbreviations.ts";
+export { normalizeIsbn } from "./isbn.ts";

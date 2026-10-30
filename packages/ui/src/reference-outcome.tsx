@@ -42,6 +42,8 @@ export const sourceNames = {
   europepmc: "Europe PMC",
   semanticscholar: "Semantic Scholar",
   arxiv: "arXiv",
+  openlibrary: "Open Library",
+  googlebooks: "Google Books",
 } as const satisfies Record<SourceEvidence["source"], string>;
 // Evidence reasons are transport diagnostics, never primary product text.
 // Unknown future reasons retain a safe localized explanation.
@@ -92,6 +94,7 @@ const origins = {
   doi: "origin_doi",
   pmid: "origin_pmid",
   pmcid: "origin_pmcid",
+  isbn: "origin_isbn",
   combined: "origin_combined",
   title: "origin_title",
   "authors-year": "origin_authors_year",
@@ -124,6 +127,16 @@ function sourceLink(candidate: Candidate) {
   const doi = candidate.csl.DOI;
   if (doi && /^10\.\d{4,9}\/\S+$/iu.test(doi))
     return `https://doi.org/${encodeURIComponent(doi)}`;
+  if (
+    candidate.source === "openlibrary" &&
+    /^openlibrary:\/(?:books\/OL\d+M|works\/OL\d+W)$/u.test(candidate.id)
+  )
+    return `https://openlibrary.org${candidate.id.slice("openlibrary:".length)}`;
+  if (
+    candidate.source === "googlebooks" &&
+    /^googlebooks:[\w-]+$/u.test(candidate.id)
+  )
+    return `https://books.google.com/books?id=${encodeURIComponent(candidate.id.slice("googlebooks:".length))}`;
   if (
     candidate.source === "openalex" &&
     /^https:\/\/openalex\.org\/W\d+$/u.test(candidate.id)
@@ -344,7 +357,8 @@ export function ReferenceOutcomeView({
                 <div
                   key={field.field}
                   className={
-                    field.score && !field.score.fullAgreement
+                    (field.score && !field.score.fullAgreement) ||
+                    field.agreement === false
                       ? "rounded border-l-4 border-amber-700 pl-3"
                       : ""
                   }
@@ -358,9 +372,13 @@ export function ReferenceOutcomeView({
                       ? field.score.fullAgreement
                         ? m.field_agrees()
                         : m.field_differs()
-                      : field.reason === "unweighted"
-                        ? m.field_unweighted()
-                        : m.field_excluded()}
+                      : field.agreement !== undefined
+                        ? field.agreement
+                          ? m.field_agrees()
+                          : m.field_differs()
+                        : field.reason === "unweighted"
+                          ? m.field_unweighted()
+                          : m.field_excluded()}
                   </dt>
                   <dd className="break-words">
                     {m.reference_label()}: {raw(field.reference)}
@@ -448,7 +466,9 @@ function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
           const comparison = best?.fields.find(
             (value) => value.field === field,
           );
-          const deviates = comparison?.score && !comparison.score.fullAgreement;
+          const deviates =
+            (comparison?.score && !comparison.score.fullAgreement) ||
+            comparison?.agreement === false;
           return (
             <tbody key={field} data-deviates={!!deviates}>
               <tr>
@@ -459,7 +479,11 @@ function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
                       ? comparison.score.fullAgreement
                         ? m.field_agrees()
                         : m.field_differs()
-                      : m.field_excluded()}{" "}
+                      : comparison?.agreement !== undefined
+                        ? comparison.agreement
+                          ? m.field_agrees()
+                          : m.field_differs()
+                        : m.field_excluded()}{" "}
                     ·{" "}
                     {comparison?.score
                       ? percent(comparison.score)

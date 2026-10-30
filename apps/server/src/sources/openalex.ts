@@ -17,6 +17,7 @@ import {
 const record = z.object({
   id: z.string().regex(/^https:\/\/openalex\.org\/W\d+$/u),
   title: z.string().nullable().optional(),
+  type: z.string().optional(),
   doi: z.string().nullable().optional(),
   is_retracted: z.boolean().nullable().optional(),
   publication_year: z.number().int().nullable().optional(),
@@ -52,6 +53,7 @@ function project(
   body: unknown,
   origin: RetrievedCandidate["origin"],
   retrievedAt: string,
+  bookMetadata = false,
 ): RetrievedCandidate | undefined {
   const parsed = record.safeParse(body);
   if (!parsed.success) return;
@@ -72,6 +74,16 @@ function project(
         }
       : {}),
     csl: {
+      ...(bookMetadata && m.type
+        ? {
+            type:
+              m.type === "book-chapter"
+                ? "chapter"
+                : m.type === "article"
+                  ? "article-journal"
+                  : m.type,
+          }
+        : {}),
       ...(m.title ? { title: m.title } : {}),
       ...(m.doi ? { DOI: m.doi.replace(/^https?:\/\/doi\.org\//iu, "") } : {}),
       ...(m.ids?.pmid ? { PMID: normalizePmid(m.ids.pmid) } : {}),
@@ -108,12 +120,13 @@ function project(
 export function openalexAdapter(
   request: SourceRequest,
   base: string,
+  bookMetadata = false,
 ): BibliographicSource {
   return {
     name: "openalex",
     identifiers: ["doi", "pmid"],
     async lookup(kind, value, deadline) {
-      if (kind === "pmcid")
+      if (kind !== "doi" && kind !== "pmid")
         return {
           evidence: {
             source: "openalex",
@@ -136,7 +149,7 @@ export function openalexAdapter(
       const key = kind === "doi" ? "DOI" : kind === "pmid" ? "PMID" : "PMCID";
       return lookupResult(
         evidence,
-        project(body, kind, evidence.observedAt),
+        project(body, kind, evidence.observedAt, bookMetadata),
         (c) => c.csl[key]?.toLowerCase() === value.toLowerCase(),
       );
     },
@@ -159,7 +172,7 @@ export function openalexAdapter(
         .object({ results: z.array(z.unknown()) })
         .safeParse(body);
       return searchResult(evidence, parsed.data?.results, (m) =>
-        project(m, kind, evidence.observedAt),
+        project(m, kind, evidence.observedAt, bookMetadata),
       );
     },
   };

@@ -15,7 +15,13 @@ import {
 } from "./search-settings.ts";
 /** Data sources that return Candidates; doi.org only resolves existence. */
 export type CandidateDataSource =
-  "crossref" | "openalex" | "europepmc" | "semanticscholar" | "arxiv";
+  | "crossref"
+  | "openalex"
+  | "europepmc"
+  | "semanticscholar"
+  | "arxiv"
+  | "openlibrary"
+  | "googlebooks";
 export type SourceName = "doi.org" | CandidateDataSource;
 /** Evidence reasons that make a Data source failed (ADR-0007). */
 export type TransportFailure =
@@ -28,7 +34,14 @@ export type TransportFailure =
 export interface Evidence {
   source: SourceName;
   operation:
-    "doi" | "pmid" | "pmcid" | "arxiv" | "combined" | "title" | "authors-year";
+    | "doi"
+    | "pmid"
+    | "pmcid"
+    | "arxiv"
+    | "isbn"
+    | "combined"
+    | "title"
+    | "authors-year";
   outcome:
     | "exists"
     | "nonexistent"
@@ -46,6 +59,7 @@ export interface Evidence {
   raw?: unknown;
   skippedDuplicates?: string[];
   unusedSlots?: number;
+  identifierAmbiguity?: string[];
 }
 /** An affirmative report already received from a Data source, never a verified negative. */
 export interface RetractionEvidence {
@@ -58,6 +72,7 @@ export interface RetrievedCandidate {
   source: CandidateDataSource;
   origin: Evidence["operation"];
   identifiers?: string[];
+  identityAmbiguous?: boolean;
   retrievedAt: string;
   csl: Csl;
   raw: unknown;

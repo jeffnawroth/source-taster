@@ -67,7 +67,7 @@ Problem. Non-JSON error bodies never leak into user-facing copy. Network errors
 remain distinguishable from HTTP Problems. Check creation enforces the configured
 Reference limit before storing or enqueueing; it uses the same parser or accepts explicit structured References.
 
-## Version 2 article-search contract
+## Version 2 bibliographic-search contract
 
 New clients use `./v2` schemas, `./client-v2` and `./routes-v2`, with
 `./openapi-v2.json`. The web app and later extension share this same intended
@@ -75,10 +75,18 @@ contract. Structuring remains the compatible `/v1/structurings` operation.
 
 `/v2/checks` and its snapshot, events, cancel and lease routes reuse the existing
 Owner/current-authority, lifecycle and cursor protocol. Version 2 adds OpenAlex,
-supported identifier provenance, per-source slots, query evidence, additional
-reasons and up to ten scored Candidates (at most five per source). A supplied
-PMID has `identity.kind: supplied-identifier`, separately from DOI proof and
-independent bibliography. Similarity alone is never identity proof.
+Europe PMC, Semantic Scholar, arXiv, Open Library and Google Books, supported
+identifier provenance, per-source slots, query evidence, additional reasons and
+up to 25 scored Candidates (at most five per source, for the five article
+sources). Supplied PMID, PMCID, arXiv and ISBN proof uses
+`identity.kind: supplied-identifier`, separately from DOI proof and independent
+bibliography. Similarity alone is never identity proof.
+
+Book routes expose `isbn` origin/operation, catalog progress, optional
+`identityAmbiguous` and `identifierAmbiguity` evidence, and the
+`sources-unavailable` reason. Optional field `agreement` explains normalized
+unweighted ISBN/edition deviations without changing weighted Scores. Fields,
+source observations and immutable results retain their raw evidence.
 
 Version 1 schemas and routes keep their Crossref literal, five-Candidate result
 cap and existing reason/progress enums. Creating through `/v1` keeps the prior

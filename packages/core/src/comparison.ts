@@ -25,6 +25,8 @@ export interface FieldComparison {
   candidate: unknown;
   score: Score | null;
   journalAbbreviation?: JournalAbbreviation;
+  /** Agreement for an unweighted identifier; never enters the weighted Score. */
+  agreement?: boolean;
   reason:
     | "compared"
     | "missing-reference"

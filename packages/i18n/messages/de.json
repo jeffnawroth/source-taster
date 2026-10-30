@@ -208,5 +208,6 @@
   "correction_selected_heading": "Ausgewählte Korrekturen",
   "correction_selected_item": "Referenz {slot}: {text}",
   "correction_none_selected": "Keine Korrekturen ausgewählt. Der Export verwendet die aktuellen Felder.",
-  "correction_loading": "Wird formatiert…"
+  "correction_loading": "Wird formatiert…",
+  "origin_isbn": "ISBN-Abfrage"
 }

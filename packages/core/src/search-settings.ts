@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Operator-changeable search operating settings (spec #70, ADR-0007). Every
 // value can change retrieved evidence, so the exact settings are recorded with
-// each article result and their hash enters its Search strategy version.
+// each article and book result and their hash enters its Search strategy version.
 // These settings are the single source of truth for what runs; the Version 1
 // DOI tracer limits are derived from the defaults below.
 import type { SourceName } from "./verification.ts";
@@ -36,9 +36,9 @@ export interface SearchSettings {
   workerConcurrency: number;
   sources: Record<SourceName, SourceSettings>;
 }
-// Initial operating values. Europe PMC, Semantic Scholar and arXiv use the
-// ADR-0007 initial caps (10/s self-imposed, 1/s, one per 3 s on a single
-// connection). doi.org (20/s) matches ADR-0007 as well.
+// Initial operating values. Europe PMC, Semantic Scholar, arXiv and Open
+// Library use the ADR-0007 initial caps (10/s self-imposed, 1/s, one per 3 s
+// on a single connection, 3/s). doi.org (20/s) matches ADR-0007 as well.
 // Crossref (5/s single records, 1/s searches, one connection) and OpenAlex
 // (1/s, one connection) deliberately keep the slower #74/#77 development
 // values rather than ADR-0007's 8/s, 2.5/s, three connections and 25/s: the
@@ -90,6 +90,12 @@ export const defaultSearchSettings: SearchSettings = Object.freeze({
       batchSize: 100,
       batchWindowMs: 0,
     },
+    // ADR-0007: Open Library 3 requests/s (334 ms keeps actual sends at or
+    // below it). Google Books has no ADR-0007 cap; one request per second is
+    // a conservative development value pending a provider allowance (#79).
+    // Neither catalog is bounded by a connection limit.
+    openlibrary: { requestTimeoutMs: 3000, intervalMs: 334, maxWaitMs: 10000 },
+    googlebooks: { requestTimeoutMs: 3000, intervalMs: 1000, maxWaitMs: 10000 },
   }),
 });
 /** Flat record of the settings for the stored Search configuration. */

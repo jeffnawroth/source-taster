@@ -175,7 +175,9 @@
               "openalex",
               "europepmc",
               "semanticscholar",
-              "arxiv"
+              "arxiv",
+              "openlibrary",
+              "googlebooks"
             ]
           }
         },
@@ -302,7 +304,7 @@
                 "items": {
                   "$ref": "#/components/schemas/CandidateV2"
                 },
-                "maxItems": 10
+                "maxItems": 25
               },
               "evidence": {
                 "type": "array",
@@ -343,7 +345,9 @@
                     "openalex",
                     "europepmc",
                     "semanticscholar",
-                    "arxiv"
+                    "arxiv",
+                    "openlibrary",
+                    "googlebooks"
                   ]
                 }
               },
@@ -594,7 +598,9 @@
               "openalex",
               "europepmc",
               "semanticscholar",
-              "arxiv"
+              "arxiv",
+              "openlibrary",
+              "googlebooks"
             ]
           },
           "origin": {
@@ -604,6 +610,7 @@
               "pmid",
               "pmcid",
               "arxiv",
+              "isbn",
               "combined",
               "title",
               "authors-year"
@@ -635,6 +642,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "identityAmbiguous": {
+            "type": "boolean"
           },
           "retractionEvidence": {
             "$ref": "#/components/schemas/RetractionEvidenceV2"
@@ -672,6 +682,9 @@
               "unweighted",
               "resource-limit"
             ]
+          },
+          "agreement": {
+            "type": "boolean"
           },
           "journalAbbreviation": {
             "type": "object",
@@ -803,7 +816,9 @@
               "openalex",
               "europepmc",
               "semanticscholar",
-              "arxiv"
+              "arxiv",
+              "openlibrary",
+              "googlebooks"
             ]
           },
           "operation": {
@@ -813,6 +828,7 @@
               "pmid",
               "pmcid",
               "arxiv",
+              "isbn",
               "combined",
               "title",
               "authors-year"
@@ -859,6 +875,12 @@
           "unusedSlots": {
             "type": "integer",
             "minimum": 0
+          },
+          "identifierAmbiguity": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [

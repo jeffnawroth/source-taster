@@ -10,6 +10,8 @@ import {
   referenceDeadlineMs,
   type SearchSettings,
   type SourceName,
+  type StructuredReference,
+  isBookReference,
 } from "@source-taster/core";
 import { createHash } from "node:crypto";
 import type { Db } from "../db/prisma.ts";
@@ -25,6 +27,8 @@ import { openalexAdapter } from "../sources/openalex.ts";
 import { europepmcAdapter } from "../sources/europepmc.ts";
 import { semanticscholarAdapter } from "../sources/semanticscholar.ts";
 import { arxivAdapter } from "../sources/arxiv.ts";
+import { googlebooksAdapter } from "../sources/googlebooks.ts";
+import { openlibraryAdapter } from "../sources/openlibrary.ts";
 import { sourceBudget } from "../sources/budget.ts";
 import { identifierBatches } from "../sources/batch.ts";
 // Identifier lookups of all Reference runs in this process share batches.
@@ -43,10 +47,11 @@ export function referenceExecution(
   } = {},
 ) {
   const clock = context.clock ?? systemSourceClock;
-  const article = context.apiVersion === 2 && config.bibliographicPreview;
+  const bibliographic =
+    context.apiVersion === 2 && !!config.bibliographicPreview;
   // Version 1 stays frozen: default pacing, and a permit wait bounded only by
   // the Reference deadline.
-  const settings: SearchSettings = article
+  const settings: SearchSettings = bibliographic
     ? config.searchSettings
     : {
         ...defaultSearchSettings,
@@ -57,84 +62,107 @@ export function referenceExecution(
           ]),
         ) as SearchSettings["sources"],
       };
-  const adapters = createDoiAdapters({
-    resolverBase: config.resolverBase,
-    crossrefBase: config.crossrefBase,
-    budget: sourceBudget(db, context.signal, clock, settings),
-    ...(article ? { settings, timeoutReason: "timeout" } : {}),
-    beforeRequest: context.beforeSource,
-    dispatch: context.dispatchSource,
-    clock,
-    signal: context.signal,
-    batches: processBatches,
-  });
-  const options = {
-    ...adapters,
-    now: clock.now,
-    parameters: config.comparisonProfile,
-    rules: {
-      version: `comparison-75-3-date-ranges-20261028-journal-76-1-entities-4.5.0-uncalibrated-${createHash(
-        "sha256",
+  // Exact settings enter the Search strategy version (spec #70).
+  const settingsVersion = createHash("sha256")
+    .update(JSON.stringify(canonical(settings)))
+    .digest("hex")
+    .slice(0, 16);
+  const rules = {
+    version: `comparison-75-3-date-ranges-20261028-journal-76-1-entities-4.5.0-uncalibrated-${createHash(
+      "sha256",
+    )
+      .update(
+        JSON.stringify({
+          parameters: config.comparisonProfile,
+          limits: comparisonLimits,
+          journalAbbreviations: journalAbbreviationRules,
+        }),
       )
-        .update(
-          JSON.stringify({
-            parameters: config.comparisonProfile,
-            limits: comparisonLimits,
-            journalAbbreviations: journalAbbreviationRules,
-          }),
-        )
-        .digest(
-          "hex",
-        )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
-      calibration: "uncalibrated",
-      unicode: process.versions.unicode!,
-      icu: process.versions.icu!,
-      profile: { ...config.comparisonProfile },
-    },
+      .digest(
+        "hex",
+      )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
+    calibration: "uncalibrated",
+    unicode: process.versions.unicode!,
+    icu: process.versions.icu!,
+    profile: { ...config.comparisonProfile },
   } as const;
-  return article
-    ? createBibliographicVerification({
-        ...options,
-        settings,
-        // Exact settings enter the Search strategy version (spec #70).
-        settingsVersion: createHash("sha256")
-          .update(JSON.stringify(canonical(settings)))
-          .digest("hex")
-          .slice(0, 16),
-        sources: [
-          ...(config.openalexEnabled
-            ? [openalexAdapter(adapters.request, config.openalexBase!)]
-            : []),
-          crossrefAdapter(
-            adapters.request,
-            config.crossrefBase,
-            adapters.source,
-            adapters.project,
-          ),
-          ...(config.europepmcEnabled
-            ? [europepmcAdapter(adapters.request, config.europepmcBase!)]
-            : []),
-          ...(config.semanticscholarEnabled
-            ? [
-                semanticscholarAdapter(
-                  adapters.request,
-                  adapters.batched,
-                  config.semanticscholarBase!,
-                ),
-              ]
-            : []),
-          ...(config.arxivEnabled
-            ? [
-                arxivAdapter(
-                  adapters.request,
-                  adapters.batched,
-                  config.arxivBase!,
-                ),
-              ]
-            : []),
-        ],
-      })
-    : createDoiVerification(options);
+  return (
+    reference: StructuredReference,
+    execution?: { startedAt: number },
+  ) => {
+    // Extended Crossref/OpenAlex book metadata only on the /v2 book route.
+    const bookMetadata = bibliographic && isBookReference(reference.csl.type);
+    const adapters = createDoiAdapters({
+      bookMetadata,
+      resolverBase: config.resolverBase,
+      crossrefBase: config.crossrefBase,
+      budget: sourceBudget(db, context.signal, clock, settings),
+      ...(bibliographic ? { settings, timeoutReason: "timeout" } : {}),
+      beforeRequest: context.beforeSource,
+      dispatch: context.dispatchSource,
+      clock,
+      signal: context.signal,
+      batches: processBatches,
+    });
+    const options = {
+      ...adapters,
+      now: clock.now,
+      parameters: config.comparisonProfile,
+      rules,
+    } as const;
+    const verify = bibliographic
+      ? createBibliographicVerification({
+          ...options,
+          settings,
+          settingsVersion,
+          sources: [
+            ...(config.openalexEnabled
+              ? [
+                  openalexAdapter(
+                    adapters.request,
+                    config.openalexBase!,
+                    bookMetadata,
+                  ),
+                ]
+              : []),
+            crossrefAdapter(
+              adapters.request,
+              config.crossrefBase,
+              adapters.source,
+              adapters.project,
+            ),
+            ...(config.europepmcEnabled
+              ? [europepmcAdapter(adapters.request, config.europepmcBase!)]
+              : []),
+            ...(config.semanticscholarEnabled
+              ? [
+                  semanticscholarAdapter(
+                    adapters.request,
+                    adapters.batched,
+                    config.semanticscholarBase!,
+                  ),
+                ]
+              : []),
+            ...(config.arxivEnabled
+              ? [
+                  arxivAdapter(
+                    adapters.request,
+                    adapters.batched,
+                    config.arxivBase!,
+                  ),
+                ]
+              : []),
+            ...(config.openlibraryEnabled
+              ? [openlibraryAdapter(adapters.request, config.openlibraryBase!)]
+              : []),
+            ...(config.googlebooksEnabled
+              ? [googlebooksAdapter(adapters.request, config.googlebooksBase!)]
+              : []),
+          ],
+        })
+      : createDoiVerification(options);
+    return verify(reference, execution);
+  };
 }
 function canonical(value: unknown): unknown {
   return value && typeof value === "object"

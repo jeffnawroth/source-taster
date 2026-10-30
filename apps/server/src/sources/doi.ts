@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { defaultSearchSettings, doiTracerLimits } from "@source-taster/core";
+import {
+  defaultSearchSettings,
+  doiTracerLimits,
+  normalizeIsbn,
+} from "@source-taster/core";
 import type {
   DataSource,
   DoiResolver,
@@ -57,6 +61,9 @@ const crossrefRecord = z.object({
   page: z.string().optional(),
   "article-number": z.string().optional(),
   type: z.string().optional(),
+  ISBN: z.array(z.string()).optional(),
+  publisher: z.string().optional(),
+  edition: z.string().optional(),
   URL: z.string().optional(),
 });
 export interface SourceClock {
@@ -80,6 +87,7 @@ export const systemSourceClock: SourceClock = {
     }),
 };
 export function createDoiAdapters(options: {
+  bookMetadata?: boolean;
   resolverBase: string;
   crossrefBase: string;
   openalexBase?: string;
@@ -373,6 +381,11 @@ export function createDoiAdapters(options: {
     if (!parsed.success) return null;
     const m = parsed.data;
     const date = m.published?.["date-parts"][0];
+    const isbns = [
+      ...new Set(
+        (m.ISBN ?? []).map(normalizeIsbn).filter((v): v is string => !!v),
+      ),
+    ];
     return {
       id: m.DOI.toLowerCase(),
       source: "crossref",
@@ -380,6 +393,32 @@ export function createDoiAdapters(options: {
       retrievedAt: observedAt,
       raw: body,
       csl: {
+        ...(options.bookMetadata
+          ? {
+              ...(m.type
+                ? {
+                    type:
+                      (
+                        {
+                          "book-chapter": "chapter",
+                          "book-section": "chapter",
+                          "book-part": "chapter",
+                          "reference-entry": "chapter",
+                          "reference-book": "book",
+                          "edited-book": "book",
+                          monograph: "book",
+                          "book-set": "book",
+                          "book-series": "book",
+                          "journal-article": "article-journal",
+                        } as Record<string, string>
+                      )[m.type] ?? m.type,
+                  }
+                : {}),
+              ...(isbns.length === 1 ? { ISBN: isbns[0] } : {}),
+              ...(m.publisher ? { publisher: m.publisher } : {}),
+              ...(m.edition ? { edition: m.edition } : {}),
+            }
+          : {}),
         DOI: m.DOI,
         ...(m.title?.[0] ? { title: m.title[0] } : {}),
         ...(m.author

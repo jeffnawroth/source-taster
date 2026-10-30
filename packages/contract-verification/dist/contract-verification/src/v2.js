@@ -9,6 +9,8 @@ const CandidateDataSource = z.enum([
     "europepmc",
     "semanticscholar",
     "arxiv",
+    "openlibrary",
+    "googlebooks",
 ]);
 const SourceName = z.enum(["doi.org", ...CandidateDataSource.options]);
 const Operation = z.enum([
@@ -16,6 +18,7 @@ const Operation = z.enum([
     "pmid",
     "pmcid",
     "arxiv",
+    "isbn",
     "combined",
     "title",
     "authors-year",
@@ -49,6 +52,7 @@ export const RetractionEvidence = z
 })
     .meta({ id: "RetractionEvidenceV2" });
 export const FieldComparison = v1.FieldComparison.extend({
+    agreement: z.boolean().optional(),
     journalAbbreviation: z
         .object({
         outcome: z.enum(["match", "different", "not-determinable"]),
@@ -74,6 +78,7 @@ export const Candidate = v1.Candidate.extend({
     source: CandidateDataSource,
     origin: Operation,
     identifiers: z.array(z.string()).optional(),
+    identityAmbiguous: z.boolean().optional(),
     retractionEvidence: RetractionEvidence.optional(),
 }).meta({ id: "CandidateV2" });
 export const SourceEvidence = v1.SourceEvidence.extend({
@@ -91,6 +96,7 @@ export const SourceEvidence = v1.SourceEvidence.extend({
     ]),
     skippedDuplicates: z.array(z.string()).optional(),
     unusedSlots: z.number().int().nonnegative().optional(),
+    identifierAmbiguity: z.array(z.string()).optional(),
 }).meta({ id: "SourceEvidenceV2" });
 export const VerdictResult = v1.VerdictResult.extend({
     reference: StructuredReference,
@@ -102,7 +108,9 @@ export const VerdictResult = v1.VerdictResult.extend({
             "unresolved",
         ]),
     }),
-    candidates: z.array(Candidate).max(10),
+    // Five Candidate slots for each Data source of the widest route (article:
+    // OpenAlex, Crossref, Europe PMC, Semantic Scholar, arXiv).
+    candidates: z.array(Candidate).max(25),
     evidence: z.array(SourceEvidence),
     reasons: z.array(z.enum([
         ...v1.VerdictResult.shape.reasons.element.options,
@@ -128,6 +136,8 @@ export const ReferenceProgress = z.enum([
     "europepmc",
     "semanticscholar",
     "arxiv",
+    "openlibrary",
+    "googlebooks",
 ]);
 export const ReferenceSlot = v1.ReferenceSlot.extend({
     outcome: ReferenceOutcome,

@@ -55,6 +55,20 @@ The preview is stateless and consumes no Quota. `SOURCE_TASTER_REFERENCE_LIMIT` 
 
 This endpoint deliberately leaves the existing `/v1/checks` placeholder contract and paste-and-watch behavior intact. A preview does not create Reference slots or start search. Connecting canonical Structuring to durable Check execution belongs to the later lifecycle/search slices. Preferences remain separate (#85). See [implementation scope and validation](docs/implementation/72-parser.md).
 
+## Book route preview
+
+Version 2 book and chapter Checks use the ISBN catalogs and bibliographic route
+of [#79](https://github.com/jeffnawroth/source-taster/issues/79). Alongside the DOI
+and bibliographic preview flags, explicitly enable
+`SOURCE_TASTER_OPENLIBRARY_ENABLED=true`, `SOURCE_TASTER_GOOGLEBOOKS_ENABLED=true`
+and `SOURCE_TASTER_OPENALEX_ENABLED=true` in both server processes. See
+[the implementation and fixture qualification](docs/implementation/79-books.md)
+for routing, edition ambiguity and the outstanding rights-cleared private catalog
+recordings. Catalog budgets, timeouts and failure handling follow the shared
+ADR-0007 search operating settings (`SOURCE_TASTER_SEARCH_SETTINGS`, see
+[#78](docs/implementation/78-article-sources.md)). The existing
+development/activation gates apply.
+
 ## Validation
 
 ```sh

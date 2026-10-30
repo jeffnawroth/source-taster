@@ -37,6 +37,10 @@ export interface Config {
   semanticscholarBase?: string;
   arxivEnabled?: boolean;
   arxivBase?: string;
+  openlibraryEnabled?: boolean;
+  openlibraryBase?: string;
+  googlebooksEnabled?: boolean;
+  googlebooksBase?: string;
   /** Operator-changeable search operating settings (spec #70, ADR-0007). */
   searchSettings: SearchSettings;
   comparisonProfile: ComparisonProfile;
@@ -120,6 +124,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     ["EUROPEPMC", "Europe PMC"],
     ["SEMANTICSCHOLAR", "Semantic Scholar"],
     ["ARXIV", "arXiv"],
+    ["OPENLIBRARY", "Open Library"],
+    ["GOOGLEBOOKS", "Google Books"],
   ] as const) {
     const value = env[`SOURCE_TASTER_${name}_ENABLED`];
     if (value && !["true", "false"].includes(value))
@@ -135,6 +141,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new ConfigError(
       "Search operating settings require the bibliographic development preview.",
     );
+  // The catalog rates are search operating settings; a separate rate variable
+  // would be a second, silently ignored mechanism.
+  for (const name of ["OPENLIBRARY", "GOOGLEBOOKS"])
+    if (env[`SOURCE_TASTER_${name}_REQUESTS_PER_SECOND`] !== undefined)
+      throw new ConfigError(
+        `SOURCE_TASTER_${name}_REQUESTS_PER_SECOND is replaced by intervalMs in SOURCE_TASTER_SEARCH_SETTINGS.`,
+      );
   let comparisonProfile: ComparisonProfile;
   try {
     comparisonProfile = createDevelopmentProfile(
@@ -204,6 +217,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     arxivBase: endpoint(
       "SOURCE_TASTER_ARXIV_BASE_URL",
       "https://export.arxiv.org",
+    ),
+    openlibraryEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_OPENLIBRARY_ENABLED === "true",
+    openlibraryBase: endpoint(
+      "SOURCE_TASTER_OPENLIBRARY_BASE_URL",
+      "https://openlibrary.org",
+    ),
+    googlebooksEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_GOOGLEBOOKS_ENABLED === "true",
+    googlebooksBase: endpoint(
+      "SOURCE_TASTER_GOOGLEBOOKS_BASE_URL",
+      "https://www.googleapis.com",
     ),
     searchSettings,
     comparisonProfile,
