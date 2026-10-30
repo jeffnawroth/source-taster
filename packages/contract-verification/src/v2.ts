@@ -29,11 +29,29 @@ export const StructuredCsl = v1.StructuredCsl.extend({
 }).meta({ id: "StructuredCslV2" });
 export const StructuredReference = v1.StructuredReference.extend({
   csl: StructuredCsl,
-  imported: z.object({ format: z.enum(["bibtex", "ris"]), unsupported: z.array(z.object({name:z.string(),value:z.string()})) }).optional(),
+  /** Library import provenance; `fields` is the immutable import projection. */
+  imported: z
+    .object({
+      format: z.enum(["bibtex", "ris"]),
+      unsupported: z.array(z.object({ name: z.string(), value: z.string() })),
+      fields: StructuredCsl,
+    })
+    .optional(),
 }).meta({ id: "StructuredReferenceV2" });
+/** A BibTeX or RIS library file's text, decoded as UTF-8 without dropping a BOM. */
+export const LibraryInput = z
+  .strictObject({
+    format: z.enum(["bibtex", "ris"]),
+    text: z
+      .string()
+      .min(1)
+      .max(20 * 1024 * 1024),
+  })
+  .meta({ id: "LibraryInputV2" });
+export type LibraryInput = z.infer<typeof LibraryInput>;
 export const CreateCheckRequest = z
   .union([
-    z.object({ library: z.strictObject({format:z.enum(["bibtex","ris"]),text:z.string().min(1).max(20*1024*1024)}) }),
+    z.object({ library: LibraryInput }),
     z.object({ text: z.string().trim().min(1) }),
     z.object({
       references: z

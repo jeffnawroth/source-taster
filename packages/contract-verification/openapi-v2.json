@@ -57,6 +57,69 @@
           "i18nKey"
         ]
       },
+      "ImportResultV2": {
+        "type": "object",
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructuredReferenceV2"
+            }
+          },
+          "rejected": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "originalText": {
+                  "type": "string"
+                },
+                "span": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "number"
+                    },
+                    "end": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "malformed-record"
+                  ]
+                }
+              },
+              "required": [
+                "originalText",
+                "span",
+                "reason"
+              ]
+            }
+          },
+          "quotaConsumed": {
+            "type": "number",
+            "enum": [
+              0
+            ]
+          },
+          "referenceLimit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "references",
+          "rejected",
+          "quotaConsumed",
+          "referenceLimit"
+        ]
+      },
       "StructuredReferenceV2": {
         "type": "object",
         "properties": {
@@ -166,11 +229,15 @@
                     "value"
                   ]
                 }
+              },
+              "fields": {
+                "$ref": "#/components/schemas/StructuredCslV2"
               }
             },
             "required": [
               "format",
-              "unsupported"
+              "unsupported",
+              "fields"
             ]
           }
         },
@@ -271,6 +338,28 @@
             "type": "string"
           }
         }
+      },
+      "LibraryInputV2": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "bibtex",
+              "ris"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20971520
+          }
+        },
+        "required": [
+          "format",
+          "text"
+        ],
+        "additionalProperties": false
       },
       "CheckResponseV2": {
         "type": "object",
@@ -932,26 +1021,7 @@
             "type": "object",
             "properties": {
               "library": {
-                "type": "object",
-                "properties": {
-                  "format": {
-                    "type": "string",
-                    "enum": [
-                      "bibtex",
-                      "ris"
-                    ]
-                  },
-                  "text": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20971520
-                  }
-                },
-                "required": [
-                  "format",
-                  "text"
-                ],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/LibraryInputV2"
               }
             },
             "required": [
@@ -1383,7 +1453,7 @@
                     "enum": [
                       "csl-json",
                       "bibtex",
-                      "import-original"
+                      "imported-format"
                     ]
                   },
                   "mode": {
@@ -1507,26 +1577,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "format": {
-                    "type": "string",
-                    "enum": [
-                      "bibtex",
-                      "ris"
-                    ]
-                  },
-                  "text": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20971520
-                  }
-                },
-                "required": [
-                  "format",
-                  "text"
-                ],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/LibraryInputV2"
               }
             }
           }
@@ -1540,67 +1591,7 @@
                   "type": "object",
                   "properties": {
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "references": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/StructuredReferenceV2"
-                          }
-                        },
-                        "rejected": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "originalText": {
-                                "type": "string"
-                              },
-                              "span": {
-                                "type": "object",
-                                "properties": {
-                                  "start": {
-                                    "type": "number"
-                                  },
-                                  "end": {
-                                    "type": "number"
-                                  }
-                                },
-                                "required": [
-                                  "start",
-                                  "end"
-                                ]
-                              },
-                              "reason": {
-                                "type": "string",
-                                "enum": [
-                                  "malformed-record"
-                                ]
-                              }
-                            },
-                            "required": [
-                              "originalText",
-                              "span",
-                              "reason"
-                            ]
-                          }
-                        },
-                        "quotaConsumed": {
-                          "type": "number",
-                          "enum": [
-                            0
-                          ]
-                        },
-                        "referenceLimit": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "references",
-                        "rejected",
-                        "quotaConsumed",
-                        "referenceLimit"
-                      ]
+                      "$ref": "#/components/schemas/ImportResultV2"
                     },
                     "quota": {
                       "anyOf": [

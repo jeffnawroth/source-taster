@@ -83,6 +83,35 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             name: string;
                             value: string;
                         }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
                     } | undefined;
                 };
                 identity: {
@@ -266,6 +295,35 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             name: string;
                             value: string;
                         }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
                     } | undefined;
                 };
                 identity: {
@@ -449,6 +507,35 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             name: string;
                             value: string;
                         }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
                     } | undefined;
                 };
                 identity: {
@@ -632,6 +719,35 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             name: string;
                             value: string;
                         }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
                     } | undefined;
                 };
                 identity: {

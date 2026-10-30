@@ -1,27 +1,94 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { ReferenceLimitExceeded, type StructuredReference } from "@source-taster/core";
-import type { ImportResult, LibraryInput } from "@source-taster/contract-verification/import";
+import type { Csl, Name } from "@source-taster/core";
+import type {
+  ImportResult,
+  LibraryInput,
+} from "@source-taster/contract-verification/import";
+import { bibtexImporter } from "./bibtex.ts";
 import { risImporter } from "./ris.ts";
-import { bibRecords, parseBib } from "./bibtex.ts";
-/** Application-owned port. Library objects never cross transport or persistence. */
-export interface LibraryImporter { parse(input: string, referenceLimit: number): ImportResult }
-const bibtex: LibraryImporter = {
-  parse(text, referenceLimit) {
-    const records=bibRecords(text);
-    if(records.length > referenceLimit) throw new ReferenceLimitExceeded(referenceLimit);
-    const references: StructuredReference[] = [], rejected: ImportResult["rejected"] = [];
-    for (const record of records) {
-      const originalText=text.slice(record.start,record.end), span={start:record.start,end:record.end};
-      try {
-        if(record.malformed) throw new Error("malformed-record");
-        const {csl,unsupported}=parseBib(text,record);
-        references.push({ originalText,span,csl,fieldSources:Object.fromEntries(Object.entries(csl).map(([key,value])=>[key,{raw:typeof value === "string" ? value : JSON.stringify(value)}])),structuring:{path:"parser",version:"bibliojson-4.1.0"},imported:{format:"bibtex",unsupported} });
-      } catch { rejected.push({originalText,span,reason:"malformed-record"}); }
-    }
-    if(!records.length) rejected.push({originalText:text,span:{start:0,end:text.length},reason:"malformed-record"});
-    return {references,rejected,quotaConsumed:0,referenceLimit};
-  },
-};
-export function importLibrary(input: LibraryInput, referenceLimit: number): ImportResult {
-  return (input.format === "bibtex" ? bibtex : risImporter).parse(input.text, referenceLimit);
+/** One edit of a record's raw text; offsets are relative to the record. */
+export interface TextEdit {
+  start: number;
+  end: number;
+  text: string;
+}
+/**
+ * Application-owned import port (ADR-0011). Library objects never cross
+ * transport or persistence; each record keeps its raw text unchanged.
+ */
+export interface LibraryImporter {
+  parse(text: string, referenceLimit: number): ImportResult;
+  /** Rewrites only the given changed fields inside one raw record. */
+  patch(originalText: string, changes: Csl, fields: Csl): string;
+}
+const importers = { bibtex: bibtexImporter, ris: risImporter } as const;
+export function importLibrary(
+  input: LibraryInput,
+  referenceLimit: number,
+): ImportResult {
+  return importers[input.format].parse(input.text, referenceLimit);
+}
+/** Applies non-overlapping edits; inserts at one offset keep their order. */
+export function applyEdits(text: string, edits: readonly TextEdit[]): string {
+  return edits
+    .map((edit, index) => ({ ...edit, index }))
+    .sort((a, b) => b.start - a.start || b.index - a.index)
+    .reduce(
+      (result, edit) =>
+        result.slice(0, edit.start) + edit.text + result.slice(edit.end),
+      text,
+    );
+}
+function nameKey(name: Name): string {
+  return JSON.stringify([
+    name.literal ?? null,
+    name["non-dropping-particle"] ?? null,
+    name.family ?? null,
+    name.given ?? null,
+  ]);
+}
+function same(key: keyof Csl, before: unknown, after: unknown): boolean {
+  if (key === "DOI" && typeof before === "string" && typeof after === "string")
+    return before.toLowerCase() === after.toLowerCase();
+  if (key === "author" && Array.isArray(before) && Array.isArray(after))
+    return (
+      before.length === after.length &&
+      before.every(
+        (name, i) => nameKey(name as Name) === nameKey(after[i] as Name),
+      )
+    );
+  return JSON.stringify(before) === JSON.stringify(after);
+}
+/**
+ * Corrections are the export fields that differ from the immutable import
+ * projection. A field a correction does not supply is not a correction: the
+ * imported value stays. The entry type is never rewritten (BibTeX/RIS types
+ * map many-to-one onto CSL).
+ */
+export function corrections(imported: Csl, fields: Csl): Csl {
+  const changed: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(fields) as [keyof Csl, unknown][])
+    if (
+      key !== "type" &&
+      value !== undefined &&
+      value !== "" &&
+      !same(key, imported[key], value)
+    )
+      changed[key] = value;
+  return changed as Csl;
+}
+/** The imported record, exactly, except for the applied corrections. */
+export function roundTrip(reference: {
+  originalText: string;
+  fields: Csl;
+  imported: { format: LibraryInput["format"]; fields: Csl };
+}): string {
+  const changes = corrections(reference.imported.fields, reference.fields);
+  return Object.keys(changes).length
+    ? importers[reference.imported.format].patch(
+        reference.originalText,
+        changes,
+        reference.imported.fields,
+      )
+    : reference.originalText;
 }

@@ -10,11 +10,14 @@ let fixtures: Awaited<ReturnType<typeof startDoiFixtures>>;
 const headers = { "content-type": "application/json" };
 beforeAll(async () => {
   fixtures = await startDoiFixtures();
-  service = await startTestService(3182, 0, fixtures.env);
+  service = await startTestService(Number(process.env.SOURCE_TASTER_TEST_IMPORTS_PORT ?? 3401), 0, fixtures.env);
 });
 afterAll(async () => { await service?.stop(); await fixtures?.stop(); });
 function post(path: string, body: unknown) {
   return fetch(`${service.apiUrl}/v2/${path}`, { method: "POST", headers, body: JSON.stringify(body) });
+}
+function exactText(response: Response) {
+  return response.arrayBuffer().then((bytes) => new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes));
 }
 const bib = '% Library comment\r\n@book{Müller,\r\n title = {Über {Research}},\r\n author={Müller, Anna and {Research Group}},\r\n year = 2020,\r\n isbn={9780306406157},\r\n customfield = {Keep ALL of this!}\r\n}\r\n\r\n';
 it("imports BibTeX fields and exposes unsupported data without consuming Quota, then downloads the exact original record", async () => {
@@ -24,7 +27,7 @@ it("imports BibTeX fields and exposes unsupported data without consuming Quota, 
   const preview = await response.json();
   expect(preview.data).toMatchObject({ quotaConsumed: 0, rejected: [], references: [{ originalText: bib, csl: { type: "book", title: "Über Research", author: [{family:"Müller",given:"Anna"},{literal:"Research Group"}], issued:{literal:"2020"}, ISBN:"9780306406157" }, imported: { unsupported: [{name:"customfield",value:"Keep ALL of this!"}] } }] });
   const check = CheckResponse.parse(await (await post("checks", { library })).json()).data;
-  const output = await post(`checks/${check.id}/export`, { format: "import-original", mode: "original" });
+  const output = await post(`checks/${check.id}/export`, { format: "imported-format", mode: "original" });
   expect(output.status).toBe(200);
   expect(output.headers.get("content-disposition")).toContain('.bib"');
   expect(await output.text()).toBe(bib);
@@ -41,7 +44,7 @@ it("rejects malformed BibTeX records independently and routes accepted CSL types
   const stream = await fetch(`${service.apiUrl}/v2/checks/${check.id}/events`);
   for await (const frame of readSseFrames(stream.body!)) void frame;
   const final = CheckResponse.parse(await (await fetch(`${service.apiUrl}/v2/checks/${check.id}`)).json()).data;
-  expect(final.references[0]!.outcome).toMatchObject({kind:"verdict",verdict:"not-verifiable",route:"outside-coverage"});
+  expect(final.references[0]!.outcome).toMatchObject({kind:"verdict",verdict:"not-verifiable",reasons:["outside-coverage"]});
 });
 it("imports RIS dialect continuations and full dates, preserves name particles and unknown tags, and round trips CRLF exactly", async () => {
   const text = '\uFEFFTY  - BOOK\r\nAU  - van Beethoven, Ludwig\r\nTI  - A synthetic title\r\n      with continuation\r\nPY  - 2020\r\nDA  - 2020/03/14\r\nSN  - 9780306406157\r\nZZ  - Unsupported\r\ncontinuation without indent\r\nER  - \r\n\r\nTY  - JOUR\r\nTI  - Missing end marker\r\nTY  - STAT\r\nTI  - Synthetic law\r\nER  - \r\n';
@@ -54,32 +57,80 @@ it("imports RIS dialect continuations and full dates, preserves name particles a
   expect(result.references[0]).toMatchObject({csl:{type:"book",title:"A synthetic title with continuation",author:[{family:"Beethoven","non-dropping-particle":"van",given:"Ludwig"}],issued:{literal:"2020-03-14"},ISBN:"9780306406157"},imported:{unsupported:[{name:"ZZ",value:"Unsupported continuation without indent"}]}});
   expect(result.references[1].csl.type).toBe("legislation");
   const check = CheckResponse.parse(await (await post("checks",{library})).json()).data;
-  const output = await post(`checks/${check.id}/export`,{format:"import-original",mode:"original"});
+  const output = await post(`checks/${check.id}/export`,{format:"imported-format",mode:"original"});
   expect(output.status).toBe(200);
   expect(output.headers.get("content-type")).toBe("application/x-research-info-systems; charset=utf-8");
-  expect(await output.text()).toBe(result.references.map((r:{originalText:string})=>r.originalText).join(""));
+  // Response.text() strips a leading BOM; the downloaded bytes must keep it.
+  expect(await exactText(output)).toBe(result.references.map((r:{originalText:string})=>r.originalText).join(""));
   expect((await post(`checks/${check.id}/export`,{format:"ris",mode:"original"})).status).toBe(400);
   await post(`checks/${check.id}/cancel`,{});
 });
-it("patches only applied corrections in imported BibTeX and RIS, preserving comments, unsupported fields and other whitespace", async () => {
-  for (const [format,text,oldDate,newDate] of [
-    ["bibtex",'% exact header\n@article{KeepKey,\n title = {Measured measurement}, % keep comment\n author = {Aspelmeyer, M.},\n year = {2008},\n journal={Nature Physics}, volume={5}, pages={12}, doi={10.1038/nphys1170},\n customfield = {Keep me} % trailing comment\n}\n', 'year = {2008}', 'year = {2009}'],
-    ["ris",'TY  - JOUR\r\nTI  - Measured measurement\r\nAU  - Aspelmeyer, M.\r\nPY  - 2008\r\nJO  - Nature Physics\r\nVL  - 5\r\nSP  - 12\r\nDO  - 10.1038/nphys1170\r\nZZ  - Keep me\r\nER  - \r\n', 'PY  - 2008', 'PY  - 2009-01'],
-  ] as const) {
-    const check = CheckResponse.parse(await (await post("checks",{library:{format,text}})).json()).data;
-    const stream=await fetch(`${service.apiUrl}/v2/checks/${check.id}/events`);
-    for await(const frame of readSseFrames(stream.body!)) void frame;
-    const preview = (await (await post(`checks/${check.id}/bibliography`,{style:"apa",includeBibliography:false})).json()).data;
-    expect(preview.entries[0].resultToken).toMatch(/^[a-f0-9]{64}$/u);
-    const corrected=await post(`checks/${check.id}/export`,{format:"import-original",mode:"selected-corrections",corrections:[{slot:1,resultToken:preview.entries[0].resultToken}]});
-    expect(corrected.status).toBe(200);
-    const output=await corrected.text();
-    expect(output).toContain(newDate);
-    expect(output).not.toContain(oldDate);
-    expect(output).toContain(format==="bibtex"?'customfield = {Keep me} % trailing comment':'ZZ  - Keep me\r\n');
-    expect(output).toContain(format==="bibtex"?'% exact header\n@article{KeepKey,':'TY  - JOUR\r\n');
-    expect(output).toContain(format==="bibtex"?'pages={12}':'SP  - 12\r\n');
-    const original=await post(`checks/${check.id}/export`,{format:"import-original",mode:"original"});
-    expect(await original.text()).toBe(text);
-  }
+async function finished(id: string) {
+  const stream = await fetch(`${service.apiUrl}/v2/checks/${id}/events`);
+  for await (const frame of readSseFrames(stream.body!)) void frame;
+}
+async function exportCorrected(id: string, slot: number) {
+  const preview = (await (await post(`checks/${id}/bibliography`, { style: "apa", includeBibliography: false })).json()).data;
+  const entry = preview.entries.find((e: { slot: number }) => e.slot === slot);
+  expect(entry.resultToken).toMatch(/^[a-f0-9]{64}$/u);
+  return post(`checks/${id}/export`, { format: "imported-format", mode: "selected-corrections", corrections: [{ slot, resultToken: entry.resultToken }] });
+}
+// The recorded Crossref Source (10.1038/nphys1170) is Markus Aspelmeyer, January 2009.
+const untouchedBib = "@book{Other,\n  title = \"Kept {Exactly}\",\n  year = 1999\n}\n\n% between records\n";
+const correctedBib = "% exact header\n@article{KeepKey,\n title = {Measured measurement}, % keep comment\n author = {Aspelmeyer, M.},\n year = {2008},\n journal={Nature Physics}, volume={5}, pages={12}, doi={10.1038/nphys1170},\n customfield = {Keep me} % trailing comment\n}\n";
+it("patches only an applied correction into its imported BibTeX record and keeps every other byte", async () => {
+  const text = correctedBib + untouchedBib;
+  const check = CheckResponse.parse(await (await post("checks", { library: { format: "bibtex", text } })).json()).data;
+  await finished(check.id);
+  const corrected = await exportCorrected(check.id, 1);
+  expect(corrected.status).toBe(200);
+  const output = await exactText(corrected);
+  expect(output.endsWith(untouchedBib)).toBe(true);
+  const record = output.slice(0, output.length - untouchedBib.length);
+  expect(record).toContain("% exact header\n@article{KeepKey,\n title = {Measured measurement}, % keep comment\n author = {Aspelmeyer, Markus},\n year = {2009},");
+  expect(record).toContain("journal={Nature Physics}, volume={5}, pages={12}, doi={10.1038/nphys1170},");
+  expect(record).toContain("customfield = {Keep me}");
+  expect(record).toContain("month = jan");
+  const reimported = (await (await post("imports", { format: "bibtex", text: output })).json()).data;
+  expect(reimported.rejected).toEqual([]);
+  expect(reimported.references[0].csl).toMatchObject({ title: "Measured measurement", issued: { literal: "2009-01" }, author: [{ family: "Aspelmeyer", given: "Markus" }], issue: "1" });
+  expect(reimported.references[1].originalText).toBe(untouchedBib);
+  const original = await post(`checks/${check.id}/export`, { format: "imported-format", mode: "original" });
+  expect(await exactText(original)).toBe(text);
+  await post(`checks/${check.id}/cancel`, {});
+});
+it("patches only an applied correction into its imported RIS record using RIS date conventions", async () => {
+  const correctedRis = "TY  - JOUR\r\nTI  - Measured measurement\r\nAU  - Aspelmeyer, M.\r\nPY  - 2008\r\nJO  - Nature Physics\r\nVL  - 5\r\nSP  - 12\r\nDO  - 10.1038/nphys1170\r\nZZ  - Keep me\r\nER  - \r\n\r\n";
+  const untouchedRis = "TY  - BOOK\r\nTI  - Kept exactly\r\nPY  - 1999\r\nER  - \r\n";
+  const text = correctedRis + untouchedRis;
+  const check = CheckResponse.parse(await (await post("checks", { library: { format: "ris", text } })).json()).data;
+  await finished(check.id);
+  const corrected = await exportCorrected(check.id, 1);
+  expect(corrected.status).toBe(200);
+  expect(corrected.headers.get("content-disposition")).toContain('.ris"');
+  const output = await exactText(corrected);
+  expect(output.endsWith(untouchedRis)).toBe(true);
+  const record = output.slice(0, output.length - untouchedRis.length);
+  expect(record).toContain("TY  - JOUR\r\nTI  - Measured measurement\r\nAU  - Aspelmeyer, Markus\r\nPY  - 2009\r\nDA  - 2009/01//\r\nJO  - Nature Physics\r\nVL  - 5\r\nSP  - 12\r\n");
+  expect(record).toContain("ZZ  - Keep me\r\n");
+  expect(record).toMatch(/\r\nER  - \r\n\r\n$/u);
+  const reimported = (await (await post("imports", { format: "ris", text: output })).json()).data;
+  expect(reimported.rejected).toEqual([]);
+  expect(reimported.references[0].csl).toMatchObject({ issued: { literal: "2009-01" }, author: [{ family: "Aspelmeyer", given: "Markus" }], issue: "1" });
+  await post(`checks/${check.id}/cancel`, {});
+});
+it("refuses the imported-format download for a Check that was not imported", async () => {
+  const check = CheckResponse.parse(await (await post("checks", { references: [{ originalText: "Pasted text", fields: { title: "Pasted text" } }] })).json()).data;
+  expect((await post(`checks/${check.id}/export`, { format: "imported-format", mode: "original" })).status).toBe(400);
+  await post(`checks/${check.id}/cancel`, {});
+});
+it("maps duplicate BibTeX citation keys by record and resolves library string macros", async () => {
+  const text = '@string{jnp = {Nature Physics}}\n@article{Dup, title={One}, journal=jnp, year=2008}\n@inproceedings{Dup, title={Two}, booktitle={Proceedings}, year=2009}\n';
+  const result = (await (await post("imports", { format: "bibtex", text })).json()).data;
+  expect(result.rejected).toEqual([]);
+  expect(result.references.map((r: { csl: object }) => r.csl)).toMatchObject([
+    { type: "article-journal", title: "One", "container-title": "Nature Physics", issued: { literal: "2008" } },
+    { type: "paper-conference", title: "Two", "container-title": "Proceedings", issued: { literal: "2009" } },
+  ]);
+  expect(result.references.map((r: { originalText: string }) => r.originalText).join("")).toBe(text);
 });

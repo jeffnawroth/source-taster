@@ -238,6 +238,35 @@ export declare const createCheck: {
                                                 name: import("zod").ZodString;
                                                 value: import("zod").ZodString;
                                             }, import("zod/v4/core").$strip>>;
+                                            fields: import("zod").ZodObject<{
+                                                type: import("zod").ZodOptional<import("zod").ZodString>;
+                                                author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                    family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                    given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>>;
+                                                issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                    literal: import("zod").ZodString;
+                                                }, import("zod/v4/core").$strip>>;
+                                                title: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                                publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                                volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                                issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                                page: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                                edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                                DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                                URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>;
                                         }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>;
                                     identity: import("zod").ZodObject<{
@@ -676,6 +705,35 @@ export declare const getCheck: {
                                                 name: import("zod").ZodString;
                                                 value: import("zod").ZodString;
                                             }, import("zod/v4/core").$strip>>;
+                                            fields: import("zod").ZodObject<{
+                                                type: import("zod").ZodOptional<import("zod").ZodString>;
+                                                author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                    family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                    given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>>;
+                                                issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                    literal: import("zod").ZodString;
+                                                }, import("zod/v4/core").$strip>>;
+                                                title: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                                publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                                volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                                issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                                page: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                                edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                                DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                                URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>;
                                         }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>;
                                     identity: import("zod").ZodObject<{
@@ -1114,6 +1172,35 @@ export declare const cancelCheck: {
                                                 name: import("zod").ZodString;
                                                 value: import("zod").ZodString;
                                             }, import("zod/v4/core").$strip>>;
+                                            fields: import("zod").ZodObject<{
+                                                type: import("zod").ZodOptional<import("zod").ZodString>;
+                                                author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                    family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                    given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>>;
+                                                issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                    literal: import("zod").ZodString;
+                                                }, import("zod/v4/core").$strip>>;
+                                                title: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                                publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                                volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                                issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                                page: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                                edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                                DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                                URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>;
                                         }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>;
                                     identity: import("zod").ZodObject<{
@@ -1552,6 +1639,35 @@ export declare const renewCheckLease: {
                                                 name: import("zod").ZodString;
                                                 value: import("zod").ZodString;
                                             }, import("zod/v4/core").$strip>>;
+                                            fields: import("zod").ZodObject<{
+                                                type: import("zod").ZodOptional<import("zod").ZodString>;
+                                                author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                                    family: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                                    given: import("zod").ZodOptional<import("zod").ZodString>;
+                                                    literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                                }, import("zod/v4/core").$strip>>>;
+                                                issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                                    literal: import("zod").ZodString;
+                                                }, import("zod/v4/core").$strip>>;
+                                                title: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                                "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                                publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                                volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                                issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                                page: import("zod").ZodOptional<import("zod").ZodString>;
+                                                "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                                edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                                DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                                URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                                arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                            }, import("zod/v4/core").$strip>;
                                         }, import("zod/v4/core").$strip>>;
                                     }, import("zod/v4/core").$strip>;
                                     identity: import("zod").ZodObject<{
@@ -1977,6 +2093,35 @@ export declare const importReferences: {
                                         name: import("zod").ZodString;
                                         value: import("zod").ZodString;
                                     }, import("zod/v4/core").$strip>>;
+                                    fields: import("zod").ZodObject<{
+                                        type: import("zod").ZodOptional<import("zod").ZodString>;
+                                        author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
+                                            family: import("zod").ZodOptional<import("zod").ZodString>;
+                                            "non-dropping-particle": import("zod").ZodOptional<import("zod").ZodString>;
+                                            given: import("zod").ZodOptional<import("zod").ZodString>;
+                                            literal: import("zod").ZodOptional<import("zod").ZodString>;
+                                        }, import("zod/v4/core").$strip>>>;
+                                        issued: import("zod").ZodOptional<import("zod").ZodObject<{
+                                            literal: import("zod").ZodString;
+                                        }, import("zod/v4/core").$strip>>;
+                                        title: import("zod").ZodOptional<import("zod").ZodString>;
+                                        "container-title": import("zod").ZodOptional<import("zod").ZodString>;
+                                        "container-title-short": import("zod").ZodOptional<import("zod").ZodString>;
+                                        publisher: import("zod").ZodOptional<import("zod").ZodString>;
+                                        "publisher-place": import("zod").ZodOptional<import("zod").ZodString>;
+                                        volume: import("zod").ZodOptional<import("zod").ZodString>;
+                                        issue: import("zod").ZodOptional<import("zod").ZodString>;
+                                        page: import("zod").ZodOptional<import("zod").ZodString>;
+                                        "article-number": import("zod").ZodOptional<import("zod").ZodString>;
+                                        edition: import("zod").ZodOptional<import("zod").ZodString>;
+                                        DOI: import("zod").ZodOptional<import("zod").ZodString>;
+                                        URL: import("zod").ZodOptional<import("zod").ZodString>;
+                                        ISBN: import("zod").ZodOptional<import("zod").ZodString>;
+                                        ISSN: import("zod").ZodOptional<import("zod").ZodString>;
+                                        PMID: import("zod").ZodOptional<import("zod").ZodString>;
+                                        PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                        arXiv: import("zod").ZodOptional<import("zod").ZodString>;
+                                    }, import("zod/v4/core").$strip>;
                                 }, import("zod/v4/core").$strip>>;
                             }, import("zod/v4/core").$strip>>;
                             rejected: import("zod").ZodArray<import("zod").ZodObject<{
