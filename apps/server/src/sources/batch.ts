@@ -76,6 +76,7 @@ export function identifierBatches() {
       created.timer = setTimeout(() => {
         void launch(source, policy, created);
       }, policy.windowMs);
+      created.timer.unref();
       open.set(source, created);
       batch = created;
     }
