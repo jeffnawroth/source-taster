@@ -75,7 +75,7 @@ export const articleSearchConfiguration = Object.freeze({
   negativeCoverage:
     "development-openalex-and-crossref-and-every-enabled-search-source-complete-title-author-year",
   failureHandling:
-    "continue-and-name-failed;rate-budget-skips-remaining-source-calls;all-applicable-failed-not-verifiable",
+    "continue-and-name-transport-failed;http-error-per-call;timeout-or-rate-budget-skips-remaining-source-calls;data-findings-not-failed;all-applicable-transport-failed-not-verifiable",
   nameProjection: "openalex-display-name-last-token-family-1",
   receivedEvidence: "normalized-pmcid-arxiv-affirmative-retraction-2",
   identityEvidence: "consistent-connected-groups-counterevidence-4",
@@ -89,6 +89,19 @@ export const articleVerdictRules = "article-verdict-78-1";
 // timeout or an exhausted rate budget makes a Data source unavailable for the
 // rest of the Reference, so one slow source cannot spend the whole deadline.
 const sourceExhausted = new Set(["timeout", "rate-budget"]);
+// Only transport failures make a Data source failed. A data finding such as
+// identifier-mismatch or invalid-metadata still blocks Not found, but the
+// source answered and is never named as failed (ADR-0007).
+export const transportFailures: ReadonlySet<string> = new Set([
+  "timeout",
+  "rate-budget",
+  "http-error",
+  "request-unavailable",
+  "deadline",
+  "after-source-failure",
+]);
+const failed = (e: Evidence) =>
+  e.outcome === "unavailable" && transportFailures.has(e.reason ?? "");
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 export const normalizePmid = (value: string) =>
   value
@@ -493,11 +506,7 @@ export function createBibliographicVerification(ports: {
           note("arxiv", "arxiv", "disabled", "operator-disabled"),
         );
       result.failedSources = [
-        ...new Set(
-          result.evidence
-            .filter((e) => e.outcome === "unavailable")
-            .map((e) => e.source),
-        ),
+        ...new Set(result.evidence.filter(failed).map((e) => e.source)),
       ];
       return result;
     }
@@ -507,10 +516,7 @@ export function createBibliographicVerification(ports: {
       if (evidence.outcome === "unavailable") state.complete = false;
       // A source that timed out or was rate-limited is not asked again for
       // this Reference; the search continues with the other sources.
-      if (
-        evidence.outcome === "unavailable" &&
-        sourceExhausted.has(evidence.reason ?? "")
-      )
+      if (failed(evidence) && sourceExhausted.has(evidence.reason!))
         state.exhausted = true;
     }
     // DOI handling precedes the other identifiers (ADR-0007).
@@ -656,9 +662,7 @@ export function createBibliographicVerification(ports: {
     const applicable = contacted.filter((evidence) => evidence.length);
     if (
       applicable.length &&
-      applicable.every((evidence) =>
-        evidence.every((e) => e.outcome === "unavailable"),
-      )
+      applicable.every((evidence) => evidence.every(failed))
     ) {
       result.reasons = mandatoryComplete()
         ? ["sources-unavailable"]

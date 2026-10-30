@@ -422,6 +422,58 @@ it("is Not verifiable naming every source when all responsible sources fail", as
   });
 });
 
+it("does not count malformed metadata as a failed source", async () => {
+  openalex.respond("/works", 500, {});
+  // Answered, but without a usable record (no DOI): a data finding.
+  crossref.respond("/works", 200, {
+    message: { items: [{ title: ["Malformed"] }] },
+  });
+  europepmc.respond(epmcSearch, 503, {});
+  semanticscholar.respond("/graph/v1/paper/search", 500, {});
+  const { outcome } = await run(stateOfOa);
+  expect(outcome).toMatchObject({
+    verdict: "not-verifiable",
+    reasons: ["insufficient-search"],
+    failedSources: ["openalex", "europepmc", "semanticscholar"],
+  });
+  expect(outcome.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "crossref",
+      outcome: "unavailable",
+      reason: "invalid-metadata",
+    }),
+  );
+});
+
+it("does not name a source as failed for an identifier mismatch", async () => {
+  const record = await fixture("europepmc-pmid29456894.json");
+  openalex.respond("/works/pmid:29456895", 404, {});
+  openalex.respond("/works", 200, { meta: { count: 0 }, results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  europepmc.route((url) =>
+    url.pathname !== epmcSearch
+      ? undefined
+      : url.searchParams.get("query") === "EXT_ID:29456895 AND SRC:MED"
+        ? { status: 200, body: JSON.parse(record) as unknown }
+        : { status: 200, body: { hitCount: 0, resultList: { result: [] } } },
+  );
+  semanticscholar.respond("/graph/v1/paper/search", 200, { total: 0 });
+  const { outcome } = await run({ ...stateOfOa, PMID: "29456895" });
+  expect(outcome).toMatchObject({
+    verdict: "not-verifiable",
+    reasons: ["insufficient-search"],
+    failedSources: [],
+  });
+  expect(outcome.evidence).toContainEqual(
+    expect.objectContaining({
+      source: "europepmc",
+      operation: "pmid",
+      outcome: "unavailable",
+      reason: "identifier-mismatch",
+    }),
+  );
+});
+
 it("reaches Not found only when every enabled search source completed", async () => {
   openalex.respond("/works", 200, { meta: { count: 0 }, results: [] });
   crossref.respond("/works", 200, { message: { items: [] } });
