@@ -25,6 +25,7 @@ at runtime. A renderer/style/locale change changes the returned renderer
 version and needs the measured-configuration qualification of ADR-0011.
 
 For standalone suggestions only, the owned adapter omits CSL citation-number
-nodes in memory and uses a fresh one-entry engine. This removes numbering and
-cross-entry disambiguation without changing the pinned originals. Full RTF
+nodes in memory and disables cross-entry disambiguation and repeated-author substitution.
+One batch engine produces independent entries, removing numbering and
+cross-entry changes without changing the pinned originals. Full RTF
 bibliographies retain style numbering and disambiguation.

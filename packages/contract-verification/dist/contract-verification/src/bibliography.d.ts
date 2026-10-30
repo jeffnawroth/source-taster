@@ -27,6 +27,8 @@ export declare const BibliographyRequest: z.ZodObject<{
         springer: "springer";
         vancouver: "vancouver";
     }>;
+    suggestionSlots: z.ZodOptional<z.ZodArray<z.ZodNumber>>;
+    includeBibliography: z.ZodDefault<z.ZodBoolean>;
     applySlots: z.ZodDefault<z.ZodArray<z.ZodNumber>>;
 }, z.core.$strict>;
 export type BibliographyRequest = z.input<typeof BibliographyRequest>;
@@ -87,11 +89,11 @@ export declare const Bibliography: z.ZodObject<{
         }, z.core.$strip>>;
         applied: z.ZodBoolean;
     }, z.core.$strip>>;
-    bibliography: z.ZodObject<{
+    bibliography: z.ZodNullable<z.ZodObject<{
         text: z.ZodString;
         rtf: z.ZodString;
         html: z.ZodString;
-    }, z.core.$strip>;
+    }, z.core.$strip>>;
 }, z.core.$strip>;
 export type Bibliography = z.infer<typeof Bibliography>;
 export declare const BibliographyResponse: z.ZodObject<{
@@ -147,11 +149,11 @@ export declare const BibliographyResponse: z.ZodObject<{
             }, z.core.$strip>>;
             applied: z.ZodBoolean;
         }, z.core.$strip>>;
-        bibliography: z.ZodObject<{
+        bibliography: z.ZodNullable<z.ZodObject<{
             text: z.ZodString;
             rtf: z.ZodString;
             html: z.ZodString;
-        }, z.core.$strip>;
+        }, z.core.$strip>>;
     }, z.core.$strip>;
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;

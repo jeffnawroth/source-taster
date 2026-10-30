@@ -19,6 +19,9 @@ export const CitationStyle = z.enum([
 export type CitationStyle = z.infer<typeof CitationStyle>;
 export const BibliographyRequest = z.strictObject({
   style: CitationStyle,
+  /** Omit for all suggestions; clients can request just the visible/selected slots. */
+  suggestionSlots: z.array(z.number().int().positive()).max(1000).optional(),
+  includeBibliography: z.boolean().default(true),
   /** Transient export choices. Never write fields, revisions or results. */
   applySlots: z.array(z.number().int().positive()).max(1000).default([]),
 });
@@ -38,7 +41,7 @@ export const Bibliography = z.object({
       applied: z.boolean(),
     }),
   ),
-  bibliography: FormattedReference,
+  bibliography: FormattedReference.nullable(),
 });
 export type Bibliography = z.infer<typeof Bibliography>;
 export const BibliographyResponse = envelope(Bibliography);

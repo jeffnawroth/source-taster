@@ -12,6 +12,7 @@ export function useBibliography(
   check: Check,
   style: CitationStyle,
   transport: VerificationClientOptions,
+  selectedSlot: number | undefined,
 ) {
   const request = useMemo(() => bibliographyClient(transport), [transport]);
   const [applied, setApplied] = useState<number[]>([]);
@@ -22,8 +23,13 @@ export function useBibliography(
   } | null>(null);
   const [attempt, retry] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  // Source progress alone does not require re-rendering. Terminal outcomes do.
+  const slots = [
+    ...new Set([...applied, ...(selectedSlot ? [selectedSlot] : [])]),
+  ];
+  // Only the visible and explicitly selected suggestions are rendered. Other
+  // terminal slots and source progress never regenerate the whole Check.
   const results = check.references
+    .filter((reference) => slots.includes(reference.slot))
     .map(
       (reference) =>
         `${reference.slot}:${reference.outcome.kind === "verdict" ? "verdict" : reference.outcome.status}`,
@@ -33,7 +39,15 @@ export function useBibliography(
   const key = `${contentKey}:${applied.join(",")}:${attempt}`;
   useEffect(() => {
     let current = true;
-    void request(check.id, { style, applySlots: applied })
+    const suggestionSlots = [
+      ...new Set([...applied, ...(selectedSlot ? [selectedSlot] : [])]),
+    ];
+    void request(check.id, {
+      style,
+      applySlots: applied,
+      suggestionSlots,
+      includeBibliography: false,
+    })
       .then((data) => {
         if (current) {
           setResponse({ key, contentKey, data });
@@ -46,8 +60,9 @@ export function useBibliography(
     return () => {
       current = false;
     };
-  }, [request, check.id, style, applied, key, contentKey]);
+  }, [request, check.id, style, applied, selectedSlot, key, contentKey]);
   return {
+    style,
     data:
       response?.contentKey === contentKey
         ? {
@@ -62,6 +77,16 @@ export function useBibliography(
     pending: response?.key !== key,
     failed: error === key,
     retry: () => retry((value) => value + 1),
+    renderExport: async () => {
+      const data = await request(check.id, {
+        style,
+        applySlots: applied,
+        suggestionSlots: [],
+        includeBibliography: true,
+      });
+      if (!data.bibliography) throw new Error("missing-bibliography");
+      return data.bibliography;
+    },
     apply: (slot: number, selected: boolean) =>
       setApplied((current) =>
         selected
@@ -80,17 +105,48 @@ function downloadRtf(rtf: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 /** Rich clipboard uses browser-supported formats; the same render has an RTF download. */
-async function copyRich(value: Bibliography["bibliography"]) {
-  const content: Record<string, Blob> = {
-    "text/plain": new Blob([value.text], { type: "text/plain" }),
-    "text/html": new Blob([value.html], { type: "text/html" }),
+async function copyRich(
+  value: Promise<NonNullable<Bibliography["bibliography"]>>,
+) {
+  // Construct within the click gesture, including on browsers that require it.
+  const content: Record<string, Promise<Blob>> = {
+    "text/plain": value.then(
+      (data) => new Blob([data.text], { type: "text/plain" }),
+    ),
+    "text/html": value.then(
+      (data) => new Blob([data.html], { type: "text/html" }),
+    ),
   };
   if (ClipboardItem.supports?.("text/rtf"))
-    content["text/rtf"] = new Blob([value.rtf], { type: "text/rtf" });
+    content["text/rtf"] = value.then(
+      (data) => new Blob([data.rtf], { type: "text/rtf" }),
+    );
   await navigator.clipboard.write([new ClipboardItem(content)]);
 }
-export function BibliographyActions({ rendered }: { rendered: Rendered }) {
+export function BibliographyActions({
+  rendered,
+  styleLabel,
+}: {
+  rendered: Rendered;
+  styleLabel: string;
+}) {
   const [notice, setNotice] = useState<"copied" | "failed" | null>(null);
+  const [exporting, setExporting] = useState(false);
+  function exportBibliography(action: "copy" | "download") {
+    setExporting(true);
+    setNotice(null);
+    const value = rendered.renderExport();
+    void (
+      action === "copy"
+        ? copyRich(value)
+        : value.then((data) => downloadRtf(data.rtf))
+    )
+      .then(() => {
+        if (action === "copy") setNotice("copied");
+      })
+      .catch(() => setNotice("failed"))
+      .finally(() => setExporting(false));
+  }
   return (
     <section
       aria-label={m.bibliography_heading()}
@@ -98,27 +154,40 @@ export function BibliographyActions({ rendered }: { rendered: Rendered }) {
     >
       <h3 className="font-semibold">{m.bibliography_heading()}</h3>
       <p>{m.correction_export_hint()}</p>
+      <p>{m.bibliography_format_style({ style: styleLabel })}</p>
+      <h4 className="font-semibold">{m.correction_selected_heading()}</h4>
+      {rendered.pending ? (
+        <p>{m.correction_loading()}</p>
+      ) : rendered.data?.entries.some((entry) => entry.applied) ? (
+        <ul className="list-disc space-y-2 pl-5">
+          {rendered.data.entries
+            .filter((entry) => entry.applied)
+            .map((entry) => (
+              <li key={entry.slot} className="break-words">
+                {m.correction_selected_item({
+                  slot: String(entry.slot),
+                  text: entry.suggestion!.text,
+                })}
+              </li>
+            ))}
+        </ul>
+      ) : (
+        <p>{m.correction_none_selected()}</p>
+      )}
       <div className="flex flex-wrap gap-3">
         <button
           type="button"
           className={buttonClass}
-          disabled={!rendered.data || rendered.pending}
-          onClick={() => {
-            if (rendered.data)
-              void copyRich(rendered.data.bibliography)
-                .then(() => setNotice("copied"))
-                .catch(() => setNotice("failed"));
-          }}
+          disabled={!rendered.data || rendered.pending || exporting}
+          onClick={() => exportBibliography("copy")}
         >
           {m.bibliography_copy()}
         </button>
         <button
           type="button"
           className={buttonClass}
-          disabled={!rendered.data || rendered.pending}
-          onClick={() => {
-            if (rendered.data) downloadRtf(rendered.data.bibliography.rtf);
-          }}
+          disabled={!rendered.data || rendered.pending || exporting}
+          onClick={() => exportBibliography("download")}
         >
           {m.bibliography_download()}
         </button>

@@ -439,6 +439,7 @@ export function CheckWorkspace({
               check={check}
               completed={completed}
               citationStyle={preferences.citationStyle}
+              citationStyleLabel={m[styleMessages[preferences.citationStyle]]()}
               transport={transport}
             />
           </div>

@@ -26,6 +26,8 @@ export declare const renderBibliography: {
                             springer: "springer";
                             vancouver: "vancouver";
                         }>;
+                        suggestionSlots: z.ZodOptional<z.ZodArray<z.ZodNumber>>;
+                        includeBibliography: z.ZodDefault<z.ZodBoolean>;
                         applySlots: z.ZodDefault<z.ZodArray<z.ZodNumber>>;
                     }, z.core.$strict>;
                 };
@@ -90,11 +92,11 @@ export declare const renderBibliography: {
                                 }, z.core.$strip>>;
                                 applied: z.ZodBoolean;
                             }, z.core.$strip>>;
-                            bibliography: z.ZodObject<{
+                            bibliography: z.ZodNullable<z.ZodObject<{
                                 text: z.ZodString;
                                 rtf: z.ZodString;
                                 html: z.ZodString;
-                            }, z.core.$strip>;
+                            }, z.core.$strip>>;
                         }, z.core.$strip>;
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;

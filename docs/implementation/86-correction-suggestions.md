@@ -8,7 +8,8 @@ ADR-0016 and ADR-0023. Started at `3855cc64906e3f7e47097e906739a94067ce23d7`.
 
 `POST /v2/checks/{checkId}/bibliography` reads the Owner-authorized snapshot
 under the existing `check:read` permission and current-authority guards,
-including the response write. Responses are `no-store`. The request is a
+including the response write. Pure rendering holds no Owner lock between the
+authorized snapshot read and the re-authorized response write. Responses are `no-store`. The request is a
 closed citation-style identifier and optional `applySlots`. A malformed style
 or nonexistent slot is rejected; requesting an ineligible suggestion never
 makes it eligible. Rendering does not write fields/results, create source
@@ -26,9 +27,9 @@ become CSL date-parts only inside the rendering adapter. For old Candidates
 without a CSL type, known attested provider types are mapped for rendering.
 
 The eleven styles and their three fixed locales are exact upstream snapshots
-with SHA-256 checks, attribution and a renderer version. Startup checks asset
-integrity; builds copy the assets beside emitted server code. A fresh one-item
-engine renders standalone suggestions without numeric labels or year suffixes.
+with SHA-256 checks, attribution and a renderer version. The renderer worker checks asset
+integrity on loading; builds copy the assets beside emitted server code. One batch engine renders independent suggestions with numeric labels,
+year-suffix/name disambiguation and repeated-author substitution disabled.
 The multi-entry bibliography retains style-specific ordering, numbering and
 disambiguation. Missing/uncompleted structured data falls back to the immutable
 original text rather than a fabricated replacement.
@@ -42,8 +43,8 @@ a newer selection, and export controls wait for its matching render.
 The bibliography has an RTF download and rich clipboard copy. Browsers accept
 plain text and safe formatting-only HTML; `text/rtf` is additionally included
 when the browser advertises support. The RTF download is available regardless
-of clipboard MIME support. Clipboard HTML has no links, images or attributes
-and is never inserted into the application DOM. Clipboard failures are
+of clipboard MIME support. Clipboard HTML has no links, images or untrusted attributes; only controlled
+paragraph and typography styles are retained. It is never inserted into the application DOM. Clipboard failures are
 localized; a failed render has an explicit retry action.
 
 ## Evidence and qualification
@@ -56,7 +57,39 @@ invalid requests, Check immutability, one-click copy, rich clipboard data, RTF
 downloads, style/locale switching and a native Chromium side panel. Browser
 checks include axe in DE/EN.
 
-Exact command results are recorded after the final checks below.
+Rendering runs in one reusable worker thread per web process, with at most
+eight queued requests and a 30-second active-job deadline. Saturation/failure
+returns a retryable formatting-unavailable response, never a changed Verdict.
+There is no server-side Check/render cache. Automatic client requests ask only
+for the visible and selected suggestion slots; full bibliographies are rendered
+on explicit copy/download. APA paragraph spacing/hanging indents and IEEE
+inline labels are retained in both RTF and safe clipboard HTML. The export
+section previews the format, localized style name and all selected corrections.
+
+The two review axes identified API event-loop blocking, lost rich paragraph
+layout and the missing selected-correction preview; these were corrected and
+covered at the existing API/browser seams. Repeated bibliography requests in
+tests were consolidated into a public-HTTP helper.
+
+Validation:
+
+- Full `pnpm test`: 275 passed, one failure in the existing maximum-size Check
+  cancellation test (276 total). Its isolated rerun passed. No cancellation or
+  lifecycle code was changed for that failure.
+- Final `corrections.test.ts`: 11 passed, including the review regressions.
+- Targeted two-slot export-preview browser case: passed.
+- Native Chromium extension suite: 5/5, including DE/EN web/panel parity and axe.
+- Workspace type checks, ESLint, Prettier, DE/EN completeness and dependency
+  license inventory passed. Server, web, Chromium and Firefox builds passed;
+  a compiled-JavaScript worker smoke check passed. Client bundles contain no
+  citeproc engine.
+- The full offline `audit:dependencies` cannot run without the local OSV npm
+  and crates.io database cache. A direct public OSV query for the newly added
+  `citeproc@2.4.63` returned no advisories on 2026-10-30. This is not a complete
+  workspace advisory scan.
+- Full web suites: 55/55 primary cases and 18/18 bibliographic cases passed.
+
+See [the two-axis review and corrections](86-review-corrections.md).
 
 The quality gate, private Reference test set, native Word/LibreOffice RTF
 qualification, Safari and full browser release matrix remain the qualification

@@ -66,9 +66,28 @@ export function renderCheckBibliography(
   const applied = new Set(request.applySlots ?? []);
   const items: Csl[] = [];
   const unstructured: string[] = [];
-  const entries = check.references.map((reference) => {
-    const fields = suggestionFields(reference);
-    const formatted = fields ? render([fields], request.style, true) : null;
+  const requested = request.suggestionSlots
+    ? new Set(request.suggestionSlots)
+    : null;
+  const eligible = check.references.map((reference) =>
+    suggestionFields(reference),
+  );
+  const displayed = check.references.flatMap((reference, index) =>
+    eligible[index] && (!requested || requested.has(reference.slot))
+      ? [{ slot: reference.slot, fields: eligible[index] }]
+      : [],
+  );
+  const suggestions = render(
+    displayed.map((entry) => entry.fields),
+    request.style,
+    true,
+  ).entries;
+  const entries = check.references.map((reference, index) => {
+    const fields = eligible[index] ?? null;
+    const displayIndex = displayed.findIndex(
+      (entry) => entry.slot === reference.slot,
+    );
+    const formatted = displayIndex >= 0 ? suggestions[displayIndex]! : null;
     const use = applied.has(reference.slot) && fields !== null;
     const current =
       reference.outcome.kind === "verdict"
@@ -91,25 +110,28 @@ export function renderCheckBibliography(
       applied: use,
     };
   });
-  const bibliography = render(items, request.style);
+  const bibliography =
+    request.includeBibliography !== false ? render(items, request.style) : null;
   return {
     style: request.style,
     rendererVersion,
     entries,
-    bibliography: {
-      html: [
-        bibliography.html,
-        ...unstructured.map(
-          (text) =>
-            `<p>${text.replace(/[&<>"']/gu, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!)}</p>`,
-        ),
-      ].join("\n"),
-      text: [bibliography.text, ...unstructured].filter(Boolean).join("\n"),
-      rtf: rtfDocument(
-        [bibliography.rtfBody, ...unstructured.map(escapeRtf)]
-          .filter(Boolean)
-          .join("\\par\n"),
-      ),
-    },
+    bibliography: bibliography
+      ? {
+          html: [
+            bibliography.html,
+            ...unstructured.map(
+              (text) =>
+                `<p>${text.replace(/[&<>"']/gu, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!)}</p>`,
+            ),
+          ].join("\n"),
+          text: [bibliography.text, ...unstructured].filter(Boolean).join("\n"),
+          rtf: rtfDocument(
+            [bibliography.rtfBody, ...unstructured.map(escapeRtf)]
+              .filter(Boolean)
+              .join("\\par\n"),
+          ),
+        }
+      : null,
   };
 }

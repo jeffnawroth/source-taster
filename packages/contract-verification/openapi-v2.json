@@ -1067,7 +1067,7 @@
     "/v2/checks/{checkId}/bibliography": {
       "post": {
         "summary": "Render Correction suggestions and a formatted bibliography from an authorized snapshot",
-        "description": "Read-only rendering. applySlots selects eligible suggestions for this export only. No fields, evidence, results or Quota are changed. Style locales are pinned independently of interface language.",
+        "description": "Read-only rendering. applySlots selects eligible suggestions for this export only. No fields, evidence, results or Quota are changed. Style locales are pinned independently of interface language. suggestionSlots limits the suggestion preview; includeBibliography=false omits the full document.",
         "parameters": [
           {
             "schema": {
@@ -1102,6 +1102,18 @@
                       "din-iso-690"
                     ]
                   },
+                  "suggestionSlots": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "maxItems": 1000
+                  },
+                  "includeBibliography": {
+                    "type": "boolean",
+                    "default": true
+                  },
                   "applySlots": {
                     "type": "array",
                     "items": {
@@ -1122,7 +1134,7 @@
         },
         "responses": {
           "200": {
-            "description": "Suggestions and a complete RTF document, rendered locally on the server.",
+            "description": "Requested suggestions and, by default, a complete RTF document rendered locally on the server.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1281,7 +1293,10 @@
                           }
                         },
                         "bibliography": {
-                          "type": "object",
+                          "type": [
+                            "object",
+                            "null"
+                          ],
                           "properties": {
                             "text": {
                               "type": "string"
@@ -1382,7 +1397,7 @@
             }
           },
           "503": {
-            "description": "Current authority is unavailable.",
+            "description": "Current authority or bounded formatting capacity is unavailable.",
             "content": {
               "application/problem+json": {
                 "schema": {

@@ -194,5 +194,10 @@
   "bibliography_heading": "Formatted bibliography",
   "bibliography_copy": "Copy formatted bibliography",
   "bibliography_download": "Download formatted bibliography (RTF)",
-  "correction_retry": "Retry formatting"
+  "correction_retry": "Retry formatting",
+  "bibliography_format_style": "Format: RTF · Citation style: {style}",
+  "correction_selected_heading": "Selected corrections",
+  "correction_selected_item": "Reference {slot}: {text}",
+  "correction_none_selected": "No corrections selected. The export uses the current fields.",
+  "correction_loading": "Formatting…"
 }

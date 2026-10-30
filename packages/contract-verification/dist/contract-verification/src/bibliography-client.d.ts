@@ -44,5 +44,5 @@ export declare function bibliographyClient(options?: VerificationClientOptions):
         text: string;
         rtf: string;
         html: string;
-    };
+    } | null;
 }>;

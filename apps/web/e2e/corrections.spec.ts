@@ -15,7 +15,7 @@ test("copies a Correction suggestion and applies it only to the formatted export
   await page
     .getByRole("textbox")
     .fill(
-      "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+      "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170\nAspelmeyer, M. (2007). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
     );
   await page
     .getByRole("button", { name: "Check Reference", exact: true })
@@ -37,6 +37,28 @@ test("copies a Correction suggestion and applies it only to the formatted export
     .getByRole("checkbox", { name: "Apply for export only" })
     .check();
   await expect(suggestion.getByRole("checkbox")).toBeChecked();
+  await page
+    .getByRole("list", { name: "References", exact: true })
+    .getByRole("button")
+    .nth(1)
+    .click();
+  await suggestion
+    .getByRole("checkbox", { name: "Apply for export only" })
+    .check();
+  const exportPreview = page.getByRole("region", {
+    name: "Formatted bibliography",
+    exact: true,
+  });
+  await expect(exportPreview.getByRole("listitem")).toHaveCount(2);
+  await expect(exportPreview).toContainText(
+    "Reference 1: Aspelmeyer, M. (2009).",
+  );
+  await expect(exportPreview).toContainText(
+    "Reference 2: Aspelmeyer, M. (2009).",
+  );
+  await expect(exportPreview).toContainText(
+    "Format: RTF · Citation style: APA",
+  );
   const downloadEvent = page.waitForEvent("download");
   await page
     .getByRole("button", {

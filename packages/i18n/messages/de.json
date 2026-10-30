@@ -194,5 +194,10 @@
   "bibliography_heading": "Formatiertes Literaturverzeichnis",
   "bibliography_copy": "Formatiertes Literaturverzeichnis kopieren",
   "bibliography_download": "Formatiertes Literaturverzeichnis herunterladen (RTF)",
-  "correction_retry": "Formatierung erneut versuchen"
+  "correction_retry": "Formatierung erneut versuchen",
+  "bibliography_format_style": "Format: RTF · Zitierstil: {style}",
+  "correction_selected_heading": "Ausgewählte Korrekturen",
+  "correction_selected_item": "Referenz {slot}: {text}",
+  "correction_none_selected": "Keine Korrekturen ausgewählt. Der Export verwendet die aktuellen Felder.",
+  "correction_loading": "Wird formatiert…"
 }
