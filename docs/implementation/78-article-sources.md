@@ -22,10 +22,13 @@ PostgreSQL budget transport:
   is a completed empty result.
 - **Semantic Scholar** (`apps/server/src/sources/semanticscholar.ts`). The
   `ARXIV:` index lookup and bibliographic search (`/graph/v1/paper/search`,
-  limit 5). A 404 on a lookup is a completed empty result.
+  limit 5). Since the review corrections, valid arXiv identifiers are looked up
+  in batches through `POST /graph/v1/paper/batch`; an unknown identifier is a
+  completed empty result.
 - **arXiv** (`apps/server/src/sources/arxiv.ts`). Identifier lookup only:
-  `id_list` against the Atom API, read by a bounded parser. arXiv is never
-  searched.
+  `id_list` against the Atom API, read by a bounded parser and batched across
+  Checks (see [the review corrections](78-review-corrections.md)). arXiv is
+  never searched.
 
 Routes follow ADR-0007:
 
@@ -43,15 +46,18 @@ or arXiv request.
 
 ### Source failures
 
-A transport failure makes a Data source unavailable for the rest of that
-Reference. The failures are a timeout (new evidence reason `timeout`), a
-rate-limit wait beyond its bound (`rate-budget`), an HTTP error (`http-error`)
-or an unreachable source (`request-unavailable`). Later operations for that
-source are recorded as `unavailable` / `after-source-failure` and send no
-request. The other sources continue. This keeps one slow provider from consuming
-the 30-second Reference deadline once per search kind.
+A timeout (new evidence reason `timeout`) or a rate-limit wait beyond its bound
+(`rate-budget`) makes a Data source unavailable for the rest of that Reference.
+Later operations for that source are recorded as `unavailable` /
+`after-source-failure` and send no request. The other sources continue. This
+keeps one slow provider from consuming the 30-second Reference deadline once
+per search kind. An HTTP error (`http-error`) or an unreachable source
+(`request-unavailable`) is retried at most once per call, and the source's
+later operations still run (ADR-0007; corrected in review).
 
-`failedSources` names every source with unavailable evidence:
+`failedSources` names every source with a transport failure. A data finding
+such as `invalid-metadata`, `identifier-mismatch` or `response-size` blocks Not
+found but does not name the source as failed (corrected in review):
 
 - Not found requires every enabled search source to complete. One failure blocks
   it (ADR-0008, `insufficient-search`).
@@ -72,15 +78,21 @@ were added; the identifier-mismatch text now says "identifier" rather than
 
 ### Operating settings
 
-`packages/core/src/search-settings.ts` holds the ADR-0007 initial values:
+`packages/core/src/search-settings.ts` holds the default operating settings.
+They are the single source of truth; the Version 1 DOI tracer limits are
+derived from them:
 
-- 3 s request timeout, one retry, a Retry-After bound of 2 s.
+- 3 s request timeout per source, one retry, a Retry-After bound of 2 s.
 - At most 10 running References per Check, 20 References per worker.
 - Owner-then-Check round robin.
 - Per-source interval, concurrency and maximum permit wait. The values are
   doi.org 50 ms; Crossref 200 ms (1 s for searches) with concurrency 1;
   OpenAlex 1 s / 1; Europe PMC 100 ms / 1; Semantic Scholar 1 s / 1;
-  arXiv 3 s / 1.
+  arXiv 3 s / 1. Europe PMC, Semantic Scholar, arXiv and doi.org use the
+  ADR-0007 initial caps. Crossref and OpenAlex keep the slower #74/#77
+  development values, below ADR-0007's caps.
+- Identifier batching for Semantic Scholar (200 ms, 500 identifiers) and arXiv
+  (until the permit, 100 identifiers).
 
 The Operator changes them with `SOURCE_TASTER_SEARCH_SETTINGS`, a strict JSON
 patch over the defaults. The config validates bounds and rejects unknown keys and
@@ -88,8 +100,8 @@ sources. An invalid patch, or settings without the bibliographic preview, refuse
 startup (exit 78). Each Version 2 article result records the flattened settings
 in its Search configuration. A 16-hex SHA-256 over their canonical form enters the
 Search strategy version:
-`article-search-78-1-<sources>-settings-<hash>-uncalibrated`. The verdict rules
-suffix is `article-verdict-78-1`.
+`article-search-78-2-<sources>-settings-<hash>-uncalibrated`. The verdict rules
+suffix is `article-verdict-78-2` (78-1 before the review corrections).
 
 The budget reads per-source settings. The Check store applies
 `activeReferencesPerCheck` and orders dispatch by the Owner's latest running
@@ -114,7 +126,8 @@ reason, the progress values and the Europe PMC retraction source. The v2
 `StructuredCsl` accepts `arXiv`, and Candidate CSL uses the v2 shape. The
 committed `dist` and `openapi-v2.json` are regenerated. Version 1 and its
 `openapi.json` are unchanged. A Version 1 create keeps the DOI tracer and default
-budgets (maximum permit wait 30 s) regardless of the new settings.
+budgets (maximum permit wait bounded by the Reference deadline) regardless of
+the new settings.
 
 ## Acceptance criteria and public evidence
 
@@ -159,29 +172,28 @@ Existing #77 tests changed in three ways:
 
 ## Deviations and open questions
 
-- **arXiv not implemented in full.** Cross-Check arXiv batching and Semantic
-  Scholar 200 ms batching from ADR-0007 are not implemented; lookups are single
-  and rate-limited. The parser does not extract arXiv identifiers from free
+- **arXiv not implemented in full.** ADR-0007 identifier batching is
+  implemented per worker process since the review corrections; cross-process
+  batching is not. The parser does not extract arXiv identifiers from free
   text; only structured `arXiv` input is routed. arXiv is not a compared field.
 - **Semantic Scholar as the arXiv index.** It is the index ahead of the arXiv
   API, chosen from ADR-0007's route list. Its data licence for a paid product
   is unresolved (research note), and no Semantic Scholar payload is stored.
 - **Deadline not a setting.** The 30-second Reference deadline remains the
   ADR-0007 constant.
-- **Timeout is global.** The criterion names per-source timeouts, but only one
-  `requestTimeoutMs` exists and it applies to every source. The per-source
-  settings are interval, concurrency and maximum permit wait.
-- **Fairness is not switchable.** `fairness` is recorded and hashed but has one
-  value and is not accepted in the `SOURCE_TASTER_SEARCH_SETTINGS` patch. The
-  operator-tunable fairness settings are `activeReferencesPerCheck` and
-  `workerConcurrency`.
+- **Timeout per source.** Resolved in review: `requestTimeoutMs` is a
+  per-source setting.
+- **Fairness mode is fixed.** Owner-then-Check round robin is the only mode and
+  is recorded as `scheduling`, outside the settings hash. The operator-tunable
+  fairness settings are `activeReferencesPerCheck` and `workerConcurrency`.
 - **No Semantic Scholar fixture (open decision).** Criterion 1 asks for
   recorded fixtures; Semantic Scholar has only synthetic ones. Recording a
   sanitized payload, or accepting synthetic-only, depends on the unresolved
   licence and is left to the parent.
-- **Changed #77 evidence.** A failed source's later operations now read
-  `after-source-failure`. Previously each was attempted again and recorded as
-  `rate-budget` or `deadline`.
+- **Changed #77 evidence.** A timed-out or rate-limited source's later
+  operations now read `after-source-failure`. Previously each was attempted
+  again and recorded as `rate-budget` or `deadline`. HTTP errors keep the #77
+  per-call behavior (restored in review).
 - **Negative-window cap test.** The per-Check cap is shown by a bounded
   negative observation window, not by an internal signal.
 - **Browser E2E with a stub website artifact.** The local browser run used a
@@ -207,7 +219,8 @@ implementation tree:
   61/61 in isolation and in the clean full run above.
 - **Same run, one real failure.** The #77 case "continues to Crossref after an
   OpenAlex failure…" failed and was updated to the intended
-  `after-source-failure` evidence (two OpenAlex requests in total).
+  `after-source-failure` evidence (two OpenAlex requests in total). The review
+  corrections restored the #77 expectation.
 - **Browser, bibliographic config.** 20/20 passed, including the new
   failed-source case in English and German with axe.
 - **Browser, main config.** 47 passed, 1 failed:
