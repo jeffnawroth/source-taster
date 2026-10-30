@@ -11,6 +11,8 @@ const CandidateDataSource = z.enum([
     "arxiv",
     "openlibrary",
     "googlebooks",
+    "url",
+    "internetarchive",
 ]);
 const SourceName = z.enum(["doi.org", ...CandidateDataSource.options]);
 const Operation = z.enum([
@@ -22,6 +24,8 @@ const Operation = z.enum([
     "combined",
     "title",
     "authors-year",
+    "url",
+    "archive",
 ]);
 /** Version 2 accepts a native arXiv identifier; Version 1 stays unchanged. */
 export const StructuredCsl = v1.StructuredCsl.extend({
@@ -81,11 +85,23 @@ export const Candidate = v1.Candidate.extend({
     identityAmbiguous: z.boolean().optional(),
     retractionEvidence: RetractionEvidence.optional(),
 }).meta({ id: "CandidateV2" });
+export const WebObservation = z
+    .object({
+    originalUrl: z.string(),
+    finalUrl: z.string(),
+    status: z.number().int(),
+    title: z.string().optional(),
+    redirectTarget: z.string().optional(),
+    archiveUrl: z.string().optional(),
+    timestamp: z.string().optional(),
+})
+    .meta({ id: "WebObservationV2" });
 export const SourceEvidence = v1.SourceEvidence.extend({
     source: SourceName,
     operation: Operation,
     outcome: z.enum([
         "exists",
+        "redirect",
         "nonexistent",
         "candidate",
         "no-record",
@@ -94,6 +110,7 @@ export const SourceEvidence = v1.SourceEvidence.extend({
         "skipped",
         "unsupported",
     ]),
+    web: WebObservation.optional(),
     skippedDuplicates: z.array(z.string()).optional(),
     unusedSlots: z.number().int().nonnegative().optional(),
     identifierAmbiguity: z.array(z.string()).optional(),
@@ -106,6 +123,8 @@ export const VerdictResult = v1.VerdictResult.extend({
             "supplied-identifier",
             "independent-bibliography",
             "unresolved",
+            "web-url",
+            "web-archive",
         ]),
     }),
     // Five Candidate slots for each Data source of the widest route (article:
@@ -119,6 +138,8 @@ export const VerdictResult = v1.VerdictResult.extend({
         "ambiguous-identity",
         "insufficient-search",
         "sources-unavailable",
+        "url-unavailable",
+        "web-original-unavailable",
     ])),
     failedSources: z.array(SourceName),
     retraction: z.enum(["unknown", "retracted"]),
@@ -138,6 +159,8 @@ export const ReferenceProgress = z.enum([
     "arxiv",
     "openlibrary",
     "googlebooks",
+    "url",
+    "internetarchive",
 ]);
 export const ReferenceSlot = v1.ReferenceSlot.extend({
     outcome: ReferenceOutcome,

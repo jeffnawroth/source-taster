@@ -177,7 +177,9 @@
               "semanticscholar",
               "arxiv",
               "openlibrary",
-              "googlebooks"
+              "googlebooks",
+              "url",
+              "internetarchive"
             ]
           }
         },
@@ -282,7 +284,9 @@
                       "supplied-doi",
                       "supplied-identifier",
                       "independent-bibliography",
-                      "unresolved"
+                      "unresolved",
+                      "web-url",
+                      "web-archive"
                     ]
                   },
                   "candidateId": {
@@ -331,7 +335,9 @@
                     "search-completed",
                     "ambiguous-identity",
                     "insufficient-search",
-                    "sources-unavailable"
+                    "sources-unavailable",
+                    "url-unavailable",
+                    "web-original-unavailable"
                   ]
                 }
               },
@@ -347,7 +353,9 @@
                     "semanticscholar",
                     "arxiv",
                     "openlibrary",
-                    "googlebooks"
+                    "googlebooks",
+                    "url",
+                    "internetarchive"
                   ]
                 }
               },
@@ -600,7 +608,9 @@
               "semanticscholar",
               "arxiv",
               "openlibrary",
-              "googlebooks"
+              "googlebooks",
+              "url",
+              "internetarchive"
             ]
           },
           "origin": {
@@ -613,7 +623,9 @@
               "isbn",
               "combined",
               "title",
-              "authors-year"
+              "authors-year",
+              "url",
+              "archive"
             ]
           },
           "slot": {
@@ -818,7 +830,9 @@
               "semanticscholar",
               "arxiv",
               "openlibrary",
-              "googlebooks"
+              "googlebooks",
+              "url",
+              "internetarchive"
             ]
           },
           "operation": {
@@ -831,13 +845,16 @@
               "isbn",
               "combined",
               "title",
-              "authors-year"
+              "authors-year",
+              "url",
+              "archive"
             ]
           },
           "outcome": {
             "type": "string",
             "enum": [
               "exists",
+              "redirect",
               "nonexistent",
               "candidate",
               "no-record",
@@ -866,6 +883,9 @@
             "type": "string"
           },
           "raw": {},
+          "web": {
+            "$ref": "#/components/schemas/WebObservationV2"
+          },
           "skippedDuplicates": {
             "type": "array",
             "items": {
@@ -890,6 +910,37 @@
           "durationMs",
           "attempts",
           "observedAt"
+        ]
+      },
+      "WebObservationV2": {
+        "type": "object",
+        "properties": {
+          "originalUrl": {
+            "type": "string"
+          },
+          "finalUrl": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "redirectTarget": {
+            "type": "string"
+          },
+          "archiveUrl": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "originalUrl",
+          "finalUrl",
+          "status"
         ]
       },
       "CreateCheckRequestV2": {

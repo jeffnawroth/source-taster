@@ -29,6 +29,9 @@ export interface Config {
   sseHeartbeatMs: number;
   doiPreview: boolean;
   bibliographicPreview?: boolean;
+  urlEnabled?: boolean;
+  internetarchiveEnabled?: boolean;
+  webFixtureBase?: string;
   openalexEnabled?: boolean;
   openalexBase?: string;
   europepmcEnabled?: boolean;
@@ -120,6 +123,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       "Bibliographic search requires the uncalibrated development profile.",
     );
   for (const [name, label] of [
+    ["URL", "URL reachability"],
+    ["INTERNETARCHIVE", "Internet Archive"],
     ["OPENALEX", "OpenAlex"],
     ["EUROPEPMC", "Europe PMC"],
     ["SEMANTICSCHOLAR", "Semantic Scholar"],
@@ -189,8 +194,31 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       );
     return url.origin;
   }
+  let webFixtureBase: string | undefined;
+  if (env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL) {
+    webFixtureBase = endpoint(
+      "SOURCE_TASTER_WEB_FIXTURE_BASE_URL",
+      "https://fixture.invalid",
+    );
+    const fixture = new URL(webFixtureBase);
+    if (
+      !bibliographicPreview ||
+      env.NODE_ENV === "production" ||
+      !["http:", "https:"].includes(fixture.protocol) ||
+      !["127.0.0.1", "localhost", "[::1]"].includes(fixture.hostname)
+    )
+      throw new ConfigError(
+        "Web fixture replacement is loopback-only in the bibliographic development preview.",
+      );
+  }
   return {
     mode,
+    urlEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_URL_ENABLED === "true",
+    internetarchiveEnabled:
+      bibliographicPreview &&
+      env.SOURCE_TASTER_INTERNETARCHIVE_ENABLED === "true",
+    webFixtureBase,
     doiPreview,
     bibliographicPreview,
     openalexEnabled:
