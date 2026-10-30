@@ -23,8 +23,9 @@ PostgreSQL budget transport:
 - **Semantic Scholar** (`apps/server/src/sources/semanticscholar.ts`). The
   `ARXIV:` index lookup and bibliographic search (`/graph/v1/paper/search`,
   limit 5). Since the review corrections, valid arXiv identifiers are looked up
-  in batches through `POST /graph/v1/paper/batch`; an unknown identifier is a
-  completed empty result.
+  in batches through `POST /graph/v1/paper/batch`; an unknown identifier
+  (`null`) is a completed empty result. Other identifiers use the single
+  `ARXIV:` lookup, where a 404 is a completed empty result.
 - **arXiv** (`apps/server/src/sources/arxiv.ts`). Identifier lookup only:
   `id_list` against the Atom API, read by a bounded parser and batched across
   Checks (see [the review corrections](78-review-corrections.md)). arXiv is

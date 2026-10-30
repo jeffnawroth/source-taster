@@ -48,7 +48,9 @@ clearance, a provider allowance, or approval to retrieve full text.
   whether the data falls under CC BY-NC or ODC-BY. **No Semantic Scholar response
   is stored.** Its tests use explicitly synthetic records in the documented Graph
   API response shape (`paperId`, `title`, `authors`, `year`, `venue`, `journal`,
-  `externalIds`, `publicationDate`).
+  `externalIds`, `publicationDate`). arXiv lookups are served as the
+  `POST /graph/v1/paper/batch` response: an array in request order, with `null`
+  for an unknown identifier.
 
 ## Synthetic witnesses
 
