@@ -26,7 +26,10 @@ export function sourceBudget(
     defer: async (source, delayMs) => {
       await db.$executeRaw`UPDATE verification.source_rates SET next_at=GREATEST(next_at,clock_timestamp()+${delayMs}*interval '1 millisecond') WHERE source=${source}`;
     },
-    acquire: async (source, operation, deadline) => {
+    acquire: async (source, operation, deadline, handover) => {
+      const stop = handover
+        ? AbortSignal.any(signal ? [signal, handover] : [handover])
+        : signal;
       const key =
         source === "doi.org" || source === "crossref"
           ? `${source}:${operation === "doi" ? "doi" : "combined"}`
@@ -40,7 +43,7 @@ export function sourceBudget(
       // unavailable (rate-budget); the search continues with other sources.
       const waitUntil = Math.min(deadline, clock.now() + limits.maxWaitMs);
       while (clock.now() < waitUntil) {
-        signal?.throwIfAborted();
+        stop?.throwIfAborted();
         const id = randomUUID();
         const acquired = await db.$transaction(async (tx) => {
           await tx.$executeRaw`INSERT INTO verification.source_rates(source) VALUES (${source}) ON CONFLICT DO NOTHING`;
@@ -151,7 +154,7 @@ export function sourceBudget(
         await setTimeout(
           Math.min(25, Math.max(1, waitUntil - clock.now())),
           undefined,
-          { signal },
+          { signal: stop },
         );
       }
       return null;

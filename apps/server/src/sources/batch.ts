@@ -6,9 +6,12 @@
 // per process: separate worker processes do not join one batch.
 //
 // One live member (the one with the latest deadline) carries the request with
-// its own permit, retry and Owner guard. Every member leaves on its own
-// cancellation or deadline. A member that has left is not sent; if the carrier
-// leaves, the request is abandoned and the remaining members join a new batch.
+// its own permit, retry and Owner guard. A member that joins a batch waiting
+// for its permit with a later deadline takes the send over before it is sent,
+// so the request's timeout and retry follow the latest deadline among the
+// members at send. Every member leaves on its own cancellation or deadline. A
+// member that has left is not sent; if the carrier leaves, the request is
+// abandoned and the remaining members join a new batch.
 import type { Evidence, SourceName } from "@source-taster/core";
 import type { SourceClock } from "./doi.ts";
 export interface BatchResponse {
@@ -17,10 +20,15 @@ export interface BatchResponse {
   /** The identifiers sent, in request order; absent if nothing was sent. */
   ids?: string[];
 }
-/** Sends one batch; `ids` is read once, when the request is sent. */
+/**
+ * Sends one batch; `ids` is read once, when the request is sent. Until then,
+ * `handover` ends the call (by throwing its reason) so that a member with a
+ * later deadline carries the send instead.
+ */
 export type BatchCarrier = (
   ids: () => string[],
   deadline: number,
+  handover: AbortSignal,
 ) => Promise<{ body?: unknown; evidence: Evidence }>;
 export interface BatchPolicy {
   /** Most distinct identifiers in one request. */
@@ -46,6 +54,8 @@ interface Batch {
   closed: boolean;
   launched: boolean;
   timer?: ReturnType<typeof setTimeout>;
+  carrier?: Member;
+  handover?: AbortController;
   ids?: string[];
 }
 export type IdentifierBatches = ReturnType<typeof identifierBatches>;
@@ -70,6 +80,8 @@ export function identifierBatches() {
       batch = created;
     }
     batch.members.push(member);
+    if (batch.carrier && !batch.ids && member.deadline > batch.carrier.deadline)
+      batch.handover?.abort(new Error("source-batch-handover"));
     if (distinct(live(batch)).length >= policy.size) {
       close(source, batch);
       void launch(source, policy, batch);
@@ -83,6 +95,9 @@ export function identifierBatches() {
     const members = live(batch);
     if (!members.length) return close(source, batch);
     const carrier = members.reduce((a, b) => (b.deadline > a.deadline ? b : a));
+    const handover = new AbortController();
+    batch.carrier = carrier;
+    batch.handover = handover;
     const ids = () => {
       close(source, batch);
       batch.ids ??= distinct(live(batch));
@@ -90,9 +105,10 @@ export function identifierBatches() {
     };
     let response;
     try {
-      response = await carrier.carry(ids, carrier.deadline);
+      response = await carrier.carry(ids, carrier.deadline, handover.signal);
     } catch (error) {
       close(source, batch);
+      if (handover.signal.aborted && !batch.ids) return relaunch();
       // The carrier's run was cancelled or lost its authority; only that run
       // sees the error. The others are still waiting and try again.
       carrier.settle({ error });
@@ -101,6 +117,7 @@ export function identifierBatches() {
     }
     close(source, batch);
     const sent = batch.ids;
+    if (!sent && handover.signal.aborted) return relaunch();
     if (!sent) {
       // Nothing was sent (the carrier's permit wait or deadline ended). That
       // is the carrier's outcome only; the others wait within their own
@@ -114,6 +131,14 @@ export function identifierBatches() {
       if (sent.includes(member.value))
         member.settle({ ...response, ids: sent });
       else add(source, policy, member);
+    /**
+     * A later member took the send over before anything was sent: every live
+     * member, the previous carrier included, joins a new batch, which the
+     * member with the latest deadline carries.
+     */
+    function relaunch() {
+      for (const member of live(batch)) add(source, policy, member);
+    }
   }
   return {
     join(

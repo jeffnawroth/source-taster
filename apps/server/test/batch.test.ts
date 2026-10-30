@@ -179,6 +179,72 @@ it("does not pass an unsent carrier's failure to members that joined later", asy
   expect(sent).toEqual([["b"]]);
 });
 
+/**
+ * A carrier modelled on one source call: it waits for its permit (which a
+ * handover ends before the send), then its request takes `takesMs` within the
+ * deadline it was given, or times out at that deadline.
+ */
+function permitted(grant: Promise<void>, takesMs: number) {
+  const sent: string[][] = [];
+  const carry: BatchCarrier = async (ids, deadline, handover) => {
+    await Promise.race([grant, clock.sleep(60_000, handover)]);
+    const chosen = ids();
+    sent.push(chosen);
+    const left = deadline - Date.now();
+    await clock.sleep(Math.min(takesMs, Math.max(0, left)));
+    return takesMs <= left
+      ? { body: "batch", evidence: answer() }
+      : { evidence: { ...answer(), reason: "timeout" } };
+  };
+  return { sent, carry };
+}
+
+it("gives the request the latest deadline among the members at send", async () => {
+  const batches = identifierBatches();
+  let grant!: () => void;
+  const { sent, carry } = permitted(new Promise((r) => (grant = r)), 400);
+  const policy = { size: 100, windowMs: 0, untilSend: true };
+  const early = join(
+    batches,
+    "a",
+    carry,
+    { deadline: Date.now() + 300 },
+    policy,
+  );
+  await clock.sleep(50);
+  const late = join(batches, "b", carry, {}, policy);
+  await clock.sleep(50);
+  grant();
+  expect((await early).evidence.reason).toBe("deadline");
+  // The request ran within the later member's deadline, not the first's.
+  expect((await late).evidence.reason).toBe("response");
+  expect(sent).toEqual([["a", "b"]]);
+});
+
+it("sends a burst of later members once", async () => {
+  const batches = identifierBatches();
+  let grant!: () => void;
+  const { sent, carry } = permitted(new Promise((r) => (grant = r)), 10);
+  const policy = { size: 100, windowMs: 0, untilSend: true };
+  const joined = [];
+  for (const [index, id] of ["a", "b", "c", "d"].entries()) {
+    joined.push(
+      join(
+        batches,
+        id,
+        carry,
+        { deadline: Date.now() + 1000 * (index + 1) },
+        policy,
+      ),
+    );
+    await clock.sleep(20);
+  }
+  grant();
+  for (const result of await Promise.all(joined))
+    expect(result.evidence.reason).toBe("response");
+  expect(sent).toEqual([["a", "b", "c", "d"]]);
+});
+
 // arXiv answers a whole request with an error for one malformed identifier;
 // the new scheme began with 0704 (four digits) and 1501 (five digits).
 it.each([

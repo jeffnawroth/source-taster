@@ -30,6 +30,8 @@ export interface SourceBudget {
     source: SourceName,
     operation: Evidence["operation"],
     deadline: number,
+    /** Ends the permit wait early (a batch handing its send to another run). */
+    handover?: AbortSignal,
   ) => Promise<SourcePermit | null>;
   defer: (source: SourceName, delayMs: number) => Promise<void>;
 }
@@ -101,7 +103,8 @@ export function createDoiAdapters(options: {
   /**
    * One source call. A target function is evaluated once, when the first
    * attempt is sent, so a batch chooses its identifiers at permit grant; a
-   * retry sends the same target.
+   * retry sends the same target. A handover ends the call with its reason
+   * until the target is sent, never after.
    */
   async function request(
     source: SourceName,
@@ -109,19 +112,27 @@ export function createDoiAdapters(options: {
     deadline: number,
     operation: Evidence["operation"] = "doi",
     format: "json" | "atom" = "json",
+    handover?: AbortSignal,
   ): Promise<{ body?: unknown; evidence: Evidence }> {
     const began = clock.now();
     let target: SourceTarget | undefined;
+    const handedOver = () => target === undefined && !!handover?.aborted;
     let attempts = 0,
       status: number | undefined,
       body: unknown,
       reason = "deadline";
     for (let attempt = 0; attempt <= settings.maxRetries; attempt++) {
       options.signal?.throwIfAborted();
+      if (handedOver()) handover!.throwIfAborted();
       if (clock.now() >= deadline) break;
       await options.beforeRequest?.(source);
       options.signal?.throwIfAborted();
-      const permit = await options.budget.acquire(source, operation, deadline);
+      const permit = await options.budget.acquire(
+        source,
+        operation,
+        deadline,
+        target === undefined ? handover : undefined,
+      );
       if (!permit) {
         reason = "rate-budget";
         break;
@@ -143,6 +154,8 @@ export function createDoiAdapters(options: {
         }
         options.signal?.throwIfAborted();
         await options.beforeRequest?.(source);
+        // The last point to hand over: dispatch consumes the permit's slot.
+        if (handedOver()) handover!.throwIfAborted();
         const send = (timeoutMs: number) => {
           attempts++;
           options.signal?.throwIfAborted();
@@ -267,6 +280,7 @@ export function createDoiAdapters(options: {
         reason = response.status === 429 ? "rate-budget" : "http-error";
       } catch (error) {
         options.signal?.throwIfAborted();
+        if (handedOver()) throw error;
         retry =
           (error instanceof Error && error.name === "TimeoutError") ||
           (requestAbort.signal.reason instanceof DOMException &&
@@ -528,13 +542,14 @@ export function createDoiAdapters(options: {
         deadline,
         clock,
         ...(options.signal ? { signal: options.signal } : {}),
-        carry: (ids, carrierDeadline) =>
+        carry: (ids, carrierDeadline, handover) =>
           request(
             source,
             () => target(ids()),
             carrierDeadline,
             operation,
             format,
+            handover,
           ),
       },
     );
