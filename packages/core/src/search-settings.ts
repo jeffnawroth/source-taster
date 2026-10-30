@@ -21,6 +21,10 @@ export interface SourceSettings {
    * (rate-budget). The wait always ends at the Reference deadline as well.
    */
   maxWaitMs: number;
+  /** Identifier batching (ADR-0007): most distinct identifiers per request. */
+  batchSize?: number;
+  /** Collection time before a batch asks for its permit. */
+  batchWindowMs?: number;
 }
 export interface SearchSettings {
   maxRetries: number;
@@ -66,17 +70,25 @@ export const defaultSearchSettings: SearchSettings = Object.freeze({
       concurrency: 1,
       maxWaitMs: 10000,
     },
+    // ADR-0007: collect for at most 200 ms, at most 500 identifiers.
     semanticscholar: {
       requestTimeoutMs: 3000,
       intervalMs: 1000,
       concurrency: 1,
       maxWaitMs: 10000,
+      batchSize: 500,
+      batchWindowMs: 200,
     },
+    // ADR-0007: one id_list request per three-second opportunity, collecting
+    // until the permit is granted. The API returns at most 2000 results per
+    // request; 100 identifiers keep the GET URL short.
     arxiv: {
       requestTimeoutMs: 3000,
       intervalMs: 3000,
       concurrency: 1,
       maxWaitMs: 10000,
+      batchSize: 100,
+      batchWindowMs: 0,
     },
   }),
 });

@@ -8,10 +8,12 @@ import type {
 } from "@source-taster/core";
 import {
   answered,
+  batchableArxiv,
   displayName,
   lookupResult,
   noRecord,
   unreadable,
+  type SourceBatch,
   type SourceRequest,
 } from "./shared.ts";
 const entities: Record<string, string> = {
@@ -47,17 +49,26 @@ const element = (xml: string, name: string) => {
   ).exec(xml);
   return match ? text(match[1]!) : undefined;
 };
-/** First Atom entry of a bounded response; error entries are not records. */
+/**
+ * The Atom entries of a bounded response by version-free identifier. An error
+ * entry carries no arXiv record identifier.
+ */
+function entries(atom: string) {
+  const records = new Map<string, string>();
+  let error = false;
+  for (const [entry] of atom.matchAll(/<entry>[\s\S]*?<\/entry>/gu)) {
+    const match = element(entry, "id")?.match(/arxiv\.org\/abs\/(.+)$/u);
+    if (match) records.set(normalizeArxiv(match[1]!), entry);
+    else error = true;
+  }
+  return { records, error };
+}
+/** One Atom entry; its raw value is the entry alone, never other lookups. */
 function project(
-  atom: string,
+  entry: string,
+  arXiv: string,
   retrievedAt: string,
-): RetrievedCandidate | undefined {
-  const entry = /<entry>([\s\S]*?)<\/entry>/u.exec(atom)?.[1];
-  if (!entry) return;
-  const id = element(entry, "id");
-  const match = id?.match(/arxiv\.org\/abs\/(.+)$/u);
-  if (!match) return;
-  const arXiv = normalizeArxiv(match[1]!);
+): RetrievedCandidate {
   const title = element(entry, "title");
   const published = element(entry, "published")?.slice(0, 10);
   const doi = element(entry, "arxiv:doi");
@@ -70,7 +81,7 @@ function project(
     source: "arxiv",
     origin: "arxiv",
     retrievedAt,
-    raw: atom,
+    raw: entry,
     csl: {
       arXiv,
       ...(title ? { title } : {}),
@@ -81,29 +92,50 @@ function project(
     },
   };
 }
+const query = (base: string, ids: string[]) => {
+  const url = new URL("/api/query", base);
+  url.searchParams.set("id_list", ids.join(","));
+  url.searchParams.set("max_results", String(ids.length));
+  return url;
+};
 export function arxivAdapter(
   request: SourceRequest,
+  batched: SourceBatch,
   base: string,
 ): BibliographicSource {
   return {
     name: "arxiv",
     identifiers: ["arxiv"],
     async lookup(kind, value, deadline) {
-      const url = new URL("/api/query", base);
-      url.searchParams.set("id_list", value);
-      url.searchParams.set("max_results", "1");
-      const { body, evidence } = await request(
-        "arxiv",
-        url,
-        deadline,
-        kind,
-        "atom",
-      );
+      // ADR-0007: lookups collected across Checks until the next
+      // three-second opportunity share one id_list request.
+      const { body, evidence } = batchableArxiv(value)
+        ? await batched(
+            "arxiv",
+            kind,
+            value,
+            deadline,
+            true,
+            (ids) => ({ url: query(base, ids) }),
+            "atom",
+          )
+        : await request("arxiv", query(base, [value]), deadline, kind, "atom");
       if (!answered(evidence) || typeof body !== "string")
         return { evidence: unreadable(evidence) };
-      const candidate = project(body, evidence.observedAt);
-      if (!candidate) return noRecord(evidence);
-      return lookupResult(evidence, candidate, (c) => c.csl.arXiv === value);
+      const { records, error } = entries(body);
+      const entry = records.get(value);
+      if (!entry)
+        // An error for a well-formed batch answers none of its identifiers;
+        // it is not an absence. A malformed identifier has no record.
+        return error && batchableArxiv(value)
+          ? { evidence: unreadable(evidence) }
+          : noRecord(evidence);
+      const own = { ...evidence, raw: entry };
+      return lookupResult(
+        own,
+        project(entry, value, own.observedAt),
+        (c) => c.csl.arXiv === value,
+      );
     },
   };
 }

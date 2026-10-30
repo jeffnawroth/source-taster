@@ -10,6 +10,12 @@ import type {
   TransportFailure,
 } from "@source-taster/core";
 import { z } from "zod";
+import { identifierBatches, type IdentifierBatches } from "./batch.ts";
+/** A request target; a JSON body makes it a POST. */
+export interface SourceTarget {
+  url: URL;
+  json?: unknown;
+}
 export interface SourceDispatch {
   pending: Promise<Response>;
 }
@@ -86,17 +92,26 @@ export function createDoiAdapters(options: {
     send: () => Promise<SourceDispatch | null>,
   ) => Promise<SourceDispatch | null>;
   beforeRequest?: (source: SourceName) => Promise<void>;
+  /** Process-wide identifier batches shared by concurrent runs. */
+  batches?: IdentifierBatches;
 }) {
   const clock = options.clock ?? systemSourceClock;
   const settings = options.settings ?? defaultSearchSettings;
+  const batches = options.batches ?? identifierBatches();
+  /**
+   * One source call. A target function is evaluated once, when the first
+   * attempt is sent, so a batch chooses its identifiers at permit grant; a
+   * retry sends the same target.
+   */
   async function request(
     source: SourceName,
-    url: URL,
+    to: URL | (() => SourceTarget),
     deadline: number,
     operation: Evidence["operation"] = "doi",
     format: "json" | "atom" = "json",
   ): Promise<{ body?: unknown; evidence: Evidence }> {
     const began = clock.now();
+    let target: SourceTarget | undefined;
     let attempts = 0,
       status: number | undefined,
       body: unknown,
@@ -147,10 +162,17 @@ export function createDoiAdapters(options: {
             },
             Math.max(1, timeoutMs),
           );
-          const pending = fetch(url, {
+          target ??= typeof to === "function" ? to() : { url: to };
+          const pending = fetch(target.url, {
+            ...(target.json === undefined
+              ? {}
+              : { method: "POST", body: JSON.stringify(target.json) }),
             headers: {
               accept:
                 format === "atom" ? "application/atom+xml" : "application/json",
+              ...(target.json === undefined
+                ? {}
+                : { "content-type": "application/json" }),
               "user-agent":
                 "Source-Taster/0.0.0 (uncalibrated development preview)",
             },
@@ -481,5 +503,41 @@ export function createDoiAdapters(options: {
       };
     },
   };
-  return { resolver, source, request, project };
+  /**
+   * An identifier lookup sent in a shared batch (ADR-0007). The run records
+   * its own source progress before joining; the batch is sent by one member.
+   */
+  async function batched(
+    source: SourceName,
+    operation: Evidence["operation"],
+    value: string,
+    deadline: number,
+    untilSend: boolean,
+    target: (ids: string[]) => SourceTarget,
+    format: "json" | "atom" = "json",
+  ) {
+    const { batchSize = 1, batchWindowMs = 0 } = settings.sources[source];
+    options.signal?.throwIfAborted();
+    await options.beforeRequest?.(source);
+    return batches.join(
+      source,
+      { size: batchSize, windowMs: batchWindowMs, untilSend },
+      {
+        value,
+        operation,
+        deadline,
+        clock,
+        ...(options.signal ? { signal: options.signal } : {}),
+        carry: (ids, carrierDeadline) =>
+          request(
+            source,
+            () => target(ids()),
+            carrierDeadline,
+            operation,
+            format,
+          ),
+      },
+    );
+  }
+  return { resolver, source, request, batched, project };
 }

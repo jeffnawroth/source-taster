@@ -25,6 +25,9 @@ import { europepmcAdapter } from "../sources/europepmc.ts";
 import { semanticscholarAdapter } from "../sources/semanticscholar.ts";
 import { arxivAdapter } from "../sources/arxiv.ts";
 import { sourceBudget } from "../sources/budget.ts";
+import { identifierBatches } from "../sources/batch.ts";
+// Identifier lookups of all Reference runs in this process share batches.
+const processBatches = identifierBatches();
 export function referenceExecution(
   config: Config,
   db: Db,
@@ -62,6 +65,7 @@ export function referenceExecution(
     dispatch: context.dispatchSource,
     clock,
     signal: context.signal,
+    batches: processBatches,
   });
   const options = {
     ...adapters,
@@ -112,12 +116,19 @@ export function referenceExecution(
             ? [
                 semanticscholarAdapter(
                   adapters.request,
+                  adapters.batched,
                   config.semanticscholarBase!,
                 ),
               ]
             : []),
           ...(config.arxivEnabled
-            ? [arxivAdapter(adapters.request, config.arxivBase!)]
+            ? [
+                arxivAdapter(
+                  adapters.request,
+                  adapters.batched,
+                  config.arxivBase!,
+                ),
+              ]
             : []),
         ],
       })

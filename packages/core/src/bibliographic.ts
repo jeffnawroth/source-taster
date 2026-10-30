@@ -71,8 +71,9 @@ export const articleSearchConfiguration = Object.freeze({
     "DOI:openalex,crossref;PMID:openalex,europepmc;PMCID:openalex,europepmc;arXiv:semanticscholar,arxiv",
   implementedIdentifierRoutes:
     "openalex:DOI,PMID;crossref:DOI;europepmc:PMID,PMCID;semanticscholar:arXiv;arxiv:arXiv",
-  unimplementedCapabilities:
-    "ISBN,book,web,arXiv-cross-check-batching,Semantic-Scholar-batching",
+  unimplementedCapabilities: "ISBN,book,web,cross-process-identifier-batching",
+  identifierBatching:
+    "process-local;semanticscholar-window-then-permit;arxiv-until-permit;entry-demultiplexed-1",
   negativeCoverage:
     "development-openalex-and-crossref-and-every-enabled-search-source-complete-title-author-year",
   failureHandling:

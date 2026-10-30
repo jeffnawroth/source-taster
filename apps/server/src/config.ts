@@ -244,6 +244,19 @@ const sourceSettings = z.strictObject({
   concurrency: z.number().int().min(1).max(100).optional(),
   maxWaitMs: z.number().int().min(0).max(referenceDeadlineMs).optional(),
 });
+// Identifier batching only exists for the sources that batch (ADR-0007).
+const batchedSettings = {
+  semanticscholar: sourceSettings.extend({
+    // API bound: 500 identifiers; ADR-0007: collect for at most 200 ms.
+    batchSize: z.number().int().min(1).max(500).optional(),
+    batchWindowMs: z.number().int().min(0).max(200).optional(),
+  }),
+  arxiv: sourceSettings.extend({
+    // API bound: at most 2000 results per request.
+    batchSize: z.number().int().min(1).max(2000).optional(),
+    batchWindowMs: z.number().int().min(0).max(3000).optional(),
+  }),
+} as Record<string, typeof sourceSettings>;
 const searchSettingsPatch = z.strictObject({
   // ADR-0007 bounds: at most one retry, after a Retry-After of at most 2 s.
   maxRetries: z.number().int().min(0).max(1).optional(),
@@ -255,13 +268,13 @@ const searchSettingsPatch = z.strictObject({
       Object.fromEntries(
         Object.keys(defaultSearchSettings.sources).map((name) => [
           name,
-          sourceSettings.optional(),
+          (batchedSettings[name] ?? sourceSettings).optional(),
         ]),
       ),
     )
     .optional(),
 });
-/** Partial JSON overrides merged over the ADR-0007 initial values. */
+/** Partial JSON overrides merged over the default search settings. */
 function parseSearchSettings(raw: string | undefined): SearchSettings {
   const patch = searchSettingsPatch.parse(raw ? JSON.parse(raw) : {});
   const { sources = {}, ...rest } = patch;

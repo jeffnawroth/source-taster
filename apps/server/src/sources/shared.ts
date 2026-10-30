@@ -3,6 +3,8 @@
 // response that cannot be read is a data finding (invalid-metadata); any other
 // unavailable evidence keeps its transport reason.
 import type { Evidence, RetrievedCandidate } from "@source-taster/core";
+import type { BatchResponse } from "./batch.ts";
+import type { SourceTarget } from "./doi.ts";
 export type SourceRequest = (
   source: Evidence["source"],
   url: URL,
@@ -10,6 +12,24 @@ export type SourceRequest = (
   operation?: Evidence["operation"],
   format?: "json" | "atom",
 ) => Promise<{ body?: unknown; evidence: Evidence }>;
+/** An identifier lookup sent in a shared batch (sources/batch.ts). */
+export type SourceBatch = (
+  source: Evidence["source"],
+  operation: Evidence["operation"],
+  value: string,
+  deadline: number,
+  untilSend: boolean,
+  target: (ids: string[]) => SourceTarget,
+  format?: "json" | "atom",
+) => Promise<BatchResponse>;
+/**
+ * A syntactically valid version-free arXiv identifier. An invalid identifier
+ * makes arXiv answer the whole request with an error, so it is never batched.
+ */
+export const batchableArxiv = (value: string) =>
+  /^(?:(?:0[7-9]|1[0-4])(?:0[1-9]|1[0-2])\.\d{4}|(?:1[5-9]|[2-9]\d)(?:0[1-9]|1[0-2])\.\d{5})$/u.test(
+    value,
+  ) || /^[a-z]+(?:-[a-z]+)*(?:\.[a-z]{2})?\/\d{7}$/iu.test(value);
 /** The request completed with HTTP 200, so its body can supply records. */
 export const answered = (evidence: Evidence) =>
   evidence.reason === "response" && evidence.status === 200;

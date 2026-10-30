@@ -25,8 +25,15 @@ export async function startDoiFixtures() {
   );
   const responses = new Map<string, FixtureResponse[]>();
   // Query-aware routes for providers that keep one path for several operations.
-  const routes: ((url: URL) => FixtureResponse | undefined)[] = [];
-  const requests: { path: string; at: number; completedAt?: number }[] = [];
+  const routes: ((url: URL, body?: unknown) => FixtureResponse | undefined)[] =
+    [];
+  const requests: {
+    path: string;
+    at: number;
+    completedAt?: number;
+    method?: string;
+    body?: unknown;
+  }[] = [];
   const holds = new Map<
     string,
     { entered: () => void; release: Promise<void>; body: boolean }
@@ -37,6 +44,8 @@ export async function startDoiFixtures() {
         path: decodeURIComponent(req.url ?? ""),
         at: Date.now(),
         completedAt: undefined as number | undefined,
+        method: req.method,
+        body: undefined as unknown,
       };
       // No source adapter requests the root; a bare "/" is an outside port
       // probe (such as an editor's port detection), not a source request.
@@ -44,6 +53,12 @@ export async function startDoiFixtures() {
       res.once("close", () => {
         request.completedAt = Date.now();
       });
+      // JSON request bodies (Semantic Scholar batch lookups) are recorded.
+      if (req.method === "POST") {
+        const chunks: Buffer[] = [];
+        for await (const chunk of req) chunks.push(chunk as Buffer);
+        request.body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+      }
       const hold =
         holds.get(decodeURIComponent(req.url ?? "")) ??
         holds.get(new URL(req.url ?? "/", "http://fixture").pathname);
@@ -61,7 +76,9 @@ export async function startDoiFixtures() {
         responses.get(decodeURIComponent(req.url ?? "")) ??
         responses.get(new URL(req.url ?? "/", "http://fixture").pathname);
       const routed = routes
-        .map((route) => route(new URL(req.url ?? "/", "http://fixture")))
+        .map((route) =>
+          route(new URL(req.url ?? "/", "http://fixture"), request.body),
+        )
         .find(Boolean);
       const override =
         routed ??
@@ -115,8 +132,9 @@ export async function startDoiFixtures() {
       routes.length = 0;
       holds.clear();
     },
-    route: (handler: (url: URL) => FixtureResponse | undefined) =>
-      routes.push(handler),
+    route: (
+      handler: (url: URL, body?: unknown) => FixtureResponse | undefined,
+    ) => routes.push(handler),
     respondSequence: (path: string, sequence: FixtureResponse[]) =>
       responses.set(path, [...sequence]),
     respond: (

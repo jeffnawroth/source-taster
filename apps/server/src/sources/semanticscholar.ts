@@ -14,11 +14,15 @@ import type {
 } from "@source-taster/core";
 import { z } from "zod";
 import {
+  answered,
+  batchableArxiv,
   displayName,
   lookupResult,
   noRecord,
   queryTerms,
   searchResult,
+  unreadable,
+  type SourceBatch,
   type SourceRequest,
 } from "./shared.ts";
 const fields = "title,authors,year,venue,externalIds,publicationDate,journal";
@@ -99,12 +103,44 @@ function project(
 }
 export function semanticscholarAdapter(
   request: SourceRequest,
+  batched: SourceBatch,
   base: string,
 ): BibliographicSource {
   return {
     name: "semanticscholar",
     identifiers: ["arxiv"],
     async lookup(kind, value, deadline) {
+      if (batchableArxiv(value)) {
+        // ADR-0007: one batch request for the lookups collected in 200 ms;
+        // the response lists a record or null per identifier, in order.
+        const { body, evidence, ids } = await batched(
+          "semanticscholar",
+          kind,
+          value,
+          deadline,
+          false,
+          (ids) => {
+            const url = new URL("/graph/v1/paper/batch", base);
+            url.searchParams.set("fields", fields);
+            return { url, json: { ids: ids.map((id) => `ARXIV:${id}`) } };
+          },
+        );
+        if (
+          !answered(evidence) ||
+          !ids ||
+          !Array.isArray(body) ||
+          body.length !== ids.length
+        )
+          return { evidence: unreadable(evidence) };
+        const record: unknown = body[ids.indexOf(value)];
+        if (record === null) return noRecord(evidence);
+        const own = { ...evidence, raw: record };
+        return lookupResult(
+          own,
+          project(record, kind, own.observedAt),
+          (c) => c.csl.arXiv === value,
+        );
+      }
       const url = new URL(
         `/graph/v1/paper/ARXIV:${encodeURIComponent(value)}`,
         base,

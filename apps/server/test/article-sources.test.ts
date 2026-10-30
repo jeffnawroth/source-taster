@@ -236,8 +236,8 @@ const s2Paper = {
 
 it("identifies an arXiv identifier through the Semantic Scholar index before arXiv itself", async () => {
   semanticscholar.route((url) =>
-    url.pathname === "/graph/v1/paper/ARXIV:1706.03762"
-      ? { status: 200, body: s2Paper }
+    url.pathname === "/graph/v1/paper/batch"
+      ? { status: 200, body: [s2Paper] }
       : undefined,
   );
   const { outcome, progress } = await run({
@@ -261,16 +261,19 @@ it("identifies an arXiv identifier through the Semantic Scholar index before arX
   ]);
   expect(outcome.reference.csl.arXiv).toBe("arXiv:1706.03762v5");
   expect(progress).toContain("semanticscholar");
-  expect(semanticscholar.requests).toHaveLength(1);
+  expect(semanticscholar.requests).toMatchObject([
+    { method: "POST", body: { ids: ["ARXIV:1706.03762"] } },
+  ]);
   for (const other of [openalex, crossref, europepmc, arxiv])
     expect(other.requests).toHaveLength(0);
 });
 
 it("falls back to the arXiv API, identifier only, when the index has no record", async () => {
   const atom = await fixture("arxiv-1706.03762.xml");
+  // The batch endpoint lists null for an identifier without a record.
   semanticscholar.route((url) =>
-    url.pathname.startsWith("/graph/v1/paper/ARXIV:")
-      ? { status: 404, body: { error: "Paper not found" } }
+    url.pathname === "/graph/v1/paper/batch"
+      ? { status: 200, body: [null] }
       : undefined,
   );
   arxiv.route((url) =>
@@ -312,6 +315,95 @@ it("falls back to the arXiv API, identifier only, when the index has no record",
   expect(arxiv.requests).toHaveLength(1);
   for (const other of [openalex, crossref, europepmc])
     expect(other.requests).toHaveLength(0);
+});
+
+// Synthetic arXiv records for the batching witness.
+const preprints: Record<string, [string, string, string]> = {
+  "0704.0001": ["Synthetic primer preprint", "Ada Primer", "2007-04-02"],
+  "1706.03762": ["Synthetic batched preprint one", "Ben First", "2017-06-12"],
+  "1810.04805": ["Synthetic batched preprint two", "Cleo Second", "2018-10-11"],
+};
+const preprint = (id: string) => {
+  const [title, name, published] = preprints[id]!;
+  const [given, family] = name.split(" ");
+  return {
+    type: "article-journal",
+    title,
+    author: [{ family: family!, given: given! }],
+    issued: { literal: published.slice(0, 4) },
+    arXiv: id,
+  } satisfies Fields;
+};
+const feed = (ids: string[]) =>
+  `<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">${ids
+    .map((id) => {
+      const [title, name, published] = preprints[id]!;
+      return `<entry><id>http://arxiv.org/abs/${id}v1</id><title>${title}</title><published>${published}T00:00:00Z</published><author><name>${name}</name></author></entry>`;
+    })
+    .join("")}</feed>`;
+
+it("sends arXiv lookups collected across Checks in one id_list request", async () => {
+  // Direct arXiv lookups only; the first request is held long enough for the
+  // next Checks' lookups to collect behind its permit.
+  await service.restart({
+    SOURCE_TASTER_SEMANTICSCHOLAR_ENABLED: "false",
+    SOURCE_TASTER_SEARCH_SETTINGS: JSON.stringify({
+      sources: { arxiv: { requestTimeoutMs: 10000 } },
+    }),
+  });
+  const held = arxiv.hold("/api/query?id_list=0704.0001&max_results=1");
+  arxiv.route((url) =>
+    url.pathname === "/api/query"
+      ? {
+          status: 200,
+          contentType: "application/atom+xml",
+          body: feed(url.searchParams.get("id_list")!.split(",")),
+        }
+      : undefined,
+  );
+  try {
+    const primer = run(preprint("0704.0001"));
+    await held.arrived;
+    const batched = Promise.all([
+      run(preprint("1706.03762")),
+      run(preprint("1810.04805")),
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    held.release();
+    await primer;
+    const outcomes = (await batched).map((r) => r.outcome);
+    const queries = arxiv.requests.map(
+      (r) => new URL(r.path, "http://fixture").searchParams,
+    );
+    expect(queries).toHaveLength(2);
+    expect(queries[1]!.get("id_list")!.split(",").sort()).toEqual([
+      "1706.03762",
+      "1810.04805",
+    ]);
+    expect(queries[1]!.get("max_results")).toBe("2");
+    // Demultiplexed: each run receives only its own record.
+    for (const [index, id] of ["1706.03762", "1810.04805"].entries()) {
+      expect(
+        outcomes[index]!.candidates.filter((c) => c.source === "arxiv"),
+      ).toMatchObject([{ id: `arXiv:${id}`, csl: { arXiv: id } }]);
+      expect(outcomes[index]!.evidence).toContainEqual(
+        expect.objectContaining({
+          source: "arxiv",
+          operation: "arxiv",
+          outcome: "candidate",
+        }),
+      );
+      expect(JSON.stringify(outcomes[index])).not.toContain(
+        id === "1706.03762" ? "1810.04805" : "1706.03762",
+      );
+    }
+  } finally {
+    held.release();
+    await service.restart({
+      SOURCE_TASTER_SEMANTICSCHOLAR_ENABLED: "true",
+      SOURCE_TASTER_SEARCH_SETTINGS: "",
+    });
+  }
 });
 
 // Synthetic Semantic Scholar search witness for the recorded Europe PMC record.
@@ -548,6 +640,13 @@ it("versions the Operator's search operating settings with the Search strategy",
     "settings.arxiv.requestTimeoutMs": 3000,
     "settings.arxiv.intervalMs": 3000,
     "settings.arxiv.concurrency": 1,
+    // ADR-0007 identifier batching.
+    "settings.semanticscholar.batchSize": 500,
+    "settings.semanticscholar.batchWindowMs": 200,
+    "settings.arxiv.batchSize": 100,
+    "settings.arxiv.batchWindowMs": 0,
+    identifierBatching:
+      "process-local;semanticscholar-window-then-permit;arxiv-until-permit;entry-demultiplexed-1",
     maxActiveReferencesPerCheck: 10,
     scheduling: "owner-then-check-round-robin-3",
   });
@@ -620,6 +719,12 @@ it.each([
   { retryAfterMaxMs: 2001 },
   { sources: { arxiv: { concurrency: 0 } } },
   { sources: { unknown: { intervalMs: 1 } } },
+  // ADR-0007: Semantic Scholar collects for at most 200 ms, 500 identifiers;
+  // only the batching sources have batch settings.
+  { sources: { semanticscholar: { batchWindowMs: 201 } } },
+  { sources: { semanticscholar: { batchSize: 501 } } },
+  { sources: { arxiv: { batchSize: 0 } } },
+  { sources: { crossref: { batchSize: 2 } } },
   // One scheduling mode; it is not an Operator setting.
   { fairness: "first-come" },
 ])(
