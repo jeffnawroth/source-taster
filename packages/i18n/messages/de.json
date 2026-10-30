@@ -192,5 +192,21 @@
   "journal_abbreviation_match": "Die Zeitschriftenabkürzung ist für die Zeitschrift dieses Kandidaten belegt.",
   "journal_abbreviation_different": "Die Abkürzung ist für eine andere Zeitschrift belegt. Für die Zeitschrift des Kandidaten ist eine andere Abkürzung belegt.",
   "journal_abbreviation_unknown": "Die Zeitschriftenabkürzung lässt sich der Zeitschrift dieses Kandidaten nicht verlässlich zuordnen. Dieses Feld bleibt unbewertet; die übrigen Gewichte werden neu normiert.",
-  "journal_nlm_snapshot": "NLM-Datenstand: {date}. Dieser eingefrorene Datenstand enthält möglicherweise nicht die aktuellsten NLM-Daten."
+  "journal_nlm_snapshot": "NLM-Datenstand: {date}. Dieser eingefrorene Datenstand enthält möglicherweise nicht die aktuellsten NLM-Daten.",
+  "correction_heading": "Korrekturvorschlag",
+  "correction_copy": "Vorschlag kopieren",
+  "correction_apply": "Nur für den Export übernehmen",
+  "correction_export_hint": "Die Exportauswahl gilt nur für das formatierte Literaturverzeichnis. Originaltext, Felder und Urteile bleiben unverändert.",
+  "correction_copied": "Kopiert.",
+  "correction_copy_failed": "Kopieren fehlgeschlagen. Bitte den Text markieren und kopieren oder die RTF-Datei herunterladen.",
+  "correction_unavailable": "Die Formatierung ist nicht verfügbar. Bitte erneut versuchen.",
+  "bibliography_heading": "Formatiertes Literaturverzeichnis",
+  "bibliography_copy": "Formatiertes Literaturverzeichnis kopieren",
+  "bibliography_download": "Formatiertes Literaturverzeichnis herunterladen (RTF)",
+  "correction_retry": "Formatierung erneut versuchen",
+  "bibliography_format_style": "Format: RTF · Zitierstil: {style}",
+  "correction_selected_heading": "Ausgewählte Korrekturen",
+  "correction_selected_item": "Referenz {slot}: {text}",
+  "correction_none_selected": "Keine Korrekturen ausgewählt. Der Export verwendet die aktuellen Felder.",
+  "correction_loading": "Wird formatiert…"
 }

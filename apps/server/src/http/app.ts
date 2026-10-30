@@ -12,6 +12,11 @@ import {
   getCheck,
   streamCheckEvents,
 } from "@source-taster/contract-verification/routes";
+import { renderBibliography } from "@source-taster/contract-verification/bibliography-routes";
+import {
+  renderBibliographySnapshot,
+  FormattingUnavailable,
+} from "../citations/rendering.ts";
 import * as v2 from "@source-taster/contract-verification/routes-v2";
 import { ReferenceLimitExceeded, type Structuring } from "@source-taster/core";
 import { stream, streamSSE } from "hono/streaming";
@@ -109,6 +114,8 @@ export function createApp(
   });
 
   app.onError((error) => {
+    if (error instanceof FormattingUnavailable)
+      return problemResponse("formatting-unavailable");
     if (error instanceof HTTPException) return error.getResponse();
     console.error(JSON.stringify({ code: "internal" }));
     return problemResponse("internal");
@@ -199,6 +206,27 @@ export function createApp(
       return output(c, principal, "check:create", check, 201);
     },
   );
+
+  if (apiVersion === 2)
+    app.openapi(renderBibliography, async (c) => {
+      const principal = await authorize(c.req.raw, "check:read");
+      const check = await guarded(principal, "check:read", () =>
+        checks.get(principal, c.req.valid("param").checkId, 2),
+      );
+      if (!check) fail("check-not-found");
+      const request = c.req.valid("json");
+      if (
+        [...request.applySlots, ...(request.suggestionSlots ?? [])].some(
+          (slot) =>
+            !check.references.some((reference) => reference.slot === slot),
+        )
+      )
+        fail("invalid-request");
+      // Pure rendering holds no Owner lock; publication rechecks current
+      // authority below, so lease renewal and cancellation remain available.
+      const data = await renderBibliographySnapshot(check, request);
+      return output(c, principal, "check:read", data, 200);
+    });
 
   app.openapi(
     (apiVersion === 2 ? v2.getCheck : getCheck) as typeof v2.getCheck,

@@ -434,7 +434,14 @@ export function CheckWorkspace({
                 {cancelling ? m.check_cancelling() : m.check_cancel()}
               </Button>
             )}
-            <CheckResults key={check.id} check={check} completed={completed} />
+            <CheckResults
+              key={check.id}
+              check={check}
+              completed={completed}
+              citationStyle={preferences.citationStyle}
+              citationStyleLabel={m[styleMessages[preferences.citationStyle]]()}
+              transport={transport}
+            />
           </div>
         </section>
       )}

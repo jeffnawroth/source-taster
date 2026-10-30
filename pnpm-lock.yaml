@@ -284,6 +284,9 @@ importers:
       '@source-taster/website':
         specifier: workspace:*
         version: link:../website
+      citeproc:
+        specifier: 2.4.63
+        version: 2.4.63
       hono:
         specifier: 4.13.14
         version: 4.13.14
@@ -1987,6 +1990,9 @@ packages:
   ci-info@4.4.0:
     resolution: {integrity: sha512-77PSwercCZU2Fc4sX94eF8k8Pxte6JAwL4/ICZLFjJLqegs7kCuAsqqj/70NQF6TvDpgFjkubQB2FW2ZZddvQg==}
     engines: {node: '>=8'}
+
+  citeproc@2.4.63:
+    resolution: {integrity: sha512-68F95Bp4UbgZU/DBUGQn0qV3HDZLCdI9+Bb2ByrTaNJDL5VEm9LqaiNaxljsvoaExSLEXe1/r6n2Z06SCzW3/Q==}
 
   classnames@2.5.1:
     resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
@@ -5060,6 +5066,8 @@ snapshots:
       readdirp: 5.1.1
 
   ci-info@4.4.0: {}
+
+  citeproc@2.4.63: {}
 
   classnames@2.5.1: {}
 
