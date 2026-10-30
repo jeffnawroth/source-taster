@@ -44,7 +44,7 @@ export const Candidate = v1.Candidate.extend({
         "authors-year",
     ]),
     identifiers: z.array(z.string()).optional(),
-    identifierAmbiguous: z.boolean().optional(),
+    identityAmbiguous: z.boolean().optional(),
     retractionEvidence: RetractionEvidence.optional(),
 }).meta({ id: "CandidateV2" });
 export const SourceEvidence = v1.SourceEvidence.extend({

@@ -6,6 +6,7 @@ import {
   type RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
+import { projectDisplayName } from "./names.ts";
 import type { SourceRequest } from "./openalex.ts";
 const edition = z.object({
   key: z.string().regex(/^\/books\/OL\d+M$/u),
@@ -27,13 +28,6 @@ const work = z.object({
   author_name: z.array(z.string()).optional(),
   publish_year: z.array(z.number().int()).optional(),
 });
-const name = (value: string) => {
-  const parts = value.trim().split(/\s+/u);
-  return {
-    family: parts.pop()!,
-    ...(parts.length ? { given: parts.join(" ") } : {}),
-  };
-};
 export function openlibraryAdapter(
   request: SourceRequest,
   base: string,
@@ -90,7 +84,9 @@ export function openlibraryAdapter(
         type: "book",
         title: m.title,
         ISBN: value,
-        ...(m.authors ? { author: m.authors.map((a) => name(a.name)) } : {}),
+        ...(m.authors
+          ? { author: m.authors.map((a) => projectDisplayName(a.name)) }
+          : {}),
         ...(m.publish_date ? { issued: { literal: m.publish_date } } : {}),
         ...(m.publishers?.[0] ? { publisher: m.publishers[0].name } : {}),
         ...(m.publish_places?.[0]
@@ -156,10 +152,15 @@ export function openlibraryAdapter(
           origin: kind,
           retrievedAt: evidence.observedAt,
           raw: m,
+          ...((m.publish_year?.length ?? 0) > 1 || reference.edition
+            ? { identityAmbiguous: true }
+            : {}),
           csl: {
             type: "book",
             title: m.title,
-            ...(m.author_name ? { author: m.author_name.map(name) } : {}),
+            ...(m.author_name
+              ? { author: m.author_name.map(projectDisplayName) }
+              : {}),
             ...(m.publish_year?.length === 1
               ? { issued: { literal: String(m.publish_year[0]) } }
               : {}),

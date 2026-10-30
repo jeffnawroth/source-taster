@@ -7,6 +7,8 @@ import {
   comparisonLimits,
   journalAbbreviationRules,
   type Evidence,
+  type StructuredReference,
+  isBookReference,
 } from "@source-taster/core";
 import { createHash } from "node:crypto";
 import type { Db } from "../db/prisma.ts";
@@ -35,61 +37,89 @@ export function referenceExecution(
     beforeSource?: (source: Evidence["source"]) => Promise<void>;
   } = {},
 ) {
-  const clock = context.clock ?? systemSourceClock;
-  const adapters = createDoiAdapters({
-    resolverBase: config.resolverBase,
-    crossrefBase: config.crossrefBase,
-    budget: sourceBudget(db, context.signal, clock, config.catalogRates),
-    beforeRequest: context.beforeSource,
-    dispatch: context.dispatchSource,
-    clock,
-    signal: context.signal,
-  });
-  const options = {
-    ...adapters,
-    now: clock.now,
-    parameters: config.comparisonProfile,
-    rules: {
-      version: `comparison-75-3-date-ranges-20261028-journal-76-1-entities-4.5.0-uncalibrated-${createHash(
-        "sha256",
-      )
-        .update(
-          JSON.stringify({
-            parameters: config.comparisonProfile,
-            limits: comparisonLimits,
-            journalAbbreviations: journalAbbreviationRules,
-          }),
+  return (
+    reference: StructuredReference,
+    execution?: { startedAt: number },
+  ) => {
+    const bookMetadata =
+      context.apiVersion === 2 &&
+      !!config.bibliographicPreview &&
+      isBookReference(reference.csl.type);
+    const clock = context.clock ?? systemSourceClock;
+    const adapters = createDoiAdapters({
+      bookMetadata,
+      resolverBase: config.resolverBase,
+      crossrefBase: config.crossrefBase,
+      budget: sourceBudget(db, context.signal, clock, config.catalogRates),
+      beforeRequest: context.beforeSource,
+      dispatch: context.dispatchSource,
+      clock,
+      signal: context.signal,
+    });
+    const options = {
+      ...adapters,
+      now: clock.now,
+      parameters: config.comparisonProfile,
+      rules: {
+        version: `comparison-75-3-date-ranges-20261028-journal-76-1-entities-4.5.0-uncalibrated-${createHash(
+          "sha256",
         )
-        .digest(
-          "hex",
-        )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
-      calibration: "uncalibrated",
-      unicode: process.versions.unicode!,
-      icu: process.versions.icu!,
-      profile: { ...config.comparisonProfile },
-    },
-  } as const;
-  return context.apiVersion === 2 && config.bibliographicPreview
-    ? createBibliographicVerification({
-        ...options,
-        catalogRates: config.catalogRates,
-        sources: [
-          ...(config.openalexEnabled
-            ? [openalexAdapter(adapters.request, config.openalexBase!)]
-            : []),
-          crossrefAdapter(
-            adapters.request,
-            config.crossrefBase,
-            adapters.source,
-            adapters.project,
-          ),
-          ...(config.openlibraryEnabled
-            ? [openlibraryAdapter(adapters.request, config.openlibraryBase!)]
-            : []),
-          ...(config.googlebooksEnabled
-            ? [googlebooksAdapter(adapters.request, config.googlebooksBase!)]
-            : []),
-        ],
-      })
-    : createDoiVerification(options);
+          .update(
+            JSON.stringify({
+              parameters: config.comparisonProfile,
+              limits: comparisonLimits,
+              journalAbbreviations: journalAbbreviationRules,
+            }),
+          )
+          .digest(
+            "hex",
+          )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
+        calibration: "uncalibrated",
+        unicode: process.versions.unicode!,
+        icu: process.versions.icu!,
+        profile: { ...config.comparisonProfile },
+      },
+    } as const;
+    const verify =
+      context.apiVersion === 2 && config.bibliographicPreview
+        ? createBibliographicVerification({
+            ...options,
+            catalogRates: config.catalogRates,
+            sources: [
+              ...(config.openalexEnabled
+                ? [
+                    openalexAdapter(
+                      adapters.request,
+                      config.openalexBase!,
+                      bookMetadata,
+                    ),
+                  ]
+                : []),
+              crossrefAdapter(
+                adapters.request,
+                config.crossrefBase,
+                adapters.source,
+                adapters.project,
+              ),
+              ...(config.openlibraryEnabled
+                ? [
+                    openlibraryAdapter(
+                      adapters.request,
+                      config.openlibraryBase!,
+                    ),
+                  ]
+                : []),
+              ...(config.googlebooksEnabled
+                ? [
+                    googlebooksAdapter(
+                      adapters.request,
+                      config.googlebooksBase!,
+                    ),
+                  ]
+                : []),
+            ],
+          })
+        : createDoiVerification(options);
+    return verify(reference, execution);
+  };
 }

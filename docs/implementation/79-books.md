@@ -24,7 +24,7 @@ identity. Different edition ISBNs are not merged through title/author similarity
 All four sources reuse the existing five-Candidate allocator, DOI precedence,
 comparison profile, immutable snapshots, guarded dispatch and replayable SSE.
 ISBN Candidates consume the same slots as bibliographic Candidates. Confirmed
-ISBN differences affect the Verdict without changing weighted Scores; `/v2`
+ISBN and edition differences affect the Verdict without changing weighted Scores; `/v2`
 adds optional unweighted-field `agreement` for the shared clients' field-level
 explanation and highlighting. Original and Candidate values stay intact.
 
@@ -73,3 +73,6 @@ exhausted; this is not claimed as passed source qualification.
 Quality-gate calibration/activation, provider-rights approvals and live capacity
 measurement remain the execution qualifications excluded by #70. Production
 activation remains closed by the existing uncalibrated-profile gates.
+
+Independent review findings and corrections are recorded in
+[79-review-corrections.md](79-review-corrections.md).

@@ -44,7 +44,7 @@ export interface RetrievedCandidate {
   origin:
     "doi" | "pmid" | "pmcid" | "isbn" | "combined" | "title" | "authors-year";
   identifiers?: string[];
-  identifierAmbiguous?: boolean;
+  identityAmbiguous?: boolean;
   retrievedAt: string;
   csl: Csl;
   raw: unknown;

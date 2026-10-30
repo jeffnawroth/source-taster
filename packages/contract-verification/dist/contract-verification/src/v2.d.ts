@@ -153,7 +153,7 @@ export declare const Candidate: z.ZodObject<{
         title: "title";
     }>;
     identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-    identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+    identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
     retractionEvidence: z.ZodOptional<z.ZodObject<{
         source: z.ZodEnum<{
             crossref: "crossref";
@@ -379,7 +379,7 @@ export declare const VerdictResult: z.ZodObject<{
             title: "title";
         }>;
         identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-        identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+        identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
         retractionEvidence: z.ZodOptional<z.ZodObject<{
             source: z.ZodEnum<{
                 crossref: "crossref";
@@ -653,7 +653,7 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
             title: "title";
         }>;
         identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-        identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+        identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
         retractionEvidence: z.ZodOptional<z.ZodObject<{
             source: z.ZodEnum<{
                 crossref: "crossref";
@@ -939,7 +939,7 @@ export declare const ReferenceSlot: z.ZodObject<{
                 title: "title";
             }>;
             identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-            identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+            identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
             retractionEvidence: z.ZodOptional<z.ZodObject<{
                 source: z.ZodEnum<{
                     crossref: "crossref";
@@ -1239,7 +1239,7 @@ export declare const Check: z.ZodObject<{
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-                identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+                identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                 retractionEvidence: z.ZodOptional<z.ZodObject<{
                     source: z.ZodEnum<{
                         crossref: "crossref";
@@ -1547,7 +1547,7 @@ export declare const CheckResponse: z.ZodObject<{
                         title: "title";
                     }>;
                     identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-                    identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+                    identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                     retractionEvidence: z.ZodOptional<z.ZodObject<{
                         source: z.ZodEnum<{
                             crossref: "crossref";
@@ -1838,7 +1838,7 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-                identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+                identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                 retractionEvidence: z.ZodOptional<z.ZodObject<{
                     source: z.ZodEnum<{
                         crossref: "crossref";
@@ -2140,7 +2140,7 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
-                identifierAmbiguous: z.ZodOptional<z.ZodBoolean>;
+                identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                 retractionEvidence: z.ZodOptional<z.ZodObject<{
                     source: z.ZodEnum<{
                         crossref: "crossref";

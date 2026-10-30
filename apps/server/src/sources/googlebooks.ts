@@ -7,6 +7,7 @@ import {
   type Csl,
 } from "@source-taster/core";
 import { z } from "zod";
+import { projectDisplayName } from "./names.ts";
 import type { SourceRequest } from "./openalex.ts";
 const volume = z.object({
   id: z.string().regex(/^[\w-]+$/u),
@@ -48,13 +49,7 @@ function project(
       title: [v.title, v.subtitle].filter(Boolean).join(": "),
       ...(v.authors
         ? {
-            author: v.authors.map((value) => {
-              const parts = value.trim().split(/\s+/u);
-              return {
-                family: parts.pop()!,
-                ...(parts.length ? { given: parts.join(" ") } : {}),
-              };
-            }),
+            author: v.authors.map(projectDisplayName),
           }
         : {}),
       ...(v.publishedDate ? { issued: { literal: v.publishedDate } } : {}),
@@ -139,7 +134,7 @@ export function googlebooksAdapter(
         };
       const candidate = project(exact[0]!, "isbn", evidence.observedAt, value);
       const alternatives = [...new Set(exact.map((m) => m.id))].slice(1);
-      if (alternatives.length) candidate.identifierAmbiguous = true;
+      if (alternatives.length) candidate.identityAmbiguous = true;
       return {
         candidate,
         evidence: {

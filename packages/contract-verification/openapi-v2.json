@@ -708,7 +708,7 @@
               "type": "string"
             }
           },
-          "identifierAmbiguous": {
+          "identityAmbiguous": {
             "type": "boolean"
           },
           "retractionEvidence": {

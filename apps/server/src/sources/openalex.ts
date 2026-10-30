@@ -7,6 +7,7 @@ import type {
   RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
+import { projectDisplayName } from "./names.ts";
 export type SourceRequest = (
   source: Evidence["source"],
   url: URL,
@@ -58,6 +59,7 @@ function project(
   body: unknown,
   origin: RetrievedCandidate["origin"],
   retrievedAt: string,
+  bookMetadata = false,
 ): RetrievedCandidate | undefined {
   const parsed = record.safeParse(body);
   if (!parsed.success) return;
@@ -78,7 +80,7 @@ function project(
         }
       : {}),
     csl: {
-      ...(m.type
+      ...(bookMetadata && m.type
         ? {
             type:
               m.type === "book-chapter"
@@ -94,13 +96,9 @@ function project(
       ...(m.ids?.pmcid ? { PMCID: normalizePmcid(m.ids.pmcid) } : {}),
       ...(m.authorships
         ? {
-            author: m.authorships.map((a) => {
-              const parts = a.author.display_name.trim().split(/\s+/u);
-              return {
-                family: parts.pop()!,
-                ...(parts.length ? { given: parts.join(" ") } : {}),
-              };
-            }),
+            author: m.authorships.map((a) =>
+              projectDisplayName(a.author.display_name),
+            ),
           }
         : {}),
       ...(m.primary_location?.source?.display_name
@@ -128,6 +126,7 @@ function project(
 export function openalexAdapter(
   request: SourceRequest,
   base: string,
+  bookMetadata = false,
 ): BibliographicSource {
   return {
     name: "openalex",
@@ -155,7 +154,7 @@ export function openalexAdapter(
         return {
           evidence: { ...evidence, outcome: "no-record", reason: undefined },
         };
-      const candidate = project(body, kind, evidence.observedAt);
+      const candidate = project(body, kind, evidence.observedAt, bookMetadata);
       const key = kind === "doi" ? "DOI" : kind === "pmid" ? "PMID" : "PMCID";
       if (
         evidence.reason !== "response" ||
@@ -196,7 +195,9 @@ export function openalexAdapter(
         .object({ results: z.array(z.unknown()) })
         .safeParse(body);
       const candidates = parsed.success
-        ? parsed.data.results.map((m) => project(m, kind, evidence.observedAt))
+        ? parsed.data.results.map((m) =>
+            project(m, kind, evidence.observedAt, bookMetadata),
+          )
         : [];
       if (
         evidence.reason !== "response" ||

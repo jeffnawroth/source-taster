@@ -18,6 +18,16 @@ import {
   type ScoringRules,
   type VerdictResult,
 } from "./verification.ts";
+const bookTypes = new Set([
+  "book",
+  "chapter",
+  "entry-dictionary",
+  "entry-encyclopedia",
+  "entry",
+  "classic",
+  "pamphlet",
+]);
+export const isBookReference = (type?: string) => bookTypes.has(type ?? "");
 export type QueryKind = "combined" | "title" | "authors-year";
 export type IdentifierKind = "doi" | "pmid" | "pmcid" | "isbn";
 export interface BibliographicSource {
@@ -169,15 +179,7 @@ export function createBibliographicVerification(ports: {
     const deadline =
       (execution?.startedAt ?? ports.now()) +
       doiTracerLimits.referenceDeadlineMs;
-    const book = [
-      "book",
-      "chapter",
-      "entry-dictionary",
-      "entry-encyclopedia",
-      "entry",
-      "classic",
-      "pamphlet",
-    ].includes(reference.csl.type ?? "");
+    const book = isBookReference(reference.csl.type);
     const sources = ports.sources.filter(
       (s) => book || !["openlibrary", "googlebooks"].includes(s.name),
     );
@@ -221,8 +223,8 @@ export function createBibliographicVerification(ports: {
       return result;
     }
     if (book) {
-      result.scoringRules.version += "-book-verdict-79-1-isbn";
-      result.searchStrategyVersion = `book-search-79-2-${sources.map((s) => s.name).join("-")}-${catalogRates.openlibrary}-${catalogRates.googlebooks}-uncalibrated`;
+      result.scoringRules.version += "-book-verdict-79-2-isbn-edition";
+      result.searchStrategyVersion = `book-search-79-3-${sources.map((s) => s.name).join("-")}-${catalogRates.openlibrary}-${catalogRates.googlebooks}-uncalibrated`;
       Object.assign(result.searchConfiguration, bookSearchConfiguration, {
         openlibraryRequestsPerSecond: catalogRates.openlibrary,
         googlebooksRequestsPerSecond: catalogRates.googlebooks,
@@ -238,18 +240,9 @@ export function createBibliographicVerification(ports: {
       !doi ||
       resolution?.outcome === "exists" ||
       resolution?.outcome === "nonexistent";
-    const article = ![
-      "book",
-      "chapter",
-      "entry-dictionary",
-      "entry-encyclopedia",
-      "entry",
-      "classic",
-      "pamphlet",
-      "webpage",
-      "post-weblog",
-      "post",
-    ].includes(reference.csl.type ?? "");
+    const article =
+      !book &&
+      !["webpage", "post-weblog", "post"].includes(reference.csl.type ?? "");
     const states = new Map(
       sources.map((source) => [
         source.name,
@@ -292,6 +285,33 @@ export function createBibliographicVerification(ports: {
         ...compare(reference, retrieved.csl, profile, retrieved),
       };
       if (book) {
+        for (const field of [
+          "edition",
+          "publisher",
+          "publisher-place",
+        ] as const) {
+          const referenceValue = reference.csl[field],
+            candidateValue = retrieved.csl[field];
+          if (!referenceValue && !candidateValue) continue;
+          candidate.fields.push({
+            field,
+            reference: referenceValue ?? null,
+            candidate: candidateValue ?? null,
+            score: null,
+            reason: !referenceValue
+              ? "missing-reference"
+              : !candidateValue
+                ? "missing-candidate"
+                : "unweighted",
+            ...(referenceValue && candidateValue
+              ? {
+                  agreement:
+                    referenceValue.normalize("NFKC").trim().toLowerCase() ===
+                    candidateValue.normalize("NFKC").trim().toLowerCase(),
+                }
+              : {}),
+          });
+        }
         const isbn = candidate.fields.find((f) => f.field === "ISBN");
         if (
           isbn &&
@@ -325,7 +345,7 @@ export function createBibliographicVerification(ports: {
     const strong = (c: Candidate) =>
       !unsafe(c) &&
       !incompatibleBookType(c) &&
-      !c.identifierAmbiguous &&
+      !c.identityAmbiguous &&
       !!c.score &&
       c.score.value >= profile.overallScore &&
       ["title", "author"].every(
@@ -378,7 +398,7 @@ export function createBibliographicVerification(ports: {
       const proven = result.candidates.filter(
         (c) =>
           !unsafe(c) &&
-          !c.identifierAmbiguous &&
+          !c.identityAmbiguous &&
           !incompatibleBookType(c) &&
           !hasCounterevidence(c) &&
           c.identifiers?.some((id) =>
@@ -393,7 +413,7 @@ export function createBibliographicVerification(ports: {
           return provedTop[0];
         }
       }
-      if (top.identifierAmbiguous || incompatibleBookType(top)) return;
+      if (top.identityAmbiguous || incompatibleBookType(top)) return;
       const group = identityGroup(top, result.candidates);
       // Display order cannot hide sufficient evidence from a tied record of
       // this same Source. A lower-scoring record never supplies the Best match.
@@ -442,6 +462,7 @@ export function createBibliographicVerification(ports: {
       }
       const differs = candidate.fields.some(
         (f) =>
+          f.agreement === false ||
           (f.score && !f.score.fullAgreement) ||
           (f.reason === "unweighted" &&
             f.reference !== null &&
@@ -579,16 +600,15 @@ export function createBibliographicVerification(ports: {
               : kind === "pmcid"
                 ? "PMCID"
                 : "ISBN";
-        const carried =
-          kind === "isbn"
-            ? undefined
-            : result.candidates.find(
-                (c) =>
-                  c.csl[key] &&
-                  (kind === "doi"
-                    ? normalizeDoi(c.csl[key]) === value
-                    : c.csl[key].toLowerCase() === value.toLowerCase()),
-              );
+        const carried = result.candidates.find(
+          (c) =>
+            c.csl[key] &&
+            (kind === "doi"
+              ? normalizeDoi(c.csl[key]) === value
+              : kind === "isbn"
+                ? normalizeIsbn(c.csl[key]) === value
+                : c.csl[key].toLowerCase() === value.toLowerCase()),
+        );
         if (carried) {
           carried.identifiers = [
             ...new Set([...(carried.identifiers ?? []), `${kind}:${value}`]),

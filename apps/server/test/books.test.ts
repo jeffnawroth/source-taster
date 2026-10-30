@@ -76,8 +76,8 @@ const book: Csl = {
   ISBN: "978-0-13-110362-7",
   publisher: "Prentice Hall",
 };
-async function run(fields: Csl): Promise<VerdictResult> {
-  const response = await fetch(`${service.apiUrl}/v2/checks`, {
+async function run(fields: Csl, apiMajor = 2): Promise<VerdictResult> {
+  const response = await fetch(`${service.apiUrl}/v${apiMajor}/checks`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -86,12 +86,17 @@ async function run(fields: Csl): Promise<VerdictResult> {
   });
   expect(response.status).toBe(201);
   const check = CheckResponse.parse(await response.json()).data;
-  const stream = await fetch(`${service.apiUrl}/v2/checks/${check.id}/events`, {
-    signal: AbortSignal.timeout(35000),
-  });
+  const stream = await fetch(
+    `${service.apiUrl}/v${apiMajor}/checks/${check.id}/events`,
+    {
+      signal: AbortSignal.timeout(35000),
+    },
+  );
   for await (const frame of readSseFrames(stream.body!)) JSON.parse(frame.data);
   const snapshot = CheckResponse.parse(
-    await (await fetch(`${service.apiUrl}/v2/checks/${check.id}`)).json(),
+    await (
+      await fetch(`${service.apiUrl}/v${apiMajor}/checks/${check.id}`)
+    ).json(),
   ).data;
   const outcome = snapshot.references[0]!.outcome;
   if (outcome.kind !== "verdict") throw new Error("Expected Verdict");
@@ -202,14 +207,13 @@ it("verifies a chapter bibliographically after ISBN catalogs return only its con
       .map((e) => [e.source, e.operation]),
   ).toEqual([
     ["openlibrary", "isbn"],
-    ["googlebooks", "isbn"],
     ["openalex", "combined"],
     ["openalex", "title"],
     ["openalex", "authors-year"],
     ["crossref", "combined"],
   ]);
 });
-it("searches books without ISBN bibliographically through the indexes and recorded Open Library search", async () => {
+it("searches books without ISBN bibliographically and preserves the recorded Open Library edition ambiguity", async () => {
   const search: unknown = JSON.parse(
     await readFile(
       new URL("./fixtures/books/openlibrary-search.json", import.meta.url),
@@ -219,11 +223,13 @@ it("searches books without ISBN bibliographically through the indexes and record
   ol.respond("/search.json", 200, search);
   const { ISBN: _isbn, ...fields } = book;
   const result = await run(fields);
-  expect(result.verdict).toBe("correct");
-  expect(result.identity.kind).toBe("independent-bibliography");
-  expect(result.candidates).toMatchObject([
-    { source: "openlibrary", origin: "combined" },
-  ]);
+  expect(result.verdict).toBe("not-verifiable");
+  expect(result.identity.kind).toBe("unresolved");
+  expect(result.candidates[0]).toMatchObject({
+    source: "openlibrary",
+    origin: "combined",
+    identityAmbiguous: true,
+  });
   expect(
     result.evidence
       .filter((e) => e.attempts > 0)
@@ -236,8 +242,13 @@ it("searches books without ISBN bibliographically through the indexes and record
     ["crossref", "title"],
     ["crossref", "authors-year"],
     ["openlibrary", "combined"],
+    ["openlibrary", "title"],
+    ["openlibrary", "authors-year"],
+    ["googlebooks", "combined"],
+    ["googlebooks", "title"],
+    ["googlebooks", "authors-year"],
   ]);
-  expect(gb.requests).toHaveLength(0);
+  expect(gb.requests).toHaveLength(3);
 });
 it("does not use a containing book ISBN to prove a chapter even with matching title and authors", async () => {
   ol.respond("/api/books", 200, recorded);
@@ -547,4 +558,106 @@ it("does not identify an article as a book merely because title and authors agre
   const result = await run(fields);
   expect(result.verdict).toBe("not-verifiable");
   expect(result.identity.kind).toBe("unresolved");
+});
+it("compares a known edition deviation without changing weighted Scores", async () => {
+  const doi = "10.5555/edition-book79";
+  cr.respond(`/api/handles/${doi}`, 200, { responseCode: 1, handle: doi });
+  oa.respond(`/works/doi:${doi}`, 404, {});
+  cr.respond(`/works/${doi}`, 200, {
+    message: {
+      DOI: doi,
+      type: "book",
+      title: [book.title],
+      edition: "2",
+      ISBN: ["9780131103627"],
+      author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+      published: { "date-parts": [[1988]] },
+    },
+  });
+  const result = await run({ ...book, DOI: doi, edition: "1" });
+  expect(result.verdict).toBe("exists-with-deviations");
+  expect(result.candidates[0]!.score?.value).toBe(100000000);
+  expect(result.candidates[0]!.fields).toContainEqual(
+    expect.objectContaining({
+      field: "edition",
+      reference: "1",
+      candidate: "2",
+      agreement: false,
+    }),
+  );
+});
+it("reuses an ISBN carried by an evaluated DOI Candidate without another catalog lookup", async () => {
+  const doi = "10.5555/carried-book79";
+  cr.respond(`/api/handles/${doi}`, 200, { responseCode: 1, handle: doi });
+  oa.respond(`/works/doi:${doi}`, 404, {});
+  cr.respond(`/works/${doi}`, 200, {
+    message: {
+      DOI: doi,
+      type: "book",
+      title: ["ZZZZ foreign book"],
+      ISBN: ["0131103628"],
+      author: [{ family: "Other" }],
+      published: { "date-parts": [[1970]] },
+    },
+  });
+  await run({ ...book, DOI: doi });
+  expect(ol.requests.some((r) => r.path.startsWith("/api/books"))).toBe(false);
+  expect(
+    gb.requests.some((r) =>
+      new URL(r.path, "http://fixture").searchParams
+        .get("q")
+        ?.startsWith("isbn:"),
+    ),
+  ).toBe(false);
+});
+it.each([
+  [1, "book"],
+  [2, "article-journal"],
+] as const)(
+  "keeps existing metadata projection for API %s and CSL %s",
+  async (apiMajor, type) => {
+    const doi = "10.5555/legacy-projection79";
+    cr.respond(`/api/handles/${doi}`, 200, { responseCode: 1, handle: doi });
+    oa.respond(`/works/doi:${doi}`, 404, {});
+    cr.respond(`/works/${doi}`, 200, {
+      message: {
+        DOI: doi,
+        type: "book",
+        title: [book.title],
+        ISBN: ["9780131103627"],
+        edition: "2",
+        publisher: "Different publisher",
+        author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+        published: { "date-parts": [[1988]] },
+      },
+    });
+    const result = await run(
+      { ...book, type, DOI: doi, ISBN: "0131103628", edition: "1" },
+      apiMajor,
+    );
+    expect(result.verdict).toBe("correct");
+    expect(result.candidates[0]!.csl).not.toHaveProperty("ISBN");
+    expect(result.candidates[0]!.csl).not.toHaveProperty("edition");
+    expect(result.scoringRules.version).not.toContain("book-verdict");
+  },
+);
+it.each([
+  ["reference-book", "book"],
+  ["book-section", "chapter"],
+])("normalizes Crossref %s to CSL %s", async (crossrefType, type) => {
+  const doi = "10.5555/book-types79";
+  cr.respond(`/api/handles/${doi}`, 200, { responseCode: 1, handle: doi });
+  oa.respond(`/works/doi:${doi}`, 404, {});
+  cr.respond(`/works/${doi}`, 200, {
+    message: {
+      DOI: doi,
+      type: crossrefType,
+      title: [book.title],
+      author: [{ family: "Kernighan" }, { family: "Ritchie" }],
+      published: { "date-parts": [[1988]] },
+    },
+  });
+  const result = await run({ ...book, type, DOI: doi });
+  expect(result.verdict).toBe("correct");
+  expect(result.candidates[0]!.csl.type).toBe(type);
 });

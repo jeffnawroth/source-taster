@@ -72,6 +72,7 @@ export const systemSourceClock: SourceClock = {
     }),
 };
 export function createDoiAdapters(options: {
+  bookMetadata?: boolean;
   resolverBase: string;
   crossrefBase: string;
   openalexBase?: string;
@@ -339,21 +340,32 @@ export function createDoiAdapters(options: {
       retrievedAt: observedAt,
       raw: body,
       csl: {
-        ...(m.type === "book-chapter"
-          ? { type: "chapter" }
-          : m.type === "book" ||
-              m.type === "monograph" ||
-              m.type === "edited-book"
-            ? { type: "book" }
-            : m.type
-              ? {
-                  type:
-                    m.type === "journal-article" ? "article-journal" : m.type,
-                }
-              : {}),
-        ...(isbns.length === 1 ? { ISBN: isbns[0] } : {}),
-        ...(m.publisher ? { publisher: m.publisher } : {}),
-        ...(m.edition ? { edition: m.edition } : {}),
+        ...(options.bookMetadata
+          ? {
+              ...(m.type
+                ? {
+                    type:
+                      (
+                        {
+                          "book-chapter": "chapter",
+                          "book-section": "chapter",
+                          "book-part": "chapter",
+                          "reference-entry": "chapter",
+                          "reference-book": "book",
+                          "edited-book": "book",
+                          monograph: "book",
+                          "book-set": "book",
+                          "book-series": "book",
+                          "journal-article": "article-journal",
+                        } as Record<string, string>
+                      )[m.type] ?? m.type,
+                  }
+                : {}),
+              ...(isbns.length === 1 ? { ISBN: isbns[0] } : {}),
+              ...(m.publisher ? { publisher: m.publisher } : {}),
+              ...(m.edition ? { edition: m.edition } : {}),
+            }
+          : {}),
         DOI: m.DOI,
         ...(m.title?.[0] ? { title: m.title[0] } : {}),
         ...(m.author

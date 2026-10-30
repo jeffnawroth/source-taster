@@ -328,7 +328,7 @@ export declare const createCheck: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
-                                        identifierAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
+                                        identityAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";
@@ -738,7 +738,7 @@ export declare const getCheck: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
-                                        identifierAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
+                                        identityAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";
@@ -1148,7 +1148,7 @@ export declare const cancelCheck: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
-                                        identifierAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
+                                        identityAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";
@@ -1558,7 +1558,7 @@ export declare const renewCheckLease: {
                                             title: "title";
                                         }>;
                                         identifiers: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodString>>;
-                                        identifierAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
+                                        identityAmbiguous: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                         retractionEvidence: import("zod").ZodOptional<import("zod").ZodObject<{
                                             source: import("zod").ZodEnum<{
                                                 crossref: "crossref";

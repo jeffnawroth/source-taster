@@ -144,7 +144,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "googlebooks" | "openalex" | "openlibrary";
                     origin: "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
-                    identifierAmbiguous?: boolean | undefined;
+                    identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
                         source: "crossref" | "openalex";
                         candidateId: string;
@@ -318,7 +318,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "googlebooks" | "openalex" | "openlibrary";
                     origin: "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
-                    identifierAmbiguous?: boolean | undefined;
+                    identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
                         source: "crossref" | "openalex";
                         candidateId: string;
@@ -492,7 +492,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "googlebooks" | "openalex" | "openlibrary";
                     origin: "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
-                    identifierAmbiguous?: boolean | undefined;
+                    identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
                         source: "crossref" | "openalex";
                         candidateId: string;
@@ -666,7 +666,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     source: "crossref" | "googlebooks" | "openalex" | "openlibrary";
                     origin: "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
                     identifiers?: string[] | undefined;
-                    identifierAmbiguous?: boolean | undefined;
+                    identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
                         source: "crossref" | "openalex";
                         candidateId: string;
