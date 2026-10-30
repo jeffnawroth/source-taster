@@ -7,6 +7,7 @@ import type {
   Verdict,
 } from "@source-taster/contract-verification/v2";
 import { m } from "@source-taster/i18n";
+import { dataSourceName } from "./data-source.ts";
 import { JournalAbbreviationExplanation } from "./journal-abbreviation.tsx";
 const verdicts = {
   correct: ["✓", "text-green-900", "verdict_correct"],
@@ -31,6 +32,7 @@ const reasons = {
   "search-completed": "reason_search_completed",
   "ambiguous-identity": "reason_ambiguous_identity",
   "insufficient-search": "reason_insufficient_search",
+  "sources-unavailable": "reason_sources_unavailable",
 } as const;
 // Evidence reasons are transport diagnostics, never primary product text.
 // Unknown future reasons retain a safe localized explanation.
@@ -49,6 +51,7 @@ const evidenceReasons = {
   "missing-query-fields": "limitation_missing_query_fields",
   "operator-disabled": "evidence_disabled",
   "early-termination": "evidence_skipped",
+  "after-source-failure": "limitation_after_source_failure",
 } as const satisfies Record<string, keyof typeof m>;
 function limitation(reason: string) {
   return Object.hasOwn(evidenceReasons, reason)
@@ -79,6 +82,7 @@ const origins = {
   doi: "origin_doi",
   pmid: "origin_pmid",
   pmcid: "origin_pmcid",
+  isbn: "origin_isbn",
   combined: "origin_combined",
   title: "origin_title",
   "authors-year": "origin_authors_year",
@@ -110,6 +114,16 @@ function sourceLink(candidate: Candidate) {
   const doi = candidate.csl.DOI;
   if (doi && /^10\.\d{4,9}\/\S+$/iu.test(doi))
     return `https://doi.org/${encodeURIComponent(doi)}`;
+  if (
+    candidate.source === "openlibrary" &&
+    /^openlibrary:\/(?:books\/OL\d+M|works\/OL\d+W)$/u.test(candidate.id)
+  )
+    return `https://openlibrary.org${candidate.id.slice("openlibrary:".length)}`;
+  if (
+    candidate.source === "googlebooks" &&
+    /^googlebooks:[\w-]+$/u.test(candidate.id)
+  )
+    return `https://books.google.com/books?id=${encodeURIComponent(candidate.id.slice("googlebooks:".length))}`;
   return candidate.source === "openalex" &&
     /^https:\/\/openalex\.org\/W\d+$/u.test(candidate.id)
     ? candidate.id
@@ -175,6 +189,13 @@ export function ReferenceOutcomeView({
         </div>
       )}
       <p className="text-sm font-semibold">{m.doi_uncalibrated()}</p>
+      {outcome.failedSources.length > 0 && (
+        <p>
+          {m.failed_data_sources({
+            sources: outcome.failedSources.map(dataSourceName).join(", "),
+          })}
+        </p>
+      )}
       {outcome.reasons.map((reason) => (
         <p key={reason}>{m[reasons[reason]]()}</p>
       ))}
@@ -219,7 +240,8 @@ export function ReferenceOutcomeView({
         <ul>
           {outcome.evidence.map((e, i) => (
             <li className="my-3 break-words" key={i}>
-              <strong>{e.source}</strong> · {m[origins[e.operation]]()}:{" "}
+              <strong>{dataSourceName(e.source)}</strong> ·{" "}
+              {m[origins[e.operation]]()}:{" "}
               {m[
                 `evidence_${e.outcome.replaceAll("-", "_")}` as
                   | "evidence_exists"
@@ -286,7 +308,8 @@ export function ReferenceOutcomeView({
                 <div
                   key={field.field}
                   className={
-                    field.score && !field.score.fullAgreement
+                    (field.score && !field.score.fullAgreement) ||
+                    field.agreement === false
                       ? "rounded border-l-4 border-amber-700 pl-3"
                       : ""
                   }
@@ -300,9 +323,13 @@ export function ReferenceOutcomeView({
                       ? field.score.fullAgreement
                         ? m.field_agrees()
                         : m.field_differs()
-                      : field.reason === "unweighted"
-                        ? m.field_unweighted()
-                        : m.field_excluded()}
+                      : field.agreement !== undefined
+                        ? field.agreement
+                          ? m.field_agrees()
+                          : m.field_differs()
+                        : field.reason === "unweighted"
+                          ? m.field_unweighted()
+                          : m.field_excluded()}
                   </dt>
                   <dd className="break-words">
                     {m.reference_label()}: {raw(field.reference)}
@@ -390,7 +417,9 @@ function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
           const comparison = best?.fields.find(
             (value) => value.field === field,
           );
-          const deviates = comparison?.score && !comparison.score.fullAgreement;
+          const deviates =
+            (comparison?.score && !comparison.score.fullAgreement) ||
+            comparison?.agreement === false;
           return (
             <tbody key={field} data-deviates={!!deviates}>
               <tr>
@@ -401,7 +430,11 @@ function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
                       ? comparison.score.fullAgreement
                         ? m.field_agrees()
                         : m.field_differs()
-                      : m.field_excluded()}{" "}
+                      : comparison?.agreement !== undefined
+                        ? comparison.agreement
+                          ? m.field_agrees()
+                          : m.field_differs()
+                        : m.field_excluded()}{" "}
                     ·{" "}
                     {comparison?.score
                       ? percent(comparison.score)

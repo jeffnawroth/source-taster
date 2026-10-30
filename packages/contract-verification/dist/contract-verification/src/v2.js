@@ -11,6 +11,7 @@ export const RetractionEvidence = z
 })
     .meta({ id: "RetractionEvidenceV2" });
 export const FieldComparison = v1.FieldComparison.extend({
+    agreement: z.boolean().optional(),
     journalAbbreviation: z
         .object({
         outcome: z.enum(["match", "different", "not-determinable"]),
@@ -32,17 +33,33 @@ export const FieldComparison = v1.FieldComparison.extend({
 }).meta({ id: "FieldComparisonV2" });
 export const Candidate = v1.Candidate.extend({
     fields: z.array(FieldComparison),
-    source: z.enum(["crossref", "openalex"]),
-    origin: z.enum(["doi", "pmid", "pmcid", "combined", "title", "authors-year"]),
+    source: z.enum(["crossref", "openalex", "openlibrary", "googlebooks"]),
+    origin: z.enum([
+        "doi",
+        "pmid",
+        "pmcid",
+        "isbn",
+        "combined",
+        "title",
+        "authors-year",
+    ]),
     identifiers: z.array(z.string()).optional(),
+    identifierAmbiguous: z.boolean().optional(),
     retractionEvidence: RetractionEvidence.optional(),
 }).meta({ id: "CandidateV2" });
 export const SourceEvidence = v1.SourceEvidence.extend({
-    source: z.enum(["doi.org", "crossref", "openalex"]),
+    source: z.enum([
+        "doi.org",
+        "crossref",
+        "openalex",
+        "openlibrary",
+        "googlebooks",
+    ]),
     operation: z.enum([
         "doi",
         "pmid",
         "pmcid",
+        "isbn",
         "combined",
         "title",
         "authors-year",
@@ -59,6 +76,7 @@ export const SourceEvidence = v1.SourceEvidence.extend({
     ]),
     skippedDuplicates: z.array(z.string()).optional(),
     unusedSlots: z.number().int().nonnegative().optional(),
+    identifierAmbiguity: z.array(z.string()).optional(),
 }).meta({ id: "SourceEvidenceV2" });
 export const VerdictResult = v1.VerdictResult.extend({
     identity: v1.VerdictResult.shape.identity.extend({
@@ -69,7 +87,7 @@ export const VerdictResult = v1.VerdictResult.extend({
             "unresolved",
         ]),
     }),
-    candidates: z.array(Candidate).max(10),
+    candidates: z.array(Candidate).max(20),
     evidence: z.array(SourceEvidence),
     reasons: z.array(z.enum([
         ...v1.VerdictResult.shape.reasons.element.options,
@@ -77,8 +95,9 @@ export const VerdictResult = v1.VerdictResult.extend({
         "search-completed",
         "ambiguous-identity",
         "insufficient-search",
+        "sources-unavailable",
     ])),
-    failedSources: z.array(z.enum(["doi.org", "crossref", "openalex"])),
+    failedSources: z.array(z.enum(["doi.org", "crossref", "openalex", "openlibrary", "googlebooks"])),
     retraction: z.enum(["unknown", "retracted"]),
     retractionEvidence: z.array(RetractionEvidence).optional(),
 }).meta({ id: "VerdictResultV2" });
@@ -91,6 +110,8 @@ export const ReferenceOutcome = z
 export const ReferenceProgress = z.enum([
     ...v1.ReferenceProgress.options,
     "openalex",
+    "openlibrary",
+    "googlebooks",
 ]);
 export const ReferenceSlot = v1.ReferenceSlot.extend({
     outcome: ReferenceOutcome,

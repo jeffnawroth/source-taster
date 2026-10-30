@@ -1,0 +1,26 @@
+{
+  "numFound": 2,
+  "start": 0,
+  "numFoundExact": true,
+  "num_found": 2,
+  "documentation_url": "https://openlibrary.org/dev/docs/api/search",
+  "q": "",
+  "offset": null,
+  "docs": [
+    {
+      "author_name": ["Brian W. Kernighan", "Dennis MacAlistair Ritchie"],
+      "key": "/works/OL4617640W",
+      "publish_year": [
+        1978, 1983, 1984, 1986, 1988, 1989, 1990, 1992, 1995, 1997, 1998, 1999,
+        2000, 2002, 2003, 2004, 2007, 2008, 2014, 2015, 2016, 2017, 2021
+      ],
+      "title": "The C Programming Language"
+    },
+    {
+      "author_name": ["Brian W. Kernighan", "Dennis MacAlistair Ritchie"],
+      "key": "/works/OL43090196W",
+      "publish_year": [1978],
+      "title": "The C Programming language"
+    }
+  ]
+}

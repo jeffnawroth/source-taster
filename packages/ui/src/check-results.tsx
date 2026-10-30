@@ -13,6 +13,7 @@ import {
   CorrectionSuggestion,
 } from "./correction-suggestions.tsx";
 import { m } from "@source-taster/i18n";
+import { dataSourceNames, dataSourceName } from "./data-source.ts";
 import { CheckSummary } from "./check-summary.tsx";
 import {
   ReferenceOutcomeSummary,
@@ -29,15 +30,8 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
     <p>
       {reference.progress === "queued"
         ? m.reference_queued()
-        : ["doi.org", "crossref", "openalex"].includes(reference.progress)
-          ? m.reference_source({
-              source:
-                reference.progress === "doi.org"
-                  ? "doi.org"
-                  : reference.progress === "openalex"
-                    ? "OpenAlex"
-                    : "Crossref",
-            })
+        : dataSourceNames[reference.progress]
+          ? m.reference_source({ source: dataSourceName(reference.progress) })
           : m.reference_checking()}
     </p>
   );

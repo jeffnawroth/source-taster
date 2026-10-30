@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // One per-source allocator and the existing exact comparison engine. No I/O here.
+import { normalizeIsbn } from "./isbn.ts";
 import {
   compare,
   comparisonLimits,
@@ -18,9 +19,9 @@ import {
   type VerdictResult,
 } from "./verification.ts";
 export type QueryKind = "combined" | "title" | "authors-year";
-export type IdentifierKind = "doi" | "pmid" | "pmcid";
+export type IdentifierKind = "doi" | "pmid" | "pmcid" | "isbn";
 export interface BibliographicSource {
-  name: "openalex" | "crossref";
+  name: "openalex" | "crossref" | "openlibrary" | "googlebooks";
   identifiers: readonly IdentifierKind[];
   lookup(
     kind: IdentifierKind,
@@ -56,6 +57,25 @@ export const articleSearchConfiguration = Object.freeze({
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
 export const articleVerdictRules = "article-verdict-77-9";
+export const bookSearchConfiguration = Object.freeze({
+  route: "book",
+  identifierOrder: "DOI,ISBN",
+  identifierSources: "openlibrary,googlebooks",
+  providerOrder: "openalex,crossref,openlibrary,googlebooks",
+  implementedIdentifierRoutes:
+    "openalex:DOI;crossref:DOI;openlibrary:ISBN;googlebooks:ISBN",
+  unimplementedCapabilities: "PMCID,arXiv,web,Europe-PMC,Semantic-Scholar",
+  negativeCoverage: "all-four-book-sources-complete-title-author-year",
+  isbnNormalization: "validated-isbn13-1",
+  openlibraryRequestsPerSecond: 3,
+  googlebooksRequestsPerSecond: 1,
+  sourceFailurePolicy: "stop-failed-source-1",
+});
+export interface CatalogRates {
+  openlibrary: number;
+  googlebooks: number;
+}
+
 const valueOf = (c: Candidate) => c.score?.value ?? -1;
 export const normalizePmid = (value: string) =>
   value
@@ -84,6 +104,14 @@ function sourceRelation(a: RetrievedCandidate, b: RetrievedCandidate) {
           : normalizePmid;
     if (normalize(a.csl[key]) !== normalize(b.csl[key])) conflicting = true;
     else shared = true;
+  }
+  if (a.csl.type === "book" && b.csl.type === "book") {
+    const aIsbn = normalizeIsbn(a.csl.ISBN ?? ""),
+      bIsbn = normalizeIsbn(b.csl.ISBN ?? "");
+    if (aIsbn && bIsbn) {
+      if (aIsbn === bIsbn) shared = true;
+      else conflicting = true;
+    }
   }
   return { shared, conflicting };
 }
@@ -127,15 +155,32 @@ export function createBibliographicVerification(ports: {
   now(): number;
   rules: ScoringRules;
   parameters: ComparisonProfile;
+  catalogRates?: CatalogRates;
 }) {
   return async (
     reference: StructuredReference,
     execution?: { startedAt: number },
   ): Promise<VerdictResult> => {
     const profile = ports.parameters;
+    const catalogRates = ports.catalogRates ?? {
+      openlibrary: bookSearchConfiguration.openlibraryRequestsPerSecond,
+      googlebooks: bookSearchConfiguration.googlebooksRequestsPerSecond,
+    };
     const deadline =
       (execution?.startedAt ?? ports.now()) +
       doiTracerLimits.referenceDeadlineMs;
+    const book = [
+      "book",
+      "chapter",
+      "entry-dictionary",
+      "entry-encyclopedia",
+      "entry",
+      "classic",
+      "pamphlet",
+    ].includes(reference.csl.type ?? "");
+    const sources = ports.sources.filter(
+      (s) => book || !["openlibrary", "googlebooks"].includes(s.name),
+    );
     const result: VerdictResult = {
       kind: "verdict",
       verdict: "not-verifiable",
@@ -144,10 +189,10 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-77-9-identity-evidence-${ports.sources.map((s) => s.name).join("-")}-uncalibrated`,
+      searchStrategyVersion: `article-search-77-9-identity-evidence-${sources.map((s) => s.name).join("-")}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
-        enabledSources: ports.sources.map((s) => s.name).join(","),
+        enabledSources: sources.map((s) => s.name).join(","),
       },
       identity: { kind: "unresolved" },
       bestMatchId: null,
@@ -175,6 +220,14 @@ export function createBibliographicVerification(ports: {
       result.reasons = ["outside-coverage"];
       return result;
     }
+    if (book) {
+      result.scoringRules.version += "-book-verdict-79-1-isbn";
+      result.searchStrategyVersion = `book-search-79-2-${sources.map((s) => s.name).join("-")}-${catalogRates.openlibrary}-${catalogRates.googlebooks}-uncalibrated`;
+      Object.assign(result.searchConfiguration, bookSearchConfiguration, {
+        openlibraryRequestsPerSecond: catalogRates.openlibrary,
+        googlebooksRequestsPerSecond: catalogRates.googlebooks,
+      });
+    }
     const doi = reference.csl.DOI ? normalizeDoi(reference.csl.DOI) : undefined;
     let resolution: Evidence | undefined;
     if (doi) {
@@ -198,7 +251,7 @@ export function createBibliographicVerification(ports: {
       "post",
     ].includes(reference.csl.type ?? "");
     const states = new Map(
-      ports.sources.map((source) => [
+      sources.map((source) => [
         source.name,
         {
           source,
@@ -209,6 +262,7 @@ export function createBibliographicVerification(ports: {
           >(),
           offsets: new Map<QueryKind, number>(),
           complete: true,
+          failed: false,
         },
       ]),
     );
@@ -237,6 +291,18 @@ export function createBibliographicVerification(ports: {
         slot: state.candidates.length + 1,
         ...compare(reference, retrieved.csl, profile, retrieved),
       };
+      if (book) {
+        const isbn = candidate.fields.find((f) => f.field === "ISBN");
+        if (
+          isbn &&
+          typeof isbn.reference === "string" &&
+          typeof isbn.candidate === "string"
+        ) {
+          const confirmed = normalizeIsbn(isbn.candidate);
+          if (confirmed)
+            isbn.agreement = normalizeIsbn(isbn.reference) === confirmed;
+        }
+      }
       state.candidates.push(candidate);
       result.candidates.push(candidate);
       result.candidates.sort(
@@ -249,8 +315,17 @@ export function createBibliographicVerification(ports: {
       result.bestMatchId = best?.score ? best.id : null;
       return candidate;
     }
+    const incompatibleBookType = (c: Candidate) =>
+      book &&
+      c.csl.type !== undefined &&
+      c.csl.type !==
+        (["book", "classic", "pamphlet"].includes(reference.csl.type ?? "")
+          ? "book"
+          : "chapter");
     const strong = (c: Candidate) =>
       !unsafe(c) &&
+      !incompatibleBookType(c) &&
+      !c.identifierAmbiguous &&
       !!c.score &&
       c.score.value >= profile.overallScore &&
       ["title", "author"].every(
@@ -303,6 +378,8 @@ export function createBibliographicVerification(ports: {
       const proven = result.candidates.filter(
         (c) =>
           !unsafe(c) &&
+          !c.identifierAmbiguous &&
+          !incompatibleBookType(c) &&
           !hasCounterevidence(c) &&
           c.identifiers?.some((id) =>
             id.startsWith("doi:") ? resolution?.outcome === "exists" : true,
@@ -316,6 +393,7 @@ export function createBibliographicVerification(ports: {
           return provedTop[0];
         }
       }
+      if (top.identifierAmbiguous || incompatibleBookType(top)) return;
       const group = identityGroup(top, result.candidates);
       // Display order cannot hide sufficient evidence from a tied record of
       // this same Source. A lower-scoring record never supplies the Best match.
@@ -374,14 +452,18 @@ export function createBibliographicVerification(ports: {
               ? normalizePmid(f.reference) !== normalizePmid(f.candidate)
               : f.field === "PMCID"
                 ? normalizePmcid(f.reference) !== normalizePmcid(f.candidate)
-                : f.reference !== f.candidate)),
+                : book && f.field === "ISBN"
+                  ? (normalizeIsbn(f.reference) ?? f.reference) !==
+                    (normalizeIsbn(f.candidate) ?? f.candidate)
+                  : f.reference !== f.candidate)),
       );
       result.verdict = differs ? "exists-with-deviations" : "correct";
       result.reasons = [differs ? "fields-differ" : "identified"];
     }
     const stop = () => {
       const candidate = identity();
-      if (!candidate || !mandatoryComplete() || !article) return false;
+      if (!candidate || !mandatoryComplete() || !(article || book))
+        return false;
       if (resolution?.outcome === "nonexistent") {
         result.verdict = "doi-conflict";
         result.reasons = ["doi-nonexistent"];
@@ -424,6 +506,12 @@ export function createBibliographicVerification(ports: {
                 "early-termination",
               ),
             );
+      if (book)
+        for (const source of ["openlibrary", "googlebooks"] as const)
+          if (!states.has(source))
+            result.evidence.push(
+              note(source, "combined", "disabled", "operator-disabled"),
+            );
       if (!states.has("openalex"))
         result.evidence.push(
           note("openalex", "combined", "disabled", "operator-disabled"),
@@ -439,13 +527,20 @@ export function createBibliographicVerification(ports: {
     }
     const identifiers: [IdentifierKind, string | undefined][] = [
       ["doi", doi],
-      ["pmid", reference.csl.PMID],
-      ["pmcid", reference.csl.PMCID],
+      ...(!book
+        ? ([
+            ["pmid", reference.csl.PMID],
+            ["pmcid", reference.csl.PMCID],
+          ] as [IdentifierKind, string | undefined][])
+        : ([["isbn", reference.csl.ISBN]] as [
+            IdentifierKind,
+            string | undefined,
+          ][])),
     ];
     let unsupportedIdentifier = false;
     for (const [kind, raw] of identifiers) {
       if (!raw) continue;
-      if (!ports.sources.some((source) => source.identifiers.includes(kind))) {
+      if (!sources.some((source) => source.identifiers.includes(kind))) {
         unsupportedIdentifier = true;
         result.evidence.push(
           note(
@@ -462,21 +557,38 @@ export function createBibliographicVerification(ports: {
           ? normalizePmid(raw)
           : kind === "pmcid"
             ? normalizePmcid(raw)
-            : raw;
+            : kind === "isbn"
+              ? normalizeIsbn(raw)
+              : raw;
+      if (!value) {
+        unsupportedIdentifier = true;
+        continue;
+      }
       for (const state of states.values()) {
         if (
+          (book && state.failed) ||
           !state.source.identifiers.includes(kind) ||
           state.candidates.length >= 3
         )
           continue;
-        const key = kind === "doi" ? "DOI" : kind === "pmid" ? "PMID" : "PMCID";
-        const carried = result.candidates.find(
-          (c) =>
-            c.csl[key] &&
-            (kind === "doi"
-              ? normalizeDoi(c.csl[key]) === value
-              : c.csl[key].toLowerCase() === value.toLowerCase()),
-        );
+        const key =
+          kind === "doi"
+            ? "DOI"
+            : kind === "pmid"
+              ? "PMID"
+              : kind === "pmcid"
+                ? "PMCID"
+                : "ISBN";
+        const carried =
+          kind === "isbn"
+            ? undefined
+            : result.candidates.find(
+                (c) =>
+                  c.csl[key] &&
+                  (kind === "doi"
+                    ? normalizeDoi(c.csl[key]) === value
+                    : c.csl[key].toLowerCase() === value.toLowerCase()),
+              );
         if (carried) {
           carried.identifiers = [
             ...new Set([...(carried.identifiers ?? []), `${kind}:${value}`]),
@@ -485,7 +597,10 @@ export function createBibliographicVerification(ports: {
         }
         const response = await state.source.lookup(kind, value, deadline);
         result.evidence.push(response.evidence);
-        if (response.evidence.outcome === "unavailable") state.complete = false;
+        if (response.evidence.outcome === "unavailable") {
+          state.complete = false;
+          state.failed = true;
+        }
         const retrieved = response.candidate;
         if (retrieved) {
           rememberRetractions([retrieved]);
@@ -496,7 +611,7 @@ export function createBibliographicVerification(ports: {
         if (stop()) return finish(true);
       }
     }
-    if (article)
+    if (article || book)
       for (const state of states.values()) {
         let carry = 0;
         for (const kind of [
@@ -516,17 +631,28 @@ export function createBibliographicVerification(ports: {
                 : kind === "authors-year"
                   ? !!reference.csl.author?.length
                   : !!reference.csl.title || !!reference.csl.author?.length;
-            received = usable
-              ? await state.source.search(reference.csl, kind, deadline)
-              : {
-                  candidates: [],
-                  evidence: note(
-                    state.source.name,
-                    kind,
-                    "unsupported",
-                    "missing-query-fields",
-                  ),
-                };
+            received =
+              book && state.failed
+                ? {
+                    candidates: [],
+                    evidence: note(
+                      state.source.name,
+                      kind,
+                      "skipped",
+                      "after-source-failure",
+                    ),
+                  }
+                : usable
+                  ? await state.source.search(reference.csl, kind, deadline)
+                  : {
+                      candidates: [],
+                      evidence: note(
+                        state.source.name,
+                        kind,
+                        "unsupported",
+                        "missing-query-fields",
+                      ),
+                    };
             received.evidence.skippedDuplicates = [];
             rememberRetractions(received.candidates);
             received.evidence.unusedSlots = 0;
@@ -534,6 +660,8 @@ export function createBibliographicVerification(ports: {
             state.received.set(kind, received);
             if (!["candidate", "no-record"].includes(received.evidence.outcome))
               state.complete = false;
+            if (received.evidence.outcome === "unavailable")
+              state.failed = true;
           }
           let filled = 0,
             offset = state.offsets.get(kind) ?? 0;
@@ -562,6 +690,14 @@ export function createBibliographicVerification(ports: {
     }
     if (!mandatoryComplete()) {
       result.reasons = ["mandatory-resolution-incomplete"];
+      return finish();
+    }
+    if (
+      book &&
+      states.size > 0 &&
+      [...states.values()].every((s) => s.failed)
+    ) {
+      result.reasons = ["sources-unavailable"];
       return finish();
     }
     if (result.candidates.some(unsafe)) {
@@ -598,6 +734,7 @@ export function createBibliographicVerification(ports: {
     }
     // Mixed components must be distinct, consistently identified Sources.
     const consistent = (c: Candidate) =>
+      !incompatibleBookType(c) &&
       !identityGroup(c, result.candidates).conflicting;
     const mixed = result.candidates.some((a) =>
       result.candidates.some(
@@ -615,19 +752,23 @@ export function createBibliographicVerification(ports: {
           fieldScore(b, "title")! < profile.contradiction,
       ),
     );
-    if (article && mixed) {
+    if ((article || book) && mixed) {
       result.verdict = "mixed-citation";
       result.reasons = ["mixed-components"];
-    } else if (article && chosen) identified(chosen);
+    } else if ((article || book) && chosen) identified(chosen);
     else if (doi && resolution?.outcome === "exists")
       result.reasons = ["identity-unresolved"];
-    else if (!article || reference.csl.ISBN)
+    else if (!(article || book) || (!book && reference.csl.ISBN))
       result.reasons = ["development-route-incomplete"];
     else if (result.candidates.some((c) => unsafe(c) || matching(c)))
       result.reasons = ["ambiguous-identity"];
     else if (
       !unsupportedIdentifier &&
-      states.size === 2 &&
+      (book
+        ? ["openalex", "crossref", "openlibrary", "googlebooks"].every((name) =>
+            sources.some((s) => s.name === name),
+          )
+        : states.size === 2) &&
       [...states.values()].every((s) => s.complete && s.received.size === 3) &&
       reference.csl.title &&
       reference.csl.author?.length &&

@@ -199,5 +199,9 @@
   "correction_selected_heading": "Ausgewählte Korrekturen",
   "correction_selected_item": "Referenz {slot}: {text}",
   "correction_none_selected": "Keine Korrekturen ausgewählt. Der Export verwendet die aktuellen Felder.",
-  "correction_loading": "Wird formatiert…"
+  "correction_loading": "Wird formatiert…",
+  "origin_isbn": "ISBN-Abfrage",
+  "reason_sources_unavailable": "Alle zuständigen aktivierten Datenquellen sind ausgefallen. Ihr Ausfall beweist nicht, dass die Quelle nicht existiert.",
+  "failed_data_sources": "Nicht verfügbare Datenquellen: {sources}.",
+  "limitation_after_source_failure": "Weitere Anfragen an diese Datenquelle wurden nach ihrem Ausfall übersprungen."
 }

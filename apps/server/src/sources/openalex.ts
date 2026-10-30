@@ -16,6 +16,7 @@ export type SourceRequest = (
 const record = z.object({
   id: z.string().regex(/^https:\/\/openalex\.org\/W\d+$/u),
   title: z.string().nullable().optional(),
+  type: z.string().optional(),
   doi: z.string().nullable().optional(),
   is_retracted: z.boolean().nullable().optional(),
   publication_year: z.number().int().nullable().optional(),
@@ -77,6 +78,16 @@ function project(
         }
       : {}),
     csl: {
+      ...(m.type
+        ? {
+            type:
+              m.type === "book-chapter"
+                ? "chapter"
+                : m.type === "article"
+                  ? "article-journal"
+                  : m.type,
+          }
+        : {}),
       ...(m.title ? { title: m.title } : {}),
       ...(m.doi ? { DOI: m.doi.replace(/^https?:\/\/doi\.org\//iu, "") } : {}),
       ...(m.ids?.pmid ? { PMID: normalizePmid(m.ids.pmid) } : {}),
@@ -122,7 +133,7 @@ export function openalexAdapter(
     name: "openalex",
     identifiers: ["doi", "pmid"],
     async lookup(kind, value, deadline) {
-      if (kind === "pmcid")
+      if (kind !== "doi" && kind !== "pmid")
         return {
           evidence: {
             source: "openalex",

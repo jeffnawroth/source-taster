@@ -6,6 +6,7 @@ import {
   createBibliographicVerification,
   comparisonLimits,
   journalAbbreviationRules,
+  type Evidence,
 } from "@source-taster/core";
 import { createHash } from "node:crypto";
 import type { Db } from "../db/prisma.ts";
@@ -18,6 +19,8 @@ import {
 } from "../sources/doi.ts";
 import { crossrefAdapter } from "../sources/crossref.ts";
 import { openalexAdapter } from "../sources/openalex.ts";
+import { googlebooksAdapter } from "../sources/googlebooks.ts";
+import { openlibraryAdapter } from "../sources/openlibrary.ts";
 import { sourceBudget } from "../sources/budget.ts";
 export function referenceExecution(
   config: Config,
@@ -29,16 +32,14 @@ export function referenceExecution(
     dispatchSource?: (
       send: () => Promise<SourceDispatch | null>,
     ) => Promise<SourceDispatch | null>;
-    beforeSource?: (
-      source: "doi.org" | "crossref" | "openalex",
-    ) => Promise<void>;
+    beforeSource?: (source: Evidence["source"]) => Promise<void>;
   } = {},
 ) {
   const clock = context.clock ?? systemSourceClock;
   const adapters = createDoiAdapters({
     resolverBase: config.resolverBase,
     crossrefBase: config.crossrefBase,
-    budget: sourceBudget(db, context.signal, clock),
+    budget: sourceBudget(db, context.signal, clock, config.catalogRates),
     beforeRequest: context.beforeSource,
     dispatch: context.dispatchSource,
     clock,
@@ -71,6 +72,7 @@ export function referenceExecution(
   return context.apiVersion === 2 && config.bibliographicPreview
     ? createBibliographicVerification({
         ...options,
+        catalogRates: config.catalogRates,
         sources: [
           ...(config.openalexEnabled
             ? [openalexAdapter(adapters.request, config.openalexBase!)]
@@ -81,6 +83,12 @@ export function referenceExecution(
             adapters.source,
             adapters.project,
           ),
+          ...(config.openlibraryEnabled
+            ? [openlibraryAdapter(adapters.request, config.openlibraryBase!)]
+            : []),
+          ...(config.googlebooksEnabled
+            ? [googlebooksAdapter(adapters.request, config.googlebooksBase!)]
+            : []),
         ],
       })
     : createDoiVerification(options);

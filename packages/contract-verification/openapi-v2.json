@@ -172,7 +172,9 @@
               "doi.org",
               "crossref",
               "ended",
-              "openalex"
+              "openalex",
+              "openlibrary",
+              "googlebooks"
             ]
           }
         },
@@ -471,7 +473,7 @@
                 "items": {
                   "$ref": "#/components/schemas/CandidateV2"
                 },
-                "maxItems": 10
+                "maxItems": 20
               },
               "evidence": {
                 "type": "array",
@@ -497,7 +499,8 @@
                     "mixed-components",
                     "search-completed",
                     "ambiguous-identity",
-                    "insufficient-search"
+                    "insufficient-search",
+                    "sources-unavailable"
                   ]
                 }
               },
@@ -508,7 +511,9 @@
                   "enum": [
                     "doi.org",
                     "crossref",
-                    "openalex"
+                    "openalex",
+                    "openlibrary",
+                    "googlebooks"
                   ]
                 }
               },
@@ -575,7 +580,9 @@
             "type": "string",
             "enum": [
               "crossref",
-              "openalex"
+              "openalex",
+              "openlibrary",
+              "googlebooks"
             ]
           },
           "origin": {
@@ -584,6 +591,7 @@
               "doi",
               "pmid",
               "pmcid",
+              "isbn",
               "combined",
               "title",
               "authors-year"
@@ -700,6 +708,9 @@
               "type": "string"
             }
           },
+          "identifierAmbiguous": {
+            "type": "boolean"
+          },
           "retractionEvidence": {
             "$ref": "#/components/schemas/RetractionEvidenceV2"
           }
@@ -736,6 +747,9 @@
               "unweighted",
               "resource-limit"
             ]
+          },
+          "agreement": {
+            "type": "boolean"
           },
           "journalAbbreviation": {
             "type": "object",
@@ -863,7 +877,9 @@
             "enum": [
               "doi.org",
               "crossref",
-              "openalex"
+              "openalex",
+              "openlibrary",
+              "googlebooks"
             ]
           },
           "operation": {
@@ -872,6 +888,7 @@
               "doi",
               "pmid",
               "pmcid",
+              "isbn",
               "combined",
               "title",
               "authors-year"
@@ -918,6 +935,12 @@
           "unusedSlots": {
             "type": "integer",
             "minimum": 0
+          },
+          "identifierAmbiguity": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
