@@ -7,6 +7,8 @@ import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
 import {
   createDevelopmentProfile,
   type ComparisonProfile,
+  type CatalogRates,
+  bookSearchConfiguration,
 } from "@source-taster/core";
 import { resolve } from "node:path";
 import {
@@ -27,6 +29,11 @@ export interface Config {
   bibliographicPreview?: boolean;
   openalexEnabled?: boolean;
   openalexBase?: string;
+  openlibraryEnabled?: boolean;
+  openlibraryBase?: string;
+  googlebooksEnabled?: boolean;
+  googlebooksBase?: string;
+  catalogRates?: CatalogRates;
   comparisonProfile: ComparisonProfile;
   resolverBase: string;
   crossrefBase: string;
@@ -108,6 +115,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     !["true", "false"].includes(env.SOURCE_TASTER_OPENALEX_ENABLED)
   )
     throw new ConfigError("OpenAlex enablement must be true or false.");
+  for (const name of ["OPENLIBRARY", "GOOGLEBOOKS"])
+    if (
+      env[`SOURCE_TASTER_${name}_ENABLED`] &&
+      !["true", "false"].includes(env[`SOURCE_TASTER_${name}_ENABLED`]!)
+    )
+      throw new ConfigError(`${name} enablement must be true or false.`);
   let comparisonProfile: ComparisonProfile;
   try {
     comparisonProfile = createDevelopmentProfile(
@@ -159,6 +172,30 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       "SOURCE_TASTER_OPENALEX_BASE_URL",
       "https://api.openalex.org",
     ),
+    openlibraryEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_OPENLIBRARY_ENABLED === "true",
+    openlibraryBase: endpoint(
+      "SOURCE_TASTER_OPENLIBRARY_BASE_URL",
+      "https://openlibrary.org",
+    ),
+    googlebooksEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_GOOGLEBOOKS_ENABLED === "true",
+    googlebooksBase: endpoint(
+      "SOURCE_TASTER_GOOGLEBOOKS_BASE_URL",
+      "https://www.googleapis.com",
+    ),
+    catalogRates: {
+      openlibrary: positiveRate(
+        env,
+        "SOURCE_TASTER_OPENLIBRARY_REQUESTS_PER_SECOND",
+        bookSearchConfiguration.openlibraryRequestsPerSecond,
+      ),
+      googlebooks: positiveRate(
+        env,
+        "SOURCE_TASTER_GOOGLEBOOKS_REQUESTS_PER_SECOND",
+        bookSearchConfiguration.googlebooksRequestsPerSecond,
+      ),
+    },
     comparisonProfile,
     resolverBase: endpoint(
       "SOURCE_TASTER_DOI_RESOLVER_BASE_URL",
@@ -184,6 +221,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   };
 }
 
+function positiveRate(env: NodeJS.ProcessEnv, name: string, fallback: number) {
+  const value = env[name] === undefined ? fallback : Number(env[name]);
+  if (!Number.isFinite(value) || value <= 0)
+    throw new ConfigError(`${name} must be a positive finite number.`);
+  return value;
+}
 function integer(
   env: NodeJS.ProcessEnv,
   name: string,

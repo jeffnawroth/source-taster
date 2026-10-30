@@ -1,0 +1,23 @@
+{
+  "ISBN:9780000000019": {
+    "key": "/books/OL79001M",
+    "title": "Catalog routing witness",
+    "authors": [
+      {
+        "name": "Ada Example"
+      },
+      {
+        "name": "Ben Witness"
+      }
+    ],
+    "identifiers": {
+      "isbn_10": ["0000000019"]
+    },
+    "publishers": [
+      {
+        "name": "Fixture Press"
+      }
+    ],
+    "publish_date": "1988"
+  }
+}

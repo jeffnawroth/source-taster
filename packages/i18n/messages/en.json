@@ -199,5 +199,9 @@
   "correction_selected_heading": "Selected corrections",
   "correction_selected_item": "Reference {slot}: {text}",
   "correction_none_selected": "No corrections selected. The export uses the current fields.",
-  "correction_loading": "Formatting…"
+  "correction_loading": "Formatting…",
+  "origin_isbn": "ISBN lookup",
+  "reason_sources_unavailable": "All responsible enabled Data sources failed. Their failure does not prove that the Source does not exist.",
+  "failed_data_sources": "Unavailable Data sources: {sources}.",
+  "limitation_after_source_failure": "Further requests to this Data source were skipped after its failure."
 }

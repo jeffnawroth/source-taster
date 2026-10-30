@@ -10,8 +10,9 @@ import {
   type ComparisonProfile,
 } from "./comparison.ts";
 export interface Evidence {
-  source: "doi.org" | "crossref" | "openalex";
-  operation: "doi" | "pmid" | "pmcid" | "combined" | "title" | "authors-year";
+  source: "doi.org" | "crossref" | "openalex" | "openlibrary" | "googlebooks";
+  operation:
+    "doi" | "pmid" | "pmcid" | "isbn" | "combined" | "title" | "authors-year";
   outcome:
     | "exists"
     | "nonexistent"
@@ -29,6 +30,7 @@ export interface Evidence {
   raw?: unknown;
   skippedDuplicates?: string[];
   unusedSlots?: number;
+  identifierAmbiguity?: string[];
 }
 /** An affirmative report already received from a Data source, never a verified negative. */
 export interface RetractionEvidence {
@@ -38,9 +40,11 @@ export interface RetractionEvidence {
 }
 export interface RetrievedCandidate {
   id: string;
-  source: "crossref" | "openalex";
-  origin: "doi" | "pmid" | "pmcid" | "combined" | "title" | "authors-year";
+  source: "crossref" | "openalex" | "openlibrary" | "googlebooks";
+  origin:
+    "doi" | "pmid" | "pmcid" | "isbn" | "combined" | "title" | "authors-year";
   identifiers?: string[];
+  identityAmbiguous?: boolean;
   retrievedAt: string;
   csl: Csl;
   raw: unknown;
@@ -123,8 +127,11 @@ export interface VerdictResult {
     | "search-completed"
     | "ambiguous-identity"
     | "insufficient-search"
+    | "sources-unavailable"
   )[];
-  failedSources: ("doi.org" | "crossref" | "openalex")[];
+  failedSources: (
+    "doi.org" | "crossref" | "openalex" | "openlibrary" | "googlebooks"
+  )[];
   retraction: "unknown" | "retracted";
   retractionEvidence?: RetractionEvidence[];
 }

@@ -7,6 +7,7 @@ import type {
   RetrievedCandidate,
 } from "@source-taster/core";
 import { z } from "zod";
+import { projectDisplayName } from "./names.ts";
 export type SourceRequest = (
   source: Evidence["source"],
   url: URL,
@@ -16,6 +17,7 @@ export type SourceRequest = (
 const record = z.object({
   id: z.string().regex(/^https:\/\/openalex\.org\/W\d+$/u),
   title: z.string().nullable().optional(),
+  type: z.string().optional(),
   doi: z.string().nullable().optional(),
   is_retracted: z.boolean().nullable().optional(),
   publication_year: z.number().int().nullable().optional(),
@@ -57,6 +59,7 @@ function project(
   body: unknown,
   origin: RetrievedCandidate["origin"],
   retrievedAt: string,
+  bookMetadata = false,
 ): RetrievedCandidate | undefined {
   const parsed = record.safeParse(body);
   if (!parsed.success) return;
@@ -77,19 +80,25 @@ function project(
         }
       : {}),
     csl: {
+      ...(bookMetadata && m.type
+        ? {
+            type:
+              m.type === "book-chapter"
+                ? "chapter"
+                : m.type === "article"
+                  ? "article-journal"
+                  : m.type,
+          }
+        : {}),
       ...(m.title ? { title: m.title } : {}),
       ...(m.doi ? { DOI: m.doi.replace(/^https?:\/\/doi\.org\//iu, "") } : {}),
       ...(m.ids?.pmid ? { PMID: normalizePmid(m.ids.pmid) } : {}),
       ...(m.ids?.pmcid ? { PMCID: normalizePmcid(m.ids.pmcid) } : {}),
       ...(m.authorships
         ? {
-            author: m.authorships.map((a) => {
-              const parts = a.author.display_name.trim().split(/\s+/u);
-              return {
-                family: parts.pop()!,
-                ...(parts.length ? { given: parts.join(" ") } : {}),
-              };
-            }),
+            author: m.authorships.map((a) =>
+              projectDisplayName(a.author.display_name),
+            ),
           }
         : {}),
       ...(m.primary_location?.source?.display_name
@@ -117,12 +126,13 @@ function project(
 export function openalexAdapter(
   request: SourceRequest,
   base: string,
+  bookMetadata = false,
 ): BibliographicSource {
   return {
     name: "openalex",
     identifiers: ["doi", "pmid"],
     async lookup(kind, value, deadline) {
-      if (kind === "pmcid")
+      if (kind !== "doi" && kind !== "pmid")
         return {
           evidence: {
             source: "openalex",
@@ -144,7 +154,7 @@ export function openalexAdapter(
         return {
           evidence: { ...evidence, outcome: "no-record", reason: undefined },
         };
-      const candidate = project(body, kind, evidence.observedAt);
+      const candidate = project(body, kind, evidence.observedAt, bookMetadata);
       const key = kind === "doi" ? "DOI" : kind === "pmid" ? "PMID" : "PMCID";
       if (
         evidence.reason !== "response" ||
@@ -185,7 +195,9 @@ export function openalexAdapter(
         .object({ results: z.array(z.unknown()) })
         .safeParse(body);
       const candidates = parsed.success
-        ? parsed.data.results.map((m) => project(m, kind, evidence.observedAt))
+        ? parsed.data.results.map((m) =>
+            project(m, kind, evidence.observedAt, bookMetadata),
+          )
         : [];
       if (
         evidence.reason !== "response" ||

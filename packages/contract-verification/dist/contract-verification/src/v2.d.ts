@@ -24,6 +24,7 @@ export declare const FieldComparison: z.ZodObject<{
         "resource-limit": "resource-limit";
         unweighted: "unweighted";
     }>;
+    agreement: z.ZodOptional<z.ZodBoolean>;
     journalAbbreviation: z.ZodOptional<z.ZodObject<{
         outcome: z.ZodEnum<{
             different: "different";
@@ -106,6 +107,7 @@ export declare const Candidate: z.ZodObject<{
             "resource-limit": "resource-limit";
             unweighted: "unweighted";
         }>;
+        agreement: z.ZodOptional<z.ZodBoolean>;
         journalAbbreviation: z.ZodOptional<z.ZodObject<{
             outcome: z.ZodEnum<{
                 different: "different";
@@ -137,17 +139,21 @@ export declare const Candidate: z.ZodObject<{
     }, z.core.$strip>>;
     source: z.ZodEnum<{
         crossref: "crossref";
+        googlebooks: "googlebooks";
         openalex: "openalex";
+        openlibrary: "openlibrary";
     }>;
     origin: z.ZodEnum<{
         "authors-year": "authors-year";
         combined: "combined";
         doi: "doi";
+        isbn: "isbn";
         pmcid: "pmcid";
         pmid: "pmid";
         title: "title";
     }>;
     identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
     retractionEvidence: z.ZodOptional<z.ZodObject<{
         source: z.ZodEnum<{
             crossref: "crossref";
@@ -167,12 +173,15 @@ export declare const SourceEvidence: z.ZodObject<{
     source: z.ZodEnum<{
         crossref: "crossref";
         "doi.org": "doi.org";
+        googlebooks: "googlebooks";
         openalex: "openalex";
+        openlibrary: "openlibrary";
     }>;
     operation: z.ZodEnum<{
         "authors-year": "authors-year";
         combined: "combined";
         doi: "doi";
+        isbn: "isbn";
         pmcid: "pmcid";
         pmid: "pmid";
         title: "title";
@@ -189,6 +198,7 @@ export declare const SourceEvidence: z.ZodObject<{
     }>;
     skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
     unusedSlots: z.ZodOptional<z.ZodNumber>;
+    identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
 }, z.core.$strip>;
 export declare const VerdictResult: z.ZodObject<{
     kind: z.ZodLiteral<"verdict">;
@@ -323,6 +333,7 @@ export declare const VerdictResult: z.ZodObject<{
                 "resource-limit": "resource-limit";
                 unweighted: "unweighted";
             }>;
+            agreement: z.ZodOptional<z.ZodBoolean>;
             journalAbbreviation: z.ZodOptional<z.ZodObject<{
                 outcome: z.ZodEnum<{
                     different: "different";
@@ -354,17 +365,21 @@ export declare const VerdictResult: z.ZodObject<{
         }, z.core.$strip>>;
         source: z.ZodEnum<{
             crossref: "crossref";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
         }>;
         origin: z.ZodEnum<{
             "authors-year": "authors-year";
             combined: "combined";
             doi: "doi";
+            isbn: "isbn";
             pmcid: "pmcid";
             pmid: "pmid";
             title: "title";
         }>;
         identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
         retractionEvidence: z.ZodOptional<z.ZodObject<{
             source: z.ZodEnum<{
                 crossref: "crossref";
@@ -384,12 +399,15 @@ export declare const VerdictResult: z.ZodObject<{
         source: z.ZodEnum<{
             crossref: "crossref";
             "doi.org": "doi.org";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
         }>;
         operation: z.ZodEnum<{
             "authors-year": "authors-year";
             combined: "combined";
             doi: "doi";
+            isbn: "isbn";
             pmcid: "pmcid";
             pmid: "pmid";
             title: "title";
@@ -406,6 +424,7 @@ export declare const VerdictResult: z.ZodObject<{
         }>;
         skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
         unusedSlots: z.ZodOptional<z.ZodNumber>;
+        identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
     }, z.core.$strip>>;
     reasons: z.ZodArray<z.ZodEnum<{
         "ambiguous-identity": "ambiguous-identity";
@@ -421,12 +440,15 @@ export declare const VerdictResult: z.ZodObject<{
         "mixed-components": "mixed-components";
         "outside-coverage": "outside-coverage";
         "search-completed": "search-completed";
+        "sources-unavailable": "sources-unavailable";
         "url-verification-incomplete": "url-verification-incomplete";
     }>>;
     failedSources: z.ZodArray<z.ZodEnum<{
         crossref: "crossref";
         "doi.org": "doi.org";
+        googlebooks: "googlebooks";
         openalex: "openalex";
+        openlibrary: "openlibrary";
     }>>;
     retraction: z.ZodEnum<{
         retracted: "retracted";
@@ -585,6 +607,7 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 "resource-limit": "resource-limit";
                 unweighted: "unweighted";
             }>;
+            agreement: z.ZodOptional<z.ZodBoolean>;
             journalAbbreviation: z.ZodOptional<z.ZodObject<{
                 outcome: z.ZodEnum<{
                     different: "different";
@@ -616,17 +639,21 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
         }, z.core.$strip>>;
         source: z.ZodEnum<{
             crossref: "crossref";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
         }>;
         origin: z.ZodEnum<{
             "authors-year": "authors-year";
             combined: "combined";
             doi: "doi";
+            isbn: "isbn";
             pmcid: "pmcid";
             pmid: "pmid";
             title: "title";
         }>;
         identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+        identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
         retractionEvidence: z.ZodOptional<z.ZodObject<{
             source: z.ZodEnum<{
                 crossref: "crossref";
@@ -646,12 +673,15 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
         source: z.ZodEnum<{
             crossref: "crossref";
             "doi.org": "doi.org";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
         }>;
         operation: z.ZodEnum<{
             "authors-year": "authors-year";
             combined: "combined";
             doi: "doi";
+            isbn: "isbn";
             pmcid: "pmcid";
             pmid: "pmid";
             title: "title";
@@ -668,6 +698,7 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
         }>;
         skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
         unusedSlots: z.ZodOptional<z.ZodNumber>;
+        identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
     }, z.core.$strip>>;
     reasons: z.ZodArray<z.ZodEnum<{
         "ambiguous-identity": "ambiguous-identity";
@@ -683,12 +714,15 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
         "mixed-components": "mixed-components";
         "outside-coverage": "outside-coverage";
         "search-completed": "search-completed";
+        "sources-unavailable": "sources-unavailable";
         "url-verification-incomplete": "url-verification-incomplete";
     }>>;
     failedSources: z.ZodArray<z.ZodEnum<{
         crossref: "crossref";
         "doi.org": "doi.org";
+        googlebooks: "googlebooks";
         openalex: "openalex";
+        openlibrary: "openlibrary";
     }>>;
     retraction: z.ZodEnum<{
         retracted: "retracted";
@@ -709,7 +743,9 @@ export declare const ReferenceProgress: z.ZodEnum<{
     crossref: "crossref";
     "doi.org": "doi.org";
     ended: "ended";
+    googlebooks: "googlebooks";
     openalex: "openalex";
+    openlibrary: "openlibrary";
     queued: "queued";
 }>;
 export type ReferenceProgress = z.infer<typeof ReferenceProgress>;
@@ -857,6 +893,7 @@ export declare const ReferenceSlot: z.ZodObject<{
                     "resource-limit": "resource-limit";
                     unweighted: "unweighted";
                 }>;
+                agreement: z.ZodOptional<z.ZodBoolean>;
                 journalAbbreviation: z.ZodOptional<z.ZodObject<{
                     outcome: z.ZodEnum<{
                         different: "different";
@@ -888,17 +925,21 @@ export declare const ReferenceSlot: z.ZodObject<{
             }, z.core.$strip>>;
             source: z.ZodEnum<{
                 crossref: "crossref";
+                googlebooks: "googlebooks";
                 openalex: "openalex";
+                openlibrary: "openlibrary";
             }>;
             origin: z.ZodEnum<{
                 "authors-year": "authors-year";
                 combined: "combined";
                 doi: "doi";
+                isbn: "isbn";
                 pmcid: "pmcid";
                 pmid: "pmid";
                 title: "title";
             }>;
             identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+            identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
             retractionEvidence: z.ZodOptional<z.ZodObject<{
                 source: z.ZodEnum<{
                     crossref: "crossref";
@@ -918,12 +959,15 @@ export declare const ReferenceSlot: z.ZodObject<{
             source: z.ZodEnum<{
                 crossref: "crossref";
                 "doi.org": "doi.org";
+                googlebooks: "googlebooks";
                 openalex: "openalex";
+                openlibrary: "openlibrary";
             }>;
             operation: z.ZodEnum<{
                 "authors-year": "authors-year";
                 combined: "combined";
                 doi: "doi";
+                isbn: "isbn";
                 pmcid: "pmcid";
                 pmid: "pmid";
                 title: "title";
@@ -940,6 +984,7 @@ export declare const ReferenceSlot: z.ZodObject<{
             }>;
             skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
             unusedSlots: z.ZodOptional<z.ZodNumber>;
+            identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
         }, z.core.$strip>>;
         reasons: z.ZodArray<z.ZodEnum<{
             "ambiguous-identity": "ambiguous-identity";
@@ -955,12 +1000,15 @@ export declare const ReferenceSlot: z.ZodObject<{
             "mixed-components": "mixed-components";
             "outside-coverage": "outside-coverage";
             "search-completed": "search-completed";
+            "sources-unavailable": "sources-unavailable";
             "url-verification-incomplete": "url-verification-incomplete";
         }>>;
         failedSources: z.ZodArray<z.ZodEnum<{
             crossref: "crossref";
             "doi.org": "doi.org";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
         }>>;
         retraction: z.ZodEnum<{
             retracted: "retracted";
@@ -980,7 +1028,9 @@ export declare const ReferenceSlot: z.ZodObject<{
         crossref: "crossref";
         "doi.org": "doi.org";
         ended: "ended";
+        googlebooks: "googlebooks";
         openalex: "openalex";
+        openlibrary: "openlibrary";
         queued: "queued";
     }>;
 }, z.core.$strip>;
@@ -1143,6 +1193,7 @@ export declare const Check: z.ZodObject<{
                         "resource-limit": "resource-limit";
                         unweighted: "unweighted";
                     }>;
+                    agreement: z.ZodOptional<z.ZodBoolean>;
                     journalAbbreviation: z.ZodOptional<z.ZodObject<{
                         outcome: z.ZodEnum<{
                             different: "different";
@@ -1174,17 +1225,21 @@ export declare const Check: z.ZodObject<{
                 }, z.core.$strip>>;
                 source: z.ZodEnum<{
                     crossref: "crossref";
+                    googlebooks: "googlebooks";
                     openalex: "openalex";
+                    openlibrary: "openlibrary";
                 }>;
                 origin: z.ZodEnum<{
                     "authors-year": "authors-year";
                     combined: "combined";
                     doi: "doi";
+                    isbn: "isbn";
                     pmcid: "pmcid";
                     pmid: "pmid";
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                 retractionEvidence: z.ZodOptional<z.ZodObject<{
                     source: z.ZodEnum<{
                         crossref: "crossref";
@@ -1204,12 +1259,15 @@ export declare const Check: z.ZodObject<{
                 source: z.ZodEnum<{
                     crossref: "crossref";
                     "doi.org": "doi.org";
+                    googlebooks: "googlebooks";
                     openalex: "openalex";
+                    openlibrary: "openlibrary";
                 }>;
                 operation: z.ZodEnum<{
                     "authors-year": "authors-year";
                     combined: "combined";
                     doi: "doi";
+                    isbn: "isbn";
                     pmcid: "pmcid";
                     pmid: "pmid";
                     title: "title";
@@ -1226,6 +1284,7 @@ export declare const Check: z.ZodObject<{
                 }>;
                 skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
                 unusedSlots: z.ZodOptional<z.ZodNumber>;
+                identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
             }, z.core.$strip>>;
             reasons: z.ZodArray<z.ZodEnum<{
                 "ambiguous-identity": "ambiguous-identity";
@@ -1241,12 +1300,15 @@ export declare const Check: z.ZodObject<{
                 "mixed-components": "mixed-components";
                 "outside-coverage": "outside-coverage";
                 "search-completed": "search-completed";
+                "sources-unavailable": "sources-unavailable";
                 "url-verification-incomplete": "url-verification-incomplete";
             }>>;
             failedSources: z.ZodArray<z.ZodEnum<{
                 crossref: "crossref";
                 "doi.org": "doi.org";
+                googlebooks: "googlebooks";
                 openalex: "openalex";
+                openlibrary: "openlibrary";
             }>>;
             retraction: z.ZodEnum<{
                 retracted: "retracted";
@@ -1266,7 +1328,9 @@ export declare const Check: z.ZodObject<{
             crossref: "crossref";
             "doi.org": "doi.org";
             ended: "ended";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
             queued: "queued";
         }>;
     }, z.core.$strip>>;
@@ -1437,6 +1501,7 @@ export declare const CheckResponse: z.ZodObject<{
                             "resource-limit": "resource-limit";
                             unweighted: "unweighted";
                         }>;
+                        agreement: z.ZodOptional<z.ZodBoolean>;
                         journalAbbreviation: z.ZodOptional<z.ZodObject<{
                             outcome: z.ZodEnum<{
                                 different: "different";
@@ -1468,17 +1533,21 @@ export declare const CheckResponse: z.ZodObject<{
                     }, z.core.$strip>>;
                     source: z.ZodEnum<{
                         crossref: "crossref";
+                        googlebooks: "googlebooks";
                         openalex: "openalex";
+                        openlibrary: "openlibrary";
                     }>;
                     origin: z.ZodEnum<{
                         "authors-year": "authors-year";
                         combined: "combined";
                         doi: "doi";
+                        isbn: "isbn";
                         pmcid: "pmcid";
                         pmid: "pmid";
                         title: "title";
                     }>;
                     identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                    identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                     retractionEvidence: z.ZodOptional<z.ZodObject<{
                         source: z.ZodEnum<{
                             crossref: "crossref";
@@ -1498,12 +1567,15 @@ export declare const CheckResponse: z.ZodObject<{
                     source: z.ZodEnum<{
                         crossref: "crossref";
                         "doi.org": "doi.org";
+                        googlebooks: "googlebooks";
                         openalex: "openalex";
+                        openlibrary: "openlibrary";
                     }>;
                     operation: z.ZodEnum<{
                         "authors-year": "authors-year";
                         combined: "combined";
                         doi: "doi";
+                        isbn: "isbn";
                         pmcid: "pmcid";
                         pmid: "pmid";
                         title: "title";
@@ -1520,6 +1592,7 @@ export declare const CheckResponse: z.ZodObject<{
                     }>;
                     skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
                     unusedSlots: z.ZodOptional<z.ZodNumber>;
+                    identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
                 }, z.core.$strip>>;
                 reasons: z.ZodArray<z.ZodEnum<{
                     "ambiguous-identity": "ambiguous-identity";
@@ -1535,12 +1608,15 @@ export declare const CheckResponse: z.ZodObject<{
                     "mixed-components": "mixed-components";
                     "outside-coverage": "outside-coverage";
                     "search-completed": "search-completed";
+                    "sources-unavailable": "sources-unavailable";
                     "url-verification-incomplete": "url-verification-incomplete";
                 }>>;
                 failedSources: z.ZodArray<z.ZodEnum<{
                     crossref: "crossref";
                     "doi.org": "doi.org";
+                    googlebooks: "googlebooks";
                     openalex: "openalex";
+                    openlibrary: "openlibrary";
                 }>>;
                 retraction: z.ZodEnum<{
                     retracted: "retracted";
@@ -1560,7 +1636,9 @@ export declare const CheckResponse: z.ZodObject<{
                 crossref: "crossref";
                 "doi.org": "doi.org";
                 ended: "ended";
+                googlebooks: "googlebooks";
                 openalex: "openalex";
+                openlibrary: "openlibrary";
                 queued: "queued";
             }>;
         }, z.core.$strip>>;
@@ -1714,6 +1792,7 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                         "resource-limit": "resource-limit";
                         unweighted: "unweighted";
                     }>;
+                    agreement: z.ZodOptional<z.ZodBoolean>;
                     journalAbbreviation: z.ZodOptional<z.ZodObject<{
                         outcome: z.ZodEnum<{
                             different: "different";
@@ -1745,17 +1824,21 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                 }, z.core.$strip>>;
                 source: z.ZodEnum<{
                     crossref: "crossref";
+                    googlebooks: "googlebooks";
                     openalex: "openalex";
+                    openlibrary: "openlibrary";
                 }>;
                 origin: z.ZodEnum<{
                     "authors-year": "authors-year";
                     combined: "combined";
                     doi: "doi";
+                    isbn: "isbn";
                     pmcid: "pmcid";
                     pmid: "pmid";
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                 retractionEvidence: z.ZodOptional<z.ZodObject<{
                     source: z.ZodEnum<{
                         crossref: "crossref";
@@ -1775,12 +1858,15 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                 source: z.ZodEnum<{
                     crossref: "crossref";
                     "doi.org": "doi.org";
+                    googlebooks: "googlebooks";
                     openalex: "openalex";
+                    openlibrary: "openlibrary";
                 }>;
                 operation: z.ZodEnum<{
                     "authors-year": "authors-year";
                     combined: "combined";
                     doi: "doi";
+                    isbn: "isbn";
                     pmcid: "pmcid";
                     pmid: "pmid";
                     title: "title";
@@ -1797,6 +1883,7 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                 }>;
                 skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
                 unusedSlots: z.ZodOptional<z.ZodNumber>;
+                identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
             }, z.core.$strip>>;
             reasons: z.ZodArray<z.ZodEnum<{
                 "ambiguous-identity": "ambiguous-identity";
@@ -1812,12 +1899,15 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                 "mixed-components": "mixed-components";
                 "outside-coverage": "outside-coverage";
                 "search-completed": "search-completed";
+                "sources-unavailable": "sources-unavailable";
                 "url-verification-incomplete": "url-verification-incomplete";
             }>>;
             failedSources: z.ZodArray<z.ZodEnum<{
                 crossref: "crossref";
                 "doi.org": "doi.org";
+                googlebooks: "googlebooks";
                 openalex: "openalex";
+                openlibrary: "openlibrary";
             }>>;
             retraction: z.ZodEnum<{
                 retracted: "retracted";
@@ -1837,7 +1927,9 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
             crossref: "crossref";
             "doi.org": "doi.org";
             ended: "ended";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
             queued: "queued";
         }>;
     }, z.core.$strip>;
@@ -2002,6 +2094,7 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                         "resource-limit": "resource-limit";
                         unweighted: "unweighted";
                     }>;
+                    agreement: z.ZodOptional<z.ZodBoolean>;
                     journalAbbreviation: z.ZodOptional<z.ZodObject<{
                         outcome: z.ZodEnum<{
                             different: "different";
@@ -2033,17 +2126,21 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 }, z.core.$strip>>;
                 source: z.ZodEnum<{
                     crossref: "crossref";
+                    googlebooks: "googlebooks";
                     openalex: "openalex";
+                    openlibrary: "openlibrary";
                 }>;
                 origin: z.ZodEnum<{
                     "authors-year": "authors-year";
                     combined: "combined";
                     doi: "doi";
+                    isbn: "isbn";
                     pmcid: "pmcid";
                     pmid: "pmid";
                     title: "title";
                 }>;
                 identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
                 retractionEvidence: z.ZodOptional<z.ZodObject<{
                     source: z.ZodEnum<{
                         crossref: "crossref";
@@ -2063,12 +2160,15 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 source: z.ZodEnum<{
                     crossref: "crossref";
                     "doi.org": "doi.org";
+                    googlebooks: "googlebooks";
                     openalex: "openalex";
+                    openlibrary: "openlibrary";
                 }>;
                 operation: z.ZodEnum<{
                     "authors-year": "authors-year";
                     combined: "combined";
                     doi: "doi";
+                    isbn: "isbn";
                     pmcid: "pmcid";
                     pmid: "pmid";
                     title: "title";
@@ -2085,6 +2185,7 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 }>;
                 skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
                 unusedSlots: z.ZodOptional<z.ZodNumber>;
+                identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
             }, z.core.$strip>>;
             reasons: z.ZodArray<z.ZodEnum<{
                 "ambiguous-identity": "ambiguous-identity";
@@ -2100,12 +2201,15 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 "mixed-components": "mixed-components";
                 "outside-coverage": "outside-coverage";
                 "search-completed": "search-completed";
+                "sources-unavailable": "sources-unavailable";
                 "url-verification-incomplete": "url-verification-incomplete";
             }>>;
             failedSources: z.ZodArray<z.ZodEnum<{
                 crossref: "crossref";
                 "doi.org": "doi.org";
+                googlebooks: "googlebooks";
                 openalex: "openalex";
+                openlibrary: "openlibrary";
             }>>;
             retraction: z.ZodEnum<{
                 retracted: "retracted";
@@ -2125,7 +2229,9 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
             crossref: "crossref";
             "doi.org": "doi.org";
             ended: "ended";
+            googlebooks: "googlebooks";
             openalex: "openalex";
+            openlibrary: "openlibrary";
             queued: "queued";
         }>;
     }, z.core.$strip>;
