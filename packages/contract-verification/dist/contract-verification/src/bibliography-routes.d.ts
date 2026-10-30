@@ -91,6 +91,7 @@ export declare const renderBibliography: {
                                     }, z.core.$strip>;
                                 }, z.core.$strip>>;
                                 applied: z.ZodBoolean;
+                                resultToken: z.ZodOptional<z.ZodString>;
                             }, z.core.$strip>>;
                             bibliography: z.ZodNullable<z.ZodObject<{
                                 text: z.ZodString;

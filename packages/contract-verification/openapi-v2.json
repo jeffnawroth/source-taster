@@ -1162,6 +1162,10 @@
                               },
                               "applied": {
                                 "type": "boolean"
+                              },
+                              "resultToken": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$/u"
                               }
                             },
                             "required": [
@@ -1277,6 +1281,148 @@
           },
           "503": {
             "description": "Current authority or bounded formatting capacity is unavailable.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/export": {
+      "post": {
+        "summary": "Download current References as CSL-JSON or traditional BibTeX",
+        "description": "Owner-authorized, no-store download. Original mode uses current committed fields; selected corrections replace fields for this export only. No evidence or Quota is changed. RIS is not available at launch.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "csl-json",
+                      "bibtex"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "original",
+                      "selected-corrections"
+                    ]
+                  },
+                  "corrections": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "slot": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0
+                        },
+                        "resultToken": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$/u"
+                        }
+                      },
+                      "required": [
+                        "slot",
+                        "resultToken"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 1000,
+                    "default": []
+                  }
+                },
+                "required": [
+                  "format",
+                  "mode"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "UTF-8 attachment. CSL-JSON retains immutable original input in custom.originalText.",
+            "content": {
+              "application/vnd.citationstyles.csl+json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                }
+              },
+              "application/x-bibtex": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid format or correction selection.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority denies Check reading.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority is unavailable.",
             "content": {
               "application/problem+json": {
                 "schema": {

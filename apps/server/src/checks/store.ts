@@ -243,7 +243,7 @@ export function createCheckStore(
     }
     return false;
   }
-  async function ownerOperation(
+  async function ownerSnapshot(
     principal: Principal,
     checkId: string,
     action: "read" | "cancel" | "renew",
@@ -269,16 +269,45 @@ export function createCheckStore(
           });
       }
       // This lock also covers relation reads: snapshot and cursor are one cut.
-      return toCheck(
-        await tx.check.findUniqueOrThrow({
-          where: { id: checkId },
-          include: withSlots,
-        }),
-        renewalInterval,
+      const snapshot = await tx.check.findUniqueOrThrow({
+        where: { id: checkId },
+        include: withSlots,
+      });
+      const present = snapshot.references.filter(
+        (slot) => slot.status !== "removed",
       );
+      return {
+        check: toCheck({ ...snapshot, references: present }, renewalInterval),
+        references: present.map((slot) => ({
+          id: `${checkId}:${slot.position}`,
+          slot: slot.position,
+          resultId: slot.results[0]?.id,
+          resultIsCurrent:
+            slot.results[0]?.generation === slot.generation &&
+            slot.results[0]?.revision === slot.revision &&
+            slot.status === "finished",
+          originalText: slot.originalText,
+          authorsTruncated: (
+            slot.structured as unknown as StructuredReference | null
+          )?.authorsTruncated,
+          fields:
+            (slot.structured as unknown as StructuredReference | null)?.csl ??
+            {},
+        })),
+      };
     });
   }
+  async function ownerOperation(
+    principal: Principal,
+    id: string,
+    action: "read" | "cancel" | "renew",
+    version: number,
+  ) {
+    return (await ownerSnapshot(principal, id, action, version))?.check ?? null;
+  }
   return {
+    exportSnapshot: (principal: Principal, id: string) =>
+      ownerSnapshot(principal, id, "read", 2),
     async create(
       principal: Principal,
       references: StructuredReference[],

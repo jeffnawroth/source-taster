@@ -36,6 +36,11 @@ export const Bibliography = z.object({
         slot: z.number().int().positive(),
         suggestion: FormattedReference.extend({ csl: StructuredCsl }).nullable(),
         applied: z.boolean(),
+        /** Opaque result binding for a transient correction selection. */
+        resultToken: z
+            .string()
+            .regex(/^[a-f0-9]{64}$/u)
+            .optional(),
     })),
     bibliography: FormattedReference.nullable(),
 });

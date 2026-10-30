@@ -209,5 +209,15 @@
   "correction_selected_item": "Referenz {slot}: {text}",
   "correction_none_selected": "Keine Korrekturen ausgewählt. Der Export verwendet die aktuellen Felder.",
   "correction_loading": "Wird formatiert…",
-  "origin_isbn": "ISBN-Abfrage"
+  "origin_isbn": "ISBN-Abfrage",
+  "export_references_heading": "Referenzen exportieren",
+  "export_references_hint": "Originalreferenzen verwendet die aktuell gespeicherten Felder einschließlich Ihrer Änderungen. Ausgewählte Vorschläge gelten nur für diesen Download. Gespeicherte Belege bleiben unverändert.",
+  "export_format": "Exportformat",
+  "export_content": "Exportinhalt",
+  "export_original": "Originalreferenzen (aktuell gespeicherte Felder)",
+  "export_selected": "Mit ausgewählten Korrekturvorschlägen",
+  "export_preview": "Format: {format} · Zitierstil: {style}. Diese Datenformate bewahren die Felder; der Stil formatiert die Vorschau der Vorschläge.",
+  "export_download": "Referenzen herunterladen",
+  "export_downloading": "Download wird vorbereitet…",
+  "export_failed": "Der Download ist fehlgeschlagen. Prüfen Sie Verbindung und Zugriff, aktualisieren Sie bei Bedarf die Prüfung und versuchen Sie es erneut."
 }

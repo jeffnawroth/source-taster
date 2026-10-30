@@ -209,5 +209,15 @@
   "correction_selected_item": "Reference {slot}: {text}",
   "correction_none_selected": "No corrections selected. The export uses the current fields.",
   "correction_loading": "Formatting…",
-  "origin_isbn": "ISBN lookup"
+  "origin_isbn": "ISBN lookup",
+  "export_references_heading": "Export References",
+  "export_references_hint": "Original References uses current saved fields, including your edits. Selected suggestions apply only to this download. Stored evidence stays unchanged.",
+  "export_format": "Export format",
+  "export_content": "Export content",
+  "export_original": "Original References (current saved fields)",
+  "export_selected": "With selected Correction suggestions",
+  "export_preview": "Format: {format} · Citation style: {style}. These data formats retain fields; the style formats the suggestion preview.",
+  "export_download": "Download References",
+  "export_downloading": "Preparing download…",
+  "export_failed": "The download failed. Check your connection and access, refresh the Check if needed, then try again."
 }

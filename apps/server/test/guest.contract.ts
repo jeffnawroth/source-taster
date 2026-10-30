@@ -1537,3 +1537,68 @@ test("v2 completed OpenAlex evidence cannot commit through a stale precommit aut
   expect(await replay.text()).toBe("");
   expect(oa.requests).toHaveLength(1);
 });
+
+test.each([2, 3])(
+  "citation downloads require current Owner authority through publication guard %s",
+  async (skip) => {
+    const { CheckResponse: V2 } =
+      await import("@source-taster/contract-verification/v2");
+    const both = await bothPrograms({ startWorker: false });
+    cleanup.push(both.stop);
+    const guest = await both.issue();
+    const headers = {
+      authorization: `Bearer ${guest.token}`,
+      "content-type": "application/json",
+    };
+    const created = V2.parse(
+      await (
+        await fetch(`${both.apiUrl}/v2/checks`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ text: physicsReference }),
+        })
+      ).json(),
+    ).data;
+    const url = `${both.apiUrl}/v2/checks/${created.id}/export`;
+    const body = JSON.stringify({ format: "csl-json", mode: "original" });
+    expect(
+      (
+        await fetch(url, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body,
+        })
+      ).status,
+    ).toBe(401);
+    const foreign = await both.issue();
+    expect(
+      (
+        await fetch(url, {
+          method: "POST",
+          headers: { ...headers, authorization: `Bearer ${foreign.token}` },
+          body,
+        })
+      ).status,
+    ).toBe(404);
+    const allowed = await fetch(url, { method: "POST", headers, body });
+    expect(allowed.status).toBe(200);
+    expect(await allowed.text()).toContain("Measured measurement");
+    // First request authorizes; second decision guards snapshot read; third is
+    // after serialization, immediately before headers and the guarded body write.
+    const held = both.trap("check:read", "request", skip);
+    const pending = fetch(url, { method: "POST", headers, body });
+    await held.arrived;
+    expect(await both.change(guest.guestId, { revoke: true })).toMatchObject({
+      completed: true,
+    });
+    held.release();
+    const denied = await pending;
+    expect(denied.status).toBe(skip === 2 ? 403 : 200);
+    expect(await denied.text().catch(() => "aborted")).not.toContain(
+      "Aspelmeyer",
+    );
+    expect((await fetch(url, { method: "POST", headers, body })).status).toBe(
+      403,
+    );
+  },
+);

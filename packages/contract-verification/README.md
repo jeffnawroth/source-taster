@@ -103,3 +103,28 @@ handles credentials, errors, lease calls and reconnects for both schema versions
 No scoring, authority policy, adapter, secret or AGPL implementation enters this
 package. Production/hosted activation remains subject to the separate measured
 configuration gate; these transport additions grant no activation permission.
+
+## Citation downloads (Version 2)
+
+`POST /v2/checks/{checkId}/export` accepts `ExportRequest` from `./export`.
+Choose `format: "csl-json" | "bibtex"` and `mode: "original" | "selected-corrections"`.
+Original mode exports current committed fields, including saved user edits; it
+requires an empty `corrections` array (the default). Selected-corrections mode
+accepts `{ slot, resultToken }` choices obtained from the authorized bibliography
+preview. Tokens bind the immutable result as well as its evidence. Unknown,
+ineligible, duplicate or stale choices return 400; they never silently select a
+different result. A Re-check requires a new explicit selection.
+
+The response is a UTF-8 attachment with `Cache-Control: no-store` and current
+`check:read` authority checked through publication. Missing/foreign Checks return 404. CSL-JSON uses `application/vnd.citationstyles.csl+json`, standard date-parts
+for ISO dates and `custom.originalText` for immutable provenance. BibTeX uses
+`application/x-bibtex`, traditional entry/field names, unchanged imported citation
+keys and UTF-8 with TeX-special-character escaping. Unsupported imported fields
+remain in the original record, never in regenerated BibTeX fields.
+
+`exportClient(options)` from `./export-client` forwards current credentials and
+client identity and returns a Blob and filename. It accepts an AbortSignal and
+throws the same validated ApiError as the other clients. No export is cached on
+the server or in browser storage. Style selection affects rendered suggestions;
+these machine-readable formats retain bibliographic fields. The server-owned
+export port can accept a RIS adapter later; RIS has no launch route or control.

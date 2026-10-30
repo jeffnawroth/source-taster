@@ -12,6 +12,9 @@ import {
   getCheck,
   streamCheckEvents,
 } from "@source-taster/contract-verification/routes";
+import { exportReferences } from "@source-taster/contract-verification/export-routes";
+import { suggestionFields, suggestionToken } from "../citations/suggestion.ts";
+import { referenceExporter } from "../exports/references.ts";
 import { renderBibliography } from "@source-taster/contract-verification/bibliography-routes";
 import {
   renderBibliographySnapshot,
@@ -210,10 +213,11 @@ export function createApp(
   if (apiVersion === 2)
     app.openapi(renderBibliography, async (c) => {
       const principal = await authorize(c.req.raw, "check:read");
-      const check = await guarded(principal, "check:read", () =>
-        checks.get(principal, c.req.valid("param").checkId, 2),
+      const snapshot = await guarded(principal, "check:read", () =>
+        checks.exportSnapshot(principal, c.req.valid("param").checkId),
       );
-      if (!check) fail("check-not-found");
+      if (!snapshot) fail("check-not-found");
+      const check = snapshot.check;
       const request = c.req.valid("json");
       if (
         [...request.applySlots, ...(request.suggestionSlots ?? [])].some(
@@ -224,8 +228,82 @@ export function createApp(
         fail("invalid-request");
       // Pure rendering holds no Owner lock; publication rechecks current
       // authority below, so lease renewal and cancellation remain available.
-      const data = await renderBibliographySnapshot(check, request);
+      const data = await renderBibliographySnapshot(
+        check,
+        request,
+        Object.fromEntries(
+          snapshot.references
+            .filter(
+              (reference) => reference.resultIsCurrent && reference.resultId,
+            )
+            .map((reference) => [reference.slot, reference.resultId!]),
+        ),
+      );
       return output(c, principal, "check:read", data, 200);
+    });
+
+  if (apiVersion === 2)
+    app.openapi(exportReferences, async (c) => {
+      const principal = await authorize(c.req.raw, "check:read");
+      const snapshot = await guarded(principal, "check:read", () =>
+        checks.exportSnapshot(principal, c.req.valid("param").checkId),
+      );
+      if (!snapshot) fail("check-not-found");
+      const request = c.req.valid("json");
+      if (request.mode === "original" && request.corrections.length)
+        fail("invalid-request");
+      if (
+        new Set(request.corrections.map((choice) => choice.slot)).size !==
+        request.corrections.length
+      )
+        fail("invalid-request");
+      const replacements = new Map<
+        number,
+        NonNullable<ReturnType<typeof suggestionFields>>
+      >();
+      for (const choice of request.corrections) {
+        const reference = snapshot.check.references.find(
+          (entry) => entry.slot === choice.slot,
+        );
+        const current = snapshot.references.find(
+          (entry) => entry.slot === choice.slot,
+        );
+        if (
+          !reference ||
+          !current?.resultIsCurrent ||
+          !current.resultId ||
+          suggestionToken(reference, current.resultId) !== choice.resultToken
+        )
+          fail("invalid-request");
+        const fields = suggestionFields(reference);
+        if (!fields) fail("invalid-request");
+        replacements.set(choice.slot, fields);
+      }
+      const exporter = referenceExporter(request.format);
+      const body = exporter.serialize(
+        snapshot.references.map((reference) => ({
+          ...reference,
+          authorsTruncated: replacements.has(reference.slot)
+            ? false
+            : reference.authorsTruncated,
+          fields: replacements.get(reference.slot) ?? reference.fields,
+        })),
+      );
+      await guarded(principal, "check:read", () => Promise.resolve());
+      c.header("Content-Type", exporter.contentType);
+      c.header(
+        "Content-Disposition",
+        `attachment; filename="${exporter.filename}"`,
+      );
+      c.header("Cache-Control", "no-store");
+      c.header("X-Content-Type-Options", "nosniff");
+      return stream(c, async (writer) => {
+        try {
+          await guarded(principal, "check:read", () => writer.write(body));
+        } catch {
+          writer.abort();
+        }
+      });
     });
 
   app.openapi(

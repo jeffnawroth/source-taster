@@ -39,6 +39,7 @@ export declare function bibliographyClient(options?: VerificationClientOptions):
             };
         } | null;
         applied: boolean;
+        resultToken?: string | undefined;
     }[];
     bibliography: {
         text: string;

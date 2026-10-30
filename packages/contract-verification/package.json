@@ -49,6 +49,18 @@
     "./bibliography-client": {
       "types": "./dist/contract-verification/src/bibliography-client.d.ts",
       "default": "./dist/contract-verification/src/bibliography-client.js"
+    },
+    "./export": {
+      "types": "./dist/contract-verification/src/export.d.ts",
+      "default": "./dist/contract-verification/src/export.js"
+    },
+    "./export-routes": {
+      "types": "./dist/contract-verification/src/export-routes.d.ts",
+      "default": "./dist/contract-verification/src/export-routes.js"
+    },
+    "./export-client": {
+      "types": "./dist/contract-verification/src/export-client.d.ts",
+      "default": "./dist/contract-verification/src/export-client.js"
     }
   },
   "scripts": {
