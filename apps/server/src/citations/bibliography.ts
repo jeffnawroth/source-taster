@@ -39,10 +39,7 @@ export function renderCheckBibliography(
     );
     const formatted = displayIndex >= 0 ? suggestions[displayIndex]! : null;
     const use = applied.has(reference.slot) && fields !== null;
-    const current =
-      reference.outcome.kind === "verdict"
-        ? reference.outcome.reference.csl
-        : null;
+    const current = reference.fields;
     if (use) items.push(fields);
     else if (current && Object.keys(current).length) items.push(current);
     else unstructured.push(reference.originalText);
