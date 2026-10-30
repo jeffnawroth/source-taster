@@ -243,6 +243,69 @@ it("rejects unsupported formats and ineligible corrections and exports pending o
   ]);
   expect(await snapshot(check.id)).toEqual(check);
 });
+it("exports the committed field revision, unbinds earlier corrections and omits removed slots", async () => {
+  const check = await checked();
+  const bibliography = (id: string) =>
+    fetch(`${service.apiUrl}/v2/checks/${id}/bibliography`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ style: "apa", includeBibliography: false }),
+    }).then(async (r) => BibliographyResponse.parse(await r.json()).data);
+  const token = (await bibliography(check.id)).entries[0]!.resultToken!;
+  const saved = await fetch(
+    `${service.apiUrl}/v2/checks/${check.id}/references/1/revisions`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        expectedRevision: 1,
+        fields: { ...fields, title: "Edited by the user" },
+        recheck: false,
+      }),
+    },
+  );
+  expect(saved.status).toBe(200);
+  expect(await (await download(check.id)).json()).toMatchObject([
+    {
+      id: `${check.id}:1`,
+      title: "Edited by the user",
+      custom: { originalText },
+    },
+  ]);
+  expect(
+    (
+      await download(check.id, {
+        format: "csl-json",
+        mode: "selected-corrections",
+        corrections: [{ slot: 1, resultToken: token }],
+      })
+    ).status,
+  ).toBe(400);
+  expect(
+    (await bibliography(check.id)).entries[0]!.resultToken,
+  ).toBeUndefined();
+  const edited = await fetch(
+    `${service.apiUrl}/v2/checks/${check.id}/references`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        expectedEventSeq: (await snapshot(check.id)).lastEventSeq,
+        remove: [1],
+        add: [{ originalText: "Added by hand", fields: { title: "Added" } }],
+      }),
+    },
+  );
+  expect(edited.status).toBe(200);
+  expect(await (await download(check.id)).json()).toMatchObject([
+    {
+      id: `${check.id}:2`,
+      title: "Added",
+      custom: { originalText: "Added by hand" },
+    },
+  ]);
+  expect((await bibliography(check.id)).entries).toHaveLength(1);
+});
 it("keeps publisher metadata in traditional BibTeX thesis and report fields", async () => {
   const response = await fetch(`${service.apiUrl}/v2/checks`, {
     method: "POST",

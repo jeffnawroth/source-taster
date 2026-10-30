@@ -59,6 +59,23 @@ it("retains the fixed end deadline across later slot runs and rejects expired Re
   expect(expired.status).toBe(410);
   expect(await expired.json()).toMatchObject({ code: "check-expired" });
 });
+it("rejects exports and formatting of an expired Check", async () => {
+  const worker = service.worker();
+  await worker.ready;
+  const check = await create();
+  await expect
+    .poll(async () => (await snapshot(check.id)).references[0]!.outcome.kind)
+    .toBe("verdict");
+  await service.advance(25 * 60 * 60 * 1000);
+  for (const [path, body] of [
+    ["export", { format: "csl-json", mode: "original" }],
+    ["bibliography", { style: "apa", includeBibliography: true }],
+  ] as const) {
+    const response = await post(`/${check.id}/${path}`, body);
+    expect(response.status).toBe(410);
+    expect(await response.json()).toMatchObject({ code: "check-expired" });
+  }
+});
 it("cancels a queued Re-check as a distinct run, preserves its previous Verdict, and keeps unbilled retries marked as new work", async () => {
   const worker = service.worker();
   await worker.ready;
