@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Injectable composition root, also used by real-PG HTTP/SSE lifecycle tests.
 import { setTimeout } from "node:timers/promises";
-import { defaultSearchSettings, doiTracerLimits } from "@source-taster/core";
+import { referenceDeadlineMs } from "@source-taster/core";
 import type { PgBoss } from "pg-boss";
 import type { Config } from "../config.ts";
 import type { Db } from "../db/prisma.ts";
@@ -36,9 +36,7 @@ export async function startWorkerRuntime(
     clientLeaseMs: config.clientLeaseMs,
     claimMs: config.workerClaimMs,
     maxAttempts: 3,
-    activeReferencesPerCheck:
-      config.searchSettings?.activeReferencesPerCheck ??
-      defaultSearchSettings.activeReferencesPerCheck,
+    activeReferencesPerCheck: config.searchSettings.activeReferencesPerCheck,
     ...options.settings,
   };
   const checks = createCheckStore(db, boss, { ...options, settings });
@@ -74,9 +72,7 @@ export async function startWorkerRuntime(
     REFERENCE_QUEUE,
     {
       batchSize: 1,
-      localConcurrency:
-        config.searchSettings?.workerConcurrency ??
-        defaultSearchSettings.workerConcurrency,
+      localConcurrency: config.searchSettings.workerConcurrency,
       pollingIntervalSeconds: 0.5,
       notifyPollingIntervalSeconds: 0.5,
     },
@@ -163,8 +159,7 @@ export async function startWorkerRuntime(
         // manufacture a billable source failure from an already expired run.
         const expiredRecovery =
           attempt.generation > 1 &&
-          clock.now() >=
-            attempt.startedAt + doiTracerLimits.referenceDeadlineMs;
+          clock.now() >= attempt.startedAt + referenceDeadlineMs;
         const outcome = expiredRecovery
           ? { kind: "status" as const, status: "failed" as const }
           : config.doiPreview && attempt.input
@@ -185,8 +180,11 @@ export async function startWorkerRuntime(
                           authorityDecisionTimeoutMs: 2000,
                         }
                       : {}),
-                    maxActiveReferencesPerCheck: 10,
-                    scheduling: "round-robin-checks-2",
+                    maxActiveReferencesPerCheck:
+                      settings.activeReferencesPerCheck,
+                    // The one scheduling mode: Owners alternate first, then
+                    // their Checks (store dispatch order, #78).
+                    scheduling: "owner-then-check-round-robin-3",
                     sourceReservation: "deadline-then-request-1",
                     sourceDispatchMarginMs: 100,
                     workerClaimMs: settings.claimMs,

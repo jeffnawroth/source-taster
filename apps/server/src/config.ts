@@ -7,6 +7,7 @@ import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
 import {
   createDevelopmentProfile,
   defaultSearchSettings,
+  referenceDeadlineMs,
   type ComparisonProfile,
   type SearchSettings,
 } from "@source-taster/core";
@@ -37,7 +38,7 @@ export interface Config {
   arxivEnabled?: boolean;
   arxivBase?: string;
   /** Operator-changeable search operating settings (spec #70, ADR-0007). */
-  searchSettings?: SearchSettings;
+  searchSettings: SearchSettings;
   comparisonProfile: ComparisonProfile;
   resolverBase: string;
   crossrefBase: string;
@@ -230,14 +231,20 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   };
 }
 
+// A request and a permit wait both stay within the Reference deadline.
 const sourceSettings = z.strictObject({
+  requestTimeoutMs: z
+    .number()
+    .int()
+    .min(100)
+    .max(referenceDeadlineMs)
+    .optional(),
   intervalMs: z.number().int().min(0).max(60000).optional(),
   searchIntervalMs: z.number().int().min(0).max(60000).optional(),
   concurrency: z.number().int().min(1).max(100).optional(),
-  maxWaitMs: z.number().int().min(0).max(30000).optional(),
+  maxWaitMs: z.number().int().min(0).max(referenceDeadlineMs).optional(),
 });
 const searchSettingsPatch = z.strictObject({
-  requestTimeoutMs: z.number().int().min(100).max(30000).optional(),
   // ADR-0007 bounds: at most one retry, after a Retry-After of at most 2 s.
   maxRetries: z.number().int().min(0).max(1).optional(),
   retryAfterMaxMs: z.number().int().min(0).max(2000).optional(),

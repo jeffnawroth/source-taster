@@ -531,35 +531,75 @@ it("versions the Operator's search operating settings with the Search strategy",
     return (await run({ ...stateOfOa, PMCID: "PMC5815332" })).outcome;
   };
   const initial = await identify();
-  // ADR-0007 initial values, recorded with every article result.
+  // Initial operating values, recorded with every article result. The
+  // scheduling mode is recorded but is not a setting: there is only one.
   expect(initial.searchConfiguration).toMatchObject({
-    "settings.requestTimeoutMs": 3000,
     "settings.maxRetries": 1,
     "settings.retryAfterMaxMs": 2000,
     "settings.activeReferencesPerCheck": 10,
-    "settings.fairness": "owner-then-check-round-robin",
+    "settings.doi.org.requestTimeoutMs": 3000,
+    "settings.crossref.requestTimeoutMs": 3000,
+    "settings.openalex.requestTimeoutMs": 3000,
+    "settings.europepmc.requestTimeoutMs": 3000,
     "settings.europepmc.intervalMs": 100,
+    "settings.semanticscholar.requestTimeoutMs": 3000,
     "settings.semanticscholar.intervalMs": 1000,
     "settings.semanticscholar.concurrency": 1,
+    "settings.arxiv.requestTimeoutMs": 3000,
     "settings.arxiv.intervalMs": 3000,
     "settings.arxiv.concurrency": 1,
+    maxActiveReferencesPerCheck: 10,
+    scheduling: "owner-then-check-round-robin-3",
   });
+  expect(Object.keys(initial.searchConfiguration)).not.toContain(
+    "settings.requestTimeoutMs",
+  );
+  expect(Object.keys(initial.searchConfiguration)).not.toContain(
+    "settings.fairness",
+  );
   await service.restart({
     SOURCE_TASTER_SEARCH_SETTINGS: JSON.stringify({
-      requestTimeoutMs: 2500,
-      sources: { europepmc: { maxWaitMs: 5000 } },
+      activeReferencesPerCheck: 7,
+      sources: {
+        crossref: { requestTimeoutMs: 400 },
+        europepmc: { maxWaitMs: 5000 },
+      },
     }),
   });
   try {
     const changed = await identify();
+    // What runs is what is recorded.
     expect(changed.searchConfiguration).toMatchObject({
-      "settings.requestTimeoutMs": 2500,
+      "settings.activeReferencesPerCheck": 7,
+      maxActiveReferencesPerCheck: 7,
+      "settings.crossref.requestTimeoutMs": 400,
+      "settings.openalex.requestTimeoutMs": 3000,
       "settings.europepmc.maxWaitMs": 5000,
       "settings.europepmc.intervalMs": 100,
     });
     expect(changed.searchStrategyVersion).not.toBe(
       initial.searchStrategyVersion,
     );
+    // The per-source timeout applies to that source only: two 400 ms
+    // attempts instead of two 3 s attempts.
+    openalex.respond("/works", 200, { meta: { count: 0 }, results: [] });
+    const held = crossref.hold("/works");
+    europepmc.respond(epmcSearch, 200, {
+      hitCount: 0,
+      resultList: { result: [] },
+    });
+    semanticscholar.respond("/graph/v1/paper/search", 200, { total: 0 });
+    try {
+      const { outcome } = await run(stateOfOa);
+      const timedOut = outcome.evidence.find(
+        (e) => e.source === "crossref" && e.reason === "timeout",
+      );
+      expect(timedOut).toMatchObject({ outcome: "unavailable", attempts: 2 });
+      expect(timedOut!.durationMs).toBeLessThan(2500);
+      expect(outcome.failedSources).toEqual(["crossref"]);
+    } finally {
+      held.release();
+    }
   } finally {
     await service.restart({ SOURCE_TASTER_SEARCH_SETTINGS: "" });
   }
@@ -569,12 +609,18 @@ it("versions the Operator's search operating settings with the Search strategy",
 });
 
 it.each([
-  { requestTimeoutMs: 0 },
+  { sources: { openalex: { requestTimeoutMs: 0 } } },
+  // Timeouts are per source; there is no global request timeout.
+  { requestTimeoutMs: 3000 },
+  // A permit wait or a request cannot outlast the Reference deadline.
+  { sources: { crossref: { maxWaitMs: 30001 } } },
+  { sources: { crossref: { requestTimeoutMs: 30001 } } },
   // ADR-0007: at most one retry, honouring a Retry-After of at most 2 s.
   { maxRetries: 2 },
   { retryAfterMaxMs: 2001 },
   { sources: { arxiv: { concurrency: 0 } } },
   { sources: { unknown: { intervalMs: 1 } } },
+  // One scheduling mode; it is not an Operator setting.
   { fairness: "first-come" },
 ])(
   "refuses invalid search operating settings %j at startup",

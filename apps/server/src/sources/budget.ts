@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import {
   defaultSearchSettings,
-  doiTracerLimits,
+  referenceDeadlineMs,
   type SearchSettings,
 } from "@source-taster/core";
 import { randomUUID } from "node:crypto";
@@ -74,7 +74,7 @@ export function sourceBudget(
               expiresAt: new Date(
                 now.getTime() +
                   Math.min(
-                    doiTracerLimits.referenceDeadlineMs,
+                    referenceDeadlineMs,
                     Math.max(0, deadline - clock.now()),
                   ),
               ),
@@ -121,10 +121,7 @@ export function sourceBudget(
                 )
                   return null;
                 signal?.throwIfAborted();
-                const timeoutMs = Math.min(
-                  settings.requestTimeoutMs,
-                  remaining,
-                );
+                const timeoutMs = Math.min(limits.requestTimeoutMs, remaining);
                 await tx.sourceRequest.update({
                   where: { id },
                   data: {

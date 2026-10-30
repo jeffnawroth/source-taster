@@ -6,6 +6,7 @@ import {
   createBibliographicVerification,
   comparisonLimits,
   defaultSearchSettings,
+  referenceDeadlineMs,
   type SearchSettings,
   type SourceName,
 } from "@source-taster/core";
@@ -42,13 +43,13 @@ export function referenceExecution(
   // Version 1 stays frozen: default pacing, and a permit wait bounded only by
   // the Reference deadline.
   const settings: SearchSettings = article
-    ? (config.searchSettings ?? defaultSearchSettings)
+    ? config.searchSettings
     : {
         ...defaultSearchSettings,
         sources: Object.fromEntries(
           Object.entries(defaultSearchSettings.sources).map(([name, s]) => [
             name,
-            { ...s, maxWaitMs: 30000 },
+            { ...s, maxWaitMs: referenceDeadlineMs },
           ]),
         ) as SearchSettings["sources"],
       };

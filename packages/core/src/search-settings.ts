@@ -2,19 +2,27 @@
 // Operator-changeable search operating settings (spec #70, ADR-0007). Every
 // value can change retrieved evidence, so the exact settings are recorded with
 // each article result and their hash enters its Search strategy version.
+// These settings are the single source of truth for what runs; the Version 1
+// DOI tracer limits are derived from the defaults below.
 import type { SourceName } from "./verification.ts";
+/** ADR-0007 hard deadline per running Reference; not an Operator setting. */
+export const referenceDeadlineMs = 30000;
 export interface SourceSettings {
+  /** Bound of one request, including its complete body (ADR-0007: 3 s). */
+  requestTimeoutMs: number;
   /** Minimum spacing between actual sends, shared by all workers. */
   intervalMs: number;
   /** Crossref keeps a separate, slower spacing for bibliographic queries. */
   searchIntervalMs?: number;
   /** Concurrent in-flight requests across all workers; absent is unbounded. */
   concurrency?: number;
-  /** Longest wait for a permit before this source is unavailable (rate-budget). */
+  /**
+   * Longest wait for a permit before this source is unavailable
+   * (rate-budget). The wait always ends at the Reference deadline as well.
+   */
   maxWaitMs: number;
 }
 export interface SearchSettings {
-  requestTimeoutMs: number;
   maxRetries: number;
   /** A 429/5xx Retry-After above this bound is not retried. */
   retryAfterMaxMs: number;
@@ -22,32 +30,54 @@ export interface SearchSettings {
   activeReferencesPerCheck: number;
   /** Concurrent References one worker process executes. */
   workerConcurrency: number;
-  /** Dispatch alternates between Owners first, then between their Checks. */
-  fairness: "owner-then-check-round-robin";
   sources: Record<SourceName, SourceSettings>;
 }
-// ADR-0007 initial values. doi.org, Crossref and OpenAlex keep the #74/#77
-// development values; Europe PMC, Semantic Scholar and arXiv use the accepted
-// initial caps (10/s self-imposed, 1/s, one per 3 s on a single connection).
+// Initial operating values. Europe PMC, Semantic Scholar and arXiv use the
+// ADR-0007 initial caps (10/s self-imposed, 1/s, one per 3 s on a single
+// connection). doi.org (20/s) matches ADR-0007 as well.
+// Crossref (5/s single records, 1/s searches, one connection) and OpenAlex
+// (1/s, one connection) deliberately keep the slower #74/#77 development
+// values rather than ADR-0007's 8/s, 2.5/s, three connections and 25/s: the
+// development preview runs in Crossref's public pool and without OpenAlex
+// prepaid usage, which ADR-0007's caps assume.
 export const defaultSearchSettings: SearchSettings = Object.freeze({
-  requestTimeoutMs: 3000,
   maxRetries: 1,
   retryAfterMaxMs: 2000,
   activeReferencesPerCheck: 10,
   workerConcurrency: 20,
-  fairness: "owner-then-check-round-robin",
   sources: Object.freeze({
-    "doi.org": { intervalMs: 50, maxWaitMs: 10000 },
+    "doi.org": { requestTimeoutMs: 3000, intervalMs: 50, maxWaitMs: 10000 },
     crossref: {
+      requestTimeoutMs: 3000,
       intervalMs: 200,
       searchIntervalMs: 1000,
       concurrency: 1,
       maxWaitMs: 10000,
     },
-    openalex: { intervalMs: 1000, concurrency: 1, maxWaitMs: 10000 },
-    europepmc: { intervalMs: 100, concurrency: 1, maxWaitMs: 10000 },
-    semanticscholar: { intervalMs: 1000, concurrency: 1, maxWaitMs: 10000 },
-    arxiv: { intervalMs: 3000, concurrency: 1, maxWaitMs: 10000 },
+    openalex: {
+      requestTimeoutMs: 3000,
+      intervalMs: 1000,
+      concurrency: 1,
+      maxWaitMs: 10000,
+    },
+    europepmc: {
+      requestTimeoutMs: 3000,
+      intervalMs: 100,
+      concurrency: 1,
+      maxWaitMs: 10000,
+    },
+    semanticscholar: {
+      requestTimeoutMs: 3000,
+      intervalMs: 1000,
+      concurrency: 1,
+      maxWaitMs: 10000,
+    },
+    arxiv: {
+      requestTimeoutMs: 3000,
+      intervalMs: 3000,
+      concurrency: 1,
+      maxWaitMs: 10000,
+    },
   }),
 });
 /** Flat record of the settings for the stored Search configuration. */

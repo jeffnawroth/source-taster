@@ -9,6 +9,10 @@ import {
   type Score,
   type ComparisonProfile,
 } from "./comparison.ts";
+import {
+  defaultSearchSettings,
+  referenceDeadlineMs,
+} from "./search-settings.ts";
 export type RecordSource =
   "crossref" | "openalex" | "europepmc" | "semanticscholar" | "arxiv";
 export type SourceName = "doi.org" | RecordSource;
@@ -76,15 +80,18 @@ export interface ScoringRules {
   icu: string;
   profile: Record<string, number>;
 }
+const { "doi.org": doiOrg, crossref } = defaultSearchSettings.sources;
+// Version 1 records these limits; they are derived from the search operating
+// defaults that Version 1 actually runs, so both cannot drift apart.
 export const doiTracerLimits = Object.freeze({
-  requestTimeoutMs: 3000,
-  referenceDeadlineMs: 30000,
-  doiRequestsPerSecond: 20,
-  crossrefSingleRequestsPerSecond: 5,
-  crossrefSearchIntervalMs: 1000,
-  crossrefConcurrency: 1,
+  requestTimeoutMs: doiOrg.requestTimeoutMs,
+  referenceDeadlineMs,
+  doiRequestsPerSecond: 1000 / doiOrg.intervalMs,
+  crossrefSingleRequestsPerSecond: 1000 / crossref.intervalMs,
+  crossrefSearchIntervalMs: crossref.searchIntervalMs!,
+  crossrefConcurrency: crossref.concurrency!,
   maxResponseBytes: 5242880,
-  maxRetries: 1,
+  maxRetries: defaultSearchSettings.maxRetries,
   pool: "public",
   candidateBudget: 5,
 });
