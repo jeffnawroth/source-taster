@@ -30,9 +30,11 @@ await writeFile(
 
 const v2 = await import("../src/routes-v2.ts");
 const next = new OpenAPIHono();
+const { exportReferences } = await import("../src/export-routes.ts");
 const { renderBibliography } = await import("../src/bibliography-routes.ts");
 for (const route of [
   renderBibliography,
+  exportReferences,
   v2.cancelCheck,
   v2.renewCheckLease,
   v2.createCheck,

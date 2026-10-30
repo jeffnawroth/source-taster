@@ -5,11 +5,19 @@ import type { BibliographyRequest } from "@source-taster/contract-verification/b
 import { renderCheckBibliography } from "./bibliography.ts";
 parentPort!.on(
   "message",
-  ({ check, request }: { check: Check; request: BibliographyRequest }) => {
+  ({
+    check,
+    request,
+    resultIds,
+  }: {
+    check: Check;
+    request: BibliographyRequest;
+    resultIds: Record<number, string>;
+  }) => {
     try {
       parentPort!.postMessage({
         ok: true,
-        data: renderCheckBibliography(check, request),
+        data: renderCheckBibliography(check, request, resultIds),
       });
     } catch {
       parentPort!.postMessage({ ok: false });

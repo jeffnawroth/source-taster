@@ -10,6 +10,7 @@ export class FormattingUnavailable extends Error {}
 type Job = {
   check: Check;
   request: BibliographyRequest;
+  resultIds: Record<number, string>;
   resolve(data: Bibliography): void;
   reject(error: Error): void;
 };
@@ -51,7 +52,11 @@ function dispatch() {
   deadline = setTimeout(() => discard(instance), 30_000);
   deadline.unref();
   try {
-    instance.postMessage({ check: active.check, request: active.request });
+    instance.postMessage({
+      check: active.check,
+      request: active.request,
+      resultIds: active.resultIds,
+    });
   } catch {
     discard(instance);
   }
@@ -59,10 +64,11 @@ function dispatch() {
 export function renderBibliographySnapshot(
   check: Check,
   request: BibliographyRequest,
+  resultIds: Record<number, string>,
 ): Promise<Bibliography> {
   if (queue.length >= 8) return Promise.reject(new FormattingUnavailable());
   return new Promise((resolve, reject) => {
-    queue.push({ check, request, resolve, reject });
+    queue.push({ check, request, resultIds, resolve, reject });
     dispatch();
   });
 }

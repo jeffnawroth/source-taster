@@ -12,6 +12,7 @@ import {
   BibliographyActions,
   CorrectionSuggestion,
 } from "./correction-suggestions.tsx";
+import { ReferenceExports } from "./reference-exports.tsx";
 import { m } from "@source-taster/i18n";
 import { CheckSummary } from "./check-summary.tsx";
 import {
@@ -123,6 +124,12 @@ export function CheckResults({
           setFilter(value);
           setDetailOpen(false);
         }}
+      />
+      <ReferenceExports
+        checkId={check.id}
+        transport={transport}
+        rendered={bibliography}
+        styleLabel={citationStyleLabel}
       />
       <BibliographyActions
         key={citationStyle}

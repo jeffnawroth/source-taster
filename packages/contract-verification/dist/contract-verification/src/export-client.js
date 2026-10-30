@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
+import {} from "./export.js";
+import { ApiError } from "./client.js";
+import { ProblemDetails } from "./index.js";
+export function exportClient(options = {}) {
+    return async (checkId, request, signal) => {
+        const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v2/checks/${encodeURIComponent(checkId)}/export`, {
+            method: "POST",
+            signal,
+            cache: "no-store",
+            headers: {
+                "content-type": "application/json",
+                ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+                ...(options.credentials
+                    ? { Authorization: `Bearer ${await options.credentials()}` }
+                    : {}),
+            },
+            body: JSON.stringify(request),
+        });
+        if (!response.ok) {
+            const body = await response.json().catch(() => undefined);
+            throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+        }
+        return {
+            blob: await response.blob(),
+            filename: `source-taster-references.${request.format === "csl-json" ? "json" : "bib"}`,
+        };
+    };
+}

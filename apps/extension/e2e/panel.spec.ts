@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
@@ -203,4 +203,68 @@ test("native panel renders a Correction suggestion and keeps export choices loca
     ]);
     expect(await panel.axe()).toEqual([]);
   });
+});
+
+test("native panel downloads both citation formats with export-only corrections", async () => {
+  const downloads = await mkdtemp(join(tmpdir(), "st87-downloads-"));
+  try {
+    await native("en-GB", async (browser) => {
+      await browser.browser.send("Browser.setDownloadBehavior", {
+        behavior: "allowAndName",
+        downloadPath: downloads,
+        eventsEnabled: true,
+      });
+      const completed = new Set<string>();
+      const started: { guid: string; suggestedFilename: string }[] = [];
+      browser.browser.on("Browser.downloadWillBegin", (event) =>
+        started.push(event),
+      );
+      browser.browser.on("Browser.downloadProgress", (event) => {
+        if (event.state === "completed") completed.add(event.guid);
+      });
+      const panel = await browser.openPanel();
+      await checkInPanel(panel, "en", {
+        name: "citation download",
+        text: "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+        marker: "10.1038/nphys1170",
+        verdict: "exists",
+        scores: [],
+      });
+      await panel.find("checkbox", "Apply for export only");
+      await panel.click("checkbox", "Apply for export only");
+      await panel.select("combobox", "Export content", "selected-corrections");
+      for (const [index, format] of ["csl-json", "bibtex"].entries()) {
+        await panel.select("combobox", "Export format", format);
+        await until(
+          async () =>
+            !(await panel.call<boolean>(
+              await panel.find("button", "Download References"),
+              "function () { return this.disabled; }",
+            )),
+          "Export is not ready",
+        );
+        await panel.click("button", "Download References");
+        const download = await until(() => {
+          const value = started[index];
+          return value && completed.has(value.guid) ? value : false;
+        }, "Native citation download did not complete");
+        expect(download.suggestedFilename).toBe(
+          `source-taster-references.${format === "csl-json" ? "json" : "bib"}`,
+        );
+        const content = await readFile(join(downloads, download.guid), "utf8");
+        if (format === "csl-json") {
+          const data = JSON.parse(content) as {
+            issued: { "date-parts": number[][] };
+            custom: { originalText: string };
+          }[];
+          expect(data[0]!.issued["date-parts"][0]![0]).toBe(2009);
+          expect(data[0]!.custom.originalText).toContain("2008");
+        } else expect(content).toContain("year = {2009}");
+      }
+      expect(Object.keys(await browser.storage())).toEqual([]);
+      expect(await panel.axe()).toEqual([]);
+    });
+  } finally {
+    await rm(downloads, { recursive: true, force: true });
+  }
 });
