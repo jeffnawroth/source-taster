@@ -38,7 +38,9 @@ export async function startDoiFixtures() {
         at: Date.now(),
         completedAt: undefined as number | undefined,
       };
-      requests.push(request);
+      // No source adapter requests the root; a bare "/" is an outside port
+      // probe (such as an editor's port detection), not a source request.
+      if (req.url !== "/") requests.push(request);
       res.once("close", () => {
         request.completedAt = Date.now();
       });
