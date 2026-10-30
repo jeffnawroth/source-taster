@@ -26,10 +26,11 @@ const answered = (): Evidence => ({
 });
 /** An adapter whose single request and batch both answer with `body`. */
 function answering(body: string, sent: string[]) {
-  const request: SourceRequest = async () => ({ body, evidence: answered() });
-  const batched: SourceBatch = async (_s, _o, _v, _d, _u, target) => {
+  const request: SourceRequest = () =>
+    Promise.resolve({ body, evidence: answered() });
+  const batched: SourceBatch = (_s, _o, _v, _d, _u, target) => {
     target(sent);
-    return { body, evidence: answered(), ids: sent };
+    return Promise.resolve({ body, evidence: answered(), ids: sent });
   };
   return arxivAdapter(request, batched, "http://arxiv.fixture");
 }

@@ -204,3 +204,74 @@ Europe PMC records now reach #76's journal attestation through their raw record.
 Semantic Scholar `publicationVenue.alternate_names` stays unreachable: the
 adapter does not request `publicationVenue`. Adding it changes #78's request
 URLs and batch body, so it is left as an open follow-up.
+
+## Batching review corrections
+
+A narrow review of the identifier batching (`ff6b6e3`, `d07e976`) found three
+defects and a nit. The fixes are on `fix/78-batching`, based on `d4961b3`. They
+uphold the #78 invariant: a Data source failure or an unreliable response is
+`unavailable`, never `no-record`.
+
+- **Carrier at send.** In arXiv's until-permit mode, the first member carried
+  the batch. A later member with a longer deadline inherited the first member's
+  short request timeout and lost its retry, so it recorded `timeout`. Now, if a
+  member joins an unsent batch with a later deadline, it takes the send over.
+  - The old carrier's permit wait ends through a handover signal
+    (`SourceBudget.acquire` gained an optional `handover`). The handover is
+    honoured only before dispatch, so no rate slot is consumed for nothing.
+  - Every live member, the old carrier included, joins a new batch. The member
+    with the latest deadline carries it with its own deadline, signal, permit,
+    retry and Owner guard.
+  - A handover that races into a dispatch already under way is ignored: that
+    send goes ahead as the shared outcome.
+  - The carrier is now the last member to leave, which supersedes the "Shared
+    outcome" limit above: members that were sent can record `deadline` only at
+    the carrier's deadline, the latest among them.
+  - Tests in `batch.test.ts`: "gives the request the latest deadline among the
+    members at send" (RED: `timeout`) and "sends a burst of later members once"
+    (guards against repeated sends).
+- **Record form only.** `batchableArxiv` accepted old-scheme identifiers with
+  any archive letters, in any case, and with any YYMM. Old-scheme identifiers
+  are now batched only with a known archive in lower case and a YYMM from 9108
+  to 0703. A subject-class form (`math.GT/0309136`) is not batched.
+  - Recorded on 2026-10-30, `export.arxiv.org` answers `foo/9913001` with HTTP
+    400 and an error entry. It omits `math.GT/0309136` and `HEP-TH/9901001`
+    without an error, although `math/0309136` and `hep-th/9901001` exist.
+    Out-of-range dates (`math/9913001`, `hep-th/0801001`) are also omitted,
+    with HTTP 200. All 34 archives on the list were accepted.
+  - The response lists entries in a different order from the request. Entries
+    are matched to identifiers by normalized entry id, never by position.
+  - The predicate is shared with Semantic Scholar, so subject-class,
+    upper-case and out-of-range forms now use its single lookup. How Semantic
+    Scholar answers those forms is unverified: nothing was recorded, because of
+    its licence.
+  - Test: the `batches arXiv identifier` table in `batch.test.ts`.
+- **Complete feed.** arXiv omits an identifier without a record. Absence is
+  `no-record` only when two things hold. The identifier must be in record form
+  (above). The feed must be a complete answer to the identifiers sent: closed
+  by `</feed>`, with `startIndex` 0, a `totalResults` equal to its entries, no
+  error entry, and only requested records.
+  - Otherwise a missing member is `unavailable` with `invalid-metadata`. This
+    applies to truncated, partial, uncounted, empty or inconsistent feeds, and
+    to the omitted subject-class and upper-case forms. A complete entry in an
+    incomplete feed is still accepted.
+  - Tests in the new `arxiv.test.ts`, at the adapter's `lookup` with the
+    recorded feeds: "reads old-scheme records from a complete batch and their
+    absence", "does not read … empty answer as no record", and "does not read
+    a member missing from an incomplete feed as no record".
+  - The fixtures `arxiv-oldscheme-batch.xml`, `arxiv-math.GT-0309136.xml` and
+    `arxiv-HEP-TH-9901001.xml` are in the fixture README.
+- **Timer.** The batch window timer is `unref()`ed. There is no public seam to
+  observe this, so it has no test.
+
+Known limit: subject-class and upper-case forms are never verified through
+arXiv. Rewriting them to the record form would change identity comparison and
+core normalization, so it is left open.
+
+Versions:
+
+- The Search strategy prefix is now `article-search-78-3-…`.
+- `identifierBatching` is now
+  `process-local;semanticscholar-window-then-permit;arxiv-until-permit-latest-deadline-carrier;arxiv-record-form-only;entry-demultiplexed-2`.
+- `article-verdict-78-2` is unchanged, because no verdict rule changed.
+- No contract artifact changed.
