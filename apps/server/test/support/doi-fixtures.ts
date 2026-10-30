@@ -93,9 +93,11 @@ export async function startDoiFixtures() {
           return;
         }
         res.end(
-          override.contentType && typeof override.body === "string"
+          Buffer.isBuffer(override.body)
             ? override.body
-            : JSON.stringify(override.body),
+            : override.contentType && typeof override.body === "string"
+              ? override.body
+              : JSON.stringify(override.body),
         );
         return;
       }

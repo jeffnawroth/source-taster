@@ -170,7 +170,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     };
                     identity: {
                         candidateId?: string | undefined;
-                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                     };
                     candidates: {
                         id: string;
@@ -233,8 +233,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 }[];
                             } | undefined;
                         }[];
-                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                         identifiers?: string[] | undefined;
                         identityAmbiguous?: boolean | undefined;
                         retractionEvidence?: {
@@ -250,15 +250,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         attempts: number;
                         observedAt: string;
                         raw?: unknown;
-                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                        web?: {
+                            originalUrl: string;
+                            finalUrl: string;
+                            status: number;
+                            title?: string | undefined;
+                            redirectTarget?: string | undefined;
+                            archiveUrl?: string | undefined;
+                            timestamp?: string | undefined;
+                        } | undefined;
                         skippedDuplicates?: string[] | undefined;
                         unusedSlots?: number | undefined;
                         identifierAmbiguity?: string[] | undefined;
                     }[];
-                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                     retraction: "retracted" | "unknown";
                     retractionEvidence?: {
                         source: "crossref" | "europepmc" | "openalex";
@@ -335,7 +344,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 };
                 identity: {
                     candidateId?: string | undefined;
-                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                 };
                 candidates: {
                     id: string;
@@ -398,8 +407,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             }[];
                         } | undefined;
                     }[];
-                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                     identifiers?: string[] | undefined;
                     identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
@@ -415,15 +424,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     attempts: number;
                     observedAt: string;
                     raw?: unknown;
-                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                    web?: {
+                        originalUrl: string;
+                        finalUrl: string;
+                        status: number;
+                        title?: string | undefined;
+                        redirectTarget?: string | undefined;
+                        archiveUrl?: string | undefined;
+                        timestamp?: string | undefined;
+                    } | undefined;
                     skippedDuplicates?: string[] | undefined;
                     unusedSlots?: number | undefined;
                     identifierAmbiguity?: string[] | undefined;
                 }[];
-                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                 retraction: "retracted" | "unknown";
                 retractionEvidence?: {
                     source: "crossref" | "europepmc" | "openalex";
@@ -431,7 +449,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     observedAt: string;
                 }[] | undefined;
             };
-            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "queued" | "semanticscholar";
+            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "queued" | "semanticscholar" | "url";
         }[];
     }>;
     cancelCheck: (checkId: string) => Promise<{
@@ -601,7 +619,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     };
                     identity: {
                         candidateId?: string | undefined;
-                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                     };
                     candidates: {
                         id: string;
@@ -664,8 +682,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 }[];
                             } | undefined;
                         }[];
-                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                         identifiers?: string[] | undefined;
                         identityAmbiguous?: boolean | undefined;
                         retractionEvidence?: {
@@ -681,15 +699,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         attempts: number;
                         observedAt: string;
                         raw?: unknown;
-                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                        web?: {
+                            originalUrl: string;
+                            finalUrl: string;
+                            status: number;
+                            title?: string | undefined;
+                            redirectTarget?: string | undefined;
+                            archiveUrl?: string | undefined;
+                            timestamp?: string | undefined;
+                        } | undefined;
                         skippedDuplicates?: string[] | undefined;
                         unusedSlots?: number | undefined;
                         identifierAmbiguity?: string[] | undefined;
                     }[];
-                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                     retraction: "retracted" | "unknown";
                     retractionEvidence?: {
                         source: "crossref" | "europepmc" | "openalex";
@@ -766,7 +793,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 };
                 identity: {
                     candidateId?: string | undefined;
-                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                 };
                 candidates: {
                     id: string;
@@ -829,8 +856,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             }[];
                         } | undefined;
                     }[];
-                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                     identifiers?: string[] | undefined;
                     identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
@@ -846,15 +873,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     attempts: number;
                     observedAt: string;
                     raw?: unknown;
-                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                    web?: {
+                        originalUrl: string;
+                        finalUrl: string;
+                        status: number;
+                        title?: string | undefined;
+                        redirectTarget?: string | undefined;
+                        archiveUrl?: string | undefined;
+                        timestamp?: string | undefined;
+                    } | undefined;
                     skippedDuplicates?: string[] | undefined;
                     unusedSlots?: number | undefined;
                     identifierAmbiguity?: string[] | undefined;
                 }[];
-                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                 retraction: "retracted" | "unknown";
                 retractionEvidence?: {
                     source: "crossref" | "europepmc" | "openalex";
@@ -862,7 +898,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     observedAt: string;
                 }[] | undefined;
             };
-            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "queued" | "semanticscholar";
+            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "queued" | "semanticscholar" | "url";
         }[];
     }>;
     renewCheckLease: (checkId: string) => Promise<{
@@ -1032,7 +1068,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     };
                     identity: {
                         candidateId?: string | undefined;
-                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                     };
                     candidates: {
                         id: string;
@@ -1095,8 +1131,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 }[];
                             } | undefined;
                         }[];
-                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                         identifiers?: string[] | undefined;
                         identityAmbiguous?: boolean | undefined;
                         retractionEvidence?: {
@@ -1112,15 +1148,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         attempts: number;
                         observedAt: string;
                         raw?: unknown;
-                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                        web?: {
+                            originalUrl: string;
+                            finalUrl: string;
+                            status: number;
+                            title?: string | undefined;
+                            redirectTarget?: string | undefined;
+                            archiveUrl?: string | undefined;
+                            timestamp?: string | undefined;
+                        } | undefined;
                         skippedDuplicates?: string[] | undefined;
                         unusedSlots?: number | undefined;
                         identifierAmbiguity?: string[] | undefined;
                     }[];
-                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                     retraction: "retracted" | "unknown";
                     retractionEvidence?: {
                         source: "crossref" | "europepmc" | "openalex";
@@ -1197,7 +1242,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 };
                 identity: {
                     candidateId?: string | undefined;
-                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                 };
                 candidates: {
                     id: string;
@@ -1260,8 +1305,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             }[];
                         } | undefined;
                     }[];
-                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                     identifiers?: string[] | undefined;
                     identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
@@ -1277,15 +1322,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     attempts: number;
                     observedAt: string;
                     raw?: unknown;
-                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                    web?: {
+                        originalUrl: string;
+                        finalUrl: string;
+                        status: number;
+                        title?: string | undefined;
+                        redirectTarget?: string | undefined;
+                        archiveUrl?: string | undefined;
+                        timestamp?: string | undefined;
+                    } | undefined;
                     skippedDuplicates?: string[] | undefined;
                     unusedSlots?: number | undefined;
                     identifierAmbiguity?: string[] | undefined;
                 }[];
-                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                 retraction: "retracted" | "unknown";
                 retractionEvidence?: {
                     source: "crossref" | "europepmc" | "openalex";
@@ -1293,7 +1347,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     observedAt: string;
                 }[] | undefined;
             };
-            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "queued" | "semanticscholar";
+            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "queued" | "semanticscholar" | "url";
         }[];
     }>;
     getCheck: (checkId: string) => Promise<{
@@ -1463,7 +1517,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     };
                     identity: {
                         candidateId?: string | undefined;
-                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                     };
                     candidates: {
                         id: string;
@@ -1526,8 +1580,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 }[];
                             } | undefined;
                         }[];
-                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                         identifiers?: string[] | undefined;
                         identityAmbiguous?: boolean | undefined;
                         retractionEvidence?: {
@@ -1543,15 +1597,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         attempts: number;
                         observedAt: string;
                         raw?: unknown;
-                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                        web?: {
+                            originalUrl: string;
+                            finalUrl: string;
+                            status: number;
+                            title?: string | undefined;
+                            redirectTarget?: string | undefined;
+                            archiveUrl?: string | undefined;
+                            timestamp?: string | undefined;
+                        } | undefined;
                         skippedDuplicates?: string[] | undefined;
                         unusedSlots?: number | undefined;
                         identifierAmbiguity?: string[] | undefined;
                     }[];
-                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                     retraction: "retracted" | "unknown";
                     retractionEvidence?: {
                         source: "crossref" | "europepmc" | "openalex";
@@ -1628,7 +1691,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 };
                 identity: {
                     candidateId?: string | undefined;
-                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                 };
                 candidates: {
                     id: string;
@@ -1691,8 +1754,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             }[];
                         } | undefined;
                     }[];
-                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                     identifiers?: string[] | undefined;
                     identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
@@ -1708,15 +1771,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     attempts: number;
                     observedAt: string;
                     raw?: unknown;
-                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                    web?: {
+                        originalUrl: string;
+                        finalUrl: string;
+                        status: number;
+                        title?: string | undefined;
+                        redirectTarget?: string | undefined;
+                        archiveUrl?: string | undefined;
+                        timestamp?: string | undefined;
+                    } | undefined;
                     skippedDuplicates?: string[] | undefined;
                     unusedSlots?: number | undefined;
                     identifierAmbiguity?: string[] | undefined;
                 }[];
-                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                 retraction: "retracted" | "unknown";
                 retractionEvidence?: {
                     source: "crossref" | "europepmc" | "openalex";
@@ -1724,7 +1796,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     observedAt: string;
                 }[] | undefined;
             };
-            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "queued" | "semanticscholar";
+            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "queued" | "semanticscholar" | "url";
         }[];
     }>;
     structureReferences: (text: string) => Promise<{
@@ -1955,7 +2027,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     };
                     identity: {
                         candidateId?: string | undefined;
-                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                     };
                     candidates: {
                         id: string;
@@ -2018,8 +2090,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 }[];
                             } | undefined;
                         }[];
-                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                         identifiers?: string[] | undefined;
                         identityAmbiguous?: boolean | undefined;
                         retractionEvidence?: {
@@ -2035,15 +2107,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         attempts: number;
                         observedAt: string;
                         raw?: unknown;
-                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                        web?: {
+                            originalUrl: string;
+                            finalUrl: string;
+                            status: number;
+                            title?: string | undefined;
+                            redirectTarget?: string | undefined;
+                            archiveUrl?: string | undefined;
+                            timestamp?: string | undefined;
+                        } | undefined;
                         skippedDuplicates?: string[] | undefined;
                         unusedSlots?: number | undefined;
                         identifierAmbiguity?: string[] | undefined;
                     }[];
-                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                     retraction: "retracted" | "unknown";
                     retractionEvidence?: {
                         source: "crossref" | "europepmc" | "openalex";
@@ -2120,7 +2201,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 };
                 identity: {
                     candidateId?: string | undefined;
-                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                 };
                 candidates: {
                     id: string;
@@ -2183,8 +2264,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             }[];
                         } | undefined;
                     }[];
-                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                     identifiers?: string[] | undefined;
                     identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
@@ -2200,15 +2281,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     attempts: number;
                     observedAt: string;
                     raw?: unknown;
-                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                    web?: {
+                        originalUrl: string;
+                        finalUrl: string;
+                        status: number;
+                        title?: string | undefined;
+                        redirectTarget?: string | undefined;
+                        archiveUrl?: string | undefined;
+                        timestamp?: string | undefined;
+                    } | undefined;
                     skippedDuplicates?: string[] | undefined;
                     unusedSlots?: number | undefined;
                     identifierAmbiguity?: string[] | undefined;
                 }[];
-                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                 retraction: "retracted" | "unknown";
                 retractionEvidence?: {
                     source: "crossref" | "europepmc" | "openalex";
@@ -2216,7 +2306,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     observedAt: string;
                 }[] | undefined;
             };
-            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "queued" | "semanticscholar";
+            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "queued" | "semanticscholar" | "url";
         }[];
     }>;
     recheckReference: (id: string, slot: number, input: RecheckRequest) => Promise<{
@@ -2386,7 +2476,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     };
                     identity: {
                         candidateId?: string | undefined;
-                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                     };
                     candidates: {
                         id: string;
@@ -2449,8 +2539,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 }[];
                             } | undefined;
                         }[];
-                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                         identifiers?: string[] | undefined;
                         identityAmbiguous?: boolean | undefined;
                         retractionEvidence?: {
@@ -2466,15 +2556,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         attempts: number;
                         observedAt: string;
                         raw?: unknown;
-                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                        web?: {
+                            originalUrl: string;
+                            finalUrl: string;
+                            status: number;
+                            title?: string | undefined;
+                            redirectTarget?: string | undefined;
+                            archiveUrl?: string | undefined;
+                            timestamp?: string | undefined;
+                        } | undefined;
                         skippedDuplicates?: string[] | undefined;
                         unusedSlots?: number | undefined;
                         identifierAmbiguity?: string[] | undefined;
                     }[];
-                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                     retraction: "retracted" | "unknown";
                     retractionEvidence?: {
                         source: "crossref" | "europepmc" | "openalex";
@@ -2551,7 +2650,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 };
                 identity: {
                     candidateId?: string | undefined;
-                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                 };
                 candidates: {
                     id: string;
@@ -2614,8 +2713,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             }[];
                         } | undefined;
                     }[];
-                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                     identifiers?: string[] | undefined;
                     identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
@@ -2631,15 +2730,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     attempts: number;
                     observedAt: string;
                     raw?: unknown;
-                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                    web?: {
+                        originalUrl: string;
+                        finalUrl: string;
+                        status: number;
+                        title?: string | undefined;
+                        redirectTarget?: string | undefined;
+                        archiveUrl?: string | undefined;
+                        timestamp?: string | undefined;
+                    } | undefined;
                     skippedDuplicates?: string[] | undefined;
                     unusedSlots?: number | undefined;
                     identifierAmbiguity?: string[] | undefined;
                 }[];
-                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                 retraction: "retracted" | "unknown";
                 retractionEvidence?: {
                     source: "crossref" | "europepmc" | "openalex";
@@ -2647,7 +2755,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     observedAt: string;
                 }[] | undefined;
             };
-            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "queued" | "semanticscholar";
+            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "queued" | "semanticscholar" | "url";
         }[];
     }>;
     editReferenceList: (id: string, input: EditReferenceListRequest) => Promise<{
@@ -2817,7 +2925,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     };
                     identity: {
                         candidateId?: string | undefined;
-                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                        kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                     };
                     candidates: {
                         id: string;
@@ -2880,8 +2988,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 }[];
                             } | undefined;
                         }[];
-                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                        source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                         identifiers?: string[] | undefined;
                         identityAmbiguous?: boolean | undefined;
                         retractionEvidence?: {
@@ -2897,15 +3005,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         attempts: number;
                         observedAt: string;
                         raw?: unknown;
-                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                        operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                        source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                        operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                        outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                        web?: {
+                            originalUrl: string;
+                            finalUrl: string;
+                            status: number;
+                            title?: string | undefined;
+                            redirectTarget?: string | undefined;
+                            archiveUrl?: string | undefined;
+                            timestamp?: string | undefined;
+                        } | undefined;
                         skippedDuplicates?: string[] | undefined;
                         unusedSlots?: number | undefined;
                         identifierAmbiguity?: string[] | undefined;
                     }[];
-                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                    reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                    failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                     retraction: "retracted" | "unknown";
                     retractionEvidence?: {
                         source: "crossref" | "europepmc" | "openalex";
@@ -2982,7 +3099,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 };
                 identity: {
                     candidateId?: string | undefined;
-                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved";
+                    kind: "independent-bibliography" | "supplied-doi" | "supplied-identifier" | "unresolved" | "web-archive" | "web-url";
                 };
                 candidates: {
                     id: string;
@@ -3045,8 +3162,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             }[];
                         } | undefined;
                     }[];
-                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    origin: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
+                    source: "arxiv" | "crossref" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    origin: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
                     identifiers?: string[] | undefined;
                     identityAmbiguous?: boolean | undefined;
                     retractionEvidence?: {
@@ -3062,15 +3179,24 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     attempts: number;
                     observedAt: string;
                     raw?: unknown;
-                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar";
-                    operation: "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title";
-                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "skipped" | "unavailable" | "unsupported";
+                    source: "arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url";
+                    operation: "archive" | "arxiv" | "authors-year" | "combined" | "doi" | "isbn" | "pmcid" | "pmid" | "title" | "url";
+                    outcome: "candidate" | "disabled" | "exists" | "no-record" | "nonexistent" | "redirect" | "skipped" | "unavailable" | "unsupported";
+                    web?: {
+                        originalUrl: string;
+                        finalUrl: string;
+                        status: number;
+                        title?: string | undefined;
+                        redirectTarget?: string | undefined;
+                        archiveUrl?: string | undefined;
+                        timestamp?: string | undefined;
+                    } | undefined;
                     skippedDuplicates?: string[] | undefined;
                     unusedSlots?: number | undefined;
                     identifierAmbiguity?: string[] | undefined;
                 }[];
-                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-verification-incomplete")[];
-                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "semanticscholar")[];
+                reasons: ("ambiguous-identity" | "development-route-incomplete" | "doi-nonexistent" | "fields-differ" | "foreign-doi" | "identified" | "identity-unresolved" | "insufficient-search" | "mandatory-resolution-incomplete" | "metadata-unavailable" | "mixed-components" | "outside-coverage" | "search-completed" | "sources-unavailable" | "url-unavailable" | "url-verification-incomplete" | "web-original-unavailable")[];
+                failedSources: ("arxiv" | "crossref" | "doi.org" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "semanticscholar" | "url")[];
                 retraction: "retracted" | "unknown";
                 retractionEvidence?: {
                     source: "crossref" | "europepmc" | "openalex";
@@ -3078,7 +3204,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     observedAt: string;
                 }[] | undefined;
             };
-            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "openalex" | "openlibrary" | "queued" | "semanticscholar";
+            progress: "arxiv" | "checking" | "crossref" | "doi.org" | "ended" | "europepmc" | "googlebooks" | "internetarchive" | "openalex" | "openlibrary" | "queued" | "semanticscholar" | "url";
         }[];
     }>;
 };
