@@ -83,7 +83,7 @@ export const articleSearchConfiguration = Object.freeze({
 // Article Verdict derivation (identity groups, missing comparisons and
 // counterevidence, tie and Mixed citation precedence) beyond the shared #75
 // comparison rules. Every outcome-changing edit needs a new value.
-export const articleVerdictRules = "article-verdict-78-1";
+export const articleVerdictRules = "article-verdict-78-2";
 // ADR-0007 per-call rule: an HTTP error or unreachable source is retried at
 // most once per call, and later operations of that source still run. Only a
 // timeout or an exhausted rate budget makes a Data source unavailable for the
@@ -211,7 +211,7 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-78-1-${ports.sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
+      searchStrategyVersion: `article-search-78-2-${ports.sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         ...flattenSearchSettings(ports.settings),
