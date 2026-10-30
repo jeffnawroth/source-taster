@@ -1,0 +1,42 @@
+{
+  "description": "Synthetic DIN ISO 690 German development bibliography: uppercase names, In/Bd/Nr/S labels and a book.",
+  "text": "MÜLLER, Anna und SCHMIDT, Bernd, 2020. Küsten und Städte. In: Zeitschrift für Beispiele. Bd. 12, Nr. 3, S. 45–67. DOI:10.5555/DIN\nWEBER, Clara, 2019. Ein sorgfältiges Buch. Berlin: Beispielverlag. ISBN 978-0-306-40615-7.",
+  "expected": [
+    {
+      "author": [
+        {
+          "family": "MÜLLER",
+          "given": "Anna"
+        },
+        {
+          "family": "SCHMIDT",
+          "given": "Bernd"
+        }
+      ],
+      "title": "Küsten und Städte",
+      "container-title": "Zeitschrift für Beispiele",
+      "issued": {
+        "literal": "2020"
+      },
+      "volume": "12",
+      "issue": "3",
+      "page": "45–67",
+      "DOI": "10.5555/DIN"
+    },
+    {
+      "author": [
+        {
+          "family": "WEBER",
+          "given": "Clara"
+        }
+      ],
+      "title": "Ein sorgfältiges Buch",
+      "publisher-place": "Berlin",
+      "publisher": "Beispielverlag",
+      "issued": {
+        "literal": "2019"
+      },
+      "ISBN": "978-0-306-40615-7"
+    }
+  ]
+}

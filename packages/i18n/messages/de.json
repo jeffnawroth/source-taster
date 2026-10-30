@@ -188,5 +188,9 @@
   "failure_timeout": "hat nicht rechtzeitig geantwortet",
   "failure_rate_limit": "Anfragelimit erreicht oder Wartezeit zu lang",
   "failure_deadline": "Zeitlimit für diese Referenz erreicht",
-  "failure_error": "hat einen Fehler gemeldet oder war nicht erreichbar"
+  "failure_error": "hat einen Fehler gemeldet oder war nicht erreichbar",
+  "journal_abbreviation_match": "Die Zeitschriftenabkürzung ist für die Zeitschrift dieses Kandidaten belegt.",
+  "journal_abbreviation_different": "Die Abkürzung ist für eine andere Zeitschrift belegt. Für die Zeitschrift des Kandidaten ist eine andere Abkürzung belegt.",
+  "journal_abbreviation_unknown": "Die Zeitschriftenabkürzung lässt sich der Zeitschrift dieses Kandidaten nicht verlässlich zuordnen. Dieses Feld bleibt unbewertet; die übrigen Gewichte werden neu normiert.",
+  "journal_nlm_snapshot": "NLM-Datenstand: {date}. Dieser eingefrorene Datenstand enthält möglicherweise nicht die aktuellsten NLM-Daten."
 }

@@ -188,5 +188,9 @@
   "failure_timeout": "did not respond in time",
   "failure_rate_limit": "request limit reached or waiting time too long",
   "failure_deadline": "time limit for this Reference reached",
-  "failure_error": "returned an error or could not be reached"
+  "failure_error": "returned an error or could not be reached",
+  "journal_abbreviation_match": "The journal abbreviation is attested for this Candidate’s journal.",
+  "journal_abbreviation_different": "The abbreviation is attested for another journal. The Candidate’s journal has a different attested abbreviation.",
+  "journal_abbreviation_unknown": "The journal abbreviation cannot be reliably assigned to this Candidate’s journal. This field is unscored; the remaining weights are renormalized.",
+  "journal_nlm_snapshot": "NLM snapshot: {date}. This pinned snapshot may not reflect the most current NLM data."
 }

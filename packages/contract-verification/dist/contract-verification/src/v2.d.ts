@@ -129,28 +129,56 @@ export declare const RetractionEvidence: z.ZodObject<{
     candidateId: z.ZodString;
     observedAt: z.ZodString;
 }, z.core.$strip>;
+export declare const FieldComparison: z.ZodObject<{
+    field: z.ZodString;
+    reference: z.ZodUnknown;
+    candidate: z.ZodUnknown;
+    score: z.ZodNullable<z.ZodObject<{
+        value: z.ZodNumber;
+        fullAgreement: z.ZodBoolean;
+    }, z.core.$strip>>;
+    reason: z.ZodEnum<{
+        compared: "compared";
+        "missing-candidate": "missing-candidate";
+        "missing-reference": "missing-reference";
+        "not-determinable": "not-determinable";
+        "resource-limit": "resource-limit";
+        unweighted: "unweighted";
+    }>;
+    journalAbbreviation: z.ZodOptional<z.ZodObject<{
+        outcome: z.ZodEnum<{
+            different: "different";
+            match: "match";
+            "not-determinable": "not-determinable";
+        }>;
+        reason: z.ZodEnum<{
+            "attested-match": "attested-match";
+            "attested-other-journal": "attested-other-journal";
+            "no-attestation": "no-attestation";
+        }>;
+        attestations: z.ZodArray<z.ZodObject<{
+            source: z.ZodEnum<{
+                crossref: "crossref";
+                europepmc: "europepmc";
+                nlm: "nlm";
+                semanticscholar: "semanticscholar";
+            }>;
+            role: z.ZodEnum<{
+                candidate: "candidate";
+                reference: "reference";
+            }>;
+            journalTitle: z.ZodString;
+            abbreviation: z.ZodString;
+            nlmId: z.ZodOptional<z.ZodString>;
+            snapshotDate: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
 export declare const Candidate: z.ZodObject<{
     id: z.ZodString;
     slot: z.ZodNumber;
     retrievedAt: z.ZodString;
     raw: z.ZodUnknown;
-    fields: z.ZodArray<z.ZodObject<{
-        field: z.ZodString;
-        reference: z.ZodUnknown;
-        candidate: z.ZodUnknown;
-        score: z.ZodNullable<z.ZodObject<{
-            value: z.ZodNumber;
-            fullAgreement: z.ZodBoolean;
-        }, z.core.$strip>>;
-        reason: z.ZodEnum<{
-            compared: "compared";
-            "missing-candidate": "missing-candidate";
-            "missing-reference": "missing-reference";
-            "not-determinable": "not-determinable";
-            "resource-limit": "resource-limit";
-            unweighted: "unweighted";
-        }>;
-    }, z.core.$strip>>;
     score: z.ZodNullable<z.ZodObject<{
         value: z.ZodNumber;
         fullAgreement: z.ZodBoolean;
@@ -184,6 +212,51 @@ export declare const Candidate: z.ZodObject<{
         PMCID: z.ZodOptional<z.ZodString>;
         arXiv: z.ZodOptional<z.ZodString>;
     }, z.core.$strip>;
+    fields: z.ZodArray<z.ZodObject<{
+        field: z.ZodString;
+        reference: z.ZodUnknown;
+        candidate: z.ZodUnknown;
+        score: z.ZodNullable<z.ZodObject<{
+            value: z.ZodNumber;
+            fullAgreement: z.ZodBoolean;
+        }, z.core.$strip>>;
+        reason: z.ZodEnum<{
+            compared: "compared";
+            "missing-candidate": "missing-candidate";
+            "missing-reference": "missing-reference";
+            "not-determinable": "not-determinable";
+            "resource-limit": "resource-limit";
+            unweighted: "unweighted";
+        }>;
+        journalAbbreviation: z.ZodOptional<z.ZodObject<{
+            outcome: z.ZodEnum<{
+                different: "different";
+                match: "match";
+                "not-determinable": "not-determinable";
+            }>;
+            reason: z.ZodEnum<{
+                "attested-match": "attested-match";
+                "attested-other-journal": "attested-other-journal";
+                "no-attestation": "no-attestation";
+            }>;
+            attestations: z.ZodArray<z.ZodObject<{
+                source: z.ZodEnum<{
+                    crossref: "crossref";
+                    europepmc: "europepmc";
+                    nlm: "nlm";
+                    semanticscholar: "semanticscholar";
+                }>;
+                role: z.ZodEnum<{
+                    candidate: "candidate";
+                    reference: "reference";
+                }>;
+                journalTitle: z.ZodString;
+                abbreviation: z.ZodString;
+                nlmId: z.ZodOptional<z.ZodString>;
+                snapshotDate: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>>;
     source: z.ZodEnum<{
         arxiv: "arxiv";
         crossref: "crossref";
@@ -334,23 +407,6 @@ export declare const VerdictResult: z.ZodObject<{
         slot: z.ZodNumber;
         retrievedAt: z.ZodString;
         raw: z.ZodUnknown;
-        fields: z.ZodArray<z.ZodObject<{
-            field: z.ZodString;
-            reference: z.ZodUnknown;
-            candidate: z.ZodUnknown;
-            score: z.ZodNullable<z.ZodObject<{
-                value: z.ZodNumber;
-                fullAgreement: z.ZodBoolean;
-            }, z.core.$strip>>;
-            reason: z.ZodEnum<{
-                compared: "compared";
-                "missing-candidate": "missing-candidate";
-                "missing-reference": "missing-reference";
-                "not-determinable": "not-determinable";
-                "resource-limit": "resource-limit";
-                unweighted: "unweighted";
-            }>;
-        }, z.core.$strip>>;
         score: z.ZodNullable<z.ZodObject<{
             value: z.ZodNumber;
             fullAgreement: z.ZodBoolean;
@@ -384,6 +440,51 @@ export declare const VerdictResult: z.ZodObject<{
             PMCID: z.ZodOptional<z.ZodString>;
             arXiv: z.ZodOptional<z.ZodString>;
         }, z.core.$strip>;
+        fields: z.ZodArray<z.ZodObject<{
+            field: z.ZodString;
+            reference: z.ZodUnknown;
+            candidate: z.ZodUnknown;
+            score: z.ZodNullable<z.ZodObject<{
+                value: z.ZodNumber;
+                fullAgreement: z.ZodBoolean;
+            }, z.core.$strip>>;
+            reason: z.ZodEnum<{
+                compared: "compared";
+                "missing-candidate": "missing-candidate";
+                "missing-reference": "missing-reference";
+                "not-determinable": "not-determinable";
+                "resource-limit": "resource-limit";
+                unweighted: "unweighted";
+            }>;
+            journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                outcome: z.ZodEnum<{
+                    different: "different";
+                    match: "match";
+                    "not-determinable": "not-determinable";
+                }>;
+                reason: z.ZodEnum<{
+                    "attested-match": "attested-match";
+                    "attested-other-journal": "attested-other-journal";
+                    "no-attestation": "no-attestation";
+                }>;
+                attestations: z.ZodArray<z.ZodObject<{
+                    source: z.ZodEnum<{
+                        crossref: "crossref";
+                        europepmc: "europepmc";
+                        nlm: "nlm";
+                        semanticscholar: "semanticscholar";
+                    }>;
+                    role: z.ZodEnum<{
+                        candidate: "candidate";
+                        reference: "reference";
+                    }>;
+                    journalTitle: z.ZodString;
+                    abbreviation: z.ZodString;
+                    nlmId: z.ZodOptional<z.ZodString>;
+                    snapshotDate: z.ZodOptional<z.ZodString>;
+                }, z.core.$strip>>;
+            }, z.core.$strip>>;
+        }, z.core.$strip>>;
         source: z.ZodEnum<{
             arxiv: "arxiv";
             crossref: "crossref";
@@ -584,23 +685,6 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
         slot: z.ZodNumber;
         retrievedAt: z.ZodString;
         raw: z.ZodUnknown;
-        fields: z.ZodArray<z.ZodObject<{
-            field: z.ZodString;
-            reference: z.ZodUnknown;
-            candidate: z.ZodUnknown;
-            score: z.ZodNullable<z.ZodObject<{
-                value: z.ZodNumber;
-                fullAgreement: z.ZodBoolean;
-            }, z.core.$strip>>;
-            reason: z.ZodEnum<{
-                compared: "compared";
-                "missing-candidate": "missing-candidate";
-                "missing-reference": "missing-reference";
-                "not-determinable": "not-determinable";
-                "resource-limit": "resource-limit";
-                unweighted: "unweighted";
-            }>;
-        }, z.core.$strip>>;
         score: z.ZodNullable<z.ZodObject<{
             value: z.ZodNumber;
             fullAgreement: z.ZodBoolean;
@@ -634,6 +718,51 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
             PMCID: z.ZodOptional<z.ZodString>;
             arXiv: z.ZodOptional<z.ZodString>;
         }, z.core.$strip>;
+        fields: z.ZodArray<z.ZodObject<{
+            field: z.ZodString;
+            reference: z.ZodUnknown;
+            candidate: z.ZodUnknown;
+            score: z.ZodNullable<z.ZodObject<{
+                value: z.ZodNumber;
+                fullAgreement: z.ZodBoolean;
+            }, z.core.$strip>>;
+            reason: z.ZodEnum<{
+                compared: "compared";
+                "missing-candidate": "missing-candidate";
+                "missing-reference": "missing-reference";
+                "not-determinable": "not-determinable";
+                "resource-limit": "resource-limit";
+                unweighted: "unweighted";
+            }>;
+            journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                outcome: z.ZodEnum<{
+                    different: "different";
+                    match: "match";
+                    "not-determinable": "not-determinable";
+                }>;
+                reason: z.ZodEnum<{
+                    "attested-match": "attested-match";
+                    "attested-other-journal": "attested-other-journal";
+                    "no-attestation": "no-attestation";
+                }>;
+                attestations: z.ZodArray<z.ZodObject<{
+                    source: z.ZodEnum<{
+                        crossref: "crossref";
+                        europepmc: "europepmc";
+                        nlm: "nlm";
+                        semanticscholar: "semanticscholar";
+                    }>;
+                    role: z.ZodEnum<{
+                        candidate: "candidate";
+                        reference: "reference";
+                    }>;
+                    journalTitle: z.ZodString;
+                    abbreviation: z.ZodString;
+                    nlmId: z.ZodOptional<z.ZodString>;
+                    snapshotDate: z.ZodOptional<z.ZodString>;
+                }, z.core.$strip>>;
+            }, z.core.$strip>>;
+        }, z.core.$strip>>;
         source: z.ZodEnum<{
             arxiv: "arxiv";
             crossref: "crossref";
@@ -847,23 +976,6 @@ export declare const ReferenceSlot: z.ZodObject<{
             slot: z.ZodNumber;
             retrievedAt: z.ZodString;
             raw: z.ZodUnknown;
-            fields: z.ZodArray<z.ZodObject<{
-                field: z.ZodString;
-                reference: z.ZodUnknown;
-                candidate: z.ZodUnknown;
-                score: z.ZodNullable<z.ZodObject<{
-                    value: z.ZodNumber;
-                    fullAgreement: z.ZodBoolean;
-                }, z.core.$strip>>;
-                reason: z.ZodEnum<{
-                    compared: "compared";
-                    "missing-candidate": "missing-candidate";
-                    "missing-reference": "missing-reference";
-                    "not-determinable": "not-determinable";
-                    "resource-limit": "resource-limit";
-                    unweighted: "unweighted";
-                }>;
-            }, z.core.$strip>>;
             score: z.ZodNullable<z.ZodObject<{
                 value: z.ZodNumber;
                 fullAgreement: z.ZodBoolean;
@@ -897,6 +1009,51 @@ export declare const ReferenceSlot: z.ZodObject<{
                 PMCID: z.ZodOptional<z.ZodString>;
                 arXiv: z.ZodOptional<z.ZodString>;
             }, z.core.$strip>;
+            fields: z.ZodArray<z.ZodObject<{
+                field: z.ZodString;
+                reference: z.ZodUnknown;
+                candidate: z.ZodUnknown;
+                score: z.ZodNullable<z.ZodObject<{
+                    value: z.ZodNumber;
+                    fullAgreement: z.ZodBoolean;
+                }, z.core.$strip>>;
+                reason: z.ZodEnum<{
+                    compared: "compared";
+                    "missing-candidate": "missing-candidate";
+                    "missing-reference": "missing-reference";
+                    "not-determinable": "not-determinable";
+                    "resource-limit": "resource-limit";
+                    unweighted: "unweighted";
+                }>;
+                journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                    outcome: z.ZodEnum<{
+                        different: "different";
+                        match: "match";
+                        "not-determinable": "not-determinable";
+                    }>;
+                    reason: z.ZodEnum<{
+                        "attested-match": "attested-match";
+                        "attested-other-journal": "attested-other-journal";
+                        "no-attestation": "no-attestation";
+                    }>;
+                    attestations: z.ZodArray<z.ZodObject<{
+                        source: z.ZodEnum<{
+                            crossref: "crossref";
+                            europepmc: "europepmc";
+                            nlm: "nlm";
+                            semanticscholar: "semanticscholar";
+                        }>;
+                        role: z.ZodEnum<{
+                            candidate: "candidate";
+                            reference: "reference";
+                        }>;
+                        journalTitle: z.ZodString;
+                        abbreviation: z.ZodString;
+                        nlmId: z.ZodOptional<z.ZodString>;
+                        snapshotDate: z.ZodOptional<z.ZodString>;
+                    }, z.core.$strip>>;
+                }, z.core.$strip>>;
+            }, z.core.$strip>>;
             source: z.ZodEnum<{
                 arxiv: "arxiv";
                 crossref: "crossref";
@@ -1124,23 +1281,6 @@ export declare const Check: z.ZodObject<{
                 slot: z.ZodNumber;
                 retrievedAt: z.ZodString;
                 raw: z.ZodUnknown;
-                fields: z.ZodArray<z.ZodObject<{
-                    field: z.ZodString;
-                    reference: z.ZodUnknown;
-                    candidate: z.ZodUnknown;
-                    score: z.ZodNullable<z.ZodObject<{
-                        value: z.ZodNumber;
-                        fullAgreement: z.ZodBoolean;
-                    }, z.core.$strip>>;
-                    reason: z.ZodEnum<{
-                        compared: "compared";
-                        "missing-candidate": "missing-candidate";
-                        "missing-reference": "missing-reference";
-                        "not-determinable": "not-determinable";
-                        "resource-limit": "resource-limit";
-                        unweighted: "unweighted";
-                    }>;
-                }, z.core.$strip>>;
                 score: z.ZodNullable<z.ZodObject<{
                     value: z.ZodNumber;
                     fullAgreement: z.ZodBoolean;
@@ -1174,6 +1314,51 @@ export declare const Check: z.ZodObject<{
                     PMCID: z.ZodOptional<z.ZodString>;
                     arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
+                fields: z.ZodArray<z.ZodObject<{
+                    field: z.ZodString;
+                    reference: z.ZodUnknown;
+                    candidate: z.ZodUnknown;
+                    score: z.ZodNullable<z.ZodObject<{
+                        value: z.ZodNumber;
+                        fullAgreement: z.ZodBoolean;
+                    }, z.core.$strip>>;
+                    reason: z.ZodEnum<{
+                        compared: "compared";
+                        "missing-candidate": "missing-candidate";
+                        "missing-reference": "missing-reference";
+                        "not-determinable": "not-determinable";
+                        "resource-limit": "resource-limit";
+                        unweighted: "unweighted";
+                    }>;
+                    journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                        outcome: z.ZodEnum<{
+                            different: "different";
+                            match: "match";
+                            "not-determinable": "not-determinable";
+                        }>;
+                        reason: z.ZodEnum<{
+                            "attested-match": "attested-match";
+                            "attested-other-journal": "attested-other-journal";
+                            "no-attestation": "no-attestation";
+                        }>;
+                        attestations: z.ZodArray<z.ZodObject<{
+                            source: z.ZodEnum<{
+                                crossref: "crossref";
+                                europepmc: "europepmc";
+                                nlm: "nlm";
+                                semanticscholar: "semanticscholar";
+                            }>;
+                            role: z.ZodEnum<{
+                                candidate: "candidate";
+                                reference: "reference";
+                            }>;
+                            journalTitle: z.ZodString;
+                            abbreviation: z.ZodString;
+                            nlmId: z.ZodOptional<z.ZodString>;
+                            snapshotDate: z.ZodOptional<z.ZodString>;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>>;
+                }, z.core.$strip>>;
                 source: z.ZodEnum<{
                     arxiv: "arxiv";
                     crossref: "crossref";
@@ -1409,23 +1594,6 @@ export declare const CheckResponse: z.ZodObject<{
                     slot: z.ZodNumber;
                     retrievedAt: z.ZodString;
                     raw: z.ZodUnknown;
-                    fields: z.ZodArray<z.ZodObject<{
-                        field: z.ZodString;
-                        reference: z.ZodUnknown;
-                        candidate: z.ZodUnknown;
-                        score: z.ZodNullable<z.ZodObject<{
-                            value: z.ZodNumber;
-                            fullAgreement: z.ZodBoolean;
-                        }, z.core.$strip>>;
-                        reason: z.ZodEnum<{
-                            compared: "compared";
-                            "missing-candidate": "missing-candidate";
-                            "missing-reference": "missing-reference";
-                            "not-determinable": "not-determinable";
-                            "resource-limit": "resource-limit";
-                            unweighted: "unweighted";
-                        }>;
-                    }, z.core.$strip>>;
                     score: z.ZodNullable<z.ZodObject<{
                         value: z.ZodNumber;
                         fullAgreement: z.ZodBoolean;
@@ -1459,6 +1627,51 @@ export declare const CheckResponse: z.ZodObject<{
                         PMCID: z.ZodOptional<z.ZodString>;
                         arXiv: z.ZodOptional<z.ZodString>;
                     }, z.core.$strip>;
+                    fields: z.ZodArray<z.ZodObject<{
+                        field: z.ZodString;
+                        reference: z.ZodUnknown;
+                        candidate: z.ZodUnknown;
+                        score: z.ZodNullable<z.ZodObject<{
+                            value: z.ZodNumber;
+                            fullAgreement: z.ZodBoolean;
+                        }, z.core.$strip>>;
+                        reason: z.ZodEnum<{
+                            compared: "compared";
+                            "missing-candidate": "missing-candidate";
+                            "missing-reference": "missing-reference";
+                            "not-determinable": "not-determinable";
+                            "resource-limit": "resource-limit";
+                            unweighted: "unweighted";
+                        }>;
+                        journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                            outcome: z.ZodEnum<{
+                                different: "different";
+                                match: "match";
+                                "not-determinable": "not-determinable";
+                            }>;
+                            reason: z.ZodEnum<{
+                                "attested-match": "attested-match";
+                                "attested-other-journal": "attested-other-journal";
+                                "no-attestation": "no-attestation";
+                            }>;
+                            attestations: z.ZodArray<z.ZodObject<{
+                                source: z.ZodEnum<{
+                                    crossref: "crossref";
+                                    europepmc: "europepmc";
+                                    nlm: "nlm";
+                                    semanticscholar: "semanticscholar";
+                                }>;
+                                role: z.ZodEnum<{
+                                    candidate: "candidate";
+                                    reference: "reference";
+                                }>;
+                                journalTitle: z.ZodString;
+                                abbreviation: z.ZodString;
+                                nlmId: z.ZodOptional<z.ZodString>;
+                                snapshotDate: z.ZodOptional<z.ZodString>;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>>;
                     source: z.ZodEnum<{
                         arxiv: "arxiv";
                         crossref: "crossref";
@@ -1677,23 +1890,6 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                 slot: z.ZodNumber;
                 retrievedAt: z.ZodString;
                 raw: z.ZodUnknown;
-                fields: z.ZodArray<z.ZodObject<{
-                    field: z.ZodString;
-                    reference: z.ZodUnknown;
-                    candidate: z.ZodUnknown;
-                    score: z.ZodNullable<z.ZodObject<{
-                        value: z.ZodNumber;
-                        fullAgreement: z.ZodBoolean;
-                    }, z.core.$strip>>;
-                    reason: z.ZodEnum<{
-                        compared: "compared";
-                        "missing-candidate": "missing-candidate";
-                        "missing-reference": "missing-reference";
-                        "not-determinable": "not-determinable";
-                        "resource-limit": "resource-limit";
-                        unweighted: "unweighted";
-                    }>;
-                }, z.core.$strip>>;
                 score: z.ZodNullable<z.ZodObject<{
                     value: z.ZodNumber;
                     fullAgreement: z.ZodBoolean;
@@ -1727,6 +1923,51 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                     PMCID: z.ZodOptional<z.ZodString>;
                     arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
+                fields: z.ZodArray<z.ZodObject<{
+                    field: z.ZodString;
+                    reference: z.ZodUnknown;
+                    candidate: z.ZodUnknown;
+                    score: z.ZodNullable<z.ZodObject<{
+                        value: z.ZodNumber;
+                        fullAgreement: z.ZodBoolean;
+                    }, z.core.$strip>>;
+                    reason: z.ZodEnum<{
+                        compared: "compared";
+                        "missing-candidate": "missing-candidate";
+                        "missing-reference": "missing-reference";
+                        "not-determinable": "not-determinable";
+                        "resource-limit": "resource-limit";
+                        unweighted: "unweighted";
+                    }>;
+                    journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                        outcome: z.ZodEnum<{
+                            different: "different";
+                            match: "match";
+                            "not-determinable": "not-determinable";
+                        }>;
+                        reason: z.ZodEnum<{
+                            "attested-match": "attested-match";
+                            "attested-other-journal": "attested-other-journal";
+                            "no-attestation": "no-attestation";
+                        }>;
+                        attestations: z.ZodArray<z.ZodObject<{
+                            source: z.ZodEnum<{
+                                crossref: "crossref";
+                                europepmc: "europepmc";
+                                nlm: "nlm";
+                                semanticscholar: "semanticscholar";
+                            }>;
+                            role: z.ZodEnum<{
+                                candidate: "candidate";
+                                reference: "reference";
+                            }>;
+                            journalTitle: z.ZodString;
+                            abbreviation: z.ZodString;
+                            nlmId: z.ZodOptional<z.ZodString>;
+                            snapshotDate: z.ZodOptional<z.ZodString>;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>>;
+                }, z.core.$strip>>;
                 source: z.ZodEnum<{
                     arxiv: "arxiv";
                     crossref: "crossref";
@@ -1956,23 +2197,6 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 slot: z.ZodNumber;
                 retrievedAt: z.ZodString;
                 raw: z.ZodUnknown;
-                fields: z.ZodArray<z.ZodObject<{
-                    field: z.ZodString;
-                    reference: z.ZodUnknown;
-                    candidate: z.ZodUnknown;
-                    score: z.ZodNullable<z.ZodObject<{
-                        value: z.ZodNumber;
-                        fullAgreement: z.ZodBoolean;
-                    }, z.core.$strip>>;
-                    reason: z.ZodEnum<{
-                        compared: "compared";
-                        "missing-candidate": "missing-candidate";
-                        "missing-reference": "missing-reference";
-                        "not-determinable": "not-determinable";
-                        "resource-limit": "resource-limit";
-                        unweighted: "unweighted";
-                    }>;
-                }, z.core.$strip>>;
                 score: z.ZodNullable<z.ZodObject<{
                     value: z.ZodNumber;
                     fullAgreement: z.ZodBoolean;
@@ -2006,6 +2230,51 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                     PMCID: z.ZodOptional<z.ZodString>;
                     arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
+                fields: z.ZodArray<z.ZodObject<{
+                    field: z.ZodString;
+                    reference: z.ZodUnknown;
+                    candidate: z.ZodUnknown;
+                    score: z.ZodNullable<z.ZodObject<{
+                        value: z.ZodNumber;
+                        fullAgreement: z.ZodBoolean;
+                    }, z.core.$strip>>;
+                    reason: z.ZodEnum<{
+                        compared: "compared";
+                        "missing-candidate": "missing-candidate";
+                        "missing-reference": "missing-reference";
+                        "not-determinable": "not-determinable";
+                        "resource-limit": "resource-limit";
+                        unweighted: "unweighted";
+                    }>;
+                    journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                        outcome: z.ZodEnum<{
+                            different: "different";
+                            match: "match";
+                            "not-determinable": "not-determinable";
+                        }>;
+                        reason: z.ZodEnum<{
+                            "attested-match": "attested-match";
+                            "attested-other-journal": "attested-other-journal";
+                            "no-attestation": "no-attestation";
+                        }>;
+                        attestations: z.ZodArray<z.ZodObject<{
+                            source: z.ZodEnum<{
+                                crossref: "crossref";
+                                europepmc: "europepmc";
+                                nlm: "nlm";
+                                semanticscholar: "semanticscholar";
+                            }>;
+                            role: z.ZodEnum<{
+                                candidate: "candidate";
+                                reference: "reference";
+                            }>;
+                            journalTitle: z.ZodString;
+                            abbreviation: z.ZodString;
+                            nlmId: z.ZodOptional<z.ZodString>;
+                            snapshotDate: z.ZodOptional<z.ZodString>;
+                        }, z.core.$strip>>;
+                    }, z.core.$strip>>;
+                }, z.core.$strip>>;
                 source: z.ZodEnum<{
                     arxiv: "arxiv";
                     crossref: "crossref";

@@ -573,7 +573,7 @@
           "fields": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/FieldComparison"
+              "$ref": "#/components/schemas/FieldComparisonV2"
             }
           },
           "score": {
@@ -600,7 +600,7 @@
           "score"
         ]
       },
-      "FieldComparison": {
+      "FieldComparisonV2": {
         "type": "object",
         "properties": {
           "field": {
@@ -620,6 +620,74 @@
               "not-determinable",
               "unweighted",
               "resource-limit"
+            ]
+          },
+          "journalAbbreviation": {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "match",
+                  "different",
+                  "not-determinable"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "attested-match",
+                  "attested-other-journal",
+                  "no-attestation"
+                ]
+              },
+              "attestations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "nlm",
+                        "crossref",
+                        "europepmc",
+                        "semanticscholar"
+                      ]
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "candidate",
+                        "reference"
+                      ]
+                    },
+                    "journalTitle": {
+                      "type": "string"
+                    },
+                    "abbreviation": {
+                      "type": "string"
+                    },
+                    "nlmId": {
+                      "type": "string"
+                    },
+                    "snapshotDate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "role",
+                    "journalTitle",
+                    "abbreviation"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "outcome",
+              "reason",
+              "attestations"
             ]
           }
         },

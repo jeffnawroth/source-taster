@@ -1,0 +1,42 @@
+{
+  "description": "Synthetic Vancouver development bibliography: compact author initials, wrapped title and article number.",
+  "text": "1. García EL, de Vries AB. Coastal 🧪 records.\r\n  J Test Med. 2020;12(3):45-67. PMID: 12345678\r\n2. Sato K. Open archives. Arch Med. 2021;8:e1234.",
+  "expected": [
+    {
+      "author": [
+        {
+          "family": "García",
+          "given": "EL"
+        },
+        {
+          "family": "de Vries",
+          "given": "AB"
+        }
+      ],
+      "title": "Coastal 🧪 records",
+      "container-title-short": "J Test Med",
+      "issued": {
+        "literal": "2020"
+      },
+      "volume": "12",
+      "issue": "3",
+      "page": "45-67",
+      "PMID": "12345678"
+    },
+    {
+      "author": [
+        {
+          "family": "Sato",
+          "given": "K"
+        }
+      ],
+      "title": "Open archives",
+      "container-title-short": "Arch Med",
+      "issued": {
+        "literal": "2021"
+      },
+      "volume": "8",
+      "article-number": "e1234"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import {
   createDoiVerification,
   createBibliographicVerification,
   comparisonLimits,
+  journalAbbreviationRules,
   defaultSearchSettings,
   referenceDeadlineMs,
   type SearchSettings,
@@ -72,13 +73,14 @@ export function referenceExecution(
     now: clock.now,
     parameters: config.comparisonProfile,
     rules: {
-      version: `comparison-75-3-date-ranges-20261028-entities-4.5.0-uncalibrated-${createHash(
+      version: `comparison-75-3-date-ranges-20261028-journal-76-1-entities-4.5.0-uncalibrated-${createHash(
         "sha256",
       )
         .update(
           JSON.stringify({
             parameters: config.comparisonProfile,
             limits: comparisonLimits,
+            journalAbbreviations: journalAbbreviationRules,
           }),
         )
         .digest(

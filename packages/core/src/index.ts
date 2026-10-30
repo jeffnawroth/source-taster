@@ -9,3 +9,4 @@ export {
 } from "./comparison.ts";
 export * from "./bibliographic.ts";
 export * from "./search-settings.ts";
+export { journalAbbreviationRules } from "./journal-abbreviations.ts";

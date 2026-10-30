@@ -220,7 +220,12 @@ export function createDoiVerification(ports: {
       const candidate: Candidate = {
         ...metadata.candidate,
         slot: 1,
-        ...compare(reference, metadata.candidate.csl, profile),
+        ...compare(
+          reference,
+          metadata.candidate.csl,
+          profile,
+          metadata.candidate,
+        ),
       };
       result.candidates.push(candidate);
       result.bestMatchId = candidate.id;
@@ -268,7 +273,7 @@ export function createDoiVerification(ports: {
           const scored: Candidate = {
             ...other,
             slot: 2,
-            ...compare(reference, other.csl, profile),
+            ...compare(reference, other.csl, profile, other),
           };
           result.candidates.push(scored);
           result.candidates.sort(

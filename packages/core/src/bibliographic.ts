@@ -313,7 +313,7 @@ export function createBibliographicVerification(ports: {
         ...retrieved,
         identifiers,
         slot: state.candidates.length + 1,
-        ...compare(reference, retrieved.csl, profile),
+        ...compare(reference, retrieved.csl, profile, retrieved),
       };
       state.candidates.push(candidate);
       result.candidates.push(candidate);
