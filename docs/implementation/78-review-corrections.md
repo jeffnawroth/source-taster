@@ -294,3 +294,136 @@ Validation: Node 24, macOS arm64, owned PostgreSQL container
   tightened identifier rows, the two empty-answer cases, the incomplete-feed
   case and the version expectations. The burst test and the complete
   old-scheme batch test are regression guards that passed before the fix.
+
+## Merge with main (#79)
+
+`origin/main` at `f0bf1b4` (#79 books and chapters through ISBN catalogs) was
+merged on `merge/78-main-79`. #79 had been built without #78, so it carried
+its own failure handling. The merge keeps one path, #78's, and the book Data
+sources (Open Library, Google Books, the ISBN route) follow it.
+
+### Conflict resolutions
+
+- **Core coordinator (`bibliographic.ts`).** #78's coordinator is kept, with
+  #79's book route added to it:
+  - book reference types and `isbn` identifiers routed to Open Library and
+    Google Books;
+  - `bookSearchOrder` and `bookSearchConfiguration`;
+  - edition, publisher and ISBN field agreement;
+  - `identityAmbiguous`, and the book-type compatibility check.
+
+  Each route now asks only its own sources: books use OpenAlex, Crossref,
+  Open Library and Google Books; articles never use the catalogs. #79's parallel
+  failure path is removed: `state.failed`, the `skipped`/`after-source-failure`
+  note for any failure, the "every book source failed" verdict block, and
+  `sourceFailurePolicy: stop-failed-source-1`.
+- **Verification types (`verification.ts`).** `CandidateDataSource` gains
+  `openlibrary` and `googlebooks`, and the Evidence operation gains `isbn`.
+  #79's `identityAmbiguous` and `identifierAmbiguity` are kept.
+- **Settings (`search-settings.ts`, `config.ts`, `.env.example`, `README.md`).**
+  #79's `SOURCE_TASTER_{OPENLIBRARY,GOOGLEBOOKS}_REQUESTS_PER_SECOND` and its
+  `catalogRates` are folded into the ADR-0007 search settings, giving two new
+  `sources` entries:
+  - `openlibrary`: `requestTimeoutMs` 3000, `intervalMs` 334 (ADR-0007 cap of
+    3/s), `maxWaitMs` 10000;
+  - `googlebooks`: `requestTimeoutMs` 3000, `intervalMs` 1000 (#79's
+    conservative 1/s; ADR-0007 has no cap), `maxWaitMs` 10000.
+
+  Setting either old rate variable refuses startup, so they cannot become a
+  silently ignored second mechanism. The enablement variables from both sides
+  are kept.
+- **Runtime and adapters.**
+  - `verification-runtime.ts` keeps #78's settings, settings hash and shared
+    request. It builds #79's `bookMetadata` flag per Reference, for the
+    OpenAlex and Crossref book metadata.
+  - `budget.ts` is #78's version, with `handover` and arXiv/Semantic Scholar
+    batching. The catalogs use `<source>:all` budget keys at their settings
+    interval.
+  - `doi.ts` and `openalex.ts` keep #78's signatures plus #79's ISBN,
+    publisher, edition and `bookMetadata` projection.
+  - `openlibrary.ts` and `googlebooks.ts` use #78's `shared.ts` helpers. #79's
+    `names.ts` is removed.
+- **Contract (`v2.ts`).** Both sides' additions are kept: the catalog sources
+  in `CandidateDataSource` and `ReferenceProgress`, the `isbn` origin and
+  operation, `identityAmbiguous`, `identifierAmbiguity`, field `agreement`, and
+  #78's failed-source fields. The Candidate ceiling is 25: #78 had 10 and #79
+  had 20. The article route's four search sources fill 20 slots, and arXiv can
+  add an identifier Candidate on top. `dist` and `openapi-v2.json` were rebuilt,
+  not hand-merged; the package README is updated.
+- **UI and i18n.** The links and names for Open Library and Google Books are
+  added to #78's source display. #79's separate `failed_data_sources` paragraph,
+  `data-source.ts`, and its duplicate `reason_sources_unavailable` and
+  `limitation_after_source_failure` messages are removed: #78's failed-source
+  list with causes is the single display, and #78's wording is kept. #79's
+  `origin_isbn` is kept. Each language has 211 messages.
+
+### Book sources under #78's failure rules
+
+- **Retries.** Every catalog call goes through the shared request: at most one
+  retry, and a Retry-After of at most 2 s is honoured. A longer Retry-After
+  (#79's synthetic Google Books 429 with `retry-after: 3`) is `rate-budget`.
+- **What makes a source unavailable.** Only `timeout` and `rate-budget` make a
+  catalog unavailable for the rest of the Reference. Later operations are
+  `unavailable`/`after-source-failure`. An `http-error` or
+  `request-unavailable` affects only that call, so the catalog's later lookups
+  and searches still run. Under #79, any unavailable call stopped the source.
+- **Data findings.** `identifier-mismatch`, `invalid-metadata` and
+  `response-size` block Not found but are never failed sources. Under #79, an
+  all-invalid book run could be `sources-unavailable`; it is now
+  `insufficient-search` with no failed sources.
+- **Outages.** A total outage of every contacted book source is Not
+  verifiable (`sources-unavailable`), through #78's contacted/applicable check.
+- **Negative coverage.** #79's stricter rule stays route-specific: Not found
+  for a book needs all four book sources enabled and complete. Articles still
+  need OpenAlex and Crossref.
+- **Permit wait.** The catalog permit wait is bounded by `maxWaitMs` (10 s).
+  #79 waited up to the Reference deadline.
+
+### Tests
+
+- **Total outage (`books.test.ts`).** Every book endpoint, including Open
+  Library search, now returns 503. The test expects all 14 operations
+  (two ISBN lookups and twelve searches) to be `unavailable`/`http-error` with
+  two attempts each. #79 expected four attempts and `skipped` notes. The run
+  takes about 20 s, so this test's timeout is 45 s and the shared SSE wait is
+  40 s.
+- **Single catalog outage.** The Open Library ISBN 503 is a per-call
+  `http-error` with two attempts, and the Open Library combined search still
+  runs. #79 expected a `skipped`/`after-source-failure` note. The verdict is
+  still Not verifiable, with `openlibrary` as the failed source.
+- **Catalog rate.** The rate-change test now changes
+  `sources.openlibrary.intervalMs` through `SOURCE_TASTER_SEARCH_SETTINGS`. It
+  checks `settings.openlibrary.intervalMs` and a new Search strategy version.
+  Two new startup cases show that each old rate variable exits with 78.
+- **Version expectation.** `bibliographic.test.ts` now expects
+  `article-search-78-4-`.
+
+All other #79 tests pass unchanged. This includes the Google Books 429 test,
+which already matched #78's Retry-After rule.
+
+### Versions
+
+- **Article search, `article-search-78-3-…` → `article-search-78-4-…`.** The
+  merged coordinator filters sources by route. A malformed identifier that
+  normalizes to nothing is now unsupported instead of looked up (from #79).
+  The settings hash now also covers the catalog settings.
+- **`article-verdict-78-2`, unchanged.** No article verdict rule changed. The
+  book-only rules (field agreement, `identityAmbiguous`, book-type
+  compatibility) never apply to articles.
+- **Book search, `book-search-79-3-<sources>-<rates>-…` →
+  `book-search-79-4-<sources>-settings-<hash>-…`.** The book route now uses
+  #78's request, retry and budget behaviour, and its settings hash replaces the
+  two rates.
+- **Book verdict, `book-verdict-79-2-isbn-edition` →
+  `book-verdict-79-3-isbn-edition`.** Book outcomes under failure changed:
+  per-call HTTP errors, no `sources-unavailable` for data findings, and a
+  bounded permit wait.
+
+### Open points
+
+- **Google Books cap.** Google Books has no ADR-0007 cap; 1000 ms stays a
+  development value until a provider allowance is known.
+- **Fixtures.** The Google Books and Open Library fixtures stay synthetic
+  (`docs/research/google-books-fixture-rights.md`), like Semantic Scholar's.
+- **Earlier Candidate ceiling.** #78's ceiling of 10 was already below its own
+  article route's 20 search slots. The merged ceiling of 25 fixes this.
