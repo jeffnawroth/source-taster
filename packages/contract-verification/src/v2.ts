@@ -27,6 +27,7 @@ const Operation = z.enum([
 export const StructuredCsl = v1.StructuredCsl.extend({
   arXiv: z.string().optional(),
 }).meta({ id: "StructuredCslV2" });
+export type StructuredCsl = z.infer<typeof StructuredCsl>;
 export const StructuredReference = v1.StructuredReference.extend({
   csl: StructuredCsl,
 }).meta({ id: "StructuredReferenceV2" });
@@ -151,7 +152,26 @@ export const ReferenceProgress = z.enum([
   "googlebooks",
 ]);
 export type ReferenceProgress = z.infer<typeof ReferenceProgress>;
+export const FieldRevision = z.object({
+  revision: z.number().int().positive(),
+  reference: StructuredReference,
+  provenance: z.enum(["parser", "user"]),
+  createdAt: z.string(),
+});
+export const HistoricalResult = z.object({
+  id: z.uuid(),
+  revision: z.number().int().positive(),
+  generation: z.number().int().nonnegative(),
+  createdAt: z.string(),
+  outcome: ReferenceOutcome,
+});
 export const ReferenceSlot = v1.ReferenceSlot.extend({
+  revision: z.number().int().positive(),
+  fields: StructuredCsl,
+  authorsTruncated: z.boolean().optional(),
+  revisions: z.array(FieldRevision),
+  results: z.array(HistoricalResult),
+  quotaEffect: z.enum(["free-recheck", "new-work"]),
   outcome: ReferenceOutcome,
   progress: ReferenceProgress,
 }).meta({ id: "ReferenceSlotV2" });
@@ -165,7 +185,9 @@ export const CheckResponse = v1.CheckResponse.extend({ data: Check }).meta({
 });
 export type CheckResponse = z.infer<typeof CheckResponse>;
 export const ReferenceUpdatedEvent = v1.ReferenceUpdatedEvent.extend({
-  reference: ReferenceSlot.pick({ slot: true, outcome: true, progress: true }),
+  reference: ReferenceSlot.partial()
+    .required({ slot: true, outcome: true, progress: true })
+    .extend({ removed: z.literal(true).optional() }),
 }).meta({ id: "ReferenceUpdatedEventV2" });
 export const CheckEvent = z
   .discriminatedUnion("type", [v1.CheckUpdatedEvent, ReferenceUpdatedEvent])
@@ -174,3 +196,30 @@ export type CheckEvent = z.infer<typeof CheckEvent>;
 export function isFinalEvent(event: CheckEvent): boolean {
   return event.type === "check.updated" && event.state === "ended";
 }
+
+export const SaveFieldsRequest = z.strictObject({
+  expectedRevision: z.number().int().positive(),
+  fields: StructuredCsl.strict(),
+  authorsTruncated: z.boolean().optional(),
+  recheck: z.boolean(),
+});
+export type SaveFieldsRequest = z.infer<typeof SaveFieldsRequest>;
+
+export const RecheckRequest = z.strictObject({
+  expectedRevision: z.number().int().positive(),
+});
+export type RecheckRequest = z.infer<typeof RecheckRequest>;
+export const EditReferenceListRequest = z.strictObject({
+  expectedEventSeq: z.number().int().nonnegative(),
+  add: z
+    .array(
+      z.strictObject({
+        originalText: z.string().trim().min(1),
+        fields: StructuredCsl.strict(),
+        authorsTruncated: z.boolean().optional(),
+      }),
+    )
+    .max(1000),
+  remove: z.array(z.number().int().positive()).max(1000),
+});
+export type EditReferenceListRequest = z.infer<typeof EditReferenceListRequest>;

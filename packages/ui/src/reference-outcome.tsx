@@ -70,7 +70,9 @@ function limitation(reason: string) {
     ? m[evidenceReasons[reason as keyof typeof evidenceReasons]]()
     : m.limitation_unknown();
 }
-const fields = {
+export const fieldLabels = {
+  type: "field_type",
+  arXiv: "field_arxiv",
   title: "field_title",
   author: "field_author",
   issued: "field_issued",
@@ -364,8 +366,10 @@ export function ReferenceOutcomeView({
                   }
                 >
                   <dt className="font-semibold">
-                    {field.field in fields
-                      ? m[fields[field.field as keyof typeof fields]]()
+                    {field.field in fieldLabels
+                      ? m[
+                          fieldLabels[field.field as keyof typeof fieldLabels]
+                        ]()
                       : field.field}
                     :{" "}
                     {field.score
@@ -462,60 +466,62 @@ function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
             <th scope="col">{m.workspace_best()}</th>
           </tr>
         </thead>
-        {(Object.keys(fields) as (keyof typeof fields)[]).map((field) => {
-          const comparison = best?.fields.find(
-            (value) => value.field === field,
-          );
-          const deviates =
-            (comparison?.score && !comparison.score.fullAgreement) ||
-            comparison?.agreement === false;
-          return (
-            <tbody key={field} data-deviates={!!deviates}>
-              <tr>
-                <th scope="rowgroup" colSpan={2}>
-                  {m[fields[field]]()}:{" "}
-                  <span className="font-normal">
-                    {comparison?.score
-                      ? comparison.score.fullAgreement
-                        ? m.field_agrees()
-                        : m.field_differs()
-                      : comparison?.agreement !== undefined
-                        ? comparison.agreement
+        {(Object.keys(fieldLabels) as (keyof typeof fieldLabels)[]).map(
+          (field) => {
+            const comparison = best?.fields.find(
+              (value) => value.field === field,
+            );
+            const deviates =
+              (comparison?.score && !comparison.score.fullAgreement) ||
+              comparison?.agreement === false;
+            return (
+              <tbody key={field} data-deviates={!!deviates}>
+                <tr>
+                  <th scope="rowgroup" colSpan={2}>
+                    {m[fieldLabels[field]]()}:{" "}
+                    <span className="font-normal">
+                      {comparison?.score
+                        ? comparison.score.fullAgreement
                           ? m.field_agrees()
                           : m.field_differs()
-                        : m.field_excluded()}{" "}
-                    ·{" "}
-                    {comparison?.score
-                      ? percent(comparison.score)
-                      : comparison?.reason === "missing-reference"
-                        ? m.field_missing_reference()
-                        : comparison?.reason === "missing-candidate"
-                          ? m.field_missing_candidate()
-                          : comparison?.reason === "not-determinable"
-                            ? m.field_not_determinable()
-                            : comparison?.reason === "resource-limit"
-                              ? m.field_resource_limit()
-                              : comparison?.reason === "unweighted"
-                                ? m.field_unweighted()
-                                : m.workspace_not_compared()}
-                  </span>
-                </th>
-              </tr>
-              <tr>
-                <td>
-                  {raw(
-                    comparison
-                      ? comparison.reference
-                      : outcome.reference.csl[field],
-                  )}
-                </td>
-                <td>
-                  {raw(comparison ? comparison.candidate : best?.csl[field])}
-                </td>
-              </tr>
-            </tbody>
-          );
-        })}
+                        : comparison?.agreement !== undefined
+                          ? comparison.agreement
+                            ? m.field_agrees()
+                            : m.field_differs()
+                          : m.field_excluded()}{" "}
+                      ·{" "}
+                      {comparison?.score
+                        ? percent(comparison.score)
+                        : comparison?.reason === "missing-reference"
+                          ? m.field_missing_reference()
+                          : comparison?.reason === "missing-candidate"
+                            ? m.field_missing_candidate()
+                            : comparison?.reason === "not-determinable"
+                              ? m.field_not_determinable()
+                              : comparison?.reason === "resource-limit"
+                                ? m.field_resource_limit()
+                                : comparison?.reason === "unweighted"
+                                  ? m.field_unweighted()
+                                  : m.workspace_not_compared()}
+                    </span>
+                  </th>
+                </tr>
+                <tr>
+                  <td>
+                    {raw(
+                      comparison
+                        ? comparison.reference
+                        : outcome.reference.csl[field],
+                    )}
+                  </td>
+                  <td>
+                    {raw(comparison ? comparison.candidate : best?.csl[field])}
+                  </td>
+                </tr>
+              </tbody>
+            );
+          },
+        )}
       </table>
     </section>
   );
