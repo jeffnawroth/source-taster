@@ -45,6 +45,11 @@ const problems = {
     title: "Current authority is unavailable.",
     i18nKey: "problem_authority_unavailable",
   },
+  "formatting-unavailable": {
+    status: 503,
+    title: "Formatting is temporarily unavailable.",
+    i18nKey: "correction_unavailable",
+  },
   internal: {
     status: 500,
     title: "Something went wrong on our side.",

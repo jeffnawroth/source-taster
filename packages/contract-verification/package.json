@@ -37,7 +37,19 @@
       "types": "./dist/contract-verification/src/client-v2.d.ts",
       "default": "./dist/contract-verification/src/client-v2.js"
     },
-    "./openapi-v2.json": "./openapi-v2.json"
+    "./openapi-v2.json": "./openapi-v2.json",
+    "./bibliography": {
+      "types": "./dist/contract-verification/src/bibliography.d.ts",
+      "default": "./dist/contract-verification/src/bibliography.js"
+    },
+    "./bibliography-routes": {
+      "types": "./dist/contract-verification/src/bibliography-routes.d.ts",
+      "default": "./dist/contract-verification/src/bibliography-routes.js"
+    },
+    "./bibliography-client": {
+      "types": "./dist/contract-verification/src/bibliography-client.d.ts",
+      "default": "./dist/contract-verification/src/bibliography-client.js"
+    }
   },
   "scripts": {
     "build": "node scripts/build.ts",

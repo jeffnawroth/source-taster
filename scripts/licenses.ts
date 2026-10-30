@@ -61,6 +61,10 @@ if (!packages.length || !runtimeNames.size)
   throw new Error("Empty license inventory");
 for (const pkg of packages) {
   if (permissive.has(pkg.license)) continue;
+  // ADR-0011 selects citeproc-js under AGPL-3.0-or-later. Its package metadata
+  // incorrectly says AGPL-1.0; the pinned LICENSE explicitly grants 3 or later.
+  // See apps/server/src/citations/assets/NOTICE.md; no CPAL option is used.
+  if (pkg.name === "citeproc" && pkg.versions.every(version => version === "2.4.63") && pkg.license === "CPAL-1.0 OR AGPL-1.0") continue;
   if (
     devExceptions.has(pkg.name) &&
     !runtimeNames.has(pkg.name) &&

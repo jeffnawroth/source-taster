@@ -1,0 +1,109 @@
+{
+  "stylesCommit": "d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606",
+  "localesCommit": "8bef426f89f38c0789223c50e53ec2197bc50bb3",
+  "citeproc": "2.4.63",
+  "styles": {
+    "apa": {
+      "file": "apa.csl",
+      "locale": "en-US"
+    },
+    "mla": {
+      "file": "modern-language-association.csl",
+      "locale": "en-US"
+    },
+    "chicago": {
+      "file": "chicago-author-date.csl",
+      "locale": "en-US"
+    },
+    "ieee": {
+      "file": "ieee.csl",
+      "locale": "en-US"
+    },
+    "vancouver": {
+      "file": "nlm-citation-sequence.csl",
+      "locale": "en-US"
+    },
+    "harvard": {
+      "file": "harvard-cite-them-right.csl",
+      "locale": "en-GB"
+    },
+    "acs": {
+      "file": "american-chemical-society.csl",
+      "locale": "en-US"
+    },
+    "ama": {
+      "file": "american-medical-association.csl",
+      "locale": "en-US"
+    },
+    "oxford": {
+      "file": "oxford-guide-to-style-notes.csl",
+      "locale": "en-GB"
+    },
+    "springer": {
+      "file": "springer-basic-author-date.csl",
+      "locale": "en-US"
+    },
+    "din-iso-690": {
+      "file": "iso690-author-date-de.csl",
+      "locale": "de-DE"
+    }
+  },
+  "files": {
+    "apa.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/apa.csl",
+      "sha256": "3917def5fc951b104d64216c3373096042368b9704ba269ca83c14ebaba889fc"
+    },
+    "modern-language-association.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/modern-language-association.csl",
+      "sha256": "e1432698ef28938d044b06bd45ddcc57d6b974cec25f71007075646a11f99484"
+    },
+    "chicago-author-date.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/chicago-author-date.csl",
+      "sha256": "002fade78d7e4fe9d42936a16b43a8066b097013f6255df40b1bfba6631eff9b"
+    },
+    "ieee.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/ieee.csl",
+      "sha256": "b4c7619fc16c45a31e4cc3271eab94ffe83192d3b4c7fc729470a3b459448de3"
+    },
+    "nlm-citation-sequence.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/nlm-citation-sequence.csl",
+      "sha256": "492f7935df42054b33d515f7275122f419780df990ea35925dcbbff0fecf1137"
+    },
+    "harvard-cite-them-right.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/harvard-cite-them-right.csl",
+      "sha256": "0ca3d2c7c881cd98cdd81098b5349f5921edf430498aa9a5a41918621cf7cc45"
+    },
+    "american-chemical-society.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/american-chemical-society.csl",
+      "sha256": "6dac0308d4c0e2b462ef4c7607b970fda9be9a730784c93568e6e3cc8639bce6"
+    },
+    "american-medical-association.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/american-medical-association.csl",
+      "sha256": "d70f843d93c2b1e8c59c0e26e2396bea4ed99fb4a1aac69b6dddc249a10fadf7"
+    },
+    "oxford-guide-to-style-notes.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/oxford-guide-to-style-notes.csl",
+      "sha256": "fc6b468d8257b651e13abc3f8f88322fa69125581c53f50aaad647a7dd60073c"
+    },
+    "springer-basic-author-date.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/springer-basic-author-date.csl",
+      "sha256": "4d531a58f1c8a3ab3d6c7543ff5efe552d0e385e1d4fff50b476c4d4051eab38"
+    },
+    "iso690-author-date-de.csl": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/d2cc4207b65000f5c2bdc0c44d7a26ed18ab6606/iso690-author-date-de.csl",
+      "sha256": "08ca9ad0c945a3c4363568eb67af70401c403f3fd4f38fefad5004f880e94d41"
+    },
+    "locales-en-US.xml": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/8bef426f89f38c0789223c50e53ec2197bc50bb3/locales-en-US.xml",
+      "sha256": "ac864c7c21166b4390d82c31792cdc509400727fa0060b43d8aa17e07f9cb079"
+    },
+    "locales-en-GB.xml": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/8bef426f89f38c0789223c50e53ec2197bc50bb3/locales-en-GB.xml",
+      "sha256": "e4a1fed9cec04b5fed5e9027b4055925cd4d8f7c9fe233eb0ceca6d4be3999f6"
+    },
+    "locales-de-DE.xml": {
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/8bef426f89f38c0789223c50e53ec2197bc50bb3/locales-de-DE.xml",
+      "sha256": "befaeb7c9b4f2ce8e4b7e4ef028500c317ba4e92a5edf2125dad267b9b9951ad"
+    }
+  }
+}
