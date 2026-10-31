@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { writeFile } from "node:fs/promises";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { routes } from "../src/routes.ts";
+import { routes, extensionBearer } from "../src/routes.ts";
 const app = new OpenAPIHono();
+app.openAPIRegistry.registerComponent(
+  "securitySchemes",
+  "ExtensionSession",
+  extensionBearer,
+);
 for (const route of routes) app.openAPIRegistry.registerPath(route);
 await writeFile(
   new URL("../openapi.json", import.meta.url),

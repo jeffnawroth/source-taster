@@ -7,5 +7,13 @@
     "lib": ["es2024", "dom", "dom.iterable"],
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "e2e", "e2e-guest", "e2e-firefox", "e2e-selection", "*.ts"]
+  "include": [
+    "src",
+    "e2e",
+    "e2e-guest",
+    "e2e-firefox",
+    "e2e-selection",
+    "e2e-account",
+    "*.ts"
+  ]
 }

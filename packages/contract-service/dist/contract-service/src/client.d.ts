@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import { SignInChallengeRequest, SignInConfirmRequest, GuestTokenRequest, ProblemDetails } from "./index.ts";
+import { ExtensionSignInConfirmRequest, SignInChallengeRequest, SignInConfirmRequest, GuestTokenRequest, ProblemDetails } from "./index.ts";
 export declare class GuestTokenError extends Error {
     readonly status: number;
     readonly problem: ProblemDetails | undefined;
@@ -46,6 +46,46 @@ export declare function accountSessionClient(options: {
         email: string;
     }>;
     signOut: (everywhere: boolean) => Promise<{
+        signedOut: true;
+    }>;
+};
+/** Extension transport only. These endpoints never consume web cookies.
+ * The host owns trusted extension-local persistence and in-memory API tokens. */
+export declare function extensionSessionClient(options: {
+    baseUrl: string;
+    fetch?: typeof fetch;
+}): {
+    challenge: (input: z.infer<typeof SignInChallengeRequest>) => Promise<{
+        challengeId: string;
+        expiresIn: number;
+        resendAfter: number;
+        transactionCredential: string;
+    }>;
+    confirm: (input: z.infer<typeof ExtensionSignInConfirmRequest>) => Promise<{
+        session: {
+            accountId: string;
+            ownerId: string;
+            email: string;
+        };
+        sessionCredential: string;
+    }>;
+    session: (credential: string) => Promise<{
+        accountId: string;
+        ownerId: string;
+        email: string;
+    }>;
+    token: (credential: string) => Promise<{
+        accessToken: string;
+        tokenType: "Bearer";
+        expiresAt: string;
+        expiresIn: 300;
+    }>;
+    activity: (credential: string) => Promise<{
+        accountId: string;
+        ownerId: string;
+        email: string;
+    }>;
+    signOut: (credential: string, everywhere: boolean) => Promise<{
         signedOut: true;
     }>;
 };

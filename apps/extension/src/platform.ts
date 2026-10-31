@@ -17,7 +17,23 @@ interface ExtensionNamespace {
     connect(options: { name: string }): SelectionPort;
   };
   windows: { getCurrent(): Promise<{ id: number }> };
-  storage: { local: ExtensionLocalCapability };
+  storage: {
+    local: ExtensionLocalCapability & { remove(key: string): Promise<void> };
+    onChanged: {
+      addListener(
+        listener: (
+          changes: Record<string, { newValue?: unknown }>,
+          area: string,
+        ) => void,
+      ): void;
+      removeListener(
+        listener: (
+          changes: Record<string, { newValue?: unknown }>,
+          area: string,
+        ) => void,
+      ): void;
+    };
+  };
 }
 
 /** A live trusted-panel connection, with no storage or web-page bridge. */
