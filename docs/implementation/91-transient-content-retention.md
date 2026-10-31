@@ -201,3 +201,12 @@ integrate this lifetime fence rather than extend transient deadlines. All source
 calibration, Quality, security and release gates (#114, #136, #138, #140 included)
 remain intact. No source activation, release qualification or completion of #70
 is claimed.
+
+## Shared-root integration continuation
+
+See [the combined integration handoff](70-integration-90-93-137.md) for the
+#90/#91 retention composition, selected-text draft compatibility, scoped #80
+browser-fixture default, current validation and unchanged qualification gates.
+Earlier temporary logs named above disappeared during the interruption; new
+continuation evidence lives in `.tmp/spec-70-orchestration/` in the integration
+checkout.

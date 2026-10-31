@@ -16,6 +16,8 @@ export default defineConfig({
       SOURCE_TASTER_E2E_API_PORT: apiPort,
       SOURCE_TASTER_E2E_WEB_PORT: webPort,
       SOURCE_TASTER_E2E_BIBLIOGRAPHIC: "true",
+      SOURCE_TASTER_E2E_WEB_FIXTURES:
+        process.env.SOURCE_TASTER_E2E_WEB_FIXTURES ?? "true",
     },
     url: `http://127.0.0.1:${webPort}`,
     reuseExistingServer: false,

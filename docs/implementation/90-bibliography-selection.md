@@ -208,3 +208,12 @@ private-service/Quota qualification suite was run. Standalone preview counts do
 not prove a private-service Quota journal debit. The approved #80 synthetic
 implementation split and mandatory #140 → #114 source-activation gate remain
 intact, as does the selected Better Auth release gate from #97.
+
+## Shared-root integration continuation
+
+See [the combined integration handoff](70-integration-90-93-137.md) for the
+#90/#91 retention composition, selected-text draft compatibility, scoped #80
+browser-fixture default, current validation and unchanged qualification gates.
+Earlier temporary logs named above disappeared during the interruption; new
+continuation evidence lives in `.tmp/spec-70-orchestration/` in the integration
+checkout.

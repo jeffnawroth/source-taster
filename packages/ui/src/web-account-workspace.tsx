@@ -6,10 +6,17 @@ import {
 } from "@source-taster/contract-service/client";
 import type { AccountSession } from "@source-taster/contract-service";
 import { m } from "@source-taster/i18n";
-import { CheckWorkspace } from "./check-workspace.tsx";
+import type { VerificationClientOptions } from "@source-taster/contract-verification/client";
+import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
 import type { Preferences, PreferenceStorage } from "./preferences.ts";
 import { guestCredentials, webGuestIdentityStorage } from "./guest-identity.ts";
-type SessionClient = ReturnType<typeof accountSessionClient>;
+export type SessionClient = Omit<
+  ReturnType<typeof accountSessionClient>,
+  "session"
+> & {
+  session(): Promise<AccountSession | null>;
+  subscribe?(changed: () => void): () => void;
+};
 function errorMessage(error: unknown) {
   return error instanceof GuestTokenError && error.status === 429
     ? m.auth_limited()
@@ -17,7 +24,7 @@ function errorMessage(error: unknown) {
       ? m.auth_invalid()
       : m.auth_unavailable();
 }
-/** Shared bundled email-code controls. Hosts choose the session transport; extension bearer composition belongs to #98. */
+/** Shared bundled email-code controls. Hosts choose the cookie or extension-local session transport. */
 export function AccountControls({
   client,
   account,
@@ -223,10 +230,21 @@ export function WebAccountWorkspace({
   serviceUrl: string;
   siteUrl?: string;
 }) {
-  const client = useMemo(
-    () => accountSessionClient({ baseUrl: serviceUrl }),
-    [serviceUrl],
-  );
+  const client = useMemo(() => {
+    const wire = accountSessionClient({ baseUrl: serviceUrl });
+    return {
+      ...wire,
+      session: async () => {
+        try {
+          return await wire.session();
+        } catch (error) {
+          if (error instanceof GuestTokenError && error.status === 401)
+            return null;
+          throw error;
+        }
+      },
+    };
+  }, [serviceUrl]);
   const guest = useMemo(
     () =>
       guestCredentials({
@@ -236,6 +254,34 @@ export function WebAccountWorkspace({
       }),
     [serviceUrl],
   );
+  return (
+    <AccountWorkspace
+      initial={initial}
+      preferenceStorage={preferenceStorage}
+      client={client}
+      guest={guest}
+      siteUrl={siteUrl}
+    />
+  );
+}
+/** Shared sign-in and Check lifecycle; identity changes remount all content. */
+export function AccountWorkspace({
+  initial,
+  preferenceStorage,
+  client,
+  guest,
+  siteUrl,
+  transport: transportOptions = { client: "web/0.0.0" },
+  selectionIntake,
+}: {
+  initial: { preferences: Preferences; citationStyleReset: boolean };
+  preferenceStorage: PreferenceStorage;
+  client: SessionClient;
+  guest: { credentials(): Promise<string> };
+  siteUrl?: string;
+  transport?: Omit<VerificationClientOptions, "credentials">;
+  selectionIntake?: SelectionIntake;
+}) {
   const [session, setSession] = useState<AccountSession | null | undefined>(
       undefined,
     ),
@@ -243,6 +289,18 @@ export function WebAccountWorkspace({
     [generation, setGeneration] = useState(0),
     [preferences, setPreferences] = useState(initial.preferences);
   const [credentialFailure, setCredentialFailure] = useState(false);
+  const [sessionRevision, setSessionRevision] = useState(0);
+  useEffect(
+    () =>
+      client.subscribe?.(() => {
+        setSession(undefined);
+        setError(false);
+        setCredentialFailure(false);
+        setGeneration((value) => value + 1);
+        setSessionRevision((value) => value + 1);
+      }),
+    [client],
+  );
   useEffect(() => {
     let alive = true;
     void client
@@ -252,19 +310,22 @@ export function WebAccountWorkspace({
       })
       .catch((e) => {
         if (!alive) return;
-        if (e instanceof GuestTokenError && e.status === 401) setSession(null);
-        else setError(true);
+        if (e instanceof GuestTokenError && e.status === 401) {
+          setSession(null);
+          setCredentialFailure(true);
+        } else setError(true);
       });
     return () => {
       alive = false;
     };
-  }, [client]);
+  }, [client, sessionRevision]);
   const transport = useMemo(() => {
     let token: { accessToken: string; expiresAt: string } | undefined;
     let pending: Promise<string> | undefined;
     return {
-      client: "web/0.0.0",
+      ...transportOptions,
       credentials: async () => {
+        if (credentialFailure) throw new Error("session-revoked");
         if (session === undefined) throw new Error("session-unavailable");
         if (session === null) return guest.credentials();
         if (token && Date.parse(token.expiresAt) > Date.now() + 30000)
@@ -272,9 +333,15 @@ export function WebAccountWorkspace({
         return (pending ??= (async () => {
           try {
             token = await client.token();
+            if (Date.parse(token.expiresAt) <= Date.now())
+              throw new Error("expired-account-token");
             return token.accessToken;
           } catch (e) {
-            if (e instanceof GuestTokenError && e.status === 401)
+            token = undefined;
+            if (
+              e instanceof GuestTokenError &&
+              (e.status === 401 || e.status === 403)
+            )
               setCredentialFailure(true);
             throw e;
           } finally {
@@ -283,7 +350,7 @@ export function WebAccountWorkspace({
         })());
       },
     };
-  }, [client, session, guest]);
+  }, [client, session, guest, credentialFailure, transportOptions]);
   useEffect(() => {
     if (!session) return;
     let last = 0;
@@ -330,6 +397,7 @@ export function WebAccountWorkspace({
       preferenceStorage={preferenceStorage}
       transport={transport}
       siteUrl={siteUrl}
+      selectionIntake={selectionIntake}
       onPreferencesChange={setPreferences}
       accountControls={(language) => (
         <>

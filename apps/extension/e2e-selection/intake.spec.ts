@@ -565,3 +565,70 @@ test("Undo restores an unsent document draft visibly in its file input", async (
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test("selection replaces a prepared bibliography draft and Undo restores its moved regions", async () => {
+  const service = await startTestService(
+    Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? "3901"),
+  );
+  try {
+    await withIntake(
+      async ({ panel, select }) => {
+        const first = "Doe, J. (2020). Signal maps. Example Press.";
+        const second = "Roe, A. (2021). Careful systems. Example Press.";
+        const original = `References\n${first}\n${second}`;
+        await panel.fill("textbox", "Reference", original);
+        await panel.click("button", "Structure References");
+        await panel.waitForText(
+          "region",
+          "Recognized References",
+          "Signal maps",
+        );
+        await panel.fill(
+          "spinbutton",
+          "Region 1 start",
+          String(original.indexOf(second)),
+        );
+        await select("New plain text selection");
+        await until(async () => {
+          const fields = await panel.query("textbox", "Reference");
+          return (
+            fields.length === 1 &&
+            (await panel.call(
+              fields[0]!,
+              "function() { return this.value; }",
+            )) === "New plain text selection"
+          );
+        }, "Selection did not replace the prepared bibliography draft");
+        expect(await panel.query("spinbutton", "Region 1 start")).toEqual([]);
+        expect(await panel.query("region", "Recognized References")).toEqual(
+          [],
+        );
+        await panel.click("button", "Undo selection replacement");
+        expect(
+          await panel.call(
+            await panel.find(
+              "textbox",
+              "Original document text — mark a region here",
+            ),
+            "function() { return this.value; }",
+          ),
+        ).toBe(original);
+        expect(
+          await panel.call(
+            await panel.find("spinbutton", "Region 1 start"),
+            "function() { return this.value; }",
+          ),
+        ).toBe(String(original.indexOf(second)));
+        expect(
+          panel.requests.filter(
+            (r) => r.method === "POST" && r.url.endsWith("/v2/checks"),
+          ),
+        ).toEqual([]);
+        expect(await panel.axe()).toEqual([]);
+      },
+      { allowRequests: true },
+    );
+  } finally {
+    await service.stop();
+  }
+});

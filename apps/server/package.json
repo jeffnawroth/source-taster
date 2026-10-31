@@ -20,6 +20,7 @@
     "start:web": "node dist/web.js",
     "start:worker": "node dist/worker.js",
     "release:check": "node scripts/release-check.ts",
+    "quality:gate": "node scripts/quality-gate.ts",
     "build:release": "pnpm release:check && pnpm build",
     "load:test": "node scripts/load-test.ts",
     "test:load": "vitest run --config load.vitest.config.ts",

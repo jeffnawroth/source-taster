@@ -53,3 +53,22 @@ export const SignOutRequest = z.strictObject({ everywhere: z.boolean() });
 export const SignOutResponse = envelope(
   z.strictObject({ signedOut: z.literal(true) }),
 ).meta({ id: "SignOutResponse" });
+
+/** Separate opaque bearer secrets, never verification-API access tokens.
+ * Transaction secrets live only until confirmation; session secrets may live
+ * only in trusted extension-local storage (ADR-0013/0015). */
+export const ExtensionCredential = z.string().regex(/^[A-Za-z0-9_-]{32,512}$/);
+export const ExtensionSignInChallengeResponse = envelope(
+  SignInChallengeResponse.shape.data.extend({
+    transactionCredential: ExtensionCredential,
+  }),
+).meta({ id: "ExtensionSignInChallengeResponse" });
+export const ExtensionSignInConfirmRequest = SignInConfirmRequest.extend({
+  transactionCredential: ExtensionCredential,
+});
+export const ExtensionSignInConfirmResponse = envelope(
+  z.strictObject({
+    session: AccountSessionResponse.shape.data,
+    sessionCredential: ExtensionCredential,
+  }),
+).meta({ id: "ExtensionSignInConfirmResponse" });

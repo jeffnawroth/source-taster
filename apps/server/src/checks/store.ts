@@ -24,7 +24,7 @@ import {
 } from "@source-taster/core";
 import { selectionDifference } from "./selection.ts";
 import type { PgBoss } from "pg-boss";
-import type { Prisma } from "../generated/prisma/client.ts";
+import { Prisma } from "../generated/prisma/client.ts";
 import {
   contentTransaction,
   dailyKey,
@@ -441,6 +441,7 @@ export function createCheckStore(
     await tx.check.update({
       where: { id: check.id },
       data: {
+        document: Prisma.DbNull,
         deletedAt: new Date(now),
         state: "ended",
         endedAt:
@@ -479,13 +480,16 @@ export function createCheckStore(
         const due = await raw.$queryRaw<{ id: string }[]>`
         SELECT c.id FROM verification.checks c WHERE c.deleted_at IS NULL AND
         (((c.started_at IS NULL OR c.ended_at IS NOT NULL) AND c.content_expires_at<=${new Date(now)})
-        OR (c.started_at IS NOT NULL AND c.ended_at IS NULL AND c.lease_expires_at + (${settings.contentRetentionMs} * interval '1 millisecond')<=${new Date(now)}) OR EXISTS (
+        OR (c.started_at IS NOT NULL AND c.ended_at IS NULL AND c.lease_expires_at + (${settings.contentRetentionMs} * interval '1 millisecond')<=${new Date(now)}) OR (c.document IS NOT NULL AND NOT EXISTS (
+          SELECT 1 FROM verification.transient_keys k
+          WHERE k.day=(c.document->>'day')::integer AND k.day>=${day}
+        )) OR EXISTS (
           SELECT 1 FROM verification.reference_slots r
           LEFT JOIN verification.transient_keys k ON k.day=(r.original_text::jsonb->>'day')::integer
           WHERE r.check_id=c.id AND (k.day IS NULL OR k.day<${day})
         )) ORDER BY c.id`;
         for (const { id } of due) {
-          const check = await lock(tx, id);
+          const check = await lock(raw, id);
           if (check) await purgeLocked(tx, check);
         }
         // Rewrap live content during the minute before a daily key's destruction.
@@ -497,10 +501,16 @@ export function createCheckStore(
           const checks = await raw.$queryRaw<
             { id: string }[]
           >`SELECT c.id FROM verification.checks c
-          WHERE c.deleted_at IS NULL AND EXISTS (SELECT 1 FROM verification.reference_slots r
-          WHERE r.check_id=c.id AND (r.original_text::jsonb->>'day')::integer<=${day}) ORDER BY c.id`;
+          WHERE c.deleted_at IS NULL AND ((c.document->>'day')::integer<=${day}
+          OR EXISTS (SELECT 1 FROM verification.reference_slots r
+          WHERE r.check_id=c.id AND (r.original_text::jsonb->>'day')::integer<=${day})) ORDER BY c.id`;
           for (const { id } of checks) {
-            await lock(raw, id);
+            const check = await lock(tx, id);
+            if (check?.document)
+              await writer.check.update({
+                where: { id },
+                data: { document: check.document },
+              });
             for (const slot of await tx.referenceSlot.findMany({
               where: { checkId: id },
             }))
