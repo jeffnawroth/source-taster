@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type {
   Check,
   StructuringResult,
@@ -16,6 +16,10 @@ import {
   documentClient,
   documentSettingsClient,
 } from "@source-taster/contract-verification/document-client";
+import type {
+  ImportResult,
+  LibraryInput,
+} from "@source-taster/contract-verification/import";
 import { m } from "@source-taster/i18n";
 import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
@@ -86,13 +90,18 @@ export function CheckWorkspace({
     () => documentSettingsClient(transport),
     [transport],
   );
-  const fileInput = useRef<HTMLInputElement>(null);
+  const documentFileInput = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [documentNotice, setDocumentNotice] = useState(false);
   const [preferences, updatePreferences] = useState(initial.preferences);
   const [styleReset, setStyleReset] = useState(initial.citationStyleReset);
   const locale = preferences.language;
   const [text, setText] = useState("");
+  const fileId = useId();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [library, setLibrary] = useState<LibraryInput | null>(null);
+  const [fileName, setFileName] = useState("");
+  const [fileError, setFileError] = useState<MessageKey | null>(null);
   const [check, setCheck] = useState<Check | null>(null);
   const [accessStopped, setAccessStopped] = useState(false);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);
@@ -102,7 +111,9 @@ export function CheckWorkspace({
   const [pending, setPending] = useState<
     "create" | "structure" | "document" | null
   >(null);
-  const [preview, setPreview] = useState<StructuringResult | null>(null);
+  const [preview, setPreview] = useState<
+    StructuringResult | ImportResult | null
+  >(null);
   const [requestError, setRequestError] = useState<unknown>(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
@@ -169,11 +180,55 @@ export function CheckWorkspace({
       setCleanupPending(true);
     }
   }
-  async function start(operation: "create" | "structure") {
+  async function loadLibrary(file: File) {
     const token = ++generation.current;
     controller.current?.abort();
     setCheck(null);
     setPreview(null);
+    setLibrary(null);
+    setText("");
+    setRequestError(null);
+    setStreamError(null);
+    setFileError(null);
+    setFileName(file.name);
+    setFile(null);
+    setDocumentNotice(false);
+    if (documentFileInput.current) documentFileInput.current.value = "";
+    const format = /\.(bib|bibtex)$/iu.test(file.name)
+      ? "bibtex"
+      : /\.ris$/iu.test(file.name)
+        ? "ris"
+        : null;
+    if (!format || file.size > 20 * 1024 * 1024) {
+      setFileError(format ? "problem_library_size" : "problem_library_format");
+      return;
+    }
+    setPending("structure");
+    try {
+      const bytes = await file.arrayBuffer();
+      const input: LibraryInput = {
+        format,
+        text: new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+          bytes,
+        ),
+      };
+      const result = await api.importLibrary(input);
+      if (generation.current !== token) return;
+      setLibrary(input);
+      setPreview(result);
+    } catch (error) {
+      if (generation.current !== token) return;
+      if (error instanceof TypeError) setFileError("problem_library_encoding");
+      else setRequestError(error);
+    } finally {
+      if (generation.current === token) setPending(null);
+    }
+  }
+  async function start(operation: "create" | "structure") {
+    const token = ++generation.current;
+    controller.current?.abort();
+    setCheck(null);
+    if (!library) setPreview(null);
     setStreamError(null);
     setRequestError(null);
     setPending(operation);
@@ -181,11 +236,13 @@ export function CheckWorkspace({
     setCancelRequested(false);
     try {
       if (operation === "structure") {
-        const result = await api.structureReferences(text);
+        const result = library
+          ? await api.importLibrary(library)
+          : await api.structureReferences(text);
         if (generation.current === token) setPreview(result);
         return;
       }
-      const created = await api.createCheck(text);
+      const created = await api.createCheck(library ? { library } : text);
       if (generation.current !== token) {
         void cancelDetached(created.id);
         return;
@@ -209,6 +266,10 @@ export function CheckWorkspace({
     setStreamError(null);
     setRequestError(null);
     setPending("document");
+    setLibrary(null);
+    setFileName("");
+    setFileError(null);
+    if (fileInput.current) fileInput.current.value = "";
     try {
       const { inputBytes } = await documentSettings(next.signal);
       if (generation.current !== token || next.signal.aborted) return;
@@ -334,8 +395,12 @@ export function CheckWorkspace({
       void cancelDetached(check.id);
     setText("");
     setFile(null);
-    if (fileInput.current) fileInput.current.value = "";
+    if (documentFileInput.current) documentFileInput.current.value = "";
     setDocumentNotice(false);
+    setLibrary(null);
+    setFileName("");
+    setFileError(null);
+    if (fileInput.current) fileInput.current.value = "";
     setCheck(null);
     setPreview(null);
     setPending(null);
@@ -351,6 +416,7 @@ export function CheckWorkspace({
   );
   const busy = pending !== null || running;
   const errorKey =
+    fileError ??
     streamError ??
     (requestError ? problemKey(requestError, "problem_connection") : null);
   const completed =
@@ -422,7 +488,8 @@ export function CheckWorkspace({
         className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm"
         onSubmit={(event) => {
           event.preventDefault();
-          if (text.trim() && !busy) void start("create");
+          if ((text.trim() || (library && preview?.references.length)) && !busy)
+            void start("create");
         }}
       >
         <fieldset className="mb-6 flex min-w-0 flex-col gap-3" disabled={busy}>
@@ -433,7 +500,7 @@ export function CheckWorkspace({
             {m.document_upload_hint()}
           </p>
           <input
-            ref={fileInput}
+            ref={documentFileInput}
             id="document-file"
             type="file"
             accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -457,10 +524,36 @@ export function CheckWorkspace({
               : m.document_upload_action()}
           </Button>
         </fieldset>
+        <label htmlFor={fileId} className="mb-2 block font-semibold">
+          {m.library_import_label()}
+        </label>
+        <p id={`${fileId}-hint`} className="mb-2 text-sm">
+          {m.library_import_hint()}
+        </p>
+        <input
+          ref={fileInput}
+          id={fileId}
+          type="file"
+          accept=".bib,.bibtex,.ris"
+          disabled={busy}
+          aria-describedby={`${fileId}-hint`}
+          className="mb-5 block max-w-full"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void loadLibrary(file);
+          }}
+        />
+        {fileName && (
+          <p className="mb-4">{m.library_selected({ name: fileName })}</p>
+        )}
         <TextField
           value={text}
           onChange={(value) => {
             setText(value);
+            setLibrary(null);
+            setFileName("");
+            setFileError(null);
+            if (fileInput.current) fileInput.current.value = "";
             setPreview(null);
             setDocumentNotice(false);
           }}
@@ -479,7 +572,7 @@ export function CheckWorkspace({
         </TextField>
         <Button
           type="button"
-          isDisabled={!text.trim() || busy}
+          isDisabled={(!text.trim() && !library) || busy}
           onPress={() => {
             void start("structure");
           }}
@@ -491,7 +584,9 @@ export function CheckWorkspace({
         </Button>
         <Button
           type="submit"
-          isDisabled={!text.trim() || busy}
+          isDisabled={
+            (!text.trim() && !(library && preview?.references.length)) || busy
+          }
           className="mt-5 rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
         >
           {pending === "create" ? m.check_starting() : m.check_action()}

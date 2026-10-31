@@ -99,7 +99,7 @@ export function verificationClient(options: VerificationClientOptions = {}) {
   return createVerificationClient(options, "/v1", CheckResponse);
 }
 /** Shared transport across majors; policies and verification remain server-owned. */
-export function createVerificationClient<T>(
+export function createVerificationClient<T, Input = CreateCheckRequest>(
   options: VerificationClientOptions,
   prefix: string,
   responseSchema: { parse(input: unknown): { data: T } },
@@ -134,7 +134,7 @@ export function createVerificationClient<T>(
     return schema.parse(body);
   }
   return {
-    createCheck: async (input: string | CreateCheckRequest) =>
+    createCheck: async (input: string | Input) =>
       (
         await post(
           `${prefix}/checks`,

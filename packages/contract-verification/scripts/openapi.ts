@@ -39,6 +39,7 @@ for (const route of [
   getDocumentSettings,
   renderBibliography,
   exportReferences,
+  v2.importReferences,
   v2.saveFields,
   v2.recheckReference,
   v2.editReferenceList,

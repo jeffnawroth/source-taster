@@ -39,6 +39,7 @@
     "@source-taster/contract-verification": "workspace:*",
     "@source-taster/core": "workspace:*",
     "@source-taster/website": "workspace:*",
+    "bibliojson": "4.1.0",
     "citeproc": "2.4.63",
     "hono": "4.13.14",
     "jszip": "3.10.2",

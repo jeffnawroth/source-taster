@@ -60,6 +60,16 @@ export function CheckResults({
   transport: VerificationClientOptions;
   onSnapshot: (check: Check) => void;
 }) {
+  const firstFormat =
+    check.references[0]?.revisions[0]?.reference.imported?.format;
+  const importedFormat =
+    firstFormat &&
+    check.references.every(
+      (reference) =>
+        reference.revisions[0]?.reference.imported?.format === firstFormat,
+    )
+      ? firstFormat
+      : undefined;
   const [helpOpen, setHelpOpen] = useState(false);
   const [filter, setFilter] = useState<Verdict | null>(null);
   const [selectedSlot, selectSlot] = useState(check.references[0]?.slot);
@@ -133,6 +143,7 @@ export function CheckResults({
       />
       <ReferenceExports
         checkId={check.id}
+        importedFormat={importedFormat}
         transport={transport}
         rendered={bibliography}
         styleLabel={citationStyleLabel}

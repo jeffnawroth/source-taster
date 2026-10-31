@@ -28,7 +28,42 @@ export interface VerificationClientOptions {
 }
 /** Transport-only API client: schemas and Problems are shared by both clients. */
 export declare function verificationClient(options?: VerificationClientOptions): {
-    createCheck: (input: string | CreateCheckRequest) => Promise<{
+    createCheck: (input: string | {
+        text: string;
+    } | {
+        references: {
+            originalText: string;
+            fields: {
+                type?: string | undefined;
+                author?: {
+                    family?: string | undefined;
+                    "non-dropping-particle"?: string | undefined;
+                    given?: string | undefined;
+                    literal?: string | undefined;
+                }[] | undefined;
+                issued?: {
+                    literal: string;
+                } | undefined;
+                title?: string | undefined;
+                "container-title"?: string | undefined;
+                "container-title-short"?: string | undefined;
+                publisher?: string | undefined;
+                "publisher-place"?: string | undefined;
+                volume?: string | undefined;
+                issue?: string | undefined;
+                page?: string | undefined;
+                "article-number"?: string | undefined;
+                edition?: string | undefined;
+                DOI?: string | undefined;
+                URL?: string | undefined;
+                ISBN?: string | undefined;
+                ISSN?: string | undefined;
+                PMID?: string | undefined;
+                PMCID?: string | undefined;
+            };
+            authorsTruncated?: boolean | undefined;
+        }[];
+    }) => Promise<{
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -675,12 +710,12 @@ export declare function verificationClient(options?: VerificationClientOptions):
     }>;
 };
 /** Shared transport across majors; policies and verification remain server-owned. */
-export declare function createVerificationClient<T>(options: VerificationClientOptions, prefix: string, responseSchema: {
+export declare function createVerificationClient<T, Input = CreateCheckRequest>(options: VerificationClientOptions, prefix: string, responseSchema: {
     parse(input: unknown): {
         data: T;
     };
 }): {
-    createCheck: (input: string | CreateCheckRequest) => Promise<T>;
+    createCheck: (input: string | Input) => Promise<T>;
     cancelCheck: (checkId: string) => Promise<T>;
     renewCheckLease: (checkId: string) => Promise<T>;
     getCheck: (checkId: string) => Promise<T>;

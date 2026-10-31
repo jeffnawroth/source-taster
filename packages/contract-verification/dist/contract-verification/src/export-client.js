@@ -23,7 +23,7 @@ export function exportClient(options = {}) {
         }
         return {
             blob: await response.blob(),
-            filename: `source-taster-references.${request.format === "csl-json" ? "json" : "bib"}`,
+            filename: `source-taster-references.${request.format === "csl-json" ? "json" : request.format === "imported-format" && response.headers.get("content-type")?.startsWith("application/x-research-info-systems") ? "ris" : "bib"}`,
         };
     };
 }

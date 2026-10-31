@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Same lifecycle/authority protocol, with an explicitly versioned result schema.
+import { LibraryInput, ImportResponse } from "./import.js";
 import { z } from "zod";
 import { SaveFieldsRequest, RecheckRequest, EditReferenceListRequest, } from "./v2.js";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.js";
@@ -122,4 +123,24 @@ export const editReferenceList = createRoute({
         },
     },
     responses: mutationResponses,
+});
+export const importReferences = createRoute({
+    method: "post",
+    path: "/v2/imports",
+    summary: "Import BibTeX or RIS without consuming Quota",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: LibraryInput } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Recognized References and separately rejected records; unchanged raw input is retained.",
+            content: { "application/json": { schema: ImportResponse } },
+        },
+        400: v1.createCheck.responses[400],
+        401: v1.createCheck.responses[401],
+        403: v1.createCheck.responses[403],
+    },
 });

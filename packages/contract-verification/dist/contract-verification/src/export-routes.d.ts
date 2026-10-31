@@ -16,6 +16,7 @@ export declare const exportReferences: {
                         format: z.ZodEnum<{
                             bibtex: "bibtex";
                             "csl-json": "csl-json";
+                            "imported-format": "imported-format";
                         }>;
                         mode: z.ZodEnum<{
                             original: "original";
