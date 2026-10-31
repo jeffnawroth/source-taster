@@ -52,7 +52,8 @@ Logs are in `/tmp/source-taster-70/` and are not committed.
 | Both-program Account authority | `97-both-red.log`: `expected 401 to be 201` | `97-both-green.log`: 2/2 |
 | Browser sign-in | `97-browser-red.log`: sign-in control not found | `97-browser-green.log`: 2/2 |
 | DB exhaustion is 503, not 500 (private) | `97-claude-red-db-exhaustion.log`: `expected [ 200, 500, 500, 500 ] to include 503` | `97-claude-green-db-exhaustion.log`: passed |
-| Codes rest only as a keyed hash (private) | characterization, green on first run (`97-claude-at-rest.log`). Removing the payload clear fails it as intended (`97-claude-at-rest-mutation.log`: `expected [ { …(2) } ] to deeply equal [ { payload: '', sent: true } ]`). The source was restored. | 6/6 private suite |
+| Codes rest only as a keyed hash (private) | characterization, green on first run (`97-claude-at-rest.log`). A mutation that keeps the pending code after delivery fails it as intended (`97-claude-at-rest-mutation.log`). The source was restored. | 6/6 private suite |
+| 503 only where the contract declares it (private) | `97-claude-red-undeclared-503.log`: an undeclared local diagnostic route answered `expected 503 to be 500` | `97-claude-green-undeclared-503.log`: passed |
 
 ## `/v1/session` HTTP 500 diagnosis
 
@@ -70,19 +71,22 @@ connections, and its logging recorded only the error shape, never content.
 
 | Hypothesis | Result | Evidence |
 |---|---|---|
-| H1: PostgreSQL connection-slot exhaustion surfaces as 500 | **Confirmed** | We limited the fixture's own role to its held backends. Sequential requests returned 200 and 200. Concurrent requests returned `[200,500,500]`, each a `PrismaClientKnownRequestError` P2037 ("too many connections"). This matches the trace. |
+| H1: PostgreSQL connection-slot exhaustion surfaces as 500 | **Confirmed** | We limited the fixture's own role to its held backends. Sequential requests returned 200 and 200. Concurrent requests returned `[200,500,500]`, each a "too many connections" error. This matches the trace. |
 | H2: fixture cleanup leaks consume shared slots | **Partially confirmed** | Normal teardown left no database, role or backend. A failed `bothPrograms` setup did leak its database and roles. Fixed in `94abe8a`. |
 | H3: an Account/session lifecycle race in the handler | **Refuted** | With connection headroom, 10 rounds of 8 concurrent session, activity and token requests returned 80/80 200s. The handler is read-only. |
 
-**Fix.** The private service maps PostgreSQL connectivity failures (P1001,
-P1002, P1008, P1017, P2024 and P2037) to the retryable 503 `authority-unavailable`
-Problem instead of an internal 500. A red/green test covers this. The web
+**Fix.** The service now answers database connectivity failures with the
+retryable 503 `authority-unavailable` Problem instead of an internal 500, but
+only on operations whose service or internal contract declares 503. The scope is
+derived from the contract routes, so no undeclared status leaks. Red/green tests
+cover both halves. The verification server already fails closed on any non-OK
+authority response, so a 503 from the internal authority is handled the same as
+a 500 was. The web
 client's handling (unavailable state plus retry, guarded against stale
 responses) was already correct and is unchanged.
 
 **Not fixed: the environmental cause.** Each service process holds about 14
-backends (Prisma pg pool plus pg-boss) on the shared PostgreSQL, which allows
-100 connections. Pool sizing is unchanged, so parallel both-program suites can
+backends on the shared PostgreSQL, which allows 100 connections. Pool sizing is unchanged, so parallel both-program suites can
 still exhaust slots. They now answer 503 rather than 500.
 
 ## Validation (final, after merging `920e5d0`)
@@ -96,8 +100,9 @@ still exhaust slots. They now answer 503 rather than 500.
 | Guest both-program regression (`guest.vitest.config.ts`), because the harness changed | `97-claude-merge2-guest.log` | 33/33 |
 | Account browser (`account.playwright.config.ts`, `--repeat-each 2`) | `97-claude-merge2-browser.log` | 4/4 |
 | Private typecheck against the merged contracts | `97-claude-merge2-private-types.log` | exit 0 |
-| Private Account suite | `97-claude-final-private-account.log` | 6/6 |
-| Private ESLint, Prettier, i18n and typecheck | `97-claude-private-lint.log` | exit 0 |
+| Full private server suite (serial) | `97-claude-private-full-final.log` | 21/21 |
+| Private ESLint, Prettier, typecheck and i18n check | `97-claude-private-lint-final.log` | exit 0 |
+| Cross-program rerun after the last private fix: Account contract, Guest regression, Account browser | `97-claude-final2-public-account.log`, `97-claude-final2-guest.log`, `97-claude-final2-browser.log` | 2/2, 33/33, 4/4 |
 
 PostgreSQL suites ran serially against the shared server on ports 3501, 3502
 and 5274.
@@ -113,6 +118,16 @@ passed 33/33. The merge with `920e5d0` had source conflicts in
 kept) and in one `check-workspace.tsx` import line (combined). Generated files
 were not hand-merged; they were regenerated.
 
+The first full private suite run (`97-claude-private-full.log`) had 20 passing
+and 1 failing with `ECONNREFUSED 127.0.0.1:3502`. A rerun was green, but we
+diagnosed it instead of accepting the rerun. A temporary repeat test
+(`97-claude-diag-econnrefused.log`) found one first request in ten refused
+immediately after the ready signal. Every later request succeeded, and the child
+process logged no errors. That ruled out a crash and confirmed that readiness was
+signalled before `listen` completed. The service start now resolves only after
+it accepts connections. 30 repeats then had no refusals
+(`97-claude-diag-econnrefused-green.log`).
+
 ## Limitations and caveats
 
 - **Open release gate.** The Better Auth 1.7.14 exact pin (Prisma adapter,
@@ -120,9 +135,10 @@ were not hand-merged; they were regenerated.
   transitive `kysely ^0.28`, `@better-auth/utils 0.5.1` and `rou3 0.9.2` remain
   an **open** ADR-0013 "Selected release" gate. No qualification is claimed and
   no exception is granted.
-- **Code at rest.** Delivered sign-in codes rest only as a keyed hash. Until
-  delivery, and after a failed delivery, the private mail outbox holds the code
-  encrypted (AES-256-GCM). It clears the payload once the code is sent.
+- **Spec deviation: code at rest.** Delivered sign-in codes rest only as a
+  keyed hash. Until delivery, and after a failed delivery, the service holds the
+  pending code encrypted for its mail outbox and clears it once the code is sent.
+  Details are in the private validation record.
 - **Shared PostgreSQL footprint.** See the diagnosis above. Two
   `guest96_*` databases and `v96`/`s96` roles from an unknown owner remain on the
   shared server. They were left untouched.
