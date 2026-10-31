@@ -262,6 +262,19 @@ describe("load report", () => {
     expect(exitCodeFor(report)).toBe(1);
   });
 
+  it("counts Checks still running at the run deadline as concurrent", () => {
+    const checks = launchChecks().map((check) => ({
+      ...check,
+      endedAtMs: undefined,
+      endReason: undefined,
+      failure: "run-deadline",
+    }));
+    const report = buildReport(input(checks));
+    expect(target(report, "FA-UEB-43").measured).toBe(50);
+    expect(report.diagnostics.peakConcurrentChecks).toBe(50);
+    expect(report.outcome).toBe("failed");
+  });
+
   it("rejects a Check that did not complete, e.g. lease expiry", () => {
     const checks = launchChecks();
     checks[5]!.endReason = "lease-expired";

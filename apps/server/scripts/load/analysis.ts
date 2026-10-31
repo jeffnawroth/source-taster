@@ -243,10 +243,15 @@ function timings(check: CheckObservation, cap: number): Timed[] {
 }
 
 function peakConcurrency(checks: CheckObservation[]): number {
+  // A Check that was created and never ended was still running when the run
+  // stopped; it counts as concurrent until then.
   const events = checks.flatMap((c) =>
-    c.endedAtMs === undefined
+    c.endedAtMs === undefined && c.createdAtMs === undefined
       ? []
-      : [[c.sentAtMs, 1] as const, [c.endedAtMs, -1] as const],
+      : [
+          [c.sentAtMs, 1] as const,
+          [c.endedAtMs ?? Number.POSITIVE_INFINITY, -1] as const,
+        ],
   );
   // Ends before starts at the same instant: touching Checks do not overlap.
   events.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
