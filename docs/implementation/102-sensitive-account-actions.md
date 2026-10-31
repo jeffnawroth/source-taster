@@ -202,9 +202,16 @@ Honest limits of the evidence:
 - The whole extension Account suite (`pnpm test:native-account`) passed 23 of 24.
   The one failure, `panel.spec.ts` "Account streams reconnect with memory
   tokens…", fails identically on the untouched base `56f251f`
-  (`102-extension-streams-baseline.log`): that spec's fake service has no
-  `/internal/quota/*` handler, so Check creation never starts after the Quota
+  (`102-extension-streams-baseline.log`): the cause was not
+  diagnosed. A likely one is that this spec's own fake service has no
+  `/internal/quota/*` handler, so Check creation cannot start since the Quota
   merge. It is not caused by #102 and was not changed here.
+- Public suites also run: `retention`, `lifecycle`, `lifecycle-recovery` and
+  `check-events` (24 tests, `102-regression-store.log`) pass with the changed
+  sweep query and authority path; `release:check` still exits 78
+  (`102-release-check.log`); the production `vite build` of `apps/web` succeeds;
+  regenerating the contract packages leaves the tree clean. `test:quota` and
+  `test:authority` need the private worktree and were not run.
 - Repo-wide `pnpm typecheck` cannot complete in this checkout because the
   website build needs a Pagefind source build; per-package `typecheck` and
   `lint` for ui, i18n, server, extension, web, contract-service and
