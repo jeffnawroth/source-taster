@@ -29,11 +29,14 @@ test("Account Preferences use partial validated writes and isolated web/extensio
       );
     })();
   });
-  server.listen(4802, "127.0.0.1");
+  server.listen(
+    Number(process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? 4802),
+    "127.0.0.1",
+  );
   await once(server, "listening");
   try {
     const web = accountSessionClient({
-      baseUrl: "http://127.0.0.1:4802",
+      baseUrl: `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? 4802}`,
       fetch: (url, init) => {
         expect(init?.credentials).toBe("include");
         expect(new Headers(init?.headers).has("authorization")).toBe(false);
@@ -46,7 +49,7 @@ test("Account Preferences use partial validated writes and isolated web/extensio
     });
     await web.updatePreferences({ language: "de" });
     const extension = extensionSessionClient({
-      baseUrl: "http://127.0.0.1:4802",
+      baseUrl: `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? 4802}`,
       fetch: (url, init) => {
         expect(init?.credentials).toBe("omit");
         expect(init?.cache).toBe("no-store");

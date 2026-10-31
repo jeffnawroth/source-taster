@@ -24,7 +24,7 @@ import {
   type ExtractionPort,
 } from "../scripts/quality/runner.ts";
 
-const port = 4202;
+const port = Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 4202);
 let root: string;
 beforeEach(async () => {
   root = await realpath(await mkdtemp(join(tmpdir(), "st-94-gate-")));
