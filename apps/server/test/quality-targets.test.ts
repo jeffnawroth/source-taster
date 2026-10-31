@@ -4,6 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   checkComposition,
+  citationStyles,
   regressionChecks,
   strata,
   decideRelease,
@@ -13,6 +14,47 @@ import {
   type RecordOutcome,
 } from "../scripts/quality/targets.ts";
 import { launchSizedRecords, record } from "./support/quality-records.ts";
+import { measureStructuring } from "../scripts/quality/structuring.ts";
+
+it("normalizes only NFC, whitespace and dashes for Structuring, with an exact 18 of 20 style threshold", () => {
+  const records = Array.from({ length: 20 }, (_, i) =>
+    record(`style-${i}`, {
+      expectedFields: {
+        title: "Café",
+        page: "1–2",
+        author: [{ family: "Alpha" }],
+      },
+    }),
+  );
+  const fields = Object.fromEntries(
+    records.map((r, i) => [
+      r.id,
+      [
+        i < 18
+          ? {
+              author: [{ family: "Alpha" }],
+              page: " 1-2 ",
+              title: " Cafe\u0301\n",
+            }
+          : {
+              title: "Café",
+              page: "1–2",
+              author: [{ family: "Alpha" }],
+              publisher: "invented",
+            },
+      ],
+    ]),
+  );
+  expect(
+    measureStructuring(records, fields).find((r) => r.style === "apa"),
+  ).toEqual({ style: "apa", hits: 18, n: 20, met: true });
+  fields[records[0]!.id] = [
+    { title: "CAFÉ", page: "1-2", author: [{ family: "Alpha" }] },
+  ];
+  expect(
+    measureStructuring(records, fields).find((r) => r.style === "apa"),
+  ).toEqual({ style: "apa", hits: 17, n: 20, met: false });
+});
 
 const correct = (id: string): Extract<RecordOutcome, { kind: "verdict" }> => ({
   kind: "verdict",
@@ -205,6 +247,10 @@ describe("§14.4 exact-share pass rule", () => {
     expect(
       target(evaluatePath(records, outcomes, "parser"), "correctness"),
     ).toMatchObject({ hits: 1, n: 2 });
+    // ADR-0011: a mis-split real Reference is a red false alarm.
+    expect(
+      target(evaluatePath(records, outcomes, "parser"), "false-alarms"),
+    ).toMatchObject({ hits: 1, n: 2, met: false });
   });
 
   it("logs a Wilson interval for information", () => {
@@ -267,6 +313,12 @@ function passingRun(path: "parser" | "ai", run: number): PathRun {
     valid: true,
     invalidRecords: [],
     replayMisses: 0,
+    structuring: citationStyles.map((style) => ({
+      style,
+      hits: 20,
+      n: 20,
+      met: true,
+    })),
     targets: (
       [
         "correctness",
@@ -291,6 +343,7 @@ function measurement(
   return {
     configuration: {
       aiModel: "synthetic-model",
+      aiQualified: true,
       calibration: { record: "synthetic-calibration", selected: {} },
       runtimeCalibration: "calibrated",
       codeVersion: { sha: "0".repeat(40), dirty: false },

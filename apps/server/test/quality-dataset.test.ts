@@ -10,6 +10,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, expect, it } from "vitest";
@@ -77,6 +78,17 @@ it("refuses a location inside this repository, also through a symlink", async ()
   );
 });
 
+it("refuses the main public checkout as a dataset location from a linked worktree", async () => {
+  const commonGit = execFileSync(
+    "git",
+    ["rev-parse", "--path-format=absolute", "--git-common-dir"],
+    { encoding: "utf8" },
+  ).trim();
+  await expect(
+    loadDataset(join(commonGit, ".."), "development-set"),
+  ).rejects.toThrow(/outside the open-core repository/);
+});
+
 it("refuses a set whose manifest declares the other kind before reading its records", async () => {
   await writeSet(
     "development-set",
@@ -110,6 +122,16 @@ it("loads the Development set while the Reference test set is unreadable", async
   await expect(loadDataset(root, "development-set")).resolves.toMatchObject({
     kind: "development-set",
   });
+});
+
+it("refuses a version that could escape the private log directory", async () => {
+  await writeSet("development-set", {
+    kind: "development-set",
+    version: "../../escaped",
+  });
+  await expect(loadDataset(root, "development-set")).rejects.toThrow(
+    /manifest.json is invalid/,
+  );
 });
 
 it("rejects a record without a known class", async () => {

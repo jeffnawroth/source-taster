@@ -23,10 +23,13 @@ import {
 } from "./calibration.ts";
 import { loadDataset, privateLocation, type Dataset } from "./dataset.ts";
 import { startReplay, type ReplayMiss } from "./replay.ts";
+import { measureStructuring } from "./structuring.ts";
+import { qualifiedAi, type AiConfiguration } from "./extraction.ts";
 import {
   checkComposition,
   decideRelease,
   evaluatePath,
+  invalidOutcome,
   normalizeIdentifier,
   regressionChecks,
   strata,
@@ -41,6 +44,8 @@ import {
 /** The AI extraction slot. A real provider adapter plugs in here. */
 export interface ExtractionPort {
   model: string;
+  /** Absent metadata is diagnostic only and can never qualify a release. */
+  configuration?: AiConfiguration;
   /** Structures one record's text into zero, one or several References. */
   extract(input: string): Promise<StructuredCsl[]>;
 }
@@ -137,16 +142,6 @@ function toRecordOutcome(outcome: ReferenceOutcome): RecordOutcome {
   };
 }
 
-function needsRerun(outcome: RecordOutcome | undefined) {
-  if (!outcome || outcome.kind === "status") return true;
-  return (
-    outcome.kind === "verdict" &&
-    outcome.verdict === "not-verifiable" &&
-    (outcome.failedSources.length > 0 ||
-      outcome.reasons.includes("sources-unavailable"))
-  );
-}
-
 interface Submission {
   record: GateRecord;
   fields: StructuredCsl;
@@ -199,13 +194,32 @@ async function structure(
   });
   const submissions: Submission[] = [];
   const unstructured = new Map<string, RecordOutcome>();
+  const structuredFields: Record<string, StructuredCsl[]> = {};
   for (const record of records) {
-    const references =
-      path === "parser"
-        ? (await client.structureReferences(record.input)).references.map(
-            (r) => r.csl,
-          )
-        : await extraction!.extract(record.input);
+    let references: StructuredCsl[] | undefined;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        references =
+          path === "parser"
+            ? (await client.structureReferences(record.input)).references.map(
+                (r) => r.csl,
+              )
+            : await extraction!.extract(record.input);
+        break;
+      } catch {
+        // A technical extraction failure must not erase a record or pass as
+        // a successful empty extraction. Preserve it without provider secrets.
+      }
+    }
+    if (!references) {
+      structuredFields[record.id] = [];
+      unstructured.set(record.id, {
+        kind: "status",
+        status: "structuring-failed",
+      });
+      continue;
+    }
+    structuredFields[record.id] = references;
     if (references.length === 1)
       submissions.push({ record, fields: references[0]! });
     else
@@ -214,7 +228,7 @@ async function structure(
         references: references.length,
       });
   }
-  return { submissions, unstructured };
+  return { submissions, unstructured, structuredFields };
 }
 
 type Structured = Awaited<ReturnType<typeof structure>> & {
@@ -231,6 +245,8 @@ type LoggedRun = PathRun & {
   reruns: string[];
   misses: ReplayMiss[];
   outcomes: Record<string, RecordOutcome>;
+  structuredFields: Record<string, StructuredCsl[]>;
+  structuring: ReturnType<typeof measureStructuring>;
 };
 
 /** Real web and worker processes against replayed Data sources only. */
@@ -287,7 +303,12 @@ async function verifyAll(
 ) {
   const runs: LoggedRun[] = [];
   let observed: VerdictOutcome | undefined;
-  for (const { path, submissions, unstructured } of structured) {
+  for (const {
+    path,
+    submissions,
+    unstructured,
+    structuredFields,
+  } of structured) {
     const missesBefore = session.replay.misses().length;
     const outcomes = new Map<string, RecordOutcome>(unstructured);
     const record = async (batch: Submission[]) => {
@@ -301,10 +322,12 @@ async function verifyAll(
     // because sources failed is rerun once; if that persists the run is
     // invalid. No record is excluded from any denominator.
     const failed = () =>
-      submissions.filter((s) => needsRerun(outcomes.get(s.record.id)));
+      submissions.filter((s) => invalidOutcome(outcomes.get(s.record.id)));
     const reruns = failed();
     if (reruns.length) await record(reruns);
-    const invalidRecords = failed().map((s) => s.record.id);
+    const invalidRecords = records
+      .filter((r) => invalidOutcome(outcomes.get(r.id)))
+      .map((r) => r.id);
     const misses = session.replay.misses().slice(missesBefore);
     runs.push({
       path,
@@ -318,6 +341,8 @@ async function verifyAll(
       strata: strata(records, outcomes, path),
       regressions: regressionChecks(records, outcomes),
       outcomes: Object.fromEntries(outcomes),
+      structuredFields,
+      structuring: measureStructuring(records, structuredFields),
     });
   }
   return { runs, observed };
@@ -344,6 +369,7 @@ const scoringRulesOf = (observed?: VerdictOutcome) =>
 /** Write-once: a log or record is never replaced (FA-UEB-31 hook). */
 async function writeOnce(directory: string, name: string, content: unknown) {
   await mkdir(directory, { recursive: true });
+  await privateLocation(directory);
   const path = join(directory, name);
   try {
     await writeFile(path, `${JSON.stringify(content, null, 2)}\n`, {
@@ -393,9 +419,11 @@ export async function measureConfiguration(options: MeasureOptions) {
   // strategy version follow from the code version and are logged as observed.
   const identity = {
     testSetVersion: dataset.version,
+    datasetState: dataset.datasetState,
     fixtureState: dataset.fixtureState,
     codeVersion: codeVersion(),
     aiModel: options.extraction?.model ?? null,
+    aiConfiguration: options.extraction?.configuration ?? null,
     enabledSources: [...options.configuration.enabledSources].sort(),
     comparisonParameters: options.configuration.comparisonParameters ?? {},
     searchSettings: options.configuration.searchSettings ?? null,
@@ -423,6 +451,7 @@ export async function measureConfiguration(options: MeasureOptions) {
   const measurement: GateMeasurement = {
     configuration: {
       aiModel: measured.aiModel,
+      aiQualified: qualifiedAi(measured.aiModel, measured.aiConfiguration),
       calibration: measured.calibration,
       runtimeCalibration: observed?.scoringRules.calibration ?? "unobserved",
       codeVersion: measured.codeVersion,
@@ -466,9 +495,11 @@ export async function calibrate(options: CalibrateOptions) {
   const configuration = options.configuration ?? { enabledSources: [] };
   const identity = {
     developmentSetVersion: dataset.version,
+    datasetState: dataset.datasetState,
     fixtureState: dataset.fixtureState,
     codeVersion: codeVersion(),
     aiModel: options.extraction?.model ?? null,
+    aiConfiguration: options.extraction?.configuration ?? null,
     enabledSources: [...configuration.enabledSources].sort(),
     searchSettings: configuration.searchSettings ?? null,
     grid: options.grid,

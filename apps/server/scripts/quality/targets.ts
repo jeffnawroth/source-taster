@@ -2,6 +2,7 @@
 // ADR-0006 pass rule over the §14.4 quality targets. Integer basis points
 // only: a share target "≥ p" passes at hits·10000 ≥ p·n, i.e. ⌈p·n⌉ hits.
 import { normalizeDoi, normalizeIsbn } from "@source-taster/core";
+import type { StructuringResult } from "./structuring.ts";
 
 export type Verdict =
   | "correct"
@@ -49,6 +50,18 @@ export type RecordOutcome =
   | { kind: "status"; status: string }
   /** The path produced zero or several References for one record. */
   | { kind: "unstructured"; references: number };
+
+/** Missing results, technical Statuses and source-failure grey invalidate a run. */
+export function invalidOutcome(outcome: RecordOutcome | undefined) {
+  return (
+    !outcome ||
+    outcome.kind === "status" ||
+    (outcome.kind === "verdict" &&
+      outcome.verdict === "not-verifiable" &&
+      (outcome.failedSources.length > 0 ||
+        outcome.reasons.includes("sources-unavailable")))
+  );
+}
 
 export type TargetName =
   "correctness" | "false-alarms" | "detection" | "invented-detection";
@@ -144,7 +157,7 @@ const definitions: Record<
   },
   "false-alarms": {
     counts: (r) => r.class === "real-correct",
-    hit: (_, o) => red.has(verdictOf(o)!),
+    hit: (_, o) => o?.kind === "unstructured" || red.has(verdictOf(o)!),
   },
   detection: {
     counts: (r) => r.class === "falsified" || r.class === "invented",
@@ -374,10 +387,12 @@ export interface PathRun {
   invalidRecords: string[];
   replayMisses: number;
   targets: TargetResult[];
+  structuring?: StructuringResult[];
 }
 export interface GateMeasurement {
   configuration: {
     aiModel: string | null;
+    aiQualified?: boolean;
     /** The ADR-0025 calibration record whose selected values were measured. */
     calibration: { record: string; selected: Record<string, number> } | null;
     /** What the running verification rules report about themselves. */
@@ -401,6 +416,8 @@ export function decideRelease(measurement: GateMeasurement) {
   )
     reasons.push("uncalibrated");
   if (configuration.codeVersion.dirty) reasons.push("code-version-dirty");
+  if (configuration.aiModel && configuration.aiQualified !== true)
+    reasons.push("ai-evidence-unqualified");
   for (const floor of composition)
     if (!floor.met) reasons.push(`composition:${floor.floor}`);
   for (const run of runs) {
@@ -412,6 +429,15 @@ export function decideRelease(measurement: GateMeasurement) {
     }
     if (!run.valid || run.replayMisses > 0)
       reasons.push(`invalid-run:${label}`);
+    if (run.path === "ai") {
+      for (const style of citationStyles) {
+        const result = run.structuring?.find((s) => s.style === style);
+        if (!result || result.met === null)
+          reasons.push(`structuring-unmeasured:${label}:${style}`);
+        else if (!result.met)
+          reasons.push(`structuring-missed:${label}:${style}`);
+      }
+    }
   }
   const parserRuns = runs.filter((r) => r.path === "parser").length;
   if (parserRuns !== 1) reasons.push(`parser-runs:${parserRuns}-of-1`);

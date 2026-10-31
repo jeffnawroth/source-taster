@@ -7,6 +7,7 @@
 //   <root>/development-set/{manifest,records,fixtures}.json
 //   <root>/measurement-logs/, <root>/calibration/   (written by the gate)
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { readFile, realpath } from "node:fs/promises";
 import { join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -72,7 +73,7 @@ const Record = z.object({
 });
 const Manifest = z.object({
   kind: z.enum(["reference-test-set", "development-set"]),
-  version: z.string().min(1),
+  version: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/u),
 });
 export const FixtureEntry = z.object({
   source: z.enum(replaySources),
@@ -101,6 +102,8 @@ export interface Dataset {
   fixtures: FixtureEntry[];
   /** SHA-256 over the exact fixture bytes: the measured fixture state. */
   fixtureState: string;
+  /** Exact manifest and record bytes: changing a frozen set invalidates its logs. */
+  datasetState: string;
 }
 
 const repository = fileURLToPath(new URL("../../../../", import.meta.url));
@@ -111,17 +114,38 @@ export async function privateLocation(path: string) {
     realpath(path),
     realpath(repository),
   ]);
-  if (resolved === repo || resolved.startsWith(repo + sep))
+  const gitDirectory = (cwd: string) => {
+    try {
+      return execFileSync(
+        "git",
+        ["rev-parse", "--path-format=absolute", "--git-common-dir"],
+        { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+      ).trim();
+    } catch {
+      return null;
+    }
+  };
+  const common = gitDirectory(repo);
+  if (
+    resolved === repo ||
+    resolved.startsWith(repo + sep) ||
+    (common !== null && gitDirectory(resolved) === common)
+  )
     throw new Error(
       `Quality datasets and logs must live outside the open-core repository (ADR-0006): ${path}`,
     );
   return resolved;
 }
 
-async function json(file: string, schema: z.ZodType, name: string) {
+async function json(
+  file: string,
+  schema: z.ZodType,
+  name: string,
+  bytes?: Buffer,
+) {
   let value: unknown;
   try {
-    value = JSON.parse(await readFile(file, "utf8"));
+    value = JSON.parse((bytes ?? (await readFile(file))).toString("utf8"));
   } catch (error) {
     throw new Error(`${name} is invalid: ${(error as Error).message}`, {
       cause: error,
@@ -143,19 +167,23 @@ export async function loadDataset(
   kind: DatasetKind,
 ): Promise<Dataset> {
   const directory = join(await privateLocation(root), kind);
+  const manifestBytes = await readFile(join(directory, "manifest.json"));
   const manifest = (await json(
     join(directory, "manifest.json"),
     Manifest,
     `${kind}/manifest.json`,
+    manifestBytes,
   )) as z.infer<typeof Manifest>;
   if (manifest.kind !== kind)
     throw new Error(
       `${kind}/manifest.json declares ${manifest.kind}, expected ${kind}.`,
     );
+  const recordBytes = await readFile(join(directory, "records.json"));
   const records = (await json(
     join(directory, "records.json"),
     z.array(Record),
     `${kind}/records.json`,
+    recordBytes,
   )) as GateRecord[];
   const ids = new Set(records.map((r) => r.id));
   if (ids.size !== records.length)
@@ -165,6 +193,7 @@ export async function loadDataset(
     join(directory, "fixtures.json"),
     Fixtures,
     `${kind}/fixtures.json`,
+    fixtureBytes,
   )) as z.infer<typeof Fixtures>;
   return {
     kind,
@@ -172,5 +201,6 @@ export async function loadDataset(
     records,
     fixtures: fixtures.entries,
     fixtureState: `sha256:${createHash("sha256").update(fixtureBytes).digest("hex")}`,
+    datasetState: `sha256:${createHash("sha256").update(manifestBytes).update("\0").update(recordBytes).digest("hex")}`,
   };
 }

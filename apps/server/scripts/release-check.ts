@@ -6,11 +6,40 @@
 import { scoringRulesCalibration } from "../src/checks/scoring-calibration.ts";
 import { codeVersion } from "./quality/code-version.ts";
 import { checkRelease } from "./quality/release.ts";
+import {
+  loadExtraction,
+  resolveConfiguration,
+} from "./quality/configuration.ts";
+
+let expected;
+try {
+  const file = process.env.SOURCE_TASTER_QUALITY_CONFIGURATION;
+  if (file) {
+    const extraction = process.env.SOURCE_TASTER_QUALITY_EXTRACTION
+      ? await loadExtraction(process.env.SOURCE_TASTER_QUALITY_EXTRACTION)
+      : undefined;
+    expected = {
+      configuration: await resolveConfiguration(
+        file,
+        extraction?.model ?? null,
+        extraction?.configuration ?? null,
+      ),
+      aiModel: extraction?.model ?? null,
+      aiConfiguration: extraction?.configuration ?? null,
+    };
+  }
+} catch (error) {
+  console.error(
+    `Release refused: invalid Measured configuration: ${(error as Error).message}`,
+  );
+  process.exit(78);
+}
 
 const result = await checkRelease({
   root: process.env.SOURCE_TASTER_QUALITY_ROOT || undefined,
   code: codeVersion(),
   runtimeCalibration: scoringRulesCalibration,
+  expected,
 });
 if (!result.releasable) {
   console.error(

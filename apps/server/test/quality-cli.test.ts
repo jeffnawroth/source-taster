@@ -145,3 +145,13 @@ it("prints usage and exits 64 for an incomplete command line", () => {
     expect(result.stderr).toMatch(/^Usage: pnpm quality:gate measure/m);
   }
 });
+
+it("refuses a live extraction adapter without its EU-only, zero-retention configuration evidence", async () => {
+  await writeFile(
+    join(root, "unqualified.mjs"),
+    "export default { model: 'synthetic-model', configuration: { mode: 'live', processingCountries: ['US'] }, extract: async () => [] };",
+  );
+  await expect(loadExtraction(join(root, "unqualified.mjs"))).rejects.toThrow(
+    /AI configuration is invalid/,
+  );
+});

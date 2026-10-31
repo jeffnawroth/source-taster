@@ -15,6 +15,8 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import {
   calibrate,
@@ -132,6 +134,7 @@ async function writeReferenceTestSet(
         sourceType: "article",
         class: "real-correct",
         acceptedIdentifiers: [{ type: "doi", value: "10.5555/ST94-CORRECT" }],
+        expectedFields: correct.fields,
         provenance,
       },
       {
@@ -169,6 +172,13 @@ interface LogFile {
     targets: { target: string; hits: number; n: number }[];
     strata: unknown[];
     regressions: unknown[];
+    structuredFields: Record<string, unknown[]>;
+    structuring: {
+      style: string;
+      hits: number;
+      n: number;
+      met: boolean | null;
+    }[];
   }[];
   decision: { releasable: boolean; reasons: string[] };
 }
@@ -257,6 +267,13 @@ it("measures the parser path once and AI extraction three times, logs the config
     }),
   );
   expect(log.runs[0]!.regressions).toEqual([]);
+  expect(log.runs[1]!.structuredFields[correct.id]).toEqual([correct.fields]);
+  expect(log.runs[1]!.structuring).toContainEqual({
+    style: "apa",
+    hits: 1,
+    n: 1,
+    met: true,
+  });
   expect(log.decision.releasable).toBe(false);
   expect(log.decision.reasons).toContain("uncalibrated");
   expect(result.decision).toEqual(log.decision);
@@ -394,3 +411,77 @@ it("refuses an undeclared grid parameter before any service starts", async () =>
   ).rejects.toThrow(/yearWeight is not a free ADR-0025 parameter/);
   await expect(readdir(join(root, "calibration"))).rejects.toThrow(/ENOENT/);
 });
+
+it("preserves three invalid AI runs when live extraction repeatedly fails for a record", async () => {
+  await writeReferenceTestSet();
+  const extraction: ExtractionPort = {
+    model: "synthetic-failure",
+    extract: () => Promise.reject(new Error("synthetic provider failure")),
+  };
+  const result = await measureConfiguration({
+    root,
+    configuration: { enabledSources: [] },
+    extraction,
+    port,
+  });
+  const log = await readJson<LogFile>(result.logPath);
+  expect(log.runs.filter((r) => r.path === "ai")).toHaveLength(3);
+  for (const run of log.runs.filter((r) => r.path === "ai")) {
+    expect(run.valid).toBe(false);
+    expect(run.invalidRecords).toEqual([correct.id, invented.id]);
+    expect(run.targets.find((t) => t.target === "correctness")).toMatchObject({
+      hits: 0,
+      n: 1,
+    });
+  }
+  expect(result.decision.releasable).toBe(false);
+}, 120_000);
+
+it("exits 78 from the measurement CLI when the measured configuration is non-releasable, preserving its log", async () => {
+  await writeReferenceTestSet();
+  const configuration = join(root, "configuration.json");
+  await writeFile(configuration, json({ enabledSources: [] }));
+  const child = spawn(
+    process.execPath,
+    [
+      "scripts/quality-gate.ts",
+      "measure",
+      "--root",
+      root,
+      "--configuration",
+      configuration,
+      "--port",
+      String(port),
+    ],
+    {
+      cwd: fileURLToPath(new URL("..", import.meta.url)),
+      env: {
+        PATH: process.env.PATH,
+        DATABASE_ADMIN_URL: process.env.DATABASE_ADMIN_URL,
+        DATABASE_TEST_URL: process.env.DATABASE_TEST_URL,
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  let stdout = "";
+  let stderr = "";
+  child.stdout.on("data", (chunk: Buffer) => {
+    stdout += chunk.toString();
+  });
+  child.stderr.on("data", (chunk: Buffer) => {
+    stderr += chunk.toString();
+  });
+  const status = await new Promise<number | null>((resolve, reject) => {
+    child.on("error", reject);
+    child.on("exit", resolve);
+  });
+  expect(status, stderr).toBe(78);
+  const result = JSON.parse(stdout.slice(stdout.indexOf('{\n  "logPath"'))) as {
+    logPath: string;
+    decision: { releasable: boolean };
+  };
+  expect(result.decision.releasable).toBe(false);
+  expect(await readJson<LogFile>(result.logPath)).toMatchObject({
+    decision: result.decision,
+  });
+}, 120_000);

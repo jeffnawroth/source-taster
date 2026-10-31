@@ -9,6 +9,7 @@ import { dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
+import { AiConfiguration } from "./extraction.ts";
 import {
   optionalSources,
   type ExtractionPort,
@@ -24,6 +25,7 @@ const ConfigurationFile = z.strictObject({
 const CalibrationRecord = z.object({
   format: z.literal("source-taster-calibration/1"),
   aiModel: z.string().nullable(),
+  aiConfiguration: z.unknown().optional(),
   enabledSources: z.array(z.string()),
   searchSettings: z.record(z.string(), z.unknown()).nullable(),
   selected: z
@@ -50,6 +52,7 @@ async function parse<T>(file: string, schema: z.ZodType<T>, name: string) {
 export async function resolveConfiguration(
   file: string,
   aiModel: string | null,
+  aiConfiguration: AiConfiguration | null = null,
 ): Promise<GateConfiguration> {
   const { value } = await parse(file, ConfigurationFile, "configuration.json");
   const configuration: GateConfiguration = {
@@ -68,11 +71,12 @@ export async function resolveConfiguration(
     );
   const expected = {
     aiModel,
+    aiConfiguration,
     enabledSources: [...value.enabledSources].sort(),
     searchSettings: value.searchSettings ?? null,
   };
   for (const [key, wanted] of Object.entries(expected)) {
-    const actual = record[key as keyof typeof expected];
+    const actual = record[key as keyof typeof expected] ?? null;
     if (!isDeepStrictEqual(actual, wanted))
       throw new Error(
         `${value.calibrationRecord} was calibrated for ${key} ${JSON.stringify(actual)}, not ${JSON.stringify(wanted)}.`,
@@ -102,5 +106,12 @@ export async function loadExtraction(module: string): Promise<ExtractionPort> {
     throw new Error(
       `${module}: the default export must be an extraction port ({ model, extract(input) }).`,
     );
+  if (port.configuration !== undefined) {
+    const parsed = AiConfiguration.safeParse(port.configuration);
+    if (!parsed.success || parsed.data.modelId !== port.model)
+      throw new Error(
+        `${module}: AI configuration is invalid; supply the exact ADR-0010 identity and EU-only, zero-retention qualification declaration.`,
+      );
+  }
   return port as ExtractionPort;
 }

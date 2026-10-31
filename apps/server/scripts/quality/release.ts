@@ -7,28 +7,60 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
+import { isDeepStrictEqual } from "node:util";
 import { loadDataset } from "./dataset.ts";
+import { measureStructuring } from "./structuring.ts";
+import { qualifiedAi, type AiConfiguration } from "./extraction.ts";
+import type { GateConfiguration } from "./runner.ts";
 import {
   checkComposition,
   decideRelease,
   evaluatePath,
+  invalidOutcome,
   type RecordOutcome,
 } from "./targets.ts";
 
+const Outcome = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("verdict"),
+    verdict: z.enum([
+      "correct",
+      "exists-with-deviations",
+      "mixed-citation",
+      "doi-conflict",
+      "not-found",
+      "not-verifiable",
+    ]),
+    identifiers: z.array(z.string()),
+    failedSources: z.array(z.string()),
+    reasons: z.array(z.string()),
+  }),
+  z.object({ kind: z.literal("status"), status: z.string() }),
+  z.object({
+    kind: z.literal("unstructured"),
+    references: z.number().int().nonnegative(),
+  }),
+]);
 const LoggedRun = z.object({
   path: z.enum(["parser", "ai"]),
   run: z.number().int(),
   valid: z.boolean(),
   invalidRecords: z.array(z.string()),
   replayMisses: z.number().int().nonnegative(),
-  outcomes: z.record(z.string(), z.unknown()),
+  outcomes: z.record(z.string(), Outcome),
+  structuredFields: z.record(z.string(), z.array(z.unknown())).default({}),
 });
 const MeasurementLog = z.object({
   configuration: z.object({
     testSetVersion: z.string(),
     fixtureState: z.string(),
-    codeVersion: z.object({ sha: z.string() }),
+    datasetState: z.string(),
+    codeVersion: z.object({ sha: z.string(), dirty: z.boolean() }),
     aiModel: z.string().nullable(),
+    aiConfiguration: z.unknown().optional(),
+    enabledSources: z.array(z.string()),
+    comparisonParameters: z.record(z.string(), z.number()),
+    searchSettings: z.record(z.string(), z.unknown()).nullable(),
     calibration: z
       .object({
         record: z.string(),
@@ -45,6 +77,12 @@ export interface ReleaseInput {
   code: { sha: string; dirty: boolean };
   /** The calibration the code's Scoring rules report. */
   runtimeCalibration: string;
+  /** The frozen configuration being released/activated, never inferred from a log. */
+  expected?: {
+    configuration: GateConfiguration;
+    aiModel: string | null;
+    aiConfiguration: AiConfiguration | null;
+  };
 }
 export interface ReleaseResult {
   releasable: boolean;
@@ -59,6 +97,7 @@ export async function checkRelease(
   const codeReasons = [
     ...(input.runtimeCalibration === "uncalibrated" ? ["uncalibrated"] : []),
     ...(input.code.dirty ? ["code-version-dirty"] : []),
+    ...(!input.expected ? ["no-measured-configuration"] : []),
   ];
   const refuse = (
     reasons: string[],
@@ -83,9 +122,18 @@ export async function checkRelease(
     .sort();
   const measurements: NonNullable<ReleaseResult["measurements"]> = [];
   for (const file of files) {
-    const parsed = MeasurementLog.safeParse(
-      JSON.parse(await readFile(join(directory, file), "utf8")),
-    );
+    let value: unknown;
+    try {
+      value = JSON.parse(await readFile(join(directory, file), "utf8"));
+    } catch {
+      measurements.push({
+        log: file,
+        releasable: false,
+        reasons: ["invalid-log"],
+      });
+      continue;
+    }
+    const parsed = MeasurementLog.safeParse(value);
     if (!parsed.success) {
       measurements.push({
         log: file,
@@ -99,7 +147,31 @@ export async function checkRelease(
     if (
       log.configuration.codeVersion.sha !== input.code.sha ||
       log.configuration.testSetVersion !== dataset.version ||
-      log.configuration.fixtureState !== dataset.fixtureState
+      log.configuration.fixtureState !== dataset.fixtureState ||
+      log.configuration.datasetState !== dataset.datasetState
+    )
+      continue;
+    if (!input.expected) continue;
+    const wanted = input.expected;
+    if (
+      !isDeepStrictEqual(
+        {
+          enabledSources: [...log.configuration.enabledSources].sort(),
+          comparisonParameters: log.configuration.comparisonParameters,
+          searchSettings: log.configuration.searchSettings,
+          calibration: log.configuration.calibration,
+          aiModel: log.configuration.aiModel,
+          aiConfiguration: log.configuration.aiConfiguration ?? null,
+        },
+        {
+          enabledSources: [...wanted.configuration.enabledSources].sort(),
+          comparisonParameters: wanted.configuration.comparisonParameters ?? {},
+          searchSettings: wanted.configuration.searchSettings ?? null,
+          calibration: wanted.configuration.calibration ?? null,
+          aiModel: wanted.aiModel,
+          aiConfiguration: wanted.aiConfiguration,
+        },
+      )
     )
       continue;
     const runs = log.runs.map((run) => {
@@ -109,18 +181,30 @@ export async function checkRelease(
       return {
         path: run.path,
         run: run.run,
-        valid: run.valid,
-        invalidRecords: run.invalidRecords,
+        valid:
+          run.valid &&
+          dataset.records.every((r) => !invalidOutcome(outcomes.get(r.id))),
+        invalidRecords: dataset.records
+          .filter((r) => invalidOutcome(outcomes.get(r.id)))
+          .map((r) => r.id),
         replayMisses: run.replayMisses,
         targets: evaluatePath(dataset.records, outcomes, run.path).targets,
+        structuring: measureStructuring(dataset.records, run.structuredFields),
       };
     });
     const decision = decideRelease({
       configuration: {
         aiModel: log.configuration.aiModel,
+        aiQualified: qualifiedAi(
+          log.configuration.aiModel,
+          log.configuration.aiConfiguration,
+        ),
         calibration: log.configuration.calibration,
         runtimeCalibration: input.runtimeCalibration,
-        codeVersion: input.code,
+        codeVersion: {
+          ...input.code,
+          dirty: input.code.dirty || log.configuration.codeVersion.dirty,
+        },
       },
       composition: checkComposition(dataset.records),
       runs,

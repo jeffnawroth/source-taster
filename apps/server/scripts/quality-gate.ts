@@ -59,6 +59,7 @@ if (command === "measure") {
   const configuration = await resolveConfiguration(
     values.configuration!,
     extraction?.model ?? null,
+    extraction?.configuration ?? null,
   );
   const result = await measureConfiguration({
     root: values.root,
@@ -67,6 +68,7 @@ if (command === "measure") {
     port,
   });
   console.log(JSON.stringify(result, null, 2));
+  if (!result.decision.releasable) process.exitCode = 78;
 } else {
   const grid = JSON.parse(await readFile(values.grid!, "utf8")) as {
     axes: Record<string, number[]>;
@@ -75,6 +77,7 @@ if (command === "measure") {
     ? await resolveConfiguration(
         values.configuration,
         extraction?.model ?? null,
+        extraction?.configuration ?? null,
       )
     : undefined;
   if (configuration?.calibration)
@@ -87,4 +90,5 @@ if (command === "measure") {
     port,
   });
   console.log(JSON.stringify(result, null, 2));
+  if (!result.selected) process.exitCode = 78;
 }
