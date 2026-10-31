@@ -28,6 +28,7 @@ await runMain(async (config) => {
       claimMs: config.workerClaimMs,
     },
   });
+  await checks.maintain();
   const authority =
     config.mode === "hosted" && config.hosted
       ? hostedAuthority(config.hosted, config.databaseUrl, checks)

@@ -35,6 +35,7 @@ export const exportReferences = createRoute({
     401: problem("A valid verification access token is required."),
     403: problem("Current authority denies Check reading."),
     404: problem("No such Check for this Owner."),
+    410: problem("The Check expired."),
     503: problem("Current authority is unavailable."),
   },
 });

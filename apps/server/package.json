@@ -9,6 +9,7 @@
     "generate": "prisma generate",
     "db:setup": "node scripts/db-setup.ts",
     "db:migrate": "prisma migrate deploy",
+    "db:export": "node scripts/export-database.ts",
     "web": "node src/web.ts",
     "worker": "node src/worker.ts",
     "typecheck": "tsc -p tsconfig.json",
