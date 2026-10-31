@@ -117,14 +117,16 @@ finished suites were read rather than repeated under shared database pressure.
 
 ## Acceptance and integration limitations
 
-**The recorded-fixture acceptance criterion remains unresolved.** The public
-fixtures are explicitly synthetic. No rights-cleared private recordings/dataset
-checkout were supplied. The fixture README documents the acquisition/storage
-requirements for the original page, availability response and verified capture.
-The approved synthetic-fixture change for #79 does not amend #80. The parent must
-obtain the required private recordings or an explicit client-approved criterion
-change before treating the whole ticket as accepted. Nothing here grants source
-activation or Internet Archive/content redistribution rights.
+On 31 October 2026 the client explicitly approved #80's implementation with
+synthetic tests and required approved recordings before source activation.
+This amends the original implementation acceptance criterion. The public fixtures
+remain synthetic; no rights-cleared private recordings/dataset checkout were
+supplied. The fixture README documents acquisition/storage requirements for the
+original page, availability response and verified capture.
+[Issue #140](https://github.com/jeffnawroth/source-taster/issues/140) tracks those
+recordings and their successful private replay, and natively blocks activation
+ticket #114. This decision grants no source activation or Internet Archive/content
+storage or redistribution rights.
 
 Calibration, frozen private-set Quality gates, live source/load evidence, native
 Safari/Firefox/ESR qualification, the 50-Reference parity set, translation review
@@ -178,8 +180,9 @@ Merge verification on 30 October 2026:
 - Prettier and ESLint passed for the conflict-resolved lifecycle test; both merged
   catalogs passed formatting. `git diff --check` passed.
 
-**The recorded-fixture criterion remains unfulfilled.** These integration checks
-replay the documented synthetic adapter fixtures only. Merging the implementation
-into a draft branch is not acceptance of #80, fixture-storage permission, source
-activation, calibration, a passed Quality gate or release qualification. The
-private-recording/explicit-client-decision prerequisite described above remains.
+These integration checks replay the documented synthetic adapter fixtures only.
+The client's 31 October implementation/activation split accepts this evidence
+for #80 implementation; approved private recordings and replay remain mandatory
+before source activation under #140/#114. Neither the merge nor that decision
+claims fixture-storage permission, source activation, calibration, a passed
+Quality gate or release qualification.
