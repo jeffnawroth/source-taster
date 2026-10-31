@@ -27,8 +27,38 @@ function entryStart(line: string) {
     /^[\p{L}\p{M}’' -]+ \p{Lu}{1,4}[.,]/u.test(line)
   );
 }
-export function detectBibliography(text: string): BibliographySelection {
-  const lines = [...text.matchAll(/[^\r\n]+/gu)]
+type Line = { text: string; start: number; end: number; indented: boolean };
+function continues(line: Line) {
+  return (
+    line.indented ||
+    /^(?:https?:\/\/|doi:|In:|Journal\b|Proceedings\b|pp?\.|S\.)/iu.test(
+      line.text,
+    )
+  );
+}
+/** Entry lines from `from`, until the first line that neither starts nor continues an entry. */
+function entryRun(lines: Line[], from: number) {
+  let region: Span | undefined;
+  let next = from;
+  for (; next < lines.length; next++) {
+    const line = lines[next]!;
+    if (bibliographyHeading.test(line.text) || sectionHeading.test(line.text))
+      break;
+    if (!entryStart(line.text) && !(region && continues(line))) break;
+    region ??= { start: line.start, end: line.end };
+    region.end = line.end;
+  }
+  return { region, next };
+}
+/**
+ * Headed bibliographies in any chapter. With `list`, an uploaded document
+ * that consists only of entries is itself the bibliography.
+ */
+export function detectBibliography(
+  text: string,
+  options: { list?: boolean } = {},
+): BibliographySelection {
+  const lines: Line[] = [...text.matchAll(/[^\r\n]+/gu)]
     .map((m) => ({
       text: m[0].trim(),
       start: m.index + m[0].search(/\S/u),
@@ -39,22 +69,12 @@ export function detectBibliography(text: string): BibliographySelection {
   const regions: Span[] = [];
   for (let i = 0; i < lines.length; i++) {
     if (!bibliographyHeading.test(lines[i]!.text)) continue;
-    let region: Span | undefined;
-    for (let j = i + 1; j < lines.length; j++) {
-      const line = lines[j]!;
-      if (bibliographyHeading.test(line.text) || sectionHeading.test(line.text))
-        break;
-      const continuation =
-        region &&
-        (line.indented ||
-          /^(?:https?:\/\/|doi:|In:|Journal\b|Proceedings\b|pp?\.|S\.)/iu.test(
-            line.text,
-          ));
-      if (!entryStart(line.text) && !continuation) break;
-      region ??= { start: line.start, end: line.end };
-      region.end = line.end;
-    }
+    const { region } = entryRun(lines, i + 1);
     if (region) regions.push(region);
+  }
+  if (!regions.length && options.list) {
+    const { region, next } = entryRun(lines, 0);
+    if (region && next === lines.length) regions.push(region);
   }
   return { version: bibliographyRulesVersion, regions };
 }

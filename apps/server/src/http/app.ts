@@ -226,7 +226,9 @@ export function createApp(
     app.openapi(structureText, async (c) => {
       const principal = await authorize(c.req.raw, "structuring:create");
       const input = c.req.valid("json");
-      const detected = detectBibliography(input.text);
+      const detected = detectBibliography(input.text, {
+        list: input.document === true,
+      });
       const isDocument =
         input.document ||
         input.regions !== undefined ||
@@ -296,7 +298,7 @@ export function createApp(
         );
         if (format === "pdf" && extracted.partialNoText)
           documentMetrics.record("pdf-partial-no-text");
-        const selection = detectBibliography(extracted.text);
+        const selection = detectBibliography(extracted.text, { list: true });
         const data = {
           selection,
           document: {

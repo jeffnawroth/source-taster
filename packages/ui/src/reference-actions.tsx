@@ -1,5 +1,5 @@
-import { CheckSelectionActions } from "./bibliography-selection.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { CheckSelectionActions } from "./bibliography-selection.tsx";
 import { useMemo, useState } from "react";
 import type {
   Check,

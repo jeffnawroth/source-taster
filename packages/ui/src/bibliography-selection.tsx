@@ -151,13 +151,14 @@ export function CheckSelectionActions({
   > | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const mounted = useRef(true);
-  useEffect(
-    () => () => {
+  const mounted = useRef(false);
+  useEffect(() => {
+    // StrictMode re-runs effects; mark mounted on every (re)mount.
+    mounted.current = true;
+    return () => {
       mounted.current = false;
-    },
-    [],
-  );
+    };
+  }, []);
   // This component is keyed to the Check; a detached response cannot update a new workspace.
   const active = check.references.some(
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",

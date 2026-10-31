@@ -1,5 +1,5 @@
-import { TextStructuringRequest, TextStructuringResponse } from "./document.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
+import { TextStructuringRequest, TextStructuringResponse } from "./document.ts";
 import { createRoute } from "@hono/zod-openapi";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.ts";
 import {
