@@ -53,6 +53,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -69,6 +71,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -85,6 +89,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -101,6 +107,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -117,6 +125,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -133,6 +143,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;

@@ -51,6 +51,7 @@ for (const route of [
   v2.renewCheckLease,
   v2.createCheck,
   v2.getCheck,
+  v2.getQuota,
   v2.streamCheckEvents,
 ])
   next.openAPIRegistry.registerPath(route);

@@ -47,6 +47,8 @@ import { GuestIdentityError } from "./guest-identity.ts";
 import { InformationLinks } from "./information.tsx";
 import { StructuringResults } from "./structuring-results.tsx";
 import { CheckResults } from "./check-results.tsx";
+import { QuotaChoice, QuotaMeter } from "./quota-panel.tsx";
+import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
 type MessageKey = Extract<keyof typeof m, `problem_${string}`>;
 const styleMessages = {
   apa: "citation_style_apa",
@@ -92,6 +94,7 @@ export function CheckWorkspace({
   accountControls,
   onPreferencesChange,
   selectionIntake,
+  upgradeUrl,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
@@ -100,6 +103,8 @@ export function CheckWorkspace({
   accountControls?: (language: "de" | "en") => ReactNode;
   onPreferencesChange?: (preferences: Preferences) => void;
   selectionIntake?: SelectionIntake;
+  /** Where the host sells Plans; without it the upgrade offer is text only. */
+  upgradeUrl?: string;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const structureText = useMemo(
@@ -199,6 +204,31 @@ export function CheckWorkspace({
   const [cancelling, setCancelling] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
   const [cleanupPending, setCleanupPending] = useState(false);
+  const [quota, setQuota] = useState<OwnerQuota | null>(null);
+  const [quotaChoice, setQuotaChoice] = useState<{
+    required: number;
+    available: number;
+    input: Parameters<typeof api.createCheck>[0];
+  } | null>(null);
+  const [quotaNote, setQuotaNote] = useState<{
+    required: number;
+    remaining: number;
+    after: number;
+    skipped: number;
+  } | null>(null);
+  async function refreshQuota() {
+    try {
+      const next = ownerQuota(await api.getQuota());
+      setQuota(next);
+      return next;
+    } catch {
+      // Display only: a failed read keeps the last known balance; the server
+      // still enforces Quota on every start.
+      return quota;
+    }
+  }
+  // No read on mount: a passive page load must not mint a Guest identity or
+  // spend a token. The first start reads the balance (which it needs anyway).
   useEffect(
     () => () => {
       generation.current++;
@@ -319,7 +349,10 @@ export function CheckWorkspace({
     setPending(operation);
     setAccessStopped(false);
     setCancelRequested(false);
+    setQuotaChoice(null);
+    setQuotaNote(null);
     let selection: BibliographyDocument | null = null;
+    let previewCount: number | null = null;
     try {
       if (library) {
         if (operation === "structure") {
@@ -353,24 +386,111 @@ export function CheckWorkspace({
         )
           return;
         selection = result.document;
+        previewCount = result.structuring.references.length;
       }
+      const input: Parameters<typeof api.createCheck>[0] = library
+        ? { library }
+        : selection
+          ? {
+              document: {
+                text: selection.text,
+                regions: selection.selection.regions,
+              },
+            }
+          : text;
+      const required = library
+        ? (preview?.references.length ?? 0)
+        : (previewCount ?? 0);
+      // Count and expected consumption come before the automatic start.
+      const plan = planStart(required, await refreshQuota());
+      if (generation.current !== token) return;
+      if (plan.kind === "partial") {
+        setQuotaChoice({
+          required: plan.required,
+          available: plan.available,
+          input,
+        });
+        return;
+      }
+      await launch(input, token, undefined, {
+        required: plan.kind === "fits" ? plan.required : null,
+        after: plan.kind === "fits" ? plan.remainingAfter : null,
+        skipped: 0,
+      });
+    } catch (error) {
+      if (generation.current === token) setRequestError(error);
+    } finally {
+      if (generation.current === token) setPending(null);
+    }
+  }
+  /** Creates the Check; `max` limits the start to the first N References in input order. */
+  async function launch(
+    input: Parameters<typeof api.createCheck>[0],
+    token: number,
+    max?: number,
+    note?: { required: number | null; after: number | null; skipped: number },
+  ) {
+    try {
       const created = await api.createCheck(
-        library
-          ? { library }
-          : selection
-            ? {
-                document: {
-                  text: selection.text,
-                  regions: selection.selection.regions,
-                },
-              }
-            : text,
+        input,
+        max === undefined ? {} : { maxReferences: max },
       );
       if (generation.current !== token) {
         void cancelDetached(created.id);
         return;
       }
+      setQuotaChoice(null);
+      setQuotaNote(
+        note && note.required !== null && note.after !== null
+          ? {
+              required: note.required,
+              remaining: note.after + note.required,
+              after: note.after,
+              skipped: note.skipped,
+            }
+          : null,
+      );
+      void refreshQuota();
       follow(created);
+    } catch (error) {
+      if (
+        error instanceof ApiError &&
+        error.problem?.code === "quota-insufficient" &&
+        error.problem.available !== undefined &&
+        error.problem.required !== undefined
+      ) {
+        // The balance changed since the preview: offer the choice again.
+        if (generation.current === token) {
+          setQuotaChoice({
+            required: error.problem.required,
+            available: error.problem.available,
+            input,
+          });
+          void refreshQuota();
+        }
+        return;
+      }
+      throw error;
+    }
+  }
+  async function startFirst() {
+    if (!quotaChoice) return;
+    const { input, available, required } = quotaChoice;
+    setSelectionUndo(null);
+    const token = ++generation.current;
+    controller.current?.abort();
+    setCheck(null);
+    setStreamError(null);
+    setRequestError(null);
+    setPending("create");
+    setAccessStopped(false);
+    setCancelRequested(false);
+    try {
+      await launch(input, token, available, {
+        required: available,
+        after: 0,
+        skipped: required - available,
+      });
     } catch (error) {
       if (generation.current === token) setRequestError(error);
     } finally {
@@ -541,6 +661,8 @@ export function CheckWorkspace({
     setCheck(null);
     setPreview(null);
     setPending(null);
+    setQuotaChoice(null);
+    setQuotaNote(null);
     setRequestError(null);
     setStreamError(null);
     setCancelling(false);
@@ -552,6 +674,16 @@ export function CheckWorkspace({
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",
   );
   const busy = pending !== null || running;
+  // Debits settle shortly after the last Verdict; look again a few times.
+  const checkId = check?.id;
+  useEffect(() => {
+    if (!checkId || running) return;
+    const timers = [0, 1500, 4000].map((delay) =>
+      setTimeout(() => void refreshQuota(), delay),
+    );
+    return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkId, running]);
   const selectionBlocked =
     !!sourceDocument &&
     (!!check ||
@@ -615,6 +747,7 @@ export function CheckWorkspace({
         </label>
       </header>
       {accountControls?.(locale)}
+      {quota && <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />}
       {styleReset && (
         <p
           role="status"
@@ -805,6 +938,34 @@ export function CheckWorkspace({
           {m.check_reset()}
         </Button>
       </form>
+      {quotaChoice && (
+        <QuotaChoice
+          required={quotaChoice.required}
+          available={quotaChoice.available}
+          upgradeUrl={upgradeUrl}
+          onFirst={() => void startFirst()}
+          onDismiss={() => setQuotaChoice(null)}
+        />
+      )}
+      {quotaNote && (
+        <p
+          role="status"
+          data-testid="quota-note"
+          className="mt-6 rounded-xl border border-slate-300 bg-white p-4"
+        >
+          {quotaNote.skipped > 0
+            ? m.quota_started({
+                started: String(quotaNote.required),
+                required: String(quotaNote.required + quotaNote.skipped),
+                skipped: String(quotaNote.skipped),
+              })
+            : m.quota_preview_fits({
+                required: String(quotaNote.required),
+                remaining: String(quotaNote.remaining),
+                after: String(quotaNote.after),
+              })}
+        </p>
+      )}
       {cleanupPending && (
         <p
           role="alert"

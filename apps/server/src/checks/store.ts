@@ -35,6 +35,7 @@ import { EVENT_CHANNEL } from "./events.ts";
 import { REFERENCE_QUEUE } from "./queue.ts";
 import type { Db } from "../db/prisma.ts";
 import type { Principal } from "../entitlements.ts";
+import { QuotaStale, type SlotRef } from "../quota/port.ts";
 
 const withSlots = {
   references: {
@@ -244,6 +245,35 @@ export type WorkSubject = Pick<
   ReferenceAttempt,
   "checkId" | "ownerId" | "actorId" | "guestContextId"
 >;
+type Reader = Pick<Db, "referenceResult">;
+async function hasVerdict(db: Reader, checkId: string, position: number) {
+  return (
+    (await db.referenceResult.count({
+      where: {
+        checkId,
+        position,
+        content: { path: ["kind"], equals: "verdict" },
+      },
+    })) > 0
+  );
+}
+function addedSlots(last: number, count: number): SlotRef[] {
+  return Array.from({ length: count }, (_, i) => ({
+    position: last + i + 1,
+    generation: 0,
+  }));
+}
+/** The billable work inside the guarded operation must equal what was reserved. */
+function assertReserved(expected: SlotRef[] | undefined, actual: SlotRef[]) {
+  if (!expected) return;
+  const key = (list: SlotRef[]) =>
+    list
+      .map((s) => `${s.position}:${s.generation}`)
+      .sort()
+      .join(",");
+  if (key(expected) !== key(actual)) throw new QuotaStale();
+}
+
 export function createCheckStore(
   db: Db,
   boss: PgBoss,
@@ -660,11 +690,15 @@ export function createCheckStore(
       references: StructuredReference[],
       apiVersion = 1,
       document?: BibliographyDocument,
+      start: { id?: string; maxReferences?: number } = {},
     ): Promise<Check> {
+      // Quota's first-N rule: slots beyond the cap are kept but never started.
+      const started = (position: number) =>
+        position <= (start.maxReferences ?? Infinity);
       return transaction(async (tx) => {
         const row = await tx.check.create({
           data: {
-            id: randomUUID(),
+            id: start.id ?? randomUUID(),
             apiVersion,
             document: document
               ? (JSON.parse(JSON.stringify(document)) as Prisma.InputJsonValue)
@@ -685,7 +719,8 @@ export function createCheckStore(
                 structured: JSON.parse(
                   JSON.stringify(reference),
                 ) as Prisma.InputJsonValue,
-                status: "running",
+                status: started(index + 1) ? "running" : "not-checked",
+                progress: started(index + 1) ? "queued" : "ended",
                 revisions: {
                   create: {
                     revision: 1,
@@ -706,8 +741,87 @@ export function createCheckStore(
           endReason: null,
         });
         for (const slot of row.references)
-          await wake(tx, row.id, slot.position);
+          if (started(slot.position)) await wake(tx, row.id, slot.position);
         return toCheck({ ...row, lastSeq: 1 }, renewalInterval);
+      });
+    },
+    /**
+     * Read-only preview of the slot runs a change would bill: a Re-check of a
+     * slot that never reached a Verdict, or the added slots. No service call here.
+     */
+    async plan(
+      principal: Principal,
+      checkId: string,
+      change:
+        { kind: "recheck"; position: number } | { kind: "add"; count: number },
+    ): Promise<SlotRef[] | null> {
+      const check = await db.check.findUnique({
+        where: { id: checkId },
+        select: { ownerId: true, apiVersion: true },
+      });
+      if (
+        !check ||
+        check.ownerId !== principal.ownerId ||
+        check.apiVersion !== 2
+      )
+        return null;
+      if (change.kind === "recheck") {
+        const slot = await db.referenceSlot.findUnique({
+          where: { checkId_position: { checkId, position: change.position } },
+        });
+        if (!slot || slot.removed) return null;
+        return (await hasVerdict(db, checkId, slot.position))
+          ? []
+          : [{ position: slot.position, generation: slot.generation + 1 }];
+      }
+      const last = await db.referenceSlot.aggregate({
+        where: { checkId },
+        _max: { position: true },
+      });
+      return addedSlots(last._max.position ?? 0, change.count);
+    },
+    /** Undelivered settlement intents with their Owner binding (kept on tombstones). */
+    async pendingSettlements(limit: number) {
+      const intents = await db.settlementIntent.findMany({
+        where: { deliveredAt: null },
+        orderBy: { createdAt: "asc" },
+        take: limit,
+      });
+      const owners = new Map(
+        (
+          await db.check.findMany({
+            where: { id: { in: [...new Set(intents.map((i) => i.checkId))] } },
+            select: { id: true, ownerId: true, actorId: true },
+          })
+        ).map((c) => [c.id, c]),
+      );
+      return intents.flatMap((intent) => {
+        const owner = owners.get(intent.checkId);
+        return owner
+          ? [
+              {
+                checkId: intent.checkId,
+                slot: {
+                  position: intent.position,
+                  generation: intent.generation,
+                },
+                outcome: intent.outcome as "verdict" | "release",
+                ownerId: owner.ownerId,
+                actorId: owner.actorId,
+              },
+            ]
+          : [];
+      });
+    },
+    async markSettled(checkId: string, slot: SlotRef) {
+      await db.settlementIntent.updateMany({
+        where: {
+          checkId,
+          position: slot.position,
+          generation: slot.generation,
+          deliveredAt: null,
+        },
+        data: { deliveredAt: new Date(clock.now()) },
       });
     },
     get: (principal: Principal, id: string, version = 1) =>
@@ -787,6 +901,7 @@ export function createCheckStore(
       checkId: string,
       position: number,
       request: SaveFieldsRequest,
+      reserved?: SlotRef[],
     ) {
       return transaction(async (tx) => {
         const check = await lock(tx, checkId);
@@ -807,6 +922,12 @@ export function createCheckStore(
           slot.revision !== request.expectedRevision
         )
           throw new ReferenceConflict();
+        assertReserved(
+          reserved,
+          request.recheck && !(await hasVerdict(tx, checkId, position))
+            ? [{ position, generation: slot.generation + 1 }]
+            : [],
+        );
         const previous = slot.structured as unknown as StructuredReference;
         const reference: StructuredReference = {
           ...previous,
@@ -882,6 +1003,7 @@ export function createCheckStore(
       checkId: string,
       position: number,
       request: RecheckRequest,
+      reserved?: SlotRef[],
     ) {
       return transaction(async (tx) => {
         const check = await lock(tx, checkId);
@@ -902,6 +1024,12 @@ export function createCheckStore(
           slot.revision !== request.expectedRevision
         )
           throw new ReferenceConflict();
+        assertReserved(
+          reserved,
+          (await hasVerdict(tx, checkId, position))
+            ? []
+            : [{ position, generation: slot.generation + 1 }],
+        );
         await tx.referenceSlot.update({
           where: { checkId_position: { checkId, position } },
           data: {
@@ -971,6 +1099,7 @@ export function createCheckStore(
       request: EditReferenceListRequest,
       referenceLimit: number,
       selection?: { regions: Span[]; parser: Structuring },
+      reserved?: SlotRef[],
     ) {
       return transaction(async (tx) => {
         const check = await lock(tx, checkId);
@@ -1041,6 +1170,10 @@ export function createCheckStore(
           referenceLimit
         )
           throw new ReferenceLimitExceeded(referenceLimit);
+        assertReserved(
+          reserved,
+          addedSlots(slots.at(-1)?.position ?? 0, request.add.length),
+        );
         for (const position of removed) {
           await tx.referenceSlot.update({
             where: { checkId_position: { checkId, position } },

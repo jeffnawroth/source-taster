@@ -10,6 +10,8 @@ import {
 import type { CheckStore, WorkSubject } from "../checks/store.ts";
 import type { Entitlements, Permission } from "../entitlements.ts";
 import { fail } from "../http/problems.ts";
+import { quotaClient } from "../quota/client.ts";
+import type { QuotaPort } from "../quota/port.ts";
 import {
   guestAccessTokens,
   requestAssertion,
@@ -102,7 +104,10 @@ export function hostedAuthority(
       return operation();
     });
   }
-  const entitlements: Entitlements = {
+  const quota = quotaClient(settings, clock);
+  /** Hosted composition always carries the Quota port; standalone has none. */
+  const entitlements: Entitlements & { quota: QuotaPort } = {
+    quota,
     async resolve(request) {
       const token = request.headers
         .get("authorization")
@@ -140,6 +145,7 @@ export function hostedAuthority(
   };
   return {
     entitlements,
+    quota,
     work: {
       async run<T>(
         attempt: WorkSubject,
