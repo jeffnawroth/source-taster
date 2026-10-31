@@ -402,6 +402,25 @@ describe("load report", () => {
     expect(strict.durationBasis).toBe("check-start");
   });
 
+  it("counts the outcomes and the unavailable reasons behind a failure", () => {
+    const check = uniformCheck(0, 2, { findable: 1000, notFindable: 4000 });
+    check.references[0]!.outcome = {
+      kind: "verdict",
+      verdict: "not-verifiable",
+      unavailable: ["rate-budget", "deadline", "rate-budget"],
+    };
+    const report = buildReport(input([check]));
+    expect(report.diagnostics.outcomes).toEqual({
+      findable: { "not-verifiable": 1 },
+      "not-findable": { "not-found": 1 },
+      degraded: {},
+    });
+    expect(report.diagnostics.unavailableReasons).toEqual({
+      "rate-budget": 2,
+      deadline: 1,
+    });
+  });
+
   it("splits queue wait from execution time without hiding either", () => {
     const check = uniformCheck(0, 2, { findable: 800, notFindable: 900 });
     check.references[0]!.firstActiveAtMs = 300;

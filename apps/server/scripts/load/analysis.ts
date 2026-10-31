@@ -155,6 +155,10 @@ export const LoadReport = z.object({
     findable: Mean,
     notFindable: Mean,
     degraded: Mean,
+    /** Terminal outcomes per category, e.g. `{ findable: { correct: 4 } }`. */
+    outcomes: z.record(z.string(), z.record(z.string(), z.number().int())),
+    /** Why Data source requests were unavailable, over all References. */
+    unavailableReasons: z.record(z.string(), z.number().int()),
     peakConcurrentChecks: z.number().int(),
     reconnects: z.number().int(),
     leaseRenewals: z.number().int(),
@@ -347,6 +351,23 @@ export function buildReport(input: ReportInput): LoadReport {
       ),
     );
 
+  const outcomes: Record<string, Record<string, number>> = {
+    findable: {},
+    "not-findable": {},
+    degraded: {},
+  };
+  const unavailableReasons: Record<string, number> = {};
+  for (const t of all) {
+    const outcome = t.reference.outcome!;
+    const name =
+      (outcome.kind === "verdict" ? outcome.verdict : outcome.status) ??
+      "unknown";
+    const bucket = outcomes[t.reference.category]!;
+    bucket[name] = (bucket[name] ?? 0) + 1;
+    for (const reason of outcome.unavailable)
+      unavailableReasons[reason] = (unavailableReasons[reason] ?? 0) + 1;
+  }
+
   const firstVerdicts = checks.map((c) => {
     const ended = c.references
       .filter((r) => r.endedAtMs !== undefined)
@@ -527,6 +548,8 @@ export function buildReport(input: ReportInput): LoadReport {
       findable: findable.summary,
       notFindable: notFindable.summary,
       degraded: degraded.summary,
+      outcomes,
+      unavailableReasons,
       peakConcurrentChecks: peak,
       reconnects: checks.reduce((n, c) => n + c.reconnects, 0),
       leaseRenewals: checks.reduce((n, c) => n + c.leaseRenewals, 0),
