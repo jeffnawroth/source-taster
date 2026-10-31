@@ -168,3 +168,54 @@ identically on the unchanged integration tip `920e5d0`
 (`84-claude-baseline-920e5d0-import.log`). After #89 the workspace renders two
 `input[type=file]` elements, and the test selects the first one. This belongs to
 the #88/#89 composition and is left to its owner or merger.
+
+The import caveat above is resolved in the integration merge below.
+
+### Integration-branch merge (31 October 2026, with #97)
+
+Merged into `spec/70-launch-integration` as `b5419e4` (no conflicts; migration
+`20261030020000_manual_overrides` sorts last). `ea28291` fixes the native
+import test: it now picks the library input by its DE/EN label ("Import BibTeX
+or RIS" / "BibTeX oder RIS importieren") instead of the first
+`input[type=file]`. Red before the fix on `920e5d0` and on the merge
+(`84-claude-baseline-920e5d0-import.log`, `84-97-merge-import-red.log`, 2
+failed with "Library preview not visible"), green after
+(`84-97-merge-import-green.log`, 2/2). #97 then merged as `1e14d63`; pushed
+public tip `1e14d63`.
+
+Environment: shared OrbStack PostgreSQL `:5433`, API/aux/Vite ports
+3701/3702/5281, every suite serial. Document suites need the #89 extractor
+image: `SOURCE_TASTER_DOCUMENT_IMAGE=sha256:a36fa02bdeea666e023b219e6bafa4f020833cd703ca1e1e069623cb7a061707`
+(local image ID checked first). Without it uploads fail closed with 503 by
+design. The #80 web-page browser cases also need
+`SOURCE_TASTER_E2E_WEB_FIXTURES=true`; without it the server has no web-page
+fixtures and they report Not verifiable (seen once on this run, 2 web and 2
+native failures, green with the variable).
+
+Results on `1e14d63` (logs in `/tmp/source-taster-70/84-97-merge-*`):
+
+- `pnpm install --frozen-lockfile`, contract/core/i18n builds,
+  `prisma generate` and server build: `git status --porcelain` empty
+  (`84-97-merge-install.log`, `84-97-merge-regenerate-tip.log`).
+- `pnpm typecheck`, `pnpm lint` (ESLint + Prettier), `pnpm i18n:check` (331
+  DE/EN messages): exit 0. `pnpm audit:licenses`: exit 0. `pnpm
+  pagefind:verify`: controlled 1.5.2 verified.
+- HTTP (vitest, `--fileParallelism=false`): manual-overrides 6/6,
+  revision-lifecycle 5/5, reference-revisions 5/5, recheck-replay 1/1, exports
+  7/7, corrections 11/11, imports 14/14, documents 13/13, documents-limits 6/6,
+  documents-isolation 8/8, web-pages 62/62, bibliographic-lifecycle 3/3.
+- Web Playwright: primary config 78/78; bibliographic config 20/22 without web
+  fixtures, then web-pages 2/2 with them.
+- Native extension Playwright: panel 8/8 (including the import round trip),
+  manual-overrides 2/2, revisions 2/2, documents 2/2; web-pages 2/2 with web
+  fixtures.
+
+Failures seen: bibliographic-lifecycle "shares OpenAlex permits and
+actual-send pacing" failed once (`expected 6 requests, got 4`) while other
+implementers loaded the shared PostgreSQL
+(`84-97-merge-http-bibliographic-lifecycle.log`). Three isolated reruns
+passed 3/3 (`...-rerun1..3.log`). It is recorded as intermittent, not fixed.
+
+Not run: `pnpm audit:dependencies` (this checkout has no OSV database cache or
+`osv-scanner` 2.7.0; this merge changes no dependency or lockfile entry),
+Firefox, and the full server suite in one process.
