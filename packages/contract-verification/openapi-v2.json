@@ -6,6 +6,57 @@
   },
   "components": {
     "schemas": {
+      "Quota": {
+        "type": "object",
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "consumed",
+          "remaining"
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
       "DocumentStructuringResponse": {
         "type": "object",
         "properties": {
@@ -296,11 +347,49 @@
               "quotaConsumed",
               "referenceLimit"
             ]
+          },
+          "selection": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              },
+              "regions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "end": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ]
+                },
+                "maxItems": 1000
+              }
+            },
+            "required": [
+              "version",
+              "regions"
+            ]
+          },
+          "referenceLimitExceeded": {
+            "type": "boolean"
           }
         },
         "required": [
           "document",
-          "structuring"
+          "structuring",
+          "selection",
+          "referenceLimitExceeded"
         ]
       },
       "ExtractedDocument": {
@@ -330,57 +419,6 @@
           "format",
           "text",
           "notice"
-        ]
-      },
-      "Quota": {
-        "type": "object",
-        "properties": {
-          "consumed": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "remaining": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "consumed",
-          "remaining"
-        ]
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
         ]
       },
       "DocumentSettingsResponse": {
@@ -808,6 +846,54 @@
             "items": {
               "$ref": "#/components/schemas/ReferenceSlotV2"
             }
+          },
+          "document": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "selection": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ]
+                    },
+                    "maxItems": 1000
+                  }
+                },
+                "required": [
+                  "version",
+                  "regions"
+                ]
+              }
+            },
+            "required": [
+              "text",
+              "selection"
+            ]
           }
         },
         "required": [
@@ -1542,12 +1628,56 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1
+                "pattern": "\\S/u"
               }
             },
             "required": [
               "text"
             ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "document": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ]
+                    },
+                    "maxItems": 1000
+                  }
+                },
+                "required": [
+                  "text",
+                  "regions"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "document"
+            ],
+            "additionalProperties": false
           },
           {
             "type": "object",
@@ -1586,10 +1716,441 @@
     "parameters": {}
   },
   "paths": {
+    "/v2/structurings": {
+      "post": {
+        "summary": "Detect a pasted document or structure a list; explicit regions structure only selected text",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "document": {
+                    "type": "boolean"
+                  },
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ]
+                    },
+                    "maxItems": 1000
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Selected document text or list; over-limit documents retain movable regions without truncated References.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "document": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "selection": {
+                              "type": "object",
+                              "properties": {
+                                "version": {
+                                  "type": "string"
+                                },
+                                "regions": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "maxItems": 1000
+                                }
+                              },
+                              "required": [
+                                "version",
+                                "regions"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "selection"
+                          ]
+                        },
+                        "structuring": {
+                          "type": "object",
+                          "properties": {
+                            "references": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "originalText": {
+                                    "type": "string"
+                                  },
+                                  "span": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "csl": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string"
+                                      },
+                                      "author": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "family": {
+                                              "type": "string"
+                                            },
+                                            "non-dropping-particle": {
+                                              "type": "string"
+                                            },
+                                            "given": {
+                                              "type": "string"
+                                            },
+                                            "literal": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "issued": {
+                                        "type": "object",
+                                        "properties": {
+                                          "literal": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "literal"
+                                        ]
+                                      },
+                                      "title": {
+                                        "type": "string"
+                                      },
+                                      "container-title": {
+                                        "type": "string"
+                                      },
+                                      "container-title-short": {
+                                        "type": "string"
+                                      },
+                                      "publisher": {
+                                        "type": "string"
+                                      },
+                                      "publisher-place": {
+                                        "type": "string"
+                                      },
+                                      "volume": {
+                                        "type": "string"
+                                      },
+                                      "issue": {
+                                        "type": "string"
+                                      },
+                                      "page": {
+                                        "type": "string"
+                                      },
+                                      "article-number": {
+                                        "type": "string"
+                                      },
+                                      "edition": {
+                                        "type": "string"
+                                      },
+                                      "DOI": {
+                                        "type": "string"
+                                      },
+                                      "URL": {
+                                        "type": "string"
+                                      },
+                                      "ISBN": {
+                                        "type": "string"
+                                      },
+                                      "ISSN": {
+                                        "type": "string"
+                                      },
+                                      "PMID": {
+                                        "type": "string"
+                                      },
+                                      "PMCID": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "fieldSources": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "object",
+                                      "properties": {
+                                        "raw": {
+                                          "type": "string"
+                                        },
+                                        "span": {
+                                          "type": "object",
+                                          "properties": {
+                                            "start": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            },
+                                            "end": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            }
+                                          },
+                                          "required": [
+                                            "start",
+                                            "end"
+                                          ]
+                                        },
+                                        "normalized": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "raw"
+                                      ]
+                                    }
+                                  },
+                                  "authorsTruncated": {
+                                    "type": "boolean"
+                                  },
+                                  "structuring": {
+                                    "type": "object",
+                                    "properties": {
+                                      "path": {
+                                        "type": "string",
+                                        "enum": [
+                                          "parser",
+                                          "user"
+                                        ]
+                                      },
+                                      "version": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "path",
+                                      "version"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "originalText",
+                                  "span",
+                                  "csl",
+                                  "fieldSources",
+                                  "structuring"
+                                ]
+                              }
+                            },
+                            "rejected": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "originalText": {
+                                    "type": "string"
+                                  },
+                                  "span": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "reason": {
+                                    "type": "string",
+                                    "enum": [
+                                      "no-reference-features"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "originalText",
+                                  "span",
+                                  "reason"
+                                ]
+                              }
+                            },
+                            "guidance": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "no-references"
+                              ]
+                            },
+                            "quotaConsumed": {
+                              "type": "number",
+                              "enum": [
+                                0
+                              ]
+                            },
+                            "referenceLimit": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0
+                            }
+                          },
+                          "required": [
+                            "references",
+                            "rejected",
+                            "guidance",
+                            "quotaConsumed",
+                            "referenceLimit"
+                          ]
+                        },
+                        "referenceLimitExceeded": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "document",
+                        "structuring",
+                        "referenceLimitExceeded"
+                      ]
+                    },
+                    "quota": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Quota"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "quota"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selection or Reference limit.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority denied.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/document-structurings": {
       "post": {
         "summary": "Extract the text of a PDF or DOCX and structure it with the parser",
-        "description": "The file is read in an isolated, restricted extraction area and is not stored. The extracted text is structured like pasted text. Structuring never reserves or consumes Quota.",
+        "description": "The file is read in an isolated, restricted extraction area and is not stored. Only the detected Bibliography selection is structured. No detection leaves an empty selection for manual marking. Structuring never reserves or consumes Quota.",
         "requestBody": {
           "required": true,
           "content": {
@@ -2837,6 +3398,421 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stale revision or active Reference work; refresh before retrying.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/selection": {
+      "post": {
+        "summary": "Apply a previewed Bibliography selection difference, preserving unchanged slots and the fixed deadline",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedEventSeq": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ]
+                    },
+                    "maxItems": 1000
+                  }
+                },
+                "required": [
+                  "expectedEventSeq",
+                  "regions"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current snapshot, including the newest event sequence.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stale revision or active Reference work; refresh before retrying.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/selection/preview": {
+      "post": {
+        "summary": "Preview added, cut and dropped References and additional Quota without running work",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedEventSeq": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ]
+                    },
+                    "maxItems": 1000
+                  }
+                },
+                "required": [
+                  "expectedEventSeq",
+                  "regions"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Selection difference; no work started and no Quota consumed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "expectedEventSeq": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "regions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "start": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "end": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": [
+                              "start",
+                              "end"
+                            ]
+                          }
+                        },
+                        "unchanged": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0
+                          }
+                        },
+                        "removed": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0
+                          }
+                        },
+                        "added": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "additionalQuota": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "rejected": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "originalText": {
+                                "type": "string"
+                              },
+                              "span": {
+                                "type": "object",
+                                "properties": {
+                                  "start": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "end": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "start",
+                                  "end"
+                                ]
+                              },
+                              "reason": {
+                                "type": "string",
+                                "enum": [
+                                  "no-reference-features"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "originalText",
+                              "span",
+                              "reason"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "expectedEventSeq",
+                        "regions",
+                        "unchanged",
+                        "removed",
+                        "added",
+                        "total",
+                        "additionalQuota",
+                        "rejected"
+                      ]
+                    },
+                    "quota": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Quota"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "quota"
+                  ]
                 }
               }
             }

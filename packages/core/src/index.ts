@@ -13,3 +13,4 @@ export { journalAbbreviationRules } from "./journal-abbreviations.ts";
 export { normalizeIsbn } from "./isbn.ts";
 
 export * from "./web.ts";
+export * from "./bibliography-selection.ts";

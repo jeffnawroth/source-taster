@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
-import { CheckResponse, CheckEvent, isFinalEvent, ProblemDetails, } from "./v2.js";
+import { CheckResponse, CheckEvent, isFinalEvent, ProblemDetails, SelectionPreviewResponse, } from "./v2.js";
 import { ApiError, createVerificationClient, watchContractEvents, } from "./client.js";
 import { ImportResponse } from "./import.js";
 export { ApiError, CheckStreamError, readSseFrames, } from "./client.js";
 export function verificationClient(options = {}) {
     const base = createVerificationClient(options, "/v2", CheckResponse);
-    async function mutate(checkId, path, input) {
-        const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v2/checks/${encodeURIComponent(checkId)}/${path}`, {
+    async function send(path, input) {
+        const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v2/checks${path}`, {
             method: "POST",
             headers: {
                 "content-type": "application/json",
@@ -20,8 +20,9 @@ export function verificationClient(options = {}) {
         const body = await response.json().catch(() => undefined);
         if (!response.ok)
             throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
-        return CheckResponse.parse(body).data;
+        return body;
     }
+    const mutate = async (checkId, path, input) => CheckResponse.parse(await send(`/${encodeURIComponent(checkId)}/${path}`, input)).data;
     return {
         ...base,
         importLibrary: async (input) => {
@@ -43,6 +44,8 @@ export function verificationClient(options = {}) {
                 throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
             return ImportResponse.parse(body).data;
         },
+        editSelection: (checkId, input) => mutate(checkId, "selection", input),
+        previewSelection: async (checkId, input) => SelectionPreviewResponse.parse(await send(`/${encodeURIComponent(checkId)}/selection/preview`, input)).data,
         saveFields: (id, slot, input) => mutate(id, `references/${slot}/revisions`, input),
         recheckReference: (id, slot, input) => mutate(id, `references/${slot}/recheck`, input),
         editReferenceList: (id, input) => mutate(id, "references", input),

@@ -299,5 +299,20 @@
   "problem_library_size": "Die Datei überschreitet 20 MB. Teile sie in kleinere Dateien auf.",
   "problem_library_format": "Wähle eine BibTeX- (.bib, .bibtex) oder RIS-Datei (.ris).",
   "problem_library_encoding": "Die Datei enthält kein gültiges UTF-8. Exportiere sie in deiner Literaturverwaltung als UTF-8.",
-  "library_no_references": "Es konnten keine Referenzen importiert werden. Prüfe die abgelehnten Einträge oder exportiere eine UTF-8-Datei im BibTeX- oder RIS-Format aus deiner Literaturverwaltung."
+  "library_no_references": "Es konnten keine Referenzen importiert werden. Prüfe die abgelehnten Einträge oder exportiere eine UTF-8-Datei im BibTeX- oder RIS-Format aus deiner Literaturverwaltung.",
+  "selection_heading": "Literaturauswahl",
+  "selection_text": "Dokumenttext mit ausgewählten Bereichen",
+  "selection_none": "Kein Literaturverzeichnis erkannt oder ausgewählt. Markieren Sie einen Bereich von Hand; erst ausgewählter Text wird geprüft.",
+  "selection_help": "Nur hervorgehobener Text wird strukturiert und geprüft. Verschieben Sie Bereiche über Anfang und Ende oder markieren Sie Text in der Originaleingabe und fügen Sie ihn als Bereich hinzu. Positionen zählen Zeichen ab 0; das Ende ist ausgeschlossen.",
+  "selection_start": "Bereich {region} Anfang",
+  "selection_end": "Bereich {region} Ende",
+  "selection_deselect": "Bereich {region} abwählen",
+  "selection_add": "Markierten Text als Bereich hinzufügen",
+  "selection_invalid": "Wählen Sie nicht überlappende Bereiche im Dokument, deren Anfang vor dem Ende liegt.",
+  "selection_change": "Literaturauswahl ändern",
+  "selection_preview": "Auswahländerungen vorschauen",
+  "selection_apply": "Auswahländerungen anwenden",
+  "selection_limit": "Die Auswahl überschreitet {limit} Referenzen. Es wurde nichts gekürzt oder geprüft. Verkleinern Sie die Auswahl.",
+  "selection_original": "Originaler Dokumenttext — hier einen Bereich markieren",
+  "selection_versions": "Literaturerkennung: {version}. Parser-Regeln stehen in jedem Plan zur Verfügung."
 }
