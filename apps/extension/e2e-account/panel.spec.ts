@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
-import { createServer, type Server } from "node:http";
+import {
+  createServer,
+  type Server,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
 import { once } from "node:events";
 import { spawn } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -65,10 +70,7 @@ async function withPanel(
     authority: false,
   };
   const origins = new Set<string>();
-  const respond = async (
-    req: import("node:http").IncomingMessage,
-    res: import("node:http").ServerResponse,
-  ) => {
+  const respond = async (req: IncomingMessage, res: ServerResponse) => {
     if (origins.has(req.headers.origin ?? "")) {
       res.setHeader("access-control-allow-origin", req.headers.origin!);
       res.setHeader("access-control-allow-credentials", "true");
@@ -197,7 +199,16 @@ async function withPanel(
       ),
     );
   };
-  const servers: Server[] = [createServer(respond)];
+  const failures: unknown[] = [];
+  const servers: Server[] = [
+    createServer((req, res) => {
+      void respond(req, res).catch((error) => {
+        failures.push(error);
+        res.statusCode = 500;
+        res.end("{}");
+      });
+    }),
+  ];
   let build: Awaited<ReturnType<typeof buildExtension>> | undefined;
   let browser: Awaited<ReturnType<typeof launchChromium>> | undefined;
   let panel: Panel | undefined;
@@ -237,6 +248,7 @@ async function withPanel(
         return { panel, browser };
       },
     });
+    expect(failures).toEqual([]);
   } finally {
     panel?.detach();
     await browser?.close();

@@ -73,3 +73,53 @@ See [the exact private-service handoff](98-private-session-handoff.md) for endpo
 policy and all remaining real private/both-program requirements. No local result is
 CI, calibrated release, production activation, real private session independence,
 Better Auth qualification or full supported-browser/OS acceptance evidence.
+
+## Final merged-tree validation (31 October 2026)
+
+Implementation commit `ec3644c` merged integration
+`dc39bbeab3da55bc410ad866be65f5ee724318b9` as `6961171` without conflicts.
+This includes #94 while preserving the required `901b22d` ancestor. Transport
+source was regenerated after this merge; generated output was never hand-merged.
+
+| Check | Actual result / retained transcript |
+| --- | --- |
+| `DATABASE_ADMIN_URL=<owned admin URL> DATABASE_TEST_URL=<owned role URL> pnpm --filter @source-taster/extension test:native-account` | **15/15 passed**, serial, 44.7s; `account-final.log` |
+| Typecheck: extension, ui, web, server, contract-service | All exit 0; `types-*-final.log` |
+| `pnpm exec eslint apps/extension packages/ui/src/web-account-workspace.tsx packages/contract-service apps/server/test/support/extension-api.ts` | Exit 0; `lint-final.log` |
+| Prettier on changed extension, transport source/script, shared UI, test support and #98 docs; `git diff --check` | Passed; `prettier-final.log` |
+| `pnpm --filter @source-taster/extension build` | Chromium and Firefox passed; `build-extension-final.log` |
+| `pnpm --filter @source-taster/web build` | Passed; `build-web-final.log` |
+| `pnpm --filter @source-taster/i18n i18n:check` | 351 DE/EN messages validated; `i18n-final.log` |
+| contract-service, contract-internal, contract-verification builds; generated dist/OpenAPI comparison to committed output | Passed, no artifact diff; `regenerate-*.log`, `generated-reproducibility.log` |
+| `node apps/server/scripts/release-check.ts` | Expected refusal, exit 78; `release-refusal.log` |
+
+The final 15 cases cover native sign-in/reload; Account bearer use with real API
+current-authority refusal; sign-out here/everywhere request scopes; cross-panel
+content clearing; expired token rejection through Reset; revoked renewal latch;
+503 and missing/404 backend failures; disabled default gate; German keyboard flow
+and automated axe; Firefox native sign-in/reopen/sign-out; real Check creation,
+SSE reconnect after process restart, current denial and cross-Owner 404; actual web
+cookie UI compatibility; real full-storage failure; browser restart without Check
+content; and strict cookie-free transport versus existing cookie web transport.
+The apparent session-policy behavior in the HTTP fixture is **not** real private
+backend coverage. Neither idle/absolute private expiry nor actual global revocation,
+mail delivery, restore, private persistence or both-program Quota was tested here.
+
+Browsers were Google Chrome for Testing **156.0.8078.4** and Firefox Developer
+Edition **160.0b3**, headless, on this macOS arm64 workstation (Playwright 1.64.1).
+Builds retain Vite's >500 kB extension chunk warning; no size threshold was changed.
+No full verification, private, live-provider, Quality measurement, supported-browser/
+OS qualification or CI suite was run. #94's release refusal remains intact.
+
+The suite used fixed API/aux/browser ports **4601/4602/5361** and owned PostgreSQL18
+container `st98-public-pg`, with its own randomly assigned loopback database port.
+Its disposable database/role was removed by fixture teardown. Cleanup inspected
+only that owned PostgreSQL instance, found no remaining `source_taster_test_*`
+database, then stopped/removed that container. All three owned application ports
+had no listeners afterwards (`database-cleanup.log`, `container-cleanup.log`,
+`listeners-after.log`). No shared database settings or unknown resources were changed.
+
+The parent must consume [the private-phase handoff](98-private-session-handoff.md),
+repin after public publication, implement all six real service endpoints and session
+policy, run the listed real private/both-program tests, and only then consider
+activation/acceptance of #98. The default sign-in gate stays disabled in this delivery.

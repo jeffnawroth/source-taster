@@ -13,35 +13,40 @@ test("extension session transport omits cookies and keeps credentials scoped to 
   };
   const credential = "s".repeat(43);
   const transactionCredential = "t".repeat(43);
-  const server = createServer(async (req, res) => {
-    let body = "";
-    for await (const chunk of req) body += String(chunk);
-    seen.push({
-      path: req.url!,
-      authorization: req.headers.authorization,
-      body: body ? JSON.parse(body) : null,
+  const server = createServer((req, res) => {
+    void (async () => {
+      let body = "";
+      for await (const chunk of req) body += String(chunk);
+      seen.push({
+        path: req.url!,
+        authorization: req.headers.authorization,
+        body: body ? JSON.parse(body) : null,
+      });
+      const data = req.url?.endsWith("/challenges")
+        ? {
+            challengeId: "33333333-3333-4333-8333-333333333333",
+            expiresIn: 300,
+            resendAfter: 60,
+            transactionCredential,
+          }
+        : req.url?.endsWith("/confirm")
+          ? { session: account, sessionCredential: credential }
+          : req.url?.endsWith("/sign-out")
+            ? { signedOut: true }
+            : req.url?.endsWith("/account-tokens")
+              ? {
+                  accessToken: "memory-only",
+                  tokenType: "Bearer",
+                  expiresIn: 300,
+                  expiresAt: new Date(Date.now() + 300000).toISOString(),
+                }
+              : account;
+      res.setHeader("content-type", "application/json");
+      res.end(JSON.stringify({ data, quota: { status: "not-implemented" } }));
+    })().catch(() => {
+      res.statusCode = 500;
+      res.end("{}");
     });
-    const data = req.url?.endsWith("/challenges")
-      ? {
-          challengeId: "33333333-3333-4333-8333-333333333333",
-          expiresIn: 300,
-          resendAfter: 60,
-          transactionCredential,
-        }
-      : req.url?.endsWith("/confirm")
-        ? { session: account, sessionCredential: credential }
-        : req.url?.endsWith("/sign-out")
-          ? { signedOut: true }
-          : req.url?.endsWith("/account-tokens")
-            ? {
-                accessToken: "memory-only",
-                tokenType: "Bearer",
-                expiresIn: 300,
-                expiresAt: new Date(Date.now() + 300000).toISOString(),
-              }
-            : account;
-    res.setHeader("content-type", "application/json");
-    res.end(JSON.stringify({ data, quota: { status: "not-implemented" } }));
   });
   server.listen(4602, "127.0.0.1");
   await once(server, "listening");
