@@ -59,7 +59,9 @@ test.afterAll(async () => {
   await both?.stop();
 });
 for (const language of ["en", "de"] as const)
-  test(`email-code sign-in, keyboard confirmation, restart and logout in ${language}`, async ({ browser }, testInfo) => {
+  test(`email-code sign-in, keyboard confirmation, restart and logout in ${language}`, async ({
+    browser,
+  }, testInfo) => {
     const context = await browser.newContext({ locale: language });
     const page = await context.newPage();
     try {
@@ -81,7 +83,9 @@ for (const language of ["en", "de"] as const)
         .getByLabel(language === "de" ? "E-Mail-Adresse" : "Email address", {
           exact: true,
         })
-        .fill(`browser-${language}-${testInfo.repeatEachIndex}@example.invalid`);
+        .fill(
+          `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
+        );
       await page
         .getByRole("button", {
           name: language === "de" ? "Code senden" : "Send code",
@@ -101,7 +105,10 @@ for (const language of ["en", "de"] as const)
       await page.getByLabel(label).fill(code);
       await page.getByLabel(label).press("Enter");
       await expect(
-        page.getByText(`browser-${language}-${testInfo.repeatEachIndex}@example.invalid`, { exact: true }),
+        page.getByText(
+          `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
+          { exact: true },
+        ),
       ).toBeVisible();
       const states = await context.storageState();
       expect(JSON.stringify(states.origins)).not.toMatch(
@@ -112,7 +119,10 @@ for (const language of ["en", "de"] as const)
       ).toMatchObject({ secure: true, httpOnly: true, sameSite: "Strict" });
       await page.reload();
       await expect(
-        page.getByText(`browser-${language}-${testInfo.repeatEachIndex}@example.invalid`, { exact: true }),
+        page.getByText(
+          `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
+          { exact: true },
+        ),
       ).toBeVisible();
       const tokens: string[] = [];
       page.on("request", (request) => {
@@ -130,8 +140,10 @@ for (const language of ["en", "de"] as const)
       expect(
         tokens.some(
           (token) =>
-            JSON.parse(
-              Buffer.from(token.split(".")[1]!, "base64url").toString(),
+            (
+              JSON.parse(
+                Buffer.from(token.split(".")[1]!, "base64url").toString(),
+              ) as { purpose?: string }
             ).purpose === "account-access",
         ),
       ).toBe(true);
@@ -156,7 +168,6 @@ for (const language of ["en", "de"] as const)
       ).toBeVisible();
       await expect(page.locator("#results-title")).toHaveCount(0);
     } finally {
-      if(testInfo.status!==testInfo.expectedStatus)console.log("[DEBUG-97]",both.service().output(),both.web().output());
       await context.close();
     }
   });

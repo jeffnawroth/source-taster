@@ -111,6 +111,7 @@ test("logout drains old Account allows while preserving another current session 
       signal: AbortSignal.timeout(15000),
     });
     for await (const _ of readSseFrames(stream.body!)) {
+      /* real worker/ordered stream */
     }
     const result = CheckResponse.parse(
       await (

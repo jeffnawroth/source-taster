@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import { SignInChallengeRequest, SignInConfirmRequest, GuestTokenRequest, ProblemDetails } from "./index.ts";
 export declare class GuestTokenError extends Error {
     readonly status: number;
@@ -23,12 +24,12 @@ export declare function accountSessionClient(options: {
         ownerId: string;
         email: string;
     }>;
-    challenge: (input: import("zod").infer<typeof SignInChallengeRequest>) => Promise<{
+    challenge: (input: z.infer<typeof SignInChallengeRequest>) => Promise<{
         challengeId: string;
         expiresIn: number;
         resendAfter: number;
     }>;
-    confirm: (input: import("zod").infer<typeof SignInConfirmRequest>) => Promise<{
+    confirm: (input: z.infer<typeof SignInConfirmRequest>) => Promise<{
         accountId: string;
         ownerId: string;
         email: string;

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Transport only: persistence, renewal policy and cryptography belong to clients/service.
+import type { z } from "zod";
 import {
   SignInChallengeRequest,
   SignInChallengeResponse,
@@ -76,9 +77,7 @@ export function accountSessionClient(options: {
   return {
     session: async () =>
       AccountSessionResponse.parse(await call("/v1/session")).data,
-    challenge: async (
-      input: import("zod").infer<typeof SignInChallengeRequest>,
-    ) =>
+    challenge: async (input: z.infer<typeof SignInChallengeRequest>) =>
       SignInChallengeResponse.parse(
         await call(
           "/v1/sign-in/challenges",
@@ -86,7 +85,7 @@ export function accountSessionClient(options: {
           SignInChallengeRequest.parse(input),
         ),
       ).data,
-    confirm: async (input: import("zod").infer<typeof SignInConfirmRequest>) =>
+    confirm: async (input: z.infer<typeof SignInConfirmRequest>) =>
       AccountSessionResponse.parse(
         await call(
           "/v1/sign-in/confirm",

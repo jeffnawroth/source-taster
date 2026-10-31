@@ -53,52 +53,69 @@ export async function bothPrograms(
   const admin = new pg.Client({ connectionString: adminUrl });
   await admin.connect();
   const passwords = [randomUUID(), randomUUID()];
-  await admin.query(`CREATE DATABASE ${admin.escapeIdentifier(database)}`);
-  await admin.query(
-    `REVOKE ALL ON DATABASE ${admin.escapeIdentifier(database)} FROM PUBLIC`,
-  );
   const target = new URL(adminUrl);
   target.pathname = `/${database}`;
-  const setup = new pg.Client({ connectionString: target.toString() });
-  await setup.connect();
-  await setup.query("REVOKE ALL ON SCHEMA public FROM PUBLIC");
   const urls: string[] = [];
-  for (let index = 0; index < 2; index++) {
-    const role = roles[index]!,
-      schema = index === 0 ? "verification" : "service";
+  let setup: pg.Client | undefined;
+  try {
+    await admin.query(`CREATE DATABASE ${admin.escapeIdentifier(database)}`);
     await admin.query(
-      `CREATE ROLE ${admin.escapeIdentifier(role)} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${admin.escapeLiteral(passwords[index]!)}`,
+      `REVOKE ALL ON DATABASE ${admin.escapeIdentifier(database)} FROM PUBLIC`,
     );
-    await admin.query(
-      `GRANT CONNECT ON DATABASE ${admin.escapeIdentifier(database)} TO ${admin.escapeIdentifier(role)}`,
-    );
-    for (const name of [schema, `${schema}_boss`]) {
-      await setup.query(
-        `CREATE SCHEMA ${setup.escapeIdentifier(name)} AUTHORIZATION ${setup.escapeIdentifier(role)}`,
+    setup = new pg.Client({ connectionString: target.toString() });
+    await setup.connect();
+    await setup.query("REVOKE ALL ON SCHEMA public FROM PUBLIC");
+    for (let index = 0; index < 2; index++) {
+      const role = roles[index]!,
+        schema = index === 0 ? "verification" : "service";
+      await admin.query(
+        `CREATE ROLE ${admin.escapeIdentifier(role)} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${admin.escapeLiteral(passwords[index]!)}`,
       );
-      await setup.query(
-        `REVOKE ALL ON SCHEMA ${setup.escapeIdentifier(name)} FROM PUBLIC`,
+      await admin.query(
+        `GRANT CONNECT ON DATABASE ${admin.escapeIdentifier(database)} TO ${admin.escapeIdentifier(role)}`,
       );
+      for (const name of [schema, `${schema}_boss`]) {
+        await setup.query(
+          `CREATE SCHEMA ${setup.escapeIdentifier(name)} AUTHORIZATION ${setup.escapeIdentifier(role)}`,
+        );
+        await setup.query(
+          `REVOKE ALL ON SCHEMA ${setup.escapeIdentifier(name)} FROM PUBLIC`,
+        );
+      }
+      await admin.query(
+        `ALTER ROLE ${admin.escapeIdentifier(role)} IN DATABASE ${admin.escapeIdentifier(database)} SET search_path=${schema}`,
+      );
+      const url = new URL(target);
+      url.username = role;
+      url.password = passwords[index]!;
+      urls.push(url.toString());
+      const migration = new URL(url);
+      migration.searchParams.set("schema", schema);
+      const result = spawnSync(
+        "pnpm",
+        ["exec", "prisma", "migrate", "deploy"],
+        {
+          cwd: index === 0 ? serverPath : join(privatePath, "apps/server"),
+          env: { PATH: process.env.PATH, DATABASE_URL: migration.toString() },
+          encoding: "utf8",
+        },
+      );
+      if (result.status !== 0)
+        throw new Error(`Fixture migration failed: ${result.stderr}`);
     }
+    await setup.end();
+  } catch (error) {
+    // A failed setup (for example exhausted shared connection slots) must not leak its own database or roles.
+    await setup?.end().catch(() => {});
     await admin.query(
-      `ALTER ROLE ${admin.escapeIdentifier(role)} IN DATABASE ${admin.escapeIdentifier(database)} SET search_path=${schema}`,
+      `DROP DATABASE IF EXISTS ${admin.escapeIdentifier(database)} WITH (FORCE)`,
     );
-    const url = new URL(target);
-    url.username = role;
-    url.password = passwords[index]!;
-    urls.push(url.toString());
-    const migration = new URL(url);
-    migration.searchParams.set("schema", schema);
-    const result = spawnSync("pnpm", ["exec", "prisma", "migrate", "deploy"], {
-      cwd: index === 0 ? serverPath : join(privatePath, "apps/server"),
-      env: { PATH: process.env.PATH, DATABASE_URL: migration.toString() },
-      encoding: "utf8",
-    });
-    if (result.status !== 0)
-      throw new Error(`Fixture migration failed: ${result.stderr}`);
+    for (const role of roles)
+      await admin.query(`DROP ROLE IF EXISTS ${admin.escapeIdentifier(role)}`);
+    throw error;
+  } finally {
+    await admin.end();
   }
-  await setup.end();
-  await admin.end();
   let now = Date.now(),
     seq = 0;
   const processes: {

@@ -118,7 +118,6 @@ export function createApp(
   });
 
   app.onError((error) => {
-    console.error(JSON.stringify({tag:"[DEBUG-97]",name:error.name,code:(error as {code?:string}).code,cause:(error as {cause?:{code?:string}}).cause?.code}));
     if (error instanceof CheckExpired) return problemResponse("check-expired");
     if (error instanceof ReferenceLimitExceeded)
       return problemResponse("reference-limit", undefined, error.limit);
