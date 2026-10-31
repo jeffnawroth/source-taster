@@ -83,3 +83,15 @@ it("refuses a release run without authorized recordings", async () => {
   expect(code, output).toBe(78);
   expect(output).toMatch(/recording/iu);
 }, 30_000);
+
+it("refuses a release run with eased budgets or measurement", async () => {
+  for (const eased of [
+    ["--settings", '{"sources":{"openalex":{"intervalMs":0}}}'],
+    ["--duration-basis", "slot-eligible"],
+    ["--placeholder-delay-ms", "0"],
+  ]) {
+    const { code, output } = await cli(["--release", ...eased]);
+    expect(code, output).toBe(78);
+    expect(output).toContain(eased[0]);
+  }
+}, 30_000);

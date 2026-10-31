@@ -27,17 +27,21 @@ export const TARGETS = Object.freeze({
   concurrentChecks: 50,
 });
 
+/** The service's own development scheduling delay (`SOURCE_TASTER_PLACEHOLDER_DELAY_MS`). */
+export const SHIPPED_PLACEHOLDER_DELAY_MS = 500;
+
 export type Category = "findable" | "not-findable" | "degraded";
 /**
  * How a Reference's duration is counted for FA-UEB-40/41.
- * - `slot-eligible`: from the moment the Reference could first run, i.e. the
- *   Check start for the first `activeReferencesPerCheck` Reference runs and the
- *   end of the Check's own earlier Reference that freed its slot afterwards.
- *   Everything else, such as worker queueing behind other Checks, source
- *   budget waits, retries and source latency, is included.
- * - `check-start`: from the start of the Check, including the Check's own
- *   per-Check pacing (ADR-0007: ten active References per Check). With
- *   lists of 100 References this cannot meet 3 s, so it is a diagnostic.
+ * - `check-start`: the literal requirement reading and the only basis that can
+ *   qualify. The clock starts when the Check starts and includes every wait,
+ *   among them the Check's own per-Check pacing (ADR-0007: ten active
+ *   References per Check). With 100-Reference lists the mean sits near 5.5 x
+ *   the per-Reference duration, a tension the handoff raises as a spec question.
+ * - `slot-eligible`: a diagnostic reading from the moment the Reference could
+ *   first run (Check start for the first `activeReferencesPerCheck` runs, the
+ *   end of the Check's own earlier Reference that freed its slot afterwards).
+ *   It is easier to pass, so a run measured this way never qualifies.
  */
 export type DurationBasis = "slot-eligible" | "check-start";
 
@@ -503,6 +507,10 @@ export function buildReport(input: ReportInput): LoadReport {
     limitations.push(
       "Synthetic latency witnesses are not recorded latencies and give no qualification.",
     );
+  if (input.durationBasis !== "check-start")
+    limitations.push(
+      "The slot-eligible duration basis is a diagnostic reading, not the literal Check-start clock; it gives no qualification.",
+    );
   if (!launch)
     limitations.push(
       `Reduced scope (${scope.concurrentChecks} concurrent Checks, ${scope.referencesPerCheck} References each): a miss still fails, but the run cannot pass.`,
@@ -521,11 +529,17 @@ export function buildReport(input: ReportInput): LoadReport {
     generatedAt: new Date().toISOString(),
     clock: "monotonic",
     outcome,
+    // Qualification needs a pass on authorized recordings under the shipped
+    // operating budgets and the literal measurement; easing any of them,
+    // for diagnosis, can never produce a qualifying report.
     qualifying:
       outcome === "passed" &&
       evidence.provenance === "recorded" &&
       !!evidence.recordingDigest &&
-      !!evidence.authorization,
+      !!evidence.authorization &&
+      hash === defaultHash &&
+      input.placeholderDelayMs >= SHIPPED_PLACEHOLDER_DELAY_MS &&
+      input.durationBasis === "check-start",
     durationBasis: input.durationBasis,
     scope: {
       launch,

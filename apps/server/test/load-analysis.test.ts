@@ -74,9 +74,9 @@ function input(
   return {
     checks,
     scope: LAUNCH,
-    durationBasis: "slot-eligible",
+    durationBasis: "check-start",
     searchSettings: defaultSearchSettings,
-    placeholderDelayMs: 0,
+    placeholderDelayMs: 500,
     topology: { webProcesses: 1, workerProcesses: 1, database: "postgres" },
     evidence: {
       provenance: "recorded",
@@ -313,6 +313,34 @@ describe("load report", () => {
     );
   });
 
+  it("never qualifies a run that eased the measurement or the budgets", () => {
+    const eased = {
+      "slot-eligible duration basis": { durationBasis: "slot-eligible" },
+      "settings different from the shipped defaults": {
+        searchSettings: {
+          ...defaultSearchSettings,
+          sources: {
+            ...defaultSearchSettings.sources,
+            openalex: {
+              ...defaultSearchSettings.sources.openalex,
+              intervalMs: 0,
+            },
+          },
+        },
+      },
+      "a placeholder delay below the service default": {
+        placeholderDelayMs: 0,
+      },
+    } satisfies Record<string, Partial<ReportInput>>;
+    for (const [name, change] of Object.entries(eased)) {
+      const report = buildReport(input(launchChecks(), change));
+      // The run itself may pass, but it can never be offered as qualification.
+      expect(report.outcome, name).toBe("passed");
+      expect(report.qualifying, name).toBe(false);
+    }
+    expect(buildReport(input(launchChecks())).qualifying).toBe(true);
+  });
+
   it("never lets a replay report stand in for live acceptance", () => {
     const report = buildReport(input(launchChecks()));
     expect(report.qualifying).toBe(true);
@@ -359,7 +387,7 @@ describe("load report", () => {
     });
   });
 
-  it("states the duration basis and exposes the stricter one beside it", () => {
+  it("states the duration basis and exposes the other one beside it", () => {
     // One Check of four findable References with two active slots: the third
     // and fourth wait for the Check's own cap, ending at 6 s and 7 s.
     const check: CheckObservation = {
@@ -382,6 +410,7 @@ describe("load report", () => {
     const eligible = buildReport(
       input([check], {
         searchSettings: settings,
+        durationBasis: "slot-eligible",
         scope: { concurrentChecks: 1, referencesPerCheck: 4 },
       }),
     );

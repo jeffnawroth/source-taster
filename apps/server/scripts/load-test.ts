@@ -9,7 +9,11 @@
 //   0 all launch targets measured and met      1 a target missed / invalid evidence
 //   3 reduced scope, nothing missed             78 configuration error
 import { parseArgs } from "node:util";
-import { exitCodeFor, type DurationBasis } from "./load/analysis.ts";
+import {
+  exitCodeFor,
+  SHIPPED_PLACEHOLDER_DELAY_MS,
+  type DurationBasis,
+} from "./load/analysis.ts";
 import { runLoad } from "./load/run.ts";
 import {
   loadRecording,
@@ -31,7 +35,7 @@ const { values } = (() => {
         workers: { type: "string", default: "1" },
         "placeholder-delay-ms": { type: "string" },
         settings: { type: "string" },
-        "duration-basis": { type: "string", default: "slot-eligible" },
+        "duration-basis": { type: "string", default: "check-start" },
         report: { type: "string" },
         "max-run-seconds": { type: "string", default: "900" },
         recording: { type: "string" },
@@ -70,7 +74,9 @@ async function main() {
     throw new UsageError("--not-findable-share must be in [0, 1).");
   const basis = values["duration-basis"] as DurationBasis;
   if (basis !== "slot-eligible" && basis !== "check-start")
-    throw new UsageError("--duration-basis is slot-eligible or check-start.");
+    throw new UsageError(
+      "--duration-basis is check-start (default, literal) or slot-eligible (diagnostic).",
+    );
   let patch: object | undefined;
   if (values.settings) {
     try {
@@ -80,6 +86,19 @@ async function main() {
     }
   }
 
+  if (values.release) {
+    const eased = [
+      basis !== "check-start" && "--duration-basis",
+      patch && "--settings",
+      values["placeholder-delay-ms"] !== undefined &&
+        Number(values["placeholder-delay-ms"]) < SHIPPED_PLACEHOLDER_DELAY_MS &&
+        "--placeholder-delay-ms",
+    ].filter(Boolean);
+    if (eased.length)
+      throw new UsageError(
+        `--release measures the shipped budgets and the literal Check-start clock; remove ${eased.join(", ")}.`,
+      );
+  }
   const recordingPath =
     values.recording ?? process.env.SOURCE_TASTER_LOAD_RECORDING;
   let workload: WorkloadReference[][];
@@ -138,7 +157,7 @@ async function main() {
     // Unset keeps the service's own development default (500 ms), disclosed in the report.
     placeholderDelayMs:
       values["placeholder-delay-ms"] === undefined
-        ? 500
+        ? SHIPPED_PLACEHOLDER_DELAY_MS
         : integer("placeholder-delay-ms", values["placeholder-delay-ms"], 0),
     workers: integer("workers", values.workers, 1),
     durationBasis: basis,
@@ -162,7 +181,11 @@ async function main() {
     console.log(`  invalid evidence: ${e.code} x${e.count}`);
   for (const line of report.limitations) console.log(`  limitation: ${line}`);
   if (values.report) console.log(`report: ${values.report}`);
-  process.exitCode = exitCodeFor(report);
+  // A release run offers qualification evidence: a pass that cannot qualify is not one.
+  process.exitCode =
+    values.release && report.outcome === "passed" && !report.qualifying
+      ? 1
+      : exitCodeFor(report);
 }
 
 main().catch((error: unknown) => {
