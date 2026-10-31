@@ -8,7 +8,6 @@ import {
   QuotaSettleResponse,
   QuotaSnapshotResponse,
 } from "@source-taster/contract-internal";
-import type { Quota } from "@source-taster/contract-common";
 import { fail } from "../http/problems.ts";
 import { requestAssertion, type HostedSettings } from "../authority/crypto.ts";
 import {
@@ -69,7 +68,7 @@ export function quotaClient(
         if (r.status !== 200) fail("forbidden");
         const view = QuotaSnapshotResponse.parse(r.json);
         if (view.outcome === "denied") fail("forbidden");
-        return view.quota as Quota;
+        return view.quota;
       }),
     reserve: (owner, checkId, key, slots) =>
       gated(async () => {
@@ -91,7 +90,7 @@ export function quotaClient(
         return {
           free: view.free,
           reserved: view.reserved,
-          quota: view.quota as Quota,
+          quota: view.quota,
         };
       }),
     async release(owner, checkId, key) {

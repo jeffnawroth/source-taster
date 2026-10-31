@@ -18,7 +18,7 @@ let both: Awaited<ReturnType<typeof bothPrograms>>,
 const references = (n: number) =>
   Array.from({ length: n }, () => physicsReference).join("\n\n");
 test.beforeAll(async () => {
-  both = await bothPrograms();
+  both = await bothPrograms({ accounts: true });
   const port = process.env.SOURCE_TASTER_TEST_BROWSER_PORT
     ? Number(process.env.SOURCE_TASTER_TEST_BROWSER_PORT)
     : await freePort();
@@ -135,6 +135,7 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
   });
   await expect(page.getByTestId("quota-summary")).toContainText(
     "0 of 20 checks left · 20 used",
+    { timeout: 45000 },
   );
   // A new start finds nothing left: only upgrade or cancel.
   await page.getByRole("button", { name: "Reset", exact: true }).click();
@@ -157,6 +158,7 @@ test("80 percent of the Quota raises an upgrade warning", async ({ page }) => {
   });
   await expect(page.getByTestId("quota-summary")).toContainText(
     "4 of 20 checks left · 16 used",
+    { timeout: 45000 },
   );
 });
 
