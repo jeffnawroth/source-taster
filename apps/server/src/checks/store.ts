@@ -20,6 +20,12 @@ import {
 } from "@source-taster/core";
 import type { PgBoss } from "pg-boss";
 import type { Prisma } from "../generated/prisma/client.ts";
+import {
+  contentTransaction,
+  dailyKey,
+  keyDay,
+  ContentUnavailable,
+} from "./content.ts";
 import { EVENT_CHANNEL } from "./events.ts";
 import { REFERENCE_QUEUE } from "./queue.ts";
 import type { Db } from "../db/prisma.ts";
@@ -242,6 +248,11 @@ export function createCheckStore(
   const clock = options.clock ?? { now: Date.now };
   const settings = { ...defaultLifecycleSettings, ...options.settings };
   const renewalInterval = Math.max(1, Math.floor(settings.clientLeaseMs / 3));
+  const transaction = <T>(operation: (tx: Tx) => Promise<T>) =>
+    db.$transaction(async (raw) => {
+      await raw.$queryRaw`SELECT pg_advisory_xact_lock_shared(910012)::text`;
+      return operation(contentTransaction(raw, () => clock.now()));
+    });
   async function wake(tx: Tx, checkId: string, slot = 0) {
     await boss.send(
       REFERENCE_QUEUE,
@@ -249,7 +260,7 @@ export function createCheckStore(
       {
         db: {
           executeSql: async (sql, values) => ({
-            rows: await tx.$queryRawUnsafe(sql, ...(values ?? [])),
+            rows: await tx.$queryRawUnsafe<unknown[]>(sql, ...(values ?? [])),
           }),
         },
       },
@@ -369,37 +380,72 @@ export function createCheckStore(
     }
     return false;
   }
-  type ContentRow = { contentExpiresAt: Date; deletedAt: Date | null };
+  type ContentRow = {
+    contentExpiresAt: Date;
+    deletedAt: Date | null;
+    startedAt: Date | null;
+    endedAt: Date | null;
+    leaseExpiresAt: Date;
+  };
   function contentAlive(row: ContentRow) {
-    return !row.deletedAt && clock.now() < row.contentExpiresAt.getTime();
+    const now = clock.now();
+    // Once work has started, creation is no longer the retention origin. Before
+    // the first end, only an expired lease can establish the eventual deadline.
+    const deadline =
+      row.startedAt && !row.endedAt
+        ? row.leaseExpiresAt.getTime() <= now
+          ? row.leaseExpiresAt.getTime() + settings.contentRetentionMs
+          : Infinity
+        : row.contentExpiresAt.getTime();
+    return !row.deletedAt && now < deadline;
   }
   function assertContentAlive(row: ContentRow) {
     if (!contentAlive(row)) throw new CheckExpired();
   }
-  // ADR-0005 deletion. Unfinished slots first end as cancelled so their release
-  // intents survive for #99; then all content, events and queued work go. The
+  // ADR-0005 deletion. Preserve unfinished release intents without decrypting
+  // lost content for #99; then all content, events and queued work go. The
   // content-free Check row remains as the tombstone.
-  async function purgeLocked(
-    tx: Tx,
-    check: { id: string; deletedAt: Date | null },
-  ) {
+  async function purgeLocked(tx: Tx, check: { id: string } & ContentRow) {
     if (check.deletedAt) return;
     const now = clock.now();
-    if (
-      (await tx.referenceSlot.count({
-        where: { checkId: check.id, status: "running" },
-      })) > 0
-    )
-      await cancelLocked(tx, check.id, "cancelled", now);
+    const unfinished = await tx.referenceSlot.findMany({
+      where: { checkId: check.id, status: "running" },
+      select: { position: true, generation: true },
+    });
+    for (const slot of unfinished)
+      await tx.settlementIntent.upsert({
+        where: {
+          checkId_position_generation: {
+            checkId: check.id,
+            position: slot.position,
+            generation: slot.generation,
+          },
+        },
+        create: {
+          checkId: check.id,
+          position: slot.position,
+          generation: slot.generation,
+          outcome: "release",
+        },
+        update: {},
+      });
     await tx.checkEvent.deleteMany({ where: { checkId: check.id } });
     await tx.referenceSlot.deleteMany({ where: { checkId: check.id } });
     await tx.check.update({
       where: { id: check.id },
-      data: { deletedAt: new Date(now) },
+      data: {
+        deletedAt: new Date(now),
+        state: "ended",
+        endedAt:
+          check.endedAt ??
+          (check.startedAt && check.leaseExpiresAt.getTime() <= now
+            ? check.leaseExpiresAt
+            : new Date(now)),
+      },
     });
     const db = {
       executeSql: async (sql: string, values?: unknown[]) => ({
-        rows: await tx.$queryRawUnsafe(sql, ...(values ?? [])),
+        rows: await tx.$queryRawUnsafe<unknown[]>(sql, ...(values ?? [])),
       }),
     };
     const queued = await boss.findJobs(REFERENCE_QUEUE, {
@@ -415,19 +461,91 @@ export function createCheckStore(
       );
   }
   async function sweep() {
-    const due = await db.check.findMany({
-      where: {
-        deletedAt: null,
-        contentExpiresAt: { lte: new Date(clock.now()) },
+    // Exclusive against all content operations: rollover, key destruction and
+    // loss recovery finish before any process can read or publish content.
+    await db.$transaction(
+      async (raw) => {
+        await raw.$queryRaw`SELECT pg_advisory_xact_lock(910012)::text`;
+        const now = clock.now();
+        const day = keyDay(now);
+        const tx = contentTransaction(raw, () => clock.now());
+        const due = await raw.$queryRaw<{ id: string }[]>`
+        SELECT c.id FROM verification.checks c WHERE c.deleted_at IS NULL AND
+        (((c.started_at IS NULL OR c.ended_at IS NOT NULL) AND c.content_expires_at<=${new Date(now)})
+        OR (c.started_at IS NOT NULL AND c.ended_at IS NULL AND c.lease_expires_at + (${settings.contentRetentionMs} * interval '1 millisecond')<=${new Date(now)}) OR EXISTS (
+          SELECT 1 FROM verification.reference_slots r
+          LEFT JOIN verification.transient_keys k ON k.day=(r.original_text::jsonb->>'day')::integer
+          WHERE r.check_id=c.id AND (k.day IS NULL OR k.day<${day})
+        )) ORDER BY c.id`;
+        for (const { id } of due) {
+          const check = await lock(tx, id);
+          if (check) await purgeLocked(tx, check);
+        }
+        // Rewrap live content during the minute before a daily key's destruction.
+        // If the process misses that window (crash/suspension), fail closed above.
+        // The next key's 24-hour window ends at the following UTC midnight.
+        if ((day + 1) * 86_400_000 - now <= 60_000) {
+          await dailyKey(raw, day + 1);
+          const writer = contentTransaction(raw, () => clock.now(), day + 1);
+          const checks = await raw.$queryRaw<
+            { id: string }[]
+          >`SELECT c.id FROM verification.checks c
+          WHERE c.deleted_at IS NULL AND EXISTS (SELECT 1 FROM verification.reference_slots r
+          WHERE r.check_id=c.id AND (r.original_text::jsonb->>'day')::integer<=${day}) ORDER BY c.id`;
+          for (const { id } of checks) {
+            await lock(raw, id);
+            for (const slot of await tx.referenceSlot.findMany({
+              where: { checkId: id },
+            }))
+              await writer.referenceSlot.update({
+                where: {
+                  checkId_position: { checkId: id, position: slot.position },
+                },
+                data: {
+                  originalText: slot.originalText,
+                  structured: slot.structured as Prisma.InputJsonValue,
+                },
+              });
+            for (const revision of await tx.fieldRevision.findMany({
+              where: { checkId: id },
+            }))
+              await writer.fieldRevision.update({
+                where: {
+                  checkId_position_revision: {
+                    checkId: id,
+                    position: revision.position,
+                    revision: revision.revision,
+                  },
+                },
+                data: { content: revision.content as Prisma.InputJsonValue },
+              });
+            for (const result of await tx.referenceResult.findMany({
+              where: { checkId: id },
+              include: { manualOverride: true },
+            })) {
+              await writer.referenceResult.update({
+                where: { id: result.id },
+                data: { content: result.content as Prisma.InputJsonValue },
+              });
+              if (result.manualOverride)
+                await writer.manualOverride.update({
+                  where: { resultId: result.id },
+                  data: { verdict: result.manualOverride.verdict },
+                });
+            }
+            for (const event of await tx.checkEvent.findMany({
+              where: { checkId: id },
+            }))
+              await writer.checkEvent.update({
+                where: { checkId_seq: { checkId: id, seq: event.seq } },
+                data: { payload: event.payload as Prisma.InputJsonValue },
+              });
+          }
+        }
+        await raw.$executeRaw`DELETE FROM verification.transient_keys WHERE day<${day}`;
       },
-      select: { id: true },
-      orderBy: { contentExpiresAt: "asc" },
-    });
-    for (const { id } of due)
-      await db.$transaction(async (tx) => {
-        const check = await lock(tx, id);
-        if (check && !contentAlive(check)) await purgeLocked(tx, check);
-      });
+      { timeout: 30_000 },
+    );
   }
   async function ownerSnapshot(
     principal: Principal,
@@ -435,7 +553,7 @@ export function createCheckStore(
     action: "read" | "cancel" | "renew",
     apiVersion = 1,
   ) {
-    return db.$transaction(async (tx) => {
+    return transaction(async (tx) => {
       const row = await lock(tx, checkId);
       if (
         !row ||
@@ -500,6 +618,24 @@ export function createCheckStore(
     return (await ownerSnapshot(principal, id, action, version))?.check ?? null;
   }
   return {
+    async publish<T>(
+      principal: Principal,
+      id: string,
+      version: number,
+      send: () => Promise<T>,
+    ): Promise<T> {
+      return transaction(async (tx) => {
+        const row = await lock(tx, id);
+        if (
+          !row ||
+          row.ownerId !== principal.ownerId ||
+          (version === 1 && row.apiVersion !== 1)
+        )
+          throw new CheckExpired();
+        assertContentAlive(row);
+        return send();
+      });
+    },
     exportSnapshot: (principal: Principal, id: string) =>
       ownerSnapshot(principal, id, "read", 2),
     async create(
@@ -507,7 +643,7 @@ export function createCheckStore(
       references: StructuredReference[],
       apiVersion = 1,
     ): Promise<Check> {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         const row = await tx.check.create({
           data: {
             id: randomUUID(),
@@ -565,7 +701,7 @@ export function createCheckStore(
       position: number,
       request: SetManualOverrideRequest,
     ) {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         const check = await lock(tx, checkId);
         if (
           !check ||
@@ -631,7 +767,7 @@ export function createCheckStore(
       position: number,
       request: SaveFieldsRequest,
     ) {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         const check = await lock(tx, checkId);
         if (
           !check ||
@@ -726,7 +862,7 @@ export function createCheckStore(
       position: number,
       request: RecheckRequest,
     ) {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         const check = await lock(tx, checkId);
         if (
           !check ||
@@ -786,7 +922,7 @@ export function createCheckStore(
       request: EditReferenceListRequest,
       referenceLimit: number,
     ) {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         const check = await lock(tx, checkId);
         if (
           !check ||
@@ -896,19 +1032,23 @@ export function createCheckStore(
       });
     },
     async events(checkId: string, after: number): Promise<CheckEvent[]> {
-      const rows = await db.checkEvent.findMany({
-        where: { checkId, seq: { gt: after } },
-        orderBy: { seq: "asc" },
-        take: 100,
+      return transaction(async (tx) => {
+        const check = await lock(tx, checkId);
+        if (!check || !contentAlive(check)) return [];
+        const rows = await tx.checkEvent.findMany({
+          where: { checkId, seq: { gt: after } },
+          orderBy: { seq: "asc" },
+          take: 100,
+        });
+        return rows.map((row) =>
+          CheckEvent.parse({
+            ...(row.payload as object),
+            checkId,
+            seq: row.seq,
+            type: row.type,
+          }),
+        );
       });
-      return rows.map((row) =>
-        CheckEvent.parse({
-          ...(row.payload as object),
-          checkId,
-          seq: row.seq,
-          type: row.type,
-        }),
-      );
     },
     async peekWork(): Promise<WorkSubject | null> {
       const rows = await db.$queryRaw<
@@ -920,7 +1060,7 @@ export function createCheckStore(
         }[]
       >`SELECT c.id AS "checkId",c.owner_id AS "ownerId",c.actor_id AS "actorId",c.guest_context_id AS "guestContextId" FROM verification.checks c
         WHERE c.lease_expires_at>${new Date(clock.now())}
-        AND c.deleted_at IS NULL AND c.content_expires_at>${new Date(clock.now())}
+        AND c.deleted_at IS NULL AND (c.content_expires_at>${new Date(clock.now())} OR (c.started_at IS NOT NULL AND c.ended_at IS NULL))
         AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
         AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<${settings.activeReferencesPerCheck}
         ORDER BY (SELECT max(o.dispatch_order) FROM verification.checks o WHERE o.owner_id=c.owner_id AND EXISTS (SELECT 1 FROM verification.reference_slots t WHERE t.check_id=o.id AND t.status='running')),c.dispatch_order,c.created_at,c.id LIMIT 1`;
@@ -933,7 +1073,7 @@ export function createCheckStore(
       await db.$executeRaw`UPDATE verification.checks SET dispatch_order=nextval('verification.dispatch_order') WHERE id=${id}::uuid`;
     },
     async claimNext(candidateId?: string): Promise<ReferenceAttempt | null> {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         // One durable round-robin order across all processes: Owners first (the
         // Owner whose latest dispatch is oldest), then that Owner's Checks.
         // Admission and the per-Check cap commit together; queue delivery is
@@ -944,7 +1084,7 @@ export function createCheckStore(
           { id: string }[]
         >`SELECT c.id FROM verification.checks c
           WHERE c.lease_expires_at>${new Date(now)}
-          AND c.deleted_at IS NULL AND c.content_expires_at>${new Date(now)}
+          AND c.deleted_at IS NULL AND (c.content_expires_at>${new Date(now)} OR (c.started_at IS NOT NULL AND c.ended_at IS NULL))
           AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
           AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<${settings.activeReferencesPerCheck}
           ORDER BY (SELECT max(o.dispatch_order) FROM verification.checks o WHERE o.owner_id=c.owner_id AND EXISTS (SELECT 1 FROM verification.reference_slots t WHERE t.check_id=o.id AND t.status='running')),c.dispatch_order,c.created_at,c.id LIMIT 1`;
@@ -1006,7 +1146,7 @@ export function createCheckStore(
       attempt: ReferenceAttempt,
       progress: ReferenceProgress,
     ): Promise<boolean> {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         const check = await lock(tx, attempt.checkId);
         if (
           !check ||
@@ -1053,7 +1193,13 @@ export function createCheckStore(
             position: attempt.slot,
           },
         },
-        include: { check: true },
+        select: {
+          status: true,
+          generation: true,
+          revision: true,
+          claimUntil: true,
+          check: true,
+        },
       });
       return (
         eligibleAttempt(row, attempt, clock.now()) &&
@@ -1065,7 +1211,7 @@ export function createCheckStore(
       attempt: ReferenceAttempt,
       outcome: ReferenceOutcome,
     ) {
-      return db.$transaction(async (tx) => {
+      return transaction(async (tx) => {
         const check = await lock(tx, attempt.checkId);
         if (
           !check ||
@@ -1109,7 +1255,7 @@ export function createCheckStore(
         select: { id: true },
       });
       for (const { id } of running)
-        await db.$transaction(async (tx) => {
+        await transaction(async (tx) => {
           const row = await lock(tx, id);
           if (
             row &&
@@ -1129,7 +1275,7 @@ export function createCheckStore(
         select: { id: true },
       });
       for (const { id } of running)
-        await db.$transaction(async (tx) => {
+        await transaction(async (tx) => {
           const check = await lock(tx, id);
           if (
             !check ||
@@ -1187,6 +1333,7 @@ export function createCheckStore(
           // Correctness is in the attempt fence, never pg-boss job expiry.
         });
       const pending = await db.referenceSlot.findFirst({
+        select: { checkId: true, position: true },
         where: {
           status: "running",
           claimUntil: null,
@@ -1208,4 +1355,4 @@ export type CheckStore = ReturnType<typeof createCheckStore>;
 
 export class ReferenceConflict extends Error {}
 
-export class CheckExpired extends Error {}
+export class CheckExpired extends ContentUnavailable {}

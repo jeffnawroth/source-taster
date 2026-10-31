@@ -7,6 +7,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import pg from "pg";
+import { databaseExportFlags } from "../../scripts/export-database.ts";
 import { testDatabase } from "./processes.ts";
 
 const image = process.env.SOURCE_TASTER_TEST_PG_CLIENT_IMAGE ?? "postgres:18";
@@ -54,18 +55,24 @@ export async function backup(
   const dir = await mkdtemp(join(tmpdir(), "st-91-backup-"));
   const source = new URL(adminUrl);
   source.pathname = new URL(appUrl).pathname;
-  client(
-    [
-      "pg_dump",
-      "--format=plain",
-      "--no-owner",
-      "--no-privileges",
-      "--file=/backup/dump.sql",
-      ...(options.unloggedData ? [] : ["--no-unlogged-table-data"]),
-    ],
-    source.toString(),
-    dir,
-  );
+  try {
+    client(
+      [
+        "pg_dump",
+        "--format=plain",
+        ...databaseExportFlags.filter(
+          (flag) =>
+            !options.unloggedData || flag !== "--no-unlogged-table-data",
+        ),
+        "--file=/backup/dump.sql",
+      ],
+      source.toString(),
+      dir,
+    );
+  } catch (error) {
+    await rm(dir, { recursive: true, force: true });
+    throw error;
+  }
   return {
     text: () => readFile(join(dir, "dump.sql"), "utf8"),
     async restore() {
@@ -86,15 +93,28 @@ export async function backup(
         await admin.query(
           `ALTER ROLE ${ident(role)} IN DATABASE ${ident(database)} SET search_path = verification`,
         );
+        client(
+          [
+            "psql",
+            "--quiet",
+            "--set=ON_ERROR_STOP=1",
+            "--file=/backup/dump.sql",
+          ],
+          target.appUrl,
+          dir,
+        );
+        return target;
+      } catch (error) {
+        await admin.query(
+          `DROP DATABASE IF EXISTS ${admin.escapeIdentifier(database)} WITH (FORCE)`,
+        );
+        await admin.query(
+          `DROP ROLE IF EXISTS ${admin.escapeIdentifier(role)}`,
+        );
+        throw error;
       } finally {
         await admin.end();
       }
-      client(
-        ["psql", "--quiet", "--set=ON_ERROR_STOP=1", "--file=/backup/dump.sql"],
-        target.appUrl,
-        dir,
-      );
-      return target;
     },
     discard: () => rm(dir, { recursive: true, force: true }),
   };
