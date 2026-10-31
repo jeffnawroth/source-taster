@@ -398,3 +398,15 @@ private inputs from its protected environment.
   CPU/memory/connection measurement and the ADR-0012 single-container topology,
   multi-worker runs.
 - **Release automation:** a protected release workflow invoking the sequence.
+
+### Integration merge validation
+
+Merged `spec/70-launch-integration` at `56f251f` (which contains `512e457`)
+without conflicts as `a032247`. After a frozen install, core/contract builds and
+Prisma generation the tracked generated contract artifacts were unchanged. On the
+merged tree: server typecheck, ESLint and build, the load suite **63/63** and the
+three quality suites **30/30** (logs `117r-merge-*.log`), whole-repo Prettier and
+`git diff --check` passed, and `release-check.ts` with no inputs still exits 78.
+No browser, private-service or full server suites were run; this local evidence
+is not CI. The owned PostgreSQL container `st117-release-pg` was stopped after
+validation.
