@@ -6952,6 +6952,8 @@ export declare const setManualOverride: {
                                                 "supplied-doi": "supplied-doi";
                                                 "supplied-identifier": "supplied-identifier";
                                                 unresolved: "unresolved";
+                                                "web-archive": "web-archive";
+                                                "web-url": "web-url";
                                             }>;
                                         }, z.core.$strip>;
                                         candidates: z.ZodArray<z.ZodObject<{
@@ -7043,11 +7045,14 @@ export declare const setManualOverride: {
                                                 crossref: "crossref";
                                                 europepmc: "europepmc";
                                                 googlebooks: "googlebooks";
+                                                internetarchive: "internetarchive";
                                                 openalex: "openalex";
                                                 openlibrary: "openlibrary";
                                                 semanticscholar: "semanticscholar";
+                                                url: "url";
                                             }>;
                                             origin: z.ZodEnum<{
+                                                archive: "archive";
                                                 arxiv: "arxiv";
                                                 "authors-year": "authors-year";
                                                 combined: "combined";
@@ -7056,6 +7061,7 @@ export declare const setManualOverride: {
                                                 pmcid: "pmcid";
                                                 pmid: "pmid";
                                                 title: "title";
+                                                url: "url";
                                             }>;
                                             identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
                                             identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
@@ -7082,11 +7088,14 @@ export declare const setManualOverride: {
                                                 "doi.org": "doi.org";
                                                 europepmc: "europepmc";
                                                 googlebooks: "googlebooks";
+                                                internetarchive: "internetarchive";
                                                 openalex: "openalex";
                                                 openlibrary: "openlibrary";
                                                 semanticscholar: "semanticscholar";
+                                                url: "url";
                                             }>;
                                             operation: z.ZodEnum<{
+                                                archive: "archive";
                                                 arxiv: "arxiv";
                                                 "authors-year": "authors-year";
                                                 combined: "combined";
@@ -7095,6 +7104,7 @@ export declare const setManualOverride: {
                                                 pmcid: "pmcid";
                                                 pmid: "pmid";
                                                 title: "title";
+                                                url: "url";
                                             }>;
                                             outcome: z.ZodEnum<{
                                                 candidate: "candidate";
@@ -7102,10 +7112,20 @@ export declare const setManualOverride: {
                                                 exists: "exists";
                                                 "no-record": "no-record";
                                                 nonexistent: "nonexistent";
+                                                redirect: "redirect";
                                                 skipped: "skipped";
                                                 unavailable: "unavailable";
                                                 unsupported: "unsupported";
                                             }>;
+                                            web: z.ZodOptional<z.ZodObject<{
+                                                originalUrl: z.ZodString;
+                                                finalUrl: z.ZodString;
+                                                status: z.ZodNumber;
+                                                title: z.ZodOptional<z.ZodString>;
+                                                redirectTarget: z.ZodOptional<z.ZodString>;
+                                                archiveUrl: z.ZodOptional<z.ZodString>;
+                                                timestamp: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
                                             unusedSlots: z.ZodOptional<z.ZodNumber>;
                                             identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
@@ -7125,7 +7145,9 @@ export declare const setManualOverride: {
                                             "outside-coverage": "outside-coverage";
                                             "search-completed": "search-completed";
                                             "sources-unavailable": "sources-unavailable";
+                                            "url-unavailable": "url-unavailable";
                                             "url-verification-incomplete": "url-verification-incomplete";
+                                            "web-original-unavailable": "web-original-unavailable";
                                         }>>;
                                         failedSources: z.ZodArray<z.ZodEnum<{
                                             arxiv: "arxiv";
@@ -7133,9 +7155,11 @@ export declare const setManualOverride: {
                                             "doi.org": "doi.org";
                                             europepmc: "europepmc";
                                             googlebooks: "googlebooks";
+                                            internetarchive: "internetarchive";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
                                             semanticscholar: "semanticscholar";
+                                            url: "url";
                                         }>>;
                                         retraction: z.ZodEnum<{
                                             retracted: "retracted";
@@ -7270,6 +7294,8 @@ export declare const setManualOverride: {
                                             "supplied-doi": "supplied-doi";
                                             "supplied-identifier": "supplied-identifier";
                                             unresolved: "unresolved";
+                                            "web-archive": "web-archive";
+                                            "web-url": "web-url";
                                         }>;
                                     }, z.core.$strip>;
                                     candidates: z.ZodArray<z.ZodObject<{
@@ -7361,11 +7387,14 @@ export declare const setManualOverride: {
                                             crossref: "crossref";
                                             europepmc: "europepmc";
                                             googlebooks: "googlebooks";
+                                            internetarchive: "internetarchive";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
                                             semanticscholar: "semanticscholar";
+                                            url: "url";
                                         }>;
                                         origin: z.ZodEnum<{
+                                            archive: "archive";
                                             arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
@@ -7374,6 +7403,7 @@ export declare const setManualOverride: {
                                             pmcid: "pmcid";
                                             pmid: "pmid";
                                             title: "title";
+                                            url: "url";
                                         }>;
                                         identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
                                         identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
@@ -7400,11 +7430,14 @@ export declare const setManualOverride: {
                                             "doi.org": "doi.org";
                                             europepmc: "europepmc";
                                             googlebooks: "googlebooks";
+                                            internetarchive: "internetarchive";
                                             openalex: "openalex";
                                             openlibrary: "openlibrary";
                                             semanticscholar: "semanticscholar";
+                                            url: "url";
                                         }>;
                                         operation: z.ZodEnum<{
+                                            archive: "archive";
                                             arxiv: "arxiv";
                                             "authors-year": "authors-year";
                                             combined: "combined";
@@ -7413,6 +7446,7 @@ export declare const setManualOverride: {
                                             pmcid: "pmcid";
                                             pmid: "pmid";
                                             title: "title";
+                                            url: "url";
                                         }>;
                                         outcome: z.ZodEnum<{
                                             candidate: "candidate";
@@ -7420,10 +7454,20 @@ export declare const setManualOverride: {
                                             exists: "exists";
                                             "no-record": "no-record";
                                             nonexistent: "nonexistent";
+                                            redirect: "redirect";
                                             skipped: "skipped";
                                             unavailable: "unavailable";
                                             unsupported: "unsupported";
                                         }>;
+                                        web: z.ZodOptional<z.ZodObject<{
+                                            originalUrl: z.ZodString;
+                                            finalUrl: z.ZodString;
+                                            status: z.ZodNumber;
+                                            title: z.ZodOptional<z.ZodString>;
+                                            redirectTarget: z.ZodOptional<z.ZodString>;
+                                            archiveUrl: z.ZodOptional<z.ZodString>;
+                                            timestamp: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
                                         unusedSlots: z.ZodOptional<z.ZodNumber>;
                                         identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
@@ -7443,7 +7487,9 @@ export declare const setManualOverride: {
                                         "outside-coverage": "outside-coverage";
                                         "search-completed": "search-completed";
                                         "sources-unavailable": "sources-unavailable";
+                                        "url-unavailable": "url-unavailable";
                                         "url-verification-incomplete": "url-verification-incomplete";
+                                        "web-original-unavailable": "web-original-unavailable";
                                     }>>;
                                     failedSources: z.ZodArray<z.ZodEnum<{
                                         arxiv: "arxiv";
@@ -7451,9 +7497,11 @@ export declare const setManualOverride: {
                                         "doi.org": "doi.org";
                                         europepmc: "europepmc";
                                         googlebooks: "googlebooks";
+                                        internetarchive: "internetarchive";
                                         openalex: "openalex";
                                         openlibrary: "openlibrary";
                                         semanticscholar: "semanticscholar";
+                                        url: "url";
                                     }>>;
                                     retraction: z.ZodEnum<{
                                         retracted: "retracted";
@@ -7477,10 +7525,12 @@ export declare const setManualOverride: {
                                     ended: "ended";
                                     europepmc: "europepmc";
                                     googlebooks: "googlebooks";
+                                    internetarchive: "internetarchive";
                                     openalex: "openalex";
                                     openlibrary: "openlibrary";
                                     queued: "queued";
                                     semanticscholar: "semanticscholar";
+                                    url: "url";
                                 }>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;

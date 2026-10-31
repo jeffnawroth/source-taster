@@ -273,5 +273,18 @@
   "limitation_web_inconclusive": "The response does not establish a readable page with reliable title evidence.",
   "limitation_redirect_limit": "The URL could not be verified within the limit of five redirects.",
   "limitation_archive_mismatch": "The archive response does not establish a capture of the cited original URL.",
-  "evidence_redirect": "Redirect; the target is checked separately"
+  "evidence_redirect": "Redirect; the target is checked separately",
+  "override_actions": "Manual judgment",
+  "override_confirm": "Confirm Verdict",
+  "override_judge": "Judge manually",
+  "override_label": "Manual Verdict",
+  "override_save": "Save manual Verdict",
+  "override_cancel": "Discard manual judgment",
+  "override_manual": "Manual Verdict: {verdict}",
+  "override_system": "Original system Verdict: {verdict}",
+  "override_count": "Manual: {count}",
+  "override_note": "Manual judgment changes only this result’s effective Verdict. Fields, Scores, evidence and Correction suggestions stay unchanged.",
+  "override_reset": "The manual Verdict was reset by the Re-check. The previous judgment remains with its historical result.",
+  "override_saved": "Manual Verdict saved.",
+  "override_run": "Run {run}"
 }

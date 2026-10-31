@@ -48,8 +48,11 @@ export function verificationClient(options: VerificationClientOptions = {}) {
   }
   return {
     ...base,
-    setManualOverride: (id: string, slot: number, input: SetManualOverrideRequest) =>
-      mutate(id, `references/${slot}/manual-override`, input),
+    setManualOverride: (
+      id: string,
+      slot: number,
+      input: SetManualOverrideRequest,
+    ) => mutate(id, `references/${slot}/manual-override`, input),
     saveFields: (id: string, slot: number, input: SaveFieldsRequest) =>
       mutate(id, `references/${slot}/revisions`, input),
     recheckReference: (id: string, slot: number, input: RecheckRequest) =>

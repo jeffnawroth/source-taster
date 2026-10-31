@@ -30,7 +30,10 @@ const withSlots = {
     orderBy: { position: "asc" },
     where: { removed: false },
     include: {
-      results: { orderBy: { generation: "desc" }, include: { manualOverride: true } },
+      results: {
+        orderBy: { generation: "desc" },
+        include: { manualOverride: true },
+      },
       revisions: { orderBy: { revision: "asc" } },
     },
   },
@@ -60,7 +63,12 @@ type CheckRow = {
       generation: number;
       createdAt: Date;
       content: unknown;
-      manualOverride: { id: string; resultId: string; verdict: string; createdAt: Date } | null;
+      manualOverride: {
+        id: string;
+        resultId: string;
+        verdict: string;
+        createdAt: Date;
+      } | null;
     }[];
   }[];
 };
@@ -75,17 +83,29 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
     references: row.references.map((slot) => {
       const input = slot.structured as StructuredReference | null;
       const latest = slot.results?.[0];
-      const manual = (result: NonNullable<typeof slot.results>[number] | undefined) =>
-        result?.manualOverride ? {
-          ...result.manualOverride,
-          verdict: result.manualOverride.verdict as Verdict,
-          createdAt: result.manualOverride.createdAt.toISOString(),
-        } : null;
-      const currentManual = slot.status !== "running" && latest?.revision === slot.revision && latest.generation === slot.generation
-        ? manual(latest) : null;
+      const manual = (
+        result: NonNullable<typeof slot.results>[number] | undefined,
+      ) =>
+        result?.manualOverride
+          ? {
+              ...result.manualOverride,
+              verdict: result.manualOverride.verdict as Verdict,
+              createdAt: result.manualOverride.createdAt.toISOString(),
+            }
+          : null;
+      const currentManual =
+        slot.status !== "running" &&
+        latest?.revision === slot.revision &&
+        latest.generation === slot.generation
+          ? manual(latest)
+          : null;
       return {
         manualOverride: currentManual,
-        manualOverrideReset: !currentManual && !!slot.results?.some((r) => r.manualOverride && r.generation < slot.generation),
+        manualOverrideReset:
+          !currentManual &&
+          !!slot.results?.some(
+            (r) => r.manualOverride && r.generation < slot.generation,
+          ),
         slot: slot.position,
         originalText: slot.originalText,
         revision: slot.revision,
@@ -465,35 +485,69 @@ export function createCheckStore(
     renew: (principal: Principal, id: string, version = 1) =>
       ownerOperation(principal, id, "renew", version),
     async setManualOverride(
-      principal: Principal, checkId: string, position: number,
+      principal: Principal,
+      checkId: string,
+      position: number,
       request: SetManualOverrideRequest,
     ) {
       return db.$transaction(async (tx) => {
         const check = await lock(tx, checkId);
-        if (!check || check.ownerId !== principal.ownerId || check.apiVersion !== 2) return null;
+        if (
+          !check ||
+          check.ownerId !== principal.ownerId ||
+          check.apiVersion !== 2
+        )
+          return null;
         assertContentAlive(check);
         await expireLocked(tx, check, clock.now());
         const slot = await tx.referenceSlot.findUnique({
           where: { checkId_position: { checkId, position } },
-          include: { results: { orderBy: { generation: "desc" }, include: { manualOverride: true }, take: 1 } },
+          include: {
+            results: {
+              orderBy: { generation: "desc" },
+              include: { manualOverride: true },
+              take: 1,
+            },
+          },
         });
         if (!slot || slot.removed) return null;
         const result = slot.results[0];
-        if (slot.status === "running" || slot.revision !== request.expectedRevision ||
-          !result || result.id !== request.resultId || result.revision !== slot.revision ||
-          result.generation !== slot.generation || ReferenceOutcome.parse(result.content).kind !== "verdict" ||
-          (result.manualOverride?.id ?? null) !== request.expectedOverrideId)
+        if (
+          slot.status === "running" ||
+          slot.revision !== request.expectedRevision ||
+          !result ||
+          result.id !== request.resultId ||
+          result.revision !== slot.revision ||
+          result.generation !== slot.generation ||
+          ReferenceOutcome.parse(result.content).kind !== "verdict" ||
+          (result.manualOverride?.id ?? null) !== request.expectedOverrideId
+        )
           throw new ReferenceConflict();
-        const data = { id: randomUUID(), verdict: request.verdict, createdAt: new Date(clock.now()) };
+        const data = {
+          id: randomUUID(),
+          verdict: request.verdict,
+          createdAt: new Date(clock.now()),
+        };
         await tx.manualOverride.upsert({
           where: { resultId: result.id },
-          create: { resultId: result.id, ...data }, update: data,
+          create: { resultId: result.id, ...data },
+          update: data,
         });
         await appendEvent(tx, checkId, {
           type: "reference.updated",
-          reference: { slot: position, outcome: ReferenceOutcome.parse(result.content), progress: slot.progress as ReferenceProgress },
+          reference: {
+            slot: position,
+            outcome: ReferenceOutcome.parse(result.content),
+            progress: slot.progress as ReferenceProgress,
+          },
         });
-        return toCheck(await tx.check.findUniqueOrThrow({ where: { id: checkId }, include: withSlots }), renewalInterval);
+        return toCheck(
+          await tx.check.findUniqueOrThrow({
+            where: { id: checkId },
+            include: withSlots,
+          }),
+          renewalInterval,
+        );
       });
     },
     async saveFields(

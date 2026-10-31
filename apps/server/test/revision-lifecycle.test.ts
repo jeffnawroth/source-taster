@@ -143,12 +143,23 @@ it("manual judgments enforce current permissions, ownership and the fixed conten
   const worker = service.worker();
   await worker.ready;
   const check = await create();
-  await expect.poll(async () => (await snapshot(check.id)).references[0]!.outcome.kind).toBe("verdict");
+  await expect
+    .poll(async () => (await snapshot(check.id)).references[0]!.outcome.kind)
+    .toBe("verdict");
   const before = (await snapshot(check.id)).references[0]!;
-  const request = { expectedRevision: 1, resultId: before.results[0]!.id, expectedOverrideId: null, verdict: "correct" };
+  const request = {
+    expectedRevision: 1,
+    resultId: before.results[0]!.id,
+    expectedOverrideId: null,
+    verdict: "correct",
+  };
   const path = `/${check.id}/references/1/manual-override`;
-  expect((await post(path, request, { "Test-Owner": "foreign" })).status).toBe(404);
-  expect((await post(path, request, { "Test-Deny": "check:create" })).status).toBe(403);
+  expect((await post(path, request, { "Test-Owner": "foreign" })).status).toBe(
+    404,
+  );
+  expect(
+    (await post(path, request, { "Test-Deny": "check:create" })).status,
+  ).toBe(403);
   expect((await snapshot(check.id)).references[0]).toEqual(before);
   await service.advance(25 * 60 * 60 * 1000);
   expect((await post(path, request)).status).toBe(410);

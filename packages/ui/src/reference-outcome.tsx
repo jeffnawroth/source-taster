@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type {
+  ManualOverride,
   ReferenceOutcome,
   VerdictResult,
   Candidate,
@@ -204,8 +205,10 @@ function failureCause(
 }
 export function ReferenceOutcomeSummary({
   outcome,
+  manualOverride,
 }: {
   outcome: ReferenceOutcome;
+  manualOverride?: ManualOverride | null;
 }) {
   if (outcome.kind === "status") {
     const keys = {
@@ -218,19 +221,28 @@ export function ReferenceOutcomeSummary({
   }
   const [icon, color, key] = verdicts[outcome.verdict];
   return (
-    <p className={`mt-2 ${color}`}>
-      <span aria-hidden="true">{icon} </span>
-      {m[key]()} ·{" "}
-      {outcome.reasons.map((reason) => m[reasons[reason]]()).join(" ")}
-    </p>
+    <>
+      {manualOverride && <ManualVerdictLabel manualOverride={manualOverride} />}
+      <p className={`mt-2 ${color}`}>
+        <span aria-hidden="true">{icon} </span>
+        {manualOverride
+          ? m.override_system({ verdict: m[key]() })
+          : m[key]()} ·{" "}
+        {outcome.reasons.map((reason) => m[reasons[reason]]()).join(" ")}
+      </p>
+    </>
   );
 }
 export function ReferenceOutcomeView({
   outcome,
   originalText,
+  manualOverride,
+  contextLabel,
 }: {
   outcome: ReferenceOutcome;
+  contextLabel?: string;
   originalText?: string;
+  manualOverride?: ManualOverride | null;
 }) {
   if (outcome.kind === "status") {
     const keys = {
@@ -251,9 +263,12 @@ export function ReferenceOutcomeView({
   const [icon, color, key] = verdicts[outcome.verdict];
   return (
     <div className="mt-3 space-y-3">
+      {manualOverride && <ManualVerdictLabel manualOverride={manualOverride} />}
       <p className={`font-semibold ${color}`}>
         <span aria-hidden="true">{icon} </span>
-        <span>{m[key]()}</span>
+        <span>
+          {manualOverride ? m.override_system({ verdict: m[key]() }) : m[key]()}
+        </span>
       </p>
       {outcome.retraction === "retracted" && (
         <div className="border-l-4 border-amber-700 bg-amber-50 p-3 text-slate-900">
@@ -273,7 +288,11 @@ export function ReferenceOutcomeView({
         </p>
       )}
       {!!outcome.failedSources.length && (
-        <section aria-label={m.failed_sources_heading()}>
+        <section
+          aria-label={[m.failed_sources_heading(), contextLabel]
+            .filter(Boolean)
+            .join(" · ")}
+        >
           <p className="font-semibold">{m.failed_sources_heading()}</p>
           <ul className="list-disc pl-6">
             {outcome.failedSources.map((source) => (
@@ -285,7 +304,7 @@ export function ReferenceOutcomeView({
         </section>
       )}
       {originalText !== undefined && <OriginalInput text={originalText} />}
-      <BestMatchComparison outcome={outcome} />
+      <BestMatchComparison outcome={outcome} contextLabel={contextLabel} />
       <details>
         <summary className="cursor-pointer py-2 font-semibold">
           {m.evidence_details()}
@@ -494,12 +513,22 @@ function OriginalInput({ text }: { text: string }) {
   );
 }
 /** Find the recorded Best match by ID. A tied, evidenced representative may be displayed later. */
-function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
+function BestMatchComparison({
+  outcome,
+  contextLabel,
+}: {
+  outcome: VerdictResult;
+  contextLabel?: string;
+}) {
   const best = outcome.candidates.find(
     (candidate) => candidate.id === outcome.bestMatchId,
   );
   return (
-    <section aria-label={m.workspace_comparison()}>
+    <section
+      aria-label={[m.workspace_comparison(), contextLabel]
+        .filter(Boolean)
+        .join(" · ")}
+    >
       {best ? (
         <>
           <p className="font-semibold">{m.best_match_label()}</p>
@@ -591,5 +620,19 @@ function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
         )}
       </table>
     </section>
+  );
+}
+
+function ManualVerdictLabel({
+  manualOverride,
+}: {
+  manualOverride: ManualOverride;
+}) {
+  const [icon, color, key] = verdicts[manualOverride.verdict];
+  return (
+    <p className={`mt-2 font-semibold ${color}`}>
+      <span aria-hidden="true">{icon} </span>
+      {m.override_manual({ verdict: m[key]() })}
+    </p>
   );
 }

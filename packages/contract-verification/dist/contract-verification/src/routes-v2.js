@@ -130,7 +130,10 @@ export const setManualOverride = createRoute({
     description: "Requires the current field revision, result ID and previous override ID (null for first judgment). Stale, running or unverified fields reject with 409. System evidence and suggestion eligibility stay unchanged.",
     request: {
         params: referenceParams,
-        body: { required: true, content: { "application/json": { schema: SetManualOverrideRequest } } },
+        body: {
+            required: true,
+            content: { "application/json": { schema: SetManualOverrideRequest } },
+        },
     },
     responses: mutationResponses,
 });
