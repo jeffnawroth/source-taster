@@ -4,6 +4,7 @@ import { LibraryInput, ImportResponse } from "./import.js";
 import { z } from "zod";
 import { SetManualOverrideRequest, SaveFieldsRequest, RecheckRequest, EditReferenceListRequest, EditSelectionRequest, SelectionPreviewResponse, } from "./v2.js";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.js";
+import { entranceLimitResponse } from "../../contract-common/src/index.js";
 import { createRoute } from "@hono/zod-openapi";
 import * as v1 from "./routes.js";
 import { CheckResponse, CreateCheckRequest, MaxReferences, QuotaResponse, } from "./v2.js";
@@ -43,6 +44,7 @@ export const getQuota = createRoute({
     path: "/v2/quota",
     summary: "Current Quota of the acting Owner: balance, consumption, grants and warning level",
     responses: {
+        429: entranceLimitResponse,
         200: {
             description: "Current Quota; null when no Quota applies.",
             content: { "application/json": { schema: QuotaResponse } },
@@ -92,7 +94,10 @@ export const streamCheckEvents = createRoute({
     ...v1.streamCheckEvents,
     path: "/v2/checks/{checkId}/events",
     description: "The X-Source-Taster-Replay-Through header gives the snapshot cursor: historical ended events below it do not finish a client replay. Ordered, replayable Check and Reference events. Ended Checks can have active slot-only Re-checks; the stream stays open until all current Reference runs finish. Last-Event-ID and current-authority rules are unchanged. Reference events include immutable revisions/results; removed=true removes that slot from the visible list.",
-    responses: { ...v1.streamCheckEvents.responses, 410: expiredResponse },
+    responses: {
+        ...v1.streamCheckEvents.responses,
+        410: expiredResponse,
+    },
 });
 const referenceParams = z.object({
     checkId: z.uuid(),
@@ -174,6 +179,7 @@ export const importReferences = createRoute({
         },
     },
     responses: {
+        429: entranceLimitResponse,
         200: {
             description: "Recognized References and separately rejected records; unchanged raw input is retained.",
             content: { "application/json": { schema: ImportResponse } },

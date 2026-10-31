@@ -363,5 +363,8 @@
   "quota_choice_first": "Die ersten {available} prüfen",
   "quota_choice_dismiss": "Abbrechen",
   "quota_started": "{started} von {required} Referenzen gestartet; {skipped} wurden nicht geprüft.",
-  "problem_quota_insufficient": "Das Kontingent reicht für diese Arbeit nicht. Wählen Sie weniger Referenzen oder wechseln Sie den Plan."
+  "problem_quota_insufficient": "Das Kontingent reicht für diese Arbeit nicht. Wählen Sie weniger Referenzen oder wechseln Sie den Plan.",
+  "problem_abuse_limit": "Zu viele Anfragen. Bitte warten Sie vor dem nächsten Versuch.",
+  "problem_abuse_unavailable": "Die Anfragelimits sind vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
+  "abuse_continue_at": "Weiter ab"
 }

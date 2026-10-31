@@ -14,6 +14,7 @@ export type Permission =
   | "check:renew";
 
 export interface Principal {
+  guestId?: string;
   guestContextId?: string;
   sessionId?: string;
   expiresAt?: number;

@@ -11,6 +11,7 @@ import {
   SelectionPreviewResponse,
 } from "./v2.ts";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.ts";
+import { entranceLimitResponse } from "../../contract-common/src/index.ts";
 import { createRoute } from "@hono/zod-openapi";
 import * as v1 from "./routes.ts";
 import {
@@ -59,6 +60,7 @@ export const getQuota = createRoute({
   summary:
     "Current Quota of the acting Owner: balance, consumption, grants and warning level",
   responses: {
+    429: entranceLimitResponse,
     200: {
       description: "Current Quota; null when no Quota applies.",
       content: { "application/json": { schema: QuotaResponse } },
@@ -109,7 +111,10 @@ export const streamCheckEvents = createRoute({
   path: "/v2/checks/{checkId}/events",
   description:
     "The X-Source-Taster-Replay-Through header gives the snapshot cursor: historical ended events below it do not finish a client replay. Ordered, replayable Check and Reference events. Ended Checks can have active slot-only Re-checks; the stream stays open until all current Reference runs finish. Last-Event-ID and current-authority rules are unchanged. Reference events include immutable revisions/results; removed=true removes that slot from the visible list.",
-  responses: { ...v1.streamCheckEvents.responses, 410: expiredResponse },
+  responses: {
+    ...v1.streamCheckEvents.responses,
+    410: expiredResponse,
+  },
 });
 
 const referenceParams = z.object({
@@ -201,6 +206,7 @@ export const importReferences = createRoute({
     },
   },
   responses: {
+    429: entranceLimitResponse,
     200: {
       description:
         "Recognized References and separately rejected records; unchanged raw input is retained.",

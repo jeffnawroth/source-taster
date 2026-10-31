@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { ContinuationTime } from "./abuse-message.tsx";
 import type { ReactNode } from "react";
 import {
   useEffect,
@@ -190,6 +191,7 @@ export function CheckWorkspace({
   );
   const [check, setCheck] = useState<Check | null>(null);
   const [accessStopped, setAccessStopped] = useState(false);
+  const [streamFailure, setStreamFailure] = useState<unknown>(null);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
@@ -272,6 +274,7 @@ export function CheckWorkspace({
           if (alive && generation.current === token) {
             setAccessStopped(true);
             controller.current?.abort();
+            setStreamFailure(error);
             setStreamError(problemKey(error, "problem_connection"));
           }
         })
@@ -610,6 +613,7 @@ export function CheckWorkspace({
     }).catch((error) => {
       if (generation.current === token && !next.signal.aborted) {
         setAccessStopped(true);
+        setStreamFailure(error);
         setStreamError(problemKey(error, "problem_connection"));
       }
     });
@@ -994,6 +998,9 @@ export function CheckWorkspace({
                       : 1000,
                   ),
           })}
+          <ContinuationTime
+            error={streamError ? streamFailure : requestError}
+          />
         </p>
       )}
       {documentNotice && (

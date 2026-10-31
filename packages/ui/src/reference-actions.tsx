@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { abuseMessage } from "./abuse-message.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
 import { CheckSelectionActions } from "./bibliography-selection.tsx";
 import { useMemo, useState } from "react";
@@ -20,6 +21,8 @@ const control =
   "w-full min-w-0 rounded border border-slate-500 bg-white p-2 disabled:bg-slate-100";
 const action = "rounded border border-slate-600 px-3 py-2 disabled:opacity-50";
 function errorMessage(error: unknown) {
+  const limited = abuseMessage(error);
+  if (limited) return limited;
   if (error instanceof ApiError && error.status === 409)
     return m.problem_reference_conflict();
   if (error instanceof ApiError && error.status === 410)

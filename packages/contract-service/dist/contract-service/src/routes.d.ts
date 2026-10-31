@@ -117,6 +117,7 @@ export declare const issueGuestToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -135,6 +136,7 @@ export declare const issueGuestToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -153,6 +155,7 @@ export declare const issueGuestToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -197,6 +200,7 @@ export declare const getGuestJwks: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -341,6 +345,7 @@ export declare const requestSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -359,6 +364,7 @@ export declare const requestSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -377,6 +383,7 @@ export declare const requestSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -395,6 +402,7 @@ export declare const requestSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -413,6 +421,7 @@ export declare const requestSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -557,6 +566,7 @@ export declare const confirmSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -575,6 +585,7 @@ export declare const confirmSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -593,6 +604,7 @@ export declare const confirmSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -611,6 +623,7 @@ export declare const confirmSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -629,6 +642,7 @@ export declare const confirmSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -773,6 +787,7 @@ export declare const signOut: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -791,6 +806,7 @@ export declare const signOut: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -809,6 +825,7 @@ export declare const signOut: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -827,6 +844,7 @@ export declare const signOut: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -845,6 +863,7 @@ export declare const signOut: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -910,6 +929,7 @@ export declare const getAccountSession: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -928,6 +948,7 @@ export declare const getAccountSession: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -993,6 +1014,7 @@ export declare const recordSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1011,6 +1033,7 @@ export declare const recordSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1029,6 +1052,7 @@ export declare const recordSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1095,6 +1119,7 @@ export declare const issueAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1113,6 +1138,7 @@ export declare const issueAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1131,6 +1157,7 @@ export declare const issueAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1352,6 +1379,7 @@ export declare const requestExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1370,6 +1398,7 @@ export declare const requestExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1388,6 +1417,7 @@ export declare const requestExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1406,6 +1436,7 @@ export declare const requestExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1424,6 +1455,7 @@ export declare const requestExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1637,6 +1669,7 @@ export declare const confirmExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1655,6 +1688,7 @@ export declare const confirmExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1673,6 +1707,7 @@ export declare const confirmExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1691,6 +1726,7 @@ export declare const confirmExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1709,6 +1745,7 @@ export declare const confirmExtensionSignIn: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1922,6 +1959,7 @@ export declare const getExtensionSession: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1940,6 +1978,7 @@ export declare const getExtensionSession: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1958,6 +1997,7 @@ export declare const getExtensionSession: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1976,6 +2016,7 @@ export declare const getExtensionSession: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1994,6 +2035,7 @@ export declare const getExtensionSession: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2207,6 +2249,7 @@ export declare const issueExtensionAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2225,6 +2268,7 @@ export declare const issueExtensionAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2243,6 +2287,7 @@ export declare const issueExtensionAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2261,6 +2306,7 @@ export declare const issueExtensionAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2279,6 +2325,7 @@ export declare const issueExtensionAccountToken: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2492,6 +2539,7 @@ export declare const recordExtensionSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2510,6 +2558,7 @@ export declare const recordExtensionSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2528,6 +2577,7 @@ export declare const recordExtensionSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2546,6 +2596,7 @@ export declare const recordExtensionSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2564,6 +2615,7 @@ export declare const recordExtensionSessionActivity: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2777,6 +2829,7 @@ export declare const signOutExtension: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2795,6 +2848,7 @@ export declare const signOutExtension: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2813,6 +2867,7 @@ export declare const signOutExtension: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2831,6 +2886,7 @@ export declare const signOutExtension: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2849,6 +2905,7 @@ export declare const signOutExtension: {
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2977,6 +3034,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -2995,6 +3053,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3013,6 +3072,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3056,6 +3116,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3199,6 +3260,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3217,6 +3279,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3235,6 +3298,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3253,6 +3317,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3271,6 +3336,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3335,6 +3401,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3353,6 +3420,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3417,6 +3485,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3435,6 +3504,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3453,6 +3523,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3518,6 +3589,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3536,6 +3608,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3554,6 +3627,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3766,6 +3840,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3784,6 +3859,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3802,6 +3878,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3820,6 +3897,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -3838,6 +3916,7 @@ export declare const routes: (({
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
                         available: import("zod").ZodOptional<import("zod").ZodNumber>;
                         required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;

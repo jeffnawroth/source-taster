@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { AccountAuthorityRequest, AuthorityRequest, AuthorityResponse, AuthorityInvalidation, AuthorityInvalidationAck, QuotaReleaseRequest, QuotaReleaseResponse, QuotaReserveRequest, QuotaReserveResponse, QuotaSettleRequest, QuotaSettleResponse, QuotaSnapshotRequest, QuotaSnapshotResponse, MailRehearsalRequest, MailRehearsalResponse, MailRehearsalParams, ProblemDetails, } from "./index.js";
+import { AbusePolicy, AbuseEntrance, AbuseDecision, AccountAuthorityRequest, AuthorityRequest, AuthorityResponse, AuthorityInvalidation, AuthorityInvalidationAck, QuotaReleaseRequest, QuotaReleaseResponse, QuotaReserveRequest, QuotaReserveResponse, QuotaSettleRequest, QuotaSettleResponse, QuotaSnapshotRequest, QuotaSnapshotResponse, MailRehearsalRequest, MailRehearsalResponse, MailRehearsalParams, ProblemDetails, } from "./index.js";
 const problem = {
     description: "Problem Details; the local diagnostic is unavailable by default",
     content: { "application/problem+json": { schema: ProblemDetails } },
@@ -129,7 +129,49 @@ export const quotaSnapshot = quotaRoute("snapshot", "Current balance of an Owner
 export const quotaReserve = quotaRoute("reserve", "Atomically reserve one unit per unbilled Reference slot, all or nothing", QuotaReserveRequest, QuotaReserveResponse);
 export const quotaSettle = quotaRoute("settle", "Idempotently debit a slot on its first Verdict or release its reservation", QuotaSettleRequest, QuotaSettleResponse);
 export const quotaRelease = quotaRoute("release", "Release what an unused reservation still holds", QuotaReleaseRequest, QuotaReleaseResponse);
+export const getAbusePolicy = createRoute({
+    method: "post",
+    path: "/internal/abuse/policy",
+    summary: "Operator-maintained entrance budgets; signed abuse-entrance assertion, briefly cached settings only",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: z.strictObject({}) } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Current public and combined-service budgets",
+            content: { "application/json": { schema: AbusePolicy } },
+        },
+        401: problem,
+        503: problem,
+    },
+});
+export const countAbuseEntrance = createRoute({
+    method: "post",
+    path: "/internal/abuse/entrances",
+    summary: "Atomically count combined budgets across both programs; current Plan, no cached allowance",
+    description: "Service owns one PostgreSQL transaction for all shared dimensions and both entrances, deduplicated by requestId. It validates current binding and ingress hash/window/key context. Only IDs/counts and minimized hashes cross; no IPs/content/credentials. Stale policy, unknown binding or outage fails closed. Private bootstrap/cancellation remain Account-existence neutral. Every attempt counts, including a denial; maximum retryAt across exceeded budgets. Idempotency expires within 24h.",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: AbuseEntrance } },
+        },
+    },
+    responses: {
+        200: {
+            description: "One non-cacheable combined decision and current Plan",
+            content: { "application/json": { schema: AbuseDecision } },
+        },
+        400: problem,
+        401: problem,
+        503: problem,
+    },
+});
 export const routes = [
+    getAbusePolicy,
+    countAbuseEntrance,
     quotaSnapshot,
     quotaReserve,
     quotaSettle,

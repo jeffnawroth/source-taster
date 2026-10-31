@@ -5,6 +5,10 @@ import { spawn } from "node:child_process";
 
 export const databaseExportFlags = [
   "--no-unlogged-table-data",
+  // Short-lived abuse counters/rotation pins never enter a long-lived backup.
+  // Restore reactivation requires the service admission fence (see #100 handoff).
+  "--exclude-table-data=verification.abuse_counters",
+  "--exclude-table-data=verification.abuse_origin_windows",
   "--no-owner",
   "--no-privileges",
 ] as const;

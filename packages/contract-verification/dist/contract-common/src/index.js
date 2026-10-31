@@ -18,6 +18,8 @@ export const ProblemDetails = z
     available: z.number().int().nonnegative().optional(),
     /** `quota-insufficient`: References the request would have consumed. */
     required: z.number().int().positive().optional(),
+    /** Absolute continuation time for entrance limits (also Retry-After in seconds). */
+    retryAt: z.iso.datetime().optional(),
     code: z.string(),
     i18nKey: z.string(),
 })
@@ -91,3 +93,15 @@ export const PublicJwks = z.strictObject({
     }))
         .max(5),
 });
+/** Mandatory shape of an entrance-limit refusal, including the continuation time. */
+export const EntranceLimitProblem = ProblemDetails.extend({
+    status: z.literal(429),
+    code: z.literal("abuse-limit"),
+    i18nKey: z.literal("problem_abuse_limit"),
+    retryAt: z.iso.datetime(),
+}).meta({ id: "EntranceLimitProblem" });
+export const entranceLimitResponse = {
+    description: "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+    headers: z.object({ "Retry-After": z.string().regex(/^[0-9]+$/) }),
+    content: { [PROBLEM_CONTENT_TYPE]: { schema: EntranceLimitProblem } },
+};

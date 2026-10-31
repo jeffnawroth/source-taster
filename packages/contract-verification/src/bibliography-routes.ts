@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
+import { entranceLimitResponse } from "../../contract-common/src/index.ts";
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { CheckId, ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.ts";
@@ -22,6 +23,7 @@ export const renderBibliography = createRoute({
     },
   },
   responses: {
+    429: entranceLimitResponse,
     200: {
       description:
         "Requested suggestions and, by default, a complete RTF document rendered locally on the server.",

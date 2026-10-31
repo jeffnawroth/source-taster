@@ -363,5 +363,8 @@
   "quota_choice_first": "Check first {available}",
   "quota_choice_dismiss": "Cancel",
   "quota_started": "Started {started} of {required} References; {skipped} were not checked.",
-  "problem_quota_insufficient": "Not enough Quota for this work. Choose fewer References or upgrade."
+  "problem_quota_insufficient": "Not enough Quota for this work. Choose fewer References or upgrade.",
+  "problem_abuse_limit": "Too many requests. Please wait before trying again.",
+  "problem_abuse_unavailable": "Request limits are temporarily unavailable. Please try again later.",
+  "abuse_continue_at": "Continue at"
 }

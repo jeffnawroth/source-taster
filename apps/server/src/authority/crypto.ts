@@ -167,11 +167,13 @@ export function requestAssertion(
     JSON.stringify({
       iss: settings.assertionIssuer,
       aud: settings.serviceIssuer,
-      purpose: path.startsWith("/internal/quota/")
-        ? "quota"
-        : path === "/internal/account-authority"
-          ? "account-authority"
-          : "guest-authority",
+      purpose: path.startsWith("/internal/abuse/")
+        ? "abuse-entrance"
+        : path.startsWith("/internal/quota/")
+          ? "quota"
+          : path === "/internal/account-authority"
+            ? "account-authority"
+            : "guest-authority",
       iat,
       nbf: iat,
       exp: iat + 30,
