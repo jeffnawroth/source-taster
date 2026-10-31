@@ -84,3 +84,15 @@ it("routes web page and archive requests through the web fixture origin", async 
   const page = await fetch(`${replay.env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL}/page`);
   expect(await page.text()).toBe("<title>x</title>");
 });
+
+it("answers a bare root probe without counting it as a replay miss", async () => {
+  // No source adapter requests an origin root; a GET / is an outside port
+  // probe (e.g. editor port detection), not a Data source request.
+  replay = await startReplay([]);
+  const probe = await fetch(`${replay.env.SOURCE_TASTER_CROSSREF_BASE_URL}/`);
+  expect(probe.status).toBe(503);
+  expect(replay.misses()).toEqual([]);
+  const query = await fetch(`${replay.env.SOURCE_TASTER_CROSSREF_BASE_URL}/?q=1`);
+  expect(query.status).toBe(503);
+  expect(replay.misses()).toHaveLength(1);
+});

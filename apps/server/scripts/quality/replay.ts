@@ -56,7 +56,9 @@ export async function startReplay(entries: FixtureEntry[]) {
           key(method, path, withBody.has(key(method, path)) ? body : undefined),
         );
         if (!entry) {
-          misses.push({ source, method, path });
+          // A bare root request is an outside port probe, never an adapter.
+          if (!(method === "GET" && path === "/"))
+            misses.push({ source, method, path });
           res.writeHead(503, { "content-type": "application/json" });
           res.end('{"replay":"miss"}');
           return;
