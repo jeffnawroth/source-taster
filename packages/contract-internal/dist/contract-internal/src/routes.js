@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { AccountAuthorityRequest, AuthorityRequest, AuthorityResponse, AuthorityInvalidation, AuthorityInvalidationAck, QuotaReleaseRequest, QuotaReleaseResponse, QuotaReserveRequest, QuotaReserveResponse, QuotaSettleRequest, QuotaSettleResponse, QuotaSnapshotRequest, QuotaSnapshotResponse, MailRehearsalRequest, MailRehearsalResponse, MailRehearsalParams, ProblemDetails, } from "./index.js";
+import { AccountAuthorityRequest, AuthorityRequest, AuthorityResponse, AuthorityInvalidation, AuthorityInvalidationAck, OwnerDeletionAck, OwnerDeletionParams, QuotaReleaseRequest, QuotaReleaseResponse, QuotaReserveRequest, QuotaReserveResponse, QuotaSettleRequest, QuotaSettleResponse, QuotaSnapshotRequest, QuotaSnapshotResponse, MailRehearsalRequest, MailRehearsalResponse, MailRehearsalParams, ProblemDetails, } from "./index.js";
 const problem = {
     description: "Problem Details; the local diagnostic is unavailable by default",
     content: { "application/problem+json": { schema: ProblemDetails } },
@@ -81,6 +81,21 @@ export const invalidateGuest = createRoute({
         503: problem,
     },
 });
+export const deleteOwner = createRoute({
+    method: "delete",
+    path: "/internal/owners/{ownerId}",
+    summary: "Write the Owner tombstone and purge all of the Owner's content in one transaction (signed service assertion, idempotent)",
+    request: { params: OwnerDeletionParams },
+    responses: {
+        200: {
+            description: "Durable tombstone and content purge acknowledgement",
+            content: { "application/json": { schema: OwnerDeletionAck } },
+        },
+        400: problem,
+        401: problem,
+        503: problem,
+    },
+});
 export const authorizeAccount = createRoute({
     method: "post",
     path: "/internal/account-authority",
@@ -139,4 +154,5 @@ export const routes = [
     getMailRehearsal,
     authorizeGuest,
     invalidateGuest,
+    deleteOwner,
 ];

@@ -509,7 +509,8 @@ export function createCheckStore(
         const tx = contentTransaction(raw, () => clock.now());
         const due = await raw.$queryRaw<{ id: string }[]>`
         SELECT c.id FROM verification.checks c WHERE c.deleted_at IS NULL AND
-        (((c.started_at IS NULL OR c.ended_at IS NOT NULL) AND c.content_expires_at<=${new Date(now)})
+        (EXISTS (SELECT 1 FROM verification.owner_tombstones t WHERE t.owner_id::text=lower(c.owner_id))
+        OR ((c.started_at IS NULL OR c.ended_at IS NOT NULL) AND c.content_expires_at<=${new Date(now)})
         OR (c.started_at IS NOT NULL AND c.ended_at IS NULL AND c.lease_expires_at + (${settings.contentRetentionMs} * interval '1 millisecond')<=${new Date(now)}) OR (c.document IS NOT NULL AND NOT EXISTS (
           SELECT 1 FROM verification.transient_keys k
           WHERE k.day=(c.document->>'day')::integer AND k.day>=${day}
@@ -1475,6 +1476,26 @@ export function createCheckStore(
           await end(tx, check.id, "completed", clock.now());
         else await wake(tx, check.id);
       });
+    },
+    /** ADR-0003: write the Owner tombstone and purge all of the Owner's content in
+     * ONE transaction. The caller holds the Owner guard. Idempotent: a repeat
+     * purges whatever a restore or a racing create left behind. IDs only. */
+    async deleteOwner(ownerId: string) {
+      await db.$transaction(
+        async (raw) => {
+          await raw.$queryRaw`SELECT pg_advisory_xact_lock(910012)::text`;
+          await raw.$executeRaw`INSERT INTO verification.owner_tombstones(owner_id) VALUES (${ownerId}::uuid) ON CONFLICT (owner_id) DO NOTHING`;
+          const tx = contentTransaction(raw, () => clock.now());
+          const owned = await raw.$queryRaw<{ id: string }[]>`
+            SELECT id FROM verification.checks
+            WHERE lower(owner_id)=lower(${ownerId}) AND deleted_at IS NULL ORDER BY id`;
+          for (const { id } of owned) {
+            const check = await lock(raw, id);
+            if (check) await purgeLocked(tx, check);
+          }
+        },
+        { timeout: 30000 },
+      );
     },
     async invalidateOwner(ownerId: string) {
       // Caller holds the Owner fence; all result/response guards drain before ack.

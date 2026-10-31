@@ -134,6 +134,13 @@ model AuthorityFence {
  @@map("authority_fences")
 }
 
+// ADR-0003 Owner tombstone: identifiers only, never content.
+model OwnerTombstone {
+  ownerId   String   @id @map("owner_id") @db.Uuid
+  deletedAt DateTime @default(now()) @map("deleted_at") @db.Timestamptz(3)
+  @@map("owner_tombstones")
+}
+
 // Immutable snapshots: every user correction appends to the stable slot.
 model FieldRevision {
   checkId String @map("check_id") @db.Uuid

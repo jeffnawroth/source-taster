@@ -56,6 +56,16 @@ export const AuthorityInvalidationAck = z.strictObject({
   version: z.number().int().positive().safe(),
 });
 
+/** ADR-0003: the Owner tombstone is durable and all of the Owner's content is
+ * purged. The acknowledgement carries identifiers only and claims nothing about
+ * History, which this program does not implement. */
+export const OwnerDeletionParams = z.strictObject({ ownerId: z.uuid() });
+export const OwnerDeletionAck = z.strictObject({
+  ownerId: z.uuid(),
+  tombstoned: z.literal(true),
+});
+export type OwnerDeletionAck = z.infer<typeof OwnerDeletionAck>;
+
 /** Stable Account binding; workers deliberately carry no client session secret. */
 export const AccountAuthorityRequest = z
   .strictObject({

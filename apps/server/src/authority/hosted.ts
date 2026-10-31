@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import type { Context } from "hono";
 import pg from "pg";
 import {
   AuthorityResponse,
   AuthorityInvalidation,
   AuthorityInvalidationAck,
+  OwnerDeletionAck,
   type GuestBinding,
   type AccountAuthorityRequest,
 } from "@source-taster/contract-internal";
@@ -16,8 +18,30 @@ import {
   guestAccessTokens,
   requestAssertion,
   verifyInvalidation,
+  verifyOwnerDeletion,
   type HostedSettings,
 } from "./crypto.ts";
+/** The one place the hosted-only internal mutations are mounted, so the deployed
+ * web process and the source test process cannot drift apart. */
+export function mountInternalRoutes(
+  app: {
+    post(path: string, handler: (c: Context) => Promise<Response>): unknown;
+    delete(path: string, handler: (c: Context) => Promise<Response>): unknown;
+  },
+  authority: Pick<
+    ReturnType<typeof hostedAuthority>,
+    "invalidate" | "deleteOwner"
+  >,
+) {
+  app.post("/internal/guest-authority/invalidate", async (c) =>
+    c.json(await authority.invalidate(c.req.raw)),
+  );
+  app.delete("/internal/owners/:ownerId", async (c) =>
+    c.json(
+      await authority.deleteOwner(c.req.raw, c.req.param("ownerId") ?? ""),
+    ),
+  );
+}
 export function hostedAuthority(
   settings: HostedSettings,
   databaseUrl: string,
@@ -101,6 +125,13 @@ export function hostedAuthority(
         [binding.ownerId],
       );
       if ((result.rows[0]?.version ?? 1) > version) fail("forbidden");
+      // ADR-0003: a tombstoned Owner is refused even while the service, which may
+      // not yet know, still answers allowed. Same lock as the deletion itself.
+      const tombstone = await connection.query(
+        "SELECT 1 FROM verification.owner_tombstones WHERE owner_id=$1::uuid",
+        [binding.ownerId],
+      );
+      if (tombstone.rowCount) fail("forbidden");
       return operation();
     });
   }
@@ -197,6 +228,21 @@ export function hostedAuthority(
           version: result.rows[0]!.version,
         });
       });
+    },
+    async deleteOwner(request: Request, ownerId: string) {
+      const token = request.headers
+        .get("authorization")
+        ?.match(/^Bearer ([A-Za-z0-9_.-]+)$/)?.[1];
+      if (!token) fail("unauthenticated");
+      verifyOwnerDeletion(settings, token, ownerId, clock.now());
+      if (!OwnerDeletionAck.shape.ownerId.safeParse(ownerId).success)
+        fail("invalid-request");
+      const id = ownerId.toLowerCase();
+      // Tombstone and purge share one transaction (store); the Owner guard keeps
+      // concurrent protected operations from interleaving with it. The ack is
+      // returned only after both are durable.
+      await locked(id, () => checks.deleteOwner(id));
+      return OwnerDeletionAck.parse({ ownerId: id, tombstoned: true });
     },
     close: () => pool.end(),
   };
