@@ -53,7 +53,9 @@ export function hostedAuthority(
     }
   }
   async function run<T>(
-    binding: GuestBinding | Pick<AccountAuthorityRequest,"ownerId"|"actorId"|"sessionId">,
+    binding:
+      | GuestBinding
+      | Pick<AccountAuthorityRequest, "ownerId" | "actorId" | "sessionId">,
     permission: Permission,
     kind: "request" | "work",
     expiresAt: number | undefined,
@@ -61,24 +63,24 @@ export function hostedAuthority(
   ) {
     if (expiresAt !== undefined && expiresAt <= clock.now())
       fail("unauthenticated");
-    const path="guestContextId" in binding ? "/internal/guest-authority" : "/internal/account-authority";
+    const path =
+      "guestContextId" in binding
+        ? "/internal/guest-authority"
+        : "/internal/account-authority";
     const body = JSON.stringify({ ...binding, permission, kind });
     let decision: AuthorityResponse;
     try {
-      const response = await fetch(
-        `${settings.serviceOrigin}${path}`,
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            authorization: `Bearer ${requestAssertion(settings, body, clock.now(),path)}`,
-          },
-          body,
-          redirect: "error",
-          signal: AbortSignal.timeout(2000),
-          cache: "no-store",
+      const response = await fetch(`${settings.serviceOrigin}${path}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${requestAssertion(settings, body, clock.now(), path)}`,
         },
-      );
+        body,
+        redirect: "error",
+        signal: AbortSignal.timeout(2000),
+        cache: "no-store",
+      });
       if (!response.ok) throw new Error();
       // Response is bounded and contains no verification content.
       const text = await response.text();
@@ -110,19 +112,24 @@ export function hostedAuthority(
       return {
         ownerId: claims.ownerId,
         actorId: claims.sub,
-        ...(claims.purpose === "guest-access"?{guestContextId:claims.guestContextId}:{sessionId:claims.sessionId}),
+        ...(claims.purpose === "guest-access"
+          ? { guestContextId: claims.guestContextId }
+          : { sessionId: claims.sessionId }),
         expiresAt: claims.exp * 1000,
         can: () => true,
         quota: { status: "not-implemented" },
       };
     },
     guard(principal, permission, operation) {
-      if (!principal.guestContextId && !principal.sessionId) fail("unauthenticated");
+      if (!principal.guestContextId && !principal.sessionId)
+        fail("unauthenticated");
       return run(
         {
           ownerId: principal.ownerId,
           actorId: principal.actorId,
-          ...(principal.guestContextId?{guestContextId:principal.guestContextId}:{sessionId:principal.sessionId}),
+          ...(principal.guestContextId
+            ? { guestContextId: principal.guestContextId }
+            : { sessionId: principal.sessionId }),
         },
         permission,
         "request",
@@ -143,7 +150,9 @@ export function hostedAuthority(
           {
             ownerId: attempt.ownerId,
             actorId: attempt.actorId,
-            ...(attempt.guestContextId?{guestContextId:attempt.guestContextId}:{}),
+            ...(attempt.guestContextId
+              ? { guestContextId: attempt.guestContextId }
+              : {}),
           },
           "check:create",
           "work",

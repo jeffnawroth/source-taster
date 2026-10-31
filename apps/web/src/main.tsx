@@ -22,7 +22,21 @@ const serviceUrl = import.meta.env.VITE_SOURCE_TASTER_SERVICE_URL;
 if (mode === "hosted" && !serviceUrl)
   throw new Error("Hosted client requires a service URL");
 createRoot(document.getElementById("root")!).render(
- <React.StrictMode>
- {mode==="hosted"?<WebAccountWorkspace initial={initial} preferenceStorage={preferenceStorage} serviceUrl={serviceUrl!} siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}/>:<CheckWorkspace initial={initial} preferenceStorage={preferenceStorage} transport={{client:"web/0.0.0"}} siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}/>}
- </React.StrictMode>,
+  <React.StrictMode>
+    {mode === "hosted" ? (
+      <WebAccountWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        serviceUrl={serviceUrl!}
+        siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+      />
+    ) : (
+      <CheckWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        transport={{ client: "web/0.0.0" }}
+        siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+      />
+    )}
+  </React.StrictMode>,
 );

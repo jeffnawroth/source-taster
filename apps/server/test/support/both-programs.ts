@@ -223,7 +223,8 @@ export async function bothPrograms(
           await new Promise((resolve) => setTimeout(resolve, workDelayMs));
         if (
           trap &&
-          (req.url === "/internal/guest-authority" || req.url === "/internal/account-authority") &&
+          (req.url === "/internal/guest-authority" ||
+            req.url === "/internal/account-authority") &&
           (!trap.permission || trap.permission === input.permission) &&
           (!trap.kind || trap.kind === input.kind)
         ) {
@@ -276,7 +277,7 @@ export async function bothPrograms(
     accessKey: access.key,
     internalKey: serviceInternal.key,
     verificationJwks: { keys: [verificationInternal.jwk] },
-    allowedOrigins: (options.accounts?["https://web.test.invalid"]:[]) as string[],
+    allowedOrigins: options.accounts ? ["https://web.test.invalid"] : [],
   };
   const serviceConfigPath = join(directory, "service.json"),
     verificationConfigPath = join(directory, "verification.json");
@@ -306,13 +307,25 @@ export async function bothPrograms(
     ...fixtures.env,
     ...options.verificationEnv,
   };
-  const accountConfigPath=join(directory,"account.json");
-  if(options.accounts)await writeFile(accountConfigPath,JSON.stringify({secret:randomUUID()+randomUUID(),publicOrigin:"https://service.test.invalid",from:"signin@source-taster.invalid",smtp:{host:"127.0.0.1",port:1,secure:false}}),{mode:0o600});
+  const accountConfigPath = join(directory, "account.json");
+  if (options.accounts)
+    await writeFile(
+      accountConfigPath,
+      JSON.stringify({
+        secret: randomUUID() + randomUUID(),
+        publicOrigin: "https://service.test.invalid",
+        from: "signin@source-taster.invalid",
+        smtp: { host: "127.0.0.1", port: 1, secure: false },
+      }),
+      { mode: 0o600 },
+    );
   const senv = {
     DATABASE_URL: urls[1]!,
     SERVICE_PORT: String(servicePort),
     SERVICE_GUEST_AUTH_CONFIG: serviceConfigPath,
-    ...(options.accounts?{SERVICE_ACCOUNT_AUTH_CONFIG:accountConfigPath}:{}),
+    ...(options.accounts
+      ? { SERVICE_ACCOUNT_AUTH_CONFIG: accountConfigPath }
+      : {}),
   };
   let service = launch(
     join(privatePath, "apps/server"),
@@ -334,20 +347,52 @@ export async function bothPrograms(
     launch(serverPath, "test/support/guest-process.ts", ["worker"], venv);
   if (options.startWorker !== false) await worker().ready;
   return {
-    mail:()=>service.command({mailbox:true}) as Promise<{subject:string;text:string}[]>,
-    signIn:async(email="account@example.invalid")=>{
-     const call=(path:string,body:unknown,cookie?:string)=>fetch(serviceUrl+path,{method:"POST",headers:{origin:"https://web.test.invalid","content-type":"application/json",...(cookie?{cookie}:{})},body:JSON.stringify(body)});
-     const challenge=await call("/v1/sign-in/challenges",{email,language:"en"});
-     if(!challenge.ok)throw new Error(`Challenge ${challenge.status}`);
-     const pending=await challenge.json() as {data:{challengeId:string}};
-     const mail=await service.command({mailbox:true}) as {text:string}[];
-     const code=mail.at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
-     const confirmed=await call("/v1/sign-in/confirm",{challengeId:pending.data.challengeId,code},challenge.headers.get("set-cookie")!.split(";")[0]);
-     if(!confirmed.ok)throw new Error(`Confirm ${confirmed.status}`);
-     const cookie=confirmed.headers.get("set-cookie")!.split(";")[0]!;
-     const token=await call("/v1/account-tokens",{},cookie);
-     if(!token.ok)throw new Error(`Token ${token.status}`);
-     return {cookie,token:GuestTokenResponse.parse(await token.json()).data.accessToken,data:(await confirmed.json() as {data:{accountId:string;ownerId:string}}).data,call:(path:string,body:unknown)=>call(path,body,cookie)};
+    mail: () =>
+      service.command({ mailbox: true }) as Promise<
+        { subject: string; text: string }[]
+      >,
+    signIn: async (email = "account@example.invalid") => {
+      const call = (path: string, body: unknown, cookie?: string) =>
+        fetch(serviceUrl + path, {
+          method: "POST",
+          headers: {
+            origin: "https://web.test.invalid",
+            "content-type": "application/json",
+            ...(cookie ? { cookie } : {}),
+          },
+          body: JSON.stringify(body),
+        });
+      const challenge = await call("/v1/sign-in/challenges", {
+        email,
+        language: "en",
+      });
+      if (!challenge.ok) throw new Error(`Challenge ${challenge.status}`);
+      const pending = (await challenge.json()) as {
+        data: { challengeId: string };
+      };
+      const mail = (await service.command({ mailbox: true })) as {
+        text: string;
+      }[];
+      const code = mail.at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
+      const confirmed = await call(
+        "/v1/sign-in/confirm",
+        { challengeId: pending.data.challengeId, code },
+        challenge.headers.get("set-cookie")!.split(";")[0],
+      );
+      if (!confirmed.ok) throw new Error(`Confirm ${confirmed.status}`);
+      const cookie = confirmed.headers.get("set-cookie")!.split(";")[0]!;
+      const token = await call("/v1/account-tokens", {}, cookie);
+      if (!token.ok) throw new Error(`Token ${token.status}`);
+      return {
+        cookie,
+        token: GuestTokenResponse.parse(await token.json()).data.accessToken,
+        data: (
+          (await confirmed.json()) as {
+            data: { accountId: string; ownerId: string };
+          }
+        ).data,
+        call: (path: string, body: unknown) => call(path, body, cookie),
+      };
     },
     now: () => now,
     apiUrl,

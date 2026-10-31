@@ -120,8 +120,20 @@ const guestClaims = z.strictObject({
   client: z.enum(["web", "extension"]),
   jti: z.uuid(),
 });
-const accountClaims = z.strictObject({...timeClaims,iss:z.string(),aud:z.string(),purpose:z.literal("account-access"),sub:z.uuid(),ownerId:z.uuid(),sessionId:z.uuid(),jti:z.uuid()});
-const accessClaims=z.discriminatedUnion("purpose",[guestClaims,accountClaims]);
+const accountClaims = z.strictObject({
+  ...timeClaims,
+  iss: z.string(),
+  aud: z.string(),
+  purpose: z.literal("account-access"),
+  sub: z.uuid(),
+  ownerId: z.uuid(),
+  sessionId: z.uuid(),
+  jti: z.uuid(),
+});
+const accessClaims = z.discriminatedUnion("purpose", [
+  guestClaims,
+  accountClaims,
+]);
 export type AccessClaims = z.infer<typeof accessClaims>;
 function validTime(
   claims: { iat: number; nbf: number; exp: number },
@@ -155,7 +167,10 @@ export function requestAssertion(
     JSON.stringify({
       iss: settings.assertionIssuer,
       aud: settings.serviceIssuer,
-      purpose: path === "/internal/account-authority" ? "account-authority" : "guest-authority",
+      purpose:
+        path === "/internal/account-authority"
+          ? "account-authority"
+          : "guest-authority",
       iat,
       nbf: iat,
       exp: iat + 30,

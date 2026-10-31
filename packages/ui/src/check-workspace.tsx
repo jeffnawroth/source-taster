@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   Check,
@@ -72,7 +73,7 @@ export function CheckWorkspace({
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
   siteUrl?: string;
-  accountControls?: (language: "de"|"en") => import("react").ReactNode;
+  accountControls?: (language: "de" | "en") => ReactNode;
   onPreferencesChange?: (preferences: Preferences) => void;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
