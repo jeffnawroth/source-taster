@@ -16,6 +16,24 @@ export declare const getServiceStatus: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -62,6 +80,24 @@ export declare const issueGuestToken: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -79,6 +115,8 @@ export declare const issueGuestToken: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -95,6 +133,8 @@ export declare const issueGuestToken: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -111,6 +151,8 @@ export declare const issueGuestToken: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -153,6 +195,8 @@ export declare const getGuestJwks: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -202,6 +246,24 @@ export declare const requestSignIn: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -214,6 +276,24 @@ export declare const requestSignIn: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -224,6 +304,24 @@ export declare const requestSignIn: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -241,6 +339,8 @@ export declare const requestSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -257,6 +357,8 @@ export declare const requestSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -273,6 +375,8 @@ export declare const requestSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -289,6 +393,8 @@ export declare const requestSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -305,6 +411,8 @@ export declare const requestSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -354,6 +462,24 @@ export declare const confirmSignIn: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -366,6 +492,24 @@ export declare const confirmSignIn: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -376,6 +520,24 @@ export declare const confirmSignIn: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -393,6 +555,8 @@ export declare const confirmSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -409,6 +573,8 @@ export declare const confirmSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -425,6 +591,8 @@ export declare const confirmSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -441,6 +609,8 @@ export declare const confirmSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -457,6 +627,8 @@ export declare const confirmSignIn: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -506,6 +678,24 @@ export declare const signOut: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -518,6 +708,24 @@ export declare const signOut: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -528,6 +736,24 @@ export declare const signOut: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -545,6 +771,8 @@ export declare const signOut: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -561,6 +789,8 @@ export declare const signOut: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -577,6 +807,8 @@ export declare const signOut: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -593,6 +825,8 @@ export declare const signOut: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -609,6 +843,8 @@ export declare const signOut: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -637,6 +873,24 @@ export declare const getAccountSession: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -654,6 +908,8 @@ export declare const getAccountSession: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -670,6 +926,8 @@ export declare const getAccountSession: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -698,6 +956,24 @@ export declare const recordSessionActivity: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -715,6 +991,8 @@ export declare const recordSessionActivity: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -731,6 +1009,8 @@ export declare const recordSessionActivity: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -747,6 +1027,8 @@ export declare const recordSessionActivity: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -776,6 +1058,24 @@ export declare const issueAccountToken: {
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -793,6 +1093,8 @@ export declare const issueAccountToken: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -809,6 +1111,8 @@ export declare const issueAccountToken: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -825,6 +1129,8 @@ export declare const issueAccountToken: {
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -853,6 +1159,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -898,6 +1222,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -915,6 +1257,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -931,6 +1275,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -947,6 +1293,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -988,6 +1336,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1036,6 +1386,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -1048,6 +1416,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -1058,6 +1444,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -1075,6 +1479,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1091,6 +1497,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1107,6 +1515,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1123,6 +1533,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1139,6 +1551,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1166,6 +1580,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -1183,6 +1615,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1199,6 +1633,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1226,6 +1662,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -1243,6 +1697,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1259,6 +1715,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1275,6 +1733,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1303,6 +1763,24 @@ export declare const routes: (({
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
                             remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
@@ -1320,6 +1798,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1336,6 +1816,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;
@@ -1352,6 +1834,8 @@ export declare const routes: (({
                         status: import("zod").ZodNumber;
                         detail: import("zod").ZodOptional<import("zod").ZodString>;
                         limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
                         code: import("zod").ZodString;
                         i18nKey: import("zod").ZodString;
                     }, import("zod/v4/core").$strip>;

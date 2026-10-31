@@ -16,11 +16,82 @@
           "remaining": {
             "type": "integer",
             "minimum": 0
+          },
+          "granted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reserved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warning": {
+            "$ref": "#/components/schemas/QuotaWarning"
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuotaGrantView"
+            },
+            "maxItems": 50
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "maxItems": 20
           }
         },
         "required": [
           "consumed",
-          "remaining"
+          "remaining",
+          "granted",
+          "reserved",
+          "warning",
+          "grants",
+          "features"
+        ]
+      },
+      "QuotaWarning": {
+        "type": "string",
+        "enum": [
+          "none",
+          "eighty",
+          "exhausted"
+        ]
+      },
+      "QuotaGrantView": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "credit"
+            ]
+          },
+          "granted": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "kind",
+          "granted",
+          "remaining",
+          "expiresAt"
         ]
       },
       "ProblemDetails": {
@@ -39,6 +110,14 @@
             "type": "string"
           },
           "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
             "type": "integer",
             "exclusiveMinimum": 0
           },
@@ -2965,6 +3044,16 @@
               }
             }
           },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Current service authority denies the named permission.",
             "content": {
@@ -3282,6 +3371,16 @@
               }
             }
           },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Current service authority denies the named permission.",
             "content": {
@@ -3401,6 +3500,16 @@
           },
           "401": {
             "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -3649,6 +3758,16 @@
               }
             }
           },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Current service authority denies the named permission.",
             "content": {
@@ -3781,6 +3900,16 @@
           },
           "401": {
             "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -4243,6 +4372,16 @@
               }
             }
           },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Current service authority denies the named permission.",
             "content": {
@@ -4475,6 +4614,20 @@
     "/v2/checks": {
       "post": {
         "summary": "Start a Check from pasted or explicitly structured References",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2000,
+              "description": "Start only the first N References in input order; the rest end as not-checked. Hosted Quota only."
+            },
+            "required": false,
+            "description": "Start only the first N References in input order; the rest end as not-checked. Hosted Quota only.",
+            "name": "maxReferences",
+            "in": "query"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -4508,6 +4661,16 @@
           },
           "401": {
             "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
             "content": {
               "application/problem+json": {
                 "schema": {

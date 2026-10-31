@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Version 2 transport only. Version 1 stays frozen; old stored results remain readable.
 import { z } from "zod";
+import { envelope, QuotaSlot } from "../../contract-common/src/index.js";
 import * as v1 from "./index.js";
 import { BibliographyDocument } from "./document.js";
 import { SourceSpan } from "./structuring.js";
@@ -238,6 +239,12 @@ export const Check = v1.Check.extend({
 export const CheckResponse = v1.CheckResponse.extend({ data: Check }).meta({
     id: "CheckResponseV2",
 });
+/** Current Quota of the acting Owner; `null` data when the installation holds no Quota. */
+export const QuotaResponse = envelope(QuotaSlot).meta({
+    id: "QuotaResponseV2",
+});
+/** Optional cap on how many References of a new Check start: the first N in input order. */
+export const MaxReferences = z.coerce.number().int().min(1).max(2000);
 export const ReferenceUpdatedEvent = v1.ReferenceUpdatedEvent.extend({
     reference: ReferenceSlot.partial()
         .required({ slot: true, outcome: true, progress: true })
