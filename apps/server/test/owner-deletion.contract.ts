@@ -40,7 +40,8 @@ async function rows(
 ): Promise<Record<string, unknown>[]> {
   const db = await api.database();
   try {
-    return (await db.query(sql, values)).rows;
+    const result = await db.query<Record<string, unknown>>(sql, values);
+    return result.rows;
   } finally {
     await db.end();
   }
