@@ -2,6 +2,7 @@
 // Confirmed seam: published HTTP/SSE, real PostgreSQL, fixture Data sources.
 import { afterAll, afterEach, beforeAll, expect, it } from "vitest";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
+import { BibliographyResponse } from "@source-taster/contract-verification/bibliography";
 import { startTestService } from "./support/service.ts";
 import { startDoiFixtures, physicsReference } from "./support/doi-fixtures.ts";
 let fixtures: Awaited<ReturnType<typeof startDoiFixtures>>;
@@ -234,8 +235,10 @@ it("a manual downgrade leaves an existing eligible suggestion and its source ide
   const reference = (await snapshot(check.id)).references[0]!;
   const path = `/${check.id}/bibliography`;
   const input = { style: "apa", includeBibliography: true };
-  const before = await (await post(path, input)).json();
-  expect(before.data.entries[0].suggestion).not.toBeNull();
+  const render = async () =>
+    BibliographyResponse.parse(await (await post(path, input)).json()).data;
+  const before = await render();
+  expect(before.entries[0]!.suggestion).not.toBeNull();
   expect(
     (
       await post(`/${check.id}/references/1/manual-override`, {
@@ -246,7 +249,7 @@ it("a manual downgrade leaves an existing eligible suggestion and its source ide
       })
     ).status,
   ).toBe(200);
-  expect(await (await post(path, input)).json()).toEqual(before);
+  expect(await render()).toEqual(before);
   expect((await snapshot(check.id)).references[0]!.outcome).toEqual(
     reference.outcome,
   );

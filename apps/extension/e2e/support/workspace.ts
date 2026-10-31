@@ -131,15 +131,17 @@ export async function checkInPanel(
     `${witness.name} never showed its outcome in the side panel`,
     20_000,
   );
+  // Field revisions are also a disclosure; open the evidence one by its label.
+  const evidence = `[...document.querySelectorAll("#reference-detail details > summary")].find((s) => s.textContent.includes(${JSON.stringify(l.evidence)}))`;
   const summary = await panel
     .locate(
-      `document.querySelector("#reference-detail details:not([open]) > summary")`,
+      `(${evidence})?.parentElement.open ? undefined : ${evidence}`,
       1_000,
     )
     .catch(() => undefined);
   if (summary) await panel.clickNode(summary);
   await panel.locate(
-    `document.querySelector("#reference-detail details[open]")`,
+    `${evidence}?.parentElement.open ? ${evidence} : undefined`,
   );
   return panel.evaluate<Outcome>(outcome);
 }
@@ -166,7 +168,9 @@ export async function checkInWeb(
       { timeout: 20_000, intervals: [100] },
     )
     .toBe(true);
-  const details = detail.locator("details");
+  const details = detail
+    .locator("details")
+    .filter({ has: page.locator("summary", { hasText: l.evidence }) });
   if (!(await details.evaluate((d: HTMLDetailsElement) => d.open)))
     await details.locator("summary").click();
   await expect(details).toHaveAttribute("open", "");
