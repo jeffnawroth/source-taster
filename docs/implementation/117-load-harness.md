@@ -52,7 +52,7 @@ targets. The list target is measured only for lists of 100 References.
 Evidence-validity gates fail the run instead of excluding data: unmatched
 replay requests, a Check not ending `completed` (lease expiry, cancellation,
 lost stream, run deadline), an unfinished Reference, a findable Reference
-without a `correct`/`exists-with-deviations` Verdict from complete evidence,
+without a `correct` or `exists-with-deviations` Verdict from complete evidence,
 and a not-findable Reference that is not `not-found` or whose evidence has any
 `unavailable` source (a fast outage, `rate-budget`, `deadline` or `timeout` is
 not a completed negative search; FA-UEB-41).
@@ -160,11 +160,14 @@ mean 120.8 s and slowest first Verdict 59.2 s. Exit 1. Reasons recorded:
 findable and 104 not-findable References finished before the harness stopped
 (of 5000). Mean from Check start 268.9 s / 301.3 s (slot-eligible 242.0 s /
 288.1 s); 3 Checks had no Verdict at all and the median first Verdict was 29.5 s.
-`rate-budget` 624, `deadline` 205, `after-source-failure` 964. Of the finished
+`rate-budget` 624, `deadline` 205, `after-source-failure` 964, `timeout` 1. Of the finished
 findable References, 240 ended Not verifiable and 100 of 104 not-findable ones
 did not end Not found. Targets for the first Verdict and the list stayed
-`not-measured` because Checks did not finish; the run failed on invalid
-evidence (`check-not-completed` 50) and on both mean targets.
+`not-measured` because Checks did not finish. Invalid evidence in the report:
+`check-not-completed` 50, `reference-unfinished` 4331,
+`findable-not-identified` 240, `not-findable-search-incomplete` 100,
+`client-failure` 50 (the 50 Checks were cut off by the run deadline); both mean
+targets were also missed.
 
 An earlier build of the same run (`117-real-50x100-defaults.log`, slot-eligible
 basis) failed the same way and reported peak concurrency 0 for Checks that were
@@ -181,8 +184,26 @@ configuration that the Operator sets and qualifies. I did not change any
 default, budget or target to obtain a pass, and I did not run a loosened
 configuration to produce a pass claim.
 
+### Open question: `--release` cannot pass under the current gate
+
+Qualification is pinned to the shipped default settings, and the arithmetic above
+shows those defaults cannot meet the targets. No `--release` run can therefore
+pass today, even with authorized recordings. A launch qualification needs either
+(a) the qualified launch budgets to become the reviewed shipped defaults, or (b)
+a deliberate decision to qualify against the Operator's disclosed production
+settings (the report already discloses the settings hash and the full
+configuration, and ADR-0007 treats Operator budgets as part of the measured
+configuration with no blanket exemption). I did not change the gate; this needs
+an owner decision before release.
+
 ### Exact limits
 
+- CI: `pnpm test` in `.github/workflows/ci.yml` picks up
+  `test/load-analysis.test.ts` and `test/load-replay.test.ts` (default config
+  `test/**/*.test.ts`). The real-process end-to-end test
+  (`test/load-run.load.ts`, `pnpm test:load`) and the `load:test` CLI are wired
+  into no workflow, so ADR-0007's fifty-Check replay "on every release" is not
+  automated yet. All validation here is local, not CI evidence.
 - Not run: a full 50×100 to completion (impossible within the budget above; the
   bounded run stops at 540 s), a recorded run, any live run, multi-worker runs,
   a run on the ADR-0012 single-container topology.
@@ -204,7 +225,9 @@ configuration to produce a pass claim.
   scripts in `apps/server/package.json` and this document.
 - `pnpm build` on the merged tree fails in `@source-taster/website` with "A
   current controlled Pagefind source build is required". That is an existing
-  release gate from the website work, not from this ticket; the contract and
+  release gate from the website work, not from this ticket; CI runs
+  `pnpm pagefind:build` and `pnpm pagefind:verify` before `pnpm build`, which I
+  did not run or bypass; the contract and
   core packages build, and the server tests run.
 - Pre-existing and unrelated: `test/article-fairness.test.ts` "caps running
   References per Check at the configured setting" failed intermittently on the
