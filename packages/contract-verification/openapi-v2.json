@@ -2136,6 +2136,16 @@
               }
             }
           },
+          "410": {
+            "description": "The Check expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "503": {
             "description": "Current authority or bounded formatting capacity is unavailable.",
             "content": {
@@ -2271,6 +2281,16 @@
           },
           "404": {
             "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check expired.",
             "content": {
               "application/problem+json": {
                 "schema": {

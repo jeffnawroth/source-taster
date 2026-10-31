@@ -169,3 +169,35 @@ github:jeffnawroth/source-taster#<pushed-public-sha>&path:packages/contract-serv
 github:jeffnawroth/source-taster#<pushed-public-sha>&path:packages/contract-internal
 github:jeffnawroth/source-taster#<pushed-public-sha>&path:packages/contract-verification
 ```
+
+## Integration-branch merge (31 October 2026)
+
+Merged into `spec/70-launch-integration` as `1e14d63` after #84. The only
+conflicts were additive DE/EN message keys (manual-override and `auth_*` keys
+both kept). Generated contract files were regenerated, not hand-merged, and
+reproduce with an empty `git status`. No dependency or lockfile change. Public
+validation on this tip is recorded in
+[84-manual-overrides.md](84-manual-overrides.md#integration-branch-merge-31-october-2026-with-97).
+
+The private half now lives on its integration branch and pins all contract
+consumers to the pushed public SHA `1e14d63dfa85d19ce6a98e2713a5aa480bc4b10f`.
+It builds and typechecks (server and web) against that contract, and its
+private suite passes. Cross-program runs from this checkout at `1e14d63`:
+
+| Check | Log | Result |
+|---|---|---|
+| Account contract (`account.vitest.config.ts`) | `84-97-both-account-contract-rerun.log` | 2/2 |
+| Guest regression (`guest.vitest.config.ts`) | `84-97-both-guest-rerun.log` | 33/33 |
+| Account browser (`account.playwright.config.ts`, `--repeat-each 2`) | `84-97-both-account-browser-rerun.log` | 4/4 |
+
+The first attempt hit shared PostgreSQL connection exhaustion while another
+implementer's suites held about 35 connections: account 1/2, guest 5/33, and
+2 browser runs failed with "remaining connection slots are reserved"
+(`84-97-both-*.log` without `-rerun`). The failed setups left the harness's
+own service processes running, and those held their 12 disposable databases
+open. Only those processes, databases and roles were removed. The two older
+`guest96_*` databases from an unknown owner are untouched. This repeats the
+pool-footprint caveat above. Also, the harness does not stop child processes
+when setup fails under connection exhaustion; that remains open.
+
+The ADR-0013 "Selected release" gate for Better Auth transitives stays open.

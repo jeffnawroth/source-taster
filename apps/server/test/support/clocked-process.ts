@@ -26,6 +26,7 @@ const options = {
 const db = createPrisma(config.databaseUrl);
 const boss = await createQueue(config.databaseUrl);
 const checks = createCheckStore(db, boss, options);
+await checks.maintain();
 let stop: () => void | Promise<void>;
 if (process.argv[2] === "worker") {
   const runtime = await startWorkerRuntime(config, db, boss, options);
@@ -60,7 +61,10 @@ if (process.argv[2] === "worker") {
 }
 process.on("message", (message: { now: number; id: number }) => {
   now = message.now;
-  process.send!({ id: message.id });
+  void checks
+    .maintain()
+    .then(() => process.send!({ id: message.id }))
+    .catch(() => process.send!({ id: message.id, error: true }));
 });
 process.send({ ready: true });
 process.once("SIGTERM", () => {

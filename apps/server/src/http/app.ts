@@ -43,6 +43,7 @@ import { stream, streamSSE } from "hono/streaming";
 import type { EventListener } from "../checks/events.ts";
 import { HTTPException } from "hono/http-exception";
 import type { StructuredReference } from "@source-taster/core";
+import { ContentUnavailable } from "../checks/content.ts";
 import { ReferenceConflict, CheckExpired } from "../checks/store.ts";
 import type { CheckStore } from "../checks/store.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
@@ -112,17 +113,26 @@ export function createApp(
     permission: Permission,
     data: T,
     status: S,
+    checkId?: string,
   ) {
     // Check again after the database/parser work, before response headers. The
     // transport write itself drains under the same durable Owner guard as commits.
-    await guarded(principal, permission, () => Promise.resolve());
+    await guarded(principal, permission, () =>
+      checkId
+        ? checks.publish(principal, checkId, apiVersion, async () => {})
+        : Promise.resolve(),
+    );
     c.status(status);
     c.header("Content-Type", "application/json");
     c.header("Cache-Control", "no-store");
     const response = stream(c, async (writer) => {
       try {
+        const send = () =>
+          writer.write(JSON.stringify({ data, quota: principal.quota }));
         await guarded(principal, permission, () =>
-          writer.write(JSON.stringify({ data, quota: principal.quota })),
+          checkId
+            ? checks.publish(principal, checkId, apiVersion, send)
+            : send(),
         );
       } catch {
         writer.abort();
@@ -157,7 +167,10 @@ export function createApp(
   });
 
   app.onError((error) => {
-    if (error instanceof CheckExpired) return problemResponse("check-expired");
+    if (error instanceof CheckExpired || error instanceof ContentUnavailable)
+      return problemResponse(
+        apiVersion === 1 ? "check-not-found" : "check-expired",
+      );
     if (error instanceof ReferenceLimitExceeded)
       return problemResponse("reference-limit", undefined, error.limit);
     if (error instanceof ReferenceConflict)
@@ -333,7 +346,7 @@ export function createApp(
       const check = await guarded(principal, "check:create", () =>
         checks.create(principal, references, apiVersion),
       );
-      return output(c, principal, "check:create", check, 201);
+      return output(c, principal, "check:create", check, 201, check.id);
     },
   );
 
@@ -345,7 +358,7 @@ export function createApp(
         checks.saveFields(principal, checkId, slot, c.req.valid("json")),
       );
       if (!check) fail("check-not-found");
-      return output(c, principal, "check:create", check, 200);
+      return output(c, principal, "check:create", check, 200, check.id);
     });
 
   if (apiVersion === 2) {
@@ -356,7 +369,7 @@ export function createApp(
         checks.setManualOverride(principal, checkId, slot, c.req.valid("json")),
       );
       if (!check) fail("check-not-found");
-      return output(c, principal, "check:create", check, 200);
+      return output(c, principal, "check:create", check, 200, check.id);
     });
     app.openapi(v2.recheckReference, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
@@ -365,7 +378,7 @@ export function createApp(
         checks.recheck(principal, checkId, slot, c.req.valid("json")),
       );
       if (!check) fail("check-not-found");
-      return output(c, principal, "check:create", check, 200);
+      return output(c, principal, "check:create", check, 200, check.id);
     });
     app.openapi(v2.editReferenceList, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
@@ -379,7 +392,7 @@ export function createApp(
         ),
       );
       if (!check) fail("check-not-found");
-      return output(c, principal, "check:create", check, 200);
+      return output(c, principal, "check:create", check, 200, check.id);
     });
   }
 
@@ -412,7 +425,14 @@ export function createApp(
             .map((reference) => [reference.slot, reference.resultId!]),
         ),
       );
-      return output(c, principal, "check:read", data, 200);
+      return output(
+        c,
+        principal,
+        "check:read",
+        data,
+        200,
+        c.req.valid("param").checkId,
+      );
     });
 
   if (apiVersion === 2)
@@ -476,7 +496,9 @@ export function createApp(
               : (replacements.get(reference.slot) ?? reference.fields),
         })),
       );
-      await guarded(principal, "check:read", () => Promise.resolve());
+      await guarded(principal, "check:read", () =>
+        checks.publish(principal, snapshot.check.id, 2, async () => {}),
+      );
       c.header("Content-Type", exporter.contentType);
       c.header(
         "Content-Disposition",
@@ -486,7 +508,11 @@ export function createApp(
       c.header("X-Content-Type-Options", "nosniff");
       return stream(c, async (writer) => {
         try {
-          await guarded(principal, "check:read", () => writer.write(body));
+          await guarded(principal, "check:read", () =>
+            checks.publish(principal, snapshot.check.id, 2, () =>
+              writer.write(body),
+            ),
+          );
         } catch {
           writer.abort();
         }
@@ -501,7 +527,7 @@ export function createApp(
         checks.get(principal, c.req.valid("param").checkId, apiVersion),
       );
       if (!check) fail("check-not-found");
-      return output(c, principal, "check:read", check, 200);
+      return output(c, principal, "check:read", check, 200, check.id);
     },
   );
 
@@ -513,7 +539,7 @@ export function createApp(
         checks.cancel(principal, c.req.valid("param").checkId, apiVersion),
       );
       if (!check) fail("check-not-found");
-      return output(c, principal, "check:cancel", check, 200);
+      return output(c, principal, "check:cancel", check, 200, check.id);
     },
   );
   app.openapi(
@@ -526,7 +552,7 @@ export function createApp(
         checks.renew(principal, c.req.valid("param").checkId, apiVersion),
       );
       if (!check) fail("check-not-found");
-      return output(c, principal, "check:renew", check, 200);
+      return output(c, principal, "check:renew", check, 200, check.id);
     },
   );
 
@@ -602,13 +628,15 @@ export function createApp(
                   const output = await authorize(c.req.raw, "check:read");
                   if (output.ownerId !== principal.ownerId) return;
                   await guarded(output, "check:read", () =>
-                    stream.writeSSE({
-                      id: raw.startsWith(`${checkId}:`)
-                        ? `${checkId}:${event.seq}`
-                        : String(event.seq),
-                      event: event.type,
-                      data: JSON.stringify(event),
-                    }),
+                    checks.publish(output, checkId, apiVersion, () =>
+                      stream.writeSSE({
+                        id: raw.startsWith(`${checkId}:`)
+                          ? `${checkId}:${event.seq}`
+                          : String(event.seq),
+                        event: event.type,
+                        data: JSON.stringify(event),
+                      }),
+                    ),
                   );
                   after = event.seq;
                 }

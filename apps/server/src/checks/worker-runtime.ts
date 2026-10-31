@@ -68,6 +68,8 @@ export async function startWorkerRuntime(
         void sweep();
       }, 250);
   }
+  // Startup recovery errors must prevent admission; periodic failures retry.
+  await checks.maintain();
   await sweep();
   await boss.work<ReferenceJob>(
     REFERENCE_QUEUE,
