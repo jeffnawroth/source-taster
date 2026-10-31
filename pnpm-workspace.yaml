@@ -15,3 +15,5 @@ minimumReleaseAgeExclude:
 ignoredOptionalDependencies:
   - sharp
   - fsevents
+  # ADR-0011: PDF.js text extraction runs without the optional native canvas.
+  - "@napi-rs/canvas"
