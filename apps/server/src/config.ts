@@ -3,6 +3,10 @@
 // mode is chosen explicitly: standalone mode grants every permission, so it
 // must never be the result of a missing setting.
 
+import {
+  defaultExtractionLimits,
+  type ExtractionLimits,
+} from "./documents/extraction.ts";
 import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
 import {
   createDevelopmentProfile,
@@ -19,6 +23,8 @@ import {
 } from "@source-taster/website/metadata";
 
 export interface Config {
+  documentImage?: string;
+  documentLimits: ExtractionLimits;
   website?: { mode: WebsiteMode; directory: string };
   mode: "standalone" | "hosted";
   hosted?: HostedSettings;
@@ -189,7 +195,39 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       );
     return url.origin;
   }
+  let documentLimits: ExtractionLimits;
+  try {
+    documentLimits = z
+      .strictObject({
+        inputBytes: z.number().int().positive(),
+        pages: z.number().int().positive(),
+        expandedBytes: z.number().int().positive(),
+        timeoutMs: z.number().int().positive(),
+        cpuSeconds: z.number().int().positive(),
+        outputBytes: z.number().int().positive(),
+        memoryBytes: z
+          .number()
+          .int()
+          .min(32 * 1024 * 1024),
+        concurrency: z.number().int().positive(),
+      })
+      .parse({
+        ...defaultExtractionLimits,
+        ...JSON.parse(env.SOURCE_TASTER_DOCUMENT_LIMITS ?? "{}"),
+      });
+  } catch {
+    throw new ConfigError("Invalid document extraction resource limits.");
+  }
+  if (
+    env.SOURCE_TASTER_DOCUMENT_IMAGE &&
+    !/^sha256:[a-f0-9]{64}$/.test(env.SOURCE_TASTER_DOCUMENT_IMAGE)
+  )
+    throw new ConfigError(
+      "Document extraction requires an immutable local image ID.",
+    );
   return {
+    documentImage: env.SOURCE_TASTER_DOCUMENT_IMAGE,
+    documentLimits,
     mode,
     doiPreview,
     bibliographicPreview,

@@ -25,12 +25,15 @@ export type ExtractionFailure =
 
 export class ExtractionFailed extends Error {
   override name = "ExtractionFailed";
-  constructor(readonly failure: ExtractionFailure) {
+  readonly failure: ExtractionFailure;
+  constructor(failure: ExtractionFailure) {
     super(failure);
+    this.failure = failure;
   }
 }
 
 export interface DocumentExtractor {
+  close?(): Promise<void>;
   extract(
     format: DocumentFormat,
     bytes: Uint8Array,
@@ -40,18 +43,22 @@ export interface DocumentExtractor {
 
 /** Initial values of ADR-0011/0015; memory, output and concurrency are operating settings. */
 export interface ExtractionLimits {
+  inputBytes: number;
   pages: number;
   /** "200 MB" stays 200,000,000 bytes, never reinterpreted as MiB. */
   expandedBytes: number;
   timeoutMs: number;
+  cpuSeconds: number;
   outputBytes: number;
   memoryBytes: number;
   concurrency: number;
 }
 export const defaultExtractionLimits: ExtractionLimits = {
+  inputBytes: 20_971_520,
   pages: 2000,
   expandedBytes: 200_000_000,
   timeoutMs: 60_000,
+  cpuSeconds: 60,
   outputBytes: 32 * 1024 * 1024,
   memoryBytes: 1536 * 1024 * 1024,
   concurrency: 2,

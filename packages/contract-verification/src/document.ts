@@ -13,7 +13,9 @@ export const DocumentStructuringRequest = z.object({
   file: z
     .any()
     .meta({ type: "string", format: "binary" })
-    .describe("One PDF or DOCX file of at most 20 MB (20,971,520 bytes)."),
+    .describe(
+      "One PDF or DOCX file within the current configured limit (initially 20 MB / 20,971,520 bytes).",
+    ),
 });
 export const ExtractedDocument = z
   .object({
@@ -37,3 +39,8 @@ export type DocumentStructuringResult = z.infer<
 export const DocumentStructuringResponse = envelope(
   DocumentStructuringResult,
 ).meta({ id: "DocumentStructuringResponse" });
+
+/** Current Operator-configured upload limit, shared by web and extension. */
+export const DocumentSettingsResponse = envelope(
+  z.object({ inputBytes: z.number().int().positive() }),
+).meta({ id: "DocumentSettingsResponse" });

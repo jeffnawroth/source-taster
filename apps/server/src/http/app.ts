@@ -1,6 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // HTTP surface of the web process: the published /v1 contract.
 
+import {
+  structureDocument,
+  getDocumentSettings,
+} from "@source-taster/contract-verification/document-routes";
+import { documentSizeLimit } from "@source-taster/contract-verification/document";
+import {
+  ExtractionFailed,
+  logMetrics,
+  sniffFormat,
+  unavailableExtractor,
+  type DocumentExtractor,
+  type DocumentMetrics,
+} from "../documents/extraction.ts";
+import { readUpload } from "../documents/upload.ts";
 import type { Context, TypedResponse } from "hono";
 import type { JSONParsed } from "hono/utils/types";
 import { OpenAPIHono } from "@hono/zod-openapi";
@@ -38,6 +52,10 @@ export interface AppDeps {
   heartbeatMs: number;
   referenceLimit: number;
   clock?: { now(): number };
+  documentExtractor?: DocumentExtractor;
+  documentMetrics?: DocumentMetrics;
+  documentConcurrency?: number;
+  documentInputBytes?: number;
 }
 
 export function createApp(
@@ -49,6 +67,10 @@ export function createApp(
     heartbeatMs,
     referenceLimit,
     clock = { now: Date.now },
+    documentExtractor = unavailableExtractor,
+    documentMetrics = logMetrics,
+    documentConcurrency = 2,
+    documentInputBytes = documentSizeLimit,
   }: AppDeps,
   apiVersion = 1,
 ) {
@@ -142,6 +164,73 @@ export function createApp(
         throw error;
       }
     });
+
+  if (apiVersion === 2) {
+    app.openapi(getDocumentSettings, async (c) => {
+      const principal = await authorize(c.req.raw, "structuring:create");
+      return output(
+        c,
+        principal,
+        "structuring:create",
+        { inputBytes: documentInputBytes },
+        200,
+      );
+    });
+    let uploads = 0;
+    // Authenticate and bound real streamed bytes before the form validator runs.
+    app.use(structureDocument.path, async (c, next) => {
+      if (c.req.method !== "POST") return next();
+      await authorize(c.req.raw, "structuring:create");
+      if (uploads >= documentConcurrency) fail("document-unavailable");
+      uploads++;
+      try {
+        const form = await readUpload(c.req.raw, documentInputBytes);
+        c.req.bodyCache.formData = form;
+        await next();
+      } finally {
+        uploads--;
+      }
+    });
+    app.openapi(structureDocument, async (c) => {
+      const principal = await authorize(c.req.raw, "structuring:create");
+      const file: unknown = c.req.valid("form").file;
+      if (!(file instanceof File)) fail("invalid-request");
+      if (file.size > documentInputBytes)
+        fail("document-size-limit", undefined, documentInputBytes);
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const format = sniffFormat(bytes);
+      if (!format) fail("document-unsupported");
+      try {
+        const extracted = await documentExtractor.extract(
+          format,
+          bytes,
+          c.req.raw.signal,
+        );
+        if (format === "pdf" && extracted.partialNoText)
+          documentMetrics.record("pdf-partial-no-text");
+        const data = {
+          document: {
+            format,
+            text: extracted.text,
+            notice: extracted.partialNoText
+              ? ("partial-no-text" as const)
+              : null,
+          },
+          structuring: structuring.structure(extracted.text),
+        };
+        return output(c, principal, "structuring:create", data, 200);
+      } catch (error) {
+        if (error instanceof ReferenceLimitExceeded)
+          fail("reference-limit", undefined, error.limit);
+        if (error instanceof ExtractionFailed) {
+          if (format === "pdf" && error.failure === "no-text")
+            documentMetrics.record("pdf-no-text");
+          fail(`document-${error.failure}`);
+        }
+        throw error;
+      }
+    });
+  }
 
   app.openapi(
     (apiVersion === 2 ? v2.createCheck : createCheck) as typeof v2.createCheck,
@@ -477,6 +566,10 @@ export function createApp(
           heartbeatMs,
           referenceLimit,
           clock,
+          documentExtractor,
+          documentMetrics,
+          documentConcurrency,
+          documentInputBytes,
         },
         2,
       ),

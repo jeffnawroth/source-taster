@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { ApiError, type VerificationClientOptions } from "./client.ts";
 import { ProblemDetails } from "./index.ts";
-import { DocumentStructuringResponse } from "./document.ts";
+import {
+  DocumentSettingsResponse,
+  DocumentStructuringResponse,
+} from "./document.ts";
 export function documentClient(options: VerificationClientOptions = {}) {
   return async (file: Blob, name: string, signal?: AbortSignal) => {
     const form = new FormData();
@@ -25,5 +28,29 @@ export function documentClient(options: VerificationClientOptions = {}) {
     if (!response.ok)
       throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
     return DocumentStructuringResponse.parse(body).data;
+  };
+}
+
+export function documentSettingsClient(
+  options: VerificationClientOptions = {},
+) {
+  return async (signal?: AbortSignal) => {
+    const response = await (options.fetch ?? globalThis.fetch)(
+      `${options.baseUrl ?? ""}/v2/document-settings`,
+      {
+        signal,
+        cache: "no-store",
+        headers: {
+          ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+          ...(options.credentials
+            ? { Authorization: `Bearer ${await options.credentials()}` }
+            : {}),
+        },
+      },
+    );
+    const body: unknown = await response.json().catch(() => undefined);
+    if (!response.ok)
+      throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+    return DocumentSettingsResponse.parse(body).data;
   };
 }

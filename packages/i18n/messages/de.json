@@ -219,5 +219,21 @@
   "export_preview": "Format: {format} · Zitierstil: {style}. Diese Datenformate bewahren die Felder; der Stil formatiert die Vorschau der Vorschläge.",
   "export_download": "Referenzen herunterladen",
   "export_downloading": "Download wird vorbereitet…",
-  "export_failed": "Der Download ist fehlgeschlagen. Prüfen Sie Verbindung und Zugriff, aktualisieren Sie bei Bedarf die Prüfung und versuchen Sie es erneut."
+  "export_failed": "Der Download ist fehlgeschlagen. Prüfen Sie Verbindung und Zugriff, aktualisieren Sie bei Bedarf die Prüfung und versuchen Sie es erneut.",
+  "document_upload_label": "PDF- oder Word-Dokument",
+  "document_upload_hint": "PDF oder DOCX. Das aktuelle Upload-Limit wird vor dem Senden geprüft. Der ausgelesene Text erscheint unten zur Durchsicht, bevor Sie eine Prüfung starten.",
+  "document_upload_action": "Hochladen und strukturieren",
+  "document_upload_pending": "Dokument wird gelesen…",
+  "document_partial_no_text": "Einige Seiten enthalten keinen Text.",
+  "problem_document_size_limit": "Das Dokument ist zu groß. Laden Sie eine PDF- oder DOCX-Datei mit höchstens {limit} MB hoch.",
+  "problem_document_unsupported": "Laden Sie ein PDF- oder DOCX-Dokument hoch.",
+  "problem_document_no_text": "Dieses Dokument enthält keinen auslesbaren Text. Fügen Sie bei einem gescannten PDF die Referenzen als Text ein.",
+  "problem_document_encrypted": "Dieses Dokument ist verschlüsselt. Laden Sie eine unverschlüsselte Kopie hoch.",
+  "problem_document_unreadable": "Dieses Dokument konnte nicht gelesen werden. Versuchen Sie eine gültige PDF- oder DOCX-Kopie.",
+  "problem_document_page_limit": "Das PDF überschreitet das Seitenlimit. Laden Sie ein kürzeres Dokument hoch.",
+  "problem_document_expansion_limit": "Die entpackte DOCX-Datei überschreitet das Größenlimit. Laden Sie ein kleineres Dokument hoch.",
+  "problem_document_time_limit": "Das Lesen des Dokuments dauerte zu lange. Versuchen Sie ein kleineres Dokument oder fügen Sie die Referenzen als Text ein.",
+  "problem_document_resource_limit": "Das Lesen des Dokuments überschritt ein Ressourcenlimit. Versuchen Sie ein einfacheres Dokument oder fügen Sie die Referenzen als Text ein.",
+  "problem_document_aborted": "Das Lesen des Dokuments wurde gestoppt. Sie können es erneut versuchen.",
+  "problem_document_unavailable": "Das Lesen von Dokumenten ist vorübergehend nicht verfügbar. Versuchen Sie es später erneut oder fügen Sie die Referenzen als Text ein."
 }

@@ -219,5 +219,21 @@
   "export_preview": "Format: {format} · Citation style: {style}. These data formats retain fields; the style formats the suggestion preview.",
   "export_download": "Download References",
   "export_downloading": "Preparing download…",
-  "export_failed": "The download failed. Check your connection and access, refresh the Check if needed, then try again."
+  "export_failed": "The download failed. Check your connection and access, refresh the Check if needed, then try again.",
+  "document_upload_label": "PDF or Word document",
+  "document_upload_hint": "PDF or DOCX. The current upload limit is checked before sending. The extracted text appears below for review before you start a Check.",
+  "document_upload_action": "Upload and structure",
+  "document_upload_pending": "Reading document…",
+  "document_partial_no_text": "Some pages contain no text.",
+  "problem_document_size_limit": "The document is too large. Upload a PDF or DOCX of at most {limit} MB.",
+  "problem_document_unsupported": "Upload a PDF or DOCX document.",
+  "problem_document_no_text": "This document contains no extractable text. For a scanned PDF, paste the References as text instead.",
+  "problem_document_encrypted": "This document is encrypted. Upload an unencrypted copy.",
+  "problem_document_unreadable": "This document could not be read. Try a valid PDF or DOCX copy.",
+  "problem_document_page_limit": "The PDF exceeds the page limit. Upload a shorter document.",
+  "problem_document_expansion_limit": "The expanded DOCX exceeds the size limit. Upload a smaller document.",
+  "problem_document_time_limit": "Reading the document took too long. Try a smaller document or paste its References.",
+  "problem_document_resource_limit": "Reading the document exceeded a resource limit. Try a simpler document or paste its References.",
+  "problem_document_aborted": "Reading the document was stopped. You can try again.",
+  "problem_document_unavailable": "Document reading is temporarily unavailable. Try again later or paste the References."
 }

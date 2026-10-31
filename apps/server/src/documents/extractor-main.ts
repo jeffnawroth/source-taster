@@ -7,13 +7,21 @@ import { extractDocx } from "./docx.ts";
 import { extractPdf } from "./pdf.ts";
 import { Rejected } from "./rejected.ts";
 
+// Library diagnostics may contain document data and never enter stdout/logs.
+console.log = console.warn = console.error = () => {};
 const [format, rawLimits] = process.argv.slice(2);
 const limits = JSON.parse(rawLimits ?? "{}") as {
+  inputBytes: number;
   pages: number;
   expandedBytes: number;
 };
 const chunks: Buffer[] = [];
-for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+let size = 0;
+for await (const chunk of process.stdin) {
+  size += (chunk as Buffer).length;
+  if (size > limits.inputBytes) process.exit(1);
+  chunks.push(chunk as Buffer);
+}
 const bytes = new Uint8Array(Buffer.concat(chunks));
 let answer: unknown;
 try {

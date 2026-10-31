@@ -2,6 +2,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.ts";
 import {
+  DocumentSettingsResponse,
   DocumentStructuringRequest,
   DocumentStructuringResponse,
 } from "./document.ts";
@@ -18,7 +19,9 @@ export const structureDocument = createRoute({
   request: {
     body: {
       required: true,
-      content: { "multipart/form-data": { schema: DocumentStructuringRequest } },
+      content: {
+        "multipart/form-data": { schema: DocumentStructuringRequest },
+      },
     },
   },
   responses: {
@@ -31,13 +34,28 @@ export const structureDocument = createRoute({
     ),
     401: problem("A valid verification access token is required."),
     403: problem("Current authority denies Structuring."),
-    413: problem("The file exceeds 20 MB (limit in bytes)."),
+    413: problem(
+      "The file exceeds the configured limit (initially 20 MB; limit in bytes).",
+    ),
     415: problem("The file is neither a PDF nor a DOCX document."),
     422: problem(
       "No extractable text, an encrypted or broken file, or an exceeded page, expansion or time ceiling.",
     ),
-    503: problem(
-      "Document extraction or current authority is unavailable.",
-    ),
+    503: problem("Document extraction or current authority is unavailable."),
+  },
+});
+
+export const getDocumentSettings = createRoute({
+  method: "get",
+  path: "/v2/document-settings",
+  summary: "Read the current document upload limit",
+  responses: {
+    200: {
+      description: "Operator-configured document input limit in bytes",
+      content: { "application/json": { schema: DocumentSettingsResponse } },
+    },
+    401: problem("A valid verification access token is required."),
+    403: problem("Current authority denies Structuring."),
+    503: problem("Current authority is unavailable."),
   },
 });

@@ -383,6 +383,52 @@
           "i18nKey"
         ]
       },
+      "DocumentSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "inputBytes": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "inputBytes"
+            ]
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
       "CheckResponseV2": {
         "type": "object",
         "properties": {
@@ -1283,7 +1329,7 @@
                   "file": {
                     "type": "string",
                     "format": "binary",
-                    "description": "One PDF or DOCX file of at most 20 MB (20,971,520 bytes)."
+                    "description": "One PDF or DOCX file within the current configured limit (initially 20 MB / 20,971,520 bytes)."
                   }
                 }
               }
@@ -1332,7 +1378,7 @@
             }
           },
           "413": {
-            "description": "The file exceeds 20 MB (limit in bytes).",
+            "description": "The file exceeds the configured limit (initially 20 MB; limit in bytes).",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1363,6 +1409,53 @@
           },
           "503": {
             "description": "Document extraction or current authority is unavailable.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/document-settings": {
+      "get": {
+        "summary": "Read the current document upload limit",
+        "responses": {
+          "200": {
+            "description": "Operator-configured document input limit in bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority denies Structuring.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority is unavailable.",
             "content": {
               "application/problem+json": {
                 "schema": {

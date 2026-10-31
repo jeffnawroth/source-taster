@@ -20,7 +20,8 @@
     "start:worker": "node dist/worker.js",
     "release:check": "node scripts/release-check.ts",
     "build:release": "pnpm release:check && pnpm build",
-    "test:authority": "vitest run --config guest.vitest.config.ts"
+    "test:authority": "vitest run --config guest.vitest.config.ts",
+    "extractor:image": "node scripts/extractor-image.ts"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",

@@ -11,6 +11,7 @@ export interface DocxOptions {
   numbered?: { format: string; paragraphs: string[] };
   /** Extra stored (uncompressed-size-honest) part to inflate the archive. */
   padding?: number;
+  storedPadding?: number;
 }
 
 /** A minimal WordprocessingML package with one paragraph per entry. */
@@ -61,6 +62,10 @@ export async function docx(
     );
   if (options.padding)
     zip.file("word/media/padding.bin", new Uint8Array(options.padding));
+  if (options.storedPadding)
+    zip.file("word/media/stored.bin", new Uint8Array(options.storedPadding), {
+      compression: "STORE",
+    });
   return zip.generateAsync({
     type: "uint8array",
     compression: "DEFLATE",
@@ -83,7 +88,10 @@ export async function expandingDocx(bytes: number): Promise<Uint8Array> {
  * A small, valid PDF 1.4 with one page per entry of `pages`. Each page shows
  * its lines in Helvetica; an empty page array entry is a page without text.
  */
-export function pdf(pages: string[][]): Uint8Array {
+export function pdf(
+  pages: string[][],
+  options: { encrypted?: boolean } = {},
+): Uint8Array {
   const objects: string[] = [];
   const add = (body: string) => objects.push(body);
   const catalog = add("");
@@ -110,6 +118,11 @@ export function pdf(pages: string[][]): Uint8Array {
   objects[catalog - 1] = `<< /Type /Catalog /Pages ${pageTree} 0 R >>`;
   objects[pageTree - 1] =
     `<< /Type /Pages /Kids [${kids.map((k) => `${k} 0 R`).join(" ")}] /Count ${kids.length} >>`;
+  const encryption = options.encrypted
+    ? add(
+        "<< /Filter /Standard /V 1 /R 2 /Length 40 /O <0000000000000000000000000000000000000000000000000000000000000000> /U <0000000000000000000000000000000000000000000000000000000000000000> /P -4 >>",
+      )
+    : undefined;
   let out = "%PDF-1.4\n";
   const offsets: number[] = [];
   objects.forEach((body, index) => {
@@ -119,7 +132,9 @@ export function pdf(pages: string[][]): Uint8Array {
   const xref = Buffer.byteLength(out, "latin1");
   out += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets
     .map((offset) => `${String(offset).padStart(10, "0")} 00000 n \n`)
-    .join("")}trailer\n<< /Size ${objects.length + 1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+    .join(
+      "",
+    )}trailer\n<< /Size ${objects.length + 1} /Root ${catalog} 0 R ${encryption ? `/Encrypt ${encryption} 0 R /ID [<0123456789abcdef><0123456789abcdef>]` : ""} >>\nstartxref\n${xref}\n%%EOF\n`;
   return new Uint8Array(Buffer.from(out, "latin1"));
 }
 
@@ -130,7 +145,7 @@ export function upload(
   type = "application/octet-stream",
 ) {
   const form = new FormData();
-  form.set("file", new Blob([bytes], { type }), name);
+  form.set("file", new Blob([new Uint8Array(bytes)], { type }), name);
   return fetch(`${api}/v2/document-structurings`, {
     method: "POST",
     body: form,
