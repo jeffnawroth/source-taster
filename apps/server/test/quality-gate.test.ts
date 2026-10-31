@@ -437,19 +437,14 @@ it("preserves three invalid AI runs when live extraction repeatedly fails for a 
   expect(result.decision.releasable).toBe(false);
 }, 120_000);
 
-it("exits 78 from the measurement CLI when the measured configuration is non-releasable, preserving its log", async () => {
-  await writeReferenceTestSet();
-  const configuration = join(root, "configuration.json");
-  await writeFile(configuration, json({ enabledSources: [] }));
+async function cli(args: string[]) {
   const child = spawn(
     process.execPath,
     [
       "scripts/quality-gate.ts",
-      "measure",
+      ...args,
       "--root",
       root,
-      "--configuration",
-      configuration,
       "--port",
       String(port),
     ],
@@ -475,6 +470,18 @@ it("exits 78 from the measurement CLI when the measured configuration is non-rel
     child.on("error", reject);
     child.on("exit", resolve);
   });
+  return { status, stdout, stderr };
+}
+
+it("exits 78 from the measurement CLI when the measured configuration is non-releasable, preserving its log", async () => {
+  await writeReferenceTestSet();
+  const configuration = join(root, "configuration.json");
+  await writeFile(configuration, json({ enabledSources: [] }));
+  const { status, stdout, stderr } = await cli([
+    "measure",
+    "--configuration",
+    configuration,
+  ]);
   expect(status, stderr).toBe(78);
   const result = JSON.parse(stdout.slice(stdout.indexOf('{\n  "logPath"'))) as {
     logPath: string;
@@ -483,5 +490,24 @@ it("exits 78 from the measurement CLI when the measured configuration is non-rel
   expect(result.decision.releasable).toBe(false);
   expect(await readJson<LogFile>(result.logPath)).toMatchObject({
     decision: result.decision,
+  });
+}, 120_000);
+
+it("exits 78 from the calibration CLI when no grid point qualifies and preserves the private record", async () => {
+  await writeReferenceTestSet([], [], "development-set");
+  const file = join(root, "development-set", "records.json");
+  const records = await readJson<{ class: string }[]>(file);
+  await writeFile(file, json(records.filter((r) => r.class === "invented")));
+  const grid = join(root, "grid.json");
+  await writeFile(grid, json({ axes: { overallScore: [85000000] } }));
+  const { status, stdout, stderr } = await cli(["calibrate", "--grid", grid]);
+  expect(status, stderr).toBe(78);
+  const result = JSON.parse(
+    stdout.slice(stdout.indexOf('{\n  "recordPath"')),
+  ) as { recordPath: string; selected: unknown };
+  expect(result.selected).toBeNull();
+  expect(await readJson<CalibrationFile>(result.recordPath)).toMatchObject({
+    developmentSetVersion: "synthetic-dev-1",
+    selected: null,
   });
 }, 120_000);
