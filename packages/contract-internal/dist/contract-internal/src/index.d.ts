@@ -64,7 +64,7 @@ export declare const AuthorityResponse: z.ZodDiscriminatedUnion<[z.ZodObject<{
 export type AuthorityResponse = z.infer<typeof AuthorityResponse>;
 /** Monotonic, durable, idempotent Owner fence. Completion drains guarded operations. */
 export declare const AuthorityInvalidation: z.ZodObject<{
-    guestContextId: z.ZodUUID;
+    guestContextId: z.ZodOptional<z.ZodUUID>;
     ownerId: z.ZodUUID;
     actorId: z.ZodUUID;
     version: z.ZodNumber;
@@ -75,3 +75,21 @@ export declare const AuthorityInvalidationAck: z.ZodObject<{
     ownerId: z.ZodUUID;
     version: z.ZodNumber;
 }, z.core.$strict>;
+/** Stable Account binding; workers deliberately carry no client session secret. */
+export declare const AccountAuthorityRequest: z.ZodObject<{
+    actorId: z.ZodUUID;
+    ownerId: z.ZodUUID;
+    sessionId: z.ZodOptional<z.ZodUUID>;
+    permission: z.ZodEnum<{
+        "check:cancel": "check:cancel";
+        "check:create": "check:create";
+        "check:read": "check:read";
+        "check:renew": "check:renew";
+        "structuring:create": "structuring:create";
+    }>;
+    kind: z.ZodEnum<{
+        request: "request";
+        work: "work";
+    }>;
+}, z.core.$strict>;
+export type AccountAuthorityRequest = z.infer<typeof AccountAuthorityRequest>;

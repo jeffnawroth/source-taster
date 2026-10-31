@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import type { ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type {
   Check,
@@ -73,11 +74,15 @@ export function CheckWorkspace({
   preferenceStorage,
   transport,
   siteUrl,
+  accountControls,
+  onPreferencesChange,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
   siteUrl?: string;
+  accountControls?: (language: "de" | "en") => ReactNode;
+  onPreferencesChange?: (preferences: Preferences) => void;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const uploadDocument = useMemo(() => documentClient(transport), [transport]);
@@ -424,6 +429,7 @@ export function CheckWorkspace({
     const next = { ...preferences, ...patch };
     void setLocale(next.language, { reload: false });
     updatePreferences(next);
+    onPreferencesChange?.(next);
     void saveGuestPreferences(preferenceStorage, next);
     if (patch.citationStyle) setStyleReset(false);
   }
@@ -466,6 +472,7 @@ export function CheckWorkspace({
           </select>
         </label>
       </header>
+      {accountControls?.(locale)}
       {styleReset && (
         <p
           role="status"

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { AuthorityRequest, AuthorityResponse, AuthorityInvalidation, AuthorityInvalidationAck, MailRehearsalRequest, MailRehearsalResponse, MailRehearsalParams, ProblemDetails, } from "./index.js";
+import { AccountAuthorityRequest, AuthorityRequest, AuthorityResponse, AuthorityInvalidation, AuthorityInvalidationAck, MailRehearsalRequest, MailRehearsalResponse, MailRehearsalParams, ProblemDetails, } from "./index.js";
 const problem = {
     description: "Problem Details; the local diagnostic is unavailable by default",
     content: { "application/problem+json": { schema: ProblemDetails } },
@@ -81,7 +81,28 @@ export const invalidateGuest = createRoute({
         503: problem,
     },
 });
+export const authorizeAccount = createRoute({
+    method: "post",
+    path: "/internal/account-authority",
+    summary: "Check current Account/Owner authority and current session for requests",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: AccountAuthorityRequest } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Current authority",
+            content: { "application/json": { schema: AuthorityResponse } },
+        },
+        400: problem,
+        401: problem,
+        503: problem,
+    },
+});
 export const routes = [
+    authorizeAccount,
     createMailRehearsal,
     getMailRehearsal,
     authorizeGuest,

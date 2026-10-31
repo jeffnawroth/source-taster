@@ -37,3 +37,70 @@ export declare const GuestTokenResponse: z.ZodObject<{
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type GuestTokenResponse = z.infer<typeof GuestTokenResponse>;
+/** Browser session credentials are cookies, never fields in these responses. */
+export declare const SignInChallengeRequest: z.ZodObject<{
+    email: z.ZodEmail;
+    language: z.ZodEnum<{
+        de: "de";
+        en: "en";
+    }>;
+}, z.core.$strict>;
+export declare const SignInChallengeResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        challengeId: z.ZodUUID;
+        expiresIn: z.ZodNumber;
+        resendAfter: z.ZodNumber;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export declare const SignInConfirmRequest: z.ZodObject<{
+    challengeId: z.ZodUUID;
+    code: z.ZodString;
+}, z.core.$strict>;
+export declare const AccountSessionResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        accountId: z.ZodUUID;
+        ownerId: z.ZodUUID;
+        email: z.ZodEmail;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export type AccountSession = z.infer<typeof AccountSessionResponse>["data"];
+export declare const AccountTokenResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        accessToken: z.ZodString;
+        tokenType: z.ZodLiteral<"Bearer">;
+        expiresAt: z.ZodISODateTime;
+        expiresIn: z.ZodLiteral<300>;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export declare const SignOutRequest: z.ZodObject<{
+    everywhere: z.ZodBoolean;
+}, z.core.$strict>;
+export declare const SignOutResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        signedOut: z.ZodLiteral<true>;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;

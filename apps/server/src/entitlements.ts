@@ -14,6 +14,7 @@ export type Permission =
 
 export interface Principal {
   guestContextId?: string;
+  sessionId?: string;
   expiresAt?: number;
   ownerId: string;
   actorId: string;

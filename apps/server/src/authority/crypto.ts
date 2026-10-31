@@ -108,7 +108,7 @@ const timeClaims = {
   nbf: z.number().int().nonnegative(),
   exp: z.number().int().positive(),
 };
-const accessClaims = z.strictObject({
+const guestClaims = z.strictObject({
   ...timeClaims,
   iss: z.string(),
   aud: z.string(),
@@ -120,6 +120,20 @@ const accessClaims = z.strictObject({
   client: z.enum(["web", "extension"]),
   jti: z.uuid(),
 });
+const accountClaims = z.strictObject({
+  ...timeClaims,
+  iss: z.string(),
+  aud: z.string(),
+  purpose: z.literal("account-access"),
+  sub: z.uuid(),
+  ownerId: z.uuid(),
+  sessionId: z.uuid(),
+  jti: z.uuid(),
+});
+const accessClaims = z.discriminatedUnion("purpose", [
+  guestClaims,
+  accountClaims,
+]);
 export type AccessClaims = z.infer<typeof accessClaims>;
 function validTime(
   claims: { iat: number; nbf: number; exp: number },
@@ -139,6 +153,7 @@ export function requestAssertion(
   settings: HostedSettings,
   body: string,
   now: number,
+  path = "/internal/guest-authority",
 ) {
   const iat = Math.floor(now / 1000);
   const h = Buffer.from(
@@ -152,13 +167,16 @@ export function requestAssertion(
     JSON.stringify({
       iss: settings.assertionIssuer,
       aud: settings.serviceIssuer,
-      purpose: "guest-authority",
+      purpose:
+        path === "/internal/account-authority"
+          ? "account-authority"
+          : "guest-authority",
       iat,
       nbf: iat,
       exp: iat + 30,
       jti: randomUUID(),
       method: "POST",
-      path: "/internal/guest-authority",
+      path,
       bodyHash: createHash("sha256").update(body).digest("base64url"),
     }),
   ).toString("base64url");

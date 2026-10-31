@@ -2,6 +2,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import {
+  AccountAuthorityRequest,
   AuthorityRequest,
   AuthorityResponse,
   AuthorityInvalidation,
@@ -92,7 +93,29 @@ export const invalidateGuest = createRoute({
     503: problem,
   },
 });
+export const authorizeAccount = createRoute({
+  method: "post",
+  path: "/internal/account-authority",
+  summary:
+    "Check current Account/Owner authority and current session for requests",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: AccountAuthorityRequest } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Current authority",
+      content: { "application/json": { schema: AuthorityResponse } },
+    },
+    400: problem,
+    401: problem,
+    503: problem,
+  },
+});
 export const routes = [
+  authorizeAccount,
   createMailRehearsal,
   getMailRehearsal,
   authorizeGuest,

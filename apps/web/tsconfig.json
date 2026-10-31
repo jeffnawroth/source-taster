@@ -13,6 +13,7 @@
     "*.ts",
     "guest.playwright.config.ts",
     "e2e-guest",
-    "e2e-bibliographic"
+    "e2e-bibliographic",
+    "e2e-account"
   ]
 }

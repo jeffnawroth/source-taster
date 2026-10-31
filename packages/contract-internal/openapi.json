@@ -6,6 +6,88 @@
   },
   "components": {
     "schemas": {
+      "AuthorityResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "allowed",
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "revoked",
+                  "forbidden",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "allowed",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
       "MailRehearsalResponse": {
         "type": "object",
         "properties": {
@@ -85,40 +167,6 @@
           "remaining"
         ]
       },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
-        ]
-      },
       "MailRehearsalRequest": {
         "type": "object",
         "properties": {
@@ -134,59 +182,106 @@
           "language"
         ],
         "additionalProperties": false
-      },
-      "AuthorityResponse": {
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "allowed": {
-                "type": "boolean",
-                "enum": [
-                  true
-                ]
-              },
-              "version": {
-                "type": "integer",
-                "exclusiveMinimum": 0
-              }
-            },
-            "required": [
-              "allowed",
-              "version"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "allowed": {
-                "type": "boolean",
-                "enum": [
-                  false
-                ]
-              },
-              "reason": {
-                "type": "string",
-                "enum": [
-                  "revoked",
-                  "forbidden",
-                  "unknown"
-                ]
-              }
-            },
-            "required": [
-              "allowed",
-              "reason"
-            ],
-            "additionalProperties": false
-          }
-        ]
       }
     },
     "parameters": {}
   },
   "paths": {
+    "/internal/account-authority": {
+      "post": {
+        "summary": "Check current Account/Owner authority and current session for requests",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "actorId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "ownerId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "permission": {
+                    "type": "string",
+                    "enum": [
+                      "structuring:create",
+                      "check:create",
+                      "check:read",
+                      "check:cancel",
+                      "check:renew"
+                    ]
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "request",
+                      "work"
+                    ]
+                  }
+                },
+                "required": [
+                  "actorId",
+                  "ownerId",
+                  "permission",
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current authority",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/mail-rehearsals": {
       "post": {
         "summary": "Local SMTP rehearsal; fixed sink only, never an Account sign-in",
@@ -431,7 +526,6 @@
                   }
                 },
                 "required": [
-                  "guestContextId",
                   "ownerId",
                   "actorId",
                   "version",
