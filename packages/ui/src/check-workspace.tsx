@@ -136,6 +136,8 @@ export function CheckWorkspace({
     fileName: string;
     file: File | null;
     documentNotice: boolean;
+    sourceDocument: BibliographyDocument | null;
+    selectionLimit: number | null;
     fileError: MessageKey | null;
   } | null>(null);
   const receiveSelection = useEffectEvent(
@@ -152,6 +154,8 @@ export function CheckWorkspace({
         fileName,
         file,
         documentNotice,
+        sourceDocument,
+        selectionLimit,
         fileError,
       });
       // A selection is a new draft, not a new Check. Keep the existing Check,
@@ -162,6 +166,8 @@ export function CheckWorkspace({
         setPending(null);
       }
       setText(selection.text);
+      setSourceDocument(null);
+      setSelectionLimit(null);
       setLibrary(null);
       setPreview(null);
       setFileName("");
@@ -714,6 +720,7 @@ export function CheckWorkspace({
             document={sourceDocument}
             disabled={!!busy || !!check}
             onChange={(regions) => {
+              setSelectionUndo(null);
               setSourceDocument({
                 ...sourceDocument,
                 selection: { ...sourceDocument.selection, regions },
@@ -747,6 +754,8 @@ export function CheckWorkspace({
             onPress={() => {
               setSelectionNotice(null);
               setText(selectionUndo.text);
+              setSourceDocument(selectionUndo.sourceDocument);
+              setSelectionLimit(selectionUndo.selectionLimit);
               setLibrary(selectionUndo.library);
               setPreview(selectionUndo.preview);
               setFileName(selectionUndo.fileName);
