@@ -2,7 +2,6 @@ import { z } from "zod";
 export * from "../../contract-common/src/index.ts";
 /** No verification content, recipient, code or arbitrary message crosses this boundary.
  * Diagnostic only: explicitly enabled loopback rehearsal with a fixed .invalid SMTP sink.
- * Hosted entitlement/Quota routes remain unavailable until their signed-token implementation.
  */
 export declare const MailRehearsalRequest: z.ZodObject<{
     language: z.ZodEnum<{

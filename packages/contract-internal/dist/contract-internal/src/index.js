@@ -4,7 +4,6 @@ import { envelope, GuestBinding, Permission, Quota, } from "../../contract-commo
 export * from "../../contract-common/src/index.js";
 /** No verification content, recipient, code or arbitrary message crosses this boundary.
  * Diagnostic only: explicitly enabled loopback rehearsal with a fixed .invalid SMTP sink.
- * Hosted entitlement/Quota routes remain unavailable until their signed-token implementation.
  */
 export const MailRehearsalRequest = z
     .strictObject({ language: z.enum(["de", "en"]) })
