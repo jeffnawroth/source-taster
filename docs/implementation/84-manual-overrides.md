@@ -141,6 +141,17 @@ HTTP manual-overrides 6/6, revision-lifecycle 5/5, reference-revisions 5/5 and
 exports 7/7 passed. Web manual-overrides 3/3 and revisions 4/4 passed. Native
 manual-overrides 2/2 and panel.spec 6/8 passed.
 
+The merged #88/#89 suites also ran serially on ports 3801/5284. HTTP
+imports 14/14 (`84-claude-merged-imports.log`). HTTP documents 13/13
+(`84-claude-merged-documents-image.log`). Web imports, documents and
+intake-composition 12/12 (`84-claude-merged-web-intake.log`). Native
+documents.spec 2/2 (`84-claude-merged-native-documents.log`). The document
+runs set `SOURCE_TASTER_DOCUMENT_IMAGE` to the exact extractor image named in
+the #89 handoff (`sha256:a36fa02b…7061707`; local image ID checked first).
+Without that variable the document upload fails closed with 503
+(`84-claude-merged-documents.log`, 9 failed / 4 passed). That is the documented
+#89 environment requirement, not a regression.
+
 **Integration caveat (not #84):** the two #88 cases "native panel imports and
 round trips BibTeX and RIS" fail with "Library preview not visible". They fail
 identically on the unchanged integration tip `920e5d0`
