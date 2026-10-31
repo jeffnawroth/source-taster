@@ -1,5 +1,6 @@
 import { z } from "zod";
 export * from "./index.ts";
+export { type BibliographyDocument } from "./document.ts";
 /** Version 2 accepts a native arXiv identifier; Version 1 stays unchanged. */
 export declare const StructuredCsl: z.ZodObject<{
     type: z.ZodOptional<z.ZodString>;
@@ -142,6 +143,14 @@ export declare const CreateCheckRequest: z.ZodUnion<readonly [z.ZodObject<{
 }, z.core.$strip>, z.ZodObject<{
     text: z.ZodString;
 }, z.core.$strip>, z.ZodObject<{
+    document: z.ZodObject<{
+        text: z.ZodString;
+        regions: z.ZodArray<z.ZodObject<{
+            start: z.ZodNumber;
+            end: z.ZodNumber;
+        }, z.core.$strip>>;
+    }, z.core.$strict>;
+}, z.core.$strict>, z.ZodObject<{
     references: z.ZodArray<z.ZodObject<{
         originalText: z.ZodString;
         fields: z.ZodObject<{
@@ -2520,6 +2529,16 @@ export declare const Check: z.ZodObject<{
         completed: "completed";
         "lease-expired": "lease-expired";
     }>>;
+    document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+        text: z.ZodString;
+        selection: z.ZodObject<{
+            version: z.ZodString;
+            regions: z.ZodArray<z.ZodObject<{
+                start: z.ZodNumber;
+                end: z.ZodNumber;
+            }, z.core.$strip>>;
+        }, z.core.$strip>;
+    }, z.core.$strip>>>;
     references: z.ZodArray<z.ZodObject<{
         slot: z.ZodNumber;
         originalText: z.ZodString;
@@ -3427,6 +3446,16 @@ export declare const CheckResponse: z.ZodObject<{
             completed: "completed";
             "lease-expired": "lease-expired";
         }>>;
+        document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+            text: z.ZodString;
+            selection: z.ZodObject<{
+                version: z.ZodString;
+                regions: z.ZodArray<z.ZodObject<{
+                    start: z.ZodNumber;
+                    end: z.ZodNumber;
+                }, z.core.$strip>>;
+            }, z.core.$strip>;
+        }, z.core.$strip>>>;
         references: z.ZodArray<z.ZodObject<{
             slot: z.ZodNumber;
             originalText: z.ZodString;
@@ -6186,3 +6215,90 @@ export declare const EditReferenceListRequest: z.ZodObject<{
     remove: z.ZodArray<z.ZodNumber>;
 }, z.core.$strict>;
 export type EditReferenceListRequest = z.infer<typeof EditReferenceListRequest>;
+export declare const EditSelectionRequest: z.ZodObject<{
+    expectedEventSeq: z.ZodNumber;
+    regions: z.ZodArray<z.ZodObject<{
+        start: z.ZodNumber;
+        end: z.ZodNumber;
+    }, z.core.$strip>>;
+}, z.core.$strict>;
+export type EditSelectionRequest = z.infer<typeof EditSelectionRequest>;
+export declare const SelectionPreviewResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        expectedEventSeq: z.ZodNumber;
+        regions: z.ZodArray<z.ZodObject<{
+            start: z.ZodNumber;
+            end: z.ZodNumber;
+        }, z.core.$strip>>;
+        unchanged: z.ZodArray<z.ZodNumber>;
+        removed: z.ZodArray<z.ZodNumber>;
+        added: z.ZodNumber;
+        addedReferences: z.ZodArray<z.ZodObject<{
+            originalText: z.ZodString;
+            span: z.ZodObject<{
+                start: z.ZodNumber;
+                end: z.ZodNumber;
+            }, z.core.$strip>;
+            csl: z.ZodObject<{
+                type: z.ZodOptional<z.ZodString>;
+                author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                    family: z.ZodOptional<z.ZodString>;
+                    "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                    given: z.ZodOptional<z.ZodString>;
+                    literal: z.ZodOptional<z.ZodString>;
+                }, z.core.$strip>>>;
+                issued: z.ZodOptional<z.ZodObject<{
+                    literal: z.ZodString;
+                }, z.core.$strip>>;
+                title: z.ZodOptional<z.ZodString>;
+                "container-title": z.ZodOptional<z.ZodString>;
+                "container-title-short": z.ZodOptional<z.ZodString>;
+                publisher: z.ZodOptional<z.ZodString>;
+                "publisher-place": z.ZodOptional<z.ZodString>;
+                volume: z.ZodOptional<z.ZodString>;
+                issue: z.ZodOptional<z.ZodString>;
+                page: z.ZodOptional<z.ZodString>;
+                "article-number": z.ZodOptional<z.ZodString>;
+                edition: z.ZodOptional<z.ZodString>;
+                DOI: z.ZodOptional<z.ZodString>;
+                URL: z.ZodOptional<z.ZodString>;
+                ISBN: z.ZodOptional<z.ZodString>;
+                ISSN: z.ZodOptional<z.ZodString>;
+                PMID: z.ZodOptional<z.ZodString>;
+                PMCID: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>;
+            fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                raw: z.ZodString;
+                span: z.ZodOptional<z.ZodObject<{
+                    start: z.ZodNumber;
+                    end: z.ZodNumber;
+                }, z.core.$strip>>;
+                normalized: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>;
+            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+            structuring: z.ZodObject<{
+                path: z.ZodEnum<{
+                    parser: "parser";
+                    user: "user";
+                }>;
+                version: z.ZodString;
+            }, z.core.$strip>;
+        }, z.core.$strip>>;
+        total: z.ZodNumber;
+        additionalQuota: z.ZodNumber;
+        rejected: z.ZodArray<z.ZodObject<{
+            originalText: z.ZodString;
+            span: z.ZodObject<{
+                start: z.ZodNumber;
+                end: z.ZodNumber;
+            }, z.core.$strip>;
+            reason: z.ZodLiteral<"no-reference-features">;
+        }, z.core.$strip>>;
+    }, z.core.$strip>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;

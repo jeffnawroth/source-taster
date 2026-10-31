@@ -31,7 +31,7 @@ for (const language of ["en", "de"] as const) {
       const panel = await browser.openPanel();
       await panel.select("combobox", /^(Language|Sprache)$/, language);
       const input = await panel.locate(
-        'document.querySelector("input[type=file]")',
+        'document.querySelector("#document-file")',
       );
       await panel.send("DOM.setFileInputFiles", {
         backendNodeId: input,
@@ -58,7 +58,9 @@ for (const language of ["en", "de"] as const) {
         await panel.call<string>(
           await panel.find(
             "textbox",
-            language === "en" ? "Reference" : "Referenz",
+            language === "en"
+              ? "Original document text — mark a region here"
+              : "Originaler Dokumenttext — hier einen Bereich markieren",
           ),
           "function () { return this.value; }",
         ),

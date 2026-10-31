@@ -7,6 +7,8 @@ import {
   SaveFieldsRequest,
   RecheckRequest,
   EditReferenceListRequest,
+  EditSelectionRequest,
+  SelectionPreviewResponse,
 } from "./v2.ts";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.ts";
 import { createRoute } from "@hono/zod-openapi";
@@ -174,5 +176,34 @@ export const importReferences = createRoute({
     400: v1.createCheck.responses[400],
     401: v1.createCheck.responses[401],
     403: v1.createCheck.responses[403],
+  },
+});
+
+export const editSelection = createRoute({
+  method: "post",
+  path: "/v2/checks/{checkId}/selection",
+  summary:
+    "Apply a previewed Bibliography selection difference, preserving unchanged slots and the fixed deadline",
+  request: {
+    params: z.object({ checkId: z.uuid() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: EditSelectionRequest } },
+    },
+  },
+  responses: mutationResponses,
+});
+export const previewSelection = createRoute({
+  ...editSelection,
+  path: "/v2/checks/{checkId}/selection/preview",
+  summary:
+    "Preview added, cut and dropped References and additional Quota without running work",
+  responses: {
+    ...mutationResponses,
+    200: {
+      description:
+        "Selection difference; no work started and no Quota consumed.",
+      content: { "application/json": { schema: SelectionPreviewResponse } },
+    },
   },
 });

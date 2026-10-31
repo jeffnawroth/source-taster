@@ -20,6 +20,14 @@ export declare const createCheck: {
                     }, z.core.$strip>, z.ZodObject<{
                         text: z.ZodString;
                     }, z.core.$strip>, z.ZodObject<{
+                        document: z.ZodObject<{
+                            text: z.ZodString;
+                            regions: z.ZodArray<z.ZodObject<{
+                                start: z.ZodNumber;
+                                end: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strict>;
+                    }, z.core.$strict>, z.ZodObject<{
                         references: z.ZodArray<z.ZodObject<{
                             originalText: z.ZodString;
                             fields: z.ZodObject<{
@@ -148,6 +156,16 @@ export declare const createCheck: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -1173,6 +1191,16 @@ export declare const getCheck: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -2198,6 +2226,16 @@ export declare const cancelCheck: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -3223,6 +3261,16 @@ export declare const renewCheckLease: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -4396,6 +4444,16 @@ export declare const saveFields: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -5447,6 +5505,16 @@ export declare const recheckReference: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -6531,6 +6599,16 @@ export declare const editReferenceList: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -7593,6 +7671,16 @@ export declare const setManualOverride: {
                                 completed: "completed";
                                 "lease-expired": "lease-expired";
                             }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             references: z.ZodArray<z.ZodObject<{
                                 slot: z.ZodNumber;
                                 originalText: z.ZodString;
@@ -8708,4 +8796,1295 @@ export declare const importReferences: {
     };
 } & {
     getRoutingPath(): "/v2/imports";
+};
+export declare const editSelection: {
+    method: "post";
+    path: "/v2/checks/{checkId}/selection";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            checkId: z.ZodUUID;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        expectedEventSeq: z.ZodNumber;
+                        regions: z.ZodArray<z.ZodObject<{
+                            start: z.ZodNumber;
+                            end: z.ZodNumber;
+                        }, z.core.$strip>>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            state: z.ZodEnum<{
+                                ended: "ended";
+                                running: "running";
+                            }>;
+                            lastEventSeq: z.ZodNumber;
+                            lastEventCursor: z.ZodString;
+                            leaseRenewAfterMs: z.ZodNumber;
+                            endReason: z.ZodNullable<z.ZodEnum<{
+                                cancelled: "cancelled";
+                                completed: "completed";
+                                "lease-expired": "lease-expired";
+                            }>>;
+                            document: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+                                text: z.ZodString;
+                                selection: z.ZodObject<{
+                                    version: z.ZodString;
+                                    regions: z.ZodArray<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
+                            references: z.ZodArray<z.ZodObject<{
+                                slot: z.ZodNumber;
+                                originalText: z.ZodString;
+                                revision: z.ZodNumber;
+                                fields: z.ZodObject<{
+                                    type: z.ZodOptional<z.ZodString>;
+                                    author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                        family: z.ZodOptional<z.ZodString>;
+                                        "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                        given: z.ZodOptional<z.ZodString>;
+                                        literal: z.ZodOptional<z.ZodString>;
+                                    }, z.core.$strip>>>;
+                                    issued: z.ZodOptional<z.ZodObject<{
+                                        literal: z.ZodString;
+                                    }, z.core.$strip>>;
+                                    title: z.ZodOptional<z.ZodString>;
+                                    "container-title": z.ZodOptional<z.ZodString>;
+                                    "container-title-short": z.ZodOptional<z.ZodString>;
+                                    publisher: z.ZodOptional<z.ZodString>;
+                                    "publisher-place": z.ZodOptional<z.ZodString>;
+                                    volume: z.ZodOptional<z.ZodString>;
+                                    issue: z.ZodOptional<z.ZodString>;
+                                    page: z.ZodOptional<z.ZodString>;
+                                    "article-number": z.ZodOptional<z.ZodString>;
+                                    edition: z.ZodOptional<z.ZodString>;
+                                    DOI: z.ZodOptional<z.ZodString>;
+                                    URL: z.ZodOptional<z.ZodString>;
+                                    ISBN: z.ZodOptional<z.ZodString>;
+                                    ISSN: z.ZodOptional<z.ZodString>;
+                                    PMID: z.ZodOptional<z.ZodString>;
+                                    PMCID: z.ZodOptional<z.ZodString>;
+                                    arXiv: z.ZodOptional<z.ZodString>;
+                                }, z.core.$strip>;
+                                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                revisions: z.ZodArray<z.ZodObject<{
+                                    revision: z.ZodNumber;
+                                    reference: z.ZodObject<{
+                                        originalText: z.ZodString;
+                                        span: z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>;
+                                        fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                            raw: z.ZodString;
+                                            span: z.ZodOptional<z.ZodObject<{
+                                                start: z.ZodNumber;
+                                                end: z.ZodNumber;
+                                            }, z.core.$strip>>;
+                                            normalized: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                        structuring: z.ZodObject<{
+                                            path: z.ZodEnum<{
+                                                parser: "parser";
+                                                user: "user";
+                                            }>;
+                                            version: z.ZodString;
+                                        }, z.core.$strip>;
+                                        csl: z.ZodObject<{
+                                            type: z.ZodOptional<z.ZodString>;
+                                            author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                family: z.ZodOptional<z.ZodString>;
+                                                "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                given: z.ZodOptional<z.ZodString>;
+                                                literal: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>>>;
+                                            issued: z.ZodOptional<z.ZodObject<{
+                                                literal: z.ZodString;
+                                            }, z.core.$strip>>;
+                                            title: z.ZodOptional<z.ZodString>;
+                                            "container-title": z.ZodOptional<z.ZodString>;
+                                            "container-title-short": z.ZodOptional<z.ZodString>;
+                                            publisher: z.ZodOptional<z.ZodString>;
+                                            "publisher-place": z.ZodOptional<z.ZodString>;
+                                            volume: z.ZodOptional<z.ZodString>;
+                                            issue: z.ZodOptional<z.ZodString>;
+                                            page: z.ZodOptional<z.ZodString>;
+                                            "article-number": z.ZodOptional<z.ZodString>;
+                                            edition: z.ZodOptional<z.ZodString>;
+                                            DOI: z.ZodOptional<z.ZodString>;
+                                            URL: z.ZodOptional<z.ZodString>;
+                                            ISBN: z.ZodOptional<z.ZodString>;
+                                            ISSN: z.ZodOptional<z.ZodString>;
+                                            PMID: z.ZodOptional<z.ZodString>;
+                                            PMCID: z.ZodOptional<z.ZodString>;
+                                            arXiv: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>;
+                                        imported: z.ZodOptional<z.ZodObject<{
+                                            format: z.ZodEnum<{
+                                                bibtex: "bibtex";
+                                                ris: "ris";
+                                            }>;
+                                            unsupported: z.ZodArray<z.ZodObject<{
+                                                name: z.ZodString;
+                                                value: z.ZodString;
+                                            }, z.core.$strip>>;
+                                            fields: z.ZodObject<{
+                                                type: z.ZodOptional<z.ZodString>;
+                                                author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                    family: z.ZodOptional<z.ZodString>;
+                                                    "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                    given: z.ZodOptional<z.ZodString>;
+                                                    literal: z.ZodOptional<z.ZodString>;
+                                                }, z.core.$strip>>>;
+                                                issued: z.ZodOptional<z.ZodObject<{
+                                                    literal: z.ZodString;
+                                                }, z.core.$strip>>;
+                                                title: z.ZodOptional<z.ZodString>;
+                                                "container-title": z.ZodOptional<z.ZodString>;
+                                                "container-title-short": z.ZodOptional<z.ZodString>;
+                                                publisher: z.ZodOptional<z.ZodString>;
+                                                "publisher-place": z.ZodOptional<z.ZodString>;
+                                                volume: z.ZodOptional<z.ZodString>;
+                                                issue: z.ZodOptional<z.ZodString>;
+                                                page: z.ZodOptional<z.ZodString>;
+                                                "article-number": z.ZodOptional<z.ZodString>;
+                                                edition: z.ZodOptional<z.ZodString>;
+                                                DOI: z.ZodOptional<z.ZodString>;
+                                                URL: z.ZodOptional<z.ZodString>;
+                                                ISBN: z.ZodOptional<z.ZodString>;
+                                                ISSN: z.ZodOptional<z.ZodString>;
+                                                PMID: z.ZodOptional<z.ZodString>;
+                                                PMCID: z.ZodOptional<z.ZodString>;
+                                                arXiv: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>;
+                                        }, z.core.$strip>>;
+                                    }, z.core.$strip>;
+                                    provenance: z.ZodEnum<{
+                                        parser: "parser";
+                                        user: "user";
+                                    }>;
+                                    createdAt: z.ZodString;
+                                }, z.core.$strip>>;
+                                results: z.ZodArray<z.ZodObject<{
+                                    id: z.ZodUUID;
+                                    revision: z.ZodNumber;
+                                    generation: z.ZodNumber;
+                                    createdAt: z.ZodString;
+                                    outcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                                        kind: z.ZodLiteral<"status">;
+                                        status: z.ZodEnum<{
+                                            cancelled: "cancelled";
+                                            failed: "failed";
+                                            "not-checked": "not-checked";
+                                            running: "running";
+                                        }>;
+                                    }, z.core.$strict>, z.ZodObject<{
+                                        kind: z.ZodLiteral<"verdict">;
+                                        verdict: z.ZodEnum<{
+                                            correct: "correct";
+                                            "doi-conflict": "doi-conflict";
+                                            "exists-with-deviations": "exists-with-deviations";
+                                            "mixed-citation": "mixed-citation";
+                                            "not-found": "not-found";
+                                            "not-verifiable": "not-verifiable";
+                                        }>;
+                                        scoringRules: z.ZodObject<{
+                                            version: z.ZodString;
+                                            calibration: z.ZodLiteral<"uncalibrated">;
+                                            unicode: z.ZodString;
+                                            icu: z.ZodString;
+                                            profile: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                                        }, z.core.$strip>;
+                                        searchStrategyVersion: z.ZodString;
+                                        searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
+                                        bestMatchId: z.ZodNullable<z.ZodString>;
+                                        reference: z.ZodObject<{
+                                            originalText: z.ZodString;
+                                            span: z.ZodObject<{
+                                                start: z.ZodNumber;
+                                                end: z.ZodNumber;
+                                            }, z.core.$strip>;
+                                            fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                                raw: z.ZodString;
+                                                span: z.ZodOptional<z.ZodObject<{
+                                                    start: z.ZodNumber;
+                                                    end: z.ZodNumber;
+                                                }, z.core.$strip>>;
+                                                normalized: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                            structuring: z.ZodObject<{
+                                                path: z.ZodEnum<{
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>;
+                                                version: z.ZodString;
+                                            }, z.core.$strip>;
+                                            csl: z.ZodObject<{
+                                                type: z.ZodOptional<z.ZodString>;
+                                                author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                    family: z.ZodOptional<z.ZodString>;
+                                                    "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                    given: z.ZodOptional<z.ZodString>;
+                                                    literal: z.ZodOptional<z.ZodString>;
+                                                }, z.core.$strip>>>;
+                                                issued: z.ZodOptional<z.ZodObject<{
+                                                    literal: z.ZodString;
+                                                }, z.core.$strip>>;
+                                                title: z.ZodOptional<z.ZodString>;
+                                                "container-title": z.ZodOptional<z.ZodString>;
+                                                "container-title-short": z.ZodOptional<z.ZodString>;
+                                                publisher: z.ZodOptional<z.ZodString>;
+                                                "publisher-place": z.ZodOptional<z.ZodString>;
+                                                volume: z.ZodOptional<z.ZodString>;
+                                                issue: z.ZodOptional<z.ZodString>;
+                                                page: z.ZodOptional<z.ZodString>;
+                                                "article-number": z.ZodOptional<z.ZodString>;
+                                                edition: z.ZodOptional<z.ZodString>;
+                                                DOI: z.ZodOptional<z.ZodString>;
+                                                URL: z.ZodOptional<z.ZodString>;
+                                                ISBN: z.ZodOptional<z.ZodString>;
+                                                ISSN: z.ZodOptional<z.ZodString>;
+                                                PMID: z.ZodOptional<z.ZodString>;
+                                                PMCID: z.ZodOptional<z.ZodString>;
+                                                arXiv: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>;
+                                            imported: z.ZodOptional<z.ZodObject<{
+                                                format: z.ZodEnum<{
+                                                    bibtex: "bibtex";
+                                                    ris: "ris";
+                                                }>;
+                                                unsupported: z.ZodArray<z.ZodObject<{
+                                                    name: z.ZodString;
+                                                    value: z.ZodString;
+                                                }, z.core.$strip>>;
+                                                fields: z.ZodObject<{
+                                                    type: z.ZodOptional<z.ZodString>;
+                                                    author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                        family: z.ZodOptional<z.ZodString>;
+                                                        "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                        given: z.ZodOptional<z.ZodString>;
+                                                        literal: z.ZodOptional<z.ZodString>;
+                                                    }, z.core.$strip>>>;
+                                                    issued: z.ZodOptional<z.ZodObject<{
+                                                        literal: z.ZodString;
+                                                    }, z.core.$strip>>;
+                                                    title: z.ZodOptional<z.ZodString>;
+                                                    "container-title": z.ZodOptional<z.ZodString>;
+                                                    "container-title-short": z.ZodOptional<z.ZodString>;
+                                                    publisher: z.ZodOptional<z.ZodString>;
+                                                    "publisher-place": z.ZodOptional<z.ZodString>;
+                                                    volume: z.ZodOptional<z.ZodString>;
+                                                    issue: z.ZodOptional<z.ZodString>;
+                                                    page: z.ZodOptional<z.ZodString>;
+                                                    "article-number": z.ZodOptional<z.ZodString>;
+                                                    edition: z.ZodOptional<z.ZodString>;
+                                                    DOI: z.ZodOptional<z.ZodString>;
+                                                    URL: z.ZodOptional<z.ZodString>;
+                                                    ISBN: z.ZodOptional<z.ZodString>;
+                                                    ISSN: z.ZodOptional<z.ZodString>;
+                                                    PMID: z.ZodOptional<z.ZodString>;
+                                                    PMCID: z.ZodOptional<z.ZodString>;
+                                                    arXiv: z.ZodOptional<z.ZodString>;
+                                                }, z.core.$strip>;
+                                            }, z.core.$strip>>;
+                                        }, z.core.$strip>;
+                                        identity: z.ZodObject<{
+                                            candidateId: z.ZodOptional<z.ZodString>;
+                                            kind: z.ZodEnum<{
+                                                "independent-bibliography": "independent-bibliography";
+                                                "supplied-doi": "supplied-doi";
+                                                "supplied-identifier": "supplied-identifier";
+                                                unresolved: "unresolved";
+                                                "web-archive": "web-archive";
+                                                "web-url": "web-url";
+                                            }>;
+                                        }, z.core.$strip>;
+                                        candidates: z.ZodArray<z.ZodObject<{
+                                            id: z.ZodString;
+                                            slot: z.ZodNumber;
+                                            retrievedAt: z.ZodString;
+                                            raw: z.ZodUnknown;
+                                            score: z.ZodNullable<z.ZodObject<{
+                                                value: z.ZodNumber;
+                                                fullAgreement: z.ZodBoolean;
+                                            }, z.core.$strip>>;
+                                            csl: z.ZodObject<{
+                                                type: z.ZodOptional<z.ZodString>;
+                                                author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                    family: z.ZodOptional<z.ZodString>;
+                                                    "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                    given: z.ZodOptional<z.ZodString>;
+                                                    literal: z.ZodOptional<z.ZodString>;
+                                                }, z.core.$strip>>>;
+                                                issued: z.ZodOptional<z.ZodObject<{
+                                                    literal: z.ZodString;
+                                                }, z.core.$strip>>;
+                                                title: z.ZodOptional<z.ZodString>;
+                                                "container-title": z.ZodOptional<z.ZodString>;
+                                                "container-title-short": z.ZodOptional<z.ZodString>;
+                                                publisher: z.ZodOptional<z.ZodString>;
+                                                "publisher-place": z.ZodOptional<z.ZodString>;
+                                                volume: z.ZodOptional<z.ZodString>;
+                                                issue: z.ZodOptional<z.ZodString>;
+                                                page: z.ZodOptional<z.ZodString>;
+                                                "article-number": z.ZodOptional<z.ZodString>;
+                                                edition: z.ZodOptional<z.ZodString>;
+                                                DOI: z.ZodOptional<z.ZodString>;
+                                                URL: z.ZodOptional<z.ZodString>;
+                                                ISBN: z.ZodOptional<z.ZodString>;
+                                                ISSN: z.ZodOptional<z.ZodString>;
+                                                PMID: z.ZodOptional<z.ZodString>;
+                                                PMCID: z.ZodOptional<z.ZodString>;
+                                                arXiv: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>;
+                                            fields: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                reference: z.ZodUnknown;
+                                                candidate: z.ZodUnknown;
+                                                score: z.ZodNullable<z.ZodObject<{
+                                                    value: z.ZodNumber;
+                                                    fullAgreement: z.ZodBoolean;
+                                                }, z.core.$strip>>;
+                                                reason: z.ZodEnum<{
+                                                    compared: "compared";
+                                                    "missing-candidate": "missing-candidate";
+                                                    "missing-reference": "missing-reference";
+                                                    "not-determinable": "not-determinable";
+                                                    "resource-limit": "resource-limit";
+                                                    unweighted: "unweighted";
+                                                }>;
+                                                agreement: z.ZodOptional<z.ZodBoolean>;
+                                                journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                                                    outcome: z.ZodEnum<{
+                                                        different: "different";
+                                                        match: "match";
+                                                        "not-determinable": "not-determinable";
+                                                    }>;
+                                                    reason: z.ZodEnum<{
+                                                        "attested-match": "attested-match";
+                                                        "attested-other-journal": "attested-other-journal";
+                                                        "no-attestation": "no-attestation";
+                                                    }>;
+                                                    attestations: z.ZodArray<z.ZodObject<{
+                                                        source: z.ZodEnum<{
+                                                            crossref: "crossref";
+                                                            europepmc: "europepmc";
+                                                            nlm: "nlm";
+                                                            semanticscholar: "semanticscholar";
+                                                        }>;
+                                                        role: z.ZodEnum<{
+                                                            candidate: "candidate";
+                                                            reference: "reference";
+                                                        }>;
+                                                        journalTitle: z.ZodString;
+                                                        abbreviation: z.ZodString;
+                                                        nlmId: z.ZodOptional<z.ZodString>;
+                                                        snapshotDate: z.ZodOptional<z.ZodString>;
+                                                    }, z.core.$strip>>;
+                                                }, z.core.$strip>>;
+                                            }, z.core.$strip>>;
+                                            source: z.ZodEnum<{
+                                                arxiv: "arxiv";
+                                                crossref: "crossref";
+                                                europepmc: "europepmc";
+                                                googlebooks: "googlebooks";
+                                                internetarchive: "internetarchive";
+                                                openalex: "openalex";
+                                                openlibrary: "openlibrary";
+                                                semanticscholar: "semanticscholar";
+                                                url: "url";
+                                            }>;
+                                            origin: z.ZodEnum<{
+                                                archive: "archive";
+                                                arxiv: "arxiv";
+                                                "authors-year": "authors-year";
+                                                combined: "combined";
+                                                doi: "doi";
+                                                isbn: "isbn";
+                                                pmcid: "pmcid";
+                                                pmid: "pmid";
+                                                title: "title";
+                                                url: "url";
+                                            }>;
+                                            identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                                            identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
+                                            retractionEvidence: z.ZodOptional<z.ZodObject<{
+                                                source: z.ZodEnum<{
+                                                    crossref: "crossref";
+                                                    europepmc: "europepmc";
+                                                    openalex: "openalex";
+                                                }>;
+                                                candidateId: z.ZodString;
+                                                observedAt: z.ZodString;
+                                            }, z.core.$strip>>;
+                                        }, z.core.$strip>>;
+                                        evidence: z.ZodArray<z.ZodObject<{
+                                            reason: z.ZodOptional<z.ZodString>;
+                                            status: z.ZodOptional<z.ZodNumber>;
+                                            durationMs: z.ZodNumber;
+                                            attempts: z.ZodNumber;
+                                            observedAt: z.ZodString;
+                                            raw: z.ZodOptional<z.ZodUnknown>;
+                                            source: z.ZodEnum<{
+                                                arxiv: "arxiv";
+                                                crossref: "crossref";
+                                                "doi.org": "doi.org";
+                                                europepmc: "europepmc";
+                                                googlebooks: "googlebooks";
+                                                internetarchive: "internetarchive";
+                                                openalex: "openalex";
+                                                openlibrary: "openlibrary";
+                                                semanticscholar: "semanticscholar";
+                                                url: "url";
+                                            }>;
+                                            operation: z.ZodEnum<{
+                                                archive: "archive";
+                                                arxiv: "arxiv";
+                                                "authors-year": "authors-year";
+                                                combined: "combined";
+                                                doi: "doi";
+                                                isbn: "isbn";
+                                                pmcid: "pmcid";
+                                                pmid: "pmid";
+                                                title: "title";
+                                                url: "url";
+                                            }>;
+                                            outcome: z.ZodEnum<{
+                                                candidate: "candidate";
+                                                disabled: "disabled";
+                                                exists: "exists";
+                                                "no-record": "no-record";
+                                                nonexistent: "nonexistent";
+                                                redirect: "redirect";
+                                                skipped: "skipped";
+                                                unavailable: "unavailable";
+                                                unsupported: "unsupported";
+                                            }>;
+                                            web: z.ZodOptional<z.ZodObject<{
+                                                originalUrl: z.ZodString;
+                                                finalUrl: z.ZodString;
+                                                status: z.ZodNumber;
+                                                title: z.ZodOptional<z.ZodString>;
+                                                redirectTarget: z.ZodOptional<z.ZodString>;
+                                                archiveUrl: z.ZodOptional<z.ZodString>;
+                                                timestamp: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>>;
+                                            skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                                            unusedSlots: z.ZodOptional<z.ZodNumber>;
+                                            identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                                        }, z.core.$strip>>;
+                                        reasons: z.ZodArray<z.ZodEnum<{
+                                            "ambiguous-identity": "ambiguous-identity";
+                                            "development-route-incomplete": "development-route-incomplete";
+                                            "doi-nonexistent": "doi-nonexistent";
+                                            "fields-differ": "fields-differ";
+                                            "foreign-doi": "foreign-doi";
+                                            identified: "identified";
+                                            "identity-unresolved": "identity-unresolved";
+                                            "insufficient-search": "insufficient-search";
+                                            "mandatory-resolution-incomplete": "mandatory-resolution-incomplete";
+                                            "metadata-unavailable": "metadata-unavailable";
+                                            "mixed-components": "mixed-components";
+                                            "outside-coverage": "outside-coverage";
+                                            "search-completed": "search-completed";
+                                            "sources-unavailable": "sources-unavailable";
+                                            "url-unavailable": "url-unavailable";
+                                            "url-verification-incomplete": "url-verification-incomplete";
+                                            "web-original-unavailable": "web-original-unavailable";
+                                        }>>;
+                                        failedSources: z.ZodArray<z.ZodEnum<{
+                                            arxiv: "arxiv";
+                                            crossref: "crossref";
+                                            "doi.org": "doi.org";
+                                            europepmc: "europepmc";
+                                            googlebooks: "googlebooks";
+                                            internetarchive: "internetarchive";
+                                            openalex: "openalex";
+                                            openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
+                                            url: "url";
+                                        }>>;
+                                        retraction: z.ZodEnum<{
+                                            retracted: "retracted";
+                                            unknown: "unknown";
+                                        }>;
+                                        retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                            source: z.ZodEnum<{
+                                                crossref: "crossref";
+                                                europepmc: "europepmc";
+                                                openalex: "openalex";
+                                            }>;
+                                            candidateId: z.ZodString;
+                                            observedAt: z.ZodString;
+                                        }, z.core.$strip>>>;
+                                    }, z.core.$strict>], "kind">;
+                                    manualOverride: z.ZodNullable<z.ZodObject<{
+                                        id: z.ZodUUID;
+                                        resultId: z.ZodUUID;
+                                        verdict: z.ZodEnum<{
+                                            correct: "correct";
+                                            "doi-conflict": "doi-conflict";
+                                            "exists-with-deviations": "exists-with-deviations";
+                                            "mixed-citation": "mixed-citation";
+                                            "not-found": "not-found";
+                                            "not-verifiable": "not-verifiable";
+                                        }>;
+                                        createdAt: z.ZodString;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>>;
+                                manualOverride: z.ZodNullable<z.ZodObject<{
+                                    id: z.ZodUUID;
+                                    resultId: z.ZodUUID;
+                                    verdict: z.ZodEnum<{
+                                        correct: "correct";
+                                        "doi-conflict": "doi-conflict";
+                                        "exists-with-deviations": "exists-with-deviations";
+                                        "mixed-citation": "mixed-citation";
+                                        "not-found": "not-found";
+                                        "not-verifiable": "not-verifiable";
+                                    }>;
+                                    createdAt: z.ZodString;
+                                }, z.core.$strip>>;
+                                manualOverrideReset: z.ZodBoolean;
+                                quotaEffect: z.ZodEnum<{
+                                    "free-recheck": "free-recheck";
+                                    "new-work": "new-work";
+                                }>;
+                                outcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                                    kind: z.ZodLiteral<"status">;
+                                    status: z.ZodEnum<{
+                                        cancelled: "cancelled";
+                                        failed: "failed";
+                                        "not-checked": "not-checked";
+                                        running: "running";
+                                    }>;
+                                }, z.core.$strict>, z.ZodObject<{
+                                    kind: z.ZodLiteral<"verdict">;
+                                    verdict: z.ZodEnum<{
+                                        correct: "correct";
+                                        "doi-conflict": "doi-conflict";
+                                        "exists-with-deviations": "exists-with-deviations";
+                                        "mixed-citation": "mixed-citation";
+                                        "not-found": "not-found";
+                                        "not-verifiable": "not-verifiable";
+                                    }>;
+                                    scoringRules: z.ZodObject<{
+                                        version: z.ZodString;
+                                        calibration: z.ZodLiteral<"uncalibrated">;
+                                        unicode: z.ZodString;
+                                        icu: z.ZodString;
+                                        profile: z.ZodRecord<z.ZodString, z.ZodNumber>;
+                                    }, z.core.$strip>;
+                                    searchStrategyVersion: z.ZodString;
+                                    searchConfiguration: z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
+                                    bestMatchId: z.ZodNullable<z.ZodString>;
+                                    reference: z.ZodObject<{
+                                        originalText: z.ZodString;
+                                        span: z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>;
+                                        fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                            raw: z.ZodString;
+                                            span: z.ZodOptional<z.ZodObject<{
+                                                start: z.ZodNumber;
+                                                end: z.ZodNumber;
+                                            }, z.core.$strip>>;
+                                            normalized: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                        structuring: z.ZodObject<{
+                                            path: z.ZodEnum<{
+                                                parser: "parser";
+                                                user: "user";
+                                            }>;
+                                            version: z.ZodString;
+                                        }, z.core.$strip>;
+                                        csl: z.ZodObject<{
+                                            type: z.ZodOptional<z.ZodString>;
+                                            author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                family: z.ZodOptional<z.ZodString>;
+                                                "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                given: z.ZodOptional<z.ZodString>;
+                                                literal: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>>>;
+                                            issued: z.ZodOptional<z.ZodObject<{
+                                                literal: z.ZodString;
+                                            }, z.core.$strip>>;
+                                            title: z.ZodOptional<z.ZodString>;
+                                            "container-title": z.ZodOptional<z.ZodString>;
+                                            "container-title-short": z.ZodOptional<z.ZodString>;
+                                            publisher: z.ZodOptional<z.ZodString>;
+                                            "publisher-place": z.ZodOptional<z.ZodString>;
+                                            volume: z.ZodOptional<z.ZodString>;
+                                            issue: z.ZodOptional<z.ZodString>;
+                                            page: z.ZodOptional<z.ZodString>;
+                                            "article-number": z.ZodOptional<z.ZodString>;
+                                            edition: z.ZodOptional<z.ZodString>;
+                                            DOI: z.ZodOptional<z.ZodString>;
+                                            URL: z.ZodOptional<z.ZodString>;
+                                            ISBN: z.ZodOptional<z.ZodString>;
+                                            ISSN: z.ZodOptional<z.ZodString>;
+                                            PMID: z.ZodOptional<z.ZodString>;
+                                            PMCID: z.ZodOptional<z.ZodString>;
+                                            arXiv: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>;
+                                        imported: z.ZodOptional<z.ZodObject<{
+                                            format: z.ZodEnum<{
+                                                bibtex: "bibtex";
+                                                ris: "ris";
+                                            }>;
+                                            unsupported: z.ZodArray<z.ZodObject<{
+                                                name: z.ZodString;
+                                                value: z.ZodString;
+                                            }, z.core.$strip>>;
+                                            fields: z.ZodObject<{
+                                                type: z.ZodOptional<z.ZodString>;
+                                                author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                    family: z.ZodOptional<z.ZodString>;
+                                                    "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                    given: z.ZodOptional<z.ZodString>;
+                                                    literal: z.ZodOptional<z.ZodString>;
+                                                }, z.core.$strip>>>;
+                                                issued: z.ZodOptional<z.ZodObject<{
+                                                    literal: z.ZodString;
+                                                }, z.core.$strip>>;
+                                                title: z.ZodOptional<z.ZodString>;
+                                                "container-title": z.ZodOptional<z.ZodString>;
+                                                "container-title-short": z.ZodOptional<z.ZodString>;
+                                                publisher: z.ZodOptional<z.ZodString>;
+                                                "publisher-place": z.ZodOptional<z.ZodString>;
+                                                volume: z.ZodOptional<z.ZodString>;
+                                                issue: z.ZodOptional<z.ZodString>;
+                                                page: z.ZodOptional<z.ZodString>;
+                                                "article-number": z.ZodOptional<z.ZodString>;
+                                                edition: z.ZodOptional<z.ZodString>;
+                                                DOI: z.ZodOptional<z.ZodString>;
+                                                URL: z.ZodOptional<z.ZodString>;
+                                                ISBN: z.ZodOptional<z.ZodString>;
+                                                ISSN: z.ZodOptional<z.ZodString>;
+                                                PMID: z.ZodOptional<z.ZodString>;
+                                                PMCID: z.ZodOptional<z.ZodString>;
+                                                arXiv: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>;
+                                        }, z.core.$strip>>;
+                                    }, z.core.$strip>;
+                                    identity: z.ZodObject<{
+                                        candidateId: z.ZodOptional<z.ZodString>;
+                                        kind: z.ZodEnum<{
+                                            "independent-bibliography": "independent-bibliography";
+                                            "supplied-doi": "supplied-doi";
+                                            "supplied-identifier": "supplied-identifier";
+                                            unresolved: "unresolved";
+                                            "web-archive": "web-archive";
+                                            "web-url": "web-url";
+                                        }>;
+                                    }, z.core.$strip>;
+                                    candidates: z.ZodArray<z.ZodObject<{
+                                        id: z.ZodString;
+                                        slot: z.ZodNumber;
+                                        retrievedAt: z.ZodString;
+                                        raw: z.ZodUnknown;
+                                        score: z.ZodNullable<z.ZodObject<{
+                                            value: z.ZodNumber;
+                                            fullAgreement: z.ZodBoolean;
+                                        }, z.core.$strip>>;
+                                        csl: z.ZodObject<{
+                                            type: z.ZodOptional<z.ZodString>;
+                                            author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                family: z.ZodOptional<z.ZodString>;
+                                                "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                given: z.ZodOptional<z.ZodString>;
+                                                literal: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>>>;
+                                            issued: z.ZodOptional<z.ZodObject<{
+                                                literal: z.ZodString;
+                                            }, z.core.$strip>>;
+                                            title: z.ZodOptional<z.ZodString>;
+                                            "container-title": z.ZodOptional<z.ZodString>;
+                                            "container-title-short": z.ZodOptional<z.ZodString>;
+                                            publisher: z.ZodOptional<z.ZodString>;
+                                            "publisher-place": z.ZodOptional<z.ZodString>;
+                                            volume: z.ZodOptional<z.ZodString>;
+                                            issue: z.ZodOptional<z.ZodString>;
+                                            page: z.ZodOptional<z.ZodString>;
+                                            "article-number": z.ZodOptional<z.ZodString>;
+                                            edition: z.ZodOptional<z.ZodString>;
+                                            DOI: z.ZodOptional<z.ZodString>;
+                                            URL: z.ZodOptional<z.ZodString>;
+                                            ISBN: z.ZodOptional<z.ZodString>;
+                                            ISSN: z.ZodOptional<z.ZodString>;
+                                            PMID: z.ZodOptional<z.ZodString>;
+                                            PMCID: z.ZodOptional<z.ZodString>;
+                                            arXiv: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>;
+                                        fields: z.ZodArray<z.ZodObject<{
+                                            field: z.ZodString;
+                                            reference: z.ZodUnknown;
+                                            candidate: z.ZodUnknown;
+                                            score: z.ZodNullable<z.ZodObject<{
+                                                value: z.ZodNumber;
+                                                fullAgreement: z.ZodBoolean;
+                                            }, z.core.$strip>>;
+                                            reason: z.ZodEnum<{
+                                                compared: "compared";
+                                                "missing-candidate": "missing-candidate";
+                                                "missing-reference": "missing-reference";
+                                                "not-determinable": "not-determinable";
+                                                "resource-limit": "resource-limit";
+                                                unweighted: "unweighted";
+                                            }>;
+                                            agreement: z.ZodOptional<z.ZodBoolean>;
+                                            journalAbbreviation: z.ZodOptional<z.ZodObject<{
+                                                outcome: z.ZodEnum<{
+                                                    different: "different";
+                                                    match: "match";
+                                                    "not-determinable": "not-determinable";
+                                                }>;
+                                                reason: z.ZodEnum<{
+                                                    "attested-match": "attested-match";
+                                                    "attested-other-journal": "attested-other-journal";
+                                                    "no-attestation": "no-attestation";
+                                                }>;
+                                                attestations: z.ZodArray<z.ZodObject<{
+                                                    source: z.ZodEnum<{
+                                                        crossref: "crossref";
+                                                        europepmc: "europepmc";
+                                                        nlm: "nlm";
+                                                        semanticscholar: "semanticscholar";
+                                                    }>;
+                                                    role: z.ZodEnum<{
+                                                        candidate: "candidate";
+                                                        reference: "reference";
+                                                    }>;
+                                                    journalTitle: z.ZodString;
+                                                    abbreviation: z.ZodString;
+                                                    nlmId: z.ZodOptional<z.ZodString>;
+                                                    snapshotDate: z.ZodOptional<z.ZodString>;
+                                                }, z.core.$strip>>;
+                                            }, z.core.$strip>>;
+                                        }, z.core.$strip>>;
+                                        source: z.ZodEnum<{
+                                            arxiv: "arxiv";
+                                            crossref: "crossref";
+                                            europepmc: "europepmc";
+                                            googlebooks: "googlebooks";
+                                            internetarchive: "internetarchive";
+                                            openalex: "openalex";
+                                            openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
+                                            url: "url";
+                                        }>;
+                                        origin: z.ZodEnum<{
+                                            archive: "archive";
+                                            arxiv: "arxiv";
+                                            "authors-year": "authors-year";
+                                            combined: "combined";
+                                            doi: "doi";
+                                            isbn: "isbn";
+                                            pmcid: "pmcid";
+                                            pmid: "pmid";
+                                            title: "title";
+                                            url: "url";
+                                        }>;
+                                        identifiers: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                                        identityAmbiguous: z.ZodOptional<z.ZodBoolean>;
+                                        retractionEvidence: z.ZodOptional<z.ZodObject<{
+                                            source: z.ZodEnum<{
+                                                crossref: "crossref";
+                                                europepmc: "europepmc";
+                                                openalex: "openalex";
+                                            }>;
+                                            candidateId: z.ZodString;
+                                            observedAt: z.ZodString;
+                                        }, z.core.$strip>>;
+                                    }, z.core.$strip>>;
+                                    evidence: z.ZodArray<z.ZodObject<{
+                                        reason: z.ZodOptional<z.ZodString>;
+                                        status: z.ZodOptional<z.ZodNumber>;
+                                        durationMs: z.ZodNumber;
+                                        attempts: z.ZodNumber;
+                                        observedAt: z.ZodString;
+                                        raw: z.ZodOptional<z.ZodUnknown>;
+                                        source: z.ZodEnum<{
+                                            arxiv: "arxiv";
+                                            crossref: "crossref";
+                                            "doi.org": "doi.org";
+                                            europepmc: "europepmc";
+                                            googlebooks: "googlebooks";
+                                            internetarchive: "internetarchive";
+                                            openalex: "openalex";
+                                            openlibrary: "openlibrary";
+                                            semanticscholar: "semanticscholar";
+                                            url: "url";
+                                        }>;
+                                        operation: z.ZodEnum<{
+                                            archive: "archive";
+                                            arxiv: "arxiv";
+                                            "authors-year": "authors-year";
+                                            combined: "combined";
+                                            doi: "doi";
+                                            isbn: "isbn";
+                                            pmcid: "pmcid";
+                                            pmid: "pmid";
+                                            title: "title";
+                                            url: "url";
+                                        }>;
+                                        outcome: z.ZodEnum<{
+                                            candidate: "candidate";
+                                            disabled: "disabled";
+                                            exists: "exists";
+                                            "no-record": "no-record";
+                                            nonexistent: "nonexistent";
+                                            redirect: "redirect";
+                                            skipped: "skipped";
+                                            unavailable: "unavailable";
+                                            unsupported: "unsupported";
+                                        }>;
+                                        web: z.ZodOptional<z.ZodObject<{
+                                            originalUrl: z.ZodString;
+                                            finalUrl: z.ZodString;
+                                            status: z.ZodNumber;
+                                            title: z.ZodOptional<z.ZodString>;
+                                            redirectTarget: z.ZodOptional<z.ZodString>;
+                                            archiveUrl: z.ZodOptional<z.ZodString>;
+                                            timestamp: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>;
+                                        skippedDuplicates: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                                        unusedSlots: z.ZodOptional<z.ZodNumber>;
+                                        identifierAmbiguity: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                                    }, z.core.$strip>>;
+                                    reasons: z.ZodArray<z.ZodEnum<{
+                                        "ambiguous-identity": "ambiguous-identity";
+                                        "development-route-incomplete": "development-route-incomplete";
+                                        "doi-nonexistent": "doi-nonexistent";
+                                        "fields-differ": "fields-differ";
+                                        "foreign-doi": "foreign-doi";
+                                        identified: "identified";
+                                        "identity-unresolved": "identity-unresolved";
+                                        "insufficient-search": "insufficient-search";
+                                        "mandatory-resolution-incomplete": "mandatory-resolution-incomplete";
+                                        "metadata-unavailable": "metadata-unavailable";
+                                        "mixed-components": "mixed-components";
+                                        "outside-coverage": "outside-coverage";
+                                        "search-completed": "search-completed";
+                                        "sources-unavailable": "sources-unavailable";
+                                        "url-unavailable": "url-unavailable";
+                                        "url-verification-incomplete": "url-verification-incomplete";
+                                        "web-original-unavailable": "web-original-unavailable";
+                                    }>>;
+                                    failedSources: z.ZodArray<z.ZodEnum<{
+                                        arxiv: "arxiv";
+                                        crossref: "crossref";
+                                        "doi.org": "doi.org";
+                                        europepmc: "europepmc";
+                                        googlebooks: "googlebooks";
+                                        internetarchive: "internetarchive";
+                                        openalex: "openalex";
+                                        openlibrary: "openlibrary";
+                                        semanticscholar: "semanticscholar";
+                                        url: "url";
+                                    }>>;
+                                    retraction: z.ZodEnum<{
+                                        retracted: "retracted";
+                                        unknown: "unknown";
+                                    }>;
+                                    retractionEvidence: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                        source: z.ZodEnum<{
+                                            crossref: "crossref";
+                                            europepmc: "europepmc";
+                                            openalex: "openalex";
+                                        }>;
+                                        candidateId: z.ZodString;
+                                        observedAt: z.ZodString;
+                                    }, z.core.$strip>>>;
+                                }, z.core.$strict>], "kind">;
+                                progress: z.ZodEnum<{
+                                    arxiv: "arxiv";
+                                    checking: "checking";
+                                    crossref: "crossref";
+                                    "doi.org": "doi.org";
+                                    ended: "ended";
+                                    europepmc: "europepmc";
+                                    googlebooks: "googlebooks";
+                                    internetarchive: "internetarchive";
+                                    openalex: "openalex";
+                                    openlibrary: "openlibrary";
+                                    queued: "queued";
+                                    semanticscholar: "semanticscholar";
+                                    url: "url";
+                                }>;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        410: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v2/checks/:checkId/selection";
+};
+export declare const previewSelection: {
+    getRoutingPath(): "/v2/checks/:checkId/selection";
+    method: "post";
+    request: {
+        params: z.ZodObject<{
+            checkId: z.ZodUUID;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        expectedEventSeq: z.ZodNumber;
+                        regions: z.ZodArray<z.ZodObject<{
+                            start: z.ZodNumber;
+                            end: z.ZodNumber;
+                        }, z.core.$strip>>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    path: "/v2/checks/{checkId}/selection/preview";
+    summary: string;
+    responses: {
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        410: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            expectedEventSeq: z.ZodNumber;
+                            regions: z.ZodArray<z.ZodObject<{
+                                start: z.ZodNumber;
+                                end: z.ZodNumber;
+                            }, z.core.$strip>>;
+                            unchanged: z.ZodArray<z.ZodNumber>;
+                            removed: z.ZodArray<z.ZodNumber>;
+                            added: z.ZodNumber;
+                            addedReferences: z.ZodArray<z.ZodObject<{
+                                originalText: z.ZodString;
+                                span: z.ZodObject<{
+                                    start: z.ZodNumber;
+                                    end: z.ZodNumber;
+                                }, z.core.$strip>;
+                                csl: z.ZodObject<{
+                                    type: z.ZodOptional<z.ZodString>;
+                                    author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                        family: z.ZodOptional<z.ZodString>;
+                                        "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                        given: z.ZodOptional<z.ZodString>;
+                                        literal: z.ZodOptional<z.ZodString>;
+                                    }, z.core.$strip>>>;
+                                    issued: z.ZodOptional<z.ZodObject<{
+                                        literal: z.ZodString;
+                                    }, z.core.$strip>>;
+                                    title: z.ZodOptional<z.ZodString>;
+                                    "container-title": z.ZodOptional<z.ZodString>;
+                                    "container-title-short": z.ZodOptional<z.ZodString>;
+                                    publisher: z.ZodOptional<z.ZodString>;
+                                    "publisher-place": z.ZodOptional<z.ZodString>;
+                                    volume: z.ZodOptional<z.ZodString>;
+                                    issue: z.ZodOptional<z.ZodString>;
+                                    page: z.ZodOptional<z.ZodString>;
+                                    "article-number": z.ZodOptional<z.ZodString>;
+                                    edition: z.ZodOptional<z.ZodString>;
+                                    DOI: z.ZodOptional<z.ZodString>;
+                                    URL: z.ZodOptional<z.ZodString>;
+                                    ISBN: z.ZodOptional<z.ZodString>;
+                                    ISSN: z.ZodOptional<z.ZodString>;
+                                    PMID: z.ZodOptional<z.ZodString>;
+                                    PMCID: z.ZodOptional<z.ZodString>;
+                                }, z.core.$strip>;
+                                fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                    raw: z.ZodString;
+                                    span: z.ZodOptional<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                    normalized: z.ZodOptional<z.ZodString>;
+                                }, z.core.$strip>>;
+                                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                structuring: z.ZodObject<{
+                                    path: z.ZodEnum<{
+                                        parser: "parser";
+                                        user: "user";
+                                    }>;
+                                    version: z.ZodString;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>;
+                            total: z.ZodNumber;
+                            additionalQuota: z.ZodNumber;
+                            rejected: z.ZodArray<z.ZodObject<{
+                                originalText: z.ZodString;
+                                span: z.ZodObject<{
+                                    start: z.ZodNumber;
+                                    end: z.ZodNumber;
+                                }, z.core.$strip>;
+                                reason: z.ZodLiteral<"no-reference-features">;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v2/checks/:checkId/selection/preview";
 };

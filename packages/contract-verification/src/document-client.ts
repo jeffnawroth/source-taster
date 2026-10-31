@@ -3,6 +3,8 @@ import { ApiError, type VerificationClientOptions } from "./client.ts";
 import { ProblemDetails } from "./index.ts";
 import {
   DocumentSettingsResponse,
+  TextStructuringResponse,
+  type TextStructuringRequest,
   DocumentStructuringResponse,
 } from "./document.ts";
 export function documentClient(options: VerificationClientOptions = {}) {
@@ -52,5 +54,30 @@ export function documentSettingsClient(
     if (!response.ok)
       throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
     return DocumentSettingsResponse.parse(body).data;
+  };
+}
+
+export function textStructuringClient(options: VerificationClientOptions = {}) {
+  return async (input: TextStructuringRequest, signal?: AbortSignal) => {
+    const response = await (options.fetch ?? globalThis.fetch)(
+      `${options.baseUrl ?? ""}/v2/structurings`,
+      {
+        method: "POST",
+        signal,
+        cache: "no-store",
+        headers: {
+          "content-type": "application/json",
+          ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+          ...(options.credentials
+            ? { Authorization: `Bearer ${await options.credentials()}` }
+            : {}),
+        },
+        body: JSON.stringify(input),
+      },
+    );
+    const body: unknown = await response.json().catch(() => undefined);
+    if (!response.ok)
+      throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+    return TextStructuringResponse.parse(body).data;
   };
 }
