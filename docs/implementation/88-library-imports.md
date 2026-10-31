@@ -190,3 +190,57 @@ After the last citation-key and native-driver fixes:
   unsupported original fields remain raw, visible data, not editable canonical
   fields; CSL-JSON is the complete canonical metadata export. No general RIS
   serializer or native reference-manager compatibility qualification is claimed.
+
+## Integration with document uploads (#89), 31 October 2026
+
+Merged source `150699de7b52e047d8a00330aee674a2d65c5d31` into
+`spec/70-launch-integration` at `bc451917725c021fec07d00bb3dfd32e915e9aa3`,
+using merge commit `3a86e961f3c0d6e758f9debf96ecba4a5d1cef62`.
+Additive conflicts affected HTTP route registration, transport package exports,
+DE/EN catalogs, dependency/lockfile entries, license inventory and shared intake
+controls. Both features were retained. Generated transport/OpenAPI conflicts were
+discarded and regenerated from the combined sources.
+
+The two file controls now have separate refs. Switching to library import clears
+the previous document selection/notice; uploading a document clears the previous
+library input and errors. A new browser regression demonstrated the integration
+failure before the latter cleanup: after uploading a DOCX, Check creation still
+used the earlier imported `@patent{Library,...}` rather than the document's
+Reference. Restoring the alternate-input cleanup passed the regression, including
+the reverse document-to-library transition. The #89 `min-w-0` fieldset correction
+is retained. These changes affect only the in-memory intake workflow, not stored
+evidence or export semantics.
+
+Merge validation used Node 24.14.0, pnpm 12.15.0, the documented exact Docker
+extraction image and real disposable PostgreSQL services. Database/browser suites
+ran serially on API/auxiliary ports 3701/3702 and browser port 5370; no unrelated
+resources were stopped. All logs below are under `/tmp/source-taster-70/`:
+
+- Frozen installation, core/i18n/contract builds, Prisma generation and
+  contract/server/UI/web typechecks passed (`88-merge-install.log`,
+  `88-merge-{core,i18n-build,contract,prisma,type-*}.log`).
+- `SOURCE_TASTER_TEST_IMPORTS_PORT=3702 SOURCE_TASTER_TEST_EXPORTS_PORT=3702 SOURCE_TASTER_TEST_REVISIONS_PORT=3702 pnpm --filter @source-taster/server exec vitest run --config .tmp/88-merge-owned.vitest.config.ts`:
+  **26 cases passed** across import/export/revision suites
+  (`88-merge-imports-exports-revisions.log`). The ignored local config extends
+  `imports.vitest.config.ts`, selects those three owned-service suites and keeps
+  `fileParallelism: false`; no unused global service is started.
+- `SOURCE_TASTER_DOCUMENT_IMAGE=<the #89 exact image> SOURCE_TASTER_TEST_API_PORT=3701 pnpm --filter @source-taster/server exec vitest run test/documents.test.ts --fileParallelism=false`:
+  **13 upload cases passed** (`88-merge-documents.log`). The image is
+  `sha256:a36fa02bdeea666e023b219e6bafa4f020833cd703ca1e1e069623cb7a061707`;
+  its local ID was checked before use. Isolation still fails closed.
+- `SOURCE_TASTER_DOCUMENT_IMAGE=<same image> SOURCE_TASTER_E2E_API_PORT=3701 SOURCE_TASTER_E2E_WEB_PORT=5370 pnpm --filter @source-taster/web exec playwright test e2e/intake-composition.spec.ts e2e/imports.spec.ts e2e/documents.spec.ts -g 'switches between|imports a bibtex library|uploads and structures a DOCX'`:
+  **5 cases passed**: DE/EN import round trips, DE/EN document uploads and
+  bidirectional input switching (`88-merge-green-browser.log`). The meaningful
+  pre-fix failure is retained in `88-merge-red-intake-switch.log`. The existing
+  controlled website preview artifact was reused without a publication claim.
+- A second contract build reproduced all **40** tracked generated
+  JavaScript/declaration/OpenAPI artifacts byte-for-byte
+  (`88-merge-contract-rebuild.log`, `88-merge-generated-{before,after}.json`).
+- ESLint, scoped formatting, diff checks and DE/EN validation of **301 messages**
+  passed. License inventory passed for **547 installed / 89 runtime packages**
+  (`88-merge-{lint,format,i18n,licenses}.log`).
+
+This adds no native reference-manager, full native-browser, security, hosting,
+performance, legal or Quality-gate qualification claim. The accepted #80
+implementation/activation split and mandatory #140/#114 prerequisite remain.
+No push, PR edit, issue closure or worktree creation/removal was performed.
