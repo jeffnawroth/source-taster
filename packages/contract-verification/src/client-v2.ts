@@ -10,6 +10,8 @@ import {
   type SaveFieldsRequest,
   type RecheckRequest,
   type EditReferenceListRequest,
+  type EditSelectionRequest,
+  SelectionPreviewResponse,
 } from "./v2.ts";
 import {
   ApiError,
@@ -33,9 +35,9 @@ export function verificationClient(options: VerificationClientOptions = {}) {
     "/v2",
     CheckResponse,
   );
-  async function mutate(checkId: string, path: string, input: unknown) {
+  async function send(path: string, input: unknown) {
     const response = await (options.fetch ?? globalThis.fetch)(
-      `${options.baseUrl ?? ""}/v2/checks/${encodeURIComponent(checkId)}/${path}`,
+      `${options.baseUrl ?? ""}/v2/checks${path}`,
       {
         method: "POST",
         headers: {
@@ -51,8 +53,12 @@ export function verificationClient(options: VerificationClientOptions = {}) {
     const body: unknown = await response.json().catch(() => undefined);
     if (!response.ok)
       throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
-    return CheckResponse.parse(body).data;
+    return body;
   }
+  const mutate = async (checkId: string, path: string, input: unknown) =>
+    CheckResponse.parse(
+      await send(`/${encodeURIComponent(checkId)}/${path}`, input),
+    ).data;
   return {
     ...base,
     setManualOverride: (
@@ -85,6 +91,12 @@ export function verificationClient(options: VerificationClientOptions = {}) {
         );
       return ImportResponse.parse(body).data;
     },
+    editSelection: (checkId: string, input: EditSelectionRequest) =>
+      mutate(checkId, "selection", input),
+    previewSelection: async (checkId: string, input: EditSelectionRequest) =>
+      SelectionPreviewResponse.parse(
+        await send(`/${encodeURIComponent(checkId)}/selection/preview`, input),
+      ).data,
     saveFields: (id: string, slot: number, input: SaveFieldsRequest) =>
       mutate(id, `references/${slot}/revisions`, input),
     recheckReference: (id: string, slot: number, input: RecheckRequest) =>

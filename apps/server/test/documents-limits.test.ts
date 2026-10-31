@@ -52,11 +52,14 @@ it("counts recognized References after extraction and rejects rather than trunca
     ]),
     "references.docx",
   );
-  expect(response.status).toBe(400);
-  expect(ProblemDetails.parse(await response.json())).toMatchObject({
-    code: "reference-limit",
-    limit: 2,
-  });
+  // #90: the extracted document and its selection stay movable; nothing is truncated.
+  expect(response.status).toBe(200);
+  const over = DocumentStructuringResponse.parse(await response.json()).data;
+  expect(over.referenceLimitExceeded).toBe(true);
+  expect(over.structuring).toMatchObject({ references: [], referenceLimit: 2 });
+  expect(over.selection.regions).toEqual([
+    { start: 0, end: over.document.text.length },
+  ]);
   const next = await upload(
     service.apiUrl,
     await docx(["Doe, J. (2020). Recovery."]),

@@ -3,7 +3,17 @@
 // the server (ADR-0011, ADR-0015).
 import { z } from "zod";
 import { envelope } from "../../contract-common/src/index.ts";
-import { StructuringResult } from "./structuring.ts";
+import { SourceSpan, StructuringResult } from "./structuring.ts";
+
+export const BibliographySelection = z.object({
+  version: z.string(),
+  regions: z.array(SourceSpan).max(1000),
+});
+export const BibliographyDocument = z.object({
+  text: z.string(),
+  selection: BibliographySelection,
+});
+export type BibliographyDocument = z.infer<typeof BibliographyDocument>;
 
 /** ADR-0011: "20 MB" means 20 MiB; the message states "20 MB". */
 export const documentSizeLimit = 20_971_520;
@@ -31,6 +41,8 @@ export const DocumentStructuringResult = z
     document: ExtractedDocument,
     /** The same parser result as for pasted text; never reserves Quota. */
     structuring: StructuringResult,
+    selection: BibliographySelection,
+    referenceLimitExceeded: z.boolean(),
   })
   .meta({ id: "DocumentStructuringResult" });
 export type DocumentStructuringResult = z.infer<
@@ -44,3 +56,18 @@ export const DocumentStructuringResponse = envelope(
 export const DocumentSettingsResponse = envelope(
   z.object({ inputBytes: z.number().int().positive() }),
 ).meta({ id: "DocumentSettingsResponse" });
+
+export const TextStructuringRequest = z.strictObject({
+  text: z.string().min(1),
+  /** Uploaded text stays a document even without a detected heading. */
+  document: z.boolean().optional(),
+  regions: z.array(SourceSpan).max(1000).optional(),
+});
+export type TextStructuringRequest = z.infer<typeof TextStructuringRequest>;
+export const TextStructuringResponse = envelope(
+  z.object({
+    document: BibliographyDocument.nullable(),
+    structuring: StructuringResult,
+    referenceLimitExceeded: z.boolean(),
+  }),
+);

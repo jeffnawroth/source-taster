@@ -2,7 +2,7 @@
 // Same lifecycle/authority protocol, with an explicitly versioned result schema.
 import { LibraryInput, ImportResponse } from "./import.js";
 import { z } from "zod";
-import { SetManualOverrideRequest, SaveFieldsRequest, RecheckRequest, EditReferenceListRequest, } from "./v2.js";
+import { SetManualOverrideRequest, SaveFieldsRequest, RecheckRequest, EditReferenceListRequest, EditSelectionRequest, SelectionPreviewResponse, } from "./v2.js";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.js";
 import { createRoute } from "@hono/zod-openapi";
 import * as v1 from "./routes.js";
@@ -156,5 +156,30 @@ export const importReferences = createRoute({
         400: v1.createCheck.responses[400],
         401: v1.createCheck.responses[401],
         403: v1.createCheck.responses[403],
+    },
+});
+export const editSelection = createRoute({
+    method: "post",
+    path: "/v2/checks/{checkId}/selection",
+    summary: "Apply a previewed Bibliography selection difference, preserving unchanged slots and the fixed deadline",
+    request: {
+        params: z.object({ checkId: z.uuid() }),
+        body: {
+            required: true,
+            content: { "application/json": { schema: EditSelectionRequest } },
+        },
+    },
+    responses: mutationResponses,
+});
+export const previewSelection = createRoute({
+    ...editSelection,
+    path: "/v2/checks/{checkId}/selection/preview",
+    summary: "Preview added, cut and dropped References and additional Quota without running work",
+    responses: {
+        ...mutationResponses,
+        200: {
+            description: "Selection difference; no work started and no Quota consumed.",
+            content: { "application/json": { schema: SelectionPreviewResponse } },
+        },
     },
 });

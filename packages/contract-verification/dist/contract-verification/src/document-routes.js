@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
+import { TextStructuringRequest, TextStructuringResponse } from "./document.js";
 import { createRoute } from "@hono/zod-openapi";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.js";
 import { DocumentSettingsResponse, DocumentStructuringRequest, DocumentStructuringResponse, } from "./document.js";
@@ -10,7 +11,7 @@ export const structureDocument = createRoute({
     method: "post",
     path: "/v2/document-structurings",
     summary: "Extract the text of a PDF or DOCX and structure it with the parser",
-    description: "The file is read in an isolated, restricted extraction area and is not stored. The extracted text is structured like pasted text. Structuring never reserves or consumes Quota.",
+    description: "The file is read in an isolated, restricted extraction area and is not stored. Only the detected Bibliography selection is structured. No detection leaves an empty selection for manual marking. Structuring never reserves or consumes Quota.",
     request: {
         body: {
             required: true,
@@ -45,5 +46,25 @@ export const getDocumentSettings = createRoute({
         401: problem("A valid verification access token is required."),
         403: problem("Current authority denies Structuring."),
         503: problem("Current authority is unavailable."),
+    },
+});
+export const structureText = createRoute({
+    method: "post",
+    path: "/v2/structurings",
+    summary: "Detect a pasted document or structure a list; explicit regions structure only selected text",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: TextStructuringRequest } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Selected document text or list; over-limit documents retain movable regions without truncated References.",
+            content: { "application/json": { schema: TextStructuringResponse } },
+        },
+        400: problem("Invalid selection or Reference limit."),
+        401: problem("Authentication required."),
+        403: problem("Current authority denied."),
     },
 });

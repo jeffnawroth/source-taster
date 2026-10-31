@@ -13,11 +13,16 @@ import {
   type SaveFieldsRequest,
   type RecheckRequest,
   type EditReferenceListRequest,
+  type EditSelectionRequest,
+  type BibliographyDocument,
 } from "@source-taster/contract-verification/v2";
 import {
   ReferenceLimitExceeded,
   type StructuredReference,
+  type Structuring,
+  type Span,
 } from "@source-taster/core";
+import { selectionDifference } from "./selection.ts";
 import type { PgBoss } from "pg-boss";
 import type { Prisma } from "../generated/prisma/client.ts";
 import { EVENT_CHANNEL } from "./events.ts";
@@ -43,6 +48,7 @@ type CheckRow = {
   state: string;
   lastSeq: number;
   endReason: string | null;
+  document?: unknown;
   references: {
     position: number;
     originalText: string;
@@ -75,6 +81,7 @@ type CheckRow = {
 function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
   return {
     id: row.id,
+    document: (row.document ?? null) as BibliographyDocument | null,
     state: row.state as Check["state"],
     lastEventSeq: row.lastSeq,
     lastEventCursor: `${row.id}:${row.lastSeq}`,
@@ -437,12 +444,16 @@ export function createCheckStore(
       principal: Principal,
       references: StructuredReference[],
       apiVersion = 1,
+      document?: BibliographyDocument,
     ): Promise<Check> {
       return db.$transaction(async (tx) => {
         const row = await tx.check.create({
           data: {
             id: randomUUID(),
             apiVersion,
+            document: document
+              ? (JSON.parse(JSON.stringify(document)) as Prisma.InputJsonValue)
+              : undefined,
             ownerId: principal.ownerId,
             actorId: principal.actorId,
             guestContextId: principal.guestContextId,
@@ -707,11 +718,40 @@ export function createCheckStore(
         );
       });
     },
+    async previewSelection(
+      principal: Principal,
+      checkId: string,
+      request: EditSelectionRequest,
+      parser: Structuring,
+      referenceLimit: number,
+    ) {
+      const snapshot = await ownerSnapshot(principal, checkId, "read", 2);
+      if (!snapshot) return null;
+      const check = snapshot.check;
+      if (
+        !check.document ||
+        check.lastEventSeq !== request.expectedEventSeq ||
+        check.references.some(
+          (r) => r.outcome.kind === "status" && r.outcome.status === "running",
+        )
+      )
+        throw new ReferenceConflict();
+      const difference = selectionDifference(
+        check,
+        request.regions,
+        parser,
+        referenceLimit,
+      );
+      if (difference.preview.total > referenceLimit)
+        throw new ReferenceLimitExceeded(referenceLimit);
+      return difference.preview;
+    },
     async editList(
       principal: Principal,
       checkId: string,
       request: EditReferenceListRequest,
       referenceLimit: number,
+      selection?: { regions: Span[]; parser: Structuring },
     ) {
       return db.$transaction(async (tx) => {
         const check = await lock(tx, checkId);
@@ -732,6 +772,41 @@ export function createCheckStore(
           slots.some((s) => s.status === "running")
         )
           throw new ReferenceConflict();
+        let additions: StructuredReference[] | undefined;
+        if (selection) {
+          const snapshot = toCheck(
+            await tx.check.findUniqueOrThrow({
+              where: { id: checkId },
+              include: withSlots,
+            }),
+            renewalInterval,
+          );
+          if (!snapshot.document) throw new ReferenceConflict();
+          const difference = selectionDifference(
+            snapshot,
+            selection.regions,
+            selection.parser,
+            referenceLimit,
+          );
+          request = {
+            ...request,
+            remove: difference.preview.removed,
+            add: difference.references.map((r) => ({
+              originalText: r.originalText,
+              fields: r.csl,
+              authorsTruncated: r.authorsTruncated,
+            })),
+          };
+          additions = difference.references;
+          await tx.check.update({
+            where: { id: checkId },
+            data: {
+              document: JSON.parse(
+                JSON.stringify(difference.document),
+              ) as Prisma.InputJsonValue,
+            },
+          });
+        }
         const removed = new Set(request.remove);
         if (
           removed.size !== request.remove.length ||
@@ -763,9 +838,9 @@ export function createCheckStore(
           });
         }
         let position = slots.at(-1)?.position ?? 0;
-        for (const added of request.add) {
+        for (const [index, added] of request.add.entries()) {
           position++;
-          const reference: StructuredReference = {
+          const reference: StructuredReference = additions?.[index] ?? {
             originalText: added.originalText,
             span: { start: 0, end: added.originalText.length },
             csl: added.fields,
@@ -792,7 +867,11 @@ export function createCheckStore(
               structured: content,
               status: "running",
               revisions: {
-                create: { revision: 1, content, provenance: "user" },
+                create: {
+                  revision: 1,
+                  content,
+                  provenance: reference.structuring.path,
+                },
               },
             },
           });
@@ -806,6 +885,12 @@ export function createCheckStore(
           });
           await wake(tx, checkId, position);
         }
+        if (selection)
+          await appendEvent(tx, checkId, {
+            type: "check.updated",
+            state: check.state as Check["state"],
+            endReason: check.endReason as CheckEndReason | null,
+          });
         if (request.add.length)
           await tx.check.update({
             where: { id: checkId },
