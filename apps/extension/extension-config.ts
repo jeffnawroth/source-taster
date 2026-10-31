@@ -7,6 +7,7 @@ export interface ExtensionConfig {
   mode: "standalone" | "hosted";
   serviceUrl?: string;
   websiteUrl: string;
+  accountSignIn: boolean;
 }
 
 const loopback = new Set(["127.0.0.1", "localhost", "[::1]"]);
@@ -42,7 +43,14 @@ export function extensionConfig(
     );
   if (mode === "hosted" && !env.SOURCE_TASTER_EXTENSION_SERVICE_URL)
     throw new Error("Hosted mode needs SOURCE_TASTER_EXTENSION_SERVICE_URL");
+  const signIn = env.SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN;
+  if (signIn !== undefined && signIn !== "enabled" && signIn !== "disabled")
+    throw new Error(
+      "SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN must be enabled or disabled",
+    );
   return {
+    // Private #98 implementation and both-program acceptance must precede activation.
+    accountSignIn: mode === "hosted" && signIn === "enabled",
     // Defaults match the local web development API and Vite origin.
     apiUrl: origin(
       "SOURCE_TASTER_EXTENSION_API_URL",

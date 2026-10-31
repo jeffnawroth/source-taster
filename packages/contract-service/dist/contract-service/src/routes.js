@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
-import { SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, } from "./index.js";
+import { ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, } from "./index.js";
 export const getServiceStatus = createRoute({
     method: "get",
     path: "/v1/status",
@@ -116,6 +116,49 @@ export const issueAccountToken = createRoute({
         503: problem,
     },
 });
+/** Extension endpoints deliberately separate from host-cookie web endpoints.
+ * Origins must be deployment-qualified; a claimed extension ID grants nothing. */
+const extensionBearer = {
+    type: "http",
+    scheme: "bearer",
+    description: "Opaque extension session credential; never a web cookie or verification JWT",
+};
+function extensionRoute(method, path, summary, output, input, authenticated = true) {
+    return createRoute({
+        method,
+        path: `/v1/extension${path}`,
+        summary,
+        ...(authenticated ? { security: [{ ExtensionSession: [] }] } : {}),
+        ...(input
+            ? {
+                request: {
+                    body: {
+                        required: true,
+                        content: { "application/json": { schema: input } },
+                    },
+                },
+            }
+            : {}),
+        responses: {
+            200: {
+                description: "Success; no web cookie is read or set",
+                content: { "application/json": { schema: output } },
+            },
+            400: problem,
+            401: problem,
+            403: problem,
+            429: problem,
+            503: problem,
+        },
+    });
+}
+export { extensionBearer };
+export const requestExtensionSignIn = extensionRoute("post", "/sign-in/challenges", "Request an extension-bound email code and in-memory transaction secret", ExtensionSignInChallengeResponse, SignInChallengeRequest, false);
+export const confirmExtensionSignIn = extensionRoute("post", "/sign-in/confirm", "Consume an extension-bound code and transaction secret; create an independent extension session", ExtensionSignInConfirmResponse, ExtensionSignInConfirmRequest, false);
+export const getExtensionSession = extensionRoute("get", "/session", "Read extension session; does not extend idle expiry", AccountSessionResponse);
+export const issueExtensionAccountToken = extensionRoute("post", "/account-tokens", "Issue a five-minute Account token; does not extend idle expiry", AccountTokenResponse);
+export const recordExtensionSessionActivity = extensionRoute("post", "/session/activity", "Record foreground user activity within absolute session expiry", AccountSessionResponse);
+export const signOutExtension = extensionRoute("post", "/sign-out", "Revoke this extension session or all Account sessions across clients", SignOutResponse, SignOutRequest);
 export const routes = [
     getServiceStatus,
     issueGuestToken,
@@ -126,4 +169,10 @@ export const routes = [
     issueAccountToken,
     recordSessionActivity,
     signOut,
+    requestExtensionSignIn,
+    confirmExtensionSignIn,
+    getExtensionSession,
+    issueExtensionAccountToken,
+    recordExtensionSessionActivity,
+    signOutExtension,
 ];

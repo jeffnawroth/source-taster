@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { AccountWorkspace } from "@source-taster/ui/web-account-workspace";
+import { extensionAccountSession } from "./account-session.ts";
 import { CheckWorkspace } from "@source-taster/ui/check-workspace";
 import { loadGuestPreferences } from "@source-taster/ui/preferences";
 import { guestCredentials } from "@source-taster/ui/guest-identity";
@@ -36,14 +38,33 @@ const transport = {
   client: "extension/0.0.0",
   credentials: guest?.credentials,
 };
+const accountClient = config.accountSignIn
+  ? extensionAccountSession(
+      config.serviceUrl!,
+      storage.local,
+      storage.onChanged,
+    )
+  : undefined;
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <CheckWorkspace
-      initial={initial}
-      preferenceStorage={preferenceStorage}
-      transport={transport}
-      siteUrl={config.websiteUrl}
-      selectionIntake={selectionIntake}
-    />
+    {accountClient ? (
+      <AccountWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        client={accountClient}
+        guest={guest!}
+        transport={transport}
+        siteUrl={config.websiteUrl}
+        selectionIntake={selectionIntake}
+      />
+    ) : (
+      <CheckWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        transport={transport}
+        siteUrl={config.websiteUrl}
+        selectionIntake={selectionIntake}
+      />
+    )}
   </React.StrictMode>,
 );
