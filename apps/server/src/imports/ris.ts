@@ -207,20 +207,26 @@ function patchRis(originalText: string, changes: Csl, imported: Csl) {
       edits.push({ start: at, end: at, text: line(tag, value) });
     }
   };
-  if (changes.type) {
-    const kind = Object.entries(types).find(
-      ([, csl]) => csl === changes.type,
-    )?.[0];
-    if (kind) set(["TY"], kind);
+  if (Object.hasOwn(changes, "type")) {
+    const kind =
+      Object.entries(types).find(([, csl]) => csl === changes.type)?.[0] ??
+      "GEN";
+    set(["TY"], kind);
   }
   for (const [key, tags, tag] of tagged) {
     const value = changes[key];
     if (typeof value === "string") set(tags, value, { tag });
+    else if (Object.hasOwn(changes, key))
+      fields
+        .filter((field) => tags.includes(field.tag))
+        .forEach((field) =>
+          edits.push({ start: field.start, end: field.end, text: "" }),
+        );
   }
-  if (changes.author) {
+  if (Object.hasOwn(changes, "author")) {
     const names = fields.filter((field) => ["AU", "A1"].includes(field.tag));
     const tag = names[0]?.tag ?? "AU";
-    const text = changes.author
+    const text = (changes.author ?? [])
       .map((name) => line(tag, risName(name)))
       .join("");
     const [first, ...rest] = names;
@@ -232,6 +238,20 @@ function patchRis(originalText: string, changes: Csl, imported: Csl) {
     rest.forEach((field) =>
       edits.push({ start: field.start, end: field.end, text: "" }),
     );
+  }
+  const removals: readonly [keyof Csl, readonly string[]][] = [
+    ["issued", dateTags],
+    ["page", ["SP", "EP"]],
+    ["ISBN", ["SN"]],
+    ["ISSN", ["SN"]],
+  ];
+  for (const [key, tags] of removals) {
+    if (Object.hasOwn(changes, key) && changes[key] === undefined)
+      fields
+        .filter((field) => tags.includes(field.tag))
+        .forEach((field) =>
+          edits.push({ start: field.start, end: field.end, text: "" }),
+        );
   }
   const iso = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/u.exec(
     changes.issued?.literal ?? "",
@@ -293,10 +313,14 @@ export const risImporter: LibraryImporter = {
         span,
         csl,
         fieldSources: Object.fromEntries(
-          Object.entries(csl).map(([key, value]) => [
-            key,
-            { raw: typeof value === "string" ? value : JSON.stringify(value) },
-          ]),
+          Object.entries(csl)
+            .filter(([, value]) => value !== undefined)
+            .map(([key, value]) => [
+              key,
+              {
+                raw: typeof value === "string" ? value : JSON.stringify(value),
+              },
+            ]),
         ),
         structuring: {
           path: "parser",

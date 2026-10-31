@@ -368,7 +368,10 @@ export function createApp(
           authorsTruncated: replacements.has(reference.slot)
             ? false
             : reference.authorsTruncated,
-          fields: replacements.get(reference.slot) ?? reference.fields,
+          fields:
+            request.format === "imported-format"
+              ? { ...reference.fields, ...replacements.get(reference.slot) }
+              : (replacements.get(reference.slot) ?? reference.fields),
         })),
       );
       await guarded(principal, "check:read", () => Promise.resolve());

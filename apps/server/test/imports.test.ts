@@ -75,6 +75,11 @@ it("imports BibTeX fields and exposes unsupported data without consuming Quota, 
   expect(output.status).toBe(200);
   expect(output.headers.get("content-disposition")).toContain('.bib"');
   expect(await output.text()).toBe(bib);
+  const canonical = await post(`checks/${check.id}/export`, {
+    format: "bibtex",
+    mode: "original",
+  });
+  expect(await canonical.text()).toContain("@book{Müller,");
   await post(`checks/${check.id}/cancel`, {});
 });
 it("rejects malformed BibTeX records independently and routes accepted CSL types outside coverage", async () => {
@@ -358,25 +363,119 @@ it("preserves BibTeX header comments containing example records without inventin
 });
 it("applies an explicitly selected Source type and full-date correction while retaining unsupported fields", async () => {
   const doi = "10.5555/import-correction";
-  fixtures.respond(`/api/handles/${doi}`, 200, { responseCode: 1, handle: doi });
-  fixtures.respond(`/works/${doi}`, 200, { message: {
-    DOI: doi, type: "journal-article", title: ["Synthetic corrected title"],
-    author: [{ family: "Author", given: "Anna" }], published: { "date-parts": [[2024, 5, 17]] },
-    "article-number": "e1234",
-  } });
+  fixtures.respond(`/api/handles/${doi}`, 200, {
+    responseCode: 1,
+    handle: doi,
+  });
+  fixtures.respond(`/works/${doi}`, 200, {
+    message: {
+      DOI: doi,
+      type: "journal-article",
+      title: ["Synthetic corrected title"],
+      author: [{ family: "Author", given: "Anna" }],
+      published: { "date-parts": [[2024, 5, 17]] },
+      "article-number": "e1234",
+    },
+  });
   const text = `@book{Kept,title={Synthetic corrected title},author={Author, Anna},year=2023,doi={${doi}},note={Keep note}}\n`;
-  const check = CheckResponse.parse(await (await post("checks", { library: { format: "bibtex", text } })).json()).data;
+  const check = CheckResponse.parse(
+    await (
+      await post("checks", { library: { format: "bibtex", text } })
+    ).json(),
+  ).data;
   await finished(check.id);
   const output = await exactText(await exportCorrected(check.id, 1));
-  const result = ImportResponse.parse(await (await post("imports", { format: "bibtex", text: output })).json()).data;
-  expect(result.references[0]!.csl).toMatchObject({ type: "article-journal", issued: { literal: "2024-05-17" }, "article-number": "e1234" });
+  const result = ImportResponse.parse(
+    await (await post("imports", { format: "bibtex", text: output })).json(),
+  ).data;
+  expect(result.references[0]!.csl).toMatchObject({
+    type: "article-journal",
+    issued: { literal: "2024-05-17" },
+    "article-number": "e1234",
+  });
   expect(output).toContain("note={Keep note}");
 });
 it("counts the 20 MB import limit in UTF-8 bytes and returns a clear limit message", async () => {
   const text = "ä".repeat(10 * 1024 * 1024 + 1);
-  for (const [path, input] of [["imports", { format: "bibtex", text }], ["checks", { library: { format: "bibtex", text } }]] as const) {
+  for (const [path, input] of [
+    ["imports", { format: "bibtex", text }],
+    ["checks", { library: { format: "bibtex", text } }],
+  ] as const) {
     const response = await post(path, input);
     expect(response.status).toBe(400);
-    expect(await response.json()).toMatchObject({ code: "library-size", limit: 20, i18nKey: "problem_library_size" });
+    expect(await response.json()).toMatchObject({
+      code: "library-size",
+      limit: 20,
+      i18nKey: "problem_library_size",
+    });
   }
+});
+it("exports saved import revisions including cleared fields, and omits removed library records", async () => {
+  for (const format of ["bibtex", "ris"] as const) {
+    const original =
+      format === "bibtex"
+        ? "@patent{First,title={Original title},year=2020,customfield={Keep me}}\n"
+        : "TY  - PAT\r\nTI  - Original title\r\nPY  - 2020\r\nZZ  - Keep me\r\nER  - \r\n";
+    const other =
+      format === "bibtex"
+        ? "@patent{Other,title={Removed title},year=2021}\n"
+        : "TY  - PAT\r\nTI  - Removed title\r\nPY  - 2021\r\nER  - \r\n";
+    const check = CheckResponse.parse(
+      await (
+        await post("checks", { library: { format, text: original + other } })
+      ).json(),
+    ).data;
+    await finished(check.id);
+    const saved = CheckResponse.parse(
+      await (
+        await post(`checks/${check.id}/references/1/revisions`, {
+          expectedRevision: 1,
+          fields: { type: "patent", title: "Saved title" },
+          recheck: false,
+        })
+      ).json(),
+    ).data;
+    expect(saved.references[0]!.originalText).toBe(original);
+    expect(saved.references[0]!.revisions[0]!.reference.imported?.format).toBe(
+      format,
+    );
+    const membership = await post(`checks/${check.id}/references`, {
+      expectedEventSeq: saved.lastEventSeq,
+      add: [],
+      remove: [2],
+    });
+    expect(membership.status).toBe(200);
+    const download = await post(`checks/${check.id}/export`, {
+      format: "imported-format",
+      mode: "original",
+    });
+    expect(download.status).toBe(200);
+    const output = await exactText(download);
+    expect(output).toContain("Saved title");
+    expect(output).not.toContain("2020");
+    expect(output).not.toContain("Removed title");
+    expect(output).toContain(
+      format === "bibtex" ? "customfield={Keep me}" : "ZZ  - Keep me\r\n",
+    );
+    const imported = ImportResponse.parse(
+      await (await post("imports", { format, text: output })).json(),
+    ).data;
+    expect(imported.rejected).toEqual([]);
+    expect(imported.references[0]!.csl).toEqual({
+      type: "patent",
+      title: "Saved title",
+    });
+  }
+});
+it("records explicit author truncation in library records without turning the marker into an author", async () => {
+  const text =
+    "@article{A,author={Müller, Anna and others},title={Title},year=2020}\n";
+  const result = ImportResponse.parse(
+    await (await post("imports", { format: "bibtex", text })).json(),
+  ).data;
+  expect(result.references[0]).toMatchObject({
+    csl: { author: [{ family: "Müller", given: "Anna" }] },
+    authorsTruncated: true,
+  });
+  expect(result.references[0]!.csl.author).toHaveLength(1);
 });

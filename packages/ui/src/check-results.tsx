@@ -47,7 +47,6 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
 /** Selection is a stable slot, never an outcome, array index or sorted result. */
 export function CheckResults({
   check,
-  importedFormat,
   completed,
   citationStyle,
   citationStyleLabel,
@@ -55,13 +54,22 @@ export function CheckResults({
   onSnapshot,
 }: {
   check: Check;
-  importedFormat?: "bibtex" | "ris";
   completed: number;
   citationStyle: CitationStyle;
   citationStyleLabel: string;
   transport: VerificationClientOptions;
   onSnapshot: (check: Check) => void;
 }) {
+  const firstFormat =
+    check.references[0]?.revisions[0]?.reference.imported?.format;
+  const importedFormat =
+    firstFormat &&
+    check.references.every(
+      (reference) =>
+        reference.revisions[0]?.reference.imported?.format === firstFormat,
+    )
+      ? firstFormat
+      : undefined;
   const [helpOpen, setHelpOpen] = useState(false);
   const [filter, setFilter] = useState<Verdict | null>(null);
   const [selectedSlot, selectSlot] = useState(check.references[0]?.slot);

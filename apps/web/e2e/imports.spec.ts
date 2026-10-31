@@ -32,14 +32,12 @@ for (const language of ["en", "de"] as const)
           buffer: Buffer.from(text + rejected),
         });
       await expect(
-        page
-          .getByRole("status")
-          .filter({
-            hasText:
-              language === "en"
-                ? "1 References recognized"
-                : "1 Referenzen erkannt",
-          }),
+        page.getByRole("status").filter({
+          hasText:
+            language === "en"
+              ? "1 References recognized"
+              : "1 Referenzen erkannt",
+        }),
       ).toBeVisible();
       await expect(
         page.getByText(
@@ -114,3 +112,72 @@ for (const language of ["en", "de"] as const)
         }),
       ).toBeDisabled();
     });
+
+test("keeps canonical exports available when membership adds a non-imported Reference", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("combobox", { name: /^(Language|Sprache)$/u })
+    .selectOption("en");
+  await page.getByLabel("Import BibTeX or RIS").setInputFiles({
+    name: "library.bib",
+    mimeType: "application/x-bibtex",
+    buffer: Buffer.from("@patent{Kept,title={Synthetic patent},year=2024}\n"),
+  });
+  await expect(
+    page.getByRole("status").filter({ hasText: "1 References recognized" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Check Reference", exact: true })
+    .click();
+  const format = page.getByRole("combobox", {
+    name: "Export format",
+    exact: true,
+  });
+  await format.selectOption("imported-format");
+  const edit = page.getByRole("button", {
+    name: "Edit Reference list",
+    exact: true,
+  });
+  await expect(edit).toBeEnabled({ timeout: 15000 });
+  await edit.click();
+  await page
+    .getByRole("textbox", {
+      name: "Original input for the new Reference",
+      exact: true,
+    })
+    .fill("A new Reference");
+  await page
+    .getByRole("textbox", { name: "Title", exact: true })
+    .fill("Added title");
+  await page
+    .getByRole("textbox", { name: "Source type (CSL)", exact: true })
+    .fill("patent");
+  await page
+    .getByRole("button", { name: "Preview list changes", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Apply list changes", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("list", { name: "References", exact: true })
+      .getByRole("listitem"),
+  ).toHaveCount(2);
+  await expect(format).toHaveValue("csl-json");
+  await expect(format.locator('option[value="imported-format"]')).toHaveCount(
+    0,
+  );
+  const downloaded = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Download References", exact: true })
+    .click();
+  const output = JSON.parse(
+    await readFile(await (await downloaded).path(), "utf8"),
+  ) as { title: string }[];
+  expect(output.map((reference) => reference.title)).toEqual([
+    "Synthetic patent",
+    "Added title",
+  ]);
+});

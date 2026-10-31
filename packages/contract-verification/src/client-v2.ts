@@ -27,7 +27,11 @@ export {
 } from "./client.ts";
 export type WatchCheckOptions = WatchOptions<CheckEvent>;
 export function verificationClient(options: VerificationClientOptions = {}) {
-  const base = createVerificationClient<Check, CreateCheckRequest>(options, "/v2", CheckResponse);
+  const base = createVerificationClient<Check, CreateCheckRequest>(
+    options,
+    "/v2",
+    CheckResponse,
+  );
   async function mutate(checkId: string, path: string, input: unknown) {
     const response = await (options.fetch ?? globalThis.fetch)(
       `${options.baseUrl ?? ""}/v2/checks/${encodeURIComponent(checkId)}/${path}`,

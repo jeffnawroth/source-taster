@@ -59,16 +59,23 @@ function same(key: keyof Csl, before: unknown, after: unknown): boolean {
     );
   return JSON.stringify(before) === JSON.stringify(after);
 }
-/**
- * Corrections are the export fields that differ from the immutable import
- * projection. A field a correction does not supply is not a correction: the
- * imported value stays. Equivalent entry types are kept as written.
+/** Compare the complete committed revision with the immutable import projection.
+ * Missing/empty fields are explicit user removals. Export-only suggestions are
+ * overlaid on committed fields by the HTTP application before this comparison.
  */
 export function corrections(imported: Csl, fields: Csl): Csl {
   const changed: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(fields) as [keyof Csl, unknown][])
-    if (value !== undefined && value !== "" && !same(key, imported[key], value))
-      changed[key] = value;
+  for (const key of new Set([
+    ...Object.keys(imported),
+    ...Object.keys(fields),
+  ]) as Set<keyof Csl>) {
+    const value = fields[key];
+    const next =
+      value === "" || (Array.isArray(value) && !value.length)
+        ? undefined
+        : value;
+    if (!same(key, imported[key], next)) changed[key] = next;
+  }
   return changed;
 }
 /** The imported record, exactly, except for the applied corrections. */

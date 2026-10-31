@@ -561,7 +561,6 @@ export function CheckWorkspace({
             )}
             <CheckResults
               key={check.id}
-              importedFormat={library?.format}
               check={check}
               completed={completed}
               citationStyle={preferences.citationStyle}

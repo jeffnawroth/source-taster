@@ -23,6 +23,10 @@ export function ReferenceExports({
 }) {
   const request = useMemo(() => exportClient(transport), [transport]);
   const [format, setFormat] = useState<ExportRequest["format"]>("csl-json");
+  // A manually added Reference has no original interchange record. The
+  // complete Check remains downloadable in the canonical export formats.
+  const selectedFormat =
+    format === "imported-format" && !importedFormat ? "csl-json" : format;
   const [mode, setMode] = useState<ExportRequest["mode"]>("original");
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -38,7 +42,7 @@ export function ReferenceExports({
       const data = await request(
         checkId,
         {
-          format,
+          format: selectedFormat,
           mode,
           corrections: mode === "original" ? [] : rendered.corrections,
         },
@@ -70,7 +74,7 @@ export function ReferenceExports({
           {m.export_format()}
           <select
             className="rounded border border-slate-500 bg-white p-2"
-            value={format}
+            value={selectedFormat}
             onChange={(event) => {
               const value = ExportFormat.safeParse(event.target.value);
               if (value.success) setFormat(value.data);
@@ -108,9 +112,9 @@ export function ReferenceExports({
       <p>
         {m.export_preview({
           format:
-            format === "csl-json"
+            selectedFormat === "csl-json"
               ? "CSL-JSON"
-              : format === "imported-format"
+              : selectedFormat === "imported-format"
                 ? m.library_export_original({
                     format: importedFormat === "ris" ? "RIS" : "BibTeX",
                   })

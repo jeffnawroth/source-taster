@@ -313,7 +313,29 @@ for (const language of ["en", "de"] as const)
             "Library preview not visible",
           );
           await panel.click("button", labels[language].check);
-          await panel.click("button", labels[language].open);
+          await until(
+            async () => {
+              const [detail] = await panel.query(
+                "region",
+                labels[language].detail,
+              );
+              if (
+                detail !== undefined &&
+                (
+                  await panel.call<string>(
+                    detail,
+                    "function () { return this.innerText; }",
+                  )
+                ).includes(labels[language].exists)
+              )
+                return true;
+              const [open] = await panel.query("button", labels[language].open);
+              if (open !== undefined) await panel.clickNode(open);
+              return false;
+            },
+            "Imported Reference did not show its outcome",
+            20_000,
+          );
           await panel.find(
             "checkbox",
             language === "en"

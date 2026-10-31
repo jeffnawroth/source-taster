@@ -287,10 +287,10 @@ function patchBibtex(originalText: string, changes: Csl, imported: Csl) {
     fields.find((field) => (aliases[name] ?? [name]).includes(field.name));
   const edits: TextEdit[] = [];
   const inserted: [string, string][] = [];
-  if (changes.type) {
-    const kind = Object.entries(types).find(
-      ([, csl]) => csl === changes.type,
-    )?.[0];
+  if (Object.hasOwn(changes, "type")) {
+    const kind =
+      Object.entries(types).find(([, csl]) => csl === changes.type)?.[0] ??
+      "misc";
     const raw = /^@([a-z]+)/iu.exec(entry);
     if (kind && raw)
       edits.push({
@@ -310,6 +310,13 @@ function patchBibtex(originalText: string, changes: Csl, imported: Csl) {
     else inserted.push([name, value]);
   };
   for (const key of Object.keys(changes) as (keyof Csl)[]) {
+    if (changes[key] === undefined) {
+      for (const field of fields.filter(
+        (field) => projected[field.name] === key,
+      ))
+        edits.push(remove(entry, offset, field));
+      continue;
+    }
     // No traditional field carries these without overwriting a user's note.
     if (
       ["container-title-short", "type", "arXiv", "PMID", "PMCID"].includes(key)
@@ -338,7 +345,7 @@ function patchBibtex(originalText: string, changes: Csl, imported: Csl) {
       continue;
     }
     for (const [name, value] of bibtexFields({
-      type: imported.type,
+      type: changes.type ?? imported.type,
       [key]: changes[key],
     }))
       if (name !== "note") set(name, `{${value}}`);
@@ -493,6 +500,17 @@ export const bibtexImporter: LibraryImporter = {
         type: undefined,
         issued: undefined,
       });
+      const rawEntry = text.slice(record.bodyStart, record.bodyEnd);
+      const author = bibFields(rawEntry).fields.find(
+        (field) => field.name === "author",
+      );
+      const authorsTruncated =
+        !!author &&
+        /\band\s+others\s*[}"]$/iu.test(
+          rawEntry.slice(author.valueStart, author.valueEnd),
+        ) &&
+        fields.author?.at(-1)?.literal?.toLowerCase() === "others";
+      if (authorsTruncated) fields.author = fields.author?.slice(0, -1);
       const type = entry.bib_type.toLowerCase();
       if (Object.hasOwn(types, type)) fields.type = types[type];
       for (const [from, to] of textFields)
@@ -514,11 +532,16 @@ export const bibtexImporter: LibraryImporter = {
         originalText,
         span,
         csl: fields,
+        ...(authorsTruncated ? { authorsTruncated: true } : {}),
         fieldSources: Object.fromEntries(
-          Object.entries(fields).map(([key, value]) => [
-            key,
-            { raw: typeof value === "string" ? value : JSON.stringify(value) },
-          ]),
+          Object.entries(fields)
+            .filter(([, value]) => value !== undefined)
+            .map(([key, value]) => [
+              key,
+              {
+                raw: typeof value === "string" ? value : JSON.stringify(value),
+              },
+            ]),
         ),
         structuring: { path: "parser", version: "bibliojson-4.1.0" },
         imported: {
