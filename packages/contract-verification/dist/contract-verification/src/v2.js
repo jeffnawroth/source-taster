@@ -280,6 +280,7 @@ export const SelectionPreviewResponse = z.object({
         unchanged: z.array(z.number().int().positive()),
         removed: z.array(z.number().int().positive()),
         added: z.number().int().nonnegative(),
+        addedReferences: v1.StructuringResult.shape.references,
         total: z.number().int().nonnegative(),
         additionalQuota: z.number().int().nonnegative(),
         rejected: v1.StructuringResult.shape.rejected,

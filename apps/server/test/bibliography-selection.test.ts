@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Public HTTP seam; synthetic documents are regression witnesses, not gate data.
 import { expect, inject, it } from "vitest";
+import {
+  CheckResponse,
+  SelectionPreviewResponse,
+} from "@source-taster/contract-verification/v2";
+import {
+  DocumentStructuringResponse,
+  TextStructuringResponse,
+} from "@source-taster/contract-verification/document";
 import { upload, docx } from "./support/documents.ts";
 const api = inject("apiUrl");
 const first = "Doe, J. (2020). Signal maps. Example Press.";
@@ -13,7 +21,9 @@ it("detects all chapter bibliographies, excludes running text and keeps document
     "chapters.docx",
   );
   expect(response.status).toBe(200);
-  const { data, quota } = await response.json();
+  const { data, quota } = DocumentStructuringResponse.parse(
+    await response.json(),
+  );
   expect(data.selection).toEqual({
     version: "bibliography-rules/1",
     regions: [
@@ -27,8 +37,8 @@ it("detects all chapter bibliographies, excludes running text and keeps document
       (r: { originalText: string }) => r.originalText,
     ),
   ).toEqual([first, second]);
-  expect(data.structuring.references[0].span).toEqual({ start: 62, end: 105 });
-  expect(data.structuring.references[0].fieldSources.title).toEqual({
+  expect(data.structuring.references[0]!.span).toEqual({ start: 62, end: 105 });
+  expect(data.structuring.references[0]!.fieldSources.title).toEqual({
     raw: "Signal maps",
     span: { start: 78, end: 89 },
   });
@@ -48,7 +58,7 @@ it("leaves an undetected upload unselected, supports manual regions and detects 
     await docx(original.split("\n")),
     "unheaded.docx",
   );
-  const { data } = await uploaded.json();
+  const { data } = DocumentStructuringResponse.parse(await uploaded.json());
   expect(data.selection.regions).toEqual([]);
   expect(data.structuring.references).toEqual([]);
   const manual = await structure({
@@ -57,21 +67,24 @@ it("leaves an undetected upload unselected, supports manual regions and detects 
     regions: [{ start: 21, end: 64 }],
   });
   expect(manual.status).toBe(200);
-  expect((await manual.json()).data.structuring.references[0]).toMatchObject({
+  expect(
+    TextStructuringResponse.parse(await manual.json()).data.structuring
+      .references[0],
+  ).toMatchObject({
     originalText: first,
     span: { start: 21, end: 64 },
   });
   const pasted = await structure({ text });
   expect(pasted.status).toBe(200);
-  const full = (await pasted.json()).data;
-  expect(full.document.text).toBe(text);
+  const full = TextStructuringResponse.parse(await pasted.json()).data;
+  expect(full.document?.text).toBe(text);
   expect(
     full.structuring.references.map(
       (r: { originalText: string }) => r.originalText,
     ),
   ).toEqual([first, second]);
   const list = await structure({ text: first });
-  const listed = (await list.json()).data;
+  const listed = TextStructuringResponse.parse(await list.json()).data;
   expect(listed.document).toBeNull();
   expect(listed.structuring.references).toHaveLength(1);
 });
@@ -83,7 +96,9 @@ async function post(path: string, body: unknown) {
   });
 }
 async function snapshot(id: string) {
-  return (await (await fetch(`${api}/v2/checks/${id}`)).json()).data;
+  return CheckResponse.parse(
+    await (await fetch(`${api}/v2/checks/${id}`)).json(),
+  ).data;
 }
 it("moves selections by difference: retained corrections/results, dropped tombstones and new cut slots", async () => {
   const original = `References\n${first}\n${second}\nPoe, P. (2022). Third source. Example Press.`;
@@ -91,7 +106,7 @@ it("moves selections by difference: retained corrections/results, dropped tombst
     document: { text: original, regions: [{ start: 11, end: 102 }] },
   });
   expect(created.status).toBe(201);
-  let check = (await created.json()).data;
+  let check = CheckResponse.parse(await created.json()).data;
   await expect.poll(async () => (await snapshot(check.id)).state).toBe("ended");
   check = await snapshot(check.id);
   expect(check.references).toHaveLength(2);
@@ -100,7 +115,7 @@ it("moves selections by difference: retained corrections/results, dropped tombst
     fields: { title: "User correction" },
     recheck: false,
   });
-  check = (await saved.json()).data;
+  check = CheckResponse.parse(await saved.json()).data;
   const retained = check.references[0];
   const preview = await post(`/${check.id}/selection/preview`, {
     expectedEventSeq: check.lastEventSeq,
@@ -110,7 +125,7 @@ it("moves selections by difference: retained corrections/results, dropped tombst
     ],
   });
   expect(preview.status).toBe(200);
-  const changes = (await preview.json()).data;
+  const changes = SelectionPreviewResponse.parse(await preview.json()).data;
   expect(changes).toMatchObject({
     removed: [2],
     unchanged: [1],
@@ -118,23 +133,28 @@ it("moves selections by difference: retained corrections/results, dropped tombst
     total: 3,
     additionalQuota: 2,
   });
+  expect(
+    changes.addedReferences.map(
+      (r: { originalText: string }) => r.originalText,
+    ),
+  ).toEqual([second.slice(6), "Poe, P. (2022). Third source. Example Press."]);
   expect((await snapshot(check.id)).references).toEqual(check.references);
   const applied = await post(`/${check.id}/selection`, {
     expectedEventSeq: check.lastEventSeq,
     regions: changes.regions,
   });
   expect(applied.status).toBe(200);
-  const next = (await applied.json()).data;
+  const next = CheckResponse.parse(await applied.json()).data;
   expect(next.id).toBe(check.id);
   expect(next.references.map((r: { slot: number }) => r.slot)).toEqual([
     1, 3, 4,
   ]);
   expect(next.references[0]).toEqual(retained);
-  expect(next.references[1].originalText).toBe(second.slice(6));
-  expect(next.references[1].revisions[0].reference.structuring.path).toBe(
+  expect(next.references[1]!.originalText).toBe(second.slice(6));
+  expect(next.references[1]!.revisions[0]!.reference.structuring.path).toBe(
     "parser",
   );
-  expect(next.document.text).toBe(original);
+  expect(next.document?.text).toBe(original);
   expect(
     (
       await post(`/${check.id}/selection`, {
@@ -143,4 +163,75 @@ it("moves selections by difference: retained corrections/results, dropped tombst
       })
     ).status,
   ).toBe(409);
+});
+
+it("checks recognized References from a manual selection without turning rejected headings into slots", async () => {
+  const original = `Unrecognized heading\n\n${first}\n\nNot a Reference`;
+  const regions = [{ start: 0, end: original.length }];
+  const structured = await structure({
+    text: original,
+    document: true,
+    regions,
+  });
+  const preview = TextStructuringResponse.parse(await structured.json()).data
+    .structuring;
+  expect(preview.references).toHaveLength(1);
+  expect(preview.rejected).toHaveLength(2);
+  const created = await post("", { document: { text: original, regions } });
+  expect(created.status).toBe(201);
+  const check = CheckResponse.parse(await created.json()).data;
+  expect(
+    check.references.map((r: { originalText: string }) => r.originalText),
+  ).toEqual([first]);
+});
+
+it.each([
+  { regions: [{ start: 0, end: first.length + 1 }] },
+  { regions: [{ start: 10, end: 5 }] },
+  {
+    regions: [
+      { start: 0, end: 20 },
+      { start: 10, end: 30 },
+    ],
+  },
+])(
+  "rejects invalid document regions before Structuring or creating a Check: %j",
+  async ({ regions }) => {
+    expect(
+      (await structure({ text: first, document: true, regions })).status,
+    ).toBe(400);
+    expect(
+      (await post("", { document: { text: first, regions } })).status,
+    ).toBe(400);
+  },
+);
+
+it("allows deselecting every region without creating any new work", async () => {
+  const created = await post("", {
+    document: { text: first, regions: [{ start: 0, end: first.length }] },
+  });
+  expect(created.status).toBe(201);
+  const initial = CheckResponse.parse(await created.json()).data;
+  await expect
+    .poll(async () => (await snapshot(initial.id)).state)
+    .toBe("ended");
+  const check = await snapshot(initial.id);
+  const request = { expectedEventSeq: check.lastEventSeq, regions: [] };
+  const preview = await post(`/${check.id}/selection/preview`, request);
+  expect(
+    SelectionPreviewResponse.parse(await preview.json()).data,
+  ).toMatchObject({
+    removed: [1],
+    unchanged: [],
+    added: 0,
+    addedReferences: [],
+    total: 0,
+    additionalQuota: 0,
+  });
+  const applied = await post(`/${check.id}/selection`, request);
+  expect(applied.status).toBe(200);
+  const next = CheckResponse.parse(await applied.json()).data;
+  expect(next.references).toEqual([]);
+  expect(next.document?.selection.regions).toEqual([]);
+  expect(next.state).toBe("ended");
 });

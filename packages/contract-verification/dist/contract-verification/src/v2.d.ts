@@ -6233,6 +6233,57 @@ export declare const SelectionPreviewResponse: z.ZodObject<{
         unchanged: z.ZodArray<z.ZodNumber>;
         removed: z.ZodArray<z.ZodNumber>;
         added: z.ZodNumber;
+        addedReferences: z.ZodArray<z.ZodObject<{
+            originalText: z.ZodString;
+            span: z.ZodObject<{
+                start: z.ZodNumber;
+                end: z.ZodNumber;
+            }, z.core.$strip>;
+            csl: z.ZodObject<{
+                type: z.ZodOptional<z.ZodString>;
+                author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                    family: z.ZodOptional<z.ZodString>;
+                    "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                    given: z.ZodOptional<z.ZodString>;
+                    literal: z.ZodOptional<z.ZodString>;
+                }, z.core.$strip>>>;
+                issued: z.ZodOptional<z.ZodObject<{
+                    literal: z.ZodString;
+                }, z.core.$strip>>;
+                title: z.ZodOptional<z.ZodString>;
+                "container-title": z.ZodOptional<z.ZodString>;
+                "container-title-short": z.ZodOptional<z.ZodString>;
+                publisher: z.ZodOptional<z.ZodString>;
+                "publisher-place": z.ZodOptional<z.ZodString>;
+                volume: z.ZodOptional<z.ZodString>;
+                issue: z.ZodOptional<z.ZodString>;
+                page: z.ZodOptional<z.ZodString>;
+                "article-number": z.ZodOptional<z.ZodString>;
+                edition: z.ZodOptional<z.ZodString>;
+                DOI: z.ZodOptional<z.ZodString>;
+                URL: z.ZodOptional<z.ZodString>;
+                ISBN: z.ZodOptional<z.ZodString>;
+                ISSN: z.ZodOptional<z.ZodString>;
+                PMID: z.ZodOptional<z.ZodString>;
+                PMCID: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>;
+            fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                raw: z.ZodString;
+                span: z.ZodOptional<z.ZodObject<{
+                    start: z.ZodNumber;
+                    end: z.ZodNumber;
+                }, z.core.$strip>>;
+                normalized: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>>;
+            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+            structuring: z.ZodObject<{
+                path: z.ZodEnum<{
+                    parser: "parser";
+                    user: "user";
+                }>;
+                version: z.ZodString;
+            }, z.core.$strip>;
+        }, z.core.$strip>>;
         total: z.ZodNumber;
         additionalQuota: z.ZodNumber;
         rejected: z.ZodArray<z.ZodObject<{

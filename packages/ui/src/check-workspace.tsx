@@ -479,6 +479,7 @@ export function CheckWorkspace({
   const selectionBlocked =
     !!sourceDocument &&
     (!!check ||
+      !sourceDocument.selection.regions.length ||
       !validRegions(sourceDocument.text, sourceDocument.selection.regions));
   const errorKey =
     fileError ??

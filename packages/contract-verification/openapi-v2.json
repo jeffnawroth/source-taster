@@ -3931,6 +3931,184 @@
                           "type": "integer",
                           "minimum": 0
                         },
+                        "addedReferences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "originalText": {
+                                "type": "string"
+                              },
+                              "span": {
+                                "type": "object",
+                                "properties": {
+                                  "start": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "end": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "start",
+                                  "end"
+                                ]
+                              },
+                              "csl": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string"
+                                  },
+                                  "author": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "family": {
+                                          "type": "string"
+                                        },
+                                        "non-dropping-particle": {
+                                          "type": "string"
+                                        },
+                                        "given": {
+                                          "type": "string"
+                                        },
+                                        "literal": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "issued": {
+                                    "type": "object",
+                                    "properties": {
+                                      "literal": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "literal"
+                                    ]
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "container-title": {
+                                    "type": "string"
+                                  },
+                                  "container-title-short": {
+                                    "type": "string"
+                                  },
+                                  "publisher": {
+                                    "type": "string"
+                                  },
+                                  "publisher-place": {
+                                    "type": "string"
+                                  },
+                                  "volume": {
+                                    "type": "string"
+                                  },
+                                  "issue": {
+                                    "type": "string"
+                                  },
+                                  "page": {
+                                    "type": "string"
+                                  },
+                                  "article-number": {
+                                    "type": "string"
+                                  },
+                                  "edition": {
+                                    "type": "string"
+                                  },
+                                  "DOI": {
+                                    "type": "string"
+                                  },
+                                  "URL": {
+                                    "type": "string"
+                                  },
+                                  "ISBN": {
+                                    "type": "string"
+                                  },
+                                  "ISSN": {
+                                    "type": "string"
+                                  },
+                                  "PMID": {
+                                    "type": "string"
+                                  },
+                                  "PMCID": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "fieldSources": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "object",
+                                  "properties": {
+                                    "raw": {
+                                      "type": "string"
+                                    },
+                                    "span": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "integer",
+                                          "minimum": 0
+                                        },
+                                        "end": {
+                                          "type": "integer",
+                                          "minimum": 0
+                                        }
+                                      },
+                                      "required": [
+                                        "start",
+                                        "end"
+                                      ]
+                                    },
+                                    "normalized": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "raw"
+                                  ]
+                                }
+                              },
+                              "authorsTruncated": {
+                                "type": "boolean"
+                              },
+                              "structuring": {
+                                "type": "object",
+                                "properties": {
+                                  "path": {
+                                    "type": "string",
+                                    "enum": [
+                                      "parser",
+                                      "user"
+                                    ]
+                                  },
+                                  "version": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "path",
+                                  "version"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "originalText",
+                              "span",
+                              "csl",
+                              "fieldSources",
+                              "structuring"
+                            ]
+                          }
+                        },
                         "total": {
                           "type": "integer",
                           "minimum": 0
@@ -3985,6 +4163,7 @@
                         "unchanged",
                         "removed",
                         "added",
+                        "addedReferences",
                         "total",
                         "additionalQuota",
                         "rejected"

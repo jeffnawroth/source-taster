@@ -116,6 +116,17 @@ for (const language of ["en", "de"] as const)
         ? "Additional Quota on first Verdicts:"
         : "Zusätzliches Kontingent bei ersten Urteilen:",
     );
+    await expect(
+      editor
+        .getByRole("region", {
+          name:
+            language === "en"
+              ? "Preview selection changes"
+              : "Auswahländerungen vorschauen",
+          exact: true,
+        })
+        .getByRole("list"),
+    ).toContainText(second);
     expect(
       (
         await new AxeBuilder({ page })
@@ -124,3 +135,56 @@ for (const language of ["en", "de"] as const)
       ).violations,
     ).toEqual([]);
   });
+
+test("an undetected document requires a manual region and never checks surrounding text", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 900 });
+  await page.goto("/");
+  const reference = "Doe, J. (2020). Signal maps. Example Press.";
+  const text = `Running text (2018).\n${reference}\nOutside (2019).`;
+  await page.getByLabel("PDF or Word document", { exact: true }).setInputFiles({
+    name: "unheaded.docx",
+    mimeType:
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    buffer: Buffer.from(await docx(text.split("\n"))),
+  });
+  await page
+    .getByRole("button", { name: "Upload and structure", exact: true })
+    .click();
+  const selection = page.getByRole("region", {
+    name: "Bibliography selection",
+    exact: true,
+  });
+  await expect(selection).toContainText("No bibliography detected or selected");
+  const check = page.getByRole("button", {
+    name: "Check Reference",
+    exact: true,
+  });
+  await expect(check).toBeDisabled();
+  const original = selection.getByRole("textbox");
+  await original.selectText();
+  await original.press("Shift");
+  await selection
+    .getByRole("button", { name: "Add marked text as a region", exact: true })
+    .click();
+  await selection
+    .getByRole("spinbutton", { name: "Region 1 start", exact: true })
+    .fill(String(text.indexOf(reference)));
+  await selection
+    .getByRole("spinbutton", { name: "Region 1 end", exact: true })
+    .fill(String(text.indexOf(reference) + reference.length));
+  await expect(selection.locator("mark")).toHaveText(reference);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await check.click();
+  const list = page.getByRole("list", { name: "References", exact: true });
+  await expect(list).toContainText("Signal maps");
+  await expect(list).not.toContainText("Running text");
+  await expect(list).not.toContainText("Outside");
+});

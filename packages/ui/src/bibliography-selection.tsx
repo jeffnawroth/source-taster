@@ -36,10 +36,8 @@ export function BibliographyEditor({
   const regions = document.selection.regions;
   const valid = validRegions(document.text, regions);
   const ordered = valid ? [...regions].sort((a, b) => a.start - b.start) : [];
-  let cursor = 0;
   const highlighted = ordered.flatMap((region, i) => {
-    const before = document.text.slice(cursor, region.start);
-    cursor = region.end;
+    const before = document.text.slice(ordered[i - 1]?.end ?? 0, region.start);
     return [
       before,
       <mark
@@ -67,7 +65,7 @@ export function BibliographyEditor({
         className="max-h-96 overflow-auto whitespace-pre-wrap break-words font-sans"
       >
         {highlighted}
-        {document.text.slice(cursor)}
+        {document.text.slice(ordered.at(-1)?.end ?? 0)}
       </pre>
       <label className="block">
         {m.selection_original()}
@@ -235,6 +233,11 @@ export function CheckSelectionActions({
             })}
           </p>
           <ul>
+            {preview.addedReferences.map((reference, index) => (
+              <li key={`added:${index}`}>
+                {m.revision_add()}: {reference.originalText}
+              </li>
+            ))}
             {preview.removed.map((slot) => (
               <li key={slot}>
                 {m.revision_remove()}:{" "}

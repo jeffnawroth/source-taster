@@ -366,14 +366,21 @@ export function createApp(
               : null;
         if (
           parsed &&
-          parsed.references.length + parsed.rejected.length > referenceLimit
+          parsed.references.length +
+            (apiVersion === 1 ? parsed.rejected.length : 0) >
+            referenceLimit
         )
           fail(
             "reference-limit",
             `At most ${referenceLimit} References can be checked at once.`,
             referenceLimit,
           );
-        if (parsed?.rejected.length && !("library" in input))
+        // v2 reviews rejected text separately; it never becomes a billed slot.
+        if (
+          apiVersion === 1 &&
+          parsed?.rejected.length &&
+          !("library" in input)
+        )
           fail("invalid-request");
         references = parsed
           ? parsed.references

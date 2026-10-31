@@ -3700,6 +3700,54 @@ export declare function verificationClient(options?: VerificationClientOptions):
         unchanged: number[];
         removed: number[];
         added: number;
+        addedReferences: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            csl: {
+                type?: string | undefined;
+                author?: {
+                    family?: string | undefined;
+                    "non-dropping-particle"?: string | undefined;
+                    given?: string | undefined;
+                    literal?: string | undefined;
+                }[] | undefined;
+                issued?: {
+                    literal: string;
+                } | undefined;
+                title?: string | undefined;
+                "container-title"?: string | undefined;
+                "container-title-short"?: string | undefined;
+                publisher?: string | undefined;
+                "publisher-place"?: string | undefined;
+                volume?: string | undefined;
+                issue?: string | undefined;
+                page?: string | undefined;
+                "article-number"?: string | undefined;
+                edition?: string | undefined;
+                DOI?: string | undefined;
+                URL?: string | undefined;
+                ISBN?: string | undefined;
+                ISSN?: string | undefined;
+                PMID?: string | undefined;
+                PMCID?: string | undefined;
+            };
+            fieldSources: Record<string, {
+                raw: string;
+                span?: {
+                    start: number;
+                    end: number;
+                } | undefined;
+                normalized?: string | undefined;
+            }>;
+            authorsTruncated?: boolean | undefined;
+            structuring: {
+                path: "parser" | "user";
+                version: string;
+            };
+        }[];
         total: number;
         additionalQuota: number;
         rejected: {

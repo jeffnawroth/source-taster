@@ -50,6 +50,7 @@ export function selectionDifference(
       unchanged,
       removed,
       added: structured.references.length,
+      addedReferences: structured.references,
       total: unchanged.length + structured.references.length,
       additionalQuota: structured.references.length,
       rejected: structured.rejected,
