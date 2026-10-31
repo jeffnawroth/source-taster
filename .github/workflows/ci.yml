@@ -54,6 +54,11 @@ jobs:
       - run: pnpm build
       - name: Check committed transport artifacts
         run: git diff --exit-code -- packages/contract-common/dist packages/contract-verification/dist packages/contract-verification/openapi.json packages/contract-verification/openapi-v2.json packages/contract-service/dist packages/contract-service/openapi.json packages/contract-internal/dist packages/contract-internal/openapi.json
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
       - run: pnpm test
       - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
       - run: pnpm test:e2e

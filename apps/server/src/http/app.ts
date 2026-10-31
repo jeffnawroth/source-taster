@@ -1,6 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // HTTP surface of the web process: the published /v1 contract.
 
+import {
+  structureDocument,
+  getDocumentSettings,
+} from "@source-taster/contract-verification/document-routes";
+import { documentSizeLimit } from "@source-taster/contract-verification/document";
+import {
+  ExtractionFailed,
+  logMetrics,
+  sniffFormat,
+  unavailableExtractor,
+  type DocumentExtractor,
+  type DocumentMetrics,
+} from "../documents/extraction.ts";
+import { readUpload } from "../documents/upload.ts";
+import type { HttpBindings } from "@hono/node-server";
+import type { ZodIssue } from "zod";
 import type { Context, TypedResponse } from "hono";
 import type { JSONParsed } from "hono/utils/types";
 import { OpenAPIHono } from "@hono/zod-openapi";
@@ -14,6 +30,7 @@ import {
 } from "@source-taster/contract-verification/routes";
 import { exportReferences } from "@source-taster/contract-verification/export-routes";
 import { suggestionFields, suggestionToken } from "../citations/suggestion.ts";
+import { importLibrary } from "../imports/library.ts";
 import { referenceExporter } from "../exports/references.ts";
 import { renderBibliography } from "@source-taster/contract-verification/bibliography-routes";
 import {
@@ -31,6 +48,14 @@ import type { CheckStore } from "../checks/store.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
 
+function librarySizeIssue(issues: readonly ZodIssue[]): boolean {
+  return issues.some(
+    (issue) =>
+      issue.message === "library-size" ||
+      (issue.code === "invalid_union" && issue.errors.some(librarySizeIssue)),
+  );
+}
+
 export interface AppDeps {
   structuring: Structuring;
   entitlements: Entitlements;
@@ -39,6 +64,10 @@ export interface AppDeps {
   heartbeatMs: number;
   referenceLimit: number;
   clock?: { now(): number };
+  documentExtractor?: DocumentExtractor;
+  documentMetrics?: DocumentMetrics;
+  documentConcurrency?: number;
+  documentInputBytes?: number;
 }
 
 export function createApp(
@@ -50,6 +79,10 @@ export function createApp(
     heartbeatMs,
     referenceLimit,
     clock = { now: Date.now },
+    documentExtractor = unavailableExtractor,
+    documentMetrics = logMetrics,
+    documentConcurrency = 2,
+    documentInputBytes = documentSizeLimit,
   }: AppDeps,
   apiVersion = 1,
 ) {
@@ -108,6 +141,12 @@ export function createApp(
   const app = new OpenAPIHono({
     defaultHook: (result) => {
       if (result.success) return;
+      if (librarySizeIssue(result.error.issues))
+        return problemResponse(
+          "library-size",
+          "The library file exceeds 20 MB.",
+          20,
+        );
       const emptyText = result.error.issues.some(
         (issue) =>
           issue.path[0] === "text" &&
@@ -149,6 +188,83 @@ export function createApp(
       }
     });
 
+  if (apiVersion === 2) {
+    app.openapi(getDocumentSettings, async (c) => {
+      const principal = await authorize(c.req.raw, "structuring:create");
+      return output(
+        c,
+        principal,
+        "structuring:create",
+        { inputBytes: documentInputBytes },
+        200,
+      );
+    });
+    let uploads = 0;
+    // Authenticate and bound real streamed bytes before the form validator runs.
+    app.use(structureDocument.path, async (c, next) => {
+      if (c.req.method !== "POST") return next();
+      await authorize(c.req.raw, "structuring:create");
+      if (uploads >= documentConcurrency) fail("document-unavailable");
+      uploads++;
+      try {
+        const form = await readUpload(
+          c.req.raw,
+          documentInputBytes,
+          (c.env as Partial<HttpBindings> | undefined)?.incoming,
+        );
+        c.req.bodyCache.formData = form;
+        await next();
+      } finally {
+        uploads--;
+      }
+    });
+    app.openapi(structureDocument, async (c) => {
+      const principal = await authorize(c.req.raw, "structuring:create");
+      const file: unknown = c.req.valid("form").file;
+      if (!(file instanceof File)) fail("invalid-request");
+      if (file.size > documentInputBytes)
+        fail("document-size-limit", undefined, documentInputBytes);
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const format = sniffFormat(bytes);
+      if (!format) fail("document-unsupported");
+      try {
+        const extracted = await documentExtractor.extract(
+          format,
+          bytes,
+          c.req.raw.signal,
+        );
+        if (format === "pdf" && extracted.partialNoText)
+          documentMetrics.record("pdf-partial-no-text");
+        const data = {
+          document: {
+            format,
+            text: extracted.text,
+            notice: extracted.partialNoText
+              ? ("partial-no-text" as const)
+              : null,
+          },
+          structuring: structuring.structure(extracted.text),
+        };
+        return output(c, principal, "structuring:create", data, 200);
+      } catch (error) {
+        if (error instanceof ReferenceLimitExceeded)
+          fail("reference-limit", undefined, error.limit);
+        if (error instanceof ExtractionFailed) {
+          if (format === "pdf" && error.failure === "no-text")
+            documentMetrics.record("pdf-no-text");
+          fail(`document-${error.failure}`);
+        }
+        throw error;
+      }
+    });
+  }
+  if (apiVersion === 2)
+    app.openapi(v2.importReferences, async (c) => {
+      const principal = await authorize(c.req.raw, "structuring:create");
+      const data = importLibrary(c.req.valid("json"), referenceLimit);
+      return output(c, principal, "structuring:create", data, 200);
+    });
+
   app.openapi(
     (apiVersion === 2 ? v2.createCheck : createCheck) as typeof v2.createCheck,
     async (c) => {
@@ -157,7 +273,11 @@ export function createApp(
       let references: StructuredReference[];
       try {
         const parsed =
-          "text" in input ? structuring.structure(input.text) : null;
+          "library" in input
+            ? importLibrary(input.library, referenceLimit)
+            : "text" in input
+              ? structuring.structure(input.text)
+              : null;
         if (
           parsed &&
           parsed.references.length + parsed.rejected.length > referenceLimit
@@ -167,7 +287,8 @@ export function createApp(
             `At most ${referenceLimit} References can be checked at once.`,
             referenceLimit,
           );
-        if (parsed?.rejected.length) fail("invalid-request");
+        if (parsed?.rejected.length && !("library" in input))
+          fail("invalid-request");
         references = parsed
           ? parsed.references
           : "references" in input
@@ -331,14 +452,28 @@ export function createApp(
         if (!fields) fail("invalid-request");
         replacements.set(choice.slot, fields);
       }
-      const exporter = referenceExporter(request.format);
+      if (
+        request.format === "imported-format" &&
+        (!snapshot.references.length ||
+          snapshot.references.some(
+            (reference) =>
+              !reference.imported ||
+              reference.imported.format !==
+                snapshot.references[0]?.imported?.format,
+          ))
+      )
+        fail("invalid-request");
+      const exporter = referenceExporter(request.format, snapshot.references);
       const body = exporter.serialize(
         snapshot.references.map((reference) => ({
           ...reference,
           authorsTruncated: replacements.has(reference.slot)
             ? false
             : reference.authorsTruncated,
-          fields: replacements.get(reference.slot) ?? reference.fields,
+          fields:
+            request.format === "imported-format"
+              ? { ...reference.fields, ...replacements.get(reference.slot) }
+              : (replacements.get(reference.slot) ?? reference.fields),
         })),
       );
       await guarded(principal, "check:read", () => Promise.resolve());
@@ -535,6 +670,10 @@ export function createApp(
           heartbeatMs,
           referenceLimit,
           clock,
+          documentExtractor,
+          documentMetrics,
+          documentConcurrency,
+          documentInputBytes,
         },
         2,
       ),

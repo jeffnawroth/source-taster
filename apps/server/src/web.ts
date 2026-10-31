@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The web process: serves the /v1 HTTP API and the Check event streams.
 
+import { isolatedExtractor } from "./documents/supervisor.ts";
 import { createParser } from "@source-taster/core";
 import { openWebsite } from "@source-taster/website/hosting";
 import { serve } from "@hono/node-server";
@@ -44,6 +45,10 @@ await runMain(async (config) => {
         maintaining = false;
       });
   }, 1000);
+  const documentExtractor = isolatedExtractor(
+    config.documentImage,
+    config.documentLimits,
+  );
   const app = createApp({
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     events,
@@ -51,6 +56,9 @@ await runMain(async (config) => {
     referenceLimit: config.referenceLimit,
     entitlements: authority?.entitlements ?? standaloneEntitlements,
     checks,
+    documentExtractor,
+    documentConcurrency: config.documentLimits.concurrency,
+    documentInputBytes: config.documentLimits.inputBytes,
   });
   if (authority)
     app.post("/internal/guest-authority/invalidate", async (c) =>
@@ -81,6 +89,7 @@ await runMain(async (config) => {
     clearInterval(maintenance);
     server.close();
     void Promise.all([
+      documentExtractor.close?.(),
       boss.stop(),
       events.close(),
       db.$disconnect(),

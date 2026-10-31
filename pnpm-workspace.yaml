@@ -7,6 +7,8 @@ engineStrict: true
 allowBuilds:
   "@prisma/engines": true
   prisma: true
+  # core-js-pure only prints a funding message; no generated runtime assets.
+  core-js-pure: false
 minimumReleaseAgeExclude:
   - "@tanstack/query-core@5.105.0"
   - "@tanstack/react-query@5.105.0"
@@ -15,3 +17,5 @@ minimumReleaseAgeExclude:
 ignoredOptionalDependencies:
   - sharp
   - fsevents
+  # ADR-0011: PDF.js text extraction runs without the optional native canvas.
+  - "@napi-rs/canvas"

@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type { StructuringResult } from "@source-taster/contract-verification";
+import type { ImportResult } from "@source-taster/contract-verification/import";
 import { m } from "@source-taster/i18n";
 
 const fieldLabels = {
+  type: "library_type",
+  arXiv: "field_arxiv",
   author: "field_author",
   issued: "field_issued",
   title: "field_title",
@@ -23,12 +26,22 @@ const fieldLabels = {
   PMCID: "field_pmcid",
 } as const;
 
-export function StructuringResults({ result }: { result: StructuringResult }) {
+export function StructuringResults({
+  result,
+}: {
+  result: StructuringResult | ImportResult;
+}) {
   return (
     <div className="mt-10 space-y-6">
       <p role="status" className="rounded-xl bg-teal-50 p-4 text-teal-950">
-        {result.guidance === "no-references"
-          ? m.structuring_no_references()
+        {("guidance" in result
+          ? result.guidance
+          : result.references.length
+            ? "recognized"
+            : "no-references") === "no-references"
+          ? "guidance" in result
+            ? m.structuring_no_references()
+            : m.library_no_references()
           : m.structuring_summary({ count: String(result.references.length) })}
       </p>
       {result.references.length > 0 && (
@@ -53,11 +66,31 @@ export function StructuringResults({ result }: { result: StructuringResult }) {
                   ).map((key) => (
                     <ReactField
                       key={key}
-                      label={m[fieldLabels[key]]()}
+                      label={
+                        key in fieldLabels
+                          ? m[fieldLabels[key]]()
+                          : m.library_type()
+                      }
                       value={reference.fieldSources[key]?.raw ?? ""}
                     />
                   ))}
                 </dl>
+                {"imported" in reference &&
+                  reference.imported &&
+                  reference.imported.unsupported.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="font-semibold">
+                        {m.library_unsupported()}
+                      </h3>
+                      <ul>
+                        {reference.imported.unsupported.map((field, index) => (
+                          <li key={index}>
+                            {field.name}: {field.value}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 {reference.authorsTruncated && (
                   <p className="mt-3">{m.structuring_truncated()}</p>
                 )}
