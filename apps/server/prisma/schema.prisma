@@ -81,6 +81,7 @@ model ReferenceResult {
   revision   Int           @default(1)
   content    Json
   createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  manualOverride ManualOverride?
   reference  ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade, map: "reference_results_slot_fkey")
 
   @@unique([checkId, position, generation])
@@ -133,4 +134,14 @@ model FieldRevision {
   reference ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade)
   @@id([checkId, position, revision])
   @@map("field_revisions")
+}
+
+// Separate user judgment, never part of immutable result content.
+model ManualOverride {
+  resultId String @id @map("result_id") @db.Uuid
+  id String @unique @db.Uuid
+  verdict String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  result ReferenceResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  @@map("manual_overrides")
 }

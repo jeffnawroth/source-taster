@@ -243,6 +243,34 @@
                 },
                 "outcome": {
                   "$ref": "#/components/schemas/ReferenceOutcomeV2"
+                },
+                "manualOverride": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "resultId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "verdict": {
+                      "$ref": "#/components/schemas/Verdict"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "resultId",
+                    "verdict",
+                    "createdAt"
+                  ]
                 }
               },
               "required": [
@@ -250,9 +278,41 @@
                 "revision",
                 "generation",
                 "createdAt",
-                "outcome"
+                "outcome",
+                "manualOverride"
               ]
             }
+          },
+          "manualOverride": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "resultId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "verdict": {
+                "$ref": "#/components/schemas/Verdict"
+              },
+              "createdAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "resultId",
+              "verdict",
+              "createdAt"
+            ]
+          },
+          "manualOverrideReset": {
+            "type": "boolean"
           },
           "quotaEffect": {
             "type": "string",
@@ -271,6 +331,8 @@
           "fields",
           "revisions",
           "results",
+          "manualOverride",
+          "manualOverrideReset",
           "quotaEffect"
         ]
       },
@@ -1509,6 +1571,151 @@
           },
           "503": {
             "description": "Current authority is unavailable.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/references/{slot}/manual-override": {
+      "post": {
+        "summary": "Confirm or choose a manual Verdict for exactly the current immutable result",
+        "description": "Requires the current field revision, result ID and previous override ID (null for first judgment). Stale, running or unverified fields reject with 409. System evidence and suggestion eligibility stay unchanged.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            "required": true,
+            "name": "slot",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "resultId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expectedOverrideId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid"
+                  },
+                  "verdict": {
+                    "$ref": "#/components/schemas/Verdict"
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "resultId",
+                  "expectedOverrideId",
+                  "verdict"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current snapshot, including the newest event sequence.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stale revision or active Reference work; refresh before retrying.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
               "application/problem+json": {
                 "schema": {

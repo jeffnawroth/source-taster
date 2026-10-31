@@ -145,12 +145,26 @@ export const FieldRevision = z.object({
     provenance: z.enum(["parser", "user"]),
     createdAt: z.string(),
 });
+/** A separate manual layer; immutable system outcomes remain untouched. */
+export const ManualOverride = z.object({
+    id: z.uuid(),
+    resultId: z.uuid(),
+    verdict: v1.Verdict,
+    createdAt: z.string(),
+});
+export const SetManualOverrideRequest = z.strictObject({
+    expectedRevision: z.number().int().positive(),
+    resultId: z.uuid(),
+    expectedOverrideId: z.uuid().nullable(),
+    verdict: v1.Verdict,
+});
 export const HistoricalResult = z.object({
     id: z.uuid(),
     revision: z.number().int().positive(),
     generation: z.number().int().nonnegative(),
     createdAt: z.string(),
     outcome: ReferenceOutcome,
+    manualOverride: ManualOverride.nullable(),
 });
 export const ReferenceSlot = v1.ReferenceSlot.extend({
     revision: z.number().int().positive(),
@@ -158,6 +172,8 @@ export const ReferenceSlot = v1.ReferenceSlot.extend({
     authorsTruncated: z.boolean().optional(),
     revisions: z.array(FieldRevision),
     results: z.array(HistoricalResult),
+    manualOverride: ManualOverride.nullable(),
+    manualOverrideReset: z.boolean(),
     quotaEffect: z.enum(["free-recheck", "new-work"]),
     outcome: ReferenceOutcome,
     progress: ReferenceProgress,

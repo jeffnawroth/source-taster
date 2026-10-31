@@ -974,6 +974,35 @@ export declare const FieldRevision: z.ZodObject<{
     }>;
     createdAt: z.ZodString;
 }, z.core.$strip>;
+/** A separate manual layer; immutable system outcomes remain untouched. */
+export declare const ManualOverride: z.ZodObject<{
+    id: z.ZodUUID;
+    resultId: z.ZodUUID;
+    verdict: z.ZodEnum<{
+        correct: "correct";
+        "doi-conflict": "doi-conflict";
+        "exists-with-deviations": "exists-with-deviations";
+        "mixed-citation": "mixed-citation";
+        "not-found": "not-found";
+        "not-verifiable": "not-verifiable";
+    }>;
+    createdAt: z.ZodString;
+}, z.core.$strip>;
+export type ManualOverride = z.infer<typeof ManualOverride>;
+export declare const SetManualOverrideRequest: z.ZodObject<{
+    expectedRevision: z.ZodNumber;
+    resultId: z.ZodUUID;
+    expectedOverrideId: z.ZodNullable<z.ZodUUID>;
+    verdict: z.ZodEnum<{
+        correct: "correct";
+        "doi-conflict": "doi-conflict";
+        "exists-with-deviations": "exists-with-deviations";
+        "mixed-citation": "mixed-citation";
+        "not-found": "not-found";
+        "not-verifiable": "not-verifiable";
+    }>;
+}, z.core.$strict>;
+export type SetManualOverrideRequest = z.infer<typeof SetManualOverrideRequest>;
 export declare const HistoricalResult: z.ZodObject<{
     id: z.ZodUUID;
     revision: z.ZodNumber;
@@ -1265,6 +1294,19 @@ export declare const HistoricalResult: z.ZodObject<{
             observedAt: z.ZodString;
         }, z.core.$strip>>>;
     }, z.core.$strict>], "kind">;
+    manualOverride: z.ZodNullable<z.ZodObject<{
+        id: z.ZodUUID;
+        resultId: z.ZodUUID;
+        verdict: z.ZodEnum<{
+            correct: "correct";
+            "doi-conflict": "doi-conflict";
+            "exists-with-deviations": "exists-with-deviations";
+            "mixed-citation": "mixed-citation";
+            "not-found": "not-found";
+            "not-verifiable": "not-verifiable";
+        }>;
+        createdAt: z.ZodString;
+    }, z.core.$strip>>;
 }, z.core.$strip>;
 export declare const ReferenceSlot: z.ZodObject<{
     slot: z.ZodNumber;
@@ -1651,7 +1693,34 @@ export declare const ReferenceSlot: z.ZodObject<{
                 observedAt: z.ZodString;
             }, z.core.$strip>>>;
         }, z.core.$strict>], "kind">;
+        manualOverride: z.ZodNullable<z.ZodObject<{
+            id: z.ZodUUID;
+            resultId: z.ZodUUID;
+            verdict: z.ZodEnum<{
+                correct: "correct";
+                "doi-conflict": "doi-conflict";
+                "exists-with-deviations": "exists-with-deviations";
+                "mixed-citation": "mixed-citation";
+                "not-found": "not-found";
+                "not-verifiable": "not-verifiable";
+            }>;
+            createdAt: z.ZodString;
+        }, z.core.$strip>>;
     }, z.core.$strip>>;
+    manualOverride: z.ZodNullable<z.ZodObject<{
+        id: z.ZodUUID;
+        resultId: z.ZodUUID;
+        verdict: z.ZodEnum<{
+            correct: "correct";
+            "doi-conflict": "doi-conflict";
+            "exists-with-deviations": "exists-with-deviations";
+            "mixed-citation": "mixed-citation";
+            "not-found": "not-found";
+            "not-verifiable": "not-verifiable";
+        }>;
+        createdAt: z.ZodString;
+    }, z.core.$strip>>;
+    manualOverrideReset: z.ZodBoolean;
     quotaEffect: z.ZodEnum<{
         "free-recheck": "free-recheck";
         "new-work": "new-work";
@@ -2356,7 +2425,34 @@ export declare const Check: z.ZodObject<{
                     observedAt: z.ZodString;
                 }, z.core.$strip>>>;
             }, z.core.$strict>], "kind">;
+            manualOverride: z.ZodNullable<z.ZodObject<{
+                id: z.ZodUUID;
+                resultId: z.ZodUUID;
+                verdict: z.ZodEnum<{
+                    correct: "correct";
+                    "doi-conflict": "doi-conflict";
+                    "exists-with-deviations": "exists-with-deviations";
+                    "mixed-citation": "mixed-citation";
+                    "not-found": "not-found";
+                    "not-verifiable": "not-verifiable";
+                }>;
+                createdAt: z.ZodString;
+            }, z.core.$strip>>;
         }, z.core.$strip>>;
+        manualOverride: z.ZodNullable<z.ZodObject<{
+            id: z.ZodUUID;
+            resultId: z.ZodUUID;
+            verdict: z.ZodEnum<{
+                correct: "correct";
+                "doi-conflict": "doi-conflict";
+                "exists-with-deviations": "exists-with-deviations";
+                "mixed-citation": "mixed-citation";
+                "not-found": "not-found";
+                "not-verifiable": "not-verifiable";
+            }>;
+            createdAt: z.ZodString;
+        }, z.core.$strip>>;
+        manualOverrideReset: z.ZodBoolean;
         quotaEffect: z.ZodEnum<{
             "free-recheck": "free-recheck";
             "new-work": "new-work";
@@ -3069,7 +3165,34 @@ export declare const CheckResponse: z.ZodObject<{
                         observedAt: z.ZodString;
                     }, z.core.$strip>>>;
                 }, z.core.$strict>], "kind">;
+                manualOverride: z.ZodNullable<z.ZodObject<{
+                    id: z.ZodUUID;
+                    resultId: z.ZodUUID;
+                    verdict: z.ZodEnum<{
+                        correct: "correct";
+                        "doi-conflict": "doi-conflict";
+                        "exists-with-deviations": "exists-with-deviations";
+                        "mixed-citation": "mixed-citation";
+                        "not-found": "not-found";
+                        "not-verifiable": "not-verifiable";
+                    }>;
+                    createdAt: z.ZodString;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
+            manualOverride: z.ZodNullable<z.ZodObject<{
+                id: z.ZodUUID;
+                resultId: z.ZodUUID;
+                verdict: z.ZodEnum<{
+                    correct: "correct";
+                    "doi-conflict": "doi-conflict";
+                    "exists-with-deviations": "exists-with-deviations";
+                    "mixed-citation": "mixed-citation";
+                    "not-found": "not-found";
+                    "not-verifiable": "not-verifiable";
+                }>;
+                createdAt: z.ZodString;
+            }, z.core.$strip>>;
+            manualOverrideReset: z.ZodBoolean;
             quotaEffect: z.ZodEnum<{
                 "free-recheck": "free-recheck";
                 "new-work": "new-work";
@@ -3766,7 +3889,34 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                     observedAt: z.ZodString;
                 }, z.core.$strip>>>;
             }, z.core.$strict>], "kind">;
+            manualOverride: z.ZodNullable<z.ZodObject<{
+                id: z.ZodUUID;
+                resultId: z.ZodUUID;
+                verdict: z.ZodEnum<{
+                    correct: "correct";
+                    "doi-conflict": "doi-conflict";
+                    "exists-with-deviations": "exists-with-deviations";
+                    "mixed-citation": "mixed-citation";
+                    "not-found": "not-found";
+                    "not-verifiable": "not-verifiable";
+                }>;
+                createdAt: z.ZodString;
+            }, z.core.$strip>>;
         }, z.core.$strip>>>;
+        manualOverride: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+            id: z.ZodUUID;
+            resultId: z.ZodUUID;
+            verdict: z.ZodEnum<{
+                correct: "correct";
+                "doi-conflict": "doi-conflict";
+                "exists-with-deviations": "exists-with-deviations";
+                "mixed-citation": "mixed-citation";
+                "not-found": "not-found";
+                "not-verifiable": "not-verifiable";
+            }>;
+            createdAt: z.ZodString;
+        }, z.core.$strip>>>;
+        manualOverrideReset: z.ZodOptional<z.ZodBoolean>;
         quotaEffect: z.ZodOptional<z.ZodEnum<{
             "free-recheck": "free-recheck";
             "new-work": "new-work";
@@ -4475,7 +4625,34 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                     observedAt: z.ZodString;
                 }, z.core.$strip>>>;
             }, z.core.$strict>], "kind">;
+            manualOverride: z.ZodNullable<z.ZodObject<{
+                id: z.ZodUUID;
+                resultId: z.ZodUUID;
+                verdict: z.ZodEnum<{
+                    correct: "correct";
+                    "doi-conflict": "doi-conflict";
+                    "exists-with-deviations": "exists-with-deviations";
+                    "mixed-citation": "mixed-citation";
+                    "not-found": "not-found";
+                    "not-verifiable": "not-verifiable";
+                }>;
+                createdAt: z.ZodString;
+            }, z.core.$strip>>;
         }, z.core.$strip>>>;
+        manualOverride: z.ZodOptional<z.ZodNullable<z.ZodObject<{
+            id: z.ZodUUID;
+            resultId: z.ZodUUID;
+            verdict: z.ZodEnum<{
+                correct: "correct";
+                "doi-conflict": "doi-conflict";
+                "exists-with-deviations": "exists-with-deviations";
+                "mixed-citation": "mixed-citation";
+                "not-found": "not-found";
+                "not-verifiable": "not-verifiable";
+            }>;
+            createdAt: z.ZodString;
+        }, z.core.$strip>>>;
+        manualOverrideReset: z.ZodOptional<z.ZodBoolean>;
         quotaEffect: z.ZodOptional<z.ZodEnum<{
             "free-recheck": "free-recheck";
             "new-work": "new-work";
