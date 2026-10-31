@@ -279,7 +279,7 @@ export function createBibliographicVerification(ports: {
         ...ports.rules,
         version: `${ports.rules.version}-${articleVerdictRules}`,
       },
-      searchStrategyVersion: `article-search-78-4-${sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
+      searchStrategyVersion: `article-search-78-5-${sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`,
       searchConfiguration: {
         ...articleSearchConfiguration,
         ...flattenSearchSettings(ports.settings),
