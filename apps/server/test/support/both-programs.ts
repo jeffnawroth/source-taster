@@ -191,8 +191,14 @@ export async function bothPrograms(
     return item;
   }
   const [apiPort, servicePort, proxyPort] = await Promise.all([
-    options.accounts ? Promise.resolve(3501) : freePort(),
-    options.accounts ? Promise.resolve(3502) : freePort(),
+    options.accounts
+      ? Promise.resolve(Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 3501))
+      : freePort(),
+    options.accounts
+      ? Promise.resolve(
+          Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 3502),
+        )
+      : freePort(),
     freePort(),
   ]);
   const apiUrl = `http://127.0.0.1:${apiPort}`,

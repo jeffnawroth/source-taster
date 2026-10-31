@@ -113,14 +113,17 @@ model SourceRequest {
   @@map("source_requests")
 }
 
-// Durable, idempotent handoff for #99. No balances, grants or debits here.
+// Durable, idempotent handoff to the Quota journal. No balances, grants or debits here.
 model SettlementIntent {
   checkId    String   @map("check_id") @db.Uuid
   position   Int
   generation Int
   outcome    String
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  /// Set once the private service acknowledged this intent; delivery is idempotent at the service.
+  deliveredAt DateTime? @map("delivered_at") @db.Timestamptz(3)
 
+  @@index([deliveredAt, createdAt], map: "settlement_intents_pending")
   @@id([checkId, position, generation])
   @@map("settlement_intents")
 }

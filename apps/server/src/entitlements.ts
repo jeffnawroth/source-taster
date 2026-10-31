@@ -4,6 +4,7 @@
 // current Guest policy and signing authority belong to the private service.
 
 import type { QuotaSlot } from "@source-taster/contract-common";
+import type { QuotaPort } from "./quota/port.ts";
 
 export type Permission =
   | "structuring:create"
@@ -30,6 +31,8 @@ export interface Entitlements {
     permission: Permission,
     operation: () => Promise<T>,
   ): Promise<T>;
+  /** Hosted only: reserve/commit/release against the Owner's Quota. Standalone has none and never reserves. */
+  quota?: QuotaPort;
   /** Resolves the acting Principal, or `null` when the request is not authenticated. */
   resolve(request: Request): Promise<Principal | null>;
 }

@@ -2,7 +2,6 @@ import { z } from "zod";
 export * from "../../contract-common/src/index.ts";
 /** No verification content, recipient, code or arbitrary message crosses this boundary.
  * Diagnostic only: explicitly enabled loopback rehearsal with a fixed .invalid SMTP sink.
- * Hosted entitlement/Quota routes remain unavailable until their signed-token implementation.
  */
 export declare const MailRehearsalRequest: z.ZodObject<{
     language: z.ZodEnum<{
@@ -25,6 +24,24 @@ export declare const MailRehearsalResponse: z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodNull]>;
@@ -93,3 +110,151 @@ export declare const AccountAuthorityRequest: z.ZodObject<{
     }>;
 }, z.core.$strict>;
 export type AccountAuthorityRequest = z.infer<typeof AccountAuthorityRequest>;
+export declare const QuotaSnapshotRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+}, z.core.$strict>;
+export type QuotaSnapshotRequest = z.infer<typeof QuotaSnapshotRequest>;
+export declare const QuotaSlotRef: z.ZodObject<{
+    position: z.ZodNumber;
+    generation: z.ZodNumber;
+}, z.core.$strict>;
+export type QuotaSlotRef = z.infer<typeof QuotaSlotRef>;
+export declare const QuotaReserveRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+    checkId: z.ZodUUID;
+    key: z.ZodString;
+    slots: z.ZodArray<z.ZodObject<{
+        position: z.ZodNumber;
+        generation: z.ZodNumber;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
+export type QuotaReserveRequest = z.infer<typeof QuotaReserveRequest>;
+export declare const QuotaSettleRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+    checkId: z.ZodUUID;
+    position: z.ZodNumber;
+    generation: z.ZodNumber;
+    outcome: z.ZodEnum<{
+        release: "release";
+        verdict: "verdict";
+    }>;
+}, z.core.$strict>;
+export type QuotaSettleRequest = z.infer<typeof QuotaSettleRequest>;
+export declare const QuotaReleaseRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+    checkId: z.ZodUUID;
+    key: z.ZodString;
+}, z.core.$strict>;
+export type QuotaReleaseRequest = z.infer<typeof QuotaReleaseRequest>;
+export declare const QuotaSnapshotResponse: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    outcome: z.ZodLiteral<"granted">;
+    quota: z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>;
+}, z.core.$strict>, z.ZodObject<{
+    outcome: z.ZodLiteral<"denied">;
+    reason: z.ZodEnum<{
+        forbidden: "forbidden";
+        revoked: "revoked";
+        unknown: "unknown";
+    }>;
+}, z.core.$strict>], "outcome">;
+export type QuotaSnapshotResponse = z.infer<typeof QuotaSnapshotResponse>;
+export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    outcome: z.ZodLiteral<"reserved">;
+    free: z.ZodArray<z.ZodNumber>;
+    reserved: z.ZodNumber;
+    quota: z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>;
+}, z.core.$strict>, z.ZodObject<{
+    outcome: z.ZodLiteral<"insufficient">;
+    available: z.ZodNumber;
+    required: z.ZodNumber;
+    quota: z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>;
+}, z.core.$strict>, z.ZodObject<{
+    outcome: z.ZodLiteral<"denied">;
+    reason: z.ZodEnum<{
+        forbidden: "forbidden";
+        revoked: "revoked";
+        unknown: "unknown";
+    }>;
+}, z.core.$strict>], "outcome">;
+export type QuotaReserveResponse = z.infer<typeof QuotaReserveResponse>;
+export declare const QuotaSettleResponse: z.ZodObject<{
+    outcome: z.ZodEnum<{
+        debited: "debited";
+        forgiven: "forgiven";
+        free: "free";
+        ignored: "ignored";
+        released: "released";
+    }>;
+}, z.core.$strict>;
+export type QuotaSettleResponse = z.infer<typeof QuotaSettleResponse>;
+export declare const QuotaReleaseResponse: z.ZodObject<{
+    released: z.ZodNumber;
+}, z.core.$strict>;
+export type QuotaReleaseResponse = z.infer<typeof QuotaReleaseResponse>;

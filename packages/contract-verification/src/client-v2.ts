@@ -12,6 +12,7 @@ import {
   type EditReferenceListRequest,
   type EditSelectionRequest,
   SelectionPreviewResponse,
+  QuotaResponse,
 } from "./v2.ts";
 import {
   ApiError,
@@ -59,8 +60,41 @@ export function verificationClient(options: VerificationClientOptions = {}) {
     CheckResponse.parse(
       await send(`/${encodeURIComponent(checkId)}/${path}`, input),
     ).data;
+  const headers = async () => ({
+    ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+    ...(options.credentials
+      ? { Authorization: `Bearer ${await options.credentials()}` }
+      : {}),
+  });
   return {
     ...base,
+    /** `maxReferences` starts only the first N References in input order (Quota choice). */
+    createCheck: async (
+      input: string | CreateCheckRequest,
+      choice: { maxReferences?: number } = {},
+    ) =>
+      CheckResponse.parse(
+        await send(
+          choice.maxReferences === undefined
+            ? ""
+            : `?maxReferences=${choice.maxReferences}`,
+          typeof input === "string" ? { text: input } : input,
+        ),
+      ).data,
+    /** The acting Owner's Quota; `null` when no Quota applies. */
+    getQuota: async () => {
+      const response = await (options.fetch ?? globalThis.fetch)(
+        `${options.baseUrl ?? ""}/v2/quota`,
+        { headers: await headers() },
+      );
+      const body: unknown = await response.json().catch(() => undefined);
+      if (!response.ok)
+        throw new ApiError(
+          response.status,
+          ProblemDetails.safeParse(body).data,
+        );
+      return QuotaResponse.parse(body).data;
+    },
     setManualOverride: (
       id: string,
       slot: number,
