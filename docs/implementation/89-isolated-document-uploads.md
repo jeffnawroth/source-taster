@@ -107,3 +107,42 @@ This is implementation evidence, **not launch isolation/security/hosting or qual
 The dependency graph adds exact stable PDF.js 6.4.299, JSZip 3.10.2 and saxes 6.0.0, with native canvas excluded. The license gate elects JSZip's MIT option and retains pako's MIT/Zlib notices; no maturity exception or human legal approval is granted. The npm advisory check does not substitute for the repository's broader controlled-native and base-image/deployed-version gates.
 
 The existing release check still refuses uncalibrated configurations with exit 78 under #94. #80's approved synthetic implementation acceptance is preserved; approved private web recordings/replay remain mandatory before source activation through #140, which blocks #114. Other existing legal, dependency, quality and release gates remain intact.
+
+
+## Integration-branch merge verification (31 October 2026)
+
+Merged `t3/issue-89-completion` at `8e6cc3bec6255b048403091b1625c67e4dec075b`
+into the clean `spec/70-launch-integration` tip
+`d81ef18aec263e0eb9cedec136fc2bb581af6700`, using merge commit
+`8441667c1b8ce7780605e48081f6f07b4b3af224`. There were no source or generated
+conflicts and no application integration fixes. The accepted #80 fixture split
+and mandatory #140/#114 activation prerequisite are preserved.
+
+Validation ran serially against the same documented exact extraction image,
+`sha256:a36fa02bdeea666e023b219e6bafa4f020833cd703ca1e1e069623cb7a061707`,
+whose local image ID was checked before reuse. No weaker isolation fallback,
+unrelated resource termination or deployment qualification was used.
+
+- Frozen installation, core/i18n/contract builds and Prisma generation passed.
+- Contract/server/UI typechecks passed.
+- `SOURCE_TASTER_DOCUMENT_IMAGE=<exact image above> SOURCE_TASTER_TEST_API_PORT=3701 pnpm --filter @source-taster/server exec vitest run test/documents.test.ts --fileParallelism=false`:
+  **13 HTTP upload cases passed** (`/tmp/source-taster-70/89-merge-documents.log`).
+- `SOURCE_TASTER_TEST_REVISIONS_PORT=3702 SOURCE_TASTER_TEST_EXPORTS_PORT=3702 pnpm --filter @source-taster/server exec vitest run --config .tmp/89-merge-owned.vitest.config.ts test/reference-revisions.test.ts test/exports.test.ts --fileParallelism=false`:
+  **12 revision/export cases passed** (`89-merge-revisions-exports.log`). The
+  ignored local config removes only the unused global fixture, as documented
+  above; the suites still run their own real disposable PostgreSQL/web/worker
+  services. No database suites overlapped within this merge verification.
+- A repeat source contract build reproduced all **38** tracked generated
+  JavaScript/declaration/OpenAPI artifacts byte-for-byte, with no git drift
+  (`89-merge-contract-rebuild.log`, `89-merge-generated-hashes.json`).
+- ESLint passed for server, shared workspace, transport and the license script;
+  formatting passed for supported changed code/config files. An initial explicit
+  formatting attempt included `.env.example`, for which Prettier has no parser;
+  the corrected scoped check passed (`89-merge-format-final.log`).
+- DE/EN catalog validation passed for **291 messages**. Source ancestry and
+  `git diff --check` passed. All `89-merge-*` logs remain local under
+  `/tmp/source-taster-70/`.
+
+This integration check adds no Scalingo, native-browser, security, legal,
+performance or Quality-gate qualification claim. No branch was pushed, no PR was
+edited and no issue was closed by the merger.
