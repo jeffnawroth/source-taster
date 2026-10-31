@@ -15,6 +15,7 @@ import {
   type DocumentMetrics,
 } from "../documents/extraction.ts";
 import { readUpload } from "../documents/upload.ts";
+import type { HttpBindings } from "@hono/node-server";
 import type { Context, TypedResponse } from "hono";
 import type { JSONParsed } from "hono/utils/types";
 import { OpenAPIHono } from "@hono/zod-openapi";
@@ -190,7 +191,11 @@ export function createApp(
       if (uploads >= documentConcurrency) fail("document-unavailable");
       uploads++;
       try {
-        const form = await readUpload(c.req.raw, documentInputBytes);
+        const form = await readUpload(
+          c.req.raw,
+          documentInputBytes,
+          (c.env as Partial<HttpBindings> | undefined)?.incoming,
+        );
         c.req.bodyCache.formData = form;
         await next();
       } finally {

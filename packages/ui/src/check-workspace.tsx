@@ -418,7 +418,7 @@ export function CheckWorkspace({
           if (text.trim() && !busy) void start("create");
         }}
       >
-        <fieldset className="mb-6 flex flex-col gap-3" disabled={busy}>
+        <fieldset className="mb-6 flex min-w-0 flex-col gap-3" disabled={busy}>
           <label htmlFor="document-file" className="text-lg font-semibold">
             {m.document_upload_label()}
           </label>
