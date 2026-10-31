@@ -219,6 +219,18 @@ it(
     expect(log.decision.releasable).toBe(false);
     expect(log.decision.reasons).toContain("uncalibrated");
     expect(result.decision).toEqual(log.decision);
+    // Write-once (FA-UEB-31 hook): the same configuration is refused before
+    // any work, and the preserved log stays untouched.
+    await expect(
+      measureConfiguration({
+        root,
+        configuration: { enabledSources: [] },
+        extraction: extraction.port,
+        port,
+      }),
+    ).rejects.toThrow(/already exists/);
+    expect(extraction.calls).toHaveLength(6);
+    expect(JSON.parse(await readFile(result.logPath, "utf8"))).toEqual(log);
   },
   120_000,
 );
@@ -345,6 +357,7 @@ it(
     await expect(
       calibrate({ root, grid, extraction: extraction.port, port }),
     ).rejects.toThrow(/already exists/);
+    expect(extraction.calls).toHaveLength(6);
   },
   180_000,
 );

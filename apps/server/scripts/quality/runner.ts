@@ -5,11 +5,9 @@
 // runs live three times, and a write-once measurement log is kept in the
 // private location. Nothing is published.
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-import { fileURLToPath } from "node:url";
 import { verificationClient } from "@source-taster/contract-verification/client-v2";
 import type {
   Check,
@@ -17,6 +15,7 @@ import type {
   StructuredCsl,
 } from "@source-taster/contract-verification/v2";
 import { startTestService } from "../../test/support/service.ts";
+import { codeVersion } from "./code-version.ts";
 import { expandGrid, selectPoint, type CalibrationGrid } from "./calibration.ts";
 import { loadDataset, privateLocation, type Dataset } from "./dataset.ts";
 import { startReplay, type ReplayMiss } from "./replay.ts";
@@ -63,13 +62,6 @@ export interface GateConfiguration {
 export interface ServiceDatabase {
   adminUrl: string;
   appUrl: string;
-}
-
-const repository = fileURLToPath(new URL("../../../../", import.meta.url));
-function codeVersion() {
-  const git = (...args: string[]) =>
-    execFileSync("git", args, { cwd: repository, encoding: "utf8" }).trim();
-  return { sha: git("rev-parse", "HEAD"), dirty: git("status", "--porcelain") !== "" };
 }
 
 function serviceEnvironment(
@@ -330,6 +322,12 @@ async function writeOnce(directory: string, name: string, content: unknown) {
   }
   return path;
 }
+/** Refuses before any work when the record for this identity exists. */
+async function refuseExisting(directory: string, name: string) {
+  const path = join(directory, name);
+  if (await stat(path).then(() => true, () => false))
+    throw new Error(`${path} already exists; measurement records are never replaced.`);
+}
 const digest = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
 
@@ -345,6 +343,21 @@ export interface MeasureOptions {
 export async function measureConfiguration(options: MeasureOptions) {
   const root = await privateLocation(options.root);
   const dataset = await loadDataset(root, "reference-test-set");
+  // ADR-0006 Measured configuration identity. Scoring rules and the Search
+  // strategy version follow from the code version and are logged as observed.
+  const identity = {
+    testSetVersion: dataset.version,
+    fixtureState: dataset.fixtureState,
+    codeVersion: codeVersion(),
+    aiModel: options.extraction?.model ?? null,
+    enabledSources: [...options.configuration.enabledSources].sort(),
+    comparisonParameters: options.configuration.comparisonParameters ?? {},
+    searchSettings: options.configuration.searchSettings ?? null,
+    calibration: options.configuration.calibration ?? null,
+  };
+  const configurationId = digest(identity);
+  const logDirectory = join(root, "measurement-logs", dataset.version);
+  await refuseExisting(logDirectory, `${configurationId}.json`);
   const { runs, observed } = await withSession(
     dataset,
     options.configuration,
@@ -357,14 +370,7 @@ export async function measureConfiguration(options: MeasureOptions) {
       ),
   );
   const measured = {
-    testSetVersion: dataset.version,
-    fixtureState: dataset.fixtureState,
-    codeVersion: codeVersion(),
-    aiModel: options.extraction?.model ?? null,
-    enabledSources: [...options.configuration.enabledSources].sort(),
-    comparisonParameters: options.configuration.comparisonParameters ?? {},
-    searchSettings: options.configuration.searchSettings ?? null,
-    calibration: options.configuration.calibration ?? null,
+    ...identity,
     scoringRules: scoringRulesOf(observed),
     searchStrategyVersion: observed?.searchStrategyVersion ?? null,
   };
@@ -379,9 +385,8 @@ export async function measureConfiguration(options: MeasureOptions) {
     runs: runs.map(gateRun),
   };
   const decision = decideRelease(measurement);
-  const configurationId = digest(measured);
   const logPath = await writeOnce(
-    join(root, "measurement-logs", dataset.version),
+    logDirectory,
     `${configurationId}.json`,
     {
       format: "source-taster-quality-gate/1",
@@ -414,6 +419,18 @@ export async function calibrate(options: CalibrateOptions) {
   const root = await privateLocation(options.root);
   const dataset = await loadDataset(root, "development-set");
   const configuration = options.configuration ?? { enabledSources: [] };
+  const identity = {
+    developmentSetVersion: dataset.version,
+    fixtureState: dataset.fixtureState,
+    codeVersion: codeVersion(),
+    aiModel: options.extraction?.model ?? null,
+    enabledSources: [...configuration.enabledSources].sort(),
+    searchSettings: configuration.searchSettings ?? null,
+    grid: options.grid,
+  };
+  const recordName = `${digest(identity)}.json`;
+  const recordDirectory = join(root, "calibration", dataset.version);
+  await refuseExisting(recordDirectory, recordName);
   const results = await withSession(
     dataset,
     configuration,
@@ -445,15 +462,9 @@ export async function calibrate(options: CalibrateOptions) {
   const scoringRules = results.find((r) => r.scoringRules)?.scoringRules ?? null;
   const record = {
     format: "source-taster-calibration/1",
-    developmentSetVersion: dataset.version,
-    fixtureState: dataset.fixtureState,
-    codeVersion: codeVersion(),
-    aiModel: options.extraction?.model ?? null,
-    enabledSources: [...configuration.enabledSources].sort(),
-    searchSettings: configuration.searchSettings ?? null,
+    ...identity,
     scoringRules: scoringRules && { ...scoringRules, profile: undefined },
     searchStrategyVersion: results[0]?.searchStrategyVersion ?? null,
-    grid: options.grid,
     results,
     // No point meets every target: nothing is calibrated, nothing released.
     selected: selection && {
@@ -462,10 +473,6 @@ export async function calibrate(options: CalibrateOptions) {
       minimumMargin: selection.minimumMargin,
     },
   };
-  const recordPath = await writeOnce(
-    join(root, "calibration", dataset.version),
-    `${digest({ ...record, results: undefined })}.json`,
-    record,
-  );
+  const recordPath = await writeOnce(recordDirectory, recordName, record);
   return { recordPath, selected: record.selected };
 }
