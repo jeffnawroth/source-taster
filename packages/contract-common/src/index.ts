@@ -79,3 +79,20 @@ export const PublicJwks = z.strictObject({
     .max(5),
 });
 export type PublicJwks = z.infer<typeof PublicJwks>;
+
+/** Closed launch style/locale manifest (ADR-0011/0023); no renderer implementation. */
+export const citationStyles = [
+  { id: "apa", locale: "en-US" },
+  { id: "mla", locale: "en-US" },
+  { id: "chicago", locale: "en-US" },
+  { id: "ieee", locale: "en-US" },
+  { id: "vancouver", locale: "en-US" },
+  { id: "harvard", locale: "en-GB" },
+  { id: "acs", locale: "en-US" },
+  { id: "ama", locale: "en-US" },
+  { id: "oxford", locale: "en-GB" },
+  { id: "springer", locale: "en-US" },
+  { id: "din-iso-690", locale: "de-DE" },
+] as const;
+export const CitationStyle = z.enum(citationStyles.map((style) => style.id));
+export type CitationStyle = z.infer<typeof CitationStyle>;

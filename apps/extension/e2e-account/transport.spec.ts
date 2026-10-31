@@ -5,6 +5,9 @@ import { once } from "node:events";
 import * as clients from "@source-taster/contract-service/client";
 
 test("extension session transport omits cookies and keeps credentials scoped to extension routes", async () => {
+  const servicePort = Number(
+    process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? 4602,
+  );
   const seen: { path: string; authorization?: string; body: unknown }[] = [];
   const account = {
     accountId: "11111111-1111-4111-8111-111111111111",
@@ -48,11 +51,11 @@ test("extension session transport omits cookies and keeps credentials scoped to 
       res.end("{}");
     });
   });
-  server.listen(4602, "127.0.0.1");
+  server.listen(servicePort, "127.0.0.1");
   await once(server, "listening");
   try {
     const client = clients.extensionSessionClient({
-      baseUrl: "http://127.0.0.1:4602",
+      baseUrl: `http://127.0.0.1:${servicePort}`,
       fetch: async (url, init) => {
         expect(init?.credentials).toBe("omit");
         expect(init?.redirect).toBe("error");
@@ -96,7 +99,7 @@ test("extension session transport omits cookies and keeps credentials scoped to 
       { everywhere: true },
     ]);
     const web = clients.accountSessionClient({
-      baseUrl: "http://127.0.0.1:4602",
+      baseUrl: `http://127.0.0.1:${servicePort}`,
       fetch: async (url, init) => {
         expect(init?.credentials).toBe("include");
         expect(new Headers(init?.headers).has("authorization")).toBe(false);

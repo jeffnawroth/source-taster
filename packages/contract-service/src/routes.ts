@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import {
+  AccountPreferencesPatch,
+  AccountPreferencesResponse,
   ExtensionSignInChallengeResponse,
   ExtensionSignInConfirmRequest,
   ExtensionSignInConfirmResponse,
@@ -255,7 +257,50 @@ export const signOutExtension = extensionRoute(
   SignOutResponse,
   SignOutRequest,
 );
+/** PATCH is partial: the service must update only supplied columns atomically. */
+function preferenceRoute(method: "get" | "patch", extension: boolean) {
+  return createRoute({
+    method,
+    path: extension ? "/v1/extension/preferences" : "/v1/preferences",
+    summary:
+      method === "get"
+        ? "Read current Account Preferences without extending idle expiry"
+        : "Write supplied Account Preference fields; per-field last-write-wins",
+    ...(extension ? { security: [{ ExtensionSession: [] }] } : {}),
+    ...(method === "patch"
+      ? {
+          request: {
+            body: {
+              required: true,
+              content: {
+                "application/json": { schema: AccountPreferencesPatch },
+              },
+            },
+          },
+        }
+      : {}),
+    responses: {
+      200: {
+        description: "Authoritative Account Preferences; no-store",
+        content: { "application/json": { schema: AccountPreferencesResponse } },
+      },
+      400: problem,
+      401: problem,
+      403: problem,
+      429: problem,
+      503: problem,
+    },
+  });
+}
+export const getAccountPreferences = preferenceRoute("get", false);
+export const patchAccountPreferences = preferenceRoute("patch", false);
+export const getExtensionPreferences = preferenceRoute("get", true);
+export const patchExtensionPreferences = preferenceRoute("patch", true);
 export const routes = [
+  getAccountPreferences,
+  patchAccountPreferences,
+  getExtensionPreferences,
+  patchExtensionPreferences,
   getServiceStatus,
   issueGuestToken,
   getGuestJwks,

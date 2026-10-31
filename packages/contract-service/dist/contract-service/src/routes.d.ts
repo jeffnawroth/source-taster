@@ -181,6 +181,25 @@ export declare const requestSignIn: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         everywhere: import("zod").ZodBoolean;
                     }, import("zod/v4/core").$strict>;
@@ -333,6 +352,25 @@ export declare const confirmSignIn: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         everywhere: import("zod").ZodBoolean;
                     }, import("zod/v4/core").$strict>;
@@ -485,6 +523,25 @@ export declare const signOut: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         everywhere: import("zod").ZodBoolean;
                     }, import("zod/v4/core").$strict>;
@@ -866,6 +923,25 @@ export declare const requestExtensionSignIn: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                         transactionCredential: import("zod").ZodString;
                     }, import("zod/v4/core").$strict>;
                 };
@@ -1051,6 +1127,25 @@ export declare const confirmExtensionSignIn: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                         transactionCredential: import("zod").ZodString;
                     }, import("zod/v4/core").$strict>;
                 };
@@ -1236,6 +1331,25 @@ export declare const getExtensionSession: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                         transactionCredential: import("zod").ZodString;
                     }, import("zod/v4/core").$strict>;
                 };
@@ -1421,6 +1535,25 @@ export declare const issueExtensionAccountToken: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                         transactionCredential: import("zod").ZodString;
                     }, import("zod/v4/core").$strict>;
                 };
@@ -1606,6 +1739,25 @@ export declare const recordExtensionSessionActivity: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                         transactionCredential: import("zod").ZodString;
                     }, import("zod/v4/core").$strict>;
                 };
@@ -1791,6 +1943,25 @@ export declare const signOutExtension: {
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                         transactionCredential: import("zod").ZodString;
                     }, import("zod/v4/core").$strict>;
                 };
@@ -1952,6 +2123,574 @@ export declare const signOutExtension: {
     };
 } & {
     getRoutingPath(): `/v1/extension${string}`;
+};
+export declare const getAccountPreferences: {
+    method: "get" | "patch";
+    path: "/v1/extension/preferences" | "/v1/preferences";
+    summary: string;
+    security?: {
+        ExtensionSession: never[];
+    }[] | undefined;
+    request?: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        language: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>>;
+                        citationStyle: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            acs: "acs";
+                            ama: "ama";
+                            apa: "apa";
+                            chicago: "chicago";
+                            "din-iso-690": "din-iso-690";
+                            harvard: "harvard";
+                            ieee: "ieee";
+                            mla: "mla";
+                            oxford: "oxford";
+                            springer: "springer";
+                            vancouver: "vancouver";
+                        }>>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    } | undefined;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/extension/preferences" | "/v1/preferences";
+};
+export declare const patchAccountPreferences: {
+    method: "get" | "patch";
+    path: "/v1/extension/preferences" | "/v1/preferences";
+    summary: string;
+    security?: {
+        ExtensionSession: never[];
+    }[] | undefined;
+    request?: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        language: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>>;
+                        citationStyle: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            acs: "acs";
+                            ama: "ama";
+                            apa: "apa";
+                            chicago: "chicago";
+                            "din-iso-690": "din-iso-690";
+                            harvard: "harvard";
+                            ieee: "ieee";
+                            mla: "mla";
+                            oxford: "oxford";
+                            springer: "springer";
+                            vancouver: "vancouver";
+                        }>>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    } | undefined;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/extension/preferences" | "/v1/preferences";
+};
+export declare const getExtensionPreferences: {
+    method: "get" | "patch";
+    path: "/v1/extension/preferences" | "/v1/preferences";
+    summary: string;
+    security?: {
+        ExtensionSession: never[];
+    }[] | undefined;
+    request?: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        language: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>>;
+                        citationStyle: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            acs: "acs";
+                            ama: "ama";
+                            apa: "apa";
+                            chicago: "chicago";
+                            "din-iso-690": "din-iso-690";
+                            harvard: "harvard";
+                            ieee: "ieee";
+                            mla: "mla";
+                            oxford: "oxford";
+                            springer: "springer";
+                            vancouver: "vancouver";
+                        }>>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    } | undefined;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/extension/preferences" | "/v1/preferences";
+};
+export declare const patchExtensionPreferences: {
+    method: "get" | "patch";
+    path: "/v1/extension/preferences" | "/v1/preferences";
+    summary: string;
+    security?: {
+        ExtensionSession: never[];
+    }[] | undefined;
+    request?: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        language: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>>;
+                        citationStyle: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            acs: "acs";
+                            ama: "ama";
+                            apa: "apa";
+                            chicago: "chicago";
+                            "din-iso-690": "din-iso-690";
+                            harvard: "harvard";
+                            ieee: "ieee";
+                            mla: "mla";
+                            oxford: "oxford";
+                            springer: "springer";
+                            vancouver: "vancouver";
+                        }>>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    } | undefined;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/extension/preferences" | "/v1/preferences";
 };
 export declare const routes: (({
     method: "get";
@@ -2133,6 +2872,25 @@ export declare const routes: (({
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         everywhere: import("zod").ZodBoolean;
                     }, import("zod/v4/core").$strict>;
@@ -2502,6 +3260,25 @@ export declare const routes: (({
                     }, import("zod/v4/core").$strict> | import("zod").ZodObject<{
                         challengeId: import("zod").ZodUUID;
                         code: import("zod").ZodString;
+                        preferences: import("zod").ZodOptional<import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodEnum<{
+                                acs: "acs";
+                                ama: "ama";
+                                apa: "apa";
+                                chicago: "chicago";
+                                "din-iso-690": "din-iso-690";
+                                harvard: "harvard";
+                                ieee: "ieee";
+                                mla: "mla";
+                                oxford: "oxford";
+                                springer: "springer";
+                                vancouver: "vancouver";
+                            }>;
+                        }, import("zod/v4/core").$strict>>;
                         transactionCredential: import("zod").ZodString;
                     }, import("zod/v4/core").$strict>;
                 };
@@ -2663,4 +3440,145 @@ export declare const routes: (({
     };
 } & {
     getRoutingPath(): `/v1/extension${string}`;
+}) | ({
+    method: "get" | "patch";
+    path: "/v1/extension/preferences" | "/v1/preferences";
+    summary: string;
+    security?: {
+        ExtensionSession: never[];
+    }[] | undefined;
+    request?: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        language: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>>;
+                        citationStyle: import("zod").ZodOptional<import("zod").ZodEnum<{
+                            acs: "acs";
+                            ama: "ama";
+                            apa: "apa";
+                            chicago: "chicago";
+                            "din-iso-690": "din-iso-690";
+                            harvard: "harvard";
+                            ieee: "ieee";
+                            mla: "mla";
+                            oxford: "oxford";
+                            springer: "springer";
+                            vancouver: "vancouver";
+                        }>>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    } | undefined;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            citationStyle: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/extension/preferences" | "/v1/preferences";
 }))[];

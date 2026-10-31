@@ -13,6 +13,113 @@
       }
     },
     "schemas": {
+      "AccountPreferencesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "language": {
+                "type": "string",
+                "enum": [
+                  "de",
+                  "en"
+                ]
+              },
+              "citationStyle": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "language",
+              "citationStyle"
+            ],
+            "additionalProperties": false
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "Quota": {
+        "type": "object",
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "consumed",
+          "remaining"
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
       "ServiceStatusResponse": {
         "type": "object",
         "properties": {
@@ -73,23 +180,6 @@
         "required": [
           "data",
           "quota"
-        ]
-      },
-      "Quota": {
-        "type": "object",
-        "properties": {
-          "consumed": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "remaining": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "consumed",
-          "remaining"
         ]
       },
       "GuestTokenResponse": {
@@ -157,40 +247,6 @@
         "required": [
           "data",
           "quota"
-        ]
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
         ]
       },
       "SignInChallengeResponse": {
@@ -562,6 +618,352 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/preferences": {
+      "get": {
+        "summary": "Read current Account Preferences without extending idle expiry",
+        "responses": {
+          "200": {
+            "description": "Authoritative Account Preferences; no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountPreferencesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Write supplied Account Preference fields; per-field last-write-wins",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  },
+                  "citationStyle": {
+                    "type": "string",
+                    "enum": [
+                      "apa",
+                      "mla",
+                      "chicago",
+                      "ieee",
+                      "vancouver",
+                      "harvard",
+                      "acs",
+                      "ama",
+                      "oxford",
+                      "springer",
+                      "din-iso-690"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authoritative Account Preferences; no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountPreferencesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/extension/preferences": {
+      "get": {
+        "summary": "Read current Account Preferences without extending idle expiry",
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authoritative Account Preferences; no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountPreferencesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Write supplied Account Preference fields; per-field last-write-wins",
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  },
+                  "citationStyle": {
+                    "type": "string",
+                    "enum": [
+                      "apa",
+                      "mla",
+                      "chicago",
+                      "ieee",
+                      "vancouver",
+                      "harvard",
+                      "acs",
+                      "ama",
+                      "oxford",
+                      "springer",
+                      "din-iso-690"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authoritative Account Preferences; no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountPreferencesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/status": {
       "get": {
         "summary": "Read infrastructure readiness; authentication is not implemented",
@@ -851,6 +1253,39 @@
                   "code": {
                     "type": "string",
                     "pattern": "^[0-9]{6}$"
+                  },
+                  "preferences": {
+                    "type": "object",
+                    "properties": {
+                      "language": {
+                        "type": "string",
+                        "enum": [
+                          "de",
+                          "en"
+                        ]
+                      },
+                      "citationStyle": {
+                        "type": "string",
+                        "enum": [
+                          "apa",
+                          "mla",
+                          "chicago",
+                          "ieee",
+                          "vancouver",
+                          "harvard",
+                          "acs",
+                          "ama",
+                          "oxford",
+                          "springer",
+                          "din-iso-690"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "language",
+                      "citationStyle"
+                    ],
+                    "additionalProperties": false
                   }
                 },
                 "required": [
@@ -1256,6 +1691,39 @@
                   "code": {
                     "type": "string",
                     "pattern": "^[0-9]{6}$"
+                  },
+                  "preferences": {
+                    "type": "object",
+                    "properties": {
+                      "language": {
+                        "type": "string",
+                        "enum": [
+                          "de",
+                          "en"
+                        ]
+                      },
+                      "citationStyle": {
+                        "type": "string",
+                        "enum": [
+                          "apa",
+                          "mla",
+                          "chicago",
+                          "ieee",
+                          "vancouver",
+                          "harvard",
+                          "acs",
+                          "ama",
+                          "oxford",
+                          "springer",
+                          "din-iso-690"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "language",
+                      "citationStyle"
+                    ],
+                    "additionalProperties": false
                   },
                   "transactionCredential": {
                     "type": "string",

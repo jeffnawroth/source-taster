@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
-import { ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, } from "./index.js";
+import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, } from "./index.js";
 export const getServiceStatus = createRoute({
     method: "get",
     path: "/v1/status",
@@ -159,7 +159,49 @@ export const getExtensionSession = extensionRoute("get", "/session", "Read exten
 export const issueExtensionAccountToken = extensionRoute("post", "/account-tokens", "Issue a five-minute Account token; does not extend idle expiry", AccountTokenResponse);
 export const recordExtensionSessionActivity = extensionRoute("post", "/session/activity", "Record foreground user activity within absolute session expiry", AccountSessionResponse);
 export const signOutExtension = extensionRoute("post", "/sign-out", "Revoke this extension session or all Account sessions across clients", SignOutResponse, SignOutRequest);
+/** PATCH is partial: the service must update only supplied columns atomically. */
+function preferenceRoute(method, extension) {
+    return createRoute({
+        method,
+        path: extension ? "/v1/extension/preferences" : "/v1/preferences",
+        summary: method === "get"
+            ? "Read current Account Preferences without extending idle expiry"
+            : "Write supplied Account Preference fields; per-field last-write-wins",
+        ...(extension ? { security: [{ ExtensionSession: [] }] } : {}),
+        ...(method === "patch"
+            ? {
+                request: {
+                    body: {
+                        required: true,
+                        content: {
+                            "application/json": { schema: AccountPreferencesPatch },
+                        },
+                    },
+                },
+            }
+            : {}),
+        responses: {
+            200: {
+                description: "Authoritative Account Preferences; no-store",
+                content: { "application/json": { schema: AccountPreferencesResponse } },
+            },
+            400: problem,
+            401: problem,
+            403: problem,
+            429: problem,
+            503: problem,
+        },
+    });
+}
+export const getAccountPreferences = preferenceRoute("get", false);
+export const patchAccountPreferences = preferenceRoute("patch", false);
+export const getExtensionPreferences = preferenceRoute("get", true);
+export const patchExtensionPreferences = preferenceRoute("patch", true);
 export const routes = [
+    getAccountPreferences,
+    patchAccountPreferences,
+    getExtensionPreferences,
+    patchExtensionPreferences,
     getServiceStatus,
     issueGuestToken,
     getGuestJwks,

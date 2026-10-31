@@ -11,8 +11,8 @@ import pg from "pg";
 import { setupDatabase } from "../../scripts/db-setup.ts";
 import { testDatabase } from "./processes.ts";
 const fixtureNow = Date.now();
-const issuer = "http://127.0.0.1:4602";
-const audience = "http://127.0.0.1:4601";
+const issuer = `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? "4602"}`;
+const audience = `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_API_PORT ?? "4601"}`;
 const access = generateKeyPairSync("ed25519");
 export const extensionFixtureJwks = {
   keys: [
@@ -114,7 +114,8 @@ export async function startExtensionVerificationApi() {
         NODE_ENV: "test",
         TEST_CLOCK: String(fixtureNow),
         DATABASE_URL: appUrl,
-        SOURCE_TASTER_PORT: "4601",
+        SOURCE_TASTER_PORT:
+          process.env.SOURCE_TASTER_ACCOUNT_TEST_API_PORT ?? "4601",
         SOURCE_TASTER_AUTH_CONFIG: auth,
       },
       stdio: ["ignore", "pipe", "pipe", "ipc"],

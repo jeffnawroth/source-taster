@@ -349,5 +349,6 @@
   "selection_undo": "Undo selection replacement",
   "selection_empty": "No selection was taken over – please copy and paste",
   "selection_intake_help": "For pages with their own menus, canvas editors, password fields or private windows without extension permission, copy and paste the text.",
-  "selection_shortened": "The selection may have been shortened – paste the text or upload a file for longer lists"
+  "selection_shortened": "The selection may have been shortened – paste the text or upload a file for longer lists",
+  "preferences_unavailable": "Account Preferences could not be synchronized. Retry to load the saved values."
 }

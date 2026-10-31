@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import { ExtensionSignInConfirmRequest, SignInChallengeRequest, SignInConfirmRequest, GuestTokenRequest, ProblemDetails } from "./index.ts";
+import { AccountPreferencesPatch, ExtensionSignInConfirmRequest, SignInChallengeRequest, SignInConfirmRequest, GuestTokenRequest, ProblemDetails } from "./index.ts";
 export declare class GuestTokenError extends Error {
     readonly status: number;
     readonly problem: ProblemDetails | undefined;
@@ -19,6 +19,14 @@ export declare function accountSessionClient(options: {
     baseUrl: string;
     fetch?: typeof fetch;
 }): {
+    preferences: () => Promise<{
+        language: "de" | "en";
+        citationStyle: string;
+    }>;
+    updatePreferences: (patch: AccountPreferencesPatch) => Promise<{
+        language: "de" | "en";
+        citationStyle: string;
+    }>;
     session: () => Promise<{
         accountId: string;
         ownerId: string;
@@ -68,6 +76,14 @@ export declare function extensionSessionClient(options: {
             email: string;
         };
         sessionCredential: string;
+    }>;
+    preferences: (credential: string) => Promise<{
+        language: "de" | "en";
+        citationStyle: string;
+    }>;
+    updatePreferences: (credential: string, patch: AccountPreferencesPatch) => Promise<{
+        language: "de" | "en";
+        citationStyle: string;
     }>;
     session: (credential: string) => Promise<{
         accountId: string;

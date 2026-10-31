@@ -1,18 +1,6 @@
 import { z } from "zod";
-export declare const CitationStyle: z.ZodEnum<{
-    acs: "acs";
-    ama: "ama";
-    apa: "apa";
-    chicago: "chicago";
-    "din-iso-690": "din-iso-690";
-    harvard: "harvard";
-    ieee: "ieee";
-    mla: "mla";
-    oxford: "oxford";
-    springer: "springer";
-    vancouver: "vancouver";
-}>;
-export type CitationStyle = z.infer<typeof CitationStyle>;
+import { CitationStyle } from "../../contract-common/src/index.ts";
+export { CitationStyle };
 export declare const BibliographyRequest: z.ZodObject<{
     style: z.ZodEnum<{
         acs: "acs";

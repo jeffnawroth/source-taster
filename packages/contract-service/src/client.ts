@@ -2,6 +2,8 @@
 // Transport only: persistence, renewal policy and cryptography belong to clients/service.
 import type { z } from "zod";
 import {
+  AccountPreferencesPatch,
+  AccountPreferencesResponse,
   ExtensionCredential,
   ExtensionSignInChallengeResponse,
   ExtensionSignInConfirmRequest,
@@ -79,6 +81,16 @@ export function accountSessionClient(options: {
     return value;
   }
   return {
+    preferences: async () =>
+      AccountPreferencesResponse.parse(await call("/v1/preferences")).data,
+    updatePreferences: async (patch: AccountPreferencesPatch) =>
+      AccountPreferencesResponse.parse(
+        await call(
+          "/v1/preferences",
+          "PATCH",
+          AccountPreferencesPatch.parse(patch),
+        ),
+      ).data,
     session: async () =>
       AccountSessionResponse.parse(await call("/v1/session")).data,
     challenge: async (input: z.infer<typeof SignInChallengeRequest>) =>
@@ -168,6 +180,22 @@ export function extensionSessionClient(options: {
           "POST",
           undefined,
           ExtensionSignInConfirmRequest.parse(input),
+        ),
+      ).data,
+    preferences: async (credential: string) =>
+      AccountPreferencesResponse.parse(
+        await call("/preferences", "GET", credential),
+      ).data,
+    updatePreferences: async (
+      credential: string,
+      patch: AccountPreferencesPatch,
+    ) =>
+      AccountPreferencesResponse.parse(
+        await call(
+          "/preferences",
+          "PATCH",
+          credential,
+          AccountPreferencesPatch.parse(patch),
         ),
       ).data,
     session: async (credential: string) =>

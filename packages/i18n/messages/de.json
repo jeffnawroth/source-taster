@@ -349,5 +349,6 @@
   "selection_undo": "Auswahlübernahme rückgängig machen",
   "selection_empty": "Keine Auswahl übernommen – bitte kopieren und einfügen",
   "selection_intake_help": "Bei Seiten mit eigenen Menüs, Canvas-Editoren, Passwortfeldern oder privaten Fenstern ohne Erweiterungsberechtigung bitte den Text kopieren und einfügen.",
-  "selection_shortened": "Die Auswahl wurde möglicherweise gekürzt – für längere Listen bitte den Text einfügen oder eine Datei hochladen"
+  "selection_shortened": "Die Auswahl wurde möglicherweise gekürzt – für längere Listen bitte den Text einfügen oder eine Datei hochladen",
+  "preferences_unavailable": "Die Kontoeinstellungen konnten nicht synchronisiert werden. Laden Sie die gespeicherten Werte erneut."
 }
