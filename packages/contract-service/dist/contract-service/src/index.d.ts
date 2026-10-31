@@ -287,3 +287,178 @@ export declare const ExtensionSignInConfirmResponse: z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
+/** #102 sensitive Account actions (ADR-0013). Proof is a server-side fact bound
+ * to the requesting session and one action; it is never a bearer value, never in
+ * a URL and never returned to the browser. `expiresAt` is display information. */
+export declare const SensitiveAction: z.ZodEnum<{
+    "account-deletion": "account-deletion";
+    "email-change": "email-change";
+}>;
+export type SensitiveAction = z.infer<typeof SensitiveAction>;
+export declare const FreshProofChallengeRequest: z.ZodObject<{
+    action: z.ZodEnum<{
+        "account-deletion": "account-deletion";
+        "email-change": "email-change";
+    }>;
+    language: z.ZodEnum<{
+        de: "de";
+        en: "en";
+    }>;
+}, z.core.$strict>;
+export declare const FreshProofChallengeResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        challengeId: z.ZodUUID;
+        action: z.ZodEnum<{
+            "account-deletion": "account-deletion";
+            "email-change": "email-change";
+        }>;
+        expiresIn: z.ZodNumber;
+        resendAfter: z.ZodNumber;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export declare const FreshProofConfirmRequest: z.ZodObject<{
+    challengeId: z.ZodUUID;
+    code: z.ZodString;
+}, z.core.$strict>;
+export declare const FreshProofResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        action: z.ZodEnum<{
+            "account-deletion": "account-deletion";
+            "email-change": "email-change";
+        }>;
+        expiresAt: z.ZodISODateTime;
+        expiresIn: z.ZodNumber;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export type FreshProof = z.infer<typeof FreshProofResponse>["data"];
+export declare const EmailChangeChallengeRequest: z.ZodObject<{
+    newEmail: z.ZodEmail;
+    language: z.ZodEnum<{
+        de: "de";
+        en: "en";
+    }>;
+}, z.core.$strict>;
+/** Identical for every new address: existing and unknown ones are not told apart. */
+export declare const EmailChangeChallengeResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        challengeId: z.ZodUUID;
+        expiresIn: z.ZodNumber;
+        resendAfter: z.ZodNumber;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export declare const EmailChangeConfirmRequest: z.ZodObject<{
+    challengeId: z.ZodUUID;
+    code: z.ZodString;
+}, z.core.$strict>;
+/** The eight-year blocked billing-retention notice must be acknowledged by value. */
+export declare const AccountDeletionRequest: z.ZodObject<{
+    billingRetentionAcknowledged: z.ZodLiteral<true>;
+    billingRetentionYears: z.ZodLiteral<8>;
+}, z.core.$strict>;
+export declare const AccountDeletionResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        status: z.ZodEnum<{
+            deleted: "deleted";
+            "in-progress": "in-progress";
+        }>;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export type AccountDeletion = z.infer<typeof AccountDeletionResponse>["data"];
+/** Problem `code` values the sensitive-action endpoints may use. */
+export declare const sensitiveProblemCodes: readonly ["fresh-proof-required", "fresh-proof-invalid", "fresh-proof-exhausted", "email-change-invalid", "rate-limited"];

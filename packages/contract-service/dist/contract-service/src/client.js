@@ -1,4 +1,4 @@
-import { ExtensionCredential, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutResponse, SignOutRequest, GuestTokenRequest, GuestTokenResponse, ProblemDetails, } from "./index.js";
+import { ExtensionCredential, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutResponse, SignOutRequest, GuestTokenRequest, GuestTokenResponse, ProblemDetails, AccountDeletionRequest, AccountDeletionResponse, EmailChangeChallengeRequest, EmailChangeChallengeResponse, EmailChangeConfirmRequest, FreshProofChallengeRequest, FreshProofChallengeResponse, FreshProofConfirmRequest, FreshProofResponse, } from "./index.js";
 export class GuestTokenError extends Error {
     status;
     problem;
@@ -7,6 +7,28 @@ export class GuestTokenError extends Error {
         this.status = status;
         this.problem = problem;
     }
+}
+export function sensitiveFailure(error) {
+    if (!(error instanceof GuestTokenError))
+        return "unknown";
+    const code = error.problem?.code;
+    if (error.status === 401)
+        return "session-ended";
+    if (error.status === 404 || error.status === 501)
+        return "unavailable";
+    if (error.status === 503)
+        return "temporarily-unavailable";
+    if (error.status === 403)
+        return code === "fresh-proof-required" ? "proof-required" : "session-ended";
+    if (error.status === 429)
+        return code === "fresh-proof-exhausted"
+            ? "proof-exhausted"
+            : "rate-limited";
+    if (error.status === 400 && code === "fresh-proof-invalid")
+        return "proof-invalid";
+    if (error.status === 400 && code === "email-change-invalid")
+        return "email-code-invalid";
+    return "unknown";
 }
 export function guestTokenClient(options) {
     return async (input) => {
@@ -48,6 +70,13 @@ export function accountSessionClient(options) {
         activity: async () => AccountSessionResponse.parse(await call("/v1/session/activity", "POST"))
             .data,
         signOut: async (everywhere) => SignOutResponse.parse(await call("/v1/sign-out", "POST", SignOutRequest.parse({ everywhere }))).data,
+        sensitive: {
+            freshProofChallenge: async (input) => FreshProofChallengeResponse.parse(await call("/v1/account/fresh-proof/challenges", "POST", FreshProofChallengeRequest.parse(input))).data,
+            freshProofConfirm: async (input) => FreshProofResponse.parse(await call("/v1/account/fresh-proof/confirm", "POST", FreshProofConfirmRequest.parse(input))).data,
+            emailChangeChallenge: async (input) => EmailChangeChallengeResponse.parse(await call("/v1/account/email-change/challenges", "POST", EmailChangeChallengeRequest.parse(input))).data,
+            emailChangeConfirm: async (input) => AccountSessionResponse.parse(await call("/v1/account/email-change/confirm", "POST", EmailChangeConfirmRequest.parse(input))).data,
+            deleteAccount: async (input) => AccountDeletionResponse.parse(await call("/v1/account/deletion", "POST", AccountDeletionRequest.parse(input))).data,
+        },
     };
 }
 /** Extension transport only. These endpoints never consume web cookies.
@@ -82,5 +111,12 @@ export function extensionSessionClient(options) {
         token: async (credential) => AccountTokenResponse.parse(await call("/account-tokens", "POST", credential)).data,
         activity: async (credential) => AccountSessionResponse.parse(await call("/session/activity", "POST", credential)).data,
         signOut: async (credential, everywhere) => SignOutResponse.parse(await call("/sign-out", "POST", credential, SignOutRequest.parse({ everywhere }))).data,
+        sensitive: {
+            freshProofChallenge: async (credential, input) => FreshProofChallengeResponse.parse(await call("/account/fresh-proof/challenges", "POST", credential, FreshProofChallengeRequest.parse(input))).data,
+            freshProofConfirm: async (credential, input) => FreshProofResponse.parse(await call("/account/fresh-proof/confirm", "POST", credential, FreshProofConfirmRequest.parse(input))).data,
+            emailChangeChallenge: async (credential, input) => EmailChangeChallengeResponse.parse(await call("/account/email-change/challenges", "POST", credential, EmailChangeChallengeRequest.parse(input))).data,
+            emailChangeConfirm: async (credential, input) => AccountSessionResponse.parse(await call("/account/email-change/confirm", "POST", credential, EmailChangeConfirmRequest.parse(input))).data,
+            deleteAccount: async (credential, input) => AccountDeletionResponse.parse(await call("/account/deletion", "POST", credential, AccountDeletionRequest.parse(input))).data,
+        },
     };
 }

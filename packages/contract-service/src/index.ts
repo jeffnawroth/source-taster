@@ -72,3 +72,63 @@ export const ExtensionSignInConfirmResponse = envelope(
     sessionCredential: ExtensionCredential,
   }),
 ).meta({ id: "ExtensionSignInConfirmResponse" });
+
+/** #102 sensitive Account actions (ADR-0013). Proof is a server-side fact bound
+ * to the requesting session and one action; it is never a bearer value, never in
+ * a URL and never returned to the browser. `expiresAt` is display information. */
+export const SensitiveAction = z.enum(["email-change", "account-deletion"]);
+export type SensitiveAction = z.infer<typeof SensitiveAction>;
+export const FreshProofChallengeRequest = z.strictObject({
+  action: SensitiveAction,
+  language: z.enum(["de", "en"]),
+});
+export const FreshProofChallengeResponse = envelope(
+  z.strictObject({
+    challengeId: z.uuid(),
+    action: SensitiveAction,
+    expiresIn: z.number().int().positive().max(300),
+    resendAfter: z.number().int().min(60),
+  }),
+).meta({ id: "FreshProofChallengeResponse" });
+export const FreshProofConfirmRequest = SignInConfirmRequest.meta({
+  id: "FreshProofConfirmRequest",
+});
+export const FreshProofResponse = envelope(
+  z.strictObject({
+    action: SensitiveAction,
+    expiresAt: z.iso.datetime(),
+    expiresIn: z.number().int().positive().max(300),
+  }),
+).meta({ id: "FreshProofResponse" });
+export type FreshProof = z.infer<typeof FreshProofResponse>["data"];
+export const EmailChangeChallengeRequest = z.strictObject({
+  newEmail: z.email().max(254),
+  language: z.enum(["de", "en"]),
+});
+/** Identical for every new address: existing and unknown ones are not told apart. */
+export const EmailChangeChallengeResponse = envelope(
+  SignInChallengeResponse.shape.data,
+).meta({ id: "EmailChangeChallengeResponse" });
+export const EmailChangeConfirmRequest = SignInConfirmRequest.meta({
+  id: "EmailChangeConfirmRequest",
+});
+/** The eight-year blocked billing-retention notice must be acknowledged by value. */
+export const AccountDeletionRequest = z.strictObject({
+  billingRetentionAcknowledged: z.literal(true),
+  billingRetentionYears: z.literal(8),
+});
+export const AccountDeletionResponse = envelope(
+  z.strictObject({
+    /** `in-progress`: durable retries continue and access stays blocked (ADR-0013). */
+    status: z.enum(["deleted", "in-progress"]),
+  }),
+).meta({ id: "AccountDeletionResponse" });
+export type AccountDeletion = z.infer<typeof AccountDeletionResponse>["data"];
+/** Problem `code` values the sensitive-action endpoints may use. */
+export const sensitiveProblemCodes = [
+  "fresh-proof-required",
+  "fresh-proof-invalid",
+  "fresh-proof-exhausted",
+  "email-change-invalid",
+  "rate-limited",
+] as const;
