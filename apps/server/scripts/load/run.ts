@@ -107,7 +107,7 @@ export async function runLoad(options: RunOptions): Promise<LoadReport> {
         : {}),
     };
     // The effective settings are read with the processes' own loader.
-    const config = loadConfig(env as NodeJS.ProcessEnv);
+    const config = loadConfig(env);
     const web = startProcess("web", env);
     processes.push(web);
     for (let i = 0; i < options.workers; i += 1)

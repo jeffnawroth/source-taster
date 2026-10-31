@@ -386,7 +386,7 @@ export function buildReport(input: ReportInput): LoadReport {
     complete: boolean,
   ): number | null =>
     complete && values.length && values.every((v) => v !== null)
-      ? Math.max(...(values as number[]))
+      ? Math.max(...values)
       : null;
 
   function target(

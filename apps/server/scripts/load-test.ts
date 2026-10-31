@@ -63,8 +63,8 @@ async function main() {
     throw new UsageError(
       "DATABASE_ADMIN_URL is required; the harness provisions and drops its own database and role.",
     );
-  const checks = integer("checks", values.checks!, 1);
-  const references = integer("references", values.references!, 1);
+  const checks = integer("checks", values.checks, 1);
+  const references = integer("references", values.references, 1);
   const share = Number(values["not-findable-share"]);
   if (!(share >= 0 && share < 1))
     throw new UsageError("--not-findable-share must be in [0, 1).");
@@ -115,12 +115,12 @@ async function main() {
       policy: syntheticPolicy({
         findableLatencyMs: integer(
           "synthetic-findable-ms",
-          values["synthetic-findable-ms"]!,
+          values["synthetic-findable-ms"],
           0,
         ),
         notFindableLatencyMs: integer(
           "synthetic-not-findable-ms",
-          values["synthetic-not-findable-ms"]!,
+          values["synthetic-not-findable-ms"],
           0,
         ),
       }),
@@ -132,17 +132,17 @@ async function main() {
     workload,
     replay,
     adminUrl,
-    apiPort: integer("api-port", values["api-port"]!, 1),
-    replayPort: integer("replay-port", values["replay-port"]!, 1),
+    apiPort: integer("api-port", values["api-port"], 1),
+    replayPort: integer("replay-port", values["replay-port"], 1),
     searchSettingsPatch: patch,
     // Unset keeps the service's own development default (500 ms), disclosed in the report.
     placeholderDelayMs:
       values["placeholder-delay-ms"] === undefined
         ? 500
         : integer("placeholder-delay-ms", values["placeholder-delay-ms"], 0),
-    workers: integer("workers", values.workers!, 1),
+    workers: integer("workers", values.workers, 1),
     durationBasis: basis,
-    maxRunMs: integer("max-run-seconds", values["max-run-seconds"]!, 1) * 1000,
+    maxRunMs: integer("max-run-seconds", values["max-run-seconds"], 1) * 1000,
     reportPath: values.report,
     log: (line) => console.error(`load-test: ${line}`),
   });

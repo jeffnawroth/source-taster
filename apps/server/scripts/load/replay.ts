@@ -283,7 +283,7 @@ export function syntheticWorkload(options: {
         },
       } as const;
     }),
-  ) as (WorkloadReference & { fields: SyntheticFields })[][];
+  );
 }
 interface SyntheticFields extends Record<string, unknown> {
   title: string;

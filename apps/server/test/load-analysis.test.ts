@@ -153,11 +153,11 @@ describe("load report", () => {
     const checks = launchChecks();
     // One Check's References all begin and end at 10.5 s.
     checks[7] = uniformCheck(7, 100, { findable: 500, notFindable: 500 }, 0);
-    for (const r of checks[7]!.references) {
+    for (const r of checks[7].references) {
       r.firstActiveAtMs = 10_000;
       r.endedAtMs = 10_500;
     }
-    checks[7]!.endedAtMs = 10_500;
+    checks[7].endedAtMs = 10_500;
     const report = buildReport(input(checks));
     expect(target(report, "FA-UEB-42-first-verdict")).toMatchObject({
       status: "missed",
