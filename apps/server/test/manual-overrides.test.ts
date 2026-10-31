@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Confirmed seam: published HTTP/SSE, real PostgreSQL, fixture Data sources.
-import { afterAll, beforeAll, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, expect, it } from "vitest";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 import { startTestService } from "./support/service.ts";
 import { startDoiFixtures, physicsReference } from "./support/doi-fixtures.ts";
@@ -8,8 +8,13 @@ let fixtures: Awaited<ReturnType<typeof startDoiFixtures>>;
 let service: Awaited<ReturnType<typeof startTestService>>;
 beforeAll(async () => {
   fixtures = await startDoiFixtures();
-  service = await startTestService(3802, 0, fixtures.env);
+  service = await startTestService(
+    Number(process.env.SOURCE_TASTER_TEST_OVERRIDES_PORT ?? 54884),
+    0,
+    fixtures.env,
+  );
 });
+afterEach(() => fixtures.reset());
 afterAll(async () => {
   await service?.stop();
   await fixtures?.stop();
@@ -61,7 +66,8 @@ it("confirms a specific immutable result with a separate manual layer and replay
     headers: { "last-event-id": check.lastEventCursor },
     signal: AbortSignal.timeout(5000),
   });
-  expect(await replay.text()).toContain('"manualOverride":');
+  const events = await replay.text();
+  expect(events).toContain(updated.references[0]!.manualOverride!.id);
   expect(await snapshot(check.id)).toEqual(updated);
 });
 it("rejects stale concurrent judgments and old result IDs, visibly resets on Re-check, and retains the historical override", async () => {
@@ -181,14 +187,11 @@ it("does not apply a manual judgment to unverified field revisions, another slot
   ).toBe(404);
 });
 it("manual Correct cannot manufacture identity, evidence, or an eligible Correction suggestion", async () => {
-  const response = await post("", {
-    references: [
-      {
-        originalText: "Unknown",
-        fields: { type: "patent", title: "Unknown" },
-      },
-    ],
+  // A perfect Candidate whose mandatory DOI resolution fails stays unresolved.
+  fixtures.respond("/api/handles/10.1038/nphys1170", 503, {
+    error: "synthetic-outage",
   });
+  const response = await post("", { text: physicsReference });
   const id = CheckResponse.parse(await response.json()).data.id;
   await expect.poll(async () => (await snapshot(id)).state).toBe("ended");
   const before = (await snapshot(id)).references[0]!;
@@ -247,4 +250,38 @@ it("a manual downgrade leaves an existing eligible suggestion and its source ide
   expect((await snapshot(check.id)).references[0]!.outcome).toEqual(
     reference.outcome,
   );
+});
+it("announces the reset only for the Re-check that replaced the overridden result", async () => {
+  const check = await create();
+  const path = `/${check.id}/references/1`;
+  expect(
+    (
+      await post(`${path}/manual-override`, {
+        expectedRevision: 1,
+        resultId: check.references[0]!.results[0]!.id,
+        expectedOverrideId: null,
+        verdict: "not-found",
+      })
+    ).status,
+  ).toBe(200);
+  for (const [run, reset] of [
+    [2, true],
+    [3, false],
+  ] as const) {
+    expect(
+      (await post(`${path}/recheck`, { expectedRevision: 1 })).status,
+    ).toBe(200);
+    await expect
+      .poll(async () => {
+        const reference = (await snapshot(check.id)).references[0]!;
+        return reference.outcome.kind === "verdict"
+          ? reference.results.length
+          : 0;
+      })
+      .toBe(run);
+    expect((await snapshot(check.id)).references[0]).toMatchObject({
+      manualOverride: null,
+      manualOverrideReset: reset,
+    });
+  }
 });

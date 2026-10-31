@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { CheckResponse } from "@source-taster/contract-verification/v2";
 for (const language of ["en", "de"] as const) {
   test(`manual Verdicts filter and reset while preserving historical evidence in ${language}`, async ({
     page,
@@ -162,7 +163,7 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
       /\/v2\/checks$/.test(response.url()) &&
       response.status() === 201
     )
-      checkId = (await response.json()).data.id;
+      checkId = CheckResponse.parse(await response.json()).data.id;
   });
   await page
     .getByRole("textbox")
@@ -194,23 +195,19 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
       })
     ).status(),
   ).toBe(200);
+  const snapshot = async () =>
+    CheckResponse.parse(await (await page.request.get(url)).json()).data;
   await expect
-    .poll(
-      async () =>
-        (await (await page.request.get(url)).json()).data.references[0].results
-          .length,
-    )
+    .poll(async () => (await snapshot()).references[0]!.results.length)
     .toBe(2);
   await detail
     .getByRole("button", { name: "Save manual Verdict", exact: true })
     .click();
   await expect(detail.getByRole("alert")).toContainText("changed");
   await expect(detail).not.toContainText("Manual Verdict: Not found");
-  const snapshot = (await (await page.request.get(url)).json()).data;
-  expect(snapshot.references[0].manualOverride).toBeNull();
+  const [reference] = (await snapshot()).references;
+  expect(reference!.manualOverride).toBeNull();
   expect(
-    snapshot.references[0].results.every(
-      (result: { manualOverride: unknown }) => result.manualOverride === null,
-    ),
+    reference!.results.every((result) => result.manualOverride === null),
   ).toBe(true);
 });

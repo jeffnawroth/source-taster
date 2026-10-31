@@ -101,11 +101,11 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
           : null;
       return {
         manualOverride: currentManual,
+        // Only the run that replaced an overridden result announces its reset.
         manualOverrideReset:
           !currentManual &&
-          !!slot.results?.some(
-            (r) => r.manualOverride && r.generation < slot.generation,
-          ),
+          !!slot.results?.find((r) => r.generation < slot.generation)
+            ?.manualOverride,
         slot: slot.position,
         originalText: slot.originalText,
         revision: slot.revision,
