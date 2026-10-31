@@ -104,3 +104,42 @@ export declare const SignOutResponse: z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
+/** Separate opaque bearer secrets, never verification-API access tokens.
+ * Transaction secrets live only until confirmation; session secrets may live
+ * only in trusted extension-local storage (ADR-0013/0015). */
+export declare const ExtensionCredential: z.ZodString;
+export declare const ExtensionSignInChallengeResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        challengeId: z.ZodUUID;
+        expiresIn: z.ZodNumber;
+        resendAfter: z.ZodNumber;
+        transactionCredential: z.ZodString;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export declare const ExtensionSignInConfirmRequest: z.ZodObject<{
+    challengeId: z.ZodUUID;
+    code: z.ZodString;
+    transactionCredential: z.ZodString;
+}, z.core.$strict>;
+export declare const ExtensionSignInConfirmResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        session: z.ZodObject<{
+            accountId: z.ZodUUID;
+            ownerId: z.ZodUUID;
+            email: z.ZodEmail;
+        }, z.core.$strict>;
+        sessionCredential: z.ZodString;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;

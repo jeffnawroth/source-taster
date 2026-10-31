@@ -2,6 +2,10 @@
 // Transport only: persistence, renewal policy and cryptography belong to clients/service.
 import type { z } from "zod";
 import {
+  ExtensionCredential,
+  ExtensionSignInChallengeResponse,
+  ExtensionSignInConfirmRequest,
+  ExtensionSignInConfirmResponse,
   SignInChallengeRequest,
   SignInChallengeResponse,
   SignInConfirmRequest,
@@ -103,6 +107,86 @@ export function accountSessionClient(options: {
         await call(
           "/v1/sign-out",
           "POST",
+          SignOutRequest.parse({ everywhere }),
+        ),
+      ).data,
+  };
+}
+
+/** Extension transport only. These endpoints never consume web cookies.
+ * The host owns trusted extension-local persistence and in-memory API tokens. */
+export function extensionSessionClient(options: {
+  baseUrl: string;
+  fetch?: typeof fetch;
+}) {
+  async function call(
+    path: string,
+    method: string,
+    credential?: string,
+    body?: unknown,
+  ) {
+    const response = await (options.fetch ?? fetch)(
+      `${options.baseUrl}/v1/extension${path}`,
+      {
+        method,
+        credentials: "omit",
+        redirect: "error",
+        cache: "no-store",
+        headers: {
+          ...(credential === undefined
+            ? {}
+            : {
+                authorization: `Bearer ${ExtensionCredential.parse(credential)}`,
+              }),
+          ...(body === undefined ? {} : { "content-type": "application/json" }),
+        },
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      },
+    );
+    const value: unknown = await response.json().catch(() => undefined);
+    if (!response.ok)
+      throw new GuestTokenError(
+        response.status,
+        ProblemDetails.safeParse(value).data,
+      );
+    return value;
+  }
+  return {
+    challenge: async (input: z.infer<typeof SignInChallengeRequest>) =>
+      ExtensionSignInChallengeResponse.parse(
+        await call(
+          "/sign-in/challenges",
+          "POST",
+          undefined,
+          SignInChallengeRequest.parse(input),
+        ),
+      ).data,
+    confirm: async (input: z.infer<typeof ExtensionSignInConfirmRequest>) =>
+      ExtensionSignInConfirmResponse.parse(
+        await call(
+          "/sign-in/confirm",
+          "POST",
+          undefined,
+          ExtensionSignInConfirmRequest.parse(input),
+        ),
+      ).data,
+    session: async (credential: string) =>
+      AccountSessionResponse.parse(await call("/session", "GET", credential))
+        .data,
+    token: async (credential: string) =>
+      AccountTokenResponse.parse(
+        await call("/account-tokens", "POST", credential),
+      ).data,
+    activity: async (credential: string) =>
+      AccountSessionResponse.parse(
+        await call("/session/activity", "POST", credential),
+      ).data,
+    signOut: async (credential: string, everywhere: boolean) =>
+      SignOutResponse.parse(
+        await call(
+          "/sign-out",
+          "POST",
+          credential,
           SignOutRequest.parse({ everywhere }),
         ),
       ).data,
