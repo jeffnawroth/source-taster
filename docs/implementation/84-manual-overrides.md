@@ -152,6 +152,16 @@ Without that variable the document upload fails closed with 503
 (`84-claude-merged-documents.log`, 9 failed / 4 passed). That is the documented
 #89 environment requirement, not a regression.
 
+Web workspace and comparison specs passed 22/22 on the merged code
+(`84-claude-merged-web-workspace.log`). A repeat core/i18n/contract build and
+`prisma generate` left `git status` clean, so no generated file was
+hand-merged (`84-claude-merged-regenerate.log`).
+
+Not rerun after the merge (the numbers above under "Final checks" are from
+before the merge): HTTP corrections, recheck-replay, web-pages and
+bibliographic-lifecycle; web exports and revision-save-only; native
+revisions.spec.
+
 **Integration caveat (not #84):** the two #88 cases "native panel imports and
 round trips BibTeX and RIS" fail with "Library preview not visible". They fail
 identically on the unchanged integration tip `920e5d0`
