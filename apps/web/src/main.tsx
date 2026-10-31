@@ -29,6 +29,10 @@ createRoot(document.getElementById("root")!).render(
         preferenceStorage={preferenceStorage}
         serviceUrl={serviceUrl!}
         siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+        sensitiveActions={
+          import.meta.env.VITE_SOURCE_TASTER_SENSITIVE_ACCOUNT_ACTIONS ===
+          "enabled"
+        }
       />
     ) : (
       <CheckWorkspace

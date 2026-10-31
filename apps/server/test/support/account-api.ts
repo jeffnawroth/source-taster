@@ -50,8 +50,27 @@ export function newAccount(): AccountIdentity {
   };
 }
 
+export interface ServiceRequest {
+  method: string;
+  url: string;
+  headers: Record<string, string | string[] | undefined>;
+  body: Record<string, unknown>;
+}
+export interface ServiceReply {
+  status: number;
+  headers?: Record<string, string | string[]>;
+  body?: unknown;
+}
 export async function startAccountApi(
-  options: { worker?: boolean; maintainOnStart?: boolean } = {},
+  options: {
+    worker?: boolean;
+    maintainOnStart?: boolean;
+    /** Extra private-service behavior at the HTTP edge; consulted before the built-ins. */
+    service?: (
+      request: ServiceRequest,
+      api: { token(account: AccountIdentity): string },
+    ) => Promise<ServiceReply | undefined> | ServiceReply | undefined;
+  } = {},
 ) {
   if (!process.env.DATABASE_ADMIN_URL || !process.env.DATABASE_TEST_URL)
     throw new Error("#102 needs its explicitly owned PostgreSQL URLs");
@@ -95,11 +114,56 @@ export async function startAccountApi(
     quotaCalls: [] as { path: string; body: Record<string, unknown> }[],
   };
   let hold: { kind: string; arrived(): void; wait: Promise<void> } | undefined;
+  const signed = (
+    claims: Record<string, unknown>,
+    typ: string,
+    key: KeyObject,
+    kid: string,
+  ) => {
+    const message = `${b64({ alg: "EdDSA", typ, kid })}.${b64(claims)}`;
+    return `${message}.${sign(null, Buffer.from(message), key).toString("base64url")}`;
+  };
+  const seconds = Math.floor(now / 1000);
+  const tokenFor = (account: AccountIdentity) =>
+    signed(
+      {
+        iat: seconds,
+        nbf: seconds,
+        exp: seconds + 300,
+        iss: issuer,
+        aud: audience,
+        purpose: "account-access",
+        sub: account.accountId,
+        ownerId: account.ownerId,
+        sessionId: account.sessionId,
+        jti: randomUUID(),
+      },
+      "at+jwt",
+      access.privateKey,
+      "st102-access",
+    );
   const service: Server = createServer((req, res) => {
     void (async () => {
       let text = "";
       for await (const chunk of req) text += String(chunk);
       const body = text ? (JSON.parse(text) as Record<string, unknown>) : {};
+      const extra = await options.service?.(
+        {
+          method: req.method ?? "GET",
+          url: req.url ?? "/",
+          headers: req.headers,
+          body,
+        },
+        { token: (account) => tokenFor(account) },
+      );
+      if (extra) {
+        for (const [name, value] of Object.entries(extra.headers ?? {}))
+          res.setHeader(name, value);
+        res.statusCode = extra.status;
+        return void res.end(
+          extra.body === undefined ? "" : JSON.stringify(extra.body),
+        );
+      }
       res.setHeader("content-type", "application/json");
       if (req.url === "/.well-known/jwks.json")
         return void res.end(
@@ -232,40 +296,13 @@ export async function startAccountApi(
   }
 
   const apiUrl = audience;
-  const signed = (
-    claims: Record<string, unknown>,
-    typ: string,
-    key: KeyObject,
-    kid: string,
-  ) => {
-    const message = `${b64({ alg: "EdDSA", typ, kid })}.${b64(claims)}`;
-    return `${message}.${sign(null, Buffer.from(message), key).toString("base64url")}`;
-  };
-  const seconds = Math.floor(now / 1000);
   return {
     apiUrl,
     serviceUrl: issuer,
     state,
     fixtures,
     /** A five-minute Account access token the way the private service issues it. */
-    token: (account: AccountIdentity) =>
-      signed(
-        {
-          iat: seconds,
-          nbf: seconds,
-          exp: seconds + 300,
-          iss: issuer,
-          aud: audience,
-          purpose: "account-access",
-          sub: account.accountId,
-          ownerId: account.ownerId,
-          sessionId: account.sessionId,
-          jti: randomUUID(),
-        },
-        "at+jwt",
-        access.privateKey,
-        "st102-access",
-      ),
+    token: tokenFor,
     /** The private service's signed `DELETE /internal/owners/{id}` assertion. */
     deleteOwner: (
       ownerId: string,

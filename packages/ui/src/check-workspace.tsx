@@ -100,7 +100,10 @@ export function CheckWorkspace({
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
   siteUrl?: string;
-  accountControls?: (language: "de" | "en") => ReactNode;
+  accountControls?: (
+    language: "de" | "en",
+    quota: OwnerQuota | null,
+  ) => ReactNode;
   onPreferencesChange?: (preferences: Preferences) => void;
   selectionIntake?: SelectionIntake;
   /** Where the host sells Plans; without it the upgrade offer is text only. */
@@ -746,7 +749,7 @@ export function CheckWorkspace({
           </select>
         </label>
       </header>
-      {accountControls?.(locale)}
+      {accountControls?.(locale, quota)}
       {quota && <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />}
       {styleReset && (
         <p

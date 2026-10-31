@@ -8,6 +8,7 @@ export interface ExtensionConfig {
   serviceUrl?: string;
   websiteUrl: string;
   accountSignIn: boolean;
+  sensitiveAccountActions: boolean;
 }
 
 const loopback = new Set(["127.0.0.1", "localhost", "[::1]"]);
@@ -48,7 +49,22 @@ export function extensionConfig(
     throw new Error(
       "SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN must be enabled or disabled",
     );
+  const sensitive = env.SOURCE_TASTER_EXTENSION_SENSITIVE_ACCOUNT_ACTIONS;
+  if (
+    sensitive !== undefined &&
+    sensitive !== "enabled" &&
+    sensitive !== "disabled"
+  )
+    throw new Error(
+      "SOURCE_TASTER_EXTENSION_SENSITIVE_ACCOUNT_ACTIONS must be enabled or disabled",
+    );
+  if (sensitive === "enabled" && !(mode === "hosted" && signIn === "enabled"))
+    throw new Error(
+      "Sensitive Account actions need hosted mode with Account sign-in enabled",
+    );
   return {
+    // Private #102 implementation and both-program acceptance must precede activation.
+    sensitiveAccountActions: sensitive === "enabled",
     // Private #98 implementation and both-program acceptance must precede activation.
     accountSignIn: mode === "hosted" && signIn === "enabled",
     // Defaults match the local web development API and Vite origin.
