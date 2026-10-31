@@ -44,6 +44,8 @@ export declare const exportReferences: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -73,6 +75,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -90,6 +94,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -107,6 +113,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -124,6 +132,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -141,6 +151,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -158,6 +170,8 @@ export declare const exportReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;

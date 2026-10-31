@@ -169,9 +169,11 @@ export function requestAssertion(
       aud: settings.serviceIssuer,
       purpose: path.startsWith("/internal/abuse/")
         ? "abuse-entrance"
-        : path === "/internal/account-authority"
-          ? "account-authority"
-          : "guest-authority",
+        : path.startsWith("/internal/quota/")
+          ? "quota"
+          : path === "/internal/account-authority"
+            ? "account-authority"
+            : "guest-authority",
       iat,
       nbf: iat,
       exp: iat + 30,

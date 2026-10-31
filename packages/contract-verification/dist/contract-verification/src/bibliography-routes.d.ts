@@ -47,6 +47,8 @@ export declare const renderBibliography: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -122,6 +124,24 @@ export declare const renderBibliography: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -139,6 +159,8 @@ export declare const renderBibliography: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -156,6 +178,8 @@ export declare const renderBibliography: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -173,6 +197,8 @@ export declare const renderBibliography: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -190,6 +216,8 @@ export declare const renderBibliography: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -207,6 +235,8 @@ export declare const renderBibliography: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -224,6 +254,8 @@ export declare const renderBibliography: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;

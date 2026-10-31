@@ -18,6 +18,7 @@ await runMain(async (config) => {
       : undefined;
   const runtime = await startWorkerRuntime(config, db, boss, {
     authority: authority?.work,
+    quota: authority?.quota,
   });
   console.log(JSON.stringify({ code: "worker-started" }));
   const shutdown = () => {

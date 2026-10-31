@@ -5,6 +5,9 @@ export declare const createCheck: {
     summary: string;
     path: "/v2/checks";
     request: {
+        query: z.ZodObject<{
+            maxReferences: z.ZodOptional<z.ZodCoercedNumber<unknown>>;
+        }, z.core.$strip>;
         body: {
             required: true;
             content: {
@@ -77,6 +80,8 @@ export declare const createCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -94,6 +99,8 @@ export declare const createCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -111,6 +118,8 @@ export declare const createCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -130,6 +139,8 @@ export declare const createCheck: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -148,6 +159,27 @@ export declare const createCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        402: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -163,6 +195,24 @@ export declare const createCheck: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -1083,6 +1133,129 @@ export declare const createCheck: {
 } & {
     getRoutingPath(): "/v2/checks";
 };
+export declare const getQuota: {
+    method: "get";
+    path: "/v2/quota";
+    summary: string;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v2/quota";
+};
 export declare const getCheck: {
     getRoutingPath(): "/v1/checks/:checkId";
     method: "get";
@@ -1104,6 +1277,8 @@ export declare const getCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -1121,6 +1296,8 @@ export declare const getCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -1138,6 +1315,8 @@ export declare const getCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -1157,6 +1336,8 @@ export declare const getCheck: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -1175,6 +1356,8 @@ export declare const getCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -1192,6 +1375,8 @@ export declare const getCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -1209,6 +1394,8 @@ export declare const getCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -1224,6 +1411,24 @@ export declare const getCheck: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -2165,6 +2370,8 @@ export declare const cancelCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -2184,6 +2391,8 @@ export declare const cancelCheck: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -2202,6 +2411,8 @@ export declare const cancelCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -2219,6 +2430,8 @@ export declare const cancelCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -2236,6 +2449,8 @@ export declare const cancelCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -2253,6 +2468,8 @@ export declare const cancelCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -2270,6 +2487,8 @@ export declare const cancelCheck: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -2285,6 +2504,24 @@ export declare const cancelCheck: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -3226,6 +3463,8 @@ export declare const renewCheckLease: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -3245,6 +3484,8 @@ export declare const renewCheckLease: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -3263,6 +3504,8 @@ export declare const renewCheckLease: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -3280,6 +3523,8 @@ export declare const renewCheckLease: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -3297,6 +3542,8 @@ export declare const renewCheckLease: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -3314,6 +3561,8 @@ export declare const renewCheckLease: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -3331,6 +3580,8 @@ export declare const renewCheckLease: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -3346,6 +3597,24 @@ export declare const renewCheckLease: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -4291,6 +4560,8 @@ export declare const streamCheckEvents: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4308,6 +4579,8 @@ export declare const streamCheckEvents: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4325,6 +4598,8 @@ export declare const streamCheckEvents: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4344,6 +4619,8 @@ export declare const streamCheckEvents: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -4370,6 +4647,8 @@ export declare const streamCheckEvents: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4387,6 +4666,8 @@ export declare const streamCheckEvents: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4404,6 +4685,8 @@ export declare const streamCheckEvents: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4477,6 +4760,8 @@ export declare const saveFields: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4494,6 +4779,8 @@ export declare const saveFields: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4511,6 +4798,8 @@ export declare const saveFields: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4530,6 +4819,8 @@ export declare const saveFields: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -4548,6 +4839,8 @@ export declare const saveFields: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4565,6 +4858,8 @@ export declare const saveFields: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -4580,6 +4875,24 @@ export declare const saveFields: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -5496,6 +5809,25 @@ export declare const saveFields: {
                 };
             };
         };
+        402: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         409: {
             description: string;
             content: {
@@ -5506,6 +5838,8 @@ export declare const saveFields: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -5523,6 +5857,8 @@ export declare const saveFields: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -5565,6 +5901,8 @@ export declare const recheckReference: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -5582,6 +5920,8 @@ export declare const recheckReference: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -5599,6 +5939,8 @@ export declare const recheckReference: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -5618,6 +5960,8 @@ export declare const recheckReference: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -5636,6 +5980,8 @@ export declare const recheckReference: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -5653,6 +5999,8 @@ export declare const recheckReference: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -5668,6 +6016,24 @@ export declare const recheckReference: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -6584,6 +6950,25 @@ export declare const recheckReference: {
                 };
             };
         };
+        402: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         409: {
             description: string;
             content: {
@@ -6594,6 +6979,8 @@ export declare const recheckReference: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -6611,6 +6998,8 @@ export declare const recheckReference: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -6686,6 +7075,8 @@ export declare const editReferenceList: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -6703,6 +7094,8 @@ export declare const editReferenceList: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -6720,6 +7113,8 @@ export declare const editReferenceList: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -6739,6 +7134,8 @@ export declare const editReferenceList: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -6757,6 +7154,8 @@ export declare const editReferenceList: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -6774,6 +7173,8 @@ export declare const editReferenceList: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -6789,6 +7190,24 @@ export declare const editReferenceList: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -7705,6 +8124,25 @@ export declare const editReferenceList: {
                 };
             };
         };
+        402: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         409: {
             description: string;
             content: {
@@ -7715,6 +8153,8 @@ export declare const editReferenceList: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -7732,6 +8172,8 @@ export declare const editReferenceList: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -7785,6 +8227,8 @@ export declare const setManualOverride: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -7802,6 +8246,8 @@ export declare const setManualOverride: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -7819,6 +8265,8 @@ export declare const setManualOverride: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -7838,6 +8286,8 @@ export declare const setManualOverride: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -7856,6 +8306,8 @@ export declare const setManualOverride: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -7873,6 +8325,8 @@ export declare const setManualOverride: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -7888,6 +8342,24 @@ export declare const setManualOverride: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -8804,6 +9276,25 @@ export declare const setManualOverride: {
                 };
             };
         };
+        402: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         409: {
             description: string;
             content: {
@@ -8814,6 +9305,8 @@ export declare const setManualOverride: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -8831,6 +9324,8 @@ export declare const setManualOverride: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -8875,6 +9370,8 @@ export declare const importReferences: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -8994,6 +9491,24 @@ export declare const importReferences: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -9011,6 +9526,8 @@ export declare const importReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9028,6 +9545,8 @@ export declare const importReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9045,6 +9564,8 @@ export declare const importReferences: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9090,6 +9611,8 @@ export declare const editSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9107,6 +9630,8 @@ export declare const editSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9124,6 +9649,8 @@ export declare const editSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9143,6 +9670,8 @@ export declare const editSelection: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -9161,6 +9690,8 @@ export declare const editSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9178,6 +9709,8 @@ export declare const editSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -9193,6 +9726,24 @@ export declare const editSelection: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;
@@ -10109,6 +10660,25 @@ export declare const editSelection: {
                 };
             };
         };
+        402: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         409: {
             description: string;
             content: {
@@ -10119,6 +10689,8 @@ export declare const editSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10136,6 +10708,8 @@ export declare const editSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10182,6 +10756,8 @@ export declare const previewSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10199,6 +10775,8 @@ export declare const previewSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10216,6 +10794,8 @@ export declare const previewSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10235,6 +10815,8 @@ export declare const previewSelection: {
                         title: z.ZodString;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         status: z.ZodLiteral<429>;
                         code: z.ZodLiteral<"abuse-limit">;
                         i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -10253,6 +10835,8 @@ export declare const previewSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10270,6 +10854,27 @@ export declare const previewSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        402: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10287,6 +10892,8 @@ export declare const previewSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10304,6 +10911,8 @@ export declare const previewSelection: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
                         retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
@@ -10390,6 +10999,24 @@ export declare const previewSelection: {
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
                             remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodNull]>;

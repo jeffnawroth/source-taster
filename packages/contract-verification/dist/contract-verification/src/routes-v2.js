@@ -7,15 +7,24 @@ import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.js";
 import { entranceLimitResponse } from "../../contract-common/src/index.js";
 import { createRoute } from "@hono/zod-openapi";
 import * as v1 from "./routes.js";
-import { CheckResponse, CreateCheckRequest } from "./v2.js";
+import { CheckResponse, CreateCheckRequest, MaxReferences, QuotaResponse, } from "./v2.js";
 const expiredResponse = {
     description: "The Check's fixed content deadline has passed.",
+    content: { [PROBLEM_CONTENT_TYPE]: { schema: ProblemDetails } },
+};
+const insufficientResponse = {
+    description: "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
     content: { [PROBLEM_CONTENT_TYPE]: { schema: ProblemDetails } },
 };
 export const createCheck = createRoute({
     ...v1.createCheck,
     path: "/v2/checks",
     request: {
+        query: z.object({
+            maxReferences: MaxReferences.optional().meta({
+                description: "Start only the first N References in input order; the rest end as not-checked. Hosted Quota only.",
+            }),
+        }),
         body: {
             required: true,
             content: { "application/json": { schema: CreateCheckRequest } },
@@ -23,10 +32,25 @@ export const createCheck = createRoute({
     },
     responses: {
         ...v1.createCheck.responses,
+        402: insufficientResponse,
         201: {
             description: "Check created. Article search in OpenAlex, Crossref, Europe PMC and Semantic Scholar, with identifier-only arXiv access, is an explicitly enabled, uncalibrated development profile. Operator-disabled sources are recorded, never reported as failed.",
             content: { "application/json": { schema: CheckResponse } },
         },
+    },
+});
+export const getQuota = createRoute({
+    method: "get",
+    path: "/v2/quota",
+    summary: "Current Quota of the acting Owner: balance, consumption, grants and warning level",
+    responses: {
+        200: {
+            description: "Current Quota; null when no Quota applies.",
+            content: { "application/json": { schema: QuotaResponse } },
+        },
+        401: v1.createCheck.responses[401],
+        403: v1.createCheck.responses[403],
+        503: v1.createCheck.responses[503],
     },
 });
 export const getCheck = createRoute({
@@ -80,6 +104,7 @@ const referenceParams = z.object({
 });
 const mutationResponses = {
     ...getCheck.responses,
+    402: insufficientResponse,
     409: {
         description: "Stale revision or active Reference work; refresh before retrying.",
         content: { [PROBLEM_CONTENT_TYPE]: { schema: ProblemDetails } },

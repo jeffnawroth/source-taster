@@ -14,6 +14,9 @@ test("public instances atomically share a principal allowance and return a conti
   );
   expect(responses.filter((r) => r.status === 200)).toHaveLength(2);
   expect(responses.filter((r) => r.status === 429)).toHaveLength(10);
+  expect(
+    service.quotaRequests.filter((path) => path.endsWith("/reserve")),
+  ).toHaveLength(0);
   const denied = responses.find((r) => r.status === 429)!;
   expect(denied.headers.get("retry-after")).toBe("60");
   expect(ProblemDetails.parse(await denied.json())).toMatchObject({

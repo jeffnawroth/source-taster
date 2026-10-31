@@ -59,6 +59,10 @@ import { ReferenceConflict, CheckExpired } from "../checks/store.ts";
 import type { CheckStore } from "../checks/store.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
+import { billedChange, billedCreate } from "../quota/billing.ts";
+import type { OwnerBinding } from "../quota/port.ts";
+import { MaxReferences } from "@source-taster/contract-verification/v2";
+import { randomUUID } from "node:crypto";
 
 function librarySizeIssue(issues: readonly ZodIssue[]): boolean {
   return issues.some(
@@ -120,6 +124,22 @@ export function createApp(
       ? entitlements.guard(principal, permission, operation)
       : operation();
   }
+  const owner = (principal: Principal): OwnerBinding => ({
+    ownerId: principal.ownerId,
+    actorId: principal.actorId,
+  });
+  /**
+   * The envelope's Quota slot. A service call: made before the guard and never
+   * under it. Display only; it degrades instead of failing a finished request.
+   */
+  async function quotaSlot(principal: Principal): Promise<Principal["quota"]> {
+    if (!entitlements.quota) return principal.quota;
+    try {
+      return await entitlements.quota.snapshot(owner(principal));
+    } catch {
+      return { status: "not-implemented" };
+    }
+  }
   async function output<T, S extends 200 | 201>(
     c: Context,
     principal: Principal,
@@ -127,7 +147,10 @@ export function createApp(
     data: T,
     status: S,
     checkId?: string,
+    knownQuota?: Principal["quota"],
   ) {
+    const quota =
+      knownQuota === undefined ? await quotaSlot(principal) : knownQuota;
     // Check again after the database/parser work, before response headers. The
     // transport write itself drains under the same durable Owner guard as commits.
     await guarded(principal, permission, () =>
@@ -140,8 +163,7 @@ export function createApp(
     c.header("Cache-Control", "no-store");
     const response = stream(c, async (writer) => {
       try {
-        const send = () =>
-          writer.write(JSON.stringify({ data, quota: principal.quota }));
+        const send = () => writer.write(JSON.stringify({ data, quota }));
         await guarded(principal, permission, () =>
           checkId
             ? checks.publish(principal, checkId, apiVersion, send)
@@ -356,6 +378,15 @@ export function createApp(
     });
   }
   if (apiVersion === 2)
+    app.openapi(v2.getQuota, async (c) => {
+      const principal = await authorize(c.req.raw, "check:read");
+      // The service is the only source of balances: fail closed when hosted.
+      const quota = entitlements.quota
+        ? await entitlements.quota.snapshot(owner(principal))
+        : principal.quota;
+      return output(c, principal, "check:read", quota, 200, undefined, quota);
+    });
+  if (apiVersion === 2)
     app.openapi(v2.importReferences, async (c) => {
       const principal = await authorize(c.req.raw, "structuring:create");
       const data = importLibrary(c.req.valid("json"), referenceLimit);
@@ -455,8 +486,28 @@ export function createApp(
           referenceLimit,
         );
       if (!references.length) fail("invalid-request");
-      const check = await guarded(principal, "check:create", () =>
-        checks.create(principal, references, apiVersion, document),
+      // First-N (ADR-0005): only the first N References start; the rest end as
+      // not-checked. The request names N after Quota previewed the shortfall.
+      const requested = c.req.query("maxReferences");
+      const cap =
+        apiVersion === 2 && requested !== undefined
+          ? MaxReferences.safeParse(requested)
+          : undefined;
+      if (cap && !cap.success) fail("invalid-request");
+      const started = Math.min(references.length, cap?.data ?? Infinity);
+      const id = randomUUID();
+      const check = await billedCreate(
+        entitlements.quota,
+        owner(principal),
+        id,
+        started,
+        () =>
+          guarded(principal, "check:create", () =>
+            checks.create(principal, references, apiVersion, document, {
+              id,
+              maxReferences: started,
+            }),
+          ),
       );
       return output(c, principal, "check:create", check, 201, check.id);
     },
@@ -466,8 +517,22 @@ export function createApp(
     app.openapi(v2.saveFields, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
       const { checkId, slot } = c.req.valid("param");
-      const check = await guarded(principal, "check:create", () =>
-        checks.saveFields(principal, checkId, slot, c.req.valid("json")),
+      const request = c.req.valid("json");
+      const check = await billedChange(
+        entitlements.quota,
+        owner(principal),
+        checkId,
+        () =>
+          request.recheck
+            ? checks.plan(principal, checkId, {
+                kind: "recheck",
+                position: slot,
+              })
+            : Promise.resolve([]),
+        (reserved) =>
+          guarded(principal, "check:create", () =>
+            checks.saveFields(principal, checkId, slot, request, reserved),
+          ),
       );
       if (!check) fail("check-not-found");
       return output(c, principal, "check:create", check, 200, check.id);
@@ -502,14 +567,41 @@ export function createApp(
       const principal = await authorize(c.req.raw, "check:create");
       const { checkId } = c.req.valid("param");
       const request = c.req.valid("json");
-      const data = await guarded(principal, "check:create", () =>
-        checks.editList(
-          principal,
-          checkId,
-          { expectedEventSeq: request.expectedEventSeq, add: [], remove: [] },
-          referenceLimit,
-          { regions: request.regions, parser: structuring },
-        ),
+      const data = await billedChange(
+        entitlements.quota,
+        owner(principal),
+        checkId,
+        () =>
+          guarded(principal, "check:create", async () => {
+            const preview = await checks.previewSelection(
+              principal,
+              checkId,
+              request,
+              structuring,
+              referenceLimit,
+            );
+            return preview
+              ? checks.plan(principal, checkId, {
+                  kind: "add",
+                  count: preview.additionalQuota,
+                })
+              : null;
+          }),
+        (reserved) =>
+          guarded(principal, "check:create", () =>
+            checks.editList(
+              principal,
+              checkId,
+              {
+                expectedEventSeq: request.expectedEventSeq,
+                add: [],
+                remove: [],
+              },
+              referenceLimit,
+              { regions: request.regions, parser: structuring },
+              reserved,
+            ),
+          ),
       );
       if (!data) fail("check-not-found");
       return output(c, principal, "check:create", data, 200, checkId);
@@ -517,8 +609,17 @@ export function createApp(
     app.openapi(v2.recheckReference, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
       const { checkId, slot } = c.req.valid("param");
-      const check = await guarded(principal, "check:create", () =>
-        checks.recheck(principal, checkId, slot, c.req.valid("json")),
+      const request = c.req.valid("json");
+      const check = await billedChange(
+        entitlements.quota,
+        owner(principal),
+        checkId,
+        () =>
+          checks.plan(principal, checkId, { kind: "recheck", position: slot }),
+        (reserved) =>
+          guarded(principal, "check:create", () =>
+            checks.recheck(principal, checkId, slot, request, reserved),
+          ),
       );
       if (!check) fail("check-not-found");
       return output(c, principal, "check:create", check, 200, check.id);
@@ -526,13 +627,27 @@ export function createApp(
     app.openapi(v2.editReferenceList, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
       const { checkId } = c.req.valid("param");
-      const check = await guarded(principal, "check:create", () =>
-        checks.editList(
-          principal,
-          checkId,
-          c.req.valid("json"),
-          referenceLimit,
-        ),
+      const request = c.req.valid("json");
+      const check = await billedChange(
+        entitlements.quota,
+        owner(principal),
+        checkId,
+        () =>
+          checks.plan(principal, checkId, {
+            kind: "add",
+            count: request.add.length,
+          }),
+        (reserved) =>
+          guarded(principal, "check:create", () =>
+            checks.editList(
+              principal,
+              checkId,
+              request,
+              referenceLimit,
+              undefined,
+              reserved,
+            ),
+          ),
       );
       if (!check) fail("check-not-found");
       return output(c, principal, "check:create", check, 200, check.id);

@@ -40,6 +40,7 @@ if (process.argv[2] === "worker") {
   const runtime = await startWorkerRuntime(config, db, boss, {
     clock,
     authority: authority.work,
+    quota: authority.quota,
   });
   stop = () => {
     runtime.stop();

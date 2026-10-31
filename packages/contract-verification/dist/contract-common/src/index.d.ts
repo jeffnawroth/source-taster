@@ -10,24 +10,83 @@ export declare const ProblemDetails: z.ZodObject<{
     status: z.ZodNumber;
     detail: z.ZodOptional<z.ZodString>;
     limit: z.ZodOptional<z.ZodNumber>;
+    available: z.ZodOptional<z.ZodNumber>;
+    required: z.ZodOptional<z.ZodNumber>;
     retryAt: z.ZodOptional<z.ZodISODateTime>;
     code: z.ZodString;
     i18nKey: z.ZodString;
 }, z.core.$strip>;
 export type ProblemDetails = z.infer<typeof ProblemDetails>;
+/** One valid grant of the acting Owner, shown with its expiry (ADR-0004). */
+export declare const QuotaGrantView: z.ZodObject<{
+    kind: z.ZodEnum<{
+        credit: "credit";
+        free: "free";
+        guest: "guest";
+    }>;
+    granted: z.ZodNumber;
+    remaining: z.ZodNumber;
+    expiresAt: z.ZodISODateTime;
+}, z.core.$strip>;
+export type QuotaGrantView = z.infer<typeof QuotaGrantView>;
+/** Warning level over the sum of all currently valid grants (FA-KTO-12). */
+export declare const QuotaWarning: z.ZodEnum<{
+    eighty: "eighty";
+    exhausted: "exhausted";
+    none: "none";
+}>;
+export type QuotaWarning = z.infer<typeof QuotaWarning>;
 /**
  * Consumption and remaining Quota of the acting Owner (FA-ORG-15).
- * `null` means no Quota applies, as in standalone mode.
+ * `consumed` counts debits of the valid grants, `remaining` the balance that is
+ * neither consumed nor reserved by a running Check. `null` means no Quota
+ * applies, as in standalone mode.
  */
 export declare const Quota: z.ZodObject<{
     consumed: z.ZodNumber;
     remaining: z.ZodNumber;
+    granted: z.ZodNumber;
+    reserved: z.ZodNumber;
+    warning: z.ZodEnum<{
+        eighty: "eighty";
+        exhausted: "exhausted";
+        none: "none";
+    }>;
+    grants: z.ZodArray<z.ZodObject<{
+        kind: z.ZodEnum<{
+            credit: "credit";
+            free: "free";
+            guest: "guest";
+        }>;
+        granted: z.ZodNumber;
+        remaining: z.ZodNumber;
+        expiresAt: z.ZodISODateTime;
+    }, z.core.$strip>>;
+    features: z.ZodArray<z.ZodString>;
 }, z.core.$strip>;
 export type Quota = z.infer<typeof Quota>;
 /** Hosted authority is not a Quota grant. #99 owns its journal. */
 export declare const QuotaSlot: z.ZodUnion<readonly [z.ZodObject<{
     consumed: z.ZodNumber;
     remaining: z.ZodNumber;
+    granted: z.ZodNumber;
+    reserved: z.ZodNumber;
+    warning: z.ZodEnum<{
+        eighty: "eighty";
+        exhausted: "exhausted";
+        none: "none";
+    }>;
+    grants: z.ZodArray<z.ZodObject<{
+        kind: z.ZodEnum<{
+            credit: "credit";
+            free: "free";
+            guest: "guest";
+        }>;
+        granted: z.ZodNumber;
+        remaining: z.ZodNumber;
+        expiresAt: z.ZodISODateTime;
+    }, z.core.$strip>>;
+    features: z.ZodArray<z.ZodString>;
 }, z.core.$strip>, z.ZodObject<{
     status: z.ZodLiteral<"not-implemented">;
 }, z.core.$strict>, z.ZodNull]>;
@@ -38,6 +97,24 @@ export declare function envelope<T extends z.ZodType>(data: T): z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodNull]>;
@@ -75,6 +152,8 @@ export declare const EntranceLimitProblem: z.ZodObject<{
     title: z.ZodString;
     detail: z.ZodOptional<z.ZodString>;
     limit: z.ZodOptional<z.ZodNumber>;
+    available: z.ZodOptional<z.ZodNumber>;
+    required: z.ZodOptional<z.ZodNumber>;
     status: z.ZodLiteral<429>;
     code: z.ZodLiteral<"abuse-limit">;
     i18nKey: z.ZodLiteral<"problem_abuse_limit">;
@@ -93,6 +172,8 @@ export declare const entranceLimitResponse: {
                 title: z.ZodString;
                 detail: z.ZodOptional<z.ZodString>;
                 limit: z.ZodOptional<z.ZodNumber>;
+                available: z.ZodOptional<z.ZodNumber>;
+                required: z.ZodOptional<z.ZodNumber>;
                 status: z.ZodLiteral<429>;
                 code: z.ZodLiteral<"abuse-limit">;
                 i18nKey: z.ZodLiteral<"problem_abuse_limit">;

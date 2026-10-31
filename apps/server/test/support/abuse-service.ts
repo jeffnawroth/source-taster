@@ -64,6 +64,7 @@ export async function abuseService() {
     requests = 0;
   const bodies: unknown[] = [];
   const decisions: unknown[] = [];
+  const quotaRequests: string[] = [];
   async function handlePrivate(req: IncomingMessage, res: ServerResponse) {
     let raw = "";
     for await (const part of req) raw += String(part);
@@ -78,6 +79,40 @@ export async function abuseService() {
     }
     if (req.url?.endsWith("authority")) {
       res.end(JSON.stringify({ allowed: true, version: 1 }));
+      return;
+    }
+    if (req.url?.startsWith("/internal/quota/")) {
+      quotaRequests.push(req.url);
+      const quota = {
+        consumed: 0,
+        remaining: 100,
+        granted: 100,
+        reserved: 0,
+        warning: "none",
+        grants: [
+          {
+            kind: "guest",
+            granted: 100,
+            remaining: 100,
+            expiresAt: new Date(now + 86400000).toISOString(),
+          },
+        ],
+        features: [],
+      };
+      const input = JSON.parse(raw) as { slots?: unknown[] };
+      const value = req.url.endsWith("/snapshot")
+        ? { outcome: "granted", quota }
+        : req.url.endsWith("/reserve")
+          ? {
+              outcome: "reserved",
+              free: [],
+              reserved: input.slots?.length ?? 0,
+              quota,
+            }
+          : req.url.endsWith("/release")
+            ? { released: 0 }
+            : { outcome: "released" };
+      res.end(JSON.stringify(value));
       return;
     }
     if (req.url?.startsWith("/internal/abuse/")) {
@@ -250,6 +285,7 @@ export async function abuseService() {
     token,
     bodies,
     decisions,
+    quotaRequests,
     policyRequests: () => requests,
     outage: (value: boolean) => {
       outage = value;

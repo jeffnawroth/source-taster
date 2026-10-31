@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { z } from "zod";
-import { envelope, GuestBinding, Permission, } from "../../contract-common/src/index.js";
+import { envelope, GuestBinding, Permission, Quota, } from "../../contract-common/src/index.js";
 export * from "../../contract-common/src/index.js";
 /** No verification content, recipient, code or arbitrary message crosses this boundary.
  * Diagnostic only: explicitly enabled loopback rehearsal with a fixed .invalid SMTP sink.
- * Hosted entitlement/Quota routes remain unavailable until their signed-token implementation.
  */
 export const MailRehearsalRequest = z
     .strictObject({ language: z.enum(["de", "en"]) })
@@ -55,6 +54,86 @@ export const AccountAuthorityRequest = z
     kind: z.enum(["request", "work"]),
 })
     .refine((v) => v.kind !== "request" || !!v.sessionId);
+/**
+ * Quota protocol (ADR-0003, ADR-0004, ADR-0005). Only opaque identifiers, slot
+ * positions and counts cross the boundary; never a verification payload. Every
+ * call carries a distinct, request-bound program assertion.
+ */
+const QuotaOwner = {
+    ownerId: z.uuid(),
+    actorId: z.uuid(),
+};
+export const QuotaSnapshotRequest = z
+    .strictObject(QuotaOwner)
+    .meta({ id: "QuotaSnapshotRequest" });
+export const QuotaSlotRef = z.strictObject({
+    position: z.number().int().positive().safe(),
+    /** Execution generation the reservation is taken for; stale releases are ignored. */
+    generation: z.number().int().nonnegative().safe(),
+});
+export const QuotaReserveRequest = z
+    .strictObject({
+    ...QuotaOwner,
+    checkId: z.uuid(),
+    /** Idempotency key of this reservation; the same key replays the same result. */
+    key: z.string().min(1).max(128),
+    slots: z.array(QuotaSlotRef).min(1).max(2000),
+})
+    .meta({ id: "QuotaReserveRequest" });
+export const QuotaSettleRequest = z
+    .strictObject({
+    ...QuotaOwner,
+    checkId: z.uuid(),
+    position: z.number().int().positive().safe(),
+    generation: z.number().int().nonnegative().safe(),
+    /** `verdict` bills the slot once; `release` returns an unsettled reservation. */
+    outcome: z.enum(["verdict", "release"]),
+})
+    .meta({ id: "QuotaSettleRequest" });
+export const QuotaReleaseRequest = z
+    .strictObject({
+    ...QuotaOwner,
+    checkId: z.uuid(),
+    /** Releases what the reservation with this key still holds. */
+    key: z.string().min(1).max(128),
+})
+    .meta({ id: "QuotaReleaseRequest" });
+const quotaDenied = z.strictObject({
+    outcome: z.literal("denied"),
+    reason: z.enum(["revoked", "forbidden", "unknown"]),
+});
+export const QuotaSnapshotResponse = z
+    .discriminatedUnion("outcome", [
+    z.strictObject({ outcome: z.literal("granted"), quota: Quota }),
+    quotaDenied,
+])
+    .meta({ id: "QuotaSnapshotResponse" });
+export const QuotaReserveResponse = z
+    .discriminatedUnion("outcome", [
+    z.strictObject({
+        outcome: z.literal("reserved"),
+        /** Slot positions already billed: free, nothing reserved for them. */
+        free: z.array(z.number().int().positive().safe()).max(2000),
+        reserved: z.number().int().nonnegative().safe(),
+        quota: Quota,
+    }),
+    z.strictObject({
+        outcome: z.literal("insufficient"),
+        available: z.number().int().nonnegative().safe(),
+        required: z.number().int().positive().safe(),
+        quota: Quota,
+    }),
+    quotaDenied,
+])
+    .meta({ id: "QuotaReserveResponse" });
+export const QuotaSettleResponse = z
+    .strictObject({
+    outcome: z.enum(["debited", "released", "free", "forgiven", "ignored"]),
+})
+    .meta({ id: "QuotaSettleResponse" });
+export const QuotaReleaseResponse = z
+    .strictObject({ released: z.number().int().nonnegative().safe() })
+    .meta({ id: "QuotaReleaseResponse" });
 /** Operator settings, not qualification evidence. Public and combined budgets are distinct.
  * Every entrance attempt counts, including denied attempts; no Quota is consumed. */
 export const AbuseBudget = z.strictObject({

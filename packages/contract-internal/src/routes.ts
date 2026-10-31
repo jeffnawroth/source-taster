@@ -10,6 +10,14 @@ import {
   AuthorityResponse,
   AuthorityInvalidation,
   AuthorityInvalidationAck,
+  QuotaReleaseRequest,
+  QuotaReleaseResponse,
+  QuotaReserveRequest,
+  QuotaReserveResponse,
+  QuotaSettleRequest,
+  QuotaSettleResponse,
+  QuotaSnapshotRequest,
+  QuotaSnapshotResponse,
   MailRehearsalRequest,
   MailRehearsalResponse,
   MailRehearsalParams,
@@ -117,6 +125,59 @@ export const authorizeAccount = createRoute({
     503: problem,
   },
 });
+function quotaRoute<Q extends z.ZodType, R extends z.ZodType>(
+  name: string,
+  summary: string,
+  request: Q,
+  response: R,
+) {
+  return createRoute({
+    method: "post",
+    path: `/internal/quota/${name}`,
+    summary,
+    request: {
+      body: {
+        required: true,
+        content: { "application/json": { schema: request } },
+      },
+    },
+    responses: {
+      200: {
+        description: "Durable Quota decision",
+        content: { "application/json": { schema: response } },
+      },
+      400: problem,
+      401: problem,
+      403: problem,
+      409: problem,
+      503: problem,
+    },
+  });
+}
+export const quotaSnapshot = quotaRoute(
+  "snapshot",
+  "Current balance of an Owner (signed verification assertion)",
+  QuotaSnapshotRequest,
+  QuotaSnapshotResponse,
+);
+export const quotaReserve = quotaRoute(
+  "reserve",
+  "Atomically reserve one unit per unbilled Reference slot, all or nothing",
+  QuotaReserveRequest,
+  QuotaReserveResponse,
+);
+export const quotaSettle = quotaRoute(
+  "settle",
+  "Idempotently debit a slot on its first Verdict or release its reservation",
+  QuotaSettleRequest,
+  QuotaSettleResponse,
+);
+export const quotaRelease = quotaRoute(
+  "release",
+  "Release what an unused reservation still holds",
+  QuotaReleaseRequest,
+  QuotaReleaseResponse,
+);
 export const getAbusePolicy = createRoute({
   method: "post",
   path: "/internal/abuse/policy",
@@ -163,6 +224,10 @@ export const countAbuseEntrance = createRoute({
 export const routes = [
   getAbusePolicy,
   countAbuseEntrance,
+  quotaSnapshot,
+  quotaReserve,
+  quotaSettle,
+  quotaRelease,
   authorizeAccount,
   createMailRehearsal,
   getMailRehearsal,

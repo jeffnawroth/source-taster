@@ -1289,7 +1289,9 @@ test("hosted concurrent workers revalidate the global turn before admitting eith
   };
   const checks: Check[] = [];
   for (const name of ["a", "b"]) {
-    const references = Array.from({ length: 12 }, (_, i) => {
+    // Two Checks of ten fit the Guest's 20 per day; the fairness assertion
+    // below concerns the shared admission turn, not a larger batch.
+    const references = Array.from({ length: 10 }, (_, i) => {
       const DOI = `10.5555/hosted-fair-${name}${i}`;
       both.fixtures.hold(`/api/handles/${DOI}`);
       return { originalText: DOI, fields: { DOI } };
