@@ -4,11 +4,20 @@ import { once } from "node:events";
 import pg from "pg";
 import { setupDatabase } from "../../scripts/db-setup.ts";
 import { testDatabase } from "./processes.ts";
-export async function lifecycleService(env: Record<string, string>) {
-  const { adminUrl, appUrl } = testDatabase();
-  const port = process.env.SOURCE_TASTER_TEST_LIFECYCLE_PORT ?? "54182";
-  await setupDatabase(adminUrl, appUrl);
-  let now = Date.now(),
+export async function lifecycleService(
+  env: Record<string, string>,
+  options: {
+    /** An already provisioned owned database, e.g. a restored backup. */
+    database?: { adminUrl: string; appUrl: string };
+    port?: string;
+    now?: number;
+  } = {},
+) {
+  const { adminUrl, appUrl } = options.database ?? testDatabase();
+  const port =
+    options.port ?? process.env.SOURCE_TASTER_TEST_LIFECYCLE_PORT ?? "54182";
+  if (!options.database) await setupDatabase(adminUrl, appUrl);
+  let now = options.now ?? Date.now(),
     sequence = 0;
   interface Process {
     child: ChildProcess;
@@ -79,12 +88,23 @@ export async function lifecycleService(env: Record<string, string>) {
     children.push(result);
     return result;
   }
-  const web = launch("web");
+  let web = launch("web");
   await web.ready;
   return {
     apiUrl: `http://127.0.0.1:${port}`,
+    adminUrl,
+    appUrl,
+    now: () => now,
     worker: () => launch("worker"),
-    web,
+    get web() {
+      return web;
+    },
+    /** A process restart: the web process serves again only once ready. */
+    restartWeb: async () => {
+      await web.kill();
+      web = launch("web");
+      await web.ready;
+    },
     advance: async (ms: number, except: (typeof web)[] = []) => {
       now += ms;
       await Promise.all(
