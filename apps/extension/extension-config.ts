@@ -78,6 +78,7 @@ export function hostPermissions(target: Target, config: ExtensionConfig) {
 export function manifest(target: Target, config: ExtensionConfig) {
   const common = {
     manifest_version: 3,
+    default_locale: "en",
     name: "Source Taster (development)",
     version: "0.0.0",
     description: "Development build of the Source Taster Check workspace.",
@@ -93,7 +94,7 @@ export function manifest(target: Target, config: ExtensionConfig) {
         action: { default_title: "Source Taster" },
         side_panel: { default_path: "panel.html" },
         background: { service_worker: "background.js" },
-        permissions: ["sidePanel", "storage"],
+        permissions: ["sidePanel", "storage", "contextMenus"],
       }
     : {
         ...common,
@@ -112,6 +113,6 @@ export function manifest(target: Target, config: ExtensionConfig) {
           open_at_install: false,
         },
         background: { scripts: ["background.js"] },
-        permissions: ["storage"],
+        permissions: ["storage", "menus"],
       };
 }

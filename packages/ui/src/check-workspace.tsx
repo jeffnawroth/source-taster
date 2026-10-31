@@ -60,22 +60,30 @@ function problemKey(error: unknown, fallback: MessageKey): MessageKey {
 }
 
 /** One in-memory Check workflow for web and panel hosts. Storage carries preferences only. */
+export interface SelectionIntake {
+  subscribe(receive: (selection: { text: string; possiblyShortened: boolean }) => void): () => void;
+}
 export function CheckWorkspace({
   initial,
   preferenceStorage,
   transport,
   siteUrl,
+  selectionIntake,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
   siteUrl?: string;
+  selectionIntake?: SelectionIntake;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const [preferences, updatePreferences] = useState(initial.preferences);
   const [styleReset, setStyleReset] = useState(initial.citationStyleReset);
   const locale = preferences.language;
   const [text, setText] = useState("");
+  useEffect(() => selectionIntake?.subscribe((selection) => {
+    setText(selection.text);
+  }), [selectionIntake]);
   const [check, setCheck] = useState<Check | null>(null);
   const [accessStopped, setAccessStopped] = useState(false);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);

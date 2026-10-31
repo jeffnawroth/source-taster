@@ -2,6 +2,8 @@
 // The owned seam over the browser extension namespace. Panel code uses only
 // these capabilities; no other module touches `browser` or `chrome`.
 import type { PreferenceStorage } from "@source-taster/ui/preferences";
+import type { SelectionIntake } from "@source-taster/ui/check-workspace";
+import { selectionPort, type SelectionPort } from "./selection-protocol.ts";
 import {
   extensionGuestIdentityStorage,
   GuestIdentityError,
@@ -9,8 +11,32 @@ import {
 } from "@source-taster/ui/guest-identity";
 
 interface ExtensionNamespace {
-  runtime: { id: string; getURL(path: string): string };
+  runtime: { id: string; getURL(path: string): string; connect(options: { name: string }): SelectionPort };
+  windows: { getCurrent(): Promise<{ id: number }> };
   storage: { local: ExtensionLocalCapability };
+}
+
+/** A live trusted-panel connection, with no storage or web-page bridge. */
+export function extensionSelectionIntake(api: ExtensionNamespace): SelectionIntake {
+  return {
+    subscribe(receive) {
+      const port = api.runtime.connect({ name: selectionPort });
+      const listener = (message: unknown) => {
+        const selection = message as { text?: unknown; possiblyShortened?: unknown } | null;
+        if (typeof selection?.text === "string" && typeof selection.possiblyShortened === "boolean") receive({ text: selection.text, possiblyShortened: selection.possiblyShortened });
+      };
+      port.onMessage.addListener(listener);
+      let connected = true;
+      void api.windows.getCurrent().then(({ id }) => {
+        if (connected) port.postMessage({ windowId: id });
+      });
+      return () => {
+        connected = false;
+        port.onMessage.removeListener(listener);
+        port.disconnect();
+      };
+    },
+  };
 }
 const identityLock = "source-taster-guest-id-v1";
 
