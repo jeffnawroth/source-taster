@@ -1,9 +1,51 @@
 import { CheckEvent, type SaveFieldsRequest, type RecheckRequest, type EditReferenceListRequest } from "./v2.ts";
 import { type VerificationClientOptions, type WatchOptions } from "./client.ts";
+import { type LibraryInput } from "./import.ts";
 export { ApiError, CheckStreamError, readSseFrames, type CredentialSupplier, type VerificationClientOptions, } from "./client.ts";
 export type WatchCheckOptions = WatchOptions<CheckEvent>;
 export declare function verificationClient(options?: VerificationClientOptions): {
-    createCheck: (input: string | import("./index.ts").CreateCheckRequest) => Promise<{
+    createCheck: (input: string | {
+        library: {
+            format: "bibtex" | "ris";
+            text: string;
+        };
+    } | {
+        text: string;
+    } | {
+        references: {
+            originalText: string;
+            fields: {
+                type?: string | undefined;
+                author?: {
+                    family?: string | undefined;
+                    "non-dropping-particle"?: string | undefined;
+                    given?: string | undefined;
+                    literal?: string | undefined;
+                }[] | undefined;
+                issued?: {
+                    literal: string;
+                } | undefined;
+                title?: string | undefined;
+                "container-title"?: string | undefined;
+                "container-title-short"?: string | undefined;
+                publisher?: string | undefined;
+                "publisher-place"?: string | undefined;
+                volume?: string | undefined;
+                issue?: string | undefined;
+                page?: string | undefined;
+                "article-number"?: string | undefined;
+                edition?: string | undefined;
+                DOI?: string | undefined;
+                URL?: string | undefined;
+                ISBN?: string | undefined;
+                ISSN?: string | undefined;
+                PMID?: string | undefined;
+                PMCID?: string | undefined;
+                arXiv?: string | undefined;
+            };
+            authorsTruncated?: boolean | undefined;
+        }[];
+    }) => Promise<{
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -94,6 +136,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 provenance: "parser" | "user";
                 createdAt: string;
@@ -167,6 +245,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             PMCID?: string | undefined;
                             arXiv?: string | undefined;
                         };
+                        imported?: {
+                            format: "bibtex" | "ris";
+                            unsupported: {
+                                name: string;
+                                value: string;
+                            }[];
+                            fields: {
+                                type?: string | undefined;
+                                author?: {
+                                    family?: string | undefined;
+                                    "non-dropping-particle"?: string | undefined;
+                                    given?: string | undefined;
+                                    literal?: string | undefined;
+                                }[] | undefined;
+                                issued?: {
+                                    literal: string;
+                                } | undefined;
+                                title?: string | undefined;
+                                "container-title"?: string | undefined;
+                                "container-title-short"?: string | undefined;
+                                publisher?: string | undefined;
+                                "publisher-place"?: string | undefined;
+                                volume?: string | undefined;
+                                issue?: string | undefined;
+                                page?: string | undefined;
+                                "article-number"?: string | undefined;
+                                edition?: string | undefined;
+                                DOI?: string | undefined;
+                                URL?: string | undefined;
+                                ISBN?: string | undefined;
+                                ISSN?: string | undefined;
+                                PMID?: string | undefined;
+                                PMCID?: string | undefined;
+                                arXiv?: string | undefined;
+                            };
+                        } | undefined;
                     };
                     identity: {
                         candidateId?: string | undefined;
@@ -341,6 +455,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -543,6 +693,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 provenance: "parser" | "user";
                 createdAt: string;
@@ -616,6 +802,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             PMCID?: string | undefined;
                             arXiv?: string | undefined;
                         };
+                        imported?: {
+                            format: "bibtex" | "ris";
+                            unsupported: {
+                                name: string;
+                                value: string;
+                            }[];
+                            fields: {
+                                type?: string | undefined;
+                                author?: {
+                                    family?: string | undefined;
+                                    "non-dropping-particle"?: string | undefined;
+                                    given?: string | undefined;
+                                    literal?: string | undefined;
+                                }[] | undefined;
+                                issued?: {
+                                    literal: string;
+                                } | undefined;
+                                title?: string | undefined;
+                                "container-title"?: string | undefined;
+                                "container-title-short"?: string | undefined;
+                                publisher?: string | undefined;
+                                "publisher-place"?: string | undefined;
+                                volume?: string | undefined;
+                                issue?: string | undefined;
+                                page?: string | undefined;
+                                "article-number"?: string | undefined;
+                                edition?: string | undefined;
+                                DOI?: string | undefined;
+                                URL?: string | undefined;
+                                ISBN?: string | undefined;
+                                ISSN?: string | undefined;
+                                PMID?: string | undefined;
+                                PMCID?: string | undefined;
+                                arXiv?: string | undefined;
+                            };
+                        } | undefined;
                     };
                     identity: {
                         candidateId?: string | undefined;
@@ -790,6 +1012,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -992,6 +1250,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 provenance: "parser" | "user";
                 createdAt: string;
@@ -1065,6 +1359,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             PMCID?: string | undefined;
                             arXiv?: string | undefined;
                         };
+                        imported?: {
+                            format: "bibtex" | "ris";
+                            unsupported: {
+                                name: string;
+                                value: string;
+                            }[];
+                            fields: {
+                                type?: string | undefined;
+                                author?: {
+                                    family?: string | undefined;
+                                    "non-dropping-particle"?: string | undefined;
+                                    given?: string | undefined;
+                                    literal?: string | undefined;
+                                }[] | undefined;
+                                issued?: {
+                                    literal: string;
+                                } | undefined;
+                                title?: string | undefined;
+                                "container-title"?: string | undefined;
+                                "container-title-short"?: string | undefined;
+                                publisher?: string | undefined;
+                                "publisher-place"?: string | undefined;
+                                volume?: string | undefined;
+                                issue?: string | undefined;
+                                page?: string | undefined;
+                                "article-number"?: string | undefined;
+                                edition?: string | undefined;
+                                DOI?: string | undefined;
+                                URL?: string | undefined;
+                                ISBN?: string | undefined;
+                                ISSN?: string | undefined;
+                                PMID?: string | undefined;
+                                PMCID?: string | undefined;
+                                arXiv?: string | undefined;
+                            };
+                        } | undefined;
                     };
                     identity: {
                         candidateId?: string | undefined;
@@ -1239,6 +1569,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -1441,6 +1807,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 provenance: "parser" | "user";
                 createdAt: string;
@@ -1514,6 +1916,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             PMCID?: string | undefined;
                             arXiv?: string | undefined;
                         };
+                        imported?: {
+                            format: "bibtex" | "ris";
+                            unsupported: {
+                                name: string;
+                                value: string;
+                            }[];
+                            fields: {
+                                type?: string | undefined;
+                                author?: {
+                                    family?: string | undefined;
+                                    "non-dropping-particle"?: string | undefined;
+                                    given?: string | undefined;
+                                    literal?: string | undefined;
+                                }[] | undefined;
+                                issued?: {
+                                    literal: string;
+                                } | undefined;
+                                title?: string | undefined;
+                                "container-title"?: string | undefined;
+                                "container-title-short"?: string | undefined;
+                                publisher?: string | undefined;
+                                "publisher-place"?: string | undefined;
+                                volume?: string | undefined;
+                                issue?: string | undefined;
+                                page?: string | undefined;
+                                "article-number"?: string | undefined;
+                                edition?: string | undefined;
+                                DOI?: string | undefined;
+                                URL?: string | undefined;
+                                ISBN?: string | undefined;
+                                ISSN?: string | undefined;
+                                PMID?: string | undefined;
+                                PMCID?: string | undefined;
+                                arXiv?: string | undefined;
+                            };
+                        } | undefined;
                     };
                     identity: {
                         candidateId?: string | undefined;
@@ -1688,6 +2126,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -1860,6 +2334,103 @@ export declare function verificationClient(options?: VerificationClientOptions):
         quotaConsumed: 0;
         referenceLimit: number;
     }>;
+    importLibrary: (input: LibraryInput) => Promise<{
+        references: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            fieldSources: Record<string, {
+                raw: string;
+                span?: {
+                    start: number;
+                    end: number;
+                } | undefined;
+                normalized?: string | undefined;
+            }>;
+            authorsTruncated?: boolean | undefined;
+            structuring: {
+                path: "parser" | "user";
+                version: string;
+            };
+            csl: {
+                type?: string | undefined;
+                author?: {
+                    family?: string | undefined;
+                    "non-dropping-particle"?: string | undefined;
+                    given?: string | undefined;
+                    literal?: string | undefined;
+                }[] | undefined;
+                issued?: {
+                    literal: string;
+                } | undefined;
+                title?: string | undefined;
+                "container-title"?: string | undefined;
+                "container-title-short"?: string | undefined;
+                publisher?: string | undefined;
+                "publisher-place"?: string | undefined;
+                volume?: string | undefined;
+                issue?: string | undefined;
+                page?: string | undefined;
+                "article-number"?: string | undefined;
+                edition?: string | undefined;
+                DOI?: string | undefined;
+                URL?: string | undefined;
+                ISBN?: string | undefined;
+                ISSN?: string | undefined;
+                PMID?: string | undefined;
+                PMCID?: string | undefined;
+                arXiv?: string | undefined;
+            };
+            imported?: {
+                format: "bibtex" | "ris";
+                unsupported: {
+                    name: string;
+                    value: string;
+                }[];
+                fields: {
+                    type?: string | undefined;
+                    author?: {
+                        family?: string | undefined;
+                        "non-dropping-particle"?: string | undefined;
+                        given?: string | undefined;
+                        literal?: string | undefined;
+                    }[] | undefined;
+                    issued?: {
+                        literal: string;
+                    } | undefined;
+                    title?: string | undefined;
+                    "container-title"?: string | undefined;
+                    "container-title-short"?: string | undefined;
+                    publisher?: string | undefined;
+                    "publisher-place"?: string | undefined;
+                    volume?: string | undefined;
+                    issue?: string | undefined;
+                    page?: string | undefined;
+                    "article-number"?: string | undefined;
+                    edition?: string | undefined;
+                    DOI?: string | undefined;
+                    URL?: string | undefined;
+                    ISBN?: string | undefined;
+                    ISSN?: string | undefined;
+                    PMID?: string | undefined;
+                    PMCID?: string | undefined;
+                    arXiv?: string | undefined;
+                };
+            } | undefined;
+        }[];
+        rejected: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            reason: "malformed-record";
+        }[];
+        quotaConsumed: 0;
+        referenceLimit: number;
+    }>;
     saveFields: (id: string, slot: number, input: SaveFieldsRequest) => Promise<{
         id: string;
         state: "ended" | "running";
@@ -1951,6 +2522,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 provenance: "parser" | "user";
                 createdAt: string;
@@ -2024,6 +2631,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             PMCID?: string | undefined;
                             arXiv?: string | undefined;
                         };
+                        imported?: {
+                            format: "bibtex" | "ris";
+                            unsupported: {
+                                name: string;
+                                value: string;
+                            }[];
+                            fields: {
+                                type?: string | undefined;
+                                author?: {
+                                    family?: string | undefined;
+                                    "non-dropping-particle"?: string | undefined;
+                                    given?: string | undefined;
+                                    literal?: string | undefined;
+                                }[] | undefined;
+                                issued?: {
+                                    literal: string;
+                                } | undefined;
+                                title?: string | undefined;
+                                "container-title"?: string | undefined;
+                                "container-title-short"?: string | undefined;
+                                publisher?: string | undefined;
+                                "publisher-place"?: string | undefined;
+                                volume?: string | undefined;
+                                issue?: string | undefined;
+                                page?: string | undefined;
+                                "article-number"?: string | undefined;
+                                edition?: string | undefined;
+                                DOI?: string | undefined;
+                                URL?: string | undefined;
+                                ISBN?: string | undefined;
+                                ISSN?: string | undefined;
+                                PMID?: string | undefined;
+                                PMCID?: string | undefined;
+                                arXiv?: string | undefined;
+                            };
+                        } | undefined;
                     };
                     identity: {
                         candidateId?: string | undefined;
@@ -2198,6 +2841,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -2400,6 +3079,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 provenance: "parser" | "user";
                 createdAt: string;
@@ -2473,6 +3188,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             PMCID?: string | undefined;
                             arXiv?: string | undefined;
                         };
+                        imported?: {
+                            format: "bibtex" | "ris";
+                            unsupported: {
+                                name: string;
+                                value: string;
+                            }[];
+                            fields: {
+                                type?: string | undefined;
+                                author?: {
+                                    family?: string | undefined;
+                                    "non-dropping-particle"?: string | undefined;
+                                    given?: string | undefined;
+                                    literal?: string | undefined;
+                                }[] | undefined;
+                                issued?: {
+                                    literal: string;
+                                } | undefined;
+                                title?: string | undefined;
+                                "container-title"?: string | undefined;
+                                "container-title-short"?: string | undefined;
+                                publisher?: string | undefined;
+                                "publisher-place"?: string | undefined;
+                                volume?: string | undefined;
+                                issue?: string | undefined;
+                                page?: string | undefined;
+                                "article-number"?: string | undefined;
+                                edition?: string | undefined;
+                                DOI?: string | undefined;
+                                URL?: string | undefined;
+                                ISBN?: string | undefined;
+                                ISSN?: string | undefined;
+                                PMID?: string | undefined;
+                                PMCID?: string | undefined;
+                                arXiv?: string | undefined;
+                            };
+                        } | undefined;
                     };
                     identity: {
                         candidateId?: string | undefined;
@@ -2647,6 +3398,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;
@@ -2849,6 +3636,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 provenance: "parser" | "user";
                 createdAt: string;
@@ -2922,6 +3745,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             PMCID?: string | undefined;
                             arXiv?: string | undefined;
                         };
+                        imported?: {
+                            format: "bibtex" | "ris";
+                            unsupported: {
+                                name: string;
+                                value: string;
+                            }[];
+                            fields: {
+                                type?: string | undefined;
+                                author?: {
+                                    family?: string | undefined;
+                                    "non-dropping-particle"?: string | undefined;
+                                    given?: string | undefined;
+                                    literal?: string | undefined;
+                                }[] | undefined;
+                                issued?: {
+                                    literal: string;
+                                } | undefined;
+                                title?: string | undefined;
+                                "container-title"?: string | undefined;
+                                "container-title-short"?: string | undefined;
+                                publisher?: string | undefined;
+                                "publisher-place"?: string | undefined;
+                                volume?: string | undefined;
+                                issue?: string | undefined;
+                                page?: string | undefined;
+                                "article-number"?: string | undefined;
+                                edition?: string | undefined;
+                                DOI?: string | undefined;
+                                URL?: string | undefined;
+                                ISBN?: string | undefined;
+                                ISSN?: string | undefined;
+                                PMID?: string | undefined;
+                                PMCID?: string | undefined;
+                                arXiv?: string | undefined;
+                            };
+                        } | undefined;
                     };
                     identity: {
                         candidateId?: string | undefined;
@@ -3096,6 +3955,42 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         PMCID?: string | undefined;
                         arXiv?: string | undefined;
                     };
+                    imported?: {
+                        format: "bibtex" | "ris";
+                        unsupported: {
+                            name: string;
+                            value: string;
+                        }[];
+                        fields: {
+                            type?: string | undefined;
+                            author?: {
+                                family?: string | undefined;
+                                "non-dropping-particle"?: string | undefined;
+                                given?: string | undefined;
+                                literal?: string | undefined;
+                            }[] | undefined;
+                            issued?: {
+                                literal: string;
+                            } | undefined;
+                            title?: string | undefined;
+                            "container-title"?: string | undefined;
+                            "container-title-short"?: string | undefined;
+                            publisher?: string | undefined;
+                            "publisher-place"?: string | undefined;
+                            volume?: string | undefined;
+                            issue?: string | undefined;
+                            page?: string | undefined;
+                            "article-number"?: string | undefined;
+                            edition?: string | undefined;
+                            DOI?: string | undefined;
+                            URL?: string | undefined;
+                            ISBN?: string | undefined;
+                            ISSN?: string | undefined;
+                            PMID?: string | undefined;
+                            PMCID?: string | undefined;
+                            arXiv?: string | undefined;
+                        };
+                    } | undefined;
                 };
                 identity: {
                     candidateId?: string | undefined;

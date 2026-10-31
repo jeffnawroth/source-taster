@@ -289,5 +289,15 @@
   "limitation_web_inconclusive": "The response does not establish a readable page with reliable title evidence.",
   "limitation_redirect_limit": "The URL could not be verified within the limit of five redirects.",
   "limitation_archive_mismatch": "The archive response does not establish a capture of the cited original URL.",
-  "evidence_redirect": "Redirect; the target is checked separately"
+  "evidence_redirect": "Redirect; the target is checked separately",
+  "library_import_label": "Import BibTeX or RIS",
+  "library_import_hint": "Choose a UTF-8 .bib or .ris file, up to 20 MB. Malformed records are listed separately. Importing consumes no Quota.",
+  "library_selected": "Selected file: {name}",
+  "library_type": "Source type",
+  "library_unsupported": "Unsupported fields (preserved in the original record)",
+  "library_export_original": "Original {format} format (exact round trip)",
+  "problem_library_size": "The file exceeds 20 MB. Split it into smaller files.",
+  "problem_library_format": "Choose a BibTeX (.bib, .bibtex) or RIS (.ris) file.",
+  "problem_library_encoding": "The file is not valid UTF-8. Export it as UTF-8 from your reference manager.",
+  "library_no_references": "No References could be imported. Review the rejected records or export a UTF-8 BibTeX or RIS file from your reference manager."
 }

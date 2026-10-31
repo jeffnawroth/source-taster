@@ -69,6 +69,9 @@ for (const pkg of packages) {
   // its inflater pako combines MIT and Zlib, both permissive notice licenses.
   if (pkg.name === "jszip" && pkg.versions.every(version => version === "3.10.2") && pkg.license === "(MIT OR GPL-3.0-or-later)") continue;
   if (pkg.name === "pako" && pkg.versions.every(version => version === "1.0.11") && pkg.license === "(MIT AND Zlib)") continue;
+  // ADR-0011 explicitly selects BiblioJSON for the server import adapter.
+  // It remains a replaceable, unmodified LGPL library, outside transport.
+  if (pkg.name === "bibliojson" && pkg.versions.every(version => version === "4.1.0") && pkg.license === "LGPL-3.0") continue;
   if (
     devExceptions.has(pkg.name) &&
     !runtimeNames.has(pkg.name) &&

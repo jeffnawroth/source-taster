@@ -4,6 +4,8 @@ import {
   CheckEvent,
   isFinalEvent,
   ProblemDetails,
+  type Check,
+  type CreateCheckRequest,
   type SaveFieldsRequest,
   type RecheckRequest,
   type EditReferenceListRequest,
@@ -15,6 +17,7 @@ import {
   type VerificationClientOptions,
   type WatchOptions,
 } from "./client.ts";
+import { ImportResponse, type LibraryInput } from "./import.ts";
 export {
   ApiError,
   CheckStreamError,
@@ -24,7 +27,11 @@ export {
 } from "./client.ts";
 export type WatchCheckOptions = WatchOptions<CheckEvent>;
 export function verificationClient(options: VerificationClientOptions = {}) {
-  const base = createVerificationClient(options, "/v2", CheckResponse);
+  const base = createVerificationClient<Check, CreateCheckRequest>(
+    options,
+    "/v2",
+    CheckResponse,
+  );
   async function mutate(checkId: string, path: string, input: unknown) {
     const response = await (options.fetch ?? globalThis.fetch)(
       `${options.baseUrl ?? ""}/v2/checks/${encodeURIComponent(checkId)}/${path}`,
@@ -47,6 +54,31 @@ export function verificationClient(options: VerificationClientOptions = {}) {
   }
   return {
     ...base,
+    importLibrary: async (input: LibraryInput) => {
+      const response = await (options.fetch ?? globalThis.fetch)(
+        `${options.baseUrl ?? ""}/v2/imports`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            ...(options.client
+              ? { "Source-Taster-Client": options.client }
+              : {}),
+            ...(options.credentials
+              ? { Authorization: `Bearer ${await options.credentials()}` }
+              : {}),
+          },
+          body: JSON.stringify(input),
+        },
+      );
+      const body: unknown = await response.json().catch(() => undefined);
+      if (!response.ok)
+        throw new ApiError(
+          response.status,
+          ProblemDetails.safeParse(body).data,
+        );
+      return ImportResponse.parse(body).data;
+    },
     saveFields: (id: string, slot: number, input: SaveFieldsRequest) =>
       mutate(id, `references/${slot}/revisions`, input),
     recheckReference: (id: string, slot: number, input: RecheckRequest) =>

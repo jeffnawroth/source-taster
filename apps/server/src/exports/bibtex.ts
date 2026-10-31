@@ -50,7 +50,10 @@ const months = [
   "nov",
   "dec",
 ];
-function fields(csl: Csl, truncated?: boolean): [string, string][] {
+export function bibtexFields(
+  csl: Csl,
+  truncated?: boolean,
+): [string, string][] {
   const pairs: [string, string | undefined][] = [
     [
       "author",
@@ -116,7 +119,18 @@ function fields(csl: Csl, truncated?: boolean): [string, string][] {
 function importedKey(original: string): string | undefined {
   // Do not write unsupported imported fields back. Their values remain in the
   // unchanged original input, exported separately by the CSL-JSON adapter.
-  return original.match(/^\s*@\w+\s*[{(]\s*([^\s,{}()=\\#%"']+)\s*,/u)?.[1];
+  for (const match of original.matchAll(
+    /@([a-z]+)\s*[{(]\s*([^\s,{}()=\\#%"']+)\s*,/giu,
+  )) {
+    if (["comment", "string", "preamble"].includes(match[1]!.toLowerCase()))
+      continue;
+    const line = original.slice(
+      original.lastIndexOf("\n", match.index - 1) + 1,
+      match.index,
+    );
+    if (!/(?:^|[^\\])(?:\\\\)*%/u.test(line)) return match[2];
+  }
+  return undefined;
 }
 export const bibtex: ReferenceExporter = {
   format: "bibtex",
@@ -141,7 +155,10 @@ export const bibtex: ReferenceExporter = {
           const type = Object.hasOwn(types, sourceType)
             ? types[sourceType]
             : "misc";
-          const body = fields(reference.fields, reference.authorsTruncated)
+          const body = bibtexFields(
+            reference.fields,
+            reference.authorsTruncated,
+          )
             .map(([field, value]) => `  ${field} = {${value}}`)
             .join(",\n");
           return `@${type}{${key},\n${body}\n}`;

@@ -375,6 +375,8 @@ export function createCheckStore(
             slot.results[0]?.revision === slot.revision &&
             slot.status === "finished",
           originalText: slot.originalText,
+          imported: (slot.structured as unknown as StructuredReference | null)
+            ?.imported,
           authorsTruncated: (
             slot.structured as unknown as StructuredReference | null
           )?.authorsTruncated,

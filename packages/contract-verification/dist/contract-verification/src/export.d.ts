@@ -2,12 +2,14 @@ import { z } from "zod";
 export declare const ExportFormat: z.ZodEnum<{
     bibtex: "bibtex";
     "csl-json": "csl-json";
+    "imported-format": "imported-format";
 }>;
 export type ExportFormat = z.infer<typeof ExportFormat>;
 export declare const ExportRequest: z.ZodObject<{
     format: z.ZodEnum<{
         bibtex: "bibtex";
         "csl-json": "csl-json";
+        "imported-format": "imported-format";
     }>;
     mode: z.ZodEnum<{
         original: "original";

@@ -41,6 +41,12 @@ export interface Csl {
 }
 export interface StructuredReference {
   originalText: string;
+  /** Library import provenance; `fields` is the immutable import projection. */
+  imported?: {
+    format: "bibtex" | "ris";
+    unsupported: { name: string; value: string }[];
+    fields: Csl;
+  };
   span: Span;
   csl: Csl;
   fieldSources: Record<string, FieldSource>;
