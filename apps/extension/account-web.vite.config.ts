@@ -10,13 +10,15 @@ export default defineConfig({
   define: {
     "import.meta.env.VITE_SOURCE_TASTER_MODE": JSON.stringify("hosted"),
     "import.meta.env.VITE_SOURCE_TASTER_SERVICE_URL": JSON.stringify(
-      "http://127.0.0.1:4602",
+      `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? "4602"}`,
     ),
   },
   server: {
     host: "127.0.0.1",
-    port: 5361,
+    port: Number(process.env.SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT ?? 5361),
     strictPort: true,
-    proxy: { "/v2": "http://127.0.0.1:4601" },
+    proxy: {
+      "/v2": `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_API_PORT ?? "4601"}`,
+    },
   },
 });

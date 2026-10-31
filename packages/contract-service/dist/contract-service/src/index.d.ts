@@ -73,6 +73,80 @@ export declare const GuestTokenResponse: z.ZodObject<{
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type GuestTokenResponse = z.infer<typeof GuestTokenResponse>;
+/** Account data only: never Check content, Guest identity or theme/onboarding hooks. */
+export declare const AccountPreferences: z.ZodObject<{
+    language: z.ZodEnum<{
+        de: "de";
+        en: "en";
+    }>;
+    citationStyle: z.ZodEnum<{
+        acs: "acs";
+        ama: "ama";
+        apa: "apa";
+        chicago: "chicago";
+        "din-iso-690": "din-iso-690";
+        harvard: "harvard";
+        ieee: "ieee";
+        mla: "mla";
+        oxford: "oxford";
+        springer: "springer";
+        vancouver: "vancouver";
+    }>;
+}, z.core.$strict>;
+export type AccountPreferences = z.infer<typeof AccountPreferences>;
+export declare const AccountPreferencesPatch: z.ZodObject<{
+    language: z.ZodOptional<z.ZodEnum<{
+        de: "de";
+        en: "en";
+    }>>;
+    citationStyle: z.ZodOptional<z.ZodEnum<{
+        acs: "acs";
+        ama: "ama";
+        apa: "apa";
+        chicago: "chicago";
+        "din-iso-690": "din-iso-690";
+        harvard: "harvard";
+        ieee: "ieee";
+        mla: "mla";
+        oxford: "oxford";
+        springer: "springer";
+        vancouver: "vancouver";
+    }>>;
+}, z.core.$strict>;
+export type AccountPreferencesPatch = z.infer<typeof AccountPreferencesPatch>;
+export declare const AccountPreferencesResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        language: z.ZodEnum<{
+            de: "de";
+            en: "en";
+        }>;
+        citationStyle: z.ZodString;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
 /** Browser session credentials are cookies, never fields in these responses. */
 export declare const SignInChallengeRequest: z.ZodObject<{
     email: z.ZodEmail;
@@ -115,6 +189,25 @@ export declare const SignInChallengeResponse: z.ZodObject<{
 export declare const SignInConfirmRequest: z.ZodObject<{
     challengeId: z.ZodUUID;
     code: z.ZodString;
+    preferences: z.ZodOptional<z.ZodObject<{
+        language: z.ZodEnum<{
+            de: "de";
+            en: "en";
+        }>;
+        citationStyle: z.ZodEnum<{
+            acs: "acs";
+            ama: "ama";
+            apa: "apa";
+            chicago: "chicago";
+            "din-iso-690": "din-iso-690";
+            harvard: "harvard";
+            ieee: "ieee";
+            mla: "mla";
+            oxford: "oxford";
+            springer: "springer";
+            vancouver: "vancouver";
+        }>;
+    }, z.core.$strict>>;
 }, z.core.$strict>;
 export declare const AccountSessionResponse: z.ZodObject<{
     data: z.ZodObject<{
@@ -251,6 +344,25 @@ export declare const ExtensionSignInChallengeResponse: z.ZodObject<{
 export declare const ExtensionSignInConfirmRequest: z.ZodObject<{
     challengeId: z.ZodUUID;
     code: z.ZodString;
+    preferences: z.ZodOptional<z.ZodObject<{
+        language: z.ZodEnum<{
+            de: "de";
+            en: "en";
+        }>;
+        citationStyle: z.ZodEnum<{
+            acs: "acs";
+            ama: "ama";
+            apa: "apa";
+            chicago: "chicago";
+            "din-iso-690": "din-iso-690";
+            harvard: "harvard";
+            ieee: "ieee";
+            mla: "mla";
+            oxford: "oxford";
+            springer: "springer";
+            vancouver: "vancouver";
+        }>;
+    }, z.core.$strict>>;
     transactionCredential: z.ZodString;
 }, z.core.$strict>;
 export declare const ExtensionSignInConfirmResponse: z.ZodObject<{

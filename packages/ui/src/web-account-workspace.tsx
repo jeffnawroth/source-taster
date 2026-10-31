@@ -8,6 +8,7 @@ import type { AccountSession } from "@source-taster/contract-service";
 import { m } from "@source-taster/i18n";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client";
 import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
+import { useAccountPreferences } from "./account-preferences.ts";
 import type { Preferences, PreferenceStorage } from "./preferences.ts";
 import { guestCredentials, webGuestIdentityStorage } from "./guest-identity.ts";
 export type SessionClient = Omit<
@@ -30,11 +31,15 @@ export function AccountControls({
   account,
   changed,
   language,
+  preferences,
+  sessionEnded,
 }: {
   client: SessionClient;
   account: AccountSession | null;
   changed: (account: AccountSession | null) => void;
   language: "de" | "en";
+  preferences: Preferences;
+  sessionEnded: () => void;
 }) {
   const [open, setOpen] = useState(false),
     [email, setEmail] = useState(""),
@@ -75,6 +80,10 @@ export function AccountControls({
       const session = await client.confirm({
         challengeId: challenge.challengeId,
         code,
+        preferences: {
+          language: preferences.language,
+          citationStyle: preferences.citationStyle,
+        },
       });
       changed(session);
     } catch (e) {
@@ -90,6 +99,11 @@ export function AccountControls({
       await client.signOut(everywhere);
       changed(null);
     } catch (e) {
+      if (
+        e instanceof GuestTokenError &&
+        (e.status === 401 || e.status === 403)
+      )
+        sessionEnded();
       setError(errorMessage(e));
     } finally {
       setPending(false);
@@ -286,10 +300,18 @@ export function AccountWorkspace({
       undefined,
     ),
     [error, setError] = useState(false),
-    [generation, setGeneration] = useState(0),
-    [preferences, setPreferences] = useState(initial.preferences);
+    [generation, setGeneration] = useState(0);
   const [credentialFailure, setCredentialFailure] = useState(false);
   const [sessionRevision, setSessionRevision] = useState(0);
+  const accountPreferences = useAccountPreferences(
+    initial,
+    preferenceStorage,
+    client,
+    session,
+    credentialFailure,
+    () => setCredentialFailure(true),
+  );
+  const preferences = accountPreferences.preferences;
   useEffect(
     () =>
       client.subscribe?.(() => {
@@ -383,7 +405,7 @@ export function AccountWorkspace({
         <button onClick={() => location.reload()}>{m.auth_retry()}</button>
       </main>
     );
-  if (session === undefined)
+  if (session === undefined || accountPreferences.loading)
     return (
       <main className="p-8">
         <h1>{m.app_title()}</h1>
@@ -394,17 +416,28 @@ export function AccountWorkspace({
     <CheckWorkspace
       key={generation}
       initial={{ ...initial, preferences }}
+      controlledPreferences={accountPreferences}
       preferenceStorage={preferenceStorage}
       transport={transport}
       siteUrl={siteUrl}
       selectionIntake={selectionIntake}
-      onPreferencesChange={setPreferences}
+      onPreferencesChange={accountPreferences.change}
       accountControls={(language) => (
         <>
+          {accountPreferences.failure && (
+            <p role="alert">
+              {m.preferences_unavailable()}{" "}
+              <button onClick={() => void accountPreferences.refresh()}>
+                {m.auth_retry()}
+              </button>
+            </p>
+          )}
           {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
           <AccountControls
             key={session?.accountId ?? "guest"}
             language={language}
+            preferences={preferences}
+            sessionEnded={() => setCredentialFailure(true)}
             client={client}
             account={credentialFailure ? null : session}
             changed={changed}

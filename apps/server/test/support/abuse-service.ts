@@ -27,6 +27,10 @@ import { createApp } from "../../src/http/app.ts";
 import { createAbuseLimiter } from "../../src/abuse/limiter.ts";
 import type { HostedSettings } from "../../src/authority/crypto.ts";
 export async function abuseService() {
+  const apiPort = Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 4701);
+  const servicePort = Number(
+    process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 4702,
+  );
   const database = testDatabase();
   await setupDatabase(database.adminUrl, database.appUrl);
   let now = Date.parse("2026-10-31T12:00:00Z");
@@ -168,10 +172,10 @@ export async function abuseService() {
       res.writeHead(503).end();
     });
   });
-  edge.listen(4702, "127.0.0.1");
+  edge.listen(servicePort, "127.0.0.1");
   await once(edge, "listening");
   const settings: HostedSettings = {
-    serviceOrigin: "http://127.0.0.1:4702",
+    serviceOrigin: `http://127.0.0.1:${servicePort}`,
     serviceIssuer: "https://service.invalid",
     verificationAudience: "verification",
     assertionIssuer: "https://verification.invalid",
@@ -218,7 +222,7 @@ export async function abuseService() {
   let turn = 0;
   const server = serve({
     hostname: "127.0.0.1",
-    port: 4701,
+    port: apiPort,
     fetch: (request, env) => instances[turn++ % 2]!.app.fetch(request, env),
   });
   await once(server, "listening");
@@ -304,7 +308,7 @@ export async function abuseService() {
       } = {},
     ) {
       return fetch(
-        `http://127.0.0.1:4701${options.path ?? "/v1/structurings"}`,
+        `http://127.0.0.1:${apiPort}${options.path ?? "/v1/structurings"}`,
         {
           method: "POST",
           headers: {

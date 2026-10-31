@@ -7,8 +7,11 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     host: "127.0.0.1",
-    port: 5371,
+    port: Number(process.env.SOURCE_TASTER_TEST_WEB_PORT ?? 5371),
     strictPort: true,
-    proxy: { "/v1": "http://127.0.0.1:4701", "/v2": "http://127.0.0.1:4701" },
+    proxy: {
+      "/v1": `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_API_PORT ?? 4701}`,
+      "/v2": `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_API_PORT ?? 4701}`,
+    },
   },
 });

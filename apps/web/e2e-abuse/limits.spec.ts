@@ -8,6 +8,8 @@ import { expect, test } from "@playwright/test";
 import { abuseService } from "../../server/test/support/abuse-service.ts";
 import { buildExtension } from "../../extension/e2e/support/build.ts";
 import { launchChromium, until } from "../../extension/e2e/support/chromium.ts";
+const apiUrl = `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_API_PORT ?? 4701}`;
+const webUrl = `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_WEB_PORT ?? 5371}`;
 let service: Awaited<ReturnType<typeof abuseService>>, vite: ChildProcess;
 test.beforeAll(async () => {
   service = await abuseService();
@@ -21,13 +23,17 @@ test.beforeAll(async () => {
     ],
     {
       cwd: new URL("..", import.meta.url),
-      env: { PATH: process.env.PATH },
+      env: {
+        PATH: process.env.PATH,
+        SOURCE_TASTER_TEST_API_PORT: process.env.SOURCE_TASTER_TEST_API_PORT,
+        SOURCE_TASTER_TEST_WEB_PORT: process.env.SOURCE_TASTER_TEST_WEB_PORT,
+      },
       stdio: "ignore",
     },
   );
   await until(async () => {
     try {
-      return (await fetch("http://127.0.0.1:5371")).ok;
+      return (await fetch(webUrl)).ok;
     } catch {
       return false;
     }
@@ -50,7 +56,7 @@ for (const language of ["en", "de"] as const) {
     await page.setExtraHTTPHeaders({
       authorization: `Bearer ${service.token("web")}`,
     });
-    await page.goto("http://127.0.0.1:5371");
+    await page.goto(webUrl);
     await page
       .getByRole("combobox", { name: /^(Language|Sprache)$/ })
       .selectOption(language);
@@ -80,8 +86,8 @@ for (const language of ["en", "de"] as const) {
     service.advance(60000);
     await service.request("consume");
     const build = await buildExtension("chromium", {
-      SOURCE_TASTER_EXTENSION_API_URL: "http://127.0.0.1:4701",
-      SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5371",
+      SOURCE_TASTER_EXTENSION_API_URL: apiUrl,
+      SOURCE_TASTER_EXTENSION_WEBSITE_URL: webUrl,
     });
     const profile = await mkdtemp(join(tmpdir(), "st100-panel-"));
     const browser = await launchChromium(

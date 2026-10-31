@@ -3,20 +3,8 @@
 import { z } from "zod";
 import { envelope } from "../../contract-common/src/index.ts";
 import { StructuredCsl } from "./structuring.ts";
-export const CitationStyle = z.enum([
-  "apa",
-  "mla",
-  "chicago",
-  "ieee",
-  "vancouver",
-  "harvard",
-  "acs",
-  "ama",
-  "oxford",
-  "springer",
-  "din-iso-690",
-]);
-export type CitationStyle = z.infer<typeof CitationStyle>;
+import { CitationStyle } from "../../contract-common/src/index.ts";
+export { CitationStyle };
 export const BibliographyRequest = z.strictObject({
   style: CitationStyle,
   /** Omit for all suggestions; clients can request just the visible/selected slots. */

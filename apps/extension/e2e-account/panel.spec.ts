@@ -27,6 +27,11 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await api?.stop();
 });
+const servicePort = Number(
+  process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? 4602,
+);
+const webPort = Number(process.env.SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT ?? 5361);
+const apiPort = Number(process.env.SOURCE_TASTER_ACCOUNT_TEST_API_PORT ?? 4601);
 const credential = "extension-session-" + "s".repeat(43);
 const transaction = "transaction-" + "t".repeat(43);
 const account = {
@@ -69,6 +74,7 @@ async function withPanel(
     expiredToken: false,
     authority: false,
   };
+  let preferences = { language: "en", citationStyle: "apa" };
   const origins = new Set<string>();
   const respond = async (req: IncomingMessage, res: ServerResponse) => {
     if (origins.has(req.headers.origin ?? "")) {
@@ -123,6 +129,8 @@ async function withPanel(
       return;
     }
     if (req.url === "/v1/sign-in/confirm") {
+      preferences = (JSON.parse(body) as { preferences: typeof preferences })
+        .preferences;
       res.setHeader(
         "set-cookie",
         "st98_web=active; Path=/; HttpOnly; Secure; SameSite=Strict",
@@ -138,6 +146,39 @@ async function withPanel(
       res.end(JSON.stringify(extensionFixtureJwks));
       return;
     }
+    // #99 made Quota mandatory for hosted creation. This external PRIVATE HTTP
+    // fixture grants only synthetic capacity; it is not the real Quota journal.
+    if (
+      req.url === "/internal/quota/snapshot" ||
+      req.url === "/internal/quota/reserve"
+    ) {
+      const quota = {
+        consumed: 0,
+        remaining: 100,
+        granted: 100,
+        reserved: 0,
+        warning: "none",
+        grants: [],
+        features: [],
+      };
+      res.setHeader("content-type", "application/json");
+      res.end(
+        JSON.stringify(
+          !state.authority
+            ? { outcome: "denied", reason: "forbidden" }
+            : req.url.endsWith("/snapshot")
+              ? { outcome: "granted", quota }
+              : {
+                  outcome: "reserved",
+                  free: [],
+                  reserved: (JSON.parse(body) as { slots: unknown[] }).slots
+                    .length,
+                  quota,
+                },
+        ),
+      );
+      return;
+    }
     if (req.url === "/internal/account-authority") {
       res.setHeader("content-type", "application/json");
       // The public API must obey current authority, including valid signed JWTs.
@@ -150,9 +191,20 @@ async function withPanel(
       );
       return;
     }
+    if (req.url === "/v1/preferences") {
+      res.setHeader("content-type", "application/json");
+      res.end(
+        JSON.stringify({
+          data: preferences,
+          quota: { status: "not-implemented" },
+        }),
+      );
+      return;
+    }
     let data: unknown = account;
     let status = 200;
     if (state.unavailable) status = state.unavailable === "missing" ? 404 : 503;
+    else if (req.url === "/v1/extension/preferences") data = preferences;
     else if (req.url === "/v1/extension/sign-in/challenges")
       data = {
         challengeId: "33333333-3333-4333-8333-333333333333",
@@ -165,7 +217,13 @@ async function withPanel(
         challengeId: "33333333-3333-4333-8333-333333333333",
         code: "123456",
         transactionCredential: transaction,
+        preferences: {
+          language: expect.stringMatching(/^(de|en)$/),
+          citationStyle: "apa",
+        },
       });
+      preferences = (JSON.parse(body) as { preferences: typeof preferences })
+        .preferences;
       data = { session: account, sessionCredential: credential };
     } else if (req.url === "/v1/extension/sign-out") data = { signedOut: true };
     else if (req.url === "/v1/extension/account-tokens") {
@@ -215,14 +273,14 @@ async function withPanel(
   const profile = await mkdtemp(join(tmpdir(), "st98-profile-"));
   try {
     for (const [index, server] of servers.entries()) {
-      server.listen(4602 + index, "127.0.0.1");
+      server.listen(servicePort + index, "127.0.0.1");
       await once(server, "listening");
     }
     build = await buildExtension("chromium", {
       SOURCE_TASTER_EXTENSION_MODE: "hosted",
-      SOURCE_TASTER_EXTENSION_API_URL: "http://127.0.0.1:4601",
-      SOURCE_TASTER_EXTENSION_SERVICE_URL: "http://127.0.0.1:4602",
-      SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5361",
+      SOURCE_TASTER_EXTENSION_API_URL: `http://127.0.0.1:${apiPort}`,
+      SOURCE_TASTER_EXTENSION_SERVICE_URL: `http://127.0.0.1:${servicePort}`,
+      SOURCE_TASTER_EXTENSION_WEBSITE_URL: `http://127.0.0.1:${webPort}`,
       ...(enabled
         ? { SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN: "enabled" }
         : {}),
@@ -292,7 +350,14 @@ test("native sign-in persists only the opaque extension credential, clears Guest
     );
     await panel.click("button", "Sign out here");
     await panel.find("button", "Sign in");
-    expect(await browser.storage()).toEqual({ [guestKey]: guestId });
+    expect(await browser.storage()).toEqual({
+      [guestKey]: guestId,
+      ["source-taster-guest-preferences-v1"]: {
+        language: "en",
+        citationStyle: "apa",
+        theme: "system",
+      },
+    });
     expect(
       requests.find((r) => r.path === "/v1/extension/sign-out")?.body,
     ).toEqual({ everywhere: false });
@@ -333,7 +398,14 @@ test("Account verification uses an in-memory access token; sign-out everywhere d
     expect(
       requests.find((r) => r.path === "/v1/extension/sign-out")?.body,
     ).toEqual({ everywhere: true });
-    expect(await browser.storage()).toEqual({ [guestKey]: guestId });
+    expect(await browser.storage()).toEqual({
+      [guestKey]: guestId,
+      ["source-taster-guest-preferences-v1"]: {
+        language: "en",
+        citationStyle: "apa",
+        theme: "system",
+      },
+    });
   });
 });
 
@@ -414,6 +486,11 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
     expect(await browser.storage()).toEqual({
       [guestKey]: guestId,
       [key]: credential,
+      ["source-taster-guest-preferences-v1"]: {
+        language: "en",
+        citationStyle: "apa",
+        theme: "system",
+      },
     });
   });
 });
@@ -480,9 +557,9 @@ test("Firefox's native sidebar uses the same cookie-free session transport witho
   await withPanel(async ({ requests, allowOrigin }) => {
     const build = await buildExtension("firefox", {
       SOURCE_TASTER_EXTENSION_MODE: "hosted",
-      SOURCE_TASTER_EXTENSION_API_URL: "http://127.0.0.1:4601",
-      SOURCE_TASTER_EXTENSION_SERVICE_URL: "http://127.0.0.1:4602",
-      SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5361",
+      SOURCE_TASTER_EXTENSION_API_URL: `http://127.0.0.1:${apiPort}`,
+      SOURCE_TASTER_EXTENSION_SERVICE_URL: `http://127.0.0.1:${servicePort}`,
+      SOURCE_TASTER_EXTENSION_WEBSITE_URL: `http://127.0.0.1:${webPort}`,
       SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN: "enabled",
     });
     const firefox = await launchFirefox(build.outDir);
@@ -530,9 +607,20 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       "Doe, J. (2020). Signal maps. Example Press.",
     );
     await panel.click("button", "Check Reference");
+    const creation = await until(
+      () =>
+        panel.responses.find(
+          (response) =>
+            response.url === `http://127.0.0.1:${apiPort}/v2/checks`,
+        ),
+      "Check creation did not answer",
+    );
+    expect(creation.status).toBe(201);
     await panel.waitForText("list", "References", /Queued|Running/);
     const created = panel.requests.find(
-      (r) => r.url === "http://127.0.0.1:4601/v2/checks" && r.method === "POST",
+      (r) =>
+        r.url === `http://127.0.0.1:${apiPort}/v2/checks` &&
+        r.method === "POST",
     );
     expect(created).toBeDefined();
     const stream = await until(
@@ -544,12 +632,15 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       accountId: "66666666-6666-4666-8666-666666666666",
       ownerId: "77777777-7777-4777-8777-777777777777",
     });
-    const foreign = await fetch(`http://127.0.0.1:4601/v2/checks/${checkId}`, {
-      headers: {
-        authorization: `Bearer ${other}`,
-        "Source-Taster-Client": "extension/0.0.0",
+    const foreign = await fetch(
+      `http://127.0.0.1:${apiPort}/v2/checks/${checkId}`,
+      {
+        headers: {
+          authorization: `Bearer ${other}`,
+          "Source-Taster-Client": "extension/0.0.0",
+        },
       },
-    });
+    );
     expect(foreign.status).toBe(404);
     const count = panel.requests.filter((r) =>
       /\/events(?:\?|$)/.test(r.url),
@@ -586,7 +677,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
 
 test("the actual web UI keeps #97 cookie transport while the native extension signs in separately", async () => {
   await withPanel(async ({ panel, browser, allowOrigin }) => {
-    allowOrigin("http://127.0.0.1:5361");
+    allowOrigin(`http://127.0.0.1:${webPort}`);
     const vite = spawn(
       process.execPath,
       [
@@ -596,7 +687,12 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
       ],
       {
         cwd: new URL("..", import.meta.url),
-        env: { PATH: process.env.PATH },
+        env: {
+          PATH: process.env.PATH,
+          SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT: String(servicePort),
+          SOURCE_TASTER_ACCOUNT_TEST_API_PORT: String(apiPort),
+          SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT: String(webPort),
+        },
         stdio: ["ignore", "pipe", "pipe"],
       },
     );
@@ -607,12 +703,12 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
     try {
       await until(async () => {
         if (vite.exitCode !== null) throw new Error(output);
-        return fetch("http://127.0.0.1:5361").then(
+        return fetch(`http://127.0.0.1:${webPort}`).then(
           (r) => r.ok,
           () => false,
         );
       }, "Web UI did not start");
-      await page.goto("http://127.0.0.1:5361");
+      await page.goto(`http://127.0.0.1:${webPort}`);
       await page.getByRole("button", { name: "Sign in", exact: true }).click();
       await page
         .getByRole("textbox", { name: "Email address" })

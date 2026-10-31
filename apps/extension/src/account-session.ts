@@ -103,6 +103,9 @@ export function extensionAccountSession(
         }
         return confirmed.session;
       }),
+    preferences: () => authenticated(wire.preferences),
+    updatePreferences: (patch) =>
+      authenticated((credential) => wire.updatePreferences(credential, patch)),
     token: () => authenticated(wire.token),
     activity: () => authenticated(wire.activity),
     signOut: (everywhere) =>

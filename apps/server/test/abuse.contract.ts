@@ -265,7 +265,7 @@ test("SSE admission counts once per connection and its shared client stops on ty
   const check = CheckResponse.parse(await created.json()).data;
   const controller = new AbortController();
   const stream = await fetch(
-    `http://127.0.0.1:4701/v2/checks/${check.id}/events`,
+    `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_API_PORT ?? 4701}/v2/checks/${check.id}/events`,
     {
       headers: {
         authorization: `Bearer ${service.token("stream")}`,
@@ -285,7 +285,7 @@ test("SSE admission counts once per connection and its shared client stops on ty
   }
   await expect(
     watchCheckEvents(check.id, {
-      baseUrl: "http://127.0.0.1:4701",
+      baseUrl: `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_API_PORT ?? 4701}`,
       credentials: () => Promise.resolve(service!.token("stream")),
       onEvent: () => {
         throw new Error("Denied stream published a frame");

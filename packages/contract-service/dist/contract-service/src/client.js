@@ -1,4 +1,4 @@
-import { ExtensionCredential, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutResponse, SignOutRequest, GuestTokenRequest, GuestTokenResponse, ProblemDetails, } from "./index.js";
+import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionCredential, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutResponse, SignOutRequest, GuestTokenRequest, GuestTokenResponse, ProblemDetails, } from "./index.js";
 export class GuestTokenError extends Error {
     status;
     problem;
@@ -41,6 +41,8 @@ export function accountSessionClient(options) {
         return value;
     }
     return {
+        preferences: async () => AccountPreferencesResponse.parse(await call("/v1/preferences")).data,
+        updatePreferences: async (patch) => AccountPreferencesResponse.parse(await call("/v1/preferences", "PATCH", AccountPreferencesPatch.parse(patch))).data,
         session: async () => AccountSessionResponse.parse(await call("/v1/session")).data,
         challenge: async (input) => SignInChallengeResponse.parse(await call("/v1/sign-in/challenges", "POST", SignInChallengeRequest.parse(input))).data,
         confirm: async (input) => AccountSessionResponse.parse(await call("/v1/sign-in/confirm", "POST", SignInConfirmRequest.parse(input))).data,
@@ -77,6 +79,8 @@ export function extensionSessionClient(options) {
     return {
         challenge: async (input) => ExtensionSignInChallengeResponse.parse(await call("/sign-in/challenges", "POST", undefined, SignInChallengeRequest.parse(input))).data,
         confirm: async (input) => ExtensionSignInConfirmResponse.parse(await call("/sign-in/confirm", "POST", undefined, ExtensionSignInConfirmRequest.parse(input))).data,
+        preferences: async (credential) => AccountPreferencesResponse.parse(await call("/preferences", "GET", credential)).data,
+        updatePreferences: async (credential, patch) => AccountPreferencesResponse.parse(await call("/preferences", "PATCH", credential, AccountPreferencesPatch.parse(patch))).data,
         session: async (credential) => AccountSessionResponse.parse(await call("/session", "GET", credential))
             .data,
         token: async (credential) => AccountTokenResponse.parse(await call("/account-tokens", "POST", credential)).data,

@@ -23,16 +23,27 @@ afterEach(async () => {
 });
 
 async function cli(args: string[], env: Record<string, string> = {}) {
-  const child = spawn(process.execPath, ["scripts/load-test.ts", ...args], {
-    cwd: serverDir,
-    env: {
-      ...env,
-      PATH: process.env.PATH,
-      DATABASE_ADMIN_URL: process.env.DATABASE_ADMIN_URL,
-      DATABASE_TEST_URL: process.env.DATABASE_TEST_URL,
+  const child = spawn(
+    process.execPath,
+    [
+      "scripts/load-test.ts",
+      "--api-port",
+      process.env.SOURCE_TASTER_TEST_API_PORT ?? "4501",
+      "--replay-port",
+      process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? "4502",
+      ...args,
+    ],
+    {
+      cwd: serverDir,
+      env: {
+        ...env,
+        PATH: process.env.PATH,
+        DATABASE_ADMIN_URL: process.env.DATABASE_ADMIN_URL,
+        DATABASE_TEST_URL: process.env.DATABASE_TEST_URL,
+      },
+      stdio: ["ignore", "pipe", "pipe"],
     },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  );
   let output = "";
   child.stdout.on("data", (chunk) => (output += String(chunk)));
   child.stderr.on("data", (chunk) => (output += String(chunk)));

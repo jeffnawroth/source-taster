@@ -94,6 +94,7 @@ export function CheckWorkspace({
   siteUrl,
   accountControls,
   onPreferencesChange,
+  controlledPreferences,
   selectionIntake,
   upgradeUrl,
 }: {
@@ -102,7 +103,13 @@ export function CheckWorkspace({
   transport: VerificationClientOptions;
   siteUrl?: string;
   accountControls?: (language: "de" | "en") => ReactNode;
-  onPreferencesChange?: (preferences: Preferences) => void;
+  onPreferencesChange?: (
+    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+  ) => void;
+  controlledPreferences?: {
+    preferences: Preferences;
+    citationStyleReset: boolean;
+  };
   selectionIntake?: SelectionIntake;
   /** Where the host sells Plans; without it the upgrade offer is text only. */
   upgradeUrl?: string;
@@ -123,8 +130,11 @@ export function CheckWorkspace({
   const documentFileInput = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [documentNotice, setDocumentNotice] = useState(false);
-  const [preferences, updatePreferences] = useState(initial.preferences);
-  const [styleReset, setStyleReset] = useState(initial.citationStyleReset);
+  const [localPreferences, updatePreferences] = useState(initial.preferences);
+  const preferences = controlledPreferences?.preferences ?? localPreferences;
+  const [localStyleReset, setStyleReset] = useState(initial.citationStyleReset);
+  const styleReset =
+    controlledPreferences?.citationStyleReset ?? localStyleReset;
   const locale = preferences.language;
   const [text, setText] = useState("");
   const fileId = useId();
@@ -703,12 +713,14 @@ export function CheckWorkspace({
         reference.outcome.kind === "verdict" ||
         reference.outcome.status !== "running",
     ).length ?? 0;
-  function changePreferences(patch: Partial<Preferences>) {
+  function changePreferences(
+    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+  ) {
     const next = { ...preferences, ...patch };
     void setLocale(next.language, { reload: false });
     updatePreferences(next);
-    onPreferencesChange?.(next);
-    void saveGuestPreferences(preferenceStorage, next);
+    if (onPreferencesChange) onPreferencesChange(patch);
+    else void saveGuestPreferences(preferenceStorage, next);
     if (patch.citationStyle) setStyleReset(false);
   }
   return (

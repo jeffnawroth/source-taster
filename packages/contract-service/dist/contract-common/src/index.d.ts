@@ -182,3 +182,52 @@ export declare const entranceLimitResponse: {
         };
     };
 };
+/** Closed launch style/locale manifest (ADR-0011/0023); no renderer implementation. */
+export declare const citationStyles: readonly [{
+    readonly id: "apa";
+    readonly locale: "en-US";
+}, {
+    readonly id: "mla";
+    readonly locale: "en-US";
+}, {
+    readonly id: "chicago";
+    readonly locale: "en-US";
+}, {
+    readonly id: "ieee";
+    readonly locale: "en-US";
+}, {
+    readonly id: "vancouver";
+    readonly locale: "en-US";
+}, {
+    readonly id: "harvard";
+    readonly locale: "en-GB";
+}, {
+    readonly id: "acs";
+    readonly locale: "en-US";
+}, {
+    readonly id: "ama";
+    readonly locale: "en-US";
+}, {
+    readonly id: "oxford";
+    readonly locale: "en-GB";
+}, {
+    readonly id: "springer";
+    readonly locale: "en-US";
+}, {
+    readonly id: "din-iso-690";
+    readonly locale: "de-DE";
+}];
+export declare const CitationStyle: z.ZodEnum<{
+    acs: "acs";
+    ama: "ama";
+    apa: "apa";
+    chicago: "chicago";
+    "din-iso-690": "din-iso-690";
+    harvard: "harvard";
+    ieee: "ieee";
+    mla: "mla";
+    oxford: "oxford";
+    springer: "springer";
+    vancouver: "vancouver";
+}>;
+export type CitationStyle = z.infer<typeof CitationStyle>;
