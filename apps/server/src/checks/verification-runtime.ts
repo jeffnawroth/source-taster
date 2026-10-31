@@ -72,7 +72,7 @@ export function referenceExecution(
     .digest("hex")
     .slice(0, 16);
   const rules = {
-    version: `comparison-75-3-date-ranges-20261028-journal-76-1-entities-4.5.0-uncalibrated-${createHash(
+    version: `comparison-75-3-date-ranges-20261028-${journalAbbreviationRules.version}-entities-4.5.0-uncalibrated-${createHash(
       "sha256",
     )
       .update(

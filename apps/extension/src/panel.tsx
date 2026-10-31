@@ -9,10 +9,13 @@ import {
   extensionGuestIdentity,
   extensionPreferenceStorage,
   trustedExtensionPage,
+  extensionSelectionIntake,
 } from "./platform.ts";
 import "./style.css";
 const config = __SOURCE_TASTER_EXTENSION__;
-const { storage } = trustedExtensionPage();
+const platform = trustedExtensionPage();
+const { storage } = platform;
+const selectionIntake = extensionSelectionIntake(platform);
 const preferenceStorage = extensionPreferenceStorage(storage.local);
 const initial = await loadGuestPreferences(
   preferenceStorage,
@@ -40,6 +43,7 @@ createRoot(document.getElementById("root")!).render(
       preferenceStorage={preferenceStorage}
       transport={transport}
       siteUrl={config.websiteUrl}
+      selectionIntake={selectionIntake}
     />
   </React.StrictMode>,
 );

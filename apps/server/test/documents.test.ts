@@ -128,7 +128,10 @@ it.each([
 it("ignores footnote References instead of treating them as bibliography input", async () => {
   const response = await upload(
     api,
-    await docx(entries, { footnotes: ["Secret, S. (1999). Footnote source."] }),
+    // The footnote anchor paragraph is running text, so the list needs its heading (#90).
+    await docx(["References", ...entries], {
+      footnotes: ["Secret, S. (1999). Footnote source."],
+    }),
     "footnotes.docx",
   );
   expect(response.status).toBe(200);

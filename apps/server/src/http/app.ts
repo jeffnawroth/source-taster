@@ -3,6 +3,7 @@
 
 import {
   structureDocument,
+  structureText,
   getDocumentSettings,
 } from "@source-taster/contract-verification/document-routes";
 import { documentSizeLimit } from "@source-taster/contract-verification/document";
@@ -38,7 +39,16 @@ import {
   FormattingUnavailable,
 } from "../citations/rendering.ts";
 import * as v2 from "@source-taster/contract-verification/routes-v2";
-import { ReferenceLimitExceeded, type Structuring } from "@source-taster/core";
+import {
+  InvalidBibliographySelection,
+  bibliographyRulesVersion,
+  selectionRegions,
+  detectBibliography,
+  structureSelection,
+  ReferenceLimitExceeded,
+  type BibliographyDocument,
+  type Structuring,
+} from "@source-taster/core";
 import { stream, streamSSE } from "hono/streaming";
 import type { EventListener } from "../checks/events.ts";
 import { HTTPException } from "hono/http-exception";
@@ -167,6 +177,8 @@ export function createApp(
   });
 
   app.onError((error) => {
+    if (error instanceof InvalidBibliographySelection)
+      return problemResponse("invalid-request");
     if (error instanceof CheckExpired || error instanceof ContentUnavailable)
       return problemResponse(
         apiVersion === 1 ? "check-not-found" : "check-expired",
@@ -201,7 +213,58 @@ export function createApp(
       }
     });
 
+  function documentStructure(
+    text: string,
+    regions: { start: number; end: number }[],
+  ) {
+    try {
+      return {
+        structuring: structureSelection(
+          structuring,
+          text,
+          regions,
+          referenceLimit,
+        ),
+        referenceLimitExceeded: false,
+      };
+    } catch (error) {
+      if (!(error instanceof ReferenceLimitExceeded)) throw error;
+      return {
+        structuring: structureSelection(structuring, text, [], referenceLimit),
+        referenceLimitExceeded: true,
+      };
+    }
+  }
   if (apiVersion === 2) {
+    app.openapi(structureText, async (c) => {
+      const principal = await authorize(c.req.raw, "structuring:create");
+      const input = c.req.valid("json");
+      const detected = detectBibliography(input.text, {
+        list: input.document === true,
+      });
+      const isDocument =
+        input.document ||
+        input.regions !== undefined ||
+        detected.regions.length > 0;
+      const selection = {
+        ...detected,
+        regions: selectionRegions(
+          input.text,
+          input.regions ?? detected.regions,
+        ),
+      };
+      const data = isDocument
+        ? {
+            document: { text: input.text, selection },
+            ...documentStructure(input.text, selection.regions),
+          }
+        : {
+            document: null,
+            structuring: structuring.structure(input.text),
+            referenceLimitExceeded: false,
+          };
+      return output(c, principal, "structuring:create", data, 200);
+    });
     app.openapi(getDocumentSettings, async (c) => {
       const principal = await authorize(c.req.raw, "structuring:create");
       return output(
@@ -248,7 +311,9 @@ export function createApp(
         );
         if (format === "pdf" && extracted.partialNoText)
           documentMetrics.record("pdf-partial-no-text");
+        const selection = detectBibliography(extracted.text, { list: true });
         const data = {
+          selection,
           document: {
             format,
             text: extracted.text,
@@ -256,7 +321,7 @@ export function createApp(
               ? ("partial-no-text" as const)
               : null,
           },
-          structuring: structuring.structure(extracted.text),
+          ...documentStructure(extracted.text, selection.regions),
         };
         return output(c, principal, "structuring:create", data, 200);
       } catch (error) {
@@ -284,23 +349,51 @@ export function createApp(
       const principal = await authorize(c.req.raw, "check:create");
       const input = c.req.valid("json");
       let references: StructuredReference[];
+      let document: BibliographyDocument | undefined;
       try {
-        const parsed =
-          "library" in input
+        if ("document" in input) {
+          const regions = selectionRegions(
+            input.document.text,
+            input.document.regions,
+          );
+          document = {
+            text: input.document.text,
+            selection: { version: bibliographyRulesVersion, regions },
+          };
+        } else if ("text" in input && apiVersion === 2) {
+          const selection = detectBibliography(input.text);
+          if (selection.regions.length)
+            document = { text: input.text, selection };
+        }
+        const parsed = document
+          ? structureSelection(
+              structuring,
+              document.text,
+              document.selection.regions,
+              referenceLimit,
+            )
+          : "library" in input
             ? importLibrary(input.library, referenceLimit)
             : "text" in input
               ? structuring.structure(input.text)
               : null;
         if (
           parsed &&
-          parsed.references.length + parsed.rejected.length > referenceLimit
+          parsed.references.length +
+            (apiVersion === 1 ? parsed.rejected.length : 0) >
+            referenceLimit
         )
           fail(
             "reference-limit",
             `At most ${referenceLimit} References can be checked at once.`,
             referenceLimit,
           );
-        if (parsed?.rejected.length && !("library" in input))
+        // v2 reviews rejected text separately; it never becomes a billed slot.
+        if (
+          apiVersion === 1 &&
+          parsed?.rejected.length &&
+          !("library" in input)
+        )
           fail("invalid-request");
         references = parsed
           ? parsed.references
@@ -344,7 +437,7 @@ export function createApp(
         );
       if (!references.length) fail("invalid-request");
       const check = await guarded(principal, "check:create", () =>
-        checks.create(principal, references, apiVersion),
+        checks.create(principal, references, apiVersion, document),
       );
       return output(c, principal, "check:create", check, 201, check.id);
     },
@@ -370,6 +463,37 @@ export function createApp(
       );
       if (!check) fail("check-not-found");
       return output(c, principal, "check:create", check, 200, check.id);
+    });
+    app.openapi(v2.previewSelection, async (c) => {
+      const principal = await authorize(c.req.raw, "check:create");
+      const { checkId } = c.req.valid("param");
+      const data = await guarded(principal, "check:create", () =>
+        checks.previewSelection(
+          principal,
+          checkId,
+          c.req.valid("json"),
+          structuring,
+          referenceLimit,
+        ),
+      );
+      if (!data) fail("check-not-found");
+      return output(c, principal, "check:create", data, 200, checkId);
+    });
+    app.openapi(v2.editSelection, async (c) => {
+      const principal = await authorize(c.req.raw, "check:create");
+      const { checkId } = c.req.valid("param");
+      const request = c.req.valid("json");
+      const data = await guarded(principal, "check:create", () =>
+        checks.editList(
+          principal,
+          checkId,
+          { expectedEventSeq: request.expectedEventSeq, add: [], remove: [] },
+          referenceLimit,
+          { regions: request.regions, parser: structuring },
+        ),
+      );
+      if (!data) fail("check-not-found");
+      return output(c, principal, "check:create", data, 200, checkId);
     });
     app.openapi(v2.recheckReference, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");

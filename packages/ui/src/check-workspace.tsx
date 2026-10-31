@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type { ReactNode } from "react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type {
   Check,
   StructuringResult,
@@ -14,12 +21,15 @@ import {
 } from "@source-taster/contract-verification/client-v2";
 import {
   documentClient,
+  textStructuringClient,
   documentSettingsClient,
 } from "@source-taster/contract-verification/document-client";
 import type {
   ImportResult,
   LibraryInput,
 } from "@source-taster/contract-verification/import";
+import type { BibliographyDocument } from "@source-taster/contract-verification/document";
+import { BibliographyEditor, validRegions } from "./bibliography-selection.tsx";
 import { m } from "@source-taster/i18n";
 import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
@@ -69,6 +79,11 @@ function problemKey(error: unknown, fallback: MessageKey): MessageKey {
 }
 
 /** One in-memory Check workflow for web and panel hosts. Storage carries preferences only. */
+export interface SelectionIntake {
+  subscribe(
+    receive: (selection: { text: string; possiblyShortened: boolean }) => void,
+  ): () => void;
+}
 export function CheckWorkspace({
   initial,
   preferenceStorage,
@@ -76,6 +91,7 @@ export function CheckWorkspace({
   siteUrl,
   accountControls,
   onPreferencesChange,
+  selectionIntake,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
@@ -83,8 +99,16 @@ export function CheckWorkspace({
   siteUrl?: string;
   accountControls?: (language: "de" | "en") => ReactNode;
   onPreferencesChange?: (preferences: Preferences) => void;
+  selectionIntake?: SelectionIntake;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
+  const structureText = useMemo(
+    () => textStructuringClient(transport),
+    [transport],
+  );
+  const [sourceDocument, setSourceDocument] =
+    useState<BibliographyDocument | null>(null);
+  const [selectionLimit, setSelectionLimit] = useState<number | null>(null);
   const uploadDocument = useMemo(() => documentClient(transport), [transport]);
   const documentSettings = useMemo(
     () => documentSettingsClient(transport),
@@ -102,6 +126,57 @@ export function CheckWorkspace({
   const [library, setLibrary] = useState<LibraryInput | null>(null);
   const [fileName, setFileName] = useState("");
   const [fileError, setFileError] = useState<MessageKey | null>(null);
+  const [selectionNotice, setSelectionNotice] = useState<
+    "empty" | "shortened" | null
+  >(null);
+  const [selectionUndo, setSelectionUndo] = useState<{
+    text: string;
+    library: LibraryInput | null;
+    preview: StructuringResult | ImportResult | null;
+    fileName: string;
+    file: File | null;
+    documentNotice: boolean;
+    fileError: MessageKey | null;
+  } | null>(null);
+  const receiveSelection = useEffectEvent(
+    (selection: { text: string; possiblyShortened: boolean }) => {
+      if (!selection.text) {
+        setSelectionNotice("empty");
+        return;
+      }
+      setSelectionNotice(selection.possiblyShortened ? "shortened" : null);
+      setSelectionUndo({
+        text,
+        library,
+        preview,
+        fileName,
+        file,
+        documentNotice,
+        fileError,
+      });
+      // A selection is a new draft, not a new Check. Keep the existing Check,
+      // its event stream and lease alive. Ignore only obsolete draft preparation.
+      if (pending === "structure" || pending === "document") {
+        generation.current++;
+        controller.current?.abort();
+        setPending(null);
+      }
+      setText(selection.text);
+      setLibrary(null);
+      setPreview(null);
+      setFileName("");
+      setFileError(null);
+      setFile(null);
+      setDocumentNotice(false);
+      setRequestError(null);
+      if (fileInput.current) fileInput.current.value = "";
+      if (documentFileInput.current) documentFileInput.current.value = "";
+    },
+  );
+  useEffect(
+    () => selectionIntake?.subscribe(receiveSelection),
+    [selectionIntake],
+  );
   const [check, setCheck] = useState<Check | null>(null);
   const [accessStopped, setAccessStopped] = useState(false);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);
@@ -181,6 +256,7 @@ export function CheckWorkspace({
     }
   }
   async function loadLibrary(file: File) {
+    setSelectionUndo(null);
     const token = ++generation.current;
     controller.current?.abort();
     setCheck(null);
@@ -193,6 +269,8 @@ export function CheckWorkspace({
     setFileName(file.name);
     setFile(null);
     setDocumentNotice(false);
+    setSourceDocument(null);
+    setSelectionLimit(null);
     if (documentFileInput.current) documentFileInput.current.value = "";
     const format = /\.(bib|bibtex)$/iu.test(file.name)
       ? "bibtex"
@@ -225,6 +303,7 @@ export function CheckWorkspace({
     }
   }
   async function start(operation: "create" | "structure") {
+    setSelectionUndo(null);
     const token = ++generation.current;
     controller.current?.abort();
     setCheck(null);
@@ -234,15 +313,53 @@ export function CheckWorkspace({
     setPending(operation);
     setAccessStopped(false);
     setCancelRequested(false);
+    let selection: BibliographyDocument | null = null;
     try {
-      if (operation === "structure") {
-        const result = library
-          ? await api.importLibrary(library)
-          : await api.structureReferences(text);
-        if (generation.current === token) setPreview(result);
-        return;
+      if (library) {
+        if (operation === "structure") {
+          const result = await api.importLibrary(library);
+          if (generation.current === token) setPreview(result);
+          return;
+        }
+      } else {
+        // Only the Bibliography selection of a document is structured and checked.
+        const result = await structureText(
+          sourceDocument
+            ? {
+                text: sourceDocument.text,
+                document: true,
+                regions: sourceDocument.selection.regions,
+              }
+            : { text },
+        );
+        if (generation.current !== token) return;
+        setSourceDocument(result.document);
+        setPreview(result.structuring);
+        setSelectionLimit(
+          result.referenceLimitExceeded
+            ? result.structuring.referenceLimit
+            : null,
+        );
+        if (
+          operation === "structure" ||
+          result.referenceLimitExceeded ||
+          !result.structuring.references.length
+        )
+          return;
+        selection = result.document;
       }
-      const created = await api.createCheck(library ? { library } : text);
+      const created = await api.createCheck(
+        library
+          ? { library }
+          : selection
+            ? {
+                document: {
+                  text: selection.text,
+                  regions: selection.selection.regions,
+                },
+              }
+            : text,
+      );
       if (generation.current !== token) {
         void cancelDetached(created.id);
         return;
@@ -256,6 +373,7 @@ export function CheckWorkspace({
   }
   async function upload() {
     if (!file) return;
+    setSelectionUndo(null);
     const token = ++generation.current;
     controller.current?.abort();
     const next = new AbortController();
@@ -285,6 +403,15 @@ export function CheckWorkspace({
       const result = await uploadDocument(file, file.name, next.signal);
       if (generation.current !== token) return;
       setText(result.document.text);
+      setSourceDocument({
+        text: result.document.text,
+        selection: result.selection,
+      });
+      setSelectionLimit(
+        result.referenceLimitExceeded
+          ? result.structuring.referenceLimit
+          : null,
+      );
       setPreview(result.structuring);
       setDocumentNotice(result.document.notice === "partial-no-text");
     } catch (error) {
@@ -394,6 +521,8 @@ export function CheckWorkspace({
     )
       void cancelDetached(check.id);
     setText("");
+    setSelectionUndo(null);
+    setSelectionNotice(null);
     setFile(null);
     if (documentFileInput.current) documentFileInput.current.value = "";
     setDocumentNotice(false);
@@ -401,6 +530,8 @@ export function CheckWorkspace({
     setFileName("");
     setFileError(null);
     if (fileInput.current) fileInput.current.value = "";
+    setSourceDocument(null);
+    setSelectionLimit(null);
     setCheck(null);
     setPreview(null);
     setPending(null);
@@ -415,6 +546,11 @@ export function CheckWorkspace({
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",
   );
   const busy = pending !== null || running;
+  const selectionBlocked =
+    !!sourceDocument &&
+    (!!check ||
+      !sourceDocument.selection.regions.length ||
+      !validRegions(sourceDocument.text, sourceDocument.selection.regions));
   const errorKey =
     fileError ??
     streamError ??
@@ -546,33 +682,92 @@ export function CheckWorkspace({
         {fileName && (
           <p className="mb-4">{m.library_selected({ name: fileName })}</p>
         )}
-        <TextField
-          value={text}
-          onChange={(value) => {
-            setText(value);
-            setLibrary(null);
-            setFileName("");
-            setFileError(null);
-            if (fileInput.current) fileInput.current.value = "";
-            setPreview(null);
-            setDocumentNotice(false);
-          }}
-          isDisabled={busy}
-          className="flex flex-col gap-3"
-        >
-          <Label className="text-lg font-semibold">{m.input_label()}</Label>
-          <Text slot="description" className="text-sm text-slate-600">
-            {m.input_hint()}
-          </Text>
-          <TextArea
-            ref={inputRef}
-            className="min-h-40 resize-y rounded-xl border border-slate-500 p-4 leading-relaxed placeholder:text-slate-500 disabled:bg-slate-100"
-            placeholder={m.input_example()}
+        {!sourceDocument && (
+          <TextField
+            value={text}
+            onChange={(value) => {
+              setText(value);
+              setSelectionUndo(null);
+              setLibrary(null);
+              setFileName("");
+              setFileError(null);
+              if (fileInput.current) fileInput.current.value = "";
+              setPreview(null);
+              setDocumentNotice(false);
+            }}
+            isDisabled={busy}
+            className="flex flex-col gap-3"
+          >
+            <Label className="text-lg font-semibold">{m.input_label()}</Label>
+            <Text slot="description" className="text-sm text-slate-600">
+              {m.input_hint()}
+            </Text>
+            <TextArea
+              ref={inputRef}
+              className="min-h-40 resize-y rounded-xl border border-slate-500 p-4 leading-relaxed placeholder:text-slate-500 disabled:bg-slate-100"
+              placeholder={m.input_example()}
+            />
+          </TextField>
+        )}
+        {sourceDocument && (
+          <BibliographyEditor
+            document={sourceDocument}
+            disabled={!!busy || !!check}
+            onChange={(regions) => {
+              setSourceDocument({
+                ...sourceDocument,
+                selection: { ...sourceDocument.selection, regions },
+              });
+              setPreview(null);
+              setSelectionLimit(null);
+            }}
           />
-        </TextField>
+        )}
+        {selectionLimit && (
+          <p role="alert">{m.selection_limit({ limit: selectionLimit })}</p>
+        )}
+        {selectionIntake && (
+          <p className="mt-3 text-sm text-slate-600">
+            {m.selection_intake_help()}
+          </p>
+        )}
+        {selectionNotice && (
+          <p
+            role="status"
+            className="mt-3 rounded-xl border border-amber-400 bg-amber-50 p-4"
+          >
+            {selectionNotice === "empty"
+              ? m.selection_empty()
+              : m.selection_shortened()}
+          </p>
+        )}
+        {selectionUndo !== null && (
+          <Button
+            type="button"
+            onPress={() => {
+              setSelectionNotice(null);
+              setText(selectionUndo.text);
+              setLibrary(selectionUndo.library);
+              setPreview(selectionUndo.preview);
+              setFileName(selectionUndo.fileName);
+              setFile(selectionUndo.file);
+              if (documentFileInput.current && selectionUndo.file) {
+                const restored = new DataTransfer();
+                restored.items.add(selectionUndo.file);
+                documentFileInput.current.files = restored.files;
+              }
+              setFileError(selectionUndo.fileError);
+              setDocumentNotice(selectionUndo.documentNotice);
+              setSelectionUndo(null);
+            }}
+            className="mt-3 rounded-xl border border-slate-600 px-5 py-3 font-semibold"
+          >
+            {m.selection_undo()}
+          </Button>
+        )}
         <Button
           type="button"
-          isDisabled={(!text.trim() && !library) || busy}
+          isDisabled={(!text.trim() && !library) || busy || selectionBlocked}
           onPress={() => {
             void start("structure");
           }}
@@ -585,7 +780,9 @@ export function CheckWorkspace({
         <Button
           type="submit"
           isDisabled={
-            (!text.trim() && !(library && preview?.references.length)) || busy
+            (!text.trim() && !(library && preview?.references.length)) ||
+            busy ||
+            selectionBlocked
           }
           className="mt-5 rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
         >

@@ -2,7 +2,10 @@
 // Version 2 transport only. Version 1 stays frozen; old stored results remain readable.
 import { z } from "zod";
 import * as v1 from "./index.js";
+import { BibliographyDocument } from "./document.js";
+import { SourceSpan } from "./structuring.js";
 export * from "./index.js";
+export {} from "./document.js";
 const CandidateDataSource = z.enum([
     "crossref",
     "openalex",
@@ -56,7 +59,14 @@ export const LibraryInput = z
 export const CreateCheckRequest = z
     .union([
     z.object({ library: LibraryInput }),
-    z.object({ text: z.string().trim().min(1) }),
+    // Not trimmed: document offsets must stay exact.
+    z.object({ text: z.string().regex(/\S/u) }),
+    z.strictObject({
+        document: z.strictObject({
+            text: z.string().min(1),
+            regions: z.array(SourceSpan).max(1000),
+        }),
+    }),
     z.object({
         references: z
             .array(z.object({
@@ -222,6 +232,7 @@ export const ReferenceSlot = v1.ReferenceSlot.extend({
     progress: ReferenceProgress,
 }).meta({ id: "ReferenceSlotV2" });
 export const Check = v1.Check.extend({
+    document: BibliographyDocument.nullable().optional(),
     references: z.array(ReferenceSlot),
 }).meta({ id: "CheckV2" });
 export const CheckResponse = v1.CheckResponse.extend({ data: Check }).meta({
@@ -257,4 +268,22 @@ export const EditReferenceListRequest = z.strictObject({
     }))
         .max(1000),
     remove: z.array(z.number().int().positive()).max(1000),
+});
+export const EditSelectionRequest = z.strictObject({
+    expectedEventSeq: z.number().int().nonnegative(),
+    regions: z.array(SourceSpan).max(1000),
+});
+export const SelectionPreviewResponse = z.object({
+    data: z.object({
+        expectedEventSeq: z.number().int().nonnegative(),
+        regions: z.array(SourceSpan),
+        unchanged: z.array(z.number().int().positive()),
+        removed: z.array(z.number().int().positive()),
+        added: z.number().int().nonnegative(),
+        addedReferences: v1.StructuringResult.shape.references,
+        total: z.number().int().nonnegative(),
+        additionalQuota: z.number().int().nonnegative(),
+        rejected: v1.StructuringResult.shape.rejected,
+    }),
+    quota: v1.CheckResponse.shape.quota,
 });

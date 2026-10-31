@@ -32,9 +32,10 @@ const v2 = await import("../src/routes-v2.ts");
 const next = new OpenAPIHono();
 const { exportReferences } = await import("../src/export-routes.ts");
 const { renderBibliography } = await import("../src/bibliography-routes.ts");
-const { structureDocument, getDocumentSettings } =
+const { structureDocument, getDocumentSettings, structureText } =
   await import("../src/document-routes.ts");
 for (const route of [
+  structureText,
   structureDocument,
   getDocumentSettings,
   renderBibliography,
@@ -44,6 +45,8 @@ for (const route of [
   v2.saveFields,
   v2.recheckReference,
   v2.editReferenceList,
+  v2.editSelection,
+  v2.previewSelection,
   v2.cancelCheck,
   v2.renewCheckLease,
   v2.createCheck,

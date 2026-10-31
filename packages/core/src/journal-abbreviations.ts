@@ -11,7 +11,7 @@ const snapshot = data as {
   journals: string[][];
 };
 export const journalAbbreviationRules = Object.freeze({
-  version: "journal-76-1",
+  version: "journal-76-2",
   snapshotDate: snapshot.snapshotDate,
   sourceSha256: snapshot.sourceSha256,
 });

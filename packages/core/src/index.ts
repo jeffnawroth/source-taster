@@ -14,3 +14,4 @@ export { normalizeIsbn } from "./isbn.ts";
 export { normalizeDoi } from "./comparison.ts";
 
 export * from "./web.ts";
+export * from "./bibliography-selection.ts";
