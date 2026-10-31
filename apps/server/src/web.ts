@@ -23,6 +23,7 @@ await runMain(async (config) => {
   const events = await listenForEvents(config.databaseUrl);
   const checks = createCheckStore(db, boss, {
     settings: {
+      contentRetentionMs: config.contentRetentionMs,
       clientLeaseMs: config.clientLeaseMs,
       claimMs: config.workerClaimMs,
     },

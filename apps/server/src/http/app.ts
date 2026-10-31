@@ -40,6 +40,7 @@ import { stream, streamSSE } from "hono/streaming";
 import type { EventListener } from "../checks/events.ts";
 import { HTTPException } from "hono/http-exception";
 import type { StructuredReference } from "@source-taster/core";
+import { ReferenceConflict, CheckExpired } from "../checks/store.ts";
 import type { CheckStore } from "../checks/store.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
@@ -139,6 +140,11 @@ export function createApp(
   });
 
   app.onError((error) => {
+    if (error instanceof CheckExpired) return problemResponse("check-expired");
+    if (error instanceof ReferenceLimitExceeded)
+      return problemResponse("reference-limit", undefined, error.limit);
+    if (error instanceof ReferenceConflict)
+      return problemResponse("reference-conflict");
     if (error instanceof FormattingUnavailable)
       return problemResponse("formatting-unavailable");
     if (error instanceof HTTPException) return error.getResponse();
@@ -298,6 +304,43 @@ export function createApp(
       return output(c, principal, "check:create", check, 201);
     },
   );
+
+  if (apiVersion === 2)
+    app.openapi(v2.saveFields, async (c) => {
+      const principal = await authorize(c.req.raw, "check:create");
+      const { checkId, slot } = c.req.valid("param");
+      const check = await guarded(principal, "check:create", () =>
+        checks.saveFields(principal, checkId, slot, c.req.valid("json")),
+      );
+      if (!check) fail("check-not-found");
+      return output(c, principal, "check:create", check, 200);
+    });
+
+  if (apiVersion === 2) {
+    app.openapi(v2.recheckReference, async (c) => {
+      const principal = await authorize(c.req.raw, "check:create");
+      const { checkId, slot } = c.req.valid("param");
+      const check = await guarded(principal, "check:create", () =>
+        checks.recheck(principal, checkId, slot, c.req.valid("json")),
+      );
+      if (!check) fail("check-not-found");
+      return output(c, principal, "check:create", check, 200);
+    });
+    app.openapi(v2.editReferenceList, async (c) => {
+      const principal = await authorize(c.req.raw, "check:create");
+      const { checkId } = c.req.valid("param");
+      const check = await guarded(principal, "check:create", () =>
+        checks.editList(
+          principal,
+          checkId,
+          c.req.valid("json"),
+          referenceLimit,
+        ),
+      );
+      if (!check) fail("check-not-found");
+      return output(c, principal, "check:create", check, 200);
+    });
+  }
 
   if (apiVersion === 2)
     app.openapi(renderBibliography, async (c) => {
@@ -470,6 +513,8 @@ export function createApp(
       let after = Number(seq);
       c.header("Cache-Control", "no-cache, no-transform");
       c.header("X-Accel-Buffering", "no");
+      if (apiVersion === 2)
+        c.header("X-Source-Taster-Replay-Through", String(check.lastEventSeq));
       return streamSSE(
         c,
         async (stream) => {
@@ -513,7 +558,11 @@ export function createApp(
                   after = event.seq;
                 }
                 if (
-                  snapshot.state === "ended" &&
+                  !snapshot.references.some(
+                    (r) =>
+                      r.outcome.kind === "status" &&
+                      r.outcome.status === "running",
+                  ) &&
                   after >= snapshot.lastEventSeq
                 )
                   return;

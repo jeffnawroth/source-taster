@@ -261,10 +261,15 @@ export function createBibliographicVerification(ports: {
       (execution?.startedAt ?? ports.now()) +
       doiTracerLimits.referenceDeadlineMs;
     const book = isBookReference(reference.csl.type);
+    const web = ["webpage", "post-weblog", "post"].includes(
+      reference.csl.type ?? "",
+    );
     // ADR-0007 routes: each route only asks its own Data sources.
     const routeSources: readonly CandidateDataSource[] = book
       ? bookSearchOrder
-      : articleSources;
+      : web
+        ? ["openalex", "crossref"]
+        : articleSources;
     const sources = ports.sources.filter((s) => routeSources.includes(s.name));
     const result: VerdictResult = {
       kind: "verdict",
@@ -311,6 +316,15 @@ export function createBibliographicVerification(ports: {
       result.searchStrategyVersion = `book-search-79-4-${sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`;
       Object.assign(result.searchConfiguration, bookSearchConfiguration);
     }
+    if (web && reference.csl.DOI) {
+      result.searchStrategyVersion = `web-doi-search-80-1-${sources.map((s) => s.name).join("-")}-settings-${ports.settingsVersion}-uncalibrated`;
+      Object.assign(result.searchConfiguration, {
+        route: "web-doi",
+        providerOrder: "openalex,crossref",
+        identifierOrder: "DOI",
+        unimplementedCapabilities: "cross-process-identifier-batching",
+      });
+    }
     const doi = reference.csl.DOI ? normalizeDoi(reference.csl.DOI) : undefined;
     let resolution: Evidence | undefined;
     if (doi) {
@@ -321,9 +335,7 @@ export function createBibliographicVerification(ports: {
       !doi ||
       resolution?.outcome === "exists" ||
       resolution?.outcome === "nonexistent";
-    const article =
-      !book &&
-      !["webpage", "post-weblog", "post"].includes(reference.csl.type ?? "");
+    const article = !book && (!web || !!doi);
     const states = new Map(
       sources.map((source) => [
         source.name,
@@ -611,12 +623,16 @@ export function createBibliographicVerification(ports: {
               ),
             );
       // Disabled is not failed: recorded, never part of the failure set.
-      for (const name of book ? bookSearchOrder : searchOrder)
+      for (const name of book
+        ? bookSearchOrder
+        : web
+          ? (["openalex", "crossref"] as const)
+          : searchOrder)
         if (!states.has(name))
           result.evidence.push(
             note(name, "combined", "disabled", "operator-disabled"),
           );
-      if (!book && reference.csl.arXiv && !states.has("arxiv"))
+      if (!book && !web && reference.csl.arXiv && !states.has("arxiv"))
         result.evidence.push(
           note("arxiv", "arxiv", "disabled", "operator-disabled"),
         );
@@ -642,11 +658,13 @@ export function createBibliographicVerification(ports: {
             IdentifierKind,
             string | undefined,
           ][])
-        : ([
-            ["pmid", reference.csl.PMID],
-            ["pmcid", reference.csl.PMCID],
-            ["arxiv", reference.csl.arXiv],
-          ] as [IdentifierKind, string | undefined][])),
+        : web
+          ? []
+          : ([
+              ["pmid", reference.csl.PMID],
+              ["pmcid", reference.csl.PMCID],
+              ["arxiv", reference.csl.arXiv],
+            ] as [IdentifierKind, string | undefined][])),
     ];
     let unsupportedIdentifier = false;
     for (const [kind, raw] of identifiers) {

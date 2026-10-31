@@ -44,6 +44,8 @@ model ReferenceSlot {
   /// Current execution Status; final immutable result takes precedence.
   status       String
   structured   Json?
+  removed      Boolean           @default(false)
+  revisions    FieldRevision[]
   generation   Int               @default(0)
   revision     Int               @default(1)
   attempts     Int               @default(0)
@@ -118,4 +120,17 @@ model AuthorityFence {
  ownerId String @id @map("owner_id") @db.Uuid
  version Int
  @@map("authority_fences")
+}
+
+// Immutable snapshots: every user correction appends to the stable slot.
+model FieldRevision {
+  checkId String @map("check_id") @db.Uuid
+  position Int
+  revision Int
+  content Json
+  provenance String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  reference ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade)
+  @@id([checkId, position, revision])
+  @@map("field_revisions")
 }

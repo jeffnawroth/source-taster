@@ -95,6 +95,12 @@ export const defaultSearchSettings: SearchSettings = Object.freeze({
     // a conservative development value pending a provider allowance (#79).
     // Neither catalog is bounded by a connection limit.
     openlibrary: { requestTimeoutMs: 3000, intervalMs: 334, maxWaitMs: 10000 },
+    url: { requestTimeoutMs: 5000, intervalMs: 0, maxWaitMs: 10000 },
+    internetarchive: {
+      requestTimeoutMs: 3000,
+      intervalMs: 200,
+      maxWaitMs: 10000,
+    },
     googlebooks: { requestTimeoutMs: 3000, intervalMs: 1000, maxWaitMs: 10000 },
   }),
 });

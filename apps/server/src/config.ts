@@ -35,6 +35,9 @@ export interface Config {
   sseHeartbeatMs: number;
   doiPreview: boolean;
   bibliographicPreview?: boolean;
+  urlEnabled?: boolean;
+  internetarchiveEnabled?: boolean;
+  webFixtureBase?: string;
   openalexEnabled?: boolean;
   openalexBase?: string;
   europepmcEnabled?: boolean;
@@ -54,6 +57,7 @@ export interface Config {
   crossrefBase: string;
   /** Development/test scheduling delay; never a source timeout. */
   placeholderDelayMs: number;
+  contentRetentionMs: number;
   clientLeaseMs: number;
   workerClaimMs: number;
 }
@@ -126,6 +130,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       "Bibliographic search requires the uncalibrated development profile.",
     );
   for (const [name, label] of [
+    ["URL", "URL reachability"],
+    ["INTERNETARCHIVE", "Internet Archive"],
     ["OPENALEX", "OpenAlex"],
     ["EUROPEPMC", "Europe PMC"],
     ["SEMANTICSCHOLAR", "Semantic Scholar"],
@@ -225,10 +231,34 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new ConfigError(
       "Document extraction requires an immutable local image ID.",
     );
+
+  let webFixtureBase: string | undefined;
+  if (env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL) {
+    webFixtureBase = endpoint(
+      "SOURCE_TASTER_WEB_FIXTURE_BASE_URL",
+      "https://fixture.invalid",
+    );
+    const fixture = new URL(webFixtureBase);
+    if (
+      !bibliographicPreview ||
+      env.NODE_ENV === "production" ||
+      !["http:", "https:"].includes(fixture.protocol) ||
+      !["127.0.0.1", "localhost", "[::1]"].includes(fixture.hostname)
+    )
+      throw new ConfigError(
+        "Web fixture replacement is loopback-only in the bibliographic development preview.",
+      );
+  }
   return {
     documentImage: env.SOURCE_TASTER_DOCUMENT_IMAGE,
     documentLimits,
     mode,
+    urlEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_URL_ENABLED === "true",
+    internetarchiveEnabled:
+      bibliographicPreview &&
+      env.SOURCE_TASTER_INTERNETARCHIVE_ENABLED === "true",
+    webFixtureBase,
     doiPreview,
     bibliographicPreview,
     openalexEnabled:
@@ -284,6 +314,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     port: integer(env, "SOURCE_TASTER_PORT", 3100),
     sseHeartbeatMs: integer(env, "SOURCE_TASTER_SSE_HEARTBEAT_MS", 25_000),
     placeholderDelayMs: integer(env, "SOURCE_TASTER_PLACEHOLDER_DELAY_MS", 500),
+    contentRetentionMs: integer(
+      env,
+      "SOURCE_TASTER_CONTENT_RETENTION_MS",
+      86_400_000,
+      1000,
+    ),
     clientLeaseMs: integer(env, "SOURCE_TASTER_CLIENT_LEASE_MS", 75_000, 1000),
     workerClaimMs: integer(
       env,
