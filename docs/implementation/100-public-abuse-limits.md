@@ -137,7 +137,8 @@ Integrated final results (after merging #99):
 | Server, web, Chromium + Firefox extension builds | Passed, `after99-*-build.log`; existing Vite bundle-size advisory retained |
 | DE/EN catalog | **368 messages validated**, `after99-i18n.log` |
 | License inventory | **547 installed / 89 runtime** packages reviewed, `final-licenses.log`; no dependency added |
-| Whole-tree Prettier and whitespace | Passed; final logs accompany this handoff |
+| Whole-tree Prettier and whitespace | Passed, `final-whole-format.log` / `final-whitespace.log` |
+| Clean-tree release guard | Correctly refuses with **exit 78**: uncalibrated, no measured configuration/location; `release-clean.log` |
 
 No private/both-program suite, live ingress/IPv6 qualification, native Firefox or
 Safari limiter UI, source activation, physical purge under downtime, restored
@@ -146,3 +147,9 @@ or CI run is claimed. Native Firefox was built, not exercised for this feature.
 No release/qualification threshold, source gate (including #140), dependency
 exception or human approval was relaxed. Local tests are not CI evidence.
 
+
+Environment: Node 24.14.0, pnpm 12.15.0, PostgreSQL 18 image
+`postgres@sha256:edb0c08dc33befd0262ab3b5cf1c4f3f8cfd8b09e88c05b45adee29d6761ddb6`.
+The owned PostgreSQL container and its anonymous volume were stopped/removed after
+validation; shared resources were untouched. A copy of the text logs and transport
+fingerprints is in the parent orchestration directory's `100-public-evidence/`.

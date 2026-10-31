@@ -130,8 +130,9 @@ allowances**. Before any hosted reactivation, the service must fence the restore
 verification deployment until all possibly lost public windows have drained (up to
 24 hours), or supply a reviewed accounting-preserving recovery protocol. Apply the
 same rule to private/shared ledger restore and its deduplication state. This restore
-fence is a required private/deployment follow-up; the public hosted loader remains
-closed and the current tests do not prove such a fence. Existing authority deletion
+fence is a required private/deployment follow-up. Qualify managed backups, replicas
+and WAL/PITR retention too: excluding a routine export does not establish deletion
+from provider-managed recovery material. The public hosted loader remains closed and the current tests do not prove such a fence. Existing authority deletion
 fences, content encryption/expiry, cancellation and Quota reconciliation remain.
 
 ## Required real both-program evidence
