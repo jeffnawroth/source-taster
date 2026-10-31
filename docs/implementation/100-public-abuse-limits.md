@@ -6,7 +6,8 @@ evidence remain required in [the exact private handoff](100-private-abuse-handof
 No private checkout was read/edited/created, and no push, PR, issue closure or nested
 agent was used. The branch descends from required integration
 `dc39bbeab3da55bc410ad866be65f5ee724318b9` and merges integration
-`512e4572d2b7473d6d6a40dc27923a2d891fc92a` (including the disabled #98 public phase).
+`512e4572d2b7473d6d6a40dc27923a2d891fc92a` (including the disabled #98 public phase),
+then `56f251f520792f3e3e808b30c1b598f325f9b47a` (the #99 public Quota integration).
 
 ## Implemented behavior
 
@@ -71,7 +72,8 @@ Playwright clients. Tests do not assert table layouts or mock internal domain
 collaborators. The source-only fixture composes two independent API/limiter/authority
 instances and connection pools behind one owned HTTP listener, real check store,
 pg-boss/events and PostgreSQL. The unavailable private HTTP edge supplies synthetic
-signed-access/current-authority/policy/accounting responses and verifies the new
+signed-access/current-authority/policy/accounting responses and, following the #99
+merge, its referenced Quota DTOs and verifies the new
 program assertions' signature, purpose, issuer, audience, path/method and body
 binding. It does not implement/prove the private domain or combined ledger.
 
@@ -100,7 +102,13 @@ Prettier call on SQL reported no SQL parser; SQL was left as SQL and the support
 source/whole-tree formatting checks were used. An intermediate contract build
 correctly rejected duplicate 429 properties inherited by v2 routes; source was
 fixed and every committed transport/OpenAPI artifact regenerated, not hand-merged.
-Server lint initially caught an unsafe Hono binding and a promise-returning Node
+The #99 merge produced conflicts in assertion-purpose dispatch, shared problem
+fields, appended Quota/abuse schemas/routes, test includes and DE/EN additions.
+Both source features were retained, including Quota assertion purpose and error
+fields; all generated conflicts were replaced by fresh builds. The new Quota read
+also declares typed 429. Its unavailable private Quota HTTP edge is a synthetic
+DTO fixture, not a domain mock or Quota acceptance test. Limiter-denied Structuring
+attempts make no Quota reservation call. Server lint initially caught an unsafe Hono binding and a promise-returning Node
 HTTP callback; both were corrected before the final checks.
 
 Owned resources: PostgreSQL 18 container `st100-public-a5e7dde3` on loopback 5471,
@@ -115,4 +123,26 @@ container. The primary focused invocation is
 clients use
 `pnpm --filter @source-taster/web exec playwright test --config abuse.playwright.config.ts`.
 
-Final results and limits are recorded below after the integrated checks complete.
+Integrated final results (after merging #99):
+
+| Check | Actual result / evidence |
+| --- | --- |
+| Focused public abuse HTTP/SSE/export suite | **14/14 passed**, `public-after99.log`; concurrency, Guest rebinding, invalid identity, combined denial, spoofed forwarding/HTTP Origin, sign-in, all Guests, rotation, policy outage/invalid settings, Plan changes/windows, export exclusion, 24-hour expiry/rounding, latest retry time and SSE refusal |
+| Existing Structuring, Checks and SSE compatibility HTTP suites | **52/52 passed** in three files, `focused-regression-after99.log`; assigned API/aux ports and fresh owned databases |
+| DE/EN web + native Chromium side panel | **4/4 passed**, `client-after99.log`; actual limiter responses, semantic continuation time and both language labels |
+| Server, UI, web, extension typechecks and ESLint; root scripts typecheck | Passed, `after99-*-types.log` / `after99-*-lint.log` |
+| Four transport packages: build, typecheck, lint | Passed, `contracts-final.log` / `contracts-final-static.log` |
+| Generated transport/OpenAPI reproduction | **58 artifacts exactly reproduced**, `generated-final.log` and `artifact-fingerprints.json` |
+| Prisma generation and validation | Passed, `merge99-prisma.log` / `after99-prisma-validation.log` |
+| Server, web, Chromium + Firefox extension builds | Passed, `after99-*-build.log`; existing Vite bundle-size advisory retained |
+| DE/EN catalog | **368 messages validated**, `after99-i18n.log` |
+| License inventory | **547 installed / 89 runtime** packages reviewed, `final-licenses.log`; no dependency added |
+| Whole-tree Prettier and whitespace | Passed; final logs accompany this handoff |
+
+No private/both-program suite, live ingress/IPv6 qualification, native Firefox or
+Safari limiter UI, source activation, physical purge under downtime, restored
+accounting fence, full suite, website build, vulnerability audit, load measurement
+or CI run is claimed. Native Firefox was built, not exercised for this feature.
+No release/qualification threshold, source gate (including #140), dependency
+exception or human approval was relaxed. Local tests are not CI evidence.
+

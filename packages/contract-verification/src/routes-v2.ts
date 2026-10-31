@@ -60,6 +60,7 @@ export const getQuota = createRoute({
   summary:
     "Current Quota of the acting Owner: balance, consumption, grants and warning level",
   responses: {
+    429: entranceLimitResponse,
     200: {
       description: "Current Quota; null when no Quota applies.",
       content: { "application/json": { schema: QuotaResponse } },

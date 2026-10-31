@@ -1138,6 +1138,28 @@ export declare const getQuota: {
     path: "/v2/quota";
     summary: string;
     responses: {
+        429: {
+            description: string;
+            headers: z.ZodObject<{
+                "Retry-After": z.ZodString;
+            }, z.core.$strip>;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        status: z.ZodLiteral<429>;
+                        code: z.ZodLiteral<"abuse-limit">;
+                        i18nKey: z.ZodLiteral<"problem_abuse_limit">;
+                        retryAt: z.ZodISODateTime;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         200: {
             description: string;
             content: {

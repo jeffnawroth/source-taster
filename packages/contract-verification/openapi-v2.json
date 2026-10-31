@@ -5247,6 +5247,25 @@
               }
             }
           },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
           "503": {
             "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
