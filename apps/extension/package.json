@@ -8,6 +8,7 @@
     "build": "vite build --mode chromium && vite build --mode firefox",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
+    "test:native-account": "playwright test --config account.playwright.config.ts",
     "test:native": "playwright test",
     "test:native-selection": "playwright test --config selection.playwright.config.ts",
     "test:native-guest": "playwright test --config guest.playwright.config.ts",

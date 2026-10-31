@@ -16,6 +16,7 @@ import {
   isBookReference,
 } from "@source-taster/core";
 import { createHash } from "node:crypto";
+import { scoringRulesCalibration } from "./scoring-calibration.ts";
 import type { Db } from "../db/prisma.ts";
 import type { Config } from "../config.ts";
 import {
@@ -84,7 +85,7 @@ export function referenceExecution(
       .digest(
         "hex",
       )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
-    calibration: "uncalibrated",
+    calibration: scoringRulesCalibration,
     unicode: process.versions.unicode!,
     icu: process.versions.icu!,
     profile: { ...config.comparisonProfile },

@@ -356,3 +356,56 @@ it("starts the 24-hour deadline at the first end, even when a renewed Check runs
     gate.release();
   }
 }, 60_000);
+
+it("encrypts the complete bibliography document in operator exports and preserves selection through daily rollover", async () => {
+  const sentinel = `Unselected document ${crypto.randomUUID()}`;
+  const reference = "Doe, J. (2020). Signal maps. Example Press.";
+  const text = `${sentinel}\nReferences\n${reference}`;
+  const res = await request(2, "", {
+    method: "POST",
+    body: JSON.stringify({
+      document: {
+        text,
+        regions: [{ start: text.indexOf(reference), end: text.length }],
+      },
+    }),
+  });
+  expect(res.status).toBe(201);
+  const check = CheckResponse.parse(await res.json()).data;
+  expect(check.document?.text).toBe(text);
+  const dump = await backup(service.adminUrl, service.appUrl, {
+    unloggedData: false,
+  });
+  try {
+    expect((await dump.text()).includes(sentinel)).toBe(false);
+    const restored = await restoredService(dump, service.now());
+    try {
+      expect(
+        (await fetch(`${restored.apiUrl}/v2/checks/${check.id}`)).status,
+      ).toBe(410);
+    } finally {
+      await restored.stop();
+    }
+  } finally {
+    await dump.discard();
+  }
+  await service.advance(13 * HOUR);
+  const current = await request(2, `/${check.id}`);
+  expect(current.status).toBe(200);
+  expect(CheckResponse.parse(await current.json()).data.document).toEqual(
+    check.document,
+  );
+  await service.advance(12 * HOUR);
+  expect((await request(2, `/${check.id}`)).status).toBe(410);
+  const expired = await backup(service.adminUrl, service.appUrl, {
+    unloggedData: true,
+  });
+  try {
+    const exported = await expired.text();
+    expect(exported.includes(sentinel)).toBe(false);
+    // No encrypted document survives on the content-free tombstone either.
+    expect(exported.includes('"sealed"')).toBe(false);
+  } finally {
+    await expired.discard();
+  }
+}, 120_000);
