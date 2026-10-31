@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // OpenAPI route definitions of the verification API. Kept in their own subpath
 // so browser clients can import the schemas without pulling in Hono.
+import { entranceLimitResponse } from "../../contract-common/src/index.js";
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { StructureRequest, StructuringResponse, CheckId, CheckResponse, CreateCheckRequest, PROBLEM_CONTENT_TYPE, ProblemDetails, } from "./index.js";
@@ -24,6 +25,7 @@ export const createCheck = createRoute({
         },
     },
     responses: {
+        429: entranceLimitResponse,
         ...authorityProblems,
         201: {
             description: "Check created; one stable slot per recognized Reference. Explicit fields have user provenance. DOI verification is an opt-in uncalibrated local development preview.",
@@ -39,6 +41,7 @@ export const getCheck = createRoute({
     summary: "Read the current snapshot of a Check",
     request: { params: CheckParams },
     responses: {
+        429: entranceLimitResponse,
         ...authorityProblems,
         200: {
             description: "Current snapshot, including the newest event sequence.",
@@ -60,6 +63,7 @@ export const streamCheckEvents = createRoute({
         headers: z.object({ "last-event-id": z.string().optional() }),
     },
     responses: {
+        429: entranceLimitResponse,
         ...authorityProblems,
         200: {
             description: "text/event-stream of CheckEvent",
@@ -81,6 +85,7 @@ export const structureReferences = createRoute({
         },
     },
     responses: {
+        429: entranceLimitResponse,
         ...authorityProblems,
         200: {
             description: "Recognized References, field provenance and rejected text.",
@@ -97,6 +102,7 @@ export const cancelCheck = createRoute({
     summary: "Idempotently cancel a whole Check, retaining finished Verdicts",
     request: { params: CheckParams },
     responses: {
+        429: entranceLimitResponse,
         ...authorityProblems,
         200: {
             description: "Authoritative snapshot after cancellation",
@@ -114,6 +120,7 @@ export const renewCheckLease = createRoute({
     summary: "Renew the whole Check client lease; never revive ended work",
     request: { params: CheckParams },
     responses: {
+        429: entranceLimitResponse,
         ...authorityProblems,
         200: {
             description: "Authoritative snapshot; an expired lease ends the Check",

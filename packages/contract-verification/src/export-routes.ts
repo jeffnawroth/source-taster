@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
+import { entranceLimitResponse } from "../../contract-common/src/index.ts";
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { CheckId, ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.ts";
@@ -21,6 +22,7 @@ export const exportReferences = createRoute({
     },
   },
   responses: {
+    429: entranceLimitResponse,
     200: {
       description:
         "UTF-8 attachment. CSL-JSON retains immutable original input in custom.originalText.",

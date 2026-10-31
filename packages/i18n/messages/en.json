@@ -349,5 +349,8 @@
   "selection_undo": "Undo selection replacement",
   "selection_empty": "No selection was taken over – please copy and paste",
   "selection_intake_help": "For pages with their own menus, canvas editors, password fields or private windows without extension permission, copy and paste the text.",
-  "selection_shortened": "The selection may have been shortened – paste the text or upload a file for longer lists"
+  "selection_shortened": "The selection may have been shortened – paste the text or upload a file for longer lists",
+  "problem_abuse_limit": "Too many requests. Please wait before trying again.",
+  "problem_abuse_unavailable": "Request limits are temporarily unavailable. Please try again later.",
+  "abuse_continue_at": "Continue at"
 }

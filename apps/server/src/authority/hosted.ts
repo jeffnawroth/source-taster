@@ -113,7 +113,7 @@ export function hostedAuthority(
         ownerId: claims.ownerId,
         actorId: claims.sub,
         ...(claims.purpose === "guest-access"
-          ? { guestContextId: claims.guestContextId }
+          ? { guestContextId: claims.guestContextId, guestId: claims.guestId }
           : { sessionId: claims.sessionId }),
         expiresAt: claims.exp * 1000,
         can: () => true,

@@ -93,3 +93,110 @@ export declare const AccountAuthorityRequest: z.ZodObject<{
     }>;
 }, z.core.$strict>;
 export type AccountAuthorityRequest = z.infer<typeof AccountAuthorityRequest>;
+/** Operator settings, not qualification evidence. Public and combined budgets are distinct.
+ * Every entrance attempt counts, including denied attempts; no Quota is consumed. */
+export declare const AbuseBudget: z.ZodObject<{
+    limit: z.ZodNumber;
+    windowMs: z.ZodNumber;
+}, z.core.$strict>;
+export declare const AbuseBudgets: z.ZodObject<{
+    principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>>;
+    guest: z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>;
+    allGuests: z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>;
+    origin: z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>;
+}, z.core.$strict>;
+export declare const AbusePolicy: z.ZodObject<{
+    version: z.ZodString;
+    cacheMs: z.ZodNumber;
+    public: z.ZodObject<{
+        principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>>;
+        guest: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        allGuests: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        origin: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+    }, z.core.$strict>;
+    shared: z.ZodObject<{
+        principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>>;
+        guest: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        allGuests: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        origin: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+    }, z.core.$strict>;
+}, z.core.$strict>;
+export type AbusePolicy = z.infer<typeof AbusePolicy>;
+/** Trusted ingress already truncated and keyed-hashed. Never HTTP Origin or a raw IP.
+ * One hash per distinct origin budget window; signer authenticates the ingress context. */
+export declare const AbuseOrigin: z.ZodObject<{
+    windowMs: z.ZodNumber;
+    windowStart: z.ZodNumber;
+    keyId: z.ZodString;
+    hash: z.ZodString;
+}, z.core.$strict>;
+export declare const AbuseEntrance: z.ZodObject<{
+    requestId: z.ZodUUID;
+    program: z.ZodLiteral<"verification">;
+    policyVersion: z.ZodString;
+    principal: z.ZodNullable<z.ZodObject<{
+        ownerId: z.ZodUUID;
+        actorId: z.ZodUUID;
+        guestId: z.ZodOptional<z.ZodUUID>;
+        guestContextId: z.ZodOptional<z.ZodUUID>;
+        sessionId: z.ZodOptional<z.ZodUUID>;
+    }, z.core.$strict>>;
+    origins: z.ZodArray<z.ZodObject<{
+        windowMs: z.ZodNumber;
+        windowStart: z.ZodNumber;
+        keyId: z.ZodString;
+        hash: z.ZodString;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
+export type AbuseEntrance = z.infer<typeof AbuseEntrance>;
+/** Service resolves current Plan, never accepts a client Plan/allowance. It atomically
+ * counts ALL shared dimensions across BOTH entrances, durably deduplicating requestId
+ * for at most 24h. An inaccessible/unknown identity never reveals Account existence.
+ * Policy mismatch/outage is 503; it is never an allow. No cached decisions/retries. */
+export declare const AbuseDecision: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    allowed: z.ZodLiteral<true>;
+    policyVersion: z.ZodString;
+    planId: z.ZodString;
+}, z.core.$strict>, z.ZodObject<{
+    allowed: z.ZodLiteral<false>;
+    planId: z.ZodString;
+    policyVersion: z.ZodString;
+    retryAt: z.ZodISODateTime;
+}, z.core.$strict>], "allowed">;
+export type AbuseDecision = z.infer<typeof AbuseDecision>;

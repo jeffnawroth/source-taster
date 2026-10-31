@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The web process: serves the /v1 HTTP API and the Check event streams.
 
+import { createAbuseLimiter } from "./abuse/limiter.ts";
+import { loadOriginSettings } from "./abuse/origin.ts";
+import { ConfigError } from "./config.ts";
 import { isolatedExtractor } from "./documents/supervisor.ts";
 import { createParser } from "@source-taster/core";
 import { openWebsite } from "@source-taster/website/hosting";
@@ -29,9 +32,23 @@ await runMain(async (config) => {
     },
   });
   await checks.maintain();
+  if (config.mode === "hosted" && !config.hosted)
+    throw new ConfigError(
+      "Hosted authority and abuse configuration are required.",
+    );
   const authority =
     config.mode === "hosted" && config.hosted
       ? hostedAuthority(config.hosted, config.databaseUrl, checks)
+      : undefined;
+  // Deployable hosted activation remains gated in loadConfig (#94/#100).
+  // Once qualified, it cannot silently omit either the service or ingress keys.
+  const entrance =
+    authority && config.hosted
+      ? createAbuseLimiter(
+          config.hosted,
+          config.databaseUrl,
+          loadOriginSettings(process.env.SOURCE_TASTER_ABUSE_ORIGIN_CONFIG),
+        )
       : undefined;
   let maintaining = false;
   const maintenance = setInterval(() => {
@@ -51,6 +68,7 @@ await runMain(async (config) => {
     config.documentLimits,
   );
   const app = createApp({
+    entrance,
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     events,
     heartbeatMs: config.sseHeartbeatMs,
@@ -95,6 +113,7 @@ await runMain(async (config) => {
       events.close(),
       db.$disconnect(),
       authority?.close(),
+      entrance?.close(),
     ]).finally(() => process.exit(0));
   };
   process.once("SIGTERM", shutdown);

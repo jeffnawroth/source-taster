@@ -10,6 +10,16 @@ import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const problems = {
+  "abuse-limit": {
+    status: 429,
+    title: "Too many requests.",
+    i18nKey: "problem_abuse_limit",
+  },
+  "abuse-unavailable": {
+    status: 503,
+    title: "Request policy is unavailable.",
+    i18nKey: "problem_abuse_unavailable",
+  },
   "library-size": {
     status: 400,
     title: "The library file exceeds 20 MB.",

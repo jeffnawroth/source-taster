@@ -1,3 +1,4 @@
+import { abuseMessage } from "./abuse-message.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useMemo, useState } from "react";
 import type {
@@ -66,13 +67,14 @@ export function ManualVerdictActions({
       const key =
         error instanceof ApiError ? error.problem?.i18nKey : undefined;
       setError(
-        error instanceof ApiError && error.status === 409
-          ? m.problem_reference_conflict()
-          : error instanceof ApiError && error.status === 410
-            ? m.problem_check_expired()
-            : key && key in m
-              ? (m[key as keyof typeof m] as () => string)()
-              : m.problem_connection(),
+        abuseMessage(error) ??
+          (error instanceof ApiError && error.status === 409
+            ? m.problem_reference_conflict()
+            : error instanceof ApiError && error.status === 410
+              ? m.problem_check_expired()
+              : key && key in m
+                ? (m[key as keyof typeof m] as () => string)()
+                : m.problem_connection()),
       );
     } finally {
       setPending(false);

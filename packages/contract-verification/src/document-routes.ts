@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { TextStructuringRequest, TextStructuringResponse } from "./document.ts";
+import { entranceLimitResponse } from "../../contract-common/src/index.ts";
 import { createRoute } from "@hono/zod-openapi";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.ts";
 import {
@@ -26,6 +27,7 @@ export const structureDocument = createRoute({
     },
   },
   responses: {
+    429: entranceLimitResponse,
     200: {
       description: "Extracted text and its parser Structuring",
       content: { "application/json": { schema: DocumentStructuringResponse } },
@@ -51,6 +53,7 @@ export const getDocumentSettings = createRoute({
   path: "/v2/document-settings",
   summary: "Read the current document upload limit",
   responses: {
+    429: entranceLimitResponse,
     200: {
       description: "Operator-configured document input limit in bytes",
       content: { "application/json": { schema: DocumentSettingsResponse } },
@@ -73,6 +76,7 @@ export const structureText = createRoute({
     },
   },
   responses: {
+    429: entranceLimitResponse,
     200: {
       description:
         "Selected document text or list; over-limit documents retain movable regions without truncated References.",

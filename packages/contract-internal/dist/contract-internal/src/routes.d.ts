@@ -58,6 +58,7 @@ export declare const createMailRehearsal: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -74,6 +75,7 @@ export declare const createMailRehearsal: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -90,6 +92,7 @@ export declare const createMailRehearsal: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -146,6 +149,7 @@ export declare const getMailRehearsal: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -162,6 +166,7 @@ export declare const getMailRehearsal: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -230,6 +235,7 @@ export declare const authorizeGuest: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -246,6 +252,7 @@ export declare const authorizeGuest: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -262,6 +269,7 @@ export declare const authorizeGuest: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -314,6 +322,7 @@ export declare const invalidateGuest: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -330,6 +339,7 @@ export declare const invalidateGuest: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -346,6 +356,7 @@ export declare const invalidateGuest: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -414,6 +425,7 @@ export declare const authorizeAccount: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -430,6 +442,7 @@ export declare const authorizeAccount: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -446,6 +459,7 @@ export declare const authorizeAccount: {
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -455,6 +469,211 @@ export declare const authorizeAccount: {
     };
 } & {
     getRoutingPath(): "/internal/account-authority";
+};
+export declare const getAbusePolicy: {
+    method: "post";
+    path: "/internal/abuse/policy";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{}, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        version: z.ZodString;
+                        cacheMs: z.ZodNumber;
+                        public: z.ZodObject<{
+                            principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>>;
+                            guest: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            allGuests: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            origin: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                        }, z.core.$strict>;
+                        shared: z.ZodObject<{
+                            principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>>;
+                            guest: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            allGuests: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            origin: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                        }, z.core.$strict>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/abuse/policy";
+};
+export declare const countAbuseEntrance: {
+    method: "post";
+    path: "/internal/abuse/entrances";
+    summary: string;
+    description: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        requestId: z.ZodUUID;
+                        program: z.ZodLiteral<"verification">;
+                        policyVersion: z.ZodString;
+                        principal: z.ZodNullable<z.ZodObject<{
+                            ownerId: z.ZodUUID;
+                            actorId: z.ZodUUID;
+                            guestId: z.ZodOptional<z.ZodUUID>;
+                            guestContextId: z.ZodOptional<z.ZodUUID>;
+                            sessionId: z.ZodOptional<z.ZodUUID>;
+                        }, z.core.$strict>>;
+                        origins: z.ZodArray<z.ZodObject<{
+                            windowMs: z.ZodNumber;
+                            windowStart: z.ZodNumber;
+                            keyId: z.ZodString;
+                            hash: z.ZodString;
+                        }, z.core.$strict>>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                        allowed: z.ZodLiteral<true>;
+                        policyVersion: z.ZodString;
+                        planId: z.ZodString;
+                    }, z.core.$strict>, z.ZodObject<{
+                        allowed: z.ZodLiteral<false>;
+                        planId: z.ZodString;
+                        policyVersion: z.ZodString;
+                        retryAt: z.ZodISODateTime;
+                    }, z.core.$strict>], "allowed">;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/abuse/entrances";
 };
 export declare const routes: (({
     method: "post";
@@ -515,6 +734,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -531,6 +751,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -547,6 +768,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -602,6 +824,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -618,6 +841,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -685,6 +909,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -701,6 +926,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -717,6 +943,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -768,6 +995,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -784,6 +1012,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -800,6 +1029,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -867,6 +1097,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -883,6 +1114,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -899,6 +1131,7 @@ export declare const routes: (({
                         status: z.ZodNumber;
                         detail: z.ZodOptional<z.ZodString>;
                         limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
                         code: z.ZodString;
                         i18nKey: z.ZodString;
                     }, z.core.$strip>;
@@ -908,4 +1141,207 @@ export declare const routes: (({
     };
 } & {
     getRoutingPath(): "/internal/account-authority";
+}) | ({
+    method: "post";
+    path: "/internal/abuse/policy";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{}, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        version: z.ZodString;
+                        cacheMs: z.ZodNumber;
+                        public: z.ZodObject<{
+                            principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>>;
+                            guest: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            allGuests: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            origin: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                        }, z.core.$strict>;
+                        shared: z.ZodObject<{
+                            principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>>;
+                            guest: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            allGuests: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                            origin: z.ZodObject<{
+                                limit: z.ZodNumber;
+                                windowMs: z.ZodNumber;
+                            }, z.core.$strict>;
+                        }, z.core.$strict>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/abuse/policy";
+}) | ({
+    method: "post";
+    path: "/internal/abuse/entrances";
+    summary: string;
+    description: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        requestId: z.ZodUUID;
+                        program: z.ZodLiteral<"verification">;
+                        policyVersion: z.ZodString;
+                        principal: z.ZodNullable<z.ZodObject<{
+                            ownerId: z.ZodUUID;
+                            actorId: z.ZodUUID;
+                            guestId: z.ZodOptional<z.ZodUUID>;
+                            guestContextId: z.ZodOptional<z.ZodUUID>;
+                            sessionId: z.ZodOptional<z.ZodUUID>;
+                        }, z.core.$strict>>;
+                        origins: z.ZodArray<z.ZodObject<{
+                            windowMs: z.ZodNumber;
+                            windowStart: z.ZodNumber;
+                            keyId: z.ZodString;
+                            hash: z.ZodString;
+                        }, z.core.$strict>>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                        allowed: z.ZodLiteral<true>;
+                        policyVersion: z.ZodString;
+                        planId: z.ZodString;
+                    }, z.core.$strict>, z.ZodObject<{
+                        allowed: z.ZodLiteral<false>;
+                        planId: z.ZodString;
+                        policyVersion: z.ZodString;
+                        retryAt: z.ZodISODateTime;
+                    }, z.core.$strict>], "allowed">;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/abuse/entrances";
 }))[];

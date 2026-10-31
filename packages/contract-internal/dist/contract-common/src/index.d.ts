@@ -10,6 +10,7 @@ export declare const ProblemDetails: z.ZodObject<{
     status: z.ZodNumber;
     detail: z.ZodOptional<z.ZodString>;
     limit: z.ZodOptional<z.ZodNumber>;
+    retryAt: z.ZodOptional<z.ZodISODateTime>;
     code: z.ZodString;
     i18nKey: z.ZodString;
 }, z.core.$strip>;
@@ -68,3 +69,35 @@ export declare const PublicJwks: z.ZodObject<{
     }, z.core.$strict>>;
 }, z.core.$strict>;
 export type PublicJwks = z.infer<typeof PublicJwks>;
+/** Mandatory shape of an entrance-limit refusal, including the continuation time. */
+export declare const EntranceLimitProblem: z.ZodObject<{
+    type: z.ZodString;
+    title: z.ZodString;
+    detail: z.ZodOptional<z.ZodString>;
+    limit: z.ZodOptional<z.ZodNumber>;
+    status: z.ZodLiteral<429>;
+    code: z.ZodLiteral<"abuse-limit">;
+    i18nKey: z.ZodLiteral<"problem_abuse_limit">;
+    retryAt: z.ZodISODateTime;
+}, z.core.$strip>;
+export type EntranceLimitProblem = z.infer<typeof EntranceLimitProblem>;
+export declare const entranceLimitResponse: {
+    description: string;
+    headers: z.ZodObject<{
+        "Retry-After": z.ZodString;
+    }, z.core.$strip>;
+    content: {
+        "application/problem+json": {
+            schema: z.ZodObject<{
+                type: z.ZodString;
+                title: z.ZodString;
+                detail: z.ZodOptional<z.ZodString>;
+                limit: z.ZodOptional<z.ZodNumber>;
+                status: z.ZodLiteral<429>;
+                code: z.ZodLiteral<"abuse-limit">;
+                i18nKey: z.ZodLiteral<"problem_abuse_limit">;
+                retryAt: z.ZodISODateTime;
+            }, z.core.$strip>;
+        };
+    };
+};

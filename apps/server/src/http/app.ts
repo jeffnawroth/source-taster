@@ -6,6 +6,7 @@ import {
   structureText,
   getDocumentSettings,
 } from "@source-taster/contract-verification/document-routes";
+import type { EntranceLimiter } from "../abuse/limiter.ts";
 import { documentSizeLimit } from "@source-taster/contract-verification/document";
 import {
   ExtractionFailed,
@@ -68,6 +69,7 @@ function librarySizeIssue(issues: readonly ZodIssue[]): boolean {
 }
 
 export interface AppDeps {
+  entrance?: EntranceLimiter;
   structuring: Structuring;
   entitlements: Entitlements;
   checks: CheckStore;
@@ -84,6 +86,7 @@ export interface AppDeps {
 export function createApp(
   {
     structuring,
+    entrance,
     entitlements,
     checks,
     events,
@@ -193,6 +196,22 @@ export function createApp(
     console.error(JSON.stringify({ code: "internal" }));
     return problemResponse("internal");
   });
+
+  // Before validation/body parsing and route lookup, including unauthenticated attempts.
+  // Only socket peer metadata is trusted. Forwarded/X-Forwarded-For/HTTP Origin
+  // never select a network budget. A qualified ingress must preserve peer identity.
+  if (entrance && apiVersion === 1)
+    app.use("*", async (c, next) => {
+      if (/^\/v[12](?:\/|$)/.test(c.req.path)) {
+        await entrance.enter(
+          c.req.raw,
+          (c.env as Partial<HttpBindings> | undefined)?.incoming?.socket
+            .remoteAddress,
+          entitlements,
+        );
+      }
+      await next();
+    });
 
   app.get("/health", (c) => c.json({ status: "ok" }));
 

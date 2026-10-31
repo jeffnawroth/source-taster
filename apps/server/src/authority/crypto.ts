@@ -167,8 +167,9 @@ export function requestAssertion(
     JSON.stringify({
       iss: settings.assertionIssuer,
       aud: settings.serviceIssuer,
-      purpose:
-        path === "/internal/account-authority"
+      purpose: path.startsWith("/internal/abuse/")
+        ? "abuse-entrance"
+        : path === "/internal/account-authority"
           ? "account-authority"
           : "guest-authority",
       iat,

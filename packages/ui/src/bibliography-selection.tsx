@@ -1,3 +1,4 @@
+import { abuseMessage } from "./abuse-message.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useMemo, useRef, useState } from "react";
 import { m } from "@source-taster/i18n";
@@ -184,10 +185,13 @@ export function CheckSelectionActions({
         setError(m.problem_reference_conflict());
       } else
         setError(
-          error instanceof ApiError &&
+          abuseMessage(error) ??
+            (error instanceof ApiError &&
             error.problem?.i18nKey === "problem_reference_limit"
-            ? m.problem_reference_limit({ limit: error.problem.limit ?? 1000 })
-            : m.problem_invalid_request(),
+              ? m.problem_reference_limit({
+                  limit: error.problem.limit ?? 1000,
+                })
+              : m.problem_invalid_request()),
         );
     } finally {
       setPending(false);
