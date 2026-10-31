@@ -69,7 +69,13 @@ export interface RawRecord {
 /** Lexical envelope only; field/name/TeX interpretation belongs to BiblioJSON. */
 export function bibRecords(text: string): RawRecord[] {
   const records: RawRecord[] = [];
-  const starts = [...text.matchAll(/@([a-z]+)\s*[{(]/giu)];
+  const starts = [...text.matchAll(/@([a-z]+)\s*[{(]/giu)].filter((match) => {
+    const line = text.slice(
+      text.lastIndexOf("\n", match.index - 1) + 1,
+      match.index,
+    );
+    return !/(?:^|[^\\])(?:\\\\)*%/u.test(line);
+  });
   let consumed = 0;
   for (const [index, match] of starts.entries()) {
     const start = match.index;
@@ -183,7 +189,7 @@ export function bibFields(entry: string): {
     at++;
     space();
     const valueStart = at;
-    let valueEnd = at;
+    let valueEnd: number;
     for (;;) {
       value();
       valueEnd = at;
@@ -216,7 +222,54 @@ const textFields = [
   ["booktitle", "container-title"],
   ["publisher", "publisher"],
   ["location", "publisher-place"],
+  ["eid", "article-number"],
 ] as const;
+// Raw field names that are represented by the canonical projection. Fields
+// outside it remain visible even when the underlying library understands them.
+const projected: Readonly<Record<string, keyof Csl>> = {
+  author: "author",
+  title: "title",
+  year: "issued",
+  month: "issued",
+  date: "issued",
+  journal: "container-title",
+  journaltitle: "container-title",
+  booktitle: "container-title",
+  shortjournal: "container-title-short",
+  publisher: "publisher",
+  institution: "publisher",
+  school: "publisher",
+  address: "publisher-place",
+  location: "publisher-place",
+  volume: "volume",
+  number: "issue",
+  issue: "issue",
+  pages: "page",
+  edition: "edition",
+  eid: "article-number",
+  doi: "DOI",
+  url: "URL",
+  isbn: "ISBN",
+  issn: "ISSN",
+};
+function unsupportedFields(text: string, record: RawRecord, csl: Csl) {
+  const entry = text.slice(record.bodyStart, record.bodyEnd);
+  return bibFields(entry)
+    .fields.filter((field) => {
+      const key = projected[field.name];
+      return !key || csl[key] === undefined;
+    })
+    .map((field) => {
+      const raw = entry.slice(field.valueStart, field.valueEnd);
+      return {
+        name: field.name,
+        value:
+          /^\{[\s\S]*\}$/u.test(raw) || /^"[\s\S]*"$/u.test(raw)
+            ? raw.slice(1, -1)
+            : raw,
+      };
+    });
+}
 // Traditional names #87 writes, and the BibLaTeX spellings they replace.
 const aliases: Readonly<Record<string, readonly string[]>> = {
   journal: ["journal", "journaltitle"],
@@ -234,6 +287,18 @@ function patchBibtex(originalText: string, changes: Csl, imported: Csl) {
     fields.find((field) => (aliases[name] ?? [name]).includes(field.name));
   const edits: TextEdit[] = [];
   const inserted: [string, string][] = [];
+  if (changes.type) {
+    const kind = Object.entries(types).find(
+      ([, csl]) => csl === changes.type,
+    )?.[0];
+    const raw = /^@([a-z]+)/iu.exec(entry);
+    if (kind && raw)
+      edits.push({
+        start: offset + 1,
+        end: offset + raw[0].length,
+        text: kind,
+      });
+  }
   const set = (name: string, value: string) => {
     const field = find(name);
     if (field)
@@ -246,29 +311,40 @@ function patchBibtex(originalText: string, changes: Csl, imported: Csl) {
   };
   for (const key of Object.keys(changes) as (keyof Csl)[]) {
     // No traditional field carries these without overwriting a user's note.
-    if (["container-title-short", "article-number", "arXiv", "PMID", "PMCID"].includes(key))
+    if (
+      ["container-title-short", "type", "arXiv", "PMID", "PMCID"].includes(key)
+    )
       continue;
+    if (key === "article-number") {
+      set("eid", `{${changes["article-number"]}}`);
+      continue;
+    }
     if (key === "issued") {
       const literal = changes.issued?.literal ?? "";
       const date = find("date");
-      if (date) {
-        set("date", `{${literal}}`);
-        continue;
-      }
-      const iso = /^(\d{4})(?:-(\d{2}))?(?:-\d{2})?$/u.exec(literal);
+      const iso = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/u.exec(literal);
+      if (date || iso?.[3]) set("date", `{${literal}}`);
       if (!iso) continue;
       set("year", `{${iso[1]}}`);
       const month = find("month");
       if (iso[2])
-        set("month", bibtexFields({ issued: { literal } }).find(([n]) => n === "month")?.[1] ?? iso[2]);
-      else if (month)
-        edits.push(remove(entry, offset, month));
+        set(
+          "month",
+          bibtexFields({ issued: { literal } }).find(
+            ([n]) => n === "month",
+          )?.[1] ?? iso[2],
+        );
+      else if (month) edits.push(remove(entry, offset, month));
       continue;
     }
-    for (const [name, value] of bibtexFields({ type: imported.type, [key]: changes[key] }))
+    for (const [name, value] of bibtexFields({
+      type: imported.type,
+      [key]: changes[key],
+    }))
       if (name !== "note") set(name, `{${value}}`);
   }
-  if (inserted.length) edits.push(...insert(entry, offset, fields, close, inserted));
+  if (inserted.length)
+    edits.push(...insert(entry, offset, fields, close, inserted));
   return applyEdits(originalText, edits);
 }
 function remove(entry: string, offset: number, field: BibField): TextEdit {
@@ -293,7 +369,9 @@ function insert(
 ): TextEdit[] {
   const eol = entry.includes("\r\n") ? "\r\n" : "\n";
   const first = fields[0];
-  const firstLine = first ? entry.lastIndexOf("\n", first.nameStart - 1) + 1 : 0;
+  const firstLine = first
+    ? entry.lastIndexOf("\n", first.nameStart - 1) + 1
+    : 0;
   const indent =
     first && !entry.slice(firstLine, first.nameStart).trim()
       ? entry.slice(firstLine, first.nameStart)
@@ -304,14 +382,26 @@ function insert(
   const closeLine = entry.lastIndexOf("\n", close - 1) + 1;
   if (closeLine > 0 && !entry.slice(closeLine, close).trim()) {
     if (last && !last.commaEnd)
-      edits.push({ start: offset + last.valueEnd, end: offset + last.valueEnd, text: "," });
+      edits.push({
+        start: offset + last.valueEnd,
+        end: offset + last.valueEnd,
+        text: ",",
+      });
     const block = last?.commaEnd
       ? lines.map((line) => `${indent}${line},${eol}`).join("")
       : lines.map((line) => indent + line).join(`,${eol}`) + eol;
-    edits.push({ start: offset + closeLine, end: offset + closeLine, text: block });
+    edits.push({
+      start: offset + closeLine,
+      end: offset + closeLine,
+      text: block,
+    });
   } else {
     const prefix = !last || last.commaEnd ? " " : ", ";
-    edits.push({ start: offset + close, end: offset + close, text: prefix + lines.join(", ") });
+    edits.push({
+      start: offset + close,
+      end: offset + close,
+      text: prefix + lines.join(", "),
+    });
   }
   return edits;
 }
@@ -344,14 +434,32 @@ export const bibtexImporter: LibraryImporter = {
     const csl = new CSLExporter(parser.bibDB).parse();
     // BiblioJSON's offsets drift after skipped whitespace, so records pair
     // with entries in order by their raw text (duplicate keys stay distinct).
-    const entries = Object.entries(parser.bibDB);
-    const matched = new Map<RawRecord, { id: string; entry: (typeof entries)[number][1] }>();
+    // Contain the library's permissive BibDB index signature at this adapter.
+    const entries = Object.entries(
+      parser.bibDB as Record<
+        string,
+        {
+          entry_key: string;
+          bib_type: string;
+          incomplete?: boolean;
+          raw_text?: string;
+          fields: Record<string, unknown>;
+        }
+      >,
+    );
+    const matched = new Map<
+      RawRecord,
+      { id: string; entry: (typeof entries)[number][1] }
+    >();
     let cursor = 0;
     for (const record of records) {
       if (record.malformed) continue;
       const body = text.slice(record.bodyStart, record.bodyEnd).trim();
       const index = entries.findIndex(
-        ([, entry], i) => i >= cursor && entry.raw_text?.trim() === body,
+        ([, entry], i) =>
+          i >= cursor &&
+          entry.raw_text?.replace(/\s+/gu, " ").trim() ===
+            body.replace(/\s+/gu, " "),
       );
       if (index < 0) continue;
       const [id, entry] = entries[index]!;
@@ -389,9 +497,11 @@ export const bibtexImporter: LibraryImporter = {
       if (Object.hasOwn(types, type)) fields.type = types[type];
       for (const [from, to] of textFields)
         if (entry.fields[from]) fields[to] = plain(entry.fields[from]);
+      // BiblioJSON exports BibTeX number as collection-number even for articles.
+      if (fields.type?.startsWith("article") && entry.fields.number)
+        fields.issue = plain(entry.fields.number);
       const issued = item.issued as
-        | { "date-parts"?: number[][]; literal?: string }
-        | undefined;
+        { "date-parts"?: number[][]; literal?: string } | undefined;
       const parts = issued?.["date-parts"]?.[0];
       if (parts)
         fields.issued = {
@@ -413,10 +523,7 @@ export const bibtexImporter: LibraryImporter = {
         structuring: { path: "parser", version: "bibliojson-4.1.0" },
         imported: {
           format: "bibtex",
-          unsupported: Object.entries({
-            ...entry.unknown_fields,
-            ...entry.unexpected_fields,
-          }).map(([name, value]) => ({ name, value: plain(value) })),
+          unsupported: unsupportedFields(text, record, fields),
           fields,
         },
       });

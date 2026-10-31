@@ -45,7 +45,8 @@ export const LibraryInput = z
     text: z
         .string()
         .min(1)
-        .max(20 * 1024 * 1024),
+        .max(20 * 1024 * 1024, { message: "library-size" })
+        .refine(text => new TextEncoder().encode(text).byteLength <= 20 * 1024 * 1024, { message: "library-size" }),
 })
     .meta({ id: "LibraryInputV2" });
 export const CreateCheckRequest = z

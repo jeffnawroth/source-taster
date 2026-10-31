@@ -10,6 +10,11 @@ import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const problems = {
+  "library-size": {
+    status: 400,
+    title: "The library file exceeds 20 MB.",
+    i18nKey: "problem_library_size",
+  },
   "reference-limit": {
     status: 400,
     title: "The Reference limit was exceeded.",

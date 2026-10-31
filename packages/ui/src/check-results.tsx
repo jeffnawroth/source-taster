@@ -43,12 +43,14 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
 /** Selection is a stable slot, never an outcome, array index or sorted result. */
 export function CheckResults({
   check,
+  importedFormat,
   completed,
   citationStyle,
   citationStyleLabel,
   transport,
 }: {
   check: Check;
+  importedFormat?: "bibtex" | "ris";
   completed: number;
   citationStyle: CitationStyle;
   citationStyleLabel: string;
@@ -127,6 +129,7 @@ export function CheckResults({
       />
       <ReferenceExports
         checkId={check.id}
+        importedFormat={importedFormat}
         transport={transport}
         rendered={bibliography}
         styleLabel={citationStyleLabel}

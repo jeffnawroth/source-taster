@@ -66,6 +66,7 @@ const tagged: readonly [keyof Csl, readonly string[], string?][] = [
   ["volume", ["VL"]],
   ["issue", ["IS"]],
   ["edition", ["ET"]],
+  ["article-number", ["C7"]],
   ["DOI", ["DO"]],
   ["URL", ["UR", "L1"]],
 ];
@@ -85,7 +86,7 @@ export function risFields(text: string): RisField[] {
   for (const line of text.matchAll(/[^\r\n]*(?:\r\n|\n|\r|$)/gu)) {
     if (!line[0]) continue;
     const content = line[0].replace(/(?:\r\n|\n|\r)$/u, "");
-    const match = /^(?:﻿)?([A-Z0-9]{2}) {2}-[ \t]?(.*)$/u.exec(content);
+    const match = /^(?:\uFEFF)?([A-Z0-9]{2}) {2}-[ \t]?(.*)$/u.exec(content);
     const last = fields.at(-1);
     if (match) {
       const valueStart = line.index + content.length - match[2]!.length;
@@ -191,9 +192,7 @@ function patchRis(originalText: string, changes: Csl, imported: Csl) {
   const edits: TextEdit[] = [];
   const line = (tag: string, value: string) => `${tag}  - ${value}${eol}`;
   const find = (...tags: string[]) =>
-    tags
-      .map((tag) => fields.find((field) => field.tag === tag))
-      .find(Boolean);
+    tags.map((tag) => fields.find((field) => field.tag === tag)).find(Boolean);
   const set = (
     tags: readonly string[],
     value: string,
@@ -208,16 +207,22 @@ function patchRis(originalText: string, changes: Csl, imported: Csl) {
       edits.push({ start: at, end: at, text: line(tag, value) });
     }
   };
+  if (changes.type) {
+    const kind = Object.entries(types).find(
+      ([, csl]) => csl === changes.type,
+    )?.[0];
+    if (kind) set(["TY"], kind);
+  }
   for (const [key, tags, tag] of tagged) {
     const value = changes[key];
     if (typeof value === "string") set(tags, value, { tag });
   }
   if (changes.author) {
-    const names = fields.filter((field) =>
-      ["AU", "A1"].includes(field.tag),
-    );
+    const names = fields.filter((field) => ["AU", "A1"].includes(field.tag));
     const tag = names[0]?.tag ?? "AU";
-    const text = changes.author.map((name) => line(tag, risName(name))).join("");
+    const text = changes.author
+      .map((name) => line(tag, risName(name)))
+      .join("");
     const [first, ...rest] = names;
     edits.push({
       start: first?.start ?? end.start,
@@ -239,7 +244,11 @@ function patchRis(originalText: string, changes: Csl, imported: Csl) {
     for (const tag of ["DA", "Y1"]) {
       const field = find(tag);
       if (field)
-        edits.push({ start: field.valueStart, end: field.valueEnd, text: full });
+        edits.push({
+          start: field.valueStart,
+          end: field.valueEnd,
+          text: full,
+        });
     }
     if (iso[2] && !find("DA", "Y1")) set(["DA"], full, { after: year });
   }
@@ -249,7 +258,8 @@ function patchRis(originalText: string, changes: Csl, imported: Csl) {
     set(["SP"], first!);
     const close = find("EP");
     if (last) set(["EP"], last, { after: start });
-    else if (close) edits.push({ start: close.start, end: close.end, text: "" });
+    else if (close)
+      edits.push({ start: close.start, end: close.end, text: "" });
   }
   const serial = serialTypes.includes(imported.type ?? "")
     ? changes.ISBN
@@ -260,7 +270,7 @@ function patchRis(originalText: string, changes: Csl, imported: Csl) {
 export const risImporter: LibraryImporter = {
   patch: patchRis,
   parse(text, referenceLimit): ImportResult {
-    const starts = [...text.matchAll(/^(?:﻿)?TY {2}-/gmu)];
+    const starts = [...text.matchAll(/^(?:\uFEFF)?TY {2}-/gmu)];
     if (starts.length > referenceLimit)
       throw new ReferenceLimitExceeded(referenceLimit);
     const references: StructuredReference[] = [];

@@ -62,20 +62,14 @@ function same(key: keyof Csl, before: unknown, after: unknown): boolean {
 /**
  * Corrections are the export fields that differ from the immutable import
  * projection. A field a correction does not supply is not a correction: the
- * imported value stays. The entry type is never rewritten (BibTeX/RIS types
- * map many-to-one onto CSL).
+ * imported value stays. Equivalent entry types are kept as written.
  */
 export function corrections(imported: Csl, fields: Csl): Csl {
   const changed: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(fields) as [keyof Csl, unknown][])
-    if (
-      key !== "type" &&
-      value !== undefined &&
-      value !== "" &&
-      !same(key, imported[key], value)
-    )
+    if (value !== undefined && value !== "" && !same(key, imported[key], value))
       changed[key] = value;
-  return changed as Csl;
+  return changed;
 }
 /** The imported record, exactly, except for the applied corrections. */
 export function roundTrip(reference: {

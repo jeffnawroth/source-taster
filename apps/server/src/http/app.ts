@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // HTTP surface of the web process: the published /v1 contract.
 
+import type { ZodIssue } from "zod";
 import type { Context, TypedResponse } from "hono";
 import type { JSONParsed } from "hono/utils/types";
 import { OpenAPIHono } from "@hono/zod-openapi";
@@ -30,6 +31,14 @@ import type { StructuredReference } from "@source-taster/core";
 import type { CheckStore } from "../checks/store.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
+
+function librarySizeIssue(issues: readonly ZodIssue[]): boolean {
+  return issues.some(
+    (issue) =>
+      issue.message === "library-size" ||
+      (issue.code === "invalid_union" && issue.errors.some(librarySizeIssue)),
+  );
+}
 
 export interface AppDeps {
   structuring: Structuring;
@@ -108,6 +117,12 @@ export function createApp(
   const app = new OpenAPIHono({
     defaultHook: (result) => {
       if (result.success) return;
+      if (librarySizeIssue(result.error.issues))
+        return problemResponse(
+          "library-size",
+          "The library file exceeds 20 MB.",
+          20,
+        );
       const emptyText = result.error.issues.some(
         (issue) =>
           issue.path[0] === "text" &&
@@ -118,6 +133,12 @@ export function createApp(
   });
 
   app.onError((error) => {
+    if (error instanceof ReferenceLimitExceeded)
+      return problemResponse(
+        "reference-limit",
+        `At most ${error.limit} References can be imported at once.`,
+        error.limit,
+      );
     if (error instanceof FormattingUnavailable)
       return problemResponse("formatting-unavailable");
     if (error instanceof HTTPException) return error.getResponse();
@@ -144,11 +165,12 @@ export function createApp(
       }
     });
 
-  if (apiVersion === 2) app.openapi(v2.importReferences, async (c) => {
-    const principal = await authorize(c.req.raw, "structuring:create");
-    const data = importLibrary(c.req.valid("json"), referenceLimit);
-    return output(c, principal, "structuring:create", data, 200);
-  });
+  if (apiVersion === 2)
+    app.openapi(v2.importReferences, async (c) => {
+      const principal = await authorize(c.req.raw, "structuring:create");
+      const data = importLibrary(c.req.valid("json"), referenceLimit);
+      return output(c, principal, "structuring:create", data, 200);
+    });
 
   app.openapi(
     (apiVersion === 2 ? v2.createCheck : createCheck) as typeof v2.createCheck,
@@ -158,7 +180,11 @@ export function createApp(
       let references: StructuredReference[];
       try {
         const parsed =
-          "library" in input ? importLibrary(input.library, referenceLimit) : "text" in input ? structuring.structure(input.text) : null;
+          "library" in input
+            ? importLibrary(input.library, referenceLimit)
+            : "text" in input
+              ? structuring.structure(input.text)
+              : null;
         if (
           parsed &&
           parsed.references.length + parsed.rejected.length > referenceLimit
@@ -168,7 +194,8 @@ export function createApp(
             `At most ${referenceLimit} References can be checked at once.`,
             referenceLimit,
           );
-        if (parsed?.rejected.length && !("library" in input)) fail("invalid-request");
+        if (parsed?.rejected.length && !("library" in input))
+          fail("invalid-request");
         references = parsed
           ? parsed.references
           : "references" in input
@@ -286,6 +313,17 @@ export function createApp(
         if (!fields) fail("invalid-request");
         replacements.set(choice.slot, fields);
       }
+      if (
+        request.format === "imported-format" &&
+        (!snapshot.references.length ||
+          snapshot.references.some(
+            (reference) =>
+              !reference.imported ||
+              reference.imported.format !==
+                snapshot.references[0]?.imported?.format,
+          ))
+      )
+        fail("invalid-request");
       const exporter = referenceExporter(request.format, snapshot.references);
       const body = exporter.serialize(
         snapshot.references.map((reference) => ({

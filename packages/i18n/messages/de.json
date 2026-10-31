@@ -219,5 +219,16 @@
   "export_preview": "Format: {format} · Zitierstil: {style}. Diese Datenformate bewahren die Felder; der Stil formatiert die Vorschau der Vorschläge.",
   "export_download": "Referenzen herunterladen",
   "export_downloading": "Download wird vorbereitet…",
-  "export_failed": "Der Download ist fehlgeschlagen. Prüfen Sie Verbindung und Zugriff, aktualisieren Sie bei Bedarf die Prüfung und versuchen Sie es erneut."
+  "export_failed": "Der Download ist fehlgeschlagen. Prüfen Sie Verbindung und Zugriff, aktualisieren Sie bei Bedarf die Prüfung und versuchen Sie es erneut.",
+  "library_import_label": "BibTeX oder RIS importieren",
+  "library_import_hint": "UTF-8-Datei (.bib oder .ris) bis 20 MB auswählen. Fehlerhafte Einträge werden separat angezeigt. Der Import verbraucht kein Kontingent.",
+  "library_selected": "Ausgewählte Datei: {name}",
+  "library_type": "Quellentyp",
+  "library_unsupported": "Nicht unterstützte Felder (im Originaleintrag erhalten)",
+  "library_export_original": "Ursprüngliches {format}-Format (originalgetreue Ausgabe)",
+  "problem_library_size": "Die Datei überschreitet 20 MB. Teile sie in kleinere Dateien auf.",
+  "problem_library_format": "Wähle eine BibTeX- (.bib, .bibtex) oder RIS-Datei (.ris).",
+  "problem_library_encoding": "Die Datei enthält kein gültiges UTF-8. Exportiere sie in deiner Literaturverwaltung als UTF-8.",
+  "field_arxiv": "arXiv-ID",
+  "library_no_references": "Es konnten keine Referenzen importiert werden. Prüfe die abgelehnten Einträge oder exportiere eine UTF-8-Datei im BibTeX- oder RIS-Format aus deiner Literaturverwaltung."
 }

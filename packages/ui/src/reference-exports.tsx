@@ -10,11 +10,13 @@ import { m } from "@source-taster/i18n";
 import type { Rendered } from "./correction-suggestions.tsx";
 export function ReferenceExports({
   checkId,
+  importedFormat,
   transport,
   rendered,
   styleLabel,
 }: {
   checkId: string;
+  importedFormat?: "bibtex" | "ris";
   transport: VerificationClientOptions;
   rendered: Rendered;
   styleLabel: string;
@@ -76,6 +78,13 @@ export function ReferenceExports({
           >
             <option value="csl-json">CSL-JSON</option>
             <option value="bibtex">BibTeX</option>
+            {importedFormat && (
+              <option value="imported-format">
+                {m.library_export_original({
+                  format: importedFormat === "ris" ? "RIS" : "BibTeX",
+                })}
+              </option>
+            )}
           </select>
         </label>
         <label className="flex flex-col gap-1">
@@ -98,7 +107,14 @@ export function ReferenceExports({
       </div>
       <p>
         {m.export_preview({
-          format: format === "csl-json" ? "CSL-JSON" : "BibTeX",
+          format:
+            format === "csl-json"
+              ? "CSL-JSON"
+              : format === "imported-format"
+                ? m.library_export_original({
+                    format: importedFormat === "ris" ? "RIS" : "BibTeX",
+                  })
+                : "BibTeX",
           style: styleLabel,
         })}
       </p>

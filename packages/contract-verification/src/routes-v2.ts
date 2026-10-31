@@ -61,7 +61,23 @@ export const streamCheckEvents = createRoute({
 });
 
 export const importReferences = createRoute({
-  method: "post", path: "/v2/imports", summary: "Import BibTeX or RIS without consuming Quota",
-  request: {body: {required:true, content:{"application/json":{schema:LibraryInput}}}},
-  responses: {200:{description:"Recognized References and separately rejected records; unchanged raw input is retained.",content:{"application/json":{schema:ImportResponse}}},400:v1.createCheck.responses[400],401:v1.createCheck.responses[401],403:v1.createCheck.responses[403]},
+  method: "post",
+  path: "/v2/imports",
+  summary: "Import BibTeX or RIS without consuming Quota",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: LibraryInput } },
+    },
+  },
+  responses: {
+    200: {
+      description:
+        "Recognized References and separately rejected records; unchanged raw input is retained.",
+      content: { "application/json": { schema: ImportResponse } },
+    },
+    400: v1.createCheck.responses[400],
+    401: v1.createCheck.responses[401],
+    403: v1.createCheck.responses[403],
+  },
 });

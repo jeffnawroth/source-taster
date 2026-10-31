@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { mkdtemp, rm, readFile } from "node:fs/promises";
+import { mkdtemp, rm, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
@@ -268,3 +268,130 @@ test("native panel downloads both citation formats with export-only corrections"
     await rm(downloads, { recursive: true, force: true });
   }
 });
+
+for (const language of ["en", "de"] as const)
+  test(`native panel imports and round trips BibTeX and RIS with selected corrections in ${language}`, async () => {
+    const directory = await mkdtemp(join(tmpdir(), "st88-library-"));
+    try {
+      await native(language === "en" ? "en-GB" : "de-DE", async (browser) => {
+        await browser.browser.send("Browser.setDownloadBehavior", {
+          behavior: "allowAndName",
+          downloadPath: directory,
+          eventsEnabled: true,
+        });
+        const completed = new Set<string>();
+        const started: { guid: string; suggestedFilename: string }[] = [];
+        browser.browser.on("Browser.downloadWillBegin", (event) =>
+          started.push(event),
+        );
+        browser.browser.on("Browser.downloadProgress", (event) => {
+          if (event.state === "completed") completed.add(event.guid);
+        });
+        const panel = await browser.openPanel();
+        await panel.select("combobox", /^(Language|Sprache)$/u, language);
+        for (const format of ["bibtex", "ris"] as const) {
+          const text =
+            format === "bibtex"
+              ? "% Library header\n@article{Kept, title={Measured measurement}, author={Aspelmeyer, M.}, year={2008}, journal={Nature Physics}, volume={5}, pages={12}, doi={10.1038/nphys1170}, customfield={Keep me}}\n"
+              : "\uFEFFTY  - JOUR\r\nTI  - Measured measurement\r\nAU  - Aspelmeyer, M.\r\nPY  - 2008\r\nJO  - Nature Physics\r\nVL  - 5\r\nSP  - 12\r\nDO  - 10.1038/nphys1170\r\nZZ  - Keep me\r\nER  - \r\n";
+          const extension = format === "bibtex" ? "bib" : "ris";
+          const file = join(directory, `library.${extension}`);
+          await writeFile(file, text);
+          await panel.send("DOM.setFileInputFiles", {
+            backendNodeId: await panel.locate(
+              'document.querySelector("input[type=file]")',
+            ),
+            files: [file],
+          });
+          await until(
+            async () =>
+              (
+                await panel.evaluate<string>("document.body.innerText")
+              ).includes(
+                format === "bibtex" ? "customfield: Keep me" : "ZZ: Keep me",
+              ),
+            "Library preview not visible",
+          );
+          await panel.click("button", labels[language].check);
+          await panel.click("button", labels[language].open);
+          await panel.find(
+            "checkbox",
+            language === "en"
+              ? "Apply for export only"
+              : "Nur für den Export übernehmen",
+          );
+          await panel.click(
+            "checkbox",
+            language === "en"
+              ? "Apply for export only"
+              : "Nur für den Export übernehmen",
+          );
+          await panel.select(
+            "combobox",
+            language === "en" ? "Export format" : "Exportformat",
+            "imported-format",
+          );
+          for (const mode of ["original", "selected-corrections"] as const) {
+            await panel.select(
+              "combobox",
+              language === "en" ? "Export content" : "Exportinhalt",
+              mode,
+            );
+            await until(
+              async () =>
+                !(await panel.call<boolean>(
+                  await panel.find(
+                    "button",
+                    language === "en"
+                      ? "Download References"
+                      : "Referenzen herunterladen",
+                  ),
+                  "function () { return this.disabled; }",
+                )),
+              "Library export is not ready",
+            );
+            const index = started.length;
+            await panel.click(
+              "button",
+              language === "en"
+                ? "Download References"
+                : "Referenzen herunterladen",
+            );
+            const download = await until(() => {
+              const value = started[index];
+              return value && completed.has(value.guid) ? value : false;
+            }, `Native library download did not complete (${format}, ${mode})`);
+            expect(download.suggestedFilename).toBe(
+              `source-taster-references.${extension}`,
+            );
+            const output = await readFile(
+              join(directory, download.guid),
+              "utf8",
+            );
+            if (mode === "original") expect(output).toBe(text);
+            else {
+              expect(output).toContain(
+                format === "bibtex" ? "year={2009}" : "PY  - 2009\r\n",
+              );
+              expect(output).toContain(
+                format === "bibtex"
+                  ? "customfield={Keep me}"
+                  : "ZZ  - Keep me\r\n",
+              );
+              expect(output).toContain("Aspelmeyer, Markus");
+            }
+          }
+          expect(JSON.stringify(await browser.storage())).not.toContain(
+            "Measured measurement",
+          );
+          expect(await panel.axe()).toEqual([]);
+          await panel.click(
+            "button",
+            language === "en" ? "Reset" : "Zurücksetzen",
+          );
+        }
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });

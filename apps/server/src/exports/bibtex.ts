@@ -144,7 +144,10 @@ export const bibtex: ReferenceExporter = {
           const type = Object.hasOwn(types, sourceType)
             ? types[sourceType]
             : "misc";
-          const body = bibtexFields(reference.fields, reference.authorsTruncated)
+          const body = bibtexFields(
+            reference.fields,
+            reference.authorsTruncated,
+          )
             .map(([field, value]) => `  ${field} = {${value}}`)
             .join(",\n");
           return `@${type}{${key},\n${body}\n}`;
