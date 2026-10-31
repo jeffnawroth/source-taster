@@ -1,4 +1,5 @@
 {
+  "selection_menu": "Check selected text",
   "app_title": "Source Taster",
   "app_intro": "A first step towards checking your references.",
   "language_label": "Language",
@@ -344,5 +345,9 @@
   "selection_apply": "Apply selection changes",
   "selection_limit": "The selection exceeds {limit} References. Nothing was truncated or checked. Reduce the selection.",
   "selection_original": "Original document text — mark a region here",
-  "selection_versions": "Bibliography detection: {version}. Parser rules remain available in every Plan."
+  "selection_versions": "Bibliography detection: {version}. Parser rules remain available in every Plan.",
+  "selection_undo": "Undo selection replacement",
+  "selection_empty": "No selection was taken over – please copy and paste",
+  "selection_intake_help": "For pages with their own menus, canvas editors, password fields or private windows without extension permission, copy and paste the text.",
+  "selection_shortened": "The selection may have been shortened – paste the text or upload a file for longer lists"
 }

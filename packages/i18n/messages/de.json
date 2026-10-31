@@ -1,4 +1,5 @@
 {
+  "selection_menu": "Ausgewählten Text prüfen",
   "app_title": "Source Taster",
   "app_intro": "Ein erster Schritt zur Prüfung Ihrer Referenzen.",
   "language_label": "Sprache",
@@ -344,5 +345,9 @@
   "selection_apply": "Auswahländerungen anwenden",
   "selection_limit": "Die Auswahl überschreitet {limit} Referenzen. Es wurde nichts gekürzt oder geprüft. Verkleinern Sie die Auswahl.",
   "selection_original": "Originaler Dokumenttext — hier einen Bereich markieren",
-  "selection_versions": "Literaturerkennung: {version}. Parser-Regeln stehen in jedem Plan zur Verfügung."
+  "selection_versions": "Literaturerkennung: {version}. Parser-Regeln stehen in jedem Plan zur Verfügung.",
+  "selection_undo": "Auswahlübernahme rückgängig machen",
+  "selection_empty": "Keine Auswahl übernommen – bitte kopieren und einfügen",
+  "selection_intake_help": "Bei Seiten mit eigenen Menüs, Canvas-Editoren, Passwortfeldern oder privaten Fenstern ohne Erweiterungsberechtigung bitte den Text kopieren und einfügen.",
+  "selection_shortened": "Die Auswahl wurde möglicherweise gekürzt – für längere Listen bitte den Text einfügen oder eine Datei hochladen"
 }
