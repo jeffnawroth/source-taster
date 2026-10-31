@@ -14,6 +14,7 @@ import {
   type RunningProcess,
 } from "../../test/support/processes.ts";
 import { setupDatabase } from "../db-setup.ts";
+import { codeVersion } from "../quality/code-version.ts";
 import {
   buildReport,
   type DurationBasis,
@@ -26,6 +27,13 @@ import {
   type ReplayPolicy,
   type WorkloadReference,
 } from "./replay.ts";
+
+/**
+ * The optional Data sources this harness enables and replays (Crossref and
+ * doi.org are always on). A production configuration enabling any other
+ * source cannot be load-qualified here, and the release guard says so.
+ */
+export const HARNESS_SOURCES = ["europepmc", "openalex"] as const;
 
 export interface RunOptions {
   /** Pre-built lists, one per concurrent Check. */
@@ -43,6 +51,8 @@ export interface RunOptions {
   replayPort: number;
   /** JSON patch for SOURCE_TASTER_SEARCH_SETTINGS; empty means shipped defaults. */
   searchSettingsPatch?: object;
+  /** Digest of the reviewed configuration file the patch came from, when it did. */
+  reviewedConfiguration?: { digest: string };
   placeholderDelayMs: number;
   workers: number;
   durationBasis: DurationBasis;
@@ -144,6 +154,9 @@ export async function runLoad(options: RunOptions): Promise<LoadReport> {
       durationBasis: options.durationBasis,
       searchSettings: config.searchSettings,
       placeholderDelayMs: options.placeholderDelayMs,
+      codeVersion: codeVersion(),
+      enabledSources: [...HARNESS_SOURCES],
+      reviewedConfiguration: options.reviewedConfiguration,
       topology: {
         webProcesses: 1,
         workerProcesses: options.workers,

@@ -77,6 +77,8 @@ function input(
     durationBasis: "check-start",
     searchSettings: defaultSearchSettings,
     placeholderDelayMs: 500,
+    codeVersion: { sha: "a".repeat(40), dirty: false },
+    enabledSources: ["europepmc", "openalex"],
     topology: { webProcesses: 1, workerProcesses: 1, database: "postgres" },
     evidence: {
       provenance: "recorded",
@@ -352,6 +354,52 @@ describe("load report", () => {
       expect(report.qualifying, name).toBe(false);
     }
     expect(buildReport(input(launchChecks())).qualifying).toBe(true);
+  });
+
+  it("never qualifies a run of unidentified or modified code", () => {
+    for (const codeVersion of [
+      undefined,
+      { sha: "a".repeat(40), dirty: true },
+    ]) {
+      const report = buildReport(input(launchChecks(), { codeVersion }));
+      expect(report.outcome).toBe("passed");
+      expect(report.qualifying).toBe(false);
+    }
+    const report = buildReport(input(launchChecks()));
+    expect(report.codeVersion).toEqual({ sha: "a".repeat(40), dirty: false });
+    expect(report.configuration.enabledSources).toEqual([
+      "europepmc",
+      "openalex",
+    ]);
+  });
+
+  it("qualifies non-default settings only when taken from a named reviewed configuration", () => {
+    const settings = {
+      ...defaultSearchSettings,
+      sources: {
+        ...defaultSearchSettings.sources,
+        openalex: { ...defaultSearchSettings.sources.openalex, intervalMs: 40 },
+      },
+    };
+    const adHoc = buildReport(
+      input(launchChecks(), { searchSettings: settings }),
+    );
+    expect(adHoc.outcome).toBe("passed");
+    expect(adHoc.qualifying).toBe(false);
+    expect(adHoc.configuration.reviewed).toBeNull();
+    const reviewed = buildReport(
+      input(launchChecks(), {
+        searchSettings: settings,
+        reviewedConfiguration: { digest: "sha256:" + "c".repeat(64) },
+      }),
+    );
+    expect(reviewed.qualifying).toBe(true);
+    expect(reviewed.configuration.reviewed).toEqual({
+      digest: "sha256:" + "c".repeat(64),
+    });
+    // The guard, not this flag, decides whether the reviewed file is the
+    // production configuration; the report still says it differs from defaults.
+    expect(reviewed.configuration.matchesShippedDefaults).toBe(false);
   });
 
   it("never lets a replay report stand in for live acceptance", () => {

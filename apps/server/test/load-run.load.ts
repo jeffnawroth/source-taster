@@ -6,7 +6,9 @@
 // machine-readable report. Serial: ports 4501 (API) and 4502 (replay edge).
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,10 +22,11 @@ afterEach(async () => {
   directory = undefined;
 });
 
-async function cli(args: string[]) {
+async function cli(args: string[], env: Record<string, string> = {}) {
   const child = spawn(process.execPath, ["scripts/load-test.ts", ...args], {
     cwd: serverDir,
     env: {
+      ...env,
       PATH: process.env.PATH,
       DATABASE_ADMIN_URL: process.env.DATABASE_ADMIN_URL,
       DATABASE_TEST_URL: process.env.DATABASE_TEST_URL,
@@ -95,3 +98,141 @@ it("refuses a release run with eased budgets or measurement", async () => {
     expect(output).toContain(eased[0]);
   }
 }, 30_000);
+
+// ---------------------------------------------------------------------------
+// ADR-0007 release binding: the replay measures the reviewed production
+// configuration (#94 file format) and nothing else.
+// ---------------------------------------------------------------------------
+
+async function writeFiles(configuration: unknown) {
+  directory = await mkdtemp(join(tmpdir(), "st-load-release-"));
+  const configurationPath = join(directory, "configuration.json");
+  await writeFile(configurationPath, JSON.stringify(configuration));
+  const recordingPath = join(directory, "recording.json");
+  await writeFile(
+    recordingPath,
+    JSON.stringify({
+      authorization: "synthetic-test-authorization",
+      entries: [],
+      workload: [
+        {
+          id: "ref",
+          category: "findable",
+          originalText: "Synthetic Reference",
+          fields: { title: "Synthetic" },
+        },
+      ],
+    }),
+  );
+  return {
+    configurationPath,
+    recordingPath,
+    reportPath: join(directory, "report.json"),
+  };
+}
+
+it("refuses a release replay that is not bound to a reviewed configuration and a report location", async () => {
+  const files = await writeFiles({ enabledSources: ["europepmc", "openalex"] });
+  const missingConfiguration = await cli([
+    "--release",
+    "--recording",
+    files.recordingPath,
+    "--report",
+    files.reportPath,
+  ]);
+  expect(missingConfiguration.code, missingConfiguration.output).toBe(78);
+  expect(missingConfiguration.output).toMatch(/--configuration/u);
+  const missingReport = await cli([
+    "--release",
+    "--recording",
+    files.recordingPath,
+    "--configuration",
+    files.configurationPath,
+  ]);
+  expect(missingReport.code, missingReport.output).toBe(78);
+  expect(missingReport.output).toMatch(/--report|SOURCE_TASTER_LOAD_REPORT/u);
+  // The Quality gate's own configuration variable supplies the file.
+  const shared = await cli(["--release", "--recording", files.recordingPath], {
+    SOURCE_TASTER_QUALITY_CONFIGURATION: files.configurationPath,
+  });
+  expect(shared.code, shared.output).toBe(78);
+  expect(shared.output).not.toMatch(/--configuration/u);
+  expect(shared.output).toMatch(/SOURCE_TASTER_LOAD_REPORT/u);
+}, 30_000);
+
+it("refuses configurations the harness cannot replay or that conflict with ad hoc settings", async () => {
+  const files = await writeFiles({
+    enabledSources: ["europepmc", "openalex", "semanticscholar"],
+  });
+  const unreplayed = await cli(["--configuration", files.configurationPath]);
+  expect(unreplayed.code, unreplayed.output).toBe(78);
+  expect(unreplayed.output).toContain("semanticscholar");
+  const conflicting = await writeFiles({
+    enabledSources: ["europepmc", "openalex"],
+  });
+  const both = await cli([
+    "--configuration",
+    conflicting.configurationPath,
+    "--settings",
+    "{}",
+  ]);
+  expect(both.code, both.output).toBe(78);
+  expect(both.output).toMatch(/--settings/u);
+  const invalid = await writeFiles({
+    enabledSources: ["europepmc", "openalex"],
+    searchSettings: { maxRetries: 9 },
+  });
+  const rejected = await cli(["--configuration", invalid.configurationPath]);
+  expect(rejected.code, rejected.output).toBe(78);
+}, 30_000);
+
+it("measures exactly the reviewed configuration and records its identity", async () => {
+  const configuration = {
+    enabledSources: ["europepmc", "openalex"],
+    searchSettings: { sources: { openalex: { intervalMs: 40 } } },
+  };
+  const files = await writeFiles(configuration);
+  const { code, output } = await cli([
+    "--checks",
+    "2",
+    "--references",
+    "2",
+    "--not-findable-share",
+    "0",
+    "--synthetic-findable-ms",
+    "20",
+    "--max-run-seconds",
+    "60",
+    "--configuration",
+    files.configurationPath,
+    "--report",
+    files.reportPath,
+  ]);
+  // Reduced scope never passes; nothing was relaxed to get here.
+  expect([1, 3], output).toContain(code);
+  const report = LoadReport.parse(
+    JSON.parse(await readFile(files.reportPath, "utf8")),
+  );
+  const digest = `sha256:${createHash("sha256")
+    .update(await readFile(files.configurationPath))
+    .digest("hex")}`;
+  expect(report.configuration.reviewed).toEqual({ digest });
+  expect(report.configuration.enabledSources).toEqual([
+    "europepmc",
+    "openalex",
+  ]);
+  expect(
+    (
+      report.configuration.searchSettings as {
+        sources: { openalex: { intervalMs: number; maxWaitMs: number } };
+      }
+    ).sources.openalex,
+  ).toMatchObject({ intervalMs: 40, maxWaitMs: 10_000 });
+  const head = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: serverDir,
+    encoding: "utf8",
+  }).trim();
+  expect(report.codeVersion?.sha).toBe(head);
+  expect(report.qualifying).toBe(false);
+  expect(report.evidence.provenance).toBe("synthetic-witness");
+}, 120_000);

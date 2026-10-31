@@ -22,11 +22,19 @@ import {
   launchSizedRecords,
   syntheticAiConfiguration,
 } from "./support/quality-records.ts";
+import { passingReport } from "./support/load-reports.ts";
 
 const sha = "a".repeat(40);
 let root: string;
 beforeEach(async () => {
   root = await realpath(await mkdtemp(join(tmpdir(), "st-94-release-")));
+  // ADR-0007: every release needs a passing fifty-Check replay (#117) of the
+  // same configuration; this one measures the all-sources-disabled test set.
+  calibratedCode.loadReport = join(root, "load-report.json");
+  await writeFile(
+    calibratedCode.loadReport,
+    JSON.stringify(passingReport({ enabledSources: [] })),
+  );
 });
 afterEach(async () => {
   await rm(root, { recursive: true, force: true });
@@ -140,6 +148,7 @@ async function writeMeasured(
   );
 }
 const calibratedCode = {
+  loadReport: undefined as string | undefined,
   code: { sha, dirty: false },
   runtimeCalibration: "synthetic-calibrated",
   expected: {
@@ -333,4 +342,82 @@ it("exits 78 from the release check and names every blocking reason", async () =
       expect(result.stderr).toMatch(/^- no-measurement-location$/m);
     else expect(result.stderr).toMatch(/^- no-measurement-log$/m);
   }
+});
+
+it("refuses a release without a passing fifty-Check replay of the exact configuration", async () => {
+  await writeMeasured();
+  const withoutReport = await checkRelease({
+    root,
+    ...calibratedCode,
+    loadReport: undefined,
+  });
+  expect(withoutReport.releasable).toBe(false);
+  expect(withoutReport.reasons).toContain("no-load-report");
+
+  const synthetic = join(root, "synthetic.json");
+  await writeFile(
+    synthetic,
+    JSON.stringify(
+      passingReport({
+        enabledSources: [],
+        evidence: {
+          provenance: "synthetic-witness",
+          unmatchedRequests: 0,
+          requests: {},
+        },
+      }),
+    ),
+  );
+  const refused = await checkRelease({
+    root,
+    ...calibratedCode,
+    loadReport: synthetic,
+  });
+  expect(refused.releasable).toBe(false);
+  expect(refused.reasons).toContain("load-synthetic-evidence");
+
+  // A passing replay of a different configuration is not this release's replay.
+  const other = join(root, "other.json");
+  await writeFile(
+    other,
+    JSON.stringify(passingReport({ enabledSources: ["openalex"] })),
+  );
+  const mismatched = await checkRelease({
+    root,
+    ...calibratedCode,
+    loadReport: other,
+  });
+  expect(mismatched.releasable).toBe(false);
+  expect(mismatched.reasons).toContain("load-sources-mismatch");
+  // The Quality gate's own reasons are still all reported.
+  const uncalibrated = await checkRelease({
+    root,
+    ...calibratedCode,
+    runtimeCalibration: "uncalibrated",
+    loadReport: other,
+  });
+  expect(uncalibrated.reasons).toEqual(
+    expect.arrayContaining(["uncalibrated", "load-sources-mismatch"]),
+  );
+});
+
+it("names the missing replay when the release check runs without it", () => {
+  const server = fileURLToPath(new URL("..", import.meta.url));
+  const result = spawnSync(process.execPath, ["scripts/release-check.ts"], {
+    cwd: server,
+    env: { PATH: process.env.PATH, SOURCE_TASTER_QUALITY_ROOT: root },
+    encoding: "utf8",
+  });
+  expect(result.status).toBe(78);
+  expect(result.stderr).toMatch(/^- no-load-report$/m);
+  const unreadable = spawnSync(process.execPath, ["scripts/release-check.ts"], {
+    cwd: server,
+    env: {
+      PATH: process.env.PATH,
+      SOURCE_TASTER_LOAD_REPORT: join(root, "absent.json"),
+    },
+    encoding: "utf8",
+  });
+  expect(unreadable.status).toBe(78);
+  expect(unreadable.stderr).toMatch(/^- load-report-unreadable$/m);
 });

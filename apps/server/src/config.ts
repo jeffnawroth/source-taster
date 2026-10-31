@@ -374,7 +374,7 @@ const searchSettingsPatch = z.strictObject({
     .optional(),
 });
 /** Partial JSON overrides merged over the default search settings. */
-function parseSearchSettings(raw: string | undefined): SearchSettings {
+export function parseSearchSettings(raw: string | undefined): SearchSettings {
   const patch = searchSettingsPatch.parse(raw ? JSON.parse(raw) : {});
   const { sources = {}, ...rest } = patch;
   const merged = Object.fromEntries(

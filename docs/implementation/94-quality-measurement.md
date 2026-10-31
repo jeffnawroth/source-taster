@@ -146,7 +146,11 @@ SOURCE_TASTER_QUALITY_EXTRACTION=/private/extraction.mjs \
 pnpm --filter @source-taster/server build:release
 ```
 
-`release:check` derives SHA/working-tree state and runtime calibration from code,
+`release:check` additionally requires the #117 fifty-Check replay report
+(`SOURCE_TASTER_LOAD_REPORT`, produced by `pnpm load:release` for the same
+configuration; see [117-load-harness.md](117-load-harness.md)); it is recomputed
+and bound to this exact code version and configuration, and its absence refuses
+with exit 78. It derives SHA/working-tree state and runtime calibration from code,
 resolves the requested configuration, and recomputes targets, Structuring and
 validity from logged outcomes against the frozen private set. A log's own
 `decision`, target summaries or `valid: true` cannot promote failed outcomes.

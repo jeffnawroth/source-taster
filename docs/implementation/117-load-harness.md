@@ -81,12 +81,14 @@ lever for diagnosis, not a redefinition of the requirement.
 ## Qualification and provenance
 
 `qualifying` is true only for a `passed` outcome with all of: authorized
-recorded evidence (digest and authorization metadata), operating settings equal
-to the shipped defaults (settings hash), a placeholder delay of at least the
-service default (500 ms), and the `check-start` basis. `--settings`,
-`--placeholder-delay-ms` and `--duration-basis` exist for diagnosis; with
-`--release` they are refused (exit 78), synthetic evidence is refused, and a
-pass that cannot qualify exits 1.
+recorded evidence (digest and authorization metadata), an identified clean code
+version (`codeVersion` from git), operating settings that are either the shipped
+defaults or taken from a named reviewed configuration file (see
+[Release path](#release-path-and-configuration-binding-completion)), a
+placeholder delay of at least the service default (500 ms), and the
+`check-start` basis. `--settings`, `--placeholder-delay-ms` and
+`--duration-basis` exist for diagnosis; with `--release` they are refused
+(exit 78), synthetic evidence is refused, and a pass that cannot qualify exits 1.
 
 Recorded replay reads one JSON file from a private location
 (`--recording` or `SOURCE_TASTER_LOAD_RECORDING`): `authorization`, exact
@@ -184,26 +186,25 @@ configuration that the Operator sets and qualifies. I did not change any
 default, budget or target to obtain a pass, and I did not run a loosened
 configuration to produce a pass claim.
 
-### Open question: `--release` cannot pass under the current gate
+### Resolved by the completion: `--release` binds to the reviewed configuration
 
-Qualification is pinned to the shipped default settings, and the arithmetic above
-shows those defaults cannot meet the targets. No `--release` run can therefore
-pass today, even with authorized recordings. A launch qualification needs either
-(a) the qualified launch budgets to become the reviewed shipped defaults, or (b)
-a deliberate decision to qualify against the Operator's disclosed production
-settings (the report already discloses the settings hash and the full
-configuration, and ADR-0007 treats Operator budgets as part of the measured
-configuration with no blanket exemption). I did not change the gate; this needs
-an owner decision before release.
+The source pinned `--release` to the shipped defaults, which cannot meet the
+targets (arithmetic above). ADR-0007 answers the question: Operator budgets are
+"part of the measured configuration" with "no blanket exemption", and changes
+need the Quality gate and the rate-limited load checks before activation.
+Option (b) is therefore the documented one; it is implemented below. No default,
+budget or target was changed, and nothing here says that any configuration is
+qualified.
 
 ### Exact limits
 
-- CI: `pnpm test` in `.github/workflows/ci.yml` picks up
-  `test/load-analysis.test.ts` and `test/load-replay.test.ts` (default config
-  `test/**/*.test.ts`). The real-process end-to-end test
-  (`test/load-run.load.ts`, `pnpm test:load`) and the `load:test` CLI are wired
-  into no workflow, so ADR-0007's fifty-Check replay "on every release" is not
-  automated yet. All validation here is local, not CI evidence.
+- CI: `pnpm test` runs the pure harness and guard tests (`test/load-*.test.ts`)
+  and a bounded CI step runs `test/load-run.load.ts` against real processes with
+  synthetic latency witnesses (see below). The fifty-Check recorded replay is not
+  a CI job: it needs private recordings and runs in the guarded release flow.
+  No release/publication workflow exists in the repository yet, so nothing
+  automatically invokes `pnpm load:release` followed by `pnpm build:release`.
+  All validation here is local, not CI evidence.
 - Not run: a full 50×100 to completion (impossible within the budget above; the
   bounded run stops at 540 s), a recorded run, any live run, multi-worker runs,
   a run on the ADR-0012 single-container topology.
@@ -235,3 +236,165 @@ an owner decision before release.
   between workers); I did not change it.
 - Ports used: 4501 (API), 4502 (replay edge); the browser port 5351 was not
   needed.
+
+## Release path and configuration binding (completion)
+
+Completes the "fifty-Check replay on every release" requirement (ADR-0007,
+FA-UEB-43) on top of the committed `b56c757` harness (merged unchanged: its 48
+regression cases and the failed synthetic launch-scale reports above stay as
+evidence) and the [#94 exact-configuration guard](94-quality-measurement.md).
+
+### Operator sequence
+
+```sh
+export SOURCE_TASTER_QUALITY_ROOT=/private/datasets
+export SOURCE_TASTER_QUALITY_CONFIGURATION=/private/measured.json
+export SOURCE_TASTER_QUALITY_EXTRACTION=/private/extraction.mjs
+export SOURCE_TASTER_LOAD_RECORDING=/private/load-recording.json
+export SOURCE_TASTER_LOAD_REPORT=/private/load-report.json
+export DATABASE_ADMIN_URL=postgres://… # disposable PostgreSQL only
+
+pnpm --filter @source-taster/server load:release   # replay, writes the report
+pnpm --filter @source-taster/server build:release  # guard (exit 78) then build
+```
+
+- `load:release` is `load-test --release`. It requires authorized recordings, a
+  reviewed configuration (`--configuration`, defaulting to the same
+  `SOURCE_TASTER_QUALITY_CONFIGURATION` file the Quality gate receives) and a
+  report location (`--report`, defaulting to `SOURCE_TASTER_LOAD_REPORT`);
+  anything missing, any eased option (`--settings`, `--duration-basis`,
+  `--placeholder-delay-ms` below 500) or a configuration enabling a Data source
+  the harness does not replay exits 78 before any process starts. A pass that
+  cannot qualify (synthetic, unidentified or modified code) exits 1.
+- The configuration file is the #94 format (`enabledSources`, optional
+  `searchSettings` patch). The replay starts the real processes with exactly
+  that patch, and the report records the effective settings, the optional
+  sources, the file's SHA-256 (`configuration.reviewed.digest`) and the clean
+  git `codeVersion`. A diagnostic `--configuration` run works without
+  `--release`.
+- `release:check` (so `build:release`, which stops at it before building) now
+  requires the load report as well. `checkLoadReplay`
+  (`scripts/load/release.ts`) refuses with exit 78 and a named reason when:
+  the report is missing/unreadable/invalid (`no-load-report`,
+  `load-report-unreadable`, `invalid-load-report`); evidence is synthetic or
+  unauthorized (`load-synthetic-evidence`); evidence is invalid or a Check did
+  not complete (`load-invalid-evidence`, `load-check-not-completed`); fewer
+  than 50 Checks or lists below 100 References (`load-scope-reduced`); the
+  clock is not `check-start` or the scheduling delay is below 500 ms
+  (`load-duration-basis`, `load-placeholder-delay`); a target limit was changed
+  or removed (`load-target-changed:<id>`), a measurement misses its limit or
+  disagrees with the report's own Checks/diagnostics
+  (`load-target-missed:<id>`, `load-target-inconsistent:<id>`); the report is not
+  for this exact clean code version (`load-code-version-mismatch`); or the
+  effective settings or optional sources differ from the production
+  configuration the Quality gate is measuring (`load-configuration-mismatch`,
+  `load-sources-mismatch`, `load-configuration-invalid`). The report's own
+  `qualifying`, `outcome` and target `status` are never read.
+- A report for the shipped defaults only satisfies a release whose production
+  configuration is exactly the defaults; a changed Operator budget needs its own
+  replay (and its own Quality measurement). The guard does not make any
+  configuration qualified; it makes the absence of a matching replay fatal.
+
+### Decisions taken from accepted documents
+
+- **Binding:** ADR-0007 (Shared budgets, scheduling and deadlines): budgets,
+  timeouts, deadlines and concurrency that can affect evidence "are part of the
+  measured configuration" and need the Quality gate and rate-limited load checks
+  "before activating changes; there is no blanket exemption". ADR-0006/0025 and
+  the #94 guard supply the exact-configuration mechanism, so the replay uses the
+  same file and the guard compares effective settings and sources by value.
+- **Clock:** the literal Check-start clock remains the only qualifying basis
+  (traceability FA-UEB-40/41: "queue wait included"; ADR-0007: queue time "cannot
+  be excluded from FA-UEB-42/43 evidence"). Unchanged.
+- **Targets, budgets, defaults:** untouched. The shipped defaults still differ
+  from ADR-0007's initial caps (documented in
+  `packages/core/src/search-settings.ts`); only a reviewed configuration file can
+  qualify different values.
+
+### Precise remaining ambiguities (for the requirements/operations owner)
+
+1. **FA-UEB-40/41 clock with the ten-active cap.** ADR-0007's ten active
+   References per Check make a 100-Reference list's mean from Check start about
+   5.5 × the per-Reference execution time, so a 3 s mean needs about 0.55 s per
+   Reference. The text says "queue wait included"; whether the per-Check
+   pacing queue counts for the *per-Reference* means (rather than only for
+   FA-UEB-42/43) is not stated. The harness keeps the literal reading and reports
+   both means; I did not choose the alternative.
+2. **Development scheduling delay.** Qualifying runs require the service's
+   500 ms `SOURCE_TASTER_PLACEHOLDER_DELAY_MS`, as before. No accepted document
+   says whether that delay exists in production; it is not part of the #94
+   configuration file, so the guard cannot bind it. If production removes it, the
+   replay is conservative; if the Operator can change it, it needs a decision on
+   where it is versioned.
+3. **Source coverage.** The harness enables and replays only OpenAlex and Europe
+   PMC next to Crossref/doi.org. A production configuration that enables any
+   other optional source (Semantic Scholar, arXiv, Open Library, Google Books,
+   URL, Internet Archive) is refused by both the CLI and the guard
+   (`load-sources-mismatch`) rather than measured partially. Whether the launch
+   configuration may omit those sources is a #114/launch-scope decision; if not,
+   the harness needs request classification and recordings for them.
+
+### Tests (TDD record)
+
+New logs under
+`/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/`
+(`117r-*`):
+
+1. Report binding fields: red `117r-analysis-binding-red.log` (2 failing), green
+   `117r-analysis-binding-green.log`. Existing `input()` helper now carries a
+   clean code version and sources; two cases cover unidentified/dirty code and
+   reviewed-versus-ad-hoc settings.
+2. Release guard: `test/load-release.test.ts`, red at the missing module
+   (`117r-release-guard-red.log`), green with 10 cases
+   (`117r-release-guard-green.log`): pass path, missing/malformed report,
+   synthetic or unauthorized evidence despite a `qualifying: true` claim, reduced
+   scope, recomputed targets, loosened/removed targets, invalid evidence,
+   unfinished Checks, eased clock/delay, code version, exact configuration and
+   source set.
+3. Composition with #94: red `117r-release-compose-red.log` (2 failing), green
+   `117r-release-compose-green.log` (16/16 in `quality-release.test.ts`). Every
+   existing release case now supplies a passing replay of the same configuration;
+   a release without, with a synthetic or with a mismatched replay is refused
+   while the Quality gate reasons are still reported; `release-check.ts` exits
+   78 naming `no-load-report`/`load-report-unreadable`.
+4. CLI binding: `test/load-run.load.ts` red `117r-cli-binding-red.log` (3
+   failing, one by running an unbound `--release` for its 30 s timeout; its
+   leftover processes were mine and were stopped), green
+   `117r-cli-binding-green.log` (6/6): missing configuration/report, shared
+   `SOURCE_TASTER_QUALITY_CONFIGURATION`, unreplayed sources, conflicting
+   `--settings`, invalid patch, and a real-process run that applies the reviewed
+   patch and records digest, sources, settings and git SHA.
+
+Final checks (PostgreSQL 18 container `st117-release-pg`, owned, port 55117; API
+4501 and replay edge 4502; the 5351 browser port was not needed): the load suite
+**63/63** in 4 files (`117r-final-load-suite.log`; was 48 + 15 new), the
+three quality suites using `checkRelease` or the CLI **30/30**
+(`117r-final-quality.log`), server typecheck, ESLint and build, whole-repo
+Prettier. `release-check.ts` and `build:release` with no inputs exit 78 and name
+`no-load-report` (`117r-release-refusal.log`, `117r-build-release-refusal.log`);
+the build step does not run. No 50×100 run was repeated: the code that decides
+launch-scale performance did not change, so the earlier failed 50×3 and bounded
+50×100 reports above stand as the only measured launch-scale evidence.
+
+### CI
+
+`ci.yml` gains one bounded step, `test/load-run.load.ts` against the job's
+PostgreSQL service (about 20 s, synthetic latency witnesses only); the pure
+tests already run in `pnpm test`. No release/publication workflow was invented.
+A future release workflow must run `load:release` then `build:release` with the
+private inputs from its protected environment.
+
+### Still outstanding (not implemented here, not claimed)
+
+- **Recorded launch qualification:** a rights-cleared latency recording and a
+  `load:release` pass on it (#140/#114; no recording exists in this
+  environment). Until then no report can qualify.
+- **Live acceptance:** live EU-region FA-UEB-40/41/42 sets and the live
+  fifty-Check provider-compliant test (FA-UEB-43, ADR-0007 F20).
+- **Capacity:** the shipped development budgets cannot meet 50 × 100 in 180 s
+  (OpenAlex alone at 1 req/s); a reviewed production configuration with
+  provider-compliant allowances must be chosen and qualified by both gates.
+- **Harness scope:** replay of the remaining route sources (ambiguity 3), host
+  CPU/memory/connection measurement and the ADR-0012 single-container topology,
+  multi-worker runs.
+- **Release automation:** a protected release workflow invoking the sequence.

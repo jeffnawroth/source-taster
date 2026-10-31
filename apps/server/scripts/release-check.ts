@@ -2,7 +2,9 @@
 // Release guard (#94, ADR-0006/0025). No environment setting, synthetic test
 // or receipt can promote a build: the code version and the Scoring rules
 // calibration come from the code, and the Quality gate is recomputed from the
-// private measurement log for exactly this code version. Exit 78 refuses.
+// private measurement log for exactly this code version. The fifty-Check replay
+// of the same configuration (#117, ADR-0007) is required on every release and
+// is recomputed from its private report. Exit 78 refuses.
 import { scoringRulesCalibration } from "../src/checks/scoring-calibration.ts";
 import { codeVersion } from "./quality/code-version.ts";
 import { checkRelease } from "./quality/release.ts";
@@ -37,6 +39,7 @@ try {
 
 const result = await checkRelease({
   root: process.env.SOURCE_TASTER_QUALITY_ROOT || undefined,
+  loadReport: process.env.SOURCE_TASTER_LOAD_REPORT || undefined,
   code: codeVersion(),
   runtimeCalibration: scoringRulesCalibration,
   expected,

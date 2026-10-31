@@ -89,6 +89,16 @@ export interface ReportInput {
   durationBasis: DurationBasis;
   searchSettings: SearchSettings;
   placeholderDelayMs: number;
+  /** The code the measured processes ran, derived from git (never from input files). */
+  codeVersion?: { sha: string; dirty: boolean };
+  /** Optional Data sources enabled in the measured processes. */
+  enabledSources?: string[];
+  /**
+   * Set when the operating settings were taken from an Operator-supplied
+   * reviewed configuration file (#94 format); `digest` names its exact bytes.
+   * Only the release guard can tell whether it is the production configuration.
+   */
+  reviewedConfiguration?: { digest: string };
   topology: { webProcesses: number; workerProcesses: number; database: string };
   evidence: Evidence;
   /** Search strategy versions that the Verdicts actually carried. */
@@ -121,6 +131,7 @@ export const LoadReport = z.object({
   outcome: z.enum(["passed", "failed", "incomplete"]),
   qualifying: z.boolean(),
   durationBasis: z.enum(["slot-eligible", "check-start"]),
+  codeVersion: z.object({ sha: z.string(), dirty: z.boolean() }).optional(),
   scope: z.object({
     launch: z.boolean(),
     concurrentChecks: z.number().int(),
@@ -132,6 +143,8 @@ export const LoadReport = z.object({
     settingsHash: z.string(),
     defaultSettingsHash: z.string(),
     matchesShippedDefaults: z.boolean(),
+    enabledSources: z.array(z.string()).optional(),
+    reviewed: z.object({ digest: z.string() }).nullable().optional(),
     placeholderDelayMs: z.number().int(),
     topology: z.object({
       webProcesses: z.number().int(),
@@ -524,6 +537,10 @@ export function buildReport(input: ReportInput): LoadReport {
     limitations.push(
       "The operating settings differ from the shipped defaults; this is evidence for that exact configuration only.",
     );
+  if (!input.codeVersion || input.codeVersion.dirty)
+    limitations.push(
+      "The code version is unidentified or modified; the run cannot qualify any release.",
+    );
   if (input.placeholderDelayMs > 0)
     limitations.push(
       `A development scheduling delay of ${input.placeholderDelayMs} ms is part of every Reference run.`,
@@ -534,18 +551,24 @@ export function buildReport(input: ReportInput): LoadReport {
     generatedAt: new Date().toISOString(),
     clock: "monotonic",
     outcome,
-    // Qualification needs a pass on authorized recordings under the shipped
-    // operating budgets and the literal measurement; easing any of them,
-    // for diagnosis, can never produce a qualifying report.
+    // Qualification needs a pass on authorized recordings, of an identified
+    // clean code version, under either the shipped operating budgets or a
+    // named reviewed configuration, and the literal measurement. Easing any
+    // of them, for diagnosis, can never produce a qualifying report. Whether
+    // a reviewed configuration is the exact production configuration is the
+    // release guard's decision (ADR-0007), never this flag's.
     qualifying:
       outcome === "passed" &&
       evidence.provenance === "recorded" &&
       !!evidence.recordingDigest &&
       !!evidence.authorization &&
-      hash === defaultHash &&
+      (hash === defaultHash || !!input.reviewedConfiguration) &&
+      !!input.codeVersion &&
+      !input.codeVersion.dirty &&
       input.placeholderDelayMs >= SHIPPED_PLACEHOLDER_DELAY_MS &&
       input.durationBasis === "check-start",
     durationBasis: input.durationBasis,
+    ...(input.codeVersion ? { codeVersion: input.codeVersion } : {}),
     scope: {
       launch,
       ...scope,
@@ -556,6 +579,10 @@ export function buildReport(input: ReportInput): LoadReport {
       settingsHash: hash,
       defaultSettingsHash: defaultHash,
       matchesShippedDefaults: hash === defaultHash,
+      ...(input.enabledSources
+        ? { enabledSources: [...input.enabledSources].sort() }
+        : {}),
+      reviewed: input.reviewedConfiguration ?? null,
       placeholderDelayMs: input.placeholderDelayMs,
       topology: input.topology,
       observedStrategyVersions: input.observedStrategyVersions ?? [],

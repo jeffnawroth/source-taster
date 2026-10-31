@@ -60,6 +60,14 @@ jobs:
           node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
           echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
       - run: pnpm test
+      # #117: the bounded load-harness regression against real web/worker
+      # processes and an owned database (synthetic latency witnesses only). The
+      # fifty-Check release replay needs private recordings and runs in the
+      # guarded release flow (pnpm load:release, then pnpm build:release).
+      - name: Load harness regression (bounded, real processes)
+        env:
+          DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+        run: pnpm --filter @source-taster/server exec vitest run --config load.vitest.config.ts test/load-run.load.ts
       - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - name: Native Chromium side panel

@@ -14,7 +14,9 @@ import {
   SHIPPED_PLACEHOLDER_DELAY_MS,
   type DurationBasis,
 } from "./load/analysis.ts";
-import { runLoad } from "./load/run.ts";
+import { HARNESS_SOURCES, runLoad } from "./load/run.ts";
+import { parseSearchSettings } from "../src/config.ts";
+import { readConfigurationFile } from "./quality/configuration.ts";
 import {
   loadRecording,
   recordedPolicy,
@@ -35,6 +37,7 @@ const { values } = (() => {
         workers: { type: "string", default: "1" },
         "placeholder-delay-ms": { type: "string" },
         settings: { type: "string" },
+        configuration: { type: "string" },
         "duration-basis": { type: "string", default: "check-start" },
         report: { type: "string" },
         "max-run-seconds": { type: "string", default: "900" },
@@ -86,21 +89,74 @@ async function main() {
     }
   }
 
+  // The reviewed production configuration (the #94 Measured configuration file)
+  // supplies the optional Data sources and the search-settings patch. This is
+  // how the replay is bound to the configuration the release guard compares
+  // (ADR-0007: Operator budgets are part of the measured configuration).
+  // Release runs default to the file release-check receives, so the Quality
+  // gate and the replay cannot silently be pointed at different configurations.
+  const configurationPath =
+    values.configuration ??
+    (values.release
+      ? process.env.SOURCE_TASTER_QUALITY_CONFIGURATION || undefined
+      : undefined);
+  let reviewed: { digest: string } | undefined;
+  if (configurationPath) {
+    if (patch)
+      throw new UsageError(
+        "--configuration supplies the search settings; remove --settings.",
+      );
+    let file;
+    try {
+      file = await readConfigurationFile(configurationPath);
+      patch = file.searchSettings ?? undefined;
+      parseSearchSettings(JSON.stringify(patch ?? {}));
+    } catch (error) {
+      throw new UsageError(
+        `--configuration is invalid: ${(error as Error).message}`,
+      );
+    }
+    const replayed = new Set<string>(HARNESS_SOURCES);
+    const unreplayed = file.enabledSources.filter((s) => !replayed.has(s));
+    const missing = HARNESS_SOURCES.filter(
+      (s) => !file.enabledSources.includes(s),
+    );
+    if (unreplayed.length || missing.length)
+      throw new UsageError(
+        `The replay harness enables and replays exactly ${HARNESS_SOURCES.join(", ")}; the configuration ${unreplayed.length ? `enables ${unreplayed.join(", ")}` : `lacks ${missing.join(", ")}`}. It cannot be load-qualified until the harness replays that source set.`,
+      );
+    reviewed = { digest: file.digest };
+  }
+
+  const recordingPath =
+    values.recording ?? process.env.SOURCE_TASTER_LOAD_RECORDING;
+  // The release flow writes the report where the release guard reads it.
+  const reportPath =
+    values.report ??
+    (values.release ? process.env.SOURCE_TASTER_LOAD_REPORT : undefined);
   if (values.release) {
     const eased = [
       basis !== "check-start" && "--duration-basis",
-      patch && "--settings",
+      values.settings && "--settings",
       values["placeholder-delay-ms"] !== undefined &&
         Number(values["placeholder-delay-ms"]) < SHIPPED_PLACEHOLDER_DELAY_MS &&
         "--placeholder-delay-ms",
     ].filter(Boolean);
     if (eased.length)
       throw new UsageError(
-        `--release measures the shipped budgets and the literal Check-start clock; remove ${eased.join(", ")}.`,
+        `--release measures the reviewed configuration on the literal Check-start clock; remove ${eased.join(", ")}.`,
       );
+    const missing = [
+      !recordingPath &&
+        "authorized recordings (--recording or SOURCE_TASTER_LOAD_RECORDING; synthetic latency witnesses are no qualification)",
+      !configurationPath &&
+        "--configuration <file> or SOURCE_TASTER_QUALITY_CONFIGURATION (the reviewed production configuration that the release guard compares)",
+      !reportPath &&
+        "--report <file> or SOURCE_TASTER_LOAD_REPORT (where the release guard reads the result)",
+    ].filter(Boolean);
+    if (missing.length)
+      throw new UsageError(`--release needs ${missing.join("; ")}.`);
   }
-  const recordingPath =
-    values.recording ?? process.env.SOURCE_TASTER_LOAD_RECORDING;
   let workload: WorkloadReference[][];
   let replay: Parameters<typeof runLoad>[0]["replay"];
   if (recordingPath) {
@@ -154,6 +210,7 @@ async function main() {
     apiPort: integer("api-port", values["api-port"], 1),
     replayPort: integer("replay-port", values["replay-port"], 1),
     searchSettingsPatch: patch,
+    reviewedConfiguration: reviewed,
     // Unset keeps the service's own development default (500 ms), disclosed in the report.
     placeholderDelayMs:
       values["placeholder-delay-ms"] === undefined
@@ -162,7 +219,7 @@ async function main() {
     workers: integer("workers", values.workers, 1),
     durationBasis: basis,
     maxRunMs: integer("max-run-seconds", values["max-run-seconds"], 1) * 1000,
-    reportPath: values.report,
+    reportPath,
     log: (line) => console.error(`load-test: ${line}`),
   });
 
@@ -180,7 +237,7 @@ async function main() {
   for (const e of report.invalidEvidence)
     console.log(`  invalid evidence: ${e.code} x${e.count}`);
   for (const line of report.limitations) console.log(`  limitation: ${line}`);
-  if (values.report) console.log(`report: ${values.report}`);
+  if (reportPath) console.log(`report: ${reportPath}`);
   // A release run offers qualification evidence: a pass that cannot qualify is not one.
   process.exitCode =
     values.release && report.outcome === "passed" && !report.qualifying
