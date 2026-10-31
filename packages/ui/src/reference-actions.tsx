@@ -1,3 +1,4 @@
+import { CheckSelectionActions } from "./bibliography-selection.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useMemo, useState } from "react";
 import type {
@@ -429,6 +430,7 @@ export function ReferenceListActions({
       </button>
       <p className="mt-2">{m.revision_membership_note()}</p>
       {error && <p role="alert">{error}</p>}
+      {draft && check.document && <CheckSelectionActions key={`${check.id}:${draft.expectedEventSeq}`} check={check} transport={transport} onSnapshot={onSnapshot} />}
       {draft && (
         <form
           className="mt-3 space-y-3"

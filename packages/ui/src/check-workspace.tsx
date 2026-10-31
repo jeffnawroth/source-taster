@@ -13,8 +13,11 @@ import {
 } from "@source-taster/contract-verification/client-v2";
 import {
   documentClient,
+  textStructuringClient,
   documentSettingsClient,
 } from "@source-taster/contract-verification/document-client";
+import type { BibliographyDocument } from "@source-taster/contract-verification/document";
+import { BibliographyEditor, validRegions } from "./bibliography-selection.tsx";
 import { m } from "@source-taster/i18n";
 import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
@@ -76,6 +79,9 @@ export function CheckWorkspace({
   siteUrl?: string;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
+  const structureText = useMemo(()=>textStructuringClient(transport),[transport]);
+  const [sourceDocument,setSourceDocument] = useState<BibliographyDocument|null>(null);
+  const [selectionLimit,setSelectionLimit] = useState<number|null>(null);
   const uploadDocument = useMemo(() => documentClient(transport), [transport]);
   const documentSettings = useMemo(
     () => documentSettingsClient(transport),
@@ -175,12 +181,13 @@ export function CheckWorkspace({
     setAccessStopped(false);
     setCancelRequested(false);
     try {
-      if (operation === "structure") {
-        const result = await api.structureReferences(text);
-        if (generation.current === token) setPreview(result);
-        return;
-      }
-      const created = await api.createCheck(text);
+      const result = await structureText(sourceDocument ? {text:sourceDocument.text,document:true,regions:sourceDocument.selection.regions} : {text});
+      if (generation.current !== token) return;
+      setSourceDocument(result.document);
+      setPreview(result.structuring);
+      setSelectionLimit(result.referenceLimitExceeded ? result.structuring.referenceLimit : null);
+      if (operation === "structure" || result.referenceLimitExceeded || !result.structuring.references.length) return;
+      const created = await api.createCheck(result.document ? {document:{text:result.document.text,regions:result.document.selection.regions}} : text);
       if (generation.current !== token) {
         void cancelDetached(created.id);
         return;
@@ -219,6 +226,8 @@ export function CheckWorkspace({
       const result = await uploadDocument(file, file.name, next.signal);
       if (generation.current !== token) return;
       setText(result.document.text);
+      setSourceDocument({text:result.document.text,selection:result.selection});
+      setSelectionLimit(result.referenceLimitExceeded ? result.structuring.referenceLimit : null);
       setPreview(result.structuring);
       setDocumentNotice(result.document.notice === "partial-no-text");
     } catch (error) {
@@ -331,6 +340,8 @@ export function CheckWorkspace({
     setFile(null);
     if (fileInput.current) fileInput.current.value = "";
     setDocumentNotice(false);
+    setSourceDocument(null);
+    setSelectionLimit(null);
     setCheck(null);
     setPreview(null);
     setPending(null);
@@ -450,7 +461,7 @@ export function CheckWorkspace({
               : m.document_upload_action()}
           </Button>
         </fieldset>
-        <TextField
+        {!sourceDocument && <TextField
           value={text}
           onChange={(value) => {
             setText(value);
@@ -469,10 +480,12 @@ export function CheckWorkspace({
             className="min-h-40 resize-y rounded-xl border border-slate-500 p-4 leading-relaxed placeholder:text-slate-500 disabled:bg-slate-100"
             placeholder={m.input_example()}
           />
-        </TextField>
+        </TextField>}
+        {sourceDocument && <BibliographyEditor document={sourceDocument} disabled={!!busy||!!check} onChange={(regions)=>{setSourceDocument({...sourceDocument,selection:{...sourceDocument.selection,regions}});setPreview(null);setSelectionLimit(null);}} />}
+        {selectionLimit && <p role="alert">{m.selection_limit({limit:selectionLimit})}</p>}
         <Button
           type="button"
-          isDisabled={!text.trim() || busy}
+          isDisabled={!text.trim() || busy || !!(sourceDocument && (check || !validRegions(sourceDocument.text,sourceDocument.selection.regions)))}
           onPress={() => {
             void start("structure");
           }}
@@ -484,7 +497,7 @@ export function CheckWorkspace({
         </Button>
         <Button
           type="submit"
-          isDisabled={!text.trim() || busy}
+          isDisabled={!text.trim() || busy || !!(sourceDocument && (check || !validRegions(sourceDocument.text,sourceDocument.selection.regions)))}
           className="mt-5 rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
         >
           {pending === "create" ? m.check_starting() : m.check_action()}

@@ -289,5 +289,20 @@
   "limitation_web_inconclusive": "The response does not establish a readable page with reliable title evidence.",
   "limitation_redirect_limit": "The URL could not be verified within the limit of five redirects.",
   "limitation_archive_mismatch": "The archive response does not establish a capture of the cited original URL.",
-  "evidence_redirect": "Redirect; the target is checked separately"
+  "evidence_redirect": "Redirect; the target is checked separately",
+  "selection_heading": "Bibliography selection",
+  "selection_text": "Document text with selected regions",
+  "selection_none": "No bibliography detected or selected. Mark a region by hand; no text will be checked until you select it.",
+  "selection_help": "Only highlighted text is structured and checked. Move each region using its start and end, or select text in the original input and add it as a region. Positions count characters from 0; the end is excluded.",
+  "selection_start": "Region {region} start",
+  "selection_end": "Region {region} end",
+  "selection_deselect": "Deselect region {region}",
+  "selection_add": "Add marked text as a region",
+  "selection_invalid": "Use non-overlapping regions inside the document, with start before end.",
+  "selection_change": "Change Bibliography selection",
+  "selection_preview": "Preview selection changes",
+  "selection_apply": "Apply selection changes",
+  "selection_limit": "The selection exceeds {limit} References. Nothing was truncated or checked. Reduce the selection.",
+  "selection_original": "Original document text — mark a region here",
+  "selection_versions": "Bibliography detection: {version}. Parser rules remain available in every Plan."
 }

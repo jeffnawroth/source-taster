@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Same lifecycle/authority protocol, with an explicitly versioned result schema.
 import { z } from "zod";
-import { SaveFieldsRequest, RecheckRequest, EditReferenceListRequest, } from "./v2.js";
+import { SaveFieldsRequest, RecheckRequest, EditReferenceListRequest, EditSelectionRequest, SelectionPreviewResponse, } from "./v2.js";
 import { ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.js";
 import { createRoute } from "@hono/zod-openapi";
 import * as v1 from "./routes.js";
@@ -122,4 +122,13 @@ export const editReferenceList = createRoute({
         },
     },
     responses: mutationResponses,
+});
+export const editSelection = createRoute({
+    method: "post", path: "/v2/checks/{checkId}/selection",
+    summary: "Apply a previewed Bibliography selection difference, preserving unchanged slots and the fixed deadline",
+    request: { params: z.object({ checkId: z.uuid() }), body: { required: true, content: { "application/json": { schema: EditSelectionRequest } } } }, responses: mutationResponses,
+});
+export const previewSelection = createRoute({
+    ...editSelection, path: "/v2/checks/{checkId}/selection/preview", summary: "Preview added/cut/dropped References and additional Quota without running work",
+    responses: { ...mutationResponses, 200: { description: "Selection difference; no work started and no Quota consumed.", content: { "application/json": { schema: SelectionPreviewResponse } } } },
 });
