@@ -33,6 +33,8 @@ export async function startTestService(
   }
   const env = {
     NODE_ENV: "test",
+    SOURCE_TASTER_DOCUMENT_IMAGE:
+      process.env.SOURCE_TASTER_DOCUMENT_IMAGE ?? "",
     SOURCE_TASTER_MODE: "standalone",
     DATABASE_URL: appUrl,
     SOURCE_TASTER_PORT: String(port),

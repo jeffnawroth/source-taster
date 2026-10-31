@@ -65,6 +65,10 @@ for (const pkg of packages) {
   // incorrectly says AGPL-1.0; the pinned LICENSE explicitly grants 3 or later.
   // See apps/server/src/citations/assets/NOTICE.md; no CPAL option is used.
   if (pkg.name === "citeproc" && pkg.versions.every(version => version === "2.4.63") && pkg.license === "CPAL-1.0 OR AGPL-1.0") continue;
+  // ADR-0011 DOCX adapter (#89): JSZip is dual-licensed and MIT is elected;
+  // its inflater pako combines MIT and Zlib, both permissive notice licenses.
+  if (pkg.name === "jszip" && pkg.versions.every(version => version === "3.10.2") && pkg.license === "(MIT OR GPL-3.0-or-later)") continue;
+  if (pkg.name === "pako" && pkg.versions.every(version => version === "1.0.11") && pkg.license === "(MIT AND Zlib)") continue;
   if (
     devExceptions.has(pkg.name) &&
     !runtimeNames.has(pkg.name) &&
