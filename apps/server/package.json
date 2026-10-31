@@ -22,6 +22,8 @@
     "release:check": "node scripts/release-check.ts",
     "quality:gate": "node scripts/quality-gate.ts",
     "build:release": "pnpm release:check && pnpm build",
+    "load:test": "node scripts/load-test.ts",
+    "test:load": "vitest run --config load.vitest.config.ts",
     "test:authority": "vitest run --config guest.vitest.config.ts",
     "extractor:image": "node scripts/extractor-image.ts"
   },
