@@ -73,24 +73,24 @@ test.afterAll(async () => {
   await both?.stop();
 });
 async function open(page: Page) {
+  // A passive page load reads nothing and mints no Guest identity; the meter
+  // appears with the first start, which reads the balance anyway.
   await page.goto(url);
-  await expect(page.getByTestId("quota-meter")).toBeVisible();
+  await expect(page.getByTestId("quota-meter")).toHaveCount(0);
 }
 const check = (page: Page) =>
   page.getByRole("button", { name: "Check Reference", exact: true }).click();
 
-test("the Guest always sees balance and consumption, shown before and after the start", async ({
+test("the Guest sees count and consumption before the start and the balance afterwards", async ({
   page,
 }) => {
   await open(page);
-  await expect(page.getByTestId("quota-summary")).toContainText(
-    "20 of 20 checks left · 0 used",
-  );
   await page.getByRole("textbox").fill(references(2));
   await check(page);
   await expect(page.getByTestId("quota-note")).toContainText(
     "2 References will use 2 of your 20 remaining checks. 18 will be left.",
   );
+  await expect(page.getByTestId("quota-meter")).toBeVisible();
   await expect(page.locator("#results-title")).toBeVisible();
   // The debit lands after the last Verdict; the meter follows without a reload.
   await expect(page.getByTestId("quota-summary")).toContainText(
@@ -165,7 +165,12 @@ test("80 percent of the Quota raises an upgrade warning", async ({ page }) => {
 test("the interface speaks German", async ({ page }) => {
   await open(page);
   await page.getByLabel("Language").selectOption("de");
+  await page.getByRole("textbox").fill(references(1));
+  await page
+    .getByRole("button", { name: "Referenz prüfen", exact: true })
+    .click();
+  await expect(page.getByTestId("quota-meter")).toBeVisible();
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "20 von 20 Prüfungen übrig · 0 verbraucht",
+    "von 20 Prüfungen übrig",
   );
 });

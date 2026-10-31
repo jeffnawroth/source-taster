@@ -47,7 +47,11 @@ this work.
   `exhausted`).
 - **Clients (`packages/ui`).** `quota.ts` (pure plan logic shared by web and
   extension panel), `quota-panel.tsx` (meter, choice) and `check-workspace.tsx`.
-  Before the automatic start the user sees count and expected consumption; when
+  The balance is read when the user starts (a passive page load must not mint
+  a Guest identity or spend a token; the native Account specs of #98 assert
+  exactly that), so the meter appears with the first start and then stays
+  visible and follows every Check. Before the automatic start the user sees
+  count and expected consumption; when
   the balance does not cover the input the Check does not start and the user
   chooses "Check first N" or upgrade. The meter is always visible and warns at
   80 % and 100 % with an upgrade offer (a link when the host passes
@@ -97,11 +101,23 @@ contract packages and `packages/i18n`).
   `246f449` (`99-public-fairness-baseline.log`); the sibling test `caps running
   References per Check` is timing dependent (1 of 3 isolated reruns failed).
   Standalone mode has no Quota port, so the settlement drain is inert there.
-- `pnpm test:quota` (apps/web, Playwright chromium with axe, DE text): 4/4.
+- `pnpm test:quota` (apps/web, Playwright chromium with axe, DE text): 4/4
+  (`99-browser-quota-lazy.log`).
+- `apps/extension pnpm test:native-account`: 14 passed, 1 failed
+  (`99-ext-account-lazy.log`). The failure, `Account streams reconnect with
+  memory tokens…`, fails identically with the base `check-workspace.tsx`
+  (`99-ext-account-baseline-ui.log`). An earlier version of this ticket read the
+  balance on mount; that broke three of #98's specs (Guest token minted before
+  sign-in, Guest identity in web storage) and was replaced by the lazy read.
+- `apps/web pnpm test:e2e`: 73 passed, 8 failed
+  (`99-browser-web-e2e-merged.log`). The same 8 fail with the base
+  `check-workspace.tsx` (`99-browser-web-e2e-baseline-ui.log`): the structuring
+  summary and the Check status are both `role="status"` (strict-mode violation),
+  plus one 30 s lifecycle timeout. They come from integration, not from #99.
 
-Not re-run in this ticket: `apps/web test:guest` (fails on the base too in the
+Not re-run in this ticket: `apps/web test:guest` (observed failing in the
 non-accounts harness: `GET /v1/session` is a 404 there, so the sign-in gate
-shows "Sign-in is temporarily unavailable"), the native extension specs and the
+shows "Sign-in is temporarily unavailable"; not compared with the base), the native extension specs and the
 website/pagefind build (needs the controlled Pagefind source; the
 `apps/website/dist-preview` artifact was copied from the root checkout for the
 website test only and is not committed).
@@ -117,7 +133,11 @@ website test only and is not committed).
 - The Operator `correction` journal kind exists at schema level only; credit and
   Plan change are implemented operations.
 - The upgrade offer is a link only when the host supplies `upgradeUrl`; no
-  checkout exists yet, so the web host passes none.
+  checkout exists yet, so the web host passes none. The warning and choice texts
+  still name the upgrade (DE and EN), so the offer is textual until a checkout
+  exists.
+- A visitor who has not started anything yet sees no meter (no passive read, see
+  Clients).
 - The envelope Quota is a best-effort display; a failed snapshot shows
   `not-implemented` rather than failing an already finished request.
 - Committed contract pins in the private repository are not moved to an

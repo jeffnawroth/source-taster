@@ -227,20 +227,8 @@ export function CheckWorkspace({
       return quota;
     }
   }
-  useEffect(() => {
-    let alive = true;
-    api
-      .getQuota()
-      .then((slot) => {
-        if (alive) setQuota(ownerQuota(slot));
-      })
-      .catch(() => {
-        // Display only; every start is still enforced by the server.
-      });
-    return () => {
-      alive = false;
-    };
-  }, [api]);
+  // No read on mount: a passive page load must not mint a Guest identity or
+  // spend a token. The first start reads the balance (which it needs anyway).
   useEffect(
     () => () => {
       generation.current++;
