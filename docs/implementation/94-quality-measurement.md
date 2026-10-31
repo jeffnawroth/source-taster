@@ -185,6 +185,81 @@ quality suites; `94-typecheck-pre-merge.log` and `94-lint-pre-merge.log`, both
 passed. The two later privacy regressions have separate fresh red/green logs.
 Final integrated checks and exact commands are recorded below after the merge.
 
+### Final integrated checks
+
+Merged integration `246f449` as `f7b6d57`, then its final composition fix
+`901b22d` as `dbc78f2`, without conflicts. The latter is the source tree used for
+the final Quality gate suite. `git merge-base --is-ancestor
+spec/70-launch-integration HEAD` passed. #94 changes no transport schema or
+private-service dependency pin; the parent owns integration publication/pinning.
+
+Fresh disposable PostgreSQL 18 container `source-taster-quality-94-codex` used
+loopback port 55494; API/global fixture 4201 and serial auxiliary services 4202.
+The 5321 browser allocation was unused because this ticket has no client-only
+changes. The test prefix was:
+
+```sh
+export DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55494/postgres
+export DATABASE_TEST_URL=postgres://verification_test:verification_test@127.0.0.1:55494/source_taster_test
+export SOURCE_TASTER_TEST_API_PORT=4201
+export SOURCE_TASTER_TEST_BIBLIOGRAPHIC_PORT=4202
+export SOURCE_TASTER_TEST_DOI_PORT=4202
+```
+
+Executed checks:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm --filter @source-taster/core build
+pnpm --filter @source-taster/contract-verification build
+pnpm --filter @source-taster/server generate
+git diff --exit-code -- packages/contract-verification/dist \
+  packages/contract-verification/openapi.json \
+  packages/contract-verification/openapi-v2.json
+
+pnpm --filter @source-taster/server exec vitest run \
+  test/quality-calibration.test.ts test/quality-cli.test.ts \
+  test/quality-dataset.test.ts test/quality-gate.test.ts \
+  test/quality-release.test.ts test/quality-replay.test.ts \
+  test/quality-targets.test.ts test/bibliographic.test.ts test/doi.test.ts
+
+# After merging 901b22d: repeat just the seven quality suites above.
+pnpm --filter @source-taster/server typecheck
+pnpm --filter @source-taster/server lint
+pnpm --filter @source-taster/server build
+pnpm exec prettier --check .
+git diff --check
+```
+
+Results: **164/164 tests in nine suites** passed on the first integrated tree
+(`94-quality-integrated-final.log`, 285.82 s, serial rate-limited HTTP cases).
+After the final integration advance, **68/68 tests in seven quality suites**
+passed (`94-quality-latest-integration.log`, 39.08 s). These include a real
+measurement CLI invocation that preserves its failed log and exits 78, and a
+calibration CLI invocation that preserves its no-selection record and exits 78.
+There were no failed cases in either combined run.
+
+Frozen install, core/contract builds and Prisma generation passed; generated
+transport files remained unchanged. Server typecheck, lint and build passed
+again after the latest merge (`94-typecheck-latest-integration.log`,
+`94-lint-latest-integration.log`, `94-build-latest-integration.log`). Whole-repo
+formatting passed (`94-format-final.log`), followed by a final handoff-format
+check. No dependency changes required an advisory/rights exception; no dependency
+audit or website/browser qualification is claimed by these checks.
+
+With all `SOURCE_TASTER_QUALITY_*` inputs unset, the direct
+`node apps/server/scripts/release-check.ts` returned **78**, including from a
+clean tree (`94-release-refusal-clean.log`).
+`pnpm --filter @source-taster/server build:release` stopped at that guard
+(`94-release-build-refusal-final.log`; pnpm's outer process returned 1 and
+reported the child's exit 78). Its build step did not execute. This is local
+release-command evidence, not a successful release or CI run.
+
+Owned test databases/roles were removed by the harness. The dedicated container
+and its disposable volume were removed after validation; no unknown/shared
+database, process or container was removed. Cleanup evidence is
+`94-disposable-cleanup.log` in the same coordination directory.
+
 ## Qualification limits
 
 Synthetic harness tests are neither a Reference test set nor a Development set,
