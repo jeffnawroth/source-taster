@@ -15,6 +15,7 @@ export const labels = {
     correct: "Correct",
     exists: "Exists, with deviations",
     best: "Best match by Score",
+    library: "Import BibTeX or RIS",
   },
   de: {
     input: "Referenz",
@@ -25,6 +26,7 @@ export const labels = {
     correct: "Korrekt",
     exists: "Existiert, mit Abweichungen",
     best: "Bester Treffer nach Score",
+    library: "BibTeX oder RIS importieren",
   },
 } as const;
 

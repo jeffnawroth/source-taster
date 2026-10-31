@@ -298,8 +298,10 @@ for (const language of ["en", "de"] as const)
           const file = join(directory, `library.${extension}`);
           await writeFile(file, text);
           await panel.send("DOM.setFileInputFiles", {
+            // The workspace also has a document upload input; pick the
+            // library import by its label, not by position.
             backendNodeId: await panel.locate(
-              'document.querySelector("input[type=file]")',
+              `[...document.querySelectorAll("input[type=file]")].find((input) => [...input.labels].some((label) => label.textContent.trim() === ${JSON.stringify(labels[language].library)}))`,
             ),
             files: [file],
           });
