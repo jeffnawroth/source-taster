@@ -1,5 +1,5 @@
-import { ContinuationTime } from "./abuse-message.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { ContinuationTime } from "./abuse-message.tsx";
 import type { ReactNode } from "react";
 import {
   useEffect,

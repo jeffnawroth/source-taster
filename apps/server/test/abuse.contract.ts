@@ -199,6 +199,7 @@ test("a full-day window has a fixed expiry, rounded retry seconds and no key-ret
   service.advance(-12 * 60 * 60 * 1000);
   for (const budget of [
     service.policy.public.principal.free,
+    service.policy.public.principal.pro,
     service.policy.public.guest,
     service.policy.public.allGuests,
     service.policy.public.origin,
@@ -247,5 +248,56 @@ test("continuation time is the latest exceeded budget and malformed shared decis
     policyVersion: service.policy.version,
     planId: "unlimited",
   });
+  expect((await service.request()).status).toBe(503);
+});
+
+test("SSE admission counts once per connection and its shared client stops on typed 429", async () => {
+  const { CheckResponse } =
+    await import("@source-taster/contract-verification/v2");
+  const { readSseFrames, watchCheckEvents } =
+    await import("@source-taster/contract-verification/client-v2");
+  service = await abuseService();
+  const created = await service.request("stream", { path: "/v2/checks" });
+  expect(created.status).toBe(201);
+  const check = CheckResponse.parse(await created.json()).data;
+  const controller = new AbortController();
+  const stream = await fetch(
+    `http://127.0.0.1:4701/v2/checks/${check.id}/events`,
+    {
+      headers: {
+        authorization: `Bearer ${service.token("stream")}`,
+        "last-event-id": `${check.id}:0`,
+      },
+      signal: controller.signal,
+    },
+  );
+  expect(stream.status).toBe(200);
+  try {
+    for await (const frame of readSseFrames(stream.body!)) {
+      expect(frame.id).toBe(`${check.id}:1`);
+      break;
+    }
+  } finally {
+    controller.abort();
+  }
+  await expect(
+    watchCheckEvents(check.id, {
+      baseUrl: "http://127.0.0.1:4701",
+      credentials: () => Promise.resolve(service!.token("stream")),
+      onEvent: () => {
+        throw new Error("Denied stream published a frame");
+      },
+      signal: AbortSignal.timeout(3000),
+      retryDelayMs: 1,
+    }),
+  ).rejects.toMatchObject({
+    status: 429,
+    problem: { code: "abuse-limit", retryAt: "2026-10-31T12:01:00.000Z" },
+  });
+});
+
+test("inconsistent Plan windows fail closed instead of creating a Plan-switch reset", async () => {
+  service = await abuseService();
+  service.policy.public.principal.pro.windowMs = 120000;
   expect((await service.request()).status).toBe(503);
 });

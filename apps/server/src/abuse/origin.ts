@@ -6,8 +6,8 @@ import { z } from "zod";
 import { fail } from "../http/problems.ts";
 /** No qualified numeric defaults: these are explicit deployment operating settings. */
 export const OriginSettings = z.strictObject({
-  ipv4Prefix: z.number().int().min(1).max(32),
-  ipv6Prefix: z.number().int().min(1).max(128),
+  ipv4Prefix: z.number().int().min(1).max(31),
+  ipv6Prefix: z.number().int().min(1).max(127),
   keys: z
     .array(
       z

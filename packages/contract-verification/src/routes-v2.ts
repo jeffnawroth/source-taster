@@ -79,7 +79,6 @@ export const streamCheckEvents = createRoute({
   description:
     "The X-Source-Taster-Replay-Through header gives the snapshot cursor: historical ended events below it do not finish a client replay. Ordered, replayable Check and Reference events. Ended Checks can have active slot-only Re-checks; the stream stays open until all current Reference runs finish. Last-Event-ID and current-authority rules are unchanged. Reference events include immutable revisions/results; removed=true removes that slot from the visible list.",
   responses: {
-    429: entranceLimitResponse,
     ...v1.streamCheckEvents.responses,
     410: expiredResponse,
   },
@@ -205,7 +204,6 @@ export const previewSelection = createRoute({
   summary:
     "Preview added, cut and dropped References and additional Quota without running work",
   responses: {
-    429: entranceLimitResponse,
     ...mutationResponses,
     200: {
       description:

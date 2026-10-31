@@ -68,8 +68,10 @@ export const PublicJwks = z.strictObject({
 });
 /** Mandatory shape of an entrance-limit refusal, including the continuation time. */
 export const EntranceLimitProblem = ProblemDetails.extend({
-    status: z.literal(429), code: z.literal("abuse-limit"),
-    i18nKey: z.literal("problem_abuse_limit"), retryAt: z.iso.datetime(),
+    status: z.literal(429),
+    code: z.literal("abuse-limit"),
+    i18nKey: z.literal("problem_abuse_limit"),
+    retryAt: z.iso.datetime(),
 }).meta({ id: "EntranceLimitProblem" });
 export const entranceLimitResponse = {
     description: "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",

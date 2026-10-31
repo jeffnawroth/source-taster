@@ -74,12 +74,25 @@ export const AbuseBudget = z.strictObject({
   limit: z.number().int().positive().max(1_000_000_000),
   windowMs: z.number().int().min(1000).max(86_400_000),
 });
-export const AbuseBudgets = z.strictObject({
-  principal: z.record(z.string().min(1).max(80), AbuseBudget),
-  guest: AbuseBudget,
-  allGuests: AbuseBudget,
-  origin: AbuseBudget,
-});
+export const AbuseBudgets = z
+  .strictObject({
+    principal: z.record(z.string().min(1).max(80), AbuseBudget),
+    guest: AbuseBudget,
+    allGuests: AbuseBudget,
+    origin: AbuseBudget,
+  })
+  .refine(
+    (value) => {
+      const windows = Object.values(value.principal).map(
+        (budget) => budget.windowMs,
+      );
+      return windows.length > 0 && new Set(windows).size === 1;
+    },
+    {
+      message:
+        "All Plans share a principal window; changing Plan must not restart accounting.",
+    },
+  );
 export const AbusePolicy = z
   .strictObject({
     version: z.string().min(1).max(80),

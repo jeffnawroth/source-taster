@@ -102,17 +102,44 @@ export const authorizeAccount = createRoute({
     },
 });
 export const getAbusePolicy = createRoute({
-    method: "post", path: "/internal/abuse/policy",
+    method: "post",
+    path: "/internal/abuse/policy",
     summary: "Operator-maintained entrance budgets; signed abuse-entrance assertion, briefly cached settings only",
-    request: { body: { required: true, content: { "application/json": { schema: z.strictObject({}) } } } },
-    responses: { 200: { description: "Current public and combined-service budgets", content: { "application/json": { schema: AbusePolicy } } }, 401: problem, 503: problem },
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: z.strictObject({}) } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Current public and combined-service budgets",
+            content: { "application/json": { schema: AbusePolicy } },
+        },
+        401: problem,
+        503: problem,
+    },
 });
 export const countAbuseEntrance = createRoute({
-    method: "post", path: "/internal/abuse/entrances",
+    method: "post",
+    path: "/internal/abuse/entrances",
     summary: "Atomically count combined budgets across both programs; current Plan, no cached allowance",
     description: "Service owns one PostgreSQL transaction for all shared dimensions and both entrances, deduplicated by requestId. It validates current binding and ingress hash/window/key context. Only IDs/counts and minimized hashes cross; no IPs/content/credentials. Stale policy, unknown binding or outage fails closed. Private bootstrap/cancellation remain Account-existence neutral. Every attempt counts, including a denial; maximum retryAt across exceeded budgets. Idempotency expires within 24h.",
-    request: { body: { required: true, content: { "application/json": { schema: AbuseEntrance } } } },
-    responses: { 200: { description: "One non-cacheable combined decision and current Plan", content: { "application/json": { schema: AbuseDecision } } }, 400: problem, 401: problem, 503: problem },
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: AbuseEntrance } },
+        },
+    },
+    responses: {
+        200: {
+            description: "One non-cacheable combined decision and current Plan",
+            content: { "application/json": { schema: AbuseDecision } },
+        },
+        400: problem,
+        401: problem,
+        503: problem,
+    },
 });
 export const routes = [
     getAbusePolicy,

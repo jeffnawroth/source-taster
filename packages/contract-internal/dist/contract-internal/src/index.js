@@ -61,18 +61,27 @@ export const AbuseBudget = z.strictObject({
     limit: z.number().int().positive().max(1_000_000_000),
     windowMs: z.number().int().min(1000).max(86_400_000),
 });
-export const AbuseBudgets = z.strictObject({
+export const AbuseBudgets = z
+    .strictObject({
     principal: z.record(z.string().min(1).max(80), AbuseBudget),
     guest: AbuseBudget,
     allGuests: AbuseBudget,
     origin: AbuseBudget,
+})
+    .refine((value) => {
+    const windows = Object.values(value.principal).map((budget) => budget.windowMs);
+    return windows.length > 0 && new Set(windows).size === 1;
+}, {
+    message: "All Plans share a principal window; changing Plan must not restart accounting.",
 });
-export const AbusePolicy = z.strictObject({
+export const AbusePolicy = z
+    .strictObject({
     version: z.string().min(1).max(80),
     cacheMs: z.number().int().min(1).max(30_000),
     public: AbuseBudgets,
     shared: AbuseBudgets,
-}).meta({ id: "AbusePolicy" });
+})
+    .meta({ id: "AbusePolicy" });
 /** Trusted ingress already truncated and keyed-hashed. Never HTTP Origin or a raw IP.
  * One hash per distinct origin budget window; signer authenticates the ingress context. */
 export const AbuseOrigin = z.strictObject({
@@ -81,21 +90,41 @@ export const AbuseOrigin = z.strictObject({
     keyId: z.string().min(1).max(80),
     hash: z.string().regex(/^[a-f0-9]{64}$/),
 });
-export const AbuseEntrance = z.strictObject({
+export const AbuseEntrance = z
+    .strictObject({
     requestId: z.uuid(),
     program: z.literal("verification"),
     policyVersion: z.string().min(1).max(80),
-    principal: z.strictObject({
-        ownerId: z.uuid(), actorId: z.uuid(),
-        guestId: z.uuid().optional(), guestContextId: z.uuid().optional(), sessionId: z.uuid().optional(),
-    }).refine(v => (!!v.guestContextId !== !!v.sessionId) && (!!v.guestId === !!v.guestContextId)).nullable(),
+    principal: z
+        .strictObject({
+        ownerId: z.uuid(),
+        actorId: z.uuid(),
+        guestId: z.uuid().optional(),
+        guestContextId: z.uuid().optional(),
+        sessionId: z.uuid().optional(),
+    })
+        .refine((v) => !!v.guestContextId !== !!v.sessionId &&
+        !!v.guestId === !!v.guestContextId)
+        .nullable(),
     origins: z.array(AbuseOrigin).min(1).max(2),
-}).meta({ id: "AbuseEntrance" });
+})
+    .meta({ id: "AbuseEntrance" });
 /** Service resolves current Plan, never accepts a client Plan/allowance. It atomically
  * counts ALL shared dimensions across BOTH entrances, durably deduplicating requestId
  * for at most 24h. An inaccessible/unknown identity never reveals Account existence.
  * Policy mismatch/outage is 503; it is never an allow. No cached decisions/retries. */
-export const AbuseDecision = z.discriminatedUnion("allowed", [
-    z.strictObject({ allowed: z.literal(true), policyVersion: z.string(), planId: z.string().min(1).max(80) }),
-    z.strictObject({ allowed: z.literal(false), planId: z.string().min(1).max(80), policyVersion: z.string(), retryAt: z.iso.datetime() }),
-]).meta({ id: "AbuseDecision" });
+export const AbuseDecision = z
+    .discriminatedUnion("allowed", [
+    z.strictObject({
+        allowed: z.literal(true),
+        policyVersion: z.string(),
+        planId: z.string().min(1).max(80),
+    }),
+    z.strictObject({
+        allowed: z.literal(false),
+        planId: z.string().min(1).max(80),
+        policyVersion: z.string(),
+        retryAt: z.iso.datetime(),
+    }),
+])
+    .meta({ id: "AbuseDecision" });

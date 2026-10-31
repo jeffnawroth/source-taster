@@ -1,5 +1,5 @@
-import { abuseMessage } from "./abuse-message.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { abuseMessage } from "./abuse-message.tsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { m } from "@source-taster/i18n";
 import type { BibliographyDocument } from "@source-taster/contract-verification/document";
