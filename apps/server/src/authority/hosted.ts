@@ -5,6 +5,7 @@ import {
   AuthorityInvalidation,
   AuthorityInvalidationAck,
   type GuestBinding,
+  type AccountAuthorityRequest,
 } from "@source-taster/contract-internal";
 import type { CheckStore, WorkSubject } from "../checks/store.ts";
 import type { Entitlements, Permission } from "../entitlements.ts";
@@ -52,7 +53,7 @@ export function hostedAuthority(
     }
   }
   async function run<T>(
-    binding: GuestBinding,
+    binding: GuestBinding | Pick<AccountAuthorityRequest,"ownerId"|"actorId"|"sessionId">,
     permission: Permission,
     kind: "request" | "work",
     expiresAt: number | undefined,
@@ -60,16 +61,17 @@ export function hostedAuthority(
   ) {
     if (expiresAt !== undefined && expiresAt <= clock.now())
       fail("unauthenticated");
+    const path="guestContextId" in binding ? "/internal/guest-authority" : "/internal/account-authority";
     const body = JSON.stringify({ ...binding, permission, kind });
     let decision: AuthorityResponse;
     try {
       const response = await fetch(
-        `${settings.serviceOrigin}/internal/guest-authority`,
+        `${settings.serviceOrigin}${path}`,
         {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            authorization: `Bearer ${requestAssertion(settings, body, clock.now())}`,
+            authorization: `Bearer ${requestAssertion(settings, body, clock.now(),path)}`,
           },
           body,
           redirect: "error",
@@ -108,19 +110,19 @@ export function hostedAuthority(
       return {
         ownerId: claims.ownerId,
         actorId: claims.sub,
-        guestContextId: claims.guestContextId,
+        ...(claims.purpose === "guest-access"?{guestContextId:claims.guestContextId}:{sessionId:claims.sessionId}),
         expiresAt: claims.exp * 1000,
         can: () => true,
         quota: { status: "not-implemented" },
       };
     },
     guard(principal, permission, operation) {
-      if (!principal.guestContextId) fail("unauthenticated");
+      if (!principal.guestContextId && !principal.sessionId) fail("unauthenticated");
       return run(
         {
           ownerId: principal.ownerId,
           actorId: principal.actorId,
-          guestContextId: principal.guestContextId,
+          ...(principal.guestContextId?{guestContextId:principal.guestContextId}:{sessionId:principal.sessionId}),
         },
         permission,
         "request",
@@ -137,12 +139,11 @@ export function hostedAuthority(
         _boundary: string,
         operation: () => Promise<T>,
       ) {
-        if (!attempt.guestContextId) fail("forbidden");
         return run(
           {
             ownerId: attempt.ownerId,
             actorId: attempt.actorId,
-            guestContextId: attempt.guestContextId,
+            ...(attempt.guestContextId?{guestContextId:attempt.guestContextId}:{}),
           },
           "check:create",
           "work",

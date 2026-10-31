@@ -35,7 +35,9 @@ export const AuthorityResponse = z
     .meta({ id: "AuthorityResponse" });
 /** Monotonic, durable, idempotent Owner fence. Completion drains guarded operations. */
 export const AuthorityInvalidation = z.strictObject({
-    ...GuestBinding.shape,
+    guestContextId: z.uuid().optional(),
+    ownerId: z.uuid(),
+    actorId: z.uuid(),
     version: z.number().int().positive().safe(),
     cancelWork: z.boolean(),
 });
@@ -43,3 +45,5 @@ export const AuthorityInvalidationAck = z.strictObject({
     ownerId: z.uuid(),
     version: z.number().int().positive().safe(),
 });
+/** Stable Account binding; workers deliberately carry no client session secret. */
+export const AccountAuthorityRequest = z.strictObject({ actorId: z.uuid(), ownerId: z.uuid(), sessionId: z.uuid().optional(), permission: Permission, kind: z.enum(["request", "work"]) }).refine(v => v.kind !== "request" || !!v.sessionId);

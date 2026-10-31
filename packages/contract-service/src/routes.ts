@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import {
+  SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse,
   GuestTokenRequest,
   GuestTokenResponse,
   PublicJwks,
@@ -54,4 +55,13 @@ export const getGuestJwks = createRoute({
     503: problem,
   },
 });
-export const routes = [getServiceStatus, issueGuestToken, getGuestJwks];
+function post(path:string,summary:string,input: typeof SignInChallengeRequest | typeof SignInConfirmRequest | typeof SignOutRequest, output: typeof SignInChallengeResponse | typeof AccountSessionResponse | typeof SignOutResponse) {
+ return createRoute({method:"post",path,summary,request:{body:{required:true,content:{"application/json":{schema:input}}}},responses:{200:{description:"Success",content:{"application/json":{schema:output}}},400:problem,401:problem,403:problem,429:problem,503:problem}});
+}
+export const requestSignIn = post("/v1/sign-in/challenges","Request a transaction-bound email code",SignInChallengeRequest,SignInChallengeResponse);
+export const confirmSignIn = post("/v1/sign-in/confirm","Confirm email and create a host-scoped web session",SignInConfirmRequest,AccountSessionResponse);
+export const signOut = post("/v1/sign-out","Revoke this session or every Account session",SignOutRequest,SignOutResponse);
+export const getAccountSession = createRoute({method:"get",path:"/v1/session",summary:"Read the current web session (does not extend idle expiry)",responses:{200:{description:"Current Account",content:{"application/json":{schema:AccountSessionResponse}}},401:problem,503:problem}});
+export const recordSessionActivity = createRoute({method:"post",path:"/v1/session/activity",summary:"Record foreground user activity; background token renewal does not extend idle expiry",responses:{200:{description:"Current Account",content:{"application/json":{schema:AccountSessionResponse}}},401:problem,403:problem,503:problem}});
+export const issueAccountToken = createRoute({method:"post",path:"/v1/account-tokens",summary:"Issue a five-minute Account access token from a current web session",responses:{200:{description:"Verification token",content:{"application/json":{schema:AccountTokenResponse}}},401:problem,403:problem,503:problem}});
+export const routes = [getServiceStatus, issueGuestToken, getGuestJwks,requestSignIn,confirmSignIn,getAccountSession,issueAccountToken,recordSessionActivity,signOut];

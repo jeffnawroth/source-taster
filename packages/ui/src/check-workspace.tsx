@@ -65,11 +65,15 @@ export function CheckWorkspace({
   preferenceStorage,
   transport,
   siteUrl,
+  accountControls,
+  onPreferencesChange,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
   siteUrl?: string;
+  accountControls?: (language: "de"|"en") => import("react").ReactNode;
+  onPreferencesChange?: (preferences: Preferences) => void;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const [preferences, updatePreferences] = useState(initial.preferences);
@@ -266,6 +270,7 @@ export function CheckWorkspace({
     const next = { ...preferences, ...patch };
     void setLocale(next.language, { reload: false });
     updatePreferences(next);
+    onPreferencesChange?.(next);
     void saveGuestPreferences(preferenceStorage, next);
     if (patch.citationStyle) setStyleReset(false);
   }
@@ -308,6 +313,7 @@ export function CheckWorkspace({
           </select>
         </label>
       </header>
+      {accountControls?.(locale)}
       {styleReset && (
         <p
           role="status"

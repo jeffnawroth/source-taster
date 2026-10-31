@@ -1,4 +1,4 @@
-import { GuestTokenRequest, ProblemDetails } from "./index.ts";
+import { SignInChallengeRequest, SignInConfirmRequest, GuestTokenRequest, ProblemDetails } from "./index.ts";
 export declare class GuestTokenError extends Error {
     readonly status: number;
     readonly problem: ProblemDetails | undefined;
@@ -13,3 +13,38 @@ export declare function guestTokenClient(options: {
     expiresAt: string;
     expiresIn: 300;
 }>;
+/** Web transport only. The browser owns Secure HttpOnly cookies; no credential is returned or stored here. */
+export declare function accountSessionClient(options: {
+    baseUrl: string;
+    fetch?: typeof fetch;
+}): {
+    session: () => Promise<{
+        accountId: string;
+        ownerId: string;
+        email: string;
+    }>;
+    challenge: (input: import("zod").infer<typeof SignInChallengeRequest>) => Promise<{
+        challengeId: string;
+        expiresIn: number;
+        resendAfter: number;
+    }>;
+    confirm: (input: import("zod").infer<typeof SignInConfirmRequest>) => Promise<{
+        accountId: string;
+        ownerId: string;
+        email: string;
+    }>;
+    token: () => Promise<{
+        accessToken: string;
+        tokenType: "Bearer";
+        expiresAt: string;
+        expiresIn: 300;
+    }>;
+    activity: () => Promise<{
+        accountId: string;
+        ownerId: string;
+        email: string;
+    }>;
+    signOut: (everywhere: boolean) => Promise<{
+        signedOut: true;
+    }>;
+};

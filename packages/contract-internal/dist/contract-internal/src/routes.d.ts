@@ -282,7 +282,7 @@ export declare const invalidateGuest: {
             content: {
                 "application/json": {
                     schema: z.ZodObject<{
-                        guestContextId: z.ZodUUID;
+                        guestContextId: z.ZodOptional<z.ZodUUID>;
                         ownerId: z.ZodUUID;
                         actorId: z.ZodUUID;
                         version: z.ZodNumber;
@@ -355,6 +355,106 @@ export declare const invalidateGuest: {
     };
 } & {
     getRoutingPath(): "/internal/guest-authority/invalidate";
+};
+export declare const authorizeAccount: {
+    method: "post";
+    path: "/internal/account-authority";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        actorId: z.ZodUUID;
+                        ownerId: z.ZodUUID;
+                        sessionId: z.ZodOptional<z.ZodUUID>;
+                        permission: z.ZodEnum<{
+                            "check:cancel": "check:cancel";
+                            "check:create": "check:create";
+                            "check:read": "check:read";
+                            "check:renew": "check:renew";
+                            "structuring:create": "structuring:create";
+                        }>;
+                        kind: z.ZodEnum<{
+                            request: "request";
+                            work: "work";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                        allowed: z.ZodLiteral<true>;
+                        version: z.ZodNumber;
+                    }, z.core.$strict>, z.ZodObject<{
+                        allowed: z.ZodLiteral<false>;
+                        reason: z.ZodEnum<{
+                            forbidden: "forbidden";
+                            revoked: "revoked";
+                            unknown: "unknown";
+                        }>;
+                    }, z.core.$strict>], "allowed">;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/account-authority";
 };
 export declare const routes: (({
     method: "post";
@@ -636,7 +736,7 @@ export declare const routes: (({
             content: {
                 "application/json": {
                     schema: z.ZodObject<{
-                        guestContextId: z.ZodUUID;
+                        guestContextId: z.ZodOptional<z.ZodUUID>;
                         ownerId: z.ZodUUID;
                         actorId: z.ZodUUID;
                         version: z.ZodNumber;
@@ -709,4 +809,103 @@ export declare const routes: (({
     };
 } & {
     getRoutingPath(): "/internal/guest-authority/invalidate";
+}) | ({
+    method: "post";
+    path: "/internal/account-authority";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        actorId: z.ZodUUID;
+                        ownerId: z.ZodUUID;
+                        sessionId: z.ZodOptional<z.ZodUUID>;
+                        permission: z.ZodEnum<{
+                            "check:cancel": "check:cancel";
+                            "check:create": "check:create";
+                            "check:read": "check:read";
+                            "check:renew": "check:renew";
+                            "structuring:create": "structuring:create";
+                        }>;
+                        kind: z.ZodEnum<{
+                            request: "request";
+                            work: "work";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodDiscriminatedUnion<[z.ZodObject<{
+                        allowed: z.ZodLiteral<true>;
+                        version: z.ZodNumber;
+                    }, z.core.$strict>, z.ZodObject<{
+                        allowed: z.ZodLiteral<false>;
+                        reason: z.ZodEnum<{
+                            forbidden: "forbidden";
+                            revoked: "revoked";
+                            unknown: "unknown";
+                        }>;
+                    }, z.core.$strict>], "allowed">;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/internal/account-authority";
 }))[];

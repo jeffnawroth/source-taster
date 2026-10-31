@@ -219,5 +219,22 @@
   "export_preview": "Format: {format} · Zitierstil: {style}. Diese Datenformate bewahren die Felder; der Stil formatiert die Vorschau der Vorschläge.",
   "export_download": "Referenzen herunterladen",
   "export_downloading": "Download wird vorbereitet…",
-  "export_failed": "Der Download ist fehlgeschlagen. Prüfen Sie Verbindung und Zugriff, aktualisieren Sie bei Bedarf die Prüfung und versuchen Sie es erneut."
+  "export_failed": "Der Download ist fehlgeschlagen. Prüfen Sie Verbindung und Zugriff, aktualisieren Sie bei Bedarf die Prüfung und versuchen Sie es erneut.",
+  "auth_sign_in": "Anmelden",
+  "auth_email": "E-Mail-Adresse",
+  "auth_send_code": "Code senden",
+  "auth_code": "Sechsstelliger Code",
+  "auth_confirm": "Code bestätigen",
+  "auth_resend": "Neuen Code senden",
+  "auth_guest_notice": "Gast-Prüfungen und Gast-Kontingent werden bei der Registrierung nicht übertragen.",
+  "auth_here": "Hier abmelden",
+  "auth_everywhere": "Überall abmelden",
+  "auth_pending": "Bitte warten…",
+  "auth_code_sent": "Prüfe deine E-Mails. Der Code ist fünf Minuten gültig.",
+  "auth_invalid": "Der Code ist ungültig, abgelaufen oder bereits verwendet. Fordere nach der Wartezeit einen neuen Code an.",
+  "auth_unavailable": "Die Anmeldung ist vorübergehend nicht verfügbar. Versuche es in Kürze erneut.",
+  "auth_limited": "Zu viele Versuche. Warte, bevor du einen neuen Code anforderst.",
+  "auth_expired": "Deine Sitzung ist abgelaufen oder wurde widerrufen. Melde dich erneut an, um fortzufahren.",
+  "auth_retry": "Sitzung erneut prüfen",
+  "auth_cancel": "Anmeldung abbrechen"
 }
