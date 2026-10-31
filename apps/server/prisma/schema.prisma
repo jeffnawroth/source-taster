@@ -27,12 +27,18 @@ model Check {
   createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
   leaseExpiresAt DateTime        @default(dbgenerated("(CURRENT_TIMESTAMP + interval '75 seconds')")) @map("lease_expires_at") @db.Timestamptz(3)
   endedAt        DateTime?       @map("ended_at") @db.Timestamptz(3)
+  startedAt      DateTime?       @map("started_at") @db.Timestamptz(3)
+  /// Fixed ADR-0005 content deadline; set at creation, finalized at first end.
+  contentExpiresAt DateTime      @map("content_expires_at") @db.Timestamptz(3)
+  /// Set when the content was deleted; the row itself is the tombstone.
+  deletedAt      DateTime?       @map("deleted_at") @db.Timestamptz(3)
   endReason      String?         @map("end_reason")
   dispatchOrder  BigInt          @default(0) @map("dispatch_order")
   references     ReferenceSlot[]
   events         CheckEvent[]
 
   @@index([ownerId])
+  @@index([contentExpiresAt], map: "checks_content_expiry")
   @@map("checks")
 }
 

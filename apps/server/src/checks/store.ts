@@ -273,7 +273,15 @@ export function createCheckStore(
     if (current.state !== "ended")
       await tx.check.update({
         where: { id: checkId },
-        data: { state: "ended", endReason: reason, endedAt: new Date(now) },
+        data: {
+          state: "ended",
+          endReason: reason,
+          endedAt: new Date(now),
+          // ADR-0005: a Check that never started keeps its creation deadline.
+          ...(current.startedAt
+            ? { contentExpiresAt: new Date(now + settings.contentRetentionMs) }
+            : {}),
+        },
       });
     else reason = current.endReason as CheckEndReason;
     await appendEvent(tx, checkId, {
@@ -315,17 +323,76 @@ export function createCheckStore(
         where: { checkId: row.id, status: "running" },
       })) > 0
     ) {
-      await cancelLocked(tx, row.id, "lease-expired", now);
+      // The Check ended when its lease ran out, not when that was noticed.
+      await cancelLocked(
+        tx,
+        row.id,
+        "lease-expired",
+        Math.min(now, row.leaseExpiresAt.getTime()),
+      );
       return true;
     }
     return false;
   }
-  function assertContentAlive(row: { createdAt: Date; endedAt: Date | null }) {
+  type ContentRow = { contentExpiresAt: Date; deletedAt: Date | null };
+  function contentAlive(row: ContentRow) {
+    return !row.deletedAt && clock.now() < row.contentExpiresAt.getTime();
+  }
+  function assertContentAlive(row: ContentRow) {
+    if (!contentAlive(row)) throw new CheckExpired();
+  }
+  // ADR-0005 deletion. Unfinished slots first end as cancelled so their release
+  // intents survive for #99; then all content, events and queued work go. The
+  // content-free Check row remains as the tombstone.
+  async function purgeLocked(
+    tx: Tx,
+    check: { id: string; deletedAt: Date | null },
+  ) {
+    if (check.deletedAt) return;
+    const now = clock.now();
     if (
-      clock.now() >=
-      (row.endedAt ?? row.createdAt).getTime() + settings.contentRetentionMs
+      (await tx.referenceSlot.count({
+        where: { checkId: check.id, status: "running" },
+      })) > 0
     )
-      throw new CheckExpired();
+      await cancelLocked(tx, check.id, "cancelled", now);
+    await tx.checkEvent.deleteMany({ where: { checkId: check.id } });
+    await tx.referenceSlot.deleteMany({ where: { checkId: check.id } });
+    await tx.check.update({
+      where: { id: check.id },
+      data: { deletedAt: new Date(now) },
+    });
+    const db = {
+      executeSql: async (sql: string, values?: unknown[]) => ({
+        rows: await tx.$queryRawUnsafe(sql, ...(values ?? [])),
+      }),
+    };
+    const queued = await boss.findJobs(REFERENCE_QUEUE, {
+      data: { checkId: check.id },
+      queued: true,
+      db,
+    });
+    if (queued.length)
+      await boss.deleteJob(
+        REFERENCE_QUEUE,
+        queued.map((job) => job.id),
+        { db },
+      );
+  }
+  async function sweep() {
+    const due = await db.check.findMany({
+      where: {
+        deletedAt: null,
+        contentExpiresAt: { lte: new Date(clock.now()) },
+      },
+      select: { id: true },
+      orderBy: { contentExpiresAt: "asc" },
+    });
+    for (const { id } of due)
+      await db.$transaction(async (tx) => {
+        const check = await lock(tx, id);
+        if (check && !contentAlive(check)) await purgeLocked(tx, check);
+      });
   }
   async function ownerSnapshot(
     principal: Principal,
@@ -341,7 +408,9 @@ export function createCheckStore(
         (apiVersion === 1 && row.apiVersion !== 1)
       )
         return null;
+      // Frozen v1 has no 410: expired content is simply no longer there.
       if (apiVersion === 2) assertContentAlive(row);
+      else if (!contentAlive(row)) return null;
       const now = clock.now();
       const expired = await expireLocked(tx, row, now);
       if (
@@ -412,6 +481,10 @@ export function createCheckStore(
             actorId: principal.actorId,
             guestContextId: principal.guestContextId,
             state: "running",
+            createdAt: new Date(clock.now()),
+            contentExpiresAt: new Date(
+              clock.now() + settings.contentRetentionMs,
+            ),
             leaseExpiresAt: new Date(clock.now() + settings.clientLeaseMs),
             references: {
               create: references.map((reference, index) => ({
@@ -746,6 +819,7 @@ export function createCheckStore(
         }[]
       >`SELECT c.id AS "checkId",c.owner_id AS "ownerId",c.actor_id AS "actorId",c.guest_context_id AS "guestContextId" FROM verification.checks c
         WHERE c.lease_expires_at>${new Date(clock.now())}
+        AND c.deleted_at IS NULL AND c.content_expires_at>${new Date(clock.now())}
         AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
         AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<${settings.activeReferencesPerCheck}
         ORDER BY (SELECT max(o.dispatch_order) FROM verification.checks o WHERE o.owner_id=c.owner_id AND EXISTS (SELECT 1 FROM verification.reference_slots t WHERE t.check_id=o.id AND t.status='running')),c.dispatch_order,c.created_at,c.id LIMIT 1`;
@@ -769,6 +843,7 @@ export function createCheckStore(
           { id: string }[]
         >`SELECT c.id FROM verification.checks c
           WHERE c.lease_expires_at>${new Date(now)}
+          AND c.deleted_at IS NULL AND c.content_expires_at>${new Date(now)}
           AND EXISTS (SELECT 1 FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NULL)
           AND (SELECT count(*) FROM verification.reference_slots r WHERE r.check_id=c.id AND r.status='running' AND r.claim_until IS NOT NULL)<${settings.activeReferencesPerCheck}
           ORDER BY (SELECT max(o.dispatch_order) FROM verification.checks o WHERE o.owner_id=c.owner_id AND EXISTS (SELECT 1 FROM verification.reference_slots t WHERE t.check_id=o.id AND t.status='running')),c.dispatch_order,c.created_at,c.id LIMIT 1`;
@@ -778,7 +853,12 @@ export function createCheckStore(
         )
           return null;
         const check = await lock(tx, rows[0].id);
-        if (!check || (await expireLocked(tx, check, clock.now()))) return null;
+        if (
+          !check ||
+          !contentAlive(check) ||
+          (await expireLocked(tx, check, clock.now()))
+        )
+          return null;
         const slot = await tx.referenceSlot.findFirst({
           where: { checkId: check.id, status: "running", claimUntil: null },
           orderBy: { position: "asc" },
@@ -796,7 +876,7 @@ export function createCheckStore(
             progress: "checking",
           },
         });
-        await tx.$executeRaw`UPDATE verification.checks SET dispatch_order=nextval('verification.dispatch_order') WHERE id=${check.id}::uuid`;
+        await tx.$executeRaw`UPDATE verification.checks SET dispatch_order=nextval('verification.dispatch_order'),started_at=COALESCE(started_at,${new Date(now)}) WHERE id=${check.id}::uuid`;
         await appendEvent(tx, check.id, {
           type: "reference.updated",
           reference: {
@@ -827,7 +907,11 @@ export function createCheckStore(
     ): Promise<boolean> {
       return db.$transaction(async (tx) => {
         const check = await lock(tx, attempt.checkId);
-        if (!check || (await expireLocked(tx, check, clock.now())))
+        if (
+          !check ||
+          !contentAlive(check) ||
+          (await expireLocked(tx, check, clock.now()))
+        )
           return false;
         const slot = await tx.referenceSlot.findUnique({
           where: {
@@ -872,6 +956,7 @@ export function createCheckStore(
       });
       return (
         eligibleAttempt(row, attempt, clock.now()) &&
+        contentAlive(row.check) &&
         row.check.leaseExpiresAt.getTime() > clock.now()
       );
     },
@@ -883,6 +968,7 @@ export function createCheckStore(
         const check = await lock(tx, attempt.checkId);
         if (
           !check ||
+          !contentAlive(check) ||
           (await expireLocked(tx, check, clock.now())) ||
           (await tx.referenceSlot.count({
             where: { checkId: check.id, status: "running" },
@@ -933,7 +1019,10 @@ export function createCheckStore(
             await cancelLocked(tx, id, "cancelled", clock.now());
         });
     },
+    /** Expiry work; runs before a process serves or works (ADR-0005 restore). */
+    sweep,
     async maintain() {
+      await sweep();
       const running = await db.check.findMany({
         where: { references: { some: { status: "running" } } },
         select: { id: true },
