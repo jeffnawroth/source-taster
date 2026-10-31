@@ -104,7 +104,11 @@ export function CheckWorkspace({
     document.title = m.app_title();
   }, [locale]);
   const activeId =
-    check?.state === "running" && !cancelRequested && !accessStopped
+    check?.references.some(
+      (r) => r.outcome.kind === "status" && r.outcome.status === "running",
+    ) &&
+    !cancelRequested &&
+    !accessStopped
       ? check.id
       : null;
   const renewalInterval = check?.leaseRenewAfterMs;
@@ -171,53 +175,79 @@ export function CheckWorkspace({
         void cancelDetached(created.id);
         return;
       }
-      const next = new AbortController();
-      controller.current = next;
-      setCheck(created);
-      void watchCheckEvents(created.id, {
-        ...transport,
-        signal: next.signal,
-        lastEventSeq: created.lastEventSeq,
-        onEvent: (event) => {
-          if (generation.current !== token || next.signal.aborted) return;
-          setCheck((current) => {
-            if (
-              !current ||
-              current.id !== event.checkId ||
-              event.seq <= current.lastEventSeq
-            )
-              return current;
-            if (event.type === "check.updated")
-              return {
-                ...current,
-                state: event.state,
-                endReason: event.endReason,
-                lastEventSeq: event.seq,
-                lastEventCursor: `${event.checkId}:${event.seq}`,
-              };
-            return {
-              ...current,
-              lastEventSeq: event.seq,
-              lastEventCursor: `${event.checkId}:${event.seq}`,
-              references: current.references.map((reference) =>
-                reference.slot === event.reference.slot
-                  ? { ...reference, ...event.reference }
-                  : reference,
-              ),
-            };
-          });
-        },
-      }).catch((error) => {
-        if (generation.current === token && !next.signal.aborted) {
-          setAccessStopped(true);
-          setStreamError(problemKey(error, "problem_connection"));
-        }
-      });
+      follow(created);
     } catch (error) {
       if (generation.current === token) setRequestError(error);
     } finally {
       if (generation.current === token) setPending(null);
     }
+  }
+  function follow(created: Check) {
+    const token = generation.current;
+    controller.current?.abort();
+    setCancelRequested(false);
+    setAccessStopped(false);
+    const next = new AbortController();
+    controller.current = next;
+    setCheck((current) =>
+      current?.id === created.id && current.lastEventSeq > created.lastEventSeq
+        ? current
+        : created,
+    );
+    if (
+      !created.references.some(
+        (r) => r.outcome.kind === "status" && r.outcome.status === "running",
+      )
+    )
+      return;
+    void watchCheckEvents(created.id, {
+      ...transport,
+      signal: next.signal,
+      lastEventSeq: created.lastEventSeq,
+      onEvent: (event) => {
+        if (generation.current !== token || next.signal.aborted) return;
+        setCheck((current) => {
+          if (
+            !current ||
+            current.id !== event.checkId ||
+            event.seq <= current.lastEventSeq
+          )
+            return current;
+          if (event.type === "check.updated")
+            return {
+              ...current,
+              state: event.state,
+              endReason: event.endReason,
+              lastEventSeq: event.seq,
+              lastEventCursor: `${event.checkId}:${event.seq}`,
+            };
+          return {
+            ...current,
+            lastEventSeq: event.seq,
+            lastEventCursor: `${event.checkId}:${event.seq}`,
+            references: event.reference.removed
+              ? current.references.filter(
+                  (r) => r.slot !== event.reference.slot,
+                )
+              : current.references.some((r) => r.slot === event.reference.slot)
+                ? current.references.map((r) =>
+                    r.slot === event.reference.slot
+                      ? { ...r, ...event.reference }
+                      : r,
+                  )
+                : [
+                    ...current.references,
+                    event.reference as Check["references"][number],
+                  ].sort((a, b) => a.slot - b.slot),
+          };
+        });
+      },
+    }).catch((error) => {
+      if (generation.current === token && !next.signal.aborted) {
+        setAccessStopped(true);
+        setStreamError(problemKey(error, "problem_connection"));
+      }
+    });
   }
   async function cancel() {
     if (!check || cancelling) return;
@@ -245,7 +275,12 @@ export function CheckWorkspace({
     generation.current++;
     controller.current?.abort();
     controller.current = null;
-    if (check?.state === "running") void cancelDetached(check.id);
+    if (
+      check?.references.some(
+        (r) => r.outcome.kind === "status" && r.outcome.status === "running",
+      )
+    )
+      void cancelDetached(check.id);
     setText("");
     setCheck(null);
     setPreview(null);
@@ -256,7 +291,11 @@ export function CheckWorkspace({
     setCancelRequested(false);
     requestAnimationFrame(() => inputRef.current?.focus());
   }
-  const busy = pending !== null || check?.state === "running";
+  const workspaceGeneration = generation.current;
+  const running = check?.references.some(
+    (r) => r.outcome.kind === "status" && r.outcome.status === "running",
+  );
+  const busy = pending !== null || running;
   const errorKey =
     streamError ??
     (requestError ? problemKey(requestError, "problem_connection") : null);
@@ -414,9 +453,7 @@ export function CheckWorkspace({
           >
             <div aria-live="polite" aria-atomic="true">
               <p className="mb-4 font-semibold">
-                {check.state === "running"
-                  ? m.check_running()
-                  : m.check_ended()}
+                {running ? m.check_running() : m.check_ended()}
               </p>
               <p>
                 {m.check_progress({
@@ -428,7 +465,7 @@ export function CheckWorkspace({
             {check.endReason === "lease-expired" && (
               <p>{m.check_lease_expired()}</p>
             )}
-            {check.state === "running" && (
+            {running && (
               <Button
                 type="button"
                 isDisabled={cancelling}
@@ -447,6 +484,13 @@ export function CheckWorkspace({
               citationStyle={preferences.citationStyle}
               citationStyleLabel={m[styleMessages[preferences.citationStyle]]()}
               transport={transport}
+              onSnapshot={(snapshot) => {
+                if (
+                  generation.current === workspaceGeneration &&
+                  check.id === snapshot.id
+                )
+                  follow(snapshot);
+              }}
             />
           </div>
         </section>
