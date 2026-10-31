@@ -6,7 +6,11 @@
 import { createServer, type Server } from "node:http";
 import { once } from "node:events";
 import { setTimeout as sleep } from "node:timers/promises";
-import { replaySources, type FixtureEntry, type ReplaySource } from "./dataset.ts";
+import {
+  replaySources,
+  type FixtureEntry,
+  type ReplaySource,
+} from "./dataset.ts";
 
 const environment: Record<ReplaySource, string> = {
   "doi.org": "SOURCE_TASTER_DOI_RESOLVER_BASE_URL",

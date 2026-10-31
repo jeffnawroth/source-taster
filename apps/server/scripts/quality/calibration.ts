@@ -29,7 +29,8 @@ export type GridPoint = Record<string, number>;
 
 export function expandGrid(grid: CalibrationGrid): GridPoint[] {
   const axes = Object.entries(grid.axes);
-  if (axes.length === 0) throw new Error("The calibration grid declares no parameters.");
+  if (axes.length === 0)
+    throw new Error("The calibration grid declares no parameters.");
   for (const [name, values] of axes) {
     if (!(freeParameters as readonly string[]).includes(name))
       throw new Error(`${name} is not a free ADR-0025 parameter.`);
@@ -38,12 +39,16 @@ export function expandGrid(grid: CalibrationGrid): GridPoint[] {
   }
   let points: GridPoint[] = [{}];
   for (const [name, values] of axes)
-    points = points.flatMap((point) => values.map((value) => ({ ...point, [name]: value })));
+    points = points.flatMap((point) =>
+      values.map((value) => ({ ...point, [name]: value })),
+    );
   for (const point of points) {
     try {
       createDevelopmentProfile(point);
     } catch {
-      throw new Error(`Grid point ${JSON.stringify(point)} violates the ADR-0025 constraints.`);
+      throw new Error(
+        `Grid point ${JSON.stringify(point)} violates the ADR-0025 constraints.`,
+      );
     }
   }
   return points;
@@ -53,10 +58,12 @@ interface Fraction {
   n: bigint;
   d: bigint;
 }
-const gcd = (a: bigint, b: bigint): bigint => (b === 0n ? (a < 0n ? -a : a) : gcd(b, a % b));
+const gcd = (a: bigint, b: bigint): bigint =>
+  b === 0n ? (a < 0n ? -a : a) : gcd(b, a % b);
 /** Signed distance of a share to its target; positive means met. */
 function margin(t: TargetResult): Fraction {
-  const scaled = BigInt(t.hits) * 10000n - BigInt(t.threshold.basisPoints) * BigInt(t.n);
+  const scaled =
+    BigInt(t.hits) * 10000n - BigInt(t.threshold.basisPoints) * BigInt(t.n);
   const n = t.threshold.op === ">=" ? scaled : -scaled;
   const d = 10000n * BigInt(t.n);
   const g = gcd(n, d) || 1n;
@@ -83,6 +90,9 @@ export function selectPoint(points: PathRun[][]) {
   const { index, minimum } = best as { index: number; minimum: Fraction };
   return {
     index,
-    minimumMargin: { numerator: Number(minimum.n), denominator: Number(minimum.d) },
+    minimumMargin: {
+      numerator: Number(minimum.n),
+      denominator: Number(minimum.d),
+    },
   };
 }

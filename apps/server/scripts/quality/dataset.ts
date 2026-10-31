@@ -123,7 +123,9 @@ async function json(file: string, schema: z.ZodType, name: string) {
   try {
     value = JSON.parse(await readFile(file, "utf8"));
   } catch (error) {
-    throw new Error(`${name} is invalid: ${(error as Error).message}`);
+    throw new Error(`${name} is invalid: ${(error as Error).message}`, {
+      cause: error,
+    });
   }
   const parsed = schema.safeParse(value);
   if (!parsed.success)

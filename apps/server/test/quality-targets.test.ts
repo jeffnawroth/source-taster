@@ -9,15 +9,12 @@ import {
   decideRelease,
   evaluatePath,
   type GateMeasurement,
-  type GateRecord,
   type PathRun,
   type RecordOutcome,
 } from "../scripts/quality/targets.ts";
 import { launchSizedRecords, record } from "./support/quality-records.ts";
 
-const correct = (
-  id: string,
-): Extract<RecordOutcome, { kind: "verdict" }> => ({
+const correct = (id: string): Extract<RecordOutcome, { kind: "verdict" }> => ({
   kind: "verdict",
   verdict: "correct",
   identifiers: [`doi:10.5555/${id}`],
@@ -47,16 +44,25 @@ describe("§14.4 exact-share pass rule", () => {
           i < hits ? correct(r.id) : verdict("exists-with-deviations"),
         ]),
       );
-    const pass = target(evaluatePath(records, outcomes(93), "ai"), "correctness");
+    const pass = target(
+      evaluatePath(records, outcomes(93), "ai"),
+      "correctness",
+    );
     expect(pass).toMatchObject({ hits: 93, n: 100, met: true });
     expect(pass.threshold).toEqual({ op: ">=", basisPoints: 9300 });
-    const fail = target(evaluatePath(records, outcomes(92), "ai"), "correctness");
+    const fail = target(
+      evaluatePath(records, outcomes(92), "ai"),
+      "correctness",
+    );
     expect(fail).toMatchObject({ hits: 92, n: 100, met: false });
     const parser = target(
       evaluatePath(records, outcomes(77), "parser"),
       "correctness",
     );
-    expect(parser).toMatchObject({ met: true, threshold: { basisPoints: 7700 } });
+    expect(parser).toMatchObject({
+      met: true,
+      threshold: { basisPoints: 7700 },
+    });
   });
 
   it("counts a Correct for a different work as a miss", () => {
@@ -73,7 +79,9 @@ describe("§14.4 exact-share pass rule", () => {
   it("matches accepted DOIs, ISBNs and URLs after identifier normalization", () => {
     const records = [
       record("doi", {
-        acceptedIdentifiers: [{ type: "doi", value: "https://doi.org/10.5555/ABC" }],
+        acceptedIdentifiers: [
+          { type: "doi", value: "https://doi.org/10.5555/ABC" },
+        ],
       }),
       record("isbn", {
         sourceType: "book",
@@ -111,14 +119,21 @@ describe("§14.4 exact-share pass rule", () => {
           r.id,
           i < red
             ? verdict(
-                (["not-found", "mixed-citation", "doi-conflict"] as const)[i % 3]!,
+                (["not-found", "mixed-citation", "doi-conflict"] as const)[
+                  i % 3
+                ]!,
               )
             : correct(r.id),
         ]),
       );
     expect(
       target(evaluatePath(records, outcomes(3), "parser"), "false-alarms"),
-    ).toMatchObject({ hits: 3, n: 100, met: true, threshold: { op: "<=", basisPoints: 300 } });
+    ).toMatchObject({
+      hits: 3,
+      n: 100,
+      met: true,
+      threshold: { op: "<=", basisPoints: 300 },
+    });
     expect(
       target(evaluatePath(records, outcomes(4), "parser"), "false-alarms"),
     ).toMatchObject({ met: false });
@@ -160,7 +175,11 @@ describe("§14.4 exact-share pass rule", () => {
     ]);
     const result = evaluatePath([...invented, ...falsified], outcomes, "ai");
     // 50 of 50 without Correct; 19 of 20 invented red = 95 %.
-    expect(target(result, "detection")).toMatchObject({ hits: 50, n: 50, met: true });
+    expect(target(result, "detection")).toMatchObject({
+      hits: 50,
+      n: 50,
+      met: true,
+    });
     expect(target(result, "invented-detection")).toMatchObject({
       hits: 19,
       n: 20,
@@ -249,7 +268,12 @@ function passingRun(path: "parser" | "ai", run: number): PathRun {
     invalidRecords: [],
     replayMisses: 0,
     targets: (
-      ["correctness", "false-alarms", "detection", "invented-detection"] as const
+      [
+        "correctness",
+        "false-alarms",
+        "detection",
+        "invented-detection",
+      ] as const
     ).map((t) => ({
       target: t,
       path,
@@ -261,7 +285,9 @@ function passingRun(path: "parser" | "ai", run: number): PathRun {
     })),
   };
 }
-function measurement(overrides: Partial<GateMeasurement> = {}): GateMeasurement {
+function measurement(
+  overrides: Partial<GateMeasurement> = {},
+): GateMeasurement {
   return {
     configuration: {
       aiModel: "synthetic-model",
@@ -321,7 +347,12 @@ describe("release decision", () => {
     expect(
       decideRelease(
         measurement({
-          runs: [passingRun("parser", 1), passingRun("ai", 1), passingRun("ai", 2), third],
+          runs: [
+            passingRun("parser", 1),
+            passingRun("ai", 1),
+            passingRun("ai", 2),
+            third,
+          ],
         }),
       ).reasons,
     ).toEqual(["target-missed:ai-3:false-alarms"]);
@@ -375,17 +406,29 @@ describe("per-stratum values and regression checks (informational)", () => {
   it("fires the section 19 trigger for a stratum of at least 30 below target and marks smaller strata too small", () => {
     // ADR-0006 example: 40 German-language books, 6 red Verdicts = 15 % false alarms.
     const books = Array.from({ length: 40 }, (_, i) =>
-      record(`de-book-${i}`, { language: "de", sourceType: "book", style: "din-iso-690" }),
+      record(`de-book-${i}`, {
+        language: "de",
+        sourceType: "book",
+        style: "din-iso-690",
+      }),
     );
-    const articles = Array.from({ length: 10 }, (_, i) => record(`en-article-${i}`));
+    const articles = Array.from({ length: 10 }, (_, i) =>
+      record(`en-article-${i}`),
+    );
     const outcomes = new Map<string, RecordOutcome>([
-      ...books.map((r, i): [string, RecordOutcome] => [r.id, i < 6 ? verdict("not-found") : correct(r.id)]),
+      ...books.map((r, i): [string, RecordOutcome] => [
+        r.id,
+        i < 6 ? verdict("not-found") : correct(r.id),
+      ]),
       ...articles.map((r): [string, RecordOutcome] => [r.id, correct(r.id)]),
     ]);
     const values = strata([...books, ...articles], outcomes, "parser");
     const falseAlarms = (dimension: string, value: string) =>
       values.find(
-        (v) => v.dimension === dimension && v.value === value && v.target === "false-alarms",
+        (v) =>
+          v.dimension === dimension &&
+          v.value === value &&
+          v.target === "false-alarms",
       );
     expect(falseAlarms("language+sourceType", "de+book")).toMatchObject({
       hits: 6,
@@ -393,7 +436,10 @@ describe("per-stratum values and regression checks (informational)", () => {
       status: "trigger",
     });
     expect(falseAlarms("language", "de")).toMatchObject({ status: "trigger" });
-    expect(falseAlarms("language", "en")).toMatchObject({ n: 10, status: "too-small" });
+    expect(falseAlarms("language", "en")).toMatchObject({
+      n: 10,
+      status: "too-small",
+    });
     expect(falseAlarms("style", "apa")).toMatchObject({ status: "too-small" });
   });
 
@@ -401,7 +447,10 @@ describe("per-stratum values and regression checks (informational)", () => {
     const records = [
       record("deviating", { class: "real-deviating" }),
       record("deviating-ok", { class: "real-deviating" }),
-      record("falsified", { class: "falsified", expectedVerdict: "doi-conflict" }),
+      record("falsified", {
+        class: "falsified",
+        expectedVerdict: "doi-conflict",
+      }),
       record("outside", { class: "outside-coverage" }),
       record("correct"),
     ];
@@ -413,9 +462,24 @@ describe("per-stratum values and regression checks (informational)", () => {
       ["correct", verdict("not-found")],
     ]);
     expect(regressionChecks(records, outcomes)).toEqual([
-      { id: "deviating", class: "real-deviating", expected: "exists-with-deviations", actual: "correct" },
-      { id: "falsified", class: "falsified", expected: "doi-conflict", actual: "mixed-citation" },
-      { id: "outside", class: "outside-coverage", expected: "not-verifiable", actual: "status:failed" },
+      {
+        id: "deviating",
+        class: "real-deviating",
+        expected: "exists-with-deviations",
+        actual: "correct",
+      },
+      {
+        id: "falsified",
+        class: "falsified",
+        expected: "doi-conflict",
+        actual: "mixed-citation",
+      },
+      {
+        id: "outside",
+        class: "outside-coverage",
+        expected: "not-verifiable",
+        actual: "status:failed",
+      },
     ]);
   });
 });

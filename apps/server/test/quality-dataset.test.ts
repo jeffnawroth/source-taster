@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // #94 private dataset location. Synthetic sets are generated into a temporary
 // directory by the test; no dataset content is committed.
-import { chmod, mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
+import {
+  chmod,
+  mkdir,
+  mkdtemp,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -33,8 +40,14 @@ async function writeSet(
   ],
 ) {
   await mkdir(join(root, directory), { recursive: true });
-  await writeFile(join(root, directory, "manifest.json"), JSON.stringify(manifest));
-  await writeFile(join(root, directory, "records.json"), JSON.stringify(records));
+  await writeFile(
+    join(root, directory, "manifest.json"),
+    JSON.stringify(manifest),
+  );
+  await writeFile(
+    join(root, directory, "records.json"),
+    JSON.stringify(records),
+  );
   await writeFile(
     join(root, directory, "fixtures.json"),
     JSON.stringify({ recordedAt: "2026-10-31", entries: [] }),
@@ -42,7 +55,10 @@ async function writeSet(
 }
 
 it("loads a set from the private location with its version and fixture state", async () => {
-  await writeSet("development-set", { kind: "development-set", version: "dev-1" });
+  await writeSet("development-set", {
+    kind: "development-set",
+    version: "dev-1",
+  });
   const set = await loadDataset(root, "development-set");
   expect(set.version).toBe("dev-1");
   expect(set.records.map((r) => r.id)).toEqual(["synthetic-1"]);
@@ -72,15 +88,24 @@ it("refuses a set whose manifest declares the other kind before reading its reco
   await expect(loadDataset(root, "development-set")).rejects.toThrow(
     /declares reference-test-set, expected development-set/,
   );
-  await writeSet("reference-test-set", { kind: "development-set", version: "d" });
+  await writeSet("reference-test-set", {
+    kind: "development-set",
+    version: "d",
+  });
   await expect(loadDataset(root, "reference-test-set")).rejects.toThrow(
     /declares development-set, expected reference-test-set/,
   );
 });
 
 it("loads the Development set while the Reference test set is unreadable", async () => {
-  await writeSet("development-set", { kind: "development-set", version: "dev-1" });
-  await writeSet("reference-test-set", { kind: "reference-test-set", version: "r" });
+  await writeSet("development-set", {
+    kind: "development-set",
+    version: "dev-1",
+  });
+  await writeSet("reference-test-set", {
+    kind: "reference-test-set",
+    version: "r",
+  });
   await chmod(join(root, "reference-test-set"), 0o000);
   await expect(loadDataset(root, "development-set")).resolves.toMatchObject({
     kind: "development-set",
@@ -88,9 +113,20 @@ it("loads the Development set while the Reference test set is unreadable", async
 });
 
 it("rejects a record without a known class", async () => {
-  await writeSet("development-set", { kind: "development-set", version: "dev-1" }, [
-    { id: "x", input: "x", style: "apa", language: "en", sourceType: "article", class: "guess" },
-  ]);
+  await writeSet(
+    "development-set",
+    { kind: "development-set", version: "dev-1" },
+    [
+      {
+        id: "x",
+        input: "x",
+        style: "apa",
+        language: "en",
+        sourceType: "article",
+        class: "guess",
+      },
+    ],
+  );
   await expect(loadDataset(root, "development-set")).rejects.toThrow(
     /records\.json is invalid/,
   );

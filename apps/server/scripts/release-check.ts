@@ -21,4 +21,6 @@ if (!result.releasable) {
   );
   process.exit(78);
 }
-console.log("Release check passed: an eligible measurement exists for this code version.");
+console.log(
+  "Release check passed: an eligible measurement exists for this code version.",
+);

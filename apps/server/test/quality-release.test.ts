@@ -66,7 +66,8 @@ async function writeMeasured(
   );
   const { loadDataset } = await import("../scripts/quality/dataset.ts");
   const dataset = await loadDataset(root, "reference-test-set");
-  const outcomes = options.outcomes ?? ((_: string, r: GateRecord) => passingOutcome(r));
+  const outcomes =
+    options.outcomes ?? ((_: string, r: GateRecord) => passingOutcome(r));
   const runs = ["parser-1", "ai-1", "ai-2", "ai-3"].map((label) => {
     const [path, run] = label.split("-");
     return {
@@ -77,12 +78,21 @@ async function writeMeasured(
       replayMisses: 0,
       // A log's own target claims are ignored: they say everything passed.
       targets: [{ target: "correctness", met: true, hits: 1, n: 1 }],
-      outcomes: Object.fromEntries(records.map((r) => [r.id, outcomes(label, r)])),
+      outcomes: Object.fromEntries(
+        records.map((r) => [r.id, outcomes(label, r)]),
+      ),
     };
   });
-  await mkdir(join(root, "measurement-logs", "synthetic-rts-1"), { recursive: true });
+  await mkdir(join(root, "measurement-logs", "synthetic-rts-1"), {
+    recursive: true,
+  });
   await writeFile(
-    join(root, "measurement-logs", "synthetic-rts-1", "synthetic-configuration.json"),
+    join(
+      root,
+      "measurement-logs",
+      "synthetic-rts-1",
+      "synthetic-configuration.json",
+    ),
     JSON.stringify({
       format: "source-taster-quality-gate/1",
       configurationId: "synthetic-configuration",
@@ -106,7 +116,9 @@ const calibratedCode = {
 
 it("allows a release only for a clean, calibrated code version with an eligible measurement", async () => {
   await writeMeasured();
-  await expect(checkRelease({ root, ...calibratedCode })).resolves.toMatchObject({
+  await expect(
+    checkRelease({ root, ...calibratedCode }),
+  ).resolves.toMatchObject({
     releasable: true,
     reasons: [],
   });
@@ -114,14 +126,22 @@ it("allows a release only for a clean, calibrated code version with an eligible 
 
 it("refuses while the code reports uncalibrated Scoring rules, whatever the log claims", async () => {
   await writeMeasured();
-  const result = await checkRelease({ root, ...calibratedCode, runtimeCalibration: "uncalibrated" });
+  const result = await checkRelease({
+    root,
+    ...calibratedCode,
+    runtimeCalibration: "uncalibrated",
+  });
   expect(result.releasable).toBe(false);
   expect(result.reasons).toContain("uncalibrated");
 });
 
 it("refuses a dirty working tree even when the log records a clean one", async () => {
   await writeMeasured();
-  const result = await checkRelease({ root, ...calibratedCode, code: { sha, dirty: true } });
+  const result = await checkRelease({
+    root,
+    ...calibratedCode,
+    code: { sha, dirty: true },
+  });
   expect(result.reasons).toContain("code-version-dirty");
 });
 
@@ -130,7 +150,13 @@ it("recomputes targets from logged outcomes instead of the log's own claims", as
   await writeMeasured({
     outcomes: (run, r) =>
       run === "ai-2" && /^apa-[0-9]$/.test(r.id)
-        ? { kind: "verdict", verdict: "not-found", identifiers: [], failedSources: [], reasons: [] }
+        ? {
+            kind: "verdict",
+            verdict: "not-found",
+            identifiers: [],
+            failedSources: [],
+            reasons: [],
+          }
         : passingOutcome(r),
   });
   const result = await checkRelease({ root, ...calibratedCode });
@@ -152,7 +178,10 @@ it("refuses without a measurement for this exact code version and fixture state"
 
 it("refuses without a private measurement location", async () => {
   const result = await checkRelease({ root: undefined, ...calibratedCode });
-  expect(result).toEqual({ releasable: false, reasons: ["no-measurement-location"] });
+  expect(result).toEqual({
+    releasable: false,
+    reasons: ["no-measurement-location"],
+  });
 });
 
 it("exits 78 from the release check and names every blocking reason", async () => {

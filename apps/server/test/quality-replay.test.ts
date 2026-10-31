@@ -24,17 +24,25 @@ const entry = (overrides: Partial<FixtureEntry>): FixtureEntry => ({
 it("serves each Data source from its own loopback origin, matching the query in any order", async () => {
   replay = await startReplay([
     entry({}),
-    entry({ source: "openalex", path: "/works/doi%3A10.5555%2Fx", body: '{"id":"W1"}' }),
+    entry({
+      source: "openalex",
+      path: "/works/doi%3A10.5555%2Fx",
+      body: '{"id":"W1"}',
+    }),
   ]);
   const crossref = replay.env.SOURCE_TASTER_CROSSREF_BASE_URL!;
   const openalex = replay.env.SOURCE_TASTER_OPENALEX_BASE_URL!;
   expect(new URL(crossref).hostname).toBe("127.0.0.1");
   expect(crossref).not.toBe(openalex);
-  const response = await fetch(`${crossref}/works?rows=5&query.title=Synthetic`);
+  const response = await fetch(
+    `${crossref}/works?rows=5&query.title=Synthetic`,
+  );
   expect(response.status).toBe(200);
   expect(response.headers.get("content-type")).toBe("application/json");
   expect(await response.json()).toEqual({ message: { items: [] } });
-  expect(await (await fetch(`${openalex}/works/doi%3A10.5555%2Fx`)).json()).toEqual({ id: "W1" });
+  expect(
+    await (await fetch(`${openalex}/works/doi%3A10.5555%2Fx`)).json(),
+  ).toEqual({ id: "W1" });
   expect(replay.misses()).toEqual([]);
 });
 
@@ -45,7 +53,11 @@ it("answers an unrecorded request with a server error and counts the miss, never
   );
   expect(response.status).toBe(503);
   expect(replay.misses()).toEqual([
-    { source: "crossref", method: "GET", path: "/works?query.title=Other&rows=5" },
+    {
+      source: "crossref",
+      method: "GET",
+      path: "/works?query.title=Other&rows=5",
+    },
   ]);
 });
 
@@ -78,10 +90,19 @@ it("matches a recorded request body and replays recorded latency", async () => {
 
 it("routes web page and archive requests through the web fixture origin", async () => {
   replay = await startReplay([
-    entry({ source: "web", path: "/page", body: "<title>x</title>", headers: { "content-type": "text/html" } }),
+    entry({
+      source: "web",
+      path: "/page",
+      body: "<title>x</title>",
+      headers: { "content-type": "text/html" },
+    }),
   ]);
-  expect(replay.env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
-  const page = await fetch(`${replay.env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL}/page`);
+  expect(replay.env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL).toMatch(
+    /^http:\/\/127\.0\.0\.1:\d+$/,
+  );
+  const page = await fetch(
+    `${replay.env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL}/page`,
+  );
   expect(await page.text()).toBe("<title>x</title>");
 });
 
@@ -92,7 +113,9 @@ it("answers a bare root probe without counting it as a replay miss", async () =>
   const probe = await fetch(`${replay.env.SOURCE_TASTER_CROSSREF_BASE_URL}/`);
   expect(probe.status).toBe(503);
   expect(replay.misses()).toEqual([]);
-  const query = await fetch(`${replay.env.SOURCE_TASTER_CROSSREF_BASE_URL}/?q=1`);
+  const query = await fetch(
+    `${replay.env.SOURCE_TASTER_CROSSREF_BASE_URL}/?q=1`,
+  );
   expect(query.status).toBe(503);
   expect(replay.misses()).toHaveLength(1);
 });

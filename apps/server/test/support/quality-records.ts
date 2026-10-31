@@ -60,4 +60,3 @@ export function launchSizedRecords(): GateRecord[] {
   );
   return [...real, ...fake];
 }
-

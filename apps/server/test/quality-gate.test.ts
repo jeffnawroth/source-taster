@@ -117,7 +117,8 @@ async function writeReferenceTestSet(
     join(directory, "manifest.json"),
     json({
       kind,
-      version: kind === "reference-test-set" ? "synthetic-rts-1" : "synthetic-dev-1",
+      version:
+        kind === "reference-test-set" ? "synthetic-rts-1" : "synthetic-dev-1",
     }),
   );
   await writeFile(
@@ -155,95 +156,123 @@ async function writeReferenceTestSet(
   );
 }
 
+interface LogFile {
+  configuration: { fixtureState: string; codeVersion: { sha: string } };
+  runs: {
+    path: string;
+    run: number;
+    valid: boolean;
+    misses: unknown[];
+    replayMisses: number;
+    reruns: string[];
+    invalidRecords: string[];
+    targets: { target: string; hits: number; n: number }[];
+    strata: unknown[];
+    regressions: unknown[];
+  }[];
+  decision: { releasable: boolean; reasons: string[] };
+}
+interface CalibrationFile {
+  grid: unknown;
+  developmentSetVersion: string;
+  scoringRules: { version: string };
+  results: {
+    parameters: object;
+    observedProfile: { overallScore: number };
+    runs: { path: string }[];
+  }[];
+  selected: unknown;
+}
+const readJson = async <T>(path: string) =>
+  JSON.parse(await readFile(path, "utf8")) as T;
+
 /** Fake AI extraction at the edge: fixed fields per input, calls counted. */
 function fakeExtraction() {
   const calls: string[] = [];
   const port: ExtractionPort = {
     model: "synthetic-model",
-    extract: async (input) => {
+    extract: (input) => {
       calls.push(input);
-      return [input === correct.input ? correct.fields : invented.fields];
+      return Promise.resolve([
+        input === correct.input ? correct.fields : invented.fields,
+      ]);
     },
   };
   return { port, calls };
 }
 
-it(
-  "measures the parser path once and AI extraction three times, logs the configuration and refuses release while uncalibrated",
-  async () => {
-    await writeReferenceTestSet();
-    const extraction = fakeExtraction();
-    const result = await measureConfiguration({
+it("measures the parser path once and AI extraction three times, logs the configuration and refuses release while uncalibrated", async () => {
+  await writeReferenceTestSet();
+  const extraction = fakeExtraction();
+  const result = await measureConfiguration({
+    root,
+    configuration: { enabledSources: [] },
+    extraction: extraction.port,
+    port,
+  });
+
+  expect(extraction.calls).toHaveLength(6);
+  const logs = await readdir(join(root, "measurement-logs", "synthetic-rts-1"));
+  expect(logs).toHaveLength(1);
+  const log = await readJson<LogFile>(
+    join(root, "measurement-logs", "synthetic-rts-1", logs[0]!),
+  );
+  expect(result.logPath).toBe(
+    join(root, "measurement-logs", "synthetic-rts-1", logs[0]!),
+  );
+  expect(log.configuration).toMatchObject({
+    aiModel: "synthetic-model",
+    testSetVersion: "synthetic-rts-1",
+    enabledSources: [],
+    scoringRules: { calibration: "uncalibrated" },
+  });
+  expect(log.configuration.fixtureState).toMatch(/^sha256:/);
+  expect(log.configuration.codeVersion.sha).toMatch(/^[0-9a-f]{40}$/);
+  expect(log.runs.map((r) => `${r.path}-${r.run}`)).toEqual([
+    "parser-1",
+    "ai-1",
+    "ai-2",
+    "ai-3",
+  ]);
+  for (const run of log.runs) {
+    expect(run.valid).toBe(true);
+    expect(run.misses).toEqual([]);
+    expect(run.replayMisses).toBe(0);
+    expect(
+      Object.fromEntries(run.targets.map((t) => [t.target, [t.hits, t.n]])),
+    ).toEqual({
+      correctness: [1, 1],
+      "false-alarms": [0, 1],
+      detection: [1, 1],
+      "invented-detection": [1, 1],
+    });
+  }
+  // Informational per-stratum values; strata below 30 are too small.
+  expect(log.runs[0]!.strata).toContainEqual(
+    expect.objectContaining({
+      dimension: "language",
+      value: "en",
+      target: "detection",
+      status: "too-small",
+    }),
+  );
+  expect(log.runs[0]!.regressions).toEqual([]);
+  expect(log.decision.releasable).toBe(false);
+  expect(log.decision.reasons).toContain("uncalibrated");
+  expect(result.decision).toEqual(log.decision);
+  // Write-once (FA-UEB-31 hook): the same configuration is refused before
+  // any work, and the preserved log stays untouched.
+  await expect(
+    measureConfiguration({
       root,
       configuration: { enabledSources: [] },
       extraction: extraction.port,
       port,
-    });
-
-    expect(extraction.calls).toHaveLength(6);
-    const logs = await readdir(join(root, "measurement-logs", "synthetic-rts-1"));
-    expect(logs).toHaveLength(1);
-    const log = JSON.parse(
-      await readFile(join(root, "measurement-logs", "synthetic-rts-1", logs[0]!), "utf8"),
-    );
-    expect(result.logPath).toBe(join(root, "measurement-logs", "synthetic-rts-1", logs[0]!));
-    expect(log.configuration).toMatchObject({
-      aiModel: "synthetic-model",
-      testSetVersion: "synthetic-rts-1",
-      enabledSources: [],
-      fixtureState: expect.stringMatching(/^sha256:/),
-      scoringRules: { calibration: "uncalibrated" },
-      codeVersion: { sha: expect.stringMatching(/^[0-9a-f]{40}$/) },
-    });
-    expect(
-      log.runs.map((r: { path: string; run: number }) => `${r.path}-${r.run}`),
-    ).toEqual(["parser-1", "ai-1", "ai-2", "ai-3"]);
-    for (const run of log.runs) {
-      expect(run.valid).toBe(true);
-      expect(run.misses).toEqual([]);
-      expect(run.replayMisses).toBe(0);
-      expect(
-        Object.fromEntries(
-          run.targets.map((t: { target: string; hits: number; n: number }) => [
-            t.target,
-            [t.hits, t.n],
-          ]),
-        ),
-      ).toEqual({
-        correctness: [1, 1],
-        "false-alarms": [0, 1],
-        detection: [1, 1],
-        "invented-detection": [1, 1],
-      });
-    }
-    // Informational per-stratum values; strata below 30 are too small.
-    expect(log.runs[0].strata).toContainEqual(
-      expect.objectContaining({
-        dimension: "language",
-        value: "en",
-        target: "detection",
-        status: "too-small",
-      }),
-    );
-    expect(log.runs[0].regressions).toEqual([]);
-    expect(log.decision.releasable).toBe(false);
-    expect(log.decision.reasons).toContain("uncalibrated");
-    expect(result.decision).toEqual(log.decision);
-    // Write-once (FA-UEB-31 hook): the same configuration is refused before
-    // any work, and the preserved log stays untouched.
-    await expect(
-      measureConfiguration({
-        root,
-        configuration: { enabledSources: [] },
-        extraction: extraction.port,
-        port,
-      }),
-    ).rejects.toThrow(/already exists/);
-    expect(extraction.calls).toHaveLength(6);
-    expect(JSON.parse(await readFile(result.logPath, "utf8"))).toEqual(log);
-  },
-  120_000,
-);
+    }),
+  ).rejects.toThrow(/already exists/);
+  expect(extraction.calls).toHaveLength(6);
+  expect(await readJson<LogFile>(result.logPath)).toEqual(log);
+}, 120_000);
 
 const withDoi = (id: string, doi: string) => ({
   id,
@@ -256,121 +285,107 @@ const withDoi = (id: string, doi: string) => ({
   provenance,
 });
 
-it(
-  "reruns a record whose Data source failed and marks the run invalid when the failure persists",
-  async () => {
-    await writeReferenceTestSet(
-      [withDoi("synthetic-unavailable", "10.5555/st94-unavailable")],
-      [
-        {
-          source: "doi.org",
-          path: "/api/handles/10.5555%2Fst94-unavailable",
-          status: 200,
-          body: json({ responseCode: 1, handle: "10.5555/st94-unavailable" }),
-          license: "synthetic",
-        },
-        {
-          source: "crossref",
-          path: "/works/10.5555%2Fst94-unavailable",
-          status: 503,
-          body: "",
-          license: "synthetic",
-        },
-      ],
-    );
-    const result = await measureConfiguration({
-      root,
-      configuration: { enabledSources: [] },
-      port,
-    });
-    const log = JSON.parse(await readFile(result.logPath, "utf8"));
-    expect(log.runs).toHaveLength(1);
-    const [run] = log.runs;
-    expect(run.misses).toEqual([]);
-    expect(run.reruns).toEqual(["synthetic-unavailable"]);
-    expect(run.invalidRecords).toEqual(["synthetic-unavailable"]);
-    expect(run.valid).toBe(false);
-    expect(result.decision.reasons).toContain("invalid-run:parser-1");
-    // No record is excluded: the failed record stays in the denominator.
-    expect(
-      run.targets.find((t: { target: string }) => t.target === "false-alarms").n,
-    ).toBe(2);
-  },
-  120_000,
-);
+it("reruns a record whose Data source failed and marks the run invalid when the failure persists", async () => {
+  await writeReferenceTestSet(
+    [withDoi("synthetic-unavailable", "10.5555/st94-unavailable")],
+    [
+      {
+        source: "doi.org",
+        path: "/api/handles/10.5555%2Fst94-unavailable",
+        status: 200,
+        body: json({ responseCode: 1, handle: "10.5555/st94-unavailable" }),
+        license: "synthetic",
+      },
+      {
+        source: "crossref",
+        path: "/works/10.5555%2Fst94-unavailable",
+        status: 503,
+        body: "",
+        license: "synthetic",
+      },
+    ],
+  );
+  const result = await measureConfiguration({
+    root,
+    configuration: { enabledSources: [] },
+    port,
+  });
+  const log = await readJson<LogFile>(result.logPath);
+  expect(log.runs).toHaveLength(1);
+  const run = log.runs[0]!;
+  expect(run.misses).toEqual([]);
+  expect(run.reruns).toEqual(["synthetic-unavailable"]);
+  expect(run.invalidRecords).toEqual(["synthetic-unavailable"]);
+  expect(run.valid).toBe(false);
+  expect(result.decision.reasons).toContain("invalid-run:parser-1");
+  // No record is excluded: the failed record stays in the denominator.
+  expect(run.targets.find((t) => t.target === "false-alarms")!.n).toBe(2);
+}, 120_000);
 
-it(
-  "marks a run invalid when a Data source request has no recorded response",
-  async () => {
-    await writeReferenceTestSet([
-      withDoi("synthetic-unrecorded", "10.5555/st94-unrecorded"),
-    ]);
-    const result = await measureConfiguration({
-      root,
-      configuration: { enabledSources: [] },
-      port,
-    });
-    const log = JSON.parse(await readFile(result.logPath, "utf8"));
-    const [run] = log.runs;
-    expect(run.replayMisses).toBeGreaterThan(0);
-    expect(run.misses[0]).toMatchObject({
-      source: "doi.org",
-      path: "/api/handles/10.5555%2Fst94-unrecorded",
-    });
-    expect(run.valid).toBe(false);
-    expect(result.decision.reasons).toContain("invalid-run:parser-1");
-  },
-  120_000,
-);
+it("marks a run invalid when a Data source request has no recorded response", async () => {
+  await writeReferenceTestSet([
+    withDoi("synthetic-unrecorded", "10.5555/st94-unrecorded"),
+  ]);
+  const result = await measureConfiguration({
+    root,
+    configuration: { enabledSources: [] },
+    port,
+  });
+  const log = await readJson<LogFile>(result.logPath);
+  const run = log.runs[0]!;
+  expect(run.replayMisses).toBeGreaterThan(0);
+  expect(run.misses[0]).toMatchObject({
+    source: "doi.org",
+    path: "/api/handles/10.5555%2Fst94-unrecorded",
+  });
+  expect(run.valid).toBe(false);
+  expect(result.decision.reasons).toContain("invalid-run:parser-1");
+}, 120_000);
 
-it(
-  "calibrates on the Development set over the declared grid only, without reading the Reference test set",
-  async () => {
-    await writeReferenceTestSet([], [], "development-set");
-    await mkdir(join(root, "reference-test-set"));
-    await chmod(join(root, "reference-test-set"), 0o000);
-    const extraction = fakeExtraction();
-    const grid = { axes: { overallScore: [85000000, 90000000] } };
-    const result = await calibrate({ root, grid, extraction: extraction.port, port });
+it("calibrates on the Development set over the declared grid only, without reading the Reference test set", async () => {
+  await writeReferenceTestSet([], [], "development-set");
+  await mkdir(join(root, "reference-test-set"));
+  await chmod(join(root, "reference-test-set"), 0o000);
+  const extraction = fakeExtraction();
+  const grid = { axes: { overallScore: [85000000, 90000000] } };
+  const result = await calibrate({
+    root,
+    grid,
+    extraction: extraction.port,
+    port,
+  });
 
-    // AI extraction runs three times once; every grid point reuses it.
-    expect(extraction.calls).toHaveLength(6);
-    const record = JSON.parse(await readFile(result.recordPath, "utf8"));
-    expect(result.recordPath.startsWith(join(root, "calibration", "synthetic-dev-1"))).toBe(true);
-    expect(record.grid).toEqual(grid);
-    expect(record.developmentSetVersion).toBe("synthetic-dev-1");
-    expect(record.scoringRules.version).toEqual(expect.any(String));
-    expect(record.results.map((r: { parameters: object }) => r.parameters)).toEqual([
-      { overallScore: 85000000 },
-      { overallScore: 90000000 },
-    ]);
-    // Each point was measured by a service restarted with that point.
-    expect(
-      record.results.map(
-        (r: { observedProfile: { overallScore: number } }) => r.observedProfile.overallScore,
-      ),
-    ).toEqual([85000000, 90000000]);
-    for (const point of record.results)
-      expect(point.runs.map((r: { path: string }) => r.path)).toEqual([
-        "parser",
-        "ai",
-        "ai",
-        "ai",
-      ]);
-    // Both points meet every target with equal margins: the first one wins.
-    // Smallest margin: AI false alarms 0/1 against <= 1 %, i.e. 1/100.
-    expect(record.selected).toEqual({
-      index: 0,
-      parameters: { overallScore: 85000000 },
-      minimumMargin: { numerator: 1, denominator: 100 },
-    });
-    await expect(
-      calibrate({ root, grid, extraction: extraction.port, port }),
-    ).rejects.toThrow(/already exists/);
-    expect(extraction.calls).toHaveLength(6);
-  },
-  180_000,
-);
+  // AI extraction runs three times once; every grid point reuses it.
+  expect(extraction.calls).toHaveLength(6);
+  const record = await readJson<CalibrationFile>(result.recordPath);
+  expect(
+    result.recordPath.startsWith(join(root, "calibration", "synthetic-dev-1")),
+  ).toBe(true);
+  expect(record.grid).toEqual(grid);
+  expect(record.developmentSetVersion).toBe("synthetic-dev-1");
+  expect(record.scoringRules.version).toEqual(expect.any(String));
+  expect(record.results.map((r) => r.parameters)).toEqual([
+    { overallScore: 85000000 },
+    { overallScore: 90000000 },
+  ]);
+  // Each point was measured by a service restarted with that point.
+  expect(record.results.map((r) => r.observedProfile.overallScore)).toEqual([
+    85000000, 90000000,
+  ]);
+  for (const point of record.results)
+    expect(point.runs.map((r) => r.path)).toEqual(["parser", "ai", "ai", "ai"]);
+  // Both points meet every target with equal margins: the first one wins.
+  // Smallest margin: AI false alarms 0/1 against <= 1 %, i.e. 1/100.
+  expect(record.selected).toEqual({
+    index: 0,
+    parameters: { overallScore: 85000000 },
+    minimumMargin: { numerator: 1, denominator: 100 },
+  });
+  await expect(
+    calibrate({ root, grid, extraction: extraction.port, port }),
+  ).rejects.toThrow(/already exists/);
+  expect(extraction.calls).toHaveLength(6);
+}, 180_000);
 
 it("refuses an undeclared grid parameter before any service starts", async () => {
   await writeReferenceTestSet([], [], "development-set");

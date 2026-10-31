@@ -16,7 +16,11 @@ import type {
 } from "@source-taster/contract-verification/v2";
 import { startTestService } from "../../test/support/service.ts";
 import { codeVersion } from "./code-version.ts";
-import { expandGrid, selectPoint, type CalibrationGrid } from "./calibration.ts";
+import {
+  expandGrid,
+  selectPoint,
+  type CalibrationGrid,
+} from "./calibration.ts";
 import { loadDataset, privateLocation, type Dataset } from "./dataset.ts";
 import { startReplay, type ReplayMiss } from "./replay.ts";
 import {
@@ -32,7 +36,6 @@ import {
   type PathRun,
   type RecordOutcome,
   type StructuringPath,
-  type Verdict,
 } from "./targets.ts";
 
 /** The AI extraction slot. A real provider adapter plugs in here. */
@@ -91,13 +94,16 @@ function serviceEnvironment(
       configuration.comparisonParameters,
     );
   if (configuration.searchSettings)
-    env.SOURCE_TASTER_SEARCH_SETTINGS = JSON.stringify(configuration.searchSettings);
+    env.SOURCE_TASTER_SEARCH_SETTINGS = JSON.stringify(
+      configuration.searchSettings,
+    );
   return env;
 }
 
 type VerdictOutcome = Extract<ReferenceOutcome, { kind: "verdict" }>;
 function toRecordOutcome(outcome: ReferenceOutcome): RecordOutcome {
-  if (outcome.kind === "status") return { kind: "status", status: outcome.status };
+  if (outcome.kind === "status")
+    return { kind: "status", status: outcome.status };
   const best = outcome.candidates.find((c) => c.id === outcome.bestMatchId);
   const identifiers: string[] = [];
   if (best) {
@@ -124,7 +130,7 @@ function toRecordOutcome(outcome: ReferenceOutcome): RecordOutcome {
   }
   return {
     kind: "verdict",
-    verdict: outcome.verdict as Verdict,
+    verdict: outcome.verdict,
     identifiers,
     failedSources: [...outcome.failedSources],
     reasons: [...outcome.reasons],
@@ -147,7 +153,10 @@ interface Submission {
 }
 const chunkSize = 200;
 async function verify(apiUrl: string, submissions: Submission[]) {
-  const client = verificationClient({ baseUrl: apiUrl, client: "quality-gate" });
+  const client = verificationClient({
+    baseUrl: apiUrl,
+    client: "quality-gate",
+  });
   const results = new Map<string, VerdictOutcome | ReferenceOutcome>();
   for (let i = 0; i < submissions.length; i += chunkSize) {
     const chunk = submissions.slice(i, i + chunkSize);
@@ -184,7 +193,10 @@ async function structure(
   records: GateRecord[],
   extraction?: ExtractionPort,
 ) {
-  const client = verificationClient({ baseUrl: apiUrl, client: "quality-gate" });
+  const client = verificationClient({
+    baseUrl: apiUrl,
+    client: "quality-gate",
+  });
   const submissions: Submission[] = [];
   const unstructured = new Map<string, RecordOutcome>();
   for (const record of records) {
@@ -236,7 +248,11 @@ async function withSession<T>(
       serviceEnvironment(configuration, replay.env),
     );
     try {
-      return await work({ apiUrl: service.apiUrl, replay, restart: service.restart });
+      return await work({
+        apiUrl: service.apiUrl,
+        replay,
+        restart: service.restart,
+      });
     } finally {
       await service.stop();
     }
@@ -257,7 +273,10 @@ async function structureAll(
   ];
   const structured: Structured[] = [];
   for (const path of plan)
-    structured.push({ path, ...(await structure(apiUrl, path, records, extraction)) });
+    structured.push({
+      path,
+      ...(await structure(apiUrl, path, records, extraction)),
+    });
   return structured;
 }
 
@@ -327,10 +346,17 @@ async function writeOnce(directory: string, name: string, content: unknown) {
   await mkdir(directory, { recursive: true });
   const path = join(directory, name);
   try {
-    await writeFile(path, `${JSON.stringify(content, null, 2)}\n`, { flag: "wx" });
+    await writeFile(path, `${JSON.stringify(content, null, 2)}\n`, {
+      flag: "wx",
+    });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "EEXIST")
-      throw new Error(`${path} already exists; measurement records are never replaced.`);
+      throw new Error(
+        `${path} already exists; measurement records are never replaced.`,
+        {
+          cause: error,
+        },
+      );
     throw error;
   }
   return path;
@@ -338,8 +364,15 @@ async function writeOnce(directory: string, name: string, content: unknown) {
 /** Refuses before any work when the record for this identity exists. */
 async function refuseExisting(directory: string, name: string) {
   const path = join(directory, name);
-  if (await stat(path).then(() => true, () => false))
-    throw new Error(`${path} already exists; measurement records are never replaced.`);
+  if (
+    await stat(path).then(
+      () => true,
+      () => false,
+    )
+  )
+    throw new Error(
+      `${path} already exists; measurement records are never replaced.`,
+    );
 }
 const digest = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
@@ -398,18 +431,14 @@ export async function measureConfiguration(options: MeasureOptions) {
     runs: runs.map(gateRun),
   };
   const decision = decideRelease(measurement);
-  const logPath = await writeOnce(
-    logDirectory,
-    `${configurationId}.json`,
-    {
-      format: "source-taster-quality-gate/1",
-      configurationId,
-      configuration: measured,
-      composition: measurement.composition,
-      runs,
-      decision,
-    },
-  );
+  const logPath = await writeOnce(logDirectory, `${configurationId}.json`, {
+    format: "source-taster-quality-gate/1",
+    configurationId,
+    configuration: measured,
+    composition: measurement.composition,
+    runs,
+    decision,
+  });
   return { logPath, decision, configurationId };
 }
 
@@ -417,7 +446,10 @@ export interface CalibrateOptions {
   root: string;
   grid: CalibrationGrid;
   /** Fixed for the whole search; only comparison parameters vary. */
-  configuration?: Omit<GateConfiguration, "comparisonParameters" | "calibration">;
+  configuration?: Omit<
+    GateConfiguration,
+    "comparisonParameters" | "calibration"
+  >;
   extraction?: ExtractionPort;
   port: number;
 }
@@ -459,7 +491,11 @@ export async function calibrate(options: CalibrateOptions) {
         await session.restart({
           SOURCE_TASTER_COMPARISON_PARAMETERS: JSON.stringify(parameters),
         });
-        const { runs, observed } = await verifyAll(session, dataset.records, structured);
+        const { runs, observed } = await verifyAll(
+          session,
+          dataset.records,
+          structured,
+        );
         results.push({
           parameters,
           observedProfile: observed?.scoringRules.profile ?? null,
@@ -472,7 +508,8 @@ export async function calibrate(options: CalibrateOptions) {
     },
   );
   const selection = selectPoint(results.map((r) => r.runs.map(gateRun)));
-  const scoringRules = results.find((r) => r.scoringRules)?.scoringRules ?? null;
+  const scoringRules =
+    results.find((r) => r.scoringRules)?.scoringRules ?? null;
   const record = {
     format: "source-taster-calibration/1",
     ...identity,

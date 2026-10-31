@@ -51,10 +51,7 @@ export type RecordOutcome =
   | { kind: "unstructured"; references: number };
 
 export type TargetName =
-  | "correctness"
-  | "false-alarms"
-  | "detection"
-  | "invented-detection";
+  "correctness" | "false-alarms" | "detection" | "invented-detection";
 export interface Threshold {
   op: ">=" | "<=";
   basisPoints: number;
@@ -365,11 +362,7 @@ export function checkComposition(records: GateRecord[]): CompositionFloor[] {
     count("generator-models", 3, models.size),
     count("generator-providers", 2, providers.size),
     ...citationStyles.map((style) =>
-      count(
-        `style:${style}`,
-        20,
-        real.filter((r) => r.style === style).length,
-      ),
+      count(`style:${style}`, 20, real.filter((r) => r.style === style).length),
     ),
   ];
 }
@@ -413,10 +406,12 @@ export function decideRelease(measurement: GateMeasurement) {
   for (const run of runs) {
     const label = `${run.path}-${run.run}`;
     for (const t of run.targets) {
-      if (t.met === null) reasons.push(`target-unmeasured:${label}:${t.target}`);
+      if (t.met === null)
+        reasons.push(`target-unmeasured:${label}:${t.target}`);
       else if (!t.met) reasons.push(`target-missed:${label}:${t.target}`);
     }
-    if (!run.valid || run.replayMisses > 0) reasons.push(`invalid-run:${label}`);
+    if (!run.valid || run.replayMisses > 0)
+      reasons.push(`invalid-run:${label}`);
   }
   const parserRuns = runs.filter((r) => r.path === "parser").length;
   if (parserRuns !== 1) reasons.push(`parser-runs:${parserRuns}-of-1`);

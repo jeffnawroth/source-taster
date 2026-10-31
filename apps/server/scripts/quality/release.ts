@@ -30,7 +30,10 @@ const MeasurementLog = z.object({
     codeVersion: z.object({ sha: z.string() }),
     aiModel: z.string().nullable(),
     calibration: z
-      .object({ record: z.string(), selected: z.record(z.string(), z.number()) })
+      .object({
+        record: z.string(),
+        selected: z.record(z.string(), z.number()),
+      })
       .nullable(),
   }),
   runs: z.array(LoggedRun),
@@ -50,12 +53,17 @@ export interface ReleaseResult {
   measurements?: { log: string; releasable: boolean; reasons: string[] }[];
 }
 
-export async function checkRelease(input: ReleaseInput): Promise<ReleaseResult> {
+export async function checkRelease(
+  input: ReleaseInput,
+): Promise<ReleaseResult> {
   const codeReasons = [
     ...(input.runtimeCalibration === "uncalibrated" ? ["uncalibrated"] : []),
     ...(input.code.dirty ? ["code-version-dirty"] : []),
   ];
-  const refuse = (reasons: string[], measurements?: ReleaseResult["measurements"]) => ({
+  const refuse = (
+    reasons: string[],
+    measurements?: ReleaseResult["measurements"],
+  ) => ({
     releasable: false,
     reasons: [...new Set([...codeReasons, ...reasons])],
     ...(measurements ? { measurements } : {}),
@@ -65,7 +73,9 @@ export async function checkRelease(input: ReleaseInput): Promise<ReleaseResult> 
   try {
     dataset = await loadDataset(input.root, "reference-test-set");
   } catch (error) {
-    return refuse([`reference-test-set-unavailable: ${(error as Error).message}`]);
+    return refuse([
+      `reference-test-set-unavailable: ${(error as Error).message}`,
+    ]);
   }
   const directory = join(input.root, "measurement-logs", dataset.version);
   const files = (await readdir(directory).catch(() => [] as string[]))
@@ -77,7 +87,11 @@ export async function checkRelease(input: ReleaseInput): Promise<ReleaseResult> 
       JSON.parse(await readFile(join(directory, file), "utf8")),
     );
     if (!parsed.success) {
-      measurements.push({ log: file, releasable: false, reasons: ["invalid-log"] });
+      measurements.push({
+        log: file,
+        releasable: false,
+        reasons: ["invalid-log"],
+      });
       continue;
     }
     const log = parsed.data;
