@@ -349,6 +349,15 @@ export function createApp(
     });
 
   if (apiVersion === 2) {
+    app.openapi(v2.setManualOverride, async (c) => {
+      const principal = await authorize(c.req.raw, "check:create");
+      const { checkId, slot } = c.req.valid("param");
+      const check = await guarded(principal, "check:create", () =>
+        checks.setManualOverride(principal, checkId, slot, c.req.valid("json")),
+      );
+      if (!check) fail("check-not-found");
+      return output(c, principal, "check:create", check, 200);
+    });
     app.openapi(v2.recheckReference, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
       const { checkId, slot } = c.req.valid("param");

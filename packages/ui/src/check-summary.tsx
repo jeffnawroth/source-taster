@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type { Check, Verdict } from "@source-taster/contract-verification/v2";
+import { effectiveVerdict } from "./effective-verdict.ts";
 import { m } from "@source-taster/i18n";
 export const verdictLabels = {
   correct: "verdict_correct",
@@ -54,11 +55,22 @@ export function CheckSummary({
           >
             {m[verdictLabels[verdict]]()}:{" "}
             {
-              check.references.filter(
-                (r) =>
-                  r.outcome.kind === "verdict" && r.outcome.verdict === verdict,
-              ).length
+              check.references.filter((r) => effectiveVerdict(r) === verdict)
+                .length
             }
+            {check.references.some(
+              (r) => effectiveVerdict(r) === verdict && r.manualOverride,
+            ) && (
+              <span>
+                {" "}
+                ·{" "}
+                {m.override_count({
+                  count: check.references.filter(
+                    (r) => effectiveVerdict(r) === verdict && r.manualOverride,
+                  ).length,
+                })}
+              </span>
+            )}
           </button>
         ))}
       </div>

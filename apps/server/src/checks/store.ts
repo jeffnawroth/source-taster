@@ -8,6 +8,8 @@ import {
   type CheckEndReason,
   type ReferenceProgress,
   type ReferenceStatus,
+  type Verdict,
+  type SetManualOverrideRequest,
   type SaveFieldsRequest,
   type RecheckRequest,
   type EditReferenceListRequest,
@@ -28,7 +30,10 @@ const withSlots = {
     orderBy: { position: "asc" },
     where: { removed: false },
     include: {
-      results: { orderBy: { generation: "desc" } },
+      results: {
+        orderBy: { generation: "desc" },
+        include: { manualOverride: true },
+      },
       revisions: { orderBy: { revision: "asc" } },
     },
   },
@@ -44,6 +49,7 @@ type CheckRow = {
     status: string;
     progress: string;
     revision: number;
+    generation: number;
     structured: unknown;
     revisions: {
       revision: number;
@@ -57,6 +63,12 @@ type CheckRow = {
       generation: number;
       createdAt: Date;
       content: unknown;
+      manualOverride: {
+        id: string;
+        resultId: string;
+        verdict: string;
+        createdAt: Date;
+      } | null;
     }[];
   }[];
 };
@@ -71,7 +83,29 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
     references: row.references.map((slot) => {
       const input = slot.structured as StructuredReference | null;
       const latest = slot.results?.[0];
+      const manual = (
+        result: NonNullable<typeof slot.results>[number] | undefined,
+      ) =>
+        result?.manualOverride
+          ? {
+              ...result.manualOverride,
+              verdict: result.manualOverride.verdict as Verdict,
+              createdAt: result.manualOverride.createdAt.toISOString(),
+            }
+          : null;
+      const currentManual =
+        slot.status !== "running" &&
+        latest?.revision === slot.revision &&
+        latest.generation === slot.generation
+          ? manual(latest)
+          : null;
       return {
+        manualOverride: currentManual,
+        // Only the run that replaced an overridden result announces its reset.
+        manualOverrideReset:
+          !currentManual &&
+          !!slot.results?.find((r) => r.generation < slot.generation)
+            ?.manualOverride,
         slot: slot.position,
         originalText: slot.originalText,
         revision: slot.revision,
@@ -89,6 +123,7 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
           generation: r.generation,
           createdAt: r.createdAt.toISOString(),
           outcome: ReferenceOutcome.parse(r.content),
+          manualOverride: manual(r),
         })),
         quotaEffect: slot.results?.some(
           (r) => ReferenceOutcome.parse(r.content).kind === "verdict",
@@ -451,6 +486,72 @@ export function createCheckStore(
       ownerOperation(principal, id, "cancel", version),
     renew: (principal: Principal, id: string, version = 1) =>
       ownerOperation(principal, id, "renew", version),
+    async setManualOverride(
+      principal: Principal,
+      checkId: string,
+      position: number,
+      request: SetManualOverrideRequest,
+    ) {
+      return db.$transaction(async (tx) => {
+        const check = await lock(tx, checkId);
+        if (
+          !check ||
+          check.ownerId !== principal.ownerId ||
+          check.apiVersion !== 2
+        )
+          return null;
+        assertContentAlive(check);
+        await expireLocked(tx, check, clock.now());
+        const slot = await tx.referenceSlot.findUnique({
+          where: { checkId_position: { checkId, position } },
+          include: {
+            results: {
+              orderBy: { generation: "desc" },
+              include: { manualOverride: true },
+              take: 1,
+            },
+          },
+        });
+        if (!slot || slot.removed) return null;
+        const result = slot.results[0];
+        if (
+          slot.status === "running" ||
+          slot.revision !== request.expectedRevision ||
+          !result ||
+          result.id !== request.resultId ||
+          result.revision !== slot.revision ||
+          result.generation !== slot.generation ||
+          ReferenceOutcome.parse(result.content).kind !== "verdict" ||
+          (result.manualOverride?.id ?? null) !== request.expectedOverrideId
+        )
+          throw new ReferenceConflict();
+        const data = {
+          id: randomUUID(),
+          verdict: request.verdict,
+          createdAt: new Date(clock.now()),
+        };
+        await tx.manualOverride.upsert({
+          where: { resultId: result.id },
+          create: { resultId: result.id, ...data },
+          update: data,
+        });
+        await appendEvent(tx, checkId, {
+          type: "reference.updated",
+          reference: {
+            slot: position,
+            outcome: ReferenceOutcome.parse(result.content),
+            progress: slot.progress as ReferenceProgress,
+          },
+        });
+        return toCheck(
+          await tx.check.findUniqueOrThrow({
+            where: { id: checkId },
+            include: withSlots,
+          }),
+          renewalInterval,
+        );
+      });
+    },
     async saveFields(
       principal: Principal,
       checkId: string,

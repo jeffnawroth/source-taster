@@ -39,6 +39,7 @@ for (const route of [
   getDocumentSettings,
   renderBibliography,
   exportReferences,
+  v2.setManualOverride,
   v2.importReferences,
   v2.saveFields,
   v2.recheckReference,

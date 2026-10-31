@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { effectiveVerdict } from "./effective-verdict.ts";
 import { useRef, useState } from "react";
 import type {
   Check,
@@ -85,10 +86,7 @@ export function CheckResults({
   const buttons = useRef(new Map<number, HTMLButtonElement>());
   const position = useRef({ list: 0, page: 0 });
   const visible = check.references.filter(
-    (reference) =>
-      !filter ||
-      (reference.outcome.kind === "verdict" &&
-        reference.outcome.verdict === filter),
+    (reference) => !filter || effectiveVerdict(reference) === filter,
   );
   const selected = visible.find((reference) => reference.slot === selectedSlot);
   function open(slot: number) {
@@ -181,7 +179,10 @@ export function CheckResults({
                     title: reference.fields.title ?? reference.originalText,
                   })}
                 </button>
-                <ReferenceOutcomeSummary outcome={reference.outcome} />
+                <ReferenceOutcomeSummary
+                  outcome={reference.outcome}
+                  manualOverride={reference.manualOverride}
+                />
                 <RunningStep reference={reference} />
               </li>
             ))}
@@ -225,6 +226,7 @@ export function CheckResults({
               />
               <ReferenceOutcomeView
                 outcome={selected.outcome}
+                manualOverride={selected.manualOverride}
                 originalText={selected.originalText}
               />
             </>

@@ -3,6 +3,7 @@
 import { LibraryInput, ImportResponse } from "./import.ts";
 import { z } from "zod";
 import {
+  SetManualOverrideRequest,
   SaveFieldsRequest,
   RecheckRequest,
   EditReferenceListRequest,
@@ -132,6 +133,23 @@ export const editReferenceList = createRoute({
     body: {
       required: true,
       content: { "application/json": { schema: EditReferenceListRequest } },
+    },
+  },
+  responses: mutationResponses,
+});
+
+export const setManualOverride = createRoute({
+  method: "post",
+  path: "/v2/checks/{checkId}/references/{slot}/manual-override",
+  summary:
+    "Confirm or choose a manual Verdict for exactly the current immutable result",
+  description:
+    "Requires the current field revision, result ID and previous override ID (null for first judgment). Stale, running or unverified fields reject with 409. System evidence and suggestion eligibility stay unchanged.",
+  request: {
+    params: referenceParams,
+    body: {
+      required: true,
+      content: { "application/json": { schema: SetManualOverrideRequest } },
     },
   },
   responses: mutationResponses,

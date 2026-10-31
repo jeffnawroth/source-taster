@@ -4,6 +4,7 @@ import {
   CheckEvent,
   isFinalEvent,
   ProblemDetails,
+  type SetManualOverrideRequest,
   type Check,
   type CreateCheckRequest,
   type SaveFieldsRequest,
@@ -54,6 +55,11 @@ export function verificationClient(options: VerificationClientOptions = {}) {
   }
   return {
     ...base,
+    setManualOverride: (
+      id: string,
+      slot: number,
+      input: SetManualOverrideRequest,
+    ) => mutate(id, `references/${slot}/manual-override`, input),
     importLibrary: async (input: LibraryInput) => {
       const response = await (options.fetch ?? globalThis.fetch)(
         `${options.baseUrl ?? ""}/v2/imports`,

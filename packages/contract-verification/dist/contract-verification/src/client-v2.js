@@ -24,6 +24,7 @@ export function verificationClient(options = {}) {
     }
     return {
         ...base,
+        setManualOverride: (id, slot, input) => mutate(id, `references/${slot}/manual-override`, input),
         importLibrary: async (input) => {
             const response = await (options.fetch ?? globalThis.fetch)(`${options.baseUrl ?? ""}/v2/imports`, {
                 method: "POST",

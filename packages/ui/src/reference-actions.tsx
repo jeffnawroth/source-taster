@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { ManualVerdictActions } from "./manual-verdict.tsx";
 import { useMemo, useState } from "react";
 import type {
   Check,
@@ -212,6 +213,12 @@ export function ReferenceActions({
           : m.revision_new_work()}
       </p>
       {error && <p role="alert">{error}</p>}
+      <ManualVerdictActions
+        check={check}
+        reference={reference}
+        transport={transport}
+        onSnapshot={onSnapshot}
+      />
       {!editing ? (
         <div className="flex flex-wrap gap-3">
           <button
@@ -291,7 +298,11 @@ export function ReferenceActions({
           </summary>
           {previous.map((result) => (
             <section
-              aria-label={m.revision_historical()}
+              aria-label={
+                previous.length === 1
+                  ? m.revision_historical()
+                  : `${m.revision_historical()} · ${m.override_run({ run: result.generation + 1 })}`
+              }
               className="my-3 rounded border border-slate-400 bg-slate-100 p-3"
               key={result.id}
             >
@@ -300,7 +311,11 @@ export function ReferenceActions({
                 {m.revision_number({ revision: result.revision })} ·{" "}
                 {result.createdAt}
               </p>
-              <ReferenceOutcomeView outcome={result.outcome} />
+              <ReferenceOutcomeView
+                outcome={result.outcome}
+                manualOverride={result.manualOverride}
+                contextLabel={`${m.revision_historical()} · ${m.override_run({ run: result.generation + 1 })}`}
+              />
             </section>
           ))}
         </details>
