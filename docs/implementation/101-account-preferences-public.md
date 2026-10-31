@@ -167,3 +167,10 @@ Completed on the merged source, including the final expiry fix:
 Private/both-program Preferences and mail/storage acceptance remain pending as
 listed above and in the exact private handoff. No CI or release qualification,
 full-suite pass, actual Account persistence or complete #101 acceptance is claimed.
+
+Clean-tree release guard also remains closed: direct
+`node apps/server/scripts/release-check.ts` exits **78**, refusing the uncalibrated
+configuration and missing Measured configuration/location
+(`final-release-direct.log`). The pnpm lifecycle wrapper reports the same child
+exit 78 but itself returns 1 (`final-release-refusal.log`); this is expected
+refusal, not a successful release check. No gate was enabled or weakened.
