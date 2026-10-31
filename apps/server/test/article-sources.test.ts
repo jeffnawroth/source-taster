@@ -47,7 +47,11 @@ beforeAll(async () => {
     startDoiFixtures(),
     startDoiFixtures(),
   ]);
-  service = await startTestService(54878, 0, sourceEnv());
+  service = await startTestService(
+    Number(process.env.SOURCE_TASTER_TEST_ARTICLE_PORT ?? 54878),
+    0,
+    sourceEnv(),
+  );
 });
 afterAll(async () => {
   await service?.stop();

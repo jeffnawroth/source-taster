@@ -18,6 +18,8 @@ const verdicts = {
   "not-verifiable": ["?", "text-slate-700", "verdict_not_verifiable"],
 } as const satisfies Record<Verdict, readonly [string, string, keyof typeof m]>;
 const reasons = {
+  "url-unavailable": "reason_url_unavailable",
+  "web-original-unavailable": "reason_web_original_unavailable",
   "outside-coverage": "reason_outside_coverage",
   "doi-nonexistent": "reason_doi_nonexistent",
   "foreign-doi": "reason_foreign_doi",
@@ -44,6 +46,8 @@ export const sourceNames = {
   arxiv: "arXiv",
   openlibrary: "Open Library",
   googlebooks: "Google Books",
+  url: "URL",
+  internetarchive: "Internet Archive",
 } as const satisfies Record<SourceEvidence["source"], string>;
 // Evidence reasons are transport diagnostics, never primary product text.
 // Unknown future reasons retain a safe localized explanation.
@@ -64,13 +68,22 @@ const evidenceReasons = {
   "missing-query-fields": "limitation_missing_query_fields",
   "operator-disabled": "evidence_disabled",
   "early-termination": "evidence_skipped",
+  "url-verification-incomplete": "reason_url_incomplete",
+  "unsafe-destination": "limitation_unsafe_url",
+  "invalid-url": "limitation_unsafe_url",
+  "inconclusive-response": "limitation_web_inconclusive",
+  "redirect-limit": "limitation_redirect_limit",
+  "archive-mismatch": "limitation_archive_mismatch",
+  "unsupported-encoding": "limitation_web_inconclusive",
 } as const satisfies Record<string, keyof typeof m>;
 function limitation(reason: string) {
   return Object.hasOwn(evidenceReasons, reason)
     ? m[evidenceReasons[reason as keyof typeof evidenceReasons]]()
     : m.limitation_unknown();
 }
-const fields = {
+export const fieldLabels = {
+  type: "field_type",
+  arXiv: "field_arxiv",
   title: "field_title",
   author: "field_author",
   issued: "field_issued",
@@ -99,6 +112,8 @@ const origins = {
   title: "origin_title",
   "authors-year": "origin_authors_year",
   arxiv: "origin_arxiv",
+  url: "origin_url",
+  archive: "origin_archive",
 } as const;
 function raw(value: unknown): string {
   if (
@@ -124,6 +139,20 @@ function percent(s: Score) {
   return `${capped / 100n}.${String(capped % 100n).padStart(2, "0")} %`;
 }
 function sourceLink(candidate: Candidate) {
+  if (candidate.source === "url" || candidate.source === "internetarchive") {
+    try {
+      const url = new URL(candidate.csl.URL ?? "");
+      if (
+        ["http:", "https:"].includes(url.protocol) &&
+        !url.username &&
+        !url.password
+      )
+        return url.href;
+    } catch {
+      /* Untrusted transport values are never executable links. */
+    }
+    return null;
+  }
   const doi = candidate.csl.DOI;
   if (doi && /^10\.\d{4,9}\/\S+$/iu.test(doi))
     return `https://doi.org/${encodeURIComponent(doi)}`;
@@ -236,6 +265,13 @@ export function ReferenceOutcomeView({
       {outcome.reasons.map((reason) => (
         <p key={reason}>{m[reasons[reason]]()}</p>
       ))}
+      {outcome.reasons.some((r) =>
+        ["web-original-unavailable", "url-unavailable"].includes(r),
+      ) && (
+        <p className="break-words">
+          {m.web_original_url()}: {outcome.reference.csl.URL}
+        </p>
+      )}
       {!!outcome.failedSources.length && (
         <section aria-label={m.failed_sources_heading()}>
           <p className="font-semibold">{m.failed_sources_heading()}</p>
@@ -284,7 +320,11 @@ export function ReferenceOutcomeView({
               ? m.identity_doi()
               : outcome.identity.kind === "supplied-identifier"
                 ? m.identity_identifier()
-                : m.identity_bibliography()}
+                : outcome.identity.kind === "web-url"
+                  ? m.identity_web_url()
+                  : outcome.identity.kind === "web-archive"
+                    ? m.identity_web_archive()
+                    : m.identity_bibliography()}
         </p>
         <ul>
           {outcome.evidence.map((e, i) => (
@@ -293,6 +333,7 @@ export function ReferenceOutcomeView({
               {m[origins[e.operation]]()}:{" "}
               {m[
                 `evidence_${e.outcome.replaceAll("-", "_")}` as
+                  | "evidence_redirect"
                   | "evidence_exists"
                   | "evidence_nonexistent"
                   | "evidence_candidate"
@@ -303,6 +344,34 @@ export function ReferenceOutcomeView({
                   | "evidence_unsupported"
               ]()}{" "}
               ({e.observedAt})
+              {e.web && (
+                <dl>
+                  <dt>{m.web_original_url()}</dt>
+                  <dd>{e.web.originalUrl}</dd>
+                  <dt>{m.web_observed_url()}</dt>
+                  <dd>{e.web.finalUrl}</dd>
+                  <dt>HTTP</dt>
+                  <dd>{e.web.status}</dd>
+                  {e.web.title && (
+                    <>
+                      <dt>{m.web_observed_title()}</dt>
+                      <dd>{e.web.title}</dd>
+                    </>
+                  )}
+                  {e.web.redirectTarget && (
+                    <>
+                      <dt>{m.web_redirect_target()}</dt>
+                      <dd>{e.web.redirectTarget}</dd>
+                    </>
+                  )}
+                  {e.web.timestamp && (
+                    <>
+                      <dt>{m.web_archive_capture()}</dt>
+                      <dd>{e.web.timestamp}</dd>
+                    </>
+                  )}
+                </dl>
+              )}
               {e.reason && (
                 <p>
                   {m.evidence_limitation()}: {limitation(e.reason)}
@@ -364,8 +433,10 @@ export function ReferenceOutcomeView({
                   }
                 >
                   <dt className="font-semibold">
-                    {field.field in fields
-                      ? m[fields[field.field as keyof typeof fields]]()
+                    {field.field in fieldLabels
+                      ? m[
+                          fieldLabels[field.field as keyof typeof fieldLabels]
+                        ]()
                       : field.field}
                     :{" "}
                     {field.score
@@ -462,60 +533,62 @@ function BestMatchComparison({ outcome }: { outcome: VerdictResult }) {
             <th scope="col">{m.workspace_best()}</th>
           </tr>
         </thead>
-        {(Object.keys(fields) as (keyof typeof fields)[]).map((field) => {
-          const comparison = best?.fields.find(
-            (value) => value.field === field,
-          );
-          const deviates =
-            (comparison?.score && !comparison.score.fullAgreement) ||
-            comparison?.agreement === false;
-          return (
-            <tbody key={field} data-deviates={!!deviates}>
-              <tr>
-                <th scope="rowgroup" colSpan={2}>
-                  {m[fields[field]]()}:{" "}
-                  <span className="font-normal">
-                    {comparison?.score
-                      ? comparison.score.fullAgreement
-                        ? m.field_agrees()
-                        : m.field_differs()
-                      : comparison?.agreement !== undefined
-                        ? comparison.agreement
+        {(Object.keys(fieldLabels) as (keyof typeof fieldLabels)[]).map(
+          (field) => {
+            const comparison = best?.fields.find(
+              (value) => value.field === field,
+            );
+            const deviates =
+              (comparison?.score && !comparison.score.fullAgreement) ||
+              comparison?.agreement === false;
+            return (
+              <tbody key={field} data-deviates={!!deviates}>
+                <tr>
+                  <th scope="rowgroup" colSpan={2}>
+                    {m[fieldLabels[field]]()}:{" "}
+                    <span className="font-normal">
+                      {comparison?.score
+                        ? comparison.score.fullAgreement
                           ? m.field_agrees()
                           : m.field_differs()
-                        : m.field_excluded()}{" "}
-                    ·{" "}
-                    {comparison?.score
-                      ? percent(comparison.score)
-                      : comparison?.reason === "missing-reference"
-                        ? m.field_missing_reference()
-                        : comparison?.reason === "missing-candidate"
-                          ? m.field_missing_candidate()
-                          : comparison?.reason === "not-determinable"
-                            ? m.field_not_determinable()
-                            : comparison?.reason === "resource-limit"
-                              ? m.field_resource_limit()
-                              : comparison?.reason === "unweighted"
-                                ? m.field_unweighted()
-                                : m.workspace_not_compared()}
-                  </span>
-                </th>
-              </tr>
-              <tr>
-                <td>
-                  {raw(
-                    comparison
-                      ? comparison.reference
-                      : outcome.reference.csl[field],
-                  )}
-                </td>
-                <td>
-                  {raw(comparison ? comparison.candidate : best?.csl[field])}
-                </td>
-              </tr>
-            </tbody>
-          );
-        })}
+                        : comparison?.agreement !== undefined
+                          ? comparison.agreement
+                            ? m.field_agrees()
+                            : m.field_differs()
+                          : m.field_excluded()}{" "}
+                      ·{" "}
+                      {comparison?.score
+                        ? percent(comparison.score)
+                        : comparison?.reason === "missing-reference"
+                          ? m.field_missing_reference()
+                          : comparison?.reason === "missing-candidate"
+                            ? m.field_missing_candidate()
+                            : comparison?.reason === "not-determinable"
+                              ? m.field_not_determinable()
+                              : comparison?.reason === "resource-limit"
+                                ? m.field_resource_limit()
+                                : comparison?.reason === "unweighted"
+                                  ? m.field_unweighted()
+                                  : m.workspace_not_compared()}
+                    </span>
+                  </th>
+                </tr>
+                <tr>
+                  <td>
+                    {raw(
+                      comparison
+                        ? comparison.reference
+                        : outcome.reference.csl[field],
+                    )}
+                  </td>
+                  <td>
+                    {raw(comparison ? comparison.candidate : best?.csl[field])}
+                  </td>
+                </tr>
+              </tbody>
+            );
+          },
+        )}
       </table>
     </section>
   );

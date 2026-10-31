@@ -3,18 +3,21 @@ import {
   CheckResponse,
   CheckEvent,
   isFinalEvent,
+  ProblemDetails,
   type Check,
   type CreateCheckRequest,
+  type SaveFieldsRequest,
+  type RecheckRequest,
+  type EditReferenceListRequest,
 } from "./v2.ts";
 import {
+  ApiError,
   createVerificationClient,
   watchContractEvents,
   type VerificationClientOptions,
   type WatchOptions,
 } from "./client.ts";
 import { ImportResponse, type LibraryInput } from "./import.ts";
-import { ApiError } from "./client.ts";
-import { ProblemDetails } from "./index.ts";
 export {
   ApiError,
   CheckStreamError,
@@ -24,12 +27,29 @@ export {
 } from "./client.ts";
 export type WatchCheckOptions = WatchOptions<CheckEvent>;
 export function verificationClient(options: VerificationClientOptions = {}) {
+  const base = createVerificationClient<Check, CreateCheckRequest>(options, "/v2", CheckResponse);
+  async function mutate(checkId: string, path: string, input: unknown) {
+    const response = await (options.fetch ?? globalThis.fetch)(
+      `${options.baseUrl ?? ""}/v2/checks/${encodeURIComponent(checkId)}/${path}`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          ...(options.client ? { "Source-Taster-Client": options.client } : {}),
+          ...(options.credentials
+            ? { Authorization: `Bearer ${await options.credentials()}` }
+            : {}),
+        },
+        body: JSON.stringify(input),
+      },
+    );
+    const body: unknown = await response.json().catch(() => undefined);
+    if (!response.ok)
+      throw new ApiError(response.status, ProblemDetails.safeParse(body).data);
+    return CheckResponse.parse(body).data;
+  }
   return {
-    ...createVerificationClient<Check, CreateCheckRequest>(
-      options,
-      "/v2",
-      CheckResponse,
-    ),
+    ...base,
     importLibrary: async (input: LibraryInput) => {
       const response = await (options.fetch ?? globalThis.fetch)(
         `${options.baseUrl ?? ""}/v2/imports`,
@@ -55,6 +75,12 @@ export function verificationClient(options: VerificationClientOptions = {}) {
         );
       return ImportResponse.parse(body).data;
     },
+    saveFields: (id: string, slot: number, input: SaveFieldsRequest) =>
+      mutate(id, `references/${slot}/revisions`, input),
+    recheckReference: (id: string, slot: number, input: RecheckRequest) =>
+      mutate(id, `references/${slot}/recheck`, input),
+    editReferenceList: (id: string, input: EditReferenceListRequest) =>
+      mutate(id, "references", input),
   };
 }
 export function watchCheckEvents(checkId: string, options: WatchCheckOptions) {

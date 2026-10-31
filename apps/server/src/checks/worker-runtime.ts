@@ -33,6 +33,7 @@ export async function startWorkerRuntime(
   } = {},
 ) {
   const settings = {
+    contentRetentionMs: config.contentRetentionMs,
     clientLeaseMs: config.clientLeaseMs,
     claimMs: config.workerClaimMs,
     maxAttempts: 3,

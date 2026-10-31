@@ -21,7 +21,9 @@ export type CandidateDataSource =
   | "semanticscholar"
   | "arxiv"
   | "openlibrary"
-  | "googlebooks";
+  | "googlebooks"
+  | "url"
+  | "internetarchive";
 export type SourceName = "doi.org" | CandidateDataSource;
 /** Evidence reasons that make a Data source failed (ADR-0007). */
 export type TransportFailure =
@@ -31,6 +33,15 @@ export type TransportFailure =
   | "request-unavailable"
   | "deadline"
   | "after-source-failure";
+export interface WebObservation {
+  originalUrl: string;
+  finalUrl: string;
+  status: number;
+  title?: string;
+  redirectTarget?: string;
+  archiveUrl?: string;
+  timestamp?: string;
+}
 export interface Evidence {
   source: SourceName;
   operation:
@@ -41,9 +52,12 @@ export interface Evidence {
     | "isbn"
     | "combined"
     | "title"
-    | "authors-year";
+    | "authors-year"
+    | "url"
+    | "archive";
   outcome:
     | "exists"
+    | "redirect"
     | "nonexistent"
     | "candidate"
     | "no-record"
@@ -57,6 +71,7 @@ export interface Evidence {
   attempts: number;
   observedAt: string;
   raw?: unknown;
+  web?: WebObservation;
   skippedDuplicates?: string[];
   unusedSlots?: number;
   identifierAmbiguity?: string[];
@@ -137,7 +152,9 @@ export interface VerdictResult {
       | "supplied-doi"
       | "supplied-identifier"
       | "independent-bibliography"
-      | "unresolved";
+      | "unresolved"
+      | "web-url"
+      | "web-archive";
     candidateId?: string;
   };
   bestMatchId: string | null;
@@ -158,6 +175,8 @@ export interface VerdictResult {
     | "search-completed"
     | "ambiguous-identity"
     | "insufficient-search"
+    | "url-unavailable"
+    | "web-original-unavailable"
     | "sources-unavailable"
   )[];
   failedSources: SourceName[];

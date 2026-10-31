@@ -14,6 +14,10 @@ import {
 } from "./correction-suggestions.tsx";
 import { ReferenceExports } from "./reference-exports.tsx";
 import { m } from "@source-taster/i18n";
+import {
+  ReferenceActions,
+  ReferenceListActions,
+} from "./reference-actions.tsx";
 import { CheckSummary } from "./check-summary.tsx";
 import {
   ReferenceOutcomeSummary,
@@ -48,6 +52,7 @@ export function CheckResults({
   citationStyle,
   citationStyleLabel,
   transport,
+  onSnapshot,
 }: {
   check: Check;
   importedFormat?: "bibtex" | "ris";
@@ -55,6 +60,7 @@ export function CheckResults({
   citationStyle: CitationStyle;
   citationStyleLabel: string;
   transport: VerificationClientOptions;
+  onSnapshot: (check: Check) => void;
 }) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [filter, setFilter] = useState<Verdict | null>(null);
@@ -134,6 +140,11 @@ export function CheckResults({
         rendered={bibliography}
         styleLabel={citationStyleLabel}
       />
+      <ReferenceListActions
+        check={check}
+        transport={transport}
+        onSnapshot={onSnapshot}
+      />
       <BibliographyActions
         key={citationStyle}
         rendered={bibliography}
@@ -159,11 +170,7 @@ export function CheckResults({
                 >
                   {m.workspace_open({
                     slot: reference.slot,
-                    title:
-                      reference.outcome.kind === "verdict"
-                        ? (reference.outcome.reference.csl.title ??
-                          reference.originalText)
-                        : reference.originalText,
+                    title: reference.fields.title ?? reference.originalText,
                   })}
                 </button>
                 <ReferenceOutcomeSummary outcome={reference.outcome} />
@@ -196,6 +203,13 @@ export function CheckResults({
           {selected ? (
             <>
               <RunningStep reference={selected} />
+              <ReferenceActions
+                key={selected.slot}
+                check={check}
+                reference={selected}
+                transport={transport}
+                onSnapshot={onSnapshot}
+              />
               <CorrectionSuggestion
                 key={`${selected.slot}:${citationStyle}`}
                 slot={selected.slot}
