@@ -10,6 +10,10 @@ export default defineConfig({
   webServer: {
     command:
       "SOURCE_TASTER_E2E_BIBLIOGRAPHIC=true pnpm --filter @source-taster/server e2e:serve",
+    env: {
+      SOURCE_TASTER_E2E_WEB_FIXTURES:
+        process.env.SOURCE_TASTER_E2E_WEB_FIXTURES ?? "true",
+    },
     url: baseURL,
     reuseExistingServer: false,
     timeout: 60000,

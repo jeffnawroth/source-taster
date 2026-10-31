@@ -2,7 +2,7 @@
 // The only persistence codec for transient Check content. No plaintext fallback.
 // Daily AES-GCM keys are held only in PostgreSQL UNLOGGED storage (ADR-0012).
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
-import type { Prisma } from "../generated/prisma/client.ts";
+import { Prisma } from "../generated/prisma/client.ts";
 
 const DAY = 86_400_000;
 export const keyDay = (now: number) => Math.floor(now / DAY);
@@ -10,6 +10,7 @@ export class ContentUnavailable extends Error {}
 type Tx = Prisma.TransactionClient;
 type Row = Record<string, unknown>;
 const fields: Record<string, string[]> = {
+  check: ["document"],
   referenceSlot: ["originalText", "structured"],
   fieldRevision: ["content"],
   referenceResult: ["content"],
@@ -102,7 +103,12 @@ export function contentTransaction(
     if (!value || typeof value !== "object") return value;
     const row = { ...value } as Row;
     for (const field of fields[model] ?? []) {
-      if (row[field] === undefined || row[field] === null) continue;
+      if (
+        row[field] === undefined ||
+        row[field] === null ||
+        row[field] === Prisma.DbNull
+      )
+        continue;
       const encrypted = seal(
         row[field],
         await key(day),

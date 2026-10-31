@@ -191,3 +191,12 @@ remain for inspection.
 this receipt are committed on the ticket branch. A final
 `git merge --no-edit spec/70-launch-integration` confirmed the latest integration
 ancestor before handoff.
+
+## Shared-root integration continuation
+
+See [the combined integration handoff](70-integration-90-93-137.md) for the
+#90/#91 retention composition, selected-text draft compatibility, scoped #80
+browser-fixture default, current validation and unchanged qualification gates.
+Earlier temporary logs named above disappeared during the interruption; new
+continuation evidence lives in `.tmp/spec-70-orchestration/` in the integration
+checkout.
