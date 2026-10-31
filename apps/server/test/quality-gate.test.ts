@@ -216,6 +216,16 @@ it(
         "invented-detection": [1, 1],
       });
     }
+    // Informational per-stratum values; strata below 30 are too small.
+    expect(log.runs[0].strata).toContainEqual(
+      expect.objectContaining({
+        dimension: "language",
+        value: "en",
+        target: "detection",
+        status: "too-small",
+      }),
+    );
+    expect(log.runs[0].regressions).toEqual([]);
     expect(log.decision.releasable).toBe(false);
     expect(log.decision.reasons).toContain("uncalibrated");
     expect(result.decision).toEqual(log.decision);

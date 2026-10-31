@@ -207,6 +207,81 @@ export function evaluatePath(
   return { path, targets: measureTargets(records, outcomes, path) };
 }
 
+export interface StratumValue extends TargetResult {
+  dimension: "language" | "sourceType" | "style" | "language+sourceType";
+  value: string;
+  /** ADR-0006: informational. At least 30 below target fires the section 19 trigger. */
+  status: "trigger" | "ok" | "unmeasured" | "too-small";
+}
+const stratumDimensions: [
+  StratumValue["dimension"],
+  (r: GateRecord) => string,
+][] = [
+  ["language", (r) => r.language],
+  ["sourceType", (r) => r.sourceType],
+  ["style", (r) => r.style],
+  ["language+sourceType", (r) => `${r.language}+${r.sourceType}`],
+];
+/** Every target per language, source type and citation style. Never gates. */
+export function strata(
+  records: GateRecord[],
+  outcomes: ReadonlyMap<string, RecordOutcome>,
+  path: StructuringPath,
+): StratumValue[] {
+  return stratumDimensions.flatMap(([dimension, key]) =>
+    [...new Set(records.map(key))].sort().flatMap((value) =>
+      measureTargets(
+        records.filter((r) => key(r) === value),
+        outcomes,
+        path,
+      ).map((t) => ({
+        ...t,
+        dimension,
+        value,
+        status:
+          t.n < 30
+            ? "too-small"
+            : t.met === null
+              ? "unmeasured"
+              : t.met
+                ? "ok"
+                : "trigger",
+      })),
+    ),
+  );
+}
+
+/** ADR-0006 regression check: logged, never part of a section 14.4 target. */
+export function regressionChecks(
+  records: GateRecord[],
+  outcomes: ReadonlyMap<string, RecordOutcome>,
+) {
+  const expectedOf = (r: GateRecord): Verdict | undefined =>
+    r.class === "real-deviating"
+      ? "exists-with-deviations"
+      : r.class === "outside-coverage"
+        ? "not-verifiable"
+        : r.class === "falsified"
+          ? r.expectedVerdict
+          : undefined;
+  return records.flatMap((r) => {
+    const expected = expectedOf(r);
+    if (!expected) return [];
+    const o = outcomes.get(r.id);
+    const actual =
+      o?.kind === "verdict"
+        ? o.verdict
+        : o?.kind === "status"
+          ? `status:${o.status}`
+          : o
+            ? `unstructured:${o.references}`
+            : "missing";
+    return actual === expected
+      ? []
+      : [{ id: r.id, class: r.class, expected, actual }];
+  });
+}
+
 /** The eleven FA-STR-02 styles; ADR-0006 asks at least 20 real records each. */
 export const citationStyles = [
   "apa",

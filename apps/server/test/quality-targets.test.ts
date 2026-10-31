@@ -4,6 +4,8 @@
 import { describe, expect, it } from "vitest";
 import {
   checkComposition,
+  regressionChecks,
+  strata,
   decideRelease,
   evaluatePath,
   type GateMeasurement,
@@ -366,5 +368,54 @@ describe("release decision", () => {
         "composition:real-references",
       ]),
     );
+  });
+});
+
+describe("per-stratum values and regression checks (informational)", () => {
+  it("fires the section 19 trigger for a stratum of at least 30 below target and marks smaller strata too small", () => {
+    // ADR-0006 example: 40 German-language books, 6 red Verdicts = 15 % false alarms.
+    const books = Array.from({ length: 40 }, (_, i) =>
+      record(`de-book-${i}`, { language: "de", sourceType: "book", style: "din-iso-690" }),
+    );
+    const articles = Array.from({ length: 10 }, (_, i) => record(`en-article-${i}`));
+    const outcomes = new Map<string, RecordOutcome>([
+      ...books.map((r, i): [string, RecordOutcome] => [r.id, i < 6 ? verdict("not-found") : correct(r.id)]),
+      ...articles.map((r): [string, RecordOutcome] => [r.id, correct(r.id)]),
+    ]);
+    const values = strata([...books, ...articles], outcomes, "parser");
+    const falseAlarms = (dimension: string, value: string) =>
+      values.find(
+        (v) => v.dimension === dimension && v.value === value && v.target === "false-alarms",
+      );
+    expect(falseAlarms("language+sourceType", "de+book")).toMatchObject({
+      hits: 6,
+      n: 40,
+      status: "trigger",
+    });
+    expect(falseAlarms("language", "de")).toMatchObject({ status: "trigger" });
+    expect(falseAlarms("language", "en")).toMatchObject({ n: 10, status: "too-small" });
+    expect(falseAlarms("style", "apa")).toMatchObject({ status: "too-small" });
+  });
+
+  it("logs records whose Verdict differs from their class's expected outcome", () => {
+    const records = [
+      record("deviating", { class: "real-deviating" }),
+      record("deviating-ok", { class: "real-deviating" }),
+      record("falsified", { class: "falsified", expectedVerdict: "doi-conflict" }),
+      record("outside", { class: "outside-coverage" }),
+      record("correct"),
+    ];
+    const outcomes = new Map<string, RecordOutcome>([
+      ["deviating", correct("deviating")],
+      ["deviating-ok", verdict("exists-with-deviations")],
+      ["falsified", verdict("mixed-citation")],
+      ["outside", { kind: "status", status: "failed" }],
+      ["correct", verdict("not-found")],
+    ]);
+    expect(regressionChecks(records, outcomes)).toEqual([
+      { id: "deviating", class: "real-deviating", expected: "exists-with-deviations", actual: "correct" },
+      { id: "falsified", class: "falsified", expected: "doi-conflict", actual: "mixed-citation" },
+      { id: "outside", class: "outside-coverage", expected: "not-verifiable", actual: "status:failed" },
+    ]);
   });
 });

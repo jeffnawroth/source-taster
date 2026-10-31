@@ -24,6 +24,9 @@ import {
   decideRelease,
   evaluatePath,
   normalizeIdentifier,
+  regressionChecks,
+  strata,
+  type StratumValue,
   type GateMeasurement,
   type GateRecord,
   type PathRun,
@@ -211,6 +214,8 @@ interface Session {
   restart: (changes: Record<string, string>) => Promise<void>;
 }
 type LoggedRun = PathRun & {
+  strata: StratumValue[];
+  regressions: ReturnType<typeof regressionChecks>;
   reruns: string[];
   misses: ReplayMiss[];
   outcomes: Record<string, RecordOutcome>;
@@ -291,13 +296,21 @@ async function verifyAll(
       replayMisses: misses.length,
       misses,
       targets: evaluatePath(records, outcomes, path).targets,
+      strata: strata(records, outcomes, path),
+      regressions: regressionChecks(records, outcomes),
       outcomes: Object.fromEntries(outcomes),
     });
   }
   return { runs, observed };
 }
-const gateRun = ({ outcomes: _o, misses: _m, reruns: _r, ...run }: LoggedRun): PathRun =>
-  run;
+const gateRun = ({
+  outcomes: _o,
+  misses: _m,
+  reruns: _r,
+  strata: _s,
+  regressions: _g,
+  ...run
+}: LoggedRun): PathRun => run;
 const scoringRulesOf = (observed?: VerdictOutcome) =>
   observed
     ? {
