@@ -271,3 +271,46 @@ acceptance, legal/security/deployment evidence (#116/#136/#138) and #114 activat
 remain required. Fixture license strings and an AI qualification reference cannot
 establish those facts. CI availability previously depended on GitHub billing;
 these local checks do not claim a GitHub Actions run or completion of #70.
+
+## Parent integration merge validation
+
+Merged `t3/quality-measurement-implementation` at
+`7bf3ac79d11097b7445de564c7499154f2812006` into
+`spec/70-launch-integration` from published `901b22d` using merge commit
+`65902656aa0bdf0171237563d577e2fa160a2fb1`. There were no source conflicts or
+application fixes. The source contains the full preceding integration tip.
+
+Fresh merge checks used Node 24.14.0, pnpm 12.15.0 and the owned PostgreSQL 18
+container `st70-merge94-8fb08071`, with a dynamically assigned loopback database
+port (32771 for this run). API/global fixture used 4201 and auxiliary services
+used 4202. The shared PostgreSQL instance was not used or changed. New logs live
+in `.tmp/spec-70-orchestration/94-merge-*`.
+
+- Frozen install, core/contract/i18n builds and Prisma generation passed
+  (`94-merge-{install,core-build,contract-build,i18n-build,prisma}.log`).
+- The seven focused Quality gate suites passed **68/68 tests** serially in
+  **39.83 s** (`94-merge-quality.log`): calibration, CLI, dataset, gate, release,
+  replay and targets. The command was the seven-suite portion of the integrated
+  command above, with `--fileParallelism=false`, against the owned database.
+  No broad DOI/bibliographic or browser/private-service suite was repeated.
+- Root script typecheck, server typecheck/lint/build, whole-repository Prettier
+  and `git diff --check` passed
+  (`94-merge-{scripts-typecheck,server-typecheck,server-lint,server-build,format,diff}.log`).
+- All **40** tracked generated verification-contract/OpenAPI artifacts reproduced
+  byte-for-byte; before/after SHA-256 inventories are
+  `94-merge-generated-{before,after}.json`. This merge changes no common, internal,
+  service or verification transport source/artifact, so no private-service pin
+  update is required.
+- On the clean merged source tree, with all `SOURCE_TASTER_QUALITY_*` inputs
+  unset, `node apps/server/scripts/release-check.ts` refused with **78**, naming
+  uncalibrated rules and absent configuration/location
+  (`94-merge-release-refusal-clean.log`). It did not authorize a release.
+- The harness removed its databases/roles. Container ownership was checked before
+  stopping the `--rm` container, which removed its anonymous volume too; the
+  container was absent afterward (`94-merge-cleanup.log`). No unknown/shared
+  database, role, process, volume or container was removed.
+
+No push, PR or issue change, nested agent, new worktree, private-repo mutation or
+qualification run was performed by this merge. Actual private-corpus calibration,
+provider/source approval, activation and release/CI evidence remain outstanding
+under the existing gates.
