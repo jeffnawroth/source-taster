@@ -49,6 +49,25 @@ async function parse<T>(file: string, schema: z.ZodType<T>, name: string) {
   return { value: parsed.data, bytes };
 }
 
+/**
+ * The reviewed Measured configuration file as the load replay needs it
+ * (#117): active optional Data sources and the search-settings patch, plus the
+ * digest of the file's exact bytes. Calibration and AI identity do not affect
+ * the replay, so neither is resolved here.
+ */
+export async function readConfigurationFile(file: string) {
+  const { value, bytes } = await parse(
+    file,
+    ConfigurationFile,
+    "configuration.json",
+  );
+  return {
+    enabledSources: value.enabledSources as string[],
+    searchSettings: value.searchSettings ?? null,
+    digest: `sha256:${createHash("sha256").update(bytes).digest("hex")}`,
+  };
+}
+
 export async function resolveConfiguration(
   file: string,
   aiModel: string | null,

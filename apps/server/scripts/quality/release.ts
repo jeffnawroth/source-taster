@@ -10,6 +10,7 @@ import { z } from "zod";
 import { isDeepStrictEqual } from "node:util";
 import { loadDataset } from "./dataset.ts";
 import { measureStructuring } from "./structuring.ts";
+import { checkLoadReplay } from "../load/release.ts";
 import { qualifiedAi, type AiConfiguration } from "./extraction.ts";
 import type { GateConfiguration } from "./runner.ts";
 import {
@@ -77,6 +78,12 @@ export interface ReleaseInput {
   code: { sha: string; dirty: boolean };
   /** The calibration the code's Scoring rules report. */
   runtimeCalibration: string;
+  /**
+   * Private fifty-Check replay report (#117, ADR-0007: replay on every
+   * release); undefined when not configured, which refuses the release. The
+   * key is required so no caller can skip the replay by omission.
+   */
+  loadReport: string | undefined;
   /** The frozen configuration being released/activated, never inferred from a log. */
   expected?: {
     configuration: GateConfiguration;
@@ -94,7 +101,17 @@ export interface ReleaseResult {
 export async function checkRelease(
   input: ReleaseInput,
 ): Promise<ReleaseResult> {
+  // The replay must measure exactly the configuration the Quality gate does.
+  const replay = await checkLoadReplay({
+    path: input.loadReport,
+    code: input.code,
+    expected: input.expected && {
+      enabledSources: input.expected.configuration.enabledSources,
+      searchSettings: input.expected.configuration.searchSettings ?? null,
+    },
+  });
   const codeReasons = [
+    ...replay.reasons,
     ...(input.runtimeCalibration === "uncalibrated" ? ["uncalibrated"] : []),
     ...(input.code.dirty ? ["code-version-dirty"] : []),
     ...(!input.expected ? ["no-measured-configuration"] : []),
