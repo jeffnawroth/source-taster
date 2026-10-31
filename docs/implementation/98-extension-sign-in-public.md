@@ -123,3 +123,21 @@ The parent must consume [the private-phase handoff](98-private-session-handoff.m
 repin after public publication, implement all six real service endpoints and session
 policy, run the listed real private/both-program tests, and only then consider
 activation/acceptance of #98. The default sign-in gate stays disabled in this delivery.
+
+## Parent integration verification
+
+The public phase merged into `spec/70-launch-integration` at `192272a` without
+source conflicts. The merger completed validation before its model usage limit;
+the parent recovered and checked its retained result ledger rather than rerunning
+unchanged code. `.tmp/spec-70-orchestration/98-merge-results.json` records successful
+frozen install, core/i18n and all transport builds, Prisma generation, relevant
+server/client/transport typechecks, lint, formatting, i18n and application builds.
+`98-merge-native-account.log` records **15/15 passed**, in 49.0 seconds, against the
+real verification API and owned PostgreSQL with the private service replaced only
+at HTTP. Generated-artifact fingerprints are in `98-merge-generated.json`.
+The clean-tree release guard refused with exit **78**, and the owned PostgreSQL
+container was removed (`98-merge-cleanup.log`). No shared resource was removed.
+
+This verifies the public phase only. The feature stays disabled by default; real
+private endpoints/session policy, contract repinning and the exact both-program
+acceptance in `98-private-session-handoff.md` remain pending. #98 is not closed.
