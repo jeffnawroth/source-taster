@@ -146,6 +146,39 @@ async function withPanel(
       res.end(JSON.stringify(extensionFixtureJwks));
       return;
     }
+    // #99 made Quota mandatory for hosted creation. This external PRIVATE HTTP
+    // fixture grants only synthetic capacity; it is not the real Quota journal.
+    if (
+      req.url === "/internal/quota/snapshot" ||
+      req.url === "/internal/quota/reserve"
+    ) {
+      const quota = {
+        consumed: 0,
+        remaining: 100,
+        granted: 100,
+        reserved: 0,
+        warning: "none",
+        grants: [],
+        features: [],
+      };
+      res.setHeader("content-type", "application/json");
+      res.end(
+        JSON.stringify(
+          !state.authority
+            ? { outcome: "denied", reason: "forbidden" }
+            : req.url.endsWith("/snapshot")
+              ? { outcome: "granted", quota }
+              : {
+                  outcome: "reserved",
+                  free: [],
+                  reserved: (JSON.parse(body) as { slots: unknown[] }).slots
+                    .length,
+                  quota,
+                },
+        ),
+      );
+      return;
+    }
     if (req.url === "/internal/account-authority") {
       res.setHeader("content-type", "application/json");
       // The public API must obey current authority, including valid signed JWTs.
@@ -574,6 +607,15 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       "Doe, J. (2020). Signal maps. Example Press.",
     );
     await panel.click("button", "Check Reference");
+    const creation = await until(
+      () =>
+        panel.responses.find(
+          (response) =>
+            response.url === `http://127.0.0.1:${apiPort}/v2/checks`,
+        ),
+      "Check creation did not answer",
+    );
+    expect(creation.status).toBe(201);
     await panel.waitForText("list", "References", /Queued|Running/);
     const created = panel.requests.find(
       (r) =>

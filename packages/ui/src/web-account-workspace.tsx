@@ -32,12 +32,14 @@ export function AccountControls({
   changed,
   language,
   preferences,
+  sessionEnded,
 }: {
   client: SessionClient;
   account: AccountSession | null;
   changed: (account: AccountSession | null) => void;
   language: "de" | "en";
   preferences: Preferences;
+  sessionEnded: () => void;
 }) {
   const [open, setOpen] = useState(false),
     [email, setEmail] = useState(""),
@@ -97,6 +99,11 @@ export function AccountControls({
       await client.signOut(everywhere);
       changed(null);
     } catch (e) {
+      if (
+        e instanceof GuestTokenError &&
+        (e.status === 401 || e.status === 403)
+      )
+        sessionEnded();
       setError(errorMessage(e));
     } finally {
       setPending(false);
@@ -430,6 +437,7 @@ export function AccountWorkspace({
             key={session?.accountId ?? "guest"}
             language={language}
             preferences={preferences}
+            sessionEnded={() => setCredentialFailure(true)}
             client={client}
             account={credentialFailure ? null : session}
             changed={changed}

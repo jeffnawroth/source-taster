@@ -15,6 +15,7 @@ let stored = { language: "de", citationStyle: "ieee" };
 let patches: unknown[] = [];
 let registration: unknown;
 let denied = false;
+let logoutDenied = false;
 let unavailable = false;
 let reads = 0;
 let holdRead: ((send: () => void) => void) | undefined;
@@ -64,6 +65,7 @@ const server = createServer((req, res) => {
         : account;
     } else if (path === "/v1/sign-out") {
       signedIn = false;
+      if (logoutDenied) res.statusCode = 401;
       data = { signedOut: true };
     } else if (!signedIn || denied) res.statusCode = 401;
     else if (unavailable) res.statusCode = 503;
@@ -110,6 +112,7 @@ test.beforeEach(() => {
   patches = [];
   registration = undefined;
   denied = false;
+  logoutDenied = false;
   unavailable = false;
   reads = 0;
   holdRead = undefined;
@@ -208,6 +211,7 @@ test("a delayed refocus read cannot undo a later edit or a newer refocus respons
   await style(page).selectOption("oxford");
   await expect.poll(() => patches.length).toBe(2);
   release();
+  await page.waitForLoadState("networkidle");
   await expect(language(page)).toHaveValue("en");
   await expect(style(page)).toHaveValue("oxford");
   let older!: () => void;
@@ -220,6 +224,7 @@ test("a delayed refocus read cannot undo a later edit or a newer refocus respons
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect(style(page)).toHaveValue("acs");
   older();
+  await page.waitForLoadState("networkidle");
   await expect(language(page)).toHaveValue("de");
   await expect(style(page)).toHaveValue("acs");
 });
@@ -317,6 +322,7 @@ test("a late Account reply after sign-out cannot change Guest values", async ({
     page.getByRole("button", { name: "Anmelden", exact: true }),
   ).toBeVisible();
   release();
+  await page.waitForLoadState("networkidle");
   await expect(language(page)).toHaveValue("de");
   await expect(style(page)).toHaveValue("ieee");
   await page.reload();
@@ -423,4 +429,28 @@ test("registration transports the current client Preferences, including changes 
   });
   // This fixture represents an existing Account: it must remain authoritative.
   await expect(style(page)).toHaveValue("ieee");
+});
+
+test("an already expired sign-out copies last displayed values and announces session expiry", async ({
+  page,
+}) => {
+  signedIn = true;
+  await page.goto("/");
+  await expect(style(page)).toHaveValue("ieee");
+  // Record foreground activity before the simulated server-side expiry.
+  await language(page).selectOption("en");
+  await expect.poll(() => patches.length).toBe(1);
+  logoutDenied = true;
+  await page
+    .getByRole("button", { name: "Sign out here", exact: true })
+    .click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: /session has expired/ }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key)!) as unknown,
+      guestKey,
+    ),
+  ).toEqual({ language: "en", citationStyle: "ieee", theme: "system" });
 });

@@ -82,7 +82,7 @@ export async function saveGuestPreferences(
   });
 }
 
-/** FA-KON-30 hook, local even when Account Preferences are added later. */
+/** FA-KON-30 hook, local even while signed in. */
 export async function hasSeenOnboarding(
   storage: PreferenceStorage,
 ): Promise<boolean> {
