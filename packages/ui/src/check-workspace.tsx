@@ -69,6 +69,9 @@ function problemKey(error: unknown, fallback: MessageKey): MessageKey {
 }
 
 /** One in-memory Check workflow for web and panel hosts. Storage carries preferences only. */
+export interface SelectionIntake {
+  subscribe(receive: (selection: { text: string; possiblyShortened: boolean }) => void): () => void;
+}
 export function CheckWorkspace({
   initial,
   preferenceStorage,
@@ -76,6 +79,7 @@ export function CheckWorkspace({
   siteUrl,
   accountControls,
   onPreferencesChange,
+  selectionIntake,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
@@ -83,6 +87,7 @@ export function CheckWorkspace({
   siteUrl?: string;
   accountControls?: (language: "de" | "en") => ReactNode;
   onPreferencesChange?: (preferences: Preferences) => void;
+  selectionIntake?: SelectionIntake;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const uploadDocument = useMemo(() => documentClient(transport), [transport]);
@@ -102,6 +107,9 @@ export function CheckWorkspace({
   const [library, setLibrary] = useState<LibraryInput | null>(null);
   const [fileName, setFileName] = useState("");
   const [fileError, setFileError] = useState<MessageKey | null>(null);
+  useEffect(() => selectionIntake?.subscribe((selection) => {
+    setText(selection.text);
+  }), [selectionIntake]);
   const [check, setCheck] = useState<Check | null>(null);
   const [accessStopped, setAccessStopped] = useState(false);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);

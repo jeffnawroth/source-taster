@@ -3,6 +3,7 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { readFileSync } from "node:fs";
 import {
   extensionConfig,
   manifest,
@@ -37,6 +38,10 @@ function extensionPackage(target: Target, config: ExtensionConfig): Plugin {
         fileName: "manifest.json",
         source: `${JSON.stringify(manifest(target, config), null, 2)}\n`,
       });
+      for (const locale of ["de", "en"]) {
+        const catalog = JSON.parse(readFileSync(new URL(`../../packages/i18n/messages/${locale}.json`, import.meta.url), "utf8"));
+        this.emitFile({ type: "asset", fileName: `_locales/${locale}/messages.json`, source: JSON.stringify({ check_selected_text: { message: catalog.selection_menu } }) });
+      }
     },
   };
 }
