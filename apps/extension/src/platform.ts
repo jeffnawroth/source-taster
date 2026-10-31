@@ -11,29 +11,71 @@ import {
 } from "@source-taster/ui/guest-identity";
 
 interface ExtensionNamespace {
-  runtime: { id: string; getURL(path: string): string; connect(options: { name: string }): SelectionPort };
+  runtime: {
+    id: string;
+    getURL(path: string): string;
+    connect(options: { name: string }): SelectionPort;
+  };
   windows: { getCurrent(): Promise<{ id: number }> };
   storage: { local: ExtensionLocalCapability };
 }
 
 /** A live trusted-panel connection, with no storage or web-page bridge. */
-export function extensionSelectionIntake(api: ExtensionNamespace): SelectionIntake {
+export function extensionSelectionIntake(
+  api: ExtensionNamespace,
+): SelectionIntake {
   return {
     subscribe(receive) {
-      const port = api.runtime.connect({ name: selectionPort });
+      let active = true;
+      let current: SelectionPort | undefined;
+      let retry: ReturnType<typeof setTimeout> | undefined;
       const listener = (message: unknown) => {
-        const selection = message as { text?: unknown; possiblyShortened?: unknown } | null;
-        if (typeof selection?.text === "string" && typeof selection.possiblyShortened === "boolean") receive({ text: selection.text, possiblyShortened: selection.possiblyShortened });
+        const selection = message as {
+          text?: unknown;
+          possiblyShortened?: unknown;
+        } | null;
+        if (
+          typeof selection?.text === "string" &&
+          typeof selection.possiblyShortened === "boolean"
+        )
+          receive({
+            text: selection.text,
+            possiblyShortened: selection.possiblyShortened,
+          });
       };
-      port.onMessage.addListener(listener);
-      let connected = true;
-      void api.windows.getCurrent().then(({ id }) => {
-        if (connected) port.postMessage({ windowId: id });
-      });
+      const reconnect = () => {
+        if (active) retry = setTimeout(connect, 250);
+      };
+      const connect = () => {
+        if (!active) return;
+        try {
+          const port = api.runtime.connect({ name: selectionPort });
+          current = port;
+          port.onMessage.addListener(listener);
+          port.onDisconnect.addListener(() => {
+            port.onMessage.removeListener(listener);
+            if (current === port) {
+              current = undefined;
+              reconnect();
+            }
+          });
+          void api.windows
+            .getCurrent()
+            .then(({ id }) => {
+              if (active && current === port)
+                port.postMessage({ windowId: id });
+            })
+            .catch(() => port.disconnect());
+        } catch {
+          reconnect();
+        }
+      };
+      connect();
       return () => {
-        connected = false;
-        port.onMessage.removeListener(listener);
-        port.disconnect();
+        active = false;
+        clearTimeout(retry);
+        current?.onMessage.removeListener(listener);
+        current?.disconnect();
       };
     },
   };

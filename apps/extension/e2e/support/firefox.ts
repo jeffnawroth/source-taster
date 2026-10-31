@@ -67,6 +67,12 @@ const matcher = (name: string | RegExp) =>
   );
 
 export interface NativeFirefox {
+  /** Test-owned page selection followed by the real native context-menu click. */
+  selectFromPage(
+    url: string,
+    selector: string,
+    menuLabel: string,
+  ): Promise<void>;
   version: string;
   extensionId: string;
   /** Trusted pointer click on the extension's toolbar button. */
@@ -210,6 +216,71 @@ export async function launchFirefox(extension: string): Promise<NativeFirefox> {
         `(() => { ${accessibleTree} return JSON.stringify(nodes); })()`,
       );
     return {
+      async selectFromPage(url, selector, menuLabel) {
+        const { contexts } = await send<{ contexts: { context: string }[] }>(
+          "browsingContext.getTree",
+        );
+        const content = contexts[0]!.context;
+        await send("browsingContext.navigate", {
+          context: content,
+          url,
+          wait: "complete",
+        });
+        const { result } = await send<{ result: { value: string } }>(
+          "script.evaluate",
+          {
+            target: { context: content },
+            awaitPromise: true,
+            expression: `(async () => {
+            let node;
+            for (let tries = 0; tries < 150; tries++) {
+              node = document.querySelector(${JSON.stringify(selector)});
+              if (node) break;
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            if (!node) throw new Error("The test selection surface did not render");
+            node.scrollIntoView();
+            node.focus();
+            if (node instanceof HTMLTextAreaElement) node.select();
+            else {
+              const range = document.createRange(); range.selectNodeContents(node);
+              const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+            }
+            const r = node.getBoundingClientRect();
+            return JSON.stringify({ x: r.x + 8, y: r.y + 8 });
+          })()`,
+          },
+        );
+        const { x, y } = JSON.parse(result.value) as { x: number; y: number };
+        await send("input.performActions", {
+          context: content,
+          actions: [
+            {
+              type: "pointer",
+              id: "menu-mouse",
+              parameters: { pointerType: "mouse" },
+              actions: [
+                { type: "pointerMove", x: Math.round(x), y: Math.round(y) },
+                { type: "pointerDown", button: 2 },
+                { type: "pointerUp", button: 2 },
+              ],
+            },
+          ],
+        });
+        const [menuX, menuY] = await until(
+          () =>
+            evaluate<[number, number] | false>(`(() => {
+          const menu = document.getElementById("contentAreaContextMenu");
+          if (menu?.state !== "open") return "false";
+          const item = [...menu.querySelectorAll("menuitem")].find(n => n.getAttribute("label") === ${JSON.stringify(menuLabel)});
+          if (!item) return "false";
+          const r = item.getBoundingClientRect();
+          return JSON.stringify([r.x + r.width / 2, r.y + r.height / 2]);
+        })()`),
+          "Native selection context-menu entry was not shown",
+        );
+        await pointer(menuX, menuY);
+      },
       version: session.capabilities.browserVersion,
       extensionId,
       async clickToolbarButton() {

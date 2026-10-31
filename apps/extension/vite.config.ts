@@ -39,8 +39,22 @@ function extensionPackage(target: Target, config: ExtensionConfig): Plugin {
         source: `${JSON.stringify(manifest(target, config), null, 2)}\n`,
       });
       for (const locale of ["de", "en"]) {
-        const catalog = JSON.parse(readFileSync(new URL(`../../packages/i18n/messages/${locale}.json`, import.meta.url), "utf8"));
-        this.emitFile({ type: "asset", fileName: `_locales/${locale}/messages.json`, source: JSON.stringify({ check_selected_text: { message: catalog.selection_menu } }) });
+        const catalog = JSON.parse(
+          readFileSync(
+            new URL(
+              `../../packages/i18n/messages/${locale}.json`,
+              import.meta.url,
+            ),
+            "utf8",
+          ),
+        ) as Record<string, string>;
+        this.emitFile({
+          type: "asset",
+          fileName: `_locales/${locale}/messages.json`,
+          source: JSON.stringify({
+            check_selected_text: { message: catalog.selection_menu },
+          }),
+        });
       }
     },
   };
