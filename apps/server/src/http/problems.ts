@@ -115,6 +115,11 @@ const problems = {
     title: "The Reference changed or is running.",
     i18nKey: "problem_reference_conflict",
   },
+  "quota-insufficient": {
+    status: 402,
+    title: "Not enough Quota for this work.",
+    i18nKey: "problem_quota_insufficient",
+  },
   "check-expired": {
     status: 410,
     title: "The Check expired.",
@@ -136,6 +141,7 @@ export function problemResponse(
   code: ProblemCode,
   detail?: string,
   limit?: number,
+  quota?: { available: number; required: number },
 ): Response {
   const { status, title, i18nKey } = problems[code];
   const body: ProblemDetails = {
@@ -149,6 +155,7 @@ export function problemResponse(
     i18nKey,
     ...(detail ? { detail } : {}),
     ...(limit === undefined ? {} : { limit }),
+    ...(quota ?? {}),
   };
   return new Response(JSON.stringify(body), {
     status,
@@ -161,7 +168,8 @@ export function fail(
   code: ProblemCode,
   detail?: string,
   limit?: number,
+  quota?: { available: number; required: number },
 ): never {
-  const res = problemResponse(code, detail, limit);
+  const res = problemResponse(code, detail, limit, quota);
   throw new HTTPException(res.status as ContentfulStatusCode, { res });
 }

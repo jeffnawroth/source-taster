@@ -79,11 +79,82 @@
           "remaining": {
             "type": "integer",
             "minimum": 0
+          },
+          "granted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reserved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warning": {
+            "$ref": "#/components/schemas/QuotaWarning"
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuotaGrantView"
+            },
+            "maxItems": 50
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "maxItems": 20
           }
         },
         "required": [
           "consumed",
-          "remaining"
+          "remaining",
+          "granted",
+          "reserved",
+          "warning",
+          "grants",
+          "features"
+        ]
+      },
+      "QuotaWarning": {
+        "type": "string",
+        "enum": [
+          "none",
+          "eighty",
+          "exhausted"
+        ]
+      },
+      "QuotaGrantView": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "credit"
+            ]
+          },
+          "granted": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "kind",
+          "granted",
+          "remaining",
+          "expiresAt"
         ]
       },
       "ProblemDetails": {
@@ -102,6 +173,14 @@
             "type": "string"
           },
           "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
             "type": "integer",
             "exclusiveMinimum": 0
           },

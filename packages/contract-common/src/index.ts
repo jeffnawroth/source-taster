@@ -17,20 +17,49 @@ export const ProblemDetails = z
     detail: z.string().optional(),
     /** The applicable configured limit, when the request exceeds one. */
     limit: z.number().int().positive().optional(),
+    /** `quota-insufficient`: References the Owner can still start (may be 0). */
+    available: z.number().int().nonnegative().optional(),
+    /** `quota-insufficient`: References the request would have consumed. */
+    required: z.number().int().positive().optional(),
     code: z.string(),
     i18nKey: z.string(),
   })
   .meta({ id: "ProblemDetails" });
 export type ProblemDetails = z.infer<typeof ProblemDetails>;
 
+/** One valid grant of the acting Owner, shown with its expiry (ADR-0004). */
+export const QuotaGrantView = z
+  .object({
+    kind: z.enum(["guest", "free", "credit"]),
+    granted: z.number().int().positive(),
+    remaining: z.number().int().nonnegative(),
+    expiresAt: z.iso.datetime(),
+  })
+  .meta({ id: "QuotaGrantView" });
+export type QuotaGrantView = z.infer<typeof QuotaGrantView>;
+/** Warning level over the sum of all currently valid grants (FA-KTO-12). */
+export const QuotaWarning = z
+  .enum(["none", "eighty", "exhausted"])
+  .meta({ id: "QuotaWarning" });
+export type QuotaWarning = z.infer<typeof QuotaWarning>;
 /**
  * Consumption and remaining Quota of the acting Owner (FA-ORG-15).
- * `null` means no Quota applies, as in standalone mode.
+ * `consumed` counts debits of the valid grants, `remaining` the balance that is
+ * neither consumed nor reserved by a running Check. `null` means no Quota
+ * applies, as in standalone mode.
  */
 export const Quota = z
   .object({
     consumed: z.number().int().nonnegative(),
     remaining: z.number().int().nonnegative(),
+    /** Sum of all currently valid grants. */
+    granted: z.number().int().nonnegative(),
+    /** Held by running Checks; settled when the first Verdict arrives. */
+    reserved: z.number().int().nonnegative(),
+    warning: QuotaWarning,
+    grants: z.array(QuotaGrantView).max(50),
+    /** Union of the features of all currently valid grants. */
+    features: z.array(z.string().min(1).max(40)).max(20),
   })
   .meta({ id: "Quota" });
 export type Quota = z.infer<typeof Quota>;

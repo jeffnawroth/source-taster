@@ -15,6 +15,8 @@ import {
   type LifecycleSettings,
 } from "./store.ts";
 import { systemSourceClock } from "../sources/doi.ts";
+import type { QuotaPort } from "../quota/port.ts";
+import { settlementDrain } from "../quota/settlement.ts";
 export interface WorkAuthority {
   run<T>(
     attempt: WorkSubject,
@@ -30,6 +32,8 @@ export async function startWorkerRuntime(
     clock?: LifecycleClock;
     settings?: Partial<LifecycleSettings>;
     authority?: WorkAuthority;
+    /** Hosted only: settlement intents are delivered here. */
+    quota?: QuotaPort;
   } = {},
 ) {
   const settings = {
@@ -57,11 +61,25 @@ export async function startWorkerRuntime(
   const active = new Set<AbortController>();
   let stopped = false;
   let timer: ReturnType<typeof globalThis.setTimeout>;
+  const drain = options.quota
+    ? settlementDrain(checks, options.quota)
+    : undefined;
+  let draining = false;
   async function sweep() {
     try {
       await checks.maintain();
     } catch {
       console.error(JSON.stringify({ code: "lifecycle-maintenance-failed" }));
+    }
+    if (drain && !draining) {
+      draining = true;
+      void drain()
+        .catch(() =>
+          console.error(JSON.stringify({ code: "settlement-drain-failed" })),
+        )
+        .finally(() => {
+          draining = false;
+        });
     }
     if (!stopped)
       timer = globalThis.setTimeout(() => {

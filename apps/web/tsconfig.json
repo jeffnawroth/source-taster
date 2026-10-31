@@ -14,6 +14,8 @@
     "guest.playwright.config.ts",
     "e2e-guest",
     "e2e-bibliographic",
-    "e2e-account"
+    "e2e-account",
+    "e2e-quota",
+    "quota.playwright.config.ts"
   ]
 }

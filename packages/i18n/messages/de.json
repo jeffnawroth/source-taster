@@ -350,5 +350,19 @@
   "selection_empty": "Keine Auswahl übernommen – bitte kopieren und einfügen",
   "selection_intake_help": "Bei Seiten mit eigenen Menüs, Canvas-Editoren, Passwortfeldern oder privaten Fenstern ohne Erweiterungsberechtigung bitte den Text kopieren und einfügen.",
   "selection_shortened": "Die Auswahl wurde möglicherweise gekürzt – für längere Listen bitte den Text einfügen oder eine Datei hochladen",
-  "preferences_unavailable": "Die Kontoeinstellungen konnten nicht synchronisiert werden. Laden Sie die gespeicherten Werte erneut."
+  "preferences_unavailable": "Die Kontoeinstellungen konnten nicht synchronisiert werden. Laden Sie die gespeicherten Werte erneut.",
+  "quota_meter_label": "Kontingent",
+  "quota_meter_summary": "{remaining} von {granted} Prüfungen übrig · {consumed} verbraucht",
+  "quota_meter_reserved": "{reserved} in Arbeit",
+  "quota_warning_eighty": "Sie haben 80 % Ihres Kontingents verbraucht. Wechseln Sie auf einen größeren Plan, um ohne Unterbrechung weiterzuprüfen.",
+  "quota_warning_exhausted": "Ihr Kontingent ist aufgebraucht. Wechseln Sie auf einen größeren Plan, um weitere Referenzen zu prüfen.",
+  "quota_upgrade": "Plan wechseln",
+  "quota_preview_fits": "{required} Referenzen verbrauchen {required} Ihrer {remaining} verbleibenden Prüfungen. Danach bleiben {after}.",
+  "quota_choice_heading": "Kontingent reicht nicht für alle Referenzen",
+  "quota_choice_body": "Sie haben {required} Referenzen eingegeben, aber nur noch {available} Prüfungen übrig. Prüfen Sie nur die ersten {available} in Eingabereihenfolge (die übrigen werden nicht geprüft) oder wechseln Sie den Plan.",
+  "quota_choice_none": "Sie haben {required} Referenzen eingegeben, aber keine Prüfungen mehr übrig. Wechseln Sie den Plan, um fortzufahren.",
+  "quota_choice_first": "Die ersten {available} prüfen",
+  "quota_choice_dismiss": "Abbrechen",
+  "quota_started": "{started} von {required} Referenzen gestartet; {skipped} wurden nicht geprüft.",
+  "problem_quota_insufficient": "Das Kontingent reicht für diese Arbeit nicht. Wählen Sie weniger Referenzen oder wechseln Sie den Plan."
 }

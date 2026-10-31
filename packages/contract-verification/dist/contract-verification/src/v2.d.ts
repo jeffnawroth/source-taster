@@ -3429,6 +3429,24 @@ export declare const CheckResponse: z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodNull]>;
@@ -4343,6 +4361,59 @@ export declare const CheckResponse: z.ZodObject<{
     }, z.core.$strip>;
 }, z.core.$strip>;
 export type CheckResponse = z.infer<typeof CheckResponse>;
+/** Current Quota of the acting Owner; `null` data when the installation holds no Quota. */
+export declare const QuotaResponse: z.ZodObject<{
+    data: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+/** Optional cap on how many References of a new Check start: the first N in input order. */
+export declare const MaxReferences: z.ZodCoercedNumber<unknown>;
 export declare const ReferenceUpdatedEvent: z.ZodObject<{
     seq: z.ZodNumber;
     checkId: z.ZodUUID;
@@ -6298,6 +6369,24 @@ export declare const SelectionPreviewResponse: z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodNull]>;

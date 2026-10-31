@@ -23,6 +23,7 @@
     "quality:gate": "node scripts/quality-gate.ts",
     "build:release": "pnpm release:check && pnpm build",
     "test:authority": "vitest run --config guest.vitest.config.ts",
+    "test:quota": "vitest run --config quota.vitest.config.ts",
     "extractor:image": "node scripts/extractor-image.ts"
   },
   "devDependencies": {
