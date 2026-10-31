@@ -71,16 +71,40 @@ and are not committed.
 
 | Slice | Red | Green |
 |---|---|---|
-| Private journal, grants, routes | `99-private-red-1.log` (quota routes unavailable; see the private validation notes for the symlink caveat) | `99-private-run-6.log`: 10/10 |
-| Both-program contract (`test/quota.contract.ts`) | `99-public-quota-red-mutation-1.log` (billing disabled) | `99-public-quota-run-1.log` 6/7, then `99-public-quota-run-2.log` after the test started the worker |
-| Existing hosted contracts | `99-public-authority-run-1.log`: 2 failed (dist unbuilt; a 24-reference fairness test now exceeds Guest 20/day) | `99-public-authority-run-2.log` after building `dist` and sizing the test to 2×10 |
-| Account contract | n/a | `99-public-account-run-1.log`: 2/2 |
-| Standalone suite | n/a | see Validation |
-| Browser Quota (`e2e-quota`) | n/a | see Validation |
+| Private journal, grants, routes | `99-private-red-1.log` (quota routes unavailable; see the private validation notes for the symlink caveat) | `99-private-run-6.log`: 10/10; re-run on the merged public contracts `99-private-run-merged.log`: 10/10 |
+| Both-program contract (`test/quota.contract.ts`) | `99-public-quota-red-mutation-1.log`: with the reserve call removed from `billedCreate`, 4 of 7 fail (insufficient balance, parallel oversell, cancel release, lease-expiry release) | `99-public-quota-run-2.log` 7/7; merged tree `99-public-quota-merged.log` 7/7 |
+| Existing hosted contracts | `99-public-authority-run-1.log`: 2 failed (dist unbuilt; a 24-reference fairness test now exceeds Guest 20/day) | `99-public-authority-run-2.log`, merged tree `99-public-authority-merged.log`: 33/33 |
+| Account contract | n/a | `99-public-account-run-1.log`, merged `99-public-account-merged.log`: 2/2 |
+| Standalone suite | n/a | `99-public-unit-merged-2.log`: 580 passed, 1 failed (pre-existing flake, see below) |
+| Browser Quota (`e2e-quota`) | `99-browser-quota-run-1…3.log` (harness, port and timing problems) | `99-browser-quota-run-4.log`, merged tree `99-browser-quota-merged.log`: 4/4 |
 
 ## Validation
 
-Filled in at the end of the ticket, see the final section.
+All runs use an owned PostgreSQL 18 container and ports 4401/4402/5341, serial,
+on the tree after merging `spec/70-launch-integration` (`192272a`, no source
+conflicts; contract `dist/` and OpenAPI regenerated with `pnpm build` in the four
+contract packages and `packages/i18n`).
+
+- `tsc --noEmit` clean: server, ui, web, extension. `eslint` clean: server,
+  ui, web, extension. `prettier --check .` clean. `i18n:check`: 365 messages
+  in DE and EN.
+- `pnpm test:quota` (apps/server): 7/7.
+- `pnpm test:authority` (apps/server): 33/33.
+- Account contract (`account.vitest.config.ts`): 2/2.
+- `pnpm vitest run` (apps/server, standalone, no Quota): 580 passed, 1 failed.
+  The failure is `article-fairness > alternates between Owners before
+  alternating between one Owner's Checks`. It also fails on the unmodified base
+  `246f449` (`99-public-fairness-baseline.log`); the sibling test `caps running
+  References per Check` is timing dependent (1 of 3 isolated reruns failed).
+  Standalone mode has no Quota port, so the settlement drain is inert there.
+- `pnpm test:quota` (apps/web, Playwright chromium with axe, DE text): 4/4.
+
+Not re-run in this ticket: `apps/web test:guest` (fails on the base too in the
+non-accounts harness: `GET /v1/session` is a 404 there, so the sign-in gate
+shows "Sign-in is temporarily unavailable"), the native extension specs and the
+website/pagefind build (needs the controlled Pagefind source; the
+`apps/website/dist-preview` artifact was copied from the root checkout for the
+website test only and is not committed).
 
 ## Limitations and caveats
 

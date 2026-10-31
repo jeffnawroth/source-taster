@@ -107,7 +107,10 @@ function quotaRoute(name, summary, request, response) {
         path: `/internal/quota/${name}`,
         summary,
         request: {
-            body: { required: true, content: { "application/json": { schema: request } } },
+            body: {
+                required: true,
+                content: { "application/json": { schema: request } },
+            },
         },
         responses: {
             200: {

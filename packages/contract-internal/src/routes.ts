@@ -133,7 +133,10 @@ function quotaRoute<Q extends z.ZodType, R extends z.ZodType>(
     path: `/internal/quota/${name}`,
     summary,
     request: {
-      body: { required: true, content: { "application/json": { schema: request } } },
+      body: {
+        required: true,
+        content: { "application/json": { schema: request } },
+      },
     },
     responses: {
       200: {
