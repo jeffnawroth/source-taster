@@ -19,6 +19,7 @@ export declare const ServiceStatusResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -61,6 +62,7 @@ export declare const GuestTokenResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -138,6 +140,7 @@ export declare const AccountPreferencesResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -179,6 +182,7 @@ export declare const SignInChallengeResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -235,6 +239,7 @@ export declare const AccountSessionResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -270,6 +275,7 @@ export declare const AccountTokenResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -304,6 +310,7 @@ export declare const SignOutResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -342,6 +349,7 @@ export declare const ExtensionSignInChallengeResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -402,6 +410,7 @@ export declare const ExtensionSignInConfirmResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -457,6 +466,7 @@ export declare const FreshProofChallengeResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -516,6 +526,7 @@ export declare const FreshProofResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -558,6 +569,7 @@ export declare const EmailChangeChallengeResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -620,6 +632,7 @@ export declare const AccountDeletionResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -638,3 +651,4 @@ export declare const AccountDeletionResponse: z.ZodObject<{
 export type AccountDeletion = z.infer<typeof AccountDeletionResponse>["data"];
 /** Problem `code` values the sensitive-action endpoints may use. */
 export declare const sensitiveProblemCodes: readonly ["fresh-proof-required", "fresh-proof-invalid", "fresh-proof-exhausted", "email-change-invalid", "rate-limited"];
+export * from "./commerce.ts";

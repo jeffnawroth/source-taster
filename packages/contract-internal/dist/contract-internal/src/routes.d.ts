@@ -50,6 +50,7 @@ export declare const createMailRehearsal: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -167,6 +168,7 @@ export declare const getMailRehearsal: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -656,6 +658,7 @@ export declare const quotaSnapshot: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -820,6 +823,7 @@ export declare const quotaReserve: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -846,6 +850,7 @@ export declare const quotaReserve: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1501,6 +1506,7 @@ export declare const routes: (({
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1617,6 +1623,7 @@ export declare const routes: (({
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -2101,6 +2108,7 @@ export declare const routes: (({
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -2264,6 +2272,7 @@ export declare const routes: (({
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -2290,6 +2299,7 @@ export declare const routes: (({
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
