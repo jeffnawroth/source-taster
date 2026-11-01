@@ -16,6 +16,7 @@
     "e2e-account",
     "e2e-preferences",
     "e2e-ai",
+    "e2e-private",
     "*.ts"
   ]
 }
