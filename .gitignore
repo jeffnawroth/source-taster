@@ -29,3 +29,5 @@ test-results-bibliographic/
 test-results-account/
 test-results-selection/
 apps/web/test-results-*/
+
+test-results-private/
