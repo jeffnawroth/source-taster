@@ -169,7 +169,13 @@ export function CheckSelectionActions({
         expectedEventSeq: cursor,
         regions: draft.selection.regions,
       };
-      if (apply) onSnapshot(await api.editSelection(check.id, request));
+      if (apply)
+        onSnapshot(
+          await api.editSelection(check.id, {
+            ...request,
+            prepared: preview?.prepared,
+          }),
+        );
       else {
         const result = await api.previewSelection(check.id, request);
         if (mounted.current) setPreview(result);

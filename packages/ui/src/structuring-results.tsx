@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import type { StructuringResult } from "@source-taster/contract-verification";
+import type { AiStructuringResult as StructuringResult } from "@source-taster/contract-verification/ai";
+import { AiProvenance } from "./ai-provenance.tsx";
 import type { ImportResult } from "@source-taster/contract-verification/import";
 import { m } from "@source-taster/i18n";
 
@@ -28,8 +29,12 @@ const fieldLabels = {
 
 export function StructuringResults({
   result,
+  inputText,
+  upgradeUrl,
 }: {
   result: StructuringResult | ImportResult;
+  inputText?: string;
+  upgradeUrl?: string;
 }) {
   return (
     <div className="mt-10 space-y-6">
@@ -44,6 +49,29 @@ export function StructuringResults({
             : m.library_no_references()
           : m.structuring_summary({ count: String(result.references.length) })}
       </p>
+      {"ai" in result && result.ai?.reason && (
+        <p data-testid="ai-unavailable">
+          {{
+            guest: m.ai_guest,
+            "feature-unavailable": m.ai_feature_unavailable,
+            "configuration-unavailable": m.ai_configuration_unavailable,
+          }[result.ai.reason]()}
+          {result.ai.upgrade && upgradeUrl && (
+            <a className="ml-2 underline" href={upgradeUrl}>
+              {m.quota_upgrade()}
+            </a>
+          )}
+        </p>
+      )}
+      {"ai" in result &&
+        result.ai?.fallbacks.map((fallback) => (
+          <div key={fallback.span.start} data-testid="ai-fallback">
+            <p>{m.ai_fallback()}</p>
+            <p className="whitespace-pre-wrap">
+              {inputText?.slice(fallback.span.start, fallback.span.end)}
+            </p>
+          </div>
+        ))}
       {result.references.length > 0 && (
         <section aria-labelledby="structured-title">
           <h2 id="structured-title" className="mb-4 text-2xl font-semibold">
@@ -56,6 +84,9 @@ export function StructuringResults({
                 key={reference.span.start}
                 className="rounded-xl border border-slate-300 bg-white p-5"
               >
+                {"ai" in reference && reference.ai && (
+                  <AiProvenance ai={reference.ai} />
+                )}
                 <h3 className="font-semibold">{m.structuring_original()}</h3>
                 <p className="mt-2 whitespace-pre-wrap break-words">
                   {reference.originalText}

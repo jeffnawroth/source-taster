@@ -363,5 +363,15 @@
   "quota_choice_first": "Check first {available}",
   "quota_choice_dismiss": "Cancel",
   "quota_started": "Started {started} of {required} References; {skipped} were not checked.",
-  "problem_quota_insufficient": "Not enough Quota for this work. Choose fewer References or upgrade."
+  "problem_quota_insufficient": "Not enough Quota for this work. Choose fewer References or upgrade.",
+  "ai_uncertainty": "AI results can be wrong. Check the extracted fields against your original text.",
+  "ai_extracted": "Extracted by AI",
+  "ai_changed": "AI added or changed",
+  "ai_excluded": "Excluded from search and scoring until you explicitly adopt it as a correction.",
+  "ai_adopt": "Adopt as a user correction",
+  "ai_guest": "AI extraction is unavailable to Guests. The parser was used. Upgrade to a paid Plan for AI extraction.",
+  "ai_feature_unavailable": "Your current feature scope does not include AI extraction. The parser was used. Upgrade to a paid Plan for AI extraction.",
+  "ai_configuration_unavailable": "AI extraction is currently unavailable. The parser was used.",
+  "ai_fallback": "AI extraction failed after one retry for this passage. The parser was used. You can structure the passage again.",
+  "ai_proposals": "AI proposals"
 }

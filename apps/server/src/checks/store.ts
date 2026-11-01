@@ -128,7 +128,7 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
         revisions: slot.revisions.map((r) => ({
           revision: r.revision,
           reference: r.content as StructuredReference,
-          provenance: r.provenance as "parser" | "user",
+          provenance: r.provenance as "parser" | "user" | "ai",
           createdAt: r.createdAt.toISOString(),
         })),
         results: (slot.results ?? []).map((r) => ({
@@ -933,11 +933,25 @@ export function createCheckStore(
           ...previous,
           originalText: slot.originalText,
           csl: request.fields,
+          ...(previous.ai
+            ? {
+                ai: {
+                  ...previous.ai,
+                  proposals: previous.ai.proposals.filter(
+                    (p) =>
+                      JSON.stringify(
+                        request.fields[p.field as keyof typeof request.fields],
+                      ) !== JSON.stringify(p.value),
+                  ),
+                },
+              }
+            : {}),
           authorsTruncated: request.authorsTruncated ?? false,
           fieldSources: Object.fromEntries(
             Object.entries(request.fields).map(([key, value]) => [
               key,
               {
+                provenance: "user",
                 raw: typeof value === "string" ? value : JSON.stringify(value),
               },
             ]),

@@ -24,7 +24,7 @@ import {
 import { loadDataset, privateLocation, type Dataset } from "./dataset.ts";
 import { startReplay, type ReplayMiss } from "./replay.ts";
 import { measureStructuring } from "./structuring.ts";
-import { qualifiedAi, type AiConfiguration } from "./extraction.ts";
+import { qualifiedAi } from "./extraction.ts";
 import {
   checkComposition,
   decideRelease,
@@ -41,35 +41,17 @@ import {
   type StructuringPath,
 } from "./targets.ts";
 
-/** The AI extraction slot. A real provider adapter plugs in here. */
-export interface ExtractionPort {
-  model: string;
-  /** Absent metadata is diagnostic only and can never qualify a release. */
-  configuration?: AiConfiguration;
-  /** Structures one record's text into zero, one or several References. */
-  extract(input: string): Promise<StructuredCsl[]>;
-}
-export const optionalSources = [
-  "url",
-  "internetarchive",
-  "openalex",
-  "europepmc",
-  "semanticscholar",
-  "arxiv",
-  "openlibrary",
-  "googlebooks",
-] as const;
-export type OptionalSource = (typeof optionalSources)[number];
-/** The operator-chosen part of a Measured configuration. */
-export interface GateConfiguration {
-  enabledSources: OptionalSource[];
-  /** ADR-0025 free comparison parameters (SOURCE_TASTER_COMPARISON_PARAMETERS). */
-  comparisonParameters?: Record<string, number>;
-  /** ADR-0007 search operating settings snapshot. */
-  searchSettings?: Record<string, unknown>;
-  /** The ADR-0025 calibration record whose selected values are measured. */
-  calibration?: { record: string; selected: Record<string, number> };
-}
+export type { ExtractionPort } from "../../src/ai/port.ts";
+import type { ExtractionPort } from "../../src/ai/port.ts";
+export {
+  optionalSources,
+  type OptionalSource,
+  type GateConfiguration,
+} from "../../src/quality/configuration-types.ts";
+import {
+  optionalSources,
+  type GateConfiguration,
+} from "../../src/quality/configuration-types.ts";
 export interface ServiceDatabase {
   adminUrl: string;
   appUrl: string;

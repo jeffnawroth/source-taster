@@ -3,7 +3,8 @@
 // the server (ADR-0011, ADR-0015).
 import { z } from "zod";
 import { envelope } from "../../contract-common/src/index.js";
-import { SourceSpan, StructuringResult } from "./structuring.js";
+import { SourceSpan } from "./structuring.js";
+import { AiStructuringResult as StructuringResult } from "./ai.js";
 export const BibliographySelection = z.object({
     version: z.string(),
     regions: z.array(SourceSpan).max(1000),

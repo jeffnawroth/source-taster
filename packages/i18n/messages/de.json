@@ -363,5 +363,15 @@
   "quota_choice_first": "Die ersten {available} prüfen",
   "quota_choice_dismiss": "Abbrechen",
   "quota_started": "{started} von {required} Referenzen gestartet; {skipped} wurden nicht geprüft.",
-  "problem_quota_insufficient": "Das Kontingent reicht für diese Arbeit nicht. Wählen Sie weniger Referenzen oder wechseln Sie den Plan."
+  "problem_quota_insufficient": "Das Kontingent reicht für diese Arbeit nicht. Wählen Sie weniger Referenzen oder wechseln Sie den Plan.",
+  "ai_uncertainty": "KI-Ergebnisse können falsch sein. Vergleichen Sie die extrahierten Felder mit Ihrem Originaltext.",
+  "ai_extracted": "Von KI extrahiert",
+  "ai_changed": "Von KI ergänzt oder geändert",
+  "ai_excluded": "Von Suche und Bewertung ausgeschlossen, bis Sie den Wert ausdrücklich als Korrektur übernehmen.",
+  "ai_adopt": "Als eigene Korrektur übernehmen",
+  "ai_guest": "KI-Extraktion ist für Gäste nicht verfügbar. Der Parser wurde verwendet. Ein kostenpflichtiger Plan bietet KI-Extraktion.",
+  "ai_feature_unavailable": "Ihr aktueller Funktionsumfang enthält keine KI-Extraktion. Der Parser wurde verwendet. Ein kostenpflichtiger Plan bietet KI-Extraktion.",
+  "ai_configuration_unavailable": "KI-Extraktion ist derzeit nicht verfügbar. Der Parser wurde verwendet.",
+  "ai_fallback": "Die KI-Extraktion dieses Abschnitts ist nach einem erneuten Versuch fehlgeschlagen. Der Parser wurde verwendet. Sie können den Abschnitt erneut strukturieren.",
+  "ai_proposals": "KI-Vorschläge"
 }

@@ -63,6 +63,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -70,12 +71,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -142,7 +153,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -172,6 +183,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -179,12 +191,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -395,6 +417,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -402,12 +425,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -643,6 +676,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -650,12 +684,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -722,7 +766,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -752,6 +796,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -759,12 +804,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -975,6 +1030,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -982,12 +1038,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -1223,6 +1289,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -1230,12 +1297,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -1302,7 +1379,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -1332,6 +1409,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -1339,12 +1417,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -1555,6 +1643,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -1562,12 +1651,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -1867,6 +1966,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -1874,12 +1974,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -1946,7 +2056,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -1976,6 +2086,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -1983,12 +2094,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -2199,6 +2320,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -2206,12 +2328,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -2464,6 +2596,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -2471,12 +2604,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -2543,7 +2686,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -2573,6 +2716,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -2580,12 +2724,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -2796,6 +2950,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -2803,12 +2958,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -2992,6 +3157,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 start: number;
                 end: number;
             };
+            authorsTruncated?: boolean | undefined;
             fieldSources: Record<string, {
                 raw: string;
                 span?: {
@@ -2999,12 +3165,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                     end: number;
                 } | undefined;
                 normalized?: string | undefined;
+                provenance?: "ai" | "parser" | "user" | undefined;
             }>;
-            authorsTruncated?: boolean | undefined;
             structuring: {
-                path: "parser" | "user";
+                path: "ai" | "parser" | "user";
                 version: string;
             };
+            ai?: {
+                configuration: string;
+                notice: "ai-can-be-wrong";
+                proposals: {
+                    field: string;
+                    value: unknown;
+                    reason: "ungrounded";
+                }[];
+                changedFields: string[];
+            } | undefined;
             csl: {
                 type?: string | undefined;
                 author?: {
@@ -3141,6 +3317,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -3148,12 +3325,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -3220,7 +3407,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -3250,6 +3437,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -3257,12 +3445,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -3473,6 +3671,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -3480,12 +3679,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -3663,6 +3872,97 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     previewSelection: (checkId: string, input: EditSelectionRequest) => Promise<{
+        prepared?: {
+            text: string;
+            result: {
+                rejected: {
+                    originalText: string;
+                    span: {
+                        start: number;
+                        end: number;
+                    };
+                    reason: "no-reference-features";
+                }[];
+                guidance: "no-references" | null;
+                quotaConsumed: 0;
+                referenceLimit: number;
+                receipt?: {
+                    expiresAt: number;
+                    signature: string;
+                } | undefined;
+                references: {
+                    originalText: string;
+                    span: {
+                        start: number;
+                        end: number;
+                    };
+                    authorsTruncated?: boolean | undefined;
+                    csl: {
+                        type?: string | undefined;
+                        author?: {
+                            family?: string | undefined;
+                            "non-dropping-particle"?: string | undefined;
+                            given?: string | undefined;
+                            literal?: string | undefined;
+                        }[] | undefined;
+                        issued?: {
+                            literal: string;
+                        } | undefined;
+                        title?: string | undefined;
+                        "container-title"?: string | undefined;
+                        "container-title-short"?: string | undefined;
+                        publisher?: string | undefined;
+                        "publisher-place"?: string | undefined;
+                        volume?: string | undefined;
+                        issue?: string | undefined;
+                        page?: string | undefined;
+                        "article-number"?: string | undefined;
+                        edition?: string | undefined;
+                        DOI?: string | undefined;
+                        URL?: string | undefined;
+                        ISBN?: string | undefined;
+                        ISSN?: string | undefined;
+                        PMID?: string | undefined;
+                        PMCID?: string | undefined;
+                        arXiv?: string | undefined;
+                    };
+                    fieldSources: Record<string, {
+                        raw: string;
+                        span?: {
+                            start: number;
+                            end: number;
+                        } | undefined;
+                        normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
+                    }>;
+                    structuring: {
+                        path: "ai" | "parser" | "user";
+                        version: string;
+                    };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
+                }[];
+                ai?: {
+                    reason: "configuration-unavailable" | "feature-unavailable" | "guest" | null;
+                    upgrade: boolean;
+                    fallbacks: {
+                        span: {
+                            start: number;
+                            end: number;
+                        };
+                        reason: "invalid-output" | "provider-unavailable" | "timeout";
+                    }[];
+                } | undefined;
+            };
+        }[] | undefined;
         expectedEventSeq: number;
         regions: {
             start: number;
@@ -3677,6 +3977,30 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 start: number;
                 end: number;
             };
+            authorsTruncated?: boolean | undefined;
+            fieldSources: Record<string, {
+                raw: string;
+                span?: {
+                    start: number;
+                    end: number;
+                } | undefined;
+                normalized?: string | undefined;
+                provenance?: "ai" | "parser" | "user" | undefined;
+            }>;
+            structuring: {
+                path: "ai" | "parser" | "user";
+                version: string;
+            };
+            ai?: {
+                configuration: string;
+                notice: "ai-can-be-wrong";
+                proposals: {
+                    field: string;
+                    value: unknown;
+                    reason: "ungrounded";
+                }[];
+                changedFields: string[];
+            } | undefined;
             csl: {
                 type?: string | undefined;
                 author?: {
@@ -3704,20 +4028,44 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 ISSN?: string | undefined;
                 PMID?: string | undefined;
                 PMCID?: string | undefined;
+                arXiv?: string | undefined;
             };
-            fieldSources: Record<string, {
-                raw: string;
-                span?: {
-                    start: number;
-                    end: number;
-                } | undefined;
-                normalized?: string | undefined;
-            }>;
-            authorsTruncated?: boolean | undefined;
-            structuring: {
-                path: "parser" | "user";
-                version: string;
-            };
+            imported?: {
+                format: "bibtex" | "ris";
+                unsupported: {
+                    name: string;
+                    value: string;
+                }[];
+                fields: {
+                    type?: string | undefined;
+                    author?: {
+                        family?: string | undefined;
+                        "non-dropping-particle"?: string | undefined;
+                        given?: string | undefined;
+                        literal?: string | undefined;
+                    }[] | undefined;
+                    issued?: {
+                        literal: string;
+                    } | undefined;
+                    title?: string | undefined;
+                    "container-title"?: string | undefined;
+                    "container-title-short"?: string | undefined;
+                    publisher?: string | undefined;
+                    "publisher-place"?: string | undefined;
+                    volume?: string | undefined;
+                    issue?: string | undefined;
+                    page?: string | undefined;
+                    "article-number"?: string | undefined;
+                    edition?: string | undefined;
+                    DOI?: string | undefined;
+                    URL?: string | undefined;
+                    ISBN?: string | undefined;
+                    ISSN?: string | undefined;
+                    PMID?: string | undefined;
+                    PMCID?: string | undefined;
+                    arXiv?: string | undefined;
+                };
+            } | undefined;
         }[];
         total: number;
         additionalQuota: number;
@@ -3789,6 +4137,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -3796,12 +4145,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -3868,7 +4227,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -3898,6 +4257,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -3905,12 +4265,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -4121,6 +4491,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -4128,12 +4499,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -4369,6 +4750,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -4376,12 +4758,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -4448,7 +4840,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -4478,6 +4870,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -4485,12 +4878,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -4701,6 +5104,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -4708,12 +5112,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -4949,6 +5363,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -4956,12 +5371,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {
@@ -5028,7 +5453,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         };
                     } | undefined;
                 };
-                provenance: "parser" | "user";
+                provenance: "ai" | "parser" | "user";
                 createdAt: string;
             }[];
             results: {
@@ -5058,6 +5483,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             start: number;
                             end: number;
                         };
+                        authorsTruncated?: boolean | undefined;
                         fieldSources: Record<string, {
                             raw: string;
                             span?: {
@@ -5065,12 +5491,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                                 end: number;
                             } | undefined;
                             normalized?: string | undefined;
+                            provenance?: "ai" | "parser" | "user" | undefined;
                         }>;
-                        authorsTruncated?: boolean | undefined;
                         structuring: {
-                            path: "parser" | "user";
+                            path: "ai" | "parser" | "user";
                             version: string;
                         };
+                        ai?: {
+                            configuration: string;
+                            notice: "ai-can-be-wrong";
+                            proposals: {
+                                field: string;
+                                value: unknown;
+                                reason: "ungrounded";
+                            }[];
+                            changedFields: string[];
+                        } | undefined;
                         csl: {
                             type?: string | undefined;
                             author?: {
@@ -5281,6 +5717,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                         start: number;
                         end: number;
                     };
+                    authorsTruncated?: boolean | undefined;
                     fieldSources: Record<string, {
                         raw: string;
                         span?: {
@@ -5288,12 +5725,22 @@ export declare function verificationClient(options?: VerificationClientOptions):
                             end: number;
                         } | undefined;
                         normalized?: string | undefined;
+                        provenance?: "ai" | "parser" | "user" | undefined;
                     }>;
-                    authorsTruncated?: boolean | undefined;
                     structuring: {
-                        path: "parser" | "user";
+                        path: "ai" | "parser" | "user";
                         version: string;
                     };
+                    ai?: {
+                        configuration: string;
+                        notice: "ai-can-be-wrong";
+                        proposals: {
+                            field: string;
+                            value: unknown;
+                            reason: "ungrounded";
+                        }[];
+                        changedFields: string[];
+                    } | undefined;
                     csl: {
                         type?: string | undefined;
                         author?: {

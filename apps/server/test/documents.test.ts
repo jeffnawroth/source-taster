@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // PDF/DOCX upload through the published v2 contract (#89, ADR-0011/0015).
+import { ProblemDetails } from "@source-taster/contract-verification";
 import {
-  ProblemDetails,
-  StructuringResponse,
-} from "@source-taster/contract-verification";
-import { DocumentStructuringResponse } from "@source-taster/contract-verification/document";
+  DocumentStructuringResponse,
+  TextStructuringResponse,
+} from "@source-taster/contract-verification/document";
 import { expect, inject, it } from "vitest";
 import { docx, pdf, upload } from "./support/documents.ts";
 
@@ -15,12 +15,12 @@ const entries = [
 ];
 
 async function pasted(text: string) {
-  const response = await fetch(`${api}/v1/structurings`, {
+  const response = await fetch(`${api}/v2/structurings`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ text }),
   });
-  return StructuringResponse.parse(await response.json()).data;
+  return TextStructuringResponse.parse(await response.json()).data.structuring;
 }
 
 it("structures the text of an uploaded DOCX like pasted text", async () => {

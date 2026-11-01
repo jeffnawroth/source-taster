@@ -4,6 +4,7 @@ import { z } from "zod";
 import { envelope, QuotaSlot } from "../../contract-common/src/index.js";
 import * as v1 from "./index.js";
 import { BibliographyDocument } from "./document.js";
+import { AiReference, AiStructuringResult } from "./ai.js";
 import { SourceSpan } from "./structuring.js";
 export * from "./index.js";
 export {} from "./document.js";
@@ -35,7 +36,7 @@ const Operation = z.enum([
 export const StructuredCsl = v1.StructuredCsl.extend({
     arXiv: z.string().optional(),
 }).meta({ id: "StructuredCslV2" });
-export const StructuredReference = v1.StructuredReference.extend({
+export const StructuredReference = AiReference.extend({
     csl: StructuredCsl,
     /** Library import provenance; `fields` is the immutable import projection. */
     imported: z
@@ -59,6 +60,13 @@ export const LibraryInput = z
     .meta({ id: "LibraryInputV2" });
 export const CreateCheckRequest = z
     .union([
+    z.strictObject({
+        extraction: z.strictObject({
+            text: z.string().min(1).max(20_971_520),
+            regions: z.array(SourceSpan).max(1000).optional(),
+            result: AiStructuringResult,
+        }),
+    }),
     z.object({ library: LibraryInput }),
     // Not trimmed: document offsets must stay exact.
     z.object({ text: z.string().regex(/\S/u) }),
@@ -196,7 +204,7 @@ export const ReferenceProgress = z.enum([
 export const FieldRevision = z.object({
     revision: z.number().int().positive(),
     reference: StructuredReference,
-    provenance: z.enum(["parser", "user"]),
+    provenance: z.enum(["parser", "user", "ai"]),
     createdAt: z.string(),
 });
 /** A separate manual layer; immutable system outcomes remain untouched. */
@@ -276,18 +284,23 @@ export const EditReferenceListRequest = z.strictObject({
         .max(1000),
     remove: z.array(z.number().int().positive()).max(1000),
 });
+const PreparedSelection = z
+    .array(z.object({ text: z.string().max(20_971_520), result: AiStructuringResult }))
+    .max(1000);
 export const EditSelectionRequest = z.strictObject({
+    prepared: PreparedSelection.optional(),
     expectedEventSeq: z.number().int().nonnegative(),
     regions: z.array(SourceSpan).max(1000),
 });
 export const SelectionPreviewResponse = z.object({
     data: z.object({
+        prepared: PreparedSelection.optional(),
         expectedEventSeq: z.number().int().nonnegative(),
         regions: z.array(SourceSpan),
         unchanged: z.array(z.number().int().positive()),
         removed: z.array(z.number().int().positive()),
         added: z.number().int().nonnegative(),
-        addedReferences: v1.StructuringResult.shape.references,
+        addedReferences: z.array(StructuredReference),
         total: z.number().int().nonnegative(),
         additionalQuota: z.number().int().nonnegative(),
         rejected: v1.StructuringResult.shape.rejected,

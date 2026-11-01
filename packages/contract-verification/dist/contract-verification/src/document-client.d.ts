@@ -7,12 +7,28 @@ export declare function documentClient(options?: VerificationClientOptions): (fi
         notice: "partial-no-text" | null;
     };
     structuring: {
+        rejected: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            reason: "no-reference-features";
+        }[];
+        guidance: "no-references" | null;
+        quotaConsumed: 0;
+        referenceLimit: number;
+        receipt?: {
+            expiresAt: number;
+            signature: string;
+        } | undefined;
         references: {
             originalText: string;
             span: {
                 start: number;
                 end: number;
             };
+            authorsTruncated?: boolean | undefined;
             csl: {
                 type?: string | undefined;
                 author?: {
@@ -40,6 +56,7 @@ export declare function documentClient(options?: VerificationClientOptions): (fi
                 ISSN?: string | undefined;
                 PMID?: string | undefined;
                 PMCID?: string | undefined;
+                arXiv?: string | undefined;
             };
             fieldSources: Record<string, {
                 raw: string;
@@ -48,24 +65,34 @@ export declare function documentClient(options?: VerificationClientOptions): (fi
                     end: number;
                 } | undefined;
                 normalized?: string | undefined;
+                provenance?: "ai" | "parser" | "user" | undefined;
             }>;
-            authorsTruncated?: boolean | undefined;
             structuring: {
-                path: "parser" | "user";
+                path: "ai" | "parser" | "user";
                 version: string;
             };
+            ai?: {
+                configuration: string;
+                notice: "ai-can-be-wrong";
+                proposals: {
+                    field: string;
+                    value: unknown;
+                    reason: "ungrounded";
+                }[];
+                changedFields: string[];
+            } | undefined;
         }[];
-        rejected: {
-            originalText: string;
-            span: {
-                start: number;
-                end: number;
-            };
-            reason: "no-reference-features";
-        }[];
-        guidance: "no-references" | null;
-        quotaConsumed: 0;
-        referenceLimit: number;
+        ai?: {
+            reason: "configuration-unavailable" | "feature-unavailable" | "guest" | null;
+            upgrade: boolean;
+            fallbacks: {
+                span: {
+                    start: number;
+                    end: number;
+                };
+                reason: "invalid-output" | "provider-unavailable" | "timeout";
+            }[];
+        } | undefined;
     };
     selection: {
         version: string;
@@ -91,12 +118,28 @@ export declare function textStructuringClient(options?: VerificationClientOption
         };
     } | null;
     structuring: {
+        rejected: {
+            originalText: string;
+            span: {
+                start: number;
+                end: number;
+            };
+            reason: "no-reference-features";
+        }[];
+        guidance: "no-references" | null;
+        quotaConsumed: 0;
+        referenceLimit: number;
+        receipt?: {
+            expiresAt: number;
+            signature: string;
+        } | undefined;
         references: {
             originalText: string;
             span: {
                 start: number;
                 end: number;
             };
+            authorsTruncated?: boolean | undefined;
             csl: {
                 type?: string | undefined;
                 author?: {
@@ -124,6 +167,7 @@ export declare function textStructuringClient(options?: VerificationClientOption
                 ISSN?: string | undefined;
                 PMID?: string | undefined;
                 PMCID?: string | undefined;
+                arXiv?: string | undefined;
             };
             fieldSources: Record<string, {
                 raw: string;
@@ -132,24 +176,34 @@ export declare function textStructuringClient(options?: VerificationClientOption
                     end: number;
                 } | undefined;
                 normalized?: string | undefined;
+                provenance?: "ai" | "parser" | "user" | undefined;
             }>;
-            authorsTruncated?: boolean | undefined;
             structuring: {
-                path: "parser" | "user";
+                path: "ai" | "parser" | "user";
                 version: string;
             };
+            ai?: {
+                configuration: string;
+                notice: "ai-can-be-wrong";
+                proposals: {
+                    field: string;
+                    value: unknown;
+                    reason: "ungrounded";
+                }[];
+                changedFields: string[];
+            } | undefined;
         }[];
-        rejected: {
-            originalText: string;
-            span: {
-                start: number;
-                end: number;
-            };
-            reason: "no-reference-features";
-        }[];
-        guidance: "no-references" | null;
-        quotaConsumed: 0;
-        referenceLimit: number;
+        ai?: {
+            reason: "configuration-unavailable" | "feature-unavailable" | "guest" | null;
+            upgrade: boolean;
+            fallbacks: {
+                span: {
+                    start: number;
+                    end: number;
+                };
+                reason: "invalid-output" | "provider-unavailable" | "timeout";
+            }[];
+        } | undefined;
     };
     referenceLimitExceeded: boolean;
 }>;

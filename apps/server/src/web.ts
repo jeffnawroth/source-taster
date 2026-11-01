@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The web process: serves the /v1 HTTP API and the Check event streams.
 
+import { activeExtraction } from "./ai/activation.ts";
 import { isolatedExtractor } from "./documents/supervisor.ts";
 import { createParser } from "@source-taster/core";
 import { openWebsite } from "@source-taster/website/hosting";
@@ -52,6 +53,7 @@ await runMain(async (config) => {
   );
   const app = createApp({
     structuring: createParser({ referenceLimit: config.referenceLimit }),
+    extraction: await activeExtraction(),
     events,
     heartbeatMs: config.sseHeartbeatMs,
     referenceLimit: config.referenceLimit,

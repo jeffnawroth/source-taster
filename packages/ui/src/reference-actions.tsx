@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { AiProvenance } from "./ai-provenance.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
 import { CheckSelectionActions } from "./bibliography-selection.tsx";
 import { useMemo, useState } from "react";
@@ -213,6 +214,33 @@ export function ReferenceActions({
           ? m.revision_free()
           : m.revision_new_work()}
       </p>
+      {reference.revisions.at(-1)?.reference.ai &&
+        (reference.revisions.at(-1)?.provenance === "ai" ||
+          reference.revisions.at(-1)!.reference.ai!.proposals.length > 0) && (
+          <AiProvenance
+            extracted={reference.revisions.at(-1)?.provenance === "ai"}
+            ai={reference.revisions.at(-1)!.reference.ai!}
+            disabled={running || pending}
+            onAdopt={async (field, value) => {
+              setPending(true);
+              setError(null);
+              try {
+                onSnapshot(
+                  await api.saveFields(check.id, reference.slot, {
+                    expectedRevision: reference.revision,
+                    fields: { ...reference.fields, [field]: value },
+                    authorsTruncated: reference.authorsTruncated,
+                    recheck: false,
+                  }),
+                );
+              } catch (error) {
+                setError(errorMessage(error));
+              } finally {
+                setPending(false);
+              }
+            }}
+          />
+        )}
       {error && <p role="alert">{error}</p>}
       <ManualVerdictActions
         check={check}
@@ -331,7 +359,9 @@ export function ReferenceActions({
               {m.revision_number({ revision: revision.revision })} ·{" "}
               {revision.provenance === "user"
                 ? m.revision_user()
-                : m.revision_parser()}
+                : revision.provenance === "ai"
+                  ? m.ai_extracted()
+                  : m.revision_parser()}
             </p>
             <dl>
               {Object.entries(revision.reference.csl).map(([key, value]) => (
