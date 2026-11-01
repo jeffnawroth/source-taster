@@ -25,7 +25,7 @@ deployment, store or Firefox release claim is made.
 - `apps/extension/e2e-private/session.spec.ts` (config
   `private.playwright.config.ts`, now in the extension tsconfig/eslint scope):
   native Chromium DE/EN and Firefox against the real service with captured mail.
-- Ports moved to the assigned 5001 (Firefox proxy) / 5002 (verification API).
+- Firefox proxy port is `SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT` (default 5001); the verification API port is `SOURCE_TASTER_TEST_API_PORT`.
 
 ## Validation (serial; own PostgreSQL 17.11 container on 5401)
 
@@ -91,3 +91,23 @@ integration tip after the merger pushes this branch.
 - `SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN=enabled` must stay disabled until the
   parent decides after qualification. ADR-0013's Better Auth pre-1.0 transitives
   gate stays open.
+
+## Integration into `spec/70-launch-integration` (merger)
+
+- Merged as "Merge ticket #98 private-phase public changes into launch
+  integration". Conflicts were only union lines in `.gitignore`
+  (`test-results-ai/`, `test-results-private/`) and the extension tsconfig
+  include (`e2e-ai`, `e2e-private`). No generated artifact changed; the contract
+  packages were rebuilt and `git diff --exit-code` over the committed transport
+  artifacts is clean.
+- The private repository is repinned to the published public integration
+  commit recorded in its `docs/validation-98.md`.
+- Build break found and fixed: after the #103/#117 merge `src/quality/release.ts`
+  imported `scripts/load/release.ts`, outside the server build `rootDir`
+  (TS6059; `pnpm build` red). `analysis.ts` and `release.ts` now live in
+  `apps/server/src/load/`.
+- CI fixes on PR #139: the audit blocked on minimatch 10.2.6
+  (GHSA-g3hv-75wg-m249, fixed in 11.0.1); `pnpm-workspace.yaml` forces exact
+  11.0.3 until eslint and typescript-eslint widen their ranges. Test services
+  retry on EADDRINUSE with a freshly allocated port (`test/support/service.ts`,
+  covered by `test/service-port.test.ts`).

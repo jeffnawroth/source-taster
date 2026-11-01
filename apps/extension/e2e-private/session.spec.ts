@@ -10,6 +10,11 @@ import { launchChromium, until } from "../e2e/support/chromium.ts";
 import { launchFirefox } from "../e2e/support/firefox.ts";
 import { bothPrograms } from "../../server/test/support/both-programs.ts";
 const key = "source-taster-extension-session-v1";
+// Website/proxy origin; overridable so concurrent runs do not collide.
+const proxyPort = Number(
+  process.env.SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT ?? 5001,
+);
+
 async function allow(
   b: Awaited<ReturnType<typeof bothPrograms>>,
   origin: string,
@@ -46,7 +51,7 @@ for (const language of ["en", "de"] as const)
         SOURCE_TASTER_EXTENSION_MODE: "hosted",
         SOURCE_TASTER_EXTENSION_API_URL: b.apiUrl,
         SOURCE_TASTER_EXTENSION_SERVICE_URL: b.serviceUrl,
-        SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5001",
+        SOURCE_TASTER_EXTENSION_WEBSITE_URL: `http://127.0.0.1:${proxyPort}`,
         SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN: "enabled",
       });
       browser = await launchChromium(
@@ -198,13 +203,13 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
   let build: Awaited<ReturnType<typeof buildExtension>> | undefined;
   let browser: Awaited<ReturnType<typeof launchFirefox>> | undefined;
   try {
-    proxy.listen(5001, "127.0.0.1");
+    proxy.listen(proxyPort, "127.0.0.1");
     await once(proxy, "listening");
     build = await buildExtension("firefox", {
       SOURCE_TASTER_EXTENSION_MODE: "hosted",
       SOURCE_TASTER_EXTENSION_API_URL: b.apiUrl,
-      SOURCE_TASTER_EXTENSION_SERVICE_URL: "http://127.0.0.1:5001",
-      SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5001",
+      SOURCE_TASTER_EXTENSION_SERVICE_URL: `http://127.0.0.1:${proxyPort}`,
+      SOURCE_TASTER_EXTENSION_WEBSITE_URL: `http://127.0.0.1:${proxyPort}`,
       SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN: "enabled",
     });
     browser = await launchFirefox(build.outDir);
