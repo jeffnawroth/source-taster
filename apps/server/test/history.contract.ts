@@ -543,3 +543,14 @@ test("entry deletion and consent revocation do not depend on Quota availability"
   unavailable = false;
   expect((await request(`checks/${second}`)).status).toBe(410);
 });
+
+test("Free keeps the last five stored Checks in storage order when the injected clock does not advance", async () => {
+  const { request, history, create } = await historyApi();
+  await request("history", "PUT", { enabled: true });
+  const ids: string[] = [];
+  for (let i = 0; i < 6; i++) ids.push(await create());
+  expect((await history()).entries.map((entry) => entry.id)).toEqual(
+    ids.slice(1).reverse(),
+  );
+  expect((await request(`checks/${ids[0]}`)).status).toBe(410);
+});

@@ -22,7 +22,8 @@ mutations were used.
   document/Bibliography selection, removed slots, original/imported input,
   field revisions, results, Candidates/evidence, overrides and replay events.
   Subsequent content writes use the same entry key. Upgrades and Re-checks never
-  move the end or deletion date.
+  move the end or deletion date. A monotonic storage ordinal breaks equal-clock
+  ties, so the last five are ordered by storage, not random Check UUIDs.
 - Nonconsented and Guest content retains #91's daily UNLOGGED transient keys,
   rollover, fixed 24-hour deadline, missing-key failure and startup/recurring
   deletion sweeps. Operator exports still omit UNLOGGED data. A retained
@@ -124,6 +125,7 @@ Local evidence is in this worktree's ignored `.tmp/104/` directory.
 | Slice | Observed red | Green |
 | --- | --- | --- |
 | Opt in / retain / delete through HTTP | `red-http-ready.log`: History route 404 | `green-http-1.log` |
+| Equal-clock storage order | `red-storage-order.log`: UUID order evicted the wrong entry | `green-storage-order.log` |
 | DE/EN web controls | `red-web.log`: missing Enable History | `green-web-1.log`, `web-expanded.log` |
 | Downgrade a displaced Free-stored entry | `red-downgrade-free-ready.log`: 5 entries instead of 6 | `green-downgrade-free.log` |
 | Free same-slot Re-check at zero Quota | `red-free-recheck-ready.log`: 402 instead of 200 | `green-free-recheck.log` |

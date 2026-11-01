@@ -387,9 +387,13 @@ export function createCheckStore(
           consent.extendedUntil && consent.extendedUntil.getTime() > now
             ? 90
             : 30;
+        const sequence = await tx.$queryRaw<
+          { value: bigint }[]
+        >`SELECT nextval('verification.history_storage_order') AS value`;
         await tx.check.update({
           where: { id: checkId },
           data: {
+            historyOrder: sequence[0]!.value,
             historyStoredAt: new Date(now),
             historyDays: days,
             contentExpiresAt: new Date(now + days * 86_400_000),
@@ -614,6 +618,7 @@ export function createCheckStore(
     endedAt: true,
     leaseExpiresAt: true,
     historyStoredAt: true,
+    historyOrder: true,
     historyDays: true,
     historyLocked: true,
   } as const;
@@ -625,7 +630,11 @@ export function createCheckStore(
     const entries = await tx.check.findMany({
       where: { ownerId, historyStoredAt: { not: null }, deletedAt: null },
       select: retentionMetadata,
-      orderBy: [{ historyStoredAt: "desc" }, { id: "desc" }],
+      orderBy: [
+        { historyStoredAt: "desc" },
+        { historyOrder: "desc" },
+        { id: "desc" },
+      ],
     });
     // Only storing a NEW Free entry may evict the oldest previously usable
     // entry. A downgrade itself locks all overflow, including Free-stored rows.
@@ -666,7 +675,11 @@ export function createCheckStore(
         deletedAt: null,
         contentExpiresAt: { gt: new Date(clock.now()) },
       },
-      orderBy: [{ historyStoredAt: "desc" }, { id: "desc" }],
+      orderBy: [
+        { historyStoredAt: "desc" },
+        { historyOrder: "desc" },
+        { id: "desc" },
+      ],
       select: {
         ...retentionMetadata,
         _count: { select: { references: { where: { removed: false } } } },

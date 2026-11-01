@@ -35,6 +35,7 @@ model Check {
   /// Set when the content was deleted; the row itself is the tombstone.
   deletedAt      DateTime?       @map("deleted_at") @db.Timestamptz(3)
   historyStoredAt DateTime? @map("history_stored_at") @db.Timestamptz(3)
+  historyOrder BigInt @default(0) @map("history_order")
   historyDays Int? @map("history_days")
   historyLocked Boolean @default(false) @map("history_locked")
   endReason      String?         @map("end_reason")
