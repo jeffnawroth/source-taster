@@ -3,6 +3,7 @@ import {
   CheckResponse,
   HistoryResponse,
 } from "@source-taster/contract-verification/v2";
+import { ReportResponse } from "@source-taster/contract-verification/report";
 import { backup } from "./support/backup.ts";
 import { afterEach, expect, test } from "vitest";
 import { startAccountApi, newAccount } from "./support/account-api.ts";
@@ -609,12 +610,16 @@ test("PDF reports respect History downgrade locks, entry deletion and revocation
     style: "apa",
   });
   expect(created.status).toBe(202);
-  const job = (await created.json()).data;
+  const job = ReportResponse.parse(await created.json()).data;
   const path = `${reportPath}/${job.id}`;
   await expect
-    .poll(async () => (await (await request(path)).json()).data?.state, {
-      timeout: 15000,
-    })
+    .poll(
+      async () =>
+        ReportResponse.parse(await (await request(path)).json()).data.state,
+      {
+        timeout: 15000,
+      },
+    )
     .toBe("ready");
   expect((await request(`${path}/file`)).status).toBe(200);
   api.state.quota.history.extendedUntil = null;
@@ -636,7 +641,7 @@ test("PDF reports respect History downgrade locks, entry deletion and revocation
     style: "apa",
   });
   expect(next.status).toBe(202);
-  const nextJob = (await next.json()).data;
+  const nextJob = ReportResponse.parse(await next.json()).data;
   await request("history", "PUT", { enabled: false });
   expect(
     (await request(`checks/${second}/reports/${nextJob.id}/file`)).status,
