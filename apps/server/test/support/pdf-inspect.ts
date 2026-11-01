@@ -114,3 +114,22 @@ export function rawLinks(bytes: Uint8Array) {
     linkElements: (text.match(/\/S \/Link/gu) ?? []).length,
   };
 }
+/**
+ * Text inside `Artifact` marked content on one page, i.e. page furniture that
+ * assistive technology skips. Read from pdf.js' marked-content items.
+ */
+export function artifactText(
+  page: Awaited<ReturnType<typeof inspectPdf>>["pages"][number],
+) {
+  const out: string[] = [];
+  const open: string[] = [];
+  for (const item of page.items) {
+    if ("type" in item && item.type === "beginMarkedContentProps")
+      open.push((item as { tag?: string }).tag ?? "");
+    else if ("type" in item && item.type === "beginMarkedContent")
+      open.push("");
+    else if ("type" in item && item.type === "endMarkedContent") open.pop();
+    else if ("str" in item && open.includes("Artifact")) out.push(item.str);
+  }
+  return out.join("");
+}

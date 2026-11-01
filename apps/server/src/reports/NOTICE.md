@@ -28,7 +28,8 @@ This is a technical inventory read from the installed packages. It is not a lega
 
 - **Brotli Apache headers.** The npm package declares MIT, but its decoder sources are derived from Google's Brotli reference decoder and carry Apache License 2.0 headers. The Apache-2.0 text and the Google copyright notice must travel with any distribution. The decoder is only reached for WOFF2 fonts; the report embeds TrueType fonts only.
 - **Missing standalone license files.** fontkit, brotli and dfa declare MIT in `package.json` only. The upstream license texts must be retrieved from their repositories for distribution notices.
-- **Decoder provenance in fontkit.** fontkit's complex-script shapers (Arabic, Indic, Hangul) state that they were ported from or based on HarfBuzz. The report fonts cover Latin, Greek and Cyrillic, so those shapers are not exercised by supported content. The exact upstream license of each ported source was not traced here and remains a legal-review item.
+- **Decoder provenance in fontkit.** fontkit's `src/utils.js` (the Node build) embeds a base64 decoder commented "Based on ... base64-arraybuffer. MIT license." The copied upstream version or commit is not attributed (the qualification research, `docs/research/pdfkit-dependency-qualification.md` on `research/pdfkit-dependency-qualification-20261025`, records the same gap). An exact ancestry of everything bundled in fontkit is therefore not proven. Separately, fontkit's Arabic, Indic and Hangul shapers state that they were ported from or based on HarfBuzz; the report fonts cover Latin, Greek and Cyrillic, so those shapers are not exercised by supported content. Neither point was resolved here; both remain legal-review inputs, not a finding of infringement.
+- **png-js** has no `license` field in its `package.json`; it ships an MIT `LICENSE` file.
 
 ## Embedded fonts
 

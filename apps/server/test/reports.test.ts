@@ -24,6 +24,7 @@ import {
   rawCatalog,
   rawLinks,
   roles,
+  artifactText,
 } from "./support/pdf-inspect.ts";
 
 const database = testDatabase();
@@ -361,6 +362,12 @@ it("writes a German report in reading order with overview first, one numbered se
   expect(text).toContain("Bester Treffer: 10.1038/nphys1170");
   expect(text).toContain("https://doi.org/10.1038/nphys1170");
   expect(text).toContain("Seite 1 von");
+  // The document name, the Correction suggestion section and the footer.
+  expect(text).toContain("Bachelorarbeit Größe.docx");
+  expect(text).toContain("Korrekturvorschlag");
+  // The page footer is an Artifact: present on the page, absent from the tags.
+  expect(artifactText(pdf.pages[0]!)).toContain("Seite 1 von");
+  expect(JSON.stringify(pdf.pages[0]!.tree)).not.toContain("Seite 1 von");
 });
 
 it("exposes each link to assistive technology as a Link element that owns its annotation", async () => {

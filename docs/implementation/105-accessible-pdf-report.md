@@ -60,13 +60,27 @@ raw catalog reader (`apps/server/test/support/pdf-inspect.ts`):
   `/StructTreeRoot` present.
 - Structure roles in order: `Document`, `H1`, `H2`...; German reference sections
   appear as Überblick, Referenz 1, Referenz 2 in that order.
-- Text is extractable, including diacritics, the Scoring rules version, the
-  Verdict, the manual/original Verdict pair and the Best match identifier.
+- Text is extractable, including diacritics, the document name, the Scoring
+  rules version, the Verdict, the manual/original Verdict pair, the Best match
+  identifier and the Correction suggestion heading.
 - Link annotations: every link annotation has a `StructParent` and an `OBJR`
   child of a `Link` structure element, with the URI `https://doi.org/...`.
-- The page footer is an Artifact and not part of the reading order.
+- The page footer ("Seite 1 von ...") sits inside `Artifact` marked content and
+  does not occur in the structure tree.
 - axe (WCAG 2 A/AA, 2.1 AA, 2.2 AA) over the web page and the native panel with
   the report control rendered, in DE and EN.
+
+### Scope of the automated check against ADR-0017
+
+ADR-0017 asks every build for automated structure checks of tags, reading
+order, headings, language, links, table headers and Unicode mapping. The
+tests above cover tags, reading order, headings, language, links and
+extractable text (pdf.js' text extraction is the proxy for the Unicode
+mapping). The report contains no tables, so table headers do not apply. veraPDF
+(the PDF/UA machine profile named in the research) is GPL/Java tooling, is not
+a dependency and was **not run**; the "automated PDF accessibility check" in
+the acceptance criteria is therefore met by these owned structure checks, not
+by a PDF/UA validator.
 
 ### Not machine-verified (honest limits)
 
@@ -106,8 +120,11 @@ the ADR-0017 graph (fontkit 2.0.4, @swc/helpers 0.5.23, base64-js 0.0.8, fflate
   stopped at the missing OSV database (its website qualification step passed).
   The exception must not be treated as in effect until CI shows that scan.
 - Open notice items (inventoried, need human license review): brotli's Apache
-  headers, missing standalone license files for fontkit/brotli/dfa and the
-  HarfBuzz-derived shapers inside fontkit.
+  headers, missing standalone license files for fontkit/brotli/dfa, the
+  unattributed base64 decoder ("Based on ... base64-arraybuffer") in fontkit's
+  `src/utils.js` and the HarfBuzz-derived shapers inside fontkit.
+- `pdfjs-dist` (used only by the test inspector) was already an exact-pinned
+  dependency of `apps/server`; this ticket added `pdfkit` as the only dependency.
 
 ## Commands
 
