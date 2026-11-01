@@ -42,7 +42,7 @@ serves every source; requests are routed by path and query shape.
 
 ## Targets and measurements
 
-The five targets are constants in `scripts/load/analysis.ts` (`TARGETS`) and no
+The five targets are constants in `src/load/analysis.ts` (`TARGETS`) and no
 option changes them: mean per findable Reference ≤ 3 s (FA-UEB-40), mean per
 Reference that cannot be found ≤ 15 s (FA-UEB-41), longest first Verdict per
 Check ≤ 10 s and longest 100-Reference list ≤ 180 s (FA-UEB-42), and peak
@@ -274,7 +274,7 @@ pnpm --filter @source-taster/server build:release  # guard (exit 78) then build
   `--release`.
 - `release:check` (so `build:release`, which stops at it before building) now
   requires the load report as well. `checkLoadReplay`
-  (`scripts/load/release.ts`) refuses with exit 78 and a named reason when:
+  (`src/load/release.ts`) refuses with exit 78 and a named reason when:
   the report is missing/unreadable/invalid (`no-load-report`,
   `load-report-unreadable`, `invalid-load-report`); evidence is synthetic or
   unauthorized (`load-synthetic-evidence`); evidence is invalid or a Check did

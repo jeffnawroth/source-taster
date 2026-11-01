@@ -10,7 +10,7 @@ import { z } from "zod";
 import { isDeepStrictEqual } from "node:util";
 import { loadDataset } from "./dataset.ts";
 import { measureStructuring } from "./structuring.ts";
-import { checkLoadReplay } from "../../scripts/load/release.ts";
+import { checkLoadReplay } from "../load/release.ts";
 import { qualifiedAi, type AiConfiguration } from "./extraction.ts";
 import type { GateConfiguration } from "./configuration-types.ts";
 import {

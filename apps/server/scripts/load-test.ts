@@ -13,7 +13,7 @@ import {
   exitCodeFor,
   SHIPPED_PLACEHOLDER_DELAY_MS,
   type DurationBasis,
-} from "./load/analysis.ts";
+} from "../src/load/analysis.ts";
 import { HARNESS_SOURCES, runLoad } from "./load/run.ts";
 import { parseSearchSettings } from "../src/config.ts";
 import { readConfigurationFile } from "./quality/configuration.ts";

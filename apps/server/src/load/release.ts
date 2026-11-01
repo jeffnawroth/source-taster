@@ -10,7 +10,7 @@
 // measurements; its `qualifying`, `outcome` and target statuses are not trusted.
 import { readFile } from "node:fs/promises";
 import { isDeepStrictEqual } from "node:util";
-import { parseSearchSettings } from "../../src/config.ts";
+import { parseSearchSettings } from "../config.ts";
 import {
   LoadReport,
   SHIPPED_PLACEHOLDER_DELAY_MS,

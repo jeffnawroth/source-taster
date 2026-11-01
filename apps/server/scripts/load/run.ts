@@ -20,7 +20,7 @@ import {
   type DurationBasis,
   type Evidence,
   type LoadReport,
-} from "./analysis.ts";
+} from "../../src/load/analysis.ts";
 import { driveChecks } from "./driver.ts";
 import {
   startReplay,

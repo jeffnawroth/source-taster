@@ -8,7 +8,7 @@ import type {
   CheckObservation,
   ReferenceObservation,
   ReferenceOutcome,
-} from "./analysis.ts";
+} from "../../src/load/analysis.ts";
 import type { WorkloadReference } from "./replay.ts";
 
 export interface DriveOptions {

@@ -8,8 +8,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { defaultSearchSettings } from "@source-taster/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { TARGETS, type LoadReport } from "../scripts/load/analysis.ts";
-import { checkLoadReplay } from "../scripts/load/release.ts";
+import { TARGETS, type LoadReport } from "../src/load/analysis.ts";
+import { checkLoadReplay } from "../src/load/release.ts";
 import {
   launchObservations,
   passingReport,

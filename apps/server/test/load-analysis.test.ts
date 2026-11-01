@@ -12,7 +12,7 @@ import {
   type CheckObservation,
   type ReferenceObservation,
   type ReportInput,
-} from "../scripts/load/analysis.ts";
+} from "../src/load/analysis.ts";
 
 const LAUNCH = { concurrentChecks: 50, referencesPerCheck: 100 };
 

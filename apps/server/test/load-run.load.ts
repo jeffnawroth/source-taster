@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, expect, it } from "vitest";
-import { LoadReport } from "../scripts/load/analysis.ts";
+import { LoadReport } from "../src/load/analysis.ts";
 
 const serverDir = fileURLToPath(new URL("..", import.meta.url));
 let directory: string | undefined;

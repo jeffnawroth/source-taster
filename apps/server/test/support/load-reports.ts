@@ -8,7 +8,7 @@ import {
   type CheckObservation,
   type LoadReport,
   type ReportInput,
-} from "../../scripts/load/analysis.ts";
+} from "../../src/load/analysis.ts";
 
 export const syntheticSha = "a".repeat(40);
 
