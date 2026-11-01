@@ -124,6 +124,14 @@ export function useAccountPreferences(
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client]);
+  /** #102 Account deletion: ADR-0023 deletes Preferences with the Account, so
+   * unlike sign-out or expiry nothing is copied into the local Guest store and
+   * pending reads/writes are fenced off. Displayed values stay in memory only. */
+  function forget() {
+    previousAccount.current = null;
+    epoch.current++;
+    writes.current = Promise.resolve();
+  }
   function change(patch: AccountPreferencesPatch) {
     const next = { ...displayed.current.preferences, ...patch };
     display({
@@ -175,6 +183,7 @@ export function useAccountPreferences(
     ...state,
     change,
     refresh,
+    forget,
     failure,
     loading: !!session && !expired && loadedAccount !== session.accountId,
   };

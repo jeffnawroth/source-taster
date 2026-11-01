@@ -160,7 +160,14 @@ test("deletion asks for proof, shows the eight-year retention notice, and then r
       expect(deletion?.authorization).toBe(`Bearer ${secret}`);
       expect(requests.every((r) => !r.cookie)).toBe(true);
       expect(fake.state.live).toBe(false);
-      expect(requests.some((r) => r.path.includes("guest-tokens"))).toBe(false);
+      // No Guest fallback while the Account acted. Afterwards #99 lets the
+      // Guest view read its Quota on mount with the pre-existing, unchanged
+      // Guest identity asserted above; nothing of the Account moves to it.
+      expect(
+        requests
+          .slice(0, requests.indexOf(deletion!))
+          .some((r) => r.path.includes("guest-tokens")),
+      ).toBe(false);
     },
   );
 });

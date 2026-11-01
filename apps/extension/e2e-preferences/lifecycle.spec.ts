@@ -391,13 +391,19 @@ test("web and native Chromium panel share Account values on refocus while keepin
     ).toBeNull();
     await panel.click("button", "Sign out here");
     await panel.find("button", "Sign in");
-    expect(await browser.storage()).toEqual({
+    // #99 reads the Guest Quota on mount, so the panel may now hold its own
+    // Guest ID; ADR-0023 only forbids keying Preferences to it.
+    const signedOut = await browser.storage();
+    const { "source-taster-guest-id-v1": guestId, ...rest } = signedOut;
+    expect(rest).toEqual({
       [guestKey]: {
         language: "en",
         citationStyle: "vancouver",
         theme: "system",
       },
     });
+    if (typeof guestId === "string")
+      expect(JSON.stringify(rest[guestKey])).not.toContain(guestId);
     expect(
       await page.evaluate((key) => localStorage.getItem(key), guestKey),
     ).toBeNull();

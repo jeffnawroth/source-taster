@@ -355,16 +355,16 @@ for (const language of ["en", "de"] as const)
       expect(tokenCalls()).toBe(calls);
       expect(fake.state.live).toBe(false);
       // Merged with #101 Preferences: deletion ends the Account authority, so
-      // no Preferences read/write, Account token or new Guest identity follows
-      // until the user acts. Only the ADR-0023 closed local set may remain.
+      // no Preferences read/write or Account token follows. ADR-0023 deletes
+      // Preferences with the Account: nothing is copied into Guest storage.
+      // (#99 lets the Guest view read its own Quota on mount like any Guest
+      // page load; that is the browser's Guest, never this Account.)
       const afterDeletion = fake.state.calls.slice(
         fake.state.calls.lastIndexOf("POST /account/deletion") + 1,
       );
       expect(
         afterDeletion.filter((c) =>
-          /\/(preferences|account-tokens|session\/activity|guest-tokens)$/.test(
-            c,
-          ),
+          /\/(preferences|account-tokens|session\/activity)$/.test(c),
         ),
       ).toEqual([]);
       const local = await page.evaluate(() =>
@@ -373,15 +373,11 @@ for (const language of ["en", "de"] as const)
       expect(local).not.toContain(identity.accountId);
       expect(local).not.toContain(identity.ownerId);
       expect(local).not.toContain(identity.email);
-      const guestPreferences = await page.evaluate(() =>
-        localStorage.getItem("source-taster-guest-preferences-v1"),
-      );
-      if (guestPreferences !== null)
-        expect(Object.keys(JSON.parse(guestPreferences)).sort()).toEqual([
-          "citationStyle",
-          "language",
-          "theme",
-        ]);
+      expect(
+        await page.evaluate(() =>
+          localStorage.getItem("source-taster-guest-preferences-v1"),
+        ),
+      ).toBeNull();
     } finally {
       await context.close();
     }

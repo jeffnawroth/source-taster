@@ -436,6 +436,7 @@ export function AccountWorkspace({
   }
   /** Only the service's answer ends the Account here. No content or grant moves to Guest. */
   function removed(outcome: DeletionOutcome) {
+    accountPreferences.forget();
     setRemoval(outcome);
     setSession(null);
     setCredentialFailure(false);
