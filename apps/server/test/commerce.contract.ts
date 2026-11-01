@@ -71,7 +71,10 @@ test("a web-paid Check pack is visible and consumed through the verification API
       url: both.serviceUrl,
     });
     await paid;
-    await both.service().command({ commerceTick: true });
+    await eventually(async () => {
+      const q = await quota();
+      return !!q && "remaining" in q && q.remaining === 400;
+    });
     expect(await quota()).toMatchObject({
       remaining: 400,
       features: ["ai-extraction", "check", "history", "verification-report"],
