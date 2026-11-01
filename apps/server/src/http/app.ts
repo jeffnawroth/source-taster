@@ -122,12 +122,13 @@ export function createApp(
   async function authorize(
     request: Request,
     permission: Permission,
+    refreshHistory = true,
   ): Promise<Principal> {
     const principal = await entitlements.resolve(request);
     if (!principal) fail("unauthenticated");
     if (!principal.can(permission)) fail("forbidden");
     await guarded(principal, permission, () => Promise.resolve());
-    if (principal.sessionId && entitlements.quota) {
+    if (refreshHistory && principal.sessionId && entitlements.quota) {
       const quota = await entitlements.quota.snapshot({
         ownerId: principal.ownerId,
         actorId: principal.actorId,
@@ -554,8 +555,12 @@ export function createApp(
     });
   }
   if (apiVersion === 2) {
-    const account = async (request: Request, permission: Permission) => {
-      const principal = await authorize(request, permission);
+    const account = async (
+      request: Request,
+      permission: Permission,
+      refreshHistory = true,
+    ) => {
+      const principal = await authorize(request, permission, refreshHistory);
       if (!principal.sessionId || principal.guestContextId) fail("forbidden");
       return principal;
     };
@@ -576,7 +581,11 @@ export function createApp(
       );
     });
     app.openapi(v2.setHistory, async (c) => {
-      const principal = await account(c.req.raw, "check:create");
+      const principal = await account(
+        c.req.raw,
+        "check:create",
+        c.req.valid("json").enabled,
+      );
       const data = await guarded(principal, "check:create", () =>
         checks.history(principal, c.req.valid("json").enabled),
       );
@@ -592,9 +601,14 @@ export function createApp(
       );
     });
     app.openapi(v2.deleteHistory, async (c) => {
-      const principal = await account(c.req.raw, "check:create");
+      const principal = await account(c.req.raw, "check:create", false);
       const data = await guarded(principal, "check:create", () =>
-        checks.history(principal, undefined, c.req.valid("param").checkId),
+        checks.history(
+          principal,
+          undefined,
+          c.req.valid("param").checkId,
+          true,
+        ),
       );
       if (!data) fail("check-not-found");
       return output(
@@ -605,7 +619,8 @@ export function createApp(
         200,
         undefined,
         undefined,
-        async () => (await checks.history(principal))!,
+        async () =>
+          (await checks.history(principal, undefined, undefined, true))!,
       );
     });
     app.openapi(v2.restartHistory, async (c) => {

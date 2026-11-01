@@ -49,7 +49,9 @@ mutations were used.
 - Entry deletion, revocation and Account/Owner deletion remove content, entry
   keys, replay and queued jobs using #91/#102's purge/tombstone path. Revocation
   also disables future retention. Late workers retain the existing attempt and
-  deletion fences. Raw document extraction remains stateless.
+  deletion fences. Deletion/revocation require current Account authority but do
+  not depend on Quota availability; entry-deletion responses contain metadata
+  only (refresh History to reload usable labels). Raw extraction remains stateless.
 - Shared DE/EN web/panel controls show the policy, searchable title/original
   label/date/ID, count and fixed deletion date; separate Open and new billable
   Restart; lock/Plan notice; and explicit deletion/revocation warnings. Content
@@ -127,6 +129,7 @@ Local evidence is in this worktree's ignored `.tmp/104/` directory.
 | Free same-slot Re-check at zero Quota | `red-free-recheck-ready.log`: 402 instead of 200 | `green-free-recheck.log` |
 | Revoke while History list is in flight | `red-publication.log`: revoked label still published | `green-publication-2.log` |
 | Empty restart after removal / first-N | `red-empty-restart.log`: empty Check created (201) | `green-empty-restart.log` |
+| Deletion/revocation during a Quota outage | `red-delete-outage.log`: deletion returned 503 | `green-delete-outage.log` |
 | Out-of-order paid snapshot after downgrade | `red-stale-grant.log`: older reply unlocked entry | `green-stale-grant-2.log` |
 
 Additional clock, provenance/override, ownership, Account deletion and genuine

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// The only persistence codec for transient Check content. No plaintext fallback.
-// Daily AES-GCM keys are held only in PostgreSQL UNLOGGED storage (ADR-0012).
+// The only persistence codec for Check content. No plaintext fallback.
+// Transient daily AES-GCM keys use UNLOGGED storage (ADR-0012); consented
+// History uses separate per-entry keys, erased with its content.
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { Prisma } from "../generated/prisma/client.ts";
 

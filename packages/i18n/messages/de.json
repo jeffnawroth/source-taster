@@ -429,7 +429,7 @@
   "history_open": "Check öffnen",
   "history_restart": "Als neuen Check starten",
   "history_delete": "Eintrag löschen",
-  "history_billable": "Dies erstellt einen neuen Check mit {count} Referenzen und verbraucht erneut Quota. Der frühere Check bleibt unverändert. Den früheren Check zu öffnen und zu korrigieren ist kostenlos.",
+  "history_billable": "Dies erstellt einen neuen Check mit {count} Referenzen und verbraucht erneut Quota. Der frühere Check bleibt unverändert. Das Öffnen ist kostenlos. Bereits abgerechnete Referenzen erneut zu prüfen ist kostenlos.",
   "history_restart_confirm": "Neuen kostenpflichtigen Check starten",
   "history_delete_warning": "Diesen Check und seinen gesamten Inhalt endgültig löschen?",
   "history_delete_confirm": "Check endgültig löschen",

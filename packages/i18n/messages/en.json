@@ -429,7 +429,7 @@
   "history_open": "Open Check",
   "history_restart": "Start as a new Check",
   "history_delete": "Delete entry",
-  "history_billable": "This creates a new Check of {count} References and consumes Quota again. The earlier Check stays unchanged. Opening and correcting the earlier Check is free.",
+  "history_billable": "This creates a new Check of {count} References and consumes Quota again. The earlier Check stays unchanged. Opening is free. Re-checking an already billed Reference is free.",
   "history_restart_confirm": "Start new billable Check",
   "history_delete_warning": "Delete this Check and all its content permanently?",
   "history_delete_confirm": "Delete Check permanently",

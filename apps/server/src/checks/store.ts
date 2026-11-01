@@ -653,7 +653,11 @@ export function createCheckStore(
     }
     return { enabled: consent?.enabled ?? false, paid };
   }
-  async function historySnapshot(tx: Tx, principal: Principal) {
+  async function historySnapshot(
+    tx: Tx,
+    principal: Principal,
+    metadataOnly = false,
+  ) {
     const rules = await historyRules(tx, principal.ownerId);
     const entries = await tx.check.findMany({
       where: {
@@ -665,34 +669,38 @@ export function createCheckStore(
       orderBy: [{ historyStoredAt: "desc" }, { id: "desc" }],
       select: {
         ...retentionMetadata,
-        references: {
-          where: { removed: false },
-          orderBy: { position: "asc" },
-          take: 1,
-          select: { originalText: true, structured: true },
-        },
         _count: { select: { references: { where: { removed: false } } } },
       },
     });
     return {
       enabled: rules.enabled,
-      entries: entries.filter(contentAlive).map((e) => ({
-        id: e.id,
-        storedAt: e.historyStoredAt!.toISOString(),
-        expiresAt: e.contentExpiresAt.toISOString(),
-        locked: e.historyLocked,
-        ...(!e.historyLocked && e.references[0]
-          ? {
-              label: String(
-                (
-                  e.references[0]
-                    .structured as unknown as StructuredReference | null
-                )?.csl.title ?? e.references[0].originalText,
-              ).slice(0, 120),
-            }
-          : {}),
-        referenceCount: e._count.references,
-      })),
+      entries: await Promise.all(
+        entries.filter(contentAlive).map(async (e) => {
+          const first =
+            !metadataOnly && !e.historyLocked
+              ? await tx.referenceSlot.findFirst({
+                  where: { checkId: e.id, removed: false },
+                  orderBy: { position: "asc" },
+                  select: { originalText: true, structured: true },
+                })
+              : null;
+          return {
+            id: e.id,
+            storedAt: e.historyStoredAt!.toISOString(),
+            expiresAt: e.contentExpiresAt.toISOString(),
+            locked: e.historyLocked,
+            referenceCount: e._count.references,
+            ...(first
+              ? {
+                  label: String(
+                    (first.structured as unknown as StructuredReference | null)
+                      ?.csl.title ?? first.originalText,
+                  ).slice(0, 120),
+                }
+              : {}),
+          };
+        }),
+      ),
     };
   }
   async function sweep() {
@@ -856,7 +864,12 @@ export function createCheckStore(
         await historyRules(tx, principal.ownerId);
       });
     },
-    async history(principal: Principal, enabled?: boolean, deleteId?: string) {
+    async history(
+      principal: Principal,
+      enabled?: boolean,
+      deleteId?: string,
+      metadataOnly = false,
+    ) {
       return transaction(async (tx) => {
         if (enabled !== undefined) {
           await tx.historyConsent.upsert({
@@ -890,7 +903,7 @@ export function createCheckStore(
             return null;
           await purgeLocked(tx, entry);
         }
-        return historySnapshot(tx, principal);
+        return historySnapshot(tx, principal, metadataOnly);
       });
     },
     async restartInput(principal: Principal, id: string) {

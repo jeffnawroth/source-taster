@@ -57,7 +57,10 @@ export const Quota = z
     features: z.array(z.string().min(1).max(40)).max(20),
     /** Service-derived union of valid extended-History grants. Missing fails closed to Free. */
     history: z
-        .object({ extendedUntil: z.iso.datetime().nullable(), authorityVersion: z.number().int().positive() })
+        .object({
+        extendedUntil: z.iso.datetime().nullable(),
+        authorityVersion: z.number().int().positive(),
+    })
         .optional(),
 })
     .meta({ id: "Quota" });

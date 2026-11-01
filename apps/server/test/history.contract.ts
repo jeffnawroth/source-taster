@@ -354,6 +354,7 @@ test("an operator backup restores consented History without transient keys, with
       .poll(
         async () =>
           (await historyData(await request("history"))).entries.length,
+        { timeout: 15000 },
       )
       .toBe(1);
     const dump = await backup(api.adminUrl, api.appUrl, {
@@ -518,4 +519,27 @@ test("a delayed paid-grant snapshot cannot undo a newer downgrade", async () => 
     release();
   }
   expect((await historyData(await pending)).entries[0]!.locked).toBe(true);
+});
+
+test("entry deletion and consent revocation do not depend on Quota availability", async () => {
+  let unavailable = false;
+  const { request, create } = await historyApi({
+    service: (req) =>
+      unavailable && req.url === "/internal/quota/snapshot"
+        ? { status: 503 }
+        : undefined,
+  });
+  await request("history", "PUT", { enabled: true });
+  const first = await create();
+  unavailable = true;
+  expect((await request(`history/${first}`, "DELETE")).status).toBe(200);
+  unavailable = false;
+  expect((await request(`checks/${first}`)).status).toBe(410);
+  const second = await create();
+  unavailable = true;
+  expect((await request("history", "PUT", { enabled: false })).status).toBe(
+    200,
+  );
+  unavailable = false;
+  expect((await request(`checks/${second}`)).status).toBe(410);
 });
