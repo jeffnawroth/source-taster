@@ -167,11 +167,17 @@ the fonts and `OFL.txt` to `dist/reports/fonts`.
 - Server: `reports.test.ts` 8/8; `report-lifecycle.test.ts`, `checks`,
   `retention`, `lifecycle`, `lifecycle-recovery`, `service-port`,
   `check-events`, `snapshot`, `exports` together 48/48 (9 files).
-- Web: report granted 2/2; unavailable 2/2; `exports`, `corrections`,
-  `manual-overrides` and `workspace` specs 19/20 on the first run. The one
-  failure ("Back retains an active Verdict filter ... in de") passed 4/4 when
-  repeated alone, so it looks load-flaky; it was not investigated further.
-- Native: report 2/2; `e2e/panel.spec.ts` 8/8.
+- Web (after the last UI change): report granted 2/2; `report-unavailable` and
+  `workspace` specs 12/12. Earlier, before that change, `exports`,
+  `corrections`, `manual-overrides` and `workspace` ran 19/20; the one failure
+  ("Back retains an active Verdict filter ... in de") passed 4/4 when repeated
+  alone and 12/12 in the later full `workspace` run, so it looks load-flaky; it
+  was not investigated further.
+- Native (after the last UI change): report 2/2; `e2e/panel.spec.ts` 8/8.
+- A final run of `reports.test.ts` left the number of `source_taster_test_*`
+  databases unchanged (11 before and after); the 11 pre-date this session's last
+  run and were left alone, like the PostgreSQL container `st105-report-pg`, which
+  also existed before this session.
 
 ## Red/green record
 
