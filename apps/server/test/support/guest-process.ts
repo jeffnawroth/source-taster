@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SOURCE-ONLY loopback integration. Never imported by src, scripts or build.
 // Real uncalibrated DOI/core + lifecycle + service authority. No gate receipt.
+import { createAbuseLimiter } from "../../src/abuse/limiter.ts";
+import { loadOriginSettings } from "../../src/abuse/origin.ts";
 import { serve } from "@hono/node-server";
 import { once } from "node:events";
 import { createParser } from "@source-taster/core";
@@ -54,7 +56,16 @@ if (process.argv[2] === "worker") {
   };
 } else {
   const events = await listenForEvents(config.databaseUrl);
+  const entrance = process.env.SOURCE_TASTER_ABUSE_ORIGIN_CONFIG
+    ? createAbuseLimiter(
+        loadHostedSettings(process.env.SOURCE_TASTER_AUTH_CONFIG),
+        config.databaseUrl,
+        loadOriginSettings(process.env.SOURCE_TASTER_ABUSE_ORIGIN_CONFIG),
+        clock,
+      )
+    : undefined;
   const app = createApp({
+    entrance,
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     checks,
     events,
@@ -73,6 +84,7 @@ if (process.argv[2] === "worker") {
   stop = async () => {
     server.close();
     await events.close();
+    await entrance?.close();
   };
 }
 process.on(

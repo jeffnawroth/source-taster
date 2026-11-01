@@ -32,6 +32,12 @@ export async function eventually(
 export async function bothPrograms(
   options: {
     startWorker?: boolean;
+    abuse?: {
+      epoch: string;
+      neutralPlanId: string;
+      policy: import("@source-taster/contract-internal").AbusePolicy;
+      origin: unknown;
+    };
     apiPort?: number;
     servicePort?: number;
     accounts?: boolean;
@@ -328,7 +334,7 @@ export async function bothPrograms(
     { mode: 0o600 },
   );
   const fixtures = await startDoiFixtures();
-  const venv = {
+  const venv: Record<string,string> = {
     DATABASE_URL: urls[0]!,
     SOURCE_TASTER_PORT: String(apiPort),
     SOURCE_TASTER_AUTH_CONFIG: verificationConfigPath,
@@ -352,7 +358,19 @@ export async function bothPrograms(
       }),
       { mode: 0o600 },
     );
+  const abuseConfigPath = join(directory, "abuse.json"),
+    originConfigPath = join(directory, "origin.json");
+  if (options.abuse) {
+    await writeFile(abuseConfigPath, JSON.stringify(options.abuse), {
+      mode: 0o600,
+    });
+    await writeFile(originConfigPath, JSON.stringify(options.abuse.origin), {
+      mode: 0o600,
+    });
+    venv.SOURCE_TASTER_ABUSE_ORIGIN_CONFIG = originConfigPath;
+  }
   const senv = {
+    ...(options.abuse ? { SERVICE_ABUSE_CONFIG: abuseConfigPath } : {}),
     DATABASE_URL: urls[1]!,
     SERVICE_PORT: String(servicePort),
     SERVICE_GUEST_AUTH_CONFIG: serviceConfigPath,
