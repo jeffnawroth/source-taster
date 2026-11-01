@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import { once } from "node:events";
 import { createServer } from "node:http";
 import pg from "pg";
+import type { AbusePolicy } from "@source-taster/contract-internal";
 import { GuestTokenResponse } from "@source-taster/contract-service";
 import { startDoiFixtures } from "./doi-fixtures.ts";
 export async function freePort() {
@@ -32,6 +33,14 @@ export async function eventually(
 export async function bothPrograms(
   options: {
     startWorker?: boolean;
+    abuse?: {
+      epoch: string;
+      neutralPlanId: string;
+      policy: AbusePolicy;
+      origin: unknown;
+    };
+    apiPort?: number;
+    servicePort?: number;
     accounts?: boolean;
     clientLeaseMs?: number;
     extensionOrigins?: string[];
@@ -194,11 +203,15 @@ export async function bothPrograms(
   }
   const [apiPort, servicePort, proxyPort] = await Promise.all([
     options.accounts
-      ? Promise.resolve(Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 3501))
+      ? Promise.resolve(
+          options.apiPort ??
+            Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 3501),
+        )
       : freePort(),
     options.accounts
       ? Promise.resolve(
-          Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 3502),
+          options.servicePort ??
+            Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 3502),
         )
       : freePort(),
     freePort(),
@@ -346,7 +359,21 @@ export async function bothPrograms(
       }),
       { mode: 0o600 },
     );
+  const abuseConfigPath = join(directory, "abuse.json"),
+    originConfigPath = join(directory, "origin.json");
+  if (options.abuse) {
+    await writeFile(abuseConfigPath, JSON.stringify(options.abuse), {
+      mode: 0o600,
+    });
+    await writeFile(originConfigPath, JSON.stringify(options.abuse.origin), {
+      mode: 0o600,
+    });
+    Object.assign(venv, {
+      SOURCE_TASTER_ABUSE_ORIGIN_CONFIG: originConfigPath,
+    });
+  }
   const senv = {
+    ...(options.abuse ? { SERVICE_ABUSE_CONFIG: abuseConfigPath } : {}),
     DATABASE_URL: urls[1]!,
     SERVICE_PORT: String(servicePort),
     SERVICE_GUEST_AUTH_CONFIG: serviceConfigPath,

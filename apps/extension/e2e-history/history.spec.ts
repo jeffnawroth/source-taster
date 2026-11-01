@@ -20,14 +20,14 @@ for (const language of ["en", "de"] as const) {
   test(`native panel keeps History on the same Account, opens for free and restarts as new work (${language})`, async () => {
     const account = { ...newAccount(), email: "history@example.org" };
     const secret = "history-opaque-" + "s".repeat(43);
-    const fake = sensitiveService({
+    const fake = await sensitiveService({
       prefix: "/v1/extension",
       account,
       secret,
       deleteOwner: () => Promise.resolve({ status: 200 }),
       revoke: () => {},
     });
-    fake.state.preferences = { language, citationStyle: "apa" };
+    await fake.setPreferences({ language, citationStyle: "apa" });
     const api = await startAccountApi({
       worker: true,
       service: (request, tokens) => fake.handle(request, tokens),
@@ -146,6 +146,7 @@ for (const language of ["en", "de"] as const) {
       await build.remove();
       await rm(profile, { recursive: true, force: true });
       await api.stop();
+      await fake.stop();
     }
   });
 }
