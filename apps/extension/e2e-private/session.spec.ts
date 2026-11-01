@@ -195,11 +195,11 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
       res.end();
     });
   });
-  proxy.listen(5001, "127.0.0.1");
-  await once(proxy, "listening");
   let build: Awaited<ReturnType<typeof buildExtension>> | undefined;
   let browser: Awaited<ReturnType<typeof launchFirefox>> | undefined;
   try {
+    proxy.listen(5001, "127.0.0.1");
+    await once(proxy, "listening");
     build = await buildExtension("firefox", {
       SOURCE_TASTER_EXTENSION_MODE: "hosted",
       SOURCE_TASTER_EXTENSION_API_URL: b.apiUrl,

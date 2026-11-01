@@ -33,9 +33,17 @@ Run against the private branch with the public integration tip packages linked
 over the private pins (uncommitted override). Environment:
 `DATABASE_ADMIN_URL`, `DATABASE_TEST_URL`, `SOURCE_TASTER_SERVICE_WORKTREE`,
 `SOURCE_TASTER_TEST_POSTGRES_CONTAINER`, `SOURCE_TASTER_TEST_API_PORT=5002`.
-Public packages were installed and built first (`pnpm install --frozen-lockfile`,
-`pnpm turbo run build --filter=@source-taster/server...` for dependencies, and
-`pnpm --filter @source-taster/server build` for the compiled-entry test).
+Public packages were installed first (`pnpm install --frozen-lockfile`). The
+filtered `pnpm turbo run build --filter=@source-taster/server...` exited 1 on the
+website's Pagefind step; it still built the dependencies the tests needed, and
+`pnpm --filter @source-taster/server build` built the compiled-entry test target.
+The website build is not part of this evidence.
+
+Durable logs (parent root `.tmp/spec-70-orchestration/`):
+`98-private-final-public-{extension,account,guest,quota}.log`,
+`98-private-final-private-{typecheck,eslint,account,guest,isolation,quota,service,extension}.log`,
+`98-private-final-native-private.{log,json}` (the JSON holds the browser
+annotations) and `98-private-final-native-account.log`.
 
 | Command | Result |
 | --- | --- |
