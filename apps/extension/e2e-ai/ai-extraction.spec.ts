@@ -9,6 +9,10 @@ import { expect, test } from "@playwright/test";
 import { aiClientWitness } from "../../server/test/support/ai-client-witness.ts";
 import { buildExtension } from "../e2e/support/build.ts";
 import { launchChromium } from "../e2e/support/chromium.ts";
+const apiPort = Number(process.env.SOURCE_TASTER_E2E_AI_API_PORT ?? 5002);
+const websitePort = Number(
+  process.env.SOURCE_TASTER_E2E_AI_WEBSITE_PORT ?? 5401,
+);
 let server: Server;
 let build: Awaited<ReturnType<typeof buildExtension>>;
 let witness = aiClientWitness();
@@ -37,11 +41,11 @@ test.beforeAll(async () => {
       res.end();
     });
   });
-  server.listen(5002, "127.0.0.1");
+  server.listen(apiPort, "127.0.0.1");
   await once(server, "listening");
   build = await buildExtension("chromium", {
-    SOURCE_TASTER_EXTENSION_API_URL: "http://127.0.0.1:5002",
-    SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5401",
+    SOURCE_TASTER_EXTENSION_API_URL: `http://127.0.0.1:${apiPort}`,
+    SOURCE_TASTER_EXTENSION_WEBSITE_URL: `http://127.0.0.1:${websitePort}`,
   });
 });
 test.afterAll(async () => {

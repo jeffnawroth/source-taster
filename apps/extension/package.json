@@ -11,6 +11,7 @@
     "test:native-account": "playwright test --config account.playwright.config.ts",
     "test:native": "playwright test",
     "test:native-selection": "playwright test --config selection.playwright.config.ts",
+    "test:native-ai": "playwright test --config ai.playwright.config.ts",
     "test:native-guest": "playwright test --config guest.playwright.config.ts",
     "test:native-firefox": "playwright test --config firefox.playwright.config.ts"
   },
