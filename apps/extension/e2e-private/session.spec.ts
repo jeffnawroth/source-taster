@@ -14,7 +14,9 @@ async function allow(
   b: Awaited<ReturnType<typeof bothPrograms>>,
   origin: string,
 ) {
-  const config = JSON.parse(await readFile(b.accountConfigPath, "utf8"));
+  const config = JSON.parse(
+    await readFile(b.accountConfigPath, "utf8"),
+  ) as Record<string, unknown>;
   await writeFile(
     b.accountConfigPath,
     JSON.stringify({
@@ -44,7 +46,7 @@ for (const language of ["en", "de"] as const)
         SOURCE_TASTER_EXTENSION_MODE: "hosted",
         SOURCE_TASTER_EXTENSION_API_URL: b.apiUrl,
         SOURCE_TASTER_EXTENSION_SERVICE_URL: b.serviceUrl,
-        SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5203",
+        SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5001",
         SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN: "enabled",
       });
       browser = await launchChromium(
@@ -87,7 +89,20 @@ for (const language of ["en", "de"] as const)
       await panel.click("button", labels.send);
       await panel.fill("textbox", labels.code, await code(b));
       await panel.click("button", labels.confirm);
-      await panel.find("button", labels.here);
+      try {
+        await panel.find("button", labels.here);
+      } catch (error) {
+        console.error(
+          "Panel HTTP",
+          panel.requests.map(
+            (r) =>
+              `${r.method} ${r.url} ${r.postData?.replace(/[0-9]{6}/, "<CODE>").replace(/"transactionCredential":"[^"]*"/, '"transactionCredential":"<T:"+r.postData?.length+">"') ?? ""}`,
+          ),
+          panel.responses.map((r) => `${r.status} ${r.url}`),
+        );
+        console.error("Service diagnostic", b.service().output());
+        throw error;
+      }
       const storage = await browser.storage();
       expect(storage[key]).toMatch(/^[A-Za-z0-9_-]{43}$/);
       expect(
@@ -144,7 +159,24 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
   const proxy = createServer((req, res) => {
     void (async () => {
       const chunks: Buffer[] = [];
-      for await (const chunk of req) chunks.push(Buffer.from(chunk));
+      for await (const chunk of req as AsyncIterable<Uint8Array>)
+        chunks.push(Buffer.from(chunk));
+      // LIMIT: the #101 private Preferences route is not part of this private
+      // phase. The Firefox originless GET to it would be refused (403) and the
+      // shared client treats 403 as an expired session. Answer only that one
+      // read as "not found" so the #98 sign-in evidence stays real; #101 private
+      // must add the route to the originless-GET profile and replace this stand-in.
+      if (req.method === "GET" && req.url === "/v1/extension/preferences") {
+        observed.push({
+          path: req.url,
+          method: req.method,
+          origin: req.headers.origin,
+          status: 404,
+        });
+        res.writeHead(404, { "content-type": "application/problem+json" });
+        res.end(JSON.stringify({ code: "not-found", status: 404 }));
+        return;
+      }
       const reply = await fetch(b.serviceUrl + req.url!, {
         method: req.method,
         headers: req.headers as Record<string, string>,
@@ -163,7 +195,7 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
       res.end();
     });
   });
-  proxy.listen(5203, "127.0.0.1");
+  proxy.listen(5001, "127.0.0.1");
   await once(proxy, "listening");
   let build: Awaited<ReturnType<typeof buildExtension>> | undefined;
   let browser: Awaited<ReturnType<typeof launchFirefox>> | undefined;
@@ -171,8 +203,8 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
     build = await buildExtension("firefox", {
       SOURCE_TASTER_EXTENSION_MODE: "hosted",
       SOURCE_TASTER_EXTENSION_API_URL: b.apiUrl,
-      SOURCE_TASTER_EXTENSION_SERVICE_URL: "http://127.0.0.1:5203",
-      SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5203",
+      SOURCE_TASTER_EXTENSION_SERVICE_URL: "http://127.0.0.1:5001",
+      SOURCE_TASTER_EXTENSION_WEBSITE_URL: "http://127.0.0.1:5001",
       SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN: "enabled",
     });
     browser = await launchFirefox(build.outDir);
@@ -204,6 +236,7 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
           name: n.name.replace(/\b[0-9]{6}\b/g, "<CODE>"),
         })),
       );
+      console.error("Observed HTTP", observed);
       console.error("Service diagnostic", b.service().output());
       throw error;
     }

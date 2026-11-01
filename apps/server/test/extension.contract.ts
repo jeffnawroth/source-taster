@@ -9,7 +9,7 @@ import {
 } from "@source-taster/contract-service";
 import { CheckResponse } from "@source-taster/contract-verification";
 import { readSseFrames } from "@source-taster/contract-verification/client";
-import { bothPrograms } from "./support/both-programs.ts";
+import { bothPrograms, eventually } from "./support/both-programs.ts";
 import { physicsReference } from "./support/doi-fixtures.ts";
 const origin = "chrome-extension://abcdefghijklmnopabcdefghijklmnop";
 async function extension(
@@ -77,9 +77,22 @@ test("real mail extension and cookie clients share Owner and Checks but sign-out
         headers: { authorization: `Bearer ${token}` },
       });
     expect((await read(web.token)).status).toBe(200);
-    const quota=async(token:string)=>(await fetch(b.apiUrl+"/v2/quota",{headers:{authorization:`Bearer ${token}`}})).json();
+    const quota = async (token: string): Promise<unknown> =>
+      (
+        await fetch(b.apiUrl + "/v2/quota", {
+          headers: { authorization: `Bearer ${token}` },
+        })
+      ).json();
     expect(await quota(web.token)).toEqual(await quota(ext.token));
-    const download=(token:string)=>fetch(`${b.apiUrl}/v2/checks/${check.id}/export`,{method:"POST",headers:{authorization:`Bearer ${token}`,"content-type":"application/json"},body:JSON.stringify({format:"csl-json",mode:"original"})});
+    const download = (token: string) =>
+      fetch(`${b.apiUrl}/v2/checks/${check.id}/export`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ format: "csl-json", mode: "original" }),
+      });
     expect((await download(ext.token)).status).toBe(200);
     const guest = await b.issue();
     expect((await read(guest.token)).status).toBe(404);
@@ -149,8 +162,10 @@ test("a real restored private dump cannot revive revoked sessions, consumed proo
     expect((await ext.call("/sign-out", { everywhere: true })).status).toBe(
       200,
     );
-    const config = JSON.parse(await readFile(b.accountConfigPath, "utf8"));
-    let restoredOffline=false;
+    const config = JSON.parse(
+      await readFile(b.accountConfigPath, "utf8"),
+    ) as Record<string, unknown>;
+    let restoredOffline = false;
     await b.restartService(async () => {
       await writeFile(
         b.accountConfigPath,
@@ -182,7 +197,7 @@ test("a real restored private dump cannot revive revoked sessions, consumed proo
         },
       );
       expect(restored.status).toBe(0);
-      restoredOffline=true;
+      restoredOffline = true;
     });
     expect(restoredOffline).toBe(true);
     expect((await ext.call("/session")).status).toBe(401);
@@ -208,24 +223,118 @@ test("a real restored private dump cannot revive revoked sessions, consumed proo
   }
 });
 
-test("extension authority fails closed across JWT expiry, logout renewal races and a real service partition",async()=>{
- const b=await bothPrograms({accounts:true,extensionOrigins:[origin]});
- try {
-  const ext=await extension(b);
-  const quota=(token:string)=>fetch(b.apiUrl+"/v2/quota",{headers:{authorization:`Bearer ${token}`}});
-  expect((await quota(ext.token)).status).toBe(200);
-  await b.advance(300000);
-  expect((await quota(ext.token)).status).toBe(401);
-  const renewed=AccountTokenResponse.parse(await (await ext.call("/account-tokens",{})).json()).data.accessToken;
-  expect((await quota(renewed)).status).toBe(200);
-  await b.service().stop();
-  expect((await quota(renewed)).status).toBe(503);
-  await b.restartService();
-  const [token,logout]=await Promise.all([ext.call("/account-tokens",{}),ext.call("/sign-out",{everywhere:false})]);
-  expect(logout.status).toBe(200);
-  expect([200,401]).toContain(token.status);
-  if(token.ok) expect((await quota(AccountTokenResponse.parse(await token.json()).data.accessToken)).status).toBe(403);
-  expect((await ext.call("/session")).status).toBe(401);
-  expect((await quota(renewed)).status).toBe(403);
- } finally {await b.stop();}
+test("extension authority fails closed across JWT expiry, logout renewal races and a real service partition", async () => {
+  const b = await bothPrograms({ accounts: true, extensionOrigins: [origin] });
+  try {
+    const ext = await extension(b);
+    const quota = (token: string) =>
+      fetch(b.apiUrl + "/v2/quota", {
+        headers: { authorization: `Bearer ${token}` },
+      });
+    expect((await quota(ext.token)).status).toBe(200);
+    await b.advance(300000);
+    expect((await quota(ext.token)).status).toBe(401);
+    const renewed = AccountTokenResponse.parse(
+      await (await ext.call("/account-tokens", {})).json(),
+    ).data.accessToken;
+    expect((await quota(renewed)).status).toBe(200);
+    await b.service().stop();
+    expect((await quota(renewed)).status).toBe(503);
+    await b.restartService();
+    const [token, logout] = await Promise.all([
+      ext.call("/account-tokens", {}),
+      ext.call("/sign-out", { everywhere: false }),
+    ]);
+    expect(logout.status).toBe(200);
+    expect([200, 401]).toContain(token.status);
+    if (token.ok)
+      expect(
+        (
+          await quota(
+            AccountTokenResponse.parse(await token.json()).data.accessToken,
+          )
+        ).status,
+      ).toBe(403);
+    expect((await ext.call("/session")).status).toBe(401);
+    expect((await quota(renewed)).status).toBe(403);
+  } finally {
+    await b.stop();
+  }
+});
+
+test("sign-out here ends only that client's live stream; the other client's stream and renewal continue", async () => {
+  const b = await bothPrograms({
+    accounts: true,
+    extensionOrigins: [origin],
+    startWorker: false,
+  });
+  const readers: ReadableStreamDefaultReader<Uint8Array>[] = [];
+  try {
+    const web = await b.signIn("real@example.invalid");
+    const ext = await extension(b);
+    const create = await fetch(b.apiUrl + "/v1/checks", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${ext.token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ text: physicsReference }),
+    });
+    expect(create.status).toBe(201);
+    const check = CheckResponse.parse(await create.json()).data;
+    const open = async (token: string) => {
+      const response = await fetch(`${b.apiUrl}/v1/checks/${check.id}/events`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      expect(response.status).toBe(200);
+      const reader = response.body!.getReader();
+      readers.push(reader);
+      // First chunk proves the live stream was authorized and is open.
+      expect((await reader.read()).done).toBe(false);
+      return reader;
+    };
+    const webStream = await open(web.token),
+      extStream = await open(ext.token);
+    const state = (reader: ReadableStreamDefaultReader<Uint8Array>) => {
+      let settled: "open" | "ended" = "open";
+      const pump = (async () => {
+        try {
+          for (;;) if ((await reader.read()).done) break;
+        } catch {
+          /* aborted by the server */
+        }
+        settled = "ended";
+      })();
+      return { pump, current: () => settled };
+    };
+    const webState = state(webStream),
+      extState = state(extStream);
+    await new Promise((r) => setTimeout(r, 1000));
+    expect([webState.current(), extState.current()]).toEqual(["open", "open"]);
+    expect((await ext.call("/sign-out", { everywhere: false })).status).toBe(
+      200,
+    );
+    await eventually(() => extState.current() === "ended");
+    await new Promise((r) => setTimeout(r, 1500));
+    expect(webState.current()).toBe("open");
+    const renewed = await web.call("/v1/account-tokens", {});
+    expect(renewed.status).toBe(200);
+    expect(
+      (
+        await fetch(`${b.apiUrl}/v1/checks/${check.id}`, {
+          headers: { authorization: `Bearer ${web.token}` },
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await fetch(`${b.apiUrl}/v1/checks/${check.id}`, {
+          headers: { authorization: `Bearer ${ext.token}` },
+        })
+      ).status,
+    ).toBe(403);
+  } finally {
+    await Promise.all(readers.map((r) => r.cancel().catch(() => {})));
+    await b.stop();
+  }
 });
