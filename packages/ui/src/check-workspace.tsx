@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { ContinuationTime } from "./abuse-message.tsx";
+import type { AiStructuringResult as StructuringResult } from "@source-taster/contract-verification/ai";
 import type { ReactNode } from "react";
 import {
   useEffect,
@@ -9,10 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type {
-  Check,
-  StructuringResult,
-} from "@source-taster/contract-verification/v2";
+import type { Check } from "@source-taster/contract-verification/v2";
 import {
   ApiError,
   CheckStreamError,
@@ -398,6 +396,8 @@ export function CheckWorkspace({
     setSelectionUndo(null);
     const token = ++generation.current;
     controller.current?.abort();
+    const structuringController = new AbortController();
+    controller.current = structuringController;
     setCheck(null);
     if (!library) setPreview(null);
     setStreamError(null);
@@ -409,6 +409,7 @@ export function CheckWorkspace({
     setQuotaNote(null);
     let selection: BibliographyDocument | null = null;
     let previewCount: number | null = null;
+    let extraction: Parameters<typeof api.createCheck>[0] | null = null;
     try {
       if (library) {
         if (operation === "structure") {
@@ -426,6 +427,7 @@ export function CheckWorkspace({
                 regions: sourceDocument.selection.regions,
               }
             : { text },
+          structuringController.signal,
         );
         if (generation.current !== token) return;
         setSourceDocument(result.document);
@@ -443,17 +445,29 @@ export function CheckWorkspace({
           return;
         selection = result.document;
         previewCount = result.structuring.references.length;
+        if (result.structuring.receipt)
+          extraction = {
+            extraction: {
+              text: result.document?.text ?? text,
+              ...(result.document
+                ? { regions: result.document.selection.regions }
+                : {}),
+              result: result.structuring,
+            },
+          };
       }
-      const input: Parameters<typeof api.createCheck>[0] = library
-        ? { library }
-        : selection
-          ? {
-              document: {
-                text: selection.text,
-                regions: selection.selection.regions,
-              },
-            }
-          : text;
+      const input: Parameters<typeof api.createCheck>[0] =
+        extraction ??
+        (library
+          ? { library }
+          : selection
+            ? {
+                document: {
+                  text: selection.text,
+                  regions: selection.selection.regions,
+                },
+              }
+            : text);
       const required = library
         ? (preview?.references.length ?? 0)
         : (previewCount ?? 0);
@@ -1074,7 +1088,13 @@ export function CheckWorkspace({
           {m.document_partial_no_text()}
         </p>
       )}
-      {preview && <StructuringResults result={preview} />}
+      {preview && (
+        <StructuringResults
+          result={preview}
+          inputText={sourceDocument?.text ?? text}
+          upgradeUrl={upgradeUrl}
+        />
+      )}
       {check && (
         <section aria-labelledby="results-title" className="mt-10">
           <h2 id="results-title" className="mb-4 text-2xl font-semibold">

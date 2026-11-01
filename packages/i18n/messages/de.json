@@ -406,5 +406,15 @@
   "sensitive_deleted": "Ihr Konto wurde gelöscht. Nichts daraus wurde in die Gastnutzung übernommen.",
   "sensitive_deletion_in_progress": "Die Löschung Ihres Kontos läuft. Der Zugriff bleibt gesperrt, bis sie abgeschlossen ist.",
   "sensitive_deletion_failed": "Das Konto wurde nicht gelöscht. Sie sind weiterhin angemeldet und es wurde nichts geändert.",
-  "sensitive_reload": "Neu laden"
+  "sensitive_reload": "Neu laden",
+  "ai_uncertainty": "KI-Ergebnisse können falsch sein. Vergleichen Sie die extrahierten Felder mit Ihrem Originaltext.",
+  "ai_extracted": "Von KI extrahiert",
+  "ai_changed": "Von KI ergänzt oder geändert",
+  "ai_excluded": "Von Suche und Bewertung ausgeschlossen, bis Sie den Wert ausdrücklich als Korrektur übernehmen.",
+  "ai_adopt": "Als eigene Korrektur übernehmen",
+  "ai_guest": "KI-Extraktion ist für Gäste nicht verfügbar. Der Parser wurde verwendet. Ein kostenpflichtiger Plan bietet KI-Extraktion.",
+  "ai_feature_unavailable": "Ihr aktueller Funktionsumfang enthält keine KI-Extraktion. Der Parser wurde verwendet. Ein kostenpflichtiger Plan bietet KI-Extraktion.",
+  "ai_configuration_unavailable": "KI-Extraktion ist derzeit nicht verfügbar. Der Parser wurde verwendet.",
+  "ai_fallback": "Die KI-Extraktion dieses Abschnitts ist nach einem erneuten Versuch fehlgeschlagen. Der Parser wurde verwendet. Sie können den Abschnitt erneut strukturieren.",
+  "ai_proposals": "KI-Vorschläge"
 }

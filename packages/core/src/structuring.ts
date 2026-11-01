@@ -5,8 +5,9 @@ export interface Span {
   end: number;
 }
 export interface FieldSource {
+  provenance?: "parser" | "user" | "ai";
   raw: string;
-  /** Only parser-derived fields have offsets in original text. */
+  /** Grounded parser/AI fields have offsets in the exact original text. */
   span?: Span;
   normalized?: string;
 }
@@ -51,9 +52,25 @@ export interface StructuredReference {
   csl: Csl;
   fieldSources: Record<string, FieldSource>;
   authorsTruncated?: boolean;
-  structuring: { path: "parser" | "user"; version: string };
+  ai?: {
+    configuration: string;
+    notice: "ai-can-be-wrong";
+    proposals: { field: string; value: unknown; reason: "ungrounded" }[];
+    changedFields: string[];
+  };
+  structuring: { path: "parser" | "user" | "ai"; version: string };
 }
 export interface StructuringResult {
+  receipt?: { expiresAt: number; signature: string };
+  ai?: {
+    reason:
+      "guest" | "feature-unavailable" | "configuration-unavailable" | null;
+    upgrade: boolean;
+    fallbacks: {
+      span: Span;
+      reason: "timeout" | "invalid-output" | "provider-unavailable";
+    }[];
+  };
   references: StructuredReference[];
   rejected: {
     originalText: string;

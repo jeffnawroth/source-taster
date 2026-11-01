@@ -15,6 +15,7 @@
     "e2e-selection",
     "e2e-account",
     "e2e-preferences",
+    "e2e-ai",
     "*.ts"
   ]
 }

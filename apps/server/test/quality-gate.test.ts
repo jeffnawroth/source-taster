@@ -18,13 +18,18 @@ import { join } from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, expect, it } from "vitest";
+import { bedrockExtraction } from "../src/ai/bedrock.ts";
 import {
   calibrate,
   measureConfiguration,
   type ExtractionPort,
 } from "../scripts/quality/runner.ts";
 
-const port = Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 4202);
+const port = Number(
+  process.env.SOURCE_TASTER_TEST_SERVICE_PORT ??
+    process.env.SOURCE_TASTER_TEST_QUALITY_PORT ??
+    4202,
+);
 let root: string;
 beforeEach(async () => {
   root = await realpath(await mkdtemp(join(tmpdir(), "st-94-gate-")));
@@ -511,3 +516,151 @@ it("exits 78 from the calibration CLI when no grid point qualifies and preserves
     selected: null,
   });
 }, 120_000);
+
+const syntheticBedrockConfiguration = {
+  mode: "synthetic",
+  providerPath: "amazon-bedrock-eu",
+  modelId: "eu.anthropic.synthetic-20261031-v1:0",
+  region: "eu-central-1",
+  promptVersion: "bedrock-exact-spans/1",
+  schemaVersion: "exact-spans/1",
+  sampling: { temperature: 0, maxTokens: 8192 },
+  determinism: "synthetic protocol witness only",
+  chunkSize: 4096,
+  processingAndStorageCountries: ["DE", "FR"],
+  zeroRetention: true,
+  qualificationRecord: "synthetic-not-provider-evidence",
+} as const;
+
+it("measures the grounded Bedrock adapter projection and never promotes a synthetic provider witness", async () => {
+  await writeReferenceTestSet();
+  const requests: { url: string; body: Record<string, unknown> }[] = [];
+  const extraction = bedrockExtraction({
+    configuration: {
+      ...syntheticBedrockConfiguration,
+      processingAndStorageCountries: ["DE", "FR"],
+    },
+    bearerToken: () => Promise.resolve("synthetic-token"),
+    fetch: (url, options) => {
+      if (typeof url !== "string") throw new Error("synthetic-url-required");
+      if (url.endsWith("/data-retention"))
+        return Promise.resolve(Response.json({ mode: "none" }));
+      if (typeof options?.body !== "string")
+        throw new Error("synthetic-body-required");
+      const body = JSON.parse(options.body) as {
+        messages: { content: { text: string }[] }[];
+      };
+      requests.push({ url, body });
+      const input = body.messages[0]!.content[0]!.text;
+      const doi =
+        input === correct.input
+          ? "10.5555/st94-correct"
+          : "10.5555/st94-invented";
+      const output = {
+        references: [
+          {
+            originalText: input,
+            start: 0,
+            end: input.length,
+            cslType: "",
+            fields: [
+              {
+                path: "DOI",
+                value: doi,
+                start: input.indexOf(doi),
+                end: input.indexOf(doi) + doi.length,
+              },
+              {
+                path: "title",
+                value: "Fabricated AI title",
+                start: -1,
+                end: -1,
+              },
+            ],
+          },
+        ],
+      };
+      return Promise.resolve(
+        Response.json({
+          stop_reason: "end_turn",
+          content: [{ type: "text", text: JSON.stringify(output) }],
+        }),
+      );
+    },
+  });
+  const result = await measureConfiguration({
+    root,
+    configuration: { enabledSources: [] },
+    extraction,
+    port,
+  });
+  const log = await readJson<LogFile>(result.logPath);
+  expect(requests).toHaveLength(6);
+  expect(requests[0]?.url).toBe(
+    "https://bedrock-runtime.eu-central-1.amazonaws.com/model/eu.anthropic.synthetic-20261031-v1%3A0/invoke",
+  );
+  expect(requests[0]?.body).toMatchObject({
+    max_tokens: 8192,
+    temperature: 0,
+    output_config: {
+      format: {
+        schema: {
+          properties: {
+            references: {
+              items: {
+                properties: {
+                  fields: {
+                    items: {
+                      properties: {
+                        path: { type: "string" },
+                        value: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  for (const run of log.runs.filter((run) => run.path === "ai")) {
+    expect(run.structuredFields["synthetic-correct"]).toEqual([
+      { DOI: "10.5555/st94-correct" },
+    ]);
+    expect(run.structuredFields["synthetic-invented"]).toEqual([
+      { DOI: "10.5555/st94-invented" },
+    ]);
+  }
+  expect(log.decision.releasable).toBe(false);
+});
+
+it("refuses every AI measurement input before inference when Bedrock retention is not none", async () => {
+  await writeReferenceTestSet();
+  let inferenceRequests = 0;
+  const extraction = bedrockExtraction({
+    configuration: {
+      ...syntheticBedrockConfiguration,
+      processingAndStorageCountries: ["DE", "FR"],
+    },
+    bearerToken: () => Promise.resolve("synthetic-token"),
+    fetch: (url) => {
+      if (typeof url !== "string") throw new Error("synthetic-url-required");
+      if (url.endsWith("/invoke")) inferenceRequests++;
+      return Promise.resolve(Response.json({ mode: "default" }));
+    },
+  });
+  const result = await measureConfiguration({
+    root,
+    configuration: { enabledSources: [] },
+    extraction,
+    port,
+  });
+  const log = await readJson<LogFile>(result.logPath);
+  expect(inferenceRequests).toBe(0);
+  expect(
+    log.runs.filter((run) => run.path === "ai").map((run) => run.valid),
+  ).toEqual([false, false, false]);
+  expect(log.decision.releasable).toBe(false);
+});

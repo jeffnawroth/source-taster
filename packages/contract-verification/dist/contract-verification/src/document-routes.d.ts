@@ -53,12 +53,28 @@ export declare const structureDocument: {
                                 notice: import("zod").ZodNullable<import("zod").ZodLiteral<"partial-no-text">>;
                             }, import("zod/v4/core").$strip>;
                             structuring: import("zod").ZodObject<{
+                                rejected: import("zod").ZodArray<import("zod").ZodObject<{
+                                    originalText: import("zod").ZodString;
+                                    span: import("zod").ZodObject<{
+                                        start: import("zod").ZodNumber;
+                                        end: import("zod").ZodNumber;
+                                    }, import("zod/v4/core").$strip>;
+                                    reason: import("zod").ZodLiteral<"no-reference-features">;
+                                }, import("zod/v4/core").$strip>>;
+                                guidance: import("zod").ZodNullable<import("zod").ZodLiteral<"no-references">>;
+                                quotaConsumed: import("zod").ZodLiteral<0>;
+                                referenceLimit: import("zod").ZodNumber;
+                                receipt: import("zod").ZodOptional<import("zod").ZodObject<{
+                                    expiresAt: import("zod").ZodNumber;
+                                    signature: import("zod").ZodString;
+                                }, import("zod/v4/core").$strip>>;
                                 references: import("zod").ZodArray<import("zod").ZodObject<{
                                     originalText: import("zod").ZodString;
                                     span: import("zod").ZodObject<{
                                         start: import("zod").ZodNumber;
                                         end: import("zod").ZodNumber;
                                     }, import("zod/v4/core").$strip>;
+                                    authorsTruncated: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                     csl: import("zod").ZodObject<{
                                         type: import("zod").ZodOptional<import("zod").ZodString>;
                                         author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
@@ -86,6 +102,7 @@ export declare const structureDocument: {
                                         ISSN: import("zod").ZodOptional<import("zod").ZodString>;
                                         PMID: import("zod").ZodOptional<import("zod").ZodString>;
                                         PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                        arXiv: import("zod").ZodOptional<import("zod").ZodString>;
                                     }, import("zod/v4/core").$strip>;
                                     fieldSources: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodObject<{
                                         raw: import("zod").ZodString;
@@ -94,27 +111,50 @@ export declare const structureDocument: {
                                             end: import("zod").ZodNumber;
                                         }, import("zod/v4/core").$strip>>;
                                         normalized: import("zod").ZodOptional<import("zod").ZodString>;
+                                        provenance: import("zod").ZodOptional<import("zod").ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>>;
                                     }, import("zod/v4/core").$strip>>;
-                                    authorsTruncated: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                     structuring: import("zod").ZodObject<{
                                         path: import("zod").ZodEnum<{
+                                            ai: "ai";
                                             parser: "parser";
                                             user: "user";
                                         }>;
                                         version: import("zod").ZodString;
                                     }, import("zod/v4/core").$strip>;
+                                    ai: import("zod").ZodOptional<import("zod").ZodObject<{
+                                        configuration: import("zod").ZodString;
+                                        notice: import("zod").ZodLiteral<"ai-can-be-wrong">;
+                                        proposals: import("zod").ZodArray<import("zod").ZodObject<{
+                                            field: import("zod").ZodString;
+                                            value: import("zod").ZodUnknown;
+                                            reason: import("zod").ZodLiteral<"ungrounded">;
+                                        }, import("zod/v4/core").$strip>>;
+                                        changedFields: import("zod").ZodArray<import("zod").ZodString>;
+                                    }, import("zod/v4/core").$strip>>;
                                 }, import("zod/v4/core").$strip>>;
-                                rejected: import("zod").ZodArray<import("zod").ZodObject<{
-                                    originalText: import("zod").ZodString;
-                                    span: import("zod").ZodObject<{
-                                        start: import("zod").ZodNumber;
-                                        end: import("zod").ZodNumber;
-                                    }, import("zod/v4/core").$strip>;
-                                    reason: import("zod").ZodLiteral<"no-reference-features">;
+                                ai: import("zod").ZodOptional<import("zod").ZodObject<{
+                                    reason: import("zod").ZodNullable<import("zod").ZodEnum<{
+                                        "configuration-unavailable": "configuration-unavailable";
+                                        "feature-unavailable": "feature-unavailable";
+                                        guest: "guest";
+                                    }>>;
+                                    upgrade: import("zod").ZodBoolean;
+                                    fallbacks: import("zod").ZodArray<import("zod").ZodObject<{
+                                        span: import("zod").ZodObject<{
+                                            start: import("zod").ZodNumber;
+                                            end: import("zod").ZodNumber;
+                                        }, import("zod/v4/core").$strip>;
+                                        reason: import("zod").ZodEnum<{
+                                            "invalid-output": "invalid-output";
+                                            "provider-unavailable": "provider-unavailable";
+                                            timeout: "timeout";
+                                        }>;
+                                    }, import("zod/v4/core").$strip>>;
                                 }, import("zod/v4/core").$strip>>;
-                                guidance: import("zod").ZodNullable<import("zod").ZodLiteral<"no-references">>;
-                                quotaConsumed: import("zod").ZodLiteral<0>;
-                                referenceLimit: import("zod").ZodNumber;
                             }, import("zod/v4/core").$strip>;
                             selection: import("zod").ZodObject<{
                                 version: import("zod").ZodString;
@@ -479,12 +519,28 @@ export declare const structureText: {
                                 }, import("zod/v4/core").$strip>;
                             }, import("zod/v4/core").$strip>>;
                             structuring: import("zod").ZodObject<{
+                                rejected: import("zod").ZodArray<import("zod").ZodObject<{
+                                    originalText: import("zod").ZodString;
+                                    span: import("zod").ZodObject<{
+                                        start: import("zod").ZodNumber;
+                                        end: import("zod").ZodNumber;
+                                    }, import("zod/v4/core").$strip>;
+                                    reason: import("zod").ZodLiteral<"no-reference-features">;
+                                }, import("zod/v4/core").$strip>>;
+                                guidance: import("zod").ZodNullable<import("zod").ZodLiteral<"no-references">>;
+                                quotaConsumed: import("zod").ZodLiteral<0>;
+                                referenceLimit: import("zod").ZodNumber;
+                                receipt: import("zod").ZodOptional<import("zod").ZodObject<{
+                                    expiresAt: import("zod").ZodNumber;
+                                    signature: import("zod").ZodString;
+                                }, import("zod/v4/core").$strip>>;
                                 references: import("zod").ZodArray<import("zod").ZodObject<{
                                     originalText: import("zod").ZodString;
                                     span: import("zod").ZodObject<{
                                         start: import("zod").ZodNumber;
                                         end: import("zod").ZodNumber;
                                     }, import("zod/v4/core").$strip>;
+                                    authorsTruncated: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                     csl: import("zod").ZodObject<{
                                         type: import("zod").ZodOptional<import("zod").ZodString>;
                                         author: import("zod").ZodOptional<import("zod").ZodArray<import("zod").ZodObject<{
@@ -512,6 +568,7 @@ export declare const structureText: {
                                         ISSN: import("zod").ZodOptional<import("zod").ZodString>;
                                         PMID: import("zod").ZodOptional<import("zod").ZodString>;
                                         PMCID: import("zod").ZodOptional<import("zod").ZodString>;
+                                        arXiv: import("zod").ZodOptional<import("zod").ZodString>;
                                     }, import("zod/v4/core").$strip>;
                                     fieldSources: import("zod").ZodRecord<import("zod").ZodString, import("zod").ZodObject<{
                                         raw: import("zod").ZodString;
@@ -520,27 +577,50 @@ export declare const structureText: {
                                             end: import("zod").ZodNumber;
                                         }, import("zod/v4/core").$strip>>;
                                         normalized: import("zod").ZodOptional<import("zod").ZodString>;
+                                        provenance: import("zod").ZodOptional<import("zod").ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>>;
                                     }, import("zod/v4/core").$strip>>;
-                                    authorsTruncated: import("zod").ZodOptional<import("zod").ZodBoolean>;
                                     structuring: import("zod").ZodObject<{
                                         path: import("zod").ZodEnum<{
+                                            ai: "ai";
                                             parser: "parser";
                                             user: "user";
                                         }>;
                                         version: import("zod").ZodString;
                                     }, import("zod/v4/core").$strip>;
+                                    ai: import("zod").ZodOptional<import("zod").ZodObject<{
+                                        configuration: import("zod").ZodString;
+                                        notice: import("zod").ZodLiteral<"ai-can-be-wrong">;
+                                        proposals: import("zod").ZodArray<import("zod").ZodObject<{
+                                            field: import("zod").ZodString;
+                                            value: import("zod").ZodUnknown;
+                                            reason: import("zod").ZodLiteral<"ungrounded">;
+                                        }, import("zod/v4/core").$strip>>;
+                                        changedFields: import("zod").ZodArray<import("zod").ZodString>;
+                                    }, import("zod/v4/core").$strip>>;
                                 }, import("zod/v4/core").$strip>>;
-                                rejected: import("zod").ZodArray<import("zod").ZodObject<{
-                                    originalText: import("zod").ZodString;
-                                    span: import("zod").ZodObject<{
-                                        start: import("zod").ZodNumber;
-                                        end: import("zod").ZodNumber;
-                                    }, import("zod/v4/core").$strip>;
-                                    reason: import("zod").ZodLiteral<"no-reference-features">;
+                                ai: import("zod").ZodOptional<import("zod").ZodObject<{
+                                    reason: import("zod").ZodNullable<import("zod").ZodEnum<{
+                                        "configuration-unavailable": "configuration-unavailable";
+                                        "feature-unavailable": "feature-unavailable";
+                                        guest: "guest";
+                                    }>>;
+                                    upgrade: import("zod").ZodBoolean;
+                                    fallbacks: import("zod").ZodArray<import("zod").ZodObject<{
+                                        span: import("zod").ZodObject<{
+                                            start: import("zod").ZodNumber;
+                                            end: import("zod").ZodNumber;
+                                        }, import("zod/v4/core").$strip>;
+                                        reason: import("zod").ZodEnum<{
+                                            "invalid-output": "invalid-output";
+                                            "provider-unavailable": "provider-unavailable";
+                                            timeout: "timeout";
+                                        }>;
+                                    }, import("zod/v4/core").$strip>>;
                                 }, import("zod/v4/core").$strip>>;
-                                guidance: import("zod").ZodNullable<import("zod").ZodLiteral<"no-references">>;
-                                quotaConsumed: import("zod").ZodLiteral<0>;
-                                referenceLimit: import("zod").ZodNumber;
                             }, import("zod/v4/core").$strip>;
                             referenceLimitExceeded: import("zod").ZodBoolean;
                         }, import("zod/v4/core").$strip>;

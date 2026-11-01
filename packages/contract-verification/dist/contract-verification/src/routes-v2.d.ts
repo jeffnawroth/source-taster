@@ -13,6 +13,118 @@ export declare const createCheck: {
             content: {
                 "application/json": {
                     schema: z.ZodUnion<readonly [z.ZodObject<{
+                        extraction: z.ZodObject<{
+                            text: z.ZodString;
+                            regions: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                start: z.ZodNumber;
+                                end: z.ZodNumber;
+                            }, z.core.$strip>>>;
+                            result: z.ZodObject<{
+                                rejected: z.ZodArray<z.ZodObject<{
+                                    originalText: z.ZodString;
+                                    span: z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>;
+                                    reason: z.ZodLiteral<"no-reference-features">;
+                                }, z.core.$strip>>;
+                                guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
+                                quotaConsumed: z.ZodLiteral<0>;
+                                referenceLimit: z.ZodNumber;
+                                receipt: z.ZodOptional<z.ZodObject<{
+                                    expiresAt: z.ZodNumber;
+                                    signature: z.ZodString;
+                                }, z.core.$strip>>;
+                                references: z.ZodArray<z.ZodObject<{
+                                    originalText: z.ZodString;
+                                    span: z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>;
+                                    authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                    csl: z.ZodObject<{
+                                        type: z.ZodOptional<z.ZodString>;
+                                        author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                            family: z.ZodOptional<z.ZodString>;
+                                            "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                            given: z.ZodOptional<z.ZodString>;
+                                            literal: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>>;
+                                        issued: z.ZodOptional<z.ZodObject<{
+                                            literal: z.ZodString;
+                                        }, z.core.$strip>>;
+                                        title: z.ZodOptional<z.ZodString>;
+                                        "container-title": z.ZodOptional<z.ZodString>;
+                                        "container-title-short": z.ZodOptional<z.ZodString>;
+                                        publisher: z.ZodOptional<z.ZodString>;
+                                        "publisher-place": z.ZodOptional<z.ZodString>;
+                                        volume: z.ZodOptional<z.ZodString>;
+                                        issue: z.ZodOptional<z.ZodString>;
+                                        page: z.ZodOptional<z.ZodString>;
+                                        "article-number": z.ZodOptional<z.ZodString>;
+                                        edition: z.ZodOptional<z.ZodString>;
+                                        DOI: z.ZodOptional<z.ZodString>;
+                                        URL: z.ZodOptional<z.ZodString>;
+                                        ISBN: z.ZodOptional<z.ZodString>;
+                                        ISSN: z.ZodOptional<z.ZodString>;
+                                        PMID: z.ZodOptional<z.ZodString>;
+                                        PMCID: z.ZodOptional<z.ZodString>;
+                                        arXiv: z.ZodOptional<z.ZodString>;
+                                    }, z.core.$strip>;
+                                    fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                        raw: z.ZodString;
+                                        span: z.ZodOptional<z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>>;
+                                        normalized: z.ZodOptional<z.ZodString>;
+                                        provenance: z.ZodOptional<z.ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>>;
+                                    }, z.core.$strip>>;
+                                    structuring: z.ZodObject<{
+                                        path: z.ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>;
+                                        version: z.ZodString;
+                                    }, z.core.$strip>;
+                                    ai: z.ZodOptional<z.ZodObject<{
+                                        configuration: z.ZodString;
+                                        notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                        proposals: z.ZodArray<z.ZodObject<{
+                                            field: z.ZodString;
+                                            value: z.ZodUnknown;
+                                            reason: z.ZodLiteral<"ungrounded">;
+                                        }, z.core.$strip>>;
+                                        changedFields: z.ZodArray<z.ZodString>;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>>;
+                                ai: z.ZodOptional<z.ZodObject<{
+                                    reason: z.ZodNullable<z.ZodEnum<{
+                                        "configuration-unavailable": "configuration-unavailable";
+                                        "feature-unavailable": "feature-unavailable";
+                                        guest: "guest";
+                                    }>>;
+                                    upgrade: z.ZodBoolean;
+                                    fallbacks: z.ZodArray<z.ZodObject<{
+                                        span: z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>;
+                                        reason: z.ZodEnum<{
+                                            "invalid-output": "invalid-output";
+                                            "provider-unavailable": "provider-unavailable";
+                                            timeout: "timeout";
+                                        }>;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>>;
+                            }, z.core.$strip>;
+                        }, z.core.$strict>;
+                    }, z.core.$strict>, z.ZodObject<{
                         library: z.ZodObject<{
                             format: z.ZodEnum<{
                                 bibtex: "bibtex";
@@ -284,6 +396,7 @@ export declare const createCheck: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -291,15 +404,30 @@ export declare const createCheck: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -370,6 +498,7 @@ export declare const createCheck: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -414,6 +543,7 @@ export declare const createCheck: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -421,15 +551,30 @@ export declare const createCheck: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -795,6 +940,7 @@ export declare const createCheck: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -802,15 +948,30 @@ export declare const createCheck: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -1528,6 +1689,7 @@ export declare const getCheck: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -1535,15 +1697,30 @@ export declare const getCheck: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -1614,6 +1791,7 @@ export declare const getCheck: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -1658,6 +1836,7 @@ export declare const getCheck: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -1665,15 +1844,30 @@ export declare const getCheck: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -2039,6 +2233,7 @@ export declare const getCheck: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -2046,15 +2241,30 @@ export declare const getCheck: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -2623,6 +2833,7 @@ export declare const cancelCheck: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -2630,15 +2841,30 @@ export declare const cancelCheck: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -2709,6 +2935,7 @@ export declare const cancelCheck: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -2753,6 +2980,7 @@ export declare const cancelCheck: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -2760,15 +2988,30 @@ export declare const cancelCheck: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -3134,6 +3377,7 @@ export declare const cancelCheck: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -3141,15 +3385,30 @@ export declare const cancelCheck: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -3718,6 +3977,7 @@ export declare const renewCheckLease: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -3725,15 +3985,30 @@ export declare const renewCheckLease: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -3804,6 +4079,7 @@ export declare const renewCheckLease: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -3848,6 +4124,7 @@ export declare const renewCheckLease: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -3855,15 +4132,30 @@ export declare const renewCheckLease: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -4229,6 +4521,7 @@ export declare const renewCheckLease: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -4236,15 +4529,30 @@ export declare const renewCheckLease: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -4998,6 +5306,7 @@ export declare const saveFields: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -5005,15 +5314,30 @@ export declare const saveFields: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -5084,6 +5408,7 @@ export declare const saveFields: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -5128,6 +5453,7 @@ export declare const saveFields: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -5135,15 +5461,30 @@ export declare const saveFields: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -5509,6 +5850,7 @@ export declare const saveFields: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -5516,15 +5858,30 @@ export declare const saveFields: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -6141,6 +6498,7 @@ export declare const recheckReference: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -6148,15 +6506,30 @@ export declare const recheckReference: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -6227,6 +6600,7 @@ export declare const recheckReference: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -6271,6 +6645,7 @@ export declare const recheckReference: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -6278,15 +6653,30 @@ export declare const recheckReference: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -6652,6 +7042,7 @@ export declare const recheckReference: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -6659,15 +7050,30 @@ export declare const recheckReference: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -7317,6 +7723,7 @@ export declare const editReferenceList: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -7324,15 +7731,30 @@ export declare const editReferenceList: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -7403,6 +7825,7 @@ export declare const editReferenceList: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -7447,6 +7870,7 @@ export declare const editReferenceList: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -7454,15 +7878,30 @@ export declare const editReferenceList: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -7828,6 +8267,7 @@ export declare const editReferenceList: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -7835,15 +8275,30 @@ export declare const editReferenceList: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -8471,6 +8926,7 @@ export declare const setManualOverride: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -8478,15 +8934,30 @@ export declare const setManualOverride: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -8557,6 +9028,7 @@ export declare const setManualOverride: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -8601,6 +9073,7 @@ export declare const setManualOverride: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -8608,15 +9081,30 @@ export declare const setManualOverride: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -8982,6 +9470,7 @@ export declare const setManualOverride: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -8989,15 +9478,30 @@ export declare const setManualOverride: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -9434,6 +9938,7 @@ export declare const importReferences: {
                                     start: z.ZodNumber;
                                     end: z.ZodNumber;
                                 }, z.core.$strip>;
+                                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                 fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                     raw: z.ZodString;
                                     span: z.ZodOptional<z.ZodObject<{
@@ -9441,15 +9946,30 @@ export declare const importReferences: {
                                         end: z.ZodNumber;
                                     }, z.core.$strip>>;
                                     normalized: z.ZodOptional<z.ZodString>;
+                                    provenance: z.ZodOptional<z.ZodEnum<{
+                                        ai: "ai";
+                                        parser: "parser";
+                                        user: "user";
+                                    }>>;
                                 }, z.core.$strip>>;
-                                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                 structuring: z.ZodObject<{
                                     path: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
                                     version: z.ZodString;
                                 }, z.core.$strip>;
+                                ai: z.ZodOptional<z.ZodObject<{
+                                    configuration: z.ZodString;
+                                    notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                    proposals: z.ZodArray<z.ZodObject<{
+                                        field: z.ZodString;
+                                        value: z.ZodUnknown;
+                                        reason: z.ZodLiteral<"ungrounded">;
+                                    }, z.core.$strip>>;
+                                    changedFields: z.ZodArray<z.ZodString>;
+                                }, z.core.$strip>>;
                                 csl: z.ZodObject<{
                                     type: z.ZodOptional<z.ZodString>;
                                     author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -9634,6 +10154,113 @@ export declare const editSelection: {
             content: {
                 "application/json": {
                     schema: z.ZodObject<{
+                        prepared: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                            text: z.ZodString;
+                            result: z.ZodObject<{
+                                rejected: z.ZodArray<z.ZodObject<{
+                                    originalText: z.ZodString;
+                                    span: z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>;
+                                    reason: z.ZodLiteral<"no-reference-features">;
+                                }, z.core.$strip>>;
+                                guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
+                                quotaConsumed: z.ZodLiteral<0>;
+                                referenceLimit: z.ZodNumber;
+                                receipt: z.ZodOptional<z.ZodObject<{
+                                    expiresAt: z.ZodNumber;
+                                    signature: z.ZodString;
+                                }, z.core.$strip>>;
+                                references: z.ZodArray<z.ZodObject<{
+                                    originalText: z.ZodString;
+                                    span: z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>;
+                                    authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                    csl: z.ZodObject<{
+                                        type: z.ZodOptional<z.ZodString>;
+                                        author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                            family: z.ZodOptional<z.ZodString>;
+                                            "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                            given: z.ZodOptional<z.ZodString>;
+                                            literal: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>>;
+                                        issued: z.ZodOptional<z.ZodObject<{
+                                            literal: z.ZodString;
+                                        }, z.core.$strip>>;
+                                        title: z.ZodOptional<z.ZodString>;
+                                        "container-title": z.ZodOptional<z.ZodString>;
+                                        "container-title-short": z.ZodOptional<z.ZodString>;
+                                        publisher: z.ZodOptional<z.ZodString>;
+                                        "publisher-place": z.ZodOptional<z.ZodString>;
+                                        volume: z.ZodOptional<z.ZodString>;
+                                        issue: z.ZodOptional<z.ZodString>;
+                                        page: z.ZodOptional<z.ZodString>;
+                                        "article-number": z.ZodOptional<z.ZodString>;
+                                        edition: z.ZodOptional<z.ZodString>;
+                                        DOI: z.ZodOptional<z.ZodString>;
+                                        URL: z.ZodOptional<z.ZodString>;
+                                        ISBN: z.ZodOptional<z.ZodString>;
+                                        ISSN: z.ZodOptional<z.ZodString>;
+                                        PMID: z.ZodOptional<z.ZodString>;
+                                        PMCID: z.ZodOptional<z.ZodString>;
+                                        arXiv: z.ZodOptional<z.ZodString>;
+                                    }, z.core.$strip>;
+                                    fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                        raw: z.ZodString;
+                                        span: z.ZodOptional<z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>>;
+                                        normalized: z.ZodOptional<z.ZodString>;
+                                        provenance: z.ZodOptional<z.ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>>;
+                                    }, z.core.$strip>>;
+                                    structuring: z.ZodObject<{
+                                        path: z.ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>;
+                                        version: z.ZodString;
+                                    }, z.core.$strip>;
+                                    ai: z.ZodOptional<z.ZodObject<{
+                                        configuration: z.ZodString;
+                                        notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                        proposals: z.ZodArray<z.ZodObject<{
+                                            field: z.ZodString;
+                                            value: z.ZodUnknown;
+                                            reason: z.ZodLiteral<"ungrounded">;
+                                        }, z.core.$strip>>;
+                                        changedFields: z.ZodArray<z.ZodString>;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>>;
+                                ai: z.ZodOptional<z.ZodObject<{
+                                    reason: z.ZodNullable<z.ZodEnum<{
+                                        "configuration-unavailable": "configuration-unavailable";
+                                        "feature-unavailable": "feature-unavailable";
+                                        guest: "guest";
+                                    }>>;
+                                    upgrade: z.ZodBoolean;
+                                    fallbacks: z.ZodArray<z.ZodObject<{
+                                        span: z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>;
+                                        reason: z.ZodEnum<{
+                                            "invalid-output": "invalid-output";
+                                            "provider-unavailable": "provider-unavailable";
+                                            timeout: "timeout";
+                                        }>;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>>;
+                            }, z.core.$strip>;
+                        }, z.core.$strip>>>;
                         expectedEventSeq: z.ZodNumber;
                         regions: z.ZodArray<z.ZodObject<{
                             start: z.ZodNumber;
@@ -9859,6 +10486,7 @@ export declare const editSelection: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -9866,15 +10494,30 @@ export declare const editSelection: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -9945,6 +10588,7 @@ export declare const editSelection: {
                                         }, z.core.$strip>>;
                                     }, z.core.$strip>;
                                     provenance: z.ZodEnum<{
+                                        ai: "ai";
                                         parser: "parser";
                                         user: "user";
                                     }>;
@@ -9989,6 +10633,7 @@ export declare const editSelection: {
                                                 start: z.ZodNumber;
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>;
+                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                                 raw: z.ZodString;
                                                 span: z.ZodOptional<z.ZodObject<{
@@ -9996,15 +10641,30 @@ export declare const editSelection: {
                                                     end: z.ZodNumber;
                                                 }, z.core.$strip>>;
                                                 normalized: z.ZodOptional<z.ZodString>;
+                                                provenance: z.ZodOptional<z.ZodEnum<{
+                                                    ai: "ai";
+                                                    parser: "parser";
+                                                    user: "user";
+                                                }>>;
                                             }, z.core.$strip>>;
-                                            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                             structuring: z.ZodObject<{
                                                 path: z.ZodEnum<{
+                                                    ai: "ai";
                                                     parser: "parser";
                                                     user: "user";
                                                 }>;
                                                 version: z.ZodString;
                                             }, z.core.$strip>;
+                                            ai: z.ZodOptional<z.ZodObject<{
+                                                configuration: z.ZodString;
+                                                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                                proposals: z.ZodArray<z.ZodObject<{
+                                                    field: z.ZodString;
+                                                    value: z.ZodUnknown;
+                                                    reason: z.ZodLiteral<"ungrounded">;
+                                                }, z.core.$strip>>;
+                                                changedFields: z.ZodArray<z.ZodString>;
+                                            }, z.core.$strip>>;
                                             csl: z.ZodObject<{
                                                 type: z.ZodOptional<z.ZodString>;
                                                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -10370,6 +11030,7 @@ export declare const editSelection: {
                                             start: z.ZodNumber;
                                             end: z.ZodNumber;
                                         }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                                             raw: z.ZodString;
                                             span: z.ZodOptional<z.ZodObject<{
@@ -10377,15 +11038,30 @@ export declare const editSelection: {
                                                 end: z.ZodNumber;
                                             }, z.core.$strip>>;
                                             normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
                                         }, z.core.$strip>>;
-                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                                         structuring: z.ZodObject<{
                                             path: z.ZodEnum<{
+                                                ai: "ai";
                                                 parser: "parser";
                                                 user: "user";
                                             }>;
                                             version: z.ZodString;
                                         }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
                                         csl: z.ZodObject<{
                                             type: z.ZodOptional<z.ZodString>;
                                             author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -10779,6 +11455,113 @@ export declare const previewSelection: {
             content: {
                 "application/json": {
                     schema: z.ZodObject<{
+                        prepared: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                            text: z.ZodString;
+                            result: z.ZodObject<{
+                                rejected: z.ZodArray<z.ZodObject<{
+                                    originalText: z.ZodString;
+                                    span: z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>;
+                                    reason: z.ZodLiteral<"no-reference-features">;
+                                }, z.core.$strip>>;
+                                guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
+                                quotaConsumed: z.ZodLiteral<0>;
+                                referenceLimit: z.ZodNumber;
+                                receipt: z.ZodOptional<z.ZodObject<{
+                                    expiresAt: z.ZodNumber;
+                                    signature: z.ZodString;
+                                }, z.core.$strip>>;
+                                references: z.ZodArray<z.ZodObject<{
+                                    originalText: z.ZodString;
+                                    span: z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>;
+                                    authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                    csl: z.ZodObject<{
+                                        type: z.ZodOptional<z.ZodString>;
+                                        author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                            family: z.ZodOptional<z.ZodString>;
+                                            "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                            given: z.ZodOptional<z.ZodString>;
+                                            literal: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>>;
+                                        issued: z.ZodOptional<z.ZodObject<{
+                                            literal: z.ZodString;
+                                        }, z.core.$strip>>;
+                                        title: z.ZodOptional<z.ZodString>;
+                                        "container-title": z.ZodOptional<z.ZodString>;
+                                        "container-title-short": z.ZodOptional<z.ZodString>;
+                                        publisher: z.ZodOptional<z.ZodString>;
+                                        "publisher-place": z.ZodOptional<z.ZodString>;
+                                        volume: z.ZodOptional<z.ZodString>;
+                                        issue: z.ZodOptional<z.ZodString>;
+                                        page: z.ZodOptional<z.ZodString>;
+                                        "article-number": z.ZodOptional<z.ZodString>;
+                                        edition: z.ZodOptional<z.ZodString>;
+                                        DOI: z.ZodOptional<z.ZodString>;
+                                        URL: z.ZodOptional<z.ZodString>;
+                                        ISBN: z.ZodOptional<z.ZodString>;
+                                        ISSN: z.ZodOptional<z.ZodString>;
+                                        PMID: z.ZodOptional<z.ZodString>;
+                                        PMCID: z.ZodOptional<z.ZodString>;
+                                        arXiv: z.ZodOptional<z.ZodString>;
+                                    }, z.core.$strip>;
+                                    fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                        raw: z.ZodString;
+                                        span: z.ZodOptional<z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>>;
+                                        normalized: z.ZodOptional<z.ZodString>;
+                                        provenance: z.ZodOptional<z.ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>>;
+                                    }, z.core.$strip>>;
+                                    structuring: z.ZodObject<{
+                                        path: z.ZodEnum<{
+                                            ai: "ai";
+                                            parser: "parser";
+                                            user: "user";
+                                        }>;
+                                        version: z.ZodString;
+                                    }, z.core.$strip>;
+                                    ai: z.ZodOptional<z.ZodObject<{
+                                        configuration: z.ZodString;
+                                        notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                        proposals: z.ZodArray<z.ZodObject<{
+                                            field: z.ZodString;
+                                            value: z.ZodUnknown;
+                                            reason: z.ZodLiteral<"ungrounded">;
+                                        }, z.core.$strip>>;
+                                        changedFields: z.ZodArray<z.ZodString>;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>>;
+                                ai: z.ZodOptional<z.ZodObject<{
+                                    reason: z.ZodNullable<z.ZodEnum<{
+                                        "configuration-unavailable": "configuration-unavailable";
+                                        "feature-unavailable": "feature-unavailable";
+                                        guest: "guest";
+                                    }>>;
+                                    upgrade: z.ZodBoolean;
+                                    fallbacks: z.ZodArray<z.ZodObject<{
+                                        span: z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>;
+                                        reason: z.ZodEnum<{
+                                            "invalid-output": "invalid-output";
+                                            "provider-unavailable": "provider-unavailable";
+                                            timeout: "timeout";
+                                        }>;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>>;
+                            }, z.core.$strip>;
+                        }, z.core.$strip>>>;
                         expectedEventSeq: z.ZodNumber;
                         regions: z.ZodArray<z.ZodObject<{
                             start: z.ZodNumber;
@@ -10972,6 +11755,113 @@ export declare const previewSelection: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            prepared: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                text: z.ZodString;
+                                result: z.ZodObject<{
+                                    rejected: z.ZodArray<z.ZodObject<{
+                                        originalText: z.ZodString;
+                                        span: z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>;
+                                        reason: z.ZodLiteral<"no-reference-features">;
+                                    }, z.core.$strip>>;
+                                    guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
+                                    quotaConsumed: z.ZodLiteral<0>;
+                                    referenceLimit: z.ZodNumber;
+                                    receipt: z.ZodOptional<z.ZodObject<{
+                                        expiresAt: z.ZodNumber;
+                                        signature: z.ZodString;
+                                    }, z.core.$strip>>;
+                                    references: z.ZodArray<z.ZodObject<{
+                                        originalText: z.ZodString;
+                                        span: z.ZodObject<{
+                                            start: z.ZodNumber;
+                                            end: z.ZodNumber;
+                                        }, z.core.$strip>;
+                                        authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                        csl: z.ZodObject<{
+                                            type: z.ZodOptional<z.ZodString>;
+                                            author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                                family: z.ZodOptional<z.ZodString>;
+                                                "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                                given: z.ZodOptional<z.ZodString>;
+                                                literal: z.ZodOptional<z.ZodString>;
+                                            }, z.core.$strip>>>;
+                                            issued: z.ZodOptional<z.ZodObject<{
+                                                literal: z.ZodString;
+                                            }, z.core.$strip>>;
+                                            title: z.ZodOptional<z.ZodString>;
+                                            "container-title": z.ZodOptional<z.ZodString>;
+                                            "container-title-short": z.ZodOptional<z.ZodString>;
+                                            publisher: z.ZodOptional<z.ZodString>;
+                                            "publisher-place": z.ZodOptional<z.ZodString>;
+                                            volume: z.ZodOptional<z.ZodString>;
+                                            issue: z.ZodOptional<z.ZodString>;
+                                            page: z.ZodOptional<z.ZodString>;
+                                            "article-number": z.ZodOptional<z.ZodString>;
+                                            edition: z.ZodOptional<z.ZodString>;
+                                            DOI: z.ZodOptional<z.ZodString>;
+                                            URL: z.ZodOptional<z.ZodString>;
+                                            ISBN: z.ZodOptional<z.ZodString>;
+                                            ISSN: z.ZodOptional<z.ZodString>;
+                                            PMID: z.ZodOptional<z.ZodString>;
+                                            PMCID: z.ZodOptional<z.ZodString>;
+                                            arXiv: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>;
+                                        fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                            raw: z.ZodString;
+                                            span: z.ZodOptional<z.ZodObject<{
+                                                start: z.ZodNumber;
+                                                end: z.ZodNumber;
+                                            }, z.core.$strip>>;
+                                            normalized: z.ZodOptional<z.ZodString>;
+                                            provenance: z.ZodOptional<z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>>;
+                                        }, z.core.$strip>>;
+                                        structuring: z.ZodObject<{
+                                            path: z.ZodEnum<{
+                                                ai: "ai";
+                                                parser: "parser";
+                                                user: "user";
+                                            }>;
+                                            version: z.ZodString;
+                                        }, z.core.$strip>;
+                                        ai: z.ZodOptional<z.ZodObject<{
+                                            configuration: z.ZodString;
+                                            notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                            proposals: z.ZodArray<z.ZodObject<{
+                                                field: z.ZodString;
+                                                value: z.ZodUnknown;
+                                                reason: z.ZodLiteral<"ungrounded">;
+                                            }, z.core.$strip>>;
+                                            changedFields: z.ZodArray<z.ZodString>;
+                                        }, z.core.$strip>>;
+                                    }, z.core.$strip>>;
+                                    ai: z.ZodOptional<z.ZodObject<{
+                                        reason: z.ZodNullable<z.ZodEnum<{
+                                            "configuration-unavailable": "configuration-unavailable";
+                                            "feature-unavailable": "feature-unavailable";
+                                            guest: "guest";
+                                        }>>;
+                                        upgrade: z.ZodBoolean;
+                                        fallbacks: z.ZodArray<z.ZodObject<{
+                                            span: z.ZodObject<{
+                                                start: z.ZodNumber;
+                                                end: z.ZodNumber;
+                                            }, z.core.$strip>;
+                                            reason: z.ZodEnum<{
+                                                "invalid-output": "invalid-output";
+                                                "provider-unavailable": "provider-unavailable";
+                                                timeout: "timeout";
+                                            }>;
+                                        }, z.core.$strip>>;
+                                    }, z.core.$strip>>;
+                                }, z.core.$strip>;
+                            }, z.core.$strip>>>;
                             expectedEventSeq: z.ZodNumber;
                             regions: z.ZodArray<z.ZodObject<{
                                 start: z.ZodNumber;
@@ -10986,6 +11876,38 @@ export declare const previewSelection: {
                                     start: z.ZodNumber;
                                     end: z.ZodNumber;
                                 }, z.core.$strip>;
+                                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
+                                fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
+                                    raw: z.ZodString;
+                                    span: z.ZodOptional<z.ZodObject<{
+                                        start: z.ZodNumber;
+                                        end: z.ZodNumber;
+                                    }, z.core.$strip>>;
+                                    normalized: z.ZodOptional<z.ZodString>;
+                                    provenance: z.ZodOptional<z.ZodEnum<{
+                                        ai: "ai";
+                                        parser: "parser";
+                                        user: "user";
+                                    }>>;
+                                }, z.core.$strip>>;
+                                structuring: z.ZodObject<{
+                                    path: z.ZodEnum<{
+                                        ai: "ai";
+                                        parser: "parser";
+                                        user: "user";
+                                    }>;
+                                    version: z.ZodString;
+                                }, z.core.$strip>;
+                                ai: z.ZodOptional<z.ZodObject<{
+                                    configuration: z.ZodString;
+                                    notice: z.ZodLiteral<"ai-can-be-wrong">;
+                                    proposals: z.ZodArray<z.ZodObject<{
+                                        field: z.ZodString;
+                                        value: z.ZodUnknown;
+                                        reason: z.ZodLiteral<"ungrounded">;
+                                    }, z.core.$strip>>;
+                                    changedFields: z.ZodArray<z.ZodString>;
+                                }, z.core.$strip>>;
                                 csl: z.ZodObject<{
                                     type: z.ZodOptional<z.ZodString>;
                                     author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -11013,23 +11935,47 @@ export declare const previewSelection: {
                                     ISSN: z.ZodOptional<z.ZodString>;
                                     PMID: z.ZodOptional<z.ZodString>;
                                     PMCID: z.ZodOptional<z.ZodString>;
+                                    arXiv: z.ZodOptional<z.ZodString>;
                                 }, z.core.$strip>;
-                                fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
-                                    raw: z.ZodString;
-                                    span: z.ZodOptional<z.ZodObject<{
-                                        start: z.ZodNumber;
-                                        end: z.ZodNumber;
-                                    }, z.core.$strip>>;
-                                    normalized: z.ZodOptional<z.ZodString>;
-                                }, z.core.$strip>>;
-                                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
-                                structuring: z.ZodObject<{
-                                    path: z.ZodEnum<{
-                                        parser: "parser";
-                                        user: "user";
+                                imported: z.ZodOptional<z.ZodObject<{
+                                    format: z.ZodEnum<{
+                                        bibtex: "bibtex";
+                                        ris: "ris";
                                     }>;
-                                    version: z.ZodString;
-                                }, z.core.$strip>;
+                                    unsupported: z.ZodArray<z.ZodObject<{
+                                        name: z.ZodString;
+                                        value: z.ZodString;
+                                    }, z.core.$strip>>;
+                                    fields: z.ZodObject<{
+                                        type: z.ZodOptional<z.ZodString>;
+                                        author: z.ZodOptional<z.ZodArray<z.ZodObject<{
+                                            family: z.ZodOptional<z.ZodString>;
+                                            "non-dropping-particle": z.ZodOptional<z.ZodString>;
+                                            given: z.ZodOptional<z.ZodString>;
+                                            literal: z.ZodOptional<z.ZodString>;
+                                        }, z.core.$strip>>>;
+                                        issued: z.ZodOptional<z.ZodObject<{
+                                            literal: z.ZodString;
+                                        }, z.core.$strip>>;
+                                        title: z.ZodOptional<z.ZodString>;
+                                        "container-title": z.ZodOptional<z.ZodString>;
+                                        "container-title-short": z.ZodOptional<z.ZodString>;
+                                        publisher: z.ZodOptional<z.ZodString>;
+                                        "publisher-place": z.ZodOptional<z.ZodString>;
+                                        volume: z.ZodOptional<z.ZodString>;
+                                        issue: z.ZodOptional<z.ZodString>;
+                                        page: z.ZodOptional<z.ZodString>;
+                                        "article-number": z.ZodOptional<z.ZodString>;
+                                        edition: z.ZodOptional<z.ZodString>;
+                                        DOI: z.ZodOptional<z.ZodString>;
+                                        URL: z.ZodOptional<z.ZodString>;
+                                        ISBN: z.ZodOptional<z.ZodString>;
+                                        ISSN: z.ZodOptional<z.ZodString>;
+                                        PMID: z.ZodOptional<z.ZodString>;
+                                        PMCID: z.ZodOptional<z.ZodString>;
+                                        arXiv: z.ZodOptional<z.ZodString>;
+                                    }, z.core.$strip>;
+                                }, z.core.$strip>>;
                             }, z.core.$strip>>;
                             total: z.ZodNumber;
                             additionalQuota: z.ZodNumber;

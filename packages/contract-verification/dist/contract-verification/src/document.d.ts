@@ -45,12 +45,28 @@ export declare const DocumentStructuringResult: z.ZodObject<{
         notice: z.ZodNullable<z.ZodLiteral<"partial-no-text">>;
     }, z.core.$strip>;
     structuring: z.ZodObject<{
+        rejected: z.ZodArray<z.ZodObject<{
+            originalText: z.ZodString;
+            span: z.ZodObject<{
+                start: z.ZodNumber;
+                end: z.ZodNumber;
+            }, z.core.$strip>;
+            reason: z.ZodLiteral<"no-reference-features">;
+        }, z.core.$strip>>;
+        guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
+        quotaConsumed: z.ZodLiteral<0>;
+        referenceLimit: z.ZodNumber;
+        receipt: z.ZodOptional<z.ZodObject<{
+            expiresAt: z.ZodNumber;
+            signature: z.ZodString;
+        }, z.core.$strip>>;
         references: z.ZodArray<z.ZodObject<{
             originalText: z.ZodString;
             span: z.ZodObject<{
                 start: z.ZodNumber;
                 end: z.ZodNumber;
             }, z.core.$strip>;
+            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
             csl: z.ZodObject<{
                 type: z.ZodOptional<z.ZodString>;
                 author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -78,6 +94,7 @@ export declare const DocumentStructuringResult: z.ZodObject<{
                 ISSN: z.ZodOptional<z.ZodString>;
                 PMID: z.ZodOptional<z.ZodString>;
                 PMCID: z.ZodOptional<z.ZodString>;
+                arXiv: z.ZodOptional<z.ZodString>;
             }, z.core.$strip>;
             fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                 raw: z.ZodString;
@@ -86,27 +103,50 @@ export declare const DocumentStructuringResult: z.ZodObject<{
                     end: z.ZodNumber;
                 }, z.core.$strip>>;
                 normalized: z.ZodOptional<z.ZodString>;
+                provenance: z.ZodOptional<z.ZodEnum<{
+                    ai: "ai";
+                    parser: "parser";
+                    user: "user";
+                }>>;
             }, z.core.$strip>>;
-            authorsTruncated: z.ZodOptional<z.ZodBoolean>;
             structuring: z.ZodObject<{
                 path: z.ZodEnum<{
+                    ai: "ai";
                     parser: "parser";
                     user: "user";
                 }>;
                 version: z.ZodString;
             }, z.core.$strip>;
+            ai: z.ZodOptional<z.ZodObject<{
+                configuration: z.ZodString;
+                notice: z.ZodLiteral<"ai-can-be-wrong">;
+                proposals: z.ZodArray<z.ZodObject<{
+                    field: z.ZodString;
+                    value: z.ZodUnknown;
+                    reason: z.ZodLiteral<"ungrounded">;
+                }, z.core.$strip>>;
+                changedFields: z.ZodArray<z.ZodString>;
+            }, z.core.$strip>>;
         }, z.core.$strip>>;
-        rejected: z.ZodArray<z.ZodObject<{
-            originalText: z.ZodString;
-            span: z.ZodObject<{
-                start: z.ZodNumber;
-                end: z.ZodNumber;
-            }, z.core.$strip>;
-            reason: z.ZodLiteral<"no-reference-features">;
+        ai: z.ZodOptional<z.ZodObject<{
+            reason: z.ZodNullable<z.ZodEnum<{
+                "configuration-unavailable": "configuration-unavailable";
+                "feature-unavailable": "feature-unavailable";
+                guest: "guest";
+            }>>;
+            upgrade: z.ZodBoolean;
+            fallbacks: z.ZodArray<z.ZodObject<{
+                span: z.ZodObject<{
+                    start: z.ZodNumber;
+                    end: z.ZodNumber;
+                }, z.core.$strip>;
+                reason: z.ZodEnum<{
+                    "invalid-output": "invalid-output";
+                    "provider-unavailable": "provider-unavailable";
+                    timeout: "timeout";
+                }>;
+            }, z.core.$strip>>;
         }, z.core.$strip>>;
-        guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
-        quotaConsumed: z.ZodLiteral<0>;
-        referenceLimit: z.ZodNumber;
     }, z.core.$strip>;
     selection: z.ZodObject<{
         version: z.ZodString;
@@ -129,12 +169,28 @@ export declare const DocumentStructuringResponse: z.ZodObject<{
             notice: z.ZodNullable<z.ZodLiteral<"partial-no-text">>;
         }, z.core.$strip>;
         structuring: z.ZodObject<{
+            rejected: z.ZodArray<z.ZodObject<{
+                originalText: z.ZodString;
+                span: z.ZodObject<{
+                    start: z.ZodNumber;
+                    end: z.ZodNumber;
+                }, z.core.$strip>;
+                reason: z.ZodLiteral<"no-reference-features">;
+            }, z.core.$strip>>;
+            guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
+            quotaConsumed: z.ZodLiteral<0>;
+            referenceLimit: z.ZodNumber;
+            receipt: z.ZodOptional<z.ZodObject<{
+                expiresAt: z.ZodNumber;
+                signature: z.ZodString;
+            }, z.core.$strip>>;
             references: z.ZodArray<z.ZodObject<{
                 originalText: z.ZodString;
                 span: z.ZodObject<{
                     start: z.ZodNumber;
                     end: z.ZodNumber;
                 }, z.core.$strip>;
+                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                 csl: z.ZodObject<{
                     type: z.ZodOptional<z.ZodString>;
                     author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -162,6 +218,7 @@ export declare const DocumentStructuringResponse: z.ZodObject<{
                     ISSN: z.ZodOptional<z.ZodString>;
                     PMID: z.ZodOptional<z.ZodString>;
                     PMCID: z.ZodOptional<z.ZodString>;
+                    arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
                 fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                     raw: z.ZodString;
@@ -170,27 +227,50 @@ export declare const DocumentStructuringResponse: z.ZodObject<{
                         end: z.ZodNumber;
                     }, z.core.$strip>>;
                     normalized: z.ZodOptional<z.ZodString>;
+                    provenance: z.ZodOptional<z.ZodEnum<{
+                        ai: "ai";
+                        parser: "parser";
+                        user: "user";
+                    }>>;
                 }, z.core.$strip>>;
-                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                 structuring: z.ZodObject<{
                     path: z.ZodEnum<{
+                        ai: "ai";
                         parser: "parser";
                         user: "user";
                     }>;
                     version: z.ZodString;
                 }, z.core.$strip>;
+                ai: z.ZodOptional<z.ZodObject<{
+                    configuration: z.ZodString;
+                    notice: z.ZodLiteral<"ai-can-be-wrong">;
+                    proposals: z.ZodArray<z.ZodObject<{
+                        field: z.ZodString;
+                        value: z.ZodUnknown;
+                        reason: z.ZodLiteral<"ungrounded">;
+                    }, z.core.$strip>>;
+                    changedFields: z.ZodArray<z.ZodString>;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
-            rejected: z.ZodArray<z.ZodObject<{
-                originalText: z.ZodString;
-                span: z.ZodObject<{
-                    start: z.ZodNumber;
-                    end: z.ZodNumber;
-                }, z.core.$strip>;
-                reason: z.ZodLiteral<"no-reference-features">;
+            ai: z.ZodOptional<z.ZodObject<{
+                reason: z.ZodNullable<z.ZodEnum<{
+                    "configuration-unavailable": "configuration-unavailable";
+                    "feature-unavailable": "feature-unavailable";
+                    guest: "guest";
+                }>>;
+                upgrade: z.ZodBoolean;
+                fallbacks: z.ZodArray<z.ZodObject<{
+                    span: z.ZodObject<{
+                        start: z.ZodNumber;
+                        end: z.ZodNumber;
+                    }, z.core.$strip>;
+                    reason: z.ZodEnum<{
+                        "invalid-output": "invalid-output";
+                        "provider-unavailable": "provider-unavailable";
+                        timeout: "timeout";
+                    }>;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
-            guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
-            quotaConsumed: z.ZodLiteral<0>;
-            referenceLimit: z.ZodNumber;
         }, z.core.$strip>;
         selection: z.ZodObject<{
             version: z.ZodString;
@@ -282,12 +362,28 @@ export declare const TextStructuringResponse: z.ZodObject<{
             }, z.core.$strip>;
         }, z.core.$strip>>;
         structuring: z.ZodObject<{
+            rejected: z.ZodArray<z.ZodObject<{
+                originalText: z.ZodString;
+                span: z.ZodObject<{
+                    start: z.ZodNumber;
+                    end: z.ZodNumber;
+                }, z.core.$strip>;
+                reason: z.ZodLiteral<"no-reference-features">;
+            }, z.core.$strip>>;
+            guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
+            quotaConsumed: z.ZodLiteral<0>;
+            referenceLimit: z.ZodNumber;
+            receipt: z.ZodOptional<z.ZodObject<{
+                expiresAt: z.ZodNumber;
+                signature: z.ZodString;
+            }, z.core.$strip>>;
             references: z.ZodArray<z.ZodObject<{
                 originalText: z.ZodString;
                 span: z.ZodObject<{
                     start: z.ZodNumber;
                     end: z.ZodNumber;
                 }, z.core.$strip>;
+                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                 csl: z.ZodObject<{
                     type: z.ZodOptional<z.ZodString>;
                     author: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -315,6 +411,7 @@ export declare const TextStructuringResponse: z.ZodObject<{
                     ISSN: z.ZodOptional<z.ZodString>;
                     PMID: z.ZodOptional<z.ZodString>;
                     PMCID: z.ZodOptional<z.ZodString>;
+                    arXiv: z.ZodOptional<z.ZodString>;
                 }, z.core.$strip>;
                 fieldSources: z.ZodRecord<z.ZodString, z.ZodObject<{
                     raw: z.ZodString;
@@ -323,27 +420,50 @@ export declare const TextStructuringResponse: z.ZodObject<{
                         end: z.ZodNumber;
                     }, z.core.$strip>>;
                     normalized: z.ZodOptional<z.ZodString>;
+                    provenance: z.ZodOptional<z.ZodEnum<{
+                        ai: "ai";
+                        parser: "parser";
+                        user: "user";
+                    }>>;
                 }, z.core.$strip>>;
-                authorsTruncated: z.ZodOptional<z.ZodBoolean>;
                 structuring: z.ZodObject<{
                     path: z.ZodEnum<{
+                        ai: "ai";
                         parser: "parser";
                         user: "user";
                     }>;
                     version: z.ZodString;
                 }, z.core.$strip>;
+                ai: z.ZodOptional<z.ZodObject<{
+                    configuration: z.ZodString;
+                    notice: z.ZodLiteral<"ai-can-be-wrong">;
+                    proposals: z.ZodArray<z.ZodObject<{
+                        field: z.ZodString;
+                        value: z.ZodUnknown;
+                        reason: z.ZodLiteral<"ungrounded">;
+                    }, z.core.$strip>>;
+                    changedFields: z.ZodArray<z.ZodString>;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
-            rejected: z.ZodArray<z.ZodObject<{
-                originalText: z.ZodString;
-                span: z.ZodObject<{
-                    start: z.ZodNumber;
-                    end: z.ZodNumber;
-                }, z.core.$strip>;
-                reason: z.ZodLiteral<"no-reference-features">;
+            ai: z.ZodOptional<z.ZodObject<{
+                reason: z.ZodNullable<z.ZodEnum<{
+                    "configuration-unavailable": "configuration-unavailable";
+                    "feature-unavailable": "feature-unavailable";
+                    guest: "guest";
+                }>>;
+                upgrade: z.ZodBoolean;
+                fallbacks: z.ZodArray<z.ZodObject<{
+                    span: z.ZodObject<{
+                        start: z.ZodNumber;
+                        end: z.ZodNumber;
+                    }, z.core.$strip>;
+                    reason: z.ZodEnum<{
+                        "invalid-output": "invalid-output";
+                        "provider-unavailable": "provider-unavailable";
+                        timeout: "timeout";
+                    }>;
+                }, z.core.$strip>>;
             }, z.core.$strip>>;
-            guidance: z.ZodNullable<z.ZodLiteral<"no-references">>;
-            quotaConsumed: z.ZodLiteral<0>;
-            referenceLimit: z.ZodNumber;
         }, z.core.$strip>;
         referenceLimitExceeded: z.ZodBoolean;
     }, z.core.$strip>;

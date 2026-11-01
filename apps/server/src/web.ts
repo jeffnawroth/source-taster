@@ -4,6 +4,7 @@
 import { createAbuseLimiter } from "./abuse/limiter.ts";
 import { loadOriginSettings } from "./abuse/origin.ts";
 import { ConfigError } from "./config.ts";
+import { activeExtraction } from "./ai/activation.ts";
 import { isolatedExtractor } from "./documents/supervisor.ts";
 import { createParser } from "@source-taster/core";
 import { openWebsite } from "@source-taster/website/hosting";
@@ -70,6 +71,7 @@ await runMain(async (config) => {
   const app = createApp({
     entrance,
     structuring: createParser({ referenceLimit: config.referenceLimit }),
+    extraction: await activeExtraction(),
     events,
     heartbeatMs: config.sseHeartbeatMs,
     referenceLimit: config.referenceLimit,
