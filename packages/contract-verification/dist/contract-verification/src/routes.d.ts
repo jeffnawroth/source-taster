@@ -363,6 +363,7 @@ export declare const createCheck: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -728,6 +729,7 @@ export declare const getCheck: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1071,6 +1073,7 @@ export declare const structureReferences: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1436,6 +1439,7 @@ export declare const cancelCheck: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1820,6 +1824,7 @@ export declare const renewCheckLease: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";

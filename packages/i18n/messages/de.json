@@ -416,5 +416,6 @@
   "ai_feature_unavailable": "Ihr aktueller Funktionsumfang enthält keine KI-Extraktion. Der Parser wurde verwendet. Ein kostenpflichtiger Plan bietet KI-Extraktion.",
   "ai_configuration_unavailable": "KI-Extraktion ist derzeit nicht verfügbar. Der Parser wurde verwendet.",
   "ai_fallback": "Die KI-Extraktion dieses Abschnitts ist nach einem erneuten Versuch fehlgeschlagen. Der Parser wurde verwendet. Sie können den Abschnitt erneut strukturieren.",
-  "ai_proposals": "KI-Vorschläge"
+  "ai_proposals": "KI-Vorschläge",
+  "commerce_open": "Tarife und Prüfkontingente im Web"
 }

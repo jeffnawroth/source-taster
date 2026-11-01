@@ -416,5 +416,6 @@
   "ai_feature_unavailable": "Your current feature scope does not include AI extraction. The parser was used. Upgrade to a paid Plan for AI extraction.",
   "ai_configuration_unavailable": "AI extraction is currently unavailable. The parser was used.",
   "ai_fallback": "AI extraction failed after one retry for this passage. The parser was used. You can structure the passage again.",
-  "ai_proposals": "AI proposals"
+  "ai_proposals": "AI proposals",
+  "commerce_open": "Plans and Check packs on the web"
 }

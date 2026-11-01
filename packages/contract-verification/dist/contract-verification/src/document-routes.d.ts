@@ -177,6 +177,7 @@ export declare const structureDocument: {
                             }>;
                             grants: import("zod").ZodArray<import("zod").ZodObject<{
                                 kind: import("zod").ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -379,6 +380,7 @@ export declare const getDocumentSettings: {
                             }>;
                             grants: import("zod").ZodArray<import("zod").ZodObject<{
                                 kind: import("zod").ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -636,6 +638,7 @@ export declare const structureText: {
                             }>;
                             grants: import("zod").ZodArray<import("zod").ZodObject<{
                                 kind: import("zod").ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";

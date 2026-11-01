@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { CommerceCatalogResponse, CheckPackOrderRequest, CheckPackOrderResponse, CheckPackOrdersResponse, } from "./commerce.js";
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, AccountDeletionRequest, AccountDeletionResponse, EmailChangeChallengeRequest, EmailChangeChallengeResponse, EmailChangeConfirmRequest, FreshProofChallengeRequest, FreshProofChallengeResponse, FreshProofConfirmRequest, FreshProofResponse, } from "./index.js";
@@ -236,7 +238,76 @@ const sensitiveRoutes = (prefix) => [
 ];
 export const webSensitiveRoutes = sensitiveRoutes("/v1");
 export const extensionSensitiveRoutes = sensitiveRoutes("/v1/extension");
+export const getCommerceCatalog = createRoute({
+    method: "get",
+    path: "/v1/commerce/catalog",
+    summary: "Versioned Check packs and Order terms",
+    responses: {
+        200: {
+            description: "Catalog",
+            content: { "application/json": { schema: CommerceCatalogResponse } },
+        },
+        400: problem,
+        503: problem,
+    },
+});
+export const createCheckPackOrder = createRoute({
+    method: "post",
+    path: "/v1/commerce/orders",
+    summary: "Conclude a binding Order before hosted payment collection",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: CheckPackOrderRequest } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Order",
+            content: { "application/json": { schema: CheckPackOrderResponse } },
+        },
+        400: problem,
+        401: problem,
+        403: problem,
+        409: problem,
+        503: problem,
+    },
+});
+export const getCheckPackOrders = createRoute({
+    method: "get",
+    path: "/v1/commerce/orders",
+    summary: "Own Orders and durable confirmations",
+    responses: {
+        200: {
+            description: "Orders",
+            content: { "application/json": { schema: CheckPackOrdersResponse } },
+        },
+        401: problem,
+        403: problem,
+        503: problem,
+    },
+});
+export const getCommerceInvoice = createRoute({
+    method: "get",
+    path: "/v1/commerce/invoices/{id}",
+    summary: "Download an own archived invoice with a current web session",
+    request: { params: z.object({ id: z.string().min(1).max(255) }) },
+    responses: {
+        200: {
+            description: "Archived invoice PDF; no-store",
+            content: { "application/pdf": { schema: z.string() } },
+        },
+        401: problem,
+        403: problem,
+        404: problem,
+        503: problem,
+    },
+});
 export const routes = [
+    getCommerceInvoice,
+    getCommerceCatalog,
+    createCheckPackOrder,
+    getCheckPackOrders,
     getAccountPreferences,
     patchAccountPreferences,
     getExtensionPreferences,

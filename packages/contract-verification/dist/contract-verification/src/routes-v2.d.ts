@@ -316,6 +316,7 @@ export declare const createCheck: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1340,6 +1341,7 @@ export declare const getQuota: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1366,6 +1368,7 @@ export declare const getQuota: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -1609,6 +1612,7 @@ export declare const getCheck: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -2753,6 +2757,7 @@ export declare const cancelCheck: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -3897,6 +3902,7 @@ export declare const renewCheckLease: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -5226,6 +5232,7 @@ export declare const saveFields: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -6418,6 +6425,7 @@ export declare const recheckReference: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -7643,6 +7651,7 @@ export declare const editReferenceList: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -8846,6 +8855,7 @@ export declare const setManualOverride: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -10062,6 +10072,7 @@ export declare const importReferences: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -10406,6 +10417,7 @@ export declare const editSelection: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -12000,6 +12012,7 @@ export declare const previewSelection: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";

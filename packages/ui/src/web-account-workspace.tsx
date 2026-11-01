@@ -306,6 +306,7 @@ export function WebAccountWorkspace({
       client={client}
       guest={guest}
       siteUrl={siteUrl}
+      upgradeUrl={`${serviceUrl.replace(/\/$/, "")}/order`}
     />
   );
 }
@@ -318,6 +319,7 @@ export function AccountWorkspace({
   siteUrl,
   transport: transportOptions = { client: "web/0.0.0" },
   selectionIntake,
+  upgradeUrl,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
@@ -326,6 +328,7 @@ export function AccountWorkspace({
   siteUrl?: string;
   transport?: Omit<VerificationClientOptions, "credentials">;
   selectionIntake?: SelectionIntake;
+  upgradeUrl?: string;
 }) {
   const [session, setSession] = useState<AccountSession | null | undefined>(
       undefined,
@@ -343,6 +346,9 @@ export function AccountWorkspace({
     () => setCredentialFailure(true),
   );
   const preferences = accountPreferences.preferences;
+  const localizedUpgradeUrl = upgradeUrl
+    ? `${upgradeUrl}?language=${preferences.language}`
+    : undefined;
   // #102: set when the Account was removed here. `pending` keeps every request
   // from falling back to Guest while the service is still finishing deletion.
   const [removal, setRemoval] = useState<DeletionOutcome | null>(null);
@@ -466,10 +472,20 @@ export function AccountWorkspace({
       transport={transport}
       siteUrl={siteUrl}
       selectionIntake={selectionIntake}
+      upgradeUrl={localizedUpgradeUrl}
       deferQuotaRead={removal === "deleted"}
       onPreferencesChange={accountPreferences.change}
       accountControls={(language, quota) => (
         <>
+          {upgradeUrl && (
+            <a
+              href={localizedUpgradeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {m.commerce_open()}
+            </a>
+          )}
           {accountPreferences.failure && (
             <p role="alert">
               {m.preferences_unavailable()}{" "}
