@@ -51,7 +51,9 @@ export function DpaControls({
   accountId: string;
   language: "en" | "de";
 }) {
-  const [open, setOpen] = useState(false),
+  const [open, setOpen] = useState(() =>
+      /^#dpa\/[0-9a-f-]{36}$/.test(location.hash),
+    ),
     [state, setState] = useState<Awaited<
       ReturnType<DpaClient["state"]>
     > | null>(null);

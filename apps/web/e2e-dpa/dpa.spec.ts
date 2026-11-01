@@ -1,4 +1,7 @@
-import {AccountSessionResponse,DpaAgreement} from "@source-taster/contract-service";
+import {
+  AccountSessionResponse,
+  DpaAgreement,
+} from "@source-taster/contract-service";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
@@ -211,18 +214,13 @@ for (const language of ["en", "de"] as const)
           .first()
           .click();
         const file = await download;
-        const exact = DpaAgreement.parse(JSON.parse(await readFile(await file.path(), "utf8")));
+        const exact = DpaAgreement.parse(
+          JSON.parse(await readFile(await file.path(), "utf8")),
+        );
         expect(exact.packet).toEqual(packet(language));
         expect(exact.party.name).toBe("Example Research");
+        await page.goto(url + `/#dpa/${exact.id}`);
         await page.reload();
-        await page
-          .getByRole("button", {
-            name: de
-              ? "Datenverarbeitungsvereinbarung"
-              : "Data processing agreement",
-            exact: true,
-          })
-          .click();
         await expect(
           page.getByRole("button", {
             name: de
