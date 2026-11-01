@@ -33,6 +33,16 @@ if (process.argv[2] === "worker") {
   stop = () => runtime.stop();
 } else {
   const events = await listenForEvents(config.databaseUrl);
+  // Test composition: a Quota that grants the reports feature to every Owner.
+  const quota = (remaining: number) => ({
+    consumed: 0,
+    remaining,
+    granted: 1000,
+    reserved: 1000 - remaining,
+    warning: "none" as const,
+    grants: [],
+    features: ["verification-report"],
+  });
   const app = createApp({
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     checks,
@@ -40,6 +50,21 @@ if (process.argv[2] === "worker") {
     heartbeatMs: 50,
     referenceLimit: config.referenceLimit,
     entitlements: {
+      ...(process.env.TEST_REPORT_FEATURE
+        ? {
+            quota: {
+              snapshot: () => Promise.resolve(quota(1000)),
+              reserve: (_owner, _checkId, _key, slots) =>
+                Promise.resolve({
+                  free: [],
+                  reserved: slots.length,
+                  quota: quota(1000 - slots.length),
+                }),
+              release: async () => {},
+              settle: async () => {},
+            },
+          }
+        : {}),
       resolve: (request) =>
         Promise.resolve({
           ...LOCAL_OWNER,

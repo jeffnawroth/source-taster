@@ -369,3 +369,81 @@ it("exposes each link to assistive technology as a Link element that owns its an
   expect(links.objectReferences).toBe(links.annotations);
   expect(links.linkElements).toBe(1);
 });
+
+async function running() {
+  const held = fixtures.hold("/api/handles/10.5555/report-held");
+  const response = await fetch(`${api}/v2/checks`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      references: [
+        { originalText, fields },
+        {
+          originalText: "Still being checked (2020)",
+          fields: { ...fields, DOI: "10.5555/report-held" },
+        },
+      ],
+    }),
+  });
+  const check = CheckResponse.parse(await response.json()).data;
+  await held.arrived;
+  await expect
+    .poll(async () => {
+      const current = CheckResponse.parse(
+        await (await fetch(`${api}/v2/checks/${check.id}`)).json(),
+      ).data;
+      return current.references[0]!.outcome.kind;
+    })
+    .toBe("verdict");
+  return { check, held };
+}
+
+it("labels a running Check's report as an intermediate snapshot, keeps unfinished Status, and never changes the file afterwards", async () => {
+  const { check, held } = await running();
+  try {
+    const created = ReportResponse.parse(
+      await (await create(check.id, { language: "en", style: "apa" })).json(),
+    ).data;
+    const finished = await ready(check.id, created.id);
+    expect(finished.intermediate).toBe(true);
+    const first = new Uint8Array(
+      await (await file(check.id, created.id)).arrayBuffer(),
+    );
+    const { text } = await inspectPdf(first);
+    expect(text).toContain("Intermediate snapshot as of");
+    expect(text).toContain("Check state: Running");
+    expect(text).toContain("Status: Running");
+    // The later result of the running Reference is not in this report.
+    held.release();
+    await expect
+      .poll(
+        async () =>
+          CheckResponse.parse(
+            await (await fetch(`${api}/v2/checks/${check.id}`)).json(),
+          ).data.state,
+      )
+      .toBe("ended");
+    const again = new Uint8Array(
+      await (await file(check.id, created.id)).arrayBuffer(),
+    );
+    expect(Buffer.from(again).equals(Buffer.from(first))).toBe(true);
+  } finally {
+    held.release();
+  }
+});
+
+it("keeps the Status of cancelled References in a final report", async () => {
+  const { check, held } = await running();
+  try {
+    const cancel = await fetch(`${api}/v2/checks/${check.id}/cancel`, {
+      method: "POST",
+    });
+    expect(cancel.status).toBe(200);
+    const { pdf } = await download(check.id, { language: "de", style: "apa" });
+    expect(pdf.text).toContain("Endstand vom");
+    expect(pdf.text).toContain("Status: Abgebrochen");
+    expect(pdf.text).not.toContain("Zwischenstand");
+  } finally {
+    held.release();
+  }
+});
