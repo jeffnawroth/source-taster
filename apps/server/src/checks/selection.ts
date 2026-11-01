@@ -24,7 +24,7 @@ export function selectionDifference(
   for (const slot of check.references) {
     const source = slot.revisions[0]?.reference;
     // Manually added slots have no document source. Their membership is independent.
-    if (!source || source.structuring.path !== "parser") {
+    if (!source || !["parser", "ai"].includes(source.structuring.path)) {
       unchanged.push(slot.slot);
       continue;
     }

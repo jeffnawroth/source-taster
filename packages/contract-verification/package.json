@@ -77,6 +77,10 @@
     "./import": {
       "types": "./dist/contract-verification/src/import.d.ts",
       "default": "./dist/contract-verification/src/import.js"
+    },
+    "./ai": {
+      "types": "./dist/contract-verification/src/ai.d.ts",
+      "default": "./dist/contract-verification/src/ai.js"
     }
   },
   "scripts": {

@@ -366,6 +366,9 @@
                         },
                         "PMCID": {
                           "type": "string"
+                        },
+                        "arXiv": {
+                          "type": "string"
                         }
                       }
                     },
@@ -396,6 +399,14 @@
                           },
                           "normalized": {
                             "type": "string"
+                          },
+                          "provenance": {
+                            "type": "string",
+                            "enum": [
+                              "parser",
+                              "user",
+                              "ai"
+                            ]
                           }
                         },
                         "required": [
@@ -413,7 +424,8 @@
                           "type": "string",
                           "enum": [
                             "parser",
-                            "user"
+                            "user",
+                            "ai"
                           ]
                         },
                         "version": {
@@ -423,6 +435,54 @@
                       "required": [
                         "path",
                         "version"
+                      ]
+                    },
+                    "ai": {
+                      "type": "object",
+                      "properties": {
+                        "configuration": {
+                          "type": "string"
+                        },
+                        "notice": {
+                          "type": "string",
+                          "enum": [
+                            "ai-can-be-wrong"
+                          ]
+                        },
+                        "proposals": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "value": {},
+                              "reason": {
+                                "type": "string",
+                                "enum": [
+                                  "ungrounded"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "reason"
+                            ]
+                          }
+                        },
+                        "changedFields": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "configuration",
+                        "notice",
+                        "proposals",
+                        "changedFields"
                       ]
                     }
                   },
@@ -492,6 +552,84 @@
               "referenceLimit": {
                 "type": "integer",
                 "exclusiveMinimum": 0
+              },
+              "receipt": {
+                "type": "object",
+                "properties": {
+                  "expiresAt": {
+                    "type": "integer"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$/u"
+                  }
+                },
+                "required": [
+                  "expiresAt",
+                  "signature"
+                ]
+              },
+              "ai": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "guest",
+                      "feature-unavailable",
+                      "configuration-unavailable",
+                      null
+                    ]
+                  },
+                  "upgrade": {
+                    "type": "boolean"
+                  },
+                  "fallbacks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "span": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "end": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end"
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "enum": [
+                            "timeout",
+                            "invalid-output",
+                            "provider-unavailable"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "span",
+                        "reason"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "reason",
+                  "upgrade",
+                  "fallbacks"
+                ]
               }
             },
             "required": [
@@ -850,7 +988,8 @@
                   "type": "string",
                   "enum": [
                     "parser",
-                    "user"
+                    "user",
+                    "ai"
                   ]
                 },
                 "createdAt": {
@@ -1255,6 +1394,14 @@
                 },
                 "normalized": {
                   "type": "string"
+                },
+                "provenance": {
+                  "type": "string",
+                  "enum": [
+                    "parser",
+                    "user",
+                    "ai"
+                  ]
                 }
               },
               "required": [
@@ -1272,7 +1419,8 @@
                 "type": "string",
                 "enum": [
                   "parser",
-                  "user"
+                  "user",
+                  "ai"
                 ]
               },
               "version": {
@@ -1282,6 +1430,54 @@
             "required": [
               "path",
               "version"
+            ]
+          },
+          "ai": {
+            "type": "object",
+            "properties": {
+              "configuration": {
+                "type": "string"
+              },
+              "notice": {
+                "type": "string",
+                "enum": [
+                  "ai-can-be-wrong"
+                ]
+              },
+              "proposals": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "value": {},
+                    "reason": {
+                      "type": "string",
+                      "enum": [
+                        "ungrounded"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "reason"
+                  ]
+                }
+              },
+              "changedFields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "configuration",
+              "notice",
+              "proposals",
+              "changedFields"
             ]
           },
           "imported": {
@@ -1861,6 +2057,437 @@
           {
             "type": "object",
             "properties": {
+              "extraction": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20971520
+                  },
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ]
+                    },
+                    "maxItems": 1000
+                  },
+                  "result": {
+                    "type": "object",
+                    "properties": {
+                      "references": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "originalText": {
+                              "type": "string"
+                            },
+                            "span": {
+                              "type": "object",
+                              "properties": {
+                                "start": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "end": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "start",
+                                "end"
+                              ]
+                            },
+                            "csl": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "author": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "family": {
+                                        "type": "string"
+                                      },
+                                      "non-dropping-particle": {
+                                        "type": "string"
+                                      },
+                                      "given": {
+                                        "type": "string"
+                                      },
+                                      "literal": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "issued": {
+                                  "type": "object",
+                                  "properties": {
+                                    "literal": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "literal"
+                                  ]
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "container-title": {
+                                  "type": "string"
+                                },
+                                "container-title-short": {
+                                  "type": "string"
+                                },
+                                "publisher": {
+                                  "type": "string"
+                                },
+                                "publisher-place": {
+                                  "type": "string"
+                                },
+                                "volume": {
+                                  "type": "string"
+                                },
+                                "issue": {
+                                  "type": "string"
+                                },
+                                "page": {
+                                  "type": "string"
+                                },
+                                "article-number": {
+                                  "type": "string"
+                                },
+                                "edition": {
+                                  "type": "string"
+                                },
+                                "DOI": {
+                                  "type": "string"
+                                },
+                                "URL": {
+                                  "type": "string"
+                                },
+                                "ISBN": {
+                                  "type": "string"
+                                },
+                                "ISSN": {
+                                  "type": "string"
+                                },
+                                "PMID": {
+                                  "type": "string"
+                                },
+                                "PMCID": {
+                                  "type": "string"
+                                },
+                                "arXiv": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "fieldSources": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "object",
+                                "properties": {
+                                  "raw": {
+                                    "type": "string"
+                                  },
+                                  "span": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "normalized": {
+                                    "type": "string"
+                                  },
+                                  "provenance": {
+                                    "type": "string",
+                                    "enum": [
+                                      "parser",
+                                      "user",
+                                      "ai"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "raw"
+                                ]
+                              }
+                            },
+                            "authorsTruncated": {
+                              "type": "boolean"
+                            },
+                            "structuring": {
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "type": "string",
+                                  "enum": [
+                                    "parser",
+                                    "user",
+                                    "ai"
+                                  ]
+                                },
+                                "version": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "path",
+                                "version"
+                              ]
+                            },
+                            "ai": {
+                              "type": "object",
+                              "properties": {
+                                "configuration": {
+                                  "type": "string"
+                                },
+                                "notice": {
+                                  "type": "string",
+                                  "enum": [
+                                    "ai-can-be-wrong"
+                                  ]
+                                },
+                                "proposals": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "field": {
+                                        "type": "string"
+                                      },
+                                      "value": {},
+                                      "reason": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ungrounded"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "field",
+                                      "reason"
+                                    ]
+                                  }
+                                },
+                                "changedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "configuration",
+                                "notice",
+                                "proposals",
+                                "changedFields"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "originalText",
+                            "span",
+                            "csl",
+                            "fieldSources",
+                            "structuring"
+                          ]
+                        }
+                      },
+                      "rejected": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "originalText": {
+                              "type": "string"
+                            },
+                            "span": {
+                              "type": "object",
+                              "properties": {
+                                "start": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "end": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "start",
+                                "end"
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "enum": [
+                                "no-reference-features"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "originalText",
+                            "span",
+                            "reason"
+                          ]
+                        }
+                      },
+                      "guidance": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "no-references"
+                        ]
+                      },
+                      "quotaConsumed": {
+                        "type": "number",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      "referenceLimit": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0
+                      },
+                      "receipt": {
+                        "type": "object",
+                        "properties": {
+                          "expiresAt": {
+                            "type": "integer"
+                          },
+                          "signature": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$/u"
+                          }
+                        },
+                        "required": [
+                          "expiresAt",
+                          "signature"
+                        ]
+                      },
+                      "ai": {
+                        "type": "object",
+                        "properties": {
+                          "reason": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "enum": [
+                              "guest",
+                              "feature-unavailable",
+                              "configuration-unavailable",
+                              null
+                            ]
+                          },
+                          "upgrade": {
+                            "type": "boolean"
+                          },
+                          "fallbacks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "span": {
+                                  "type": "object",
+                                  "properties": {
+                                    "start": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    },
+                                    "end": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    }
+                                  },
+                                  "required": [
+                                    "start",
+                                    "end"
+                                  ]
+                                },
+                                "reason": {
+                                  "type": "string",
+                                  "enum": [
+                                    "timeout",
+                                    "invalid-output",
+                                    "provider-unavailable"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "span",
+                                "reason"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "reason",
+                          "upgrade",
+                          "fallbacks"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "references",
+                      "rejected",
+                      "guidance",
+                      "quotaConsumed",
+                      "referenceLimit"
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "result"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "extraction"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
               "library": {
                 "$ref": "#/components/schemas/LibraryInputV2"
               }
@@ -2269,6 +2896,9 @@
                                       },
                                       "PMCID": {
                                         "type": "string"
+                                      },
+                                      "arXiv": {
+                                        "type": "string"
                                       }
                                     }
                                   },
@@ -2299,6 +2929,14 @@
                                         },
                                         "normalized": {
                                           "type": "string"
+                                        },
+                                        "provenance": {
+                                          "type": "string",
+                                          "enum": [
+                                            "parser",
+                                            "user",
+                                            "ai"
+                                          ]
                                         }
                                       },
                                       "required": [
@@ -2316,7 +2954,8 @@
                                         "type": "string",
                                         "enum": [
                                           "parser",
-                                          "user"
+                                          "user",
+                                          "ai"
                                         ]
                                       },
                                       "version": {
@@ -2326,6 +2965,54 @@
                                     "required": [
                                       "path",
                                       "version"
+                                    ]
+                                  },
+                                  "ai": {
+                                    "type": "object",
+                                    "properties": {
+                                      "configuration": {
+                                        "type": "string"
+                                      },
+                                      "notice": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ai-can-be-wrong"
+                                        ]
+                                      },
+                                      "proposals": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "field": {
+                                              "type": "string"
+                                            },
+                                            "value": {},
+                                            "reason": {
+                                              "type": "string",
+                                              "enum": [
+                                                "ungrounded"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "field",
+                                            "reason"
+                                          ]
+                                        }
+                                      },
+                                      "changedFields": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "configuration",
+                                      "notice",
+                                      "proposals",
+                                      "changedFields"
                                     ]
                                   }
                                 },
@@ -2395,6 +3082,84 @@
                             "referenceLimit": {
                               "type": "integer",
                               "exclusiveMinimum": 0
+                            },
+                            "receipt": {
+                              "type": "object",
+                              "properties": {
+                                "expiresAt": {
+                                  "type": "integer"
+                                },
+                                "signature": {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$/u"
+                                }
+                              },
+                              "required": [
+                                "expiresAt",
+                                "signature"
+                              ]
+                            },
+                            "ai": {
+                              "type": "object",
+                              "properties": {
+                                "reason": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "enum": [
+                                    "guest",
+                                    "feature-unavailable",
+                                    "configuration-unavailable",
+                                    null
+                                  ]
+                                },
+                                "upgrade": {
+                                  "type": "boolean"
+                                },
+                                "fallbacks": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "span": {
+                                        "type": "object",
+                                        "properties": {
+                                          "start": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                          },
+                                          "end": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                          }
+                                        },
+                                        "required": [
+                                          "start",
+                                          "end"
+                                        ]
+                                      },
+                                      "reason": {
+                                        "type": "string",
+                                        "enum": [
+                                          "timeout",
+                                          "invalid-output",
+                                          "provider-unavailable"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "span",
+                                      "reason"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "reason",
+                                "upgrade",
+                                "fallbacks"
+                              ]
                             }
                           },
                           "required": [
@@ -4271,6 +5036,409 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "prepared": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "maxLength": 20971520
+                        },
+                        "result": {
+                          "type": "object",
+                          "properties": {
+                            "references": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "originalText": {
+                                    "type": "string"
+                                  },
+                                  "span": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "csl": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string"
+                                      },
+                                      "author": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "family": {
+                                              "type": "string"
+                                            },
+                                            "non-dropping-particle": {
+                                              "type": "string"
+                                            },
+                                            "given": {
+                                              "type": "string"
+                                            },
+                                            "literal": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "issued": {
+                                        "type": "object",
+                                        "properties": {
+                                          "literal": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "literal"
+                                        ]
+                                      },
+                                      "title": {
+                                        "type": "string"
+                                      },
+                                      "container-title": {
+                                        "type": "string"
+                                      },
+                                      "container-title-short": {
+                                        "type": "string"
+                                      },
+                                      "publisher": {
+                                        "type": "string"
+                                      },
+                                      "publisher-place": {
+                                        "type": "string"
+                                      },
+                                      "volume": {
+                                        "type": "string"
+                                      },
+                                      "issue": {
+                                        "type": "string"
+                                      },
+                                      "page": {
+                                        "type": "string"
+                                      },
+                                      "article-number": {
+                                        "type": "string"
+                                      },
+                                      "edition": {
+                                        "type": "string"
+                                      },
+                                      "DOI": {
+                                        "type": "string"
+                                      },
+                                      "URL": {
+                                        "type": "string"
+                                      },
+                                      "ISBN": {
+                                        "type": "string"
+                                      },
+                                      "ISSN": {
+                                        "type": "string"
+                                      },
+                                      "PMID": {
+                                        "type": "string"
+                                      },
+                                      "PMCID": {
+                                        "type": "string"
+                                      },
+                                      "arXiv": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "fieldSources": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "object",
+                                      "properties": {
+                                        "raw": {
+                                          "type": "string"
+                                        },
+                                        "span": {
+                                          "type": "object",
+                                          "properties": {
+                                            "start": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            },
+                                            "end": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            }
+                                          },
+                                          "required": [
+                                            "start",
+                                            "end"
+                                          ]
+                                        },
+                                        "normalized": {
+                                          "type": "string"
+                                        },
+                                        "provenance": {
+                                          "type": "string",
+                                          "enum": [
+                                            "parser",
+                                            "user",
+                                            "ai"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "raw"
+                                      ]
+                                    }
+                                  },
+                                  "authorsTruncated": {
+                                    "type": "boolean"
+                                  },
+                                  "structuring": {
+                                    "type": "object",
+                                    "properties": {
+                                      "path": {
+                                        "type": "string",
+                                        "enum": [
+                                          "parser",
+                                          "user",
+                                          "ai"
+                                        ]
+                                      },
+                                      "version": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "path",
+                                      "version"
+                                    ]
+                                  },
+                                  "ai": {
+                                    "type": "object",
+                                    "properties": {
+                                      "configuration": {
+                                        "type": "string"
+                                      },
+                                      "notice": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ai-can-be-wrong"
+                                        ]
+                                      },
+                                      "proposals": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "field": {
+                                              "type": "string"
+                                            },
+                                            "value": {},
+                                            "reason": {
+                                              "type": "string",
+                                              "enum": [
+                                                "ungrounded"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "field",
+                                            "reason"
+                                          ]
+                                        }
+                                      },
+                                      "changedFields": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "configuration",
+                                      "notice",
+                                      "proposals",
+                                      "changedFields"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "originalText",
+                                  "span",
+                                  "csl",
+                                  "fieldSources",
+                                  "structuring"
+                                ]
+                              }
+                            },
+                            "rejected": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "originalText": {
+                                    "type": "string"
+                                  },
+                                  "span": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "reason": {
+                                    "type": "string",
+                                    "enum": [
+                                      "no-reference-features"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "originalText",
+                                  "span",
+                                  "reason"
+                                ]
+                              }
+                            },
+                            "guidance": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "no-references"
+                              ]
+                            },
+                            "quotaConsumed": {
+                              "type": "number",
+                              "enum": [
+                                0
+                              ]
+                            },
+                            "referenceLimit": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0
+                            },
+                            "receipt": {
+                              "type": "object",
+                              "properties": {
+                                "expiresAt": {
+                                  "type": "integer"
+                                },
+                                "signature": {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$/u"
+                                }
+                              },
+                              "required": [
+                                "expiresAt",
+                                "signature"
+                              ]
+                            },
+                            "ai": {
+                              "type": "object",
+                              "properties": {
+                                "reason": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "enum": [
+                                    "guest",
+                                    "feature-unavailable",
+                                    "configuration-unavailable",
+                                    null
+                                  ]
+                                },
+                                "upgrade": {
+                                  "type": "boolean"
+                                },
+                                "fallbacks": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "span": {
+                                        "type": "object",
+                                        "properties": {
+                                          "start": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                          },
+                                          "end": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                          }
+                                        },
+                                        "required": [
+                                          "start",
+                                          "end"
+                                        ]
+                                      },
+                                      "reason": {
+                                        "type": "string",
+                                        "enum": [
+                                          "timeout",
+                                          "invalid-output",
+                                          "provider-unavailable"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "span",
+                                      "reason"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "reason",
+                                "upgrade",
+                                "fallbacks"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "references",
+                            "rejected",
+                            "guidance",
+                            "quotaConsumed",
+                            "referenceLimit"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "result"
+                      ]
+                    },
+                    "maxItems": 1000
+                  },
                   "expectedEventSeq": {
                     "type": "integer",
                     "minimum": 0
@@ -4440,6 +5608,409 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "prepared": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "maxLength": 20971520
+                        },
+                        "result": {
+                          "type": "object",
+                          "properties": {
+                            "references": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "originalText": {
+                                    "type": "string"
+                                  },
+                                  "span": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "csl": {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string"
+                                      },
+                                      "author": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "family": {
+                                              "type": "string"
+                                            },
+                                            "non-dropping-particle": {
+                                              "type": "string"
+                                            },
+                                            "given": {
+                                              "type": "string"
+                                            },
+                                            "literal": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "issued": {
+                                        "type": "object",
+                                        "properties": {
+                                          "literal": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "literal"
+                                        ]
+                                      },
+                                      "title": {
+                                        "type": "string"
+                                      },
+                                      "container-title": {
+                                        "type": "string"
+                                      },
+                                      "container-title-short": {
+                                        "type": "string"
+                                      },
+                                      "publisher": {
+                                        "type": "string"
+                                      },
+                                      "publisher-place": {
+                                        "type": "string"
+                                      },
+                                      "volume": {
+                                        "type": "string"
+                                      },
+                                      "issue": {
+                                        "type": "string"
+                                      },
+                                      "page": {
+                                        "type": "string"
+                                      },
+                                      "article-number": {
+                                        "type": "string"
+                                      },
+                                      "edition": {
+                                        "type": "string"
+                                      },
+                                      "DOI": {
+                                        "type": "string"
+                                      },
+                                      "URL": {
+                                        "type": "string"
+                                      },
+                                      "ISBN": {
+                                        "type": "string"
+                                      },
+                                      "ISSN": {
+                                        "type": "string"
+                                      },
+                                      "PMID": {
+                                        "type": "string"
+                                      },
+                                      "PMCID": {
+                                        "type": "string"
+                                      },
+                                      "arXiv": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "fieldSources": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "object",
+                                      "properties": {
+                                        "raw": {
+                                          "type": "string"
+                                        },
+                                        "span": {
+                                          "type": "object",
+                                          "properties": {
+                                            "start": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            },
+                                            "end": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            }
+                                          },
+                                          "required": [
+                                            "start",
+                                            "end"
+                                          ]
+                                        },
+                                        "normalized": {
+                                          "type": "string"
+                                        },
+                                        "provenance": {
+                                          "type": "string",
+                                          "enum": [
+                                            "parser",
+                                            "user",
+                                            "ai"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "raw"
+                                      ]
+                                    }
+                                  },
+                                  "authorsTruncated": {
+                                    "type": "boolean"
+                                  },
+                                  "structuring": {
+                                    "type": "object",
+                                    "properties": {
+                                      "path": {
+                                        "type": "string",
+                                        "enum": [
+                                          "parser",
+                                          "user",
+                                          "ai"
+                                        ]
+                                      },
+                                      "version": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "path",
+                                      "version"
+                                    ]
+                                  },
+                                  "ai": {
+                                    "type": "object",
+                                    "properties": {
+                                      "configuration": {
+                                        "type": "string"
+                                      },
+                                      "notice": {
+                                        "type": "string",
+                                        "enum": [
+                                          "ai-can-be-wrong"
+                                        ]
+                                      },
+                                      "proposals": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "field": {
+                                              "type": "string"
+                                            },
+                                            "value": {},
+                                            "reason": {
+                                              "type": "string",
+                                              "enum": [
+                                                "ungrounded"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "field",
+                                            "reason"
+                                          ]
+                                        }
+                                      },
+                                      "changedFields": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "configuration",
+                                      "notice",
+                                      "proposals",
+                                      "changedFields"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "originalText",
+                                  "span",
+                                  "csl",
+                                  "fieldSources",
+                                  "structuring"
+                                ]
+                              }
+                            },
+                            "rejected": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "originalText": {
+                                    "type": "string"
+                                  },
+                                  "span": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      },
+                                      "end": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "start",
+                                      "end"
+                                    ]
+                                  },
+                                  "reason": {
+                                    "type": "string",
+                                    "enum": [
+                                      "no-reference-features"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "originalText",
+                                  "span",
+                                  "reason"
+                                ]
+                              }
+                            },
+                            "guidance": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "no-references"
+                              ]
+                            },
+                            "quotaConsumed": {
+                              "type": "number",
+                              "enum": [
+                                0
+                              ]
+                            },
+                            "referenceLimit": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0
+                            },
+                            "receipt": {
+                              "type": "object",
+                              "properties": {
+                                "expiresAt": {
+                                  "type": "integer"
+                                },
+                                "signature": {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$/u"
+                                }
+                              },
+                              "required": [
+                                "expiresAt",
+                                "signature"
+                              ]
+                            },
+                            "ai": {
+                              "type": "object",
+                              "properties": {
+                                "reason": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "enum": [
+                                    "guest",
+                                    "feature-unavailable",
+                                    "configuration-unavailable",
+                                    null
+                                  ]
+                                },
+                                "upgrade": {
+                                  "type": "boolean"
+                                },
+                                "fallbacks": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "span": {
+                                        "type": "object",
+                                        "properties": {
+                                          "start": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                          },
+                                          "end": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                          }
+                                        },
+                                        "required": [
+                                          "start",
+                                          "end"
+                                        ]
+                                      },
+                                      "reason": {
+                                        "type": "string",
+                                        "enum": [
+                                          "timeout",
+                                          "invalid-output",
+                                          "provider-unavailable"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "span",
+                                      "reason"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "reason",
+                                "upgrade",
+                                "fallbacks"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "references",
+                            "rejected",
+                            "guidance",
+                            "quotaConsumed",
+                            "referenceLimit"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "result"
+                      ]
+                    },
+                    "maxItems": 1000
+                  },
                   "expectedEventSeq": {
                     "type": "integer",
                     "minimum": 0
@@ -4486,6 +6057,409 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "prepared": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "maxLength": 20971520
+                              },
+                              "result": {
+                                "type": "object",
+                                "properties": {
+                                  "references": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "originalText": {
+                                          "type": "string"
+                                        },
+                                        "span": {
+                                          "type": "object",
+                                          "properties": {
+                                            "start": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            },
+                                            "end": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            }
+                                          },
+                                          "required": [
+                                            "start",
+                                            "end"
+                                          ]
+                                        },
+                                        "csl": {
+                                          "type": "object",
+                                          "properties": {
+                                            "type": {
+                                              "type": "string"
+                                            },
+                                            "author": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "family": {
+                                                    "type": "string"
+                                                  },
+                                                  "non-dropping-particle": {
+                                                    "type": "string"
+                                                  },
+                                                  "given": {
+                                                    "type": "string"
+                                                  },
+                                                  "literal": {
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "issued": {
+                                              "type": "object",
+                                              "properties": {
+                                                "literal": {
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "literal"
+                                              ]
+                                            },
+                                            "title": {
+                                              "type": "string"
+                                            },
+                                            "container-title": {
+                                              "type": "string"
+                                            },
+                                            "container-title-short": {
+                                              "type": "string"
+                                            },
+                                            "publisher": {
+                                              "type": "string"
+                                            },
+                                            "publisher-place": {
+                                              "type": "string"
+                                            },
+                                            "volume": {
+                                              "type": "string"
+                                            },
+                                            "issue": {
+                                              "type": "string"
+                                            },
+                                            "page": {
+                                              "type": "string"
+                                            },
+                                            "article-number": {
+                                              "type": "string"
+                                            },
+                                            "edition": {
+                                              "type": "string"
+                                            },
+                                            "DOI": {
+                                              "type": "string"
+                                            },
+                                            "URL": {
+                                              "type": "string"
+                                            },
+                                            "ISBN": {
+                                              "type": "string"
+                                            },
+                                            "ISSN": {
+                                              "type": "string"
+                                            },
+                                            "PMID": {
+                                              "type": "string"
+                                            },
+                                            "PMCID": {
+                                              "type": "string"
+                                            },
+                                            "arXiv": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        },
+                                        "fieldSources": {
+                                          "type": "object",
+                                          "additionalProperties": {
+                                            "type": "object",
+                                            "properties": {
+                                              "raw": {
+                                                "type": "string"
+                                              },
+                                              "span": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "start": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                  },
+                                                  "end": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                  }
+                                                },
+                                                "required": [
+                                                  "start",
+                                                  "end"
+                                                ]
+                                              },
+                                              "normalized": {
+                                                "type": "string"
+                                              },
+                                              "provenance": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "parser",
+                                                  "user",
+                                                  "ai"
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "raw"
+                                            ]
+                                          }
+                                        },
+                                        "authorsTruncated": {
+                                          "type": "boolean"
+                                        },
+                                        "structuring": {
+                                          "type": "object",
+                                          "properties": {
+                                            "path": {
+                                              "type": "string",
+                                              "enum": [
+                                                "parser",
+                                                "user",
+                                                "ai"
+                                              ]
+                                            },
+                                            "version": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "path",
+                                            "version"
+                                          ]
+                                        },
+                                        "ai": {
+                                          "type": "object",
+                                          "properties": {
+                                            "configuration": {
+                                              "type": "string"
+                                            },
+                                            "notice": {
+                                              "type": "string",
+                                              "enum": [
+                                                "ai-can-be-wrong"
+                                              ]
+                                            },
+                                            "proposals": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "field": {
+                                                    "type": "string"
+                                                  },
+                                                  "value": {},
+                                                  "reason": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "ungrounded"
+                                                    ]
+                                                  }
+                                                },
+                                                "required": [
+                                                  "field",
+                                                  "reason"
+                                                ]
+                                              }
+                                            },
+                                            "changedFields": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string"
+                                              }
+                                            }
+                                          },
+                                          "required": [
+                                            "configuration",
+                                            "notice",
+                                            "proposals",
+                                            "changedFields"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "originalText",
+                                        "span",
+                                        "csl",
+                                        "fieldSources",
+                                        "structuring"
+                                      ]
+                                    }
+                                  },
+                                  "rejected": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "originalText": {
+                                          "type": "string"
+                                        },
+                                        "span": {
+                                          "type": "object",
+                                          "properties": {
+                                            "start": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            },
+                                            "end": {
+                                              "type": "integer",
+                                              "minimum": 0
+                                            }
+                                          },
+                                          "required": [
+                                            "start",
+                                            "end"
+                                          ]
+                                        },
+                                        "reason": {
+                                          "type": "string",
+                                          "enum": [
+                                            "no-reference-features"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "originalText",
+                                        "span",
+                                        "reason"
+                                      ]
+                                    }
+                                  },
+                                  "guidance": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "enum": [
+                                      "no-references"
+                                    ]
+                                  },
+                                  "quotaConsumed": {
+                                    "type": "number",
+                                    "enum": [
+                                      0
+                                    ]
+                                  },
+                                  "referenceLimit": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "receipt": {
+                                    "type": "object",
+                                    "properties": {
+                                      "expiresAt": {
+                                        "type": "integer"
+                                      },
+                                      "signature": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$/u"
+                                      }
+                                    },
+                                    "required": [
+                                      "expiresAt",
+                                      "signature"
+                                    ]
+                                  },
+                                  "ai": {
+                                    "type": "object",
+                                    "properties": {
+                                      "reason": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ],
+                                        "enum": [
+                                          "guest",
+                                          "feature-unavailable",
+                                          "configuration-unavailable",
+                                          null
+                                        ]
+                                      },
+                                      "upgrade": {
+                                        "type": "boolean"
+                                      },
+                                      "fallbacks": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "span": {
+                                              "type": "object",
+                                              "properties": {
+                                                "start": {
+                                                  "type": "integer",
+                                                  "minimum": 0
+                                                },
+                                                "end": {
+                                                  "type": "integer",
+                                                  "minimum": 0
+                                                }
+                                              },
+                                              "required": [
+                                                "start",
+                                                "end"
+                                              ]
+                                            },
+                                            "reason": {
+                                              "type": "string",
+                                              "enum": [
+                                                "timeout",
+                                                "invalid-output",
+                                                "provider-unavailable"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "span",
+                                            "reason"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "reason",
+                                      "upgrade",
+                                      "fallbacks"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "references",
+                                  "rejected",
+                                  "guidance",
+                                  "quotaConsumed",
+                                  "referenceLimit"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "result"
+                            ]
+                          },
+                          "maxItems": 1000
+                        },
                         "expectedEventSeq": {
                           "type": "integer",
                           "minimum": 0
@@ -4531,179 +6505,7 @@
                         "addedReferences": {
                           "type": "array",
                           "items": {
-                            "type": "object",
-                            "properties": {
-                              "originalText": {
-                                "type": "string"
-                              },
-                              "span": {
-                                "type": "object",
-                                "properties": {
-                                  "start": {
-                                    "type": "integer",
-                                    "minimum": 0
-                                  },
-                                  "end": {
-                                    "type": "integer",
-                                    "minimum": 0
-                                  }
-                                },
-                                "required": [
-                                  "start",
-                                  "end"
-                                ]
-                              },
-                              "csl": {
-                                "type": "object",
-                                "properties": {
-                                  "type": {
-                                    "type": "string"
-                                  },
-                                  "author": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "family": {
-                                          "type": "string"
-                                        },
-                                        "non-dropping-particle": {
-                                          "type": "string"
-                                        },
-                                        "given": {
-                                          "type": "string"
-                                        },
-                                        "literal": {
-                                          "type": "string"
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "issued": {
-                                    "type": "object",
-                                    "properties": {
-                                      "literal": {
-                                        "type": "string"
-                                      }
-                                    },
-                                    "required": [
-                                      "literal"
-                                    ]
-                                  },
-                                  "title": {
-                                    "type": "string"
-                                  },
-                                  "container-title": {
-                                    "type": "string"
-                                  },
-                                  "container-title-short": {
-                                    "type": "string"
-                                  },
-                                  "publisher": {
-                                    "type": "string"
-                                  },
-                                  "publisher-place": {
-                                    "type": "string"
-                                  },
-                                  "volume": {
-                                    "type": "string"
-                                  },
-                                  "issue": {
-                                    "type": "string"
-                                  },
-                                  "page": {
-                                    "type": "string"
-                                  },
-                                  "article-number": {
-                                    "type": "string"
-                                  },
-                                  "edition": {
-                                    "type": "string"
-                                  },
-                                  "DOI": {
-                                    "type": "string"
-                                  },
-                                  "URL": {
-                                    "type": "string"
-                                  },
-                                  "ISBN": {
-                                    "type": "string"
-                                  },
-                                  "ISSN": {
-                                    "type": "string"
-                                  },
-                                  "PMID": {
-                                    "type": "string"
-                                  },
-                                  "PMCID": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "fieldSources": {
-                                "type": "object",
-                                "additionalProperties": {
-                                  "type": "object",
-                                  "properties": {
-                                    "raw": {
-                                      "type": "string"
-                                    },
-                                    "span": {
-                                      "type": "object",
-                                      "properties": {
-                                        "start": {
-                                          "type": "integer",
-                                          "minimum": 0
-                                        },
-                                        "end": {
-                                          "type": "integer",
-                                          "minimum": 0
-                                        }
-                                      },
-                                      "required": [
-                                        "start",
-                                        "end"
-                                      ]
-                                    },
-                                    "normalized": {
-                                      "type": "string"
-                                    }
-                                  },
-                                  "required": [
-                                    "raw"
-                                  ]
-                                }
-                              },
-                              "authorsTruncated": {
-                                "type": "boolean"
-                              },
-                              "structuring": {
-                                "type": "object",
-                                "properties": {
-                                  "path": {
-                                    "type": "string",
-                                    "enum": [
-                                      "parser",
-                                      "user"
-                                    ]
-                                  },
-                                  "version": {
-                                    "type": "string"
-                                  }
-                                },
-                                "required": [
-                                  "path",
-                                  "version"
-                                ]
-                              }
-                            },
-                            "required": [
-                              "originalText",
-                              "span",
-                              "csl",
-                              "fieldSources",
-                              "structuring"
-                            ]
+                            "$ref": "#/components/schemas/StructuredReferenceV2"
                           }
                         },
                         "total": {

@@ -61,7 +61,15 @@ import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
 import { billedChange, billedCreate } from "../quota/billing.ts";
 import type { OwnerBinding } from "../quota/port.ts";
-import { MaxReferences } from "@source-taster/contract-verification/v2";
+import {
+  MaxReferences,
+  type EditSelectionRequest,
+} from "@source-taster/contract-verification/v2";
+import { selectionDifference } from "../checks/selection.ts";
+import { previewReceipts } from "../ai/receipt.ts";
+import type { ExtractionPort } from "../ai/port.ts";
+import { extractText } from "../ai/structuring.ts";
+import { StructuringResult as V1StructuringResult } from "@source-taster/contract-verification";
 import { randomUUID } from "node:crypto";
 
 function librarySizeIssue(issues: readonly ZodIssue[]): boolean {
@@ -75,6 +83,7 @@ function librarySizeIssue(issues: readonly ZodIssue[]): boolean {
 export interface AppDeps {
   entrance?: EntranceLimiter;
   structuring: Structuring;
+  extraction?: ExtractionPort;
   entitlements: Entitlements;
   checks: CheckStore;
   events: EventListener;
@@ -91,6 +100,7 @@ export function createApp(
   {
     structuring,
     entrance,
+    extraction,
     entitlements,
     checks,
     events,
@@ -104,6 +114,7 @@ export function createApp(
   }: AppDeps,
   apiVersion = 1,
 ) {
+  const receipts = previewReceipts(clock);
   async function authorize(
     request: Request,
     permission: Permission,
@@ -123,6 +134,118 @@ export function createApp(
     return entitlements.guard
       ? entitlements.guard(principal, permission, operation)
       : operation();
+  }
+  async function aiEligibility(principal: Principal) {
+    await guarded(principal, "structuring:create", async () => {});
+    if (principal.guestContextId) return "guest" as const;
+    if (entitlements.quota) {
+      const quota = await entitlements.quota.snapshot({
+        ownerId: principal.ownerId,
+        actorId: principal.actorId,
+      });
+      if (!quota.features.includes("ai-extraction"))
+        return "feature-unavailable" as const;
+    } else return "configuration-unavailable" as const;
+    if (
+      !extraction?.extractSpans ||
+      !extraction.configuration ||
+      extraction.configuration.chunkSize < 64 ||
+      extraction.configuration.chunkSize > 65_536
+    )
+      return "configuration-unavailable" as const;
+    return null;
+  }
+  async function structureCurrent(
+    principal: Principal,
+    text: string,
+    signal: AbortSignal,
+    regions?: { start: number; end: number }[],
+  ) {
+    const reason = await aiEligibility(principal);
+    if (reason) {
+      const parsed = regions
+        ? structureSelection(structuring, text, regions, referenceLimit)
+        : structuring.structure(text);
+      return {
+        ...parsed,
+        ai: {
+          reason,
+          upgrade: reason !== "configuration-unavailable",
+          fallbacks: [],
+        },
+      };
+    }
+    const extracted = await extractText({
+      text,
+      regions,
+      parser: structuring,
+      limit: referenceLimit,
+      port: extraction!,
+      signal,
+      authorize: async () => {
+        if (await aiEligibility(principal)) fail("forbidden");
+      },
+    });
+    return receipts.sign(principal, text, regions, extracted);
+  }
+  async function selectionParser(
+    principal: Principal,
+    checkId: string,
+    request: EditSelectionRequest,
+    signal: AbortSignal,
+  ) {
+    const snapshot = await guarded(principal, "check:create", () =>
+      checks.get(principal, checkId, 2),
+    );
+    if (!snapshot) fail("check-not-found");
+    if (
+      !snapshot.document ||
+      snapshot.lastEventSeq !== request.expectedEventSeq
+    )
+      throw new ReferenceConflict();
+    const reason = await aiEligibility(principal);
+    if (reason) {
+      if (request.prepared?.length) fail("forbidden");
+      return { parser: structuring, prepared: undefined };
+    }
+    const inputs = new Set<string>();
+    selectionDifference(
+      snapshot,
+      request.regions,
+      {
+        structure(input) {
+          inputs.add(input);
+          return structuring.structure("");
+        },
+      },
+      referenceLimit,
+    );
+    const prepared: NonNullable<EditSelectionRequest["prepared"]> = [];
+    for (const text of inputs) {
+      const existing = request.prepared?.find((p) => p.text === text);
+      const regions = [{ start: 0, end: text.length }];
+      if (
+        request.prepared &&
+        (!existing ||
+          !receipts.verify(principal, text, regions, existing.result))
+      )
+        fail("invalid-request");
+      const result =
+        existing?.result ??
+        (await structureCurrent(principal, text, signal, regions));
+      prepared.push({ text, result });
+    }
+    return {
+      prepared,
+      parser: {
+        structure(input: string) {
+          const result = prepared.find((p) => p.text === input)?.result;
+          if (!result) throw new ReferenceConflict();
+          // structureSelection translates offsets in place; never mutate a signed preview.
+          return structuredClone(result);
+        },
+      },
+    };
   }
   const owner = (principal: Principal): OwnerBinding => ({
     ownerId: principal.ownerId,
@@ -152,6 +275,15 @@ export function createApp(
   ) {
     const quota =
       knownQuota === undefined ? await quotaSlot(principal) : knownQuota;
+    const aiPreview =
+      permission === "structuring:create" &&
+      data &&
+      typeof data === "object" &&
+      "structuring" in data &&
+      data.structuring &&
+      typeof data.structuring === "object" &&
+      "receipt" in data.structuring;
+    if (aiPreview && (await aiEligibility(principal))) fail("forbidden");
     // Check again after the database/parser work, before response headers. The
     // transport write itself drains under the same durable Owner guard as commits.
     await guarded(principal, permission, () =>
@@ -165,6 +297,7 @@ export function createApp(
     const response = stream(c, async (writer) => {
       try {
         const send = () => writer.write(JSON.stringify({ data, quota }));
+        if (aiPreview && (await aiEligibility(principal))) fail("forbidden");
         await guarded(principal, permission, () =>
           checkId
             ? checks.publish(principal, checkId, apiVersion, send)
@@ -242,7 +375,9 @@ export function createApp(
     app.openapi(structureReferences, async (c) => {
       const principal = await authorize(c.req.raw, "structuring:create");
       try {
-        const data = structuring.structure(c.req.valid("json").text);
+        const data = V1StructuringResult.parse(
+          structuring.structure(c.req.valid("json").text),
+        );
         return output(c, principal, "structuring:create", data, 200);
       } catch (error) {
         if (error instanceof ReferenceLimitExceeded)
@@ -255,18 +390,15 @@ export function createApp(
       }
     });
 
-  function documentStructure(
+  async function documentStructure(
+    principal: Principal,
+    signal: AbortSignal,
     text: string,
     regions: { start: number; end: number }[],
   ) {
     try {
       return {
-        structuring: structureSelection(
-          structuring,
-          text,
-          regions,
-          referenceLimit,
-        ),
+        structuring: await structureCurrent(principal, text, signal, regions),
         referenceLimitExceeded: false,
       };
     } catch (error) {
@@ -298,11 +430,20 @@ export function createApp(
       const data = isDocument
         ? {
             document: { text: input.text, selection },
-            ...documentStructure(input.text, selection.regions),
+            ...(await documentStructure(
+              principal,
+              c.req.raw.signal,
+              input.text,
+              selection.regions,
+            )),
           }
         : {
             document: null,
-            structuring: structuring.structure(input.text),
+            structuring: await structureCurrent(
+              principal,
+              input.text,
+              c.req.raw.signal,
+            ),
             referenceLimitExceeded: false,
           };
       return output(c, principal, "structuring:create", data, 200);
@@ -363,7 +504,12 @@ export function createApp(
               ? ("partial-no-text" as const)
               : null,
           },
-          ...documentStructure(extracted.text, selection.regions),
+          ...(await documentStructure(
+            principal,
+            c.req.raw.signal,
+            extracted.text,
+            selection.regions,
+          )),
         };
         return output(c, principal, "structuring:create", data, 200);
       } catch (error) {
@@ -402,7 +548,27 @@ export function createApp(
       let references: StructuredReference[];
       let document: BibliographyDocument | undefined;
       try {
-        if ("document" in input) {
+        if ("extraction" in input) {
+          const reviewed = input.extraction;
+          if (
+            !receipts.verify(
+              principal,
+              reviewed.text,
+              reviewed.regions,
+              reviewed.result,
+            )
+          )
+            fail("invalid-request");
+          if (await aiEligibility(principal)) fail("forbidden");
+          if (reviewed.regions)
+            document = {
+              text: reviewed.text,
+              selection: {
+                version: bibliographyRulesVersion,
+                regions: reviewed.regions,
+              },
+            };
+        } else if ("document" in input) {
           const regions = selectionRegions(
             input.document.text,
             input.document.regions,
@@ -416,18 +582,27 @@ export function createApp(
           if (selection.regions.length)
             document = { text: input.text, selection };
         }
-        const parsed = document
-          ? structureSelection(
-              structuring,
-              document.text,
-              document.selection.regions,
-              referenceLimit,
-            )
-          : "library" in input
-            ? importLibrary(input.library, referenceLimit)
-            : "text" in input
-              ? structuring.structure(input.text)
-              : null;
+        const parsed =
+          "extraction" in input
+            ? input.extraction.result
+            : document
+              ? await structureCurrent(
+                  principal,
+                  document.text,
+                  c.req.raw.signal,
+                  document.selection.regions,
+                )
+              : "library" in input
+                ? importLibrary(input.library, referenceLimit)
+                : "text" in input
+                  ? apiVersion === 2
+                    ? await structureCurrent(
+                        principal,
+                        input.text,
+                        c.req.raw.signal,
+                      )
+                    : structuring.structure(input.text)
+                  : null;
         if (
           parsed &&
           parsed.references.length +
@@ -502,13 +677,20 @@ export function createApp(
         owner(principal),
         id,
         started,
-        () =>
-          guarded(principal, "check:create", () =>
+        async () => {
+          if (
+            ("extraction" in input ||
+              references.some((r) => r.structuring.path === "ai")) &&
+            (await aiEligibility(principal))
+          )
+            fail("forbidden");
+          return guarded(principal, "check:create", () =>
             checks.create(principal, references, apiVersion, document, {
               id,
               maxReferences: started,
             }),
-          ),
+          );
+        },
       );
       return output(c, principal, "check:create", check, 201, check.id);
     },
@@ -552,22 +734,41 @@ export function createApp(
     app.openapi(v2.previewSelection, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
       const { checkId } = c.req.valid("param");
+      const prepared = await selectionParser(
+        principal,
+        checkId,
+        c.req.valid("json"),
+        c.req.raw.signal,
+      );
       const data = await guarded(principal, "check:create", () =>
         checks.previewSelection(
           principal,
           checkId,
           c.req.valid("json"),
-          structuring,
+          prepared.parser,
           referenceLimit,
         ),
       );
       if (!data) fail("check-not-found");
-      return output(c, principal, "check:create", data, 200, checkId);
+      return output(
+        c,
+        principal,
+        "check:create",
+        { ...data, prepared: prepared.prepared },
+        200,
+        checkId,
+      );
     });
     app.openapi(v2.editSelection, async (c) => {
       const principal = await authorize(c.req.raw, "check:create");
       const { checkId } = c.req.valid("param");
       const request = c.req.valid("json");
+      const prepared = await selectionParser(
+        principal,
+        checkId,
+        request,
+        c.req.raw.signal,
+      );
       const data = await billedChange(
         entitlements.quota,
         owner(principal),
@@ -578,7 +779,7 @@ export function createApp(
               principal,
               checkId,
               request,
-              structuring,
+              prepared.parser,
               referenceLimit,
             );
             return preview
@@ -588,8 +789,10 @@ export function createApp(
                 })
               : null;
           }),
-        (reserved) =>
-          guarded(principal, "check:create", () =>
+        async (reserved) => {
+          if (prepared.prepared && (await aiEligibility(principal)))
+            fail("forbidden");
+          return guarded(principal, "check:create", () =>
             checks.editList(
               principal,
               checkId,
@@ -599,10 +802,11 @@ export function createApp(
                 remove: [],
               },
               referenceLimit,
-              { regions: request.regions, parser: structuring },
+              { regions: request.regions, parser: prepared.parser },
               reserved,
             ),
-          ),
+          );
+        },
       );
       if (!data) fail("check-not-found");
       return output(c, principal, "check:create", data, 200, checkId);
@@ -951,6 +1155,7 @@ export function createApp(
       createApp(
         {
           structuring,
+          extraction,
           entitlements,
           checks,
           events,

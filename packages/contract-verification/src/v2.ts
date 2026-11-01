@@ -4,6 +4,7 @@ import { z } from "zod";
 import { envelope, QuotaSlot } from "../../contract-common/src/index.ts";
 import * as v1 from "./index.ts";
 import { BibliographyDocument } from "./document.ts";
+import { AiReference, AiStructuringResult } from "./ai.ts";
 import { SourceSpan } from "./structuring.ts";
 export * from "./index.ts";
 export { type BibliographyDocument } from "./document.ts";
@@ -36,7 +37,7 @@ export const StructuredCsl = v1.StructuredCsl.extend({
   arXiv: z.string().optional(),
 }).meta({ id: "StructuredCslV2" });
 export type StructuredCsl = z.infer<typeof StructuredCsl>;
-export const StructuredReference = v1.StructuredReference.extend({
+export const StructuredReference = AiReference.extend({
   csl: StructuredCsl,
   /** Library import provenance; `fields` is the immutable import projection. */
   imported: z
@@ -64,6 +65,13 @@ export const LibraryInput = z
 export type LibraryInput = z.infer<typeof LibraryInput>;
 export const CreateCheckRequest = z
   .union([
+    z.strictObject({
+      extraction: z.strictObject({
+        text: z.string().min(1).max(20_971_520),
+        regions: z.array(SourceSpan).max(1000).optional(),
+        result: AiStructuringResult,
+      }),
+    }),
     z.object({ library: LibraryInput }),
     // Not trimmed: document offsets must stay exact.
     z.object({ text: z.string().regex(/\S/u) }),
@@ -213,7 +221,7 @@ export type ReferenceProgress = z.infer<typeof ReferenceProgress>;
 export const FieldRevision = z.object({
   revision: z.number().int().positive(),
   reference: StructuredReference,
-  provenance: z.enum(["parser", "user"]),
+  provenance: z.enum(["parser", "user", "ai"]),
   createdAt: z.string(),
 });
 /** A separate manual layer; immutable system outcomes remain untouched. */
@@ -307,19 +315,26 @@ export const EditReferenceListRequest = z.strictObject({
 });
 export type EditReferenceListRequest = z.infer<typeof EditReferenceListRequest>;
 
+const PreparedSelection = z
+  .array(
+    z.object({ text: z.string().max(20_971_520), result: AiStructuringResult }),
+  )
+  .max(1000);
 export const EditSelectionRequest = z.strictObject({
+  prepared: PreparedSelection.optional(),
   expectedEventSeq: z.number().int().nonnegative(),
   regions: z.array(SourceSpan).max(1000),
 });
 export type EditSelectionRequest = z.infer<typeof EditSelectionRequest>;
 export const SelectionPreviewResponse = z.object({
   data: z.object({
+    prepared: PreparedSelection.optional(),
     expectedEventSeq: z.number().int().nonnegative(),
     regions: z.array(SourceSpan),
     unchanged: z.array(z.number().int().positive()),
     removed: z.array(z.number().int().positive()),
     added: z.number().int().nonnegative(),
-    addedReferences: v1.StructuringResult.shape.references,
+    addedReferences: z.array(StructuredReference),
     total: z.number().int().nonnegative(),
     additionalQuota: z.number().int().nonnegative(),
     rejected: v1.StructuringResult.shape.rejected,
