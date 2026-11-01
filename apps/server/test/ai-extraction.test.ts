@@ -18,7 +18,8 @@ import { createCheckStore } from "../src/checks/store.ts";
 import { listenForEvents } from "../src/checks/events.ts";
 import { LOCAL_OWNER } from "../src/entitlements.ts";
 import { setupDatabase } from "../scripts/db-setup.ts";
-import { testDatabase } from "./support/processes.ts";
+import { startProcess, testDatabase } from "./support/processes.ts";
+import { startDoiFixtures } from "./support/doi-fixtures.ts";
 
 const database = testDatabase();
 const db = createPrisma(database.appUrl);
@@ -94,7 +95,9 @@ beforeEach(() => {
 });
 
 let stop: () => Promise<void>;
-const api = "http://127.0.0.1:5002";
+// Exclusive per-run port; the default only matters for an unconfigured run.
+const apiPort = Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 5002);
+const api = `http://127.0.0.1:${apiPort}`;
 beforeAll(async () => {
   await setupDatabase(database.adminUrl, database.appUrl);
   const boss = await createQueue(database.appUrl);
@@ -146,7 +149,11 @@ beforeAll(async () => {
       },
     },
   });
-  const server = serve({ fetch: app.fetch, hostname: "127.0.0.1", port: 5002 });
+  const server = serve({
+    fetch: app.fetch,
+    hostname: "127.0.0.1",
+    port: apiPort,
+  });
   await once(server, "listening");
   stop = async () => {
     await new Promise<void>((resolve) => server.close(() => resolve()));
@@ -683,4 +690,77 @@ it("retains exact name-part and native arXiv provenance through the signed previ
   const check = CheckResponse.parse(await response.json()).data;
   expect(check.references[0]?.fields.arXiv).toBe("2401.00001");
   await fetch(`${api}/v2/checks/${check.id}/cancel`, { method: "POST" });
+});
+
+it("keeps an ungrounded DOI proposal out of search and scoring until a user revision adopts it", async () => {
+  // Synthetic adapter-edge output; the DOI is only a probe for which values the
+  // real worker sends to the (fixture) Crossref and handle sources.
+  const probe = "10.5555/ai103-probe";
+  const text = "We discussed Doe (2020). Exact maps. yesterday.";
+  responseValue = {
+    references: [
+      {
+        originalText: "Doe (2020). Exact maps.",
+        span: { start: 13, end: 36 },
+        csl: { title: "Exact maps", DOI: probe },
+        spans: { title: { start: 25, end: 35 } },
+      },
+    ],
+  };
+  const preview = TextStructuringResponse.parse(
+    await (await structure(text)).json(),
+  ).data.structuring;
+  expect(preview.references[0]?.ai?.proposals).toMatchObject([
+    { field: "DOI", value: probe },
+  ]);
+  const fixtures = await startDoiFixtures();
+  const worker = startProcess("worker", {
+    NODE_ENV: "test",
+    SOURCE_TASTER_MODE: "standalone",
+    DATABASE_URL: database.appUrl,
+    SOURCE_TASTER_PLACEHOLDER_DELAY_MS: "0",
+    ...fixtures.env,
+  });
+  const queried = () =>
+    fixtures.requests.filter((r) => r.path.includes(probe)).length;
+  const snapshot = async (id: string) =>
+    CheckResponse.parse(await (await fetch(`${api}/v2/checks/${id}`)).json())
+      .data;
+  try {
+    const created = await fetch(`${api}/v2/checks`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ extraction: { text, result: preview } }),
+    });
+    expect(created.status).toBe(201);
+    const check = CheckResponse.parse(await created.json()).data;
+    await expect
+      .poll(async () => (await snapshot(check.id)).state, { timeout: 15_000 })
+      .toBe("ended");
+    // The worker really ran the Check against the fixture sources...
+    expect(fixtures.requests.length).toBeGreaterThan(0);
+    // ...but never searched or scored with the quarantined value.
+    expect(queried()).toBe(0);
+    const ended = await snapshot(check.id);
+    expect(ended.references[0]?.fields.DOI).toBeUndefined();
+    expect(JSON.stringify(ended.references[0]?.results)).not.toContain(probe);
+    // Explicit adoption is a legitimate field revision; only then is it used.
+    const adopted = await fetch(
+      `${api}/v2/checks/${check.id}/references/1/revisions`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          expectedRevision: 1,
+          fields: { ...ended.references[0]!.fields, DOI: probe },
+          recheck: true,
+        }),
+      },
+    );
+    expect(adopted.status).toBe(200);
+    await expect.poll(queried, { timeout: 15_000 }).toBeGreaterThan(0);
+  } finally {
+    await worker.stop();
+    await fixtures.stop();
+  }
 });
