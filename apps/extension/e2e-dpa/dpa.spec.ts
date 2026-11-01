@@ -1,4 +1,8 @@
-import {AccountSessionResponse,ExtensionCredential,DpaAgreement} from "@source-taster/contract-service";
+import {
+  AccountSessionResponse,
+  ExtensionCredential,
+  DpaAgreement,
+} from "@source-taster/contract-service";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { mkdtemp, readFile, writeFile, rm, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -74,7 +78,9 @@ for (const language of ["en", "de"] as const)
         await panel.click("button", de ? "Code bestätigen" : "Confirm code");
         await panel.find("button", de ? "Hier abmelden" : "Sign out here");
         if (paid) {
-          const credential = ExtensionCredential.parse((await browser.storage())["source-taster-extension-session-v1"]);
+          const credential = ExtensionCredential.parse(
+            (await browser.storage())["source-taster-extension-session-v1"],
+          );
           const response = await fetch(b.serviceUrl + "/v1/extension/session", {
             headers: {
               origin: browser.origin,
@@ -82,18 +88,16 @@ for (const language of ["en", "de"] as const)
             },
           });
           const data = AccountSessionResponse.parse(await response.json()).data;
-          await b
-            .service()
-            .command({
-              operator: {
-                credit: {
-                  ownerId: data.ownerId,
-                  amount: 100,
-                  key: "dpa-native-paid",
-                  features: ["ai-extraction", "history-extended"],
-                },
+          await b.service().command({
+            operator: {
+              credit: {
+                ownerId: data.ownerId,
+                amount: 100,
+                key: "dpa-native-paid",
+                features: ["ai-extraction", "history-extended"],
               },
-            });
+            },
+          });
         }
         await panel.click(
           "button",

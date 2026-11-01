@@ -56,26 +56,22 @@ test("a subprocessor notice drains stale processing authority across both progra
       body: JSON.stringify({ text: physicsReference }),
     });
     await held.arrived;
-    await b
-      .service()
-      .command({
-        dpa: {
-          notify: {
-            id: randomUUID(),
-            agreementId: agreement.id,
-            version: "notice-review-v1",
-            change: {
-              en: "Intended example supplier change",
-              de: "Geplanter Beispielanbieterwechsel",
-            },
-            intendedEffectiveAt: new Date(
-              b.now() + 30 * 86400000,
-            ).toISOString(),
-            objectionDeadline: new Date(b.now() + 20 * 86400000).toISOString(),
-            objectionRoute: "https://service.test.invalid/support",
+    await b.service().command({
+      dpa: {
+        notify: {
+          id: randomUUID(),
+          agreementId: agreement.id,
+          version: "notice-review-v1",
+          change: {
+            en: "Intended example supplier change",
+            de: "Geplanter Beispielanbieterwechsel",
           },
+          intendedEffectiveAt: new Date(b.now() + 30 * 86400000).toISOString(),
+          objectionDeadline: new Date(b.now() + 20 * 86400000).toISOString(),
+          objectionRoute: "https://service.test.invalid/support",
         },
-      });
+      },
+    });
     held.release();
     expect((await create).status).toBe(403);
     const download = await fetch(
