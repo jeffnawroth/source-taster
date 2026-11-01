@@ -88,3 +88,29 @@ export function rawCatalog(bytes: Uint8Array) {
     hasStructTree: /\/StructTreeRoot \d+ 0 R/u.test(catalog),
   };
 }
+/**
+ * Link annotations and how they attach to the structure tree, read from the
+ * raw file. A visible link that is not an OBJR child of a Link element is
+ * invisible to assistive technology.
+ */
+export function rawLinks(bytes: Uint8Array) {
+  const text = Buffer.from(bytes).toString("latin1");
+  const annotations = [...text.matchAll(/\/Subtype \/Link[\s\S]*?endobj/gu)];
+  return {
+    annotations: annotations.length,
+    withStructParent: annotations.filter((a) =>
+      /\/StructParent \d+/u.test(a[0]),
+    ).length,
+    uris: annotations.flatMap((a) => {
+      const action = /\/A (\d+) 0 R/u.exec(a[0])?.[1];
+      const body = action
+        ? new RegExp(`\\n${action} 0 obj\\n([\\s\\S]*?)endobj`, "u").exec(
+            text,
+          )?.[1]
+        : undefined;
+      return /\/URI \(([^)]*)\)/u.exec(body ?? "")?.[1] ?? [];
+    }),
+    objectReferences: (text.match(/\/Type \/OBJR/gu) ?? []).length,
+    linkElements: (text.match(/\/S \/Link/gu) ?? []).length,
+  };
+}

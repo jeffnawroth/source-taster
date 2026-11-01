@@ -422,6 +422,7 @@
   "problem_report_not_ready": "Der Bericht ist noch nicht fertig.",
   "problem_report_busy": "Für diese Prüfung wird bereits ein Bericht erstellt.",
   "problem_report_expired": "Der Bericht-Download ist abgelaufen. Erstellen Sie einen neuen Bericht.",
+  "report_best_match": "Bester Treffer",
   "report_title": "Prüfbericht",
   "report_document": "Dokument",
   "report_date": "Datum",

@@ -341,7 +341,7 @@ function explanation(
   }
   blocks.push({
     kind: "labelled",
-    label: m.best_match_label({}, locale),
+    label: m.report_best_match({}, locale),
     text: best.id,
   });
   const differing = best.fields.filter(
@@ -377,7 +377,7 @@ function explanation(
     blocks.push({
       kind: "link",
       label: m.report_doi_link({}, locale),
-      url: `https://doi.org/${encodeURIComponent(doi)}`,
+      url: `https://doi.org/${doi.split("/").map(encodeURIComponent).join("/")}`,
     });
   return blocks;
 }

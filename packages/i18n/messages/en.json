@@ -422,6 +422,7 @@
   "problem_report_not_ready": "The report is not finished yet.",
   "problem_report_busy": "A report for this Check is already being created.",
   "problem_report_expired": "The report download expired. Create a new report.",
+  "report_best_match": "Best match",
   "report_title": "Verification report",
   "report_document": "Document",
   "report_date": "Date",

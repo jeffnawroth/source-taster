@@ -148,14 +148,17 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
           continued: true,
           width,
         });
-        doc.font("Regular").fillColor("#0b3d91").text(block.url, {
-          structParent: paragraph,
-          structType: "Link",
-          link: block.url,
-          underline: true,
-          continued: false,
-          width,
+        // The Link element owns the annotation (an OBJR child), so assistive
+        // technology reaches the link and its destination.
+        const link = doc.struct("Link", { alt: text(block.label) }, () => {
+          doc.font("Regular").fillColor("#0b3d91").text(block.url, {
+            link: block.url,
+            underline: true,
+            continued: false,
+            width,
+          });
         });
+        paragraph.add(link);
         paragraph.end();
         break;
       }

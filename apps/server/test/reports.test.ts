@@ -19,7 +19,12 @@ import { LOCAL_OWNER } from "../src/entitlements.ts";
 import { setupDatabase } from "../scripts/db-setup.ts";
 import { startProcess, testDatabase } from "./support/processes.ts";
 import { startDoiFixtures } from "./support/doi-fixtures.ts";
-import { inspectPdf, rawCatalog, roles } from "./support/pdf-inspect.ts";
+import {
+  inspectPdf,
+  rawCatalog,
+  rawLinks,
+  roles,
+} from "./support/pdf-inspect.ts";
 
 const database = testDatabase();
 const db = createPrisma(database.appUrl);
@@ -203,4 +208,164 @@ it("lets an Owner whose scope includes reports download a tagged PDF with the Ch
   expect(pdf.text).toContain(originalText);
   // The report is a separate job: no Quota is reserved or consumed for it.
   expect(reservations).toBe(before);
+});
+
+it("refuses Owners without the reports feature, Guests and foreign Owners without creating anything", async () => {
+  const check = await checked();
+  features = [];
+  const denied = await create(check.id);
+  expect(denied.status).toBe(403);
+  expect((await denied.json()).type).toContain("feature-unavailable");
+  features = ["verification-report"];
+  guest = true;
+  expect((await create(check.id)).status).toBe(403);
+  guest = false;
+  const created = ReportResponse.parse(
+    await (await create(check.id)).json(),
+  ).data;
+  expect((await ready(check.id, created.id)).state).toBe("ready");
+  owner = ownerB;
+  expect((await create(check.id)).status).toBe(404);
+  expect(
+    (await fetch(`${api}/v2/checks/${check.id}/reports/${created.id}`)).status,
+  ).toBe(404);
+  expect((await file(check.id, created.id)).status).toBe(404);
+  owner = ownerA;
+  // Entitlement is re-checked on every download.
+  features = [];
+  expect((await file(check.id, created.id)).status).toBe(403);
+  features = ["verification-report"];
+  expect((await file(check.id, created.id)).status).toBe(200);
+});
+
+it("allows one active report per Owner, cancels it, and keeps only the newest report of a Check", async () => {
+  const check = await checked();
+  const first = ReportResponse.parse(
+    await (await create(check.id)).json(),
+  ).data;
+  const second = await create(check.id);
+  expect(second.status).toBe(409);
+  expect((await second.json()).type).toContain("report-busy");
+  const cancelled = await fetch(
+    `${api}/v2/checks/${check.id}/reports/${first.id}`,
+    { method: "DELETE" },
+  );
+  expect(cancelled.status).toBe(200);
+  expect((await ready(check.id, first.id)).state).toBe("cancelled");
+  expect((await file(check.id, first.id)).status).toBe(409);
+});
+
+it("fails a report whose text no embedded font can show, with a clear failure and no file", async () => {
+  const response = await fetch(`${api}/v2/checks`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      references: [{ originalText: "東京の研究 (2020)", fields }],
+    }),
+  });
+  const check = CheckResponse.parse(await response.json()).data;
+  for await (const frame of readSseFrames(
+    (await fetch(`${api}/v2/checks/${check.id}/events`)).body!,
+  ))
+    void frame;
+  const job = ReportResponse.parse(await (await create(check.id)).json()).data;
+  const finished = await ready(check.id, job.id);
+  expect(finished.state).toBe("failed");
+  expect(finished.failure).toBe("unsupported-character");
+  expect((await file(check.id, job.id)).status).toBe(409);
+});
+
+async function checkedWith(
+  references: { originalText: string; fields: object }[],
+) {
+  const response = await fetch(`${api}/v2/checks`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ references }),
+  });
+  const check = CheckResponse.parse(await response.json()).data;
+  for await (const frame of readSseFrames(
+    (await fetch(`${api}/v2/checks/${check.id}/events`)).body!,
+  ))
+    void frame;
+  return CheckResponse.parse(
+    await (await fetch(`${api}/v2/checks/${check.id}`)).json(),
+  ).data;
+}
+async function download(checkId: string, body: unknown) {
+  const job = ReportResponse.parse(
+    await (await create(checkId, body)).json(),
+  ).data;
+  expect((await ready(checkId, job.id)).state).toBe("ready");
+  const bytes = new Uint8Array(
+    await (await file(checkId, job.id)).arrayBuffer(),
+  );
+  return { bytes, pdf: await inspectPdf(bytes) };
+}
+
+it("writes a German report in reading order with overview first, one numbered section per Reference, and the manual judgment beside the unchanged system Verdict", async () => {
+  const check = await checkedWith([
+    { originalText: originalText, fields },
+    {
+      originalText: "Zweite Referenz: Größe & Maß (2010)",
+      fields: { ...fields, issued: { literal: "2010" } },
+    },
+  ]);
+  const second = check.references[1]!;
+  const override = await fetch(
+    `${api}/v2/checks/${check.id}/references/2/manual-override`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        expectedRevision: second.revisions.length,
+        resultId: second.results[0]!.id,
+        expectedOverrideId: null,
+        verdict: "correct",
+      }),
+    },
+  );
+  expect(override.status).toBe(200);
+  const { bytes, pdf } = await download(check.id, {
+    language: "de",
+    style: "apa",
+    documentName: "Bachelorarbeit Größe.docx",
+  });
+  expect(rawCatalog(bytes).language).toBe("de");
+  expect(pdf.title).toBe("Prüfbericht – Bachelorarbeit Größe.docx");
+  const headings = pdf.pages.flatMap((page) =>
+    roles(page.tree).filter((role) => /^H\d$/u.test(role)),
+  );
+  expect(headings).toEqual(["H1", "H2", "H2", "H2"]);
+  const text = pdf.text;
+  const order = ["Prüfbericht", "Überblick", "Referenz 1", "Referenz 2"].map(
+    (heading) => text.indexOf(heading),
+  );
+  expect(order.every((at) => at >= 0)).toBe(true);
+  expect(order).toEqual([...order].sort((a, b) => a - b));
+  // Diacritics survive the Unicode mapping, so they are extractable.
+  expect(text).toContain("Zweite Referenz: Größe & Maß (2010)");
+  expect(text).toContain("Manuelles Urteil: Korrekt");
+  expect(text).toContain(
+    `Ursprüngliches Systemurteil: ${second.outcome.kind === "verdict" ? "Existiert, mit Abweichungen" : "?"}`,
+  );
+  expect(text).toContain("Version der Bewertungsregeln");
+  // A long version identifier may wrap; its characters must all be there.
+  const outcome = check.references[0]!.outcome;
+  if (outcome.kind !== "verdict") throw new Error("expected a Verdict");
+  expect(text.replace(/\s+/gu, "")).toContain(outcome.scoringRules.version);
+  expect(text).toContain("Bester Treffer: 10.1038/nphys1170");
+  expect(text).toContain("https://doi.org/10.1038/nphys1170");
+  expect(text).toContain("Seite 1 von");
+});
+
+it("exposes each link to assistive technology as a Link element that owns its annotation", async () => {
+  const check = await checked();
+  const { bytes } = await download(check.id, { language: "en", style: "apa" });
+  const links = rawLinks(bytes);
+  expect(links.uris).toEqual(["https://doi.org/10.1038/nphys1170"]);
+  expect(links.annotations).toBeGreaterThan(0);
+  expect(links.withStructParent).toBe(links.annotations);
+  expect(links.objectReferences).toBe(links.annotations);
+  expect(links.linkElements).toBe(1);
 });
