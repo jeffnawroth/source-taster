@@ -6,6 +6,13 @@
 import type { QuotaSlot } from "@source-taster/contract-common";
 import type { QuotaPort } from "./quota/port.ts";
 
+/**
+ * The Quota feature id that entitles an Owner to Verification reports (ADR-0017).
+ * It is granted by the private service in `Quota.features`; this program never
+ * invents a local entitlement.
+ */
+export { reportFeature } from "@source-taster/contract-verification/report";
+
 export type Permission =
   | "structuring:create"
   | "check:create"

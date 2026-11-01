@@ -31,6 +31,12 @@ import {
   streamCheckEvents,
 } from "@source-taster/contract-verification/routes";
 import { exportReferences } from "@source-taster/contract-verification/export-routes";
+import {
+  createReport,
+  getReport,
+  downloadReport,
+  cancelReport,
+} from "@source-taster/contract-verification/report-routes";
 import { suggestionFields, suggestionToken } from "../citations/suggestion.ts";
 import { importLibrary } from "../imports/library.ts";
 import { referenceExporter } from "../exports/references.ts";
@@ -59,8 +65,12 @@ import {
   ReferenceConflict,
   CheckExpired,
   HistoryLocked,
+  ReportBusy,
+  ReportExpired,
+  ReportNotReady,
 } from "../checks/store.ts";
 import type { CheckStore } from "../checks/store.ts";
+import { reportFeature } from "../entitlements.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
 import { billedChange, billedCreate } from "../quota/billing.ts";
@@ -285,7 +295,7 @@ export function createApp(
       return { status: "unavailable" };
     }
   }
-  async function output<T, S extends 200 | 201>(
+  async function output<T, S extends 200 | 201 | 202>(
     c: Context,
     principal: Principal,
     permission: Permission,
@@ -376,6 +386,11 @@ export function createApp(
       return problemResponse("reference-limit", undefined, error.limit);
     if (error instanceof ReferenceConflict)
       return problemResponse("reference-conflict");
+    if (error instanceof ReportBusy) return problemResponse("report-busy");
+    if (error instanceof ReportNotReady)
+      return problemResponse("report-not-ready");
+    if (error instanceof ReportExpired)
+      return problemResponse("report-expired");
     if (error instanceof FormattingUnavailable)
       return problemResponse("formatting-unavailable");
     if (error instanceof HTTPException) return error.getResponse();
@@ -1116,6 +1131,77 @@ export function createApp(
         }
       });
     });
+
+  if (apiVersion === 2) {
+    // ADR-0017: only Owners whose Quota scope includes reports. Guests and
+    // installations without a Quota port have no such scope (fail closed).
+    // Taken outside the Owner guard, like the AI-extraction scope.
+    const entitled = async (principal: Principal) => {
+      if (principal.guestContextId || !entitlements.quota)
+        fail("feature-unavailable");
+      const quota = await entitlements.quota.snapshot({
+        ownerId: principal.ownerId,
+        actorId: principal.actorId,
+      });
+      if (!quota.features.includes(reportFeature)) fail("feature-unavailable");
+    };
+    app.openapi(createReport, async (c) => {
+      const principal = await authorize(c.req.raw, "check:read");
+      await entitled(principal);
+      const { checkId } = c.req.valid("param");
+      const report = await guarded(principal, "check:read", () =>
+        checks.reports.create(principal, checkId, c.req.valid("json")),
+      );
+      if (!report) fail("check-not-found");
+      return output(c, principal, "check:read", report, 202, checkId);
+    });
+    app.openapi(getReport, async (c) => {
+      const principal = await authorize(c.req.raw, "check:read");
+      const { checkId, reportId } = c.req.valid("param");
+      const report = await guarded(principal, "check:read", () =>
+        checks.reports.get(principal, checkId, reportId),
+      );
+      if (!report) fail("report-not-found");
+      return output(c, principal, "check:read", report, 200, checkId);
+    });
+    app.openapi(cancelReport, async (c) => {
+      const principal = await authorize(c.req.raw, "check:read");
+      const { checkId, reportId } = c.req.valid("param");
+      const report = await guarded(principal, "check:read", () =>
+        checks.reports.cancel(principal, checkId, reportId),
+      );
+      if (!report) fail("report-not-found");
+      return output(c, principal, "check:read", report, 200, checkId);
+    });
+    app.openapi(downloadReport, async (c) => {
+      const principal = await authorize(c.req.raw, "check:read");
+      // The Quota scope is rechecked on every download, not only at creation.
+      await entitled(principal);
+      const { checkId, reportId } = c.req.valid("param");
+      const file = await guarded(principal, "check:read", () =>
+        checks.reports.file(principal, checkId, reportId),
+      );
+      if (!file) fail("report-not-found");
+      c.header("Content-Type", "application/pdf");
+      c.header(
+        "Content-Disposition",
+        'attachment; filename="source-taster-report.pdf"',
+      );
+      c.header("Content-Length", String(file.byteLength));
+      c.header("Cache-Control", "no-store");
+      c.header("X-Content-Type-Options", "nosniff");
+      return stream(c, async (writer) => {
+        try {
+          // Authority and liveness are rechecked at the moment of publication.
+          await guarded(principal, "check:read", () =>
+            checks.publish(principal, checkId, 2, () => writer.write(file)),
+          );
+        } catch {
+          writer.abort();
+        }
+      });
+    });
+  }
 
   app.openapi(
     (apiVersion === 2 ? v2.getCheck : getCheck) as typeof v2.getCheck,

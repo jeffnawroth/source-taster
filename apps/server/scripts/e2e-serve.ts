@@ -94,6 +94,7 @@ if (webFixtures) {
       : undefined,
   );
 }
+const reports = process.env.SOURCE_TASTER_E2E_REPORTS;
 const service = await startTestService(
   Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? 3102),
   3000,
@@ -110,7 +111,11 @@ const service = await startTestService(
         }
       : {}),
     SOURCE_TASTER_CLIENT_LEASE_MS: "1500",
+    // Test composition with a fake Quota, because the real report feature
+    // grant belongs to the private service (see test/support/report-web.ts).
+    ...(reports ? { TEST_REPORT_FEATURE: reports } : {}),
   },
+  reports ? { webScript: "test/support/report-web.ts" } : {},
 );
 const webPort = process.env.SOURCE_TASTER_E2E_WEB_PORT ?? "5174";
 const vite = spawn(

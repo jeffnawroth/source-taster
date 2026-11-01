@@ -16,7 +16,8 @@ let api: Awaited<ReturnType<typeof startAccountApi>>;
 let vite: ChildProcess;
 const identity = { ...newAccount(), email: "history@example.org" };
 const secret = "history-fixture-session";
-const webUrl = "http://127.0.0.1:5441";
+const webPort = process.env.SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT ?? "5441";
+const webUrl = `http://127.0.0.1:${webPort}`;
 let fake: ReturnType<typeof sensitiveService>;
 test.beforeAll(async () => {
   fake = sensitiveService({
@@ -39,7 +40,7 @@ test.beforeAll(async () => {
       "--host",
       "127.0.0.1",
       "--port",
-      "5441",
+      webPort,
       "--strictPort",
     ],
     {

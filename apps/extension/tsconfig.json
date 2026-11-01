@@ -22,6 +22,7 @@
     "e2e-preferences",
     "e2e-ai",
     "e2e-private",
+    "e2e-report",
     "*.ts",
     "e2e-dpa"
   ]

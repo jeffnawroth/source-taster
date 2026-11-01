@@ -3,9 +3,17 @@
 import { setTimeout } from "node:timers/promises";
 import { referenceDeadlineMs } from "@source-taster/core";
 import type { PgBoss } from "pg-boss";
+import type { ReportFailure } from "@source-taster/contract-verification/report";
 import type { Config } from "../config.ts";
 import type { Db } from "../db/prisma.ts";
-import { REFERENCE_QUEUE, type ReferenceJob } from "./queue.ts";
+import {
+  REFERENCE_QUEUE,
+  REPORT_QUEUE,
+  type ReferenceJob,
+  type ReportJob,
+} from "./queue.ts";
+import { generateReport, ReportFailed } from "../reports/generate.ts";
+import { reportFeature } from "../entitlements.ts";
 import { referenceExecution } from "./verification-runtime.ts";
 import {
   createCheckStore,
@@ -247,6 +255,56 @@ export async function startWorkerRuntime(
       } finally {
         clearInterval(probe);
         active.delete(abort);
+      }
+    },
+  );
+  // ADR-0017: reports are a separate job class, one at a time per worker
+  // process, each in its own resource-limited thread.
+  await boss.work<ReportJob>(
+    REPORT_QUEUE,
+    {
+      batchSize: 1,
+      localConcurrency: 1,
+      pollingIntervalSeconds: 0.5,
+      notifyPollingIntervalSeconds: 0.5,
+    },
+    async ([job]) => {
+      if (!job || stopped) return;
+      const { reportId } = job.data;
+      const work = await checks.reports.claim(reportId);
+      if (!work) return;
+      try {
+        // The Owner's authority and Quota scope are rechecked before any work
+        // and again, under the Owner fence, before the file is published.
+        await guard(work.subject, "dispatch", async () => {});
+        if (options.quota) {
+          const quota = await options.quota.snapshot({
+            ownerId: work.subject.ownerId,
+            actorId: work.subject.actorId,
+          });
+          if (!quota.features.includes(reportFeature))
+            return void (await checks.reports.discard(reportId));
+        }
+      } catch {
+        return void (await checks.reports.discard(reportId));
+      }
+      let result: { pdf: Uint8Array } | { failure: ReportFailure };
+      try {
+        result = { pdf: await generateReport(work.input) };
+      } catch (error) {
+        result = {
+          failure:
+            error instanceof ReportFailed ? error.failure : "unavailable",
+        };
+        if (!(error instanceof ReportFailed))
+          console.error(JSON.stringify({ code: "report-failed", reportId }));
+      }
+      try {
+        await guard(work.subject, "commit", () =>
+          checks.reports.finish(reportId, result),
+        );
+      } catch {
+        await checks.reports.discard(reportId);
       }
     },
   );
