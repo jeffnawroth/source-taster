@@ -215,7 +215,9 @@ it("refuses Owners without the reports feature, Guests and foreign Owners withou
   features = [];
   const denied = await create(check.id);
   expect(denied.status).toBe(403);
-  expect((await denied.json()).type).toContain("feature-unavailable");
+  expect(((await denied.json()) as { type: string }).type).toContain(
+    "feature-unavailable",
+  );
   features = ["verification-report"];
   guest = true;
   expect((await create(check.id)).status).toBe(403);
@@ -245,7 +247,9 @@ it("allows one active report per Owner, cancels it, and keeps only the newest re
   ).data;
   const second = await create(check.id);
   expect(second.status).toBe(409);
-  expect((await second.json()).type).toContain("report-busy");
+  expect(((await second.json()) as { type: string }).type).toContain(
+    "report-busy",
+  );
   const cancelled = await fetch(
     `${api}/v2/checks/${check.id}/reports/${first.id}`,
     { method: "DELETE" },

@@ -30,7 +30,7 @@ export async function inspectPdf(bytes: Uint8Array) {
       pages.push({
         text: content.items
           .map((item) =>
-            "str" in item ? item.str + ((item as any).hasEOL ? "\n" : "") : "",
+            "str" in item ? item.str + (item.hasEOL ? "\n" : "") : "",
           )
           .join(""),
         items: content.items,

@@ -170,10 +170,7 @@ export function buildReport(input: ReportInput): ReportModel {
     const label =
       outcome.kind === "status"
         ? m[statuses[outcome.status]]({}, locale)
-        : verdictName(
-            (reference.manualOverride?.verdict ??
-              outcome.verdict) as keyof typeof verdictLabels,
-          );
+        : verdictName(reference.manualOverride?.verdict ?? outcome.verdict);
     counts.set(label, (counts.get(label) ?? 0) + 1);
     if (outcome.kind === "verdict") versions.add(outcome.scoringRules.version);
   }

@@ -39,7 +39,9 @@ export function ReportDownload({
 }) {
   const entitled = quota?.features.includes(reportFeature) ?? false;
   const client = useRef(reportClient(transport));
-  client.current = reportClient(transport);
+  useEffect(() => {
+    client.current = reportClient(transport);
+  });
   const parsed = ReportLanguage.safeParse(getLocale());
   const [language, setLanguage] = useState<"de" | "en">(
     parsed.success ? parsed.data : "en",
@@ -47,11 +49,16 @@ export function ReportDownload({
   const [documentName, setDocumentName] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const lifetime = useRef<AbortController | null>(null);
-  useEffect(() => () => lifetime.current?.abort(), []);
-  // A new Check starts without the previous Check's report.
-  useEffect(() => {
-    lifetime.current?.abort();
+  // A new Check starts without the previous Check's report; leaving the Check
+  // or the page stops polling.
+  const [phaseCheck, setPhaseCheck] = useState(check.id);
+  if (phaseCheck !== check.id) {
+    setPhaseCheck(check.id);
     setPhase({ kind: "idle" });
+  }
+  useEffect(() => {
+    const running = lifetime;
+    return () => running.current?.abort();
   }, [check.id]);
 
   function describe(error: unknown) {
