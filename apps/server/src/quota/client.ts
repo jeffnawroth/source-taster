@@ -62,9 +62,9 @@ export function quotaClient(
     }
   }
   return {
-    snapshot: (owner: OwnerBinding) =>
+    snapshot: ({ ownerId, actorId }: OwnerBinding) =>
       gated(async () => {
-        const r = await call("/internal/quota/snapshot", owner);
+        const r = await call("/internal/quota/snapshot", { ownerId, actorId });
         if (r.status !== 200) fail("forbidden");
         const view = QuotaSnapshotResponse.parse(r.json);
         if (view.outcome === "denied") fail("forbidden");

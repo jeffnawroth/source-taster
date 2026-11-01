@@ -684,3 +684,17 @@ test("a signed downgrade during report authorization refuses creation for locked
   }
   expect((await pending).status).toBe(403);
 });
+
+test("worker History entitlement refresh sends only Owner and actor IDs to the private service", async () => {
+  const { api, request, create } = await historyApi();
+  await request("history", "PUT", { enabled: true });
+  await create(
+    "Private verification content must stay in the verification program",
+  );
+  const snapshots = api.state.quotaCalls.filter(
+    (call) => call.path === "/internal/quota/snapshot",
+  );
+  expect(snapshots.length).toBeGreaterThan(0);
+  for (const call of snapshots)
+    expect(Object.keys(call.body).sort()).toEqual(["actorId", "ownerId"]);
+});
