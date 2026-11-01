@@ -131,6 +131,7 @@ export function useAccountPreferences(
     previousAccount.current = null;
     epoch.current++;
     writes.current = Promise.resolve();
+    setFailure(false);
   }
   function change(patch: AccountPreferencesPatch) {
     const next = { ...displayed.current.preferences, ...patch };
