@@ -8,6 +8,8 @@ export async function startTestService(
   port: number,
   delayMs = 50,
   extraEnv: Record<string, string> = {},
+  /** Test-only composition replacing `src/web.ts`, e.g. one with a fake Quota. */
+  options: { webScript?: string } = {},
 ) {
   const { adminUrl, appUrl } = testDatabase();
   const owned = new URL(appUrl);
@@ -42,7 +44,9 @@ export async function startTestService(
     SOURCE_TASTER_SSE_HEARTBEAT_MS: "1000",
     ...extraEnv,
   };
-  let web = startProcess("web", env);
+  const launchWeb = () =>
+    startProcess("web", env, { script: options.webScript });
+  let web = launchWeb();
   let worker = startProcess("worker", env);
   const stop = async () => {
     await Promise.all([web.stop(), worker.stop()]);
@@ -76,7 +80,7 @@ export async function startTestService(
     restart: async (changes: Record<string, string> = {}) => {
       await Promise.all([web.stop(), worker.stop()]);
       Object.assign(env, changes);
-      web = startProcess("web", env);
+      web = launchWeb();
       worker = startProcess("worker", env);
       await waitForHealth(apiUrl);
     },

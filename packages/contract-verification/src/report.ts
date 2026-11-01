@@ -3,6 +3,11 @@
 import { z } from "zod";
 import { CitationStyle, envelope } from "../../contract-common/src/index.ts";
 
+/**
+ * The Quota feature id that entitles an Owner to Verification reports. The
+ * private service grants it in `Quota.features`; this program only reads it.
+ */
+export const reportFeature = "verification-report";
 export const ReportLanguage = z.enum(["de", "en"]);
 export type ReportLanguage = z.infer<typeof ReportLanguage>;
 export const ReportId = z.uuid();

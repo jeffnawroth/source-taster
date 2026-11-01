@@ -11,7 +11,7 @@ import type { QuotaPort } from "./quota/port.ts";
  * It is granted by the private service in `Quota.features`; this program never
  * invents a local entitlement.
  */
-export const reportFeature = "verification-report";
+export { reportFeature } from "@source-taster/contract-verification/report";
 
 export type Permission =
   | "structuring:create"

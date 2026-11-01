@@ -35,7 +35,7 @@ export interface RunningProcess {
 export function startProcess(
   entry: "web" | "worker",
   env: Record<string, string | undefined>,
-  options: { inheritEnv?: boolean } = {},
+  options: { inheritEnv?: boolean; script?: string } = {},
 ): RunningProcess {
   // Provisioning credentials must not reach the application runtime. Full
   // environment inheritance is an explicit opt-in, never the fixture default.
@@ -43,7 +43,7 @@ export function startProcess(
     options.inheritEnv === true
       ? { ...process.env }
       : { PATH: process.env.PATH };
-  const child = spawn(process.execPath, [`src/${entry}.ts`], {
+  const child = spawn(process.execPath, [options.script ?? `src/${entry}.ts`], {
     cwd: serverDir,
     env: { ...baseEnv, ...env },
     stdio: ["ignore", "pipe", "pipe"],
