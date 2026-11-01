@@ -12,7 +12,10 @@ import { createPrisma } from "../../src/db/prisma.ts";
 import { loadConfig } from "../../src/config.ts";
 import { createApp } from "../../src/http/app.ts";
 import { loadHostedSettings } from "../../src/authority/crypto.ts";
-import { hostedAuthority } from "../../src/authority/hosted.ts";
+import {
+  hostedAuthority,
+  mountInternalRoutes,
+} from "../../src/authority/hosted.ts";
 if (process.env.NODE_ENV !== "test" || !process.send)
   throw new Error("source-test-only");
 // The deployment loader keeps refusing hosted unmeasured execution. Only this
@@ -35,6 +38,9 @@ const authority = hostedAuthority(
   checks,
   clock,
 );
+// Restore rehearsal (ADR-0005): expiry and tombstone sweeps finish before serving.
+if (process.env.SOURCE_TASTER_TEST_MAINTAIN_ON_START === "1")
+  await checks.maintain();
 let stop: () => Promise<void>;
 if (process.argv[2] === "worker") {
   const runtime = await startWorkerRuntime(config, db, boss, {
@@ -57,9 +63,7 @@ if (process.argv[2] === "worker") {
     referenceLimit: config.referenceLimit,
     entitlements: authority.entitlements,
   });
-  app.post("/internal/guest-authority/invalidate", async (c) =>
-    c.json(await authority.invalidate(c.req.raw)),
-  );
+  mountInternalRoutes(app, authority);
   const server = serve({
     fetch: app.fetch,
     hostname: "127.0.0.1",

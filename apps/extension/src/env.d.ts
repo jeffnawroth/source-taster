@@ -7,4 +7,5 @@ declare const __SOURCE_TASTER_EXTENSION__: {
   serviceUrl?: string;
   websiteUrl: string;
   accountSignIn: boolean;
+  sensitiveAccountActions: boolean;
 };

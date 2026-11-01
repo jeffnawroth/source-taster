@@ -11,12 +11,20 @@ import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
 import { useAccountPreferences } from "./account-preferences.ts";
 import type { Preferences, PreferenceStorage } from "./preferences.ts";
 import { guestCredentials, webGuestIdentityStorage } from "./guest-identity.ts";
+import type { OwnerQuota } from "./quota.ts";
+import {
+  SensitiveAccountActions,
+  type DeletionOutcome,
+  type SensitiveActions,
+} from "./sensitive-account-actions.tsx";
 export type SessionClient = Omit<
   ReturnType<typeof accountSessionClient>,
-  "session"
+  "session" | "sensitive"
 > & {
   session(): Promise<AccountSession | null>;
   subscribe?(changed: () => void): () => void;
+  /** Present only where the host enabled #102; absent means no such controls. */
+  sensitive?: SensitiveActions;
 };
 function errorMessage(error: unknown) {
   return error instanceof GuestTokenError && error.status === 429
@@ -33,6 +41,9 @@ export function AccountControls({
   language,
   preferences,
   sessionEnded,
+  quota = null,
+  updated,
+  deleted,
 }: {
   client: SessionClient;
   account: AccountSession | null;
@@ -40,6 +51,10 @@ export function AccountControls({
   language: "de" | "en";
   preferences: Preferences;
   sessionEnded: () => void;
+  quota?: OwnerQuota | null;
+  /** Same Account and Owner, new email: Checks stay mounted. */
+  updated?: (account: AccountSession) => void;
+  deleted?: (outcome: DeletionOutcome) => void;
 }) {
   const [open, setOpen] = useState(false),
     [email, setEmail] = useState(""),
@@ -133,6 +148,16 @@ export function AccountControls({
               {m.auth_everywhere()}
             </button>
           </div>
+          {client.sensitive && updated && deleted && (
+            <SensitiveAccountActions
+              actions={client.sensitive}
+              account={account}
+              language={language}
+              quota={quota}
+              emailChanged={updated}
+              deleted={deleted}
+            />
+          )}
         </>
       ) : (
         <>
@@ -238,16 +263,22 @@ export function WebAccountWorkspace({
   preferenceStorage,
   serviceUrl,
   siteUrl,
+  sensitiveActions = false,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   serviceUrl: string;
   siteUrl?: string;
+  /** Off until the private phase and both-program acceptance of #102 exist. */
+  sensitiveActions?: boolean;
 }) {
   const client = useMemo(() => {
-    const wire = accountSessionClient({ baseUrl: serviceUrl });
+    const { sensitive, ...wire } = accountSessionClient({
+      baseUrl: serviceUrl,
+    });
     return {
       ...wire,
+      ...(sensitiveActions ? { sensitive } : {}),
       session: async () => {
         try {
           return await wire.session();
@@ -258,7 +289,7 @@ export function WebAccountWorkspace({
         }
       },
     };
-  }, [serviceUrl]);
+  }, [serviceUrl, sensitiveActions]);
   const guest = useMemo(
     () =>
       guestCredentials({
@@ -312,6 +343,9 @@ export function AccountWorkspace({
     () => setCredentialFailure(true),
   );
   const preferences = accountPreferences.preferences;
+  // #102: set when the Account was removed here. `pending` keeps every request
+  // from falling back to Guest while the service is still finishing deletion.
+  const [removal, setRemoval] = useState<DeletionOutcome | null>(null);
   useEffect(
     () =>
       client.subscribe?.(() => {
@@ -347,6 +381,8 @@ export function AccountWorkspace({
     return {
       ...transportOptions,
       credentials: async () => {
+        if (removal === "in-progress")
+          throw new Error("account-deletion-in-progress");
         if (credentialFailure) throw new Error("session-revoked");
         if (session === undefined) throw new Error("session-unavailable");
         if (session === null) return guest.credentials();
@@ -372,7 +408,7 @@ export function AccountWorkspace({
         })());
       },
     };
-  }, [client, session, guest, credentialFailure, transportOptions]);
+  }, [client, session, guest, credentialFailure, removal, transportOptions]);
   useEffect(() => {
     if (!session) return;
     let last = 0;
@@ -393,7 +429,15 @@ export function AccountWorkspace({
     };
   }, [client, session]);
   function changed(account: AccountSession | null) {
+    setRemoval(null);
     setSession(account);
+    setCredentialFailure(false);
+    setGeneration((value) => value + 1);
+  }
+  /** Only the service's answer ends the Account here. No content or grant moves to Guest. */
+  function removed(outcome: DeletionOutcome) {
+    setRemoval(outcome);
+    setSession(null);
     setCredentialFailure(false);
     setGeneration((value) => value + 1);
   }
@@ -422,7 +466,7 @@ export function AccountWorkspace({
       siteUrl={siteUrl}
       selectionIntake={selectionIntake}
       onPreferencesChange={accountPreferences.change}
-      accountControls={(language) => (
+      accountControls={(language, quota) => (
         <>
           {accountPreferences.failure && (
             <p role="alert">
@@ -433,15 +477,31 @@ export function AccountWorkspace({
             </p>
           )}
           {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
-          <AccountControls
-            key={session?.accountId ?? "guest"}
-            language={language}
-            preferences={preferences}
-            sessionEnded={() => setCredentialFailure(true)}
-            client={client}
-            account={credentialFailure ? null : session}
-            changed={changed}
-          />
+          {removal && (
+            <p role="status">
+              {removal === "deleted"
+                ? m.sensitive_deleted()
+                : m.sensitive_deletion_in_progress()}
+            </p>
+          )}
+          {removal === "in-progress" ? (
+            <button onClick={() => location.reload()}>
+              {m.sensitive_reload()}
+            </button>
+          ) : (
+            <AccountControls
+              key={session?.accountId ?? "guest"}
+              language={language}
+              preferences={preferences}
+              sessionEnded={() => setCredentialFailure(true)}
+              client={client}
+              account={credentialFailure ? null : session}
+              changed={changed}
+              quota={quota}
+              updated={setSession}
+              deleted={removed}
+            />
+          )}
         </>
       )}
     />

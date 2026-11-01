@@ -8,7 +8,7 @@ import { isolatedExtractor } from "./documents/supervisor.ts";
 import { createParser } from "@source-taster/core";
 import { openWebsite } from "@source-taster/website/hosting";
 import { serve } from "@hono/node-server";
-import { hostedAuthority } from "./authority/hosted.ts";
+import { hostedAuthority, mountInternalRoutes } from "./authority/hosted.ts";
 import { createQueue } from "./checks/queue.ts";
 import { listenForEvents } from "./checks/events.ts";
 import { createCheckStore } from "./checks/store.ts";
@@ -79,10 +79,7 @@ await runMain(async (config) => {
     documentConcurrency: config.documentLimits.concurrency,
     documentInputBytes: config.documentLimits.inputBytes,
   });
-  if (authority)
-    app.post("/internal/guest-authority/invalidate", async (c) =>
-      c.json(await authority.invalidate(c.req.raw)),
-    );
+  if (authority) mountInternalRoutes(app, authority);
   if (website) {
     // The website only answers what the API does not own (ADR-0020).
     const serveWebsite = website;

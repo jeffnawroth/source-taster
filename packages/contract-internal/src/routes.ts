@@ -10,6 +10,8 @@ import {
   AuthorityResponse,
   AuthorityInvalidation,
   AuthorityInvalidationAck,
+  OwnerDeletionAck,
+  OwnerDeletionParams,
   QuotaReleaseRequest,
   QuotaReleaseResponse,
   QuotaReserveRequest,
@@ -98,6 +100,22 @@ export const invalidateGuest = createRoute({
     200: {
       description: "Durable drained fence acknowledgement",
       content: { "application/json": { schema: AuthorityInvalidationAck } },
+    },
+    400: problem,
+    401: problem,
+    503: problem,
+  },
+});
+export const deleteOwner = createRoute({
+  method: "delete",
+  path: "/internal/owners/{ownerId}",
+  summary:
+    "Write the Owner tombstone and purge all of the Owner's content in one transaction (signed service assertion, idempotent)",
+  request: { params: OwnerDeletionParams },
+  responses: {
+    200: {
+      description: "Durable tombstone and content purge acknowledgement",
+      content: { "application/json": { schema: OwnerDeletionAck } },
     },
     400: problem,
     401: problem,
@@ -233,4 +251,5 @@ export const routes = [
   getMailRehearsal,
   authorizeGuest,
   invalidateGuest,
+  deleteOwner,
 ];

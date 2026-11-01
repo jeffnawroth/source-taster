@@ -28,6 +28,7 @@ export function extensionAccountSession(
     ): void;
   },
   locks: LockManager = navigator.locks,
+  options: { sensitive?: boolean } = {},
 ): SessionClient {
   const wire = extensionSessionClient({ baseUrl: serviceUrl });
   let observed: unknown;
@@ -48,7 +49,34 @@ export function extensionAccountSession(
       return call(credential);
     });
   }
+  const { sensitive } = wire;
+  /** Deletion revokes the session at the service; the local credential goes with
+   * it, whichever outcome (`deleted` or durable `in-progress`) was reported. */
+  const dropCredential = async () => {
+    observed = undefined;
+    await local.remove(sessionKey);
+  };
   return {
+    ...(options.sensitive
+      ? {
+          sensitive: {
+            freshProofChallenge: (input) =>
+              authenticated((c) => sensitive.freshProofChallenge(c, input)),
+            freshProofConfirm: (input) =>
+              authenticated((c) => sensitive.freshProofConfirm(c, input)),
+            emailChangeChallenge: (input) =>
+              authenticated((c) => sensitive.emailChangeChallenge(c, input)),
+            emailChangeConfirm: (input) =>
+              authenticated((c) => sensitive.emailChangeConfirm(c, input)),
+            deleteAccount: (input) =>
+              authenticated(async (c) => {
+                const result = await sensitive.deleteAccount(c, input);
+                await dropCredential();
+                return result;
+              }),
+          },
+        }
+      : {}),
     subscribe: (changed) => {
       const listener = (
         values: Record<string, { newValue?: unknown }>,

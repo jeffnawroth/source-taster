@@ -43,6 +43,8 @@ const accountClient = config.accountSignIn
       config.serviceUrl!,
       storage.local,
       storage.onChanged,
+      undefined,
+      { sensitive: config.sensitiveAccountActions },
     )
   : undefined;
 createRoot(document.getElementById("root")!).render(

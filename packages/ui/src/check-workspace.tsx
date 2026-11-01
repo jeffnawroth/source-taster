@@ -102,7 +102,10 @@ export function CheckWorkspace({
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
   siteUrl?: string;
-  accountControls?: (language: "de" | "en") => ReactNode;
+  accountControls?: (
+    language: "de" | "en",
+    quota: OwnerQuota | null,
+  ) => ReactNode;
   onPreferencesChange?: (
     patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
   ) => void;
@@ -762,7 +765,7 @@ export function CheckWorkspace({
           </select>
         </label>
       </header>
-      {accountControls?.(locale)}
+      {accountControls?.(locale, quota)}
       {quota && <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />}
       {styleReset && (
         <p

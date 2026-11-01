@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
-import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, } from "./index.js";
+import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, AccountDeletionRequest, AccountDeletionResponse, EmailChangeChallengeRequest, EmailChangeChallengeResponse, EmailChangeConfirmRequest, FreshProofChallengeRequest, FreshProofChallengeResponse, FreshProofConfirmRequest, FreshProofResponse, } from "./index.js";
 export const getServiceStatus = createRoute({
     method: "get",
     path: "/v1/status",
@@ -197,6 +197,45 @@ export const getAccountPreferences = preferenceRoute("get", false);
 export const patchAccountPreferences = preferenceRoute("patch", false);
 export const getExtensionPreferences = preferenceRoute("get", true);
 export const patchExtensionPreferences = preferenceRoute("patch", true);
+/** #102. The same five actions exist for the cookie web session and the
+ * extension session; only the transport differs. */
+function sensitive(prefix, path, summary, input, output) {
+    return createRoute({
+        method: "post",
+        path: `${prefix}/account${path}`,
+        summary,
+        ...(prefix === "/v1/extension"
+            ? { security: [{ ExtensionSession: [] }] }
+            : {}),
+        request: {
+            body: {
+                required: true,
+                content: { "application/json": { schema: input } },
+            },
+        },
+        responses: {
+            200: {
+                description: "Success",
+                content: { "application/json": { schema: output } },
+            },
+            400: problem,
+            401: problem,
+            403: problem,
+            429: problem,
+            501: problem,
+            503: problem,
+        },
+    });
+}
+const sensitiveRoutes = (prefix) => [
+    sensitive(prefix, "/fresh-proof/challenges", "Send an email code to the current address to prove fresh control for one action", FreshProofChallengeRequest, FreshProofChallengeResponse),
+    sensitive(prefix, "/fresh-proof/confirm", "Consume the code; fresh proof (at most five minutes, one action, this session) is recorded server-side", FreshProofConfirmRequest, FreshProofResponse),
+    sensitive(prefix, "/email-change/challenges", "With fresh proof, send a code to the replacement address; the answer is the same for every address", EmailChangeChallengeRequest, EmailChangeChallengeResponse),
+    sensitive(prefix, "/email-change/confirm", "With fresh proof, confirm the replacement address; Account and Owner IDs are preserved", EmailChangeConfirmRequest, AccountSessionResponse),
+    sensitive(prefix, "/deletion", "With fresh proof and acknowledged eight-year blocked billing retention, delete the Account", AccountDeletionRequest, AccountDeletionResponse),
+];
+export const webSensitiveRoutes = sensitiveRoutes("/v1");
+export const extensionSensitiveRoutes = sensitiveRoutes("/v1/extension");
 export const routes = [
     getAccountPreferences,
     patchAccountPreferences,
@@ -217,4 +256,6 @@ export const routes = [
     issueExtensionAccountToken,
     recordExtensionSessionActivity,
     signOutExtension,
+    ...webSensitiveRoutes,
+    ...extensionSensitiveRoutes,
 ];
