@@ -394,7 +394,8 @@ const sensitiveRoutes = (prefix: "/v1" | "/v1/extension") =>
 export const webSensitiveRoutes = sensitiveRoutes("/v1");
 export const extensionSensitiveRoutes = sensitiveRoutes("/v1/extension");
 export const routes = [
-  ...Object.values(webDpaRoutes), ...Object.values(extensionDpaRoutes),
+  ...Object.values(webDpaRoutes),
+  ...Object.values(extensionDpaRoutes),
   getAccountPreferences,
   patchAccountPreferences,
   getExtensionPreferences,

@@ -8,25 +8,75 @@ export const DpaParty = z.strictObject({
   representative: z.string().trim().min(1).max(200),
 });
 export type DpaParty = z.infer<typeof DpaParty>;
-export const DpaPacket = z.strictObject({
-  version: z.string().regex(/^[A-Za-z0-9._-]{1,80}$/),
-  language: DpaLanguage,
-  documents: z.array(z.strictObject({
-    kind: z.enum(["agreement", "processing", "toms", "subprocessors", "annex"]),
-    version: z.string().min(1).max(80),
-    title: z.string().min(1).max(200),
-    text: z.string().min(1).max(100000),
-  })).min(4).max(20),
-}).refine(p => ["agreement", "processing", "toms", "subprocessors"].every(kind => p.documents.some(d => d.kind === kind)));
+export const DpaPacket = z
+  .strictObject({
+    version: z.string().regex(/^[A-Za-z0-9._-]{1,80}$/),
+    language: DpaLanguage,
+    documents: z
+      .array(
+        z.strictObject({
+          kind: z.enum([
+            "agreement",
+            "processing",
+            "toms",
+            "subprocessors",
+            "annex",
+          ]),
+          version: z.string().min(1).max(80),
+          title: z.string().min(1).max(200),
+          text: z.string().min(1).max(100000),
+        }),
+      )
+      .min(4)
+      .max(20),
+  })
+  .refine((p) =>
+    ["agreement", "processing", "toms", "subprocessors"].every((kind) =>
+      p.documents.some((d) => d.kind === kind),
+    ),
+  );
 export type DpaPacket = z.infer<typeof DpaPacket>;
 export const DpaAgreement = z.strictObject({
-  id: z.uuid(), operationId: z.uuid(), accountId: z.uuid(),
-  concludedAt: z.iso.datetime(), party: DpaParty,
-  partyRevision: z.number().int().positive(), packet: DpaPacket,
-  authorityAccepted: z.literal(true), businessUse: z.literal(true),
+  id: z.uuid(),
+  operationId: z.uuid(),
+  accountId: z.uuid(),
+  concludedAt: z.iso.datetime(),
+  party: DpaParty,
+  partyRevision: z.number().int().positive(),
+  packet: DpaPacket,
+  authorityAccepted: z.literal(true),
+  businessUse: z.literal(true),
 });
 export type DpaAgreement = z.infer<typeof DpaAgreement>;
-export const DpaStateResponse = envelope(z.strictObject({
-  packet: DpaPacket.nullable(), party: DpaParty.nullable(),
-  partyRevision: z.number().int().nonnegative(), agreements: z.array(DpaAgreement),
-})).meta({id: "DpaStateResponse"});
+export const DpaStateResponse = envelope(
+  z.strictObject({
+    packet: DpaPacket.nullable(),
+    party: DpaParty.nullable(),
+    partyRevision: z.number().int().nonnegative(),
+    agreements: z.array(DpaAgreement),
+  }),
+).meta({ id: "DpaStateResponse" });
+/** Operation ID survives timeout/reconnect; the exact request is frozen at challenge time. */
+export const DpaChallengeRequest = z.strictObject({
+  operationId: z.uuid(),
+  packetVersion: z.string().min(1).max(80),
+  language: DpaLanguage,
+  party: DpaParty,
+  partyRevision: z.number().int().nonnegative(),
+  authorityAccepted: z.literal(true),
+  businessUse: z.literal(true),
+});
+export type DpaChallengeRequest = z.infer<typeof DpaChallengeRequest>;
+export const DpaConcludeRequest = z.strictObject({
+  operationId: z.uuid(),
+  code: z.string().regex(/^[0-9]{6}$/),
+});
+export type DpaConcludeRequest = z.infer<typeof DpaConcludeRequest>;
+export const DpaOperationResponse = envelope(
+  z.strictObject({
+    operationId: z.uuid(),
+    status: z.enum(["pending", "expired", "concluded"]),
+    expiresAt: z.iso.datetime(),
+    agreement: DpaAgreement.nullable(),
+  }),
+).meta({ id: "DpaOperationResponse" });

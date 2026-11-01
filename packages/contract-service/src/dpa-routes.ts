@@ -2,15 +2,103 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { ProblemDetails } from "../../contract-common/src/index.ts";
-import { DpaLanguage, DpaStateResponse } from "./dpa.ts";
-const problem = {description: "Denied, stale or unavailable", content: {"application/problem+json": {schema: ProblemDetails}}};
+import {
+  DpaLanguage,
+  DpaStateResponse,
+  DpaChallengeRequest,
+  DpaConcludeRequest,
+  DpaOperationResponse,
+  DpaAgreement,
+} from "./dpa.ts";
+const problem = {
+  description: "Denied, stale or unavailable",
+  content: { "application/problem+json": { schema: ProblemDetails } },
+};
 export const dpaRoutes = (extension: boolean) => {
   const prefix = extension ? "/v1/extension/dpa" : "/v1/dpa";
-  return { state: createRoute({
-    method: "get", path: `${prefix}/{language}`, summary: "Inspect offered packet and retained agreements without extending session expiry",
-    request: {params: z.object({language: DpaLanguage})},
-    responses: {200: {description: "DPA state", content: {"application/json": {schema: DpaStateResponse}}}, 400: problem, 401: problem, 403: problem, 503: problem},
-  })};
+  const responses = {
+    200: {
+      description: "Recoverable operation status",
+      content: { "application/json": { schema: DpaOperationResponse } },
+    },
+    400: problem,
+    401: problem,
+    403: problem,
+    404: problem,
+    409: problem,
+    429: problem,
+    503: problem,
+  };
+  return {
+    challenge: createRoute({
+      method: "post",
+      path: `${prefix}/challenges`,
+      summary:
+        "Freeze packet and party revision; email fresh session/action-bound proof",
+      request: {
+        body: {
+          required: true,
+          content: { "application/json": { schema: DpaChallengeRequest } },
+        },
+      },
+      responses,
+    }),
+    conclude: createRoute({
+      method: "post",
+      path: `${prefix}/conclude`,
+      summary:
+        "Atomically conclude once per operation ID with proof no older than five minutes",
+      request: {
+        body: {
+          required: true,
+          content: { "application/json": { schema: DpaConcludeRequest } },
+        },
+      },
+      responses,
+    }),
+    operation: createRoute({
+      method: "get",
+      path: `${prefix}/operations/{id}`,
+      summary: "Recover authoritative completion after timeout or restart",
+      request: { params: z.object({ id: z.uuid() }) },
+      responses,
+    }),
+    download: createRoute({
+      method: "get",
+      path: `${prefix}/agreements/{id}/download`,
+      summary:
+        "Download the exact immutable concluded JSON packet and acceptance representation",
+      request: { params: z.object({ id: z.uuid() }) },
+      responses: {
+        200: {
+          description: "Exact retained download; attachment",
+          content: { "application/json": { schema: DpaAgreement } },
+        },
+        400: problem,
+        401: problem,
+        403: problem,
+        404: problem,
+        503: problem,
+      },
+    }),
+    state: createRoute({
+      method: "get",
+      path: `${prefix}/{language}`,
+      summary:
+        "Inspect offered packet and retained agreements without extending session expiry",
+      request: { params: z.object({ language: DpaLanguage }) },
+      responses: {
+        200: {
+          description: "DPA state",
+          content: { "application/json": { schema: DpaStateResponse } },
+        },
+        400: problem,
+        401: problem,
+        403: problem,
+        503: problem,
+      },
+    }),
+  };
 };
 export const webDpaRoutes = dpaRoutes(false);
 export const extensionDpaRoutes = dpaRoutes(true);
