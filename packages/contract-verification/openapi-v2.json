@@ -774,6 +774,109 @@
           "quota"
         ]
       },
+      "ReportResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Report"
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "de",
+              "en"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "generating",
+              "ready",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "failure": {
+            "type": "string",
+            "enum": [
+              "unsupported-character",
+              "limit-exceeded",
+              "unavailable"
+            ]
+          },
+          "intermediate": {
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "checkId",
+          "language",
+          "state",
+          "expiresAt"
+        ]
+      },
       "CheckResponseV2": {
         "type": "object",
         "properties": {
@@ -3996,6 +4099,471 @@
           },
           "410": {
             "description": "The Check expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority is unavailable.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/reports": {
+      "post": {
+        "summary": "Create an accessible PDF Verification report",
+        "description": "A separate job: it consumes no Quota and does not affect the Check. The Check's content is frozen when generation begins. The finished file is temporary (at most 15 minutes, never beyond the Check's deletion deadline) and is not shared.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  },
+                  "documentName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "language"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "The report job was accepted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority denies reading the Check, or the Owner's Quota scope does not include verification reports.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check or report for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check or the temporary report file expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority is unavailable.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/reports/{reportId}": {
+      "get": {
+        "summary": "Read the status of a report job",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "reportId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The current job status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority denies reading the Check, or the Owner's Quota scope does not include verification reports.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check or report for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check or the temporary report file expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority is unavailable.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Cancel a report job or discard its finished file",
+        "description": "Never affects the Check or its Quota.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "reportId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The job is cancelled and any file is gone.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority denies reading the Check, or the Owner's Quota scope does not include verification reports.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check or report for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check or the temporary report file expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority is unavailable.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/checks/{checkId}/reports/{reportId}/file": {
+      "get": {
+        "summary": "Download the finished PDF report",
+        "description": "Owner-authorized no-store attachment. Authority, the Quota scope and the Check's liveness are rechecked on every download.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "reportId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The accessible tagged PDF.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority denies reading the Check, or the Owner's Quota scope does not include verification reports.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check or report for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The report is not finished or failed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check or the temporary report file expired.",
             "content": {
               "application/problem+json": {
                 "schema": {

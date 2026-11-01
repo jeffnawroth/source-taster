@@ -31,6 +31,8 @@ await writeFile(
 const v2 = await import("../src/routes-v2.ts");
 const next = new OpenAPIHono();
 const { exportReferences } = await import("../src/export-routes.ts");
+const { createReport, getReport, downloadReport, cancelReport } =
+  await import("../src/report-routes.ts");
 const { renderBibliography } = await import("../src/bibliography-routes.ts");
 const { structureDocument, getDocumentSettings, structureText } =
   await import("../src/document-routes.ts");
@@ -40,6 +42,10 @@ for (const route of [
   getDocumentSettings,
   renderBibliography,
   exportReferences,
+  createReport,
+  getReport,
+  downloadReport,
+  cancelReport,
   v2.setManualOverride,
   v2.importReferences,
   v2.saveFields,
