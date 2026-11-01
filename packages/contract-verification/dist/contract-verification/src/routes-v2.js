@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Same lifecycle/authority protocol, with an explicitly versioned result schema.
+import { HistoryResponse } from "./v2.js";
 import { LibraryInput, ImportResponse } from "./import.js";
 import { z } from "zod";
 import { SetManualOverrideRequest, SaveFieldsRequest, RecheckRequest, EditReferenceListRequest, EditSelectionRequest, SelectionPreviewResponse, } from "./v2.js";
@@ -213,4 +214,46 @@ export const previewSelection = createRoute({
             content: { "application/json": { schema: SelectionPreviewResponse } },
         },
     },
+});
+const historyResponses = {
+    ...getCheck.responses,
+    200: {
+        description: "Account History, including locked entries without their content.",
+        content: { "application/json": { schema: HistoryResponse } },
+    },
+};
+export const getHistory = createRoute({
+    method: "get",
+    path: "/v2/history",
+    responses: historyResponses,
+});
+export const setHistory = createRoute({
+    method: "put",
+    path: "/v2/history",
+    request: {
+        body: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: z.object({ enabled: z.boolean() }).strict(),
+                },
+            },
+        },
+    },
+    responses: historyResponses,
+});
+export const deleteHistory = createRoute({
+    method: "delete",
+    path: "/v2/history/{checkId}",
+    request: { params: z.object({ checkId: z.uuid() }) },
+    responses: historyResponses,
+});
+export const restartHistory = createRoute({
+    method: "post",
+    path: "/v2/history/{checkId}/restart",
+    request: {
+        params: z.object({ checkId: z.uuid() }),
+        query: z.object({ maxReferences: MaxReferences.optional() }),
+    },
+    responses: createCheck.responses,
 });

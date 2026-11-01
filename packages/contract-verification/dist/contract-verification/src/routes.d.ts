@@ -372,6 +372,10 @@ export declare const createCheck: {
                                 expiresAt: z.ZodISODateTime;
                             }, z.core.$strip>>;
                             features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodObject<{
@@ -737,6 +741,10 @@ export declare const getCheck: {
                                 expiresAt: z.ZodISODateTime;
                             }, z.core.$strip>>;
                             features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodObject<{
@@ -1080,6 +1088,10 @@ export declare const structureReferences: {
                                 expiresAt: z.ZodISODateTime;
                             }, z.core.$strip>>;
                             features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodObject<{
@@ -1445,6 +1457,10 @@ export declare const cancelCheck: {
                                 expiresAt: z.ZodISODateTime;
                             }, z.core.$strip>>;
                             features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodObject<{
@@ -1829,6 +1845,10 @@ export declare const renewCheckLease: {
                                 expiresAt: z.ZodISODateTime;
                             }, z.core.$strip>>;
                             features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
                         }, z.core.$strict>, z.ZodObject<{

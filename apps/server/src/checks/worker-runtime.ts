@@ -186,6 +186,18 @@ export async function startWorkerRuntime(
           : config.doiPreview && attempt.input
             ? await verify(attempt.input, { startedAt: attempt.startedAt })
             : { kind: "status" as const, status: "not-checked" as const };
+        if (options.quota && !attempt.guestContextId) {
+          const quota = await options.quota.snapshot(attempt);
+          await guard(attempt, "commit", () =>
+            checks.syncHistory(
+              attempt,
+              quota.features.includes("extended-history")
+                ? (quota.history?.extendedUntil ?? null)
+                : null,
+              quota.history?.authorityVersion ?? 0,
+            ),
+          );
+        }
         await guard(attempt, "commit", () =>
           checks.finishReference(
             attempt,

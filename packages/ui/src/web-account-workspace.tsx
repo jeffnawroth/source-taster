@@ -460,6 +460,7 @@ export function AccountWorkspace({
   return (
     <CheckWorkspace
       key={generation}
+      accountHistory={!!session && !credentialFailure}
       initial={{ ...initial, preferences }}
       controlledPreferences={accountPreferences}
       preferenceStorage={preferenceStorage}

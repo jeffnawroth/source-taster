@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "test:e2e": "playwright test && playwright test --config bibliographic.playwright.config.ts",
     "test:guest": "playwright test --config guest.playwright.config.ts",
-    "test:quota": "playwright test --config quota.playwright.config.ts"
+    "test:quota": "playwright test --config quota.playwright.config.ts",
+    "test:history": "playwright test --config history.playwright.config.ts"
   },
   "dependencies": {
     "@source-taster/contract-verification": "workspace:*",

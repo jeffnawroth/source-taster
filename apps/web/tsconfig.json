@@ -9,6 +9,7 @@
   },
   "include": [
     "src",
+    "e2e-history",
     "e2e",
     "*.ts",
     "guest.playwright.config.ts",

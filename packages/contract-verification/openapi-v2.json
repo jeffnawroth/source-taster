@@ -43,6 +43,26 @@
               "maxLength": 40
             },
             "maxItems": 20
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "extendedUntil": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "authorityVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "extendedUntil",
+              "authorityVersion"
+            ]
           }
         },
         "required": [
@@ -2672,6 +2692,56 @@
         "required": [
           "data",
           "quota"
+        ]
+      },
+      "History": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "storedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "expiresAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "locked": {
+                  "type": "boolean"
+                },
+                "referenceCount": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "id",
+                "storedAt",
+                "expiresAt",
+                "locked",
+                "referenceCount"
+              ]
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "entries"
         ]
       }
     },
@@ -7166,6 +7236,572 @@
           },
           "401": {
             "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/history": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Account History, including locked entries without their content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/History"
+                    },
+                    "quota": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Quota"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "unavailable"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "quota"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check's fixed content deadline has passed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "enabled"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account History, including locked entries without their content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/History"
+                    },
+                    "quota": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Quota"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "unavailable"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "quota"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check's fixed content deadline has passed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/history/{checkId}": {
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account History, including locked entries without their content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/History"
+                    },
+                    "quota": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Quota"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "unavailable"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "quota"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Check id is malformed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current service authority denies the named permission.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Check for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The Check's fixed content deadline has passed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current authority or signing-key refresh is unavailable; no fallback.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/history/{checkId}/restart": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "checkId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2000
+            },
+            "required": false,
+            "name": "maxReferences",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Check created. Article search in OpenAlex, Crossref, Europe PMC and Semantic Scholar, with identifier-only arXiv access, is an explicitly enabled, uncalibrated development profile. Operator-disabled sources are recorded, never reported as failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponseV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The input is empty, malformed, or exceeds the configured Reference limit.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid, unexpired verification access token is required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Not enough Quota for the new work; the problem names the available and required slots so the client can offer the first N or an upgrade.",
             "content": {
               "application/problem+json": {
                 "schema": {

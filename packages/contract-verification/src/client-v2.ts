@@ -13,6 +13,7 @@ import {
   type EditSelectionRequest,
   SelectionPreviewResponse,
   QuotaResponse,
+  HistoryResponse,
 } from "./v2.ts";
 import {
   ApiError,
@@ -66,8 +67,42 @@ export function verificationClient(options: VerificationClientOptions = {}) {
       ? { Authorization: `Bearer ${await options.credentials()}` }
       : {}),
   });
+  async function historyRequest(path = "", method = "GET", body?: unknown) {
+    const response = await (options.fetch ?? globalThis.fetch)(
+      `${options.baseUrl ?? ""}/v2/history${path}`,
+      {
+        method,
+        headers: {
+          ...(await headers()),
+          ...(body ? { "content-type": "application/json" } : {}),
+        },
+        ...(body ? { body: JSON.stringify(body) } : {}),
+      },
+    );
+    const result: unknown = await response.json().catch(() => undefined);
+    if (!response.ok)
+      throw new ApiError(
+        response.status,
+        ProblemDetails.safeParse(result).data,
+      );
+    return result;
+  }
   return {
     ...base,
+    getHistory: async () => HistoryResponse.parse(await historyRequest()).data,
+    setHistory: async (enabled: boolean) =>
+      HistoryResponse.parse(await historyRequest("", "PUT", { enabled })).data,
+    deleteHistory: async (id: string) =>
+      HistoryResponse.parse(
+        await historyRequest(`/${encodeURIComponent(id)}`, "DELETE"),
+      ).data,
+    restartHistory: async (id: string, maxReferences?: number) =>
+      CheckResponse.parse(
+        await historyRequest(
+          `/${encodeURIComponent(id)}/restart${maxReferences === undefined ? "" : `?maxReferences=${maxReferences}`}`,
+          "POST",
+        ),
+      ).data,
     /** `maxReferences` starts only the first N References in input order (Quota choice). */
     createCheck: async (
       input: string | CreateCheckRequest,

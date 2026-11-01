@@ -341,3 +341,20 @@ export const SelectionPreviewResponse = z.object({
   }),
   quota: v1.CheckResponse.shape.quota,
 });
+
+export const History = z
+  .object({
+    enabled: z.boolean(),
+    entries: z.array(
+      z.object({
+        id: z.uuid(),
+        storedAt: z.iso.datetime(),
+        expiresAt: z.iso.datetime(),
+        label: z.string().max(120).optional(),
+        locked: z.boolean(),
+        referenceCount: z.number().int().nonnegative(),
+      }),
+    ),
+  })
+  .meta({ id: "History" });
+export const HistoryResponse = z.object({ data: History, quota: QuotaSlot });

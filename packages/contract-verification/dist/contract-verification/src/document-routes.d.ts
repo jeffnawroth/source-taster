@@ -186,6 +186,10 @@ export declare const structureDocument: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -388,6 +392,10 @@ export declare const getDocumentSettings: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -645,6 +653,10 @@ export declare const structureText: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
