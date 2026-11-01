@@ -503,6 +503,26 @@
               "maxLength": 40
             },
             "maxItems": 20
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "extendedUntil": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "authorityVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "extendedUntil",
+              "authorityVersion"
+            ]
           }
         },
         "required": [

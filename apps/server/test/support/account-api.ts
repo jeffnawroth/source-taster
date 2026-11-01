@@ -64,6 +64,7 @@ export interface ServiceReply {
 export async function startAccountApi(
   options: {
     worker?: boolean;
+    database?: { adminUrl: string; appUrl: string };
     maintainOnStart?: boolean;
     /** Extra private-service behavior at the HTTP edge; consulted before the built-ins. */
     service?: (
@@ -74,12 +75,12 @@ export async function startAccountApi(
 ) {
   if (!process.env.DATABASE_ADMIN_URL || !process.env.DATABASE_TEST_URL)
     throw new Error("#102 needs its explicitly owned PostgreSQL URLs");
-  const { adminUrl, appUrl } = testDatabase();
+  const { adminUrl, appUrl } = options.database ?? testDatabase();
   const owned = new URL(appUrl);
   const directory = await mkdtemp(join(tmpdir(), "st102-api-"));
   const issuer = `http://127.0.0.1:${servicePort}`;
   const audience = `http://127.0.0.1:${apiPort}`;
-  const now = Date.now();
+  let now = Date.now();
   const access = generateKeyPairSync("ed25519");
   const peer = generateKeyPairSync("ed25519");
   const own = generateKeyPairSync("ed25519");
@@ -110,7 +111,12 @@ export async function startAccountApi(
   const state = {
     /** What the (fake) private service answers for current Account authority. */
     allowed: true,
+    authorityVersion: 1,
     authorityCalls: [] as { kind: string; permission: string }[],
+    quota: {
+      ...quota,
+      history: { extendedUntil: null as string | null, authorityVersion: 1 },
+    },
     quotaCalls: [] as { path: string; body: Record<string, unknown> }[],
   };
   let hold: { kind: string; arrived(): void; wait: Promise<void> } | undefined;
@@ -123,13 +129,12 @@ export async function startAccountApi(
     const message = `${b64({ alg: "EdDSA", typ, kid })}.${b64(claims)}`;
     return `${message}.${sign(null, Buffer.from(message), key).toString("base64url")}`;
   };
-  const seconds = Math.floor(now / 1000);
   const tokenFor = (account: AccountIdentity) =>
     signed(
       {
-        iat: seconds,
-        nbf: seconds,
-        exp: seconds + 300,
+        iat: Math.floor(now / 1000),
+        nbf: Math.floor(now / 1000),
+        exp: Math.floor(now / 1000) + 300,
         iss: issuer,
         aud: audience,
         purpose: "account-access",
@@ -183,7 +188,7 @@ export async function startAccountApi(
         return void res.end(
           JSON.stringify(
             state.allowed
-              ? { allowed: true, version: 1 }
+              ? { allowed: true, version: state.authorityVersion }
               : { allowed: false, reason: "revoked" },
           ),
         );
@@ -191,12 +196,26 @@ export async function startAccountApi(
       if (req.url?.startsWith("/internal/quota/")) {
         state.quotaCalls.push({ path: req.url, body });
         const slots = (body.slots as unknown[] | undefined)?.length ?? 0;
+        if (req.url.endsWith("/reserve") && slots > state.quota.remaining)
+          return void res.end(
+            JSON.stringify({
+              outcome: "insufficient",
+              available: state.quota.remaining,
+              required: slots,
+              quota: state.quota,
+            }),
+          );
         return void res.end(
           JSON.stringify(
             req.url.endsWith("/snapshot")
-              ? { outcome: "granted", quota }
+              ? { outcome: "granted", quota: state.quota }
               : req.url.endsWith("/reserve")
-                ? { outcome: "reserved", free: [], reserved: slots, quota }
+                ? {
+                    outcome: "reserved",
+                    free: [],
+                    reserved: slots,
+                    quota: state.quota,
+                  }
                 : req.url.endsWith("/settle")
                   ? { outcome: "debited" }
                   : { released: 0 },
@@ -287,7 +306,7 @@ export async function startAccountApi(
     }
   };
   try {
-    await setupDatabase(adminUrl, appUrl);
+    if (!options.database) await setupDatabase(adminUrl, appUrl);
     web = await launch();
     if (options.worker) worker = await launch(["worker"]);
   } catch (error) {
@@ -298,6 +317,40 @@ export async function startAccountApi(
   const apiUrl = audience;
   return {
     apiUrl,
+    now: () => now,
+    adminUrl,
+    appUrl,
+    advance: async (ms: number) => {
+      const target = now + ms;
+      while (now < target) {
+        const rollover =
+          (Math.floor((now + 30_000) / 86_400_000) + 1) * 86_400_000 - 30_000;
+        now = Math.min(target, rollover);
+        await Promise.all(
+          children
+            .filter((c) => c.exitCode === null && c.signalCode === null)
+            .map(
+              (child) =>
+                new Promise<void>((resolve, reject) => {
+                  const id = Math.random();
+                  const receive = (message: {
+                    id?: number;
+                    error?: boolean;
+                  }) => {
+                    if (message.id === id) {
+                      child.off("message", receive);
+                      if (message.error)
+                        reject(new Error("clock-maintenance-failed"));
+                      else resolve();
+                    }
+                  };
+                  child.on("message", receive);
+                  child.send({ now, id, maintain: true });
+                }),
+            ),
+        );
+      }
+    },
     serviceUrl: issuer,
     state,
     fixtures,
@@ -314,6 +367,7 @@ export async function startAccountApi(
       } = {},
     ) => {
       const path = `/internal/owners/${ownerId}`;
+      const seconds = Math.floor(now / 1000);
       const claims = {
         iss: issuer,
         aud: audience,
@@ -333,6 +387,38 @@ export async function startAccountApi(
           : {
               authorization: `Bearer ${signed(claims, "service+jwt", peer.privateKey, "st102-service")}`,
             },
+      });
+    },
+    /** Signed private-service invalidation; Account/Plan versions share this Owner fence. */
+    invalidateOwner: (account: AccountIdentity, version: number) => {
+      state.authorityVersion = version;
+      const path = "/internal/guest-authority/invalidate";
+      const body = JSON.stringify({
+        ownerId: account.ownerId,
+        actorId: account.accountId,
+        version,
+        cancelWork: false,
+      });
+      const seconds = Math.floor(now / 1000);
+      const claims = {
+        iss: issuer,
+        aud: audience,
+        purpose: "authority-invalidation",
+        iat: seconds,
+        nbf: seconds,
+        exp: seconds + 30,
+        jti: randomUUID(),
+        method: "POST",
+        path,
+        bodyHash: createHash("sha256").update(body).digest("base64url"),
+      };
+      return fetch(`${apiUrl}${path}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${signed(claims, "service+jwt", peer.privateKey, "st102-service")}`,
+          "content-type": "application/json",
+        },
+        body,
       });
     },
     /** Hold the next Account authority call of this kind until released. */

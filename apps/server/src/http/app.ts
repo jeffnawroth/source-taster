@@ -55,7 +55,11 @@ import type { EventListener } from "../checks/events.ts";
 import { HTTPException } from "hono/http-exception";
 import type { StructuredReference } from "@source-taster/core";
 import { ContentUnavailable } from "../checks/content.ts";
-import { ReferenceConflict, CheckExpired } from "../checks/store.ts";
+import {
+  ReferenceConflict,
+  CheckExpired,
+  HistoryLocked,
+} from "../checks/store.ts";
 import type { CheckStore } from "../checks/store.ts";
 import type { Entitlements, Permission, Principal } from "../entitlements.ts";
 import { fail, problemResponse } from "./problems.ts";
@@ -118,11 +122,28 @@ export function createApp(
   async function authorize(
     request: Request,
     permission: Permission,
+    refreshHistory = true,
   ): Promise<Principal> {
     const principal = await entitlements.resolve(request);
     if (!principal) fail("unauthenticated");
     if (!principal.can(permission)) fail("forbidden");
     await guarded(principal, permission, () => Promise.resolve());
+    if (refreshHistory && principal.sessionId && entitlements.quota) {
+      const quota = await entitlements.quota.snapshot({
+        ownerId: principal.ownerId,
+        actorId: principal.actorId,
+      });
+      const until = quota.features.includes("extended-history")
+        ? (quota.history?.extendedUntil ?? null)
+        : null;
+      await guarded(principal, permission, () =>
+        checks.syncHistory(
+          principal,
+          until,
+          quota.history?.authorityVersion ?? 0,
+        ),
+      );
+    }
     return principal;
   }
 
@@ -272,6 +293,7 @@ export function createApp(
     status: S,
     checkId?: string,
     knownQuota?: Principal["quota"],
+    refreshData?: () => Promise<T>,
   ) {
     const quota =
       knownQuota === undefined ? await quotaSlot(principal) : knownQuota;
@@ -296,7 +318,13 @@ export function createApp(
     c.header("Cache-Control", "no-store");
     const response = stream(c, async (writer) => {
       try {
-        const send = () => writer.write(JSON.stringify({ data, quota }));
+        const send = async () =>
+          writer.write(
+            JSON.stringify({
+              data: refreshData ? await refreshData() : data,
+              quota,
+            }),
+          );
         if (aiPreview && (await aiEligibility(principal))) fail("forbidden");
         await guarded(principal, permission, () =>
           checkId
@@ -338,6 +366,8 @@ export function createApp(
   app.onError((error) => {
     if (error instanceof InvalidBibliographySelection)
       return problemResponse("invalid-request");
+    if (error instanceof HistoryLocked)
+      return problemResponse("history-locked");
     if (error instanceof CheckExpired || error instanceof ContentUnavailable)
       return problemResponse(
         apiVersion === 1 ? "check-not-found" : "check-expired",
@@ -522,6 +552,111 @@ export function createApp(
         }
         throw error;
       }
+    });
+  }
+  if (apiVersion === 2) {
+    const account = async (
+      request: Request,
+      permission: Permission,
+      refreshHistory = true,
+    ) => {
+      const principal = await authorize(request, permission, refreshHistory);
+      if (!principal.sessionId || principal.guestContextId) fail("forbidden");
+      return principal;
+    };
+    app.openapi(v2.getHistory, async (c) => {
+      const principal = await account(c.req.raw, "check:read");
+      const data = await guarded(principal, "check:read", () =>
+        checks.history(principal),
+      );
+      return output(
+        c,
+        principal,
+        "check:read",
+        data!,
+        200,
+        undefined,
+        undefined,
+        async () => (await checks.history(principal))!,
+      );
+    });
+    app.openapi(v2.setHistory, async (c) => {
+      const principal = await account(
+        c.req.raw,
+        "check:create",
+        c.req.valid("json").enabled,
+      );
+      const data = await guarded(principal, "check:create", () =>
+        checks.history(principal, c.req.valid("json").enabled),
+      );
+      return output(
+        c,
+        principal,
+        "check:create",
+        data!,
+        200,
+        undefined,
+        undefined,
+        async () => (await checks.history(principal))!,
+      );
+    });
+    app.openapi(v2.deleteHistory, async (c) => {
+      const principal = await account(c.req.raw, "check:create", false);
+      const data = await guarded(principal, "check:create", () =>
+        checks.history(
+          principal,
+          undefined,
+          c.req.valid("param").checkId,
+          true,
+        ),
+      );
+      if (!data) fail("check-not-found");
+      return output(
+        c,
+        principal,
+        "check:create",
+        data,
+        200,
+        undefined,
+        undefined,
+        async () =>
+          (await checks.history(principal, undefined, undefined, true))!,
+      );
+    });
+    app.openapi(v2.restartHistory, async (c) => {
+      const principal = await account(c.req.raw, "check:create");
+      const input = await guarded(principal, "check:read", () =>
+        checks.restartInput(principal, c.req.valid("param").checkId),
+      );
+      if (!input) fail("check-not-found");
+      if (!input.references.length) fail("input-empty");
+      const id = randomUUID();
+      const maxReferences = c.req.valid("query").maxReferences;
+      const check = await billedCreate(
+        entitlements.quota,
+        owner(principal),
+        id,
+        Math.min(input.references.length, maxReferences ?? Infinity),
+        () =>
+          guarded(principal, "check:create", async () => {
+            // Revalidate the source after reserving; deletion, downgrade or edits may
+            // have happened during the external Quota round trip.
+            const current = await checks.restartInput(
+              principal,
+              c.req.valid("param").checkId,
+            );
+            if (!current || JSON.stringify(current) !== JSON.stringify(input))
+              fail("reference-conflict");
+            return checks.create(
+              principal,
+              current.references,
+              2,
+              current.document,
+              { id, maxReferences },
+            );
+          }),
+      );
+      return output(c, principal, "check:create", check, 201, check.id);
     });
   }
   if (apiVersion === 2)

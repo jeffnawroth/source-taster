@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { HistoryPanel } from "./history.tsx";
 import { ContinuationTime } from "./abuse-message.tsx";
 import type { AiStructuringResult as StructuringResult } from "@source-taster/contract-verification/ai";
 import type { ReactNode } from "react";
@@ -95,8 +96,10 @@ export function CheckWorkspace({
   controlledPreferences,
   selectionIntake,
   upgradeUrl,
+  accountHistory = false,
   deferQuotaRead = false,
 }: {
+  accountHistory?: boolean;
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
@@ -832,6 +835,22 @@ export function CheckWorkspace({
         </label>
       </header>
       {accountControls?.(locale, quota)}
+      {accountHistory && (
+        <HistoryPanel
+          api={api}
+          busy={!!busy || !!quotaChoice}
+          refreshKey={`${check?.id ?? ""}:${!!running}`}
+          upgradeUrl={upgradeUrl}
+          onCheck={(snapshot) => {
+            reset();
+            follow(snapshot);
+            void refreshQuota();
+          }}
+          onDelete={(id) => {
+            if (!id || check?.id === id) reset();
+          }}
+        />
+      )}
       {quota ? (
         <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />
       ) : (

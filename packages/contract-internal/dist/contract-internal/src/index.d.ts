@@ -42,6 +42,10 @@ export declare const MailRehearsalResponse: z.ZodObject<{
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodObject<{
@@ -186,6 +190,10 @@ export declare const QuotaSnapshotResponse: z.ZodDiscriminatedUnion<[z.ZodObject
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>;
 }, z.core.$strict>, z.ZodObject<{
     outcome: z.ZodLiteral<"denied">;
@@ -221,6 +229,10 @@ export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>;
 }, z.core.$strict>, z.ZodObject<{
     outcome: z.ZodLiteral<"insufficient">;
@@ -247,6 +259,10 @@ export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>;
 }, z.core.$strict>, z.ZodObject<{
     outcome: z.ZodLiteral<"denied">;

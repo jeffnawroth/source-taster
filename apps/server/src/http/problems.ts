@@ -130,6 +130,11 @@ const problems = {
     title: "Not enough Quota for this work.",
     i18nKey: "problem_quota_insufficient",
   },
+  "history-locked": {
+    status: 403,
+    title: "This History entry requires a paid Plan.",
+    i18nKey: "problem_history_locked",
+  },
   "check-expired": {
     status: 410,
     title: "The Check expired.",

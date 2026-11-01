@@ -75,10 +75,18 @@ if (process.argv[2] === "worker") {
     await events.close();
   };
 }
-process.on("message", (message: { now: number; id: number }) => {
-  now = message.now;
-  process.send!({ id: message.id });
-});
+process.on(
+  "message",
+  (message: { now: number; id: number; maintain?: boolean }) => {
+    now = message.now;
+    if (message.maintain)
+      void checks
+        .maintain()
+        .then(() => process.send!({ id: message.id }))
+        .catch(() => process.send!({ id: message.id, error: true }));
+    else process.send!({ id: message.id });
+  },
+);
 process.send({ ready: true });
 process.once("SIGTERM", () => {
   void stop()

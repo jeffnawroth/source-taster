@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// The only persistence codec for transient Check content. No plaintext fallback.
-// Daily AES-GCM keys are held only in PostgreSQL UNLOGGED storage (ADR-0012).
+// The only persistence codec for Check content. No plaintext fallback.
+// Transient daily AES-GCM keys use UNLOGGED storage (ADR-0012); consented
+// History uses separate per-entry keys, erased with its content.
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { Prisma } from "../generated/prisma/client.ts";
 
@@ -31,6 +32,7 @@ const relations: Record<string, Record<string, string>> = {
 };
 interface Envelope {
   sealed: 1;
+  history?: string;
   day: number;
   iv: string;
   tag: string;
@@ -79,10 +81,18 @@ export function contentTransaction(
   tx: Tx,
   now: () => number,
   writeDay?: number,
+  historyCheck?: string,
 ): Tx {
   const keys = new Map<number, Buffer>();
   const writeKeysReady = new Set<number>();
-  async function key(day: number) {
+  async function key(day: number, history?: string) {
+    if (history) {
+      const rows = await tx.$queryRaw<
+        { key: Uint8Array }[]
+      >`SELECT key FROM verification.history_keys WHERE check_id=${history}::uuid`;
+      if (!rows[0]) throw new ContentUnavailable();
+      return Buffer.from(rows[0].key);
+    }
     if ((day + 1) * DAY <= now()) throw new ContentUnavailable();
     if (!keys.has(day)) {
       const rows = await tx.$queryRaw<
@@ -97,9 +107,10 @@ export function contentTransaction(
     model: string,
     value: unknown,
     day: number,
+    history?: string,
   ): Promise<unknown> {
     if (Array.isArray(value))
-      return Promise.all(value.map((v) => write(model, v, day)));
+      return Promise.all(value.map((v) => write(model, v, day, history)));
     if (!value || typeof value !== "object") return value;
     const row = { ...value } as Row;
     for (const field of fields[model] ?? []) {
@@ -111,10 +122,11 @@ export function contentTransaction(
         continue;
       const encrypted = seal(
         row[field],
-        await key(day),
+        await key(day, history),
         day,
         `${model}.${field}`,
       );
+      if (history) encrypted.history = history;
       row[field] =
         field === "originalText" || field === "verdict"
           ? JSON.stringify(encrypted)
@@ -126,7 +138,7 @@ export function contentTransaction(
       row[field] = {
         ...nested,
         ...(nested.create
-          ? { create: await write(child, nested.create, day) }
+          ? { create: await write(child, nested.create, day, history) }
           : {}),
       };
     }
@@ -148,7 +160,11 @@ export function contentTransaction(
         throw new ContentUnavailable();
       }
       if (envelope.sealed !== 1) throw new ContentUnavailable();
-      row[field] = open(envelope, await key(envelope.day), `${model}.${field}`);
+      row[field] = open(
+        envelope,
+        await key(envelope.day, envelope.history),
+        `${model}.${field}`,
+      );
     }
     for (const [field, child] of Object.entries(relations[model] ?? {}))
       if (row[field]) row[field] = await read(child, row[field]);
@@ -169,14 +185,51 @@ export function contentTransaction(
           return async (args: Row = {}) => {
             const next = { ...args };
             if (["create", "update", "upsert"].includes(String(operation))) {
+              // Resolve the entry at the persistence boundary, including slot-only
+              // Re-checks and override/event writes after the first end.
+              const where = (args.where ?? {}) as Row;
+              const data = (args.data ?? args.create ?? {}) as Row;
+              const composite = Object.values(where).find(
+                (v) => v && typeof v === "object" && "checkId" in v,
+              ) as Row | undefined;
+              const identifier = (value: unknown) =>
+                typeof value === "string" ? value : "";
+              let id =
+                property === "check"
+                  ? identifier(where.id ?? data.id)
+                  : identifier(
+                      data.checkId ?? where.checkId ?? composite?.checkId,
+                    );
+              if (property === "manualOverride" && !id) {
+                const result = await tx.referenceResult.findUnique({
+                  where: { id: identifier(where.resultId ?? data.resultId) },
+                  select: { checkId: true },
+                });
+                id = result?.checkId ?? "";
+              }
+              if (property === "referenceResult" && !id && where.id) {
+                const result = await tx.referenceResult.findUnique({
+                  where: { id: identifier(where.id) },
+                  select: { checkId: true },
+                });
+                id = result?.checkId ?? "";
+              }
+              const stored = id
+                ? await tx.check.findUnique({
+                    where: { id },
+                    select: { historyStoredAt: true },
+                  })
+                : null;
+              const history =
+                historyCheck ?? (stored?.historyStoredAt ? id : undefined);
               const day = writeDay ?? keyDay(now() + 60_000);
-              if (!writeKeysReady.has(day)) {
+              if (!history && !writeKeysReady.has(day)) {
                 await dailyKey(tx, day);
                 writeKeysReady.add(day);
               }
               for (const part of ["data", "create", "update"])
                 if (next[part])
-                  next[part] = await write(property, next[part], day);
+                  next[part] = await write(property, next[part], day, history);
             }
             const run = method as (this: object, args: Row) => Promise<unknown>;
             return read(property, await run.call(model, next));

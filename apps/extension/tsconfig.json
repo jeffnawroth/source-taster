@@ -9,6 +9,7 @@
   },
   "include": [
     "src",
+    "e2e-history",
     "e2e",
     "e2e-guest",
     "e2e-firefox",

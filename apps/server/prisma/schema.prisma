@@ -34,6 +34,10 @@ model Check {
   contentExpiresAt DateTime      @map("content_expires_at") @db.Timestamptz(3)
   /// Set when the content was deleted; the row itself is the tombstone.
   deletedAt      DateTime?       @map("deleted_at") @db.Timestamptz(3)
+  historyStoredAt DateTime? @map("history_stored_at") @db.Timestamptz(3)
+  historyOrder BigInt @default(0) @map("history_order")
+  historyDays Int? @map("history_days")
+  historyLocked Boolean @default(false) @map("history_locked")
   endReason      String?         @map("end_reason")
   dispatchOrder  BigInt          @default(0) @map("dispatch_order")
   references     ReferenceSlot[]
@@ -162,4 +166,14 @@ model ManualOverride {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   result ReferenceResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
   @@map("manual_overrides")
+}
+
+// Account consent and a cache of the service's bounded feature grant, never a Plan.
+model HistoryConsent {
+  ownerId String @id @map("owner_id")
+  accountId String @map("account_id")
+  enabled Boolean @default(false)
+  authorityVersion Int @default(0) @map("authority_version")
+  extendedUntil DateTime? @map("extended_until") @db.Timestamptz(3)
+  @@map("history_consents")
 }

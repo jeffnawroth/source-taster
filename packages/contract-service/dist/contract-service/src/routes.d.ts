@@ -34,6 +34,10 @@ export declare const getServiceStatus: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -100,6 +104,10 @@ export declare const issueGuestToken: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -291,6 +299,10 @@ export declare const requestSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -323,6 +335,10 @@ export declare const requestSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -353,6 +369,10 @@ export declare const requestSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -537,6 +557,10 @@ export declare const confirmSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -569,6 +593,10 @@ export declare const confirmSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -599,6 +627,10 @@ export declare const confirmSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -783,6 +815,10 @@ export declare const signOut: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -815,6 +851,10 @@ export declare const signOut: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -845,6 +885,10 @@ export declare const signOut: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -989,6 +1033,10 @@ export declare const getAccountSession: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1076,6 +1124,10 @@ export declare const recordSessionActivity: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1183,6 +1235,10 @@ export declare const issueAccountToken: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1342,6 +1398,10 @@ export declare const requestExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1374,6 +1434,10 @@ export declare const requestExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1404,6 +1468,10 @@ export declare const requestExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1437,6 +1505,10 @@ export declare const requestExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1472,6 +1544,10 @@ export declare const requestExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1661,6 +1737,10 @@ export declare const confirmExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1693,6 +1773,10 @@ export declare const confirmExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1723,6 +1807,10 @@ export declare const confirmExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1756,6 +1844,10 @@ export declare const confirmExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1791,6 +1883,10 @@ export declare const confirmExtensionSignIn: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -1980,6 +2076,10 @@ export declare const getExtensionSession: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2012,6 +2112,10 @@ export declare const getExtensionSession: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2042,6 +2146,10 @@ export declare const getExtensionSession: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2075,6 +2183,10 @@ export declare const getExtensionSession: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2110,6 +2222,10 @@ export declare const getExtensionSession: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2299,6 +2415,10 @@ export declare const issueExtensionAccountToken: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2331,6 +2451,10 @@ export declare const issueExtensionAccountToken: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2361,6 +2485,10 @@ export declare const issueExtensionAccountToken: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2394,6 +2522,10 @@ export declare const issueExtensionAccountToken: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2429,6 +2561,10 @@ export declare const issueExtensionAccountToken: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2618,6 +2754,10 @@ export declare const recordExtensionSessionActivity: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2650,6 +2790,10 @@ export declare const recordExtensionSessionActivity: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2680,6 +2824,10 @@ export declare const recordExtensionSessionActivity: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2713,6 +2861,10 @@ export declare const recordExtensionSessionActivity: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2748,6 +2900,10 @@ export declare const recordExtensionSessionActivity: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2937,6 +3093,10 @@ export declare const signOutExtension: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2969,6 +3129,10 @@ export declare const signOutExtension: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -2999,6 +3163,10 @@ export declare const signOutExtension: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -3032,6 +3200,10 @@ export declare const signOutExtension: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -3067,6 +3239,10 @@ export declare const signOutExtension: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -3244,6 +3420,10 @@ export declare const getAccountPreferences: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -3421,6 +3601,10 @@ export declare const patchAccountPreferences: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -3598,6 +3782,10 @@ export declare const getExtensionPreferences: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -3775,6 +3963,10 @@ export declare const patchExtensionPreferences: {
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -3972,6 +4164,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4004,6 +4200,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4040,6 +4240,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4075,6 +4279,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4108,6 +4316,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4323,6 +4535,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4355,6 +4571,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4391,6 +4611,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4426,6 +4650,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4459,6 +4687,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4674,6 +4906,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4706,6 +4942,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4742,6 +4982,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4777,6 +5021,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -4810,6 +5058,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5025,6 +5277,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5057,6 +5313,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5093,6 +5353,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5128,6 +5392,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5161,6 +5429,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5376,6 +5648,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5408,6 +5684,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5444,6 +5724,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5479,6 +5763,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5512,6 +5800,10 @@ export declare const webSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5728,6 +6020,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5760,6 +6056,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5796,6 +6096,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5831,6 +6135,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -5864,6 +6172,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6079,6 +6391,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6111,6 +6427,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6147,6 +6467,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6182,6 +6506,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6215,6 +6543,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6430,6 +6762,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6462,6 +6798,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6498,6 +6838,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6533,6 +6877,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6566,6 +6914,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6781,6 +7133,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6813,6 +7169,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6849,6 +7209,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6884,6 +7248,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -6917,6 +7285,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7132,6 +7504,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7164,6 +7540,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7200,6 +7580,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7235,6 +7619,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7268,6 +7656,10 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7431,6 +7823,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7496,6 +7892,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7685,6 +8085,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7717,6 +8121,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7747,6 +8155,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7890,6 +8302,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -7976,6 +8392,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8082,6 +8502,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8232,6 +8656,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8264,6 +8692,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8294,6 +8726,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8327,6 +8763,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8362,6 +8802,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8538,6 +8982,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8734,6 +9182,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8766,6 +9218,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8802,6 +9258,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8837,6 +9297,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
@@ -8870,6 +9334,10 @@ export declare const routes: (({
                                 expiresAt: import("zod").ZodISODateTime;
                             }, import("zod/v4/core").$strip>>;
                             features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodObject<{

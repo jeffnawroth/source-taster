@@ -52,6 +52,10 @@ for (const route of [
   v2.createCheck,
   v2.getCheck,
   v2.getQuota,
+  v2.getHistory,
+  v2.setHistory,
+  v2.deleteHistory,
+  v2.restartHistory,
   v2.streamCheckEvents,
 ])
   next.openAPIRegistry.registerPath(route);

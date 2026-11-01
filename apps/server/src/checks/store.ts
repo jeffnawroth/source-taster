@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The Check lock serializes lifecycle, immutable evidence and ordered events.
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import {
   CheckEvent,
   ReferenceOutcome,
@@ -245,18 +245,17 @@ export type WorkSubject = Pick<
   ReferenceAttempt,
   "checkId" | "ownerId" | "actorId" | "guestContextId"
 >;
-type Reader = Pick<Db, "referenceResult">;
+type Reader = Pick<Db, "settlementIntent">;
 async function hasVerdict(db: Reader, checkId: string, position: number) {
+  // The content-free journal intent survives encryption and records the first
+  // Verdict independently of later failed/cancelled Re-check results.
   return (
-    (await db.referenceResult.count({
-      where: {
-        checkId,
-        position,
-        content: { path: ["kind"], equals: "verdict" },
-      },
+    (await db.settlementIntent.count({
+      where: { checkId, position, outcome: "verdict" },
     })) > 0
   );
 }
+
 function addedSlots(last: number, count: number): SlotRef[] {
   return Array.from({ length: count }, (_, i) => ({
     position: last + i + 1,
@@ -285,10 +284,13 @@ export function createCheckStore(
   const clock = options.clock ?? { now: Date.now };
   const settings = { ...defaultLifecycleSettings, ...options.settings };
   const renewalInterval = Math.max(1, Math.floor(settings.clientLeaseMs / 3));
+  const rawTransactions = new WeakMap<Tx, Tx>();
   const transaction = <T>(operation: (tx: Tx) => Promise<T>) =>
     db.$transaction(async (raw) => {
       await raw.$queryRaw`SELECT pg_advisory_xact_lock_shared(910012)::text`;
-      return operation(contentTransaction(raw, () => clock.now()));
+      const tx = contentTransaction(raw, () => clock.now());
+      rawTransactions.set(tx, raw);
+      return operation(tx);
     });
   async function wake(tx: Tx, checkId: string, slot = 0) {
     await boss.send(
@@ -372,6 +374,36 @@ export function createCheckStore(
       state: "ended",
       endReason: reason,
     });
+    if (
+      current.state !== "ended" &&
+      current.apiVersion === 2 &&
+      !current.guestContextId
+    ) {
+      const policy = await historyPolicy(tx, current.ownerId, now);
+      if (policy.enabled) {
+        const days = policy.paid ? 90 : 30;
+        const sequence = await tx.$queryRaw<
+          { value: bigint }[]
+        >`SELECT nextval('verification.history_storage_order') AS value`;
+        await tx.check.update({
+          where: { id: checkId },
+          data: {
+            historyOrder: sequence[0]!.value,
+            historyStoredAt: new Date(now),
+            historyDays: days,
+            contentExpiresAt: new Date(now + days * 86_400_000),
+          },
+        });
+        const raw = rawTransactions.get(tx) ?? tx;
+        await raw.$executeRaw`INSERT INTO verification.history_keys(check_id,key) VALUES (${checkId}::uuid,${randomBytes(32)}) ON CONFLICT DO NOTHING`;
+        await rewrap(
+          tx,
+          contentTransaction(raw, () => clock.now(), undefined, checkId),
+          checkId,
+        );
+        await historyRules(tx, current.ownerId, days === 30);
+      }
+    }
   }
   async function cancelLocked(
     tx: Tx,
@@ -423,6 +455,7 @@ export function createCheckStore(
     startedAt: Date | null;
     endedAt: Date | null;
     leaseExpiresAt: Date;
+    historyLocked?: boolean;
   };
   function contentAlive(row: ContentRow) {
     const now = clock.now();
@@ -438,6 +471,24 @@ export function createCheckStore(
   }
   function assertContentAlive(row: ContentRow) {
     if (!contentAlive(row)) throw new CheckExpired();
+    if (row.historyLocked) throw new HistoryLocked();
+  }
+  async function assertAccessible(
+    tx: Tx,
+    row: ContentRow & {
+      id: string;
+      ownerId: string;
+      historyStoredAt?: Date | null;
+    },
+  ) {
+    if (row.historyStoredAt) {
+      await historyRules(tx, row.ownerId);
+      const current = await tx.check.findUniqueOrThrow({
+        where: { id: row.id },
+        select: { historyLocked: true, deletedAt: true },
+      });
+      assertContentAlive({ ...row, ...current });
+    } else assertContentAlive(row);
   }
   // ADR-0005 deletion. Preserve unfinished release intents without decrypting
   // lost content for #99; then all content, events and queued work go. The
@@ -466,6 +517,7 @@ export function createCheckStore(
         },
         update: {},
       });
+    await tx.$executeRaw`DELETE FROM verification.history_keys WHERE check_id=${check.id}::uuid`;
     await tx.checkEvent.deleteMany({ where: { checkId: check.id } });
     await tx.referenceSlot.deleteMany({ where: { checkId: check.id } });
     await tx.check.update({
@@ -498,6 +550,175 @@ export function createCheckStore(
         { db },
       );
   }
+  async function rewrap(tx: Tx, writer: Tx, id: string) {
+    const check = await lock(tx, id);
+    if (check?.document)
+      await writer.check.update({
+        where: { id },
+        data: { document: check.document },
+      });
+    for (const slot of await tx.referenceSlot.findMany({
+      where: { checkId: id },
+    }))
+      await writer.referenceSlot.update({
+        where: {
+          checkId_position: { checkId: id, position: slot.position },
+        },
+        data: {
+          originalText: slot.originalText,
+          structured: slot.structured as Prisma.InputJsonValue,
+        },
+      });
+    for (const revision of await tx.fieldRevision.findMany({
+      where: { checkId: id },
+    }))
+      await writer.fieldRevision.update({
+        where: {
+          checkId_position_revision: {
+            checkId: id,
+            position: revision.position,
+            revision: revision.revision,
+          },
+        },
+        data: { content: revision.content as Prisma.InputJsonValue },
+      });
+    for (const result of await tx.referenceResult.findMany({
+      where: { checkId: id },
+      include: { manualOverride: true },
+    })) {
+      await writer.referenceResult.update({
+        where: { id: result.id },
+        data: { content: result.content as Prisma.InputJsonValue },
+      });
+      if (result.manualOverride)
+        await writer.manualOverride.update({
+          where: { resultId: result.id },
+          data: { verdict: result.manualOverride.verdict },
+        });
+    }
+    for (const event of await tx.checkEvent.findMany({
+      where: { checkId: id },
+    }))
+      await writer.checkEvent.update({
+        where: { checkId_seq: { checkId: id, seq: event.seq } },
+        data: { payload: event.payload as Prisma.InputJsonValue },
+      });
+  }
+  const retentionMetadata = {
+    id: true,
+    ownerId: true,
+    contentExpiresAt: true,
+    deletedAt: true,
+    startedAt: true,
+    endedAt: true,
+    leaseExpiresAt: true,
+    historyStoredAt: true,
+    historyOrder: true,
+    historyDays: true,
+    historyLocked: true,
+  } as const;
+  const DAY = 86_400_000;
+  async function historyPolicy(tx: Tx, ownerId: string, at: number) {
+    const consent = await tx.historyConsent.findUnique({ where: { ownerId } });
+    const enabled = consent?.enabled ?? false;
+    if (!consent?.extendedUntil || consent.extendedUntil.getTime() <= at)
+      return { enabled, paid: false };
+    const fence = await tx.authorityFence.findUnique({ where: { ownerId } });
+    return { enabled, paid: consent.authorityVersion >= (fence?.version ?? 1) };
+  }
+  async function historyRules(tx: Tx, ownerId: string, storingFree = false) {
+    // Publication uses the durable invalidation fence even without a fresh
+    // Quota reply, including an already-open stream or a held response.
+    const { enabled, paid } = await historyPolicy(tx, ownerId, clock.now());
+    const entries = await tx.check.findMany({
+      where: { ownerId, historyStoredAt: { not: null }, deletedAt: null },
+      select: retentionMetadata,
+      orderBy: [
+        { historyStoredAt: "desc" },
+        { historyOrder: "desc" },
+        { id: "desc" },
+      ],
+    });
+    // Only storing a NEW Free entry may evict the oldest previously usable
+    // entry. A downgrade itself locks all overflow, including Free-stored rows.
+    const displaced =
+      storingFree && !paid
+        ? entries.filter(
+            (e) =>
+              contentAlive(e) &&
+              e.historyStoredAt!.getTime() + 30 * DAY > clock.now(),
+          )[5]
+        : undefined;
+    if (displaced?.historyDays === 30) await purgeLocked(tx, displaced);
+    let usable = 0;
+    for (const entry of entries) {
+      if (entry.id === displaced?.id && entry.historyDays === 30) continue;
+      if (!contentAlive(entry)) continue;
+      const young = entry.historyStoredAt!.getTime() + 30 * DAY > clock.now();
+      const locked = !paid && (!young || usable >= 5);
+      if (!locked) usable++;
+      if (entry.historyLocked !== locked)
+        await tx.check.update({
+          where: { id: entry.id },
+          data: { historyLocked: locked },
+        });
+    }
+    return { enabled, paid };
+  }
+  async function historySnapshot(
+    tx: Tx,
+    principal: Principal,
+    metadataOnly = false,
+  ) {
+    const rules = await historyRules(tx, principal.ownerId);
+    const entries = await tx.check.findMany({
+      where: {
+        ownerId: principal.ownerId,
+        historyStoredAt: { not: null },
+        deletedAt: null,
+        contentExpiresAt: { gt: new Date(clock.now()) },
+      },
+      orderBy: [
+        { historyStoredAt: "desc" },
+        { historyOrder: "desc" },
+        { id: "desc" },
+      ],
+      select: {
+        ...retentionMetadata,
+        _count: { select: { references: { where: { removed: false } } } },
+      },
+    });
+    return {
+      enabled: rules.enabled,
+      entries: await Promise.all(
+        entries.filter(contentAlive).map(async (e) => {
+          const first =
+            !metadataOnly && !e.historyLocked
+              ? await tx.referenceSlot.findFirst({
+                  where: { checkId: e.id, removed: false },
+                  orderBy: { position: "asc" },
+                  select: { originalText: true, structured: true },
+                })
+              : null;
+          return {
+            id: e.id,
+            storedAt: e.historyStoredAt!.toISOString(),
+            expiresAt: e.contentExpiresAt.toISOString(),
+            locked: e.historyLocked,
+            referenceCount: e._count.references,
+            ...(first
+              ? {
+                  label: String(
+                    (first.structured as unknown as StructuredReference | null)
+                      ?.csl.title ?? first.originalText,
+                  ).slice(0, 120),
+                }
+              : {}),
+          };
+        }),
+      ),
+    };
+  }
   async function sweep() {
     // Exclusive against all content operations: rollover, key destruction and
     // loss recovery finish before any process can read or publish content.
@@ -511,13 +732,14 @@ export function createCheckStore(
         SELECT c.id FROM verification.checks c WHERE c.deleted_at IS NULL AND
         (EXISTS (SELECT 1 FROM verification.owner_tombstones t WHERE t.owner_id::text=lower(c.owner_id))
         OR ((c.started_at IS NULL OR c.ended_at IS NOT NULL) AND c.content_expires_at<=${new Date(now)})
-        OR (c.started_at IS NOT NULL AND c.ended_at IS NULL AND c.lease_expires_at + (${settings.contentRetentionMs} * interval '1 millisecond')<=${new Date(now)}) OR (c.document IS NOT NULL AND NOT EXISTS (
+        OR (c.started_at IS NOT NULL AND c.ended_at IS NULL AND c.lease_expires_at + (${settings.contentRetentionMs} * interval '1 millisecond')<=${new Date(now)}) OR (c.history_stored_at IS NOT NULL AND NOT EXISTS (SELECT 1 FROM verification.history_keys h WHERE h.check_id=c.id))
+        OR (c.history_stored_at IS NULL AND c.document IS NOT NULL AND NOT EXISTS (
           SELECT 1 FROM verification.transient_keys k
           WHERE k.day=(c.document->>'day')::integer AND k.day>=${day}
         )) OR EXISTS (
           SELECT 1 FROM verification.reference_slots r
           LEFT JOIN verification.transient_keys k ON k.day=(r.original_text::jsonb->>'day')::integer
-          WHERE r.check_id=c.id AND (k.day IS NULL OR k.day<${day})
+          WHERE c.history_stored_at IS NULL AND r.check_id=c.id AND (k.day IS NULL OR k.day<${day})
         )) ORDER BY c.id`;
         for (const { id } of due) {
           const check = await lock(raw, id);
@@ -532,62 +754,11 @@ export function createCheckStore(
           const checks = await raw.$queryRaw<
             { id: string }[]
           >`SELECT c.id FROM verification.checks c
-          WHERE c.deleted_at IS NULL AND ((c.document->>'day')::integer<=${day}
+          WHERE c.deleted_at IS NULL AND c.history_stored_at IS NULL AND ((c.document->>'day')::integer<=${day}
           OR EXISTS (SELECT 1 FROM verification.reference_slots r
           WHERE r.check_id=c.id AND (r.original_text::jsonb->>'day')::integer<=${day})) ORDER BY c.id`;
           for (const { id } of checks) {
-            const check = await lock(tx, id);
-            if (check?.document)
-              await writer.check.update({
-                where: { id },
-                data: { document: check.document },
-              });
-            for (const slot of await tx.referenceSlot.findMany({
-              where: { checkId: id },
-            }))
-              await writer.referenceSlot.update({
-                where: {
-                  checkId_position: { checkId: id, position: slot.position },
-                },
-                data: {
-                  originalText: slot.originalText,
-                  structured: slot.structured as Prisma.InputJsonValue,
-                },
-              });
-            for (const revision of await tx.fieldRevision.findMany({
-              where: { checkId: id },
-            }))
-              await writer.fieldRevision.update({
-                where: {
-                  checkId_position_revision: {
-                    checkId: id,
-                    position: revision.position,
-                    revision: revision.revision,
-                  },
-                },
-                data: { content: revision.content as Prisma.InputJsonValue },
-              });
-            for (const result of await tx.referenceResult.findMany({
-              where: { checkId: id },
-              include: { manualOverride: true },
-            })) {
-              await writer.referenceResult.update({
-                where: { id: result.id },
-                data: { content: result.content as Prisma.InputJsonValue },
-              });
-              if (result.manualOverride)
-                await writer.manualOverride.update({
-                  where: { resultId: result.id },
-                  data: { verdict: result.manualOverride.verdict },
-                });
-            }
-            for (const event of await tx.checkEvent.findMany({
-              where: { checkId: id },
-            }))
-              await writer.checkEvent.update({
-                where: { checkId_seq: { checkId: id, seq: event.seq } },
-                data: { payload: event.payload as Prisma.InputJsonValue },
-              });
+            await rewrap(tx, writer, id);
           }
         }
         await raw.$executeRaw`DELETE FROM verification.transient_keys WHERE day<${day}`;
@@ -610,7 +781,7 @@ export function createCheckStore(
       )
         return null;
       // Frozen v1 has no 410: expired content is simply no longer there.
-      if (apiVersion === 2) assertContentAlive(row);
+      if (apiVersion === 2) await assertAccessible(tx, row);
       else if (!contentAlive(row)) return null;
       const now = clock.now();
       const expired = await expireLocked(tx, row, now);
@@ -666,6 +837,109 @@ export function createCheckStore(
     return (await ownerSnapshot(principal, id, action, version))?.check ?? null;
   }
   return {
+    async syncHistory(
+      principal: Pick<Principal, "ownerId" | "actorId" | "guestContextId">,
+      extendedUntil: string | null,
+      authorityVersion = 0,
+    ) {
+      if (principal.guestContextId) return;
+      await transaction(async (tx) => {
+        const previous = await tx.historyConsent.findUnique({
+          where: { ownerId: principal.ownerId },
+        });
+        const fence = await tx.authorityFence.findUnique({
+          where: { ownerId: principal.ownerId },
+        });
+        const minimum = Math.max(
+          previous?.authorityVersion ?? 0,
+          fence?.version ?? 1,
+        );
+        // Quota replies can arrive out of order. A stale paid snapshot cannot
+        // restore an entitlement removed by a newer grant or invalidation.
+        if (
+          authorityVersion > 0 &&
+          authorityVersion < minimum &&
+          (previous?.authorityVersion ?? 0) >= (fence?.version ?? 1)
+        )
+          return;
+        const until = authorityVersion >= minimum ? extendedUntil : null;
+        const version = Math.max(minimum, authorityVersion);
+        await tx.historyConsent.upsert({
+          where: { ownerId: principal.ownerId },
+          create: {
+            ownerId: principal.ownerId,
+            accountId: principal.actorId,
+            extendedUntil: until ? new Date(until) : null,
+            authorityVersion: version,
+          },
+          update: {
+            extendedUntil: until ? new Date(until) : null,
+            authorityVersion: version,
+          },
+        });
+        await historyRules(tx, principal.ownerId);
+      });
+    },
+    async history(
+      principal: Principal,
+      enabled?: boolean,
+      deleteId?: string,
+      metadataOnly = false,
+    ) {
+      return transaction(async (tx) => {
+        if (enabled !== undefined) {
+          await tx.historyConsent.upsert({
+            where: { ownerId: principal.ownerId },
+            create: {
+              ownerId: principal.ownerId,
+              accountId: principal.actorId,
+              enabled,
+            },
+            update: { enabled },
+          });
+          if (!enabled) {
+            const entries = await tx.check.findMany({
+              where: {
+                ownerId: principal.ownerId,
+                historyStoredAt: { not: null },
+                deletedAt: null,
+              },
+              select: retentionMetadata,
+            });
+            for (const entry of entries) await purgeLocked(tx, entry);
+          }
+        }
+        if (deleteId) {
+          const entry = await lock(rawTransactions.get(tx) ?? tx, deleteId);
+          if (
+            !entry ||
+            entry.ownerId !== principal.ownerId ||
+            !entry.historyStoredAt
+          )
+            return null;
+          await purgeLocked(tx, entry);
+        }
+        return historySnapshot(tx, principal, metadataOnly);
+      });
+    },
+    async restartInput(principal: Principal, id: string) {
+      return transaction(async (tx) => {
+        const row = await lock(tx, id);
+        if (!row || row.ownerId !== principal.ownerId || !row.historyStoredAt)
+          return null;
+        await assertAccessible(tx, row);
+        const slots = await tx.referenceSlot.findMany({
+          where: { checkId: id, removed: false },
+          orderBy: { position: "asc" },
+        });
+        return {
+          references: slots.map(
+            (slot) => slot.structured as unknown as StructuredReference,
+          ),
+          document: (row.document as BibliographyDocument | null) ?? undefined,
+        };
+      });
+    },
     async publish<T>(
       principal: Principal,
       id: string,
@@ -680,7 +954,7 @@ export function createCheckStore(
           (version === 1 && row.apiVersion !== 1)
         )
           throw new CheckExpired();
-        assertContentAlive(row);
+        await assertAccessible(tx, row);
         return send();
       });
     },
@@ -845,7 +1119,7 @@ export function createCheckStore(
           check.apiVersion !== 2
         )
           return null;
-        assertContentAlive(check);
+        await assertAccessible(tx, check);
         await expireLocked(tx, check, clock.now());
         const slot = await tx.referenceSlot.findUnique({
           where: { checkId_position: { checkId, position } },
@@ -912,7 +1186,7 @@ export function createCheckStore(
           check.apiVersion !== 2
         )
           return null;
-        assertContentAlive(check);
+        await assertAccessible(tx, check);
         await expireLocked(tx, check, clock.now());
         const slot = await tx.referenceSlot.findUnique({
           where: { checkId_position: { checkId, position } },
@@ -1028,7 +1302,7 @@ export function createCheckStore(
           check.apiVersion !== 2
         )
           return null;
-        assertContentAlive(check);
+        await assertAccessible(tx, check);
         await expireLocked(tx, check, clock.now());
         const slot = await tx.referenceSlot.findUnique({
           where: { checkId_position: { checkId, position } },
@@ -1124,7 +1398,7 @@ export function createCheckStore(
           check.apiVersion !== 2
         )
           return null;
-        assertContentAlive(check);
+        await assertAccessible(tx, check);
         await expireLocked(tx, check, clock.now());
         const slots = await tx.referenceSlot.findMany({
           where: { checkId },
@@ -1500,6 +1774,7 @@ export function createCheckStore(
           await raw.$queryRaw`SELECT pg_advisory_xact_lock(910012)::text`;
           await raw.$executeRaw`INSERT INTO verification.owner_tombstones(owner_id) VALUES (${ownerId}::uuid) ON CONFLICT (owner_id) DO NOTHING`;
           const tx = contentTransaction(raw, () => clock.now());
+          await tx.historyConsent.deleteMany({ where: { ownerId } });
           const owned = await raw.$queryRaw<{ id: string }[]>`
             SELECT id FROM verification.checks
             WHERE lower(owner_id)=lower(${ownerId}) AND deleted_at IS NULL ORDER BY id`;
@@ -1618,4 +1893,5 @@ export type CheckStore = ReturnType<typeof createCheckStore>;
 
 export class ReferenceConflict extends Error {}
 
+export class HistoryLocked extends Error {}
 export class CheckExpired extends ContentUnavailable {}

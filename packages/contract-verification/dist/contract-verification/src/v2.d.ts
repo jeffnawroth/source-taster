@@ -3738,6 +3738,10 @@ export declare const CheckResponse: z.ZodObject<{
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodObject<{
@@ -4726,6 +4730,10 @@ export declare const QuotaResponse: z.ZodObject<{
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodObject<{
@@ -4752,6 +4760,10 @@ export declare const QuotaResponse: z.ZodObject<{
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodObject<{
@@ -7101,6 +7113,64 @@ export declare const SelectionPreviewResponse: z.ZodObject<{
             expiresAt: z.ZodISODateTime;
         }, z.core.$strip>>;
         features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export declare const History: z.ZodObject<{
+    enabled: z.ZodBoolean;
+    entries: z.ZodArray<z.ZodObject<{
+        id: z.ZodUUID;
+        storedAt: z.ZodISODateTime;
+        expiresAt: z.ZodISODateTime;
+        label: z.ZodOptional<z.ZodString>;
+        locked: z.ZodBoolean;
+        referenceCount: z.ZodNumber;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+export declare const HistoryResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        enabled: z.ZodBoolean;
+        entries: z.ZodArray<z.ZodObject<{
+            id: z.ZodUUID;
+            storedAt: z.ZodISODateTime;
+            expiresAt: z.ZodISODateTime;
+            label: z.ZodOptional<z.ZodString>;
+            locked: z.ZodBoolean;
+            referenceCount: z.ZodNumber;
+        }, z.core.$strip>>;
+    }, z.core.$strip>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
     }, z.core.$strict>, z.ZodObject<{
