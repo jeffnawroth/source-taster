@@ -8,6 +8,7 @@ const problem = {
     content: { "application/problem+json": { schema: ProblemDetails } },
 };
 export const dpaRoutes = (extension) => {
+    const security = extension ? { security: [{ ExtensionSession: [] }] } : {};
     const prefix = extension ? "/v1/extension/dpa" : "/v1/dpa";
     const responses = {
         200: {
@@ -24,6 +25,7 @@ export const dpaRoutes = (extension) => {
     };
     return {
         objection: createRoute({
+            ...security,
             method: "post",
             path: `${prefix}/objections`,
             summary: "Keep a supplier objection open; never infer consent from silence",
@@ -54,6 +56,7 @@ export const dpaRoutes = (extension) => {
             },
         }),
         challenge: createRoute({
+            ...security,
             method: "post",
             path: `${prefix}/challenges`,
             summary: "Freeze packet and party revision; email fresh session/action-bound proof",
@@ -66,6 +69,7 @@ export const dpaRoutes = (extension) => {
             responses,
         }),
         conclude: createRoute({
+            ...security,
             method: "post",
             path: `${prefix}/conclude`,
             summary: "Atomically conclude once per operation ID with proof no older than five minutes",
@@ -78,6 +82,7 @@ export const dpaRoutes = (extension) => {
             responses,
         }),
         operation: createRoute({
+            ...security,
             method: "get",
             path: `${prefix}/operations/{id}`,
             summary: "Recover authoritative completion after timeout or restart",
@@ -85,6 +90,7 @@ export const dpaRoutes = (extension) => {
             responses,
         }),
         download: createRoute({
+            ...security,
             method: "get",
             path: `${prefix}/agreements/{id}/download`,
             summary: "Download the exact immutable concluded JSON packet and acceptance representation",
@@ -102,6 +108,7 @@ export const dpaRoutes = (extension) => {
             },
         }),
         state: createRoute({
+            ...security,
             method: "get",
             path: `${prefix}/{language}`,
             summary: "Inspect offered packet and retained agreements without extending session expiry",

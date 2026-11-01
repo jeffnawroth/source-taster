@@ -16,6 +16,7 @@ const problem = {
   content: { "application/problem+json": { schema: ProblemDetails } },
 };
 export const dpaRoutes = (extension: boolean) => {
+  const security = extension ? { security: [{ ExtensionSession: [] }] } : {};
   const prefix = extension ? "/v1/extension/dpa" : "/v1/dpa";
   const responses = {
     200: {
@@ -32,6 +33,7 @@ export const dpaRoutes = (extension: boolean) => {
   };
   return {
     objection: createRoute({
+      ...security,
       method: "post",
       path: `${prefix}/objections`,
       summary:
@@ -63,6 +65,7 @@ export const dpaRoutes = (extension: boolean) => {
       },
     }),
     challenge: createRoute({
+      ...security,
       method: "post",
       path: `${prefix}/challenges`,
       summary:
@@ -76,6 +79,7 @@ export const dpaRoutes = (extension: boolean) => {
       responses,
     }),
     conclude: createRoute({
+      ...security,
       method: "post",
       path: `${prefix}/conclude`,
       summary:
@@ -89,6 +93,7 @@ export const dpaRoutes = (extension: boolean) => {
       responses,
     }),
     operation: createRoute({
+      ...security,
       method: "get",
       path: `${prefix}/operations/{id}`,
       summary: "Recover authoritative completion after timeout or restart",
@@ -96,6 +101,7 @@ export const dpaRoutes = (extension: boolean) => {
       responses,
     }),
     download: createRoute({
+      ...security,
       method: "get",
       path: `${prefix}/agreements/{id}/download`,
       summary:
@@ -114,6 +120,7 @@ export const dpaRoutes = (extension: boolean) => {
       },
     }),
     state: createRoute({
+      ...security,
       method: "get",
       path: `${prefix}/{language}`,
       summary:

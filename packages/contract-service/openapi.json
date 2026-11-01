@@ -2633,6 +2633,11 @@
     },
     "/v1/extension/dpa/objections": {
       "post": {
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
         "summary": "Keep a supplier objection open; never infer consent from silence",
         "requestBody": {
           "required": true,
@@ -2759,6 +2764,11 @@
     },
     "/v1/extension/dpa/challenges": {
       "post": {
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
         "summary": "Freeze packet and party revision; email fresh session/action-bound proof",
         "requestBody": {
           "required": true,
@@ -2926,6 +2936,11 @@
     },
     "/v1/extension/dpa/conclude": {
       "post": {
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
         "summary": "Atomically conclude once per operation ID with proof no older than five minutes",
         "requestBody": {
           "required": true,
@@ -3038,6 +3053,11 @@
     },
     "/v1/extension/dpa/operations/{id}": {
       "get": {
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
         "summary": "Recover authoritative completion after timeout or restart",
         "parameters": [
           {
@@ -3136,6 +3156,11 @@
     },
     "/v1/extension/dpa/agreements/{id}/download": {
       "get": {
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
         "summary": "Download the exact immutable concluded JSON packet and acceptance representation",
         "parameters": [
           {
@@ -3350,6 +3375,11 @@
     },
     "/v1/extension/dpa/{language}": {
       "get": {
+        "security": [
+          {
+            "ExtensionSession": []
+          }
+        ],
         "summary": "Inspect offered packet and retained agreements without extending session expiry",
         "parameters": [
           {
