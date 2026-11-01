@@ -33,3 +33,5 @@ apps/web/test-results-*/
 test-results-ai/
 apps/extension/test-results-history/
 test-results-private/
+
+apps/extension/test-results-dpa/
