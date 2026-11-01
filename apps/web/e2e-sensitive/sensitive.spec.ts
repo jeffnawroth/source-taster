@@ -17,6 +17,11 @@ import {
   codes,
   sensitiveService,
 } from "../../server/test/support/sensitive-service.ts";
+import {
+  guestTokenReply,
+  quotaReply,
+  structuringReply,
+} from "../../server/test/support/guest-start-stub.ts";
 
 const secret = randomUUID();
 const identity = { ...newAccount(), email: "reader@example.org" };
@@ -357,8 +362,8 @@ for (const language of ["en", "de"] as const)
       // Merged with #101 Preferences: deletion ends the Account authority, so
       // no Preferences read/write or Account token follows. ADR-0023 deletes
       // Preferences with the Account: nothing is copied into Guest storage.
-      // (#99 lets the Guest view read its own Quota on mount like any Guest
-      // page load; that is the browser's Guest, never this Account.)
+      // (The Guest view reads no Quota until its first Start; see the next
+      // test. A reload is a plain Guest visit.)
       const afterDeletion = fake.state.calls.slice(
         fake.state.calls.lastIndexOf("POST /account/deletion") + 1,
       );
@@ -382,6 +387,100 @@ for (const language of ["en", "de"] as const)
       await context.close();
     }
   });
+
+/**
+ * Guest traffic is answered in the browser, because this stand-in service has
+ * no Guest identity. Only requests after `arm()` are counted and answered.
+ */
+async function guestStandIn(page: Page) {
+  const requests: string[] = [];
+  let armed = false;
+  await page.route(/\/v1\/guest-tokens$/, (route) => {
+    if (!armed) return route.fallback();
+    requests.push("guest-token");
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: {
+        "access-control-allow-origin": "*",
+        "access-control-allow-headers": "content-type, authorization",
+      },
+      body: JSON.stringify(guestTokenReply()),
+    });
+  });
+  await page.route(/\/v2\/structurings$/, (route) => {
+    if (!armed) return route.fallback();
+    requests.push("structuring");
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(structuringReply(physicsReference)),
+    });
+  });
+  await page.route(/\/v2\/quota$/, (route) => {
+    if (!armed) return route.fallback();
+    requests.push("quota");
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(quotaReply()),
+    });
+  });
+  return { requests, arm: () => (armed = true) };
+}
+async function deleteAccount(page: Page, guest: { arm(): void }) {
+  const t = text.en;
+  await open(page, "en");
+  await prove(page, "en", t.deleteAccount);
+  await page.getByLabel(t.ack).check();
+  guest.arm();
+  await page
+    .getByRole("button", { name: t.deleteForever, exact: true })
+    .click();
+  await expect(page.getByText(t.deleted)).toBeVisible();
+}
+
+test("after a completed deletion the Guest workspace requests no Guest token and no Quota until the first Start", async ({
+  page,
+}) => {
+  const t = text.en;
+  const guest = await guestStandIn(page);
+  await deleteAccount(page, guest);
+  // The workspace restarted as Guest; give any mount-time read time to happen.
+  await expect(
+    page.getByRole("button", { name: "Sign in", exact: true }),
+  ).toBeVisible();
+  await page.waitForLoadState("networkidle");
+  expect(guest.requests).toEqual([]);
+  // The Quota slot stays neutral: no balance, no loading or failure message.
+  await expect(page.getByTestId("quota-meter")).toHaveCount(0);
+  // The first Start reads the Quota with a Guest token, fail-closed.
+  await page.locator("textarea").fill(physicsReference);
+  await page.getByRole("button", { name: t.check, exact: true }).click();
+  await expect
+    .poll(() => guest.requests)
+    .toEqual(["guest-token", "structuring", "quota"]);
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "100 of 100 checks left",
+  );
+});
+
+test("a plain reload after a deletion is a plain Guest visit and shows its Quota before the first Start (#99)", async ({
+  page,
+}) => {
+  const guest = await guestStandIn(page);
+  await deleteAccount(page, guest);
+  // Nothing about the deletion is kept in the browser, so the reload cannot
+  // tell it from any other Guest page load: #99 behavior, unchanged.
+  guest.requests.length = 0;
+  await page.reload();
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "100 of 100 checks left",
+  );
+  // (The dev build mounts effects twice, so the read may repeat.)
+  expect(guest.requests[0]).toBe("guest-token");
+  expect(guest.requests).toContain("quota");
+});
 
 test("durable in-progress deletion blocks access and never falls back to Guest", async ({
   page,
