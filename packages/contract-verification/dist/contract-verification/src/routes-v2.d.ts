@@ -12255,6 +12255,7 @@ export declare const getHistory: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -12461,6 +12462,7 @@ export declare const setHistory: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -12660,6 +12662,7 @@ export declare const deleteHistory: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
@@ -12832,6 +12835,7 @@ export declare const restartHistory: {
                             }>;
                             grants: z.ZodArray<z.ZodObject<{
                                 kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
