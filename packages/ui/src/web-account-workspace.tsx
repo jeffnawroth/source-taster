@@ -1,3 +1,5 @@
+import { DpaControls } from "./dpa.tsx";
+import type { DpaClient } from "@source-taster/contract-service/client";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -19,12 +21,13 @@ import {
 } from "./sensitive-account-actions.tsx";
 export type SessionClient = Omit<
   ReturnType<typeof accountSessionClient>,
-  "session" | "sensitive"
+  "session" | "sensitive" | "dpa"
 > & {
   session(): Promise<AccountSession | null>;
   subscribe?(changed: () => void): () => void;
   /** Present only where the host enabled #102; absent means no such controls. */
   sensitive?: SensitiveActions;
+  dpa?: DpaClient;
 };
 function errorMessage(error: unknown) {
   return error instanceof GuestTokenError && error.status === 429
@@ -148,6 +151,14 @@ export function AccountControls({
               {m.auth_everywhere()}
             </button>
           </div>
+          {client.dpa && (
+            <DpaControls
+              key={`${account.accountId}:${language}`}
+              client={client.dpa}
+              accountId={account.accountId}
+              language={language}
+            />
+          )}
           {client.sensitive && updated && deleted && (
             <SensitiveAccountActions
               actions={client.sensitive}
