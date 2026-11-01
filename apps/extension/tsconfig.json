@@ -4,7 +4,11 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "lib": ["es2024", "dom", "dom.iterable"],
+    "lib": [
+      "es2024",
+      "dom",
+      "dom.iterable"
+    ],
     "allowImportingTsExtensions": true
   },
   "include": [
@@ -18,6 +22,7 @@
     "e2e-preferences",
     "e2e-ai",
     "e2e-private",
-    "*.ts"
+    "*.ts",
+    "e2e-dpa"
   ]
 }

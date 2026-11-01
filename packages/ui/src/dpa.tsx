@@ -189,7 +189,13 @@ export function DpaControls({
     <div className="mt-4">
       <button
         className={button}
-        onClick={() => {if (!open) {setPending(true);setError("");} setOpen(!open);}}
+        onClick={() => {
+          if (!open) {
+            setPending(true);
+            setError("");
+          }
+          setOpen(!open);
+        }}
         aria-expanded={open}
       >
         {m.dpa_title()}

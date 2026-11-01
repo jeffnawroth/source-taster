@@ -1,3 +1,4 @@
+import {AccountSessionResponse,DpaAgreement} from "@source-taster/contract-service";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
@@ -122,7 +123,7 @@ for (const language of ["en", "de"] as const)
           const session = await context.request.get(
             both.serviceUrl + "/v1/session",
           );
-          const data = (await session.json()).data;
+          const data = AccountSessionResponse.parse(await session.json()).data;
           await both.service().command({
             operator: {
               credit: {
@@ -210,7 +211,7 @@ for (const language of ["en", "de"] as const)
           .first()
           .click();
         const file = await download;
-        const exact = JSON.parse(await readFile((await file.path())!, "utf8"));
+        const exact = DpaAgreement.parse(JSON.parse(await readFile(await file.path(), "utf8")));
         expect(exact.packet).toEqual(packet(language));
         expect(exact.party.name).toBe("Example Research");
         await page.reload();
