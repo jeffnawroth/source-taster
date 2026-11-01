@@ -437,5 +437,6 @@
   "history_revoke_confirm": "Delete all History",
   "history_back": "Back",
   "history_unavailable": "History could not be loaded or changed. Refresh and try again.",
-  "problem_history_locked": "This entry is locked under the Free rules. A paid Plan unlocks it until its original deletion date."
+  "problem_history_locked": "This entry is locked under the Free rules. A paid Plan unlocks it until its original deletion date.",
+  "commerce_open": "Plans and Check packs on the web"
 }

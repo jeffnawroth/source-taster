@@ -437,5 +437,6 @@
   "history_revoke_confirm": "Gesamten Verlauf löschen",
   "history_back": "Zurück",
   "history_unavailable": "Der Verlauf konnte nicht geladen oder geändert werden. Bitte aktualisieren und erneut versuchen.",
-  "problem_history_locked": "Dieser Eintrag ist nach den Free-Regeln gesperrt. Ein bezahlter Plan entsperrt ihn bis zum ursprünglichen Löschdatum."
+  "problem_history_locked": "Dieser Eintrag ist nach den Free-Regeln gesperrt. Ein bezahlter Plan entsperrt ihn bis zum ursprünglichen Löschdatum.",
+  "commerce_open": "Tarife und Prüfkontingente im Web"
 }

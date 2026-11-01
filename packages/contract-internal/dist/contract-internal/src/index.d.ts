@@ -33,6 +33,7 @@ export declare const MailRehearsalResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -181,6 +182,7 @@ export declare const QuotaSnapshotResponse: z.ZodDiscriminatedUnion<[z.ZodObject
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -220,6 +222,7 @@ export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -250,6 +253,7 @@ export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";

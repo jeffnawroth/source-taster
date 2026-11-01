@@ -242,6 +242,7 @@ export declare const StructuringResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";

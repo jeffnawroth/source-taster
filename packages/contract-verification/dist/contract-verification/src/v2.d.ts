@@ -3729,6 +3729,7 @@ export declare const CheckResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -4721,6 +4722,7 @@ export declare const QuotaResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -4751,6 +4753,7 @@ export declare const QuotaResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";
@@ -7104,6 +7107,7 @@ export declare const SelectionPreviewResponse: z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";

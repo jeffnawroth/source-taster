@@ -61,7 +61,12 @@ export function StructuringResults({
             "configuration-unavailable": m.ai_configuration_unavailable,
           }[result.ai.reason]()}
           {result.ai.upgrade && upgradeUrl && (
-            <a className="ml-2 underline" href={upgradeUrl}>
+            <a
+              className="ml-2 underline"
+              href={upgradeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {m.quota_upgrade()}
             </a>
           )}

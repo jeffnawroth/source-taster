@@ -57,6 +57,11 @@ createRoot(document.getElementById("root")!).render(
         guest={guest!}
         transport={transport}
         siteUrl={config.websiteUrl}
+        upgradeUrl={
+          config.mode === "hosted"
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/order`
+            : undefined
+        }
         selectionIntake={selectionIntake}
       />
     ) : (
@@ -65,6 +70,11 @@ createRoot(document.getElementById("root")!).render(
         preferenceStorage={preferenceStorage}
         transport={transport}
         siteUrl={config.websiteUrl}
+        upgradeUrl={
+          config.mode === "hosted"
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/order`
+            : undefined
+        }
         selectionIntake={selectionIntake}
       />
     )}
