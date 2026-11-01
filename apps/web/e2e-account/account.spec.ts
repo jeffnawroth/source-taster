@@ -10,7 +10,8 @@ import {
 } from "../../server/test/support/both-programs.ts";
 import { physicsReference } from "../../server/test/support/doi-fixtures.ts";
 let both: Awaited<ReturnType<typeof bothPrograms>>, vite: ChildProcess;
-const url = "http://127.0.0.1:5274";
+const port = process.env.SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT ?? "5274";
+const url = `http://127.0.0.1:${port}`;
 test.beforeAll(async () => {
   both = await bothPrograms({ accounts: true });
   both.serviceConfig.allowedOrigins = [url, "https://web.test.invalid"];
@@ -23,7 +24,7 @@ test.beforeAll(async () => {
       "--host",
       "127.0.0.1",
       "--port",
-      "5274",
+      port,
       "--strictPort",
     ],
     {

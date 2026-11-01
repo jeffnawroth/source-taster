@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import { once } from "node:events";
 import { createServer } from "node:http";
 import pg from "pg";
+import type { AbusePolicy } from "@source-taster/contract-internal";
 import { GuestTokenResponse } from "@source-taster/contract-service";
 import { startDoiFixtures } from "./doi-fixtures.ts";
 export async function freePort() {
@@ -35,7 +36,7 @@ export async function bothPrograms(
     abuse?: {
       epoch: string;
       neutralPlanId: string;
-      policy: import("@source-taster/contract-internal").AbusePolicy;
+      policy: AbusePolicy;
       origin: unknown;
     };
     apiPort?: number;
@@ -334,7 +335,7 @@ export async function bothPrograms(
     { mode: 0o600 },
   );
   const fixtures = await startDoiFixtures();
-  const venv: Record<string,string> = {
+  const venv = {
     DATABASE_URL: urls[0]!,
     SOURCE_TASTER_PORT: String(apiPort),
     SOURCE_TASTER_AUTH_CONFIG: verificationConfigPath,
@@ -367,7 +368,9 @@ export async function bothPrograms(
     await writeFile(originConfigPath, JSON.stringify(options.abuse.origin), {
       mode: 0o600,
     });
-    venv.SOURCE_TASTER_ABUSE_ORIGIN_CONFIG = originConfigPath;
+    Object.assign(venv, {
+      SOURCE_TASTER_ABUSE_ORIGIN_CONFIG: originConfigPath,
+    });
   }
   const senv = {
     ...(options.abuse ? { SERVICE_ABUSE_CONFIG: abuseConfigPath } : {}),
