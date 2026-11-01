@@ -690,3 +690,4 @@ export declare const AccountDeletionResponse: z.ZodObject<{
 export type AccountDeletion = z.infer<typeof AccountDeletionResponse>["data"];
 /** Problem `code` values the sensitive-action endpoints may use. */
 export declare const sensitiveProblemCodes: readonly ["fresh-proof-required", "fresh-proof-invalid", "fresh-proof-exhausted", "email-change-invalid", "rate-limited"];
+export * from "./dpa.ts";
