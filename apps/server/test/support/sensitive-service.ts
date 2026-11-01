@@ -56,8 +56,7 @@ export function sensitiveService(options: {
     deleteStatus: undefined as number | undefined,
     /** #101 Account Preferences; unset means "adopt the client's language". */
     preferences: undefined as
-      | { language: "de" | "en"; citationStyle: string }
-      | undefined,
+      { language: "de" | "en"; citationStyle: string } | undefined,
   };
   const now = () => Date.now() + state.offset;
   const proofs = new Map<Action, number>();

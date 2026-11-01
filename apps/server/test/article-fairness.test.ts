@@ -88,12 +88,21 @@ it("alternates between Owners before alternating between one Owner's Checks", as
     workerConcurrency: 1,
     sources: { openalex: { intervalMs: 0 } },
   });
+  // The service runs on a frozen test clock. Real Checks created one after
+  // another carry increasing creation times, which order an Owner's Checks
+  // (and Owners that have not dispatched yet) first-come first-served; without
+  // a tick they tie and only the random Check ID decides.
+  const created = async (owner: string, numbers: number[]) => {
+    const check = await create(owner, numbers);
+    await service!.advance(1);
+    return [owner, check] as const;
+  };
   const checks = [
-    ["owner-a", await create("owner-a", [11, 12, 13])],
-    ["owner-a", await create("owner-a", [21, 22, 23])],
-    ["owner-a", await create("owner-a", [31, 32, 33])],
-    ["owner-b", await create("owner-b", [41, 42, 43])],
-  ] as const;
+    await created("owner-a", [11, 12, 13]),
+    await created("owner-a", [21, 22, 23]),
+    await created("owner-a", [31, 32, 33]),
+    await created("owner-b", [41, 42, 43]),
+  ];
   await service!.worker().ready;
   for (const [owner, check] of checks)
     await expect
@@ -113,6 +122,8 @@ it("caps running References per Check at the configured setting", async () => {
     "/works?filter=title.search:Synthetic+article+51,raw_author_name.search:Alpha,publication_year:2021&per_page=5",
   );
   const busy = await create("owner-a", [51, 52]);
+  // Distinct creation times on the frozen test clock (see above).
+  await service!.advance(1);
   const other = await create("owner-a", [61]);
   await service!.worker().ready;
   try {

@@ -148,6 +148,8 @@ export declare const structureDocument: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -348,6 +350,8 @@ export declare const getDocumentSettings: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -563,6 +567,8 @@ export declare const structureText: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };

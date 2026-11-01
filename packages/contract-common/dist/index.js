@@ -57,10 +57,16 @@ export const Quota = z
     features: z.array(z.string().min(1).max(40)).max(20),
 })
     .meta({ id: "Quota" });
-/** Hosted authority is not a Quota grant. #99 owns its journal. */
+/**
+ * `not-implemented`: this response has no Quota concept (for example the
+ * sign-in routes). `unavailable`: a Quota applies but the service snapshot
+ * failed for this response; it never stands for a balance. `null`: no Quota
+ * applies, as in standalone mode.
+ */
 export const QuotaSlot = z.union([
     Quota,
     z.strictObject({ status: z.literal("not-implemented") }),
+    z.strictObject({ status: z.literal("unavailable") }),
     z.null(),
 ]);
 /** Every successful response wraps its payload with the Quota slot. */

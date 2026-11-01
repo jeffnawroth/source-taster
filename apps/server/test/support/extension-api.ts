@@ -10,6 +10,17 @@ import { tmpdir } from "node:os";
 import pg from "pg";
 import { setupDatabase } from "../../scripts/db-setup.ts";
 import { testDatabase } from "./processes.ts";
+import { Quota } from "@source-taster/contract-common";
+import {
+  QuotaReleaseRequest,
+  QuotaReleaseResponse,
+  QuotaReserveRequest,
+  QuotaReserveResponse,
+  QuotaSettleRequest,
+  QuotaSettleResponse,
+  QuotaSnapshotRequest,
+  QuotaSnapshotResponse,
+} from "@source-taster/contract-internal";
 const fixtureNow = Date.now();
 const issuer = `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? "4602"}`;
 const audience = `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_API_PORT ?? "4601"}`;
@@ -154,4 +165,91 @@ export async function startExtensionVerificationApi() {
     await stop();
     throw error;
   }
+}
+/**
+ * The PRIVATE Quota protocol answered at its HTTP boundary (#99), parsed
+ * through the shared contract so this fake cannot drift from the real
+ * service. One Free grant of 100 per fixture Owner; `allowed` mirrors the
+ * fixture's current authority. Not both-program proof: real journal behavior is
+ * covered by `test/quota.contract.ts` against the real service.
+ */
+export function extensionFixtureQuota() {
+  const ledgers = new Map<
+    string,
+    { reserved: Map<string, number>; consumed: number }
+  >();
+  const view = (ownerId: string) => {
+    const ledger = ledgers.get(ownerId) ?? {
+      reserved: new Map<string, number>(),
+      consumed: 0,
+    };
+    ledgers.set(ownerId, ledger);
+    const reserved = [...ledger.reserved.values()].reduce((a, b) => a + b, 0);
+    const remaining = Math.max(0, 100 - ledger.consumed - reserved);
+    return {
+      ledger,
+      quota: Quota.parse({
+        consumed: ledger.consumed,
+        remaining,
+        granted: 100,
+        reserved,
+        warning:
+          remaining === 0 ? "exhausted" : remaining <= 20 ? "eighty" : "none",
+        grants: [
+          {
+            kind: "free",
+            granted: 100,
+            remaining,
+            expiresAt: new Date(fixtureNow + 30 * 86400000).toISOString(),
+          },
+        ],
+        features: ["check", "history"],
+      }),
+    };
+  };
+  const denied = { outcome: "denied", reason: "forbidden" } as const;
+  return (path: string, body: string, allowed: boolean): unknown => {
+    if (path === "/internal/quota/snapshot") {
+      const input = QuotaSnapshotRequest.parse(JSON.parse(body));
+      return QuotaSnapshotResponse.parse(
+        allowed
+          ? { outcome: "granted", quota: view(input.ownerId).quota }
+          : denied,
+      );
+    }
+    if (path === "/internal/quota/reserve") {
+      const input = QuotaReserveRequest.parse(JSON.parse(body));
+      if (!allowed) return QuotaReserveResponse.parse(denied);
+      const { ledger } = view(input.ownerId);
+      ledger.reserved.set(`${input.checkId}:${input.key}`, input.slots.length);
+      return QuotaReserveResponse.parse({
+        outcome: "reserved",
+        free: [],
+        reserved: input.slots.length,
+        quota: view(input.ownerId).quota,
+      });
+    }
+    if (path === "/internal/quota/settle") {
+      const input = QuotaSettleRequest.parse(JSON.parse(body));
+      const { ledger } = view(input.ownerId);
+      for (const [key, count] of ledger.reserved)
+        if (key.startsWith(`${input.checkId}:`) && count > 0) {
+          ledger.reserved.set(key, count - 1);
+          break;
+        }
+      if (input.outcome === "verdict") ledger.consumed++;
+      return QuotaSettleResponse.parse({
+        outcome: input.outcome === "verdict" ? "debited" : "released",
+      });
+    }
+    if (path === "/internal/quota/release") {
+      const input = QuotaReleaseRequest.parse(JSON.parse(body));
+      const { ledger } = view(input.ownerId);
+      const key = `${input.checkId}:${input.key}`;
+      const released = ledger.reserved.get(key) ?? 0;
+      ledger.reserved.delete(key);
+      return QuotaReleaseResponse.parse({ released });
+    }
+    return undefined;
+  };
 }

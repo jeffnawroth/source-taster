@@ -224,6 +224,8 @@ export declare const DocumentStructuringResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 /** Current Operator-configured upload limit, shared by web and extension. */
@@ -254,6 +256,8 @@ export declare const DocumentSettingsResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const TextStructuringRequest: z.ZodObject<{
@@ -366,5 +370,7 @@ export declare const TextStructuringResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;

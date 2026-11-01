@@ -72,6 +72,17 @@ async function check(panel: Panel, name = "Check Reference") {
   await panel.fill("textbox", /^(Reference|Referenz)$/, physicsReference);
   await panel.click("button", name);
 }
+// The API refused the hosted start at whichever request came first, and no
+// Check was created.
+function refused(responses: Panel["responses"]) {
+  const hosted = responses.filter((r) =>
+    /\/v2\/(structurings|quota|checks)$/.test(new URL(r.url).pathname),
+  );
+  return (
+    hosted.some((r) => r.status === 403) &&
+    !hosted.some((r) => r.url.endsWith("/v2/checks") && r.status === 201)
+  );
+}
 async function results(panel: Panel) {
   await panel.locate(`document.getElementById("results-title")`, 20_000);
 }
@@ -91,7 +102,13 @@ async function panelPersistence(panel: Panel) {
 
 test.beforeAll(async () => {
   test.setTimeout(180_000);
-  both = await bothPrograms({ startWorker: false, clientLeaseMs: 1500 });
+  // The hosted web asks the service for a session first; a launch service has
+  // Accounts enabled and answers "none" for a Guest (never a 404 to guess from).
+  both = await bothPrograms({
+    startWorker: false,
+    clientLeaseMs: 1500,
+    accounts: true,
+  });
   web = await startHostedWeb(both);
   build = await buildExtension("chromium", {
     SOURCE_TASTER_EXTENSION_MODE: "hosted",
@@ -233,16 +250,17 @@ test("an expiring Guest token is renewed for the same extension Guest ID and the
 });
 async function renewal(browser: NativeChromium) {
   {
-    const panel = await browser.openPanel();
-    // Tokens issued now expire 40 s from now, inside the 30 s renewal margin
-    // after about 10 s.
+    // Tokens issued from now on expire 40 s from now, inside the 30 s renewal
+    // margin after about 10 s. Set before the panel opens, because the panel
+    // already issues its token on load to read the Quota (#99).
     await expireIssuedTokensIn(both, 40_000);
+    const panel = await browser.openPanel();
     await check(panel, "Structure References");
     await panel.locate(
       `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
       20_000,
     );
-    const [structure] = bearer(panel, "/v1/structurings");
+    const [structure] = bearer(panel, "/v2/structurings");
     expect(structure).toMatch(/^Bearer /);
     await new Promise((r) => setTimeout(r, 11_000));
     await both.advance(60_000);
@@ -294,14 +312,14 @@ test("revocation stops lease renewal and later Checks fail closed without replac
     await new Promise((r) => setTimeout(r, 2_000));
     expect(bearer(panel, "/lease").length).toBe(stopped);
 
-    // A new Check with the in-memory token is refused by the API.
+    // A new Check with the in-memory token is refused by the API at its first
+    // hosted request (the structuring preview precedes the Quota read and the
+    // Check) and no Check is created.
     await panel.click("button", "Zurücksetzen");
+    const revokedMark = panel.responses.length;
     await check(panel, "Referenz prüfen");
     await until(
-      () =>
-        panel.responses.some(
-          (r) => r.url === `${both.apiUrl}/v2/checks` && r.status === 403,
-        ),
+      () => refused(panel.responses.slice(revokedMark)),
       "The API accepted a Check from a revoked Guest",
     );
     await until(
@@ -328,10 +346,12 @@ test("revocation stops lease renewal and later Checks fail closed without replac
         .slice(mark)
         .filter((r) => r.url === tokens && r.status === 200),
     ).toEqual([]);
-    expect(issued(panel)).toEqual([
-      { guestId: id, client: "extension" },
-      { guestId: id, client: "extension" },
-    ]);
+    // Every issuance, including the Quota read on load (#99), asks for the
+    // same Guest ID from the extension; none is replaced.
+    expect(issued(panel).length).toBeGreaterThanOrEqual(2);
+    expect(
+      issued(panel).every((r) => r.guestId === id && r.client === "extension"),
+    ).toBe(true);
     const denied = (await alerts(panel)).join(" | ");
     const stored = await browser.storage();
     expect(Object.keys(stored).sort()).toEqual(
@@ -445,10 +465,12 @@ for (const language of ["en", "de"] as const) {
     await page.getByRole("textbox").fill(physicsReference);
     await page.getByRole("button", { name: checkName, exact: true }).click();
     await expect(page.getByRole("alert")).toHaveText(deniedText);
-    expect(posts).toEqual([
-      { guestId: id, client: "web" },
-      { guestId: id, client: "web" },
-    ]);
+    // The web also issues on load to read the Quota (#99); every attempt keeps
+    // the same Guest ID and client.
+    expect(posts.length).toBeGreaterThanOrEqual(2);
+    expect(posts.every((r) => r.guestId === id && r.client === "web")).toBe(
+      true,
+    );
     expect(apiRequests.slice(mark)).toEqual([]);
     expect(
       await page.evaluate(() =>
@@ -472,13 +494,10 @@ test("a Guest without Check creation permission is refused by the API in the nat
     await panel.click("button", "Reset");
     const mark = panel.responses.length;
     await check(panel);
+    // The fail-closed Quota read before the Check is already refused, so the
+    // refusal may come from it instead of POST /v2/checks.
     await until(
-      () =>
-        panel.responses
-          .slice(mark)
-          .some(
-            (r) => r.url === `${both.apiUrl}/v2/checks` && r.status === 403,
-          ),
+      () => refused(panel.responses.slice(mark)),
       "The API accepted a Check without permission",
     );
     await until(
@@ -697,12 +716,21 @@ test("a Guest token refused for the extension origin is reported without any fal
       ).toEqual([]);
       const id = (await browser.storage())[identityKey];
       expect(id).toMatch(uuid);
-      expect(issued(panel)).toEqual([{ guestId: id, client: "extension" }]);
+      // The panel also asks on load for the Quota (#99); every attempt keeps
+      // the same Guest ID and client, never a fallback identity.
+      expect(issued(panel).length).toBeGreaterThan(0);
+      expect(
+        issued(panel).every(
+          (r) => r.guestId === id && r.client === "extension",
+        ),
+      ).toBe(true);
+      const refusedAttempts = issued(panel).length;
 
       await allowOrigins(both, [web.url, browser.origin]);
       await panel.click("button", "Check Reference");
       await results(panel);
-      expect(issued(panel).map((r) => r.guestId)).toEqual([id, id]);
+      expect(issued(panel).length).toBeGreaterThan(refusedAttempts);
+      expect(issued(panel).every((r) => r.guestId === id)).toBe(true);
       expect((await browser.storage())[identityKey]).toBe(id);
     } finally {
       await allowOrigins(both, [web.url, origin]);

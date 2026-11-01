@@ -30,6 +30,8 @@ export declare const ServiceStatusResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const GuestTokenRequest: z.ZodObject<{
@@ -70,6 +72,8 @@ export declare const GuestTokenResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type GuestTokenResponse = z.infer<typeof GuestTokenResponse>;
@@ -145,6 +149,8 @@ export declare const AccountPreferencesResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 /** Browser session credentials are cookies, never fields in these responses. */
@@ -184,6 +190,8 @@ export declare const SignInChallengeResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const SignInConfirmRequest: z.ZodObject<{
@@ -238,6 +246,8 @@ export declare const AccountSessionResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type AccountSession = z.infer<typeof AccountSessionResponse>["data"];
@@ -271,6 +281,8 @@ export declare const AccountTokenResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const SignOutRequest: z.ZodObject<{
@@ -303,6 +315,8 @@ export declare const SignOutResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 /** Separate opaque bearer secrets, never verification-API access tokens.
@@ -339,6 +353,8 @@ export declare const ExtensionSignInChallengeResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const ExtensionSignInConfirmRequest: z.ZodObject<{
@@ -397,6 +413,8 @@ export declare const ExtensionSignInConfirmResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 /** #102 sensitive Account actions (ADR-0013). Proof is a server-side fact bound
@@ -450,6 +468,8 @@ export declare const FreshProofChallengeResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const FreshProofConfirmRequest: z.ZodObject<{
@@ -507,6 +527,8 @@ export declare const FreshProofResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type FreshProof = z.infer<typeof FreshProofResponse>["data"];
@@ -547,6 +569,8 @@ export declare const EmailChangeChallengeResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const EmailChangeConfirmRequest: z.ZodObject<{
@@ -607,6 +631,8 @@ export declare const AccountDeletionResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type AccountDeletion = z.infer<typeof AccountDeletionResponse>["data"];

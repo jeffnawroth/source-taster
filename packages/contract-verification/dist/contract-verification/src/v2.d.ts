@@ -3449,6 +3449,8 @@ export declare const CheckResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
     data: z.ZodObject<{
         id: z.ZodUUID;
@@ -4386,6 +4388,8 @@ export declare const QuotaResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
@@ -4410,6 +4414,8 @@ export declare const QuotaResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 /** Optional cap on how many References of a new Check start: the first N in input order. */
@@ -6389,5 +6395,7 @@ export declare const SelectionPreviewResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;

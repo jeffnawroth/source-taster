@@ -249,3 +249,38 @@ test("a confirmed Account's personal Owner holds Free 100 per month, separate fr
     remaining: 20,
   });
 });
+
+test("a failed snapshot is reported as unavailable, never as an unimplemented Quota or an invented balance", async () => {
+  const both = await bothPrograms();
+  cleanup.push(both.stop);
+  const guest = await both.issue();
+  const client = api(both, guest.token);
+  const created = CheckResponse.parse(
+    await (await client.create(physicsReference)).json(),
+  );
+  await client.finished(created.data.id);
+  // The service's own journal is held: authority still answers, the snapshot cannot.
+  const lock = new pg.Client({ connectionString: both.urls[1] });
+  await lock.connect();
+  try {
+    await lock.query("BEGIN");
+    await lock.query(
+      "LOCK TABLE service.quota_journal IN ACCESS EXCLUSIVE MODE",
+    );
+    const read = await fetch(`${both.apiUrl}/v2/checks/${created.data.id}`, {
+      headers: { authorization: `Bearer ${guest.token}` },
+    });
+    expect(read.status).toBe(200);
+    const body = CheckResponse.parse(await read.json());
+    expect(body.data.id).toBe(created.data.id);
+    expect(body.quota).toEqual({ status: "unavailable" });
+    // The dedicated read fails closed instead of degrading.
+    const quota = await fetch(`${both.apiUrl}/v2/quota`, {
+      headers: { authorization: `Bearer ${guest.token}` },
+    });
+    expect(quota.status).toBe(503);
+  } finally {
+    await lock.query("ROLLBACK").catch(() => {});
+    await lock.end();
+  }
+});

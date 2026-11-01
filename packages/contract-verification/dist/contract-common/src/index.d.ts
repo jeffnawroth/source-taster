@@ -65,7 +65,12 @@ export declare const Quota: z.ZodObject<{
     features: z.ZodArray<z.ZodString>;
 }, z.core.$strip>;
 export type Quota = z.infer<typeof Quota>;
-/** Hosted authority is not a Quota grant. #99 owns its journal. */
+/**
+ * `not-implemented`: this response has no Quota concept (for example the
+ * sign-in routes). `unavailable`: a Quota applies but the service snapshot
+ * failed for this response; it never stands for a balance. `null`: no Quota
+ * applies, as in standalone mode.
+ */
 export declare const QuotaSlot: z.ZodUnion<readonly [z.ZodObject<{
     consumed: z.ZodNumber;
     remaining: z.ZodNumber;
@@ -89,6 +94,8 @@ export declare const QuotaSlot: z.ZodUnion<readonly [z.ZodObject<{
     features: z.ZodArray<z.ZodString>;
 }, z.core.$strip>, z.ZodObject<{
     status: z.ZodLiteral<"not-implemented">;
+}, z.core.$strict>, z.ZodObject<{
+    status: z.ZodLiteral<"unavailable">;
 }, z.core.$strict>, z.ZodNull]>;
 export type QuotaSlot = z.infer<typeof QuotaSlot>;
 /** Every successful response wraps its payload with the Quota slot. */
@@ -117,6 +124,8 @@ export declare function envelope<T extends z.ZodType>(data: T): z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 /** Opaque transport binding; Owner and actor are deliberately separate. */

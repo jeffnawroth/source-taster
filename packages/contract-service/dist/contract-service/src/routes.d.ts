@@ -36,6 +36,8 @@ export declare const getServiceStatus: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -100,6 +102,8 @@ export declare const issueGuestToken: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -289,6 +293,8 @@ export declare const requestSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -319,6 +325,8 @@ export declare const requestSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -347,6 +355,8 @@ export declare const requestSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -529,6 +539,8 @@ export declare const confirmSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -559,6 +571,8 @@ export declare const confirmSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -587,6 +601,8 @@ export declare const confirmSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -769,6 +785,8 @@ export declare const signOut: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -799,6 +817,8 @@ export declare const signOut: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -827,6 +847,8 @@ export declare const signOut: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -969,6 +991,8 @@ export declare const getAccountSession: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -1054,6 +1078,8 @@ export declare const recordSessionActivity: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -1159,6 +1185,8 @@ export declare const issueAccountToken: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -1316,6 +1344,8 @@ export declare const requestExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1346,6 +1376,8 @@ export declare const requestExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1374,6 +1406,8 @@ export declare const requestExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1405,6 +1439,8 @@ export declare const requestExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1438,6 +1474,8 @@ export declare const requestExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -1625,6 +1663,8 @@ export declare const confirmExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1655,6 +1695,8 @@ export declare const confirmExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1683,6 +1725,8 @@ export declare const confirmExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1714,6 +1758,8 @@ export declare const confirmExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1747,6 +1793,8 @@ export declare const confirmExtensionSignIn: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -1934,6 +1982,8 @@ export declare const getExtensionSession: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1964,6 +2014,8 @@ export declare const getExtensionSession: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -1992,6 +2044,8 @@ export declare const getExtensionSession: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2023,6 +2077,8 @@ export declare const getExtensionSession: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2056,6 +2112,8 @@ export declare const getExtensionSession: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -2243,6 +2301,8 @@ export declare const issueExtensionAccountToken: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2273,6 +2333,8 @@ export declare const issueExtensionAccountToken: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2301,6 +2363,8 @@ export declare const issueExtensionAccountToken: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2332,6 +2396,8 @@ export declare const issueExtensionAccountToken: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2365,6 +2431,8 @@ export declare const issueExtensionAccountToken: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -2552,6 +2620,8 @@ export declare const recordExtensionSessionActivity: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2582,6 +2652,8 @@ export declare const recordExtensionSessionActivity: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2610,6 +2682,8 @@ export declare const recordExtensionSessionActivity: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2641,6 +2715,8 @@ export declare const recordExtensionSessionActivity: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2674,6 +2750,8 @@ export declare const recordExtensionSessionActivity: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -2861,6 +2939,8 @@ export declare const signOutExtension: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2891,6 +2971,8 @@ export declare const signOutExtension: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2919,6 +3001,8 @@ export declare const signOutExtension: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2950,6 +3034,8 @@ export declare const signOutExtension: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -2983,6 +3069,8 @@ export declare const signOutExtension: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -3158,6 +3246,8 @@ export declare const getAccountPreferences: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -3333,6 +3423,8 @@ export declare const patchAccountPreferences: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -3508,6 +3600,8 @@ export declare const getExtensionPreferences: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -3683,6 +3777,8 @@ export declare const patchExtensionPreferences: {
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -3878,6 +3974,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -3908,6 +4006,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -3942,6 +4042,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -3975,6 +4077,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4006,6 +4110,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -4219,6 +4325,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4249,6 +4357,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4283,6 +4393,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4316,6 +4428,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4347,6 +4461,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -4560,6 +4676,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4590,6 +4708,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4624,6 +4744,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4657,6 +4779,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4688,6 +4812,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -4901,6 +5027,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4931,6 +5059,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4965,6 +5095,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -4998,6 +5130,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5029,6 +5163,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -5242,6 +5378,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5272,6 +5410,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5306,6 +5446,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5339,6 +5481,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5370,6 +5514,8 @@ export declare const webSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -5584,6 +5730,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5614,6 +5762,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5648,6 +5798,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5681,6 +5833,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5712,6 +5866,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -5925,6 +6081,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5955,6 +6113,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -5989,6 +6149,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6022,6 +6184,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6053,6 +6217,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -6266,6 +6432,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6296,6 +6464,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6330,6 +6500,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6363,6 +6535,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6394,6 +6568,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -6607,6 +6783,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6637,6 +6815,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6671,6 +6851,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6704,6 +6886,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6735,6 +6919,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -6948,6 +7134,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -6978,6 +7166,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -7012,6 +7202,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -7045,6 +7237,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -7076,6 +7270,8 @@ export declare const extensionSensitiveRoutes: readonly [{
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -7237,6 +7433,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -7300,6 +7498,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -7487,6 +7687,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -7517,6 +7719,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -7545,6 +7749,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -7686,6 +7892,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -7770,6 +7978,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -7874,6 +8084,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -8022,6 +8234,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8052,6 +8266,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8080,6 +8296,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8111,6 +8329,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8144,6 +8364,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -8318,6 +8540,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };
@@ -8512,6 +8736,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8542,6 +8768,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8576,6 +8804,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8609,6 +8839,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
@@ -8640,6 +8872,8 @@ export declare const routes: (({
                             features: import("zod").ZodArray<import("zod").ZodString>;
                         }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
                             status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip>;
                 };

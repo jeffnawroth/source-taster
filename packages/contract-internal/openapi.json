@@ -917,6 +917,21 @@
                 "additionalProperties": false
               },
               {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
                 "type": "null"
               }
             ]
