@@ -156,6 +156,10 @@ used 5441 for HTTP-only slices, then was recreated on a Docker-assigned port to
 free 5441 for the web browser. Only this task's containers were stopped.
 
 ```sh
+docker run -d --rm --name st104-history-pg -e POSTGRES_PASSWORD=postgres \
+  -p 127.0.0.1::5432 postgres:18
+docker port st104-history-pg
+# This run received 32774; substitute the assigned port on a repeat run.
 export DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:32774/postgres
 export DATABASE_TEST_URL=postgres://verification_test:verification_test@127.0.0.1:32774/source_taster_test
 export SOURCE_TASTER_TEST_API_PORT=5501
@@ -181,8 +185,7 @@ Vitest config without the unrelated default global service. Web uses the same
 Vite React/Tailwind plugins/API proxy as #102's browser fixture, without requiring
 a Pagefind website preview. Native uses the real Chromium build and side panel.
 
-Final merged integration SHA, affected regression commands, results, generated
-artifact reproduction and cleanup are recorded below after the final sweep.
+The final merged-source sweep and cleanup are recorded below.
 
 ## Limits
 
@@ -198,3 +201,75 @@ No full monorepo/real both-program suite, Firefox/Safari/OS/AT qualification,
 production backup/isolation/recovery/load measurement, calibration, source
 activation or release qualification is claimed. Human #116/#136/#138/#140 and
 all existing Quality/security/legal/release gates remain open and unchanged.
+
+
+## Final integration and results
+
+Fetched and merged `origin/spec/70-launch-integration` at
+`5cce0e2fdb609c4bc78f4ca7c8cd6337d5ad505b` (merge `b58e33b`). Source conflicts
+were the additive `.gitignore` entries and workspace props: both History and the
+integration's post-Account-deletion deferred Quota read were preserved. There
+were no generated conflicts; all four contract packages were rebuilt. Subsequent
+fetch/merge calls after the final code commits reported already up to date, and
+`git merge-base --is-ancestor origin/spec/70-launch-integration HEAD` passed.
+The final tested code is `21db1895a2b1cd139565c555fe798451a0fb2739`; the final
+handoff-only commit is reported with the completed task.
+
+The full final serial pass after the storage-order and publication-fence fixes:
+
+| Scope | Result | Local evidence |
+| --- | --- | --- |
+| History HTTP / real PostgreSQL / injected clock / genuine operator backup and restore | **17/17** | `final-history-3.log` |
+| Retention, revisions, manual overrides, exports, Bibliography selection, document uploads and lifecycle regressions | **66/66**, nine files | `final-http-regressions-3.log` |
+| Real web app Chromium, DE/EN flow and locked-entry deletion | **3/3**, including axe | `final-web-history-2.log` |
+| Real native Chromium extension panel, DE/EN | **2/2**, including axe and no content in extension storage | `final-native-history-2.log` |
+| Eight affected package source typechecks and lints | passed; server rechecked after the final server-only changes | `final-types.log`, `final-lint.log` and final server tool output |
+| DE/EN i18n | **439** messages; website text parity also passed | `final-i18n-2.log` |
+| Contract rebuild reproduction | **60** artifacts byte-for-byte identical | `generated-builds.log`, `generated-reproduction.json` |
+| Web and Chromium/Firefox extension builds | passed; existing bundle-size advisories remain | `final-web-build.log`, `final-extension-build.log` |
+| Full repository Prettier and whitespace | passed | `final-prettier.log`, `git diff --check` |
+
+Exact final regression command, after exporting the variables above:
+
+```sh
+export SOURCE_TASTER_TEST_REVISIONS_PORT=5502
+export SOURCE_TASTER_TEST_EXPORTS_PORT=5502
+export SOURCE_TASTER_TEST_OVERRIDES_PORT=5502
+export SOURCE_TASTER_TEST_LIFECYCLE_PROCESS_PORT=5502
+pnpm --filter @source-taster/server test:history
+pnpm --filter @source-taster/server exec vitest run --fileParallelism=false \
+  test/retention.test.ts test/revision-lifecycle.test.ts \
+  test/reference-revisions.test.ts test/manual-overrides.test.ts \
+  test/exports.test.ts test/bibliography-selection.test.ts \
+  test/documents.test.ts test/lifecycle.test.ts test/lifecycle-recovery.test.ts
+pnpm --filter @source-taster/web test:history
+pnpm --filter @source-taster/extension test:native-history
+```
+
+Typecheck/lint scope: `server`, `ui`, `web`, `extension`, `contract-common`,
+`contract-internal`, `contract-service`, `contract-verification`, each via its
+existing `pnpm --filter @source-taster/<package> typecheck` / `lint` script.
+Also ran `pnpm i18n:check`, `pnpm exec prettier --check .`, web/extension `build`
+and the four contract `build` scripts. No dependency was added by #104; the
+integration merge brought its own minimatch override/lockfile changes.
+
+**Build limitation:** `pnpm --filter @source-taster/server build` fails with
+TS6059 because `src/quality/release.ts` imports `scripts/load/release.ts`, which
+imports `scripts/load/analysis.ts`, outside the build's `rootDir: src`
+(`final-server-build.log`). All four files/configurations are unchanged from
+merged integration (`git diff origin/spec/70-launch-integration --
+apps/server/src/quality/release.ts apps/server/scripts/load/release.ts
+apps/server/scripts/load/analysis.ts apps/server/tsconfig.build.json` is empty).
+The accidental adjacent `.js` outputs from that failed compiler invocation were
+removed. This unrelated build configuration was not changed or bypassed. Source
+typechecking and the source-process HTTP/browser suites pass; a successful
+production server build is not claimed. No full Turbo/website build, private
+suite or qualification gate was run.
+
+Stopped only the owned `st104-history-pg` container after all suites; its `--rm`
+cleanup removed it. Test harnesses closed their services, native profiles,
+extractor/backup containers and disposable databases. The shared PostgreSQL
+instance and other implementers' resources were untouched. No push, PR, issue
+closure or private/root checkout change occurred. Human #116/#136/#138/#140
+remain open. The private grant/version and real both-program follow-up above is
+still required.
