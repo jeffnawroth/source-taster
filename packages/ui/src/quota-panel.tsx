@@ -3,7 +3,7 @@ import { m } from "@source-taster/i18n";
 import { Button } from "./index.tsx";
 import { usedPercent, type OwnerQuota } from "./quota.ts";
 
-function UpgradeLink({ href }: { href?: string }) {
+export function UpgradeLink({ href }: { href?: string }) {
   return href ? (
     <a
       href={href}

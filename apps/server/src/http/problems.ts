@@ -140,6 +140,31 @@ const problems = {
     title: "The Check expired.",
     i18nKey: "problem_check_expired",
   },
+  "feature-unavailable": {
+    status: 403,
+    title: "Your Plan does not include this feature.",
+    i18nKey: "problem_feature_unavailable",
+  },
+  "report-not-found": {
+    status: 404,
+    title: "The report does not exist.",
+    i18nKey: "problem_report_not_found",
+  },
+  "report-not-ready": {
+    status: 409,
+    title: "The report is not finished.",
+    i18nKey: "problem_report_not_ready",
+  },
+  "report-busy": {
+    status: 409,
+    title: "A report is already being created.",
+    i18nKey: "problem_report_busy",
+  },
+  "report-expired": {
+    status: 410,
+    title: "The report download expired.",
+    i18nKey: "problem_report_expired",
+  },
   internal: {
     status: 500,
     title: "Something went wrong on our side.",

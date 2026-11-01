@@ -1167,6 +1167,8 @@ export function CheckWorkspace({
               citationStyle={preferences.citationStyle}
               citationStyleLabel={m[styleMessages[preferences.citationStyle]]()}
               transport={transport}
+              quota={quota}
+              upgradeUrl={upgradeUrl}
               onSnapshot={(snapshot) => {
                 if (
                   generation.current === workspaceGeneration &&

@@ -14,6 +14,8 @@ import {
   CorrectionSuggestion,
 } from "./correction-suggestions.tsx";
 import { ReferenceExports } from "./reference-exports.tsx";
+import type { OwnerQuota } from "./quota.ts";
+import { ReportDownload } from "./report-download.tsx";
 import { m } from "@source-taster/i18n";
 import {
   ReferenceActions,
@@ -52,8 +54,12 @@ export function CheckResults({
   citationStyle,
   citationStyleLabel,
   transport,
+  quota,
+  upgradeUrl,
   onSnapshot,
 }: {
+  quota: OwnerQuota | null;
+  upgradeUrl?: string;
   check: Check;
   completed: number;
   citationStyle: CitationStyle;
@@ -145,6 +151,13 @@ export function CheckResults({
         transport={transport}
         rendered={bibliography}
         styleLabel={citationStyleLabel}
+      />
+      <ReportDownload
+        check={check}
+        citationStyle={citationStyle}
+        transport={transport}
+        quota={quota}
+        upgradeUrl={upgradeUrl}
       />
       <ReferenceListActions
         check={check}

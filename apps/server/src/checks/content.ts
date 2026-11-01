@@ -17,6 +17,7 @@ const fields: Record<string, string[]> = {
   referenceResult: ["content"],
   checkEvent: ["payload"],
   manualOverride: ["verdict"],
+  report: ["options", "file"],
 };
 const relations: Record<string, Record<string, string>> = {
   check: { references: "referenceSlot", events: "checkEvent" },

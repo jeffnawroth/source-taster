@@ -12,6 +12,7 @@
     "test:native": "playwright test",
     "test:native-selection": "playwright test --config selection.playwright.config.ts",
     "test:native-ai": "playwright test --config ai.playwright.config.ts",
+    "test:native-report": "playwright test --config report.playwright.config.ts",
     "test:native-guest": "playwright test --config guest.playwright.config.ts",
     "test:native-firefox": "playwright test --config firefox.playwright.config.ts",
     "test:native-history": "playwright test --config history.playwright.config.ts"

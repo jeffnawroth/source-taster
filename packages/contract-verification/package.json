@@ -62,6 +62,18 @@
       "types": "./dist/contract-verification/src/export-client.d.ts",
       "default": "./dist/contract-verification/src/export-client.js"
     },
+    "./report": {
+      "types": "./dist/contract-verification/src/report.d.ts",
+      "default": "./dist/contract-verification/src/report.js"
+    },
+    "./report-routes": {
+      "types": "./dist/contract-verification/src/report-routes.d.ts",
+      "default": "./dist/contract-verification/src/report-routes.js"
+    },
+    "./report-client": {
+      "types": "./dist/contract-verification/src/report-client.d.ts",
+      "default": "./dist/contract-verification/src/report-client.js"
+    },
     "./document": {
       "types": "./dist/contract-verification/src/document.d.ts",
       "default": "./dist/contract-verification/src/document.js"

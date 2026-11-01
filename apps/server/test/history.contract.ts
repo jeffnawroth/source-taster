@@ -595,3 +595,92 @@ test("a signed downgrade fence locks History publication even while an earlier Q
   expect(entry.locked).toBe(true);
   expect(entry.label).toBeUndefined();
 });
+
+test("PDF reports respect History downgrade locks, entry deletion and revocation", async () => {
+  const { api, request, create, paid } = await historyApi();
+  paid();
+  api.state.quota.features.push("verification-report");
+  await request("history", "PUT", { enabled: true });
+  const id = await create();
+  await api.advance(31 * DAY);
+  const reportPath = `checks/${id}/reports`;
+  const created = await request(reportPath, "POST", {
+    language: "en",
+    style: "apa",
+  });
+  expect(created.status).toBe(202);
+  const job = (await created.json()).data;
+  const path = `${reportPath}/${job.id}`;
+  await expect
+    .poll(async () => (await (await request(path)).json()).data?.state, {
+      timeout: 15000,
+    })
+    .toBe("ready");
+  expect((await request(`${path}/file`)).status).toBe(200);
+  api.state.quota.history.extendedUntil = null;
+  api.state.quota.history.authorityVersion++;
+  for (const suffix of ["", "/file"])
+    expect((await request(`${path}${suffix}`)).status).toBe(403);
+  expect(
+    (await request(reportPath, "POST", { language: "en", style: "apa" }))
+      .status,
+  ).toBe(403);
+  paid();
+  api.state.quota.features.push("verification-report");
+  expect((await request(`${path}/file`)).status).toBe(200);
+  expect((await request(`history/${id}`, "DELETE")).status).toBe(200);
+  expect((await request(`${path}/file`)).status).toBe(410);
+  const second = await create();
+  const next = await request(`checks/${second}/reports`, "POST", {
+    language: "en",
+    style: "apa",
+  });
+  expect(next.status).toBe(202);
+  const nextJob = (await next.json()).data;
+  await request("history", "PUT", { enabled: false });
+  expect(
+    (await request(`checks/${second}/reports/${nextJob.id}/file`)).status,
+  ).toBe(410);
+});
+
+test("a signed downgrade during report authorization refuses creation for locked History", async () => {
+  let snapshots = 0,
+    holdAt = Infinity;
+  let arrived!: () => void, release!: () => void;
+  const arrival = new Promise<void>((r) => {
+    arrived = r;
+  });
+  const held = new Promise<void>((r) => {
+    release = r;
+  });
+  const { api, account, request, create, paid } = await historyApi({
+    service: async (req) => {
+      if (req.url === "/internal/quota/snapshot" && ++snapshots === holdAt) {
+        arrived();
+        await held;
+        return { status: 200, body: { outcome: "granted", quota: oldQuota } };
+      }
+      return undefined;
+    },
+  });
+  paid();
+  api.state.quota.features.push("verification-report");
+  await request("history", "PUT", { enabled: true });
+  const id = await create();
+  await api.advance(31 * DAY);
+  const oldQuota = structuredClone(api.state.quota);
+  holdAt = snapshots + 2;
+  const pending = request(`checks/${id}/reports`, "POST", {
+    language: "en",
+    style: "apa",
+  });
+  try {
+    await arrival;
+    api.state.quota.history.extendedUntil = null;
+    api.state.quota.history.authorityVersion = 2;
+    expect((await api.invalidateOwner(account, 2)).status).toBe(200);
+  } finally {
+    release();
+  }
+  expect((await pending).status).toBe(403);
+});
