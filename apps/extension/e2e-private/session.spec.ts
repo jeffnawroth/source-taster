@@ -166,22 +166,6 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
       const chunks: Buffer[] = [];
       for await (const chunk of req as AsyncIterable<Uint8Array>)
         chunks.push(Buffer.from(chunk));
-      // LIMIT: the #101 private Preferences route is not part of this private
-      // phase. The Firefox originless GET to it would be refused (403) and the
-      // shared client treats 403 as an expired session. Answer only that one
-      // read as "not found" so the #98 sign-in evidence stays real; #101 private
-      // must add the route to the originless-GET profile and replace this stand-in.
-      if (req.method === "GET" && req.url === "/v1/extension/preferences") {
-        observed.push({
-          path: req.url,
-          method: req.method,
-          origin: req.headers.origin,
-          status: 404,
-        });
-        res.writeHead(404, { "content-type": "application/problem+json" });
-        res.end(JSON.stringify({ code: "not-found", status: 404 }));
-        return;
-      }
       const reply = await fetch(b.serviceUrl + req.url!, {
         method: req.method,
         headers: req.headers as Record<string, string>,
