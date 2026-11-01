@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { checkStatus } from "./check-status.ts";
 
 for (const language of ["en", "de"] as const) {
   test(`pastes a Reference and watches its Status in ${language}, with an accessible page`, async ({
@@ -30,7 +31,7 @@ for (const language of ["en", "de"] as const) {
       "Darwin, C. (1859). On the Origin of Species. John Murray.",
     );
     await button.click();
-    await expect(page.getByRole("status")).toContainText(
+    await expect(checkStatus(page, language)).toContainText(
       language === "en" ? "Running" : "Läuft",
     );
     await page
@@ -51,13 +52,13 @@ for (const language of ["en", "de"] as const) {
         name: /^(Preferred citation style|Bevorzugter Zitierstil)$/,
       }),
     ).toHaveValue("ieee");
-    await expect(page.getByRole("status")).toContainText(
+    await expect(checkStatus(page, language)).toContainText(
       language === "en" ? "Not checked" : "Nicht geprüft",
     );
-    await expect(page.getByRole("status")).toContainText(
+    await expect(checkStatus(page, language)).toContainText(
       language === "en" ? "Finished" : "Abgeschlossen",
     );
-    await expect(page.getByRole("status")).toContainText("Darwin");
+    await expect(checkStatus(page, language)).toContainText("Darwin");
     expect(
       (
         await new AxeBuilder({ page })
@@ -97,7 +98,7 @@ test("resumes a prematurely closed event stream without losing Reference Status 
   await page
     .getByRole("button", { name: "Check Reference", exact: true })
     .click();
-  await expect(page.getByRole("status")).toContainText("Finished", {
+  await expect(checkStatus(page)).toContainText("Finished", {
     timeout: 15_000,
   });
   await expect(
@@ -105,5 +106,5 @@ test("resumes a prematurely closed event stream without losing Reference Status 
       .getByRole("list", { name: "References", exact: true })
       .getByText("Not checked", { exact: true }),
   ).toHaveCount(2);
-  await expect(page.getByRole("status")).toContainText("The Descent of Man");
+  await expect(checkStatus(page)).toContainText("The Descent of Man");
 });

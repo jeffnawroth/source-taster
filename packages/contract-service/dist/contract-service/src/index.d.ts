@@ -30,6 +30,8 @@ export declare const ServiceStatusResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const GuestTokenRequest: z.ZodObject<{
@@ -70,6 +72,8 @@ export declare const GuestTokenResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type GuestTokenResponse = z.infer<typeof GuestTokenResponse>;
@@ -110,6 +114,8 @@ export declare const SignInChallengeResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const SignInConfirmRequest: z.ZodObject<{
@@ -145,6 +151,8 @@ export declare const AccountSessionResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type AccountSession = z.infer<typeof AccountSessionResponse>["data"];
@@ -178,6 +186,8 @@ export declare const AccountTokenResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const SignOutRequest: z.ZodObject<{
@@ -210,6 +220,8 @@ export declare const SignOutResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 /** Separate opaque bearer secrets, never verification-API access tokens.
@@ -246,6 +258,8 @@ export declare const ExtensionSignInChallengeResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const ExtensionSignInConfirmRequest: z.ZodObject<{
@@ -285,5 +299,7 @@ export declare const ExtensionSignInConfirmResponse: z.ZodObject<{
         features: z.ZodArray<z.ZodString>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;

@@ -163,6 +163,21 @@
                 "additionalProperties": false
               },
               {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
                 "type": "null"
               }
             ]
@@ -536,6 +551,21 @@
                 "additionalProperties": false
               },
               {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
                 "type": "null"
               }
             ]
@@ -564,6 +594,21 @@
                     "type": "string",
                     "enum": [
                       "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
                     ]
                   }
                 },
@@ -1877,6 +1922,21 @@
                 "additionalProperties": false
               },
               {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
                 "type": "null"
               }
             ]
@@ -1893,6 +1953,21 @@
                     "type": "string",
                     "enum": [
                       "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
                     ]
                   }
                 },
@@ -2292,6 +2367,21 @@
                               "type": "string",
                               "enum": [
                                 "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "unavailable"
                               ]
                             }
                           },
@@ -2782,6 +2872,21 @@
                           "additionalProperties": false
                         },
                         {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "unavailable"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
                           "type": "null"
                         }
                       ]
@@ -3202,6 +3307,21 @@
                               "type": "string",
                               "enum": [
                                 "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "unavailable"
                               ]
                             }
                           },
@@ -4389,6 +4509,21 @@
                               "type": "string",
                               "enum": [
                                 "not-implemented"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "unavailable"
                               ]
                             }
                           },

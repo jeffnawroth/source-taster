@@ -134,7 +134,8 @@ export function createApp(
     try {
       return await entitlements.quota.snapshot(owner(principal));
     } catch {
-      return { status: "not-implemented" };
+      // A Quota applies; the snapshot did not arrive. Never a balance.
+      return { status: "unavailable" };
     }
   }
   async function output<T, S extends 200 | 201>(

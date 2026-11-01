@@ -2404,6 +2404,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
         features: string[];
     } | {
         status: "not-implemented";
+    } | {
+        status: "unavailable";
     } | null>;
     setManualOverride: (id: string, slot: number, input: SetManualOverrideRequest) => Promise<{
         id: string;

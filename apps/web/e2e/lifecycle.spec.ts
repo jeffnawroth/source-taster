@@ -2,6 +2,7 @@
 import { CheckResponse } from "@source-taster/contract-verification";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { checkStatus } from "./check-status.ts";
 for (const language of ["en", "de"] as const) {
   test(`Cancel preserves a committed Verdict and one-action Reset clears the workspace in ${language}`, async ({
     page,
@@ -94,17 +95,14 @@ for (const operation of ["checks", "structurings"] as const) {
       entered = resolve;
     });
     let checkId: string | undefined;
-    await page.route(
-      `**/${operation === "checks" ? "v2" : "v1"}/${operation}`,
-      async (route) => {
-        const response = await route.fetch();
-        if (operation === "checks")
-          checkId = CheckResponse.parse(await response.json()).data.id;
-        entered();
-        await gate;
-        await route.fulfill({ response });
-      },
-    );
+    await page.route(`**/v2/${operation}`, async (route) => {
+      const response = await route.fetch();
+      if (operation === "checks")
+        checkId = CheckResponse.parse(await response.json()).data.id;
+      entered();
+      await gate;
+      await route.fulfill({ response });
+    });
     await page.goto("/");
     await page
       .getByRole("combobox", { name: /^(Language|Sprache)$/ })
@@ -188,9 +186,9 @@ test("late stream frames after Reset cannot replace a newer Check", async ({
     .click();
   release();
   await done;
-  await expect(page.getByRole("status")).toContainText("Finished");
-  await expect(page.getByRole("status")).toContainText("A newer Reference.");
-  await expect(page.getByRole("status")).not.toContainText("Darwin");
+  await expect(checkStatus(page)).toContainText("Finished");
+  await expect(checkStatus(page)).toContainText("A newer Reference.");
+  await expect(checkStatus(page)).not.toContainText("Darwin");
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 test("an unconfirmed Cancel reports uncertainty and stops this workspace renewing the lease", async ({

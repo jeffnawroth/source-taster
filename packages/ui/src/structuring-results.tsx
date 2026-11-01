@@ -33,7 +33,11 @@ export function StructuringResults({
 }) {
   return (
     <div className="mt-10 space-y-6">
-      <p role="status" className="rounded-xl bg-teal-50 p-4 text-teal-950">
+      <p
+        role="status"
+        aria-label={m.structuring_summary_label()}
+        className="rounded-xl bg-teal-50 p-4 text-teal-950"
+      >
         {("guidance" in result
           ? result.guidance
           : result.references.length
@@ -60,7 +64,7 @@ export function StructuringResults({
                 <p className="mt-2 whitespace-pre-wrap break-words">
                   {reference.originalText}
                 </p>
-                <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+                <dl className="mt-4 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-[auto_minmax(0,1fr)]">
                   {(
                     Object.keys(reference.csl) as (keyof typeof fieldLabels)[]
                   ).map((key) => (
@@ -123,7 +127,7 @@ function ReactField({ label, value }: { label: string; value: string }) {
   return (
     <>
       <dt className="font-semibold">{label}</dt>
-      <dd className="whitespace-pre-wrap break-words">{value}</dd>
+      <dd className="min-w-0 whitespace-pre-wrap break-words">{value}</dd>
     </>
   );
 }

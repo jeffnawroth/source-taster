@@ -188,6 +188,8 @@ export declare const createCheck: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -1139,6 +1141,8 @@ export declare const getQuota: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         quota: z.ZodUnion<readonly [z.ZodObject<{
                             consumed: z.ZodNumber;
@@ -1163,6 +1167,8 @@ export declare const getQuota: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
@@ -1373,6 +1379,8 @@ export declare const getCheck: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -2438,6 +2446,8 @@ export declare const cancelCheck: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -3503,6 +3513,8 @@ export declare const renewCheckLease: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -4726,6 +4738,8 @@ export declare const saveFields: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -5837,6 +5851,8 @@ export declare const recheckReference: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -6981,6 +6997,8 @@ export declare const editReferenceList: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -8103,6 +8121,8 @@ export declare const setManualOverride: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -9227,6 +9247,8 @@ export declare const importReferences: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
@@ -9432,6 +9454,8 @@ export declare const editSelection: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
                             id: z.ZodUUID;
@@ -10672,6 +10696,8 @@ export declare const previewSelection: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };

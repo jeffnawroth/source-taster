@@ -19,6 +19,7 @@ import {
   startExtensionVerificationApi,
   extensionFixtureJwks,
   extensionFixtureToken,
+  extensionFixtureQuota,
 } from "../../server/test/support/extension-api.ts";
 let api: Awaited<ReturnType<typeof startExtensionVerificationApi>>;
 test.beforeAll(async () => {
@@ -70,6 +71,7 @@ async function withPanel(
     authority: false,
   };
   const origins = new Set<string>();
+  const quota = extensionFixtureQuota();
   const respond = async (req: IncomingMessage, res: ServerResponse) => {
     if (origins.has(req.headers.origin ?? "")) {
       res.setHeader("access-control-allow-origin", req.headers.origin!);
@@ -136,6 +138,14 @@ async function withPanel(
     if (req.url === "/.well-known/jwks.json") {
       res.setHeader("content-type", "application/json");
       res.end(JSON.stringify(extensionFixtureJwks));
+      return;
+    }
+    if (req.url?.startsWith("/internal/quota/")) {
+      // #99: hosted Check creation reserves Quota fail-closed at the service.
+      const answer = quota(req.url, body, state.authority);
+      res.setHeader("content-type", "application/json");
+      if (answer === undefined) res.statusCode = 404;
+      res.end(JSON.stringify(answer ?? {}));
       return;
     }
     if (req.url === "/internal/account-authority") {
@@ -368,6 +378,8 @@ test("another panel's sign-out clears the open panel and its unsent Account cont
 test("an expired Account access token never reaches verification, including after Reset", async () => {
   await withPanel(async ({ panel, requests, state }) => {
     await signIn(panel);
+    // #99 reads the Guest Quota before sign-in; only what follows counts.
+    const mark = requests.length;
     state.expiredToken = true;
     await panel.fill("textbox", "Reference", "Expired token input");
     await panel.click("button", "Check Reference");
@@ -377,19 +389,26 @@ test("an expired Account access token never reaches verification, including afte
     await panel.click("button", "Check Reference");
     await panel.waitForText("alert", undefined, /./);
     expect(
-      requests.filter(
-        (r) => r.path.startsWith("/v2/") || r.path === "/v1/guest-tokens",
-      ),
+      requests
+        .slice(mark)
+        .filter(
+          (r) => r.path.startsWith("/v2/") || r.path === "/v1/guest-tokens",
+        ),
     ).toEqual([]);
   });
 });
 
 test("revoked Account renewal stays denied after Reset and never changes into Guest", async () => {
   await withPanel(async ({ panel, requests, state, browser }) => {
-    await signIn(panel);
+    // #99 reads Account Quota as soon as the session is confirmed, so the
+    // renewal is denied from that first read on.
     state.denied = true;
-    await panel.fill("textbox", "Reference", "Revoked input");
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Sign in");
+    await panel.fill("textbox", "Email address", account.email);
+    await panel.click("button", "Send code");
+    await panel.fill("textbox", "Six-digit code", "123456");
+    await panel.click("button", "Confirm code");
+    const mark = requests.length;
     await panel.waitForText(
       "main",
       undefined,
@@ -407,9 +426,11 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
       requests.filter((r) => r.path === "/v1/extension/account-tokens"),
     ).toHaveLength(1);
     expect(
-      requests.filter(
-        (r) => r.path.startsWith("/v2/") || r.path === "/v1/guest-tokens",
-      ),
+      requests
+        .slice(mark)
+        .filter(
+          (r) => r.path.startsWith("/v2/") || r.path === "/v1/guest-tokens",
+        ),
     ).toEqual([]);
     expect(await browser.storage()).toEqual({
       [guestKey]: guestId,
@@ -440,7 +461,14 @@ test("extension sign-in remains gated off without explicit private-phase activat
   await withPanel(async ({ panel, requests }) => {
     await panel.find("textbox", "Reference");
     expect(await panel.query("button", "Sign in")).toEqual([]);
-    expect(requests).toEqual([]);
+    // #99: the Guest reads its Quota on load; nothing Account-related is asked.
+    expect(
+      requests.filter(
+        (r) =>
+          r.path !== "/v1/guest-tokens" &&
+          !r.path.startsWith("/internal/quota/"),
+      ),
+    ).toEqual([]);
   }, false);
 });
 
@@ -638,9 +666,16 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
       await expect(
         page.getByRole("button", { name: "Sign out here", exact: true }),
       ).toBeVisible();
+      // #99: the page first resolved as Guest and read its Quota, so only the
+      // Guest ID may persist; no session, token or Account data.
       expect(
-        await page.evaluate(() => localStorage.length + sessionStorage.length),
-      ).toBe(0);
+        (
+          await page.evaluate(() => [
+            ...Object.keys(localStorage),
+            ...Object.keys(sessionStorage),
+          ])
+        ).filter((name) => name !== guestKey),
+      ).toEqual([]);
     } finally {
       await page.close();
       if (vite.exitCode === null) {

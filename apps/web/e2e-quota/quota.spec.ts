@@ -73,11 +73,19 @@ test.afterAll(async () => {
   await both?.stop();
 });
 async function open(page: Page) {
-  // A passive page load reads nothing and mints no Guest identity; the meter
-  // appears with the first start, which reads the balance anyway.
+  // #99: Quota and consumption are visible before the first start.
   await page.goto(url);
-  await expect(page.getByTestId("quota-meter")).toHaveCount(0);
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "20 of 20 checks left · 0 used",
+  );
 }
+const guestTokens = (page: Page) => {
+  const seen: string[] = [];
+  page.on("request", (r) => {
+    if (r.url().endsWith("/v1/guest-tokens")) seen.push(r.url());
+  });
+  return seen;
+};
 const check = (page: Page) =>
   page.getByRole("button", { name: "Check Reference", exact: true }).click();
 
@@ -173,4 +181,129 @@ test("the interface speaks German", async ({ page }) => {
   await expect(page.getByTestId("quota-summary")).toContainText(
     "von 20 Prüfungen übrig",
   );
+});
+
+test("a returning Guest sees the real, already reduced balance before starting again", async ({
+  page,
+}) => {
+  await open(page);
+  await page.getByRole("textbox").fill(references(2));
+  await check(page);
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "18 of 20 checks left · 2 used",
+    { timeout: 30000 },
+  );
+  await page.reload();
+  // Not the catalog value: the service's journal for this Guest, before any start.
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "18 of 20 checks left · 2 used",
+  );
+  await expect(page.locator("#results-title")).toHaveCount(0);
+});
+
+test("a signed-in Account sees its Free Quota before starting and never reads as a Guest", async ({
+  page,
+}) => {
+  await open(page);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("quota-reader@example.invalid");
+  await page.getByRole("button", { name: "Send code", exact: true }).click();
+  await expect(page.getByLabel("Six-digit code")).toBeVisible();
+  const code = (await both.mail()).at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
+  const minted = guestTokens(page);
+  await page.getByLabel("Six-digit code").fill(code);
+  await page.getByLabel("Six-digit code").press("Enter");
+  await expect(
+    page.getByText("quota-reader@example.invalid", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "100 of 100 checks left · 0 used",
+  );
+  await page.reload();
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "100 of 100 checks left · 0 used",
+  );
+  expect(minted).toEqual([]);
+});
+
+test("while the session is still pending nothing reads Quota or mints a Guest", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route("**/v1/session", async (route) => {
+    await held;
+    await route.continue();
+  });
+  const minted = guestTokens(page);
+  const quotaReads: string[] = [];
+  page.on("request", (r) => {
+    if (r.url().endsWith("/v2/quota")) quotaReads.push(r.url());
+  });
+  await page.goto(url);
+  await expect(page.getByRole("status")).toHaveText("Please wait…");
+  await page.waitForTimeout(500);
+  expect(minted).toEqual([]);
+  expect(quotaReads).toEqual([]);
+  await expect(page.getByTestId("quota-summary")).toHaveCount(0);
+  release();
+  // Resolved as Guest: only now the Guest path reads its real balance.
+  await expect(page.getByTestId("quota-summary")).toContainText(
+    "20 of 20 checks left · 0 used",
+  );
+  expect(minted).toHaveLength(1);
+});
+
+test("a refused Guest sees Quota as unavailable, without a number or an unimplemented label", async ({
+  page,
+}) => {
+  await open(page);
+  const id = await page.evaluate(() =>
+    localStorage.getItem("source-taster-guest-id-v1"),
+  );
+  expect(id).toMatch(/^[0-9a-f-]{36}$/);
+  await both.change(id!, { revoke: true });
+  await page.reload();
+  const meter = page.getByTestId("quota-meter");
+  await expect(meter).toContainText("Quota is currently unavailable.");
+  await expect(meter).not.toContainText(/[0-9]+ of [0-9]+/);
+  await expect(page.getByText(/not implemented/i)).toHaveCount(0);
+  await expect(page.getByTestId("quota-summary")).toHaveCount(0);
+  // The same Guest identity is kept; nothing falls back to a new one.
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("source-taster-guest-id-v1"),
+    ),
+  ).toBe(id);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+});
+
+test("an unreachable service shows sign-in as unavailable and never falls back to a Guest", async ({
+  page,
+}) => {
+  const minted = guestTokens(page);
+  await both.service().stop();
+  try {
+    await page.goto(url);
+    await expect(page.getByRole("alert")).toHaveText(
+      "Sign-in is temporarily unavailable. Try again shortly.",
+    );
+    await expect(page.getByTestId("quota-summary")).toHaveCount(0);
+    expect(minted).toEqual([]);
+    expect(
+      await page.evaluate(() =>
+        localStorage.getItem("source-taster-guest-id-v1"),
+      ),
+    ).toBeNull();
+  } finally {
+    await both.restartService();
+  }
 });

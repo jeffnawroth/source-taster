@@ -349,6 +349,8 @@ export declare const createCheck: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
@@ -686,6 +688,8 @@ export declare const getCheck: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
@@ -975,6 +979,8 @@ export declare const structureReferences: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
@@ -1312,6 +1318,8 @@ export declare const cancelCheck: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };
@@ -1667,6 +1675,8 @@ export declare const renewCheckLease: {
                             features: z.ZodArray<z.ZodString>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                     }, z.core.$strip>;
                 };

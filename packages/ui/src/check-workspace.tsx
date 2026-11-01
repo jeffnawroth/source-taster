@@ -47,7 +47,7 @@ import { GuestIdentityError } from "./guest-identity.ts";
 import { InformationLinks } from "./information.tsx";
 import { StructuringResults } from "./structuring-results.tsx";
 import { CheckResults } from "./check-results.tsx";
-import { QuotaChoice, QuotaMeter } from "./quota-panel.tsx";
+import { QuotaChoice, QuotaMeter, QuotaPending } from "./quota-panel.tsx";
 import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
 type MessageKey = Extract<keyof typeof m, `problem_${string}`>;
 const styleMessages = {
@@ -204,7 +204,13 @@ export function CheckWorkspace({
   const [cancelling, setCancelling] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
   const [cleanupPending, setCleanupPending] = useState(false);
+  // Hosted clients carry credentials; only they have an Owner Quota to show.
+  const hostedQuota = transport.credentials !== undefined;
   const [quota, setQuota] = useState<OwnerQuota | null>(null);
+  const [quotaState, setQuotaState] = useState<
+    "loading" | "ready" | "unavailable"
+  >(hostedQuota ? "loading" : "ready");
+  const lastQuota = useRef<OwnerQuota | null>(null);
   const [quotaChoice, setQuotaChoice] = useState<{
     required: number;
     available: number;
@@ -216,19 +222,53 @@ export function CheckWorkspace({
     after: number;
     skipped: number;
   } | null>(null);
-  async function refreshQuota() {
+  /** Reads the acting identity's balance; throws when the read fails. */
+  async function readQuota() {
     try {
       const next = ownerQuota(await api.getQuota());
+      lastQuota.current = next;
       setQuota(next);
+      setQuotaState("ready");
       return next;
-    } catch {
-      // Display only: a failed read keeps the last known balance; the server
-      // still enforces Quota on every start.
-      return quota;
+    } catch (error) {
+      // Never invent a balance: without a last real one, say it is unavailable.
+      if (!lastQuota.current && hostedQuota) setQuotaState("unavailable");
+      throw error;
     }
   }
-  // No read on mount: a passive page load must not mint a Guest identity or
-  // spend a token. The first start reads the balance (which it needs anyway).
+  async function refreshQuota() {
+    try {
+      return await readQuota();
+    } catch {
+      // Display only: keeps the last real balance; the server still enforces
+      // Quota on every start.
+      return lastQuota.current;
+    }
+  }
+  // #99: Quota is visible before the first start. The host mounts this
+  // workspace only once the identity is settled (Account, or Guest after the
+  // session answered "none"), so this read never mints a Guest while an
+  // Account session is pending or failed; the transport refuses that itself.
+  useEffect(() => {
+    if (!hostedQuota) return;
+    let live = true;
+    api.getQuota().then(
+      (response) => {
+        if (!live) return;
+        const next = ownerQuota(response);
+        lastQuota.current = next;
+        setQuota(next);
+        setQuotaState("ready");
+      },
+      () => {
+        // Never invent a balance: without a real one, say it is unavailable.
+        if (live && !lastQuota.current) setQuotaState("unavailable");
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [api, hostedQuota]);
   useEffect(
     () => () => {
       generation.current++;
@@ -401,8 +441,12 @@ export function CheckWorkspace({
       const required = library
         ? (preview?.references.length ?? 0)
         : (previewCount ?? 0);
-      // Count and expected consumption come before the automatic start.
-      const plan = planStart(required, await refreshQuota());
+      // Count and expected consumption come before the automatic start. A
+      // hosted start needs a real balance: a failed read stops it (fail closed).
+      const plan = planStart(
+        required,
+        hostedQuota ? await readQuota() : await refreshQuota(),
+      );
       if (generation.current !== token) return;
       if (plan.kind === "partial") {
         setQuotaChoice({
@@ -747,7 +791,11 @@ export function CheckWorkspace({
         </label>
       </header>
       {accountControls?.(locale)}
-      {quota && <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />}
+      {quota ? (
+        <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />
+      ) : (
+        quotaState !== "ready" && <QuotaPending state={quotaState} />
+      )}
       {styleReset && (
         <p
           role="status"
@@ -1012,6 +1060,7 @@ export function CheckWorkspace({
           </h2>
           <div
             role="status"
+            aria-labelledby="results-title"
             aria-live="off"
             aria-atomic="true"
             className="check-status rounded-2xl border border-slate-300 bg-white p-6"

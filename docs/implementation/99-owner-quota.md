@@ -47,10 +47,16 @@ this work.
   `exhausted`).
 - **Clients (`packages/ui`).** `quota.ts` (pure plan logic shared by web and
   extension panel), `quota-panel.tsx` (meter, choice) and `check-workspace.tsx`.
-  The balance is read when the user starts (a passive page load must not mint
-  a Guest identity or spend a token; the native Account specs of #98 assert
-  exactly that), so the meter appears with the first start and then stays
-  visible and follows every Check. Before the automatic start the user sees
+  The balance is read when the workspace mounts, so the meter (count, consumed,
+  remaining) is visible before the first start. The host mounts the workspace
+  only once the identity is settled: an Account reads with its Account token; a
+  Guest reads only after the session answered "no session", which is the
+  legitimate point to mint the Guest token. While the Account session is
+  pending, failed or revoked nothing reads Quota and nothing mints a Guest; the
+  transport refuses that itself. Until the read answers the user sees "Loading
+  your Quota…"; a failed read shows "Quota is currently unavailable" and never
+  a number. A hosted start re-reads the balance and does not start if that read
+  fails (fail closed). Before the automatic start the user sees
   count and expected consumption; when
   the balance does not cover the input the Check does not start and the user
   chooses "Check first N" or upgrade. The meter is always visible and warns at
@@ -64,8 +70,9 @@ this work.
 ## ADR-0003 deviation
 
 ADR-0003 only requires a `quota` slot in each response. This ticket fills it
-with a service snapshot (display only, degrades to `not-implemented` if the
-service is unreachable) and adds `GET /v2/quota` so a client can read the
+with a service snapshot (display only). A failed snapshot is reported as
+`{ "status": "unavailable" }`, a new `QuotaSlot` variant in `contract-common`,
+never as `not-implemented` and never with an invented balance and adds `GET /v2/quota` so a client can read the
 balance without starting work. The slot never decides enforcement.
 
 ## TDD evidence
@@ -87,40 +94,93 @@ and are not committed.
 All runs use an owned PostgreSQL 18 container and ports 4401/4402/5341, serial,
 on the tree after merging `spec/70-launch-integration` (`192272a`, no source
 conflicts; contract `dist/` and OpenAPI regenerated with `pnpm build` in the four
-contract packages and `packages/i18n`).
+contract packages and `packages/i18n`). The source-branch runs are kept as
+historical evidence in the logs named in the TDD table.
 
-- `tsc --noEmit` clean: server, ui, web, extension. `eslint` clean: server,
-  ui, web, extension. `prettier --check .` clean. `i18n:check`: 365 messages
-  in DE and EN.
-- `pnpm test:quota` (apps/server): 7/7.
-- `pnpm test:authority` (apps/server): 33/33.
-- Account contract (`account.vitest.config.ts`): 2/2.
-- `pnpm vitest run` (apps/server, standalone, no Quota): 580 passed, 1 failed.
-  The failure is `article-fairness > alternates between Owners before
-  alternating between one Owner's Checks`. It also fails on the unmodified base
-  `246f449` (`99-public-fairness-baseline.log`); the sibling test `caps running
-  References per Check` is timing dependent (1 of 3 isolated reruns failed).
-  Standalone mode has no Quota port, so the settlement drain is inert there.
-- `pnpm test:quota` (apps/web, Playwright chromium with axe, DE text): 4/4
-  (`99-browser-quota-lazy.log`).
-- `apps/extension pnpm test:native-account`: 14 passed, 1 failed
-  (`99-ext-account-lazy.log`). The failure, `Account streams reconnect with
-  memory tokens…`, fails identically with the base `check-workspace.tsx`
-  (`99-ext-account-baseline-ui.log`). An earlier version of this ticket read the
-  balance on mount; that broke three of #98's specs (Guest token minted before
-  sign-in, Guest identity in web storage) and was replaced by the lazy read.
-- `apps/web pnpm test:e2e`: 73 passed, 8 failed
-  (`99-browser-web-e2e-merged.log`). The same 8 fail with the base
-  `check-workspace.tsx` (`99-browser-web-e2e-baseline-ui.log`): the structuring
-  summary and the Check status are both `role="status"` (strict-mode violation),
-  plus one 30 s lifecycle timeout. They come from integration, not from #99.
+### Integration merge (#99 into `spec/70-launch-integration`)
 
-Not re-run in this ticket: `apps/web test:guest` (observed failing in the
-non-accounts harness: `GET /v1/session` is a 404 there, so the sign-in gate
-shows "Sign-in is temporarily unavailable"; not compared with the base), the native extension specs and the
-website/pagefind build (needs the controlled Pagefind source; the
-`apps/website/dist-preview` artifact was copied from the root checkout for the
-website test only and is not committed).
+Merge `56f251f` (public #99 `0a1feb0`, no conflicts). The before-first-Start gap
+was closed test-first in the integration tree: the new `e2e-quota` cases (20/20
+for a new Guest before any start, a returning Guest's 18, an Account's 100/100
+without any Guest token, a pending Account session that reads nothing, a
+refused Guest and an unreachable service that both show "unavailable") were red
+against the lazy read (`99m-browser-quota-red.log`, 8 red) and green after the mount
+read (`99m-browser-quota-green-2.log`). The server case "a failed snapshot is
+reported as unavailable" passes in `99m-server-quota-1.log` (no separate red log
+was kept for it).
+
+Final serial sweep after the last source edit (`.tmp/spec-70-orchestration/99m-sweep.sh`,
+logs `99m-final-*.log`):
+
+| Suite | Result |
+|---|---|
+| `apps/server pnpm test:quota` | 8/8 |
+| `apps/server pnpm test:authority` | 33/33 |
+| Account contract (`account.vitest.config.ts`) | 2/2 |
+| `apps/server pnpm test` (standalone) | 580 passed, 1 failed (`article-fairness`, diagnosed and fixed below) |
+| `apps/web pnpm test:quota` | 9/9 |
+| `apps/web pnpm test:guest` | 5/5 |
+| `apps/web pnpm test:e2e` | 81/81 and bibliographic 22/22 |
+| `apps/extension pnpm test:native-account` | 15/15 |
+| `apps/extension pnpm test:native-guest` | 14/14 |
+| `apps/extension pnpm test:native` | 18/18 |
+| `apps/extension pnpm test:native-selection` | 14/14 |
+
+`eslint` (scripts and every package via turbo) and `prettier --check .` are
+clean (`99m-lint.log`). `pnpm typecheck` is clean, `prisma validate` passes, and
+a repeated contract build gives byte-identical output (`99mr-static.log`). The
+unqualified `release:check` still refuses with exit 78
+(`99mr-release-check.log`). Native Firefox was not run.
+
+**Fairness diagnosis.** `article-fairness > alternates between Owners…` failed
+in 4 of 5 isolated runs (`99mr-fairness-loop-1.log`). Logging the dispatch
+order with the Check IDs (`99mr-fairness-loop-2.log`) showed that Owner
+alternation always held, but owner-a's Checks started in ascending Check-ID
+order. The service runs on a frozen test clock, so the four Checks share
+one `created_at`, and the dispatch query's last tie-break (`c.id`, a random
+UUID) decided. That made the case a fixture fault, not a scheduler fault. The
+test now advances the clock by 1 ms after each creation, as real successive
+requests would. With that change the case passed 6/6 (`99mr-fairness-loop-3.log`).
+The sibling `caps running References per Check` had the same tie (`[61, 51]`,
+3 of 6) and got the same tick: 8/8 for both cases (`99mr-fairness-loop-4.log`).
+The assertions are unchanged. As a mutation check, removing the Owner key from
+the dispatch order turns the case red with Check-only round robin
+`11,21,31,12,…` (`99mr-fairness-mutation-red.log`). Production behaviour:
+Checks created within the same millisecond still tie on the random ID. Owner
+alternation does not depend on this.
+
+**Test adjustments caused by the mount read, and why they are not weaker.**
+
+- #98 extension Account specs (`e2e-account/panel.spec.ts`): the fake service
+  now answers the signed `/internal/quota/*` protocol (schema-validated
+  `extensionFixtureQuota`). "Nothing before sign-in" assertions are now taken
+  from a mark set after sign-in, because a signed-out panel is legitimately a
+  Guest that reads its Quota. The no-Guest-token-for-Accounts, single Account
+  token and no-other-storage assertions are unchanged.
+- Native Guest specs (`e2e-guest/guest.spec.ts`): the harness enables Accounts
+  (a launch service answers "no session" instead of `GET /v1/session` 404).
+  Token expiry is set before the panel opens, because the load-time read
+  already takes the token. The renewal case reads the moved
+  `/v2/structurings`. A revoked Guest or one without Check permission is now
+  refused at its first hosted request (structuring preview or the fail-closed
+  Quota read) instead of at `POST /v2/checks`. The assertion is "403 on the
+  first hosted request and no Check created", plus the unchanged alert,
+  same-Guest-ID and no-results checks. Issuance counts became "every issuance
+  is the same Guest ID and client", since the load-time read adds an attempt.
+- Web (`e2e/*`): the structuring summary is `role="status"` named "Recognized
+  References", and the Check status is named by its "Your Check" title.
+  Specs select the named status (`e2e/check-status.ts`). The lifecycle stub
+  follows structurings to `/v2`. A 320 px / 200 % reflow overflow in the
+  structuring field grid was fixed in the UI.
+- Web Guest (`e2e-guest`): the harness enables Accounts. The concurrent-tabs
+  case registers its listener before navigation.
+
+`GET /v2/quota` needs Check-creation permission, so a Guest without it cannot
+read the balance. That is fail-closed: the meter shows "unavailable".
+
+`apps/website/dist-preview` disappeared during the merge runs (cause unknown,
+untracked). It was copied untracked from the read-only #99 source worktree
+(`t3-431d8cca`, website sources identical) and is not committed.
 
 ## Limitations and caveats
 
@@ -136,10 +196,13 @@ website test only and is not committed).
   checkout exists yet, so the web host passes none. The warning and choice texts
   still name the upgrade (DE and EN), so the offer is textual until a checkout
   exists.
-- A visitor who has not started anything yet sees no meter (no passive read, see
-  Clients).
+- Reading the balance on mount means a first-time web visitor (resolved as
+  Guest) gets a persisted Guest ID and a Guest context on page load, before any
+  start. That is the Guest identity the Check would create anyway; its retention
+  falls under the existing data-protection/legal qualification gate.
 - The envelope Quota is a best-effort display; a failed snapshot shows
-  `not-implemented` rather than failing an already finished request.
+  `unavailable` rather than failing an already finished request. `GET
+  /v2/quota` fails closed with `503`.
 - Committed contract pins in the private repository are not moved to an
   unreachable SHA; see the handoff for the exact pin to use after the public
   push.

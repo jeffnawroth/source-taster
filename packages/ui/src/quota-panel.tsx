@@ -63,6 +63,23 @@ export function QuotaMeter({
   );
 }
 
+/** The meter's place while the balance is read or cannot be read. Never a number. */
+export function QuotaPending({ state }: { state: "loading" | "unavailable" }) {
+  return (
+    <section
+      aria-label={m.quota_meter_label()}
+      aria-busy={state === "loading"}
+      data-testid="quota-meter"
+      className="mb-6 rounded-xl border border-slate-300 bg-white p-4"
+    >
+      <p className="font-semibold">{m.quota_meter_label()}</p>
+      <p data-testid={`quota-${state}`}>
+        {state === "loading" ? m.quota_loading() : m.quota_unavailable()}
+      </p>
+    </section>
+  );
+}
+
 /** Before a start that does not fit: the first N in input order, or an upgrade. */
 export function QuotaChoice({
   required,
