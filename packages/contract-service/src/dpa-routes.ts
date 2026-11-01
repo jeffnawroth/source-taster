@@ -9,6 +9,7 @@ import {
   DpaConcludeRequest,
   DpaOperationResponse,
   DpaAgreement,
+  DpaObjectionRequest,
 } from "./dpa.ts";
 const problem = {
   description: "Denied, stale or unavailable",
@@ -30,6 +31,37 @@ export const dpaRoutes = (extension: boolean) => {
     503: problem,
   };
   return {
+    objection: createRoute({
+      method: "post",
+      path: `${prefix}/objections`,
+      summary:
+        "Keep a supplier objection open; never infer consent from silence",
+      request: {
+        body: {
+          required: true,
+          content: { "application/json": { schema: DpaObjectionRequest } },
+        },
+      },
+      responses: {
+        200: {
+          description: "Objection recorded",
+          content: {
+            "application/json": {
+              schema: z.object({
+                data: z.object({ recorded: z.literal(true) }),
+                quota: z.null(),
+              }),
+            },
+          },
+        },
+        400: problem,
+        401: problem,
+        403: problem,
+        404: problem,
+        409: problem,
+        503: problem,
+      },
+    }),
     challenge: createRoute({
       method: "post",
       path: `${prefix}/challenges`,

@@ -13,6 +13,52 @@
       }
     },
     "schemas": {
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "retryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
       "DpaOperationResponse": {
         "type": "object",
         "properties": {
@@ -340,52 +386,6 @@
           "expiresAt"
         ]
       },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "available": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "required": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "retryAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
-        ]
-      },
       "DpaStateResponse": {
         "type": "object",
         "properties": {
@@ -633,13 +633,81 @@
                   ],
                   "additionalProperties": false
                 }
+              },
+              "notices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "agreementId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "change": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4000
+                    },
+                    "intendedEffectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "objectionDeadline": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "objectionRoute": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "delivery": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "sent"
+                      ]
+                    },
+                    "objection": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "resolved": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "agreementId",
+                    "version",
+                    "change",
+                    "intendedEffectiveAt",
+                    "objectionDeadline",
+                    "objectionRoute",
+                    "delivery",
+                    "objection",
+                    "resolved"
+                  ],
+                  "additionalProperties": false
+                }
               }
             },
             "required": [
               "packet",
               "party",
               "partyRevision",
-              "agreements"
+              "agreements",
+              "notices"
             ],
             "additionalProperties": false
           },
@@ -1775,6 +1843,132 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/dpa/objections": {
+      "post": {
+        "summary": "Keep a supplier objection open; never infer consent from silence",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "noticeId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "noticeId",
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Objection recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "recorded": {
+                          "type": "boolean",
+                          "enum": [
+                            true
+                          ]
+                        }
+                      },
+                      "required": [
+                        "recorded"
+                      ]
+                    },
+                    "quota": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "quota"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/dpa/challenges": {
       "post": {
         "summary": "Freeze packet and party revision; email fresh session/action-bound proof",
@@ -2415,6 +2609,132 @@
             }
           },
           "403": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/extension/dpa/objections": {
+      "post": {
+        "summary": "Keep a supplier objection open; never infer consent from silence",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "noticeId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "noticeId",
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Objection recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "recorded": {
+                          "type": "boolean",
+                          "enum": [
+                            true
+                          ]
+                        }
+                      },
+                      "required": [
+                        "recorded"
+                      ]
+                    },
+                    "quota": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "quota"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Denied, stale or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
             "description": "Denied, stale or unavailable",
             "content": {
               "application/problem+json": {

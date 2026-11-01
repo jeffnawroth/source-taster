@@ -48,12 +48,30 @@ export const DpaAgreement = z.strictObject({
   businessUse: z.literal(true),
 });
 export type DpaAgreement = z.infer<typeof DpaAgreement>;
+export const DpaNotice = z.strictObject({
+  id: z.uuid(),
+  agreementId: z.uuid(),
+  version: z.string().min(1).max(80),
+  change: z.string().min(1).max(4000),
+  intendedEffectiveAt: z.iso.datetime(),
+  objectionDeadline: z.iso.datetime(),
+  objectionRoute: z.url(),
+  delivery: z.enum(["queued", "sent"]),
+  objection: z.string().nullable(),
+  resolved: z.boolean(),
+});
+export type DpaNotice = z.infer<typeof DpaNotice>;
+export const DpaObjectionRequest = z.strictObject({
+  noticeId: z.uuid(),
+  reason: z.string().trim().min(1).max(2000),
+});
 export const DpaStateResponse = envelope(
   z.strictObject({
     packet: DpaPacket.nullable(),
     party: DpaParty.nullable(),
     partyRevision: z.number().int().nonnegative(),
     agreements: z.array(DpaAgreement),
+    notices: z.array(DpaNotice),
   }),
 ).meta({ id: "DpaStateResponse" });
 /** Operation ID survives timeout/reconnect; the exact request is frozen at challenge time. */
